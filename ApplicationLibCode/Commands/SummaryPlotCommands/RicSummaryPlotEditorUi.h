@@ -98,14 +98,15 @@ private:
     void selectionEditorFieldChanged();
     void setInitialCurveVisibility( const RimSummaryPlot* targetPlot );
 
+    void onOkButtonClicked();
+    void onApplyButtonClicked();
+
 private:
     caf::PdmPtrField<RimSummaryPlot*> m_targetPlot;
 
     std::unique_ptr<RimSummaryPlot> m_previewPlot;
 
-    caf::PdmField<bool> m_okButtonField;
-    caf::PdmField<bool> m_applyButtonField;
-    caf::PdmField<bool> m_closeButtonField;
+    bool m_closeButtonPressed;
 
     std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator> m_summaryCurveSelectionEditor;
 

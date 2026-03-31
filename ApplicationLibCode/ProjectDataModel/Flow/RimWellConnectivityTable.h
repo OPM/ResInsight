@@ -184,7 +184,6 @@ private:
     caf::PdmField<caf::AppEnum<TimeStepRangeFilterMode>> m_timeStepFilterMode;
     caf::PdmField<int>                                   m_timeStepCount;
     caf::PdmField<std::vector<QDateTime>>                m_excludeTimeSteps;
-    caf::PdmField<bool>                                  m_applyTimeStepSelections;
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 
@@ -192,7 +191,6 @@ private:
     caf::PdmField<std::vector<QString>> m_selectedProducerTracersUiField;
     caf::PdmField<bool>                 m_syncSelectedProducersFromInjectorSelection;
     caf::PdmField<bool>                 m_syncSelectedInjectorsFromProducerSelection;
-    caf::PdmField<bool>                 m_applySelectedInectorProducerTracers;
 
     caf::PdmField<RimRegularLegendConfig::MappingEnum> m_mappingType;
     caf::PdmField<caf::AppEnum<RangeType>>             m_rangeType;

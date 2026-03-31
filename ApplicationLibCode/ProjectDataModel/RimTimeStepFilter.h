@@ -89,6 +89,8 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
+    void onReloadCaseButtonClicked();
+
 private:
     caf::PdmField<caf::AppEnum<TimeStepFilterTypeEnum>> m_filterType;
 
@@ -97,7 +99,6 @@ private:
     caf::PdmField<int>                  m_firstTimeStep;
     caf::PdmField<int>                  m_lastTimeStep;
     caf::PdmField<int>                  m_interval;
-    caf::PdmField<bool>                 m_applyReloadOfCase;
     caf::PdmField<QString>              m_dateFormat;
     caf::PdmField<std::vector<QString>> m_timeStepNamesFromFile;
     caf::PdmField<bool>                 m_readOnlyLastFrame;

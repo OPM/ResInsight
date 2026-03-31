@@ -31,9 +31,9 @@
 #include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
 
+#include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 
 #include <QDateTime>
 
@@ -87,9 +87,6 @@ RimTimeStepFilter::RimTimeStepFilter()
 
     CAF_PDM_InitField( &m_readOnlyLastFrame, "OnlyLastFrame", false, "Load Only Last Frame Of Each Time Step" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_readOnlyLastFrame );
-
-    CAF_PDM_InitFieldNoDefault( &m_applyReloadOfCase, "ApplyReloadOfCase", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_applyReloadOfCase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -283,22 +280,6 @@ void RimTimeStepFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 {
     RimEclipseResultCase* rimEclipseResultCase = parentEclipseResultCase();
     RimGeoMechCase*       rimGeoMechCase       = parentGeoMechCase();
-    if ( changedField == &m_applyReloadOfCase )
-    {
-        updateFilteredTimeStepsFromUi();
-
-        if ( rimEclipseResultCase )
-        {
-            RimReloadCaseTools::reloadEclipseGrid( rimEclipseResultCase );
-        }
-        else if ( rimGeoMechCase )
-        {
-            rimGeoMechCase->reloadDataAndUpdate();
-        }
-
-        return;
-    }
-
     if ( changedField == &m_filterType || changedField == &m_firstTimeStep || changedField == &m_lastTimeStep || changedField == &m_interval )
     {
         m_filteredTimeStepsUi = filteredTimeStepIndicesFromUi();
@@ -349,15 +330,7 @@ QList<caf::PdmOptionItemInfo> RimTimeStepFilter::calculateValueOptions( const ca
 //--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_applyReloadOfCase )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Reload Case";
-        }
-    }
-    else if ( field == &m_interval )
+    if ( field == &m_interval )
     {
         caf::PdmUiLineEditorAttribute* attrib = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
         if ( attrib )
@@ -457,7 +430,7 @@ void RimTimeStepFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 
     if ( caseLoaded )
     {
-        uiOrdering.add( &m_applyReloadOfCase );
+        uiOrdering.addNewButton( "Reload Case", [this]() { onReloadCaseButtonClicked(); } );
     }
 
     updateFieldVisibility();
@@ -537,5 +510,25 @@ void RimTimeStepFilter::timeStepOptions( QList<caf::PdmOptionItemInfo>&         
             options.push_back(
                 caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString ), dateTime ) );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTimeStepFilter::onReloadCaseButtonClicked()
+{
+    updateFilteredTimeStepsFromUi();
+
+    auto rimEclipseResultCase = parentEclipseResultCase();
+    auto rimGeoMechCase       = parentGeoMechCase();
+
+    if ( rimEclipseResultCase )
+    {
+        RimReloadCaseTools::reloadEclipseGrid( rimEclipseResultCase );
+    }
+    else if ( rimGeoMechCase )
+    {
+        rimGeoMechCase->reloadDataAndUpdate();
     }
 }

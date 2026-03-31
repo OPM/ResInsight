@@ -34,8 +34,8 @@
 
 #include "RiuSummaryVectorSelectionDialog.h"
 
+#include "cafPdmUiButton.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryAddressSelector, "RimSummaryAddressSelector" );
 
@@ -65,10 +65,6 @@ RimSummaryAddressSelector::RimSummaryAddressSelector()
 
     CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address" );
     m_summaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonSelectSummaryAddress, "SelectAddress", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonSelectSummaryAddress );
-    m_pushButtonSelectSummaryAddress = false;
 
     CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "PlotAxisProperties", "Axis" );
 
@@ -194,37 +190,7 @@ RimPlotAxisPropertiesInterface* RimSummaryAddressSelector::plotAxisProperties() 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryAddressSelector::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_pushButtonSelectSummaryAddress )
-    {
-        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
-
-        if ( isEnsemble() )
-        {
-            dlg.hideSummaryCases();
-            dlg.setEnsembleAndAddress( m_summaryCaseCollection(), m_summaryAddress->address() );
-        }
-        else
-        {
-            dlg.hideEnsembles();
-            dlg.setCaseAndAddress( m_summaryCase(), m_summaryAddress->address() );
-        }
-
-        if ( dlg.exec() == QDialog::Accepted )
-        {
-            auto curveSelection = dlg.curveSelection();
-            if ( !curveSelection.empty() )
-            {
-                m_summaryCase           = curveSelection[0].summaryCaseY();
-                m_summaryCaseCollection = curveSelection[0].ensemble();
-                auto addr               = curveSelection[0].summaryAddressY();
-                m_summaryAddress->setAddress( addr );
-                m_summaryAddressUiField = addr;
-            }
-        }
-
-        m_pushButtonSelectSummaryAddress = false;
-    }
-    else if ( changedField == &m_summaryAddressUiField )
+    if ( changedField == &m_summaryAddressUiField )
     {
         m_summaryAddress->setAddress( m_summaryAddressUiField() );
     }
@@ -361,7 +327,9 @@ void RimSummaryAddressSelector::defineUiOrdering( QString uiConfigName, caf::Pdm
     m_summaryAddressUiField = m_summaryAddress->address();
 
     uiOrdering.add( &m_summaryAddressUiField, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-    uiOrdering.add( &m_pushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
+    uiOrdering.addNewButton( "...",
+                             [this]() { onSummaryAddressButtonClicked(); },
+                             { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 
     if ( m_showResampling )
     {
@@ -381,14 +349,6 @@ void RimSummaryAddressSelector::defineUiOrdering( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimSummaryAddressSelector::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( &m_pushButtonSelectSummaryAddress == field )
-    {
-        auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "...";
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -397,4 +357,38 @@ void RimSummaryAddressSelector::defineEditorAttribute( const caf::PdmFieldHandle
 bool RimSummaryAddressSelector::isEnsemble() const
 {
     return m_summaryCaseCollection() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressSelector::onSummaryAddressButtonClicked()
+{
+    RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
+
+    if ( isEnsemble() )
+    {
+        dlg.hideSummaryCases();
+        dlg.setEnsembleAndAddress( m_summaryCaseCollection(), m_summaryAddress->address() );
+    }
+    else
+    {
+        dlg.hideEnsembles();
+        dlg.setCaseAndAddress( m_summaryCase(), m_summaryAddress->address() );
+    }
+
+    if ( dlg.exec() == QDialog::Accepted )
+    {
+        auto curveSelection = dlg.curveSelection();
+        if ( !curveSelection.empty() )
+        {
+            m_summaryCase           = curveSelection[0].summaryCaseY();
+            m_summaryCaseCollection = curveSelection[0].ensemble();
+            auto addr               = curveSelection[0].summaryAddressY();
+            m_summaryAddress->setAddress( addr );
+            m_summaryAddressUiField = addr;
+        }
+    }
+
+    addressChanged.send();
 }

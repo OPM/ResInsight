@@ -74,6 +74,8 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
+    void onSwapEnsemblesButtonClicked();
+
     void                              setAllCasesNotInUse();
     void                              deleteCasesNoInUse();
     RimDeltaSummaryCase*              firstCaseNotInUse();
@@ -93,7 +95,6 @@ private:
     caf::PdmPtrField<RimSummaryEnsemble*>               m_ensemble1;
     caf::PdmPtrField<RimSummaryEnsemble*>               m_ensemble2;
     caf::PdmField<caf::AppEnum<DerivedSummaryOperator>> m_operator;
-    caf::PdmField<bool>                                 m_swapEnsemblesButton;
     caf::PdmField<QString>                              m_caseCount;
     caf::PdmField<bool>                                 m_matchOnParameters;
     caf::PdmField<bool>                                 m_discardMissingOrIncompleteRealizations;

@@ -130,6 +130,7 @@ private:
     void connectAllCaseSignals();
     void connectCurveFilterSignals();
     void onFilterSourceChanged( const caf::SignalEmitter* emitter );
+    void onSelectVariablesButtonClicked();
 
     RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser() const;
 
@@ -140,7 +141,6 @@ protected:
     bool m_selectMultipleVectors;
 
     caf::PdmField<QString>            m_selectedVarsUiField;
-    caf::PdmField<bool>               m_pushButtonSelectSummaryAddress;
     caf::PdmField<TimeStepFilterEnum> m_timeStepFilter;
     caf::PdmField<QDateTime>          m_timeStep;
 

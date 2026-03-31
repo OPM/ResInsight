@@ -33,8 +33,8 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiColorEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
 CAF_PDM_SOURCE_INIT( RimPolygon, "Polygon", "RimPolygon" );
@@ -50,9 +50,6 @@ RimPolygon::RimPolygon()
 
     CAF_PDM_InitField( &m_isReadOnly, "IsReadOnly", false, "Read Only" );
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_pointsInDomainCoords, "PointsInDomainCoords", "Coordinates", "Points" );
-
-    CAF_PDM_InitField( &m_editPolygonButton, "EditPolygonButton", false, "Edit" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_editPolygonButton );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_appearance, "Appearance", "Appearance" );
     m_appearance = new RimPolygonAppearance;
@@ -177,7 +174,12 @@ void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiO
 {
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_isReadOnly );
-    uiOrdering.add( &m_editPolygonButton );
+    uiOrdering.addNewButton( m_isReadOnly() ? "Select in Active View" : "Edit in Active View",
+                             [this]()
+                             {
+                                 auto activeView = RiaApplication::instance()->activeReservoirView();
+                                 RimPolygonTools::activate3dEditOfPolygonInView( this, activeView );
+                             } );
 
     auto groupPoints = uiOrdering.addNewGroup( "Points" );
     groupPoints->setCollapsedByDefault();
@@ -199,14 +201,6 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
         coordinatesChanged.send();
     }
 
-    if ( changedField == &m_editPolygonButton )
-    {
-        auto activeView = RiaApplication::instance()->activeReservoirView();
-        RimPolygonTools::activate3dEditOfPolygonInView( this, activeView );
-
-        m_editPolygonButton = false;
-        return;
-    }
     objectChanged.send();
 }
 
@@ -216,27 +210,6 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
 void RimPolygon::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
     objectChanged.send();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolygon::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_editPolygonButton )
-    {
-        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
-        {
-            if ( m_isReadOnly() )
-            {
-                attrib->m_buttonText = "Select in Active View";
-            }
-            else
-            {
-                attrib->m_buttonText = "Edit in Active View";
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

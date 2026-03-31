@@ -237,6 +237,9 @@ private:
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
     void onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
 
+    void onYValuesSummaryAddressButtonClicked();
+    void onObjectiveValuesSummaryAddressesButtonClicked();
+
     void computeRealizationColor();
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );
 
@@ -260,7 +263,6 @@ private:
     caf::PdmPtrField<RimSummaryEnsemble*>         m_yValuesSummaryEnsemble;
     caf::PdmChildField<RimSummaryAddress*>        m_yValuesSummaryAddress;
     caf::PdmField<RifEclipseSummaryAddress>       m_yValuesSummaryAddressUiField;
-    caf::PdmField<bool>                           m_yPushButtonSelectSummaryAddress;
     caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
 
     caf::PdmField<caf::AppEnum<RiaDefines::HorizontalAxisType>> m_xAxisType;
@@ -285,7 +287,6 @@ private:
 
     caf::PdmChildArrayField<RimSummaryAddress*>   m_objectiveValuesSummaryAddresses;
     caf::PdmField<QString>                        m_objectiveValuesSummaryAddressesUiField;
-    caf::PdmField<bool>                           m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmPtrField<RimCustomObjectiveFunction*> m_customObjectiveFunction;
     caf::PdmField<int>                            m_minTimeSliderPosition;
     caf::PdmField<int>                            m_maxTimeSliderPosition;

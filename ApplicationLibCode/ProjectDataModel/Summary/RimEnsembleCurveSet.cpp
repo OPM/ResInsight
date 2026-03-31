@@ -68,12 +68,12 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiColorEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -135,10 +135,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_yValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
-    CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_yPushButtonSelectSummaryAddress );
-    m_yPushButtonSelectSummaryAddress = false;
-
     CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling" );
 
     // X Axis
@@ -184,10 +180,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address" );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton, "SelectObjectiveSummaryAddress", "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_objectiveValuesSelectSummaryAddressPushButton );
-    m_objectiveValuesSelectSummaryAddressPushButton = false;
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Objective Function" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -1053,77 +1045,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         updateTextInPlot = true;
     }
-    else if ( changedField == &m_yPushButtonSelectSummaryAddress )
-    {
-        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
-        RimSummaryEnsemble*             candidateEnsemble = m_yValuesSummaryEnsemble();
-        RifEclipseSummaryAddress        candicateAddress  = m_yValuesSummaryAddress->address();
-
-        dlg.hideSummaryCases();
-        dlg.setEnsembleAndAddress( candidateEnsemble, candicateAddress );
-
-        if ( dlg.exec() == QDialog::Accepted )
-        {
-            auto curveSelection = dlg.curveSelection();
-            if ( !curveSelection.empty() )
-            {
-                m_yValuesSummaryEnsemble = curveSelection[0].ensemble();
-                m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
-
-                loadDataAndUpdate( true );
-
-                plot->updateAxes();
-
-                if ( auto multiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>() )
-                {
-                    multiPlot->updatePlotTitles();
-                }
-                else
-                {
-                    plot->updatePlotTitle();
-                }
-
-                plot->updateConnectedEditors();
-
-                RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-                mainPlotWindow->updateMultiPlotToolBar();
-            }
-        }
-
-        m_yPushButtonSelectSummaryAddress = false;
-    }
-    else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
-    {
-        RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
-        RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
-        RimSummaryEnsemble* candidateEnsemble = m_yValuesSummaryEnsemble();
-
-        std::vector<RifEclipseSummaryAddress> candidateAddresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
-        {
-            candidateAddresses.push_back( address->address() );
-        }
-
-        dlg.setEnsembleAndAddresses( candidateEnsemble, candidateAddresses );
-
-        if ( dlg.exec() == QDialog::Accepted )
-        {
-            auto curveSelection = dlg.curveSelection();
-            if ( !curveSelection.empty() )
-            {
-                m_objectiveValuesSummaryAddresses.deleteChildren();
-                for ( auto address : curveSelection )
-                {
-                    RimSummaryAddress* summaryAddress = new RimSummaryAddress();
-                    summaryAddress->setAddress( address.summaryAddressY() );
-                    m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
-                }
-                loadDataAndUpdate( true );
-            }
-        }
-
-        m_objectiveValuesSelectSummaryAddressPushButton = false;
-    }
     else if ( changedField == &m_customObjectiveFunction )
     {
         if ( m_customObjectiveFunction() )
@@ -1226,7 +1147,9 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
         curveDataGroup->add( &m_yValuesSummaryEnsemble );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
+        curveDataGroup->addNewButton( "...",
+                                      [this]() { onYValuesSummaryAddressButtonClicked(); },
+                                      { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 
         if ( !isXAxisSummaryVector() )
         {
@@ -1432,8 +1355,9 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
         if ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION )
         {
             colorsGroup->add( &m_objectiveValuesSummaryAddressesUiField );
-            colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton,
-                              { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
+            colorsGroup->addNewButton( "...",
+                                       [this]() { onObjectiveValuesSummaryAddressesButtonClicked(); },
+                                       { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 
             {
                 auto equationGroup = colorsGroup->addNewGroup( "Equation" );
@@ -1521,11 +1445,6 @@ caf::PdmFieldHandle* RimEnsembleCurveSet::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( auto* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
-    {
-        attrib->m_buttonText = "...";
-    }
-
     if ( field == &m_minTimeSliderPosition || field == &m_maxTimeSliderPosition )
     {
         if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
@@ -2917,5 +2836,83 @@ void RimEnsembleCurveSet::recreatePlotCurveForLegend( RimSummaryPlot* plot )
                                                  RiaColorTools::toQColor( m_mainEnsembleColor() ) );
         m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
         updateEnsembleLegendItem();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::onYValuesSummaryAddressButtonClicked()
+{
+    RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
+    RimSummaryEnsemble*             candidateEnsemble = m_yValuesSummaryEnsemble();
+    RifEclipseSummaryAddress        candicateAddress  = m_yValuesSummaryAddress->address();
+
+    dlg.hideSummaryCases();
+    dlg.setEnsembleAndAddress( candidateEnsemble, candicateAddress );
+
+    if ( dlg.exec() == QDialog::Accepted )
+    {
+        auto curveSelection = dlg.curveSelection();
+        if ( !curveSelection.empty() )
+        {
+            m_yValuesSummaryEnsemble = curveSelection[0].ensemble();
+            m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
+
+            loadDataAndUpdate( true );
+
+            if ( auto plot = firstAncestorOrThisOfType<RimSummaryPlot>() )
+            {
+                plot->updateAxes();
+
+                if ( auto multiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>() )
+                {
+                    multiPlot->updatePlotTitles();
+                }
+                else
+                {
+                    plot->updatePlotTitle();
+                }
+
+                plot->updateConnectedEditors();
+            }
+
+            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateMultiPlotToolBar();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::onObjectiveValuesSummaryAddressesButtonClicked()
+{
+    RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
+    RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
+    RimSummaryEnsemble* candidateEnsemble = m_yValuesSummaryEnsemble();
+
+    std::vector<RifEclipseSummaryAddress> candidateAddresses;
+    for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
+    {
+        candidateAddresses.push_back( address->address() );
+    }
+
+    dlg.setEnsembleAndAddresses( candidateEnsemble, candidateAddresses );
+
+    if ( dlg.exec() == QDialog::Accepted )
+    {
+        auto curveSelection = dlg.curveSelection();
+        if ( !curveSelection.empty() )
+        {
+            m_objectiveValuesSummaryAddresses.deleteChildren();
+            for ( auto address : curveSelection )
+            {
+                RimSummaryAddress* summaryAddress = new RimSummaryAddress();
+                summaryAddress->setAddress( address.summaryAddressY() );
+                m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
+            }
+            loadDataAndUpdate( true );
+        }
     }
 }
