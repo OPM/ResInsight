@@ -18,11 +18,11 @@
 
 #pragma once
 
+#include "RimCheckableObject.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 
 class QString;
 class RimTextAnnotation;
@@ -33,7 +33,7 @@ class Rim3dView;
 ///
 ///
 //==================================================================================================
-class RimAnnotationCollectionBase : public caf::PdmObject
+class RimAnnotationCollectionBase : public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -56,9 +56,7 @@ public:
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    caf::PdmFieldHandle* objectToggleField() override;
 
 protected:
-    caf::PdmField<bool>                               m_isActive;
     caf::PdmChildField<RimAnnotationGroupCollection*> m_textAnnotations;
 };

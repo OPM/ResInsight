@@ -24,6 +24,7 @@
 
 #include "Rim3dView.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimAnnotationLineAppearance.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimReachCircleAnnotationInView.h"
 

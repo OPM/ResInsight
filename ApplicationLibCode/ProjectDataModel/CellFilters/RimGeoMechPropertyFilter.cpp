@@ -124,8 +124,8 @@ double RimGeoMechPropertyFilter::upperBound() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( &m_lowerBound == changedField || &m_upperBound == changedField || &m_isActive == changedField || &m_filterMode == changedField ||
-         &m_selectedCategoryValues == changedField || &m_linkedWithCellResult == changedField )
+    if ( &m_lowerBound == changedField || &m_upperBound == changedField || objectToggleField() == changedField ||
+         &m_filterMode == changedField || &m_selectedCategoryValues == changedField || &m_linkedWithCellResult == changedField )
     {
         updateIconState();
         updateFilterName();
@@ -173,7 +173,7 @@ void RimGeoMechPropertyFilter::setToDefaultValues()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_name );
+    uiOrdering.add( nameField() );
     uiOrdering.add( &m_linkedWithCellResult );
     if ( m_linkedWithCellResult() )
     {
@@ -258,7 +258,7 @@ bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::updateActiveState()
 {
-    m_isActive.uiCapability()->setUiReadOnly( isPropertyFilterControlled() );
+    m_isChecked.uiCapability()->setUiReadOnly( isPropertyFilterControlled() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -364,7 +364,7 @@ void RimGeoMechPropertyFilter::updateFilterName()
                         QString::number( m_upperBound ) + ")";
     }
 
-    m_name = newFiltername;
+    setName( newFiltername );
 
     uiCapability()->updateConnectedEditors();
 }

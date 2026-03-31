@@ -30,10 +30,11 @@ RimReachCircleAnnotationInView::RimReachCircleAnnotationInView()
 {
     CAF_PDM_InitObject( "ReachCircleAnnotationInView", ":/ReachCircle16x16.png" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
+    m_isChecked.registerKeywordAlias( "IsActive" );
+    m_isChecked.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_sourceAnnotation, "SourceAnnotation", "Source Annotation" );
 
-    m_isActive.uiCapability()->setUiHidden( true );
     m_sourceAnnotation.uiCapability()->setUiHidden( true );
     m_sourceAnnotation = nullptr;
 }
@@ -46,7 +47,7 @@ RimReachCircleAnnotationInView::RimReachCircleAnnotationInView( RimReachCircleAn
 {
     CVF_ASSERT( sourceAnnotation );
 
-    m_isActive         = sourceAnnotation->isActive();
+    setCheckState( sourceAnnotation->isActive() );
     m_sourceAnnotation = sourceAnnotation;
 }
 
@@ -55,7 +56,7 @@ RimReachCircleAnnotationInView::RimReachCircleAnnotationInView( RimReachCircleAn
 //--------------------------------------------------------------------------------------------------
 bool RimReachCircleAnnotationInView::isActive() const
 {
-    return m_isActive();
+    return isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,7 +94,7 @@ bool RimReachCircleAnnotationInView::isVisible() const
             if ( globalColl ) visible = globalColl->isVisible();
         }
     }
-    if ( visible ) visible = m_isActive;
+    if ( visible ) visible = isChecked();
     return visible;
 }
 
@@ -102,20 +103,12 @@ bool RimReachCircleAnnotationInView::isVisible() const
 //--------------------------------------------------------------------------------------------------
 void RimReachCircleAnnotationInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_isActive )
+    if ( changedField == objectToggleField() )
     {
         auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
 
         if ( coll ) coll->scheduleRedrawOfRelevantViews();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimReachCircleAnnotationInView::objectToggleField()
-{
-    return &m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------

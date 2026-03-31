@@ -149,7 +149,7 @@ void RimCellRangeFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         return;
     }
 
-    if ( changedField != &m_name )
+    if ( changedField != nameField() )
     {
         computeAndSetValidValues();
         filterChanged.send();

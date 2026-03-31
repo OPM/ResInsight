@@ -40,8 +40,11 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
 {
     CAF_PDM_InitObject( "CircleAnnotation", ":/ReachCircle16x16.png" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
-    m_isActive.uiCapability()->setUiHidden( true );
+    m_isChecked.registerKeywordAlias( "IsActive" );
+    m_isChecked.uiCapability()->setUiHidden( true );
+
+    nameField()->registerKeywordAlias( "Name" );
+    setName( "Circle Annotation" );
 
     CAF_PDM_InitField( &m_centerPointXyd, "CenterPointXyd", Vec3d::ZERO, "Center Point" );
     m_centerPointXyd.uiCapability()->setUiEditorTypeName( caf::PdmUiPickableLineEditor::uiEditorTypeName() );
@@ -49,7 +52,6 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_centerPointPickEnabled );
 
     CAF_PDM_InitField( &m_radius, "Radius", 100.0, "Radius" );
-    CAF_PDM_InitField( &m_name, "Name", QString( "Circle Annotation" ), "Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_appearance, "Appearance", "Appearance" );
 
@@ -66,7 +68,7 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
 //--------------------------------------------------------------------------------------------------
 bool RimReachCircleAnnotation::isActive()
 {
-    return m_isActive();
+    return isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +78,7 @@ bool RimReachCircleAnnotation::isVisible()
 {
     auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
 
-    return coll && coll->isActive() && m_isActive;
+    return coll && coll->isActive() && isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,14 +110,6 @@ double RimReachCircleAnnotation::radius() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimReachCircleAnnotation::name() const
-{
-    return m_name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimReachCircleLineAppearance* RimReachCircleAnnotation::appearance() const
 {
     return m_appearance;
@@ -126,7 +120,7 @@ RimReachCircleLineAppearance* RimReachCircleAnnotation::appearance() const
 //--------------------------------------------------------------------------------------------------
 void RimReachCircleAnnotation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_name );
+    uiOrdering.add( nameField() );
     uiOrdering.add( &m_centerPointXyd );
     uiOrdering.appendToRow( &m_centerPointPickEnabled );
     uiOrdering.add( &m_radius );
@@ -154,22 +148,6 @@ void RimReachCircleAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* chan
     auto annColl = firstAncestorOrThisOfTypeAsserted<RimAnnotationCollection>();
 
     annColl->scheduleRedrawOfRelevantViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimReachCircleAnnotation::userDescriptionField()
-{
-    return &m_name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimReachCircleAnnotation::objectToggleField()
-{
-    return &m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------

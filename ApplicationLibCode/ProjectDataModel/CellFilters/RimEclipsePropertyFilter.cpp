@@ -182,9 +182,9 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
         if ( m_upperBound < m_lowerBound ) m_lowerBound = m_upperBound;
     }
 
-    if ( &m_lowerBound == changedField || &m_upperBound == changedField || &m_isActive == changedField || &m_filterMode == changedField ||
-         &m_selectedCategoryValues == changedField || &m_useCategorySelection == changedField || &m_integerUpperBound == changedField ||
-         &m_integerLowerBound == changedField || &m_linkedWithCellResult == changedField )
+    if ( &m_lowerBound == changedField || &m_upperBound == changedField || objectToggleField() == changedField ||
+         &m_filterMode == changedField || &m_selectedCategoryValues == changedField || &m_useCategorySelection == changedField ||
+         &m_integerUpperBound == changedField || &m_integerLowerBound == changedField || &m_linkedWithCellResult == changedField )
     {
         m_isDuplicatedFromLinkedView = false;
 
@@ -228,7 +228,7 @@ void RimEclipsePropertyFilter::setToDefaultValues()
 void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     // Fields declared in RimCellFilter
-    uiOrdering.add( &m_name );
+    uiOrdering.add( nameField() );
 
     uiOrdering.add( &m_linkedWithCellResult );
 
@@ -391,7 +391,7 @@ void RimEclipsePropertyFilter::setCategoriesFromTracerNames( const std::vector<Q
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateActiveState()
 {
-    m_isActive.uiCapability()->setUiReadOnly( isPropertyFilterControlled() );
+    m_isChecked.uiCapability()->setUiReadOnly( isPropertyFilterControlled() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -640,7 +640,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
     m_upperBound.uiCapability()->updateConnectedEditors();
 
     updateFilterName();
-    m_name.uiCapability()->updateConnectedEditors();
+    nameField()->uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -684,7 +684,7 @@ void RimEclipsePropertyFilter::updateFilterName()
         newFiltername += " (" + QString::number( m_lowerBound ) + " .. " + QString::number( m_upperBound ) + ")";
     }
 
-    m_name = newFiltername;
+    setName( newFiltername );
 }
 
 //--------------------------------------------------------------------------------------------------

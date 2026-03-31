@@ -38,8 +38,8 @@ RimAnnotationCollectionBase::RimAnnotationCollectionBase()
 {
     CAF_PDM_InitObject( "Annotations", ":/WellCollection.png" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
-    m_isActive.uiCapability()->setUiHidden( true );
+    m_isChecked.registerKeywordAlias( "IsActive" );
+    m_isChecked.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_textAnnotations, "TextAnnotations", "Text Annotations" );
 
@@ -60,7 +60,7 @@ RimAnnotationCollectionBase::~RimAnnotationCollectionBase()
 //--------------------------------------------------------------------------------------------------
 bool RimAnnotationCollectionBase::isActive() const
 {
-    return m_isActive();
+    return isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,17 +140,9 @@ std::vector<Rim3dView*> RimAnnotationCollectionBase::viewsContainingAnnotations(
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationCollectionBase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_isActive )
+    if ( changedField == objectToggleField() )
     {
         updateUiIconFromToggleField();
         scheduleRedrawOfRelevantViews();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimAnnotationCollectionBase::objectToggleField()
-{
-    return &m_isActive;
 }
