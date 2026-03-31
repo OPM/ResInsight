@@ -20,8 +20,8 @@
 
 #include "RimCheckableObject.h"
 
-#include "cafPdmChildField.h"
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 
 class QString;

@@ -124,8 +124,8 @@ double RimGeoMechPropertyFilter::upperBound() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( &m_lowerBound == changedField || &m_upperBound == changedField || objectToggleField() == changedField || &m_filterMode == changedField ||
-         &m_selectedCategoryValues == changedField || &m_linkedWithCellResult == changedField )
+    if ( &m_lowerBound == changedField || &m_upperBound == changedField || objectToggleField() == changedField ||
+         &m_filterMode == changedField || &m_selectedCategoryValues == changedField || &m_linkedWithCellResult == changedField )
     {
         updateIconState();
         updateFilterName();

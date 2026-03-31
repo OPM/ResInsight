@@ -182,9 +182,9 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
         if ( m_upperBound < m_lowerBound ) m_lowerBound = m_upperBound;
     }
 
-    if ( &m_lowerBound == changedField || &m_upperBound == changedField || objectToggleField() == changedField || &m_filterMode == changedField ||
-         &m_selectedCategoryValues == changedField || &m_useCategorySelection == changedField || &m_integerUpperBound == changedField ||
-         &m_integerLowerBound == changedField || &m_linkedWithCellResult == changedField )
+    if ( &m_lowerBound == changedField || &m_upperBound == changedField || objectToggleField() == changedField ||
+         &m_filterMode == changedField || &m_selectedCategoryValues == changedField || &m_useCategorySelection == changedField ||
+         &m_integerUpperBound == changedField || &m_integerLowerBound == changedField || &m_linkedWithCellResult == changedField )
     {
         m_isDuplicatedFromLinkedView = false;
 
