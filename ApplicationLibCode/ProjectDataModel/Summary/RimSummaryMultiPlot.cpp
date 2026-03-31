@@ -61,11 +61,11 @@
 #include "RiuSummaryMultiPlotBook.h"
 #include "RiuSummaryVectorSelectionUi.h"
 
+#include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiNumberFormat.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafSelectionManager.h"
@@ -120,27 +120,21 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     CAF_PDM_InitField( &m_autoSubPlotTitle, "AutoSubPlotTitle", true, "Auto Sub Plot Title" );
 
     CAF_PDM_InitField( &m_createPlotDuplicate, "DuplicatePlot", false, "", "", "Duplicate Plot" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_createPlotDuplicate );
     m_createPlotDuplicate.uiCapability()->setUiIconFromResourceString( ":/Copy.svg" );
 
     CAF_PDM_InitField( &m_disableWheelZoom, "DisableWheelZoom", true, "", "", "Disable Mouse Wheel Zooming in Multi Summary Plot" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_disableWheelZoom );
     m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
 
     CAF_PDM_InitField( &m_appendNextPlot, "AppendNextPlot", false, "", "", "Step Next and Add to New Plot" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_appendNextPlot );
     m_appendNextPlot.uiCapability()->setUiIconFromResourceString( ":/AppendNext.png" );
 
     CAF_PDM_InitField( &m_appendPrevPlot, "AppendPrevPlot", false, "", "", "Step Previous and Add to New Plot" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_appendPrevPlot );
     m_appendPrevPlot.uiCapability()->setUiIconFromResourceString( ":/AppendPrev.png" );
 
     CAF_PDM_InitField( &m_appendNextCurve, "AppendNextCurve", false, "", "", "Step Next and Add Curve to Plot" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_appendNextCurve );
     m_appendNextCurve.uiCapability()->setUiIconFromResourceString( ":/AppendNextCurve.png" );
 
     CAF_PDM_InitField( &m_appendPrevCurve, "AppendPrevCurve", false, "", "", "Step Previous and Add Curve to Plot" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_appendPrevCurve );
     m_appendPrevCurve.uiCapability()->setUiIconFromResourceString( ":/AppendPrevCurve.png" );
 
     CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", false, "Link Y Axes" );
@@ -161,9 +155,6 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_goToCommonSettings.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Y Axis Range" );
-
-    CAF_PDM_InitField( &m_hidePlotsWithValuesBelow, "HidePlotsWithValuesBelow", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_hidePlotsWithValuesBelow );
 
     CAF_PDM_InitField( &m_plotFilterYAxisThreshold, "PlotFilterYAxisThreshold", 0.0, "Y-Axis Filter Threshold" );
 
@@ -413,7 +404,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     auto plotVisibilityFilterGroup = uiOrdering.addNewGroup( "Plot Visibility Filter" );
     plotVisibilityFilterGroup->add( &m_plotFilterYAxisThreshold );
-    plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow, { .newRow = false } );
+    plotVisibilityFilterGroup->addNewButton( "Apply Filter", [this]() { updatePlotVisibility(); }, { .newRow = false } );
 
     auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
     dataSourceGroup->setCollapsedByDefault();
@@ -483,11 +474,6 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         analyzePlotsAndAdjustAppearanceSettings();
         zoomAll();
     }
-    else if ( changedField == &m_hidePlotsWithValuesBelow )
-    {
-        m_hidePlotsWithValuesBelow = false;
-        updatePlotVisibility();
-    }
     else if ( changedField == &m_createPlotDuplicate )
     {
         m_createPlotDuplicate = false;
@@ -552,14 +538,7 @@ void RimSummaryMultiPlot::childFieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( &m_hidePlotsWithValuesBelow == field )
-    {
-        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
-        {
-            attrib->m_buttonText = "Apply Filter";
-        }
-    }
-    else if ( field == &m_goToCommonSettings )
+    if ( field == &m_goToCommonSettings )
     {
         if ( auto labelEditorAttribute = dynamic_cast<caf::PdmUiLabelEditorAttribute*>( attribute ) )
         {
@@ -1256,6 +1235,7 @@ void RimSummaryMultiPlot::updatePlotVisibility()
     }
 
     updateLayout();
+    updateConnectedEditors();
 
     if ( !m_viewer.isNull() ) m_viewer->scheduleUpdate();
 }

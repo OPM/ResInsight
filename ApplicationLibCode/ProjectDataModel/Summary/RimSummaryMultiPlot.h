@@ -171,7 +171,6 @@ private:
     caf::PdmChildField<RimSummaryPlotReadOut*> m_readOutSettings;
     caf::PdmField<bool>                        m_goToCommonSettings;
 
-    caf::PdmField<bool>   m_hidePlotsWithValuesBelow;
     caf::PdmField<double> m_plotFilterYAxisThreshold;
 
     caf::PdmField<bool> m_appendNextPlot;

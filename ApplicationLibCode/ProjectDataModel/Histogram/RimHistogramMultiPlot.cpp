@@ -31,7 +31,6 @@
 #include "RiuQwtPlotWidget.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "qwt_scale_engine.h"
@@ -54,14 +53,9 @@ RimHistogramMultiPlot::RimHistogramMultiPlot()
     CAF_PDM_InitField( &m_autoSubPlotTitle, "AutoSubPlotTitle", true, "Auto Sub Plot Title" );
 
     CAF_PDM_InitField( &m_disableWheelZoom, "DisableWheelZoom", true, "", "", "Disable Mouse Wheel Zooming in Multi Histogram Plot" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_disableWheelZoom );
-    m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
 
     CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", true, "Auto Plot Settings" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoAdjustAppearance );
-
-    CAF_PDM_InitField( &m_hidePlotsWithValuesBelow, "HidePlotsWithValuesBelow", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_hidePlotsWithValuesBelow );
 
     setBottomMargin( 40 );
 }
@@ -178,11 +172,6 @@ void RimHistogramMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
     {
         onLoadDataAndUpdate();
         updateLayout();
-    }
-    else if ( changedField == &m_hidePlotsWithValuesBelow )
-    {
-        m_hidePlotsWithValuesBelow = false;
-        updatePlotVisibility();
     }
     else if ( changedField == &m_autoAdjustAppearance )
     {

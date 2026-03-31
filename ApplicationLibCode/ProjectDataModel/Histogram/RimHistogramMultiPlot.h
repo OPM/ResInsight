@@ -99,7 +99,6 @@ private:
     caf::PdmField<bool> m_autoSubPlotTitle;
     caf::PdmField<bool> m_disableWheelZoom;
     caf::PdmField<bool> m_autoAdjustAppearance;
-    caf::PdmField<bool> m_hidePlotsWithValuesBelow;
 
     std::map<RimHistogramPlot*, std::pair<int, int>> m_gridLayoutInfo;
 };
