@@ -58,6 +58,9 @@ add_subdirectory(AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
 add_subdirectory(AppFwk/cafPdmScripting/cafPdmScripting_UnitTests)
 add_subdirectory(AppFwk/cafUserInterface/cafUserInterface_UnitTests)
 
+# Compile-time benchmark (measures per-file compile cost of PDM field types)
+add_subdirectory(AppFwk/cafProjectDataModel/cafPdm_CompileBench)
+
 # Executables
 add_subdirectory(AppFwk/cafTests/cafTestApplication)
 
