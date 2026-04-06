@@ -38,6 +38,8 @@
 
 #include "cafIconProvider.h"
 
+#include <QColor>
+
 #include <memory>
 #include <optional>
 

@@ -1,8 +1,8 @@
 
 #include "gtest/gtest.h"
 
-#include "cafInternalPdmValueFieldSpecializations.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldTraits.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiNumberFormat.h"
@@ -72,7 +72,7 @@ TEST( PdmUiCheckBoxAndTextEditorTest, QVariantRoundTrip )
 {
     auto original = std::make_pair( true, QString( "test value" ) );
 
-    QVariant variant = PdmValueFieldSpecialization<std::pair<bool, QString>>::convert( original );
+    QVariant variant = caf::pdmToVariant( original );
 
     EXPECT_TRUE( variant.canConvert<QList<QVariant>>() );
     QList<QVariant> lst = variant.toList();
@@ -81,7 +81,7 @@ TEST( PdmUiCheckBoxAndTextEditorTest, QVariantRoundTrip )
     EXPECT_EQ( lst[1].toString().toStdString(), "test value" );
 
     std::pair<bool, QString> restored;
-    PdmValueFieldSpecialization<std::pair<bool, QString>>::setFromVariant( variant, restored );
+    caf::pdmFromVariant( variant, restored );
 
     EXPECT_EQ( restored.first, original.first );
     EXPECT_EQ( restored.second, original.second );
@@ -94,7 +94,7 @@ TEST( PdmUiCheckBoxAndTextEditorTest, QVariantUncheckedState )
 {
     auto original = std::make_pair( false, QString( "disabled text" ) );
 
-    QVariant variant = PdmValueFieldSpecialization<std::pair<bool, QString>>::convert( original );
+    QVariant variant = caf::pdmToVariant( original );
 
     QList<QVariant> lst = variant.toList();
     EXPECT_EQ( lst[0].toBool(), false );
@@ -108,7 +108,7 @@ TEST( PdmUiCheckBoxAndTextEditorTest, NumberFormattingForDoubleValues )
 {
     auto pair = std::make_pair( true, 1234.5678 );
 
-    QVariant        variant = PdmValueFieldSpecialization<std::pair<bool, double>>::convert( pair );
+    QVariant        variant = caf::pdmToVariant( pair );
     QList<QVariant> lst     = variant.toList();
     EXPECT_EQ( lst.size(), 2 );
 
@@ -131,10 +131,10 @@ TEST( PdmUiCheckBoxAndTextEditorTest, QVariantRoundTripDouble )
 {
     auto original = std::make_pair( true, 42.5 );
 
-    QVariant variant = PdmValueFieldSpecialization<std::pair<bool, double>>::convert( original );
+    QVariant variant = caf::pdmToVariant( original );
 
     std::pair<bool, double> restored;
-    PdmValueFieldSpecialization<std::pair<bool, double>>::setFromVariant( variant, restored );
+    caf::pdmFromVariant( variant, restored );
 
     EXPECT_EQ( restored.first, original.first );
     EXPECT_DOUBLE_EQ( restored.second, original.second );

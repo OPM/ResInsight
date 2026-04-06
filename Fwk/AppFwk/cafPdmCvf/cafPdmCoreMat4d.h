@@ -39,7 +39,7 @@
 #include "cvfBase.h"
 #include "cvfMatrix4.h"
 
-#include "cafInternalPdmValueFieldSpecializations.h"
+#include "cafPdmFieldTraits.h"
 
 #include "cafPdmXmlMat4d.h"
 
@@ -47,35 +47,26 @@
 
 namespace caf
 {
-template <>
-class PdmValueFieldSpecialization<cvf::Mat4d>
+
+inline QVariant pdmToVariant( const cvf::Mat4d& value )
 {
-public:
-    /// Convert the field value into a QVariant
-    static QVariant convert( const cvf::Mat4d& value )
-    {
-        QString str;
+    QString     str;
+    QTextStream textStream( &str );
+    textStream << value;
+    return QVariant( str );
+}
 
-        QTextStream textStream( &str );
-        textStream << value;
+inline void pdmFromVariant( const QVariant& v, cvf::Mat4d& out )
+{
+    QString     str = v.toString();
+    QTextStream textStream( &str );
+    textStream >> out;
+}
 
-        return QVariant( str );
-    }
-
-    /// Set the field value from a QVariant
-    static void setFromVariant( const QVariant& variantValue, cvf::Mat4d& value )
-    {
-        QString str = variantValue.toString();
-
-        QTextStream textStream( &str );
-
-        textStream >> value;
-    }
-
-    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return variantValue == variantValue2;
-    }
+template <>
+struct PdmVariantEqualImpl<cvf::Mat4d>
+{
+    static bool equal( const QVariant& a, const QVariant& b ) { return a.toString() == b.toString(); }
 };
 
 } // end namespace caf

@@ -39,40 +39,31 @@
 #include "cvfBase.h"
 #include "cvfColor3.h"
 
-#include "cafInternalPdmValueFieldSpecializations.h"
+#include "cafPdmFieldTraits.h"
 #include "cafPdmXmlColor3f.h"
 
 #include <QColor>
 
 namespace caf
 {
-//==================================================================================================
-/// Partial specialization for PdmValueFieldSpecialization< cvf::Color3f >
-//==================================================================================================
+
+inline QVariant pdmToVariant( const cvf::Color3f& value )
+{
+    QColor col;
+    col.setRgbF( value.r(), value.g(), value.b() );
+    return col;
+}
+
+inline void pdmFromVariant( const QVariant& v, cvf::Color3f& out )
+{
+    QColor col = v.value<QColor>();
+    out.set( col.redF(), col.greenF(), col.blueF() );
+}
 
 template <>
-class PdmValueFieldSpecialization<cvf::Color3f>
+struct PdmVariantEqualImpl<cvf::Color3f>
 {
-public:
-    static QVariant convert( const cvf::Color3f& value )
-    {
-        QColor col;
-        col.setRgbF( value.r(), value.g(), value.b() );
-
-        return col;
-    }
-
-    static void setFromVariant( const QVariant& variantValue, cvf::Color3f& value )
-    {
-        QColor col = variantValue.value<QColor>();
-
-        value.set( col.redF(), col.greenF(), col.blueF() );
-    }
-
-    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return variantValue == variantValue2;
-    }
+    static bool equal( const QVariant& a, const QVariant& b ) { return a.value<QColor>() == b.value<QColor>(); }
 };
 
 } // end namespace caf

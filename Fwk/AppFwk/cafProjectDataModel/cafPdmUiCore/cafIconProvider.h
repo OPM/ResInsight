@@ -35,8 +35,6 @@
 //##################################################################################################
 #pragma once
 
-#include <QIcon>
-#include <QPixmap>
 #include <QSize>
 #include <QString>
 
@@ -59,6 +57,7 @@ public:
     IconProvider( const QString& iconResourceString, const QSize& preferredSize = QSize( 16, 16 ) );
     IconProvider( const QPixmap& pixmap );
     IconProvider( const IconProvider& rhs );
+    ~IconProvider();
     IconProvider& operator=( const IconProvider& rhs );
 
     void setActive( bool active );

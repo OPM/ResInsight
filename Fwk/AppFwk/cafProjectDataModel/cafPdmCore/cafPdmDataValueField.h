@@ -40,7 +40,7 @@
 #include "cafPdmValueField.h"
 
 #include "cafAssert.h"
-#include "cafInternalPdmValueFieldSpecializations.h"
+#include "cafPdmFieldTraits.h"
 #include "cafPdmUiFieldHandleInterface.h"
 
 #include <QVariant>
@@ -123,12 +123,14 @@ public:
     QVariant toQVariant() const override
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
-        return PdmValueFieldSpecialization<DataType>::convert( m_fieldValue );
+        using caf::pdmToVariant;
+        return pdmToVariant( m_fieldValue );
     }
     void setFromQVariant( const QVariant& variant ) override
     {
         CAF_ASSERT( isInitializedByInitFieldMacro() );
-        PdmValueFieldSpecialization<DataType>::setFromVariant( variant, m_fieldValue );
+        using caf::pdmFromVariant;
+        pdmFromVariant( variant, m_fieldValue );
     }
     bool isReadOnly() const override { return false; }
 

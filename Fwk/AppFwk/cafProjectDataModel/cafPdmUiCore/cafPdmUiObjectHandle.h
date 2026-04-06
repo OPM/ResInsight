@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cafPdmObjectCapability.h"
+#include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiItem.h"
 
 class QMenu;

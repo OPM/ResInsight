@@ -400,3 +400,28 @@ template <class T>
 std::map<QString, std::vector<T>> AppEnum<T>::m_enumSubset;
 
 } // namespace caf
+
+#include "cafPdmFieldTraits.h"
+
+namespace caf
+{
+
+template <typename T>
+QVariant pdmToVariant( const AppEnum<T>& value )
+{
+    return QVariant( static_cast<int>( static_cast<T>( value ) ) );
+}
+
+template <typename T>
+void pdmFromVariant( const QVariant& v, AppEnum<T>& out )
+{
+    out = static_cast<T>( v.toInt() );
+}
+
+template <typename T>
+struct PdmVariantEqualImpl<AppEnum<T>>
+{
+    static bool equal( const QVariant& a, const QVariant& b ) { return a.toInt() == b.toInt(); }
+};
+
+} // namespace caf

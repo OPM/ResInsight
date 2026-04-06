@@ -36,11 +36,15 @@
 #include "cafIconProvider.h"
 
 #include <QApplication>
+#include <QIcon>
 #include <QLinearGradient>
 #include <QPainter>
+#include <QPixmap>
 #include <QPixmapCache>
 
 using namespace caf;
+
+IconProvider::~IconProvider() = default;
 
 //--------------------------------------------------------------------------------------------------
 ///

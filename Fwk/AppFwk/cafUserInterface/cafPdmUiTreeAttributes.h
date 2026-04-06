@@ -39,10 +39,12 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafSignal.h"
 
+#include <QRect>
 #include <memory>
 
 namespace caf
 {
+class PdmObjectHandle;
 class PdmUiTreeViewItemAttribute : public PdmUiEditorAttribute
 {
 public:

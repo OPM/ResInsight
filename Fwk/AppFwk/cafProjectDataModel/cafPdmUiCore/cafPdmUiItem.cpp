@@ -35,12 +35,14 @@
 //##################################################################################################
 
 #include "cafPdmUiItem.h"
+
 #include "cafPdmLogging.h"
 #include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiItemInfo.h"
 #include "cafPdmUiObjectEditorHandle.h"
 #include "cafUpdateEditorsScheduler.h"
+#include <QIcon>
 
 namespace caf
 {

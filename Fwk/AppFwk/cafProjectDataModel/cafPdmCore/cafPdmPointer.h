@@ -132,3 +132,33 @@ public:
 
 #include <QMetaType>
 Q_DECLARE_METATYPE( caf::PdmPointer<caf::PdmObjectHandle> );
+
+#include "cafPdmFieldTraits.h"
+
+#include <QVariant>
+
+namespace caf
+{
+
+template <typename T>
+QVariant pdmToVariant( const PdmPointer<T>& value )
+{
+    return QVariant::fromValue( PdmPointer<PdmObjectHandle>( value.rawPtr() ) );
+}
+
+template <typename T>
+void pdmFromVariant( const QVariant& v, PdmPointer<T>& out )
+{
+    out.setRawPtr( v.value<PdmPointer<PdmObjectHandle>>().rawPtr() );
+}
+
+template <typename T>
+struct PdmVariantEqualImpl<PdmPointer<T>>
+{
+    static bool equal( const QVariant& a, const QVariant& b )
+    {
+        return a.value<PdmPointer<PdmObjectHandle>>() == b.value<PdmPointer<PdmObjectHandle>>();
+    }
+};
+
+} // namespace caf

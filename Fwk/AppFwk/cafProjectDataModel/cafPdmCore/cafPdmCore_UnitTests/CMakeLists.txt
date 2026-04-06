@@ -23,6 +23,7 @@ set(PROJECT_FILES
     cafPdmCore_UnitTests.cpp
     gtest/gtest-all.cpp
     cafPdmCoreBasicTest.cpp
+    cafPdmFieldTraitsTest.cpp
     cafPdmReferenceHelperTest.cpp
     cafPdmChildArrayFieldHandleTest.cpp
     cafSignalTest.cpp

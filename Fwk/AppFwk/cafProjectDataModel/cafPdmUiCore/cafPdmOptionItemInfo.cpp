@@ -36,6 +36,8 @@
 
 #include "cafPdmOptionItemInfo.h"
 
+#include <QIcon>
+
 #include "cafPdmObjectHandle.h"
 #include "cafPdmPointer.h"
 

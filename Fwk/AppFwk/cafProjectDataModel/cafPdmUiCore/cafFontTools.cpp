@@ -37,6 +37,7 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiItem.h"
 
 #include <QApplication>

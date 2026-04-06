@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cafPdmFieldCapability.h"
+#include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiFieldHandleInterface.h"
 #include "cafPdmUiItem.h"
 

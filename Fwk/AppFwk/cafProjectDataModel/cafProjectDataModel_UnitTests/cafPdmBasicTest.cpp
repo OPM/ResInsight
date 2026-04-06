@@ -739,6 +739,10 @@ TEST( BaseTest, ReadWrite )
         EXPECT_EQ( size_t( 1 ), simpleObjs.size() );
         EXPECT_EQ( size_t( 0 ), simpleObjs[0]->m_numbers().size() );
     }
+
+    QFile::remove( fileName );
+    QFile::remove( fileNameCopy );
+    QFile::remove( "PdmTestFilWithError.xml" );
 }
 
 //--------------------------------------------------------------------------------------------------

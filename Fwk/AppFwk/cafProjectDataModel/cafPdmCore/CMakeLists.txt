@@ -46,7 +46,7 @@ set(PROJECT_FILES
     cafPdmReferenceHelper.h
     cafPdmUiFieldHandleInterface.h
     cafPdmValueField.h
-    cafInternalPdmValueFieldSpecializations.h
+    cafPdmFieldTraits.h
     cafNotificationCenter.cpp
     cafNotificationCenter.h
     cafSignal.h

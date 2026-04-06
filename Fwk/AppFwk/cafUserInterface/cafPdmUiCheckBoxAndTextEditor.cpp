@@ -84,7 +84,7 @@ void PdmUiCheckBoxAndTextEditor::configureAndUpdateUi( const QString& uiConfigNa
     bool    isChecked = false;
     QString textString;
 
-    // A pair is converted into a list of QVariant in PdmValueFieldSpecialization<std::pair<T, U>>
+    // A pair is converted into a list of QVariant by pdmToVariant(const std::pair<T,U>&)
     auto variantValue = uiField()->uiValue();
     if ( variantValue.canConvert<QList<QVariant>>() )
     {
@@ -155,7 +155,7 @@ void PdmUiCheckBoxAndTextEditor::slotSetValueToField()
     auto text      = m_lineEdit->text();
     auto pairValue = std::make_pair( isChecked, text );
 
-    QVariant v = caf::PdmValueFieldSpecialization<std::pair<bool, QString>>::convert( pairValue );
+    QVariant v = caf::pdmToVariant( pairValue );
 
     this->setValueToField( v );
 }

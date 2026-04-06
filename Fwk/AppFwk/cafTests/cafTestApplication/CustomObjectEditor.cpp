@@ -36,6 +36,8 @@
 
 #include "CustomObjectEditor.h"
 
+#include "cafAssert.h"
+
 #include "cafPdmUiGroup.h"
 
 #include "QMinimizePanel.h"

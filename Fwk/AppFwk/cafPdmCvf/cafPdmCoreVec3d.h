@@ -39,7 +39,7 @@
 #include "cvfBase.h"
 #include "cvfVector3.h"
 
-#include "cafInternalPdmValueFieldSpecializations.h"
+#include "cafPdmFieldTraits.h"
 
 #include "cafPdmXmlVec3d.h"
 
@@ -49,35 +49,26 @@ Q_DECLARE_METATYPE( cvf::Vec3d );
 
 namespace caf
 {
-template <>
-class PdmValueFieldSpecialization<cvf::Vec3d>
+
+inline QVariant pdmToVariant( const cvf::Vec3d& value )
 {
-public:
-    /// Convert the field value into a QVariant
-    static QVariant convert( const cvf::Vec3d& value )
-    {
-        QString str;
+    QString     str;
+    QTextStream textStream( &str );
+    textStream << value;
+    return QVariant( str );
+}
 
-        QTextStream textStream( &str );
-        textStream << value;
+inline void pdmFromVariant( const QVariant& v, cvf::Vec3d& out )
+{
+    QString     str = v.toString();
+    QTextStream textStream( &str );
+    textStream >> out;
+}
 
-        return QVariant( str );
-    }
-
-    /// Set the field value from a QVariant
-    static void setFromVariant( const QVariant& variantValue, cvf::Vec3d& value )
-    {
-        QString str = variantValue.toString();
-
-        QTextStream textStream( &str );
-
-        textStream >> value;
-    }
-
-    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
-    {
-        return variantValue == variantValue2;
-    }
+template <>
+struct PdmVariantEqualImpl<cvf::Vec3d>
+{
+    static bool equal( const QVariant& a, const QVariant& b ) { return a.toString() == b.toString(); }
 };
 
 } // end namespace caf

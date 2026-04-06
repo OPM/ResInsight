@@ -53,7 +53,9 @@ class QPushButton;
 
 namespace caf
 {
+class PdmFieldHandle;
 class PdmUiFieldEditorHandle;
+class PdmUiFieldHandle;
 class PdmUiGroup;
 class PdmUiLabel;
 class PdmUiButton;

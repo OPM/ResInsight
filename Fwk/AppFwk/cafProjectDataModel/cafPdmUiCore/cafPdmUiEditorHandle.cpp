@@ -36,6 +36,8 @@
 
 #include "cafPdmUiEditorHandle.h"
 
+#include "cafAssert.h"
+
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------

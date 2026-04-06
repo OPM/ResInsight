@@ -36,6 +36,7 @@
 
 #pragma once
 
+#include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiFieldLabelEditorHandle.h"
 
 #include <QHBoxLayout>

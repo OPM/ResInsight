@@ -20,6 +20,7 @@
 
 #include "RifEclipseSummaryAddressDefines.h"
 
+#include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmValueField.h"
 

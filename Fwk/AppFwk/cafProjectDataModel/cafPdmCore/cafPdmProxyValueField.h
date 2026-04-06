@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cafAssert.h"
-#include "cafInternalPdmValueFieldSpecializations.h"
 #include "cafPdmFieldHandle.h"
+#include "cafPdmFieldTraits.h"
 #include "cafPdmPointer.h"
 #include "cafPdmValueField.h"
 
@@ -88,12 +88,14 @@ public:
     QVariant toQVariant() const override
     {
         DataType val = value();
-        return PdmValueFieldSpecialization<DataType>::convert( val );
+        using caf::pdmToVariant;
+        return pdmToVariant( val );
     }
     void setFromQVariant( const QVariant& variant ) override
     {
         DataType val;
-        PdmValueFieldSpecialization<DataType>::setFromVariant( variant, val );
+        using caf::pdmFromVariant;
+        pdmFromVariant( variant, val );
         setValue( val );
     }
     bool isReadOnly() const override

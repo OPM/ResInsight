@@ -35,6 +35,7 @@
 
 #pragma once
 
+#include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafUiTreeManager.h"
 
@@ -45,7 +46,6 @@
 
 namespace caf
 {
-class PdmOptionItemInfo;
 class PdmUiFieldHandle;
 
 //==================================================================================================

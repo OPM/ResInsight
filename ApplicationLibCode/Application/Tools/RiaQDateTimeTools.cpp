@@ -23,6 +23,7 @@
 #include <QString>
 #include <QTime>
 
+#include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiItem.h"
 
 #include <cvfAssert.h>

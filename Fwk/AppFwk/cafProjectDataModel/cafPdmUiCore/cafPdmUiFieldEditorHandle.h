@@ -39,6 +39,8 @@
 #include "cafFactory.h"
 #include "cafPdmUiEditorHandle.h"
 
+#include <QPoint>
+
 class QAction;
 class QLabel;
 
@@ -75,6 +77,7 @@ public:                                     \
                            QString,                                                                                            \
                            qStringTypeName( caf::PdmProxyValueField<TypeName> ) )
 
+class PdmFieldHandle;
 class PdmUiGroup;
 class PdmUiFieldHandle;
 

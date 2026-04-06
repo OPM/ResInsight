@@ -50,6 +50,7 @@ class QLabel;
 
 namespace caf
 {
+class PdmObjectHandle;
 class PdmUiCheckBoxDelegate;
 class PdmUiFieldEditorHandle;
 class PdmUiItem;

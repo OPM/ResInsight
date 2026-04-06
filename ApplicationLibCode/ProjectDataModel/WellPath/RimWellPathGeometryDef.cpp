@@ -520,7 +520,7 @@ void RimWellPathGeometryDef::fieldChangedByUi( const caf::PdmFieldHandle* change
                               linkedDefs.end() );
 
             cvf::Vec3d oldPos;
-            caf::PdmValueFieldSpecialization<cvf::Vec3d>::setFromVariant( oldValue, oldPos );
+            caf::pdmFromVariant( oldValue, oldPos );
 
             auto delta = m_referencePointUtmXyd() - oldPos;
 

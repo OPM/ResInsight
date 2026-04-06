@@ -46,8 +46,8 @@ struct PdmUiFieldSpecializationDefaults
 /// When introducing a new type in a PdmField, you might need to implement a (partial)specialization
 /// of this class.
 ///
-/// The primary template delegates to PdmValueFieldSpecialization<T>, so types with custom
-/// PdmValueFieldSpecialization will automatically get the correct behavior without needing
+/// The primary template delegates to pdmToVariant/pdmFromVariant/pdmVariantEqual, so types with
+/// custom overloads of those functions will automatically get the correct behavior without needing
 /// an explicit PdmUiFieldSpecialization.
 //==================================================================================================
 

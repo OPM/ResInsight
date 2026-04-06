@@ -2,6 +2,7 @@
 
 #include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
+#include "cafPdmObjectHandle.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiModelChangeDetector.h"
 #include "cafPdmUiObjectHandle.h"
