@@ -72,6 +72,8 @@ public:
     virtual void initializeViewer( QMdiSubWindow* viewWindow, QWidget* viewWidget, const RimMdiWindowGeometry& windowsGeometry ) = 0;
     virtual void setActiveViewer( QWidget* subWindow )                                                                           = 0;
 
+    virtual void initializeDockingViewer( QWidget* viewer ) = 0;
+
     virtual QMdiSubWindow* findMdiSubWindow( QWidget* viewer ) = 0;
 
     RimMdiWindowGeometry windowGeometryForViewer( QWidget* viewer );
