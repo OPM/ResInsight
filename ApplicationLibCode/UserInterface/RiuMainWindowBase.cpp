@@ -65,7 +65,7 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_blockSubWindowProjectTreeSelection( false )
     , m_hasBeenVisible( false )
     , m_windowMenu( nullptr )
-    , m_mdiArea( nullptr )
+//    , m_mdiArea( nullptr )
 {
     ads::CDockManager::setAutoHideConfigFlags( ads::CDockManager::DefaultAutoHideConfig );
     m_dockManager = new ads::CDockManager( this );
@@ -122,7 +122,8 @@ ads::CDockManager* RiuMainWindowBase::dockManager() const
 //--------------------------------------------------------------------------------------------------
 RiuMdiArea* RiuMainWindowBase::mdiArea()
 {
-    return m_mdiArea;
+    return nullptr;
+    // return m_mdiArea;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -773,12 +774,12 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
         connect( exportLayoutAction, SIGNAL( triggered() ), this, SLOT( exportDockLayout() ) );
     }
 
-    m_windowMenu->addSeparator();
-    QAction* cascadeWindowsAction = new QAction( "Cascade Windows", this );
-    connect( cascadeWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( cascadeSubWindows() ) );
+    // m_windowMenu->addSeparator();
+    // QAction* cascadeWindowsAction = new QAction( "Cascade Windows", this );
+    // connect( cascadeWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( cascadeSubWindows() ) );
 
-    QAction* closeAllSubWindowsAction = new QAction( "Close All Windows", this );
-    connect( closeAllSubWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( closeAllSubWindows() ) );
+    // QAction* closeAllSubWindowsAction = new QAction( "Close All Windows", this );
+    // connect( closeAllSubWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( closeAllSubWindows() ) );
 
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
 
@@ -788,8 +789,8 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
         m_windowMenu->addAction( cmdFeatureMgr->action( name ) );
     }
 
-    m_windowMenu->addAction( cascadeWindowsAction );
-    m_windowMenu->addAction( closeAllSubWindowsAction );
+    // m_windowMenu->addAction( cascadeWindowsAction );
+    // m_windowMenu->addAction( closeAllSubWindowsAction );
 }
 
 //--------------------------------------------------------------------------------------------------

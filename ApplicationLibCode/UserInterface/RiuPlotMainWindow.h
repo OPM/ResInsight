@@ -68,10 +68,10 @@ public:
     void cleanupGuiBeforeProjectClose();
     void cleanUpTemporaryWidgets();
 
-    void removeViewer( QWidget* viewer ) override;
-    void initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
-    void setActiveViewer( QWidget* subWindow ) override;
-    void initializeDockingViewer( QWidget* viewer ) override;
+    void              removeViewer( QWidget* viewer ) override;
+    void              initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
+    void              setActiveViewer( QWidget* subWindow ) override;
+    ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) override;
 
     void setDefaultWindowSize();
     void enable3DSelectionLink( bool enable );

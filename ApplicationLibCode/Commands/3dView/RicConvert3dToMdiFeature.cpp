@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicPopOutTo3dViewFeature.h"
+#include "RicConvert3dToMdiFeature.h"
 
 #include "RiaGuiApplication.h"
 
@@ -30,16 +30,16 @@
 #include <QAction>
 #include <QSettings>
 
-CAF_CMD_SOURCE_INIT( RicPopOutTo3dViewFeature, "RicPopOutTo3dViewFeature" );
+CAF_CMD_SOURCE_INIT( RicConvert3dToMdiFeature, "RicConvert3dToMdiFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPopOutTo3dViewFeature::isCommandEnabled() const
+bool RicConvert3dToMdiFeature::isCommandEnabled() const
 {
     if ( auto view = dynamic_cast<Rim3dView*>( caf::SelectionManager::instance()->selectedItem() ) )
     {
-        return !view->isDockingViewer();
+        return view->isDockingViewer();
     }
     return false;
 }
@@ -47,19 +47,19 @@ bool RicPopOutTo3dViewFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPopOutTo3dViewFeature::onActionTriggered( bool isChecked )
+void RicConvert3dToMdiFeature::onActionTriggered( bool isChecked )
 {
     if ( auto view = dynamic_cast<Rim3dView*>( caf::SelectionManager::instance()->selectedItem() ) )
     {
-        view->convertToDocking( RiaGuiApplication::instance()->mainWindow() );
+        view->convertToMdi( RiaGuiApplication::instance()->mainWindow() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPopOutTo3dViewFeature::setupActionLook( QAction* actionToSetup )
+void RicConvert3dToMdiFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Pop Out (in 3D View)" );
+    actionToSetup->setText( "Convert to MDI view" );
     actionToSetup->setIcon( QIcon( ":/3DWindow.svg" ) );
 }

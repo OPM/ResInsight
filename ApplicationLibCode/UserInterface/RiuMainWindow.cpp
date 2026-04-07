@@ -141,12 +141,12 @@ RiuMainWindow::RiuMainWindow()
 {
     setAttribute( Qt::WA_DeleteOnClose );
 
-    m_mdiArea = new RiuMdiArea( this );
-    connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
+    // m_mdiArea = new RiuMdiArea( this );
+    // connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
 
-    ads::CDockWidget* cWidget = RiuDockWidgetTools::createDockWidget( "3D Views", RiuDockWidgetTools::main3DWindowName(), this );
-    cWidget->setWidget( m_mdiArea );
-    dockManager()->setCentralWidget( cWidget );
+    // ads::CDockWidget* cWidget = RiuDockWidgetTools::createDockWidget( "3D Views", RiuDockWidgetTools::main3DWindowName(), this );
+    // cWidget->setWidget( m_mdiArea );
+    // dockManager()->setCentralWidget( cWidget );
 
     createActions();
     createMenus();
@@ -241,7 +241,7 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
-    m_mdiArea->applyTiling();
+    // m_mdiArea->applyTiling();
 
     slotRefreshFileActions();
     slotRefreshUndoRedoActions();
@@ -261,15 +261,15 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
         statusBar()->showMessage( "Ready ...", 5000 );
     }
 
-    QMdiSubWindow* activeSubWindow = m_mdiArea->activeSubWindow();
-    if ( activeSubWindow )
-    {
-        auto w = findViewWindowFromSubWindow( activeSubWindow );
-        if ( w && w->mdiWindowGeometry().isMaximized )
-        {
-            activeSubWindow->showMaximized();
-        }
-    }
+    // QMdiSubWindow* activeSubWindow = m_mdiArea->activeSubWindow();
+    // if ( activeSubWindow )
+    //{
+    //     auto w = findViewWindowFromSubWindow( activeSubWindow );
+    //     if ( w && w->mdiWindowGeometry().isMaximized )
+    //     {
+    //         activeSubWindow->showMaximized();
+    //     }
+    // }
 
     // Sync selections with property editor.
     // Go backwards as the most "important" tree view is first in the list
@@ -343,7 +343,7 @@ void RiuMainWindow::cleanupGuiCaseClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::cleanupGuiBeforeProjectClose()
 {
-    m_mdiArea->closeAllSubWindows();
+    // m_mdiArea->closeAllSubWindows();
 
     setPdmRoot( nullptr );
 
@@ -1144,15 +1144,15 @@ void RiuMainWindow::slotInputMockModel()
 //--------------------------------------------------------------------------------------------------
 QMdiSubWindow* RiuMainWindow::findMdiSubWindow( QWidget* viewer )
 {
-    QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
-    int                   i;
-    for ( i = 0; i < subws.size(); ++i )
-    {
-        if ( subws[i]->widget() == viewer )
-        {
-            return subws[i];
-        }
-    }
+    // QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
+    // int                   i;
+    // for ( i = 0; i < subws.size(); ++i )
+    //{
+    //     if ( subws[i]->widget() == viewer )
+    //     {
+    //         return subws[i];
+    //     }
+    // }
 
     return nullptr;
 }
@@ -1182,7 +1182,8 @@ RimViewWindow* RiuMainWindow::findViewWindowFromSubWindow( QMdiSubWindow* subWin
 //--------------------------------------------------------------------------------------------------
 QList<QMdiSubWindow*> RiuMainWindow::subWindowList( QMdiArea::WindowOrder order )
 {
-    return m_mdiArea->subWindowList( order );
+    //    return m_mdiArea->subWindowList( order );
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1246,7 +1247,7 @@ RiuMessagePanel* RiuMainWindow::messagePanel()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::removeViewer( QWidget* viewer )
 {
-    removeViewerFromMdiArea( m_mdiArea, viewer );
+    // removeViewerFromMdiArea( m_mdiArea, viewer );
     slotRefreshViewActions();
 }
 
@@ -1268,7 +1269,7 @@ void RiuMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer,
         subWindowSize = QSize( 400, 400 );
     }
 
-    initializeSubWindow( m_mdiArea, subWindow, subWindowPos, subWindowSize );
+    // initializeSubWindow( m_mdiArea, subWindow, subWindowPos, subWindowSize );
     subWindow->setWidget( viewer );
 
     slotRefreshViewActions();
@@ -1277,13 +1278,15 @@ void RiuMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::initializeDockingViewer( QWidget* viewer )
+ads::CDockWidget* RiuMainWindow::initializeDockingViewer( QWidget* viewer )
 {
-    auto dockViewer = RiuDockWidgetTools::createDockWidget( "3D Viewer", "3D view", dockManager() );
-    dockViewer->setWidget( viewer );
-    dockManager()->addDockWidgetFloating( dockViewer );
+    auto dockWidget = RiuDockWidgetTools::createDockWidget( "3D Viewer", "3D view", dockManager() );
+    dockWidget->setWidget( viewer );
+    dockManager()->addDockWidgetFloating( dockWidget );
 
     slotRefreshViewActions();
+
+    return dockWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1499,8 +1502,8 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::setActiveViewer( QWidget* viewer )
 {
-    QMdiSubWindow* swin = findMdiSubWindow( viewer );
-    if ( swin ) m_mdiArea->setActiveSubWindow( swin );
+    // QMdiSubWindow* swin = findMdiSubWindow( viewer );
+    // if ( swin ) m_mdiArea->setActiveSubWindow( swin );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2110,7 +2113,8 @@ void RiuMainWindow::customMenuRequested( const QPoint& pos )
 //--------------------------------------------------------------------------------------------------
 bool RiuMainWindow::isAnyMdiSubWindowVisible()
 {
-    return !m_mdiArea->subWindowList().empty();
+    // return !m_mdiArea->subWindowList().empty();
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

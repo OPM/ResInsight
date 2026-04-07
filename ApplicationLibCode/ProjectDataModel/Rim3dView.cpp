@@ -35,6 +35,7 @@
 #include "RimGridView.h"
 #include "RimLegendConfig.h"
 #include "RimMainPlotCollection.h"
+#include "RimMdiWindowController.h"
 #include "RimMeasurement.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -52,6 +53,8 @@
 #include "RiuMainWindow.h"
 #include "RiuTimeStepChangedHandler.h"
 #include "RiuViewer.h"
+
+#include "DockManager.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafDisplayCoordTransform.h"
@@ -1908,6 +1911,7 @@ void Rim3dView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     if ( isDockingViewer() )
     {
+        menuBuilder << "RicConvert3dToMdiFeature";
     }
     else
     {
@@ -1927,7 +1931,27 @@ void Rim3dView::convertToDocking( RiuMainWindowBase* mainWindow )
 
     QWidget* viewWidget = createViewWidget( nullptr );
 
-    mainWindow->initializeDockingViewer( viewWidget );
+    m_dockWidget = mainWindow->initializeDockingViewer( viewWidget );
+    updateViewWidgetAfterCreation();
+    scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::convertToMdi( RiuMainWindowBase* mainWindow )
+{
+    if ( !isDockingViewer() ) return;
+
+    mainWindow->dockManager()->removeDockWidget( m_dockWidget );
+
+    m_dockWidget->takeWidget();
+    m_dockWidget = nullptr;
+
+    m_windowController->updateViewerWidget();
+
+    updateMdiWindowVisibility();
+
     updateViewWidgetAfterCreation();
     scheduleCreateDisplayModelAndRedraw();
 }

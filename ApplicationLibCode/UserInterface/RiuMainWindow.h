@@ -101,7 +101,7 @@ public:
     void initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
     void setActiveViewer( QWidget* subWindow ) override;
 
-    void initializeDockingViewer( QWidget* viewer ) override;
+    ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) override;
 
     void setResultInfo( const QString& info ) const;
 

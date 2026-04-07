@@ -98,19 +98,19 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     , m_autoUpdateEnabled( false )
     , m_autoUpdateTimerId( -1 )
 {
-    m_mdiArea = new RiuMdiArea( this );
-    connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
+    // m_mdiArea = new RiuMdiArea( this );
+    // connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
 
-    caf::CmdFeatureMenuBuilder menuForMdiArea;
-    menuForMdiArea << "RicNewEmptySummaryMultiPlotFeature";
-    menuForMdiArea << "RicOpenSummaryPlotEditorFromMdiAreaFeature";
-    new RiuContextMenuLauncher( m_mdiArea, menuForMdiArea );
+    // caf::CmdFeatureMenuBuilder menuForMdiArea;
+    // menuForMdiArea << "RicNewEmptySummaryMultiPlotFeature";
+    // menuForMdiArea << "RicOpenSummaryPlotEditorFromMdiAreaFeature";
+    // new RiuContextMenuLauncher( m_mdiArea, menuForMdiArea );
 
-    ads::CDockWidget* cWidget = RiuDockWidgetTools::createDockWidget( "Plot Window", RiuDockWidgetTools::mainPlotWindowName(), this );
+    // ads::CDockWidget* cWidget = RiuDockWidgetTools::createDockWidget( "Plot Window", RiuDockWidgetTools::mainPlotWindowName(), this );
 
-    cWidget->setWidget( m_mdiArea );
-    auto dockArea = dockManager()->setCentralWidget( cWidget );
-    dockArea->setVisible( true );
+    // cWidget->setWidget( m_mdiArea );
+    // auto dockArea = dockManager()->setCentralWidget( cWidget );
+    // dockArea->setVisible( true );
 
     m_toggleSelectionLinkAction = new QAction( QIcon( ":/Link3DandPlots.png" ), tr( "Link With Selection in 3D" ), this );
     m_toggleSelectionLinkAction->setToolTip( "Update wells used in plots from well selections in 3D view." );
@@ -223,7 +223,7 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
         }
     }
 
-    m_mdiArea->applyTiling();
+    // m_mdiArea->applyTiling();
 
     if ( m_activePlotViewWindow && m_activePlotViewWindow->viewWidget() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
@@ -262,7 +262,7 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 {
-    m_mdiArea->closeAllSubWindows();
+    // m_mdiArea->closeAllSubWindows();
 
     setPdmRoot( nullptr );
 
@@ -641,15 +641,15 @@ void RiuPlotMainWindow::createDockPanels()
 //--------------------------------------------------------------------------------------------------
 QMdiSubWindow* RiuPlotMainWindow::findMdiSubWindow( QWidget* viewer )
 {
-    QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
-    int                   i;
-    for ( i = 0; i < subws.size(); ++i )
-    {
-        if ( subws[i]->widget() == viewer )
-        {
-            return subws[i];
-        }
-    }
+    // QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
+    // int                   i;
+    // for ( i = 0; i < subws.size(); ++i )
+    //{
+    //     if ( subws[i]->widget() == viewer )
+    //     {
+    //         return subws[i];
+    //     }
+    // }
 
     return nullptr;
 }
@@ -672,7 +672,8 @@ RimViewWindow* RiuPlotMainWindow::findViewWindowFromSubWindow( QMdiSubWindow* su
 //--------------------------------------------------------------------------------------------------
 QList<QMdiSubWindow*> RiuPlotMainWindow::subWindowList( QMdiArea::WindowOrder order )
 {
-    return m_mdiArea->subWindowList( order );
+    // return m_mdiArea->subWindowList( order );
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -838,7 +839,7 @@ void RiuPlotMainWindow::showAndSetKeyboardFocusToSummaryPlotManager()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::removeViewer( QWidget* viewer )
 {
-    removeViewerFromMdiArea( m_mdiArea, viewer );
+    // removeViewerFromMdiArea( m_mdiArea, viewer );
     refreshToolbars();
 }
 
@@ -860,7 +861,7 @@ void RiuPlotMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* vie
         subWindowSize = QSize( 400, 400 );
     }
 
-    initializeSubWindow( m_mdiArea, subWindow, subWindowPos, subWindowSize );
+    // initializeSubWindow( m_mdiArea, subWindow, subWindowPos, subWindowSize );
     subWindow->setWidget( viewer );
 
     refreshToolbars();
@@ -869,11 +870,13 @@ void RiuPlotMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* vie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::initializeDockingViewer( QWidget* viewer )
+ads::CDockWidget* RiuPlotMainWindow::initializeDockingViewer( QWidget* viewer )
 {
     auto dockViewer = RiuDockWidgetTools::createDockWidget( "3D Viewer", "3D view", dockManager() );
     dockViewer->setWidget( viewer );
     dockManager()->addDockWidgetFloating( dockViewer );
+
+    return dockViewer;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -938,8 +941,8 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::setActiveViewer( QWidget* viewer )
 {
-    QMdiSubWindow* swin = findMdiSubWindow( viewer );
-    if ( swin ) m_mdiArea->setActiveSubWindow( swin );
+    // QMdiSubWindow* swin = findMdiSubWindow( viewer );
+    // if ( swin ) m_mdiArea->setActiveSubWindow( swin );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1086,7 +1089,8 @@ void RiuPlotMainWindow::customMenuRequested( const QPoint& pos )
 //--------------------------------------------------------------------------------------------------
 bool RiuPlotMainWindow::isAnyMdiSubWindowVisible()
 {
-    return !m_mdiArea->subWindowList().empty();
+    // return !m_mdiArea->subWindowList().empty();
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1094,9 +1098,9 @@ bool RiuPlotMainWindow::isAnyMdiSubWindowVisible()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::dragEnterEvent( QDragEnterEvent* event )
 {
-    QPoint curpos = m_mdiArea->mapFromGlobal( QCursor::pos() );
+    // QPoint curpos = m_mdiArea->mapFromGlobal( QCursor::pos() );
 
-    if ( m_mdiArea->rect().contains( curpos ) ) event->acceptProposedAction();
+    // if ( m_mdiArea->rect().contains( curpos ) ) event->acceptProposedAction();
 }
 
 //--------------------------------------------------------------------------------------------------
