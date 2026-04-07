@@ -53,6 +53,7 @@ class RiuViewer;
 class RivAnnotationsPartMgr;
 class RivMeasurementPartMgr;
 class RivWellPathsPartMgr;
+class RiuMainWindowBase;
 class RimViewNameConfig;
 
 namespace cvf
@@ -94,6 +95,8 @@ public:
     ~Rim3dView() override;
 
     int id() const final;
+
+    bool isDockingViewer() const { return m_isDockingViewer; }
 
     // Public fields:
 
@@ -203,6 +206,8 @@ public:
     RimAnnotationInViewCollection* annotationCollection() const;
     void                           synchronizeLocalAnnotationsFromGlobal();
 
+    void convertToDocking( RiuMainWindowBase* mainWindow );
+
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
 
@@ -255,6 +260,8 @@ protected:
     virtual cvf::Transform* scaleTransform() = 0;
 
     void onViewNavigationChanged() override;
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -326,7 +333,7 @@ private:
     QPointer<RiuViewer> m_viewer;
     QPointer<RiuViewer> m_overrideViewer;
     bool                m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw; // To avoid infinite recursion if comparison views
-                                                                   // are pointing to each other.
+    // are pointing to each other.
 
     // Fields
     caf::PdmField<int>                     m_id;
@@ -359,4 +366,6 @@ private:
     std::unique_ptr<QTimer> m_animationTimer;
     const int               m_animationIntervalMillisec;
     int                     m_animationTimerUsers;
+
+    bool m_isDockingViewer;
 };
