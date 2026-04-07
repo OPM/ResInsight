@@ -117,11 +117,10 @@ private:
     virtual void assignIdIfNecessary() = 0;
 
 protected:
-    caf::PdmField<bool> m_showWindow;
-
-private:
+    caf::PdmField<bool>                         m_showWindow;
     caf::PdmChildField<RimMdiWindowController*> m_windowController;
 
+private:
     // Obsoleted field
     caf::PdmField<std::vector<int>> obsoleteField_windowGeometry;
 };
