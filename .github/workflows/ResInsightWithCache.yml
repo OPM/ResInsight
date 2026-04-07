@@ -185,7 +185,7 @@ jobs:
           sudo apt-get install --option="APT::Acquire::Retries=3" gcc-14 g++-14
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+        uses: CeetronSolutions/install-qt-action@bump-node24
         with:
           version: ${{ matrix.config.qt-version }}
           dir: "${{ github.workspace }}/Qt/"
