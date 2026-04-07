@@ -71,6 +71,11 @@ namespace caf
 class DisplayCoordTransform;
 }
 
+namespace ads
+{
+class CDockWidget;
+}
+
 enum PartRenderMaskEnum
 {
     surfaceBit               = 1,
@@ -96,7 +101,7 @@ public:
 
     int id() const final;
 
-    bool isDockingViewer() const { return m_isDockingViewer; }
+    bool isDockingViewer() const { return !m_dockWidget.isNull(); }
 
     // Public fields:
 
@@ -207,6 +212,7 @@ public:
     void                           synchronizeLocalAnnotationsFromGlobal();
 
     void convertToDocking( RiuMainWindowBase* mainWindow );
+    void convertToMdi( RiuMainWindowBase* mainWindow );
 
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
@@ -367,5 +373,5 @@ private:
     const int               m_animationIntervalMillisec;
     int                     m_animationTimerUsers;
 
-    bool m_isDockingViewer;
+    QPointer<ads::CDockWidget> m_dockWidget;
 };

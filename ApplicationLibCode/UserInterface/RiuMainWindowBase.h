@@ -72,7 +72,7 @@ public:
     virtual void initializeViewer( QMdiSubWindow* viewWindow, QWidget* viewWidget, const RimMdiWindowGeometry& windowsGeometry ) = 0;
     virtual void setActiveViewer( QWidget* subWindow )                                                                           = 0;
 
-    virtual void initializeDockingViewer( QWidget* viewer ) = 0;
+    virtual ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) = 0;
 
     virtual QMdiSubWindow* findMdiSubWindow( QWidget* viewer ) = 0;
 
@@ -143,8 +143,8 @@ protected:
     QAction*   m_redoAction;
     QUndoView* m_undoView;
 
-    RiuMdiArea* m_mdiArea;
-    QMenu*      m_windowMenu;
+    // RiuMdiArea* m_mdiArea;
+    QMenu* m_windowMenu;
 
     const int DOCKSTATE_VERSION = 3;
 
