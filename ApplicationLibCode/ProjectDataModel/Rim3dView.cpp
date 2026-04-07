@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaGuiApplication.h"
 #include "RiaOptionItemFactory.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
@@ -52,12 +53,14 @@
 #include "RiuTimeStepChangedHandler.h"
 #include "RiuViewer.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfColor3.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmUiComboBoxEditor.h"
+
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
@@ -1896,4 +1899,35 @@ void Rim3dView::synchronizeLocalAnnotationsFromGlobal()
             annotationCollection()->onGlobalCollectionChanged( annotColl );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    if ( isDockingViewer() )
+    {
+    }
+    else
+    {
+        menuBuilder << "RicPopOutTo3dViewFeature";
+        menuBuilder << "RicPopOutToPlotViewFeature";
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::convertToDocking( RiuMainWindowBase* mainWindow )
+{
+    if ( isDockingViewer() ) return;
+
+    removeMdiWindowFromMdiArea();
+
+    QWidget* viewWidget = createViewWidget( nullptr );
+
+    mainWindow->initializeDockingViewer( viewWidget );
+    updateViewWidgetAfterCreation();
+    scheduleCreateDisplayModelAndRedraw();
 }

@@ -1275,6 +1275,18 @@ void RiuMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer,
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::initializeDockingViewer( QWidget* viewer )
+{
+    auto dockViewer = RiuDockWidgetTools::createDockWidget( "3D Viewer", "3D view", dockManager() );
+    dockViewer->setWidget( viewer );
+    dockManager()->addDockWidgetFloating( dockViewer );
+
+    slotRefreshViewActions();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// This method needs to handle memory deallocation !!!
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
