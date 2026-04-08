@@ -53,10 +53,12 @@ TEST( VariantTest, PdmCoreMat4d )
 {
     cvf::Mat4d myMatrix = createMatrix();
 
-    QVariant myVariant = caf::pdmToVariant( myMatrix );
+    using caf::pdmToVariant;
+    QVariant myVariant = pdmToVariant( myMatrix );
 
     cvf::Mat4d decoded;
-    caf::pdmFromVariant( myVariant, decoded );
+    using caf::pdmFromVariant;
+    pdmFromVariant( myVariant, decoded );
 
     EXPECT_TRUE( decoded.equals( myMatrix ) );
 }

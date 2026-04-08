@@ -47,10 +47,12 @@
 
 Q_DECLARE_METATYPE( cvf::Vec3d );
 
-namespace caf
+// pdmToVariant/pdmFromVariant in namespace cvf so ADL finds them when called from templates
+// that use "using caf::pdmToVariant" — ADL searches the argument's namespace (cvf), not caf.
+namespace cvf
 {
 
-inline QVariant pdmToVariant( const cvf::Vec3d& value )
+inline QVariant pdmToVariant( const Vec3d& value )
 {
     QString     str;
     QTextStream textStream( &str );
@@ -58,12 +60,17 @@ inline QVariant pdmToVariant( const cvf::Vec3d& value )
     return QVariant( str );
 }
 
-inline void pdmFromVariant( const QVariant& v, cvf::Vec3d& out )
+inline void pdmFromVariant( const QVariant& v, Vec3d& out )
 {
     QString     str = v.toString();
     QTextStream textStream( &str );
     textStream >> out;
 }
+
+} // end namespace cvf
+
+namespace caf
+{
 
 template <>
 struct PdmVariantEqualImpl<cvf::Vec3d>
