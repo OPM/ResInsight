@@ -42,6 +42,15 @@ public:
     std::vector<RimSummaryCase*> summaryCasesExcludedByFilter() const;
     void                         appendFilterFields( caf::PdmUiOrdering& uiOrdering );
 
+    struct CaseData
+    {
+        double          parameterValue;
+        double          summaryValue;
+        RimSummaryCase* summaryCase;
+    };
+
+    std::vector<CaseData> createCaseData() const;
+
     void detachAllCurves() override;
 
 private:
@@ -62,15 +71,6 @@ private:
     void updateFilterRanges();
 
     QString excludedCasesText() const;
-
-    struct CaseData
-    {
-        double          parameterValue;
-        double          summaryValue;
-        RimSummaryCase* summaryCase;
-    };
-
-    std::vector<CaseData> createCaseData() const;
 
     size_t hashFromCurrentData() const;
     void   writeDataToCache();

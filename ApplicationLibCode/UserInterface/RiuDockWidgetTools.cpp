@@ -447,6 +447,34 @@ std::vector<caf::PdmUiItem*> RiuDockWidgetTools::selectedItemsInTreeView( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuDockWidgetTools::selectItemInTreeView( const QString& dockWidgetName, const std::vector<const caf::PdmUiItem*>& items )
+{
+    ads::CDockWidget* dockWidget = nullptr;
+    if ( auto mainWindow = RiuMainWindow::instance() )
+    {
+        dockWidget = RiuDockWidgetTools::findDockWidget( mainWindow->dockManager(), dockWidgetName );
+    }
+
+    if ( !dockWidget )
+    {
+        if ( auto plotWindow = RiuPlotMainWindow::instance() )
+        {
+            dockWidget = RiuDockWidgetTools::findDockWidget( plotWindow->dockManager(), dockWidgetName );
+        }
+    }
+
+    if ( dockWidget )
+    {
+        if ( auto tree = dynamic_cast<caf::PdmUiTreeView*>( dockWidget->widget() ) )
+        {
+            tree->selectItems( items );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QByteArray RiuDockWidgetTools::defaultDockState( const QString& layoutName )
 {
     if ( layoutName == dockState3DEclipseName() )

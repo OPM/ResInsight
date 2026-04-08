@@ -47,9 +47,11 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_marker.h"
 #include "qwt_plot_picker.h"
+#include "qwt_scale_map.h"
 #include "qwt_text.h"
 
 #include <QColor>
+#include <QMouseEvent>
 #include <QStringList>
 
 #include <limits>
@@ -597,6 +599,70 @@ protected:
         return QwtText();
     }
 };
+class CurveSelectorFilter : public QObject
+{
+public:
+    CurveSelectorFilter( QwtPlot* plot, RimParameterResultCrossPlot* crossPlot )
+        : QObject( plot->canvas() )
+        , m_plot( plot )
+        , m_crossPlot( crossPlot )
+    {
+        plot->canvas()->installEventFilter( this );
+    }
+
+protected:
+    bool eventFilter( QObject*, QEvent* event ) override
+    {
+        if ( event->type() == QEvent::MouseButtonPress )
+        {
+            auto* mouseEvent = static_cast<QMouseEvent*>( event );
+            if ( mouseEvent->button() == Qt::LeftButton )
+            {
+                selectClosestCase( mouseEvent->pos() );
+            }
+        }
+        return false;
+    }
+
+private:
+    void selectClosestCase( const QPoint& pixelPos )
+    {
+        const auto xMap = m_plot->canvasMap( QwtAxis::XBottom );
+        const auto yMap = m_plot->canvasMap( QwtAxis::YLeft );
+
+        const double clickX = xMap.invTransform( pixelPos.x() );
+        const double clickY = yMap.invTransform( pixelPos.y() );
+
+        // Normalise by axis range to get a dimensionless distance
+        const double xRange = std::abs( xMap.s2() - xMap.s1() );
+        const double yRange = std::abs( yMap.s2() - yMap.s1() );
+        if ( xRange == 0.0 || yRange == 0.0 ) return;
+
+        double          minDist     = std::numeric_limits<double>::max();
+        RimSummaryCase* closestCase = nullptr;
+
+        for ( const auto& [paramValue, summaryValue, summaryCase] : m_crossPlot->createCaseData() )
+        {
+            const double dx   = ( paramValue - clickX ) / xRange;
+            const double dy   = ( summaryValue - clickY ) / yRange;
+            const double dist = dx * dx + dy * dy;
+            if ( dist < minDist )
+            {
+                minDist     = dist;
+                closestCase = summaryCase;
+            }
+        }
+
+        // Accept if within 3% of the total axis range
+        if ( closestCase && minDist < 0.03 * 0.03 )
+        {
+            RiuDockWidgetTools::selectItemInTreeView( RiuDockWidgetTools::plotMainWindowDataSourceTreeName(), { closestCase } );
+        }
+    }
+
+    QwtPlot*                     m_plot      = nullptr;
+    RimParameterResultCrossPlot* m_crossPlot = nullptr;
+};
 } // namespace internal
 
 //--------------------------------------------------------------------------------------------------
@@ -619,6 +685,9 @@ RiuPlotWidget* RimParameterResultCrossPlot::doCreatePlotViewWidget( QWidget* mai
     {
         // Add a curve tracker to display the name of the realization when mouse is close to a sample in the cross plot
         new internal::CurveTracker( m_plotWidget->qwtPlot() );
+
+        // Add a click filter to select the realization in the tree view when a point is clicked
+        new internal::CurveSelectorFilter( m_plotWidget->qwtPlot(), this );
     }
 
     return m_plotWidget;
