@@ -44,21 +44,28 @@
 
 #include <QColor>
 
-namespace caf
+// pdmToVariant/pdmFromVariant in namespace cvf so ADL finds them when called from templates
+// that use "using caf::pdmToVariant" — ADL searches the argument's namespace (cvf), not caf.
+namespace cvf
 {
 
-inline QVariant pdmToVariant( const cvf::Color3f& value )
+inline QVariant pdmToVariant( const Color3f& value )
 {
     QColor col;
     col.setRgbF( value.r(), value.g(), value.b() );
     return col;
 }
 
-inline void pdmFromVariant( const QVariant& v, cvf::Color3f& out )
+inline void pdmFromVariant( const QVariant& v, Color3f& out )
 {
     QColor col = v.value<QColor>();
     out.set( col.redF(), col.greenF(), col.blueF() );
 }
+
+} // end namespace cvf
+
+namespace caf
+{
 
 template <>
 struct PdmVariantEqualImpl<cvf::Color3f>
