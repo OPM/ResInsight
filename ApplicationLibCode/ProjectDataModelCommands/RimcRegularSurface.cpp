@@ -73,6 +73,37 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyFrom
     return nullptr;
 }
 
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimRegularSurface, RimcRegularSurface_getPropertyToKey, "GetPropertyToKey" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcRegularSurface_getPropertyToKey::RimcRegularSurface_getPropertyToKey( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Get property to key", "", "", "Get property to key." );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "", "", "", "Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_valueKey, "ValueKey", "", "", "", "Key Value" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_getPropertyToKey::execute()
+{
+    RimRegularSurface* surface = self<RimRegularSurface>();
+    if ( !surface ) return std::unexpected( "No surface found" );
+
+    std::vector<float> values = surface->getProperty( m_name );
+    if ( values.empty() ) return std::unexpected( QString( "Property '%1' not found." ).arg( m_name() ) );
+
+    auto keyValueStore = RiaApplication::instance()->keyValueStore();
+    keyValueStore->set( m_valueKey().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( values ) );
+
+    return nullptr;
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimRegularSurface, RimcRegularSurface_setPropertyAsDepth, "SetPropertyAsDepth" );
 
 //--------------------------------------------------------------------------------------------------

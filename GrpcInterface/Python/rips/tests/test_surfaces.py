@@ -82,6 +82,30 @@ def test_create_regular_surface(rips_instance, initialize_test):
     s.update()
 
 
+def test_get_property(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    c = rips_instance.project.load_case(path=case_path)
+    assert len(c.grids()) == 1
+
+    surface_collection = rips_instance.project.descendants(rips.SurfaceCollection)[0]
+
+    nx = 5
+    ny = 4
+    s = surface_collection.new_regular_surface(nx=nx, ny=ny)
+
+    input_values = [float(i) for i in range(nx * ny)]
+    s.set_property("test_prop", input_values)
+
+    output_values = s.get_property("test_prop")
+    assert len(output_values) == nx * ny
+    for i in range(len(input_values)):
+        assert abs(output_values[i] - input_values[i]) < 1e-6
+
+    # Getting a non-existent property should raise an error
+    with pytest.raises(rips.RipsError, match="not found"):
+        s.get_property("non_existent_property")
+
+
 def test_create_regular_surface_invalid_values(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
     c = rips_instance.project.load_case(path=case_path)

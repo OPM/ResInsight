@@ -46,6 +46,23 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
+class RimcRegularSurface_getPropertyToKey : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcRegularSurface_getPropertyToKey( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<QString> m_name;
+    caf::PdmField<QString> m_valueKey;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RimcRegularSurface_setPropertyAsDepth : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;

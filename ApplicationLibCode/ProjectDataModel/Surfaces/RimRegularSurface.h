@@ -42,6 +42,8 @@ public:
     void setProperty( const QString& key, const std::vector<float>& values );
     void setPropertyAsDepth( const QString& key );
 
+    std::vector<float> getProperty( const QString& key ) const;
+
     int    nx() const;
     int    ny() const;
     double originX() const;

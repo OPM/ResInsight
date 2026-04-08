@@ -22,3 +22,27 @@ def set_property(self: RegularSurface, name: str, values: List[float]) -> None:
     if project:
         project.set_key_values(key, values)
         self.set_property_from_key(name=name, value_key=key)
+
+
+@add_method(RegularSurface)
+def get_property(self: RegularSurface, name: str) -> List[float]:
+    """Gets a property from a regular surface.
+
+    Arguments:
+        name(str): Name of the property.
+
+    Returns:
+        List[float]: Values of the property (float32).
+          Size is nx*ny (see RegularSurface).
+    """
+    key = "{}_{}".format(uuid.uuid4(), "regular_surface_key")
+
+    project = self.ancestor(Project)
+    try:
+        self.get_property_to_key(name=name, value_key=key)
+        return project.key_values(key)
+    finally:
+        try:
+            project.remove_key_values(key)
+        except Exception:
+            pass
