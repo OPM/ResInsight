@@ -6,23 +6,6 @@
 
 #include <QColor>
 
-// Helper templates that mirror the call pattern in PdmUiFieldSpecializationForValueSpec<T>.
-// The "using caf::pdmToVariant" directive means the cvf::Color3f overload is only reachable
-// via ADL (argument namespace), not via the using-declaration alone.
-template <typename T>
-QVariant adlConvert( const T& value )
-{
-    using caf::pdmToVariant;
-    return pdmToVariant( value );
-}
-
-template <typename T>
-void adlSetFromVariant( const QVariant& v, T& out )
-{
-    using caf::pdmFromVariant;
-    pdmFromVariant( v, out );
-}
-
 TEST( SerializeTest, PdmCoreColor3f )
 {
     float        r = 0.4f;
@@ -54,12 +37,10 @@ TEST( VariantTest, PdmCoreColor3f )
     float        b = 0.18f;
     cvf::Color3f myColor( r, g, b );
 
-    using caf::pdmToVariant;
-    QVariant myVariant = pdmToVariant( myColor );
+    QVariant myVariant = caf::toVariant( myColor );
 
     cvf::Color3f decoded;
-    using caf::pdmFromVariant;
-    pdmFromVariant( myVariant, decoded );
+    caf::fromVariant( myVariant, decoded );
 
     EXPECT_FLOAT_EQ( myColor.r(), decoded.r() );
     EXPECT_FLOAT_EQ( myColor.g(), decoded.g() );
@@ -72,28 +53,27 @@ TEST( VariantEqualTest, PdmCoreColor3f )
     cvf::Color3f b( 0.4f, 0.2f, 0.18f );
     cvf::Color3f c( 0.4f, 0.2f, 0.5f );
 
-    using caf::pdmToVariant;
-    QVariant va = pdmToVariant( a );
-    QVariant vb = pdmToVariant( b );
-    QVariant vc = pdmToVariant( c );
+    QVariant va = caf::toVariant( a );
+    QVariant vb = caf::toVariant( b );
+    QVariant vc = caf::toVariant( c );
 
     EXPECT_TRUE( caf::pdmVariantEqual<cvf::Color3f>( va, vb ) );
     EXPECT_FALSE( caf::pdmVariantEqual<cvf::Color3f>( va, vc ) );
 }
 
-// Verifies the ADL round-trip: adlConvert/adlSetFromVariant mirror the template pattern used in
-// PdmUiFieldSpecializationForValueSpec<T>, where the cvf::Color3f overload must be found via ADL.
+// Verifies that caf::toVariant dispatches to the cvf::Color3f overload via ADL,
+// producing a QColor variant rather than a raw cvf::Color3f.
 TEST( AdlVariantTest, PdmCoreColor3f )
 {
     cvf::Color3f original( 0.4f, 0.2f, 0.18f );
 
-    QVariant variant = adlConvert( original );
+    QVariant variant = caf::toVariant( original );
 
     // The variant must hold a QColor, not a raw cvf::Color3f
     EXPECT_TRUE( variant.canConvert<QColor>() );
 
     cvf::Color3f decoded;
-    adlSetFromVariant( variant, decoded );
+    caf::fromVariant( variant, decoded );
 
     EXPECT_FLOAT_EQ( original.r(), decoded.r() );
     EXPECT_FLOAT_EQ( original.g(), decoded.g() );

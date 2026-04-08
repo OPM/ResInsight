@@ -121,6 +121,29 @@ void pdmFromVariant( const QVariant& v, std::optional<T>& out )
 }
 
 //==================================================================================================
+/// toVariant / fromVariant — public API wrappers
+///
+/// Simple qualified-call entry points that encapsulate the ADL two-step internally.
+/// Prefer these over calling pdmToVariant/pdmFromVariant with a using-declaration at the call site.
+/// Custom types are still extended by adding pdmToVariant/pdmFromVariant overloads in the type's
+/// own namespace; these wrappers just hide that detail from callers.
+//==================================================================================================
+
+template <typename T>
+QVariant toVariant( const T& value )
+{
+    using caf::pdmToVariant;
+    return pdmToVariant( value );
+}
+
+template <typename T>
+void fromVariant( const QVariant& v, T& out )
+{
+    using caf::pdmFromVariant;
+    pdmFromVariant( v, out );
+}
+
+//==================================================================================================
 /// PdmVariantEqualImpl<T>
 ///
 /// Class template used for comparing two QVariants carrying a field value of type T.

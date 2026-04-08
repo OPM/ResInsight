@@ -47,8 +47,8 @@
 
 Q_DECLARE_METATYPE( cvf::Vec3d );
 
-// pdmToVariant/pdmFromVariant in namespace cvf so ADL finds them when called from templates
-// that use "using caf::pdmToVariant" — ADL searches the argument's namespace (cvf), not caf.
+// pdmToVariant/pdmFromVariant in namespace cvf so ADL finds them when called via caf::toVariant/
+// caf::fromVariant — ADL searches the argument's namespace (cvf) in addition to caf.
 namespace cvf
 {
 

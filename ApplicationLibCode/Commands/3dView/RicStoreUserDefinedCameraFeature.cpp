@@ -104,10 +104,9 @@ void RicStoreUserDefinedCameraFeature::onActionTriggered( bool isChecked )
 
         camera->toLookAt( &eye, &vrp, &up );
 
-        using caf::pdmToVariant;
-        settings.setValue( RicStoreUserDefinedCameraFeature::eyeName(), pdmToVariant( eye ) );
-        settings.setValue( RicStoreUserDefinedCameraFeature::viewReferencePointName(), pdmToVariant( vrp ) );
-        settings.setValue( RicStoreUserDefinedCameraFeature::upName(), pdmToVariant( up ) );
+        settings.setValue( RicStoreUserDefinedCameraFeature::eyeName(), caf::toVariant( eye ) );
+        settings.setValue( RicStoreUserDefinedCameraFeature::viewReferencePointName(), caf::toVariant( vrp ) );
+        settings.setValue( RicStoreUserDefinedCameraFeature::upName(), caf::toVariant( up ) );
 
         RiuMainWindow::instance()->refreshViewActions();
     }

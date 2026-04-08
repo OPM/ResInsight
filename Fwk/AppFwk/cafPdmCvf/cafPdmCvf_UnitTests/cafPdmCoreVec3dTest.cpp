@@ -37,12 +37,10 @@ TEST( VariantTest, PdmCoreVec3d )
 
     cvf::Vec3d myVector( a, b, c );
 
-    using caf::pdmToVariant;
-    QVariant myVariant = pdmToVariant( myVector );
+    QVariant myVariant = caf::toVariant( myVector );
 
     cvf::Vec3d decoded;
-    using caf::pdmFromVariant;
-    pdmFromVariant( myVariant, decoded );
+    caf::fromVariant( myVariant, decoded );
 
     EXPECT_TRUE( decoded.equals( myVector ) );
 }
@@ -53,10 +51,9 @@ TEST( VariantEqualTest, PdmCoreVec3d )
     cvf::Vec3d b( 1.0, 2.0, 3.0 );
     cvf::Vec3d c( 1.0, 2.0, 4.0 );
 
-    using caf::pdmToVariant;
-    QVariant va = pdmToVariant( a );
-    QVariant vb = pdmToVariant( b );
-    QVariant vc = pdmToVariant( c );
+    QVariant va = caf::toVariant( a );
+    QVariant vb = caf::toVariant( b );
+    QVariant vc = caf::toVariant( c );
 
     EXPECT_TRUE( caf::pdmVariantEqual<cvf::Vec3d>( va, vb ) );
     EXPECT_FALSE( caf::pdmVariantEqual<cvf::Vec3d>( va, vc ) );

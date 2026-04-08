@@ -142,8 +142,7 @@ void RicPolylineTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf
 
     cvf::Vec3d domainOrigin = dispXf->transformToDomainCoord( origin );
     domainOrigin.z()        = -domainOrigin.z();
-    using caf::pdmToVariant;
-    QVariant originVariant = pdmToVariant( domainOrigin );
+    QVariant originVariant  = caf::toVariant( domainOrigin );
 
     caf::PdmUiCommandSystemProxy::instance()->setUiValueToField( target->targetPointUiCapability(), originVariant );
 }

@@ -94,8 +94,7 @@ void RicApplyUserDefinedCameraFeature::readCameraFromSettings( cvf::Vec3d& eye, 
     QVariant upVariant  = settings.value( RicStoreUserDefinedCameraFeature::upName() );
     if ( eyeVariant.isNull() || vrpVariant.isNull() || upVariant.isNull() ) return;
 
-    using caf::pdmFromVariant;
-    pdmFromVariant( eyeVariant, eye );
-    pdmFromVariant( vrpVariant, vrp );
-    pdmFromVariant( upVariant, up );
+    caf::fromVariant( eyeVariant, eye );
+    caf::fromVariant( vrpVariant, vrp );
+    caf::fromVariant( upVariant, up );
 }
