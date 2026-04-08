@@ -408,6 +408,16 @@ void RimRegularSurface::setPropertyAsDepth( const QString& key )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<float> RimRegularSurface::getProperty( const QString& key ) const
+{
+    auto it = m_properties.find( key );
+    if ( it != m_properties.end() ) return it->second;
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimRegularSurface::nx() const
 {
     return m_nx;

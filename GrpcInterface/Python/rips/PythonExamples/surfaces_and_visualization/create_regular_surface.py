@@ -78,5 +78,10 @@ if resinsight is not None:
         # Add a wave surface
         s.set_property("wave", create_wave_surface(nx, ny))
 
+        wave_values = s.get_property("wave")
+        print(
+            f"Retrieved {len(wave_values)} wave property values, min={min(wave_values):.2f}, max={max(wave_values):.2f}"
+        )
+
         # Use the wave as depth for the surface
         s.set_property_as_depth("wave")
