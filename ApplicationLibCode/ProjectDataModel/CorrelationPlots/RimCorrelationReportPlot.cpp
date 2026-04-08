@@ -31,7 +31,6 @@
 #include "RimEnsembleStatistics.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimRegularLegendConfig.h"
-#include "RimSummaryAddressSelector.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
@@ -43,12 +42,14 @@
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotWidget.h"
 
+#include "DockAreaTitleBar.h"
 #include "DockAreaWidget.h"
 #include "DockManager.h"
 #include "DockWidget.h"
 
 #include "cafAssert.h"
 #include "cafPdmPointer.h"
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
 
@@ -209,10 +210,9 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
     CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
 
-    CAF_PDM_InitField( &m_showSummaryPlot, "ShowSummaryPlot", true, "Show Summary Plot" );
+    CAF_PDM_InitField( &m_showDockTitleBars, "ShowDockTitleBars", false, "Show Title Bars" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showDockTitleBars );
     CAF_PDM_InitFieldNoDefault( &m_summaryPlot, "SummaryPlot", "Summary Plot" );
-    CAF_PDM_InitFieldNoDefault( &m_summaryAddressSelector, "SummaryAddressSelector", "Summary Vector" );
-
     CAF_PDM_InitField( &m_dockState, "DockState", QString(), "Dock State" );
     m_dockState.uiCapability()->setUiHidden( true );
 
@@ -244,13 +244,6 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     curveSet->setColor( TRACKING_ANNOTATION_COLOR );
     curveSet->statisticsOptions()->enableCurveLabels( false );
     m_summaryPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
-
-    m_summaryAddressSelector = new RimSummaryAddressSelector();
-    m_summaryAddressSelector->setShowResampling( false );
-    m_summaryAddressSelector->setShowAxis( false );
-    m_summaryAddressSelector->addressChanged.connect( this, &RimCorrelationReportPlot::onAddressSelectorChanged );
-
-    uiCapability()->setUiTreeChildrenHidden( true );
 
     m_correlationMatrixPlot->matrixCellSelected.connect( this, &RimCorrelationReportPlot::onDataSelection );
     m_correlationPlot->tornadoItemSelected.connect( this, &RimCorrelationReportPlot::onDataSelection );
@@ -398,21 +391,25 @@ void RimCorrelationReportPlot::recreatePlotWidgets()
     }
 
     // Wrap each plot in a dock widget
-    m_matrixDockWidget = new ads::CDockWidget( "Matrix Plot", m_dockManager );
-    m_matrixDockWidget->setWidget( m_correlationMatrixPlot->viewer(), ads::CDockWidget::ForceNoScrollArea );
-    m_matrixDockWidget->setFeature( ads::CDockWidget::DockWidgetClosable, false );
+    auto makeDockWidget = [&]( const QString& title, RimPlotWindow* plot, QWidget* widget ) -> ads::CDockWidget*
+    {
+        auto* dock = new ads::CDockWidget( title, m_dockManager );
+        dock->setWidget( widget, ads::CDockWidget::ForceNoScrollArea );
+        connect( dock,
+                 &ads::CDockWidget::closed,
+                 this,
+                 [this, plot]()
+                 {
+                     plot->setShowWindow( false );
+                     updateConnectedEditors();
+                 } );
+        return dock;
+    };
 
-    m_correlationDockWidget = new ads::CDockWidget( "Correlation Plot", m_dockManager );
-    m_correlationDockWidget->setWidget( m_correlationPlot->viewer(), ads::CDockWidget::ForceNoScrollArea );
-    m_correlationDockWidget->setFeature( ads::CDockWidget::DockWidgetClosable, false );
-
-    m_crossPlotDockWidget = new ads::CDockWidget( "Cross Plot", m_dockManager );
-    m_crossPlotDockWidget->setWidget( m_parameterResultCrossPlot->viewer(), ads::CDockWidget::ForceNoScrollArea );
-    m_crossPlotDockWidget->setFeature( ads::CDockWidget::DockWidgetClosable, false );
-
-    m_summaryDockWidget = new ads::CDockWidget( "Summary Plot", m_dockManager );
-    m_summaryDockWidget->setWidget( m_summaryPlot->plotWidget(), ads::CDockWidget::ForceNoScrollArea );
-    m_summaryDockWidget->setFeature( ads::CDockWidget::DockWidgetClosable, false );
+    m_matrixDockWidget      = makeDockWidget( "Matrix Plot", m_correlationMatrixPlot(), m_correlationMatrixPlot->viewer() );
+    m_correlationDockWidget = makeDockWidget( "Correlation Plot", m_correlationPlot(), m_correlationPlot->viewer() );
+    m_crossPlotDockWidget   = makeDockWidget( "Cross Plot", m_parameterResultCrossPlot(), m_parameterResultCrossPlot->viewer() );
+    m_summaryDockWidget     = makeDockWidget( "Summary Plot", m_summaryPlot(), m_summaryPlot->plotWidget() );
 
     // Disable zoom — clicks are used for time step selection, not zooming
     if ( m_summaryPlot->summaryPlotWidget() ) m_summaryPlot->summaryPlotWidget()->setZoomEnabled( false );
@@ -453,9 +450,15 @@ void RimCorrelationReportPlot::recreatePlotWidgets()
         m_dockManager->addDockWidget( ads::LeftDockWidgetArea, m_matrixDockWidget );
         m_dockManager->addDockWidget( ads::BottomDockWidgetArea, m_crossPlotDockWidget, corrArea );
         m_dockManager->addDockWidget( ads::BottomDockWidgetArea, m_summaryDockWidget );
-
-        m_summaryDockWidget->toggleView( m_showSummaryPlot() );
     }
+
+    // Sync initial dock visibility from subplot enabled state
+    m_matrixDockWidget->toggleView( m_correlationMatrixPlot->showWindow() );
+    m_correlationDockWidget->toggleView( m_correlationPlot->showWindow() );
+    m_crossPlotDockWidget->toggleView( m_parameterResultCrossPlot->showWindow() );
+    m_summaryDockWidget->toggleView( m_summaryPlot()->showWindow() );
+
+    updateDockTitleBarsVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -580,23 +583,17 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
         m_correlationPlot->loadDataAndUpdate();
         m_parameterResultCrossPlot->loadDataAndUpdate();
 
-        if ( m_showSummaryPlot() )
+        if ( m_summaryPlot->showWindow() )
         {
-            if ( !m_summaryAddressSelector->ensemble() )
+            auto curveSets = m_summaryPlot->ensembleCurveSetCollection()->curveSets();
+            if ( !curveSets.empty() && !curveSets[0]->summaryEnsemble() )
             {
                 auto curveDefs = m_correlationMatrixPlot->curveDefinitions();
                 if ( !curveDefs.empty() )
                 {
-                    m_summaryAddressSelector->setEnsemble( curveDefs.front().ensemble() );
-                    m_summaryAddressSelector->setAddress( curveDefs.front().summaryAddressY() );
+                    curveSets[0]->setSummaryEnsemble( curveDefs.front().ensemble() );
+                    curveSets[0]->setSummaryAddressY( curveDefs.front().summaryAddressY() );
                 }
-            }
-
-            auto curveSets = m_summaryPlot->ensembleCurveSetCollection()->curveSets();
-            if ( !curveSets.empty() )
-            {
-                curveSets[0]->setSummaryEnsemble( m_summaryAddressSelector->ensemble() );
-                curveSets[0]->setSummaryAddressY( m_summaryAddressSelector->summaryAddress() );
             }
 
             m_summaryPlot->loadDataAndUpdate();
@@ -626,13 +623,6 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     auto filterGroup = uiOrdering.addNewGroup( "Filter" );
     m_parameterResultCrossPlot->appendFilterFields( *filterGroup );
 
-    auto summaryGroup = uiOrdering.addNewGroup( "Summary Plot" );
-    summaryGroup->add( &m_showSummaryPlot );
-    if ( m_showSummaryPlot() )
-    {
-        m_summaryAddressSelector->uiOrdering( "", *summaryGroup );
-    }
-
     auto plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->setCollapsedByDefault();
     plotGroup->add( &m_titleFontSize );
@@ -645,8 +635,9 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     auto layoutGroup = uiOrdering.addNewGroup( "Dock Layout" );
     layoutGroup->setCollapsedByDefault();
+    layoutGroup->add( &m_showDockTitleBars );
     layoutGroup->addNewButton( "Save as Default Layout", [this]() { onSaveDefaultDockLayout(); } );
-    layoutGroup->addNewButton( "Restore Default Layout", [this]() { onRestoreDefaultDockLayout(); } );
+    layoutGroup->addNewButton( "Restore Default Layout", [this]() { onRestoreDefaultDockLayout(); }, { .newRow = false } );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -654,11 +645,34 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::updateDockTitleBarsVisibility()
+{
+    if ( !m_dockManager ) return;
+    for ( auto* area : m_dockManager->openedDockAreas() )
+        area->titleBar()->setVisible( m_showDockTitleBars() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    uiTreeOrdering.add( m_correlationMatrixPlot() );
+    uiTreeOrdering.add( m_correlationPlot() );
+    uiTreeOrdering.add( m_parameterResultCrossPlot() );
+    uiTreeOrdering.add( m_summaryPlot() );
+    uiTreeOrdering.skipRemainingChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_showSummaryPlot && m_summaryDockWidget )
+    if ( changedField == &m_showDockTitleBars )
     {
-        m_summaryDockWidget->toggleView( m_showSummaryPlot() );
+        updateDockTitleBarsVisibility();
+        return;
     }
     loadDataAndUpdate();
 }
@@ -668,6 +682,18 @@ void RimCorrelationReportPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
+    // childFieldChangedByUi receives the parent field (the PdmChildField in this class),
+    // not the specific field that changed inside the child. Sync dock visibility unconditionally
+    // so toggling showWindow() in the tree view is always reflected immediately.
+    if ( m_matrixDockWidget && changedChildField == &m_correlationMatrixPlot )
+        m_matrixDockWidget->toggleView( m_correlationMatrixPlot->showWindow() );
+    else if ( m_correlationDockWidget && changedChildField == &m_correlationPlot )
+        m_correlationDockWidget->toggleView( m_correlationPlot->showWindow() );
+    else if ( m_crossPlotDockWidget && changedChildField == &m_parameterResultCrossPlot )
+        m_crossPlotDockWidget->toggleView( m_parameterResultCrossPlot->showWindow() );
+    else if ( m_summaryDockWidget && changedChildField == &m_summaryPlot )
+        m_summaryDockWidget->toggleView( m_summaryPlot->showWindow() );
+
     loadDataAndUpdate();
 }
 
@@ -693,6 +719,18 @@ void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*       
     m_parameterResultCrossPlot->setEnsembleParameter( paramName );
     m_parameterResultCrossPlot->loadDataAndUpdate();
 
+    if ( m_summaryPlot->showWindow() && curveDef.ensemble() )
+    {
+        auto curveSets = m_summaryPlot->ensembleCurveSetCollection()->curveSets();
+        if ( !curveSets.empty() )
+        {
+            curveSets[0]->setSummaryEnsemble( curveDef.ensemble() );
+            curveSets[0]->setSummaryAddressY( curveDef.summaryAddressY() );
+        }
+        m_summaryPlot->loadDataAndUpdate();
+        if ( m_summaryPlot->plotWidget() ) m_summaryPlot->plotWidget()->setPlotTitleEnabled( true );
+    }
+
     updateConnectedEditors();
 }
 
@@ -710,14 +748,6 @@ void RimCorrelationReportPlot::onSummaryPlotMousePressed( double xPlotCoordinate
                                 [clickedTime]( time_t a, time_t b ) { return std::abs( a - clickedTime ) < std::abs( b - clickedTime ); } );
 
     m_correlationMatrixPlot->setTimeStep( *it );
-    loadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCorrelationReportPlot::onAddressSelectorChanged( const caf::SignalEmitter* )
-{
     loadDataAndUpdate();
 }
 

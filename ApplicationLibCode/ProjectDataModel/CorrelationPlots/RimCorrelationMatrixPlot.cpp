@@ -645,7 +645,7 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "Result Vectors vs Parameters at %2" ).arg( timeStepString() );
+        m_description = QString( "Pearson Correlation - %2" ).arg( timeStepString() );
     }
 
     if ( m_plotWidget )

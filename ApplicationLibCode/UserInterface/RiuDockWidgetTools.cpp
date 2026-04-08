@@ -447,7 +447,7 @@ std::vector<caf::PdmUiItem*> RiuDockWidgetTools::selectedItemsInTreeView( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::selectItemInTreeView( const QString& dockWidgetName, const std::vector<const caf::PdmUiItem*>& items )
+void RiuDockWidgetTools::selectItemsInTreeView( const QString& dockWidgetName, const std::vector<const caf::PdmUiItem*>& items )
 {
     ads::CDockWidget* dockWidget = nullptr;
     if ( auto mainWindow = RiuMainWindow::instance() )

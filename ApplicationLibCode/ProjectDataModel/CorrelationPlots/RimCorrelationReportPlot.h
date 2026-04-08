@@ -27,15 +27,12 @@
 #include <QDateTime>
 #include <QObject>
 
-class RimAnalysisPlotDataEntry;
 class RimCorrelationMatrixPlot;
 class RimParameterResultCrossPlot;
 class RimSummaryEnsemble;
 class RimCorrelationPlot;
 class RiaSummaryCurveDefinition;
 class RimSummaryPlot;
-class RimSummaryAddressSelector;
-
 namespace ads
 {
 class CDockManager;
@@ -76,15 +73,16 @@ private:
     void     deleteViewWidget() override;
     void     onLoadDataAndUpdate() override;
     void     defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void     defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void     fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void     childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void     doUpdateLayout() override;
 
     void onDataSelection( const caf::SignalEmitter* emitter, std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef );
     void onSummaryPlotMousePressed( double xPlotCoordinate );
-    void onAddressSelectorChanged( const caf::SignalEmitter* emitter );
     void onSaveDefaultDockLayout();
     void onRestoreDefaultDockLayout();
+    void updateDockTitleBarsVisibility();
 
 private:
     caf::PdmProxyValueField<QString> m_name;
@@ -92,15 +90,14 @@ private:
     caf::PdmChildField<RimCorrelationMatrixPlot*>    m_correlationMatrixPlot;
     caf::PdmChildField<RimCorrelationPlot*>          m_correlationPlot;
     caf::PdmChildField<RimParameterResultCrossPlot*> m_parameterResultCrossPlot;
-    RimFontSizeField                                 m_subTitleFontSize;
-    RimFontSizeField                                 m_labelFontSize;
-    RimFontSizeField                                 m_axisTitleFontSize;
-    RimFontSizeField                                 m_axisValueFontSize;
+    caf::PdmChildField<RimSummaryPlot*>              m_summaryPlot;
 
-    caf::PdmField<bool>                            m_showSummaryPlot;
-    caf::PdmChildField<RimSummaryPlot*>            m_summaryPlot;
-    caf::PdmChildField<RimSummaryAddressSelector*> m_summaryAddressSelector;
+    RimFontSizeField m_subTitleFontSize;
+    RimFontSizeField m_labelFontSize;
+    RimFontSizeField m_axisTitleFontSize;
+    RimFontSizeField m_axisValueFontSize;
 
+    caf::PdmField<bool>    m_showDockTitleBars;
     caf::PdmField<QString> m_dockState;
 
     QWidget*           m_viewWidget            = nullptr;

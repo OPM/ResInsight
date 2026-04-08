@@ -102,7 +102,7 @@ public:
     static QIcon dockIcon( const QString dockWidgetName );
 
     static std::vector<caf::PdmUiItem*> selectedItemsInTreeView( const QString& dockWidgetName );
-    static void selectItemInTreeView( const QString& dockWidgetName, const std::vector<const caf::PdmUiItem*>& items );
+    static void selectItemsInTreeView( const QString& dockWidgetName, const std::vector<const caf::PdmUiItem*>& items );
 
 private:
     static QByteArray defaultEclipseDockState();

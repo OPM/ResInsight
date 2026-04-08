@@ -656,7 +656,7 @@ private:
         // Accept if within 3% of the total axis range
         if ( closestCase && minDist < 0.03 * 0.03 )
         {
-            RiuDockWidgetTools::selectItemInTreeView( RiuDockWidgetTools::plotMainWindowDataSourceTreeName(), { closestCase } );
+            RiuDockWidgetTools::selectItemsInTreeView( RiuDockWidgetTools::plotMainWindowDataSourceTreeName(), { closestCase } );
         }
     }
 
