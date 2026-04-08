@@ -1,5 +1,0 @@
-grpcio
-grpcio-tools
-protobuf
-wheel
-typing-extensions

@@ -199,8 +199,8 @@ endforeach(rips_proto)
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
   configure_file(${CMAKE_SOURCE_DIR}/ApplicationLibCode/Adm/RiaVersionInfo.py.cmake
                  ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
-  configure_file(${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
-                 ${GRPC_PYTHON_SOURCE_PATH}/setup.py)
+  configure_file(${GRPC_PYTHON_SOURCE_PATH}/rips/_version.py.cmake
+                 ${GRPC_PYTHON_SOURCE_PATH}/rips/_version.py)
 endif()
 
 list (APPEND GRPC_PYTHON_GENERATED_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
@@ -208,7 +208,7 @@ list (APPEND GRPC_PYTHON_GENERATED_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/gener
 file(GLOB GRPC_PYTHON_RIPS_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/*.py)
 file(GLOB GRPC_PYTHON_EXAMPLE_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/PythonExamples/*.py)
 file(GLOB GRPC_PYTHON_TEST_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/tests/*.py)
-file(GLOB GRPC_PYTHON_OTHER_FILES  "${GRPC_PYTHON_SOURCE_PATH}/setup.py" "${GRPC_PYTHON_SOURCE_PATH}/requirements.txt" "${GRPC_PYTHON_SOURCE_PATH}/README.md" "${GRPC_PYTHON_SOURCE_PATH}/LICENSE")
+file(GLOB GRPC_PYTHON_OTHER_FILES  "${GRPC_PYTHON_SOURCE_PATH}/pyproject.toml" "${GRPC_PYTHON_SOURCE_PATH}/README.md" "${GRPC_PYTHON_SOURCE_PATH}/LICENSE")
 
 list(
   APPEND
@@ -249,10 +249,10 @@ endif()
 
 # install gRPC Python files
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
-  message(STATUS "Installing Python modules (dev-requirements.txt)")
+  message(STATUS "Installing Python dev modules")
   add_custom_command(
     TARGET PipInstall
-    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install -r ${GRPC_PYTHON_SOURCE_PATH}/dev-requirements.txt )
+    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install -e ${GRPC_PYTHON_SOURCE_PATH}[dev] )
 endif()
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
