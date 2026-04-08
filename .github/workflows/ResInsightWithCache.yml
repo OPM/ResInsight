@@ -106,7 +106,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r GrpcInterface/Python/build-requirements.txt
+          pip install -e GrpcInterface/Python[dev]
 
       - name: Use MSVC (Windows)
         if: contains(matrix.config.os, 'windows')
@@ -272,8 +272,8 @@ jobs:
         shell: bash
         run: |
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install mypy types-protobuf
-          cd GrpcInterface/Python/rips
-          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m mypy *.py generated/generated_classes.py
+          cd GrpcInterface/Python
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m mypy rips/*.py rips/generated/generated_classes.py
 
       - name: Run pytest
         if: matrix.config.execute-pytests

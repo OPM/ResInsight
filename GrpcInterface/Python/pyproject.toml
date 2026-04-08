@@ -1,0 +1,138 @@
+[build-system]
+requires = ["setuptools>=70.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rips"
+dynamic = ["version"]
+description = "Python Interface for ResInsight"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{name = "Ceetron Solutions", email = "info@ceetronsolutions.com"}]
+dependencies = [
+    "grpcio",
+    "protobuf",
+    "typing_extensions",
+]
+
+[project.optional-dependencies]
+dev = [
+    "grpcio-tools",
+    "pytest",
+    "mypy",
+    "types-protobuf",
+    "packaging>=22.0",
+]
+
+[project.urls]
+Homepage = "http://www.resinsight.org"
+
+[tool.setuptools.dynamic]
+version = {attr = "rips._version.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["rips*"]
+
+[tool.setuptools.package-data]
+rips = [
+    "py.typed",
+    "*.py",
+    "generated/*.py",
+    "PythonExamples/*.py",
+    "tests/*.py",
+]
+
+[tool.mypy]
+python_version = "3.11"
+show_error_codes = true
+show_column_numbers = true
+strict = true
+ignore_missing_imports = true
+implicit_reexport = true
+allow_redefinition = false
+strict_optional = true
+warn_no_return = true
+warn_unused_configs = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_return_any = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = "rips.grpc_retry_interceptor.*"
+disable_error_code = ["misc", "no-untyped-def", "no-untyped-call"]
+
+[[tool.mypy.overrides]]
+module = "rips.pdmobject.*"
+disable_error_code = ["assignment", "return-value", "call-arg", "no-untyped-def", "no-untyped-call", "no-any-return"]
+
+[[tool.mypy.overrides]]
+module = "rips.case.*"
+disable_error_code = ["no-untyped-def", "no-any-return"]
+
+[[tool.mypy.overrides]]
+module = "rips.grid.*"
+disable_error_code = ["no-untyped-def", "no-untyped-call"]
+
+[[tool.mypy.overrides]]
+module = "rips.gridcasegroup.*"
+disable_error_code = ["no-any-return", "no-untyped-def"]
+
+[[tool.mypy.overrides]]
+module = "rips.project.*"
+disable_error_code = ["no-untyped-def", "no-any-return", "attr-defined"]
+
+[[tool.mypy.overrides]]
+module = "rips.well_log.*"
+disable_error_code = ["attr-defined", "no-any-return"]
+
+[[tool.mypy.overrides]]
+module = "rips.well_log_plot.*"
+disable_error_code = ["no-any-return"]
+
+[[tool.mypy.overrides]]
+module = "rips.well_path_collection.*"
+disable_error_code = ["attr-defined"]
+
+[[tool.mypy.overrides]]
+module = "rips.contour_map.*"
+disable_error_code = ["no-redef"]
+
+[[tool.mypy.overrides]]
+module = "rips.plot.*"
+disable_error_code = ["no-untyped-def"]
+
+[[tool.mypy.overrides]]
+module = "rips.view.*"
+disable_error_code = ["no-untyped-def"]
+
+[[tool.mypy.overrides]]
+module = "rips.instance.*"
+disable_error_code = ["no-untyped-def", "no-untyped-call", "attr-defined"]
+
+[[tool.mypy.overrides]]
+module = "rips.well_path.*"
+disable_error_code = ["attr-defined"]
+
+[[tool.mypy.overrides]]
+module = "rips.simulation_well.*"
+disable_error_code = ["no-any-return", "attr-defined"]
+
+[[tool.mypy.overrides]]
+module = "rips.generated.generated_classes.*"
+disable_error_code = ["no-any-return"]
+
+[[tool.mypy.overrides]]
+module = "rips.surface.*"
+disable_error_code = ["attr-defined", "no-any-return"]
+
+[[tool.mypy.overrides]]
+module = "rips.category_mapping.*"
+disable_error_code = ["attr-defined", "no-any-return"]
