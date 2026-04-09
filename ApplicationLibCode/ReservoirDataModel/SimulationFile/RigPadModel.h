@@ -27,6 +27,7 @@
 namespace Opm
 {
 class Deck;
+class DeckKeyword;
 class FileDeck;
 } // namespace Opm
 
@@ -58,4 +59,6 @@ public:
                                                     int                        nzLower,
                                                     double                     upperDefault,
                                                     double                     lowerDefault );
+
+    static void extendDepthTable( const RigModelPaddingSettings& settings, Opm::DeckKeyword& propertyVD );
 };
