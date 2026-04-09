@@ -333,7 +333,7 @@ RSVD
 //--------------------------------------------------------------------------------------------------
 static std::vector<double> getDepths( const Opm::DeckKeyword& kw, size_t recordIndex = 0 )
 {
-    const auto& values = kw.getRecord( recordIndex ).getItem( 0 ).getData<double>();
+    const auto&         values = kw.getRecord( recordIndex ).getItem( 0 ).getData<double>();
     std::vector<double> depths;
     for ( size_t i = 0; i < values.size(); i += 2 )
     {
@@ -458,7 +458,7 @@ TEST( RigPadModel, ExtendDepthTable_BothAlreadyCovered )
     auto rsvd = createRsvdKeyword( "  2000.0  120.0\n  2500.0  110.0\n  3000.0  100.0 /\n" );
 
     RigModelPaddingSettings settings;
-    settings.setTopUpper( 2200.0 );  // > first depth (2000)
+    settings.setTopUpper( 2200.0 ); // > first depth (2000)
     settings.setBottomLower( 2800.0 ); // < last depth (3000)
 
     RigPadModel::extendDepthTable( settings, rsvd );
@@ -486,7 +486,7 @@ TEST( RigPadModel, ExtendDepthTable_ExactBoundaryMatch )
     auto rsvd = createRsvdKeyword( "  2000.0  120.0\n  2500.0  110.0\n  3000.0  100.0 /\n" );
 
     RigModelPaddingSettings settings;
-    settings.setTopUpper( 2000.0 );    // == first depth, strict < means no prepend
+    settings.setTopUpper( 2000.0 ); // == first depth, strict < means no prepend
     settings.setBottomLower( 3000.0 ); // == last depth, strict > means no append
 
     RigPadModel::extendDepthTable( settings, rsvd );
