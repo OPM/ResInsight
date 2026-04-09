@@ -90,11 +90,11 @@ TEST( AppEnumTest, EnumSubsetNoCollision )
     auto retrievedSubset2 = caf::AppEnum<TestEnumType>::enumSubset( &obj2.m_enumField );
 
     // Verify that the subsets are correct and independent
-    ASSERT_EQ( 2, retrievedSubset1.size() );
+    ASSERT_EQ( 2u, retrievedSubset1.size() );
     EXPECT_EQ( TestEnumType::VALUE_A, retrievedSubset1[0] );
     EXPECT_EQ( TestEnumType::VALUE_B, retrievedSubset1[1] );
 
-    ASSERT_EQ( 3, retrievedSubset2.size() );
+    ASSERT_EQ( 3u, retrievedSubset2.size() );
     EXPECT_EQ( TestEnumType::VALUE_C, retrievedSubset2[0] );
     EXPECT_EQ( TestEnumType::VALUE_D, retrievedSubset2[1] );
     EXPECT_EQ( TestEnumType::VALUE_E, retrievedSubset2[2] );
@@ -116,8 +116,8 @@ TEST( AppEnumTest, EnumSubsetSameClass )
     auto retrievedSubset1 = caf::AppEnum<TestEnumType>::enumSubset( &obj1a.m_enumField );
     auto retrievedSubset2 = caf::AppEnum<TestEnumType>::enumSubset( &obj1b.m_enumField );
 
-    ASSERT_EQ( 2, retrievedSubset1.size() );
-    ASSERT_EQ( 2, retrievedSubset2.size() );
+    ASSERT_EQ( 2u, retrievedSubset1.size() );
+    ASSERT_EQ( 2u, retrievedSubset2.size() );
     EXPECT_EQ( TestEnumType::VALUE_A, retrievedSubset1[0] );
     EXPECT_EQ( TestEnumType::VALUE_C, retrievedSubset1[1] );
     EXPECT_EQ( TestEnumType::VALUE_A, retrievedSubset2[0] );

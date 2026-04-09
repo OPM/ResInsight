@@ -156,7 +156,7 @@ TEST_F( PdmLoggingTest, DuplicateRegistration )
 
     // Should still be registered only once
     caf::PdmLogging::error( "Test message" );
-    EXPECT_EQ( 1, m_testLogger1->errorCount() );
+    EXPECT_EQ( 1u, m_testLogger1->errorCount() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,10 +187,10 @@ TEST_F( PdmLoggingTest, BasicMessageLogging )
     caf::PdmLogging::debug( "Debug message" );
 
     // Verify messages were captured
-    EXPECT_EQ( 1, m_testLogger1->errorCount() );
-    EXPECT_EQ( 1, m_testLogger1->warningCount() );
-    EXPECT_EQ( 1, m_testLogger1->infoCount() );
-    EXPECT_EQ( 1, m_testLogger1->debugCount() );
+    EXPECT_EQ( 1u, m_testLogger1->errorCount() );
+    EXPECT_EQ( 1u, m_testLogger1->warningCount() );
+    EXPECT_EQ( 1u, m_testLogger1->infoCount() );
+    EXPECT_EQ( 1u, m_testLogger1->debugCount() );
 
     EXPECT_EQ( "Error message", m_testLogger1->errorMessages()[0] );
     EXPECT_EQ( "Warning message", m_testLogger1->warningMessages()[0] );
@@ -212,10 +212,10 @@ TEST_F( PdmLoggingTest, LogLevelFiltering )
     caf::PdmLogging::debug( "Debug message" );
 
     // Should receive error, warning, info but not debug
-    EXPECT_EQ( 1, m_testLogger2->errorCount() );
-    EXPECT_EQ( 1, m_testLogger2->warningCount() );
-    EXPECT_EQ( 1, m_testLogger2->infoCount() );
-    EXPECT_EQ( 0, m_testLogger2->debugCount() );
+    EXPECT_EQ( 1u, m_testLogger2->errorCount() );
+    EXPECT_EQ( 1u, m_testLogger2->warningCount() );
+    EXPECT_EQ( 1u, m_testLogger2->infoCount() );
+    EXPECT_EQ( 0u, m_testLogger2->debugCount() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,19 +234,19 @@ TEST_F( PdmLoggingTest, MultipleLoggers )
     caf::PdmLogging::debug( "Debug message" );
 
     // Error message should reach all loggers
-    EXPECT_EQ( 1, m_testLogger1->errorCount() );
-    EXPECT_EQ( 1, m_testLogger2->errorCount() );
-    EXPECT_EQ( 1, m_testLogger3->errorCount() );
+    EXPECT_EQ( 1u, m_testLogger1->errorCount() );
+    EXPECT_EQ( 1u, m_testLogger2->errorCount() );
+    EXPECT_EQ( 1u, m_testLogger3->errorCount() );
 
     // Warning should reach debug and info loggers, but not error-only logger
-    EXPECT_EQ( 1, m_testLogger1->warningCount() );
-    EXPECT_EQ( 1, m_testLogger2->warningCount() );
-    EXPECT_EQ( 0, m_testLogger3->warningCount() );
+    EXPECT_EQ( 1u, m_testLogger1->warningCount() );
+    EXPECT_EQ( 1u, m_testLogger2->warningCount() );
+    EXPECT_EQ( 0u, m_testLogger3->warningCount() );
 
     // Debug should only reach debug logger
-    EXPECT_EQ( 1, m_testLogger1->debugCount() );
-    EXPECT_EQ( 0, m_testLogger2->debugCount() );
-    EXPECT_EQ( 0, m_testLogger3->debugCount() );
+    EXPECT_EQ( 1u, m_testLogger1->debugCount() );
+    EXPECT_EQ( 0u, m_testLogger2->debugCount() );
+    EXPECT_EQ( 0u, m_testLogger3->debugCount() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,8 +265,8 @@ TEST_F( PdmLoggingTest, ClearAllLoggers )
 
     // Logging should not reach any logger now
     caf::PdmLogging::error( "Error message" );
-    EXPECT_EQ( 0, m_testLogger1->errorCount() );
-    EXPECT_EQ( 0, m_testLogger2->errorCount() );
+    EXPECT_EQ( 0u, m_testLogger1->errorCount() );
+    EXPECT_EQ( 0u, m_testLogger2->errorCount() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,10 +282,10 @@ TEST_F( PdmLoggingTest, LoggingMacros )
     CAF_PDM_LOG_INFO( "Macro info" );
     CAF_PDM_LOG_DEBUG( "Macro debug" );
 
-    EXPECT_EQ( 1, m_testLogger1->errorCount() );
-    EXPECT_EQ( 1, m_testLogger1->warningCount() );
-    EXPECT_EQ( 1, m_testLogger1->infoCount() );
-    EXPECT_EQ( 1, m_testLogger1->debugCount() );
+    EXPECT_EQ( 1u, m_testLogger1->errorCount() );
+    EXPECT_EQ( 1u, m_testLogger1->warningCount() );
+    EXPECT_EQ( 1u, m_testLogger1->infoCount() );
+    EXPECT_EQ( 1u, m_testLogger1->debugCount() );
 
     EXPECT_EQ( "Macro error", m_testLogger1->errorMessages()[0] );
     EXPECT_EQ( "Macro warning", m_testLogger1->warningMessages()[0] );
@@ -305,7 +305,7 @@ TEST_F( PdmLoggingTest, ConditionalLoggingMacros )
     CAF_PDM_LOG_DEBUG_IF( "Conditional debug" );
 
     // No messages should be logged since no loggers registered
-    EXPECT_EQ( 0, m_testLogger1->errorCount() );
+    EXPECT_EQ( 0u, m_testLogger1->errorCount() );
 
     // Register logger and test again
     caf::PdmLogging::registerLogger( m_testLogger1 );
@@ -316,10 +316,10 @@ TEST_F( PdmLoggingTest, ConditionalLoggingMacros )
     CAF_PDM_LOG_DEBUG_IF( "Conditional debug" );
 
     // Now messages should be logged
-    EXPECT_EQ( 1, m_testLogger1->errorCount() );
-    EXPECT_EQ( 1, m_testLogger1->warningCount() );
-    EXPECT_EQ( 1, m_testLogger1->infoCount() );
-    EXPECT_EQ( 1, m_testLogger1->debugCount() );
+    EXPECT_EQ( 1u, m_testLogger1->errorCount() );
+    EXPECT_EQ( 1u, m_testLogger1->warningCount() );
+    EXPECT_EQ( 1u, m_testLogger1->infoCount() );
+    EXPECT_EQ( 1u, m_testLogger1->debugCount() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -338,6 +338,6 @@ TEST_F( PdmLoggingTest, ThreadSafety )
         caf::PdmLogging::unregisterLogger( m_testLogger2 );
     }
 
-    EXPECT_EQ( 100, m_testLogger1->errorCount() );
+    EXPECT_EQ( 100u, m_testLogger1->errorCount() );
     EXPECT_TRUE( caf::PdmLogging::hasLoggers() );
 }
