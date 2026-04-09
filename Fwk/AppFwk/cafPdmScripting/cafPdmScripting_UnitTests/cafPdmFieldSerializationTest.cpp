@@ -157,9 +157,7 @@ TEST( PdmFieldSerialization, ValueList )
     caf::PdmScriptIOMessages messages;
     bool                     stringsAreQuoted = true;
 
-    caf::PdmFieldScriptingCapabilityIOHandler<std::vector<float>>::readFromField( floatValues,
-                                                                                  stream,
-                                                                                  stringsAreQuoted );
+    caf::PdmFieldScriptingCapabilityIOHandler<std::vector<float>>::readFromField( floatValues, stream, stringsAreQuoted );
 
     const QString expected = "[1.5, 0.0001, 1.77e+10]";
     EXPECT_STREQ( expected.toStdString().c_str(), text.toStdString().c_str() );
