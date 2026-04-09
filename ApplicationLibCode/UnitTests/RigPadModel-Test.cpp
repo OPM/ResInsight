@@ -18,9 +18,11 @@
 
 #include "gtest/gtest.h"
 
+#include "RigModelPaddingSettings.h"
 #include "RigPadModel.h"
 
 #include "opm/input/eclipse/Deck/Deck.hpp"
+#include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
 
 #include <algorithm>
@@ -308,4 +310,197 @@ SCHEDULE
 
     // Unknown keyword should return 0.0
     EXPECT_DOUBLE_EQ( 0.0, RigPadModel::getPropsDefaultValue( deck, "UNKNOWN_KEYWORD" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+// Helper: parse a minimal deck with RSVD and return a mutable copy of the keyword
+//--------------------------------------------------------------------------------------------------
+static Opm::DeckKeyword createRsvdKeyword( const std::string& rsvdData )
+{
+    std::string deckString = R"(
+EQLDIMS
+  1 /
+SOLUTION
+RSVD
+)" + rsvdData;
+
+    auto deck = Opm::Parser{}.parseString( deckString );
+    return deck["RSVD"][0];
+}
+
+//--------------------------------------------------------------------------------------------------
+// Helper: extract depth values (every other element starting at index 0) from RSVD record
+//--------------------------------------------------------------------------------------------------
+static std::vector<double> getDepths( const Opm::DeckKeyword& kw, size_t recordIndex = 0 )
+{
+    const auto&         values = kw.getRecord( recordIndex ).getItem( 0 ).getData<double>();
+    std::vector<double> depths;
+    for ( size_t i = 0; i < values.size(); i += 2 )
+    {
+        depths.push_back( values[i] );
+    }
+    return depths;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Helper: verify strict monotonicity of depth values in an RSVD record
+//--------------------------------------------------------------------------------------------------
+static void verifyMonotonicDepths( const Opm::DeckKeyword& kw, size_t recordIndex = 0 )
+{
+    auto depths = getDepths( kw, recordIndex );
+    for ( size_t i = 1; i < depths.size(); ++i )
+    {
+        EXPECT_LT( depths[i - 1], depths[i] ) << "Depth values must be strictly monotonic at index " << i;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// extendDepthTable: both top and bottom rows are added when table doesn't cover padding range
+//--------------------------------------------------------------------------------------------------
+TEST( RigPadModel, ExtendDepthTable_BothExtended )
+{
+    // RSVD table: depths 2000, 2500, 3000 with Rs values 120, 110, 100
+    auto rsvd = createRsvdKeyword( "  2000.0  120.0\n  2500.0  110.0\n  3000.0  100.0 /\n" );
+
+    RigModelPaddingSettings settings;
+    settings.setTopUpper( 1500.0 );
+    settings.setBottomLower( 3500.0 );
+
+    RigPadModel::extendDepthTable( settings, rsvd );
+
+    // The function duplicates the first record for the padding equilibrium region
+    ASSERT_EQ( 2u, rsvd.size() );
+
+    const auto& values = rsvd.getRecord( 0 ).getItem( 0 ).getData<double>();
+
+    // 5 depth-property pairs: prepended + 3 original + appended
+    ASSERT_EQ( 10u, values.size() );
+
+    // Prepended row: depth=1500, property copied from first entry (120)
+    EXPECT_DOUBLE_EQ( 1500.0, values[0] );
+    EXPECT_DOUBLE_EQ( 120.0, values[1] );
+
+    // Original data preserved
+    EXPECT_DOUBLE_EQ( 2000.0, values[2] );
+    EXPECT_DOUBLE_EQ( 120.0, values[3] );
+    EXPECT_DOUBLE_EQ( 2500.0, values[4] );
+    EXPECT_DOUBLE_EQ( 110.0, values[5] );
+    EXPECT_DOUBLE_EQ( 3000.0, values[6] );
+    EXPECT_DOUBLE_EQ( 100.0, values[7] );
+
+    // Appended row: depth=3500, property copied from last entry (100)
+    EXPECT_DOUBLE_EQ( 3500.0, values[8] );
+    EXPECT_DOUBLE_EQ( 100.0, values[9] );
+
+    verifyMonotonicDepths( rsvd );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// extendDepthTable: table already covers top, only bottom row added
+//--------------------------------------------------------------------------------------------------
+TEST( RigPadModel, ExtendDepthTable_TopAlreadyCovered )
+{
+    auto rsvd = createRsvdKeyword( "  2000.0  120.0\n  2500.0  110.0\n  3000.0  100.0 /\n" );
+
+    RigModelPaddingSettings settings;
+    settings.setTopUpper( 2500.0 ); // >= first depth (2000), so no top row
+    settings.setBottomLower( 3500.0 );
+
+    RigPadModel::extendDepthTable( settings, rsvd );
+
+    const auto& values = rsvd.getRecord( 0 ).getItem( 0 ).getData<double>();
+
+    // 4 depth-property pairs: 3 original + 1 appended
+    ASSERT_EQ( 8u, values.size() );
+
+    // No prepended row - starts with original data
+    EXPECT_DOUBLE_EQ( 2000.0, values[0] );
+    EXPECT_DOUBLE_EQ( 120.0, values[1] );
+
+    // Appended row
+    EXPECT_DOUBLE_EQ( 3500.0, values[6] );
+    EXPECT_DOUBLE_EQ( 100.0, values[7] );
+
+    verifyMonotonicDepths( rsvd );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// extendDepthTable: table already covers bottom, only top row added
+//--------------------------------------------------------------------------------------------------
+TEST( RigPadModel, ExtendDepthTable_BottomAlreadyCovered )
+{
+    auto rsvd = createRsvdKeyword( "  2000.0  120.0\n  2500.0  110.0\n  3000.0  100.0 /\n" );
+
+    RigModelPaddingSettings settings;
+    settings.setTopUpper( 1500.0 );
+    settings.setBottomLower( 2800.0 ); // < last depth (3000), so no bottom row
+
+    RigPadModel::extendDepthTable( settings, rsvd );
+
+    const auto& values = rsvd.getRecord( 0 ).getItem( 0 ).getData<double>();
+
+    // 4 depth-property pairs: 1 prepended + 3 original
+    ASSERT_EQ( 8u, values.size() );
+
+    // Prepended row
+    EXPECT_DOUBLE_EQ( 1500.0, values[0] );
+    EXPECT_DOUBLE_EQ( 120.0, values[1] );
+
+    // No appended row - ends with original data
+    EXPECT_DOUBLE_EQ( 3000.0, values[6] );
+    EXPECT_DOUBLE_EQ( 100.0, values[7] );
+
+    verifyMonotonicDepths( rsvd );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// extendDepthTable: table already covers both top and bottom, no rows added
+//--------------------------------------------------------------------------------------------------
+TEST( RigPadModel, ExtendDepthTable_BothAlreadyCovered )
+{
+    auto rsvd = createRsvdKeyword( "  2000.0  120.0\n  2500.0  110.0\n  3000.0  100.0 /\n" );
+
+    RigModelPaddingSettings settings;
+    settings.setTopUpper( 2200.0 ); // > first depth (2000)
+    settings.setBottomLower( 2800.0 ); // < last depth (3000)
+
+    RigPadModel::extendDepthTable( settings, rsvd );
+
+    const auto& values = rsvd.getRecord( 0 ).getItem( 0 ).getData<double>();
+
+    // Unchanged: 3 original depth-property pairs
+    ASSERT_EQ( 6u, values.size() );
+
+    EXPECT_DOUBLE_EQ( 2000.0, values[0] );
+    EXPECT_DOUBLE_EQ( 120.0, values[1] );
+    EXPECT_DOUBLE_EQ( 2500.0, values[2] );
+    EXPECT_DOUBLE_EQ( 110.0, values[3] );
+    EXPECT_DOUBLE_EQ( 3000.0, values[4] );
+    EXPECT_DOUBLE_EQ( 100.0, values[5] );
+
+    verifyMonotonicDepths( rsvd );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// extendDepthTable: exact boundary match - strict inequalities prevent duplicate depths
+//--------------------------------------------------------------------------------------------------
+TEST( RigPadModel, ExtendDepthTable_ExactBoundaryMatch )
+{
+    auto rsvd = createRsvdKeyword( "  2000.0  120.0\n  2500.0  110.0\n  3000.0  100.0 /\n" );
+
+    RigModelPaddingSettings settings;
+    settings.setTopUpper( 2000.0 ); // == first depth, strict < means no prepend
+    settings.setBottomLower( 3000.0 ); // == last depth, strict > means no append
+
+    RigPadModel::extendDepthTable( settings, rsvd );
+
+    const auto& values = rsvd.getRecord( 0 ).getItem( 0 ).getData<double>();
+
+    // Unchanged: 3 original depth-property pairs, no duplicates
+    ASSERT_EQ( 6u, values.size() );
+
+    EXPECT_DOUBLE_EQ( 2000.0, values[0] );
+    EXPECT_DOUBLE_EQ( 3000.0, values[4] );
+
+    verifyMonotonicDepths( rsvd );
 }

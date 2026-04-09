@@ -788,10 +788,12 @@ void extendEQUIL( Opm::DeckKeyword& equil )
     equil.addRecord( std::move( record ) );
 }
 
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 /// Extend RSVD/RVVD/RTEMPVD/PBVD/PDVD tables (padmodel lines 832-867)
 //--------------------------------------------------------------------------------------------------
-void extendDepthTable( const RigModelPaddingSettings& settings, Opm::DeckKeyword& propertyVD )
+void RigPadModel::extendDepthTable( const RigModelPaddingSettings& settings, Opm::DeckKeyword& propertyVD )
 {
     assert( !propertyVD.empty() );
 
@@ -804,16 +806,25 @@ void extendDepthTable( const RigModelPaddingSettings& settings, Opm::DeckKeyword
 
         const auto& values = table.getItem( 0 ).getData<double>();
 
-        i.front().push_back( settings.topUpper() );
-        i.front().push_back( values[0 + 1] );
+        // Need at least one depth-property pair for safe indexing
+        if ( values.size() < 2 ) continue;
+
+        if ( settings.topUpper() < values.front() )
+        {
+            i.front().push_back( settings.topUpper() );
+            i.front().push_back( values[0 + 1] );
+        }
 
         for ( const auto& value : values )
         {
             i.front().push_back( value );
         }
 
-        i.front().push_back( settings.bottomLower() );
-        i.front().push_back( values.back() );
+        if ( settings.bottomLower() > values[values.size() - 2] )
+        {
+            i.front().push_back( settings.bottomLower() );
+            i.front().push_back( values.back() );
+        }
 
         newPropertyVD.addRecord( Opm::DeckRecord{ std::move( i ) } );
     }
@@ -823,8 +834,11 @@ void extendDepthTable( const RigModelPaddingSettings& settings, Opm::DeckKeyword
         newPropertyVD.addRecord( std::move( first ) );
     }
 
-    propertyVD = newPropertyVD;
+    propertyVD = std::move( newPropertyVD );
 }
+
+namespace
+{
 
 //--------------------------------------------------------------------------------------------------
 /// Extend EQUIL + depth tables in SOLUTION section (padmodel lines 869-886)
@@ -852,7 +866,7 @@ void extendSolution( const RigModelPaddingSettings& settings, Opm::FileDeck& fil
         else if ( keyword.name() == "RSVD" || keyword.name() == "RVVD" || keyword.name() == "RTEMPVD" || keyword.name() == "PBVD" ||
                   keyword.name() == "PDVD" )
         {
-            extendDepthTable( settings, const_cast<Opm::DeckKeyword&>( keyword ) );
+            RigPadModel::extendDepthTable( settings, const_cast<Opm::DeckKeyword&>( keyword ) );
         }
     }
 }
