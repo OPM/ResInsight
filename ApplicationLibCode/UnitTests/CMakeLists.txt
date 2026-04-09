@@ -40,6 +40,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/ObservedDataParser-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/EclipseRftReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExpressionParser-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLinearScaleEngine-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorDescriptionMap-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/FixedWidthDataParser-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigTimeCurveHistoryMerger-Test.cpp

@@ -27,8 +27,21 @@ QwtScaleDiv RiuQwtLinearScaleEngine::divideScaleWithExplicitIntervals( double x1
 {
     QwtInterval   interval( x1, x2 );
     QwtInterval   roundedInterval = align( interval, majorStepInterval );
-    QList<double> majorTicks      = buildMajorTicks( roundedInterval, majorStepInterval );
-    QList<double> minorTicks      = buildMajorTicks( roundedInterval, minorStepInterval );
+    QList<double> majorTicks;
+
+    // Only build major ticks if the interval is non-zero to avoid division by zero
+    if ( majorStepInterval > 0.0 )
+    {
+        majorTicks = buildMajorTicks( roundedInterval, majorStepInterval );
+    }
+
+    QList<double> minorTicks;
+
+    // Only build minor ticks if the interval is non-zero to avoid division by zero
+    if ( minorStepInterval > 0.0 )
+    {
+        minorTicks = buildMajorTicks( roundedInterval, minorStepInterval );
+    }
 
     return QwtScaleDiv( x1, x2, minorTicks, minorTicks, majorTicks );
 }
@@ -44,8 +57,21 @@ QwtScaleDiv RiuQwtLinearScaleEngine::divideScaleWithExplicitIntervalsAndRange( d
                                                                                double rangeEnd )
 {
     QwtInterval   tickInterval( tickStart, tickEnd );
-    QList<double> majorTicks = buildMajorTicks( tickInterval, majorStepInterval );
-    QList<double> minorTicks = buildMajorTicks( tickInterval, minorStepInterval );
+    QList<double> majorTicks;
+
+    // Only build major ticks if the interval is non-zero to avoid division by zero
+    if ( majorStepInterval > 0.0 )
+    {
+        majorTicks = buildMajorTicks( tickInterval, majorStepInterval );
+    }
+
+    QList<double> minorTicks;
+
+    // Only build minor ticks if the interval is non-zero to avoid division by zero
+    if ( minorStepInterval > 0.0 )
+    {
+        minorTicks = buildMajorTicks( tickInterval, minorStepInterval );
+    }
 
     return QwtScaleDiv( rangeStart, rangeEnd, minorTicks, minorTicks, majorTicks );
 }
