@@ -620,8 +620,8 @@ TEST( BaseTest, ReadWrite )
     {
         QFile f1( fileName );
         QFile f2( fileNameCopy );
-        f1.open( QIODevice::ReadOnly | QIODevice::Text );
-        f2.open( QIODevice::ReadOnly | QIODevice::Text );
+        EXPECT_TRUE( f1.open( QIODevice::ReadOnly | QIODevice::Text ) );
+        EXPECT_TRUE( f2.open( QIODevice::ReadOnly | QIODevice::Text ) );
         QByteArray ba1   = f1.readAll();
         QByteArray ba2   = f2.readAll();
         bool       equal = ba1 == ba2;
@@ -702,7 +702,7 @@ TEST( BaseTest, ReadWrite )
         // Write the edited document
 
         QFile f3( "PdmTestFilWithError.xml" );
-        f3.open( QIODevice::WriteOnly | QIODevice::Text );
+        EXPECT_TRUE( f3.open( QIODevice::WriteOnly | QIODevice::Text ) );
         f3.write( ba1 );
         f3.close();
 
