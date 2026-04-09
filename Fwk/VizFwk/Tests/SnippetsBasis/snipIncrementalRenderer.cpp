@@ -213,7 +213,7 @@ void IncrementalRenderer::onPaintEvent(PostEventAction* postEventAction)
     //glViewport(0, 0, vpWidth, vpHeight);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0, vpWidth, 0, vpHeight);
+    glOrtho(0, vpWidth, 0, vpHeight, -1, 1);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();

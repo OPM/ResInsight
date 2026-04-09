@@ -43,7 +43,6 @@
 #include "Win32PropertiesPanel.h"
 
 #include <GL/gl.h>
-#include <GL/glu.h>
 
 #include "SnippetFactoryBasis.h"
 

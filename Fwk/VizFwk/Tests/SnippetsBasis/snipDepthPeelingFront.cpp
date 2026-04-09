@@ -536,7 +536,7 @@ void DepthPeelingFront::drawQuad()
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-    gluOrtho2D(0.0, 1.0, 0.0, 1.0);
+    glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
     glBegin(GL_QUADS);
     {
         glVertex2f(0.0, 0.0); 

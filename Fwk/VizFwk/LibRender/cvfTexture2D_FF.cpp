@@ -146,9 +146,8 @@ bool Texture2D_FF::setupTexture(OpenGLContext* oglContext)
     GLsizei width = static_cast<GLsizei>(m_image->width());
     GLsizei height = static_cast<GLsizei>(m_image->height());
     CVF_ASSERT(height > 0 && width > 0);
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_image->ptr());
-    // Note: gluBuild2DMipmaps will scale the image to the closest power of 2 dimension, which is required by the software renderer
-    gluBuild2DMipmaps(GL_TEXTURE_2D, 4, width, height, GL_RGBA, GL_UNSIGNED_BYTE, m_image->ptr());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_image->ptr());
+    cvfGL->glGenerateMipmap(GL_TEXTURE_2D);
 
     if (CVF_TEST_AND_REPORT_OPENGL_ERROR(oglContext, "Setup texture"))
     {

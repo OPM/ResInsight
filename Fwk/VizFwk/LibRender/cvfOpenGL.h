@@ -51,11 +51,12 @@
     QOpenGLExtraFunctions* cvfGL = QOpenGLContext::currentContext()->extraFunctions()
 
 // Include standard OpenGL headers for constants and basic types
+// Note: Qt's QOpenGLFunctions headers already include the platform GL headers,
+// but we include them explicitly for clarity. GLU is not used.
 #if defined(WIN32) || defined(CVF_LINUX)
 
 // Windows and Linux includes
 #include <GL/gl.h>
-#include <GL/glu.h>
 
 #elif defined(CVF_ANDROID)
 
@@ -73,7 +74,6 @@
 
 // Mac OSX includes
 #include "OpenGL/gl.h"
-#include "OpenGL/glu.h"
 
 #endif
 
