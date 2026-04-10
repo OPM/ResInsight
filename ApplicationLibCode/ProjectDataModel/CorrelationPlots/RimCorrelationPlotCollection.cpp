@@ -193,7 +193,18 @@ RimRftCorrelationReportPlot* RimCorrelationPlotCollection::createRftCorrelationR
         const auto ensembles = source->selectedEnsembles();
         if ( !ensembles.empty() )
         {
-            report->crossPlot()->setEnsemble( ensembles.front() );
+            auto* ensemble = ensembles.front();
+            report->crossPlot()->setEnsemble( ensemble );
+
+            // Pick the first numeric ensemble parameter as a default
+            for ( const auto& param : RimSummaryEnsembleTools::alphabeticEnsembleParameters( ensemble->allSummaryCases() ) )
+            {
+                if ( param.isNumeric() )
+                {
+                    report->crossPlot()->setEnsembleParameter( param.name );
+                    break;
+                }
+            }
         }
         report->crossPlot()->setWellName( source->simWellOrWellPathName() );
 
