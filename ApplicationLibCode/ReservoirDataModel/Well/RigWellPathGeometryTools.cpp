@@ -416,6 +416,45 @@ std::vector<double> interpolateMdFromTvd( const std::vector<double>& originalMdV
         double mdValue = Internal::solveForX( splinePoints, startMD, endMD, currentTVDValue );
         interpolatedMdValues.push_back( mdValue );
     }
+    // Second pass: linearly interpolate MD for any infinity-TVD entries so the result is monotonically rising.
+    for ( size_t i = 0; i < tvdValuesToInterpolateFrom.size(); ++i )
+    {
+        if ( !std::isinf( tvdValuesToInterpolateFrom[i] ) ) continue;
+
+        int prevValid = -1;
+        int nextValid = -1;
+        for ( int j = (int)i - 1; j >= 0; --j )
+        {
+            if ( !std::isinf( tvdValuesToInterpolateFrom[j] ) )
+            {
+                prevValid = j;
+                break;
+            }
+        }
+        for ( int j = (int)i + 1; j < (int)tvdValuesToInterpolateFrom.size(); ++j )
+        {
+            if ( !std::isinf( tvdValuesToInterpolateFrom[j] ) )
+            {
+                nextValid = j;
+                break;
+            }
+        }
+
+        if ( prevValid != -1 && nextValid != -1 )
+        {
+            double t                      = (double)( i - prevValid ) / (double)( nextValid - prevValid );
+            interpolatedMdValues[i] = interpolatedMdValues[prevValid] + t * ( interpolatedMdValues[nextValid] - interpolatedMdValues[prevValid] );
+        }
+        else if ( prevValid != -1 )
+        {
+            interpolatedMdValues[i] = interpolatedMdValues[prevValid];
+        }
+        else if ( nextValid != -1 )
+        {
+            interpolatedMdValues[i] = interpolatedMdValues[nextValid];
+        }
+    }
+
     return interpolatedMdValues;
 }
 
