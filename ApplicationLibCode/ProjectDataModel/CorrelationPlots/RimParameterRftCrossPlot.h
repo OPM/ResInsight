@@ -108,6 +108,7 @@ private:
     caf::PdmField<QString>                  m_wellName;
     caf::PdmField<QDateTime>                m_selectedTimeStep;
     caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
+    caf::PdmField<bool>                     m_useDepthRange;
     caf::PdmField<double>                   m_depthRangeMin;
     caf::PdmField<double>                   m_depthRangeMax;
     caf::PdmField<QString>                  m_ensembleParameter;

@@ -77,6 +77,7 @@ RimParameterRftCrossPlot::RimParameterRftCrossPlot()
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeStep, "TimeStep", "Time Step" );
     m_selectedTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case (MD fallback)" );
+    CAF_PDM_InitField( &m_useDepthRange, "UseDepthRange", false, "Filter by Depth Range" );
     CAF_PDM_InitField( &m_depthRangeMin, "DepthRangeMin", 0.0, "Min Depth (MD)" );
     CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth (MD)" );
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString(), "Ensemble Parameter" );
@@ -234,10 +235,9 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
         // 2. Fallback: compute MD from 3D grid intersections via the well log extractor
         if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( m_wellName(), m_selectedTimeStep(), extractor );
 
-        // Collect pressure samples within the user-specified depth range.
-        // If no MD is available at all, include every pressure sample.
+        // Collect pressure samples, optionally filtered by the user-specified depth range.
         std::vector<double> samplesInRange;
-        if ( depths.size() == pressures.size() )
+        if ( m_useDepthRange() && depths.size() == pressures.size() )
         {
             for ( size_t i = 0; i < depths.size(); ++i )
             {
@@ -246,7 +246,6 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
         }
         else
         {
-            // No usable depth data — aggregate all pressure values
             samplesInRange = pressures;
         }
 
@@ -282,7 +281,9 @@ void RimParameterRftCrossPlot::updateAxes()
     const int axisTitleSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
     const int axisValueSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 
-    const QString depthLabel = QString( "Mean Pressure [MD %1 - %2]" ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() );
+    const QString depthLabel = m_useDepthRange()
+                                   ? QString( "Mean Pressure [MD %1 - %2]" ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
+                                   : QString( "Mean Pressure" );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), depthLabel );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
@@ -459,8 +460,11 @@ void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     dataGroup->add( &m_eclipseCase );
 
     auto* depthGroup = uiOrdering.addNewGroup( "Depth Range" );
+    depthGroup->add( &m_useDepthRange );
     depthGroup->add( &m_depthRangeMin );
     depthGroup->add( &m_depthRangeMax );
+    m_depthRangeMin.uiCapability()->setUiReadOnly( !m_useDepthRange() );
+    m_depthRangeMax.uiCapability()->setUiReadOnly( !m_useDepthRange() );
 
     auto* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameter" );
     crossPlotGroup->add( &m_ensembleParameter );
@@ -617,11 +621,18 @@ void RimParameterRftCrossPlot::updatePlotTitle()
 
     if ( m_useAutoPlotTitle && m_ensemble() )
     {
-        m_description = QString( "%1 vs RFT Pressure [%2 - %3 m], %4" )
-                            .arg( m_ensembleParameter() )
-                            .arg( m_depthRangeMin() )
-                            .arg( m_depthRangeMax() )
-                            .arg( m_ensemble->name() );
+        if ( m_useDepthRange() )
+        {
+            m_description = QString( "%1 vs RFT Pressure [%2 - %3 m], %4" )
+                                .arg( m_ensembleParameter() )
+                                .arg( m_depthRangeMin() )
+                                .arg( m_depthRangeMax() )
+                                .arg( m_ensemble->name() );
+        }
+        else
+        {
+            m_description = QString( "%1 vs RFT Pressure, %2" ).arg( m_ensembleParameter() ).arg( m_ensemble->name() );
+        }
     }
 
     m_plotWidget->setPlotTitle( m_description() );
