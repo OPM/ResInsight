@@ -26,7 +26,7 @@
 #include <QDateTime>
 #include <QPointer>
 
-#include <limits>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -131,6 +131,6 @@ private:
 
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 
-    std::pair<double, double> m_xValueRange{ std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() };
-    std::pair<double, double> m_yValueRange{ std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() };
+    std::optional<std::pair<double, double>> m_xValueRange;
+    std::optional<std::pair<double, double>> m_yValueRange;
 };

@@ -326,18 +326,18 @@ void RimParameterRftCrossPlot::updateAxes()
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
     m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(), axisTitleSize, axisValueSize, false, Qt::AlignCenter );
 
-    if ( m_yValueRange.first != std::numeric_limits<double>::infinity() )
+    if ( m_yValueRange.has_value() )
     {
-        m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(), m_yValueRange.first, m_yValueRange.second );
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(), m_yValueRange->first, m_yValueRange->second );
     }
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), m_ensembleParameter() );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
     m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(), axisTitleSize, axisValueSize, false, Qt::AlignCenter );
 
-    if ( m_xValueRange.first != std::numeric_limits<double>::infinity() )
+    if ( m_xValueRange.has_value() )
     {
-        m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), m_xValueRange.first, m_xValueRange.second );
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), m_xValueRange->first, m_xValueRange->second );
     }
 }
 
@@ -735,13 +735,18 @@ void RimParameterRftCrossPlot::updateValueRanges()
         yMax = std::max( yMax, pressureValue );
     }
 
-    if ( xMin == std::numeric_limits<double>::infinity() ) return;
+    if ( xMin == std::numeric_limits<double>::infinity() )
+    {
+        m_xValueRange = std::nullopt;
+        m_yValueRange = std::nullopt;
+        return;
+    }
 
-    double xRange = xMax - xMin;
-    double yRange = yMax - yMin;
+    const double xRange = xMax - xMin;
+    const double yRange = yMax - yMin;
 
-    m_xValueRange = { xMin - xRange * 0.1, xMax + xRange * 0.1 };
-    m_yValueRange = { yMin - yRange * 0.1, yMax + yRange * 0.1 };
+    m_xValueRange = std::make_pair( xMin - xRange * 0.1, xMax + xRange * 0.1 );
+    m_yValueRange = std::make_pair( yMin - yRange * 0.1, yMax + yRange * 0.1 );
 }
 
 //--------------------------------------------------------------------------------------------------
