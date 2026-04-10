@@ -87,7 +87,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
 
-    void addDataToChartBuilder( class RiuGroupedBarChartBuilder& chartBuilder ) const;
+    std::map<QString, double> addDataToChartBuilder( class RiuGroupedBarChartBuilder& chartBuilder ) const;
     void highlightSelectedParameterBar();
     void updatePlotTitle();
     void cleanupBeforeClose();
@@ -118,9 +118,9 @@ private:
     RimFontSizeField m_axisTitleFontSize;
     RimFontSizeField m_axisValueFontSize;
 
-    ParameterSelectedCallback         m_parameterSelectedCallback;
-    QString                           m_selectedParameter;
-    mutable std::map<QString, double> m_lastCorrelations; // param.name -> pearson value, filled during addDataToChartBuilder
+    ParameterSelectedCallback  m_parameterSelectedCallback;
+    QString                    m_selectedParameter;
+    std::map<QString, double>  m_lastCorrelations; // param.name -> pearson value, updated in onLoadDataAndUpdate
 
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 };

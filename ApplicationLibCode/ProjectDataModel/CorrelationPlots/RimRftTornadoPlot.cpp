@@ -45,6 +45,7 @@
 #include <QPaintDevice>
 
 #include <limits>
+#include <map>
 #include <numeric>
 
 CAF_PDM_SOURCE_INIT( RimRftTornadoPlot, "RftTornadoPlot" );
@@ -290,7 +291,7 @@ void RimRftTornadoPlot::onLoadDataAndUpdate()
 
         RiuGroupedBarChartBuilder chartBuilder;
         chartBuilder.setBarColor( RiaColorTools::toQColor( m_barColor() ) );
-        addDataToChartBuilder( chartBuilder );
+        m_lastCorrelations = addDataToChartBuilder( chartBuilder );
         const int labelSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_labelFontSize() );
         chartBuilder.setLabelFontSize( labelSize );
         chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(), Qt::Horizontal, m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
@@ -358,11 +359,11 @@ void RimRftTornadoPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotIte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftTornadoPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder ) const
+std::map<QString, double> RimRftTornadoPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder ) const
 {
-    m_lastCorrelations.clear();
+    std::map<QString, double> correlations;
 
-    if ( !m_ensemble() || m_wellName().isEmpty() || !m_selectedTimeStep().isValid() ) return;
+    if ( !m_ensemble() || m_wellName().isEmpty() || !m_selectedTimeStep().isValid() ) return correlations;
 
     const auto& allCases = m_ensemble->allSummaryCases();
 
@@ -399,7 +400,7 @@ void RimRftTornadoPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartB
         double pearson = RigStatisticsTools::pearsonCorrelation( paramValues, pressureValues );
         if ( std::isinf( pearson ) || std::isnan( pearson ) ) continue;
 
-        m_lastCorrelations[param.name] = pearson;
+        correlations[param.name] = pearson;
 
         double  value      = m_showAbsoluteValues() ? std::abs( pearson ) : pearson;
         double  sortValue  = m_sortByAbsoluteValues() ? std::abs( value ) : value;
@@ -408,6 +409,8 @@ void RimRftTornadoPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartB
         QString axisLabel  = QString( "%1 (%2)" ).arg( param.name ).arg( pearson, 5, 'f', 2 );
         chartBuilder.addBarEntry( "", "", "", sortValue, param.name, axisLabel, value );
     }
+
+    return correlations;
 }
 
 //--------------------------------------------------------------------------------------------------
