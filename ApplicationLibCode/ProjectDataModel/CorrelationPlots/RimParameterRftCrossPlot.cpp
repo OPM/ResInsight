@@ -189,12 +189,12 @@ RiuQwtPlotWidget* RimParameterRftCrossPlot::viewer()
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSummaryEnsemble*   ensemble,
-                                                                           const QString&        wellName,
-                                                                           const QDateTime&      timeStep,
-                                                                           RimEclipseResultCase* eclipseCase,
-                                                                           bool                  useDepthRange,
-                                                                           double                depthRangeMin,
-                                                                           double                depthRangeMax )
+                                                                          const QString&        wellName,
+                                                                          const QDateTime&      timeStep,
+                                                                          RimEclipseResultCase* eclipseCase,
+                                                                          bool                  useDepthRange,
+                                                                          double                depthRangeMin,
+                                                                          double                depthRangeMax )
 {
     if ( !ensemble || wellName.isEmpty() || !timeStep.isValid() ) return {};
 
@@ -226,7 +226,7 @@ std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSum
             continue;
         }
 
-        auto                pressureAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+        auto pressureAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
         std::vector<double> pressures;
         reader->values( pressureAddress, &pressures );
         if ( pressures.empty() )
@@ -235,7 +235,7 @@ std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSum
             continue;
         }
 
-        auto                mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
+        auto mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
         std::vector<double> depths;
         reader->values( mdAddress, &depths );
         if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
@@ -277,8 +277,13 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
 
     const auto& allCases = m_ensemble->allSummaryCases();
 
-    const std::vector<double> pressurePerCase =
-        computeMeanPressurePerCase( m_ensemble(), m_wellName(), m_selectedTimeStep(), m_eclipseCase(), m_useDepthRange(), m_depthRangeMin(), m_depthRangeMax() );
+    const std::vector<double> pressurePerCase = computeMeanPressurePerCase( m_ensemble(),
+                                                                            m_wellName(),
+                                                                            m_selectedTimeStep(),
+                                                                            m_eclipseCase(),
+                                                                            m_useDepthRange(),
+                                                                            m_depthRangeMin(),
+                                                                            m_depthRangeMax() );
 
     if ( pressurePerCase.size() != allCases.size() ) return {};
 
@@ -292,9 +297,8 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
         if ( std::isinf( pressurePerCase[caseIdx] ) ) continue;
         if ( caseIdx >= static_cast<size_t>( parameter.values.size() ) ) continue;
 
-        result.push_back( { .parameterValue = parameter.values[caseIdx].toDouble(),
-                            .pressureValue  = pressurePerCase[caseIdx],
-                            .summaryCase    = summaryCase } );
+        result.push_back(
+            { .parameterValue = parameter.values[caseIdx].toDouble(), .pressureValue = pressurePerCase[caseIdx], .summaryCase = summaryCase } );
     }
 
     return result;
@@ -318,9 +322,8 @@ void RimParameterRftCrossPlot::updateAxes()
     const int axisTitleSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
     const int axisValueSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 
-    const QString depthLabel = m_useDepthRange()
-                                   ? QString( "Mean Pressure [MD %1 - %2]" ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
-                                   : QString( "Mean Pressure" );
+    const QString depthLabel = m_useDepthRange() ? QString( "Mean Pressure [MD %1 - %2]" ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
+                                                 : QString( "Mean Pressure" );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), depthLabel );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );

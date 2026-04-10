@@ -442,8 +442,9 @@ std::vector<double> interpolateMdFromTvd( const std::vector<double>& originalMdV
 
         if ( prevValid != -1 && nextValid != -1 )
         {
-            double t                      = (double)( i - prevValid ) / (double)( nextValid - prevValid );
-            interpolatedMdValues[i] = interpolatedMdValues[prevValid] + t * ( interpolatedMdValues[nextValid] - interpolatedMdValues[prevValid] );
+            double t                = (double)( i - prevValid ) / (double)( nextValid - prevValid );
+            interpolatedMdValues[i] = interpolatedMdValues[prevValid] +
+                                      t * ( interpolatedMdValues[nextValid] - interpolatedMdValues[prevValid] );
         }
         else if ( prevValid != -1 )
         {

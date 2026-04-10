@@ -88,9 +88,9 @@ private:
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
 
     std::map<QString, double> addDataToChartBuilder( class RiuGroupedBarChartBuilder& chartBuilder ) const;
-    void highlightSelectedParameterBar();
-    void updatePlotTitle();
-    void cleanupBeforeClose();
+    void                      highlightSelectedParameterBar();
+    void                      updatePlotTitle();
+    void                      cleanupBeforeClose();
 
 private:
     // Data source inputs
@@ -118,9 +118,9 @@ private:
     RimFontSizeField m_axisTitleFontSize;
     RimFontSizeField m_axisValueFontSize;
 
-    ParameterSelectedCallback  m_parameterSelectedCallback;
-    QString                    m_selectedParameter;
-    std::map<QString, double>  m_lastCorrelations; // param.name -> pearson value, updated in onLoadDataAndUpdate
+    ParameterSelectedCallback m_parameterSelectedCallback;
+    QString                   m_selectedParameter;
+    std::map<QString, double> m_lastCorrelations; // param.name -> pearson value, updated in onLoadDataAndUpdate
 
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 };

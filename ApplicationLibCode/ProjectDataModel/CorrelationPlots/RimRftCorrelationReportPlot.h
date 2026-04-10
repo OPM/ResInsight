@@ -92,10 +92,10 @@ private:
     caf::PdmField<bool>    m_showDockTitleBars;
     caf::PdmField<QString> m_dockState;
 
-    QWidget*           m_viewWidget               = nullptr;
-    QObject*           m_contextMenuFilter        = nullptr;
-    ads::CDockManager* m_dockManager              = nullptr;
-    ads::CDockWidget*  m_rftDockWidget            = nullptr;
-    ads::CDockWidget*  m_correlationDockWidget    = nullptr;
-    ads::CDockWidget*  m_crossPlotDockWidget      = nullptr;
+    QWidget*           m_viewWidget            = nullptr;
+    QObject*           m_contextMenuFilter     = nullptr;
+    ads::CDockManager* m_dockManager           = nullptr;
+    ads::CDockWidget*  m_rftDockWidget         = nullptr;
+    ads::CDockWidget*  m_correlationDockWidget = nullptr;
+    ads::CDockWidget*  m_crossPlotDockWidget   = nullptr;
 };
