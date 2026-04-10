@@ -58,6 +58,8 @@
 
 #include "RiuAbstractLegendFrame.h"
 #include "RiuDraggableOverlayFrame.h"
+#include "RiuQwtCurveSelectorFilter.h"
+
 #include "RiuPlotCurve.h"
 #include "RiuPlotItem.h"
 #include "RiuPlotMainWindowTools.h"
@@ -71,8 +73,11 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafSelectionManager.h"
 
+#include "qwt_plot.h"
+
 #include <algorithm>
 #include <iterator>
+#include <limits>
 #include <tuple>
 
 CAF_PDM_SOURCE_INIT( RimWellRftPlot, "WellRftPlot" );
@@ -734,6 +739,18 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
     if ( auto qwtWidget = dynamic_cast<RiuQwtPlotWidget*>( plotTrack->plotWidget() ) )
     {
+        // Install click-to-select filter once (guard against repeated calls to updateCurvesInPlot)
+        auto*       canvas         = qwtWidget->qwtPlot()->canvas();
+        const char* filterPropName = "rftCurveSelectorInstalled";
+        if ( !canvas->property( filterPropName ).toBool() )
+        {
+            caf::PdmPointer<RimWellRftPlot> self( this );
+            new RiuQwtCurveSelectorFilter( qwtWidget->qwtPlot(),
+                                           [self]( const QPoint& pos ) -> const caf::PdmUiItem*
+                                           { return self ? self->findClosestRealization( pos ) : nullptr; } );
+            canvas->setProperty( filterPropName, true );
+        }
+
         // Connect legend item clicks to select the corresponding ensemble curve set in the project tree.
         // Disconnect previous connection first to avoid duplicates (non-QObject lambda connections).
         // Use a guarded PdmPointer to avoid use-after-free if the signal fires after this object is destroyed.
@@ -836,6 +853,7 @@ void RimWellRftPlot::setSimWellOrWellPathName( const QString& currWellName )
     {
         m_wellPathNameOrSimWellName = "None";
     }
+    m_nameConfig->setCustomName( QString( plotNameFormatString() ).arg( m_wellPathNameOrSimWellName ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1671,6 +1689,14 @@ void RimWellRftPlot::detachAndDeleteLegendCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::cleanupLegendCurves()
+{
+    detachAndDeleteLegendCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellRftEnsembleCurveSet* RimWellRftPlot::selectedEnsembleCurveSet() const
 {
     if ( auto selected = caf::SelectionManager::instance()->selectedItemOfType<RimWellRftEnsembleCurveSet>() )
@@ -1694,6 +1720,33 @@ void RimWellRftPlot::onSelectionManagerSelectionChanged( const std::set<int>& /*
         m_highlightedCurveSet = newSelection;
         loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimWellRftPlot::findClosestRealization( const QPoint& canvasPos )
+{
+    auto* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+    if ( !track ) return nullptr;
+
+    double          minDist     = 15.0; // pixel threshold
+    RimSummaryCase* closestCase = nullptr;
+    for ( RimWellLogCurve* curve : track->curves() )
+    {
+        auto* rftCurve = dynamic_cast<RimWellLogRftCurve*>( curve );
+        if ( !rftCurve || !rftCurve->summaryCase() ) continue;
+        auto* qwtCurve = dynamic_cast<RiuQwtPlotCurve*>( rftCurve->plotCurve() );
+        if ( !qwtCurve ) continue;
+        double dist = std::numeric_limits<double>::max();
+        qwtCurve->closestPoint( canvasPos, &dist );
+        if ( dist < minDist )
+        {
+            minDist     = dist;
+            closestCase = rftCurve->summaryCase();
+        }
+    }
+    return closestCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1739,6 +1792,22 @@ void RimWellRftPlot::rebuildCurves()
     createEnsembleCurveSets();
     updateFormationsOnPlot();
     syncCurvesFromUiSelection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimWellRftPlot::selectedTimeSteps() const
+{
+    return m_selectedTimeSteps();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::setSelectedTimeSteps( const std::vector<QDateTime>& timeSteps )
+{
+    m_selectedTimeSteps = timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
