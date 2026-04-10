@@ -19,6 +19,7 @@
 #include "RimRftCorrelationReportPlot.h"
 
 #include "RimParameterRftCrossPlot.h"
+#include "RimRftTornadoPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellRftPlot.h"
 
@@ -34,6 +35,7 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
+#include "cafSignal.h"
 
 #include <QContextMenuEvent>
 #include <QFrame>
@@ -106,6 +108,7 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_wellRftPlot, "WellRftPlot", "RFT Plot" );
     CAF_PDM_InitFieldNoDefault( &m_parameterRftCrossPlot, "ParameterRftCrossPlot", "Cross Plot" );
+    CAF_PDM_InitFieldNoDefault( &m_correlationPlot, "CorrelationPlot", "Tornado Plot" );
 
     CAF_PDM_InitField( &m_showDockTitleBars, "ShowDockTitleBars", false, "Show Title Bars" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showDockTitleBars );
@@ -123,6 +126,9 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
     m_wellRftPlot->setShowWindow( true );
 
     m_parameterRftCrossPlot = new RimParameterRftCrossPlot;
+
+    m_correlationPlot = new RimRftTornadoPlot;
+    m_correlationPlot->parameterSelected.connect( this, &RimRftCorrelationReportPlot::onTornadoParameterSelected );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,12 +224,14 @@ void RimRftCorrelationReportPlot::recreatePlotWidgets()
     CAF_ASSERT( m_dockManager );
 
     m_wellRftPlot->createPlotWidget( m_dockManager );
+    m_correlationPlot->createPlotWidget( m_dockManager );
     m_parameterRftCrossPlot->createPlotWidget( m_dockManager );
 
     // Context menu fixer — ensures this report is selected in CAF on any right-click
     delete m_contextMenuFilter;
     m_contextMenuFilter = new RftSelectionFixerOnContextMenu( this, this );
     if ( auto* w = m_wellRftPlot->viewWidget() ) w->installEventFilter( m_contextMenuFilter );
+    if ( auto* w = m_correlationPlot->viewer() ) w->installEventFilter( m_contextMenuFilter );
     if ( auto* w = m_parameterRftCrossPlot->viewer() ) w->installEventFilter( m_contextMenuFilter );
 
     auto makeDockWidget = [&]( const QString& title, RimPlotWindow* plot, QWidget* widget ) -> ads::CDockWidget*
@@ -241,8 +249,9 @@ void RimRftCorrelationReportPlot::recreatePlotWidgets()
         return dock;
     };
 
-    m_rftDockWidget       = makeDockWidget( "RFT Plot", m_wellRftPlot(), m_wellRftPlot->viewWidget() );
-    m_crossPlotDockWidget = makeDockWidget( "Cross Plot", m_parameterRftCrossPlot(), m_parameterRftCrossPlot->viewer() );
+    m_rftDockWidget          = makeDockWidget( "RFT Plot", m_wellRftPlot(), m_wellRftPlot->viewWidget() );
+    m_correlationDockWidget  = makeDockWidget( "Tornado Plot", m_correlationPlot(), m_correlationPlot->viewer() );
+    m_crossPlotDockWidget    = makeDockWidget( "Cross Plot", m_parameterRftCrossPlot(), m_parameterRftCrossPlot->viewer() );
 
     // Restore saved dock state or apply hard-coded default layout
     QByteArray stateToRestore;
@@ -260,17 +269,20 @@ void RimRftCorrelationReportPlot::recreatePlotWidgets()
     if ( !stateToRestore.isEmpty() )
     {
         m_dockManager->addDockWidget( ads::LeftDockWidgetArea, m_rftDockWidget );
-        m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_crossPlotDockWidget );
+        auto* rightArea = m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_correlationDockWidget );
+        m_dockManager->addDockWidget( ads::BottomDockWidgetArea, m_crossPlotDockWidget, rightArea );
         m_dockManager->restoreState( stateToRestore, 1 );
     }
     else
     {
-        // Default: RFT plot on the left, cross plot on the right
+        // Default: RFT plot on the left, tornado top-right, cross plot bottom-right
         m_dockManager->addDockWidget( ads::LeftDockWidgetArea, m_rftDockWidget );
-        m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_crossPlotDockWidget );
+        auto* rightArea = m_dockManager->addDockWidget( ads::RightDockWidgetArea, m_correlationDockWidget );
+        m_dockManager->addDockWidget( ads::BottomDockWidgetArea, m_crossPlotDockWidget, rightArea );
     }
 
     m_rftDockWidget->toggleView( m_wellRftPlot->showWindow() );
+    m_correlationDockWidget->toggleView( m_correlationPlot->showWindow() );
     m_crossPlotDockWidget->toggleView( m_parameterRftCrossPlot->showWindow() );
 
     updateDockTitleBarsVisibility();
@@ -285,10 +297,12 @@ void RimRftCorrelationReportPlot::cleanupBeforeClose()
     // QwtPlot has autoDelete=true, so any curves still attached when it is deleted are freed by QWT
     // — leaving m_legendPlotCurves with dangling pointers on the next loadDataAndUpdate().
     if ( m_wellRftPlot() ) m_wellRftPlot->cleanupLegendCurves();
+    if ( m_correlationPlot() ) m_correlationPlot->detachAllCurves();
     if ( m_parameterRftCrossPlot() ) m_parameterRftCrossPlot->detachAllCurves();
 
-    m_rftDockWidget       = nullptr;
-    m_crossPlotDockWidget = nullptr;
+    m_rftDockWidget         = nullptr;
+    m_correlationDockWidget = nullptr;
+    m_crossPlotDockWidget   = nullptr;
 
     if ( m_dockManager )
     {
@@ -355,6 +369,8 @@ void RimRftCorrelationReportPlot::onLoadDataAndUpdate()
     if ( m_showWindow )
     {
         m_wellRftPlot->loadDataAndUpdate();
+        syncTornadoInputsFromCrossPlot();
+        m_correlationPlot->loadDataAndUpdate();
         m_parameterRftCrossPlot->loadDataAndUpdate();
     }
 
@@ -382,6 +398,7 @@ void RimRftCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::P
 void RimRftCorrelationReportPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString /*uiConfigName*/ )
 {
     uiTreeOrdering.add( m_wellRftPlot() );
+    uiTreeOrdering.add( m_correlationPlot() );
     uiTreeOrdering.add( m_parameterRftCrossPlot() );
     uiTreeOrdering.skipRemainingChildren();
 }
@@ -406,6 +423,8 @@ void RimRftCorrelationReportPlot::childFieldChangedByUi( const caf::PdmFieldHand
 {
     if ( m_rftDockWidget && changedChildField == &m_wellRftPlot )
         m_rftDockWidget->toggleView( m_wellRftPlot->showWindow() );
+    else if ( m_correlationDockWidget && changedChildField == &m_correlationPlot )
+        m_correlationDockWidget->toggleView( m_correlationPlot->showWindow() );
     else if ( m_crossPlotDockWidget && changedChildField == &m_parameterRftCrossPlot )
     {
         m_crossPlotDockWidget->toggleView( m_parameterRftCrossPlot->showWindow() );
@@ -433,9 +452,48 @@ void RimRftCorrelationReportPlot::syncCrossPlotSelectionToRftPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimRftTornadoPlot* RimRftCorrelationReportPlot::correlationPlot() const
+{
+    return m_correlationPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::onTornadoParameterSelected( const caf::SignalEmitter*, QString paramName )
+{
+    if ( m_correlationPlot() )
+    {
+        m_correlationPlot->setSelectedParameter( paramName );
+        m_correlationPlot->loadDataAndUpdate();
+    }
+    if ( m_parameterRftCrossPlot() )
+    {
+        m_parameterRftCrossPlot->setEnsembleParameter( paramName );
+        m_parameterRftCrossPlot->loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
+{
+    if ( !m_correlationPlot() || !m_parameterRftCrossPlot() ) return;
+
+    m_correlationPlot->setEnsemble( m_parameterRftCrossPlot->ensemble() );
+    m_correlationPlot->setWellName( m_parameterRftCrossPlot->wellName() );
+    m_correlationPlot->setTimeStep( m_parameterRftCrossPlot->selectedTimeStep() );
+    m_correlationPlot->setSelectedParameter( m_parameterRftCrossPlot->ensembleParameter() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::updateDockTitleBarsVisibility()
 {
     if ( !m_dockManager ) return;
     for ( auto* area : m_dockManager->openedDockAreas() )
         area->titleBar()->setVisible( m_showDockTitleBars() );
 }
+

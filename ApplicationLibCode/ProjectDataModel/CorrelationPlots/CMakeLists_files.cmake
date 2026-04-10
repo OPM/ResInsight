@@ -7,6 +7,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCorrelationPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCorrelationReportPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimRftCorrelationReportPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimRftTornadoPlot.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -18,6 +19,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCorrelationPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCorrelationReportPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRftCorrelationReportPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimRftTornadoPlot.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

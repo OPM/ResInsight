@@ -25,6 +25,7 @@
 #include "RifReaderRftInterface.h"
 
 #include "RigEnsembleParameter.h"
+#include "RigStatisticsTools.h"
 
 #include "RiaExtractionTools.h"
 
@@ -571,13 +572,103 @@ QList<caf::PdmOptionItemInfo> RimParameterRftCrossPlot::calculateValueOptions( c
     {
         if ( m_ensemble() )
         {
-            for ( const auto& param : RimSummaryEnsembleTools::alphabeticEnsembleParameters( m_ensemble->allSummaryCases() ) )
+            const auto& allCases = m_ensemble->allSummaryCases();
+
+            // Build mean RFT pressure per case if enough context is available for correlation sorting
+            std::vector<double> pressurePerCase;
+            const bool          canComputeCorrelation = !m_wellName().isEmpty() && m_selectedTimeStep().isValid();
+            if ( canComputeCorrelation )
             {
-                if ( param.isNumeric() )
+                RigEclipseWellLogExtractor* extractor = nullptr;
+                if ( m_eclipseCase() )
                 {
-                    options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
+                    RimWellPath* wellPath = RimProject::current()->wellPathFromSimWellName( m_wellName() );
+                    extractor             = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, m_eclipseCase() );
+                    if ( !extractor )
+                        extractor = RiaExtractionTools::findOrCreateSimWellExtractor( m_eclipseCase(), m_wellName(), false, 0 );
+                }
+
+                for ( RimSummaryCase* summaryCase : allCases )
+                {
+                    if ( !summaryCase )
+                    {
+                        pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+                        continue;
+                    }
+                    RifReaderRftInterface* reader = summaryCase->rftReader();
+                    if ( !reader )
+                    {
+                        pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+                        continue;
+                    }
+                    auto pressureAddress = RifEclipseRftAddress::createAddress( m_wellName(),
+                                                                                m_selectedTimeStep(),
+                                                                                RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+                    std::vector<double> pressures;
+                    reader->values( pressureAddress, &pressures );
+                    if ( pressures.empty() )
+                    {
+                        pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+                        continue;
+                    }
+                    auto mdAddress = RifEclipseRftAddress::createAddress( m_wellName(),
+                                                                          m_selectedTimeStep(),
+                                                                          RifEclipseRftAddress::RftWellLogChannelType::MD );
+                    std::vector<double> depths;
+                    reader->values( mdAddress, &depths );
+                    if ( depths.empty() && extractor )
+                        depths = reader->computeMeasuredDepth( m_wellName(), m_selectedTimeStep(), extractor );
+
+                    std::vector<double> samples;
+                    if ( m_useDepthRange() && depths.size() == pressures.size() )
+                    {
+                        for ( size_t i = 0; i < depths.size(); ++i )
+                            if ( depths[i] >= m_depthRangeMin() && depths[i] <= m_depthRangeMax() )
+                                samples.push_back( pressures[i] );
+                    }
+                    else
+                    {
+                        samples = pressures;
+                    }
+
+                    if ( samples.empty() )
+                        pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+                    else
+                        pressurePerCase.push_back( std::accumulate( samples.begin(), samples.end(), 0.0 ) / samples.size() );
                 }
             }
+
+            // Compute correlation for each numeric parameter, then sort by abs value descending
+            std::vector<std::pair<double, RigEnsembleParameter>> correlatedParams;
+            for ( const auto& param : RimSummaryEnsembleTools::alphabeticEnsembleParameters( allCases ) )
+            {
+                if ( !param.isNumeric() ) continue;
+
+                double absPearson = 0.0;
+                if ( canComputeCorrelation && static_cast<size_t>( param.values.size() ) == allCases.size() )
+                {
+                    std::vector<double> paramValues, pressureValues;
+                    for ( size_t i = 0; i < allCases.size(); ++i )
+                    {
+                        if ( std::isinf( pressurePerCase[i] ) ) continue;
+                        paramValues.push_back( param.values[i].toDouble() );
+                        pressureValues.push_back( pressurePerCase[i] );
+                    }
+                    if ( paramValues.size() >= 2 )
+                    {
+                        double r = RigStatisticsTools::pearsonCorrelation( paramValues, pressureValues );
+                        if ( !std::isinf( r ) && !std::isnan( r ) ) absPearson = std::abs( r );
+                    }
+                }
+                correlatedParams.emplace_back( absPearson, param );
+            }
+
+            std::stable_sort( correlatedParams.begin(),
+                              correlatedParams.end(),
+                              []( const auto& a, const auto& b ) { return a.first > b.first; } );
+
+            for ( const auto& [corr, param] : correlatedParams )
+                options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
         }
     }
     return options;

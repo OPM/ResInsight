@@ -26,7 +26,13 @@
 #include <QObject>
 
 class RimParameterRftCrossPlot;
+class RimRftTornadoPlot;
 class RimWellRftPlot;
+
+namespace caf
+{
+class SignalEmitter;
+}
 
 namespace ads
 {
@@ -56,6 +62,7 @@ public:
 
     RimWellRftPlot*           wellRftPlot() const;
     RimParameterRftCrossPlot* crossPlot() const;
+    RimRftTornadoPlot*        correlationPlot() const;
 
     void initializeFromSourcePlot( RimWellRftPlot* source );
 
@@ -77,19 +84,23 @@ private:
 
     void updateDockTitleBarsVisibility();
     void syncCrossPlotSelectionToRftPlot();
+    void onTornadoParameterSelected( const caf::SignalEmitter*, QString paramName );
+    void syncTornadoInputsFromCrossPlot();
 
 private:
     caf::PdmProxyValueField<QString> m_name;
 
     caf::PdmChildField<RimWellRftPlot*>           m_wellRftPlot;
     caf::PdmChildField<RimParameterRftCrossPlot*> m_parameterRftCrossPlot;
+    caf::PdmChildField<RimRftTornadoPlot*>        m_correlationPlot;
 
     caf::PdmField<bool>    m_showDockTitleBars;
     caf::PdmField<QString> m_dockState;
 
-    QWidget*           m_viewWidget          = nullptr;
-    QObject*           m_contextMenuFilter   = nullptr;
-    ads::CDockManager* m_dockManager         = nullptr;
-    ads::CDockWidget*  m_rftDockWidget       = nullptr;
-    ads::CDockWidget*  m_crossPlotDockWidget = nullptr;
+    QWidget*           m_viewWidget               = nullptr;
+    QObject*           m_contextMenuFilter        = nullptr;
+    ads::CDockManager* m_dockManager              = nullptr;
+    ads::CDockWidget*  m_rftDockWidget            = nullptr;
+    ads::CDockWidget*  m_correlationDockWidget    = nullptr;
+    ads::CDockWidget*  m_crossPlotDockWidget      = nullptr;
 };
