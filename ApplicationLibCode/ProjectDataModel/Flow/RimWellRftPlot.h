@@ -28,6 +28,7 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 
 #include <QMetaObject>
@@ -52,6 +53,7 @@ class RifDataSourceForRftPlt;
 class RifEclipseRftAddress;
 class RiuDraggableOverlayFrame;
 class RimDataSourceForRftPlt;
+class RimSummaryCase;
 class RiuPlotCurve;
 class RiuPlotItem;
 class RimWellRftEnsembleCurveSet;
@@ -154,6 +156,7 @@ private:
 
     void            onLegendItemClicked( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex );
     RimSummaryCase* findClosestRealization( const QPoint& canvasPos );
+    void            highlightSelectedRealization();
 
     void    updateFormationsOnPlot() const;
     QString associatedSimWellName() const;
@@ -194,7 +197,8 @@ private:
     std::vector<RiuPlotCurve*>                           m_legendPlotCurves;
     std::map<RiuPlotCurve*, RimWellRftEnsembleCurveSet*> m_legendCurveToEnsembleCurveSet;
     QMetaObject::Connection                              m_legendClickedConnection;
-    RimWellRftEnsembleCurveSet*                          m_highlightedCurveSet = nullptr;
+    RimWellRftEnsembleCurveSet*                          m_highlightedCurveSet   = nullptr;
+    caf::PdmPointer<RimSummaryCase>                      m_selectedRealization;
 
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
     bool                                m_isInitialized = false;

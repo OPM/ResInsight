@@ -191,6 +191,31 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* curve )
         auto curveSet = findEnsembleCurveSet( curveDef.address().ensemble() );
         if ( curveSet && curveSet != m_highlightedCurveSet ) curve->setCurveColorOpacity( 0.1f );
     }
+
+    // Highlight the selected realization using a contrast color and raised z-order.
+    // Other ensemble member curves have their z-order restored to normal so this does not
+    // compete with the ensemble-level opacity-dim mechanism.
+    // Statistics curves (ENSEMBLE_RFT) and standalone case curves are never changed.
+    if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT && curveDef.address().ensemble() )
+    {
+        auto* rftCurve = dynamic_cast<RimWellLogRftCurve*>( curve );
+        if ( rftCurve )
+        {
+            if ( m_selectedRealization && rftCurve->summaryCase() == m_selectedRealization )
+            {
+                auto* track     = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+                auto* qwtWidget = track ? dynamic_cast<RiuQwtPlotWidget*>( track->plotWidget() ) : nullptr;
+                cvf::Color3f bgColor =
+                    qwtWidget ? RiaColorTools::fromQColorTo3f( qwtWidget->backgroundColor() ) : cvf::Color3f::WHITE;
+                curve->setColor( RiaColorTools::contrastColor( bgColor ) );
+                curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_HIGHLIGHTED_CURVE ) );
+            }
+            else
+            {
+                curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_CURVE ) );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -567,7 +592,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                                                                                 curveDefToAdd.timeStep(),
                                                                                 RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
-            curve->setZOrder( 1 );
+            curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_NON_OBSERVED ) );
             curve->setSimWellBranchData( m_branchDetection, m_branchIndex );
 
             applyCurveAppearance( curve );
@@ -622,7 +647,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             curve->setRftAddress( address );
             curve->setEclipseCase( eclipeCase );
 
-            double zValue = 1.0;
+            double zValue = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_CURVE );
             if ( !curveDefToAdd.address().ensemble() )
             {
                 zValue = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_NON_OBSERVED );
@@ -712,7 +737,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                 }
 
                 curve->setCurrentTimeStep( currentTimeStepIndex );
-                curve->setZOrder( 0 );
+                curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_CURVE ) );
 
                 applyCurveAppearance( curve );
             }
@@ -730,7 +755,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                 curve->setWellPath( wellPath );
                 curve->setWellLog( wellLogFile );
                 curve->setWellLogChannelName( pressureChannel->name() );
-                curve->setZOrder( 2 );
+                curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_NON_OBSERVED ) );
 
                 applyCurveAppearance( curve );
             }
@@ -1714,11 +1739,18 @@ RimWellRftEnsembleCurveSet* RimWellRftPlot::selectedEnsembleCurveSet() const
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::onSelectionManagerSelectionChanged( const std::set<int>& /*changedSelectionLevels*/ )
 {
-    auto newSelection = selectedEnsembleCurveSet();
-    if ( newSelection != m_highlightedCurveSet )
+    auto newCurveSet = selectedEnsembleCurveSet();
+    if ( newCurveSet != m_highlightedCurveSet )
     {
-        m_highlightedCurveSet = newSelection;
+        m_highlightedCurveSet = newCurveSet;
         loadDataAndUpdate();
+    }
+
+    auto* newRealization = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryCase>();
+    if ( newRealization != m_selectedRealization )
+    {
+        m_selectedRealization = newRealization;
+        highlightSelectedRealization();
     }
 }
 
@@ -1735,7 +1767,7 @@ RimSummaryCase* RimWellRftPlot::findClosestRealization( const QPoint& canvasPos 
     for ( RimWellLogCurve* curve : track->curves() )
     {
         auto* rftCurve = dynamic_cast<RimWellLogRftCurve*>( curve );
-        if ( !rftCurve || !rftCurve->summaryCase() ) continue;
+        if ( !rftCurve || !rftCurve->summaryCase() || !rftCurve->ensemble() ) continue;
         auto* qwtCurve = dynamic_cast<RiuQwtPlotCurve*>( rftCurve->plotCurve() );
         if ( !qwtCurve ) continue;
         double dist = std::numeric_limits<double>::max();
@@ -1746,7 +1778,29 @@ RimSummaryCase* RimWellRftPlot::findClosestRealization( const QPoint& canvasPos 
             closestCase = rftCurve->summaryCase();
         }
     }
+
+    // Toggle highlight: clicking the selected realization again clears it.
+    m_selectedRealization = ( closestCase != m_selectedRealization ) ? closestCase : nullptr;
+    highlightSelectedRealization();
+
     return closestCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::highlightSelectedRealization()
+{
+    auto* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+    if ( !track ) return;
+
+    for ( RimWellLogCurve* curve : track->curves() )
+    {
+        applyCurveAppearance( curve );
+        curve->updateCurveAppearance();
+    }
+
+    if ( track->plotWidget() ) track->plotWidget()->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
