@@ -29,11 +29,6 @@ class RimParameterRftCrossPlot;
 class RimRftTornadoPlot;
 class RimWellRftPlot;
 
-namespace caf
-{
-class SignalEmitter;
-}
-
 namespace ads
 {
 class CDockManager;
@@ -84,7 +79,7 @@ private:
 
     void updateDockTitleBarsVisibility();
     void syncCrossPlotSelectionToRftPlot();
-    void onTornadoParameterSelected( const caf::SignalEmitter*, QString paramName );
+    void onTornadoParameterSelected( const QString& paramName );
     void syncTornadoInputsFromCrossPlot();
 
 private:

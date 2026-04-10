@@ -35,8 +35,6 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
-#include "cafSignal.h"
-
 #include <QContextMenuEvent>
 #include <QFrame>
 #include <QSettings>
@@ -128,7 +126,8 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
     m_parameterRftCrossPlot = new RimParameterRftCrossPlot;
 
     m_correlationPlot = new RimRftTornadoPlot;
-    m_correlationPlot->parameterSelected.connect( this, &RimRftCorrelationReportPlot::onTornadoParameterSelected );
+    m_correlationPlot->setParameterSelectedCallback( [this]( const QString& paramName )
+                                                     { onTornadoParameterSelected( paramName ); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,7 +463,7 @@ RimRftTornadoPlot* RimRftCorrelationReportPlot::correlationPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftCorrelationReportPlot::onTornadoParameterSelected( const caf::SignalEmitter*, QString paramName )
+void RimRftCorrelationReportPlot::onTornadoParameterSelected( const QString& paramName )
 {
     if ( m_correlationPlot() )
     {

@@ -23,13 +23,12 @@
 
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
-#include "cafSignal.h"
-
 #include "cvfColor3.h"
 
 #include <QDateTime>
 #include <QPointer>
 
+#include <functional>
 #include <map>
 
 class RimEclipseResultCase;
@@ -48,11 +47,11 @@ class RimRftTornadoPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    caf::Signal<QString> parameterSelected; // emitted with parameter name when a bar is clicked
-
-public:
     RimRftTornadoPlot();
     ~RimRftTornadoPlot() override;
+
+    using ParameterSelectedCallback = std::function<void( const QString& )>;
+    void setParameterSelectedCallback( ParameterSelectedCallback callback );
 
     // Inputs set by the parent report plot
     void setEnsemble( RimSummaryEnsemble* ensemble );
@@ -119,8 +118,9 @@ private:
     RimFontSizeField m_axisTitleFontSize;
     RimFontSizeField m_axisValueFontSize;
 
-    QString                    m_selectedParameter;
-    mutable std::map<QString, double>  m_lastCorrelations; // param.name -> pearson value, filled during addDataToChartBuilder
+    ParameterSelectedCallback         m_parameterSelectedCallback;
+    QString                           m_selectedParameter;
+    mutable std::map<QString, double> m_lastCorrelations; // param.name -> pearson value, filled during addDataToChartBuilder
 
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 };

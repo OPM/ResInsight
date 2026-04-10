@@ -53,7 +53,6 @@ CAF_PDM_SOURCE_INIT( RimRftTornadoPlot, "RftTornadoPlot" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimRftTornadoPlot::RimRftTornadoPlot()
-    : parameterSelected( this )
 {
     CAF_PDM_InitObject( "RFT Tornado Plot", ":/CorrelationTornadoPlot16x16.png" );
 
@@ -155,6 +154,14 @@ void RimRftTornadoPlot::setDepthRange( double minMd, double maxMd )
 void RimRftTornadoPlot::setSelectedParameter( const QString& paramName )
 {
     m_selectedParameter = paramName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftTornadoPlot::setParameterSelectedCallback( ParameterSelectedCallback callback )
+{
+    m_parameterSelectedCallback = std::move( callback );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,7 +352,7 @@ void RimRftTornadoPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotIte
     if ( !qwtPlotItem ) return;
 
     auto* barChart = dynamic_cast<QwtPlotBarChart*>( qwtPlotItem->qwtPlotItem() );
-    if ( barChart ) parameterSelected.send( barChart->title().text() );
+    if ( barChart && m_parameterSelectedCallback ) m_parameterSelectedCallback( barChart->title().text() );
 }
 
 //--------------------------------------------------------------------------------------------------
