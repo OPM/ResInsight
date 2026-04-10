@@ -197,7 +197,7 @@ private:
     std::vector<RiuPlotCurve*>                           m_legendPlotCurves;
     std::map<RiuPlotCurve*, RimWellRftEnsembleCurveSet*> m_legendCurveToEnsembleCurveSet;
     QMetaObject::Connection                              m_legendClickedConnection;
-    RimWellRftEnsembleCurveSet*                          m_highlightedCurveSet   = nullptr;
+    RimWellRftEnsembleCurveSet*                          m_highlightedCurveSet = nullptr;
     caf::PdmPointer<RimSummaryCase>                      m_selectedRealization;
 
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;

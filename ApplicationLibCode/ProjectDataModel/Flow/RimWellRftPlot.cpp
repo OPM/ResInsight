@@ -203,10 +203,9 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* curve )
         {
             if ( m_selectedRealization && rftCurve->summaryCase() == m_selectedRealization )
             {
-                auto* track     = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-                auto* qwtWidget = track ? dynamic_cast<RiuQwtPlotWidget*>( track->plotWidget() ) : nullptr;
-                cvf::Color3f bgColor =
-                    qwtWidget ? RiaColorTools::fromQColorTo3f( qwtWidget->backgroundColor() ) : cvf::Color3f::WHITE;
+                auto*        track     = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+                auto*        qwtWidget = track ? dynamic_cast<RiuQwtPlotWidget*>( track->plotWidget() ) : nullptr;
+                cvf::Color3f bgColor   = qwtWidget ? RiaColorTools::fromQColorTo3f( qwtWidget->backgroundColor() ) : cvf::Color3f::WHITE;
                 curve->setColor( RiaColorTools::contrastColor( bgColor ) );
                 curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_HIGHLIGHTED_CURVE ) );
             }
