@@ -191,10 +191,14 @@ void RimRftCorrelationReportPlot::initializeFromSourcePlot( RimWellRftPlot* sour
 
     m_wellRftPlot->setSimWellOrWellPathName( source->simWellOrWellPathName() );
 
-    // A fresh RimWellRftPlot has no tracks; syncCurvesFromUiSelection exits early without one
-    auto* track = new RimWellLogTrack();
-    m_wellRftPlot->addPlot( track );
-    track->setDescription( QString( "Track %1" ).arg( m_wellRftPlot->plotCount() ) );
+    // A fresh RimWellRftPlot has no tracks; syncCurvesFromUiSelection exits early without one.
+    // Guard against duplicate track creation if this is called more than once.
+    if ( m_wellRftPlot->plotCount() == 0 )
+    {
+        auto* track = new RimWellLogTrack();
+        m_wellRftPlot->addPlot( track );
+        track->setDescription( QString( "Track %1" ).arg( m_wellRftPlot->plotCount() ) );
+    }
 
     m_wellRftPlot->initializeDataSources( source );
 }

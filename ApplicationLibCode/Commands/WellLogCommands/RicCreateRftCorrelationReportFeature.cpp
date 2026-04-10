@@ -51,6 +51,7 @@ void RicCreateRftCorrelationReportFeature::onActionTriggered( bool /*isChecked*/
     if ( !correlationColl ) return;
 
     auto* report = correlationColl->createRftCorrelationReportPlot( sourcePlot );
+    if ( !report ) return;
 
     report->loadDataAndUpdate();
     correlationColl->updateConnectedEditors();

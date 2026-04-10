@@ -417,7 +417,7 @@ void RimRftTornadoPlot::highlightSelectedParameterBar()
     for ( QwtPlotItem* item : m_plotWidget->qwtPlot()->itemList( QwtPlotItem::Rtti_PlotBarChart ) )
     {
         auto* barChart = static_cast<QwtPlotBarChart*>( item );
-        auto* symbol   = dynamic_cast<QwtColumnSymbol*>( const_cast<QwtColumnSymbol*>( barChart->symbol() ) );
+        auto* symbol   = const_cast<QwtColumnSymbol*>( barChart->symbol() );
         if ( !symbol ) continue;
 
         const QString paramName = barChart->title().text();

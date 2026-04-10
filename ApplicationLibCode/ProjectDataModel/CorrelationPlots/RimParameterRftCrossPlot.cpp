@@ -239,6 +239,8 @@ std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSum
         std::vector<double> depths;
         reader->values( mdAddress, &depths );
         if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
+        // If depths are still empty after the fallback (no MD channel and no extractor), depth range
+        // filtering is not possible for this case; fall through to use all pressures unfiltered.
 
         std::vector<double> samplesInRange;
         if ( useDepthRange && depths.size() == pressures.size() )

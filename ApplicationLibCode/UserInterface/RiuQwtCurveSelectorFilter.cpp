@@ -47,7 +47,7 @@ int RiuQwtCurveSelectorFilter::closestPointIndex( QwtPlot* plot, const QPoint& c
 
     const double xRange = std::abs( xMap.s2() - xMap.s1() );
     const double yRange = std::abs( yMap.s2() - yMap.s1() );
-    if ( xRange == 0.0 || yRange == 0.0 ) return -1;
+    if ( xRange < 1e-14 || yRange < 1e-14 ) return -1;
 
     const double clickX = xMap.invTransform( canvasPos.x() );
     const double clickY = yMap.invTransform( canvasPos.y() );
