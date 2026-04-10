@@ -75,3 +75,17 @@ public:
 private:
     caf::PdmField<QString> m_name;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcRegularSurface_propertyNames : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcRegularSurface_propertyNames( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+};

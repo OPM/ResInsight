@@ -26,6 +26,17 @@ def set_property(self: RegularSurface, name: str, values: List[float]) -> None:
 
 
 @add_method(RegularSurface)
+def available_properties(self: RegularSurface) -> List[str]:
+    """Gets the list of available property names on a regular surface.
+
+    Returns:
+        List[str]: Names of all properties set on this surface.
+    """
+    result = self.property_names()
+    return result.values
+
+
+@add_method(RegularSurface)
 def get_property(self: RegularSurface, name: str) -> List[float]:
     """Gets a property from a regular surface.
 
