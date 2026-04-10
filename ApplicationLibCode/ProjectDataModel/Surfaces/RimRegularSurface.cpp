@@ -418,6 +418,19 @@ std::vector<float> RimRegularSurface::getProperty( const QString& key ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RimRegularSurface::propertyNames() const
+{
+    std::vector<QString> names;
+    for ( const auto& [key, value] : m_properties )
+    {
+        names.push_back( key );
+    }
+    return names;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimRegularSurface::nx() const
 {
     return m_nx;

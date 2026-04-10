@@ -20,6 +20,7 @@
 #include "KeyValueStore/RiaKeyValueStoreUtil.h"
 #include "RiaApplication.h"
 
+#include "RimcDataContainerString.h"
 #include "RimRegularSurface.h"
 #include "RimSurfaceCollection.h"
 
@@ -137,4 +138,37 @@ std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_setPropertyAsDe
     surface->updateConnectedEditors();
 
     return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimRegularSurface, RimcRegularSurface_propertyNames, "PropertyNames" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcRegularSurface_propertyNames::RimcRegularSurface_propertyNames( caf::PdmObjectHandle* self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+{
+    CAF_PDM_InitObject( "Property Names", "", "", "Property Names." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcRegularSurface_propertyNames::execute()
+{
+    RimRegularSurface* surface = self<RimRegularSurface>();
+    if ( !surface ) return std::unexpected( "No surface found" );
+
+    auto dataObject            = new RimcDataContainerString();
+    dataObject->m_stringValues = surface->propertyNames();
+
+    return dataObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcRegularSurface_propertyNames::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
 }

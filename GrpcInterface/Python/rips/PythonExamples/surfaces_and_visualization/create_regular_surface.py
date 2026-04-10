@@ -83,5 +83,9 @@ if resinsight is not None:
             f"Retrieved {len(wave_values)} wave property values, min={min(wave_values):.2f}, max={max(wave_values):.2f}"
         )
 
+        # List available properties
+        props = s.available_properties()
+        print(f"Available properties: {props}")
+
         # Use the wave as depth for the surface
         s.set_property_as_depth("wave")
