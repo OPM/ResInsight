@@ -18,25 +18,16 @@
 
 #include "RimRftTornadoPlot.h"
 
-#include "RiaColorTables.h"
 #include "RiaColorTools.h"
-#include "RiaExtractionTools.h"
 #include "RiaPreferences.h"
-
-#include "RifEclipseRftAddress.h"
-#include "RifReaderRftInterface.h"
 
 #include "RigEnsembleParameter.h"
 #include "RigStatisticsTools.h"
 
-#include "Well/RigEclipseWellLogExtractor.h"
-
 #include "RimEclipseResultCase.h"
-#include "RimProject.h"
-#include "RimSummaryCase.h"
+#include "RimParameterRftCrossPlot.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
-#include "RimWellPath.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuGroupedBarChartBuilder.h"
@@ -366,75 +357,17 @@ void RimRftTornadoPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartB
 
     if ( !m_ensemble() || m_wellName().isEmpty() || !m_selectedTimeStep().isValid() ) return;
 
-    // Build an extractor once for MD fallback
-    RigEclipseWellLogExtractor* extractor = nullptr;
-    if ( m_eclipseCase() )
-    {
-        RimWellPath* wellPath = RimProject::current()->wellPathFromSimWellName( m_wellName() );
-        extractor             = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, m_eclipseCase() );
-        if ( !extractor ) extractor = RiaExtractionTools::findOrCreateSimWellExtractor( m_eclipseCase(), m_wellName(), false, 0 );
-    }
-
     const auto& allCases = m_ensemble->allSummaryCases();
 
     // Build pressure vector per case (indices match allCases order)
-    std::vector<double> pressurePerCase;
-    pressurePerCase.reserve( allCases.size() );
-    for ( RimSummaryCase* summaryCase : allCases )
-    {
-        if ( !summaryCase )
-        {
-            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-            continue;
-        }
-
-        RifReaderRftInterface* reader = summaryCase->rftReader();
-        if ( !reader )
-        {
-            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-            continue;
-        }
-
-        auto pressureAddress =
-            RifEclipseRftAddress::createAddress( m_wellName(), m_selectedTimeStep(), RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
-
-        std::vector<double> pressures;
-        reader->values( pressureAddress, &pressures );
-        if ( pressures.empty() )
-        {
-            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-            continue;
-        }
-
-        auto mdAddress =
-            RifEclipseRftAddress::createAddress( m_wellName(), m_selectedTimeStep(), RifEclipseRftAddress::RftWellLogChannelType::MD );
-        std::vector<double> depths;
-        reader->values( mdAddress, &depths );
-
-        if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( m_wellName(), m_selectedTimeStep(), extractor );
-
-        std::vector<double> samplesInRange;
-        if ( m_useDepthRange() && depths.size() == pressures.size() )
-        {
-            for ( size_t i = 0; i < depths.size(); ++i )
-            {
-                if ( depths[i] >= m_depthRangeMin() && depths[i] <= m_depthRangeMax() ) samplesInRange.push_back( pressures[i] );
-            }
-        }
-        else
-        {
-            samplesInRange = pressures;
-        }
-
-        if ( samplesInRange.empty() )
-        {
-            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-            continue;
-        }
-
-        double mean = std::accumulate( samplesInRange.begin(), samplesInRange.end(), 0.0 ) / samplesInRange.size();
-        pressurePerCase.push_back( mean );
-    }
+    const std::vector<double> pressurePerCase =
+        RimParameterRftCrossPlot::computeMeanPressurePerCase( m_ensemble(),
+                                                              m_wellName(),
+                                                              m_selectedTimeStep(),
+                                                              m_eclipseCase(),
+                                                              m_useDepthRange(),
+                                                              m_depthRangeMin(),
+                                                              m_depthRangeMax() );
 
     // For each numeric parameter, compute Pearson correlation against pressurePerCase
     for ( const auto& param : RimSummaryEnsembleTools::alphabeticEnsembleParameters( allCases ) )

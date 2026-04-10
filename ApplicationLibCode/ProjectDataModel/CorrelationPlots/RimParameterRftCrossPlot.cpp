@@ -188,6 +188,81 @@ RiuQwtPlotWidget* RimParameterRftCrossPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSummaryEnsemble*   ensemble,
+                                                                           const QString&        wellName,
+                                                                           const QDateTime&      timeStep,
+                                                                           RimEclipseResultCase* eclipseCase,
+                                                                           bool                  useDepthRange,
+                                                                           double                depthRangeMin,
+                                                                           double                depthRangeMax )
+{
+    if ( !ensemble || wellName.isEmpty() || !timeStep.isValid() ) return {};
+
+    RigEclipseWellLogExtractor* extractor = nullptr;
+    if ( eclipseCase )
+    {
+        RimWellPath* wellPath = RimProject::current()->wellPathFromSimWellName( wellName );
+        extractor             = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, eclipseCase );
+        if ( !extractor ) extractor = RiaExtractionTools::findOrCreateSimWellExtractor( eclipseCase, wellName, false, 0 );
+    }
+
+    const auto& allCases = ensemble->allSummaryCases();
+
+    std::vector<double> pressurePerCase;
+    pressurePerCase.reserve( allCases.size() );
+
+    for ( RimSummaryCase* summaryCase : allCases )
+    {
+        if ( !summaryCase )
+        {
+            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+            continue;
+        }
+
+        RifReaderRftInterface* reader = summaryCase->rftReader();
+        if ( !reader )
+        {
+            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+            continue;
+        }
+
+        auto                pressureAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+        std::vector<double> pressures;
+        reader->values( pressureAddress, &pressures );
+        if ( pressures.empty() )
+        {
+            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+            continue;
+        }
+
+        auto                mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
+        std::vector<double> depths;
+        reader->values( mdAddress, &depths );
+        if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
+
+        std::vector<double> samplesInRange;
+        if ( useDepthRange && depths.size() == pressures.size() )
+        {
+            for ( size_t i = 0; i < depths.size(); ++i )
+                if ( depths[i] >= depthRangeMin && depths[i] <= depthRangeMax ) samplesInRange.push_back( pressures[i] );
+        }
+        else
+        {
+            samplesInRange = pressures;
+        }
+
+        if ( samplesInRange.empty() )
+            pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+        else
+            pressurePerCase.push_back( std::accumulate( samplesInRange.begin(), samplesInRange.end(), 0.0 ) / samplesInRange.size() );
+    }
+
+    return pressurePerCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::createCaseData() const
 {
     if ( !m_ensemble() ) return {};
@@ -198,16 +273,12 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
     RigEnsembleParameter parameter = m_ensemble->ensembleParameter( m_ensembleParameter );
     if ( !parameter.isNumeric() || !parameter.isValid() ) return {};
 
-    // Build an extractor once for MD fallback (requires an eclipse case with a 3D grid)
-    RigEclipseWellLogExtractor* extractor = nullptr;
-    if ( m_eclipseCase() )
-    {
-        RimWellPath* wellPath = RimProject::current()->wellPathFromSimWellName( m_wellName() );
-        extractor             = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, m_eclipseCase() );
-        if ( !extractor ) extractor = RiaExtractionTools::findOrCreateSimWellExtractor( m_eclipseCase(), m_wellName(), false, 0 );
-    }
-
     const auto& allCases = m_ensemble->allSummaryCases();
+
+    const std::vector<double> pressurePerCase =
+        computeMeanPressurePerCase( m_ensemble(), m_wellName(), m_selectedTimeStep(), m_eclipseCase(), m_useDepthRange(), m_depthRangeMin(), m_depthRangeMax() );
+
+    if ( pressurePerCase.size() != allCases.size() ) return {};
 
     std::vector<CaseData> result;
     result.reserve( allCases.size() );
@@ -216,49 +287,12 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
     {
         RimSummaryCase* summaryCase = allCases[caseIdx];
         if ( !summaryCase ) continue;
+        if ( std::isinf( pressurePerCase[caseIdx] ) ) continue;
+        if ( caseIdx >= static_cast<size_t>( parameter.values.size() ) ) continue;
 
-        RifReaderRftInterface* reader = summaryCase->rftReader();
-        if ( !reader ) continue;
-
-        auto pressureAddress =
-            RifEclipseRftAddress::createAddress( m_wellName(), m_selectedTimeStep(), RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
-
-        std::vector<double> pressures;
-        reader->values( pressureAddress, &pressures );
-        if ( pressures.empty() ) continue;
-
-        // 1. Try MD directly from the RFT reader
-        auto mdAddress =
-            RifEclipseRftAddress::createAddress( m_wellName(), m_selectedTimeStep(), RifEclipseRftAddress::RftWellLogChannelType::MD );
-        std::vector<double> depths;
-        reader->values( mdAddress, &depths );
-
-        // 2. Fallback: compute MD from 3D grid intersections via the well log extractor
-        if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( m_wellName(), m_selectedTimeStep(), extractor );
-
-        // Collect pressure samples, optionally filtered by the user-specified depth range.
-        std::vector<double> samplesInRange;
-        if ( m_useDepthRange() && depths.size() == pressures.size() )
-        {
-            for ( size_t i = 0; i < depths.size(); ++i )
-            {
-                if ( depths[i] >= m_depthRangeMin() && depths[i] <= m_depthRangeMax() ) samplesInRange.push_back( pressures[i] );
-            }
-        }
-        else
-        {
-            samplesInRange = pressures;
-        }
-
-        if ( samplesInRange.empty() ) continue;
-
-        double meanPressure = std::accumulate( samplesInRange.begin(), samplesInRange.end(), 0.0 ) / samplesInRange.size();
-
-        if ( caseIdx < static_cast<size_t>( parameter.values.size() ) )
-        {
-            result.push_back(
-                { .parameterValue = parameter.values[caseIdx].toDouble(), .pressureValue = meanPressure, .summaryCase = summaryCase } );
-        }
+        result.push_back( { .parameterValue = parameter.values[caseIdx].toDouble(),
+                            .pressureValue  = pressurePerCase[caseIdx],
+                            .summaryCase    = summaryCase } );
     }
 
     return result;
@@ -575,67 +609,17 @@ QList<caf::PdmOptionItemInfo> RimParameterRftCrossPlot::calculateValueOptions( c
             const auto& allCases = m_ensemble->allSummaryCases();
 
             // Build mean RFT pressure per case if enough context is available for correlation sorting
-            std::vector<double> pressurePerCase;
             const bool          canComputeCorrelation = !m_wellName().isEmpty() && m_selectedTimeStep().isValid();
+            std::vector<double> pressurePerCase;
             if ( canComputeCorrelation )
             {
-                RigEclipseWellLogExtractor* extractor = nullptr;
-                if ( m_eclipseCase() )
-                {
-                    RimWellPath* wellPath = RimProject::current()->wellPathFromSimWellName( m_wellName() );
-                    extractor             = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, m_eclipseCase() );
-                    if ( !extractor )
-                        extractor = RiaExtractionTools::findOrCreateSimWellExtractor( m_eclipseCase(), m_wellName(), false, 0 );
-                }
-
-                for ( RimSummaryCase* summaryCase : allCases )
-                {
-                    if ( !summaryCase )
-                    {
-                        pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-                        continue;
-                    }
-                    RifReaderRftInterface* reader = summaryCase->rftReader();
-                    if ( !reader )
-                    {
-                        pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-                        continue;
-                    }
-                    auto pressureAddress = RifEclipseRftAddress::createAddress( m_wellName(),
-                                                                                m_selectedTimeStep(),
-                                                                                RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
-                    std::vector<double> pressures;
-                    reader->values( pressureAddress, &pressures );
-                    if ( pressures.empty() )
-                    {
-                        pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-                        continue;
-                    }
-                    auto mdAddress = RifEclipseRftAddress::createAddress( m_wellName(),
-                                                                          m_selectedTimeStep(),
-                                                                          RifEclipseRftAddress::RftWellLogChannelType::MD );
-                    std::vector<double> depths;
-                    reader->values( mdAddress, &depths );
-                    if ( depths.empty() && extractor )
-                        depths = reader->computeMeasuredDepth( m_wellName(), m_selectedTimeStep(), extractor );
-
-                    std::vector<double> samples;
-                    if ( m_useDepthRange() && depths.size() == pressures.size() )
-                    {
-                        for ( size_t i = 0; i < depths.size(); ++i )
-                            if ( depths[i] >= m_depthRangeMin() && depths[i] <= m_depthRangeMax() )
-                                samples.push_back( pressures[i] );
-                    }
-                    else
-                    {
-                        samples = pressures;
-                    }
-
-                    if ( samples.empty() )
-                        pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
-                    else
-                        pressurePerCase.push_back( std::accumulate( samples.begin(), samples.end(), 0.0 ) / samples.size() );
-                }
+                pressurePerCase = computeMeanPressurePerCase( m_ensemble(),
+                                                              m_wellName(),
+                                                              m_selectedTimeStep(),
+                                                              m_eclipseCase(),
+                                                              m_useDepthRange(),
+                                                              m_depthRangeMin(),
+                                                              m_depthRangeMax() );
             }
 
             // Compute correlation for each numeric parameter, then sort by abs value descending

@@ -72,6 +72,16 @@ public:
 
     std::vector<CaseData> createCaseData() const;
 
+    // Computes mean RFT pressure per ensemble case (one entry per case, infinity = no data).
+    // Indices match ensemble->allSummaryCases().
+    static std::vector<double> computeMeanPressurePerCase( RimSummaryEnsemble*   ensemble,
+                                                           const QString&        wellName,
+                                                           const QDateTime&      timeStep,
+                                                           RimEclipseResultCase* eclipseCase,
+                                                           bool                  useDepthRange,
+                                                           double                depthRangeMin,
+                                                           double                depthRangeMax );
+
     // RimPlot pure virtual overrides
     RiuPlotWidget* plotWidget() override;
     void           setAutoScaleXEnabled( bool ) override {}
