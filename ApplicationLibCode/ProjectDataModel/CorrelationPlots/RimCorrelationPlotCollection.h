@@ -31,7 +31,9 @@ class RimCorrelationPlot;
 class RimCorrelationMatrixPlot;
 class RimCorrelationReportPlot;
 class RimParameterResultCrossPlot;
+class RimRftCorrelationReportPlot;
 class RimSummaryEnsemble;
+class RimWellRftPlot;
 
 //==================================================================================================
 ///
@@ -66,6 +68,8 @@ public:
 
     void removeReport( RimCorrelationReportPlot* correlationReport );
 
+    RimRftCorrelationReportPlot* createRftCorrelationReportPlot( RimWellRftPlot* source );
+
     std::vector<RimAbstractCorrelationPlot*> plots() const final;
     size_t                                   plotCount() const final;
     void                                     insertPlot( RimAbstractCorrelationPlot* plot, size_t index ) final;
@@ -73,7 +77,8 @@ public:
     void                                     deleteAllPlots() final;
     void                                     loadDataAndUpdateAllPlots() override;
 
-    std::vector<RimCorrelationReportPlot*> reports() const;
+    std::vector<RimCorrelationReportPlot*>    reports() const;
+    std::vector<RimRftCorrelationReportPlot*> rftReports() const;
 
 private:
     void applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot, const std::vector<QString>& quantityNames = {} );
@@ -91,6 +96,7 @@ private:
                                                 std::time_t                 timeStep );
 
 private:
-    caf::PdmChildArrayField<RimAbstractCorrelationPlot*> m_correlationPlots;
-    caf::PdmChildArrayField<RimCorrelationReportPlot*>   m_correlationReports;
+    caf::PdmChildArrayField<RimAbstractCorrelationPlot*>  m_correlationPlots;
+    caf::PdmChildArrayField<RimCorrelationReportPlot*>    m_correlationReports;
+    caf::PdmChildArrayField<RimRftCorrelationReportPlot*> m_rftCorrelationReports;
 };

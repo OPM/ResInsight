@@ -626,6 +626,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimWellRftPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicCreateRftPlotsFeature";
+            menuBuilder << "RicCreateRftCorrelationReportFeature";
         }
         else if ( dynamic_cast<RimWellLogPlot*>( firstUiItem ) && !dynamic_cast<RimWellPltPlot*>( firstUiItem ) )
         {
