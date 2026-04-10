@@ -20,9 +20,9 @@
 #include "KeyValueStore/RiaKeyValueStoreUtil.h"
 #include "RiaApplication.h"
 
-#include "RimcDataContainerString.h"
 #include "RimRegularSurface.h"
 #include "RimSurfaceCollection.h"
+#include "RimcDataContainerString.h"
 
 #include "RifSurfaceExporter.h"
 
