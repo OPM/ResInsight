@@ -250,14 +250,24 @@ void RivFemPartGeometryGenerator::setElementVisibility( const cvf::UByteArray* c
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement( const RigFemPart* part,
                                                                                              size_t            elmIdx,
-                                                                                             const cvf::Vec3d& displayModelOffset )
+                                                                                             const cvf::Vec3d& displayModelOffset,
+                                                                                             const std::vector<cvf::Vec3f>& displacements,
+                                                                                             double displacementScaleFactor )
 {
     cvf::ref<cvf::Vec3fArray> quadVertices;
 
     {
         std::vector<Vec3f> vertices;
 
-        const std::vector<cvf::Vec3f>& nodeCoordinates = part->nodes().coordinates;
+        const std::vector<cvf::Vec3f>& nodeCoordinates  = part->nodes().coordinates;
+        bool                           useDisplacements = !displacements.empty() && displacements.size() == nodeCoordinates.size();
+
+        auto nodePosition = [&]( int nodeIdx ) -> cvf::Vec3d
+        {
+            cvf::Vec3d pos = cvf::Vec3d( nodeCoordinates[nodeIdx] );
+            if ( useDisplacements ) pos += cvf::Vec3d( displacements[nodeIdx] ) * displacementScaleFactor;
+            return pos;
+        };
 
         RigElementType eType     = part->elementType( elmIdx );
         int            faceCount = RigFemTypes::elementFaceCount( eType );
@@ -270,14 +280,10 @@ cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSi
             const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( eType, lfIdx, &faceNodeCount );
             if ( faceNodeCount == 4 )
             {
-                vertices.push_back(
-                    cvf::Vec3f( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) - displayModelOffset ) );
-                vertices.push_back(
-                    cvf::Vec3f( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] ) - displayModelOffset ) );
-                vertices.push_back(
-                    cvf::Vec3f( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] ) - displayModelOffset ) );
-                vertices.push_back(
-                    cvf::Vec3f( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] ) - displayModelOffset ) );
+                vertices.push_back( cvf::Vec3f( nodePosition( elmNodeIndices[localElmNodeIndicesForFace[0]] ) - displayModelOffset ) );
+                vertices.push_back( cvf::Vec3f( nodePosition( elmNodeIndices[localElmNodeIndicesForFace[1]] ) - displayModelOffset ) );
+                vertices.push_back( cvf::Vec3f( nodePosition( elmNodeIndices[localElmNodeIndicesForFace[2]] ) - displayModelOffset ) );
+                vertices.push_back( cvf::Vec3f( nodePosition( elmNodeIndices[localElmNodeIndicesForFace[3]] ) - displayModelOffset ) );
             }
             else
             {

@@ -20,6 +20,9 @@
 #pragma once
 
 #include "cvfDrawableGeo.h"
+#include "cvfVector3.h"
+
+#include <vector>
 
 namespace cvf
 {
@@ -41,6 +44,7 @@ public:
     RivSingleCellPartGenerator( RimGeoMechCase* rimGeoMechCase, size_t gridIndex, size_t cellIndex, const cvf::Vec3d& displayModelOffset );
 
     void setShowLgrMeshLines( bool enable );
+    void setDisplacementData( double scaleFactor, const std::vector<cvf::Vec3f>& displacements );
 
     cvf::ref<cvf::Part>               createPart( const cvf::Color3f color );
     static cvf::ref<cvf::DrawableGeo> createMeshLinesOfParentGridCells( RigGridBase const*   grid,
@@ -52,10 +56,12 @@ private:
     cvf::ref<cvf::DrawableGeo> createMeshDrawableFromLgrGridCells();
 
 private:
-    RigEclipseCaseData* m_rigCaseData;
-    RimGeoMechCase*     m_geoMechCase;
-    size_t              m_gridIndex;
-    size_t              m_cellIndex;
-    cvf::Vec3d          m_displayModelOffset;
-    bool                m_showLgrMeshLines{ false };
+    RigEclipseCaseData*     m_rigCaseData;
+    RimGeoMechCase*         m_geoMechCase;
+    size_t                  m_gridIndex;
+    size_t                  m_cellIndex;
+    cvf::Vec3d              m_displayModelOffset;
+    bool                    m_showLgrMeshLines{ false };
+    double                  m_displacementScaleFactor{ 1.0 };
+    std::vector<cvf::Vec3f> m_displacements;
 };
