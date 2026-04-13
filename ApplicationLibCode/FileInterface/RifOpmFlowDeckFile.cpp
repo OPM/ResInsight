@@ -223,6 +223,22 @@ static std::optional<Opm::FileDeck::Index> findSectionInsertionPoint( std::uniqu
     return insertIdx;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static std::optional<Opm::FileDeck::Index> findSectionStartPoint( std::unique_ptr<Opm::FileDeck>& fileDeck, const std::string& section )
+{
+    auto sectionIdx = fileDeck->find( section );
+    if ( !sectionIdx.has_value() )
+    {
+        return std::nullopt;
+    }
+
+    auto insertIdx = sectionIdx.value();
+    insertIdx++;
+    return insertIdx;
+}
+
 } // namespace internal
 
 //--------------------------------------------------------------------------------------------------
@@ -1130,6 +1146,20 @@ bool RifOpmFlowDeckFile::replaceKeyword( const std::string& section, const Opm::
         m_fileDeck->insert( insertPos.value(), keyword );
     }
 
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::insertKeywordAtSectionStart( const std::string& section, const Opm::DeckKeyword& keyword )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    auto insertPos = internal::findSectionStartPoint( m_fileDeck, section );
+    if ( !insertPos.has_value() ) return false;
+
+    m_fileDeck->insert( insertPos.value(), keyword );
     return true;
 }
 

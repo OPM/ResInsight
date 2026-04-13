@@ -566,6 +566,15 @@ TEST( RigSimulationInputTool, ExportModel5WithBcconBcprop )
     EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "BCPROP" ) != allKeywords.end() )
         << "BCPROP keyword missing from exported file";
 
+    // Verify BCPROP comes before any DATES keyword (i.e., first in SCHEDULE section)
+    auto bcpropIt = std::find( allKeywords.begin(), allKeywords.end(), "BCPROP" );
+    auto datesIt  = std::find( allKeywords.begin(), allKeywords.end(), "DATES" );
+    if ( bcpropIt != allKeywords.end() && datesIt != allKeywords.end() )
+    {
+        EXPECT_LT( std::distance( allKeywords.begin(), bcpropIt ), std::distance( allKeywords.begin(), datesIt ) )
+            << "BCPROP should appear before DATES in the SCHEDULE section";
+    }
+
     // Verify OPERNUM and OPERATER keywords do NOT exist (should only be present with OPERNUM_OPERATER)
     EXPECT_TRUE( std::find( allKeywords.begin(), allKeywords.end(), "OPERNUM" ) == allKeywords.end() )
         << "OPERNUM keyword should not be present when using BCCON_BCPROP";

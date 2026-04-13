@@ -99,6 +99,7 @@ public:
     bool addKeyword( const std::string& section, const Opm::DeckKeyword& keyword );
 
     bool replaceKeyword( const std::string& section, const Opm::DeckKeyword& keyword );
+    bool insertKeywordAtSectionStart( const std::string& section, const Opm::DeckKeyword& keyword );
     bool replaceKeyword( const std::string& keyword, const std::vector<double>& data, bool dataKeyword = false );
     bool replaceKeyword( const std::string& keyword, const std::vector<int>& data, bool dataKeyword = false );
 

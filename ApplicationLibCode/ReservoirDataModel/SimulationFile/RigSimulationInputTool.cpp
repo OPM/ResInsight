@@ -480,10 +480,12 @@ std::expected<void, QString> RigSimulationInputTool::addBorderBoundaryConditions
             // Create BCPROP keyword using the factory
             Opm::DeckKeyword bcpropKw = RimKeywordFactory::bcpropKeyword( borderCellFaces, bcpropRecords );
 
-            // Replace BCPROP keyword in GRID section
-            if ( !deckFile.replaceKeyword( Opm::ParserKeywords::SCHEDULE::keywordName, bcpropKw ) )
+            // Ensure BCPROP appears at the start of the SCHEDULE section by removing any
+            // existing occurrence and re-inserting it at the section start.
+            deckFile.removeKeywords( bcpropKw.name() );
+            if ( !deckFile.insertKeywordAtSectionStart( Opm::ParserKeywords::SCHEDULE::keywordName, bcpropKw ) )
             {
-                return std::unexpected( "Failed to replace BCPROP keyword in deck file" );
+                return std::unexpected( "Failed to insert BCPROP keyword at start of SCHEDULE section" );
             }
         }
         else

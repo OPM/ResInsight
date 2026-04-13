@@ -461,3 +461,88 @@ TEST( RifOpmFlowDeckFileTest, BcpropKeyword )
     // Verify component
     EXPECT_TRUE( content.contains( "WATER" ) ) << "Component WATER not found";
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Verify that a keyword is inserted as the first entry inside the requested section.
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmFlowDeckFileTest, InsertKeywordAtSectionStart )
+{
+    static const QString testDataFolder = QString( "%1/RifOpmFlowDeckFile/" ).arg( TEST_DATA_DIR );
+    QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
+
+    RifOpmFlowDeckFile deckFile;
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
+    ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
+
+    Opm::DeckKeyword bcpropKw( ( Opm::ParserKeywords::BCPROP() ) );
+    bool             insertSuccess = deckFile.insertKeywordAtSectionStart( "SCHEDULE", bcpropKw );
+    EXPECT_TRUE( insertSuccess ) << "Should successfully insert BCPROP at start of SCHEDULE section";
+
+    auto keywords = deckFile.keywords( false );
+    auto schedIt  = std::find( keywords.begin(), keywords.end(), "SCHEDULE" );
+    ASSERT_NE( schedIt, keywords.end() ) << "SCHEDULE section keyword not found";
+
+    auto nextIt = std::next( schedIt );
+    ASSERT_NE( nextIt, keywords.end() ) << "Expected a keyword after SCHEDULE";
+    EXPECT_EQ( "BCPROP", *nextIt ) << "BCPROP should be the first keyword inside SCHEDULE";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Inserting into a section that does not exist should fail and leave the deck unchanged.
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmFlowDeckFileTest, InsertKeywordAtSectionStartNonexistentSection )
+{
+    static const QString testDataFolder = QString( "%1/RifOpmFlowDeckFile/" ).arg( TEST_DATA_DIR );
+    QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
+
+    RifOpmFlowDeckFile deckFile;
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
+    ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
+
+    auto keywordsBefore = deckFile.keywords( false );
+
+    Opm::DeckKeyword bcpropKw( ( Opm::ParserKeywords::BCPROP() ) );
+    bool             insertSuccess = deckFile.insertKeywordAtSectionStart( "NONEXISTENT", bcpropKw );
+    EXPECT_FALSE( insertSuccess ) << "Should fail when target section does not exist";
+
+    auto keywordsAfter = deckFile.keywords( false );
+    EXPECT_EQ( keywordsBefore, keywordsAfter ) << "Deck should be unchanged when section is missing";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Verify the documented use case: a pre-existing keyword can be moved to the start of a
+/// section by combining removeKeywords + insertKeywordAtSectionStart.
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmFlowDeckFileTest, RemoveAndInsertKeywordAtSectionStart )
+{
+    static const QString testDataFolder = QString( "%1/RifOpmFlowDeckFile/" ).arg( TEST_DATA_DIR );
+    QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
+
+    RifOpmFlowDeckFile deckFile;
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
+    ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
+
+    // Place BCPROP somewhere in the deck first (in GRID), so that the second insert
+    // exercises the "remove existing then insert at section start" pattern.
+    Opm::DeckKeyword bcpropKw( ( Opm::ParserKeywords::BCPROP() ) );
+    ASSERT_TRUE( deckFile.replaceKeyword( "GRID", bcpropKw ) );
+
+    auto keywordsAfterFirst = deckFile.keywords( false );
+    EXPECT_EQ( 1, std::count( keywordsAfterFirst.begin(), keywordsAfterFirst.end(), std::string( "BCPROP" ) ) );
+
+    // Remove the existing occurrence and re-insert at SCHEDULE start.
+    int removed = deckFile.removeKeywords( bcpropKw.name() );
+    EXPECT_EQ( 1, removed ) << "Should remove the existing BCPROP keyword";
+
+    bool insertSuccess = deckFile.insertKeywordAtSectionStart( "SCHEDULE", bcpropKw );
+    EXPECT_TRUE( insertSuccess );
+
+    auto keywords = deckFile.keywords( false );
+    EXPECT_EQ( 1, std::count( keywords.begin(), keywords.end(), std::string( "BCPROP" ) ) ) << "BCPROP should appear exactly once";
+
+    auto schedIt = std::find( keywords.begin(), keywords.end(), "SCHEDULE" );
+    ASSERT_NE( schedIt, keywords.end() );
+    auto nextIt = std::next( schedIt );
+    ASSERT_NE( nextIt, keywords.end() );
+    EXPECT_EQ( "BCPROP", *nextIt ) << "BCPROP should be the first keyword inside SCHEDULE";
+}
