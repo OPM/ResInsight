@@ -83,6 +83,15 @@ void RivSingleCellPartGenerator::setShowLgrMeshLines( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivSingleCellPartGenerator::setDisplacementData( double scaleFactor, const std::vector<cvf::Vec3f>& displacements )
+{
+    m_displacementScaleFactor = scaleFactor;
+    m_displacements           = displacements;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Part> RivSingleCellPartGenerator::createPart( const cvf::Color3f color )
 {
     cvf::ref<cvf::Part> part = new cvf::Part;
@@ -239,7 +248,11 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawable()
         RigFemPart* femPart = m_geoMechCase->geoMechData()->femParts()->part( m_gridIndex );
         CVF_ASSERT( femPart );
 
-        return RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement( femPart, m_cellIndex, m_displayModelOffset );
+        return RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement( femPart,
+                                                                                 m_cellIndex,
+                                                                                 m_displayModelOffset,
+                                                                                 m_displacements,
+                                                                                 m_displacementScaleFactor );
     }
 
     return nullptr;

@@ -22,7 +22,9 @@
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimGeoMechPartCollection.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
 #include "RimGridCollection.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
@@ -367,6 +369,17 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
                                                     geomSelItem->m_gridIndex,
                                                     geomSelItem->m_cellIndex,
                                                     ownerCase()->displayModelOffset() );
+
+                auto geoMechView = dynamic_cast<RimGeoMechView*>( this );
+                if ( geoMechView )
+                {
+                    const RimGeoMechPartCollection* partsColl = geoMechView->partsCollection();
+                    if ( partsColl && partsColl->isDisplacementsUsed() )
+                    {
+                        partGen.setDisplacementData( partsColl->currentDisplacementScaleFactor(),
+                                                     partsColl->displacements( static_cast<int>( geomSelItem->m_gridIndex ) ) );
+                    }
+                }
 
                 cvf::ref<cvf::Part> part = partGen.createPart( geomSelItem->m_color );
                 part->setTransform( scaleTransform() );

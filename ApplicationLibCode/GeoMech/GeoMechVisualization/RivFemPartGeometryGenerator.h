@@ -91,8 +91,11 @@ public:
 
     RivFemPartTriangleToElmMapper* triangleToElementMapper() { return m_triangleMapper.p(); }
 
-    static cvf::ref<cvf::DrawableGeo>
-        createMeshDrawableFromSingleElement( const RigFemPart* grid, size_t elementIndex, const cvf::Vec3d& displayModelOffset );
+    static cvf::ref<cvf::DrawableGeo> createMeshDrawableFromSingleElement( const RigFemPart*              part,
+                                                                           size_t                         elementIndex,
+                                                                           const cvf::Vec3d&              displayModelOffset,
+                                                                           const std::vector<cvf::Vec3f>& displacements           = {},
+                                                                           double                         displacementScaleFactor = 1.0 );
 
 private:
     void computeArrays( const std::vector<cvf::Vec3f>& nodeCoordinates );
