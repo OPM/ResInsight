@@ -376,6 +376,8 @@ std::map<std::string, std::vector<std::string>> RifVtkReader::scalarNodeFieldAnd
         retVal[entry.first] = {};
     }
 
+    retVal["U"] = { "U1", "U2", "U3" };
+
     return retVal;
 }
 
@@ -466,6 +468,28 @@ void RifVtkReader::readNodeField( const std::string&                fieldName,
                                   int                               frameIndex,
                                   std::vector<std::vector<float>*>* resultValues )
 {
+    CVF_ASSERT( resultValues );
+
+    if ( fieldName == "U" )
+    {
+        std::vector<cvf::Vec3f> disp;
+        readDisplacements( partIndex, stepIndex, frameIndex, &disp );
+        if ( disp.empty() ) return;
+
+        size_t n = disp.size();
+
+        for ( int comp = 0; comp < 3 && comp < static_cast<int>( resultValues->size() ); comp++ )
+        {
+            if ( ( *resultValues )[comp] == nullptr ) continue;
+            ( *resultValues )[comp]->resize( n );
+            for ( size_t i = 0; i < n; i++ )
+            {
+                ( *( *resultValues )[comp] )[i] = disp[i][comp];
+            }
+        }
+        return;
+    }
+
     readField( RigFemResultPosEnum::RIG_NODAL, fieldName, partIndex, stepIndex, resultValues );
 }
 
