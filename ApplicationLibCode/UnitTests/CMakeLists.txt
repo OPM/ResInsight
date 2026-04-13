@@ -120,6 +120,8 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaResultName-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkSurfaceImporter-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifVtkReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifVtkImportUtil-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaKeyValueStore-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleImportTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTools-Test.cpp
