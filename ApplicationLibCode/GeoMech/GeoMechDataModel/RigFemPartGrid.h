@@ -31,7 +31,7 @@ public:
     RigFemPartGrid();
     ~RigFemPartGrid() override;
 
-    void setFemPart( const RigFemPart* femPart );
+    void setFemPart( const RigFemPart* femPart, bool invertIJK = false );
 
     size_t cellCountI() const override;
     size_t cellCountJ() const override;
@@ -47,7 +47,7 @@ public:
     cvf::Vec3d                              cellCentroid( size_t cellIndex ) const override;
 
 private:
-    void generateStructGridData();
+    void generateStructGridData( bool invertIJK );
     int  findElmIdxForIJK000();
     int  perpendicularFaceInDirection( cvf::Vec3f direction, int perpFaceIdx, int elmIdx );
 

@@ -43,16 +43,16 @@ RigFemPartGrid::~RigFemPartGrid()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartGrid::setFemPart( const RigFemPart* femPart )
+void RigFemPartGrid::setFemPart( const RigFemPart* femPart, bool invertIJK )
 {
     m_femPart = femPart;
-    generateStructGridData();
+    generateStructGridData( invertIJK );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartGrid::generateStructGridData()
+void RigFemPartGrid::generateStructGridData( bool invertIJK )
 {
     //[X] 1. Calculate neighbors for each element
     //[X]    record the ones with 3 or fewer neighbors as possible grid corners
@@ -178,6 +178,19 @@ void RigFemPartGrid::generateStructGridData()
     }
 
     m_elmIdxPrIJK.resize( m_elementIJKCounts[0], m_elementIJKCounts[1], m_elementIJKCounts[2] );
+
+    if ( invertIJK )
+    {
+        size_t iCount = m_elementIJKCounts[0];
+        size_t jCount = m_elementIJKCounts[1];
+        size_t kCount = m_elementIJKCounts[2];
+        for ( auto& ijk : m_ijkPrElement )
+        {
+            if ( ijk[0] >= 0 ) ijk[0] = static_cast<int>( iCount ) - 1 - ijk[0];
+            if ( ijk[1] >= 0 ) ijk[1] = static_cast<int>( jCount ) - 1 - ijk[1];
+            if ( ijk[2] >= 0 ) ijk[2] = static_cast<int>( kCount ) - 1 - ijk[2];
+        }
+    }
 
     for ( int elmIdx = 0; elmIdx < m_femPart->elementCount(); ++elmIdx )
     {

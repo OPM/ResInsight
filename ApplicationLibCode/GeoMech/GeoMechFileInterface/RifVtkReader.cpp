@@ -191,6 +191,10 @@ bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
             femPart->addElementSet( setName, elementSet );
         }
 
+        // VTK coordinates are negated to match ResInsight internal convention (z positive downward),
+        // which flips the IJK directions. Invert all so IJK=0 is at the correct corner.
+        femPart->setInvertIJKInStructGrid( true );
+
         femPart->setElementPartId( femParts->partCount() );
         femParts->addFemPart( femPart );
 
