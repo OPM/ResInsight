@@ -95,6 +95,7 @@ public:
     cvf::Vec3f faceNormal( int elementIndex, int faceIndex ) const;
 
     const RigFemPartGrid*   getOrCreateStructGrid() const;
+    void                    setInvertIJKInStructGrid( bool invert );
     const std::vector<int>& elementIdxToId() const;
 
     void        setName( std::string name );
@@ -111,6 +112,7 @@ private:
     int         m_elementPartId;
     std::string m_name;
     bool        m_enabled;
+    bool        m_invertIJKInStructGrid;
 
     std::vector<int>            m_elementId;
     std::vector<RigElementType> m_elementTypes;

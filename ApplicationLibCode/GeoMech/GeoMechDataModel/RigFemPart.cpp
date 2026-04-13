@@ -30,6 +30,7 @@ RigFemPart::RigFemPart()
     : m_elementPartId( -1 )
     , m_characteristicElementSize( std::numeric_limits<float>::infinity() )
     , m_enabled( true )
+    , m_invertIJKInStructGrid( false )
 {
 }
 
@@ -227,10 +228,18 @@ const RigFemPartGrid* RigFemPart::getOrCreateStructGrid() const
     if ( m_structGrid.isNull() )
     {
         m_structGrid = new RigFemPartGrid();
-        m_structGrid->setFemPart( this );
+        m_structGrid->setFemPart( this, m_invertIJKInStructGrid );
     }
 
     return m_structGrid.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::setInvertIJKInStructGrid( bool invert )
+{
+    m_invertIJKInStructGrid = invert;
 }
 
 //--------------------------------------------------------------------------------------------------
