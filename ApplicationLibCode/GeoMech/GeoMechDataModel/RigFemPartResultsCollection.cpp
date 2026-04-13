@@ -576,9 +576,10 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
             fieldCompNames[RigFemAddressDefines::porBar()];
             if ( fieldCompNames.contains( "VOIDR" ) ) fieldCompNames["PORO-PERM"].push_back( "PHI0" );
 
+            if ( fieldCompNames.contains( "U" ) ) fieldCompNames["U"].push_back( "U_LENGTH" );
+
             if ( m_readerInterface->populateDerivedResultNames() )
             {
-                if ( fieldCompNames.contains( "U" ) ) fieldCompNames["U"].push_back( "U_LENGTH" );
                 fieldCompNames[FIELD_NAME_COMPACTION];
             }
         }
