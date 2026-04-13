@@ -58,8 +58,13 @@ std::vector<cvf::Vec3f> RifVtkImportUtil::readDisplacements( const pugi::xml_nod
     auto dataArray = pointData.child( "DataArray" );
     if ( !dataArray || std::string( dataArray.attribute( "Name" ).value() ) != "disp" ) return {};
 
-    std::string_view text = dataArray.text().get();
-    return parseVec3fs( text );
+    std::string_view        text          = dataArray.text().get();
+    std::vector<cvf::Vec3f> displacements = parseVec3fs( text );
+
+    for ( cvf::Vec3f& d : displacements )
+        d.z() = -d.z();
+
+    return displacements;
 }
 
 //--------------------------------------------------------------------------------------------------
