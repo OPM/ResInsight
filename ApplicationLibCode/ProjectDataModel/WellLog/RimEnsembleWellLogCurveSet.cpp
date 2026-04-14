@@ -163,6 +163,7 @@ RimEnsembleWellLogCurveSet::~RimEnsembleWellLogCurveSet()
         {
             plotTrack->viewer()->removeOverlayFrame( m_legendOverlayFrame );
         }
+        m_qwtPlotCurveForLegendText->detach();
     }
 
     if ( m_legendOverlayFrame )
@@ -177,7 +178,6 @@ RimEnsembleWellLogCurveSet::~RimEnsembleWellLogCurveSet()
         delete m_filterOverlayFrame;
     }
 
-    m_qwtPlotCurveForLegendText->detach();
     delete m_qwtPlotCurveForLegendText;
 }
 
@@ -231,7 +231,7 @@ void RimEnsembleWellLogCurveSet::detachPlotCurves()
 {
     for ( RimWellLogCurve* curve : m_curves )
     {
-        curve->detach();
+        if ( curve ) curve->detach();
     }
 
     m_qwtPlotCurveForLegendText->detach();

@@ -378,6 +378,10 @@ void RimWellLogTrack::detachAllPlotItems()
     {
         plotObjects->detachFromQwt();
     }
+    if ( m_ensembleWellLogCurveSet )
+    {
+        m_ensembleWellLogCurveSet->detachPlotCurves();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
