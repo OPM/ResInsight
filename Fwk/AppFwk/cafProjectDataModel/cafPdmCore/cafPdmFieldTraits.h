@@ -220,6 +220,14 @@ struct PdmVariantEqualImpl<double>
     }
 };
 
+template <>
+struct PdmVariantEqualImpl<QString>
+{
+    // Use toString() instead of value<QString>() to avoid a GCC false-positive
+    // -Wmaybe-uninitialized warning triggered by deep inlining through qvariant_cast.
+    static bool equal( const QVariant& a, const QVariant& b ) { return a.toString() == b.toString(); }
+};
+
 //==================================================================================================
 /// pdmVariantEqual<T> — public API, delegates to PdmVariantEqualImpl<T>
 //==================================================================================================
