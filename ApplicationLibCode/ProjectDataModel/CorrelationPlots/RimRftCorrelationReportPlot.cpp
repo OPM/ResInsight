@@ -347,7 +347,7 @@ QWidget* RimRftCorrelationReportPlot::createViewWidget( QWidget* mainWindowParen
     auto* wrapper = new RiuRftCorrelationReportPlotWidget( this, mainWindowParent );
     m_viewWidget  = wrapper;
     m_dockManager = new ads::CDockManager( wrapper );
-    m_dockManager->setStyleSheet( "ads--CDockSplitter::handle { width: 1px; height: 1px; }" );
+    m_dockManager->setStyleSheet( "ads--CDockSplitter::handle { width: 2px; height: 2px; background-color: #a0a0a0; }" );
     wrapper->layout()->addWidget( m_dockManager );
     recreatePlotWidgets();
     return m_viewWidget;
@@ -433,6 +433,7 @@ void RimRftCorrelationReportPlot::childFieldChangedByUi( const caf::PdmFieldHand
         syncCrossPlotSelectionToRftPlot();
     }
 
+    updateDockTitleBarsVisibility();
     loadDataAndUpdate();
 }
 
@@ -474,6 +475,7 @@ void RimRftCorrelationReportPlot::onTornadoParameterSelected( const QString& par
         m_parameterRftCrossPlot->setEnsembleParameter( paramName );
         m_parameterRftCrossPlot->loadDataAndUpdate();
     }
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
