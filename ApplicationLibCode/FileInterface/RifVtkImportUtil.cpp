@@ -20,9 +20,11 @@
 
 #include "RiaStdStringTools.h"
 
+#include "fast_float/fast_float.h"
+
+#include <cstring>
 #include <filesystem>
 #include <spanstream>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -114,24 +116,41 @@ std::map<std::string, std::vector<float>> RifVtkImportUtil::readProperties( cons
         if ( name && *name )
         {
             std::vector<float> values;
-            std::istringstream iss( dataArray.text().get() );
+            const char*        text    = dataArray.text().get();
+            const char*        ptr     = text;
+            const char*        textEnd = text + std::strlen( text );
 
-            std::string token;
-            while ( iss >> token )
+            while ( *ptr != '\0' )
             {
-                if ( token == "nan" || token == "NaN" || token == "NAN" )
+                // Skip whitespace
+                while ( *ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '\r' )
+                    ++ptr;
+
+                if ( *ptr == '\0' ) break;
+
+                // Check for NaN (case-insensitive). ptr[3] is safe because text is null-terminated,
+                // so if ptr points to the last three chars "nan", ptr[3] == '\0' which matches the condition.
+                if ( ( *ptr == 'n' || *ptr == 'N' ) && ( ptr[1] == 'a' || ptr[1] == 'A' ) && ( ptr[2] == 'n' || ptr[2] == 'N' ) &&
+                     ( ptr[3] == '\0' || ptr[3] == ' ' || ptr[3] == '\t' || ptr[3] == '\n' || ptr[3] == '\r' ) )
                 {
                     values.push_back( std::numeric_limits<float>::quiet_NaN() );
+                    ptr += 3;
+                    continue;
                 }
-                else
+
+                // Parse float directly using fast_float
+                float fValue       = 0.0f;
+                auto  result       = fast_float::from_chars( ptr, textEnd, fValue );
+                auto* parsedEndPtr = result.ptr;
+
+                if ( result.ec != std::errc() || parsedEndPtr == ptr )
                 {
-                    double value = 0.0;
-                    bool   isOk  = RiaStdStringTools::toDouble( token, value );
-                    if ( isOk )
-                        values.push_back( static_cast<float>( value ) );
-                    else
-                        return {};
+                    // Failed to parse
+                    return {};
                 }
+
+                values.push_back( fValue );
+                ptr = parsedEndPtr;
             }
 
             if ( !values.empty() )

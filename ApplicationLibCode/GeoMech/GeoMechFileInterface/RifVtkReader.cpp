@@ -256,27 +256,18 @@ std::expected<RigElementType, std::string>
         auto piece = grid.child( "Piece" );
         if ( !piece ) return std::unexpected( "Missing Piece tag: " + d.filepath.string() );
 
-        // Read points
-        std::vector<cvf::Vec3d> vertices = RifVtkImportUtil::readPoints( piece );
-        if ( vertices.empty() ) return std::unexpected( "No points found: " + d.filepath.string() );
-
-        // Read connectivity
-        std::vector<unsigned> connectivity = RifVtkImportUtil::readConnectivity( piece );
-        if ( connectivity.empty() ) return std::unexpected( "No connectivity found: " + d.filepath.string() );
-
-        // Read connectivity
-        std::vector<cvf::Vec3f> partDisplacements = RifVtkImportUtil::readDisplacements( piece );
-        if ( partDisplacements.empty() ) return std::unexpected( "No displacements found: " + d.filepath.string() );
-
-        RiaLogging::info( QString( "Found %1 vertices, %2 connectivities, and %3 displacements." )
-                              .arg( vertices.size() )
-                              .arg( connectivity.size() )
-                              .arg( partDisplacements.size() ) );
-
         // Use the geometry from the first time step only.
         // The geometry is assumed to not change between time steps.
         if ( isFirst )
         {
+            // Read points
+            std::vector<cvf::Vec3d> vertices = RifVtkImportUtil::readPoints( piece );
+            if ( vertices.empty() ) return std::unexpected( "No points found: " + d.filepath.string() );
+
+            // Read connectivity
+            std::vector<unsigned> connectivity = RifVtkImportUtil::readConnectivity( piece );
+            if ( connectivity.empty() ) return std::unexpected( "No connectivity found: " + d.filepath.string() );
+
             std::vector<std::pair<int, cvf::Vec3d>> partNodes;
             for ( int i = 0; i < static_cast<int>( vertices.size() ); i++ )
             {
@@ -303,7 +294,17 @@ std::expected<RigElementType, std::string>
 
             elementType = RigElementType::HEX8P;
         }
+
+        // Read displacements for all timesteps
+        std::vector<cvf::Vec3f> partDisplacements = RifVtkImportUtil::readDisplacements( piece );
+        if ( partDisplacements.empty() ) return std::unexpected( "No displacements found: " + d.filepath.string() );
+
         const std::map<std::string, std::vector<float>> partProperties = RifVtkImportUtil::readProperties( piece );
+
+        RiaLogging::info( QString( "Found %1 displacements and %2 properties for timestep %3." )
+                              .arg( partDisplacements.size() )
+                              .arg( partProperties.size() )
+                              .arg( d.timestep ) );
 
         properties[partId].push_back( partProperties );
         displacements[partId].push_back( partDisplacements );
