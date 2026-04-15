@@ -344,6 +344,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_extractWellPathProper
     std::vector<double> mdValues;
 
     auto wellPathGeom = wellPath->wellPathGeometry();
+    if ( !wellPathGeom ) return std::unexpected( QString( "Well path has no geometry" ) );
 
     double mdStepSize = m_resamplingInterval();
     CAF_ASSERT( mdStepSize > 0.0 );
