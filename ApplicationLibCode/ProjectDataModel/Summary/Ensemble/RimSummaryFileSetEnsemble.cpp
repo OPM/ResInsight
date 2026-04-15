@@ -152,7 +152,14 @@ void RimSummaryFileSetEnsemble::onFileSetNameChanged( const caf::SignalEmitter* 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryFileSetEnsemble::createSummaryCasesFromEnsembleFileSet( bool notifyChange )
 {
-    m_cases.deleteChildrenAsync();
+    // Delete old cases synchronously to avoid a race between the std::thread spawned by
+    // deleteChildrenAsync() and the OpenMP parallel loop in loadFileSummaryCaseData().
+    // #pragma omp critical does not protect against std::thread races.
+    // clearWithoutDelete() disconnects observer signals first (preserves the fix for #12262).
+    auto casesToDelete = m_cases.childrenByType();
+    m_cases.clearWithoutDelete();
+    for ( auto* c : casesToDelete )
+        delete c;
 
     if ( m_ensembleFileSet() )
     {
