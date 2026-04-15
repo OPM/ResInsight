@@ -132,7 +132,9 @@ std::pair<bool, std::vector<double>>
 
             if ( !missingResults )
             {
-                gridResultValues = calculateColumnResult( resultData, resultAggregation, timeStep, floodingSettings );
+                // TODO: propagate or log the error from calculateColumnResult when the result is unexpected
+                if ( auto result = calculateColumnResult( resultData, resultAggregation, timeStep, floodingSettings ) )
+                    gridResultValues = std::move( *result );
             }
         }
         else
@@ -167,10 +169,11 @@ std::pair<bool, std::vector<double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCaseCellResultsData&                        resultData,
-                                                                           RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                                                           int                                            timeStep,
-                                                                           RigFloodingSettings&                           floodingSettings )
+std::expected<std::vector<double>, std::string>
+    RigEclipseContourMapProjection::calculateColumnResult( RigCaseCellResultsData&                        resultData,
+                                                           RigContourMapCalculator::ResultAggregationType resultAggregation,
+                                                           int                                            timeStep,
+                                                           RigFloodingSettings&                           floodingSettings )
 {
     const std::vector<double>& poroResults =
         resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ), 0 );
@@ -179,7 +182,10 @@ std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCa
     const std::vector<double>& dzResults =
         resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ), 0 );
 
-    CVF_ASSERT( poroResults.size() == ntgResults.size() && ntgResults.size() == dzResults.size() );
+    if ( poroResults.empty() || poroResults.size() != ntgResults.size() || poroResults.size() != dzResults.size() )
+    {
+        return std::unexpected( "PORO/NTG/DZ result sizes are inconsistent or empty" );
+    }
 
     const auto nSamples = poroResults.size();
 
@@ -206,6 +212,8 @@ std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCa
         const std::vector<double>& soilResults =
             resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ),
                                           timeStep );
+        if ( soilResults.size() != nSamples || residualOil.size() != nSamples )
+            return std::unexpected( "SOIL or residual oil result size mismatch" );
         for ( size_t n = 0; n < nSamples; n++ )
         {
             resultValues[n] = std::max( soilResults[n] - residualOil[n], 0.0 );
@@ -219,6 +227,8 @@ std::vector<double> RigEclipseContourMapProjection::calculateColumnResult( RigCa
         const std::vector<double>& sgasResults =
             resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ),
                                           timeStep );
+        if ( sgasResults.size() != nSamples || residualGas.size() != nSamples )
+            return std::unexpected( "SGAS or residual gas result size mismatch" );
         for ( size_t n = 0; n < nSamples; n++ )
         {
             resultValues[n] += std::max( sgasResults[n] - residualGas[n], 0.0 );

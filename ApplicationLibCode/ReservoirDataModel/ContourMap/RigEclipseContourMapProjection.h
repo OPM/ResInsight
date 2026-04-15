@@ -25,7 +25,9 @@
 
 #include "cvfBoundingBox.h"
 
+#include <expected>
 #include <set>
+#include <string>
 
 class RigActiveCellInfo;
 class RigMainGrid;
@@ -80,10 +82,10 @@ protected:
     double getParameterWeightForCell( size_t cellResultIdx, const std::vector<double>& parameterWeights ) const override;
     size_t gridResultIndex( size_t globalCellIdx ) const override;
 
-    static std::vector<double> calculateColumnResult( RigCaseCellResultsData&                        resultData,
-                                                      RigContourMapCalculator::ResultAggregationType resultAggregation,
-                                                      int                                            timeStep,
-                                                      RigFloodingSettings&                           floodingSettings );
+    static std::expected<std::vector<double>, std::string> calculateColumnResult( RigCaseCellResultsData& resultData,
+                                                                                  RigContourMapCalculator::ResultAggregationType resultAggregation,
+                                                                                  int                  timeStep,
+                                                                                  RigFloodingSettings& floodingSettings );
 
     static std::set<RigEclipseResultAddress> neededResults( RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                             RigFloodingSettings&                           floodingSettings );
