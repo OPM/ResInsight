@@ -276,6 +276,7 @@ bool RifEclipseUnifiedRestartFileAccess::dynamicNNCResults( const ecl_grid_type*
     }
 
     ecl_file_view_type* summaryView = ecl_file_get_restart_view( m_ecl_file, static_cast<int>( timeStep ), 0, 0, 0 );
+    if ( !summaryView ) return true;
 
     RifEclipseOutputFileTools::transferNncFluxData( grid, summaryView, waterFlux, oilFlux, gasFlux );
 

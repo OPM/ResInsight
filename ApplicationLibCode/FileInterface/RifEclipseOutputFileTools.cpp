@@ -588,6 +588,8 @@ void RifEclipseOutputFileTools::transferNncFluxData( const ecl_grid_type*      g
                                                      std::vector<double>*      oilFlux,
                                                      std::vector<double>*      gasFlux )
 {
+    if ( !grid || !summaryView ) return;
+
     ecl_nnc_geometry_type* nnc_geo = ecl_nnc_geometry_alloc( grid );
     if ( nnc_geo )
     {
