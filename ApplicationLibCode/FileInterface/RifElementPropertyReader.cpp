@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifElementPropertyReader.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
 #include "cvfAssert.h"
@@ -88,6 +89,21 @@ std::vector<std::string> RifElementPropertyReader::scalarElementFields() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+static void scaleColumnIfModulus( const std::string& fieldName, std::vector<float>& data )
+{
+    if ( fieldName == "MODULUS" )
+    {
+        const float paToGPa = static_cast<float>( 1.0 / RiaEclipseUnitTools::gigaPascalToPascal( 1.0 ) );
+        for ( float& v : data )
+        {
+            v *= paToGPa;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<float>> RifElementPropertyReader::readAllElementPropertiesInFileContainingField( const std::string& fieldName )
 {
     std::map<std::string, std::vector<float>> fieldAndData;
@@ -114,23 +130,9 @@ std::map<std::string, std::vector<float>> RifElementPropertyReader::readAllEleme
         for ( size_t i = 0; i < table.data.size(); i++ )
         {
             const std::string& currentFieldFromFile = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
-
-            if ( currentFieldFromFile == "MODULUS" )
-            {
-                const std::vector<float>& currentColumn = table.data[i];
-                std::vector<float>        tempResult( currentColumn.size(), 0 );
-
-                for ( float resultItem : currentColumn )
-                {
-                    tempResult[i] = resultItem * 0.000000001;
-                }
-
-                fieldAndData[currentFieldFromFile].swap( tempResult );
-            }
-            else
-            {
-                fieldAndData[currentFieldFromFile] = table.data[i];
-            }
+            std::vector<float> columnData           = table.data[i];
+            scaleColumnIfModulus( currentFieldFromFile, columnData );
+            fieldAndData[currentFieldFromFile] = std::move( columnData );
         }
     }
     else if ( elementIdsFromFile.size() > m_elementIdxToId.size() && elementIdsFromFile.size() > m_elementIdToIdx.size() )
@@ -150,7 +152,7 @@ std::map<std::string, std::vector<float>> RifElementPropertyReader::readAllEleme
 
         for ( int elementId : elementIdsFromFile )
         {
-            std::unordered_map<int /*elm ID*/, int /*elm idx*/>::const_iterator it = m_elementIdToIdx.find( elementId );
+            auto it = m_elementIdToIdx.find( elementId );
             if ( it == m_elementIdToIdx.end() )
             {
                 RifElementPropertyReader::outputWarningAboutWrongFileData();
@@ -162,27 +164,17 @@ std::map<std::string, std::vector<float>> RifElementPropertyReader::readAllEleme
 
         for ( size_t i = 0; i < table.data.size(); i++ )
         {
-            std::string currentFieldFromFile = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
-
-            const std::vector<float>& currentColumn = table.data[i];
+            std::string               currentFieldFromFile = m_fieldsMetaData[fieldName].dataColumns[i].toStdString();
+            const std::vector<float>& currentColumn        = table.data[i];
 
             std::vector<float> tempResult( m_elementIdToIdx.size(), HUGE_VAL );
 
-            if ( currentFieldFromFile == "MODULUS" )
+            for ( size_t j = 0; j < currentColumn.size(); j++ )
             {
-                for ( size_t j = 0; j < currentColumn.size(); j++ )
-                {
-                    tempResult[fileIdxToElementIdx[j]] = currentColumn[j] * 0.000000001;
-                }
-            }
-            else
-            {
-                for ( size_t j = 0; j < currentColumn.size(); j++ )
-                {
-                    tempResult[fileIdxToElementIdx[j]] = currentColumn[j];
-                }
+                tempResult[fileIdxToElementIdx[j]] = currentColumn[j];
             }
 
+            scaleColumnIfModulus( currentFieldFromFile, tempResult );
             fieldAndData[currentFieldFromFile].swap( tempResult );
         }
     }
