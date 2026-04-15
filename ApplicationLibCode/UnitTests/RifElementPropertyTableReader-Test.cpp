@@ -2,6 +2,7 @@
 
 #include "RiaTestDataDirectory.h"
 
+#include "RifElementPropertyReader.h"
 #include "RifElementPropertyTableReader.h"
 #include "RifFileParseTools.h"
 
@@ -116,4 +117,37 @@ TEST( RicElementPropertyTableReaderTest, MoreThanEightColumns )
 
     EXPECT_FLOAT_EQ( 4998669605.36f, table.data[0].front() );
     EXPECT_FLOAT_EQ( 4998444377.89f, table.data[0].back() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RicElementPropertyTableReaderTest, ReadAllElementPropertiesInFileContainingField )
+{
+    RifElementPropertyMetadata metadata =
+        RifElementPropertyTableReader::readMetadata( ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE.inp" );
+
+    RifElementPropertyTable table;
+    RifElementPropertyTableReader::readData( &metadata, &table );
+
+    RifElementPropertyReader reader( table.elementIds );
+    reader.addFile( ( ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE.inp" ).toStdString() );
+
+    auto result = reader.readAllElementPropertiesInFileContainingField( "MODULUS" );
+
+    EXPECT_EQ( 2u, result.size() );
+    EXPECT_EQ( 1u, result.count( "MODULUS" ) );
+    EXPECT_EQ( 1u, result.count( "RATIO" ) );
+
+    const auto& modulusData = result.at( "MODULUS" );
+    EXPECT_EQ( 4320u, modulusData.size() );
+
+    const float paToGPa = 0.000000001f;
+    EXPECT_FLOAT_EQ( 11198814808.2538f * paToGPa, modulusData.front() );
+    EXPECT_FLOAT_EQ( 13250853676.3636f * paToGPa, modulusData.back() );
+
+    const auto& ratioData = result.at( "RATIO" );
+    EXPECT_EQ( 4320u, ratioData.size() );
+    EXPECT_FLOAT_EQ( 0.19041f, ratioData.front() );
+    EXPECT_FLOAT_EQ( 0.25f, ratioData.back() );
 }
