@@ -1291,11 +1291,11 @@ std::pair<double, cvf::Vec2i>
     const RigActiveCellInfo*  activeCellInfo = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     auto wellPathGeometry = wellPath->wellPathGeometry();
-    CVF_ASSERT( wellPathGeometry );
+    if ( !wellPathGeometry ) return std::make_pair( cvf::UNDEFINED_DOUBLE, cvf::Vec2i() );
 
     const std::vector<cvf::Vec3d>& coords = wellPathGeometry->wellPathPoints();
     const std::vector<double>&     mds    = wellPathGeometry->measuredDepths();
-    CVF_ASSERT( !coords.empty() && !mds.empty() );
+    if ( coords.empty() || mds.empty() ) return std::make_pair( cvf::UNDEFINED_DOUBLE, cvf::Vec2i() );
 
     std::vector<WellPathCellIntersectionInfo> intersections =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( caseData, wellPath->name(), coords, mds );
