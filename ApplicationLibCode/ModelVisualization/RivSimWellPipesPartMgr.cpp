@@ -308,6 +308,8 @@ void RivSimWellPipesPartMgr::appendVirtualConnectionFactorGeo( const RimEclipseV
             {
                 auto wellPaths = m_simWellInView->wellPipeBranches();
 
+                if ( brIdx >= wellPaths.size() ) return;
+
                 const RigWellPath* wellPath = wellPaths[brIdx];
 
                 RigEclipseWellLogExtractor* extractor = RiaExtractionTools::findOrCreateSimWellExtractor( m_simWellInView, wellPath );
