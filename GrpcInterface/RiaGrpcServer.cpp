@@ -129,7 +129,10 @@ void RiaGrpcServerImpl::run()
 void RiaGrpcServerImpl::runInThread()
 {
     initialize();
-    m_thread = std::thread( &RiaGrpcServerImpl::waitForNextRequest, this );
+    if ( m_server )
+    {
+        m_thread = std::thread( &RiaGrpcServerImpl::waitForNextRequest, this );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,14 +219,13 @@ void RiaGrpcServerImpl::quit()
         m_server->Shutdown();
         m_completionQueue->Shutdown();
 
-        // Wait for thread to join after handling the shutdown call
-        m_thread.join();
-
-        // Drain the completion queue
-        void* ignored_tag;
-        bool  ignored_ok;
-        while ( m_completionQueue->Next( &ignored_tag, &ignored_ok ) )
+        // Wait for thread to join. The thread running waitForNextRequest() drains the completion
+        // queue before exiting (loops until Next() returns false). Do NOT call Next() again
+        // after the thread has joined - calling Next() after it returned false on a shut-down
+        // queue is undefined behavior and causes a crash.
+        if ( m_thread.joinable() )
         {
+            m_thread.join();
         }
 
         {
