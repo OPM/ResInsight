@@ -522,7 +522,7 @@ void RimCorrelationMatrixPlot::createMatrix()
 
                 RigEnsembleParameter parameter = ensemble->ensembleParameter( paramName );
 
-                if ( parameter.isValid() )
+                if ( parameter.isValid() && parameter.isNumeric() )
                 {
                     double correlation = std::numeric_limits<double>::infinity();
 
@@ -530,6 +530,8 @@ void RimCorrelationMatrixPlot::createMatrix()
                     {
                         auto summaryCase = ensemble->allSummaryCases()[caseIdx];
                         if ( activeCases.count( summaryCase ) == 0 ) continue;
+
+                        if ( caseIdx >= parameter.values.size() ) continue;
 
                         RifSummaryReaderInterface* reader = summaryCase->summaryReader();
                         if ( reader )
