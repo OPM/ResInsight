@@ -514,7 +514,7 @@ std::vector<RimParameterResultCrossPlot::CaseData> RimParameterResultCrossPlot::
                     }
                 }
 
-                if ( summaryValue != std::numeric_limits<double>::infinity() )
+                if ( summaryValue != std::numeric_limits<double>::infinity() && caseIdx < parameter.values.size() )
                 {
                     caseData.push_back(
                         { .parameterValue = parameter.values[caseIdx].toDouble(), .summaryValue = summaryValue, .summaryCase = summaryCase } );
