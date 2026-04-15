@@ -23,6 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 RifHdf5Exporter::RifHdf5Exporter( const std::string& fileName )
     : m_fileName( fileName )
+    , m_hdfFile( nullptr )
 {
     try
     {
@@ -31,8 +32,6 @@ RifHdf5Exporter::RifHdf5Exporter( const std::string& fileName )
     }
     catch ( ... )
     {
-        delete m_hdfFile;
-        m_hdfFile = nullptr;
     }
 }
 
