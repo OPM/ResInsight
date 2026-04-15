@@ -200,15 +200,24 @@ std::pair<bool, std::vector<double>> RifOpmCommonEclipseSummary::values( const R
     if ( !keyword.empty() )
     {
         std::vector<double> values;
-        if ( m_enhancedReader && m_enhancedReader->hasKey( keyword ) )
+        try
         {
-            auto fileValues = m_enhancedReader->get( keyword );
-            values.insert( values.begin(), fileValues.begin(), fileValues.end() );
+            if ( m_enhancedReader && m_enhancedReader->hasKey( keyword ) )
+            {
+                auto fileValues = m_enhancedReader->get( keyword );
+                values.insert( values.begin(), fileValues.begin(), fileValues.end() );
+            }
+            else if ( m_standardReader && m_standardReader->hasKey( keyword ) )
+            {
+                auto fileValues = m_standardReader->get( keyword );
+                values.insert( values.begin(), fileValues.begin(), fileValues.end() );
+            }
         }
-        else if ( m_standardReader && m_standardReader->hasKey( keyword ) )
+        catch ( const std::exception& e )
         {
-            auto fileValues = m_standardReader->get( keyword );
-            values.insert( values.begin(), fileValues.begin(), fileValues.end() );
+            RiaLogging::warning(
+                QString( "Summary reader failed to load keyword '%1': %2" ).arg( QString::fromStdString( keyword ) ).arg( e.what() ) );
+            return { false, {} };
         }
         return { true, values };
     }
@@ -344,22 +353,29 @@ void RifOpmCommonEclipseSummary::populateTimeSteps()
     Opm::time_point    startOfSimulation;
     std::vector<float> daysSinceStartOfSimulation;
 
-    if ( m_enhancedReader )
+    try
     {
-        startOfSimulation = m_enhancedReader->startdate();
-
-        if ( m_enhancedReader->numberOfTimeSteps() > 0 )
+        if ( m_enhancedReader )
         {
-            daysSinceStartOfSimulation = m_enhancedReader->get( "TIME" );
+            startOfSimulation = m_enhancedReader->startdate();
+
+            if ( m_enhancedReader->numberOfTimeSteps() > 0 )
+            {
+                daysSinceStartOfSimulation = m_enhancedReader->get( "TIME" );
+            }
+        }
+        else if ( m_standardReader )
+        {
+            startOfSimulation = m_standardReader->startdate();
+            if ( m_standardReader->numberOfTimeSteps() > 0 )
+            {
+                daysSinceStartOfSimulation = m_standardReader->get( "TIME" );
+            }
         }
     }
-    else if ( m_standardReader )
+    catch ( const std::exception& e )
     {
-        startOfSimulation = m_standardReader->startdate();
-        if ( m_standardReader->numberOfTimeSteps() > 0 )
-        {
-            daysSinceStartOfSimulation = m_standardReader->get( "TIME" );
-        }
+        RiaLogging::warning( QString( "Summary reader failed to load time steps: %1" ).arg( e.what() ) );
     }
 
     const auto   startAsTimeT    = std::chrono::system_clock::to_time_t( startOfSimulation );
