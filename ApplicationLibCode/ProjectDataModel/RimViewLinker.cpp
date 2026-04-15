@@ -620,7 +620,7 @@ void RimViewLinker::updateCamera( Rim3dView* sourceView )
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::addDependentView( Rim3dView* view )
 {
-    CVF_ASSERT( view && view != m_masterView );
+    if ( !view || view == m_masterView ) return;
 
     if ( !view->viewController() )
     {

@@ -65,6 +65,8 @@ void RicSetMasterViewFeature::onActionTriggered( bool isChecked )
     RimProject*    proj       = RimProject::current();
     RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
 
+    if ( !viewLinker ) return;
+
     viewLinker->applyCellFilterCollectionByUserChoice();
 
     auto previousMasterView = viewLinker->masterView();
@@ -72,7 +74,7 @@ void RicSetMasterViewFeature::onActionTriggered( bool isChecked )
     viewLinker->setMasterView( activeView );
     viewLinker->updateDependentViews();
 
-    viewLinker->addDependentView( previousMasterView );
+    if ( previousMasterView ) viewLinker->addDependentView( previousMasterView );
 
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     proj->viewLinkerCollection->updateConnectedEditors();
