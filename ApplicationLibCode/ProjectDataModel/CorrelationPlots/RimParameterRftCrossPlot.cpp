@@ -40,6 +40,7 @@
 #include "RimWellPath.h"
 
 #include "RiuContextMenuLauncher.h"
+#include "RiuDockWidgetTools.h"
 #include "RiuPlotCurve.h"
 #include "RiuQwtCurveSelectorFilter.h"
 #include "RiuQwtPlotCurve.h"
@@ -675,6 +676,16 @@ void RimParameterRftCrossPlot::createPoints()
     auto caseData = createCaseData();
     if ( caseData.empty() ) return;
 
+    std::set<RimSummaryCase*> selectedSummaryCases;
+    auto selectedTreeViewItems = RiuDockWidgetTools::selectedItemsInTreeView( RiuDockWidgetTools::plotMainWindowDataSourceTreeName() );
+    for ( auto item : selectedTreeViewItems )
+    {
+        if ( auto summaryCase = dynamic_cast<RimSummaryCase*>( item ) )
+        {
+            selectedSummaryCases.insert( summaryCase );
+        }
+    }
+
     int idx = 0;
     for ( const auto& [paramValue, pressureValue, summaryCase] : caseData )
     {
@@ -682,7 +693,8 @@ void RimParameterRftCrossPlot::createPoints()
         plotCurve->setSamplesValues( { paramValue }, { pressureValue } );
         plotCurve->setStyle( QwtPlotCurve::NoCurve );
 
-        auto* symbol = new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
+        const bool isSelected = selectedSummaryCases.contains( summaryCase );
+        auto* symbol = new RiuQwtSymbol( isSelected ? RiuPlotCurveSymbol::SYMBOL_XCROSS : RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
         symbol->setSize( 8, 8 );
         symbol->setColor( colorTable.cycledQColor( idx++ ) );
         plotCurve->setSymbol( symbol );
