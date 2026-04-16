@@ -68,6 +68,7 @@
 #include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotWidget.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmPointer.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -1715,6 +1716,14 @@ void RimWellRftPlot::detachAndDeleteLegendCurves()
 void RimWellRftPlot::cleanupLegendCurves()
 {
     detachAndDeleteLegendCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicCreateRftCorrelationReportFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

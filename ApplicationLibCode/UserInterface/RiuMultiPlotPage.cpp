@@ -436,6 +436,11 @@ void RiuMultiPlotPage::contextMenuEvent( QContextMenuEvent* event )
     menuBuilder << "RicShowContributingWellsFromPlotFeature";
     menuBuilder << "RicNewDefaultSummaryPlotFeature";
 
+    if ( auto* pdmObject = dynamic_cast<caf::PdmUiObjectHandle*>( ownerPlotDefinition() ) )
+    {
+        pdmObject->appendMenuItems( menuBuilder );
+    }
+
     menuBuilder.appendToMenu( &menu );
 
     if ( !menu.actions().empty() )
