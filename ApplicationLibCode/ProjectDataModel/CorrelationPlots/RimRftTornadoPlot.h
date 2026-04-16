@@ -108,7 +108,6 @@ private:
     caf::PdmField<bool>         m_showOnlyTopNCorrelations;
     caf::PdmField<int>          m_topNFilterCount;
     caf::PdmField<cvf::Color3f> m_barColor;
-    caf::PdmField<cvf::Color3f> m_contrastBarColor;
     caf::PdmField<cvf::Color3f> m_highlightBarColor;
 
     caf::PdmField<bool>    m_useAutoPlotTitle;

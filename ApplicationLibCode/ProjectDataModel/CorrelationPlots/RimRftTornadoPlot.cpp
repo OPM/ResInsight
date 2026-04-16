@@ -72,8 +72,6 @@ RimRftTornadoPlot::RimRftTornadoPlot()
 
     QColor qColor = QColor( "#3173b2" );
     CAF_PDM_InitField( &m_barColor, "BarColor", RiaColorTools::fromQColorTo3f( qColor ), "Bar Color (Positive)" );
-    QColor contrastColor = QColor( "#d9534f" );
-    CAF_PDM_InitField( &m_contrastBarColor, "ContrastBarColor", RiaColorTools::fromQColorTo3f( contrastColor ), "Bar Color (Negative)" );
     QColor highlightColor = QColor( "#f5a623" );
     CAF_PDM_InitField( &m_highlightBarColor, "HighlightBarColor", RiaColorTools::fromQColorTo3f( highlightColor ), "Bar Color (Selected)" );
 
@@ -319,7 +317,6 @@ void RimRftTornadoPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     auto* colorGroup = uiOrdering.addNewGroup( "Colors" );
     colorGroup->setCollapsedByDefault();
     colorGroup->add( &m_barColor );
-    colorGroup->add( &m_contrastBarColor );
     colorGroup->add( &m_highlightBarColor );
 
     auto* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
@@ -419,8 +416,7 @@ void RimRftTornadoPlot::highlightSelectedParameterBar()
     if ( !m_plotWidget ) return;
 
     const QColor highlightColor = RiaColorTools::toQColor( m_highlightBarColor() );
-    const QColor positiveColor  = RiaColorTools::toQColor( m_barColor() );
-    const QColor negativeColor  = RiaColorTools::toQColor( m_contrastBarColor() );
+    const QColor barColor       = RiaColorTools::toQColor( m_barColor() );
 
     for ( QwtPlotItem* item : m_plotWidget->qwtPlot()->itemList( QwtPlotItem::Rtti_PlotBarChart ) )
     {
@@ -437,9 +433,7 @@ void RimRftTornadoPlot::highlightSelectedParameterBar()
         }
         else
         {
-            auto it         = m_lastCorrelations.find( paramName );
-            bool isNegative = ( it != m_lastCorrelations.end() ) && ( it->second < 0.0 );
-            color           = isNegative ? negativeColor : positiveColor;
+            color = barColor;
         }
 
         QPalette palette = symbol->palette();
