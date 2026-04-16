@@ -24,9 +24,12 @@
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationReportPlot.h"
 #include "RimParameterResultCrossPlot.h"
+#include "RimParameterRftCrossPlot.h"
 #include "RimProject.h"
+#include "RimRftCorrelationReportPlot.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
+#include "RimWellRftPlot.h"
 
 CAF_PDM_SOURCE_INIT( RimCorrelationPlotCollection, "CorrelationPlotCollection" );
 
@@ -39,6 +42,7 @@ RimCorrelationPlotCollection::RimCorrelationPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_correlationPlots, "CorrelationPlots", "Correlation Plots" );
     CAF_PDM_InitFieldNoDefault( &m_correlationReports, "CorrelationReports", "Correlation Reports" );
+    CAF_PDM_InitFieldNoDefault( &m_rftCorrelationReports, "RftCorrelationReports", "RFT Correlation Reports" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,6 +181,52 @@ RimCorrelationReportPlot* RimCorrelationPlotCollection::createCorrelationReportP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimRftCorrelationReportPlot* RimCorrelationPlotCollection::createRftCorrelationReportPlot( RimWellRftPlot* source )
+{
+    auto* report = new RimRftCorrelationReportPlot;
+    report->setAsPlotMdiWindow();
+
+    if ( source )
+    {
+        report->initializeFromSourcePlot( source );
+
+        const auto ensembles = source->selectedEnsembles();
+        if ( !ensembles.empty() )
+        {
+            auto* ensemble = ensembles.front();
+            report->crossPlot()->setEnsemble( ensemble );
+
+            // Pick the first numeric ensemble parameter as a default
+            for ( const auto& param : RimSummaryEnsembleTools::alphabeticEnsembleParameters( ensemble->allSummaryCases() ) )
+            {
+                if ( param.isNumeric() )
+                {
+                    report->crossPlot()->setEnsembleParameter( param.name );
+                    break;
+                }
+            }
+        }
+        report->crossPlot()->setWellName( source->simWellOrWellPathName() );
+
+        const auto timeSteps = source->selectedTimeSteps();
+        if ( !timeSteps.empty() ) report->crossPlot()->setTimeStep( timeSteps.front() );
+    }
+
+    m_rftCorrelationReports.push_back( report );
+    return report;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimRftCorrelationReportPlot*> RimCorrelationPlotCollection::rftReports() const
+{
+    return m_rftCorrelationReports.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCorrelationPlotCollection::insertPlot( RimAbstractCorrelationPlot* plot, size_t index )
 {
     m_correlationPlots.insert( index, plot );
@@ -222,6 +272,7 @@ void RimCorrelationPlotCollection::deleteAllPlots()
 {
     RimTypedPlotCollection<RimAbstractCorrelationPlot>::deleteAllPlots();
     m_correlationReports.deleteChildren();
+    m_rftCorrelationReports.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -382,6 +433,9 @@ void RimCorrelationPlotCollection::loadDataAndUpdateAllPlots()
     for ( const auto& corrPlot : m_correlationPlots )
         corrPlot->loadDataAndUpdate();
 
-    for ( const auto& reports : m_correlationReports )
-        reports->loadDataAndUpdate();
+    for ( const auto& report : m_correlationReports )
+        report->loadDataAndUpdate();
+
+    for ( const auto& rftReport : m_rftCorrelationReports )
+        rftReport->loadDataAndUpdate();
 }
