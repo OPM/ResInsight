@@ -385,11 +385,24 @@ std::vector<double> interpolateMdFromTvd( const std::vector<double>& originalMdV
     auto             splinePoints        = Internal::createSplinePoints( originalMdValues, originalTvdValues );
     std::vector<int> segmentStartIndices = Internal::findSplineSegmentsContainingRoots( splinePoints, tvdValuesToInterpolateFrom );
 
+    // Track the last two valid (non-infinity) interpolated MD values so that infinity
+    // entries in the input do not corrupt the startMD search interval for later valid entries.
+    double lastValidMd     = std::numeric_limits<double>::quiet_NaN();
+    double prevLastValidMd = std::numeric_limits<double>::quiet_NaN();
+
     for ( size_t i = 0; i < segmentStartIndices.size(); ++i )
     {
         double currentTVDValue = tvdValuesToInterpolateFrom[i];
-        double startMD         = splinePoints.front().x();
-        double endMD           = splinePoints.back().y();
+
+        // Infinity TVD entries are handled in the second pass below; push a placeholder here.
+        if ( std::isinf( currentTVDValue ) )
+        {
+            interpolatedMdValues.push_back( 0.0 );
+            continue;
+        }
+
+        double startMD = splinePoints.front().x();
+        double endMD   = splinePoints.back().y();
         if ( segmentStartIndices[i] != -1 )
         {
             int startIndex = segmentStartIndices[i];
@@ -399,23 +412,62 @@ std::vector<double> interpolateMdFromTvd( const std::vector<double>& originalMdV
             startMD = splinePoints[startIndex].x();
             endMD   = splinePoints.back().y();
 
-            if ( endIndex < splinePoints.size() )
+            if ( endIndex < (int)splinePoints.size() )
             {
-                if ( !interpolatedMdValues.empty() )
+                if ( !std::isnan( lastValidMd ) )
                 {
-                    double mdDiff = 0.0;
-                    if ( interpolatedMdValues.size() > 1 )
-                    {
-                        mdDiff = interpolatedMdValues[i - 1] - interpolatedMdValues[i - 2];
-                    }
-                    startMD = std::max( startMD, interpolatedMdValues.back() + 0.1 * mdDiff );
+                    double mdDiff = std::isnan( prevLastValidMd ) ? 0.0 : ( lastValidMd - prevLastValidMd );
+                    startMD       = std::max( startMD, lastValidMd + 0.1 * mdDiff );
                 }
                 endMD = splinePoints[endIndex].x();
             }
         }
         double mdValue = Internal::solveForX( splinePoints, startMD, endMD, currentTVDValue );
         interpolatedMdValues.push_back( mdValue );
+
+        prevLastValidMd = lastValidMd;
+        lastValidMd     = mdValue;
     }
+    // Second pass: linearly interpolate MD for any infinity-TVD entries so the result is monotonically rising.
+    for ( size_t i = 0; i < tvdValuesToInterpolateFrom.size(); ++i )
+    {
+        if ( !std::isinf( tvdValuesToInterpolateFrom[i] ) ) continue;
+
+        int prevValid = -1;
+        int nextValid = -1;
+        for ( int j = (int)i - 1; j >= 0; --j )
+        {
+            if ( !std::isinf( tvdValuesToInterpolateFrom[j] ) )
+            {
+                prevValid = j;
+                break;
+            }
+        }
+        for ( int j = (int)i + 1; j < (int)tvdValuesToInterpolateFrom.size(); ++j )
+        {
+            if ( !std::isinf( tvdValuesToInterpolateFrom[j] ) )
+            {
+                nextValid = j;
+                break;
+            }
+        }
+
+        if ( prevValid != -1 && nextValid != -1 )
+        {
+            double t                = (double)( i - prevValid ) / (double)( nextValid - prevValid );
+            interpolatedMdValues[i] = interpolatedMdValues[prevValid] +
+                                      t * ( interpolatedMdValues[nextValid] - interpolatedMdValues[prevValid] );
+        }
+        else if ( prevValid != -1 )
+        {
+            interpolatedMdValues[i] = interpolatedMdValues[prevValid];
+        }
+        else if ( nextValid != -1 )
+        {
+            interpolatedMdValues[i] = interpolatedMdValues[nextValid];
+        }
+    }
+
     return interpolatedMdValues;
 }
 

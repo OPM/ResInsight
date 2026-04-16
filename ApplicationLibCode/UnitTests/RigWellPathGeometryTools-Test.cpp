@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <complex>
+#include <limits>
 #include <vector>
 
 #define TOLERANCE 1.0e-7
@@ -176,4 +177,90 @@ TEST( RigWellPathGeometryTools, CubicPathPoorSampling )
             EXPECT_NEAR( fullMDValues[i], estimatedFullMDValues[i], TOLERANCE );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// When infinity is passed as a TVD value (e.g. for invalid grid cells), the function must not
+/// crash and must return a result vector of the same size as the input.
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellPathGeometryTools, InfinityTvdValues_OutputSizeMatchesInput )
+{
+    const double inf = std::numeric_limits<double>::infinity();
+
+    std::vector<double> mdValues  = { 100, 500, 1000 };
+    std::vector<double> tvdValues = { 100, 500, 1000 };
+
+    // All entries are infinity
+    std::vector<double> allInfTvd = { inf, inf, inf };
+    std::vector<double> result    = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, allInfTvd );
+    EXPECT_EQ( result.size(), allInfTvd.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Valid TVD entries that are mixed with infinity entries must still yield correct MD values.
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellPathGeometryTools, InfinityTvdValues_ValidEntriesStillInterpolatedCorrectly )
+{
+    const double inf = std::numeric_limits<double>::infinity();
+
+    // Vertical well: MD == TVD
+    std::vector<double> mdValues  = { 100, 500, 1000 };
+    std::vector<double> tvdValues = { 100, 500, 1000 };
+
+    // Mix of infinity and valid TVD values
+    std::vector<double> mixedTvd = { 100.0, inf, 500.0, inf, 1000.0 };
+    std::vector<double> result   = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, mixedTvd );
+
+    EXPECT_EQ( result.size(), mixedTvd.size() );
+
+    // Valid entries at indices 0, 2, 4 should interpolate correctly (MD == TVD for a vertical well)
+    EXPECT_NEAR( result[0], 100.0, TOLERANCE );
+    EXPECT_NEAR( result[2], 500.0, TOLERANCE );
+    EXPECT_NEAR( result[4], 1000.0, TOLERANCE );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A single infinity entry in an otherwise valid list must not corrupt subsequent results.
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellPathGeometryTools, InfinityTvdValues_SingleInfinityDoesNotCorruptOtherResults )
+{
+    const double inf = std::numeric_limits<double>::infinity();
+
+    // Vertical well: MD == TVD
+    std::vector<double> mdValues  = { 100, 500, 1000 };
+    std::vector<double> tvdValues = { 100, 500, 1000 };
+
+    std::vector<double> tvdWithInf = { 200.0, inf, 800.0 };
+    std::vector<double> result     = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, tvdWithInf );
+
+    EXPECT_EQ( result.size(), tvdWithInf.size() );
+    EXPECT_NEAR( result[0], 200.0, TOLERANCE );
+    // inf TVD at index 1 is linearly interpolated between neighbors: (200 + 800) / 2 = 500
+    EXPECT_NEAR( result[1], 500.0, TOLERANCE );
+    EXPECT_NEAR( result[2], 800.0, TOLERANCE );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// N consecutive infinity TVD entries must be distributed evenly across the MD interval defined
+/// by the nearest valid neighbors.
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellPathGeometryTools, InfinityTvdValues_ConsecutiveInfinityDistributedEvenly )
+{
+    const double inf = std::numeric_limits<double>::infinity();
+
+    // Vertical well: MD == TVD
+    std::vector<double> mdValues  = { 100, 500, 1000 };
+    std::vector<double> tvdValues = { 100, 500, 1000 };
+
+    // Three consecutive inf entries between TVD 200 and TVD 800
+    std::vector<double> tvdWithInf = { 200.0, inf, inf, inf, 800.0 };
+    std::vector<double> result     = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, tvdWithInf );
+
+    EXPECT_EQ( result.size(), tvdWithInf.size() );
+    EXPECT_NEAR( result[0], 200.0, TOLERANCE );
+    // Three inf entries divide [200, 800] into four equal steps of 150 each
+    EXPECT_NEAR( result[1], 350.0, TOLERANCE );
+    EXPECT_NEAR( result[2], 500.0, TOLERANCE );
+    EXPECT_NEAR( result[3], 650.0, TOLERANCE );
+    EXPECT_NEAR( result[4], 800.0, TOLERANCE );
 }

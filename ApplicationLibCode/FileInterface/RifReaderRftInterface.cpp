@@ -69,6 +69,8 @@ std::vector<double>
     auto cellIjk = cellIndices( wellName, timeStep );
     for ( const caf::VecIjk0& ijk : cellIjk )
     {
+        if ( ijk.i() >= mainGrid->cellCountI() || ijk.j() >= mainGrid->cellCountJ() || ijk.k() >= mainGrid->cellCountK() ) continue;
+
         auto globalCellIndex = mainGrid->cellIndexFromIJK( ijk.i(), ijk.j(), ijk.k() );
 
         auto avgMd = eclExtractor->averageMdForCell( globalCellIndex );
@@ -80,10 +82,17 @@ std::vector<double>
         {
             // The RFT cell is not part of cells intersected by well path
             // Use the TVD of cell center to estimate measured depth
-
             avgMeasuredDepthForCells.push_back( std::numeric_limits<double>::infinity() );
-            auto center = mainGrid->cell( globalCellIndex ).center();
-            tvdValuesToEstimate.push_back( -center.z() );
+
+            const RigCell& cell = mainGrid->cell( globalCellIndex );
+            if ( cell.isInvalid() )
+            {
+                tvdValuesToEstimate.push_back( std::numeric_limits<double>::infinity() );
+            }
+            else
+            {
+                tvdValuesToEstimate.push_back( -cell.center().z() );
+            }
         }
     }
 
