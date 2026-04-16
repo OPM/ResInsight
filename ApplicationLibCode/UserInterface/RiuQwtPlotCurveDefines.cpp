@@ -67,6 +67,9 @@ int RiuQwtPlotCurveDefines::zDepthForIndex( ZIndex index )
         case RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED:
             return 500;
             break;
+        case RiuQwtPlotCurveDefines::ZIndex::Z_HIGHLIGHTED_CURVE:
+            return 550;
+            break;
         case RiuQwtPlotCurveDefines::ZIndex::Z_PLOT_RECT_ANNOTATION:
             return 600;
             break;

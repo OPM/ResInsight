@@ -67,8 +67,9 @@ private:
     void    updatePlotTitle() override;
     void    createPoints();
 
-    void updateValueRanges();
-    void updateFilterRanges();
+    void            updateValueRanges();
+    void            updateFilterRanges();
+    RimSummaryCase* findClosestCase( const QPoint& canvasPos );
 
     QString excludedCasesText() const;
 
