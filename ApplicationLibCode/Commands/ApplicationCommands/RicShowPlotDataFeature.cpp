@@ -30,8 +30,11 @@
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimParameterResultCrossPlot.h"
+#include "RimParameterRftCrossPlot.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
+#include "RimRftCorrelationReportPlot.h"
+#include "RimRftTornadoPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimWellAllocationOverTimePlot.h"
 #include "RimWellLogPlot.h"
@@ -190,7 +193,7 @@ bool RicShowPlotDataFeature::isCommandEnabled() const
              dynamic_cast<RimGridCrossPlot*>( plot ) || dynamic_cast<RimCustomVfpPlot*>( plot ) ||
              dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) || dynamic_cast<RimAnalysisPlot*>( plot ) ||
              dynamic_cast<RimCorrelationMatrixPlot*>( plot ) || dynamic_cast<RimAbstractCorrelationPlot*>( plot ) ||
-             dynamic_cast<RimCorrelationReportPlot*>( plot ) )
+             dynamic_cast<RimCorrelationReportPlot*>( plot ) || dynamic_cast<RimRftCorrelationReportPlot*>( plot ) )
         {
             validPlots++;
         }
@@ -262,6 +265,13 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
             rimPlots.push_back( correlationReportPlot->matrixPlot() );
             rimPlots.push_back( correlationReportPlot->correlationPlot() );
             rimPlots.push_back( correlationReportPlot->crossPlot() );
+            continue;
+        }
+
+        if ( auto rftReportPlot = dynamic_cast<RimRftCorrelationReportPlot*>( plot ) )
+        {
+            rimPlots.push_back( rftReportPlot->crossPlot() );
+            rimPlots.push_back( rftReportPlot->correlationPlot() );
             continue;
         }
 
