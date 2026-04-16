@@ -28,6 +28,7 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 
 #include <QMetaObject>
@@ -52,6 +53,7 @@ class RifDataSourceForRftPlt;
 class RifEclipseRftAddress;
 class RiuDraggableOverlayFrame;
 class RimDataSourceForRftPlt;
+class RimSummaryCase;
 class RiuPlotCurve;
 class RiuPlotItem;
 class RimWellRftEnsembleCurveSet;
@@ -101,6 +103,15 @@ public:
 
     void initializeDataSources( RimWellRftPlot* source );
 
+    std::vector<QDateTime> selectedTimeSteps() const;
+    void                   setSelectedTimeSteps( const std::vector<QDateTime>& timeSteps );
+
+    // Called by owning composite plots before the underlying QwtPlot is destroyed
+    // so that legend curve raw pointers are cleaned up before QwtPlot auto-deletes them.
+    void cleanupLegendCurves();
+
+    std::vector<RimSummaryEnsemble*> selectedEnsembles() const;
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
@@ -143,7 +154,9 @@ private:
     void                        onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
     RimWellRftEnsembleCurveSet* selectedEnsembleCurveSet() const;
 
-    void onLegendItemClicked( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex );
+    void            onLegendItemClicked( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex );
+    RimSummaryCase* findClosestRealization( const QPoint& canvasPos );
+    void            highlightSelectedRealization();
 
     void    updateFormationsOnPlot() const;
     QString associatedSimWellName() const;
@@ -154,8 +167,7 @@ private:
     cvf::Color3f findCurveColor( RimWellLogCurve* curve );
     void         defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveDefinition>& allCurveDefs );
 
-    std::vector<RimSummaryEnsemble*> selectedEnsembles() const;
-    void                             createEnsembleCurveSets();
+    void createEnsembleCurveSets();
 
     void detachAndDeleteLegendCurves();
 
@@ -186,6 +198,7 @@ private:
     std::map<RiuPlotCurve*, RimWellRftEnsembleCurveSet*> m_legendCurveToEnsembleCurveSet;
     QMetaObject::Connection                              m_legendClickedConnection;
     RimWellRftEnsembleCurveSet*                          m_highlightedCurveSet = nullptr;
+    caf::PdmPointer<RimSummaryCase>                      m_selectedRealization;
 
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
     bool                                m_isInitialized = false;

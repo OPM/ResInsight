@@ -30,6 +30,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimMainPlotCollection.h"
 #include "RimParameterResultCrossPlot.h"
+#include "RimParameterRftCrossPlot.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
@@ -448,6 +449,12 @@ void RimSummaryEnsembleTools::highlightCurvesForSummaryCases( const std::vector<
     {
         auto crossPlots = correlationPlotColl->descendantsIncludingThisOfType<RimParameterResultCrossPlot>();
         for ( auto c : crossPlots )
+        {
+            c->loadDataAndUpdate();
+        }
+
+        auto rftCrossPlots = correlationPlotColl->descendantsIncludingThisOfType<RimParameterRftCrossPlot>();
+        for ( auto c : rftCrossPlots )
         {
             c->loadDataAndUpdate();
         }
