@@ -203,14 +203,13 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* curve )
         {
             if ( m_selectedRealization && rftCurve->summaryCase() == m_selectedRealization )
             {
-                auto*        track     = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-                auto*        qwtWidget = track ? dynamic_cast<RiuQwtPlotWidget*>( track->plotWidget() ) : nullptr;
-                cvf::Color3f bgColor   = qwtWidget ? RiaColorTools::fromQColorTo3f( qwtWidget->backgroundColor() ) : cvf::Color3f::WHITE;
-                curve->setColor( RiaColorTools::contrastColor( bgColor ) );
+                curve->setColor( RiaColorTools::fromQColorTo3f( QColor( "#e8572a" ) ) );
+                curve->setLineThickness( 3 );
                 curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_HIGHLIGHTED_CURVE ) );
             }
             else
             {
+                curve->setLineThickness( 1 );
                 curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_CURVE ) );
             }
         }
