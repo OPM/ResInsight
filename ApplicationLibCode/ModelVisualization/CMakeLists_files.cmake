@@ -56,6 +56,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivPolylinePartMgr.h
     ${CMAKE_CURRENT_LIST_DIR}/RivDrawableSpheres.h
     ${CMAKE_CURRENT_LIST_DIR}/RivBoxGeometryGenerator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RivRefinementRegionPartMgr.h
     ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationSourceInfo.h
 )
@@ -113,6 +114,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivPolylinePartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivDrawableSpheres.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivBoxGeometryGenerator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RivRefinementRegionPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationSourceInfo.cpp
 )

@@ -33,7 +33,7 @@ class RigNonUniformRefinement;
 
 //==================================================================================================
 ///
-/// Settings for grid refinement (both uniform and non-uniform)
+/// Settings for non-uniform grid refinement of a RimRefinementRegion.
 ///
 //==================================================================================================
 class RicRefinementSettings : public caf::PdmObject
@@ -41,13 +41,6 @@ class RicRefinementSettings : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum RefinementMode
-    {
-        NONE,
-        UNIFORM,
-        NON_UNIFORM
-    };
-
     enum NonUniformSubMode
     {
         CUSTOM_WIDTHS,
@@ -55,7 +48,6 @@ public:
         LOGARITHMIC_CENTER
     };
 
-    using RefinementModeEnum    = caf::AppEnum<RefinementMode>;
     using NonUniformSubModeEnum = caf::AppEnum<NonUniformSubMode>;
 
     RicRefinementSettings();
@@ -64,8 +56,6 @@ public:
 
     // Data access
     std::unique_ptr<RigRefinement>           effectiveRefinement() const;
-    cvf::Vec3st                              refinement() const;
-    RefinementMode                           refinementMode() const;
     std::unique_ptr<RigNonUniformRefinement> nonUniformRefinement() const;
     bool                                     hasNonUniformRefinement() const;
 
@@ -81,25 +71,13 @@ private:
     static std::vector<double> parseWidths( const QString& text );
 
 private:
-    caf::PdmField<int> m_refinementCountI;
-    caf::PdmField<int> m_refinementCountJ;
-    caf::PdmField<int> m_refinementCountK;
-
-    caf::PdmField<RefinementModeEnum> m_refinementMode;
-
     caf::PdmField<bool>    m_nonUniformEnableI;
-    caf::PdmField<int>     m_nonUniformRangeStartI;
-    caf::PdmField<int>     m_nonUniformRangeEndI;
     caf::PdmField<QString> m_nonUniformIntervalsI;
 
     caf::PdmField<bool>    m_nonUniformEnableJ;
-    caf::PdmField<int>     m_nonUniformRangeStartJ;
-    caf::PdmField<int>     m_nonUniformRangeEndJ;
     caf::PdmField<QString> m_nonUniformIntervalsJ;
 
     caf::PdmField<bool>    m_nonUniformEnableK;
-    caf::PdmField<int>     m_nonUniformRangeStartK;
-    caf::PdmField<int>     m_nonUniformRangeEndK;
     caf::PdmField<QString> m_nonUniformIntervalsK;
 
     caf::PdmField<NonUniformSubModeEnum> m_nonUniformSubMode;
