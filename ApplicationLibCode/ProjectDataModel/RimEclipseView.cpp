@@ -77,6 +77,8 @@
 #include "RimMultipleEclipseResults.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimRefinementRegion.h"
+#include "RimRefinementRegionCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSeismicSection.h"
@@ -101,6 +103,7 @@
 #include "RiuTools.h"
 #include "RiuViewer.h"
 
+#include "RivRefinementRegionPartMgr.h"
 #include "RivReservoirSimWellsPartMgr.h"
 #include "RivReservoirViewPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
@@ -215,10 +218,11 @@ RimEclipseView::RimEclipseView()
 
     faultResultSettings()->setReservoirView( this );
 
-    m_reservoirGridPartManager = new RivReservoirViewPartMgr( this );
-    m_simWellsPartManager      = new RivReservoirSimWellsPartMgr( this );
-    m_streamlinesPartManager   = new RivStreamlinesPartMgr( this );
-    m_eclipseCase              = nullptr;
+    m_reservoirGridPartManager    = new RivReservoirViewPartMgr( this );
+    m_simWellsPartManager         = new RivReservoirSimWellsPartMgr( this );
+    m_streamlinesPartManager      = new RivStreamlinesPartMgr( this );
+    m_refinementRegionPartManager = new RivRefinementRegionPartMgr;
+    m_eclipseCase                 = nullptr;
 
     nameConfig()->setCustomName( "3D View" );
     nameConfig()->hideCaseNameField( false );
@@ -234,12 +238,18 @@ RimEclipseView::RimEclipseView()
 
     CAF_PDM_InitFieldNoDefault( &m_cameraPositions, "CameraPositions", "Camera Positions for Cases" );
 
+    CAF_PDM_InitFieldNoDefault( &m_refinementRegions, "RefinementRegions", "Refinement Regions" );
+    m_refinementRegions = new RimRefinementRegionCollection();
+
     setDeletable( true );
 
     updateAnimations.connect( this, &RimEclipseView::onAnimationsUpdate );
 
     m_faultReactVizModel = new cvf::ModelBasicList;
     m_faultReactVizModel->setName( "FaultReactModel" );
+
+    m_refinementRegionsVizModel = new cvf::ModelBasicList;
+    m_refinementRegionsVizModel->setName( "RefinementRegionsModel" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,6 +342,14 @@ RimFaultInViewCollection* RimEclipseView::faultCollection() const
 RimFaultReactivationModelCollection* RimEclipseView::faultReactivationModelCollection() const
 {
     return m_faultReactivationModelCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimRefinementRegionCollection* RimEclipseView::refinementRegionCollection() const
+{
+    return m_refinementRegions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -742,6 +760,14 @@ void RimEclipseView::onCreateDisplayModel()
     m_faultReactivationModelCollection->appendPartsToModel( this, m_faultReactVizModel.p(), transform.p(), ownerCase()->allCellsBoundingBox() );
     nativeOrOverrideViewer()->addStaticModelOnce( m_faultReactVizModel.p(), isUsingOverrideViewer() );
 
+    // Refinement region preview boxes
+    m_refinementRegionsVizModel->removeAllParts();
+    m_refinementRegionPartManager->buildGeometry( refinementRegionCollection(), eclipseCase(), transform.p() );
+    m_refinementRegionPartManager->appendStaticPartsToModel( m_refinementRegionsVizModel.p() );
+    m_refinementRegionPartManager->updateCellResultColor( m_currentTimeStep, cellResult() );
+    m_refinementRegionsVizModel->updateBoundingBoxesRecursive();
+    nativeOrOverrideViewer()->addStaticModelOnce( m_refinementRegionsVizModel.p(), isUsingOverrideViewer() );
+
     // Surfaces
     m_surfaceVizModel->removeAllParts();
     if ( surfaceInViewCollection() )
@@ -891,6 +917,8 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
     }
 
     updateVisibleCellColors();
+
+    m_refinementRegionPartManager->updateCellResultColor( m_currentTimeStep, cellResult() );
 
     wellCollection()->scaleWellDisks();
 
@@ -1249,6 +1277,11 @@ void RimEclipseView::initAfterRead()
     faultResultSettings()->setReservoirView( this );
     cellResult()->setReservoirView( this );
     cellEdgeResult()->setReservoirView( this );
+
+    if ( !m_refinementRegions() )
+    {
+        m_refinementRegions = new RimRefinementRegionCollection();
+    }
 
     updateUiIconFromToggleField();
 }
@@ -2030,6 +2063,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     uiTreeOrdering.add( m_overlayInfoConfig() );
     uiTreeOrdering.add( m_gridCollection() );
+    if ( m_refinementRegions() ) uiTreeOrdering.add( m_refinementRegions() );
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
     uiTreeOrdering.add( cellFilterCollection() );
