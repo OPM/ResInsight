@@ -100,6 +100,14 @@ public:
                                                                                  bool                 applyRefinementCentering = false,
                                                                                  bool                 isBoxMaxCoordinate       = false );
 
+    // Helper to calculate original cell indices and subcell indices from refined indices
+    struct CellMapping
+    {
+        size_t originalI, originalJ, originalK; // Original cell indices
+        size_t subI, subJ, subK; // Subcell indices within original cell
+    };
+    CellMapping mapRefinedToOriginal( size_t refinedI, size_t refinedJ, size_t refinedK ) const;
+
 private:
     // Internal methods to handle original vs refined cell access
     std::array<cvf::Vec3d, 8> getOriginalCellCorners( size_t origI, size_t origJ, size_t origK ) const;
@@ -113,14 +121,6 @@ private:
                                                      size_t                           subK ) const;
     void                      applyCoordinateTransformation( std::array<cvf::Vec3d, 8>& corners ) const;
     void                      applyCoordinateTransformation( std::array<cvf::Vec3d, 4>& corners ) const;
-
-    // Helper to calculate original cell indices and subcell indices from refined indices
-    struct CellMapping
-    {
-        size_t originalI, originalJ, originalK; // Original cell indices
-        size_t subI, subJ, subK; // Subcell indices within original cell
-    };
-    CellMapping mapRefinedToOriginal( size_t refinedI, size_t refinedJ, size_t refinedK ) const;
 
     const RigMainGrid*       m_mainGrid;
     const RigActiveCellInfo* m_activeCellInfo;

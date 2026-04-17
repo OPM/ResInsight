@@ -22,6 +22,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 #include "cafVecIjk.h"
 
@@ -39,6 +40,7 @@ class RimKeywordBcprop;
 class RimEclipseCase;
 class RimEclipseView;
 class RicRefinementSettings;
+class RimRefinementRegion;
 
 //==================================================================================================
 ///
@@ -68,7 +70,6 @@ public:
     RicRefinementSettings* refinementSettings() const;
 
     std::unique_ptr<RigRefinement> effectiveRefinement() const;
-    cvf::Vec3st                    refinement() const;
     bool                           hasNonUniformRefinement() const;
 
     std::vector<QString> keywordsToRemove() const;
@@ -94,7 +95,8 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    std::map<QString, QString> validate( const QString& configName ) const override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    std::map<QString, QString>    validate( const QString& configName ) const override;
 
     void setDefaultKeywordsToRemove();
 
@@ -129,7 +131,8 @@ private:
     caf::PdmField<int> m_minK;
     caf::PdmField<int> m_maxK;
 
-    caf::PdmChildField<RicRefinementSettings*> m_refinementSettings;
+    caf::PdmChildField<RicRefinementSettings*>  m_refinementSettings;
+    caf::PdmPtrArrayField<RimRefinementRegion*> m_selectedRegions;
 
     caf::PdmField<BoundaryConditionEnum>       m_boundaryCondition;
     caf::PdmChildArrayField<RimKeywordBcprop*> m_bcpropKeywords;
