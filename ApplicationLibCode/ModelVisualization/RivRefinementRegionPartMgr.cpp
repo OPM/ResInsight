@@ -120,8 +120,8 @@ cvf::ref<cvf::Part> RivRefinementRegionPartMgr::createRegionPart( const RimRefin
 
     // RigGridExportAdapter applies MAPAXES to its output. The 3D view works in reservoir-native
     // (pre-MAPAXES) coords, so undo it for the preview if active.
-    cvf::Mat4d invMapAxes     = cvf::Mat4d::IDENTITY;
-    bool       applyInverse   = adapter.useMapAxes();
+    cvf::Mat4d invMapAxes   = cvf::Mat4d::IDENTITY;
+    bool       applyInverse = adapter.useMapAxes();
     if ( applyInverse )
     {
         invMapAxes = adapter.mapAxisTransform().getInverted();

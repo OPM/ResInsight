@@ -69,8 +69,6 @@
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGridCollection.h"
-#include "RimRefinementRegion.h"
-#include "RimRefinementRegionCollection.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimGridView.h"
 #include "RimIntersectionCollection.h"
@@ -79,6 +77,8 @@
 #include "RimMultipleEclipseResults.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimRefinementRegion.h"
+#include "RimRefinementRegionCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSeismicSection.h"
@@ -761,10 +761,7 @@ void RimEclipseView::onCreateDisplayModel()
 
     // Refinement region preview boxes
     m_refinementRegionsVizModel->removeAllParts();
-    RivRefinementRegionPartMgr::appendPartsToModel( m_refinementRegionsVizModel.p(),
-                                                    refinementRegionCollection(),
-                                                    eclipseCase(),
-                                                    transform.p() );
+    RivRefinementRegionPartMgr::appendPartsToModel( m_refinementRegionsVizModel.p(), refinementRegionCollection(), eclipseCase(), transform.p() );
     m_refinementRegionsVizModel->updateBoundingBoxesRecursive();
     nativeOrOverrideViewer()->addStaticModelOnce( m_refinementRegionsVizModel.p(), isUsingOverrideViewer() );
 

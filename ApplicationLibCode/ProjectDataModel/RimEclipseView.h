@@ -274,8 +274,8 @@ private:
 
     std::vector<RivCellSetEnum> m_visibleGridParts;
 
-    caf::PdmChildField<RimMultipleEclipseResults*>    m_additionalResultsForResultInfo;
-    caf::PdmChildArrayField<RimCameraPosition*>       m_cameraPositions;
+    caf::PdmChildField<RimMultipleEclipseResults*>     m_additionalResultsForResultInfo;
+    caf::PdmChildArrayField<RimCameraPosition*>        m_cameraPositions;
     caf::PdmChildField<RimRefinementRegionCollection*> m_refinementRegions;
 
     // Callback for providing available Eclipse cases (used by view collections to filter cases)

@@ -60,9 +60,7 @@ public:
     // bounds (0-based, inclusive). Regions with disagreeing per-axis refinement on a shared
     // cell-index produce an error. Returns either the refinement or a user-readable error message.
     static std::variant<std::unique_ptr<RigRefinement>, QString>
-        combineRefinements( const caf::VecIjk0&                            sectorMin,
-                            const caf::VecIjk0&                            sectorMax,
-                            const std::vector<RimRefinementRegion*>&       regions );
+        combineRefinements( const caf::VecIjk0& sectorMin, const caf::VecIjk0& sectorMax, const std::vector<RimRefinementRegion*>& regions );
 
     caf::PdmFieldHandle* objectToggleField() override;
 

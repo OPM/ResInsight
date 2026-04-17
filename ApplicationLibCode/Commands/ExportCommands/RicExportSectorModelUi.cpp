@@ -242,10 +242,8 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     }
     else if ( uiConfigName == m_pageNames[WizardPageEnum::GridRefinement] )
     {
-        uiOrdering.addNewLabel(
-            "Refinement regions are managed in the project tree under the 3D view." );
-        uiOrdering.addNewLabel(
-            "Right-click the view and choose 'New Refinement Region' to create one." );
+        uiOrdering.addNewLabel( "Refinement regions are managed in the project tree under the 3D view." );
+        uiOrdering.addNewLabel( "Right-click the view and choose 'New Refinement Region' to create one." );
         uiOrdering.addNewLabel( "" );
 
         auto* group = uiOrdering.addNewGroup( "Regions to Include in Export" );

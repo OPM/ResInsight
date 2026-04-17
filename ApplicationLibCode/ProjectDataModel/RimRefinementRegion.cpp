@@ -184,12 +184,7 @@ RicRefinementSettings* RimRefinementRegion::refinementSettings() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimRefinementRegion::validateWithinSector( int sectorMinI,
-                                                   int sectorMinJ,
-                                                   int sectorMinK,
-                                                   int sectorMaxI,
-                                                   int sectorMaxJ,
-                                                   int sectorMaxK ) const
+QString RimRefinementRegion::validateWithinSector( int sectorMinI, int sectorMinJ, int sectorMinK, int sectorMaxI, int sectorMaxJ, int sectorMaxK ) const
 {
     int endI = m_startI() + m_cellCountI() - 1;
     int endJ = m_startJ() + m_cellCountJ() - 1;

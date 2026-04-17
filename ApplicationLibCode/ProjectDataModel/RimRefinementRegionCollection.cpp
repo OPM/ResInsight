@@ -119,9 +119,7 @@ caf::PdmFieldHandle* RimRefinementRegionCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRefinementRegionCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                      const QVariant&            oldValue,
-                                                      const QVariant&            newValue )
+void RimRefinementRegionCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( auto view = firstAncestorOrThisOfType<Rim3dView>() )
     {
@@ -212,7 +210,7 @@ std::variant<std::unique_ptr<RigRefinement>, QString>
                 const auto& newFracs = regionRefinement->cumulativeFractions( dim, regionRelIdx );
 
                 // If this cell is still default identity {1.0}, accept the region's fractions unconditionally.
-                const auto& existing = result->cumulativeFractions( dim, sectorRelIdx );
+                const auto& existing           = result->cumulativeFractions( dim, sectorRelIdx );
                 bool        existingIsIdentity = ( existing.size() == 1 && std::abs( existing[0] - 1.0 ) < 1e-12 );
 
                 if ( existingIsIdentity )

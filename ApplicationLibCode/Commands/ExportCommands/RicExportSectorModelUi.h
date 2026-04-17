@@ -97,7 +97,7 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    std::map<QString, QString> validate( const QString& configName ) const override;
+    std::map<QString, QString>    validate( const QString& configName ) const override;
 
     void setDefaultKeywordsToRemove();
 
@@ -132,8 +132,8 @@ private:
     caf::PdmField<int> m_minK;
     caf::PdmField<int> m_maxK;
 
-    caf::PdmChildField<RicRefinementSettings*>     m_refinementSettings;
-    caf::PdmPtrArrayField<RimRefinementRegion*>    m_selectedRegions;
+    caf::PdmChildField<RicRefinementSettings*>  m_refinementSettings;
+    caf::PdmPtrArrayField<RimRefinementRegion*> m_selectedRegions;
 
     caf::PdmField<BoundaryConditionEnum>       m_boundaryCondition;
     caf::PdmChildArrayField<RimKeywordBcprop*> m_bcpropKeywords;

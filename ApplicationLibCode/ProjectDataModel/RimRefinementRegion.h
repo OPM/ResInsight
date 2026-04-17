@@ -73,12 +73,7 @@ public:
 
     // Validate that the region lies entirely within the given sector bounds (1-based).
     // Returns an empty string on success, otherwise a user-readable error message.
-    QString validateWithinSector( int sectorMinI,
-                                  int sectorMinJ,
-                                  int sectorMinK,
-                                  int sectorMaxI,
-                                  int sectorMaxJ,
-                                  int sectorMaxK ) const;
+    QString validateWithinSector( int sectorMinI, int sectorMinJ, int sectorMinK, int sectorMaxI, int sectorMaxJ, int sectorMaxK ) const;
 
     cvf::Color3f previewColor() const;
 
@@ -86,7 +81,7 @@ public:
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
