@@ -76,10 +76,10 @@ private:
 
     bool isWindowsBatchFile() const;
 
-    caf::PdmField<QString> m_command;
-    QStringList            m_arguments;
-    caf::PdmField<QString> m_description;
-    caf::PdmField<size_t>  m_id;
+    caf::PdmField<QString>       m_command;
+    QStringList                  m_arguments;
+    caf::PdmField<QString>       m_description;
+    caf::PdmField<size_t>        m_id;
     caf::PdmField<caf::FilePath> m_workDir;
 
     std::vector<std::pair<QString, QString>> m_environmentVariables;
