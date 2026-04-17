@@ -246,7 +246,10 @@ void extendBCCon( Opm::FileDeck& fileDeck, const RigModelPaddingSettings& settin
 
             const auto direction = record.getItem( "DIRECTION" ).getTrimmedString( 0 );
 
-            if ( direction == "Z+" )
+            // OPM-Flow BCCON convention: "Z" (or "Z+") is the positive K direction,
+            // i.e. the bottom face of the grid. After padding, these faces must be
+            // shifted by the total number of added layers.
+            if ( direction == "Z" || direction == "Z+" )
             {
                 const int shift = settings.nzUpper() + settings.nzLower();
                 K1 += shift;

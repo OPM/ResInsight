@@ -568,7 +568,12 @@ Opm::DeckKeyword bcconKeyword( const std::vector<RigEclipseResultTools::BorderCe
         return Opm::DeckKeyword();
     }
 
-    // Helper lambda to convert FaceType to Eclipse face string
+    // Helper lambda to convert FaceType to Eclipse BCCON DIRECTION string.
+    // faceType is the direction from the border cell toward its interior neighbour,
+    // so the exterior face of the border cell is on the opposite side. The BCCON
+    // DIRECTION names the exterior face using the OPM-Flow convention: an unsuffixed
+    // axis name is the positive direction, an axis name followed by "-" is the
+    // negative direction.
     auto faceTypeToString = []( cvf::StructGridInterface::FaceType faceType ) -> std::string
     {
         switch ( faceType )

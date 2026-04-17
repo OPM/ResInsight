@@ -18,18 +18,19 @@
 
 #include "gtest/gtest.h"
 
-#include "RigSimulationInputTool.h"
-
 #include "RiaTestDataDirectory.h"
+
 #include "RifOpmDeckTools.h"
 #include "RifOpmFlowDeckFile.h"
 #include "RifReaderEclipseOutput.h"
+
 #include "RigEclipseCaseData.h"
 #include "RigEclipseCaseDataTools.h"
 #include "RigMainGrid.h"
 #include "RigModelPaddingSettings.h"
 #include "RigNoRefinement.h"
 #include "RigSimulationInputSettings.h"
+#include "RigSimulationInputTool.h"
 #include "RigUniformRefinement.h"
 #include "RimEclipseResultCase.h"
 
@@ -42,6 +43,9 @@
 #include <QFile>
 #include <QString>
 #include <QTemporaryDir>
+
+#include <limits>
+#include <set>
 #include <vector>
 
 static RigUniformRefinement makeRef( const caf::VecIjk0& sectorMin, const caf::VecIjk0& sectorMax, const cvf::Vec3st& refCounts )
@@ -2800,4 +2804,159 @@ TEST( RigSimulationInputTool, ExportModel5WithPadding_FipKeyword )
                         << "FIPABC lower pad at k=" << k << ", idx=" << idx << " should be 1 (minimum)";
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Regression test for issue #13854: BCCON handling in sector export with model padding.
+///
+/// BCCON DIRECTION names the exterior face of the recorded cell using the OPM-Flow
+/// convention: "X"/"Y"/"Z" for the positive axis direction and "X-"/"Y-"/"Z-" for the
+/// negative direction. When model padding is applied, RigPadModel::extendBCCon must
+/// recognise the positive-Z exterior face ("Z") and shift its K index by
+/// nzUpper + nzLower so the boundary tracks the bottom of the padded grid, while the
+/// negative-Z exterior face ("Z-") must remain at K=1 (the new top).
+///
+/// Sector 10x10x6 with 2 upper + 3 lower padding layers -> padded NZ = 11. The "Z"
+/// face originally at K=6 must be shifted to K=11; the "Z-" face must stay at K=1.
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExportModel5WithBcconBcpropAndPadding )
+{
+    // Load model5 test data
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    ASSERT_TRUE( subFolderExists );
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    ASSERT_TRUE( QFile::exists( egridFilePath ) );
+
+    QString dataFilename( "0_BASE_MODEL5.DATA" );
+    QString dataFilePath = baseFolder.absoluteFilePath( dataFilename );
+    ASSERT_TRUE( QFile::exists( dataFilePath ) );
+
+    // Create Eclipse case and load grid
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    ASSERT_TRUE( loadResult );
+
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+    EXPECT_EQ( 20u, caseData->mainGrid()->cellCountI() );
+    EXPECT_EQ( 30u, caseData->mainGrid()->cellCountJ() );
+    EXPECT_EQ( 10u, caseData->mainGrid()->cellCountK() );
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString exportFilePath = tempDir.path() + "/exported_model_bccon_padded.DATA";
+
+    // Use a sub-sector so there is a proper boundary of border cells on every side
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 5, 5, 2 ) );
+    settings.setMax( caf::VecIjk0( 14, 14, 7 ) ); // Sector (0-based inclusive) -> 10x10x6
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
+    settings.setBoundaryCondition( RiaModelExportDefines::BCCON_BCPROP );
+    settings.setInputDeckFileName( dataFilePath );
+    settings.setOutputDeckFileName( exportFilePath );
+
+    // Configure padding: 2 upper, 3 lower -> padded sector NZ = 6 + 2 + 3 = 11
+    RigModelPaddingSettings paddingSettings;
+    paddingSettings.setEnabled( true );
+    paddingSettings.setNzUpper( 2 );
+    paddingSettings.setNzLower( 3 );
+    paddingSettings.setTopUpper( 1000.0 );
+    paddingSettings.setBottomLower( 3600.0 );
+    paddingSettings.setUpperPorosity( 0.1 );
+    paddingSettings.setMinLayerThickness( 10.0 );
+    paddingSettings.setVerticalPillars( true );
+    paddingSettings.setMonotonicZcorn( true );
+    paddingSettings.setFillGaps( true );
+    settings.setPaddingSettings( paddingSettings );
+
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+
+    resultCase->setReservoirData( caseData.p() );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings, visibility.p() );
+    ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
+
+    ASSERT_TRUE( QFile::exists( exportFilePath ) );
+
+    RifOpmFlowDeckFile deckFile;
+    bool               deckLoadResult = deckFile.loadDeck( exportFilePath.toStdString() ).has_value();
+    ASSERT_TRUE( deckLoadResult ) << "Failed to load exported deck file";
+
+    // Expected padded dimensions: 10x10x11
+    const int expectedPaddedNz = 6 + 2 + 3;
+
+    auto specgridKw = deckFile.findKeyword( "SPECGRID" );
+    ASSERT_TRUE( specgridKw.has_value() );
+    EXPECT_EQ( 10, specgridKw->getRecord( 0 ).getItem( 0 ).get<int>( 0 ) );
+    EXPECT_EQ( 10, specgridKw->getRecord( 0 ).getItem( 1 ).get<int>( 0 ) );
+    EXPECT_EQ( expectedPaddedNz, specgridKw->getRecord( 0 ).getItem( 2 ).get<int>( 0 ) );
+
+    // BCCON must exist
+    auto bcconKw = deckFile.findKeyword( "BCCON" );
+    ASSERT_TRUE( bcconKw.has_value() ) << "BCCON keyword missing from exported file";
+    EXPECT_GT( bcconKw->size(), 0u ) << "BCCON should contain at least one record";
+
+    // Collect the set of DIRECTION values present in BCCON and the K range for each.
+    // BCCON DIRECTION names the exterior face of the recorded cell. Using OPM-Flow
+    // convention, "Z" is the +Z exterior face (bottom of grid) and "Z-" is the -Z
+    // exterior face (top of grid). Padding extends the grid in Z, so the +Z exterior
+    // face moves from K=NZ to K=NZ+nzUpper+nzLower while the -Z exterior face remains
+    // at K=1.
+    std::set<std::string> directions;
+    int                   minKForPosZ = std::numeric_limits<int>::max();
+    int                   maxKForPosZ = 0;
+    int                   minKForNegZ = std::numeric_limits<int>::max();
+    int                   maxKForNegZ = 0;
+
+    const int originalSectorNz = 6;
+    const int shift            = 2 + 3; // nzUpper + nzLower
+
+    for ( size_t r = 0; r < bcconKw->size(); ++r )
+    {
+        const auto& rec = bcconKw->getRecord( r );
+
+        const int   k1        = rec.getItem( "K1" ).get<int>( 0 );
+        const int   k2        = rec.getItem( "K2" ).get<int>( 0 );
+        std::string direction = rec.getItem( "DIRECTION" ).getTrimmedString( 0 );
+
+        directions.insert( direction );
+
+        if ( direction == "Z" )
+        {
+            minKForPosZ = std::min( minKForPosZ, std::min( k1, k2 ) );
+            maxKForPosZ = std::max( maxKForPosZ, std::max( k1, k2 ) );
+        }
+        else if ( direction == "Z-" )
+        {
+            minKForNegZ = std::min( minKForNegZ, std::min( k1, k2 ) );
+            maxKForNegZ = std::max( maxKForNegZ, std::max( k1, k2 ) );
+        }
+    }
+
+    // OPM-Flow BCCON convention: axis-positive faces are named "X", "Y", "Z"
+    // (without a trailing '+'), and axis-negative faces are named "X-", "Y-", "Z-".
+    EXPECT_TRUE( directions.count( "X" ) > 0 ) << "Expected at least one BCCON record with DIRECTION=\"X\"";
+    EXPECT_TRUE( directions.count( "X-" ) > 0 ) << "Expected at least one BCCON record with DIRECTION=\"X-\"";
+    EXPECT_TRUE( directions.count( "Y" ) > 0 ) << "Expected at least one BCCON record with DIRECTION=\"Y\"";
+    EXPECT_TRUE( directions.count( "Y-" ) > 0 ) << "Expected at least one BCCON record with DIRECTION=\"Y-\"";
+    EXPECT_TRUE( directions.count( "Z" ) > 0 ) << "Expected at least one BCCON record with DIRECTION=\"Z\"";
+    EXPECT_TRUE( directions.count( "Z-" ) > 0 ) << "Expected at least one BCCON record with DIRECTION=\"Z-\"";
+    EXPECT_EQ( 0u, directions.count( "Z+" ) ) << "BCCON must use \"Z\" (not \"Z+\") for the positive Z direction";
+
+    // Before padding, the +Z exterior face is at K = originalSectorNz. After padding the
+    // extension must shift it to K = originalSectorNz + nzUpper + nzLower = padded NZ.
+    ASSERT_LT( 0, maxKForPosZ ) << "Expected at least one Z-direction face in BCCON";
+    EXPECT_EQ( originalSectorNz + shift, minKForPosZ ) << "\"Z\" exterior face K must be shifted by nzUpper+nzLower to the padded bottom";
+    EXPECT_EQ( originalSectorNz + shift, maxKForPosZ ) << "\"Z\" exterior face K must be shifted by nzUpper+nzLower to the padded bottom";
+
+    // The -Z exterior face remains at K=1 (the new top of the padded grid is the new upper pad layer at K=1).
+    ASSERT_LT( 0, maxKForNegZ ) << "Expected at least one Z-negative direction face in BCCON";
+    EXPECT_EQ( 1, minKForNegZ ) << "\"Z-\" exterior face must remain at K=1 (top of padded grid)";
+    EXPECT_EQ( 1, maxKForNegZ ) << "\"Z-\" exterior face must remain at K=1 (top of padded grid)";
 }
