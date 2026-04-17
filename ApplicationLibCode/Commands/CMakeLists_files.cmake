@@ -53,6 +53,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewRefinementRegionFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportStimPlanModelToFileFeature.h
@@ -161,6 +162,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewRefinementRegionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportStimPlanModelToFileFeature.cpp

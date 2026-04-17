@@ -85,6 +85,8 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimGridCollection.h"
+#include "RimRefinementRegion.h"
+#include "RimRefinementRegionCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotDataSet.h"
@@ -224,6 +226,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewContourMapViewFeature";
             menuBuilder << "RicCreateGridCrossPlotFeature";
             menuBuilder << "RicCreateSaturationPressurePlotsFeature";
+            menuBuilder << "RicNewRefinementRegionFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder.subMenuStart( "Export" );
@@ -285,6 +288,16 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicExportCompletionsForTemporaryLgrsFeature";
             menuBuilder << "RicDeleteTemporaryLgrsFeature";
+        }
+        else if ( dynamic_cast<RimRefinementRegionCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewRefinementRegionFeature";
+        }
+        else if ( dynamic_cast<RimRefinementRegion*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewRefinementRegionFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicDeleteItemFeature";
         }
         else if ( dynamic_cast<RimGeoMechCase*>( firstUiItem ) )
         {

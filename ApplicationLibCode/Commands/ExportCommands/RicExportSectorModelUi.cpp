@@ -32,8 +32,12 @@
 #include "Jobs/RimKeywordBcprop.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimRefinementRegion.h"
+#include "RimRefinementRegionCollection.h"
 #include "RimTools.h"
 #include "Tools/RimEclipseViewTools.h"
+
+#include "RigNoRefinement.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -42,6 +46,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiRadioButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QFileInfo>
 
@@ -94,6 +99,9 @@ RicExportSectorModelUi::RicExportSectorModelUi()
 
     CAF_PDM_InitFieldNoDefault( &m_refinementSettings, "RefinementSettings", "" );
     m_refinementSettings = new RicRefinementSettings();
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedRegions, "SelectedRefinementRegions", "Refinement Regions" );
+    m_selectedRegions.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_bcpropKeywords, "BcpropKeywords", "BCPROP Keywords" );
     m_bcpropKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -234,8 +242,14 @@ void RicExportSectorModelUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     }
     else if ( uiConfigName == m_pageNames[WizardPageEnum::GridRefinement] )
     {
-        m_refinementSettings->setSectorBounds( min(), max() );
-        m_refinementSettings->addToUiOrdering( uiOrdering );
+        uiOrdering.addNewLabel(
+            "Refinement regions are managed in the project tree under the 3D view." );
+        uiOrdering.addNewLabel(
+            "Right-click the view and choose 'New Refinement Region' to create one." );
+        uiOrdering.addNewLabel( "" );
+
+        auto* group = uiOrdering.addNewGroup( "Regions to Include in Export" );
+        group->add( &m_selectedRegions );
     }
     else if ( uiConfigName == m_pageNames[WizardPageEnum::BoundaryConditions] )
     {
@@ -363,6 +377,16 @@ void RicExportSectorModelUi::setEclipseView( RimEclipseView* view )
     // Get default input deck file name from eclipse case
     QFileInfo fi( view->eclipseCase()->gridFileName() );
     m_inputDeckName = fi.absolutePath() + "/" + fi.completeBaseName() + ".DATA";
+
+    // Pre-select any existing refinement regions so the user doesn't have to tick them manually.
+    m_selectedRegions.clearWithoutDelete();
+    if ( auto* collection = view->refinementRegionCollection() )
+    {
+        for ( auto* region : collection->regions() )
+        {
+            if ( region != nullptr ) m_selectedRegions.push_back( region );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -462,8 +486,21 @@ RicRefinementSettings* RicExportSectorModelUi::refinementSettings() const
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<RigRefinement> RicExportSectorModelUi::effectiveRefinement() const
 {
-    m_refinementSettings->setSectorBounds( min(), max() );
-    return m_refinementSettings->effectiveRefinement();
+    std::vector<RimRefinementRegion*> regions;
+    for ( const auto& r : m_selectedRegions )
+    {
+        if ( r ) regions.push_back( r );
+    }
+
+    auto combined = RimRefinementRegionCollection::combineRefinements( min(), max(), regions );
+    if ( auto* refinement = std::get_if<std::unique_ptr<RigRefinement>>( &combined ) )
+    {
+        return std::move( *refinement );
+    }
+
+    // Error: fall back to identity. The validate() step should have caught this already.
+    cvf::Vec3st sectorSize( max().x() - min().x() + 1, max().y() - min().y() + 1, max().z() - min().z() + 1 );
+    return std::make_unique<RigNoRefinement>( sectorSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,8 +508,10 @@ std::unique_ptr<RigRefinement> RicExportSectorModelUi::effectiveRefinement() con
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3st RicExportSectorModelUi::refinement() const
 {
-    m_refinementSettings->setSectorBounds( min(), max() );
-    return m_refinementSettings->refinement();
+    // Legacy API: returns a single uniform refinement tuple. With the new region-based model there is
+    // no single answer, so report 1/1/1 (no uniform refinement). Non-uniform refinement is handled
+    // entirely through effectiveRefinement().
+    return cvf::Vec3st( 1, 1, 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -480,7 +519,10 @@ cvf::Vec3st RicExportSectorModelUi::refinement() const
 //--------------------------------------------------------------------------------------------------
 bool RicExportSectorModelUi::hasNonUniformRefinement() const
 {
-    return m_refinementSettings->hasNonUniformRefinement();
+    // With the new region-based model, any selected region producing non-identity refinement is
+    // treated as non-uniform (even if each region is internally uniform) because the combined
+    // RigRefinement is built as RigNonUniformRefinement.
+    return !m_selectedRegions.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -553,6 +595,31 @@ RiaModelExportDefines::GridBoxSelection RicExportSectorModelUi::gridBoxSelection
 int RicExportSectorModelUi::wellPadding() const
 {
     return m_visibleWellsPadding();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RicExportSectorModelUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_selectedRegions )
+    {
+        if ( m_eclipseView() )
+        {
+            if ( auto* collection = m_eclipseView()->refinementRegionCollection() )
+            {
+                for ( auto* region : collection->regions() )
+                {
+                    if ( !region ) continue;
+                    options.push_back( caf::PdmOptionItemInfo( region->regionName(), region ) );
+                }
+            }
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -782,9 +849,17 @@ std::map<QString, QString> RicExportSectorModelUi::validate( const QString& conf
     }
     else if ( configName == m_pageNames[WizardPageEnum::GridRefinement] )
     {
-        m_refinementSettings->setSectorBounds( min(), max() );
-        auto refinementErrors = m_refinementSettings->validateSettings();
-        fieldErrors.insert( refinementErrors.begin(), refinementErrors.end() );
+        std::vector<RimRefinementRegion*> regions;
+        for ( const auto& r : m_selectedRegions )
+        {
+            if ( r ) regions.push_back( r );
+        }
+
+        auto combined = RimRefinementRegionCollection::combineRefinements( min(), max(), regions );
+        if ( auto* err = std::get_if<QString>( &combined ) )
+        {
+            fieldErrors[m_selectedRegions.keyword()] = *err;
+        }
     }
     else if ( configName == m_pageNames[WizardPageEnum::BoundaryConditions] )
     {

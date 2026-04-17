@@ -72,6 +72,7 @@ class RimMultipleEclipseResults;
 class RigEclipseResultAddress;
 class RimFaultReactivationModelCollection;
 class RimCameraPosition;
+class RimRefinementRegionCollection;
 
 namespace cvf
 {
@@ -113,6 +114,7 @@ public:
     RimVirtualPerforationResults*        virtualPerforationResult() const;
     RimStreamlineInViewCollection*       streamlineCollection() const;
     RimFaultReactivationModelCollection* faultReactivationModelCollection() const;
+    RimRefinementRegionCollection*       refinementRegionCollection() const;
 
     bool showInvalidCells() const;
     bool showInactiveCells() const;
@@ -240,6 +242,7 @@ private:
 
 protected:
     cvf::ref<cvf::ModelBasicList> m_faultReactVizModel;
+    cvf::ref<cvf::ModelBasicList> m_refinementRegionsVizModel;
 
     caf::PdmPtrField<RimEclipseCase*>                   m_eclipseCase;
     caf::PdmField<caf::AppEnum<RimCaseChangeBehaviour>> m_caseChangeBehaviour;
@@ -271,8 +274,9 @@ private:
 
     std::vector<RivCellSetEnum> m_visibleGridParts;
 
-    caf::PdmChildField<RimMultipleEclipseResults*> m_additionalResultsForResultInfo;
-    caf::PdmChildArrayField<RimCameraPosition*>    m_cameraPositions;
+    caf::PdmChildField<RimMultipleEclipseResults*>    m_additionalResultsForResultInfo;
+    caf::PdmChildArrayField<RimCameraPosition*>       m_cameraPositions;
+    caf::PdmChildField<RimRefinementRegionCollection*> m_refinementRegions;
 
     // Callback for providing available Eclipse cases (used by view collections to filter cases)
     std::function<std::vector<RimEclipseCase*>()> m_eclipseCaseProvider;
