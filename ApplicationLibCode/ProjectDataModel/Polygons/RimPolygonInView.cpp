@@ -255,6 +255,26 @@ void RimPolygonInView::updatePolygonFromTargets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInView::togglePicking()
+{
+    m_enablePicking = !m_enablePicking;
+
+    updateConnectedEditors();
+
+    // When embedded in a RimPolygonFilter, the property panel and 3D editor are bound to the filter,
+    // not to this polygon-in-view. Ask the owning picker interface to refresh its editors so the
+    // button label updates and the pick event handler is (un)registered.
+    if ( auto owner = firstAncestorOfType<RimPolylinePickerInterface>() )
+    {
+        owner->updateEditorsAndVisualization();
+    }
+
+    updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonInView::connectSignals()
 {
     if ( m_polygon )
@@ -297,13 +317,7 @@ void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     if ( enableEdit )
     {
-        uiOrdering.addNewButton( m_enablePicking ? "Stop Picking Points" : "Start Picking Points",
-                                 [this]()
-                                 {
-                                     m_enablePicking = !m_enablePicking;
-                                     updateConnectedEditors();
-                                     updateVisualization();
-                                 } );
+        uiOrdering.addNewButton( m_enablePicking ? "Stop Picking Points" : "Start Picking Points", [this]() { togglePicking(); } );
         uiOrdering.add( &m_targets );
         uiOrdering.add( &m_handleScalingFactor );
     }
@@ -378,13 +392,7 @@ void RimPolygonInView::defineObjectEditorAttribute( QString uiConfigName, caf::P
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.addNewButton( m_enablePicking ? "Stop Picking Points" : "Start Picking Points",
-                             [this]()
-                             {
-                                 m_enablePicking = !m_enablePicking;
-                                 updateConnectedEditors();
-                                 updateVisualization();
-                             } );
+    uiOrdering.addNewButton( m_enablePicking ? "Stop Picking Points" : "Start Picking Points", [this]() { togglePicking(); } );
     uiOrdering.add( &m_targets );
     uiOrdering.add( &m_handleScalingFactor );
 }

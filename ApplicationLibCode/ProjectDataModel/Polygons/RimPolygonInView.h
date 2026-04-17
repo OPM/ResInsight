@@ -93,6 +93,7 @@ private:
 
     void updatePolygonFromTargets();
     void connectSignals();
+    void togglePicking();
 
 private:
     caf::PdmPtrField<RimPolygon*> m_polygon;
