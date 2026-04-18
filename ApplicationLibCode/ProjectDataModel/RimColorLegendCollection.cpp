@@ -29,6 +29,9 @@
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 #include <QString>
 
 CAF_PDM_SOURCE_INIT( RimColorLegendCollection, "ColorLegendCollection" );
@@ -38,12 +41,12 @@ CAF_PDM_SOURCE_INIT( RimColorLegendCollection, "ColorLegendCollection" );
 //--------------------------------------------------------------------------------------------------
 RimColorLegendCollection::RimColorLegendCollection()
 {
-    CAF_PDM_InitObject( "Color Legends", ":/Legend.png" );
+    CAF_PDM_InitScriptableObject( "Color Legends", ":/Legend.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_standardColorLegends, "StandardColorLegends", "Standard Color Legends", ":/Legend.png" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_standardColorLegends, "StandardColorLegends", "Standard Color Legends", ":/Legend.png" );
     m_standardColorLegends.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_customColorLegends, "CustomColorLegends", "Custom Color Legends", ":/Legend.png" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_customColorLegends, "CustomColorLegends", "Custom Color Legends", ":/Legend.png" );
 }
 
 //--------------------------------------------------------------------------------------------------

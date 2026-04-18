@@ -23,3 +23,11 @@ for i in range(0, grid_cell_count):
 
 print("Applying discrete values to main grid")
 case.set_grid_property(values, "STATIC_NATIVE", "MY_REGION", 0, data_type="INTEGER")
+
+# Bind integer values to text labels so the legend shows names instead of numbers.
+# Colors are optional — values without a color get an auto-assigned palette color.
+case.set_discrete_property_category_names(
+    property_name="MY_REGION",
+    value_names={0: "Sand", 1: "Shale", 2: "Coal", 3: "Limestone"},
+    value_colors={0: (230, 200, 120), 1: (100, 100, 100)},
+)

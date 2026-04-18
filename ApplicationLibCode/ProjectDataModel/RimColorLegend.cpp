@@ -24,6 +24,7 @@
 #include "RimColorLegendItem.h"
 
 #include "cafPdmFieldReorderCapability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
 #include <algorithm>
@@ -38,9 +39,9 @@ RimColorLegend::RimColorLegend()
 {
     CAF_PDM_InitScriptableObject( "ColorLegend", ":/Legend.png" );
 
-    CAF_PDM_InitField( &m_colorLegendName, "ColorLegendName", QString( "" ), "Color Legend Name" );
+    CAF_PDM_InitScriptableField( &m_colorLegendName, "ColorLegendName", QString( "" ), "Color Legend Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_colorLegendItems, "ColorLegendItems", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_colorLegendItems, "ColorLegendItems", "" );
 
     setDeletable( true );
 }

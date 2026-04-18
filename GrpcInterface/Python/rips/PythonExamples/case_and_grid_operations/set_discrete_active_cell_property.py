@@ -20,3 +20,9 @@ print("Applying discrete values to active cells")
 case.set_active_cell_property(
     region_ids, "GENERATED", "MY_REGION", 0, data_type="INTEGER"
 )
+
+# Bind integer values to text labels so the legend shows names instead of numbers.
+case.set_discrete_property_category_names(
+    property_name="MY_REGION",
+    value_names={0: "Sand", 1: "Shale", 2: "Coal", 3: "Limestone"},
+)
