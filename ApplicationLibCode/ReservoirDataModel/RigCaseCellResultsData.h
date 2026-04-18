@@ -140,6 +140,7 @@ public:
     bool hasResultEntry( const RigEclipseResultAddress& resultAddress ) const;
     bool isResultLoaded( const RigEclipseResultAddress& resultAddress ) const;
     void createResultEntry( const RigEclipseResultAddress& resultAddress, bool needsToBeStored );
+    bool updateResultDataType( const RigEclipseResultAddress& resultAddress, RiaDefines::ResultDataType dataType );
     void createPlaceholderResultEntries();
     void computeDepthRelatedResults();
     void computeCellVolumes();

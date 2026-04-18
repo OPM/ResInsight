@@ -104,10 +104,18 @@ public:
 
             m_resultAddress = RigEclipseResultAddress( resultType, QString::fromStdString( request->property_name() ) );
 
+            auto dataType = ( request->data_type() == rips::PropertyDataType::INTEGER )
+                                ? RiaDefines::ResultDataType::INTEGER
+                                : RiaDefines::ResultDataType::FLOAT;
+            m_resultAddress.setDataType( dataType );
+
             if ( resultData->ensureKnownResultLoaded( m_resultAddress ) )
             {
                 if ( timeStep < resultData->timeStepCount( m_resultAddress ) )
                 {
+                    // Equality on RigEclipseResultAddress ignores dataType, so an existing entry
+                    // keeps its original dataType. Patch it when overwriting from the client.
+                    if ( m_clientStreamer ) resultData->updateResultDataType( m_resultAddress, dataType );
                     initResultAccess( caseData, request->grid_index(), m_porosityModel, timeStep, m_resultAddress );
                     return grpc::Status::OK;
                 }

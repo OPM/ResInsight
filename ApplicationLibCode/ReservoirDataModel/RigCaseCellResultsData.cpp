@@ -1299,6 +1299,20 @@ void RigCaseCellResultsData::createResultEntry( const RigEclipseResultAddress& r
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Update the data type of an existing result entry. Equality/ordering on RigEclipseResultAddress
+/// ignores dataType, so overwriting a property with a different dataType does not update the
+/// persisted metadata unless we explicitly patch it here.
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::updateResultDataType( const RigEclipseResultAddress& resultAddress, RiaDefines::ResultDataType dataType )
+{
+    size_t scalarResultIndex = findScalarResultIndexFromAddress( resultAddress );
+    if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T ) return false;
+
+    m_resultInfos[scalarResultIndex].m_resultAddress.setDataType( dataType );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddrOrg )

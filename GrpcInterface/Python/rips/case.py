@@ -830,6 +830,7 @@ def set_active_cell_property_async(
     property_name,
     time_step,
     porosity_model: str = "MATRIX_MODEL",
+    data_type: str = "FLOAT",
 ):
     """Set cell property for all active cells Async. Takes an iterator to the input values. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -839,15 +840,18 @@ def set_active_cell_property_async(
         property_name(str): name of an Eclipse property
         time_step(int): the time step for which to get the property for
         porosity_model(str): string enum
+        data_type(str): property data type ("FLOAT" or "INTEGER"). Use "INTEGER" to create a discrete/category property.
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
+    data_type_enum = Properties_pb2.PropertyDataType.Value(data_type)
     request = Properties_pb2.PropertyRequest(
         case_request=self.__request(),
         property_type=property_type_enum,
         property_name=property_name,
         time_step=time_step,
         porosity_model=porosity_model_enum,
+        data_type=data_type_enum,
     )
 
     request_iterator = self.__generate_property_input_iterator(values_iterator, request)
@@ -862,6 +866,7 @@ def set_active_cell_property(
     property_name,
     time_step,
     porosity_model: str = "MATRIX_MODEL",
+    data_type: str = "FLOAT",
 ):
     """Set a cell property for all active cells. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -871,15 +876,18 @@ def set_active_cell_property(
         property_name(str): name of an Eclipse property
         time_step(int): the time step for which to get the property for
         porosity_model(str): string enum
+        data_type(str): property data type ("FLOAT" or "INTEGER"). Use "INTEGER" to create a discrete/category property.
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
+    data_type_enum = Properties_pb2.PropertyDataType.Value(data_type)
     request = Properties_pb2.PropertyRequest(
         case_request=self.__request(),
         property_type=property_type_enum,
         property_name=property_name,
         time_step=time_step,
         porosity_model=porosity_model_enum,
+        data_type=data_type_enum,
     )
     request_iterator = self.__generate_property_input_chunks(values, request)
     reply = self.__properties_stub.SetActiveCellProperty(request_iterator)
@@ -896,6 +904,7 @@ def set_grid_property(
     time_step,
     grid_index=0,
     porosity_model: str = "MATRIX_MODEL",
+    data_type: str = "FLOAT",
 ):
     """Set a cell property for all grid cells. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -906,9 +915,11 @@ def set_grid_property(
         time_step(int): the time step for which to get the property for
         grid_index(int): index to the grid we're setting values for
         porosity_model(str): string enum
+        data_type(str): property data type ("FLOAT" or "INTEGER"). Use "INTEGER" to create a discrete/category property.
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
+    data_type_enum = Properties_pb2.PropertyDataType.Value(data_type)
     request = Properties_pb2.PropertyRequest(
         case_request=self.__request(),
         property_type=property_type_enum,
@@ -916,6 +927,7 @@ def set_grid_property(
         time_step=time_step,
         grid_index=grid_index,
         porosity_model=porosity_model_enum,
+        data_type=data_type_enum,
     )
     request_iterator = self.__generate_property_input_chunks(values, request)
     reply = self.__properties_stub.SetGridProperty(request_iterator)
