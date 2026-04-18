@@ -1098,9 +1098,9 @@ void RiuQwtPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightCurvesUpdateOrder( const std::vector<RimPlotCurve*>& curves )
+void RiuQwtPlotWidget::highlightCurvesUpdateOrder( const std::vector<RimPlotCurve*>& curves, const std::vector<RimPlotCurve*>& curvesInScope )
 {
-    highlightPlotCurves( curves );
+    highlightPlotCurves( curves, curvesInScope );
 
     updateCurveOrder();
 }
@@ -1108,7 +1108,7 @@ void RiuQwtPlotWidget::highlightCurvesUpdateOrder( const std::vector<RimPlotCurv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightPlotCurves( const std::vector<RimPlotCurve*>& curves )
+void RiuQwtPlotWidget::highlightPlotCurves( const std::vector<RimPlotCurve*>& curves, const std::vector<RimPlotCurve*>& curvesInScope )
 {
     if ( !m_plotDefinition || !m_plotDefinition->isCurveHighlightSupported() )
     {
@@ -1127,6 +1127,12 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::vector<RimPlotCurve*>& cu
         // Do not modify curve objects with no associated Rim object, as the Rim object is used to restore color after highlight
         // manipulation
         if ( !currentRimPlotCurve ) continue;
+
+        // When a scope is provided, only curves inside the scope are processed. Curves outside the scope are left untouched.
+        if ( !curvesInScope.empty() && std::find( curvesInScope.begin(), curvesInScope.end(), currentRimPlotCurve ) == curvesInScope.end() )
+        {
+            continue;
+        }
 
         auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
         if ( plotCurve )

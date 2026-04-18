@@ -416,15 +416,28 @@ void RimSummaryEnsembleTools::highlightCurvesForSummaryCases( const std::vector<
             if ( plot->curveSets().empty() ) continue;
 
             std::vector<RimPlotCurve*> curvesForSameRealization;
+            std::vector<RimPlotCurve*> curvesInScope;
             for ( const auto& curveSet : plot->curveSets() )
             {
+                std::vector<RimPlotCurve*> curvesInCurveSet;
+                bool                       curveSetContainsSourceCase = false;
+
                 for ( auto ensembleCurve : curveSet->curves() )
                 {
+                    curvesInCurveSet.push_back( ensembleCurve );
+
                     auto summaryCaseY = ensembleCurve->summaryCaseY();
                     if ( std::find( sourceCases.begin(), sourceCases.end(), summaryCaseY ) != sourceCases.end() )
                     {
                         curvesForSameRealization.push_back( ensembleCurve );
+                        curveSetContainsSourceCase = true;
                     }
+                }
+
+                // Only curve sets containing a selected case participate in dimming, so curves from other ensembles are left unchanged.
+                if ( curveSetContainsSourceCase )
+                {
+                    curvesInScope.insert( curvesInScope.end(), curvesInCurveSet.begin(), curvesInCurveSet.end() );
                 }
             }
 
@@ -437,7 +450,7 @@ void RimSummaryEnsembleTools::highlightCurvesForSummaryCases( const std::vector<
                 curvesForSameRealization.erase( std::unique( curvesForSameRealization.begin(), curvesForSameRealization.end() ),
                                                 curvesForSameRealization.end() );
 
-                plotWidget->highlightCurvesUpdateOrder( curvesForSameRealization );
+                plotWidget->highlightCurvesUpdateOrder( curvesForSameRealization, curvesInScope );
             }
 
             plotWidget->replot();
