@@ -24,6 +24,7 @@
 #include "RigEnsembleParameter.h"
 #include "RigStatisticsTools.h"
 
+#include "RimCorrelationBarChartTools.h"
 #include "RimEclipseResultCase.h"
 #include "RimParameterRftCrossPlot.h"
 #include "RimSummaryEnsemble.h"
@@ -32,14 +33,11 @@
 #include "RiuContextMenuLauncher.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotItem.h"
-#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
 
-#include "qwt_column_symbol.h"
 #include "qwt_plot.h"
-#include "qwt_plot_barchart.h"
 #include "qwt_text.h"
 
 #include <QPaintDevice>
@@ -293,7 +291,10 @@ void RimRftTornadoPlot::onLoadDataAndUpdate()
         const int labelSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_labelFontSize() );
         chartBuilder.setLabelFontSize( labelSize );
         chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(), Qt::Horizontal, m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
-        highlightSelectedParameterBar();
+        RimCorrelationBarChartTools::highlightSelectedParameterBar( m_plotWidget,
+                                                                    m_selectedParameter,
+                                                                    RiaColorTools::toQColor( m_barColor() ),
+                                                                    RiaColorTools::toQColor( m_highlightBarColor() ) );
 
         m_plotWidget->qwtPlot()->insertLegend( nullptr );
 
@@ -345,11 +346,8 @@ void RimRftTornadoPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 void RimRftTornadoPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool /*toggle*/, int /*sampleIndex*/ )
 {
-    auto* qwtPlotItem = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
-    if ( !qwtPlotItem ) return;
-
-    auto* barChart = dynamic_cast<QwtPlotBarChart*>( qwtPlotItem->qwtPlotItem() );
-    if ( barChart && m_parameterSelectedCallback ) m_parameterSelectedCallback( barChart->title().text() );
+    const QString paramName = RimCorrelationBarChartTools::parameterNameFromPlotItem( plotItem );
+    if ( !paramName.isEmpty() && m_parameterSelectedCallback ) m_parameterSelectedCallback( paramName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -397,50 +395,10 @@ std::map<QString, double> RimRftTornadoPlot::addDataToChartBuilder( RiuGroupedBa
 
         correlations[param.name] = pearson;
 
-        double value     = m_showAbsoluteValues() ? std::abs( pearson ) : pearson;
-        double sortValue = m_sortByAbsoluteValues() ? std::abs( value ) : value;
-        // legendText becomes barChart->title() and is used for click-to-select; must equal param.name.
-        // barText is shown on the axis label and can include the correlation value.
-        QString axisLabel = QString( "%1 (%2)" ).arg( param.name ).arg( pearson, 5, 'f', 2 );
-        chartBuilder.addBarEntry( "", "", "", sortValue, param.name, axisLabel, value );
+        RimCorrelationBarChartTools::addCorrelationBar( chartBuilder, param.name, pearson, m_showAbsoluteValues(), m_sortByAbsoluteValues() );
     }
 
     return correlations;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimRftTornadoPlot::highlightSelectedParameterBar()
-{
-    if ( !m_plotWidget ) return;
-
-    const QColor highlightColor = RiaColorTools::toQColor( m_highlightBarColor() );
-    const QColor barColor       = RiaColorTools::toQColor( m_barColor() );
-
-    for ( QwtPlotItem* item : m_plotWidget->qwtPlot()->itemList( QwtPlotItem::Rtti_PlotBarChart ) )
-    {
-        auto* barChart = static_cast<QwtPlotBarChart*>( item );
-        auto* symbol   = const_cast<QwtColumnSymbol*>( barChart->symbol() );
-        if ( !symbol ) continue;
-
-        const QString paramName = barChart->title().text();
-
-        QColor color;
-        if ( paramName == m_selectedParameter )
-        {
-            color = highlightColor;
-        }
-        else
-        {
-            color = barColor;
-        }
-
-        QPalette palette = symbol->palette();
-        palette.setColor( QPalette::Window, color );
-        palette.setColor( QPalette::Dark, color );
-        symbol->setPalette( palette );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -88,7 +88,6 @@ private:
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
 
     std::map<QString, double> addDataToChartBuilder( class RiuGroupedBarChartBuilder& chartBuilder ) const;
-    void                      highlightSelectedParameterBar();
     void                      updatePlotTitle();
     void                      cleanupBeforeClose();
 

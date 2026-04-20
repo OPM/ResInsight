@@ -714,6 +714,7 @@ void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*       
     auto curveDef  = parameterAndCurveDef.second;
 
     m_correlationPlot->setCurveDefinitions( { curveDef } );
+    m_correlationPlot->setSelectedParameter( paramName );
     m_correlationPlot->loadDataAndUpdate();
     m_parameterResultCrossPlot->setCurveDefinitions( { curveDef } );
     m_parameterResultCrossPlot->setEnsembleParameter( paramName );

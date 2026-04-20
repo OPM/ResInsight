@@ -24,11 +24,11 @@
 
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
-#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "RifSummaryReaderInterface.h"
 
+#include "RimCorrelationBarChartTools.h"
 #include "RimDeltaSummaryCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimPlotAxisProperties.h"
@@ -44,7 +44,6 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include "qwt_plot.h"
-#include "qwt_plot_barchart.h"
 #include "qwt_text.h"
 
 #include <limits>
@@ -75,6 +74,8 @@ RimCorrelationPlot::RimCorrelationPlot()
     // Color taken from https://webviz-subsurface-example.azurewebsites.net/parameters-vs-rft
     QColor qColor = QColor( "#3173b2" );
     CAF_PDM_InitField( &m_barColor, "BarColor", RiaColorTools::fromQColorTo3f( qColor ), "Bar Color" );
+    QColor highlightColor = QColor( "#f5a623" );
+    CAF_PDM_InitField( &m_highlightBarColor, "HighlightBarColor", RiaColorTools::fromQColorTo3f( highlightColor ), "Bar Color (Selected)" );
 
     setLegendsVisible( false );
     setDeletable( true );
@@ -99,7 +100,8 @@ void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 
     if ( changedField == &m_showAbsoluteValues || changedField == &m_sortByAbsoluteValues ||
          changedField == &m_excludeParametersWithoutVariation || changedField == &m_selectedParametersList ||
-         changedField == &m_showOnlyTopNCorrelations || changedField == &m_topNFilterCount || changedField == &m_barColor )
+         changedField == &m_showOnlyTopNCorrelations || changedField == &m_topNFilterCount || changedField == &m_barColor ||
+         changedField == &m_highlightBarColor )
     {
         if ( changedField == &m_excludeParametersWithoutVariation )
         {
@@ -142,6 +144,7 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     plotGroup->add( &m_axisTitleFontSize );
     plotGroup->add( &m_axisValueFontSize );
     plotGroup->add( &m_barColor );
+    plotGroup->add( &m_highlightBarColor );
 
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
     uiOrdering.skipRemainingFields( true );
@@ -191,6 +194,10 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
 
         chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(), Qt::Horizontal, m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
         chartBuilder.setLabelFontSize( labelFontSize() );
+        RimCorrelationBarChartTools::highlightSelectedParameterBar( m_plotWidget,
+                                                                    m_selectedParameter,
+                                                                    RiaColorTools::toQColor( m_barColor() ),
+                                                                    RiaColorTools::toQColor( m_highlightBarColor() ) );
 
         m_plotWidget->qwtPlot()->insertLegend( nullptr );
         m_plotWidget->updateLegend();
@@ -247,11 +254,11 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
 
     for ( auto parameterCorrPair : correlations )
     {
-        double  value     = m_showAbsoluteValues() ? std::abs( parameterCorrPair.second ) : parameterCorrPair.second;
-        double  sortValue = m_sortByAbsoluteValues() ? std::abs( value ) : value;
-        QString barText   = QString( "%1 (%2)" ).arg( parameterCorrPair.first.name ).arg( parameterCorrPair.second, 5, 'f', 2 );
-        QString majorText = "", medText = "", minText = "", legendText = barText;
-        chartBuilder.addBarEntry( majorText, medText, minText, sortValue, legendText, barText, value );
+        RimCorrelationBarChartTools::addCorrelationBar( chartBuilder,
+                                                        parameterCorrPair.first.name,
+                                                        parameterCorrPair.second,
+                                                        m_showAbsoluteValues(),
+                                                        m_sortByAbsoluteValues() );
     }
 }
 
@@ -275,24 +282,12 @@ void RimCorrelationPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex )
+void RimCorrelationPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool /*toggle*/, int /*sampleIndex*/ )
 {
-    RiuQwtPlotItem* qwtPlotItem = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
-    if ( !qwtPlotItem ) return;
+    const QString paramName = RimCorrelationBarChartTools::parameterNameFromPlotItem( plotItem );
+    if ( paramName.isEmpty() || curveDefinitions().empty() ) return;
 
-    QwtPlotBarChart* barChart = dynamic_cast<QwtPlotBarChart*>( qwtPlotItem->qwtPlotItem() );
-    if ( barChart && !curveDefinitions().empty() )
-    {
-        auto curveDef = curveDefinitions().front();
-        auto barTitle = barChart->title();
-        for ( auto param : ensembleParameters() )
-        {
-            if ( barTitle.text() == param.name )
-            {
-                tornadoItemSelected.send( std::make_pair( param.name, curveDef ) );
-            }
-        }
-    }
+    tornadoItemSelected.send( std::make_pair( paramName, curveDefinitions().front() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,4 +363,12 @@ void RimCorrelationPlot::setShowOnlyTopNCorrelations( bool showOnlyTopNCorrelati
 void RimCorrelationPlot::setTopNFilterCount( int filterCount )
 {
     m_topNFilterCount = filterCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::setSelectedParameter( const QString& paramName )
+{
+    m_selectedParameter = paramName;
 }

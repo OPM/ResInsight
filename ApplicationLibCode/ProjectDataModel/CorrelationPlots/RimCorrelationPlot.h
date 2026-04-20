@@ -55,6 +55,8 @@ public:
     void setShowOnlyTopNCorrelations( bool showOnlyTopNCorrelations );
     void setTopNFilterCount( int filterCount );
 
+    void setSelectedParameter( const QString& paramName );
+
 private:
     // Overridden PDM methods
 
@@ -79,4 +81,7 @@ private:
     caf::PdmField<int>                  m_topNFilterCount;
     caf::PdmField<std::vector<QString>> m_selectedParametersList;
     caf::PdmField<cvf::Color3f>         m_barColor;
+    caf::PdmField<cvf::Color3f>         m_highlightBarColor;
+
+    QString m_selectedParameter;
 };
