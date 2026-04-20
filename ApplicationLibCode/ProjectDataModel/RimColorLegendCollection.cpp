@@ -24,10 +24,14 @@
 #include "RigFormationNames.h"
 
 #include "Formations/RimFormationNames.h"
+#include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendItem.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 #include <QString>
 
@@ -38,12 +42,12 @@ CAF_PDM_SOURCE_INIT( RimColorLegendCollection, "ColorLegendCollection" );
 //--------------------------------------------------------------------------------------------------
 RimColorLegendCollection::RimColorLegendCollection()
 {
-    CAF_PDM_InitObject( "Color Legends", ":/Legend.png" );
+    CAF_PDM_InitScriptableObject( "Color Legends", ":/Legend.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_standardColorLegends, "StandardColorLegends", "Standard Color Legends", ":/Legend.png" );
     m_standardColorLegends.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_customColorLegends, "CustomColorLegends", "Custom Color Legends", ":/Legend.png" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_customColorLegends, "CustomColorLegends", "Custom Color Legends", ":/Legend.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,11 +117,11 @@ RimColorLegend* RimColorLegendCollection::createColorLegend( const QString& colo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimColorLegendCollection::deleteColorLegend( int caseId, const QString& resultName )
+void RimColorLegendCollection::deleteColorLegend( const RimCase* rimCase, const QString& resultName )
 {
-    m_defaultColorLegendNameForResult.erase( createLookupKey( caseId, resultName ) );
+    m_defaultColorLegendNameForResult.erase( createLookupKey( rimCase, resultName ) );
 
-    auto legend = findDefaultLegendForResult( caseId, resultName );
+    auto legend = findDefaultLegendForResult( rimCase, resultName );
     if ( !legend ) return;
 
     m_customColorLegends.removeChild( legend );
@@ -127,9 +131,9 @@ void RimColorLegendCollection::deleteColorLegend( int caseId, const QString& res
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimColorLegendCollection::setDefaultColorLegendForResult( int caseId, const QString& resultName, RimColorLegend* colorLegend )
+void RimColorLegendCollection::setDefaultColorLegendForResult( const RimCase* rimCase, const QString& resultName, RimColorLegend* colorLegend )
 {
-    auto key                               = createLookupKey( caseId, resultName );
+    auto key                               = createLookupKey( rimCase, resultName );
     m_defaultColorLegendNameForResult[key] = colorLegend;
 }
 
@@ -266,9 +270,9 @@ RimColorLegend* RimColorLegendCollection::findByName( const QString& name ) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimColorLegend* RimColorLegendCollection::findDefaultLegendForResult( int caseId, const QString& resultName ) const
+RimColorLegend* RimColorLegendCollection::findDefaultLegendForResult( const RimCase* rimCase, const QString& resultName ) const
 {
-    auto key = createLookupKey( caseId, resultName );
+    auto key = createLookupKey( rimCase, resultName );
 
     auto it = m_defaultColorLegendNameForResult.find( key );
     if ( it != m_defaultColorLegendNameForResult.end() )
@@ -358,8 +362,9 @@ RimColorLegend* RimColorLegendCollection::createRockTypeColorLegend() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimColorLegendCollection::createLookupKey( int caseId, const QString& resultName )
+QString RimColorLegendCollection::createLookupKey( const RimCase* rimCase, const QString& resultName )
 {
+    const int caseId = rimCase ? rimCase->caseId() : -1;
     return QString( "%1 (case %2)" ).arg( resultName ).arg( caseId );
 }
 

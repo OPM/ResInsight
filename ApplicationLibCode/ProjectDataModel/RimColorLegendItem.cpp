@@ -19,6 +19,9 @@
 #include "RimColorLegendItem.h"
 #include "RimColorLegend.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapabilityCvfColor3.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiSliderEditor.h"
 
 #include "cvfColor3.h"
@@ -33,15 +36,15 @@ CAF_PDM_SOURCE_INIT( RimColorLegendItem, "ColorLegendItem" );
 //--------------------------------------------------------------------------------------------------
 RimColorLegendItem::RimColorLegendItem()
 {
-    CAF_PDM_InitObject( "ColorLegendItem" );
+    CAF_PDM_InitScriptableObject( "ColorLegendItem" );
 
-    CAF_PDM_InitFieldNoDefault( &m_color, "Color", "Color" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_color, "Color", "Color" );
     m_color = cvf::Color3f( cvf::Color3::ColorIdent::BLACK );
 
-    CAF_PDM_InitField( &m_categoryValue, "CategoryValue", 0, "Category Number" );
+    CAF_PDM_InitScriptableField( &m_categoryValue, "CategoryValue", 0, "Category Number" );
     m_categoryValue.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_categoryName, "CategoryName", QString( "" ), "Category Name" );
+    CAF_PDM_InitScriptableField( &m_categoryName, "CategoryName", QString( "" ), "Category Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
     m_nameProxy.registerGetMethod( this, &RimColorLegendItem::itemName );

@@ -145,13 +145,10 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
 
             if ( !found )
             {
-                int caseId = 0;
-                if ( eclipseCase() ) caseId = eclipseCase()->caseId();
-
                 bool useCategoryLegend = hasCategoryResult();
                 if ( m_resultType() == RiaDefines::ResultCatType::FORMATION_NAMES ) useCategoryLegend = true;
 
-                auto newLegend = createLegendForResult( caseId, resultVarNameOfNewLegend, m_useDiscreteLogLevels, useCategoryLegend );
+                auto newLegend = createLegendForResult( eclipseCase(), resultVarNameOfNewLegend, m_useDiscreteLogLevels, useCategoryLegend );
 
                 newLegend->changed.connect( this, &RimEclipseCellColors::onLegendConfigChanged );
 
@@ -174,13 +171,15 @@ void RimEclipseCellColors::onLegendConfigChanged( const caf::SignalEmitter* emit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig*
-    RimEclipseCellColors::createLegendForResult( int caseId, const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
+RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const RimCase* rimCase,
+                                                                     const QString& resultName,
+                                                                     bool           useDiscreteLogLevels,
+                                                                     bool           isCategoryResult )
 {
     auto* newLegend               = new RimRegularLegendConfig;
     newLegend->resultVariableName = resultName;
 
-    newLegend->setDefaultConfigForResultName( caseId, resultName, useDiscreteLogLevels, isCategoryResult );
+    newLegend->setDefaultConfigForResultName( rimCase, resultName, useDiscreteLogLevels, isCategoryResult );
 
     return newLegend;
 }

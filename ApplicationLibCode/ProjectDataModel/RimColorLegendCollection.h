@@ -22,6 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+class RimCase;
 class RimColorLegend;
 class RimColorLegendItem;
 class RimFormationNames;
@@ -50,13 +51,13 @@ public:
 
     RimColorLegend* createColorLegend( const QString& colorLegendName, const std::map<int, QString>& valuesAndNames );
     void            createColorLegendFromFormationNames( RimFormationNames* rimFormationNames );
-    void            deleteColorLegend( int caseId, const QString& resultName );
-    void            setDefaultColorLegendForResult( int caseId, const QString& resultName, RimColorLegend* colorLegend );
+    void            deleteColorLegend( const RimCase* rimCase, const QString& resultName );
+    void            setDefaultColorLegendForResult( const RimCase* rimCase, const QString& resultName, RimColorLegend* colorLegend );
 
     std::vector<RimColorLegend*> allColorLegends() const;
 
     RimColorLegend* findByName( const QString& name ) const;
-    RimColorLegend* findDefaultLegendForResult( int caseId, const QString& resultName ) const;
+    RimColorLegend* findDefaultLegendForResult( const RimCase* rimCase, const QString& resultName ) const;
 
 protected:
     void initAfterRead() override;
@@ -65,7 +66,7 @@ private:
     RimColorLegendItem* createColorLegendItem( const QString& name, int r, int g, int b ) const;
     RimColorLegend*     createRockTypeColorLegend() const;
 
-    static QString createLookupKey( int caseId, const QString& resultName );
+    static QString createLookupKey( const RimCase* rimCase, const QString& resultName );
 
     caf::PdmChildArrayField<RimColorLegend*> m_standardColorLegends; // ResInsight standard (built-in) legends
     caf::PdmChildArrayField<RimColorLegend*> m_customColorLegends; // user specified legends
