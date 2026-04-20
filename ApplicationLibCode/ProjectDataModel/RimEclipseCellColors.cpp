@@ -171,8 +171,10 @@ void RimEclipseCellColors::onLegendConfigChanged( const caf::SignalEmitter* emit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig*
-    RimEclipseCellColors::createLegendForResult( const RimCase* rimCase, const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
+RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const RimCase* rimCase,
+                                                                     const QString& resultName,
+                                                                     bool           useDiscreteLogLevels,
+                                                                     bool           isCategoryResult )
 {
     auto* newLegend               = new RimRegularLegendConfig;
     newLegend->resultVariableName = resultName;

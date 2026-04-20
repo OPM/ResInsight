@@ -80,7 +80,7 @@ private:
     void changeLegendConfig( QString resultVarNameOfNewLegend );
     void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
     static RimRegularLegendConfig*
-        createLegendForResult( const RimCase* rimCase, const QString& resultName, bool useDiscreteLevels, bool isCategoryResult );
+         createLegendForResult( const RimCase* rimCase, const QString& resultName, bool useDiscreteLevels, bool isCategoryResult );
     void updateUiTreeName();
 
     caf::PdmChildArrayField<RimRegularLegendConfig*> m_legendConfigData;

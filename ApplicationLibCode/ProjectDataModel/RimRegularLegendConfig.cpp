@@ -1157,7 +1157,10 @@ int RimRegularLegendConfig::significantDigitsInData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::setDefaultConfigForResultName( const RimCase* rimCase, const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
+void RimRegularLegendConfig::setDefaultConfigForResultName( const RimCase* rimCase,
+                                                            const QString& resultName,
+                                                            bool           useDiscreteLogLevels,
+                                                            bool           isCategoryResult )
 {
     bool useLog = RiaResultNames::isLogarithmicResult( resultName );
 
