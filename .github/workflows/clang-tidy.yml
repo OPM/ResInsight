@@ -41,11 +41,16 @@ jobs:
       - name: vcpkg bootstrap
         run: ThirdParty/vcpkg/bootstrap-vcpkg.sh
   
+      - name: Get vcpkg submodule SHA
+        id: vcpkg-sha
+        shell: bash
+        run: echo "sha=$(git rev-parse HEAD:ThirdParty/vcpkg)" >> $GITHUB_OUTPUT
+
       - name: Restore vcpkg cache
         id: vcpkg-cache
-        uses: TAServers/vcpkg-cache@v3
+        uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          cache-key: ${{ runner.os }}-clang++-19-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
 
       - name: Create compile commands and run clang-tidy
         # https://clang.llvm.org/extra/doxygen/run-clang-tidy_8py_source.html

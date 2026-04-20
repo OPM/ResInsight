@@ -197,11 +197,16 @@ jobs:
         run: |
           ThirdParty/vcpkg/${{ matrix.config.vcpkg-bootstrap }}
 
+      - name: Get vcpkg submodule SHA
+        id: vcpkg-sha
+        shell: bash
+        run: echo "sha=$(git rev-parse HEAD:ThirdParty/vcpkg)" >> $GITHUB_OUTPUT
+
       - name: Restore vcpkg cache
         id: vcpkg-cache
-        uses: TAServers/vcpkg-cache@v3
+        uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          cache-key: ${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
           prefix: vcpkg-${{ matrix.config.cxx}}/
           
       - name: Print CMake version
