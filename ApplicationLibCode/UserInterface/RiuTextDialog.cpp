@@ -20,9 +20,7 @@
 #include "RiuTextDialog.h"
 #include "RiuTools.h"
 
-#include "RiaQDateTimeTools.h"
-
-#include "SummaryPlotCommands/RicAsciiExportSummaryPlotFeature.h"
+#include "RimTabbedTextProvider.h"
 
 #include "cafCmdFeature.h"
 
@@ -33,7 +31,7 @@
 #include <QMenu>
 #include <QTabWidget>
 
-#include <cvfAssert.h>
+#include <cafAssert.h>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -94,30 +92,6 @@ void RiuQPlainTextEdit::slotCopyContentToClipboard()
 void RiuQPlainTextEdit::slotSelectAll()
 {
     selectAll();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQPlainTextEdit::slotExportToFile()
-{
-    // Get dialog
-    RiuTabbedTextDialog* dialog = nullptr;
-    auto                 curr   = parent();
-    while ( dialog == nullptr )
-    {
-        if ( !curr ) break;
-        dialog = dynamic_cast<RiuTabbedTextDialog*>( curr );
-        if ( dialog ) break;
-        curr = curr->parent();
-    }
-
-    if ( dialog )
-    {
-        QString defaultDir = RicAsciiExportSummaryPlotFeature::defaultExportDir();
-        auto    fileName   = RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog( dialog->description(), defaultDir );
-        RicAsciiExportSummaryPlotFeature::exportTextToFile( fileName, toPlainText() );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,15 +162,15 @@ void RiuTextDialog::contextMenuEvent( QContextMenuEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuTabbedTextDialog::RiuTabbedTextDialog( RiuTabbedTextProvider* textProvider, QWidget* parent /*= nullptr*/ )
-    : m_textProvider( textProvider )
-    , QDialog( parent, RiuTools::defaultDialogFlags() )
+RiuTabbedTextDialog::RiuTabbedTextDialog( std::unique_ptr<RimTabbedTextProvider> textProvider, QWidget* parent /*= nullptr*/ )
+    : QDialog( parent, RiuTools::defaultDialogFlags() )
+    , m_textProvider( std::move( textProvider ) )
 {
     m_tabWidget = new QTabWidget( this );
 
     connect( m_tabWidget, SIGNAL( currentChanged( int ) ), this, SLOT( slotTabChanged( int ) ) );
 
-    CVF_ASSERT( m_textProvider->isValid() );
+    CAF_ASSERT( m_textProvider && m_textProvider->isValid() );
     setWindowTitle( m_textProvider->description() );
 
     for ( int tabIndex = 0; tabIndex < m_textProvider->tabCount(); ++tabIndex )
@@ -223,6 +197,11 @@ RiuTabbedTextDialog::RiuTabbedTextDialog( RiuTabbedTextProvider* textProvider, Q
 
     updateTabText();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuTabbedTextDialog::~RiuTabbedTextDialog() = default;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -296,6 +275,17 @@ void RiuTabbedTextDialog::slotTabChanged( int index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuTabbedTextDialog::slotExportToFile()
+{
+    auto textEdit = currentTextEdit();
+    if ( !textEdit ) return;
+
+    emit exportToFileRequested( description(), textEdit->toPlainText() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuTabbedTextDialog::contextMenuEvent( QContextMenuEvent* event )
 {
     QMenu              menu;
@@ -329,7 +319,7 @@ void RiuTabbedTextDialog::contextMenuEvent( QContextMenuEvent* event )
 
         actionToSetup->setText( "Export to File..." );
 
-        connect( actionToSetup, SIGNAL( triggered() ), textEdit, SLOT( slotExportToFile() ) );
+        connect( actionToSetup, SIGNAL( triggered() ), this, SLOT( slotExportToFile() ) );
 
         menu.addAction( actionToSetup );
     }

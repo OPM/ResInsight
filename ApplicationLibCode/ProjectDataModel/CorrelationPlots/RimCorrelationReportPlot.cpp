@@ -316,6 +316,14 @@ RimParameterResultCrossPlot* RimCorrelationReportPlot::crossPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimPlot*> RimCorrelationReportPlot::childPlotsForTextExport() const
+{
+    return { matrixPlot(), correlationPlot(), crossPlot() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimCorrelationReportPlot::subTitleFontSize() const
 {
     return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_subTitleFontSize() );

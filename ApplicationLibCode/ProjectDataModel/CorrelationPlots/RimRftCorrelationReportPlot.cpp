@@ -463,6 +463,14 @@ RimRftTornadoPlot* RimRftCorrelationReportPlot::correlationPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimPlot*> RimRftCorrelationReportPlot::childPlotsForTextExport() const
+{
+    return { crossPlot(), correlationPlot() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::onTornadoParameterSelected( const QString& paramName )
 {
     if ( m_correlationPlot() )

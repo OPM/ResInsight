@@ -12,6 +12,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotAxisFormatter.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotTextProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCrossPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTimeAxisProperties.h
@@ -71,6 +72,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotAxisFormatter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotTextProvider.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCrossPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTimeAxisProperties.cpp

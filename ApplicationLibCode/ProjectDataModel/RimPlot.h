@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 
+#include "RimPlainPlotDataProducer.h"
 #include "RimPlotWindow.h"
 
 #include "RiuPlotAxis.h"
@@ -45,7 +46,7 @@ class RimPlotCurve;
 ///
 ///
 //==================================================================================================
-class RimPlot : public QObject, public RimPlotWindow
+class RimPlot : public QObject, public RimPlotWindow, public RimPlainPlotDataProducer
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;
@@ -82,7 +83,7 @@ public:
 
     virtual void updateLegend() = 0;
 
-    virtual QString asciiDataForPlotExport() const = 0;
+    QString asciiDataForPlotExport() const override = 0;
 
     virtual void reattachAllCurves() = 0;
     virtual void detachAllCurves()   = 0;

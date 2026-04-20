@@ -26,6 +26,7 @@
 
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
+#include "RimGridCrossPlotTextProvider.h"
 #include "RimMultiPlot.h"
 #include "RimPlotAxisProperties.h"
 
@@ -639,6 +640,14 @@ QString RimGridCrossPlot::asciiDataForPlotExport() const
         fullData += asciiDataForGridCrossPlotExport( i ) + "\n";
     }
     return fullData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<RimTabbedTextProvider> RimGridCrossPlot::createTabbedTextProvider() const
+{
+    return std::make_unique<RimGridCrossPlotTextProvider>( const_cast<RimGridCrossPlot*>( this ) );
 }
 
 //--------------------------------------------------------------------------------------------------

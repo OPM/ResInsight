@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimPlotWindow.h"
+#include "RimReportPlotGroup.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -39,7 +40,7 @@ class CDockManager;
 class CDockWidget;
 } // namespace ads
 
-class RimCorrelationReportPlot : public QObject, public RimPlotWindow
+class RimCorrelationReportPlot : public QObject, public RimPlotWindow, public RimReportPlotGroup
 {
     CAF_PDM_HEADER_INIT;
 
@@ -56,6 +57,8 @@ public:
     RimCorrelationMatrixPlot*    matrixPlot() const;
     RimCorrelationPlot*          correlationPlot() const;
     RimParameterResultCrossPlot* crossPlot() const;
+
+    std::vector<RimPlot*> childPlotsForTextExport() const override;
 
     int subTitleFontSize() const;
     int axisTitleFontSize() const;

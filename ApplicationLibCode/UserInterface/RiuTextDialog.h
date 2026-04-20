@@ -20,12 +20,12 @@
 
 #include <QDialog>
 #include <QPlainTextEdit>
-#include <QPointer>
 
-#include <functional>
+#include <memory>
+#include <vector>
 
 class QTabWidget;
-class RimSummaryPlot;
+class RimTabbedTextProvider;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -45,7 +45,6 @@ protected:
 private slots:
     void slotCopyContentToClipboard();
     void slotSelectAll();
-    void slotExportToFile();
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -67,18 +66,6 @@ protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
 };
 
-class RiuTabbedTextProvider : public QObject
-{
-    Q_OBJECT
-
-public:
-    virtual bool    isValid() const                = 0;
-    virtual QString description() const            = 0;
-    virtual QString tabTitle( int tabIndex ) const = 0;
-    virtual QString tabText( int tabIndex ) const  = 0;
-    virtual int     tabCount() const               = 0;
-};
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -87,21 +74,26 @@ class RiuTabbedTextDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RiuTabbedTextDialog( RiuTabbedTextProvider* textProvider, QWidget* parent = nullptr );
+    explicit RiuTabbedTextDialog( std::unique_ptr<RimTabbedTextProvider> textProvider, QWidget* parent = nullptr );
+    ~RiuTabbedTextDialog() override;
 
     QString description() const;
     void    redrawText();
+
+signals:
+    void exportToFileRequested( const QString& title, const QString& text );
 
 private:
     RiuQPlainTextEdit* currentTextEdit() const;
     void               updateTabText();
 
-    QTabWidget*                     m_tabWidget;
-    QPointer<RiuTabbedTextProvider> m_textProvider;
-    std::vector<QString>            m_tabTexts;
+    QTabWidget*                            m_tabWidget;
+    std::unique_ptr<RimTabbedTextProvider> m_textProvider;
+    std::vector<QString>                   m_tabTexts;
 
 private slots:
     void slotTabChanged( int index );
+    void slotExportToFile();
 
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;

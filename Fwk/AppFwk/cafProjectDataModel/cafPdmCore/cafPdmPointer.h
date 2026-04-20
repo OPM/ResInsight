@@ -128,6 +128,56 @@ public:
     }
 };
 
+//==================================================================================================
+/// Guarded const pointer to a PdmObject.
+///
+/// Same lifetime-guarding behavior as PdmPointer<T>, but exposes only const access to the target.
+/// Use for non-owning read-only observers (text providers, renderers, part managers) that hold
+/// a reference to a logically-const PdmObject. Construction from a const T* does not require
+/// the caller to const_cast.
+//==================================================================================================
+
+template <class T>
+class PdmConstPointer
+{
+    PdmPointer<T> m_ptr;
+
+public:
+    inline PdmConstPointer() = default;
+    inline PdmConstPointer( const T* p )
+        : m_ptr( const_cast<T*>( p ) )
+    {
+    }
+    inline PdmConstPointer( const PdmConstPointer<T>& p )               = default;
+    inline PdmConstPointer<T>& operator=( const PdmConstPointer<T>& p ) = default;
+
+    inline PdmConstPointer( const PdmPointer<T>& p )
+        : m_ptr( p )
+    {
+    }
+
+    const T* p() const { return m_ptr.p(); }
+    bool     isNull() const { return m_ptr.isNull(); }
+    bool     notNull() const { return m_ptr.notNull(); }
+    operator const T*() const { return m_ptr.p(); }
+    const T& operator*() const { return *m_ptr.p(); }
+    const T* operator->() const { return m_ptr.p(); }
+
+    PdmConstPointer<T>& operator=( const T* p )
+    {
+        m_ptr = const_cast<T*>( p );
+        return *this;
+    }
+
+    template <class S>
+    bool operator==( const PdmConstPointer<S>& rhs ) const
+    {
+        return m_ptr.rawPtr() == rhs.rawPtr();
+    }
+
+    PdmObjectHandle* rawPtr() const { return m_ptr.rawPtr(); }
+};
+
 } // End of namespace caf
 
 #include <QMetaType>

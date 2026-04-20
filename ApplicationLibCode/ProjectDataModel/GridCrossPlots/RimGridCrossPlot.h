@@ -23,6 +23,7 @@
 
 #include "RimNameConfig.h"
 #include "RimPlot.h"
+#include "RimTabbedTextProducer.h"
 
 #include <QPointer>
 
@@ -53,7 +54,7 @@ private:
     void doEnableAllAutoNameTags( bool enable ) override;
 };
 
-class RimGridCrossPlot : public RimPlot, public RimNameConfigHolderInterface
+class RimGridCrossPlot : public RimPlot, public RimNameConfigHolderInterface, public RimTabbedTextProducer
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;
@@ -91,6 +92,8 @@ public:
     QString asciiDataForPlotExport() const override;
     QString asciiTitleForPlotExport( int dataSetIndex ) const;
     QString asciiDataForGridCrossPlotExport( int dataSetIndex ) const;
+
+    std::unique_ptr<RimTabbedTextProvider> createTabbedTextProvider() const override;
 
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;

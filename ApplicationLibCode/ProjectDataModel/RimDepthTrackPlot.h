@@ -24,6 +24,7 @@
 
 #include "RimAbstractPlotCollection.h"
 #include "RimEnsembleWellLogStatistics.h"
+#include "RimPlainPlotDataProducer.h"
 #include "RimPlot.h"
 #include "RimPlotWindow.h"
 
@@ -56,7 +57,10 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimDepthTrackPlot : public RimTypedPlotCollection<RimPlot>, public RimPlotWindow, public RimNameConfigHolderInterface
+class RimDepthTrackPlot : public RimTypedPlotCollection<RimPlot>,
+                          public RimPlotWindow,
+                          public RimNameConfigHolderInterface,
+                          public RimPlainPlotDataProducer
 {
     CAF_PDM_HEADER_INIT;
 
@@ -155,7 +159,7 @@ public:
     void setAvailableDepthUnits( const std::set<RiaDefines::DepthUnitType>& depthUnits );
     void setAvailableDepthTypes( const std::set<DepthTypeEnum>& depthTypes );
 
-    QString asciiDataForPlotExport() const;
+    QString asciiDataForPlotExport() const override;
     void    handleKeyPressEvent( QKeyEvent* keyEvent );
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;

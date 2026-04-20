@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 Statoil ASA
+//  Copyright (C) 2026 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +18,18 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-
-#include <memory>
 #include <vector>
 
-class RimPlotWindow;
-class RimTabbedTextProvider;
+class RimPlot;
 
 //==================================================================================================
-///
+/// Capability mixin: a composite plot window that exposes a set of child RimPlot
+/// instances to be exported as individual text dialogs by the "Show Plot Data" feature.
 //==================================================================================================
-class RicShowPlotDataFeature : public caf::CmdFeature
+class RimReportPlotGroup
 {
-    CAF_CMD_HEADER_INIT;
-
-protected:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    void getSelection( std::vector<RimPlotWindow*>& selection ) const;
-
 public:
-    static void showTabbedTextWindow( std::unique_ptr<RimTabbedTextProvider> textProvider );
-    static void showTextWindow( const QString& title, const QString& text );
+    virtual ~RimReportPlotGroup() = default;
+
+    virtual std::vector<RimPlot*> childPlotsForTextExport() const = 0;
 };

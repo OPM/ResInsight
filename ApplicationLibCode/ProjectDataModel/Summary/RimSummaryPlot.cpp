@@ -51,6 +51,7 @@
 #include "RimSummaryPlotAxisFormatter.h"
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
+#include "RimSummaryPlotTextProvider.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "Summary/RiaSummaryAddressCollectionTools.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
@@ -326,6 +327,14 @@ RiuSummaryPlot* RimSummaryPlot::summaryPlotWidget() const
 QString RimSummaryPlot::asciiDataForPlotExport() const
 {
     return asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod::YEAR, false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<RimTabbedTextProvider> RimSummaryPlot::createTabbedTextProvider() const
+{
+    return std::make_unique<RimSummaryPlotTextProvider>( this );
 }
 
 //--------------------------------------------------------------------------------------------------

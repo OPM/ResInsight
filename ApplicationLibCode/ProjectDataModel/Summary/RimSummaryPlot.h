@@ -24,6 +24,7 @@
 #include "RimPlot.h"
 #include "RimPlotAxisProperties.h"
 #include "RimSummaryDataSourceStepping.h"
+#include "RimTabbedTextProducer.h"
 
 #include "RiuPlotWidget.h"
 #include "RiuSummaryPlot.h"
@@ -75,7 +76,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
+class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping, public RimTabbedTextProducer
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;
@@ -139,6 +140,8 @@ public:
 
     QString asciiDataForPlotExport() const override;
     QString asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const;
+
+    std::unique_ptr<RimTabbedTextProvider> createTabbedTextProvider() const override;
 
     std::vector<RimSummaryCurve*>       summaryAndEnsembleCurves() const;
     std::set<RiaSummaryCurveDefinition> summaryAndEnsembleCurveDefinitions() const;

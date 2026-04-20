@@ -49,6 +49,10 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlainPlotDataProducer.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimReportPlotGroup.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimTabbedTextProducer.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimTabbedTextProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDepthTrackPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.h

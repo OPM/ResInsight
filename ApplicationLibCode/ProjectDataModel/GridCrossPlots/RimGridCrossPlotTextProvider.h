@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 Statoil ASA
+//  Copyright (C) 2026 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +18,26 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RimTabbedTextProvider.h"
 
-#include <memory>
-#include <vector>
+#include "cafPdmPointer.h"
 
-class RimPlotWindow;
-class RimTabbedTextProvider;
+class RimGridCrossPlot;
 
 //==================================================================================================
-///
+/// Tabbed text provider for a RimGridCrossPlot. Each tab corresponds to a data set in the plot.
 //==================================================================================================
-class RicShowPlotDataFeature : public caf::CmdFeature
+class RimGridCrossPlotTextProvider : public RimTabbedTextProvider
 {
-    CAF_CMD_HEADER_INIT;
+public:
+    explicit RimGridCrossPlotTextProvider( RimGridCrossPlot* crossPlot );
 
-protected:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+    bool    isValid() const override;
+    QString description() const override;
+    QString tabTitle( int tabIndex ) const override;
+    QString tabText( int tabIndex ) const override;
+    int     tabCount() const override;
 
 private:
-    void getSelection( std::vector<RimPlotWindow*>& selection ) const;
-
-public:
-    static void showTabbedTextWindow( std::unique_ptr<RimTabbedTextProvider> textProvider );
-    static void showTextWindow( const QString& title, const QString& text );
+    caf::PdmPointer<RimGridCrossPlot> m_crossPlot;
 };
