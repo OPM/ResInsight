@@ -30,6 +30,11 @@ enum PropertyType {
   UNDEFINED = 999;
 }
 
+enum PropertyDataType {
+  FLOAT = 0;
+  INTEGER = 1;
+}
+
 message AvailablePropertiesRequest {
   CaseRequest case_request = 1;
   PropertyType property_type = 2;
@@ -45,6 +50,7 @@ message PropertyRequest {
   int32 time_step = 4;
   int32 grid_index = 5;
   PorosityModelType porosity_model = 6;
+  PropertyDataType data_type = 7;
 }
 
 message TimeStep { int32 index = 1; }
