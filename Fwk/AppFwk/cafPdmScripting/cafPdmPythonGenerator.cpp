@@ -52,6 +52,7 @@
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #endif
 
+#include <QColor>
 #include <QRegularExpression>
 #include <QTextStream>
 
@@ -583,6 +584,32 @@ QString PdmPythonGenerator::getDefaultValue( PdmFieldHandle* field )
         }
 
         valueString = pythonifyDataValue( valueString );
+
+#ifndef CAF_EXCLUDE_CVF
+        // Convert a cvf::Color3f default ("r g b" space-separated floats) to a hex string
+        // so the generated Python uses the same representation as user-facing examples.
+        if ( field->xmlCapability()->dataTypeName() == QString::fromStdString( typeid( cvf::Color3f ).name() ) )
+        {
+            QStringList parts = valueString.split( ' ', Qt::SkipEmptyParts );
+            if ( parts.size() == 3 )
+            {
+                QColor qColor;
+                qColor.setRgbF( parts[0].toFloat(), parts[1].toFloat(), parts[2].toFloat() );
+                if ( qColor.isValid() )
+                {
+                    valueString = qColor.name();
+                }
+            }
+        }
+#endif
+
+        // Ensure string-typed defaults are quoted. The QString IO handler quotes its own output,
+        // but other types mapped to "str" (e.g. cvf::Color3f) emit an unquoted representation that
+        // would be invalid Python.
+        if ( dataTypeString( field, false ) == "str" && !valueString.startsWith( '"' ) && valueString != "None" )
+        {
+            valueString = "\"" + valueString + "\"";
+        }
 
         defaultValue = valueString;
     }

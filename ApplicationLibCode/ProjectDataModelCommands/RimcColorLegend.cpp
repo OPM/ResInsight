@@ -25,6 +25,7 @@
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapabilityCvfColor3.h"
 
 #include "cvfColor3.h"
 
@@ -132,7 +133,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcColorLegendCollection_setDefau
     if ( !m_case() ) return std::unexpected( "No case provided" );
     if ( !m_colorLegend() ) return std::unexpected( "No color legend provided" );
 
-    collection->setDefaultColorLegendForResult( m_case()->caseId(), m_resultName(), m_colorLegend() );
+    collection->setDefaultColorLegendForResult( m_case(), m_resultName(), m_colorLegend() );
 
     return nullptr;
 }
@@ -161,7 +162,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcColorLegendCollection_deleteCo
 
     if ( !m_case() ) return std::unexpected( "No case provided" );
 
-    collection->deleteColorLegend( m_case()->caseId(), m_resultName() );
+    collection->deleteColorLegend( m_case(), m_resultName() );
     collection->updateConnectedEditors();
 
     return nullptr;

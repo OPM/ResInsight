@@ -581,12 +581,10 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                 {
                     RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
 
-                    int  caseId  = 0;
                     auto rimCase = eclipseCaseData->ownerCase();
-                    if ( rimCase ) caseId = rimCase->caseId();
 
                     // Delete existing color legend, as new legend will be populated by values from file
-                    colorLegendCollection->deleteColorLegend( caseId, newResultName );
+                    colorLegendCollection->deleteColorLegend( rimCase, newResultName );
 
                     RimColorLegend* colorLegend = nullptr;
                     if ( keywordUpperCase == RiaResultNames::facies() )
@@ -598,7 +596,7 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                         colorLegend = colorLegendCollection->createColorLegend( newResultName, codeNames );
                     }
 
-                    colorLegendCollection->setDefaultColorLegendForResult( caseId, newResultName, colorLegend );
+                    colorLegendCollection->setDefaultColorLegendForResult( rimCase, newResultName, colorLegend );
                     colorLegendCollection->updateAllRequiredEditors();
                 }
 

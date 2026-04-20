@@ -52,6 +52,7 @@ class OverlayScalarMapperLegend;
 } // namespace caf
 
 class Rim3dView;
+class RimCase;
 class RimEnsembleCurveSet;
 class RiuAbstractLegendFrame;
 class RimColorLegend;
@@ -175,7 +176,7 @@ public:
 
     QString valueToText( double value ) const;
 
-    void setDefaultConfigForResultName( int caseId, const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult );
+    void setDefaultConfigForResultName( const RimCase* rimCase, const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult );
 
     void defineUiOrderingColorOnly( caf::PdmUiOrdering* colorGroup );
 
