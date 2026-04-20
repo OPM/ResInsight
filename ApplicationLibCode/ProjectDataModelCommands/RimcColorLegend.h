@@ -19,9 +19,12 @@
 #pragma once
 
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfColor.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
 #include "cafPdmPtrField.h"
+
+#include "cvfColor3.h"
 
 #include <QString>
 
@@ -58,11 +61,9 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<int>     m_categoryValue;
-    caf::PdmField<QString> m_categoryName;
-    caf::PdmField<int>     m_red;
-    caf::PdmField<int>     m_green;
-    caf::PdmField<int>     m_blue;
+    caf::PdmField<int>          m_categoryValue;
+    caf::PdmField<QString>      m_categoryName;
+    caf::PdmField<cvf::Color3f> m_color;
 };
 
 //==================================================================================================

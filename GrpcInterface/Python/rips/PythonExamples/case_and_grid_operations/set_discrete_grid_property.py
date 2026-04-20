@@ -29,5 +29,5 @@ case.set_grid_property(values, "STATIC_NATIVE", "MY_REGION", 0, data_type="INTEG
 case.set_discrete_property_category_names(
     property_name="MY_REGION",
     value_names={0: "Sand", 1: "Shale", 2: "Coal", 3: "Limestone"},
-    value_colors={0: (230, 200, 120), 1: (100, 100, 100)},
+    value_colors={0: "#e6c878", 1: "#646464"},
 )

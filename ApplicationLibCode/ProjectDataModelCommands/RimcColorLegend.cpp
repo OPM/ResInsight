@@ -77,9 +77,7 @@ RimcColorLegend_addColorLegendItem::RimcColorLegend_addColorLegendItem( caf::Pdm
 
     CAF_PDM_InitScriptableField( &m_categoryValue, "CategoryValue", 0, "Category Value" );
     CAF_PDM_InitScriptableField( &m_categoryName, "CategoryName", QString(), "Category Name" );
-    CAF_PDM_InitScriptableField( &m_red, "Red", 0, "Red" );
-    CAF_PDM_InitScriptableField( &m_green, "Green", 0, "Green" );
-    CAF_PDM_InitScriptableField( &m_blue, "Blue", 0, "Blue" );
+    CAF_PDM_InitScriptableField( &m_color, "Color", cvf::Color3f( cvf::Color3f::ORANGE ), "Color" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +89,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcColorLegend_addColorLegendItem
     if ( !legend ) return std::unexpected( "No color legend found" );
 
     auto* item = new RimColorLegendItem();
-    item->setValues( m_categoryName(), m_categoryValue(), cvf::Color3f::fromByteColor( m_red(), m_green(), m_blue() ) );
+    item->setValues( m_categoryName(), m_categoryValue(), m_color() );
     legend->appendColorLegendItem( item );
 
     return item;
