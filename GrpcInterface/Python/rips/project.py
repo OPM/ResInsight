@@ -19,7 +19,14 @@ import Project_pb2_grpc
 import KeyValueStore_pb2_grpc
 import KeyValueStore_pb2
 
-from .resinsight_classes import Project, PlotWindow, WellPath, SummaryCase, Reservoir
+from .resinsight_classes import (
+    ColorLegendCollection,
+    PlotWindow,
+    Project,
+    Reservoir,
+    SummaryCase,
+    WellPath,
+)
 
 from typing import Optional, List
 
@@ -165,6 +172,17 @@ def summary_cases(self):
     Returns: A list of :class:`rips.generated.resinsight_classes.SummaryCase`
     """
     return self.descendants(SummaryCase)
+
+
+@add_method(Project)
+def color_legend_collection(self: Project) -> Optional[ColorLegendCollection]:
+    """Get the project's color legend collection
+
+    Returns:
+        :class:`rips.generated.generated_classes.ColorLegendCollection`
+    """
+    collections = self.descendants(ColorLegendCollection)
+    return collections[0] if collections else None
 
 
 @add_method(Project)
