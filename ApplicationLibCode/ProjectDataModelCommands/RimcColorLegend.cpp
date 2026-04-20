@@ -18,6 +18,7 @@
 
 #include "RimcColorLegend.h"
 
+#include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimColorLegendItem.h"
@@ -113,9 +114,9 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimColorLegendCollection,
 RimcColorLegendCollection_setDefaultColorLegendForResult::RimcColorLegendCollection_setDefaultColorLegendForResult( caf::PdmObjectHandle* self )
     : caf::PdmVoidObjectMethod( self )
 {
-    CAF_PDM_InitObject( "Set Default Color Legend For Result", "", "", "Bind a color legend to a (caseId, resultName) pair" );
+    CAF_PDM_InitObject( "Set Default Color Legend For Result", "", "", "Bind a color legend to a (case, resultName) pair" );
 
-    CAF_PDM_InitScriptableField( &m_caseId, "CaseId", -1, "Case Id" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "Case" );
     CAF_PDM_InitScriptableField( &m_resultName, "ResultName", QString(), "Result Name" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_colorLegend, "ColorLegend", "Color Legend" );
 }
@@ -128,9 +129,10 @@ std::expected<caf::PdmObjectHandle*, QString> RimcColorLegendCollection_setDefau
     auto collection = self<RimColorLegendCollection>();
     if ( !collection ) return std::unexpected( "No color legend collection found" );
 
+    if ( !m_case() ) return std::unexpected( "No case provided" );
     if ( !m_colorLegend() ) return std::unexpected( "No color legend provided" );
 
-    collection->setDefaultColorLegendForResult( m_caseId(), m_resultName(), m_colorLegend() );
+    collection->setDefaultColorLegendForResult( m_case()->caseId(), m_resultName(), m_colorLegend() );
 
     return nullptr;
 }
@@ -143,9 +145,9 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimColorLegendCollection, RimcColorLegendColl
 RimcColorLegendCollection_deleteColorLegend::RimcColorLegendCollection_deleteColorLegend( caf::PdmObjectHandle* self )
     : caf::PdmVoidObjectMethod( self )
 {
-    CAF_PDM_InitObject( "Delete Color Legend", "", "", "Remove the color legend bound to a (caseId, resultName) pair" );
+    CAF_PDM_InitObject( "Delete Color Legend", "", "", "Remove the color legend bound to a (case, resultName) pair" );
 
-    CAF_PDM_InitScriptableField( &m_caseId, "CaseId", -1, "Case Id" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "Case" );
     CAF_PDM_InitScriptableField( &m_resultName, "ResultName", QString(), "Result Name" );
 }
 
@@ -157,7 +159,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcColorLegendCollection_deleteCo
     auto collection = self<RimColorLegendCollection>();
     if ( !collection ) return std::unexpected( "No color legend collection found" );
 
-    collection->deleteColorLegend( m_caseId(), m_resultName() );
+    if ( !m_case() ) return std::unexpected( "No case provided" );
+
+    collection->deleteColorLegend( m_case()->caseId(), m_resultName() );
     collection->updateConnectedEditors();
 
     return nullptr;

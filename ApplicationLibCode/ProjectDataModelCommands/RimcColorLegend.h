@@ -28,6 +28,7 @@
 
 #include <QString>
 
+class RimCase;
 class RimColorLegend;
 
 //==================================================================================================
@@ -79,7 +80,7 @@ public:
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
 
 private:
-    caf::PdmField<int>                m_caseId;
+    caf::PdmPtrField<RimCase*>        m_case;
     caf::PdmField<QString>            m_resultName;
     caf::PdmPtrField<RimColorLegend*> m_colorLegend;
 };
@@ -97,6 +98,6 @@ public:
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
 
 private:
-    caf::PdmField<int>     m_caseId;
-    caf::PdmField<QString> m_resultName;
+    caf::PdmPtrField<RimCase*> m_case;
+    caf::PdmField<QString>     m_resultName;
 };

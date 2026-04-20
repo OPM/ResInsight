@@ -4,7 +4,7 @@ Category name/color binding for discrete (INTEGER) grid cell results.
 Provides a convenience API on Case for labeling integer result values with
 human-readable names and optional colors. Internally, this reuses the existing
 ColorLegend infrastructure: a new custom ColorLegend is created and registered
-as the default legend for the (caseId, resultName) pair. When the property is
+as the default legend for the (case, resultName) pair. When the property is
 shown in a 3D view, the legend's item names are used as the category labels.
 """
 
@@ -82,7 +82,7 @@ def set_discrete_property_category_names(
 
     collection = _color_legend_collection(project)
 
-    collection.delete_color_legend(case_id=self.id, result_name=property_name)
+    collection.delete_color_legend(case=self, result_name=property_name)
 
     if not value_names:
         return None
@@ -104,7 +104,7 @@ def set_discrete_property_category_names(
         )
 
     collection.set_default_color_legend_for_result(
-        case_id=self.id,
+        case=self,
         result_name=property_name,
         color_legend=legend,
     )
