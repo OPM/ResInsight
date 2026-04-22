@@ -13,6 +13,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerDouble.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerString.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerTime.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimcWellLog.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.h
@@ -56,6 +57,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerDouble.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerString.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerTime.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcWellLog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.cpp

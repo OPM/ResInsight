@@ -27,6 +27,8 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaQDateTimeTools.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDateEditor.h"
 
 #include <QString>
@@ -43,7 +45,7 @@ const QDateTime RimWellLog::DEFAULT_DATE_TIME = RiaQDateTimeTools::createUtcDate
 //--------------------------------------------------------------------------------------------------
 RimWellLog::RimWellLog()
 {
-    CAF_PDM_InitObject( "Well File Info", ":/LasFile16x16.png" );
+    CAF_PDM_InitScriptableObject( "Well File Info", ":/LasFile16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date" );
 

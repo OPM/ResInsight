@@ -36,6 +36,9 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 #include <QFileInfo>
 #include <QString>
 #include <QStringList>
@@ -57,13 +60,13 @@ void caf::AppEnum<RimWellLogLasFile::WellFlowCondition>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellLogLasFile::RimWellLogLasFile()
 {
-    CAF_PDM_InitObject( "Well LAS File Info", ":/LasFile16x16.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Well LAS File Info", ":/LasFile16x16.png", "", "", "WellLogLasFile", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellName, "WellName", "" );
     m_wellName.uiCapability()->setUiReadOnly( true );
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_wellName );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "" );
     m_name.uiCapability()->setUiReadOnly( true );
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_name );
 

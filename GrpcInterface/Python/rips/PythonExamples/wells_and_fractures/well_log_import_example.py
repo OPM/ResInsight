@@ -82,6 +82,22 @@ def main():
     )
     print(f"  - Channels imported: {', '.join(additional_channel_data.keys())}")
 
+    # Read the well logs back using the well log read API
+    print("\nReading well logs back from the project:")
+    for log in well_path.well_logs():
+        data = log.well_log_data()
+        md = data["measured_depth"]
+        channel_names = [
+            key for key in data if key not in ("measured_depth", "tvd_msl", "tvd_rkb")
+        ]
+        print(f"  {log.name}: {len(md)} samples, channels = {channel_names}")
+
+        depth_keys = [k for k in ("measured_depth", "tvd_msl", "tvd_rkb") if k in data]
+        columns = depth_keys + channel_names
+        for label, idx in (("First", 0), ("Last", len(md) - 1)):
+            parts = [f"{key}={data[key][idx]:.3f}" for key in columns]
+            print(f"    {label}: {', '.join(parts)}")
+
 
 if __name__ == "__main__":
     main()

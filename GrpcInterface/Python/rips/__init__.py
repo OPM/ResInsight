@@ -22,6 +22,7 @@ from .contour_map import (  # noqa: E402
 )
 from .well_log_plot import WellLogPlot as WellLogPlot  # noqa: E402
 from .well_path import WellPath as WellPath  # noqa: E402
+from . import well_log as well_log  # noqa: F401, E402
 from . import well_path_collection as well_path_collection  # noqa: F401, E402
 from .simulation_well import SimulationWell as SimulationWell  # noqa: E402
 from .exception import RipsError as RipsError  # noqa: E402

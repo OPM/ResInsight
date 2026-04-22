@@ -134,7 +134,7 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitScriptableFieldNoDefault( &m_completionSettings, "CompletionSettings", "Completion Settings" );
     m_completionSettings = new RimWellPathCompletionSettings;
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogs, "WellLogs", "Well Logs" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellLogs, "WellLogs", "Well Logs" );
     m_wellLogs.registerKeywordAlias( "WellLogFiles" );
 
     CAF_PDM_InitFieldNoDefault( &m_3dWellLogCurves, "CollectionOf3dWellLogCurves", "3D Track" );

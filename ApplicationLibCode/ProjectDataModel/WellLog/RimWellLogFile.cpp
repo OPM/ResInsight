@@ -18,6 +18,9 @@
 
 #include "RimWellLogFile.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 #include <QString>
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimWellLogFile, "WellLogFileInterface" );
@@ -27,9 +30,9 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimWellLogFile, "WellLogFileInterface" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogFile::RimWellLogFile()
 {
-    CAF_PDM_InitObject( "Well File Info", ":/LasFile16x16.png" );
+    CAF_PDM_InitScriptableObject( "Well File Info", ":/LasFile16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fileName, "FileName", "Filename" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "Filename" );
     m_fileName.uiCapability()->setUiReadOnly( true );
 }
 

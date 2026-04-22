@@ -26,6 +26,9 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 #include <QString>
 
 CAF_PDM_SOURCE_INIT( RimOsduWellLog, "OsduWellLog" );
@@ -35,9 +38,9 @@ CAF_PDM_SOURCE_INIT( RimOsduWellLog, "OsduWellLog" );
 //--------------------------------------------------------------------------------------------------
 RimOsduWellLog::RimOsduWellLog()
 {
-    CAF_PDM_InitObject( "OSDU Well Log", ":/LasFile16x16.png" );
+    CAF_PDM_InitScriptableObject( "OSDU Well Log", ":/LasFile16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "" );
     m_name.uiCapability()->setUiReadOnly( true );
 
     m_date.uiCapability()->setUiReadOnly( true );
