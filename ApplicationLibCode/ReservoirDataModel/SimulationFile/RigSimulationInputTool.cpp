@@ -299,8 +299,8 @@ std::expected<void, QString> RigSimulationInputTool::scaleMinpvForRefinement( co
         return maxCount;
     };
 
-    const size_t factor = maxSubcellCount( RigRefinement::DimI ) * maxSubcellCount( RigRefinement::DimJ ) *
-                          maxSubcellCount( RigRefinement::DimK );
+    const size_t factor =
+        maxSubcellCount( RigRefinement::DimI ) * maxSubcellCount( RigRefinement::DimJ ) * maxSubcellCount( RigRefinement::DimK );
 
     if ( factor <= 1 ) return {};
 
