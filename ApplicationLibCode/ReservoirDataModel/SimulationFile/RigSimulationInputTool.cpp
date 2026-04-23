@@ -100,6 +100,11 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return result;
     }
 
+    if ( auto result = scaleMinpvForRefinement( settings, deckFile ); !result )
+    {
+        return result;
+    }
+
     auto croppedKeywords = cropDataKeywordsInDeckFile( &eclipseCase, settings, deckFile );
 
     if ( auto result = replaceKeywordValuesInDeckFile( &eclipseCase, settings, deckFile, croppedKeywords ); !result )
@@ -263,6 +268,67 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
     }
 
     // TODO: deal with map axis
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Scale the deck's MINPV threshold down by the maximum refinement factor so OPM Flow doesn't
+/// filter refined sub-cells whose pore volume falls below the original threshold simply because
+/// refinement shrunk them. Refinement factor is taken as max(subcellCount(I)) × max(subcellCount(J))
+/// × max(subcellCount(K)) over the sector — the worst case sub-cell is 1/factor of its parent.
+///
+/// No-op when MINPV is absent from the deck or refinement is identity (factor == 1).
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RigSimulationInputTool::scaleMinpvForRefinement( const RigSimulationInputSettings& settings,
+                                                                              RifOpmFlowDeckFile&               deckFile )
+{
+    using KW = Opm::ParserKeywords::MINPV;
+
+    auto kwOpt = deckFile.findKeyword( KW::keywordName );
+    if ( !kwOpt.has_value() ) return {};
+
+    const RigRefinement& refinement = settings.refinement();
+
+    auto maxSubcellCount = [&refinement]( RigRefinement::Dimension dim )
+    {
+        size_t maxCount = 1;
+        for ( size_t i = 0; i < refinement.sectorSize( dim ); ++i )
+        {
+            maxCount = std::max( maxCount, refinement.subcellCount( dim, i ) );
+        }
+        return maxCount;
+    };
+
+    const size_t factor =
+        maxSubcellCount( RigRefinement::DimI ) * maxSubcellCount( RigRefinement::DimJ ) * maxSubcellCount( RigRefinement::DimK );
+
+    if ( factor <= 1 ) return {};
+
+    double currentValue = KW::VALUE::defaultValue;
+    if ( kwOpt->size() > 0 )
+    {
+        const auto& record = kwOpt->getRecord( 0 );
+        if ( record.size() > 0 && record.getItem( 0 ).hasValue( 0 ) )
+        {
+            currentValue = record.getItem( 0 ).get<double>( 0 );
+        }
+    }
+
+    const double scaledValue = currentValue / static_cast<double>( factor );
+
+    Opm::DeckKeyword newKw( ( Opm::ParserKeyword( KW::keywordName ) ) );
+    newKw.addRecord( Opm::DeckRecord{ { RifOpmDeckTools::item( KW::VALUE::itemName, scaledValue ) } } );
+
+    if ( !deckFile.replaceKeyword( "GRID", newKw ) )
+    {
+        return std::unexpected( QString( "Failed to replace MINPV with refinement-scaled value" ) );
+    }
+
+    RiaLogging::info( QString( "Scaled MINPV from %1 to %2 (refinement factor = %3) so refined sub-cells don't fall below threshold" )
+                          .arg( currentValue )
+                          .arg( scaledValue )
+                          .arg( factor ) );
+
     return {};
 }
 

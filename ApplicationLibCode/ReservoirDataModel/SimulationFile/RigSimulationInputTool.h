@@ -132,6 +132,11 @@ private:
                                                                          const RigSimulationInputSettings& settings,
                                                                          RifOpmFlowDeckFile&               deckFile );
 
+    // Scale MINPV down by the maximum refinement factor so OPM Flow doesn't filter sub-cells
+    // whose pore volume falls below the original threshold simply because refinement shrunk
+    // them. Does nothing if MINPV is absent from the deck or the refinement is identity.
+    static std::expected<void, QString> scaleMinpvForRefinement( const RigSimulationInputSettings& settings, RifOpmFlowDeckFile& deckFile );
+
     static std::expected<void, QString> replaceKeywordValuesInDeckFile( RimEclipseCase*                   eclipseCase,
                                                                         const RigSimulationInputSettings& settings,
                                                                         RifOpmFlowDeckFile&               deckFile,
