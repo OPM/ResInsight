@@ -130,11 +130,13 @@ void RimCombinedFilter::applyToCellVisibility( cvf::UByteArray* cellVisibility, 
 
         if ( m_combineMode() == CombineMode::AND )
         {
-            for ( size_t i = 0; i < n; ++i ) combined[i] = combined[i] && childMask[i];
+            for ( size_t i = 0; i < n; ++i )
+                combined[i] = combined[i] && childMask[i];
         }
         else
         {
-            for ( size_t i = 0; i < n; ++i ) combined[i] = combined[i] || childMask[i];
+            for ( size_t i = 0; i < n; ++i )
+                combined[i] = combined[i] || childMask[i];
         }
     }
 
