@@ -18,6 +18,7 @@
 
 #include "RimCellFilter.h"
 
+#include "RigGridBase.h"
 #include "RigReservoirGridTools.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
@@ -300,6 +301,83 @@ QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions( const caf::P
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilter::applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t /*timeStepIndex*/ )
+{
+    if ( cellVisibility == nullptr || grid == nullptr ) return;
+
+    const size_t n = cellVisibility->size();
+    if ( n == 0 ) return;
+
+    // Determine which cells are "in this filter's set" — independent of the filter's INCLUDE/EXCLUDE mode.
+    cvf::UByteArray inSet( n );
+    inSet.setAll( 0 );
+
+    const int gIndx = static_cast<int>( grid->gridIndex() );
+
+    if ( isRangeFilter() )
+    {
+        // updateCompundFilter is a no-op when the range filter targets a different grid than the
+        // one being evaluated. Skip the cellVisibility mutation entirely so LGR cells are not
+        // erroneously blanked by a main-grid-targeted filter (legacy: parentGridVisibilities).
+        if ( gridIndex() != gIndx ) return;
+
+        cvf::CellRangeFilter rf;
+        updateCompundFilter( &rf, gIndx );
+
+        const bool isSubGrid = !grid->isMainGrid();
+
+        for ( size_t cellIdx = 0; cellIdx < n; ++cellIdx )
+        {
+            size_t i = 0, j = 0, k = 0;
+            if ( grid->ijkFromCellIndex( cellIdx, &i, &j, &k ) )
+            {
+                // isCellVisible returns false when there are no include ranges (pure EXCLUDE
+                // mode), so also consult isCellExcluded to mark those cells as "in the set".
+                if ( rf.isCellVisible( i, j, k, isSubGrid ) || rf.isCellExcluded( i, j, k, isSubGrid ) )
+                {
+                    inSet[cellIdx] = 1;
+                }
+            }
+        }
+    }
+    else if ( isIndexFilter() )
+    {
+        // updateCellIndexFilter writes into include[] for INCLUDE-mode filters and exclude[] for
+        // EXCLUDE-mode filters. A cell is "in the set" iff either array was mutated at that index.
+        cvf::UByteArray incArr( n );
+        cvf::UByteArray excArr( n );
+        incArr.setAll( 0 );
+        excArr.setAll( 1 );
+        updateCellIndexFilter( &incArr, &excArr, gIndx );
+        for ( size_t i = 0; i < n; ++i )
+        {
+            if ( incArr[i] || !excArr[i] ) inSet[i] = 1;
+        }
+    }
+    else
+    {
+        // Unknown/property — subclass must override applyToCellVisibility. Default to no-op.
+        return;
+    }
+
+    const bool isInclude = ( filterMode() == INCLUDE );
+    for ( size_t i = 0; i < n; ++i )
+    {
+        const bool in = ( inSet[i] != 0 );
+        if ( isInclude )
+        {
+            if ( !in ) ( *cellVisibility )[i] = 0;
+        }
+        else
+        {
+            if ( in ) ( *cellVisibility )[i] = 0;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

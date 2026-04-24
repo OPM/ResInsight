@@ -22,6 +22,7 @@
 #include "RiaResultNames.h"
 
 #include "QuickAccess/RimQuickAccessCollection.h"
+#include "RimCombinedFilter.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -69,6 +70,30 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyF
     Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
 
     propertyFilterCollection->onChildAdded( nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicEclipsePropertyFilterFeatureImpl::addPropertyFilterToCombinedFilter( RimCombinedFilter* combined )
+{
+    if ( !combined ) return;
+
+    auto* propertyFilter = new RimEclipsePropertyFilter();
+    combined->addFilter( propertyFilter );
+
+    setDefaults( propertyFilter );
+
+    RimQuickAccessCollection::instance()->addQuickAccessFields( propertyFilter );
+
+    if ( RimEclipseView* view = combined->firstAncestorOrThisOfType<RimEclipseView>() )
+    {
+        view->scheduleGeometryRegen( PROPERTY_FILTERED );
+        view->scheduleCreateDisplayModelAndRedraw();
+    }
+
+    combined->updateConnectedEditors();
+    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
 }
 
 //--------------------------------------------------------------------------------------------------

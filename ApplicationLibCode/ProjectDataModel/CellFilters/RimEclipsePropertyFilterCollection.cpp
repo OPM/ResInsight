@@ -22,6 +22,9 @@
 
 #include "RiaResultNames.h"
 
+#include "RimCellFilter.h"
+#include "RimCombinedFilter.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"
@@ -57,7 +60,7 @@ RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::setIsDuplicatedFromLinkedView()
 {
-    for ( RimEclipsePropertyFilter* propertyFilter : m_propertyFilters )
+    for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters() )
     {
         propertyFilter->setIsDuplicatedFromLinkedView( true );
     }
@@ -68,13 +71,18 @@ void RimEclipsePropertyFilterCollection::setIsDuplicatedFromLinkedView()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipsePropertyFilter*> RimEclipsePropertyFilterCollection::propertyFilters() const
 {
-    return m_propertyFilters.childrenByType();
+    std::vector<RimEclipsePropertyFilter*> typed;
+    for ( RimCellFilter* f : m_propertyFilters )
+    {
+        if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( f ) ) typed.push_back( ep );
+    }
+    return typed;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmChildArrayField<RimEclipsePropertyFilter*>& RimEclipsePropertyFilterCollection::propertyFiltersField()
+caf::PdmChildArrayField<RimCellFilter*>& RimEclipsePropertyFilterCollection::propertyFiltersField()
 {
     return m_propertyFilters;
 }
@@ -82,9 +90,17 @@ caf::PdmChildArrayField<RimEclipsePropertyFilter*>& RimEclipsePropertyFilterColl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimCellFilter*> RimEclipsePropertyFilterCollection::filtersForEvaluation() const
+{
+    return m_propertyFilters.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
 {
-    for ( RimEclipsePropertyFilter* propertyFilter : m_propertyFilters )
+    for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters() )
     {
         propertyFilter->resultDefinition()->setEclipseCase( reservoirView()->eclipseCase() );
         propertyFilter->initAfterRead();
@@ -111,24 +127,47 @@ bool RimEclipsePropertyFilterCollection::hasActiveFilters() const
 {
     if ( !isActive ) return false;
 
-    for ( RimEclipsePropertyFilter* propertyFilter : m_propertyFilters )
+    for ( RimCellFilter* filter : filtersForEvaluation() )
     {
-        if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->hasResult() ) return true;
+        if ( !filter || !filter->isFilterEnabled() ) continue;
+
+        if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( filter ) )
+        {
+            if ( ep->resultDefinition() && ep->resultDefinition()->hasResult() ) return true;
+            continue;
+        }
+        if ( auto* comp = dynamic_cast<RimCombinedFilter*>( filter ) )
+        {
+            if ( comp->hasActiveEvaluatableDescendant() ) return true;
+            continue;
+        }
+        // Any other cell-filter subtype placed in this collection is evaluatable when enabled.
+        return true;
     }
 
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns whether any of the active property filters are based on a dynamic result
+/// Returns whether any of the active property filters are based on a dynamic result. Includes
+/// property filters nested inside compound filters so time-step updates invalidate correctly.
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
 {
     if ( !isActive ) return false;
 
-    for ( RimEclipsePropertyFilter* propertyFilter : m_propertyFilters )
+    for ( RimCellFilter* filter : filtersForEvaluation() )
     {
-        if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->hasDynamicResult() ) return true;
+        if ( !filter || !filter->isFilterEnabled() ) continue;
+
+        if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( filter ) )
+        {
+            if ( ep->resultDefinition() && ep->resultDefinition()->hasDynamicResult() ) return true;
+        }
+        else if ( auto* comp = dynamic_cast<RimCombinedFilter*>( filter ) )
+        {
+            if ( comp->hasActiveDynamicPropertyDescendant() ) return true;
+        }
     }
 
     return false;
@@ -141,11 +180,21 @@ bool RimEclipsePropertyFilterCollection::isUsingFormationNames() const
 {
     if ( !isActive ) return false;
 
-    for ( RimEclipsePropertyFilter* propertyFilter : m_propertyFilters )
+    for ( RimCellFilter* filter : filtersForEvaluation() )
     {
-        if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES &&
-             propertyFilter->resultDefinition()->resultVariable() != RiaResultNames::undefinedResultName() )
-            return true;
+        if ( !filter || !filter->isFilterEnabled() ) continue;
+
+        if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( filter ) )
+        {
+            auto* rd = ep->resultDefinition();
+            if ( rd && rd->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES &&
+                 rd->resultVariable() != RiaResultNames::undefinedResultName() )
+                return true;
+        }
+        else if ( auto* comp = dynamic_cast<RimCombinedFilter*>( filter ) )
+        {
+            if ( comp->hasActiveFormationNamesPropertyDescendant() ) return true;
+        }
     }
 
     return false;
@@ -175,7 +224,7 @@ void RimEclipsePropertyFilterCollection::updateIconState()
 
     updateUiIconFromState( activeIcon );
 
-    for ( RimEclipsePropertyFilter* cellFilter : m_propertyFilters )
+    for ( RimEclipsePropertyFilter* cellFilter : propertyFilters() )
     {
         cellFilter->updateActiveState();
         cellFilter->updateIconState();
@@ -187,7 +236,7 @@ void RimEclipsePropertyFilterCollection::updateIconState()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::updateFromCurrentTimeStep()
 {
-    for ( RimEclipsePropertyFilter* cellFilter : m_propertyFilters() )
+    for ( RimEclipsePropertyFilter* cellFilter : propertyFilters() )
     {
         cellFilter->updateFromCurrentTimeStep();
     }
@@ -202,7 +251,7 @@ void RimEclipsePropertyFilterCollection::updateDefaultResult( const RimEclipseCe
     if ( m_propertyFilters.empty() ) return;
 
     auto view = reservoirView();
-    for ( auto filter : m_propertyFilters )
+    for ( RimEclipsePropertyFilter* filter : propertyFilters() )
     {
         if ( !filter->isLinkedWithCellResult() ) continue;
 
@@ -243,4 +292,24 @@ void RimEclipsePropertyFilterCollection::appendMenuItems( caf::CmdFeatureMenuBui
 {
     menuBuilder << "RicEclipsePropertyFilterNewFeature";
     menuBuilder << "RicAddLinkedEclipsePropertyFilterFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicEclipseCombinedPropertyFilterNewFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCombinedFilter* RimEclipsePropertyFilterCollection::addNewCombinedFilter()
+{
+    auto* combined = new RimCombinedFilter();
+
+    auto view = reservoirView();
+    if ( view && view->eclipseCase() )
+    {
+        combined->setCase( view->eclipseCase() );
+    }
+
+    m_propertyFilters.push_back( combined );
+    updateConnectedEditors();
+    return combined;
 }

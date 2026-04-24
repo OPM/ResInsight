@@ -25,6 +25,7 @@
 
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
+#include "RimCombinedFilter.h"
 #include "RimGridView.h"
 #include "RimPolygonFilter.h"
 
@@ -57,6 +58,39 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
         polygonDataSource = static_cast<RimPolygon*>( userData.value<void*>() );
     }
 
+    std::vector<RimPolygon*> polygons;
+    if ( polygonDataSource )
+    {
+        polygons.push_back( polygonDataSource );
+    }
+    else
+    {
+        polygons = selectedPolygons();
+    }
+
+    // If a combined filter is selected, add polygon filters as its children.
+    auto* combined = caf::SelectionManager::instance()->selectedItemOfType<RimCombinedFilter>();
+    if ( combined )
+    {
+        RimCase* srcCase = combined->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+        if ( !srcCase ) return;
+
+        RimPolygonFilter* lastItem = nullptr;
+        if ( polygons.empty() )
+        {
+            lastItem = combined->addNewPolygonFilter( srcCase, nullptr );
+        }
+        else
+        {
+            for ( auto polygon : polygons )
+            {
+                lastItem = combined->addNewPolygonFilter( srcCase, polygon );
+            }
+        }
+        if ( lastItem ) Riu3DMainWindowTools::selectAsCurrentItem( lastItem );
+        return;
+    }
+
     auto cellFilterCollection = caf::SelectionManager::instance()->selectedItemOfType<RimCellFilterCollection>();
     if ( !cellFilterCollection )
     {
@@ -70,17 +104,6 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
 
     auto sourceCase = cellFilterCollection->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
     if ( !sourceCase ) return;
-
-    std::vector<RimPolygon*> polygons;
-
-    if ( polygonDataSource )
-    {
-        polygons.push_back( polygonDataSource );
-    }
-    else
-    {
-        polygons = selectedPolygons();
-    }
 
     RimPolygonFilter* lastItem = nullptr;
 

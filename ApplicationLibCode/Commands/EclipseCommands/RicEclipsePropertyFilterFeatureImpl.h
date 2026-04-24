@@ -22,6 +22,7 @@
 #include <cstddef>
 #include <vector>
 
+class RimCombinedFilter;
 class RimEclipsePropertyFilter;
 class RimEclipsePropertyFilterCollection;
 
@@ -40,6 +41,7 @@ public:
     static std::vector<RimEclipsePropertyFilterCollection*> selectedPropertyFilterCollections();
 
     static void addPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection );
+    static void addPropertyFilterToCombinedFilter( RimCombinedFilter* combined );
     static void insertPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection, size_t index );
 
     static bool isPropertyFilterCommandAvailable( caf::PdmObjectHandle* object );

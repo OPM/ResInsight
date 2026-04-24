@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2026 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,70 +16,79 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEclipsePropertyFilterNewFeature.h"
+#include "RicEclipseCombinedPropertyFilterNewFeature.h"
 
 #include "RicEclipsePropertyFilterFeatureImpl.h"
-#include "RicEclipsePropertyFilterNewExec.h"
 
+#include "Rim3dView.h"
+#include "RimCase.h"
 #include "RimCombinedFilter.h"
-#include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 
-#include "cafCmdExecCommandManager.h"
+#include "Riu3DMainWindowTools.h"
+
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicEclipsePropertyFilterNewFeature, "RicEclipsePropertyFilterNewFeature" );
+CAF_CMD_SOURCE_INIT( RicEclipseCombinedPropertyFilterNewFeature, "RicEclipseCombinedPropertyFilterNewFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipsePropertyFilterNewFeature::isCommandEnabled() const
+bool RicEclipseCombinedPropertyFilterNewFeature::isCommandEnabled() const
 {
-    // Enabled if either a property-filter collection is selected, or a combined filter inside one is selected.
+    // Enable on either the collection or a combined filter within the collection (for nesting).
     auto combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
     if ( !combined.empty() && combined.front()->firstAncestorOrThisOfType<RimEclipsePropertyFilterCollection>() )
     {
         return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( combined.front() );
     }
 
-    std::vector<RimEclipsePropertyFilterCollection*> filterCollections =
-        RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();
+    auto filterCollections = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();
     if ( filterCollections.size() == 1 )
     {
         return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( filterCollections[0] );
     }
-
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicEclipsePropertyFilterNewFeature::onActionTriggered( bool isChecked )
+void RicEclipseCombinedPropertyFilterNewFeature::onActionTriggered( bool isChecked )
 {
+    // Nested combined filter: add the new one inside the currently selected combined filter.
     auto combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
     if ( !combined.empty() && combined.front()->firstAncestorOrThisOfType<RimEclipsePropertyFilterCollection>() )
     {
-        RicEclipsePropertyFilterFeatureImpl::addPropertyFilterToCombinedFilter( combined.front() );
+        RimCombinedFilter* parent  = combined.front();
+        RimCase*           srcCase = parent->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+        if ( srcCase )
+        {
+            RimCombinedFilter* created = parent->addNewCombinedFilter( srcCase );
+            parent->updateConnectedEditors();
+            if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
+        }
         return;
     }
 
-    std::vector<RimEclipsePropertyFilterCollection*> filterCollections =
-        RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();
-    if ( filterCollections.size() == 1 )
+    auto filterCollections = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();
+    if ( filterCollections.size() != 1 ) return;
+
+    RimCombinedFilter* created = filterCollections[0]->addNewCombinedFilter();
+    filterCollections[0]->updateConnectedEditors();
+    if ( created )
     {
-        RicEclipsePropertyFilterNewExec* filterExec = new RicEclipsePropertyFilterNewExec( filterCollections[0] );
-        caf::CmdExecCommandManager::instance()->processExecuteCommand( filterExec );
+        Riu3DMainWindowTools::selectAsCurrentItem( created );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicEclipsePropertyFilterNewFeature::setupActionLook( QAction* actionToSetup )
+void RicEclipseCombinedPropertyFilterNewFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_Values.png" ) );
-    actionToSetup->setText( "New Property Filter" );
+    actionToSetup->setText( "New Combined Property Filter" );
 }
