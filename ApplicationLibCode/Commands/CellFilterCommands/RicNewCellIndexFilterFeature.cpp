@@ -23,6 +23,7 @@
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimCellIndexFilter.h"
+#include "RimCombinedFilter.h"
 #include "RimGeoMechCase.h"
 #include "RimGridView.h"
 #include "RimUserDefinedFilter.h"
@@ -53,15 +54,26 @@ bool RicNewCellIndexFilterFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewCellIndexFilterFeature::onActionTriggered( bool isChecked )
 {
+    // If a combined filter is selected, add the new index filter inside it.
+    std::vector<RimCombinedFilter*> combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
+    if ( !combined.empty() )
+    {
+        RimCombinedFilter* target = combined.front();
+        if ( RimCase* srcCase = target->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase() )
+        {
+            RimCellIndexFilter* created = target->addNewCellIndexFilter( srcCase );
+            if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
+        }
+        return;
+    }
+
     // Find the selected Cell Filter Collection
     std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
     if ( colls.empty() ) return;
     RimCellFilterCollection* filtColl = colls[0];
 
     // and the case to use
-    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
-
-    if ( sourceCase )
+    if ( RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase() )
     {
         RimCellIndexFilter* lastCreatedOrUpdated = filtColl->addNewCellIndexFilter( sourceCase );
         if ( lastCreatedOrUpdated )

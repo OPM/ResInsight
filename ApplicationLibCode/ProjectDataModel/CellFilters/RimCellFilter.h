@@ -37,6 +37,7 @@ class CellRangeFilter;
 class RimGeoMechCase;
 class RimEclipseCase;
 class RimCase;
+class RigGridBase;
 
 //==================================================================================================
 ///
@@ -92,6 +93,11 @@ public:
     virtual void    updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) {};
     virtual QString fullName() const;
     virtual void    onGridChanged() {};
+
+    // Unified evaluation: take an incoming per-cell visibility mask and hide the cells that
+    // this filter rejects (respecting its own INCLUDE/EXCLUDE mode). The default implementation
+    // bridges the legacy range/index dispatch so existing subclasses do not need to override.
+    virtual void applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex );
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;

@@ -60,7 +60,7 @@ void RicEclipsePropertyFilterInsertExec::redo()
         m_propertyFilter->firstAncestorOrThisOfTypeAsserted<RimEclipsePropertyFilterCollection>();
 
     size_t index = propertyFilterCollection->propertyFiltersField().indexOf( m_propertyFilter );
-    CVF_ASSERT( index < propertyFilterCollection->propertyFilters().size() );
+    CVF_ASSERT( index < propertyFilterCollection->propertyFiltersField().size() );
 
     RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter( propertyFilterCollection, index );
 }
