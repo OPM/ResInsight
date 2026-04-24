@@ -24,6 +24,8 @@
 
 #include "cafPdmChildArrayField.h"
 
+class RimCellFilter;
+class RimCombinedFilter;
 class RimEclipsePropertyFilter;
 class RimEclipseView;
 class RimEclipseCellColors;
@@ -42,8 +44,12 @@ public:
     RimEclipseView* reservoirView();
     void            setIsDuplicatedFromLinkedView();
 
-    std::vector<RimEclipsePropertyFilter*>              propertyFilters() const;
-    caf::PdmChildArrayField<RimEclipsePropertyFilter*>& propertyFiltersField();
+    std::vector<RimEclipsePropertyFilter*>   propertyFilters() const;
+    caf::PdmChildArrayField<RimCellFilter*>& propertyFiltersField();
+
+    // Returns all children as RimCellFilter*, including compound filters. Used by the
+    // visualization pipeline to call applyToCellVisibility() uniformly.
+    std::vector<RimCellFilter*> filtersForEvaluation() const;
 
     bool hasActiveFilters() const override;
     bool hasActiveDynamicFilters() const override;
@@ -56,11 +62,12 @@ public:
 
     void                      updateDefaultResult( const RimEclipseCellColors* result );
     RimEclipsePropertyFilter* addFilterLinkedToCellResult();
+    RimCombinedFilter*        addNewCombinedFilter();
 
 protected:
     void initAfterRead() override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
-    caf::PdmChildArrayField<RimEclipsePropertyFilter*> m_propertyFilters;
+    caf::PdmChildArrayField<RimCellFilter*> m_propertyFilters;
 };

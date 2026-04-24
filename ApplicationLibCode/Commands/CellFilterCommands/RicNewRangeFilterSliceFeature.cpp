@@ -26,6 +26,7 @@
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
+#include "RimCombinedFilter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGridView.h"
@@ -49,6 +50,20 @@ RicNewRangeFilterSliceFeature::RicNewRangeFilterSliceFeature( QString cmdText, Q
 //--------------------------------------------------------------------------------------------------
 void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
 {
+    // If a combined filter is selected, add the new range filter inside it.
+    std::vector<RimCombinedFilter*> combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
+    if ( !combined.empty() )
+    {
+        RimCombinedFilter* target  = combined.front();
+        RimCase*           srcCase = target->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+        if ( srcCase )
+        {
+            RimCellFilter* created = target->addNewCellRangeFilter( srcCase, 0, m_sliceDirection );
+            if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
+        }
+        return;
+    }
+
     RimCellFilterCollection* filterCollection = nullptr;
     RimCase*                 sourceCase       = nullptr;
 

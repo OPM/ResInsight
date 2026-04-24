@@ -30,6 +30,9 @@
 #include "RigEclipseResultAddress.h"
 #include "RigFlowDiagResults.h"
 #include "RigFormationNames.h"
+#include "RigGridBase.h"
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -696,6 +699,93 @@ void RimEclipsePropertyFilter::initAfterRead()
 
     m_resultDefinition->setEclipseCase( parentContainer()->reservoirView()->eclipseCase() );
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Evaluate this property filter against the incoming cell visibility mask. Only cells that
+/// are currently visible are considered; non-matching cells are flipped to invisible according
+/// to the INCLUDE/EXCLUDE mode. This is a generic hook the renderer uses to treat every filter
+/// uniformly; the body is extracted from the former inline loop in
+/// RivReservoirViewPartMgr::computePropertyVisibility.
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex )
+{
+    if ( cellVisibility == nullptr || grid == nullptr ) return;
+    if ( !isActive() || !resultDefinition()->hasResult() ) return;
+
+    resultDefinition()->loadResult();
+
+    auto* container = parentContainer();
+    if ( !container ) return;
+    auto* view = container->reservoirView();
+    if ( !view || !view->eclipseCase() ) return;
+    RigEclipseCaseData* eclipseCase = view->eclipseCase()->eclipseCaseData();
+    if ( !eclipseCase ) return;
+
+    cvf::ref<RigResultAccessor> resultAccessor =
+        RigResultAccessorFactory::createFromResultDefinition( eclipseCase, grid->gridIndex(), timeStepIndex, resultDefinition() );
+
+    CVF_ASSERT( resultAccessor.notNull() );
+
+    const RimCellFilter::FilterModeType filterType = filterMode();
+
+    if ( isCategorySelectionActive() )
+    {
+        std::vector<int> integerVector = selectedCategoryValues();
+        std::set<int>    integerSet( integerVector.begin(), integerVector.end() );
+
+        for ( int cellIndex = 0; cellIndex < static_cast<int>( grid->cellCount() ); cellIndex++ )
+        {
+            if ( ( *cellVisibility )[cellIndex] )
+            {
+                size_t resultValueIndex = cellIndex;
+                double scalarValue      = resultAccessor->cellScalar( resultValueIndex );
+                if ( integerSet.find( static_cast<int>( scalarValue ) ) != integerSet.end() )
+                {
+                    if ( filterType == RimCellFilter::EXCLUDE )
+                    {
+                        ( *cellVisibility )[cellIndex] = false;
+                    }
+                }
+                else
+                {
+                    if ( filterType == RimCellFilter::INCLUDE )
+                    {
+                        ( *cellVisibility )[cellIndex] = false;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        double lowerBound = 0.0;
+        double upperBound = 0.0;
+        rangeValues( &lowerBound, &upperBound );
+
+        for ( int cellIndex = 0; cellIndex < static_cast<int>( grid->cellCount() ); cellIndex++ )
+        {
+            if ( ( *cellVisibility )[cellIndex] )
+            {
+                size_t resultValueIndex = cellIndex;
+                double scalarValue      = resultAccessor->cellScalar( resultValueIndex );
+                if ( lowerBound <= scalarValue && scalarValue <= upperBound )
+                {
+                    if ( filterType == RimCellFilter::EXCLUDE )
+                    {
+                        ( *cellVisibility )[cellIndex] = false;
+                    }
+                }
+                else
+                {
+                    if ( filterType == RimCellFilter::INCLUDE )
+                    {
+                        ( *cellVisibility )[cellIndex] = false;
+                    }
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
