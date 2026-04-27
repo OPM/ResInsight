@@ -66,7 +66,7 @@ RimRftTornadoPlot::RimRftTornadoPlot()
     CAF_PDM_InitField( &m_showAbsoluteValues, "ShowAbsoluteValues", false, "Show Absolute Values" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "SortByAbsoluteValues", true, "Sort by Absolute Values" );
     CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopN", true, "Show Only Top Correlations" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number of Rows" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 10, "Number of Rows" );
 
     QColor qColor = QColor( "#3173b2" );
     CAF_PDM_InitField( &m_barColor, "BarColor", RiaColorTools::fromQColorTo3f( qColor ), "Bar Color (Positive)" );

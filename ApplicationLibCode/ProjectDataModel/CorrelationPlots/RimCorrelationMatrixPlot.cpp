@@ -88,6 +88,7 @@ public:
 public:
     QString                   parameter;
     RiaSummaryCurveDefinition curveDef;
+    int                       rowIdx = -1;
 };
 
 class TextScaleDraw : public QwtScaleDraw
@@ -159,9 +160,25 @@ bool RimCorrelationMatrixPlot::showAbsoluteValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCorrelationMatrixPlot::setShowAbsoluteValues( bool showAbsoluteValues )
+{
+    m_showAbsoluteValues = showAbsoluteValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimCorrelationMatrixPlot::sortByAbsoluteValues() const
 {
     return m_sortByAbsoluteValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationMatrixPlot::setSortByAbsoluteValues( bool sortByAbsoluteValues )
+{
+    m_sortByAbsoluteValues = sortByAbsoluteValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,9 +216,25 @@ bool RimCorrelationMatrixPlot::showTopNCorrelations() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCorrelationMatrixPlot::setShowTopNCorrelations( bool showTopN )
+{
+    m_showOnlyTopNCorrelations = showTopN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimCorrelationMatrixPlot::topNFilterCount() const
 {
     return m_topNFilterCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationMatrixPlot::setTopNFilterCount( int filterCount )
+{
+    m_topNFilterCount = filterCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -364,6 +397,7 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
 
         updateLegend();
         createMatrix();
+        applySelectedParameterHighlight();
 
         m_plotWidget->qwtPlot()->insertLegend( nullptr );
 
@@ -371,6 +405,52 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
         updatePlotTitle();
         m_plotWidget->scheduleReplot();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationMatrixPlot::setSelectedParameter( const QString& paramName )
+{
+    m_selectedParameter = paramName;
+    applySelectedParameterHighlight();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationMatrixPlot::applySelectedParameterHighlight()
+{
+    if ( !m_plotWidget ) return;
+
+    // Reuse the plot widget's built-in click-selection highlight (green frame). Find a cell in the
+    // same row as the last matrix click whose parameter matches; if none matches, clear the highlight.
+    const CorrelationMatrixShapeItem* matchingItem = nullptr;
+    if ( !m_selectedParameter.isEmpty() && m_selectedRowIdx >= 0 )
+    {
+        for ( QwtPlotItem* item : m_plotWidget->qwtPlot()->itemList() )
+        {
+            auto* matrixItem = dynamic_cast<CorrelationMatrixShapeItem*>( item );
+            if ( matrixItem && matrixItem->rowIdx == m_selectedRowIdx && matrixItem->parameter == m_selectedParameter )
+            {
+                matchingItem = matrixItem;
+                break;
+            }
+        }
+    }
+
+    if ( matchingItem )
+    {
+        m_plotWidget->highlightPlotItem( matchingItem );
+    }
+    else
+    {
+        m_selectedParameter.clear();
+        m_selectedRowIdx = -1;
+        m_plotWidget->resetPlotItemHighlighting();
+    }
+
+    m_plotWidget->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -614,6 +694,7 @@ void RimCorrelationMatrixPlot::createMatrix()
                                                                                            qColor );
             rectangle->curveDef     = correlationMatrixRows[rowIdx].m_key;
             rectangle->parameter    = correlationMatrixRows[rowIdx].m_values[colIdx];
+            rectangle->rowIdx       = static_cast<int>( rowIdx );
             QwtText      textLabel( label );
             cvf::Color3f contrastColor = RiaColorTools::contrastColor( cvf::Color3f( color ) );
             textLabel.setColor( RiaColorTools::toQColor( contrastColor ) );
@@ -680,6 +761,8 @@ void RimCorrelationMatrixPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> 
     CorrelationMatrixShapeItem* matrixItem = dynamic_cast<CorrelationMatrixShapeItem*>( qwtPlotItem->qwtPlotItem() );
     if ( matrixItem )
     {
+        m_selectedRowIdx    = matrixItem->rowIdx;
+        m_selectedParameter = matrixItem->parameter;
         matrixCellSelected.send( std::make_pair( matrixItem->parameter, matrixItem->curveDef ) );
     }
 }

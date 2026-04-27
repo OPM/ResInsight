@@ -99,13 +99,19 @@ public:
     ~RimCorrelationMatrixPlot() override;
 
     bool                    showAbsoluteValues() const;
+    void                    setShowAbsoluteValues( bool showAbsoluteValues );
     bool                    sortByAbsoluteValues() const;
+    void                    setSortByAbsoluteValues( bool sortByAbsoluteValues );
     RimRegularLegendConfig* legendConfig();
     void                    selectAllParameters();
     bool                    showTopNCorrelations() const;
+    void                    setShowTopNCorrelations( bool showTopN );
     int                     topNFilterCount() const;
+    void                    setTopNFilterCount( int filterCount );
     bool                    isCurveHighlightSupported() const override;
     QString                 asciiDataForPlotExport() const override;
+
+    void setSelectedParameter( const QString& paramName );
 
 private:
     // Overridden PDM methods
@@ -126,6 +132,7 @@ private:
     void updatePlotTitle() override;
     void updateLegend() override;
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
+    void applySelectedParameterHighlight();
 
 private:
     caf::PdmField<bool>                 m_showAbsoluteValues;
@@ -142,4 +149,7 @@ private:
     std::map<size_t, QString> m_resultLabels;
 
     std::vector<CorrelationMatrixRow> m_valuesForTextReport;
+
+    QString m_selectedParameter;
+    int     m_selectedRowIdx = -1;
 };

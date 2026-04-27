@@ -28,6 +28,7 @@
 #include <QDateTime>
 #include <QObject>
 
+class RimAbstractCorrelationPlot;
 class RimCorrelationMatrixPlot;
 class RimParameterResultCrossPlot;
 class RimSummaryEnsemble;
@@ -71,6 +72,7 @@ private:
     void    cleanupBeforeClose();
 
     void     setupBeforeSave() override;
+    void     initAfterRead() override;
     void     doRenderWindowContent( QPaintDevice* paintDevice ) override;
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
     void     deleteViewWidget() override;
@@ -86,6 +88,8 @@ private:
     void onSaveDefaultDockLayout();
     void onRestoreDefaultDockLayout();
     void updateDockTitleBarsVisibility();
+    void syncSharedPropertiesToMatrixPlotFrom( RimAbstractCorrelationPlot* source );
+    void updateSummaryPlotTimeAnnotation();
 
 private:
     caf::PdmProxyValueField<QString> m_name;

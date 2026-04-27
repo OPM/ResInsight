@@ -23,6 +23,7 @@
 #include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 
+#include "RimAbstractCorrelationPlot.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationPlotCollection.h"
@@ -606,19 +607,41 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
 
             m_summaryPlot->loadDataAndUpdate();
             if ( m_summaryPlot->plotWidget() ) m_summaryPlot->plotWidget()->setPlotTitleEnabled( true );
-
-            // Add static line for the currently selected time step.
-            // Must be done after loadDataAndUpdate() since that clears all annotations internally.
-            auto* timeAxisProps = m_summaryPlot->timeAxisProperties();
-            if ( timeAxisProps )
-            {
-                timeAxisProps->appendAnnotation( RimTimeAxisAnnotation::createTimeAnnotation( timeStep, TRACKING_ANNOTATION_COLOR ) );
-                m_summaryPlot->updateAnnotationsInPlotWidget();
-            }
         }
+
+        updateSummaryPlotTimeAnnotation();
     }
 
     updateLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Called after PDM fields have been deserialized from the project file. Transient annotations
+/// (selected-time highlight, mouse-tracking dashed line) are PDM-serialized and may persist across
+/// save/load; reset them to a clean single highlight at the restored time step.
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::initAfterRead()
+{
+    updateSummaryPlotTimeAnnotation();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Idempotent: clears any existing time-axis annotations on the summary plot and appends a single
+/// highlight at the matrix plot's current time step. Safe to call before the widget is created —
+/// the data model is updated regardless; rendering happens once the widget exists.
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::updateSummaryPlotTimeAnnotation()
+{
+    if ( !m_summaryPlot ) return;
+
+    auto* timeAxisProps = m_summaryPlot->timeAxisProperties();
+    if ( !timeAxisProps ) return;
+
+    timeAxisProps->removeAllAnnotations();
+
+    auto timeStep = m_correlationMatrixPlot->timeStep().toSecsSinceEpoch();
+    timeAxisProps->appendAnnotation( RimTimeAxisAnnotation::createTimeAnnotation( timeStep, TRACKING_ANNOTATION_COLOR ) );
+    m_summaryPlot->updateAnnotationsInPlotWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -702,7 +725,37 @@ void RimCorrelationReportPlot::childFieldChangedByUi( const caf::PdmFieldHandle*
     else if ( m_summaryDockWidget && changedChildField == &m_summaryPlot )
         m_summaryDockWidget->toggleView( m_summaryPlot->showWindow() );
 
+    // onLoadDataAndUpdate treats the matrix plot as the source of truth and copies its shared
+    // properties to the others. When the change originated on the correlation or cross plot,
+    // first mirror it back to the matrix plot so the subsequent propagation reflects the change.
+    if ( changedChildField == &m_correlationPlot )
+        syncSharedPropertiesToMatrixPlotFrom( m_correlationPlot() );
+    else if ( changedChildField == &m_parameterResultCrossPlot )
+        syncSharedPropertiesToMatrixPlotFrom( m_parameterResultCrossPlot() );
+
     loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::syncSharedPropertiesToMatrixPlotFrom( RimAbstractCorrelationPlot* source )
+{
+    if ( !source || source == m_correlationMatrixPlot() ) return;
+
+    // Properties defined on RimAbstractCorrelationPlot — shared by all three plots.
+    m_correlationMatrixPlot->setTimeStep( source->timeStep().toSecsSinceEpoch() );
+    m_correlationMatrixPlot->enableCaseFilter( source->isCaseFilterEnabled() );
+    m_correlationMatrixPlot->setCaseFilterDataSource( source->caseFilterDataSource() );
+
+    // Properties shared only between matrix plot and correlation (tornado) plot.
+    if ( source == m_correlationPlot() )
+    {
+        m_correlationMatrixPlot->setShowAbsoluteValues( m_correlationPlot->showAbsoluteValues() );
+        m_correlationMatrixPlot->setSortByAbsoluteValues( m_correlationPlot->sortByAbsoluteValues() );
+        m_correlationMatrixPlot->setShowTopNCorrelations( m_correlationPlot->showOnlyTopNCorrelations() );
+        m_correlationMatrixPlot->setTopNFilterCount( m_correlationPlot->topNFilterCount() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -720,6 +773,8 @@ void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*       
 {
     auto paramName = parameterAndCurveDef.first;
     auto curveDef  = parameterAndCurveDef.second;
+
+    m_correlationMatrixPlot->setSelectedParameter( paramName );
 
     m_correlationPlot->setCurveDefinitions( { curveDef } );
     m_correlationPlot->setSelectedParameter( paramName );
@@ -739,6 +794,8 @@ void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*       
         m_summaryPlot->loadDataAndUpdate();
         if ( m_summaryPlot->plotWidget() ) m_summaryPlot->plotWidget()->setPlotTitleEnabled( true );
     }
+
+    updateSummaryPlotTimeAnnotation();
 
     updateConnectedEditors();
 }

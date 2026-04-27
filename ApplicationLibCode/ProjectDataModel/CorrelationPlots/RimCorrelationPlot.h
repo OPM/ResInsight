@@ -52,7 +52,9 @@ public:
     void setSortByAbsoluteValues( bool sortByAbsoluteValues );
     void selectAllParameters();
 
+    bool showOnlyTopNCorrelations() const;
     void setShowOnlyTopNCorrelations( bool showOnlyTopNCorrelations );
+    int  topNFilterCount() const;
     void setTopNFilterCount( int filterCount );
 
     void setSelectedParameter( const QString& paramName );
