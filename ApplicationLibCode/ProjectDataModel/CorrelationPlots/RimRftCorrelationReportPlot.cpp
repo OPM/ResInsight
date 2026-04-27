@@ -505,6 +505,9 @@ void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
     m_correlationPlot->setWellName( m_parameterRftCrossPlot->wellName() );
     m_correlationPlot->setTimeStep( m_parameterRftCrossPlot->selectedTimeStep() );
     m_correlationPlot->setSelectedParameter( m_parameterRftCrossPlot->ensembleParameter() );
+    m_correlationPlot->setEclipseCase( m_parameterRftCrossPlot->eclipseCase() );
+    m_correlationPlot->setUseDepthRange( m_parameterRftCrossPlot->useDepthRange() );
+    m_correlationPlot->setDepthRange( m_parameterRftCrossPlot->depthRangeMin(), m_parameterRftCrossPlot->depthRangeMax() );
 }
 
 //--------------------------------------------------------------------------------------------------

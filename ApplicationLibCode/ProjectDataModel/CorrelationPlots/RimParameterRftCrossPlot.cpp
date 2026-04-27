@@ -37,6 +37,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
+#include "RimWellLogRftCurve.h"
 #include "RimWellPath.h"
 
 #include "RiuContextMenuLauncher.h"
@@ -181,6 +182,38 @@ RimSummaryEnsemble* RimParameterRftCrossPlot::ensemble() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseResultCase* RimParameterRftCrossPlot::eclipseCase() const
+{
+    return m_eclipseCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimParameterRftCrossPlot::useDepthRange() const
+{
+    return m_useDepthRange();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimParameterRftCrossPlot::depthRangeMin() const
+{
+    return m_depthRangeMin();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimParameterRftCrossPlot::depthRangeMax() const
+{
+    return m_depthRangeMax();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget* RimParameterRftCrossPlot::viewer()
 {
     return m_plotWidget;
@@ -236,16 +269,20 @@ std::vector<double> RimParameterRftCrossPlot::computeMeanPressurePerCase( RimSum
             continue;
         }
 
-        auto mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
-        std::vector<double> depths;
-        reader->values( mdAddress, &depths );
-        if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
-        // If depths are still empty after the fallback (no MD channel and no extractor), depth range
-        // filtering is not possible for this case; fall through to use all pressures unfiltered.
+        // Use the same depth values the RFT curves use for their depth axis, so the filter
+        // operates on values consistent with what the user sees in the RFT plot.
+        std::vector<double> depths = RimWellLogRftCurve::rftCurveDepthValues( reader, wellName, timeStep, extractor );
 
         std::vector<double> samplesInRange;
-        if ( useDepthRange && depths.size() == pressures.size() )
+        if ( useDepthRange )
         {
+            if ( depths.size() != pressures.size() )
+            {
+                // Depth filter requested but no aligned depth data is available for this case;
+                // exclude rather than silently return an unfiltered mean.
+                pressurePerCase.push_back( std::numeric_limits<double>::infinity() );
+                continue;
+            }
             for ( size_t i = 0; i < depths.size(); ++i )
                 if ( depths[i] >= depthRangeMin && depths[i] <= depthRangeMax ) samplesInRange.push_back( pressures[i] );
         }

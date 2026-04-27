@@ -63,10 +63,14 @@ public:
     void setDepthRange( double minMd, double maxMd );
     void setEnsembleParameter( const QString& paramName );
 
-    QString             ensembleParameter() const;
-    QString             wellName() const;
-    QDateTime           selectedTimeStep() const;
-    RimSummaryEnsemble* ensemble() const;
+    QString               ensembleParameter() const;
+    QString               wellName() const;
+    QDateTime             selectedTimeStep() const;
+    RimSummaryEnsemble*   ensemble() const;
+    RimEclipseResultCase* eclipseCase() const;
+    bool                  useDepthRange() const;
+    double                depthRangeMin() const;
+    double                depthRangeMax() const;
 
     RiuQwtPlotWidget* viewer();
 

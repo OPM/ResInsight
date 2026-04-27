@@ -96,6 +96,14 @@ public:
 
     void setScaleFactor( double factor );
 
+    // Returns the depth values an RFT curve uses for its depth axis for the given well/time step.
+    // Fallback chain: RFT MD channel, then extractor-derived MD, then TVD channel as a final
+    // fallback (the RFT plot displays TVD on the depth axis when MD is missing).
+    static std::vector<double> rftCurveDepthValues( RifReaderRftInterface*      reader,
+                                                    const QString&              wellName,
+                                                    const QDateTime&            timeStep,
+                                                    RigEclipseWellLogExtractor* extractor );
+
 protected:
     QString     createCurveAutoName() override;
     QString     createCurveNameFromTemplate( const QString& templateText ) override;
