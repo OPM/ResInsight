@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifReaderEclipseRft.h"
+#include "RifReaderRftInterface.h"
 #include "RifRftSegment.h"
 
 #include <memory>

@@ -18,7 +18,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderObservedData.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderRftInterface.h
-    ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseRft.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderFmuRft.h
     ${CMAKE_CURRENT_LIST_DIR}/RifJsonEncodeDecode.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderInterface.h
@@ -136,7 +135,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderObservedData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderRftInterface.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseRft.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderFmuRft.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifJsonEncodeDecode.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderInterface.cpp

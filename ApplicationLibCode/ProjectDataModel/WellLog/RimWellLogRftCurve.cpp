@@ -32,8 +32,8 @@
 #include "Summary/RiaSummaryTools.h"
 
 #include "RifEclipseRftAddress.h"
-#include "RifReaderEclipseRft.h"
 #include "RifReaderOpmRft.h"
+#include "RifReaderRftInterface.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"

@@ -34,7 +34,6 @@
 #include "RifEclipseRestartDataAccess.h"
 #include "RifInputPropertyLoader.h"
 #include "RifReaderEclipseOutput.h"
-#include "RifReaderEclipseRft.h"
 #include "RifReaderMockModel.h"
 #include "RifReaderOpmCommon.h"
 #include "RifReaderOpmCommonActive.h"
@@ -84,7 +83,6 @@ CAF_PDM_SOURCE_INIT( RimEclipseResultCase, "EclipseCase" );
 RimEclipseResultCase::RimEclipseResultCase()
     : m_gridAndWellDataIsReadFromFile( false )
     , m_activeCellInfoIsReadFromFile( false )
-    , m_useOpmRftReader( true )
     , m_rftDataIsReadFromFile( false )
 {
     CAF_PDM_InitScriptableObject( "Eclipse Case", ":/Case48x48.png", "", "The Regular Eclipse Results Case" );
@@ -453,14 +451,7 @@ void RimEclipseResultCase::ensureRftDataIsImported()
 
     if ( rftFileInfo.exists() )
     {
-        if ( m_useOpmRftReader )
-        {
-            m_readerOpmRft = std::make_unique<RifReaderOpmRft>( rftFileInfo.filePath() );
-        }
-        else
-        {
-            m_readerEclipseRft = std::make_unique<RifReaderEclipseRft>( rftFileInfo.filePath() );
-        }
+        m_readerOpmRft = std::make_unique<RifReaderOpmRft>( rftFileInfo.filePath() );
     }
 
     m_rftDataIsReadFromFile = true;
@@ -642,9 +633,7 @@ RifReaderRftInterface* RimEclipseResultCase::rftReader()
 {
     ensureRftDataIsImported();
 
-    if ( m_useOpmRftReader ) return m_readerOpmRft.get();
-
-    return m_readerEclipseRft.get();
+    return m_readerOpmRft.get();
 }
 
 //--------------------------------------------------------------------------------------------------

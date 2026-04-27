@@ -20,7 +20,7 @@
 
 #include "RiaQDateTimeTools.h"
 
-#include "RifReaderEclipseRft.h"
+#include "RifReaderRftInterface.h"
 
 #include "Well/RigWellLogCurveData.h"
 

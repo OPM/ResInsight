@@ -25,7 +25,7 @@
 #include "RiaSimWellBranchTools.h"
 #include "Summary/RiaSummaryTools.h"
 
-#include "RifReaderEclipseRft.h"
+#include "RifReaderRftInterface.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"

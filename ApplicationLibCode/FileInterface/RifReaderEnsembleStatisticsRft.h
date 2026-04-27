@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifReaderEclipseRft.h"
+#include "RifReaderRftInterface.h"
 
 #include "RiaCurveMerger.h"
 #include "RiaWeightedMeanCalculator.h"

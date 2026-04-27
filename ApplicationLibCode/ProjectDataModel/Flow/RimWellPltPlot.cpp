@@ -24,7 +24,7 @@
 #include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"
 
-#include "RifReaderEclipseRft.h"
+#include "RifReaderRftInterface.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"

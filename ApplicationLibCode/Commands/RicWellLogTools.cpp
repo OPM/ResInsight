@@ -42,7 +42,7 @@
 #include "RimWellMeasurementCurve.h"
 #include "RimWellPath.h"
 
-#include "RifReaderEclipseRft.h"
+#include "RifReaderRftInterface.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuPlotMainWindowTools.h"

@@ -31,7 +31,6 @@
 #include <memory>
 
 class RifReaderRftInterface;
-class RifReaderEclipseRft;
 class RifReaderOpmRft;
 class RifReaderInterface;
 class RigFlowDiagSolverInterface;
@@ -101,8 +100,7 @@ private:
 private:
     std::unique_ptr<RigFlowDiagSolverInterface> m_flowDagSolverInterface;
 
-    std::unique_ptr<RifReaderEclipseRft> m_readerEclipseRft;
-    std::unique_ptr<RifReaderOpmRft>     m_readerOpmRft;
+    std::unique_ptr<RifReaderOpmRft> m_readerOpmRft;
 
     caf::PdmProxyValueField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*>                        m_flowDiagSolutions;
@@ -112,6 +110,5 @@ private:
 
     bool m_gridAndWellDataIsReadFromFile;
     bool m_activeCellInfoIsReadFromFile;
-    bool m_useOpmRftReader;
     bool m_rftDataIsReadFromFile;
 };
