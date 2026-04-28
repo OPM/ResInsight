@@ -656,6 +656,14 @@ std::vector<RimCase*> RimProject::allGridCases() const
                 }
             }
 
+            for ( RimReservoirGridEnsemble* ensemble : analysisModels->reservoirGridEnsembles.childrenByType() )
+            {
+                for ( RimEclipseCase* acase : ensemble->cases() )
+                {
+                    cases.push_back( acase );
+                }
+            }
+
             RimGeoMechModels* geomModels = oilField->geoMechModels();
             if ( geomModels )
             {
