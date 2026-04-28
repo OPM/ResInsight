@@ -81,4 +81,6 @@ private:
     caf::PdmField<QString>                         m_collectionName;
     caf::PdmChildArrayField<RimSurface*>           m_surfaces;
     caf::PdmChildArrayField<RimSurfaceCollection*> m_subCollections;
+
+    bool m_isTopLevelFolder;
 };
