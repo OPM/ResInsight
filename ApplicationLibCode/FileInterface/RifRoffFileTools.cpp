@@ -550,7 +550,14 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 
             QString keywordUpperCase = QString::fromStdString( keyword ).toUpper();
 
-            if ( eclipseCaseData->mainGrid()->cellCount() == keywordLength )
+            if ( keyword == "subgrids.nLayers" )
+            {
+                if ( !appendZoneIndexPropertyFromSubgrids( eclipseCaseData, reader, keywordMapping ) )
+                {
+                    RiaLogging::warning( QString( "Unable to import ROFF subgrids zonation from %1" ).arg( fileName ) );
+                }
+            }
+            else if ( eclipseCaseData->mainGrid()->cellCount() == keywordLength )
             {
                 QString newResultName = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                             ->makeResultNameUnique( QString::fromStdString( keyword ) );
@@ -721,6 +728,128 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
     auto newPropertyData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
 
     newPropertyData->push_back( values );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RifRoffFileTools::computeZoneValuesFromSubgrids( const std::vector<int>& nLayers, size_t nx, size_t ny, size_t nz )
+{
+    if ( nLayers.empty() ) return {};
+
+    size_t layerSum = 0;
+    for ( int n : nLayers )
+    {
+        if ( n <= 0 ) return {};
+        layerSum += static_cast<size_t>( n );
+    }
+    if ( layerSum != nz ) return {};
+
+    // K→zone lookup in ROFF k-order (zone numbers are 1-based).
+    std::vector<int> roffKToZone( nz );
+    size_t           kRoff = 0;
+    for ( size_t z = 0; z < nLayers.size(); ++z )
+    {
+        const int zoneValue = static_cast<int>( z ) + 1;
+        for ( int i = 0; i < nLayers[z]; ++i )
+        {
+            roffKToZone[kRoff++] = zoneValue;
+        }
+    }
+
+    // Per-cell values in reservoir index order; apply the same K-flip as convertToReservoirIndexOrder.
+    std::vector<double> values( nx * ny * nz );
+    size_t              outIdx = 0;
+    for ( size_t k = 0; k < nz; ++k )
+    {
+        const int zone = roffKToZone[nz - k - 1];
+        for ( size_t j = 0; j < ny; ++j )
+        {
+            for ( size_t i = 0; i < nx; ++i )
+            {
+                values[outIdx++] = static_cast<double>( zone );
+            }
+        }
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifRoffFileTools::appendZoneIndexPropertyFromSubgrids( RigEclipseCaseData*         caseData,
+                                                            roff::Reader&               reader,
+                                                            std::map<QString, QString>& keywordMapping )
+{
+    CVF_ASSERT( caseData );
+
+    auto* mainGrid = caseData->mainGrid();
+    if ( !mainGrid ) return false;
+
+    const size_t nx = mainGrid->cellCountI();
+    const size_t ny = mainGrid->cellCountJ();
+    const size_t nz = mainGrid->cellCountK();
+
+    const std::string nLayersKeyword = "subgrids.nLayers";
+    if ( reader.getArrayLength( nLayersKeyword ) == 0 ) return false;
+
+    const std::vector<int> nLayers = reader.getIntArray( nLayersKeyword );
+
+    std::vector<double> values = computeZoneValuesFromSubgrids( nLayers, nx, ny, nz );
+    if ( values.empty() )
+    {
+        RiaLogging::warning(
+            QString( "ROFF subgrids.nLayers could not be expanded to grid K dimension (%1). Skipping zonation import." ).arg( nz ) );
+        return false;
+    }
+
+    auto*        activeCellInfo = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    const size_t cellCount      = mainGrid->cellCount();
+    for ( size_t cellIdx = 0; cellIdx < cellCount; ++cellIdx )
+    {
+        if ( !activeCellInfo->isActive( ReservoirCellIndex( mainGrid->reservoirCellIndex( cellIdx ) ) ) )
+        {
+            values[cellIdx] = HUGE_VAL;
+        }
+    }
+
+    const QString resultName = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( QString( "SUBGRIDS" ) );
+
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, RiaDefines::ResultDataType::INTEGER, resultName );
+    caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
+
+    auto newPropertyData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
+    newPropertyData->push_back( values );
+
+    keywordMapping[QString::fromStdString( nLayersKeyword )] = resultName;
+
+    // Attach zone names as category code-names when the file provides a companion names array.
+    const std::string namesKeyword = "subgrids.names";
+    if ( reader.getArrayLength( namesKeyword ) == nLayers.size() )
+    {
+        // Skip legend creation when the application/project is not initialized (e.g. early-init or non-UI contexts).
+        auto project               = RiaApplication::instance() ? RimProject::current() : nullptr;
+        auto colorLegendCollection = project ? project->colorLegendCollection() : nullptr;
+        if ( colorLegendCollection )
+        {
+            const auto             zoneNames = reader.getStringArray( namesKeyword );
+            std::map<int, QString> codeNames;
+            for ( size_t z = 0; z < zoneNames.size(); ++z )
+            {
+                codeNames[static_cast<int>( z ) + 1] = QString::fromStdString( zoneNames[z] ).trimmed();
+            }
+
+            auto rimCase = caseData->ownerCase();
+
+            colorLegendCollection->deleteColorLegend( rimCase, resultName );
+            RimColorLegend* colorLegend = colorLegendCollection->createColorLegend( resultName, codeNames );
+            colorLegendCollection->setDefaultColorLegendForResult( rimCase, resultName, colorLegend );
+            colorLegendCollection->updateAllRequiredEditors();
+        }
+    }
 
     return true;
 }

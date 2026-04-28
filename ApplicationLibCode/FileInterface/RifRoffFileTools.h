@@ -58,6 +58,8 @@ public:
 
     static size_t computeActiveCellMatrixIndex( std::vector<int>& activeCells );
 
+    static std::vector<double> computeZoneValuesFromSubgrids( const std::vector<int>& nLayers, size_t nx, size_t ny, size_t nz );
+
     static cvf::Vec3d getCorner( const RigMainGrid&        grid,
                                  const std::vector<float>& cornerLines,
                                  const std::vector<float>& zcorn,
@@ -84,6 +86,9 @@ private:
                                               const std::string&  keyword,
                                               roff::Token::Kind   token,
                                               roff::Reader&       reader );
+
+    static bool
+        appendZoneIndexPropertyFromSubgrids( RigEclipseCaseData* caseData, roff::Reader& reader, std::map<QString, QString>& keywordMapping );
 
     static RiaDefines::ResultDataType mapFromType( roff::Token::Kind kind );
 };

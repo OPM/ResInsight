@@ -80,6 +80,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifRoffFileTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigStatisticsTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader-Test.cpp
