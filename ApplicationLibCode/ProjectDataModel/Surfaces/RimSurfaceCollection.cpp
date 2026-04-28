@@ -51,6 +51,7 @@ CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSurfaceCollection::RimSurfaceCollection()
+    : m_isTopLevelFolder( false )
 {
     CAF_PDM_InitScriptableObject( "Surfaces", ":/ReservoirSurfaces16x16.png" );
 
@@ -81,7 +82,9 @@ RimSurfaceCollection::~RimSurfaceCollection()
 void RimSurfaceCollection::setAsTopmostFolder()
 {
     m_collectionName.uiCapability()->setUiHidden( true );
+    m_collectionName.xmlCapability()->disableIO();
     setDeletable( false );
+    m_isTopLevelFolder = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,7 +100,10 @@ QString RimSurfaceCollection::collectionName() const
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::setCollectionName( const QString name )
 {
-    return m_collectionName.setValue( name );
+    if ( !m_isTopLevelFolder )
+    {
+        m_collectionName.setValue( name );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,7 +111,12 @@ void RimSurfaceCollection::setCollectionName( const QString name )
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSurfaceCollection::userDescriptionField()
 {
-    return &m_collectionName;
+    if ( !m_isTopLevelFolder )
+    {
+        return &m_collectionName;
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
