@@ -300,31 +300,33 @@ void RimGeoMechContourMapView::createContourMapGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::appendContourMapProjectionToModel()
 {
-    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() && m_contourMapProjection->mapGrid() != nullptr &&
-         m_contourMapProjection->legendConfig() != nullptr && m_contourMapProjection->legendConfig()->scalarMapper() != nullptr )
-    {
-        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
-        if ( frameScene )
-        {
-            cvf::String name = "ContourMapProjection";
-            RimGeoMechContourMapView::removeModelByName( frameScene, name );
+    if ( !nativeOrOverrideViewer() ) return;
+    if ( !m_contourMapProjection->isChecked() ) return;
+    if ( !m_contourMapProjection->mapGrid() ) return;
 
-            cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
-            contourMapProjectionModelBasicList->setName( name );
+    auto* legendConfig = m_contourMapProjection->legendConfig();
+    if ( !legendConfig || !legendConfig->scalarMapper() ) return;
 
-            cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+    cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+    if ( !frameScene ) return;
 
-            m_contourMapProjectionPartMgr->appendProjectionToModel( contourMapProjectionModelBasicList.p(),
-                                                                    transForm.p(),
-                                                                    m_contourMapProjection->trianglesWithVertexValues(),
-                                                                    *m_contourMapProjection->mapGrid(),
-                                                                    backgroundColor(),
-                                                                    m_contourMapProjection->legendConfig()->scalarMapper() );
+    cvf::String name = "ContourMapProjection";
+    RimGeoMechContourMapView::removeModelByName( frameScene, name );
 
-            contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
-            frameScene->addModel( contourMapProjectionModelBasicList.p() );
-        }
-    }
+    cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
+    contourMapProjectionModelBasicList->setName( name );
+
+    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+
+    m_contourMapProjectionPartMgr->appendProjectionToModel( contourMapProjectionModelBasicList.p(),
+                                                            transForm.p(),
+                                                            m_contourMapProjection->trianglesWithVertexValues(),
+                                                            *m_contourMapProjection->mapGrid(),
+                                                            backgroundColor(),
+                                                            legendConfig->scalarMapper() );
+
+    contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
+    frameScene->addModel( contourMapProjectionModelBasicList.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,35 +334,37 @@ void RimGeoMechContourMapView::appendContourMapProjectionToModel()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::appendContourLinesToModel()
 {
-    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() && m_contourMapProjection->mapGrid() != nullptr &&
-         m_contourMapProjection->legendConfig() != nullptr && m_contourMapProjection->legendConfig()->scalarMapper() != nullptr )
-    {
-        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
-        if ( frameScene )
-        {
-            cvf::String name = "ContourMapLines";
-            RimGeoMechContourMapView::removeModelByName( frameScene, name );
+    if ( !nativeOrOverrideViewer() ) return;
+    if ( !m_contourMapProjection->isChecked() ) return;
+    if ( !m_contourMapProjection->mapGrid() ) return;
 
-            cvf::ref<cvf::ModelBasicList> contourMapLabelModelBasicList = new cvf::ModelBasicList;
-            contourMapLabelModelBasicList->setName( name );
+    auto* legendConfig = m_contourMapProjection->legendConfig();
+    if ( !legendConfig || !legendConfig->scalarMapper() ) return;
 
-            cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+    cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+    if ( !frameScene ) return;
 
-            m_contourMapProjectionPartMgr->appendContourLinesToModel( viewer()->mainCamera(),
-                                                                      contourMapLabelModelBasicList.p(),
-                                                                      transForm.p(),
-                                                                      m_contourMapProjection->contourPolygons(),
-                                                                      *m_contourMapProjection->mapGrid(),
-                                                                      m_contourMapProjection->legendConfig()->scalarMapper(),
-                                                                      m_contourMapProjection->showContourLines(),
-                                                                      m_contourMapProjection->showContourLabels(),
-                                                                      m_contourMapProjection->legendConfig()->tickNumberFormat(),
-                                                                      m_contourMapProjection->legendConfig()->significantDigitsInData() );
+    cvf::String name = "ContourMapLines";
+    RimGeoMechContourMapView::removeModelByName( frameScene, name );
 
-            contourMapLabelModelBasicList->updateBoundingBoxesRecursive();
-            frameScene->addModel( contourMapLabelModelBasicList.p() );
-        }
-    }
+    cvf::ref<cvf::ModelBasicList> contourMapLabelModelBasicList = new cvf::ModelBasicList;
+    contourMapLabelModelBasicList->setName( name );
+
+    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+
+    m_contourMapProjectionPartMgr->appendContourLinesToModel( viewer()->mainCamera(),
+                                                              contourMapLabelModelBasicList.p(),
+                                                              transForm.p(),
+                                                              m_contourMapProjection->contourPolygons(),
+                                                              *m_contourMapProjection->mapGrid(),
+                                                              legendConfig->scalarMapper(),
+                                                              m_contourMapProjection->showContourLines(),
+                                                              m_contourMapProjection->showContourLabels(),
+                                                              legendConfig->tickNumberFormat(),
+                                                              legendConfig->significantDigitsInData() );
+
+    contourMapLabelModelBasicList->updateBoundingBoxesRecursive();
+    frameScene->addModel( contourMapLabelModelBasicList.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,28 +372,28 @@ void RimGeoMechContourMapView::appendContourLinesToModel()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::appendPickPointVisToModel()
 {
-    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() && m_contourMapProjection->mapGrid() != nullptr )
-    {
-        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
-        if ( frameScene )
-        {
-            cvf::String name = "ContourMapPickPoint";
-            RimGeoMechContourMapView::removeModelByName( frameScene, name );
+    if ( !nativeOrOverrideViewer() ) return;
+    if ( !m_contourMapProjection->isChecked() ) return;
+    if ( !m_contourMapProjection->mapGrid() ) return;
 
-            cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
-            contourMapProjectionModelBasicList->setName( name );
+    cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+    if ( !frameScene ) return;
 
-            cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+    cvf::String name = "ContourMapPickPoint";
+    RimGeoMechContourMapView::removeModelByName( frameScene, name );
 
-            m_contourMapProjectionPartMgr->appendPickPointVisToModel( contourMapProjectionModelBasicList.p(),
-                                                                      transForm.p(),
-                                                                      m_contourMapProjection->pickPoint(),
-                                                                      *m_contourMapProjection->mapGrid() );
+    cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
+    contourMapProjectionModelBasicList->setName( name );
 
-            contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
-            frameScene->addModel( contourMapProjectionModelBasicList.p() );
-        }
-    }
+    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+
+    m_contourMapProjectionPartMgr->appendPickPointVisToModel( contourMapProjectionModelBasicList.p(),
+                                                              transForm.p(),
+                                                              m_contourMapProjection->pickPoint(),
+                                                              *m_contourMapProjection->mapGrid() );
+
+    contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
+    frameScene->addModel( contourMapProjectionModelBasicList.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
