@@ -106,7 +106,7 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_wellRftPlot, "WellRftPlot", "RFT Plot" );
     CAF_PDM_InitFieldNoDefault( &m_parameterRftCrossPlot, "ParameterRftCrossPlot", "Cross Plot" );
-    CAF_PDM_InitFieldNoDefault( &m_correlationPlot, "CorrelationPlot", "Tornado Plot" );
+    CAF_PDM_InitFieldNoDefault( &m_tornadoPlot, "TornadoPlot", "Tornado Plot" );
 
     CAF_PDM_InitField( &m_showDockTitleBars, "ShowDockTitleBars", false, "Show Title Bars" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showDockTitleBars );
@@ -125,8 +125,8 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
 
     m_parameterRftCrossPlot = new RimParameterRftCrossPlot;
 
-    m_correlationPlot = new RimRftTornadoPlot;
-    m_correlationPlot->setParameterSelectedCallback( [this]( const QString& paramName ) { onTornadoParameterSelected( paramName ); } );
+    m_tornadoPlot = new RimRftTornadoPlot;
+    m_tornadoPlot->setParameterSelectedCallback( [this]( const QString& paramName ) { onTornadoParameterSelected( paramName ); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,14 +234,14 @@ void RimRftCorrelationReportPlot::recreatePlotWidgets()
     CAF_ASSERT( m_dockManager );
 
     m_wellRftPlot->createPlotWidget( m_dockManager );
-    m_correlationPlot->createPlotWidget( m_dockManager );
+    m_tornadoPlot->createPlotWidget( m_dockManager );
     m_parameterRftCrossPlot->createPlotWidget( m_dockManager );
 
     // Context menu fixer — ensures this report is selected in CAF on any right-click
     delete m_contextMenuFilter;
     m_contextMenuFilter = new RftSelectionFixerOnContextMenu( this, this );
     if ( auto* w = m_wellRftPlot->viewWidget() ) w->installEventFilter( m_contextMenuFilter );
-    if ( auto* w = m_correlationPlot->viewer() ) w->installEventFilter( m_contextMenuFilter );
+    if ( auto* w = m_tornadoPlot->viewer() ) w->installEventFilter( m_contextMenuFilter );
     if ( auto* w = m_parameterRftCrossPlot->viewer() ) w->installEventFilter( m_contextMenuFilter );
 
     auto makeDockWidget = [&]( const QString& title, RimPlotWindow* plot, QWidget* widget ) -> ads::CDockWidget*
@@ -260,7 +260,7 @@ void RimRftCorrelationReportPlot::recreatePlotWidgets()
     };
 
     m_rftDockWidget         = makeDockWidget( "RFT Plot", m_wellRftPlot(), m_wellRftPlot->viewWidget() );
-    m_correlationDockWidget = makeDockWidget( "Tornado Plot", m_correlationPlot(), m_correlationPlot->viewer() );
+    m_correlationDockWidget = makeDockWidget( "Tornado Plot", m_tornadoPlot(), m_tornadoPlot->viewer() );
     m_crossPlotDockWidget   = makeDockWidget( "Cross Plot", m_parameterRftCrossPlot(), m_parameterRftCrossPlot->viewer() );
 
     // Restore saved dock state or apply hard-coded default layout
@@ -292,7 +292,7 @@ void RimRftCorrelationReportPlot::recreatePlotWidgets()
     }
 
     m_rftDockWidget->toggleView( m_wellRftPlot->showWindow() );
-    m_correlationDockWidget->toggleView( m_correlationPlot->showWindow() );
+    m_correlationDockWidget->toggleView( m_tornadoPlot->showWindow() );
     m_crossPlotDockWidget->toggleView( m_parameterRftCrossPlot->showWindow() );
 
     updateDockTitleBarsVisibility();
@@ -307,7 +307,7 @@ void RimRftCorrelationReportPlot::cleanupBeforeClose()
     // QwtPlot has autoDelete=true, so any curves still attached when it is deleted are freed by QWT
     // — leaving m_legendPlotCurves with dangling pointers on the next loadDataAndUpdate().
     if ( m_wellRftPlot() ) m_wellRftPlot->cleanupLegendCurves();
-    if ( m_correlationPlot() ) m_correlationPlot->detachAllCurves();
+    if ( m_tornadoPlot() ) m_tornadoPlot->detachAllCurves();
     if ( m_parameterRftCrossPlot() ) m_parameterRftCrossPlot->detachAllCurves();
 
     m_rftDockWidget         = nullptr;
@@ -380,7 +380,7 @@ void RimRftCorrelationReportPlot::onLoadDataAndUpdate()
     {
         m_wellRftPlot->loadDataAndUpdate();
         syncTornadoInputsFromCrossPlot();
-        m_correlationPlot->loadDataAndUpdate();
+        m_tornadoPlot->loadDataAndUpdate();
         m_parameterRftCrossPlot->loadDataAndUpdate();
     }
 
@@ -408,7 +408,7 @@ void RimRftCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::P
 void RimRftCorrelationReportPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString /*uiConfigName*/ )
 {
     uiTreeOrdering.add( m_wellRftPlot() );
-    uiTreeOrdering.add( m_correlationPlot() );
+    uiTreeOrdering.add( m_tornadoPlot() );
     uiTreeOrdering.add( m_parameterRftCrossPlot() );
     uiTreeOrdering.skipRemainingChildren();
 }
@@ -433,8 +433,8 @@ void RimRftCorrelationReportPlot::childFieldChangedByUi( const caf::PdmFieldHand
 {
     if ( m_rftDockWidget && changedChildField == &m_wellRftPlot )
         m_rftDockWidget->toggleView( m_wellRftPlot->showWindow() );
-    else if ( m_correlationDockWidget && changedChildField == &m_correlationPlot )
-        m_correlationDockWidget->toggleView( m_correlationPlot->showWindow() );
+    else if ( m_correlationDockWidget && changedChildField == &m_tornadoPlot )
+        m_correlationDockWidget->toggleView( m_tornadoPlot->showWindow() );
     else if ( m_crossPlotDockWidget && changedChildField == &m_parameterRftCrossPlot )
     {
         m_crossPlotDockWidget->toggleView( m_parameterRftCrossPlot->showWindow() );
@@ -463,9 +463,9 @@ void RimRftCorrelationReportPlot::syncCrossPlotSelectionToRftPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRftTornadoPlot* RimRftCorrelationReportPlot::correlationPlot() const
+RimRftTornadoPlot* RimRftCorrelationReportPlot::tornadoPlot() const
 {
-    return m_correlationPlot();
+    return m_tornadoPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -473,7 +473,7 @@ RimRftTornadoPlot* RimRftCorrelationReportPlot::correlationPlot() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlot*> RimRftCorrelationReportPlot::childPlotsForTextExport() const
 {
-    return { crossPlot(), correlationPlot() };
+    return { crossPlot(), tornadoPlot() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -481,10 +481,10 @@ std::vector<RimPlot*> RimRftCorrelationReportPlot::childPlotsForTextExport() con
 //--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::onTornadoParameterSelected( const QString& paramName )
 {
-    if ( m_correlationPlot() )
+    if ( m_tornadoPlot() )
     {
-        m_correlationPlot->setSelectedParameter( paramName );
-        m_correlationPlot->loadDataAndUpdate();
+        m_tornadoPlot->setSelectedParameter( paramName );
+        m_tornadoPlot->loadDataAndUpdate();
     }
     if ( m_parameterRftCrossPlot() )
     {
@@ -499,15 +499,15 @@ void RimRftCorrelationReportPlot::onTornadoParameterSelected( const QString& par
 //--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
 {
-    if ( !m_correlationPlot() || !m_parameterRftCrossPlot() ) return;
+    if ( !m_tornadoPlot() || !m_parameterRftCrossPlot() ) return;
 
-    m_correlationPlot->setEnsemble( m_parameterRftCrossPlot->ensemble() );
-    m_correlationPlot->setWellName( m_parameterRftCrossPlot->wellName() );
-    m_correlationPlot->setTimeStep( m_parameterRftCrossPlot->selectedTimeStep() );
-    m_correlationPlot->setSelectedParameter( m_parameterRftCrossPlot->ensembleParameter() );
-    m_correlationPlot->setEclipseCase( m_parameterRftCrossPlot->eclipseCase() );
-    m_correlationPlot->setUseDepthRange( m_parameterRftCrossPlot->useDepthRange() );
-    m_correlationPlot->setDepthRange( m_parameterRftCrossPlot->depthRangeMin(), m_parameterRftCrossPlot->depthRangeMax() );
+    m_tornadoPlot->setEnsemble( m_parameterRftCrossPlot->ensemble() );
+    m_tornadoPlot->setWellName( m_parameterRftCrossPlot->wellName() );
+    m_tornadoPlot->setTimeStep( m_parameterRftCrossPlot->selectedTimeStep() );
+    m_tornadoPlot->setSelectedParameter( m_parameterRftCrossPlot->ensembleParameter() );
+    m_tornadoPlot->setEclipseCase( m_parameterRftCrossPlot->eclipseCase() );
+    m_tornadoPlot->setUseDepthRange( m_parameterRftCrossPlot->useDepthRange() );
+    m_tornadoPlot->setDepthRange( m_parameterRftCrossPlot->depthRangeMin(), m_parameterRftCrossPlot->depthRangeMax() );
 }
 
 //--------------------------------------------------------------------------------------------------

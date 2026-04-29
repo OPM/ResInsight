@@ -58,7 +58,7 @@ public:
 
     RimWellRftPlot*           wellRftPlot() const;
     RimParameterRftCrossPlot* crossPlot() const;
-    RimRftTornadoPlot*        correlationPlot() const;
+    RimRftTornadoPlot*        tornadoPlot() const;
 
     std::vector<RimPlot*> childPlotsForTextExport() const override;
 
@@ -90,7 +90,7 @@ private:
 
     caf::PdmChildField<RimWellRftPlot*>           m_wellRftPlot;
     caf::PdmChildField<RimParameterRftCrossPlot*> m_parameterRftCrossPlot;
-    caf::PdmChildField<RimRftTornadoPlot*>        m_correlationPlot;
+    caf::PdmChildField<RimRftTornadoPlot*>        m_tornadoPlot;
 
     caf::PdmField<bool>    m_showDockTitleBars;
     caf::PdmField<QString> m_dockState;
