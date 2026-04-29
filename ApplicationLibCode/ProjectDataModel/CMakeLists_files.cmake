@@ -63,6 +63,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDockWindowController.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.cpp

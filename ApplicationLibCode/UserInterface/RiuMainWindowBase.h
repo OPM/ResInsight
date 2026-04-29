@@ -66,11 +66,13 @@ public:
 
     virtual QString mainWindowName() = 0;
 
-    QMdiSubWindow* createViewWindow();
+    QMdiSubWindow*    createViewWindow();
+    ads::CDockWidget* createDockViewWindow();
 
     virtual void removeViewer( QWidget* viewer )                                                                                 = 0;
     virtual void initializeViewer( QMdiSubWindow* viewWindow, QWidget* viewWidget, const RimMdiWindowGeometry& windowsGeometry ) = 0;
-    virtual void setActiveViewer( QWidget* subWindow )                                                                           = 0;
+    virtual void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) {};
+    virtual void setActiveViewer( QWidget* subWindow ) = 0;
 
     virtual ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) = 0;
 
