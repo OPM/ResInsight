@@ -40,6 +40,7 @@
 #include <QAction>
 #include <QDir>
 #include <QFileInfo>
+#include <QSet>
 
 CAF_CMD_SOURCE_INIT( RicImportEclipseCaseFeature, "RicImportEclipseCaseFeature" );
 
@@ -177,9 +178,15 @@ std::vector<RimEclipseView*> RicImportEclipseCaseFeature::allEclipseViews( RimPr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+#include <iostream>
 QStringList RicImportEclipseCaseFeature::findPvdFilesToImport( const QStringList& fileNames )
 {
     QStringList pvdFilesToImport;
+    QSet<QString> seenPvdFiles;
+
+    // Eclipse companion files used to discover base names that should be excluded from PVD import.
+    const QStringList eclipseSuffixes = { ".DATA", ".EGRID", ".SMSPEC", ".UNSMRY", ".RSSPEC", ".UNRST" };
+
     for ( const auto& gridFile : fileNames )
     {
         QFileInfo gridFileInfo( gridFile );
@@ -187,21 +194,55 @@ QStringList RicImportEclipseCaseFeature::findPvdFilesToImport( const QStringList
         QString   dirPath  = gridFileInfo.absolutePath();
         QDir      dir( dirPath );
 
-        // Search for PVD files with matching base name
-        QStringList pvdFilters;
-        pvdFilters << baseName + "*.pvd";
+        // Collect other Eclipse cases starting with baseName present in the same folder.
+        // Any PVD file matching one of those bases will be filtered out.
+        QSet<QString> otherBases;
+        const auto    filesInDir = dir.entryInfoList( QDir::Files );
+        for ( const auto& fileInfo : filesInDir )
+        {
+            const QString fileName = fileInfo.fileName();
+            for ( const auto& suffix : eclipseSuffixes )
+            {
+                if ( fileName.endsWith( suffix, Qt::CaseInsensitive ) )
+                {
+                    const QString otherBase = fileInfo.completeBaseName();
+                    if ( otherBase.startsWith( baseName, Qt::CaseInsensitive ) &&
+                         otherBase.compare( baseName, Qt::CaseInsensitive ) != 0 )
+                    {
+                        otherBases.insert( otherBase );
+                        std::cout << "Found other Eclipse case base: " << otherBase.toStdString() << " (from file " << fileName.toStdString() << ")" << std::endl;
+                    }
+                    break;
+                }
+            }
+        }
 
-        QStringList matchingPvdFiles = dir.entryList( pvdFilters, QDir::Files );
+        // Include all PVD files matching "<baseName>*.pvd", but exclude the generic "<baseName>.pvd" file.
+        QStringList matchingPvdFiles = dir.entryList( QStringList() << baseName + "*.pvd", QDir::Files );
+        const QString basePvdName    = baseName + ".pvd";
+
         for ( const QString& pvdFile : matchingPvdFiles )
         {
-            QFileInfo pvdFileInfo( pvdFile );
-            QString   pvdBaseName = pvdFileInfo.completeBaseName();
+            if ( pvdFile.compare( basePvdName, Qt::CaseInsensitive ) == 0 ) continue;
 
-            // Skip files with exactly the same base name (e.g., CASE.EGRID should not import CASE.pvd)
-            // Only import files with additional text (e.g., CASE_surface.pvd, CASE-horizon.pvd)
-            if ( pvdBaseName != baseName )
+            // Remove PVD files that actually belong to a different Eclipse base in this directory.
+            bool matchesOtherBase = false;
+            for ( const auto& otherBase : otherBases )
             {
-                QString fullPath = dir.absoluteFilePath( pvdFile );
+                if ( pvdFile.startsWith( otherBase, Qt::CaseInsensitive ) )
+                {
+                    matchesOtherBase = true;
+                    std::cout << "Excluding PVD file: " << pvdFile.toStdString() << " (matches other base: " << otherBase.toStdString() << ")" << std::endl;
+                    break;
+                }
+            }
+
+            if ( matchesOtherBase ) continue;
+
+            QString fullPath = dir.absoluteFilePath( pvdFile );
+            if ( !seenPvdFiles.contains( fullPath ) )
+            {
+                seenPvdFiles.insert( fullPath );
                 pvdFilesToImport << fullPath;
             }
         }
