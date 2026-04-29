@@ -45,7 +45,7 @@ void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
         RimCase*           srcCase = target->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
         if ( srcCase )
         {
-            RimUserDefinedFilter* created = target->addNewUserDefinedFilter( srcCase );
+            RimUserDefinedFilter* created = target->addNewFilter<RimUserDefinedFilter>( []( RimUserDefinedFilter* ) {} );
             if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
         }
         return;

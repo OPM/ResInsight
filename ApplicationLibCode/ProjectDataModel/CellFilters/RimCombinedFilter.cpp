@@ -21,11 +21,6 @@
 #include "RigGridBase.h"
 #include "RigReservoirGridTools.h"
 #include "RimCase.h"
-#include "RimCellIndexFilter.h"
-#include "RimCellRangeFilter.h"
-#include "RimPolygonFilter.h"
-#include "RimUserDefinedFilter.h"
-#include "RimUserDefinedIndexFilter.h"
 
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
@@ -230,85 +225,6 @@ void RimCombinedFilter::removeFilter( RimCellFilter* child )
 std::vector<RimCellFilter*> RimCombinedFilter::filters() const
 {
     return m_filters.childrenByType();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimCellRangeFilter* RimCombinedFilter::addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection, int defaultSlice )
-{
-    auto* f = new RimCellRangeFilter();
-    addFilter( f );
-    f->setCase( srcCase );
-    f->setGridIndex( gridIndex );
-    f->setDefaultValues( sliceDirection, defaultSlice );
-    return f;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimPolygonFilter* RimCombinedFilter::addNewPolygonFilter( RimCase* srcCase, RimPolygon* polygon )
-{
-    auto* f = new RimPolygonFilter();
-    addFilter( f );
-    f->setCase( srcCase );
-    f->setPolygon( polygon );
-    f->configurePolygonEditor();
-    if ( polygon )
-    {
-        f->enableFilter( true );
-    }
-    else
-    {
-        f->enablePicking( true );
-    }
-    return f;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimCellIndexFilter* RimCombinedFilter::addNewCellIndexFilter( RimCase* srcCase )
-{
-    auto* f = new RimCellIndexFilter();
-    addFilter( f );
-    f->setCase( srcCase );
-    return f;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimUserDefinedFilter* RimCombinedFilter::addNewUserDefinedFilter( RimCase* srcCase )
-{
-    auto* f = new RimUserDefinedFilter();
-    addFilter( f );
-    f->setCase( srcCase );
-    return f;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimUserDefinedIndexFilter* RimCombinedFilter::addNewUserDefinedIndexFilter( RimCase* srcCase, const std::vector<size_t>& defCellIndexes )
-{
-    auto* f = new RimUserDefinedIndexFilter();
-    addFilter( f );
-    f->setCase( srcCase );
-    f->setCellIndexes( defCellIndexes );
-    return f;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimCombinedFilter* RimCombinedFilter::addNewCombinedFilter( RimCase* srcCase )
-{
-    auto* f = new RimCombinedFilter();
-    addFilter( f );
-    f->setCase( srcCase );
-    return f;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -26,7 +26,6 @@
 #include "RimCombinedFilter.h"
 #include "RimGeoMechCase.h"
 #include "RimGridView.h"
-#include "RimUserDefinedFilter.h"
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
@@ -59,9 +58,9 @@ void RicNewCellIndexFilterFeature::onActionTriggered( bool isChecked )
     if ( !combined.empty() )
     {
         RimCombinedFilter* target = combined.front();
-        if ( RimCase* srcCase = target->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase() )
+        if ( target->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase() )
         {
-            RimCellIndexFilter* created = target->addNewCellIndexFilter( srcCase );
+            RimCellIndexFilter* created = target->addNewFilter<RimCellIndexFilter>( []( RimCellIndexFilter* ) {} );
             if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
         }
         return;
