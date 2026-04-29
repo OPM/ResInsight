@@ -54,6 +54,14 @@ bool RimRefinementRegionCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimRefinementRegionCollection::shouldBeVisibleInTree() const
+{
+    return !m_regions.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimRefinementRegion*> RimRefinementRegionCollection::regions() const
 {
     return m_regions.childrenByType();
@@ -86,6 +94,9 @@ RimRefinementRegion* RimRefinementRegionCollection::addNewRegion( RimEclipseCase
     region->setDefaultsFromCase( eclipseCase );
 
     updateConnectedEditors();
+    // Visibility of this collection in the parent view's tree depends on m_regions being non-empty,
+    // so refresh the parent so the folder appears when the first region is added.
+    if ( auto* view = firstAncestorOrThisOfType<Rim3dView>() ) view->updateConnectedEditors();
     return region;
 }
 
@@ -106,6 +117,17 @@ void RimRefinementRegionCollection::removeRegion( RimRefinementRegion* region )
     m_regions.removeChild( region );
     delete region;
     updateConnectedEditors();
+    if ( auto* view = firstAncestorOrThisOfType<Rim3dView>() ) view->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Refresh the parent view's tree so the collection folder disappears once the last region is
+/// removed via the generic delete-item action.
+//--------------------------------------------------------------------------------------------------
+void RimRefinementRegionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                    std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    if ( auto* view = firstAncestorOrThisOfType<Rim3dView>() ) view->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

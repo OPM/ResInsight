@@ -2063,7 +2063,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     uiTreeOrdering.add( m_overlayInfoConfig() );
     uiTreeOrdering.add( m_gridCollection() );
-    if ( m_refinementRegions() ) uiTreeOrdering.add( m_refinementRegions() );
+    if ( m_refinementRegions() && m_refinementRegions()->shouldBeVisibleInTree() ) uiTreeOrdering.add( m_refinementRegions() );
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
     uiTreeOrdering.add( cellFilterCollection() );
