@@ -300,7 +300,8 @@ void RimGeoMechContourMapView::createContourMapGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::appendContourMapProjectionToModel()
 {
-    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() )
+    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() && m_contourMapProjection->mapGrid() != nullptr &&
+         m_contourMapProjection->legendConfig() != nullptr && m_contourMapProjection->legendConfig()->scalarMapper() != nullptr )
     {
         cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
@@ -331,7 +332,8 @@ void RimGeoMechContourMapView::appendContourMapProjectionToModel()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::appendContourLinesToModel()
 {
-    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() )
+    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() && m_contourMapProjection->mapGrid() != nullptr &&
+         m_contourMapProjection->legendConfig() != nullptr && m_contourMapProjection->legendConfig()->scalarMapper() != nullptr )
     {
         cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
@@ -366,7 +368,7 @@ void RimGeoMechContourMapView::appendContourLinesToModel()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::appendPickPointVisToModel()
 {
-    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() )
+    if ( nativeOrOverrideViewer() && m_contourMapProjection->isChecked() && m_contourMapProjection->mapGrid() != nullptr )
     {
         cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
