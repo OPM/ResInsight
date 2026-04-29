@@ -18,10 +18,11 @@
 
 #include "RicNewUserDefinedFilterFeature.h"
 
+#include "RicCellFilterFeatureTools.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
-#include "RimCombinedFilter.h"
 #include "RimUserDefinedFilter.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -38,18 +39,7 @@ CAF_CMD_SOURCE_INIT( RicNewUserDefinedFilterFeature, "RicNewUserDefinedFilterFea
 //--------------------------------------------------------------------------------------------------
 void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimCombinedFilter*> combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
-    if ( !combined.empty() )
-    {
-        RimCombinedFilter* target  = combined.front();
-        RimCase*           srcCase = target->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
-        if ( srcCase )
-        {
-            RimUserDefinedFilter* created = target->addNewFilter<RimUserDefinedFilter>( []( RimUserDefinedFilter* ) {} );
-            if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
-        }
-        return;
-    }
+    if ( RicCellFilterFeatureTools::addNewFilterIfCombinedSelected<RimUserDefinedFilter>( []( RimUserDefinedFilter* ) {} ) ) return;
 
     // Find the selected Cell Filter Collection
     std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
