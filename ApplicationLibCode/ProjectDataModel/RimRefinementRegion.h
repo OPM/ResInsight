@@ -62,7 +62,8 @@ public:
     caf::VecIjk0 ijkMin() const;
     caf::VecIjk0 ijkMax() const;
 
-    // Populate the region with defaults derived from the case's main grid (full grid, refinement 1,1,1).
+    // Populate the region with defaults derived from the case's main grid: a small box centered in I/J
+    // (roughly 1/4 of the grid I/J extent) spanning the full K range, so the wireframe is visible on creation.
     void setDefaultsFromCase( RimEclipseCase* eclipseCase );
 
     // Build the refinement for this region alone, sized to its own bounds.

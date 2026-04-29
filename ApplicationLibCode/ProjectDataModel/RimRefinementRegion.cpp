@@ -156,11 +156,19 @@ void RimRefinementRegion::setDefaultsFromCase( RimEclipseCase* eclipseCase )
     auto grid = eclipseCase->mainGrid();
     if ( !grid ) return;
 
-    m_startI     = 1;
-    m_startJ     = 1;
+    const int gridI = static_cast<int>( grid->cellCountI() );
+    const int gridJ = static_cast<int>( grid->cellCountJ() );
+
+    // Default to a small box (~1/4 of grid I/J extent) centered in I/J, spanning the full K range,
+    // so the wireframe is clearly visible against the parent grid edges.
+    const int countI = std::max( 1, gridI / 4 );
+    const int countJ = std::max( 1, gridJ / 4 );
+
+    m_startI     = std::max( 1, ( gridI - countI ) / 2 + 1 );
+    m_startJ     = std::max( 1, ( gridJ - countJ ) / 2 + 1 );
     m_startK     = 1;
-    m_cellCountI = static_cast<int>( grid->cellCountI() );
-    m_cellCountJ = static_cast<int>( grid->cellCountJ() );
+    m_cellCountI = countI;
+    m_cellCountJ = countJ;
     m_cellCountK = static_cast<int>( grid->cellCountK() );
 }
 
