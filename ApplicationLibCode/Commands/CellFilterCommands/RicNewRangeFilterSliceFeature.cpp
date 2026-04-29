@@ -18,6 +18,8 @@
 
 #include "RicNewRangeFilterSliceFeature.h"
 
+#include "RicCellFilterFeatureTools.h"
+
 #include "RiaApplication.h"
 
 #include "RigMainGrid.h"
@@ -26,7 +28,6 @@
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
-#include "RimCombinedFilter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGridView.h"
@@ -50,25 +51,14 @@ RicNewRangeFilterSliceFeature::RicNewRangeFilterSliceFeature( QString cmdText, Q
 //--------------------------------------------------------------------------------------------------
 void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
 {
-    // If a combined filter is selected, add the new range filter inside it.
-    std::vector<RimCombinedFilter*> combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
-    if ( !combined.empty() )
-    {
-        RimCombinedFilter* target  = combined.front();
-        RimCase*           srcCase = target->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
-        if ( srcCase )
-        {
-            const int sliceDir = m_sliceDirection;
-            auto*     created  = target->addNewFilter<RimCellRangeFilter>(
-                [sliceDir]( RimCellRangeFilter* f )
-                {
-                    f->setGridIndex( 0 );
-                    f->setDefaultValues( sliceDir, -1 );
-                } );
-            if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
-        }
+    const int sliceDir = m_sliceDirection;
+    if ( RicCellFilterFeatureTools::addNewFilterIfCombinedSelected<RimCellRangeFilter>(
+             [sliceDir]( RimCellRangeFilter* f )
+             {
+                 f->setGridIndex( 0 );
+                 f->setDefaultValues( sliceDir, -1 );
+             } ) )
         return;
-    }
 
     RimCellFilterCollection* filterCollection = nullptr;
     RimCase*                 sourceCase       = nullptr;

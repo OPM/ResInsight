@@ -18,12 +18,13 @@
 
 #include "RicNewCellIndexFilterFeature.h"
 
+#include "RicCellFilterFeatureTools.h"
+
 #include "RiaApplication.h"
 
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimCellIndexFilter.h"
-#include "RimCombinedFilter.h"
 #include "RimGeoMechCase.h"
 #include "RimGridView.h"
 #include "Riu3DMainWindowTools.h"
@@ -53,18 +54,7 @@ bool RicNewCellIndexFilterFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewCellIndexFilterFeature::onActionTriggered( bool isChecked )
 {
-    // If a combined filter is selected, add the new index filter inside it.
-    std::vector<RimCombinedFilter*> combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
-    if ( !combined.empty() )
-    {
-        RimCombinedFilter* target = combined.front();
-        if ( target->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase() )
-        {
-            RimCellIndexFilter* created = target->addNewFilter<RimCellIndexFilter>( []( RimCellIndexFilter* ) {} );
-            if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
-        }
-        return;
-    }
+    if ( RicCellFilterFeatureTools::addNewFilterIfCombinedSelected<RimCellIndexFilter>( []( RimCellIndexFilter* ) {} ) ) return;
 
     // Find the selected Cell Filter Collection
     std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
