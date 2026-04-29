@@ -45,7 +45,7 @@ void RicNewUserDefinedIndexFilterFeature::onActionTriggered( bool isChecked )
         RimCase*           srcCase = target->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
         if ( srcCase )
         {
-            auto* created = target->addNewUserDefinedIndexFilter( srcCase );
+            auto* created = target->addNewFilter<RimUserDefinedIndexFilter>( []( RimUserDefinedIndexFilter* ) {} );
             if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
         }
         return;

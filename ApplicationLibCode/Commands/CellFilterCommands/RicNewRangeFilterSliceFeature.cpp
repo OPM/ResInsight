@@ -58,7 +58,13 @@ void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
         RimCase*           srcCase = target->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
         if ( srcCase )
         {
-            RimCellFilter* created = target->addNewCellRangeFilter( srcCase, 0, m_sliceDirection );
+            const int sliceDir = m_sliceDirection;
+            auto*     created  = target->addNewFilter<RimCellRangeFilter>(
+                [sliceDir]( RimCellRangeFilter* f )
+                {
+                    f->setGridIndex( 0 );
+                    f->setDefaultValues( sliceDir, -1 );
+                } );
             if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
         }
         return;

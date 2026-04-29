@@ -66,7 +66,7 @@ void RicEclipseCombinedPropertyFilterNewFeature::onActionTriggered( bool isCheck
         RimCase*           srcCase = parent->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
         if ( srcCase )
         {
-            RimCombinedFilter* created = parent->addNewCombinedFilter( srcCase );
+            RimCombinedFilter* created = parent->addNewFilter<RimCombinedFilter>( []( RimCombinedFilter* ) {} );
             parent->updateConnectedEditors();
             if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
         }

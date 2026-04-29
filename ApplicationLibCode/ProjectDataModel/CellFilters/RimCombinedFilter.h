@@ -25,12 +25,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
-class RimCellIndexFilter;
-class RimCellRangeFilter;
-class RimPolygon;
-class RimPolygonFilter;
-class RimUserDefinedFilter;
-class RimUserDefinedIndexFilter;
+#include <type_traits>
 
 //==================================================================================================
 /// A filter whose result is a boolean combination (AND / OR) of its child filters' results.
@@ -73,14 +68,19 @@ public:
     bool hasActiveDynamicPropertyDescendant() const;
     bool hasActiveFormationNamesPropertyDescendant() const;
 
-    // Typed factory methods — mirror the ones on RimCellFilterCollection so features can add
-    // children of the correct type directly.
-    RimCellRangeFilter*        addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection = -1, int defaultSlice = -1 );
-    RimPolygonFilter*          addNewPolygonFilter( RimCase* srcCase, RimPolygon* polygon );
-    RimCellIndexFilter*        addNewCellIndexFilter( RimCase* srcCase );
-    RimUserDefinedFilter*      addNewUserDefinedFilter( RimCase* srcCase );
-    RimUserDefinedIndexFilter* addNewUserDefinedIndexFilter( RimCase* srcCase, const std::vector<size_t>& defCellIndexes = {} );
-    RimCombinedFilter*         addNewCombinedFilter( RimCase* srcCase );
+    // Generic factory: caller supplies the concrete filter type T and an init callable that
+    // configures the new instance. The combined filter handles cycle checks, parent-case
+    // propagation, signal wiring, and host notification — keeping it free of dependencies on
+    // any specific RimCellFilter subclass.
+    template <typename T, typename Init>
+    T* addNewFilter( Init&& init )
+    {
+        static_assert( std::is_base_of_v<RimCellFilter, T>, "T must derive from RimCellFilter" );
+        auto* f = new T();
+        addFilter( f );
+        std::forward<Init>( init )( f );
+        return f;
+    }
 
     void        setCombineMode( CombineMode mode );
     CombineMode combineMode() const;

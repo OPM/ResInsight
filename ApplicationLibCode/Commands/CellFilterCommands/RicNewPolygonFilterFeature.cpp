@@ -75,16 +75,30 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
         RimCase* srcCase = combined->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
         if ( !srcCase ) return;
 
+        auto addOne = [combined]( RimPolygon* polygon )
+        {
+            return combined->addNewFilter<RimPolygonFilter>(
+                [polygon]( RimPolygonFilter* f )
+                {
+                    f->setPolygon( polygon );
+                    f->configurePolygonEditor();
+                    if ( polygon )
+                        f->enableFilter( true );
+                    else
+                        f->enablePicking( true );
+                } );
+        };
+
         RimPolygonFilter* lastItem = nullptr;
         if ( polygons.empty() )
         {
-            lastItem = combined->addNewPolygonFilter( srcCase, nullptr );
+            lastItem = addOne( nullptr );
         }
         else
         {
             for ( auto polygon : polygons )
             {
-                lastItem = combined->addNewPolygonFilter( srcCase, polygon );
+                lastItem = addOne( polygon );
             }
         }
         if ( lastItem ) Riu3DMainWindowTools::selectAsCurrentItem( lastItem );
