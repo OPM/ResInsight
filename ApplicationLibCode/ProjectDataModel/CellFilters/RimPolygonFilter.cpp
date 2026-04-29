@@ -486,6 +486,8 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
 {
     const int gIdx = static_cast<int>( grid->gridIndex() );
 
+    if ( K < 0 || static_cast<size_t>( K ) >= grid->cellCountK() ) return;
+
     std::list<size_t> foundCells;
     const bool        closedPolygon = isPolygonClosed();
     const bool        singlePoint   = ( points.size() == 1 );
