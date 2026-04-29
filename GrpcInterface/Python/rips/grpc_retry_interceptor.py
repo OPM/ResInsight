@@ -9,9 +9,11 @@ class RetryOnRpcErrorClientInterceptor(
         *,
         retry_policy,
         status_for_retry,
+        should_abort=None,
     ):
         self.retry_policy = retry_policy
         self.status_for_retry = status_for_retry
+        self.should_abort = should_abort
 
     def _intercept_call(self, continuation, client_call_details, request_or_iterator):
         for retry_num in range(self.retry_policy.num_retries()):
@@ -27,6 +29,12 @@ class RetryOnRpcErrorClientInterceptor(
                     self.status_for_retry
                     and response.code() not in self.status_for_retry
                 ):
+                    return response
+
+                # Bail out immediately if an external signal (e.g. the
+                # heartbeat) says the server is gone — otherwise we'd
+                # spend the full retry budget on a defunct process.
+                if self.should_abort is not None and self.should_abort():
                     return response
 
                 self.retry_policy.sleep(retry_num)

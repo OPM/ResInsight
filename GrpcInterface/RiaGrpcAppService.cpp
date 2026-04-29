@@ -88,8 +88,9 @@ grpc::Status
     if ( commandRouter )
     {
         copyPdmObjectFromCafToRips( commandRouter, reply );
+        return grpc::Status::OK;
     }
-    return grpc::Status::OK;
+    return grpc::Status( grpc::INTERNAL, "Command router is not available" );
 }
 
 static bool RiaGrpcAppInfoService_init =

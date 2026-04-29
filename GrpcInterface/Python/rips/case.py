@@ -58,6 +58,7 @@ from .resinsight_classes import (
     WbsParameters as WbsParameters,
 )
 
+from .exception import RipsError
 from .grid import Grid as Grid
 from .project import Project as Project
 from .pdmobject import add_method
@@ -85,7 +86,7 @@ def __grid_count(self) -> int:
     except grpc.RpcError as exception:
         if exception.code() == grpc.StatusCode.NOT_FOUND:
             return 0
-        return 0
+        raise RipsError.from_rpc_error(exception) from exception
 
 
 @add_method(Case)

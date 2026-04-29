@@ -176,8 +176,9 @@ grpc::Status RiaGrpcCaseService::GetPdmObject( grpc::ServerContext*     context,
     if ( rimCase )
     {
         copyPdmObjectFromCafToRips( rimCase, reply );
+        return grpc::Status::OK;
     }
-    return grpc::Status::OK;
+    return grpc::Status( grpc::NOT_FOUND, "Case not found" );
 }
 
 //--------------------------------------------------------------------------------------------------

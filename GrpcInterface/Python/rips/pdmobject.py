@@ -42,7 +42,9 @@ def add_method(cls: C) -> Callable[[F], F]:
             try:
                 return func(*args, **kwargs)
             except grpc.RpcError as e:
-                raise RipsError(e.details()) from None
+                raise RipsError(
+                    e.details(), code=e.code(), details=e.details()
+                ) from None
 
         # Explicitly preserve signature for Sphinx documentation
         wrapper.__name__ = func.__name__
@@ -558,7 +560,9 @@ class PdmObjectBase:
         try:
             self._pdm_object_stub.CallPdmObjectMethod(request)
         except grpc.RpcError as exc:
-            raise RipsError("%s" % exc.details()) from None
+            raise RipsError(
+                "%s" % exc.details(), code=exc.code(), details=exc.details()
+            ) from None
 
     def _call_pdm_method_return_value(
         self, method_name: str, class_definition: Type[PdmObjectT], **kwargs: Any
@@ -577,7 +581,9 @@ class PdmObjectBase:
             pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
             return pdm_object
         except grpc.RpcError as exc:
-            raise RipsError("%s" % exc.details()) from None
+            raise RipsError(
+                "%s" % exc.details(), code=exc.code(), details=exc.details()
+            ) from None
 
     def _call_pdm_method_return_optional_value(
         self, method_name: str, class_definition: Type[PdmObjectT], **kwargs: Any
@@ -607,7 +613,9 @@ class PdmObjectBase:
             return pdm_object
 
         except grpc.RpcError as exc:
-            raise RipsError("%s" % exc.details()) from None
+            raise RipsError(
+                "%s" % exc.details(), code=exc.code(), details=exc.details()
+            ) from None
 
     def update(self) -> None:
         """Sync all fields from the Python Object to ResInsight

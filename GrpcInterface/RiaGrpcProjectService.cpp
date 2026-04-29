@@ -199,8 +199,9 @@ grpc::Status
     if ( project )
     {
         copyPdmObjectFromCafToRips( project, reply );
+        return grpc::Status::OK;
     }
-    return grpc::Status::OK;
+    return grpc::Status( grpc::NOT_FOUND, "No active project" );
 }
 
 //--------------------------------------------------------------------------------------------------
