@@ -221,6 +221,13 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
         for ( const auto& pickItem : pickItemInfos )
         {
+            if ( !pickItem.sourceInfo() )
+            {
+                // Skip preview-only geometry without source info (e.g. refinement region wireframes),
+                // so the pick falls through to the underlying cell.
+                continue;
+            }
+
             const RivObjectSourceInfo* objectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>( pickItem.sourceInfo() );
             if ( objectSourceInfo && dynamic_cast<RimWellPathComponentInterface*>( objectSourceInfo->object() ) )
             {
@@ -1164,6 +1171,10 @@ void RiuViewerCommands::findFirstItems( Rim3dView*                          main
 
     for ( size_t i = 0; i < pickItemInfos.size(); i++ )
     {
+        // Skip preview-only geometry without source info (e.g. refinement region wireframes), so
+        // the pick falls through to the underlying cell instead of clearing Result Info.
+        if ( !pickItemInfos[i].sourceInfo() ) continue;
+
         // If hit item is nnc and is close to first (none-nnc) hit, store nncpart and face id
 
         bool canFindRelvantNNC = true;
