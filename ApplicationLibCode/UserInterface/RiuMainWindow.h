@@ -99,6 +99,7 @@ public:
 
     void removeViewer( QWidget* viewer ) override;
     void initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
+    void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
     void setActiveViewer( QWidget* subWindow ) override;
 
     ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) override;
@@ -289,6 +290,8 @@ private:
     QSlider* m_animationSlider;
 
     QToolBar* m_holoLensToolBar;
+
+    QPointer<ads::CDockWidget> m_centralDockWidget;
 
     std::vector<QPointer<ads::CDockWidget>> m_additionalProjectViews;
 };

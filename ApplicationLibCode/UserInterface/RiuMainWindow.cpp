@@ -107,6 +107,7 @@
 #include <QMimeData>
 #include <QSpinBox>
 #include <QStatusBar>
+#include <QTextEdit>
 #include <QThread>
 #include <QTimer>
 #include <QToolBar>
@@ -147,6 +148,14 @@ RiuMainWindow::RiuMainWindow()
     // ads::CDockWidget* cWidget = RiuDockWidgetTools::createDockWidget( "3D Views", RiuDockWidgetTools::main3DWindowName(), this );
     // cWidget->setWidget( m_mdiArea );
     // dockManager()->setCentralWidget( cWidget );
+
+    m_centralDockWidget = RiuDockWidgetTools::createDockWidget( "Welcome", "Welcome", this );
+    QTextEdit* welcome  = new QTextEdit();
+    welcome->setReadOnly( true );
+    welcome->setPlainText( "Welcome to ResInsight!\n\n"
+                           "To get started, open a project from the File menu or drag and drop a project file into this window." );
+    m_centralDockWidget->setWidget( welcome );
+    dockManager()->setCentralWidget( m_centralDockWidget );
 
     createActions();
     createMenus();
@@ -1271,6 +1280,16 @@ void RiuMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer,
 
     // initializeSubWindow( m_mdiArea, subWindow, subWindowPos, subWindowSize );
     subWindow->setWidget( viewer );
+
+    slotRefreshViewActions();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
+{
+    dockManager()->centralWidget()->dockContainer()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, dockWidget );
 
     slotRefreshViewActions();
 }
