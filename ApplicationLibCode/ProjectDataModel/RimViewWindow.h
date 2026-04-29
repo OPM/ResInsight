@@ -91,6 +91,7 @@ protected:
 
     ///////// Interface for the Window controller
     friend class RimMdiWindowController;
+    friend class RimDockWindowController;
 
     QString          windowTitle();
     virtual QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) = 0;
