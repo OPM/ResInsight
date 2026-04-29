@@ -106,11 +106,11 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     // menuForMdiArea << "RicOpenSummaryPlotEditorFromMdiAreaFeature";
     // new RiuContextMenuLauncher( m_mdiArea, menuForMdiArea );
 
-    // ads::CDockWidget* cWidget = RiuDockWidgetTools::createDockWidget( "Plot Window", RiuDockWidgetTools::mainPlotWindowName(), this );
+    ads::CDockWidget* cWidget = RiuDockWidgetTools::createDockWidget( "Plot Window", RiuDockWidgetTools::mainPlotWindowName(), this );
 
     // cWidget->setWidget( m_mdiArea );
-    // auto dockArea = dockManager()->setCentralWidget( cWidget );
-    // dockArea->setVisible( true );
+    auto dockArea = dockManager()->setCentralWidget( cWidget );
+    dockArea->setVisible( true );
 
     m_toggleSelectionLinkAction = new QAction( QIcon( ":/Link3DandPlots.png" ), tr( "Link With Selection in 3D" ), this );
     m_toggleSelectionLinkAction->setToolTip( "Update wells used in plots from well selections in 3D view." );

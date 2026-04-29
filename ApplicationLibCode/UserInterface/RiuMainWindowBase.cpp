@@ -142,6 +142,16 @@ QMdiSubWindow* RiuMainWindowBase::createViewWindow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+ads::CDockWidget* RiuMainWindowBase::createDockViewWindow()
+{
+    auto widget = RiuDockWidgetTools::createDockWidget( "3D view", "3dview", this );
+
+    return widget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimMdiWindowGeometry RiuMainWindowBase::windowGeometryForViewer( QWidget* viewer )
 {
     RiuMdiSubWindow* mdiWindow = dynamic_cast<RiuMdiSubWindow*>( findMdiSubWindow( viewer ) );
