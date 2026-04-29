@@ -49,6 +49,9 @@ public:
 
     bool isActive() const;
 
+    // Hide the collection node in the project tree while it has no regions, to keep the tree tidy.
+    bool shouldBeVisibleInTree() const;
+
     std::vector<RimRefinementRegion*> regions() const;
     std::vector<RimRefinementRegion*> activeRegions() const;
 
@@ -66,6 +69,7 @@ public:
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
     caf::PdmField<bool>                           m_isActive;
