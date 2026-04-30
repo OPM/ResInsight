@@ -1040,6 +1040,7 @@ T RigGeoMechWellLogExtractor::interpolateGridResultValue( RigFemResultPosEnum   
 
     if ( resultPosType == RIG_ELEMENT )
     {
+        if ( elmIdx >= gridResultValues.size() ) return std::numeric_limits<T>::infinity();
         return gridResultValues[elmIdx];
     }
 
@@ -1055,11 +1056,13 @@ T RigGeoMechWellLogExtractor::interpolateGridResultValue( RigFemResultPosEnum   
         // TODO: Should interpolate within the whole hexahedron. This requires converting to locals coordinates.
         // For now just pick the average value for the cell.
         size_t gridResultValueIdx = femPart->resultValueIdxFromResultPosType( resultPosType, static_cast<int>( elmIdx ), 0 );
-        T      sumOfVertexValues  = gridResultValues[gridResultValueIdx];
+        if ( gridResultValueIdx >= gridResultValues.size() ) return std::numeric_limits<T>::infinity();
+        T sumOfVertexValues = gridResultValues[gridResultValueIdx];
         for ( int i = 1; i < 8; ++i )
         {
             gridResultValueIdx = femPart->resultValueIdxFromResultPosType( resultPosType, static_cast<int>( elmIdx ), i );
-            sumOfVertexValues  = sumOfVertexValues + gridResultValues[gridResultValueIdx];
+            if ( gridResultValueIdx >= gridResultValues.size() ) return std::numeric_limits<T>::infinity();
+            sumOfVertexValues = sumOfVertexValues + gridResultValues[gridResultValueIdx];
         }
         return sumOfVertexValues * ( 1.0 / 8.0 );
     }
@@ -1092,6 +1095,7 @@ T RigGeoMechWellLogExtractor::interpolateGridResultValue( RigFemResultPosEnum   
     nodeResultValues.reserve( 4 );
     for ( size_t i = 0; i < nodeResIdx.size(); ++i )
     {
+        if ( nodeResIdx[i] >= gridResultValues.size() ) return std::numeric_limits<T>::infinity();
         nodeResultValues.push_back( gridResultValues[nodeResIdx[i]] );
     }
     T interpolatedValue = cvf::GeometryTools::interpolateQuad<T>( v0,
@@ -1398,6 +1402,17 @@ std::vector<T> RigGeoMechWellLogExtractor::interpolateInterfaceValues( RigFemRes
 {
     std::vector<T> interpolatedInterfaceValues;
     initializeResultValues( interpolatedInterfaceValues, intersections().size() );
+
+    if ( unscaledResultValues.empty() )
+    {
+        RiaLogging::warning( QString( "No result values available for %1 / %2 (time step %3, frame %4). "
+                                      "Well log curve will be empty." )
+                                 .arg( QString::fromStdString( nativeAddr.fieldName ) )
+                                 .arg( QString::fromStdString( nativeAddr.componentName ) )
+                                 .arg( timeStepIndex )
+                                 .arg( frameIndex ) );
+        return interpolatedInterfaceValues;
+    }
 
     const RigFemPart* femPart = m_caseData->femParts()->part( m_partId );
 
