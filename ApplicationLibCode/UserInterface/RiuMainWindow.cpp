@@ -1256,7 +1256,7 @@ RiuMessagePanel* RiuMainWindow::messagePanel()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::removeViewer( QWidget* viewer )
 {
-    // removeViewerFromMdiArea( m_mdiArea, viewer );
+    // m_dockManager->removeDockWidget( viewer );
     slotRefreshViewActions();
 }
 
