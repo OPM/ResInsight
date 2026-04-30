@@ -178,7 +178,6 @@ std::vector<RimEclipseView*> RicImportEclipseCaseFeature::allEclipseViews( RimPr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-#include <iostream>
 QStringList RicImportEclipseCaseFeature::findPvdFilesToImport( const QStringList& fileNames )
 {
     QStringList pvdFilesToImport;
@@ -210,7 +209,6 @@ QStringList RicImportEclipseCaseFeature::findPvdFilesToImport( const QStringList
                          otherBase.compare( baseName, Qt::CaseInsensitive ) != 0 )
                     {
                         otherBases.insert( otherBase );
-                        std::cout << "Found other Eclipse case base: " << otherBase.toStdString() << " (from file " << fileName.toStdString() << ")" << std::endl;
                     }
                     break;
                 }
@@ -232,7 +230,6 @@ QStringList RicImportEclipseCaseFeature::findPvdFilesToImport( const QStringList
                 if ( pvdFile.startsWith( otherBase, Qt::CaseInsensitive ) )
                 {
                     matchesOtherBase = true;
-                    std::cout << "Excluding PVD file: " << pvdFile.toStdString() << " (matches other base: " << otherBase.toStdString() << ")" << std::endl;
                     break;
                 }
             }

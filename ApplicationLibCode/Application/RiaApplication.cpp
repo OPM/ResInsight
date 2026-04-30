@@ -48,6 +48,7 @@
 
 #include "RicImportGeneralDataFeature.h"
 #include "RicImportGridAndSummaryEnsembleFeature.h"
+#include "RicImportEclipseCaseFeature.h"
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
 
@@ -427,6 +428,12 @@ bool RiaApplication::openFile( const QString& fileName )
         bool createPlot   = true;
         loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, createPlot, createView );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
+
+        if ( loadingSucceded && RiaDefines::isEclipseResultFileType( fileType ) )
+        {
+            // Keep behavior consistent with menu-based Eclipse case import.
+            RicImportEclipseCaseFeature::importPvdSurfacesForGridFiles( QStringList{ fileName }, {} );
+        }
     }
 
     if ( loadingSucceded )
