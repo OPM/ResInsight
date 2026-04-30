@@ -848,6 +848,16 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
         lines.push_back( m_twoAzimuthPoints );
     }
 
+    // remove all line segments with less than 2 points
+    std::vector<std::vector<cvf::Vec3d>> filteredLines;
+    for ( auto l : lines )
+    {
+        if ( l.size() > 1 )
+        {
+            filteredLines.push_back( l );
+        }
+    }
+
     if ( type() == CrossSectionEnum::CS_WELL_PATH || type() == CrossSectionEnum::CS_SIMULATION_WELL )
     {
         if ( type() == CrossSectionEnum::CS_SIMULATION_WELL && m_simulationWell() )
@@ -856,31 +866,32 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
 
             m_simulationWell->wellHeadTopBottomPosition( -1, &top, &bottom );
 
-            for ( std::vector<cvf::Vec3d>& polyLine : lines )
+            for ( std::vector<cvf::Vec3d>& polyLine : filteredLines )
             {
                 polyLine.insert( polyLine.begin(), top );
             }
         }
 
-        for ( std::vector<cvf::Vec3d>& polyLine : lines )
+        for ( std::vector<cvf::Vec3d>& polyLine : filteredLines )
         {
             addExtents( polyLine );
         }
 
-        if ( flattenedPolylineStartPoint && !lines.empty() && lines[0].size() > 1 )
+        if ( flattenedPolylineStartPoint && !filteredLines.empty() && filteredLines[0].size() > 1 )
         {
             ( *flattenedPolylineStartPoint )[0] = horizontalProjectedLengthAlongWellPathToClipPoint - m_extentLength;
-            ( *flattenedPolylineStartPoint )[2] = lines[0][1].z(); // Depth of first point in first polyline
+            ( *flattenedPolylineStartPoint )[2] = filteredLines[0][1].z(); // Depth of first point in first polyline
         }
     }
     else
     {
-        if ( flattenedPolylineStartPoint && !lines.empty() && !( lines[0] ).empty() )
+        if ( flattenedPolylineStartPoint && !filteredLines.empty() && !( filteredLines[0] ).empty() )
         {
-            ( *flattenedPolylineStartPoint )[2] = lines[0][0].z(); // Depth of first point in first polyline
+            ( *flattenedPolylineStartPoint )[2] = filteredLines[0][0].z(); // Depth of first point in first polyline
         }
     }
-    return lines;
+
+    return filteredLines;
 }
 
 //--------------------------------------------------------------------------------------------------
