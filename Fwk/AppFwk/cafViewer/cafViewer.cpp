@@ -526,6 +526,11 @@ bool caf::Viewer::calculateNearFarPlanes( const cvf::Rendering* rendering,
     const cvf::Scene* scene               = rendering->scene();
     bool              anyModelContributed = false;
 
+    // Camera::computeViewFrustum() returns an empty frustum if the projection matrix is degenerate
+    // (e.g., on the first paint after project open, before a valid near/far has been set). Calling
+    // Frustum::isOutside() on such a frustum asserts. Skip per-model culling when not fully populated.
+    const bool frustumCullingValid = viewFrustum.plane( cvf::Frustum::FRONT ).isValid();
+
     if ( scene )
     {
         for ( cvf::uint mIdx = 0; mIdx < scene->modelCount(); ++mIdx )
@@ -534,7 +539,7 @@ bool caf::Viewer::calculateNearFarPlanes( const cvf::Rendering* rendering,
             cvf::BoundingBox  modelBB = model->boundingBox();
 
             if ( !modelBB.isValid() ) continue;
-            if ( viewFrustum.isOutside( modelBB ) ) continue;
+            if ( frustumCullingValid && viewFrustum.isOutside( modelBB ) ) continue;
 
             cvf::Vec3d corners[8];
             modelBB.cornerVertices( corners );
