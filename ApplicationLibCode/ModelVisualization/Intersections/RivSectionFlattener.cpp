@@ -55,8 +55,15 @@ std::vector<cvf::Mat4d> RivSectionFlattener::calculateFlatteningCSsForPolyline( 
                                                                                 cvf::Vec3d*                    endOffset )
 {
     CVF_ASSERT( endOffset );
-    size_t pointCount = polyLine.size();
-    CVF_ASSERT( pointCount > 1 );
+    const size_t pointCount = polyLine.size();
+    if ( pointCount == 0 ) return {};
+    // If only one point, return identity matrix, as we can't calculate a direction
+    if ( pointCount == 1 )
+    {
+        // trigger assert in debug builds, as this should not happen, but return something valid in release builds
+        CVF_TIGHT_ASSERT( false );
+        return { cvf::Mat4d() };
+    }
 
     std::vector<cvf::Mat4d> segmentTransforms;
     segmentTransforms.reserve( pointCount );
