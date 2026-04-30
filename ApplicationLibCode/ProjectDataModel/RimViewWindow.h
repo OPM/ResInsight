@@ -27,7 +27,7 @@
 
 #include <vector>
 
-class RimMdiWindowController;
+class RimDockWindowController;
 
 struct RimMdiWindowGeometry
 {
@@ -90,7 +90,6 @@ protected:
     void removeMdiWindowFromMdiArea();
 
     ///////// Interface for the Window controller
-    friend class RimMdiWindowController;
     friend class RimDockWindowController;
 
     QString          windowTitle();
@@ -118,8 +117,8 @@ private:
     virtual void assignIdIfNecessary() = 0;
 
 protected:
-    caf::PdmField<bool>                         m_showWindow;
-    caf::PdmChildField<RimMdiWindowController*> m_windowController;
+    caf::PdmField<bool>                          m_showWindow;
+    caf::PdmChildField<RimDockWindowController*> m_windowController;
 
 private:
     // Obsoleted field
