@@ -108,6 +108,7 @@ protected:
     void createTreeViews( int numberOfTrees );
     void removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer );
     void initializeSubWindow( RiuMdiArea* mdiArea, QMdiSubWindow* mdiSubWindow, const QPoint& subWindowPos, const QSize& subWindowSize );
+    void removeViewerFromDockArea( QWidget* viewer );
 
     void restoreTreeViewStates( QString treeStateString, QString treeIndexString );
 

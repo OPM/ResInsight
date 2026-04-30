@@ -368,6 +368,17 @@ bool RiuMainWindowBase::isBlockingViewSelectionOnSubWindowActivated() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::removeViewerFromDockArea( QWidget* viewer )
+{
+    if ( auto dw = m_dockManager->findDockWidget( viewer->objectName() ) )
+    {
+        dw->close();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer )
 {
     bool removedSubWindowWasActive = false;
