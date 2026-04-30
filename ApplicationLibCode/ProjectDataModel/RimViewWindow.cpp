@@ -26,7 +26,7 @@
 
 #include "RicfCommandObject.h"
 
-#include "RimMdiWindowController.h"
+#include "RimDockWindowController.h"
 #include "RimProject.h"
 
 #include "cafPdmUiTreeAttributes.h"
@@ -96,7 +96,7 @@ void RimViewWindow::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::removeMdiWindowFromMdiArea()
 {
-    if ( m_windowController() ) m_windowController->removeWindowFromMDI();
+    if ( m_windowController() ) m_windowController->removeWindowFromDock();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -194,7 +194,7 @@ bool RimViewWindow::isMdiWindow() const
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry )
 {
-    if ( m_windowController() ) m_windowController()->setMdiWindowGeometry( windowGeometry );
+    if ( m_windowController() ) m_windowController()->setWindowGeometry( windowGeometry );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ void RimViewWindow::setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeom
 RimMdiWindowGeometry RimViewWindow::mdiWindowGeometry()
 {
     if ( m_windowController() )
-        return m_windowController()->mdiWindowGeometry();
+        return m_windowController()->windowGeometry();
     else
         return RimMdiWindowGeometry();
 }
@@ -293,7 +293,7 @@ void RimViewWindow::setAsMdiWindow( int mainWindowID )
 {
     if ( !m_windowController() )
     {
-        m_windowController = new RimMdiWindowController;
+        m_windowController = new RimDockWindowController;
         RimMdiWindowGeometry mwg;
         mwg.mainWindowID = mainWindowID;
         setMdiWindowGeometry( mwg );
