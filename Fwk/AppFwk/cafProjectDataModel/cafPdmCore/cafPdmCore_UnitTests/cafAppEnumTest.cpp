@@ -71,6 +71,43 @@ public:
 };
 
 //--------------------------------------------------------------------------------------------------
+/// Round-trip exercise of the type-erased mapping in AppEnumMapperBase: text <-> enum, index
+/// <-> enum, and out-of-range / unknown lookups.
+//--------------------------------------------------------------------------------------------------
+TEST( AppEnumTest, MappingRoundTrip )
+{
+    using AE = caf::AppEnum<TestEnumType>;
+
+    EXPECT_EQ( 5u, AE::size() );
+
+    EXPECT_EQ( QString( "VALUE_C" ), AE::text( TestEnumType::VALUE_C ) );
+    EXPECT_EQ( QString( "Value C" ), AE::uiText( TestEnumType::VALUE_C ) );
+    EXPECT_EQ( 2u, AE::index( TestEnumType::VALUE_C ) );
+
+    EXPECT_EQ( TestEnumType::VALUE_D, AE::fromText( "VALUE_D" ) );
+    EXPECT_EQ( TestEnumType::VALUE_D, AE::fromIndex( 3 ) );
+
+    EXPECT_TRUE( AE::isValid( QString( "VALUE_A" ) ) );
+    EXPECT_FALSE( AE::isValid( QString( "NOT_A_VALUE" ) ) );
+    EXPECT_TRUE( AE::isValid( size_t{ 0 } ) );
+    EXPECT_FALSE( AE::isValid( size_t{ 99 } ) );
+
+    AE e;
+    EXPECT_EQ( TestEnumType::VALUE_A, e.value() ); // Default is VALUE_A
+    EXPECT_TRUE( e.setFromText( "VALUE_E" ) );
+    EXPECT_EQ( TestEnumType::VALUE_E, e.value() );
+    EXPECT_TRUE( e.setFromIndex( 1 ) );
+    EXPECT_EQ( TestEnumType::VALUE_B, e.value() );
+
+    // Unknown text and out-of-range index return false and reset to default
+    EXPECT_FALSE( e.setFromText( "DOES_NOT_EXIST" ) );
+    EXPECT_EQ( TestEnumType::VALUE_A, e.value() );
+    e = TestEnumType::VALUE_C;
+    EXPECT_FALSE( e.setFromIndex( 99 ) );
+    EXPECT_EQ( TestEnumType::VALUE_A, e.value() );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Test that two different objects can have the same field keyword with different enum subsets
 //--------------------------------------------------------------------------------------------------
 TEST( AppEnumTest, EnumSubsetNoCollision )
