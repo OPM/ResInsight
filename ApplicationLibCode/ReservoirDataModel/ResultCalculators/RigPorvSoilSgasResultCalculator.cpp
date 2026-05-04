@@ -130,8 +130,8 @@ void RigPorvSoilSgasResultCalculator::calculate( const RigEclipseResultAddress& 
         bool res1ActiveOnly = in1Results.size() == activeCellCount;
         bool res2ActiveOnly = in2Results.size() == activeCellCount;
 
-        if ( ( !res1ActiveOnly ) && ( in1Results.size() != totalCellCount ) ) return;
-        if ( ( !res2ActiveOnly ) && ( in2Results.size() != totalCellCount ) ) return;
+        if ( ( !res1ActiveOnly ) && ( in1Results.size() != totalCellCount ) ) continue;
+        if ( ( !res2ActiveOnly ) && ( in2Results.size() != totalCellCount ) ) continue;
 
 #pragma omp parallel for
         for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( totalCellCount ); nativeResvCellIndex++ )
