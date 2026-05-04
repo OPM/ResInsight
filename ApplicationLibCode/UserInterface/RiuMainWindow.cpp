@@ -155,6 +155,7 @@ RiuMainWindow::RiuMainWindow()
     welcome->setPlainText( "Welcome to ResInsight!\n\n"
                            "To get started, open a project from the File menu or drag and drop a project file into this window." );
     m_centralDockWidget->setWidget( welcome );
+    m_centralDockWidget->setFeature( ads::CDockWidget::NoTab, true );
     dockManager()->setCentralWidget( m_centralDockWidget );
 
     createActions();
@@ -1289,7 +1290,7 @@ void RiuMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer,
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
 {
-    dockManager()->centralWidget()->dockContainer()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, dockWidget );
+    dockManager()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, dockWidget, dockManager()->centralWidget()->dockAreaWidget() );
 
     slotRefreshViewActions();
 }
