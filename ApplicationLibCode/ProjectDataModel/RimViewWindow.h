@@ -29,6 +29,11 @@
 
 class RimDockWindowController;
 
+namespace ads
+{
+class CDockWidget;
+} // namespace ads
+
 struct RimMdiWindowGeometry
 {
     RimMdiWindowGeometry()
@@ -79,6 +84,9 @@ public:
 
     virtual QWidget* viewWidget() = 0;
 
+    ads::CDockWidget* dockWidget();
+    ads::CDockWidget* createDockWidget();
+
     virtual QImage snapshotWindowContent();
     virtual void   zoomAll() = 0;
 
@@ -119,6 +127,7 @@ private:
 protected:
     caf::PdmField<bool>                          m_showWindow;
     caf::PdmChildField<RimDockWindowController*> m_windowController;
+    ads::CDockWidget*                            m_dockWidget;
 
 private:
     // Obsoleted field

@@ -32,6 +32,8 @@
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeViewEditor.h"
 
+#include "DockWidget.h"
+
 #include <QDebug>
 #include <QImage>
 #include <QPixmap>
@@ -43,6 +45,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. 
 ///
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::RimViewWindow()
+    : m_dockWidget( nullptr )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
 
@@ -280,9 +283,10 @@ void RimViewWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::updateMdiWindowTitle()
 {
-    if ( viewWidget() )
+    if ( viewWidget() && dockWidget() )
     {
         viewWidget()->setWindowTitle( windowTitle() );
+        dockWidget()->setWindowTitle( windowTitle() );
     }
 }
 
@@ -346,4 +350,24 @@ void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
         tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
         treeItemAttribute->tags.push_back( std::move( tag ) );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ads::CDockWidget* RimViewWindow::dockWidget()
+{
+    return m_dockWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ads::CDockWidget* RimViewWindow::createDockWidget()
+{
+    if ( !m_dockWidget )
+    {
+        m_dockWidget = new ads::CDockWidget( windowTitle() );
+    }
+    return m_dockWidget;
 }
