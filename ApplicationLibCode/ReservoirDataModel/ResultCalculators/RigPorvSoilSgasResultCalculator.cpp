@@ -114,7 +114,9 @@ void RigPorvSoilSgasResultCalculator::calculate( const RigEclipseResultAddress& 
     size_t outIdx = m_resultsData->findOrCreateScalarResultIndex( outAddr, false );
     m_resultsData->m_cellScalarResults[outIdx].resize( m_resultsData->maxTimeStepCount() );
 
-    size_t activeCellCount = m_resultsData->m_activeCellInfo->reservoirActiveCellCount();
+    const auto totalCellCount  = m_resultsData->m_ownerMainGrid->totalCellCount();
+    const auto activeCellCount = m_resultsData->m_activeCellInfo->reservoirActiveCellCount();
+
     for ( size_t timeStepIdx = 0; timeStepIdx < m_resultsData->maxTimeStepCount(); timeStepIdx++ )
     {
         size_t                     timeStep1Idx = in1Addr.resultCatType() != RiaDefines::ResultCatType::STATIC_NATIVE ? timeStepIdx : 0;
@@ -128,9 +130,11 @@ void RigPorvSoilSgasResultCalculator::calculate( const RigEclipseResultAddress& 
         bool res1ActiveOnly = in1Results.size() == activeCellCount;
         bool res2ActiveOnly = in2Results.size() == activeCellCount;
 
+        if ( ( !res1ActiveOnly ) && ( in1Results.size() != totalCellCount ) ) return;
+        if ( ( !res2ActiveOnly ) && ( in2Results.size() != totalCellCount ) ) return;
+
 #pragma omp parallel for
-        for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( m_resultsData->m_ownerMainGrid->totalCellCount() );
-              nativeResvCellIndex++ )
+        for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( totalCellCount ); nativeResvCellIndex++ )
         {
             size_t resultIndex = m_resultsData->activeCellInfo()->cellResultIndex( ReservoirCellIndex( nativeResvCellIndex ) ).value();
             if ( resultIndex != cvf::UNDEFINED_SIZE_T )
