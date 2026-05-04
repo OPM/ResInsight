@@ -36,6 +36,14 @@ F = TypeVar("F", bound=Callable[..., Any])
 C = TypeVar("C")
 
 
+def _is_closed_channel_error(exc: BaseException) -> bool:
+    # gRPC raises ValueError("Cannot invoke RPC on closed channel!") when an
+    # RPC is attempted after the channel has been closed (e.g. by the
+    # heartbeat after detecting a dead server). Translate to RipsError so
+    # callers see a typed exception instead of a bare ValueError.
+    return isinstance(exc, ValueError) and "closed channel" in str(exc)
+
+
 def add_method(cls: C) -> Callable[[F], F]:
     def decorator(func: F) -> F:
         def wrapper(*args, **kwargs):
@@ -45,6 +53,13 @@ def add_method(cls: C) -> Callable[[F], F]:
                 raise RipsError(
                     e.details(), code=e.code(), details=e.details()
                 ) from None
+            except ValueError as e:
+                if _is_closed_channel_error(e):
+                    raise RipsError(
+                        "ResInsight gRPC channel is closed "
+                        "(server may have crashed or been shut down)"
+                    ) from e
+                raise
 
         # Explicitly preserve signature for Sphinx documentation
         wrapper.__name__ = func.__name__
@@ -563,6 +578,13 @@ class PdmObjectBase:
             raise RipsError(
                 "%s" % exc.details(), code=exc.code(), details=exc.details()
             ) from None
+        except ValueError as exc:
+            if _is_closed_channel_error(exc):
+                raise RipsError(
+                    "ResInsight gRPC channel is closed "
+                    "(server may have crashed or been shut down)"
+                ) from exc
+            raise
 
     def _call_pdm_method_return_value(
         self, method_name: str, class_definition: Type[PdmObjectT], **kwargs: Any
@@ -584,6 +606,13 @@ class PdmObjectBase:
             raise RipsError(
                 "%s" % exc.details(), code=exc.code(), details=exc.details()
             ) from None
+        except ValueError as exc:
+            if _is_closed_channel_error(exc):
+                raise RipsError(
+                    "ResInsight gRPC channel is closed "
+                    "(server may have crashed or been shut down)"
+                ) from exc
+            raise
 
     def _call_pdm_method_return_optional_value(
         self, method_name: str, class_definition: Type[PdmObjectT], **kwargs: Any
@@ -616,6 +645,13 @@ class PdmObjectBase:
             raise RipsError(
                 "%s" % exc.details(), code=exc.code(), details=exc.details()
             ) from None
+        except ValueError as exc:
+            if _is_closed_channel_error(exc):
+                raise RipsError(
+                    "ResInsight gRPC channel is closed "
+                    "(server may have crashed or been shut down)"
+                ) from exc
+            raise
 
     def update(self) -> None:
         """Sync all fields from the Python Object to ResInsight
