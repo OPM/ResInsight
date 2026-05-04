@@ -50,6 +50,7 @@
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
+#include "RimDataFilterCollection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
@@ -124,6 +125,10 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
 
+    CAF_PDM_InitFieldNoDefault( &m_dataFilterCollection, "DataFilterCollection", "Data Filters" );
+    m_dataFilterCollection = new RimDataFilterCollection;
+    m_dataFilterCollection->setCase( this );
+
     CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultAliasList, "ResultAliasNames", "Result Name Aliases" );
@@ -151,6 +156,7 @@ RimEclipseCase::~RimEclipseCase()
     delete m_fractureModelResults();
     delete m_inputPropertyCollection;
     delete m_viewCollection;
+    delete m_dataFilterCollection;
 
     RimProject* project = RimProject::current();
     if ( project )
@@ -303,6 +309,8 @@ void RimEclipseCase::initAfterRead()
     }
 
     m_contourMapCollection_OBSOLETE->clearWithoutDelete();
+
+    m_dataFilterCollection()->setCase( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -667,6 +675,8 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
             uiTreeOrdering.add( &m_2dIntersectionViewCollection );
         }
 
+        uiTreeOrdering.add( m_dataFilterCollection() );
+
         uiTreeOrdering.add( &m_wellTargetMappings );
     }
     else if ( uiConfigName == "MainWindow.DataSources" )
@@ -781,6 +791,14 @@ RimEclipseContourMapViewCollection* RimEclipseCase::contourMapCollection() const
 RimEclipseInputPropertyCollection* RimEclipseCase::inputPropertyCollection() const
 {
     return m_inputPropertyCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimDataFilterCollection* RimEclipseCase::dataFilterCollection() const
+{
+    return m_dataFilterCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

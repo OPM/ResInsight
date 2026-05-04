@@ -3,6 +3,9 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilter.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCombinedFilter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterInView.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterInViewCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilter.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilterCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilter.h
@@ -21,6 +24,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCombinedFilter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterInView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterInViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilterCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilter.cpp

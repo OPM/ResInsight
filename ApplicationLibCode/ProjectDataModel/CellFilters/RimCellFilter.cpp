@@ -385,7 +385,8 @@ void RimCellFilter::applyToCellVisibility( cvf::UByteArray* cellVisibility, cons
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilter::isFilterControlled() const
 {
-    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
+    // Case-level data filters have no view ancestor; treat as not controlled.
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
 
     bool isFilterControlled = false;
     if ( rimView && rimView->viewController() && rimView->viewController()->isCellFiltersControlled() )

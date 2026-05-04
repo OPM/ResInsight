@@ -47,6 +47,7 @@ class Rim3dOverlayInfoConfig;
 class RimCellEdgeColors;
 class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
+class RimDataFilterInViewCollection;
 class RimEclipseCase;
 class RimEclipseCellColors;
 class RimEclipseFaultColors;
@@ -126,6 +127,11 @@ public:
     RimEclipsePropertyFilterCollection*       eclipsePropertyFilterCollection();
     const RimEclipsePropertyFilterCollection* eclipsePropertyFilterCollection() const;
     void                                      setOverridePropertyFilterCollection( RimEclipsePropertyFilterCollection* pfc );
+
+    RimDataFilterInViewCollection* dataFiltersInView() const;
+
+    bool hasActivePropertyOrDataFilters() const;
+    bool hasActiveDynamicPropertyOrDataFilters() const;
 
     RigCaseCellResultsData*  currentGridCellResults() const;
     const RigActiveCellInfo* currentActiveCellInfo() const;
@@ -266,6 +272,8 @@ private:
 
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
+
+    caf::PdmChildField<RimDataFilterInViewCollection*> m_dataFiltersInView;
 
     caf::PdmPtrField<RimEclipseCase*> m_customEclipseCase_OBSOLETE;
 

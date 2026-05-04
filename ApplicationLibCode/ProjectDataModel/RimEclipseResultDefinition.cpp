@@ -772,9 +772,14 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         {
             options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-            RimEclipseView* eclView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
-
-            auto eclipseCase = eclView->eclipseCase();
+            // Prefer the directly-bound eclipse case (covers case-level result definitions that
+            // have no view ancestor). Fall back to the host view's case for backward compat.
+            RimEclipseCase* eclipseCase = m_eclipseCase;
+            if ( !eclipseCase )
+            {
+                if ( auto* eclView = firstAncestorOrThisOfType<RimEclipseView>() )
+                    eclipseCase = eclView->eclipseCase();
+            }
             if ( eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid() )
             {
                 RimProject* proj = RimProject::current();
@@ -797,9 +802,12 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         }
         else if ( fieldNeedingOptions == &m_timeLapseBaseTimestep )
         {
-            RimEclipseView* eclView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
-
-            RimEclipseCase* currentCase = eclView->eclipseCase();
+            RimEclipseCase* currentCase = m_eclipseCase;
+            if ( !currentCase )
+            {
+                if ( auto* eclView = firstAncestorOrThisOfType<RimEclipseView>() )
+                    currentCase = eclView->eclipseCase();
+            }
 
             RimEclipseCase* baseCase = currentCase;
             if ( m_differenceCase )

@@ -197,16 +197,32 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
         updateIconState();
         uiCapability()->updateConnectedEditors();
 
-        parentContainer()->updateDisplayModelNotifyManagedViews( this );
+        if ( auto* container = parentContainer() )
+            container->updateDisplayModelNotifyManagedViews( this );
+        else
+            triggerFilterChanged();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// May return null when this filter lives in a case-level RimDataFilterCollection rather than a
+/// per-view RimEclipsePropertyFilterCollection. Callers must handle that case.
+//--------------------------------------------------------------------------------------------------
+RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
+{
+    return firstAncestorOrThisOfType<RimEclipsePropertyFilterCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
+void RimEclipsePropertyFilter::setCase( RimCase* srcCase )
 {
-    return firstAncestorOrThisOfTypeAsserted<RimEclipsePropertyFilterCollection>();
+    RimCellFilter::setCase( srcCase );
+    if ( auto* eclipseCase = dynamic_cast<RimEclipseCase*>( srcCase ) )
+    {
+        m_resultDefinition->setEclipseCase( eclipseCase );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,8 +230,6 @@ RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::setToDefaultValues()
 {
-    CVF_ASSERT( parentContainer() );
-
     computeResultValueRange();
 
     m_lowerBound.setValueWithFieldChanged( m_minimumResultValue );
@@ -352,17 +366,12 @@ void RimEclipsePropertyFilter::updateRangeLabel()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilter::isPropertyFilterControlled()
 {
-    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
-
-    bool isPropertyFilterControlled = false;
+    // Case-level data filters have no view ancestor; treat as not controlled.
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
+    if ( !rimView ) return false;
 
     RimViewController* vc = rimView->viewController();
-    if ( vc && vc->isPropertyFilterOveridden() )
-    {
-        isPropertyFilterControlled = true;
-    }
-
-    return isPropertyFilterControlled;
+    return vc && vc->isPropertyFilterOveridden();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -433,7 +442,8 @@ void RimEclipsePropertyFilter::defineObjectEditorAttribute( QString uiConfigName
 {
     if ( !m_isDuplicatedFromLinkedView ) return;
 
-    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
+    if ( !rimView ) return;
 
     RimViewController* vc = rimView->viewController();
     if ( vc && vc->isPropertyFilterDuplicationActive() )
@@ -487,8 +497,6 @@ void RimEclipsePropertyFilter::setLowerBound( const int& lowerBound )
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::computeResultValueRange()
 {
-    CVF_ASSERT( parentContainer() );
-
     double min = HUGE_VAL;
     double max = -HUGE_VAL;
 
@@ -529,12 +537,11 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                 {
                     if ( m_resultDefinition->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                     {
-                        CVF_ASSERT( parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData() );
-
-                        const std::vector<QString> fnVector =
-                            parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData()->formationNames();
-
-                        setCategoryNames( fnVector );
+                        RimEclipseCase* ec = m_resultDefinition->eclipseCase();
+                        if ( ec && ec->eclipseCaseData() )
+                        {
+                            setCategoryNames( ec->eclipseCaseData()->formationNames() );
+                        }
                     }
                     else if ( m_resultDefinition->resultVariable() == RiaResultNames::completionTypeResultName() )
                     {
@@ -697,7 +704,14 @@ void RimEclipsePropertyFilter::initAfterRead()
 {
     m_resultDefinition->initAfterRead();
 
-    m_resultDefinition->setEclipseCase( parentContainer()->reservoirView()->eclipseCase() );
+    if ( auto* container = parentContainer() )
+    {
+        m_resultDefinition->setEclipseCase( container->reservoirView()->eclipseCase() );
+    }
+    else if ( auto* ec = eclipseCase() )
+    {
+        m_resultDefinition->setEclipseCase( ec );
+    }
     updateIconState();
 }
 
@@ -715,11 +729,16 @@ void RimEclipsePropertyFilter::applyToCellVisibility( cvf::UByteArray* cellVisib
 
     resultDefinition()->loadResult();
 
-    auto* container = parentContainer();
-    if ( !container ) return;
-    auto* view = container->reservoirView();
-    if ( !view || !view->eclipseCase() ) return;
-    RigEclipseCaseData* eclipseCase = view->eclipseCase()->eclipseCaseData();
+    // The result definition carries its own eclipse case binding (set via setEclipseCase). Prefer
+    // that, since case-level data filters have no view-side property-filter-collection ancestor.
+    RimEclipseCase* ec = resultDefinition()->eclipseCase();
+    if ( !ec )
+    {
+        if ( auto* container = parentContainer() )
+            if ( auto* view = container->reservoirView() ) ec = view->eclipseCase();
+    }
+    if ( !ec ) return;
+    RigEclipseCaseData* eclipseCase = ec->eclipseCaseData();
     if ( !eclipseCase ) return;
 
     cvf::ref<RigResultAccessor> resultAccessor =

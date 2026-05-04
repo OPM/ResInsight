@@ -52,13 +52,14 @@ RicNewRangeFilterSliceFeature::RicNewRangeFilterSliceFeature( QString cmdText, Q
 void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
 {
     const int sliceDir = m_sliceDirection;
-    if ( RicCellFilterFeatureTools::addNewFilterIfCombinedSelected<RimCellRangeFilter>(
-             [sliceDir]( RimCellRangeFilter* f )
-             {
-                 f->setGridIndex( 0 );
-                 f->setDefaultValues( sliceDir, -1 );
-             } ) )
-        return;
+    auto      initSlice = [sliceDir]( RimCellRangeFilter* f )
+    {
+        f->setGridIndex( 0 );
+        f->setDefaultValues( sliceDir, -1 );
+    };
+
+    if ( RicCellFilterFeatureTools::addNewFilterIfCombinedSelected<RimCellRangeFilter>( initSlice ) ) return;
+    if ( RicCellFilterFeatureTools::addNewFilterToDataCollectionIfSelected<RimCellRangeFilter>( initSlice ) ) return;
 
     RimCellFilterCollection* filterCollection = nullptr;
     RimCase*                 sourceCase       = nullptr;

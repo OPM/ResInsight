@@ -21,11 +21,13 @@
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCombinedFilter.h"
+#include "RimDataFilterCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
 
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -45,15 +47,34 @@ bool addNewFilterIfCombinedSelected( Init&& init )
     std::vector<RimCombinedFilter*> combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
     if ( combined.empty() ) return false;
 
-    RimCombinedFilter* target = combined.front();
-    if ( auto* view = target->firstAncestorOrThisOfType<Rim3dView>() )
-    {
-        if ( view->ownerCase() )
-        {
-            T* created = target->addNewFilter<T>( std::forward<Init>( init ) );
-            if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
-        }
-    }
+    // Combined filters may live under a view OR under the case-level RimDataFilterCollection. The
+    // combined filter's own m_srcCase is propagated to new children via addNewFilter, so we don't
+    // need a Rim3dView ancestor here.
+    RimCombinedFilter* target  = combined.front();
+    T*                 created = target->addNewFilter<T>( std::forward<Init>( init ) );
+    if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// If a RimDataFilterCollection (case-level) is the current selection, create a new T inside it,
+/// configure it via init, and select the result. Returns true when a data-filter collection was the
+/// selection — the caller should bail out of its own collection-targeted flow.
+//--------------------------------------------------------------------------------------------------
+template <typename T, typename Init>
+bool addNewFilterToDataCollectionIfSelected( Init&& init )
+{
+    static_assert( std::is_base_of_v<RimCellFilter, T>, "T must derive from RimCellFilter" );
+
+    std::vector<RimDataFilterCollection*> selected = caf::selectedObjectsByTypeStrict<RimDataFilterCollection*>();
+    if ( selected.empty() ) return false;
+
+    RimDataFilterCollection* target = selected.front();
+
+    auto* created = new T();
+    target->addFilter( created );
+    std::forward<Init>( init )( created );
+    Riu3DMainWindowTools::selectAsCurrentItem( created );
     return true;
 }
 } // namespace RicCellFilterFeatureTools

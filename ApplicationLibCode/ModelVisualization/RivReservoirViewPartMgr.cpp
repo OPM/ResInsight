@@ -33,6 +33,8 @@
 #include "RimCellEdgeColors.h"
 #include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
+#include "RimDataFilterInView.h"
+#include "RimDataFilterInViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
@@ -854,13 +856,26 @@ void RivReservoirViewPartMgr::computePropertyVisibility( cvf::UByteArray*       
     // Copy if not equal
     if ( cellVisibility != rangeFilterVisibility ) ( *cellVisibility ) = *rangeFilterVisibility;
 
-    if ( !propFilterColl->hasActiveFilters() ) return;
+    // Static method: the host view is reached via the property filter collection's ancestry.
+    RimEclipseView*                view                = propFilterColl->firstAncestorOrThisOfType<RimEclipseView>();
+    RimDataFilterInViewCollection* dataInView          = view ? view->dataFiltersInView() : nullptr;
+    const bool                     hasCaseLevelFilters = dataInView && dataInView->hasActiveFilters();
+
+    if ( !propFilterColl->hasActiveFilters() && !hasCaseLevelFilters ) return;
 
     for ( RimCellFilter* filter : propFilterColl->filtersForEvaluation() )
     {
         if ( filter && filter->isActive() )
         {
             filter->applyToCellVisibility( cellVisibility, grid, timeStepIndex );
+        }
+    }
+
+    if ( hasCaseLevelFilters )
+    {
+        for ( RimDataFilterInView* wrapper : dataInView->activeWrappers() )
+        {
+            wrapper->applyToCellVisibility( cellVisibility, grid, timeStepIndex );
         }
     }
 }

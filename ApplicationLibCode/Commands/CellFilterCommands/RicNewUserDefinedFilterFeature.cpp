@@ -40,6 +40,7 @@ CAF_CMD_SOURCE_INIT( RicNewUserDefinedFilterFeature, "RicNewUserDefinedFilterFea
 void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
 {
     if ( RicCellFilterFeatureTools::addNewFilterIfCombinedSelected<RimUserDefinedFilter>( []( RimUserDefinedFilter* ) {} ) ) return;
+    if ( RicCellFilterFeatureTools::addNewFilterToDataCollectionIfSelected<RimUserDefinedFilter>( []( RimUserDefinedFilter* ) {} ) ) return;
 
     // Find the selected Cell Filter Collection
     std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();

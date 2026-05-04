@@ -26,6 +26,7 @@
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimCombinedFilter.h"
+#include "RimDataFilterCollection.h"
 #include "RimGridView.h"
 #include "RimPolygonFilter.h"
 
@@ -37,6 +38,19 @@
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewPolygonFilterFeature, "RicNewPolygonFilterFeature" );
+
+namespace
+{
+void configurePolygonFilter( RimPolygonFilter* f, RimPolygon* polygon )
+{
+    f->setPolygon( polygon );
+    f->configurePolygonEditor();
+    if ( polygon )
+        f->enableFilter( true );
+    else
+        f->enablePicking( true );
+}
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -68,38 +82,40 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
         polygons = selectedPolygons();
     }
 
-    // If a combined filter is selected, add polygon filters as its children.
+    // If a combined filter is selected, add polygon filters as its children. Combined filters can
+    // live either under a view (RimCellFilterCollection / RimEclipsePropertyFilterCollection) or
+    // under the case-level RimDataFilterCollection — both are supported, so no Rim3dView ancestor
+    // is required here. The combined filter's own m_srcCase drives propagation into new children.
     auto* combined = caf::SelectionManager::instance()->selectedItemOfType<RimCombinedFilter>();
     if ( combined )
     {
-        RimCase* srcCase = combined->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
-        if ( !srcCase ) return;
-
         auto addOne = [combined]( RimPolygon* polygon )
         {
-            return combined->addNewFilter<RimPolygonFilter>(
-                [polygon]( RimPolygonFilter* f )
-                {
-                    f->setPolygon( polygon );
-                    f->configurePolygonEditor();
-                    if ( polygon )
-                        f->enableFilter( true );
-                    else
-                        f->enablePicking( true );
-                } );
+            return combined->addNewFilter<RimPolygonFilter>( [polygon]( RimPolygonFilter* f ) { configurePolygonFilter( f, polygon ); } );
         };
 
+        if ( polygons.empty() ) polygons.push_back( nullptr );
         RimPolygonFilter* lastItem = nullptr;
-        if ( polygons.empty() )
+        for ( auto polygon : polygons )
         {
-            lastItem = addOne( nullptr );
+            lastItem = addOne( polygon );
         }
-        else
+        if ( lastItem ) Riu3DMainWindowTools::selectAsCurrentItem( lastItem );
+        return;
+    }
+
+    // If a case-level Data Filter Collection is selected, add polygon filters there.
+    auto* dataCollection = caf::SelectionManager::instance()->selectedItemOfType<RimDataFilterCollection>();
+    if ( dataCollection )
+    {
+        if ( polygons.empty() ) polygons.push_back( nullptr );
+        RimPolygonFilter* lastItem = nullptr;
+        for ( auto polygon : polygons )
         {
-            for ( auto polygon : polygons )
-            {
-                lastItem = addOne( polygon );
-            }
+            auto* f = new RimPolygonFilter();
+            dataCollection->addFilter( f );
+            configurePolygonFilter( f, polygon );
+            lastItem = f;
         }
         if ( lastItem ) Riu3DMainWindowTools::selectAsCurrentItem( lastItem );
         return;
