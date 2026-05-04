@@ -90,9 +90,7 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
     if ( combined )
     {
         auto addOne = [combined]( RimPolygon* polygon )
-        {
-            return combined->addNewFilter<RimPolygonFilter>( [polygon]( RimPolygonFilter* f ) { configurePolygonFilter( f, polygon ); } );
-        };
+        { return combined->addNewFilter<RimPolygonFilter>( [polygon]( RimPolygonFilter* f ) { configurePolygonFilter( f, polygon ); } ); };
 
         if ( polygons.empty() ) polygons.push_back( nullptr );
         RimPolygonFilter* lastItem = nullptr;

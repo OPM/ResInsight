@@ -142,8 +142,7 @@ void RimDataFilterCollection::onItemsChanged()
 /// Hook from caf::PdmObjectCollection<T>: PDM invokes this after a child is detached from
 /// m_items. Forward as filtersChanged so view-side wrappers reconcile.
 //--------------------------------------------------------------------------------------------------
-void RimDataFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                              std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimDataFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateConnectedEditors();
     filtersChanged.send();

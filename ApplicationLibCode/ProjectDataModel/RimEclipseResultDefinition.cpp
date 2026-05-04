@@ -777,8 +777,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
             RimEclipseCase* eclipseCase = m_eclipseCase;
             if ( !eclipseCase )
             {
-                if ( auto* eclView = firstAncestorOrThisOfType<RimEclipseView>() )
-                    eclipseCase = eclView->eclipseCase();
+                if ( auto* eclView = firstAncestorOrThisOfType<RimEclipseView>() ) eclipseCase = eclView->eclipseCase();
             }
             if ( eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid() )
             {
@@ -805,8 +804,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
             RimEclipseCase* currentCase = m_eclipseCase;
             if ( !currentCase )
             {
-                if ( auto* eclView = firstAncestorOrThisOfType<RimEclipseView>() )
-                    currentCase = eclView->eclipseCase();
+                if ( auto* eclView = firstAncestorOrThisOfType<RimEclipseView>() ) currentCase = eclView->eclipseCase();
             }
 
             RimEclipseCase* baseCase = currentCase;

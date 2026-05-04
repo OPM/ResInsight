@@ -91,7 +91,8 @@ void RimDataFilterInViewCollection::syncWithSource()
     if ( !m_sourceCollection() )
     {
         m_wrappers.clearWithoutDelete();
-        for ( auto* w : existing ) delete w;
+        for ( auto* w : existing )
+            delete w;
         updateConnectedEditors();
         return;
     }

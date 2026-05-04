@@ -51,7 +51,7 @@ RicNewRangeFilterSliceFeature::RicNewRangeFilterSliceFeature( QString cmdText, Q
 //--------------------------------------------------------------------------------------------------
 void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
 {
-    const int sliceDir = m_sliceDirection;
+    const int sliceDir  = m_sliceDirection;
     auto      initSlice = [sliceDir]( RimCellRangeFilter* f )
     {
         f->setGridIndex( 0 );
