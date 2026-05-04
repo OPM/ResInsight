@@ -42,8 +42,42 @@
 #include "QPixmap"
 #include "QtSvg/QSvgRenderer"
 
+#include <QCoreApplication>
+
+#include <vector>
+
+namespace
+{
+std::vector<QIcon*>& managedIcons()
+{
+    static std::vector<QIcon*> v;
+    return v;
+}
+
+void deleteManagedIcons()
+{
+    for ( QIcon* p : managedIcons() )
+        delete p;
+    managedIcons().clear();
+}
+} // namespace
+
 namespace caf
 {
+QIcon* makeManagedIcon( QIcon source )
+{
+    static bool registered = false;
+    if ( !registered )
+    {
+        registered = true;
+        qAddPostRoutine( deleteManagedIcons );
+    }
+    auto* icon = new QIcon( std::move( source ) );
+    managedIcons().push_back( icon );
+    return icon;
+}
+
+
 /* GIMP RGBA C-Source image dump (StepDown.c) */
 
 static const struct
@@ -240,9 +274,9 @@ static const char* information_svg_data = R"(
 //--------------------------------------------------------------------------------------------------
 const QIcon UiIconFactory::stepUpIcon()
 {
-    static QIcon expandDownIcon(
+    static const QIcon* icon = makeManagedIcon(
         UiIconFactory::createIcon( stepUpImageData.pixel_data, stepUpImageData.width, stepUpImageData.height ) );
-    return expandDownIcon;
+    return *icon;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -250,9 +284,9 @@ const QIcon UiIconFactory::stepUpIcon()
 //--------------------------------------------------------------------------------------------------
 const QIcon UiIconFactory::stepDownIcon()
 {
-    static QIcon expandDownIcon(
+    static const QIcon* icon = makeManagedIcon(
         UiIconFactory::createIcon( stepDownImageData.pixel_data, stepDownImageData.width, stepDownImageData.height ) );
-    return expandDownIcon;
+    return *icon;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,12 +294,12 @@ const QIcon UiIconFactory::stepDownIcon()
 //--------------------------------------------------------------------------------------------------
 const QIcon UiIconFactory::twoStateChainIcon()
 {
-    static QIcon icon( UiIconFactory::createTwoStateIcon( linked_svg_data,
-                                                          unlinked_svg_data,
-                                                          UiIconFactory::iconWidth(),
-                                                          UiIconFactory::iconHeight() ) );
+    static const QIcon* icon = makeManagedIcon( UiIconFactory::createTwoStateIcon( linked_svg_data,
+                                                                                   unlinked_svg_data,
+                                                                                   UiIconFactory::iconWidth(),
+                                                                                   UiIconFactory::iconHeight() ) );
 
-    return icon;
+    return *icon;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -273,12 +307,12 @@ const QIcon UiIconFactory::twoStateChainIcon()
 //--------------------------------------------------------------------------------------------------
 const QIcon UiIconFactory::twoStateWhiteChainIcon()
 {
-    static QIcon icon( UiIconFactory::createTwoStateIcon( linked_white_svg_data,
-                                                          unlinked_white_svg_data,
-                                                          UiIconFactory::iconWidth(),
-                                                          UiIconFactory::iconHeight() ) );
+    static const QIcon* icon = makeManagedIcon( UiIconFactory::createTwoStateIcon( linked_white_svg_data,
+                                                                                   unlinked_white_svg_data,
+                                                                                   UiIconFactory::iconWidth(),
+                                                                                   UiIconFactory::iconHeight() ) );
 
-    return icon;
+    return *icon;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,10 +320,10 @@ const QIcon UiIconFactory::twoStateWhiteChainIcon()
 //--------------------------------------------------------------------------------------------------
 const QIcon UiIconFactory::informationIcon()
 {
-    static QIcon icon(
+    static const QIcon* icon = makeManagedIcon(
         UiIconFactory::createSvgIcon( information_svg_data, UiIconFactory::iconWidth(), UiIconFactory::iconHeight() ) );
 
-    return icon;
+    return *icon;
 }
 
 //--------------------------------------------------------------------------------------------------

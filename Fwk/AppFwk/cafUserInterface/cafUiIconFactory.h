@@ -39,6 +39,12 @@
 
 namespace caf
 {
+// Allocates a QIcon on the heap and schedules its destruction during ~QCoreApplication
+// (via qAddPostRoutine), before QGuiApplication's own atexit cleanup. Use this in place
+// of a function-local `static QIcon`, since such statics are destroyed too late and can
+// trigger a SIGSEGV inside libQt6Gui's atexit handler.
+QIcon* makeManagedIcon( QIcon source );
+
 class UiIconFactory
 {
 public:

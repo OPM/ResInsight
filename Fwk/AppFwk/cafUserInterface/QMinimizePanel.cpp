@@ -38,6 +38,8 @@
 
 #include "QMinimizePanel.h"
 
+#include "cafUiIconFactory.h"
+
 #include <QApplication>
 #include <QDebug>
 #include <QFrame>
@@ -94,8 +96,9 @@ QIcon createExpandDownIcon()
 
 static const QIcon& expandDownIcon()
 {
-    static QIcon expandDownIcon( QApplication::style()->standardIcon( QStyle::SP_TitleBarUnshadeButton ) );
-    return expandDownIcon;
+    static const QIcon* icon =
+        caf::makeManagedIcon( QApplication::style()->standardIcon( QStyle::SP_TitleBarUnshadeButton ) );
+    return *icon;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,8 +145,9 @@ QIcon createExpandUpIcon()
 
 static const QIcon& expandUpIcon()
 {
-    static QIcon expandUpIcon( QApplication::style()->standardIcon( QStyle::SP_TitleBarShadeButton ) );
-    return expandUpIcon;
+    static const QIcon* icon =
+        caf::makeManagedIcon( QApplication::style()->standardIcon( QStyle::SP_TitleBarShadeButton ) );
+    return *icon;
 }
 
 //--------------------------------------------------------------------------------------------------
