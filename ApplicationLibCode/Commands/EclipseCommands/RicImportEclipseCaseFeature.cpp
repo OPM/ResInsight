@@ -180,7 +180,7 @@ std::vector<RimEclipseView*> RicImportEclipseCaseFeature::allEclipseViews( RimPr
 //--------------------------------------------------------------------------------------------------
 QStringList RicImportEclipseCaseFeature::findPvdFilesToImport( const QStringList& fileNames )
 {
-    QStringList pvdFilesToImport;
+    QStringList   pvdFilesToImport;
     QSet<QString> seenPvdFiles;
 
     // Eclipse companion files used to discover base names that should be excluded from PVD import.
@@ -205,8 +205,7 @@ QStringList RicImportEclipseCaseFeature::findPvdFilesToImport( const QStringList
                 if ( fileName.endsWith( suffix, Qt::CaseInsensitive ) )
                 {
                     const QString otherBase = fileInfo.completeBaseName();
-                    if ( otherBase.startsWith( baseName, Qt::CaseInsensitive ) &&
-                         otherBase.compare( baseName, Qt::CaseInsensitive ) != 0 )
+                    if ( otherBase.startsWith( baseName, Qt::CaseInsensitive ) && otherBase.compare( baseName, Qt::CaseInsensitive ) != 0 )
                     {
                         otherBases.insert( otherBase );
                     }
@@ -216,8 +215,8 @@ QStringList RicImportEclipseCaseFeature::findPvdFilesToImport( const QStringList
         }
 
         // Include all PVD files matching "<baseName>*.pvd", but exclude the generic "<baseName>.pvd" file.
-        QStringList matchingPvdFiles = dir.entryList( QStringList() << baseName + "*.pvd", QDir::Files );
-        const QString basePvdName    = baseName + ".pvd";
+        QStringList   matchingPvdFiles = dir.entryList( QStringList() << baseName + "*.pvd", QDir::Files );
+        const QString basePvdName      = baseName + ".pvd";
 
         for ( const QString& pvdFile : matchingPvdFiles )
         {
