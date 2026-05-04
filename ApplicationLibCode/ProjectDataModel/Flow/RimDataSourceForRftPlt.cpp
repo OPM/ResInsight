@@ -76,8 +76,10 @@ RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
         case RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE:
             return RifDataSourceForRftPlt( m_wellLogFile );
         case RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA:
+            if ( !m_eclCase ) return RifDataSourceForRftPlt();
             return RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, m_eclCase );
         case RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA:
+            if ( !m_eclCase ) return RifDataSourceForRftPlt();
             return RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, m_eclCase );
         case RifDataSourceForRftPlt::SourceType::SUMMARY_RFT:
             return RifDataSourceForRftPlt( m_summaryCase, m_ensemble, m_eclCase );
