@@ -224,14 +224,16 @@ def add_well_log(
             tvd_rkb_key=tvd_rkb_key,
         )
         return well_log
-    except Exception as e:
-        # Clean up all temporary keys on failure
+    except Exception:
+        # Clean up all temporary keys on failure, then re-raise the
+        # original exception so callers see the typed RipsError (with
+        # gRPC code/details) instead of a generic RuntimeError.
         for temp_key in temp_keys:
             try:
                 project.remove_key_values(temp_key)
             except Exception:
                 pass  # Ignore cleanup errors
-        raise RuntimeError(f"Failed to create well log: {str(e)}") from e
+        raise
 
 
 @add_method(WellPath)
