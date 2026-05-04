@@ -55,6 +55,7 @@ bool RicNewCellIndexFilterFeature::isCommandEnabled() const
 void RicNewCellIndexFilterFeature::onActionTriggered( bool isChecked )
 {
     if ( RicCellFilterFeatureTools::addNewFilterIfCombinedSelected<RimCellIndexFilter>( []( RimCellIndexFilter* ) {} ) ) return;
+    if ( RicCellFilterFeatureTools::addNewFilterToDataCollectionIfSelected<RimCellIndexFilter>( []( RimCellIndexFilter* ) {} ) ) return;
 
     // Find the selected Cell Filter Collection
     std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();

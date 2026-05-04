@@ -275,7 +275,14 @@ QString RimCellFilter::modeString() const
 //--------------------------------------------------------------------------------------------------
 const cvf::StructGridInterface* RimCellFilter::selectedGrid() const
 {
-    auto rimCase = firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+    // Case-level data filters have no Rim3dView ancestor; fall back to m_srcCase, which the
+    // owning RimDataFilterCollection / RimCombinedFilter propagates on add.
+    RimCase* rimCase = nullptr;
+    if ( auto* rimView = firstAncestorOrThisOfType<Rim3dView>() )
+    {
+        rimCase = rimView->ownerCase();
+    }
+    if ( !rimCase ) rimCase = m_srcCase();
     if ( !rimCase ) return nullptr;
 
     int clampedIndex = gridIndex();
@@ -385,7 +392,8 @@ void RimCellFilter::applyToCellVisibility( cvf::UByteArray* cellVisibility, cons
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilter::isFilterControlled() const
 {
-    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
+    // Case-level data filters have no view ancestor; treat as not controlled.
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
 
     bool isFilterControlled = false;
     if ( rimView && rimView->viewController() && rimView->viewController()->isCellFiltersControlled() )
