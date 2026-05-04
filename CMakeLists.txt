@@ -18,6 +18,11 @@ endif()
 include(CheckCSourceCompiles)
 include(FetchContent)
 
+# Make imported targets from find_package() visible across directory scopes.
+# Required so Qt 6.10's __qt_internal_walk_libs can resolve Qt:: targets
+# that subdirectory CMakeLists.txt files pull in via their own find_package().
+set(CMAKE_FIND_PACKAGE_TARGETS_GLOBAL TRUE)
+
 project(ResInsight)
 
 # Include common settings
