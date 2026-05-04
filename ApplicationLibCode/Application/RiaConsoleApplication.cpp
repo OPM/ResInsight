@@ -319,7 +319,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
 
         bool createView = true;
         bool createPlot = true;
-        auto results = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( fileNames, createPlot, createView );
+        auto results    = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( fileNames, createPlot, createView );
         if ( results )
         {
             RicImportEclipseCaseFeature::importPvdSurfacesForGridFiles( fileNames, {} );
