@@ -49,6 +49,8 @@ public:
 
     void setIsDuplicatedFromLinkedView( bool isControlled );
 
+    void setCase( RimCase* srcCase ) override;
+
     void setToDefaultValues();
     void updateFilterName();
     void computeResultValueRange();

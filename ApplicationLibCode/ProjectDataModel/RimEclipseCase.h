@@ -48,6 +48,7 @@ class RigGridBase;
 class RigMainGrid;
 class RigVirtualPerforationTransmissibilities;
 class RimCaseCollection;
+class RimDataFilterCollection;
 class RimEclipseContourMapView;
 class RimEclipseContourMapViewCollection;
 class RimEclipseInputPropertyCollection;
@@ -109,6 +110,7 @@ public:
     RimCaseCollection*                  parentCaseCollection();
     RimEclipseContourMapViewCollection* contourMapCollection() const;
     RimEclipseInputPropertyCollection*  inputPropertyCollection() const;
+    RimDataFilterCollection*            dataFilterCollection() const;
 
     QStringList            timeStepStrings() const override;
     QString                timeStepName( int frameIdx ) const override;
@@ -191,6 +193,7 @@ private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
     caf::PdmChildField<RimEclipseViewCollection*>       m_viewCollection;
+    caf::PdmChildField<RimDataFilterCollection*>        m_dataFilterCollection;
 
     caf::PdmChildArrayField<RimWellTargetMapping*> m_wellTargetMappings;
 

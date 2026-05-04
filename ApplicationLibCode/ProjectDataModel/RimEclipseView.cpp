@@ -52,6 +52,10 @@
 #include "RimCameraPosition.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellFilterCollection.h"
+#include "RimCombinedFilter.h"
+#include "RimDataFilterCollection.h"
+#include "RimDataFilterInView.h"
+#include "RimDataFilterInViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
@@ -206,6 +210,9 @@ RimEclipseView::RimEclipseView()
 
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters" );
     m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
+
+    CAF_PDM_InitFieldNoDefault( &m_dataFiltersInView, "DataFiltersInView", "Data Filters" );
+    m_dataFiltersInView = new RimDataFilterInViewCollection();
 
     // Visualization fields
     CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells" );
@@ -420,6 +427,11 @@ void RimEclipseView::propagateEclipseCaseToChildObjects()
     cellFilterCollection()->setCase( currentEclipseCase );
     m_streamlineCollection->setEclipseCase( currentEclipseCase );
 
+    if ( m_dataFiltersInView() )
+    {
+        m_dataFiltersInView()->setSourceCollection( currentEclipseCase ? currentEclipseCase->dataFilterCollection() : nullptr );
+    }
+
     // Update grids node
     std::vector<RimGridCollection*> gridColls = descendantsIncludingThisOfType<RimGridCollection>();
     for ( RimGridCollection* gridCollection : gridColls )
@@ -619,7 +631,7 @@ void RimEclipseView::onCreateDisplayModel()
     if ( !( eclipseCase() && eclipseCase()->eclipseCaseData() ) ) return;
 
     const bool cellFiltersActive     = cellFilterCollection()->hasActiveFilters();
-    const bool propertyFiltersActive = eclipsePropertyFilterCollection()->hasActiveFilters();
+    const bool propertyFiltersActive = hasActivePropertyOrDataFilters();
 
     // Define a vector containing time step indices to produce geometry for.
     // First entry in this vector is used to define the geometry only result mode with no results.
@@ -903,7 +915,7 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     onUpdateLegends(); // To make sure the scalar mappers are set up correctly
 
-    if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() && eclipsePropertyFilterCollection()->hasActiveFilters() )
+    if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() && hasActivePropertyOrDataFilters() )
     {
         appendIntersectionsForCurrentTimeStep();
     }
@@ -942,7 +954,7 @@ void RimEclipseView::updateVisibleGeometries()
 {
     if ( viewController() && viewController()->isVisibleCellsOveridden() ) return;
 
-    if ( eclipsePropertyFilterCollection()->hasActiveFilters() )
+    if ( hasActivePropertyOrDataFilters() )
     {
         cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
         frameParts->setName( "GridModel" );
@@ -1048,7 +1060,7 @@ void RimEclipseView::updateVisibleCellColors()
     {
         geometriesToRecolor.push_back( OVERRIDDEN_CELL_VISIBILITY );
     }
-    else if ( eclipsePropertyFilterCollection()->hasActiveFilters() )
+    else if ( hasActivePropertyOrDataFilters() )
     {
         geometriesToRecolor.push_back( PROPERTY_FILTERED );
         geometriesToRecolor.push_back( PROPERTY_FILTERED_WELL_CELLS );
@@ -2067,6 +2079,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
     uiTreeOrdering.add( cellFilterCollection() );
+    uiTreeOrdering.add( m_dataFiltersInView() );
     uiTreeOrdering.add( m_propertyFilterCollection() );
 
     uiTreeOrdering.add( elementVectorResult() );
@@ -2196,7 +2209,7 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
 {
     if ( cellResult()->hasDynamicResult() ) return true;
 
-    if ( eclipsePropertyFilterCollection()->hasActiveDynamicFilters() ) return true;
+    if ( hasActiveDynamicPropertyOrDataFilters() ) return true;
 
     if ( wellCollection()->hasVisibleWellPipes() ) return true;
 
@@ -2325,6 +2338,54 @@ const RimEclipsePropertyFilterCollection* RimEclipseView::eclipsePropertyFilterC
     {
         return m_propertyFilterCollection;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimDataFilterInViewCollection* RimEclipseView::dataFiltersInView() const
+{
+    return m_dataFiltersInView();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseView::hasActivePropertyOrDataFilters() const
+{
+    if ( eclipsePropertyFilterCollection()->hasActiveFilters() ) return true;
+    if ( m_dataFiltersInView() && m_dataFiltersInView()->hasActiveFilters() ) return true;
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Used to invalidate per-time-step caches: true if any active filter (view-level or case-level)
+/// depends on a dynamic Eclipse result. Mirrors the logic in
+/// RimEclipsePropertyFilterCollection::hasActiveDynamicFilters and RimCombinedFilter's recursive
+/// helper, but extended to traverse case-level wrappers as well.
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseView::hasActiveDynamicPropertyOrDataFilters() const
+{
+    if ( eclipsePropertyFilterCollection()->hasActiveDynamicFilters() ) return true;
+
+    if ( m_dataFiltersInView() )
+    {
+        for ( RimDataFilterInView* wrapper : m_dataFiltersInView()->activeWrappers() )
+        {
+            RimCellFilter* src = wrapper ? wrapper->sourceFilter() : nullptr;
+            if ( !src ) continue;
+
+            if ( auto* ep = dynamic_cast<RimEclipsePropertyFilter*>( src ) )
+            {
+                if ( ep->resultDefinition() && ep->resultDefinition()->hasDynamicResult() ) return true;
+            }
+            else if ( auto* comb = dynamic_cast<RimCombinedFilter*>( src ) )
+            {
+                if ( comb->hasActiveDynamicPropertyDescendant() ) return true;
+            }
+        }
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

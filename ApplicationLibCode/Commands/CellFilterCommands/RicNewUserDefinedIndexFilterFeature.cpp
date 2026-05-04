@@ -41,6 +41,8 @@ void RicNewUserDefinedIndexFilterFeature::onActionTriggered( bool isChecked )
 {
     if ( RicCellFilterFeatureTools::addNewFilterIfCombinedSelected<RimUserDefinedIndexFilter>( []( RimUserDefinedIndexFilter* ) {} ) )
         return;
+    if ( RicCellFilterFeatureTools::addNewFilterToDataCollectionIfSelected<RimUserDefinedIndexFilter>( []( RimUserDefinedIndexFilter* ) {} ) )
+        return;
 
     // Find the selected Cell Filter Collection
     std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
