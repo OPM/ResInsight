@@ -124,6 +124,15 @@ void RimCellFilter::triggerFilterChanged() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Renames go through the inherited m_name field; emit filterChanged so any RimCombinedFilter
+/// hosting this filter can refresh its auto-derived display name.
+//--------------------------------------------------------------------------------------------------
+void RimCellFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& /*oldValue*/, const QVariant& /*newValue*/ )
+{
+    if ( changedField == nameField() ) triggerFilterChanged();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Is the cell filter doing active filtering, or is it just showning outline, etc. in the view
 /// - isActive == true -> filter enabled in explorer
 /// - isFilterEnabled == true -> filter enabled in explorer and is actually filtering cells, too
@@ -275,7 +284,14 @@ QString RimCellFilter::modeString() const
 //--------------------------------------------------------------------------------------------------
 const cvf::StructGridInterface* RimCellFilter::selectedGrid() const
 {
-    auto rimCase = firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
+    // Case-level data filters have no Rim3dView ancestor; fall back to m_srcCase, which the
+    // owning RimDataFilterCollection / RimCombinedFilter propagates on add.
+    RimCase* rimCase = nullptr;
+    if ( auto* rimView = firstAncestorOrThisOfType<Rim3dView>() )
+    {
+        rimCase = rimView->ownerCase();
+    }
+    if ( !rimCase ) rimCase = m_srcCase();
     if ( !rimCase ) return nullptr;
 
     int clampedIndex = gridIndex();
@@ -385,7 +401,8 @@ void RimCellFilter::applyToCellVisibility( cvf::UByteArray* cellVisibility, cons
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilter::isFilterControlled() const
 {
-    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
+    // Case-level data filters have no view ancestor; treat as not controlled.
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
 
     bool isFilterControlled = false;
     if ( rimView && rimView->viewController() && rimView->viewController()->isCellFiltersControlled() )

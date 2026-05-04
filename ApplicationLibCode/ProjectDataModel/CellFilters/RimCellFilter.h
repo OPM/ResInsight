@@ -102,7 +102,8 @@ public:
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    bool                 isFilterControlled() const;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    bool isFilterControlled() const;
 
     RimGeoMechCase* geoMechCase() const;
     RimEclipseCase* eclipseCase() const;

@@ -23,6 +23,7 @@
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCombinedFilter.h"
+#include "RimDataFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -38,12 +39,13 @@ CAF_CMD_SOURCE_INIT( RicEclipseCombinedPropertyFilterNewFeature, "RicEclipseComb
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseCombinedPropertyFilterNewFeature::isCommandEnabled() const
 {
-    // Enable on either the collection or a combined filter within the collection (for nesting).
+    // Enable on either the collection, a combined filter (for nesting, regardless of whether the
+    // host collection is per-view or case-level), or a case-level data filter collection directly.
     auto combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
-    if ( !combined.empty() && combined.front()->firstAncestorOrThisOfType<RimEclipsePropertyFilterCollection>() )
-    {
-        return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( combined.front() );
-    }
+    if ( !combined.empty() ) return true;
+
+    auto dataColls = caf::selectedObjectsByTypeStrict<RimDataFilterCollection*>();
+    if ( !dataColls.empty() ) return true;
 
     auto filterCollections = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();
     if ( filterCollections.size() == 1 )
@@ -58,18 +60,25 @@ bool RicEclipseCombinedPropertyFilterNewFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicEclipseCombinedPropertyFilterNewFeature::onActionTriggered( bool isChecked )
 {
-    // Nested combined filter: add the new one inside the currently selected combined filter.
+    // Nested combined filter: add the new one inside the currently selected combined filter,
+    // regardless of whether the host is per-view or case-level. The combined filter's m_srcCase
+    // propagates into new children automatically.
     auto combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
-    if ( !combined.empty() && combined.front()->firstAncestorOrThisOfType<RimEclipsePropertyFilterCollection>() )
+    if ( !combined.empty() )
     {
         RimCombinedFilter* parent  = combined.front();
-        RimCase*           srcCase = parent->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
-        if ( srcCase )
-        {
-            RimCombinedFilter* created = parent->addNewFilter<RimCombinedFilter>( []( RimCombinedFilter* ) {} );
-            parent->updateConnectedEditors();
-            if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
-        }
+        RimCombinedFilter* created = parent->addNewFilter<RimCombinedFilter>( []( RimCombinedFilter* ) {} );
+        parent->updateConnectedEditors();
+        if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
+        return;
+    }
+
+    // Case-level data filter collection: add a new combined filter directly there.
+    auto dataColls = caf::selectedObjectsByTypeStrict<RimDataFilterCollection*>();
+    if ( !dataColls.empty() )
+    {
+        RimCombinedFilter* created = dataColls.front()->addNewCombinedFilter();
+        if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
         return;
     }
 

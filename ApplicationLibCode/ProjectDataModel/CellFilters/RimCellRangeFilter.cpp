@@ -129,6 +129,8 @@ QString RimCellRangeFilter::fullName() const
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    RimCellFilter::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_gridIndex )
     {
         const cvf::StructGridInterface* grid = selectedGrid();
