@@ -46,9 +46,9 @@
 #include "RiaViewRedrawScheduler.h"
 #include "RiaWellNameComparer.h"
 
+#include "RicImportEclipseCaseFeature.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicImportGridAndSummaryEnsembleFeature.h"
-#include "RicImportEclipseCaseFeature.h"
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
 
