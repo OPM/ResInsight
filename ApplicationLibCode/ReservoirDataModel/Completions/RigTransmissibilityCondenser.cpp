@@ -333,7 +333,9 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilities()
         totalEquationCount = currentEqIdx;
     }
 
-    CAF_ASSERT( idxToFirstExternalEquation != -1 );
+    // Guard against neighbor sets that contain only internal cells: there is nothing to condense
+    // into, so leave m_externalCellAddrSet / m_condensedTransmissibilities empty.
+    if ( idxToFirstExternalEquation == -1 ) return;
 
     using namespace Eigen;
 
