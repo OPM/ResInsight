@@ -175,6 +175,8 @@ void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                   d
                                               RiaDefines::DateFormatComponents dateComponents,
                                               RiaDefines::TimeFormatComponents timeComponents )
 {
+    if ( !m_plotWidget || !m_plotWidget->qwtPlot() ) return;
+
     RiuQwtPlotTools::enableDateBasedBottomXAxis( m_plotWidget->qwtPlot(), dateFormat, timeFormat, dateComponents, timeComponents );
 }
 
@@ -183,6 +185,8 @@ void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                   d
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 {
+    if ( !m_plotWidget || !m_plotWidget->qwtPlot() ) return;
+
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XBottom, new QwtLinearScaleEngine() );
     m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::XBottom, new QwtScaleDraw() );
 }
@@ -192,6 +196,8 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties )
 {
+    if ( !m_plotWidget || !m_plotWidget->qwtPlot() ) return;
+
     RiaDefines::Orientation orientation = RiaDefines::Orientation::HORIZONTAL;
     if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
@@ -260,6 +266,7 @@ void RiuSummaryQwtPlot::setDefaults()
 //--------------------------------------------------------------------------------------------------
 bool RiuSummaryQwtPlot::isZoomerActive() const
 {
+    if ( !m_plotZoomer ) return false;
     return m_plotZoomer->isActiveAndValid();
 }
 
@@ -268,7 +275,7 @@ bool RiuSummaryQwtPlot::isZoomerActive() const
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::endZoomOperations()
 {
-    m_plotZoomer->endZoomOperation();
+    if ( m_plotZoomer ) m_plotZoomer->endZoomOperation();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,6 +283,7 @@ void RiuSummaryQwtPlot::endZoomOperations()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::onZoomedSlot()
 {
+    if ( !m_plotWidget ) return;
     emit m_plotWidget->plotZoomed();
 }
 
