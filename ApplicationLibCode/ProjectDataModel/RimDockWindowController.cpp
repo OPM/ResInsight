@@ -156,9 +156,10 @@ void RimDockWindowController::updateViewerWidget()
     {
         if ( !viewWidget() )
         {
-            ads::CDockWidget* viewWindow = mainWindow->createDockViewWindow();
-            QWidget*          viewWidget = viewPdmObject()->createViewWidget( viewWindow );
-            mainWindow->initializeViewer( viewWindow, viewWidget, windowGeometry() );
+            ads::CDockWidget* dockWidget = viewPdmObject()->createDockWidget();
+            QWidget*          viewWidget = viewPdmObject()->createViewWidget( dockWidget );
+            dockWidget->setWidget( viewWidget );
+            mainWindow->initializeViewer( dockWidget, viewWidget, windowGeometry() );
 
             viewPdmObject()->updateViewWidgetAfterCreation();
         }
