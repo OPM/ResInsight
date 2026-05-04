@@ -292,7 +292,7 @@ RiuPlotWidget* RiuSummaryQwtPlot::plotWidget() const
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::enableCurvePointTracking( bool enable )
 {
-    m_curvePointTracker->setEnabled( enable );
+    if ( m_curvePointTracker ) m_curvePointTracker->setEnabled( enable );
 }
 
 //--------------------------------------------------------------------------------------------------
