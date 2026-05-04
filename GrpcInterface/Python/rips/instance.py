@@ -386,12 +386,18 @@ class Instance:
     def start_heartbeat(
         self,
         interval_sec: float = 5.0,
-        deadline_sec: float = 2.0,
+        deadline_sec: float = 5.0,
+        failure_threshold: int = 3,
         on_failure: Optional[Callable[["RipsError"], None]] = None,
     ) -> None:
         """Start a background thread that periodically pings ResInsight.
 
-        On the first failed ping the instance is marked as
+        A single missed ping is not fatal: the heartbeat tolerates up
+        to ``failure_threshold - 1`` consecutive failures (e.g.
+        transient slowness on a loaded CI box) before declaring the
+        connection lost. A successful ping resets the counter.
+
+        Once the threshold is reached, the instance is marked as
         ``connection_lost``, the underlying gRPC channel is closed so
         any in-flight calls fail fast with ``UNAVAILABLE``, and the
         retry interceptor is told to stop retrying. Subsequent API
@@ -405,10 +411,16 @@ class Instance:
             interval_sec: Seconds between pings.
             deadline_sec: Per-ping deadline. Pings exceeding this are
                 treated as failures.
+            failure_threshold: Number of consecutive failed pings
+                required before the connection is declared lost.
+                Must be >= 1.
             on_failure: Optional callback invoked once when the
                 heartbeat detects a lost connection. Receives a
                 :class:`RipsError`.
         """
+        if failure_threshold < 1:
+            raise RipsError("failure_threshold must be >= 1")
+
         if self._heartbeat_thread is not None and self._heartbeat_thread.is_alive():
             return
 
@@ -416,10 +428,23 @@ class Instance:
         self._heartbeat_stop = stop_event
 
         def _run() -> None:
+            consecutive_failures = 0
             while not stop_event.is_set():
                 try:
                     self.app.GetVersion(Empty(), timeout=deadline_sec)
+                    consecutive_failures = 0
                 except grpc.RpcError as exc:
+                    consecutive_failures += 1
+                    if consecutive_failures < failure_threshold:
+                        logger.warning(
+                            "Heartbeat ping failed (%d/%d): %s",
+                            consecutive_failures,
+                            failure_threshold,
+                            exc,
+                        )
+                        stop_event.wait(interval_sec)
+                        continue
+
                     self._connection_lost = True
                     # Close the channel so any pending RPC unblocks
                     # immediately with UNAVAILABLE instead of waiting
