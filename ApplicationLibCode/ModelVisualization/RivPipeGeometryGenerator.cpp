@@ -604,12 +604,14 @@ void RivPipeGeometryGenerator::computeExtrudedCoordsAndNormals( cvf::Vec3d      
             {
                 nextExtrudedNodes.push_back( intersection );
             }
-            else
-            {
-                // Parallel plane and ray
-                CVF_ASSERT( false );
-            }
         }
+    }
+
+    if ( nextExtrudedNodes.size() != crossSectionNodeCount )
+    {
+        // This should not happen, but if it does, we just skip the segment. This can happen for very sharp bends where the intersection
+        // plane is almost parallel to the ray direction, and numerical issues can cause us to miss the intersection.
+        return;
     }
 
     // Calculate the normals for the cylinder segment
@@ -661,6 +663,10 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
         cvf::Vec3d coordA = m_originalPipeCenterCoords->get( coordBIdx - 1 );
         cvf::Vec3d coordB = m_originalPipeCenterCoords->get( coordBIdx + 0 );
         cvf::Vec3d coordC = m_originalPipeCenterCoords->get( coordBIdx + 1 );
+
+        // Skip non-finite coords; treat as zero-length so they neither update
+        // lastValidDirectionAB nor get pushed to the filtered list.
+        if ( coordA.isUndefined() || coordB.isUndefined() || coordC.isUndefined() ) continue;
 
         cvf::Vec3d directionAB = coordB - coordA;
 
@@ -722,7 +728,14 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
     // Add the last point, as the above loop will not end the last none-zero segment, but wait for the start of the next
     // valid one.
 
-    m_filteredPipeCenterCoords.push_back( m_originalPipeCenterCoords->get( lastOriginalCoordIdx ) );
+    // Walk backwards to the last finite coord. The loop pre-pushes a segment-to-result entry for the
+    // upcoming endpoint, so we must push one finite coord here to keep the assert below in sync.
+    size_t lastFiniteIdx = lastOriginalCoordIdx;
+    while ( lastFiniteIdx > firstSegmentWithLength && m_originalPipeCenterCoords->get( lastFiniteIdx ).isUndefined() )
+    {
+        --lastFiniteIdx;
+    }
+    m_filteredPipeCenterCoords.push_back( m_originalPipeCenterCoords->get( lastFiniteIdx ) );
 
     CVF_ASSERT( m_filteredPipeCenterCoords.size() - 1 == m_filteredPipeSegmentToResult.size() );
 }
