@@ -81,11 +81,10 @@ void RicHideGridGeometryFeature::onActionTriggered( bool isChecked )
 
     gridView->scheduleCreateDisplayModelAndRedraw();
 
-    // Force all well paths visible
+    // Force well path collection active, but do not change individual well path visibility
     if ( auto wellPathColl = RimWellPathCollection::instance() )
     {
-        wellPathColl->isActive           = true;
-        wellPathColl->wellPathVisibility = RimWellPathCollection::FORCE_ALL_ON;
+        wellPathColl->isActive = true;
         wellPathColl->updateConnectedEditors();
     }
 }

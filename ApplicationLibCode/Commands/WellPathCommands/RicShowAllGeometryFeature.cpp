@@ -24,7 +24,6 @@
 #include "RimFaultInViewCollection.h"
 #include "RimGridView.h"
 #include "RimIntersectionCollection.h"
-#include "WellPath/RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -70,13 +69,6 @@ void RicShowAllGeometryFeature::onActionTriggered( bool isChecked )
     RiuMainWindow::instance()->refreshAnimationActions();
 
     gridView->scheduleCreateDisplayModelAndRedraw();
-
-    // Restore well path visibility to individual control
-    if ( auto wellPathColl = RimWellPathCollection::instance() )
-    {
-        wellPathColl->wellPathVisibility = RimWellPathCollection::ALL_ON;
-        wellPathColl->updateConnectedEditors();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
