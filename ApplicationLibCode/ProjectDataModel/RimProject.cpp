@@ -56,7 +56,6 @@
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
-#include "RimFileWellPath.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
@@ -555,17 +554,6 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
     }
 
     if ( ensembleFileSetCollection() ) ensembleFileSetCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-
-    if ( auto* wellPathColl = RimWellPathCollection::instance() )
-    {
-        for ( auto wellPath : wellPathColl->allWellPaths() )
-        {
-            if ( auto fileWellPath = dynamic_cast<RimFileWellPath*>( wellPath ) )
-            {
-                fileWellPath->updateFilePathsFromProjectPath( oldProjectPath, newProjectPath );
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
