@@ -795,6 +795,11 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
             return "Deg";
         }
 
+        if ( componentName == "FAULTMOB" )
+        {
+            return RiaWellLogUnitTools<double>::noUnitString();
+        }
+
         if ( rigFemResultAddress.normalizeByHydrostaticPressure() )
         {
             return "sg";
