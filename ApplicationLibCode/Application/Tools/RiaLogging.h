@@ -77,12 +77,11 @@ public:
     static void info( const QString& message, const QString& logKeyword = "" );
     static void debug( const QString& message, const QString& logKeyword = "" );
 
-    template <StdStringLike Msg, StdStringLike Kw = std::string_view>
-    static void error( const Msg& message, const Kw& logKeyword = std::string_view{} )
+    template <StdStringLike Msg>
+    static void error( const Msg& message, std::string_view logKeyword = "" )
     {
         const std::string_view svMsg{ message };
-        const std::string_view svKw{ logKeyword };
-        if ( !isKeywordEnabled( svKw ) ) return;
+        if ( !isKeywordEnabled( logKeyword ) ) return;
         if ( isSameMessage( svMsg ) ) return;
         const std::string buf{ svMsg };
         for ( const auto& logger : sm_logger )
@@ -96,12 +95,11 @@ public:
         setLastMessage( svMsg );
     }
 
-    template <StdStringLike Msg, StdStringLike Kw = std::string_view>
-    static void warning( const Msg& message, const Kw& logKeyword = std::string_view{} )
+    template <StdStringLike Msg>
+    static void warning( const Msg& message, std::string_view logKeyword = "" )
     {
         const std::string_view svMsg{ message };
-        const std::string_view svKw{ logKeyword };
-        if ( !isKeywordEnabled( svKw ) ) return;
+        if ( !isKeywordEnabled( logKeyword ) ) return;
         if ( isSameMessage( svMsg ) ) return;
         const std::string buf{ svMsg };
         for ( const auto& logger : sm_logger )
@@ -115,12 +113,11 @@ public:
         setLastMessage( svMsg );
     }
 
-    template <StdStringLike Msg, StdStringLike Kw = std::string_view>
-    static void info( const Msg& message, const Kw& logKeyword = std::string_view{} )
+    template <StdStringLike Msg>
+    static void info( const Msg& message, std::string_view logKeyword = "" )
     {
         const std::string_view svMsg{ message };
-        const std::string_view svKw{ logKeyword };
-        if ( !isKeywordEnabled( svKw ) ) return;
+        if ( !isKeywordEnabled( logKeyword ) ) return;
         if ( isSameMessage( svMsg ) ) return;
         const std::string buf{ svMsg };
         for ( const auto& logger : sm_logger )
@@ -134,12 +131,11 @@ public:
         setLastMessage( svMsg );
     }
 
-    template <StdStringLike Msg, StdStringLike Kw = std::string_view>
-    static void debug( const Msg& message, const Kw& logKeyword = std::string_view{} )
+    template <StdStringLike Msg>
+    static void debug( const Msg& message, std::string_view logKeyword = "" )
     {
         const std::string_view svMsg{ message };
-        const std::string_view svKw{ logKeyword };
-        if ( !isKeywordEnabled( svKw ) ) return;
+        if ( !isKeywordEnabled( logKeyword ) ) return;
         if ( isSameMessage( svMsg ) ) return;
         const std::string buf{ svMsg };
         for ( const auto& logger : sm_logger )

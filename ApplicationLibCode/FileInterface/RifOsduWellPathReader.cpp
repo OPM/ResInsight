@@ -157,7 +157,7 @@ std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::readWellPathDat
         if ( column->type()->id() == arrow::Type::DOUBLE )
         {
             std::vector<double> columnVector = RifArrowTools::chunkedArrayToVector<arrow::DoubleArray, double>( column );
-            RiaLogging::debug( std::format( "Column name: {}. Size: {}", QString::fromStdString( columnName ), columnVector.size() ) );
+            RiaLogging::debug( std::format( "Column name: {}. Size: {}", columnName, columnVector.size() ) );
             readValues[columnName] = columnVector;
         }
     }

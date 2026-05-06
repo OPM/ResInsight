@@ -173,14 +173,12 @@ std::shared_ptr<arrow::Table> RimSummaryEnsembleSumo::readParquetTable( const QB
         }
         else
         {
-            RiaLogging::warning( std::format( "Parquet: Error detected during parsing of table. Message: {}",
-                                              QString::fromStdString( readResult.ToString() ) ) );
+            RiaLogging::warning( std::format( "Parquet: Error detected during parsing of table. Message: {}", readResult.ToString() ) );
         }
     }
     else
     {
-        RiaLogging::warning(
-            std::format( "Parquet: Not able to open data stream. Message: {}", QString::fromStdString( openResult.status().ToString() ) ) );
+        RiaLogging::warning( std::format( "Parquet: Not able to open data stream. Message: {}", openResult.status().ToString() ) );
     }
 #else
     // Old API: OpenFile takes output parameter
@@ -193,14 +191,12 @@ std::shared_ptr<arrow::Table> RimSummaryEnsembleSumo::readParquetTable( const QB
         }
         else
         {
-            RiaLogging::warning( std::format( "Parquet: Error detected during parsing of table. Message: {}",
-                                              QString::fromStdString( readResult.ToString() ) ) );
+            RiaLogging::warning( std::format( "Parquet: Error detected during parsing of table. Message: {}", readResult.ToString() ) );
         }
     }
     else
     {
-        RiaLogging::warning(
-            std::format( "Parquet: Not able to open data stream. Message: {}", QString::fromStdString( openResult.ToString() ) ) );
+        RiaLogging::warning( std::format( "Parquet: Not able to open data stream. Message: {}", openResult.ToString() ) );
     }
 #endif
 
@@ -400,7 +396,7 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
             }
             else
             {
-                RiaLogging::warning( std::format( "Failed to find values column for {}", QString::fromStdString( columnName ) ) );
+                RiaLogging::warning( std::format( "Failed to find values column for {}", columnName ) );
                 return;
             }
         }

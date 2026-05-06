@@ -19,6 +19,7 @@
 #include "RimPolygonFile.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RifPolygonReader.h"
 
@@ -96,7 +97,7 @@ void RimPolygonFile::loadData()
     }
     else
     {
-        RiaLogging::info( QString( "Imported %1 polygon(s) from file: " ).arg( polygonsFromFile.size() ) + m_fileName().path() );
+        RiaLogging::info( std::format( "Imported {} polygon(s) from file: {}", polygonsFromFile.size(), m_fileName().path() ) );
     }
 }
 

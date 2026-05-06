@@ -543,10 +543,8 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
             size_t keywordLength = reader.getArrayLength( keyword );
             if ( RiaApplication::enableDevelopmentFeatures() )
             {
-                RiaLogging::info( QString( "Array found: '%1'. Type: %2 with size: %3." )
-                                      .arg( QString::fromStdString( keyword ) )
-                                      .arg( QString::fromStdString( roff::Token::kindToString( kind ) ) )
-                                      .arg( keywordLength ) );
+                RiaLogging::info(
+                    std::format( "Array found: '{}'. Type: {} with size: {}.", keyword, roff::Token::kindToString( kind ), keywordLength ) );
             }
 
             QString keywordUpperCase = QString::fromStdString( keyword ).toUpper();
@@ -570,7 +568,7 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 
                 if ( !appendNewInputPropertyResult( eclipseCaseData, newResultName, keyword, kind, reader ) )
                 {
-                    RiaLogging::error( std::format( "Unable to import result '{}' from {}", QString::fromStdString( keyword ), fileName ) );
+                    RiaLogging::error( std::format( "Unable to import result '{}' from {}", keyword, fileName ) );
                     return std::make_pair( false, keywordMapping );
                 }
 
@@ -684,9 +682,7 @@ std::vector<double>
     }
     else
     {
-        RiaLogging::error( QString( "Unsupported property type '%1' for keyword '%2'." )
-                               .arg( QString::fromStdString( roff::Token::kindToString( kind ) ) )
-                               .arg( QString::fromStdString( keyword ) ) );
+        RiaLogging::error( std::format( "Unsupported property type '{}' for keyword '{}'.", roff::Token::kindToString( kind ), keyword ) );
     }
 
     return doubleVals;

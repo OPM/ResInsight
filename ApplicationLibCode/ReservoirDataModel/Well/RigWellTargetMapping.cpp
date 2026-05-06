@@ -207,7 +207,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     auto finish = std::chrono::high_resolution_clock::now();
 
     auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>( finish - start );
-    RiaLogging::info( QString( "Time spent: %1 ms" ).arg( milliseconds.count() ), logKeyword );
+    RiaLogging::info( std::format( "Time spent: {} ms", milliseconds.count() ), logKeyword.toStdString() );
 
     QString resultName = RigWellTargetMapping::wellTargetResultName();
     RigWellTargetMappingTools::createResultVector( *eclipseCase, resultName, clusters, timeStepIdx );
@@ -241,8 +241,8 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
             if ( !std::isinf( value ) && !std::isnan( value ) ) RiaLogging::info( pattern.arg( value ), logKeyword );
         };
 
-        RiaLogging::info( QString( "Cluster #%1 Statistics" ).arg( s.id ), logKeyword );
-        RiaLogging::info( QString( "Number of cells: %1" ).arg( s.numCells ), logKeyword );
+        RiaLogging::info( std::format( "Cluster #{} Statistics", s.id ), logKeyword.toStdString() );
+        RiaLogging::info( std::format( "Number of cells: {}", s.numCells ), logKeyword.toStdString() );
         logIfValid( "Total PORV*SOIL: %1", s.totalPorvSoil );
         logIfValid( "Total PORV*SOIL: %1", s.totalPorvSoil );
         logIfValid( "Total PORV*SGAS: %1", s.totalPorvSgas );

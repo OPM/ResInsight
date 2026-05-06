@@ -458,10 +458,8 @@ std::set<std::string> RigSimulationInputTool::cropDataKeywordsInDeckFile( RimEcl
 
             if ( deckFile.replaceKeyword( name, croppedData, true ) )
             {
-                RiaLogging::info( QString( "Cropped data keyword '%1' from deck (%2 -> %3 values)" )
-                                      .arg( QString::fromStdString( name ) )
-                                      .arg( fullCellCount )
-                                      .arg( croppedData.size() ) );
+                RiaLogging::info(
+                    std::format( "Cropped data keyword '{}' from deck ({} -> {} values)", name, fullCellCount, croppedData.size() ) );
                 croppedKeywords.insert( name );
             }
         };
@@ -756,8 +754,7 @@ static std::optional<Modification> cropDataKeywordInBoxContext( const Opm::DeckK
 
     if ( intMin.x() > intMax.x() || intMin.y() > intMax.y() || intMin.z() > intMax.z() )
     {
-        RiaLogging::info(
-            std::format( "Removing data keyword '{}' inside BOX/ENDBOX: box does not intersect sector", QString::fromStdString( name ) ) );
+        RiaLogging::info( std::format( "Removing data keyword '{}' inside BOX/ENDBOX: box does not intersect sector", name ) );
         return Modification{ index, Modification::Remove, Opm::DeckKeyword{} };
     }
 
@@ -822,10 +819,8 @@ static std::optional<Modification> cropDataKeywordInBoxContext( const Opm::DeckK
 
         newKw.addRecord( std::move( record ) );
 
-        RiaLogging::info( QString( "Cropped data keyword '%1' inside BOX/ENDBOX (%2 -> %3 values)" )
-                              .arg( QString::fromStdString( name ) )
-                              .arg( sourceData.size() )
-                              .arg( croppedData.size() ) );
+        RiaLogging::info(
+            std::format( "Cropped data keyword '{}' inside BOX/ENDBOX ({} -> {} values)", name, sourceData.size(), croppedData.size() ) );
 
         return Modification{ index, Modification::Replace, std::move( newKw ) };
     };
@@ -891,7 +886,7 @@ static std::expected<Modification, QString> processRecordBasedKeyword( const Opm
             }
             else
             {
-                RiaLogging::warning( std::format( "Failed to process {} record: {}", QString::fromStdString( name ), result.error() ) );
+                RiaLogging::warning( std::format( "Failed to process {} record: {}", name, result.error() ) );
             }
         }
 
@@ -2366,9 +2361,8 @@ std::vector<RigSimulationInputTool::NNCConnection> RigSimulationInputTool::extra
             // Validate indices
             if ( c1Idx == cvf::UNDEFINED_SIZE_T || c2Idx == cvf::UNDEFINED_SIZE_T )
             {
-                RiaLogging::warning( QString( "Invalid EDITNNC connection in deck: (%1)-(%2)" )
-                                         .arg( QString::fromStdString( ijk1.toString() ) )
-                                         .arg( QString::fromStdString( ijk2.toString() ) ) );
+                RiaLogging::warning(
+                    std::format( "Invalid EDITNNC connection in deck: ({})-({})", ijk1.toString(), ijk2.toString() ) );
                 continue;
             }
 
