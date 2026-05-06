@@ -188,7 +188,7 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return std::unexpected( QString( "Failed to save modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
     }
 
-    RiaLogging::info( QString( "Saved modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
+    RiaLogging::info( std::format( "Saved modified deck file to '{}/{}'", outputFolder, outputFile ) );
     return {};
 }
 
@@ -370,8 +370,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
             // Replace keyword values in deck with extracted data
             if ( deckFile.replaceKeyword( keywordStdStr, result.value(), true /* data kw */ ) )
             {
-                RiaLogging::info(
-                    QString( "Successfully replaced data for keyword '%1' (%2 values)" ).arg( keyword ).arg( result.value().size() ) );
+                RiaLogging::info( std::format( "Successfully replaced data for keyword '{}' ({} values)", keyword, result.value().size() ) );
             }
             else
             {
@@ -892,7 +891,7 @@ static std::expected<Modification, QString> processRecordBasedKeyword( const Opm
             }
             else
             {
-                RiaLogging::warning( QString( "Failed to process %1 record: %2" ).arg( QString::fromStdString( name ) ).arg( result.error() ) );
+                RiaLogging::warning( std::format( "Failed to process {} record: {}", QString::fromStdString( name ), result.error() ) );
             }
         }
 
@@ -1009,7 +1008,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordWithBoxIndice
     auto keywordsWithIndices = deckFile.findAllKeywordsWithIndices( keywordName );
     if ( !keywordsWithIndices.empty() )
     {
-        RiaLogging::info( QString( "Processing %1 occurrence(s) of %2 keyword" ).arg( keywordsWithIndices.size() ).arg( keywordName.c_str() ) );
+        RiaLogging::info( std::format( "Processing {} occurrence(s) of {} keyword", keywordsWithIndices.size(), keywordName.c_str() ) );
 
         // Process in reverse order so indices remain valid after modifications
         for ( auto it = keywordsWithIndices.rbegin(); it != keywordsWithIndices.rend(); ++it )
@@ -1033,7 +1032,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordWithBoxIndice
                     }
                     else
                     {
-                        RiaLogging::warning( QString( "Failed to process %1 record: %2" ).arg( keywordName.c_str() ).arg( result.error() ) );
+                        RiaLogging::warning( std::format( "Failed to process {} record: {}", keywordName.c_str(), result.error() ) );
                     }
                 }
 
@@ -2091,8 +2090,7 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
         }
     }
 
-    RiaLogging::info(
-        QString( "Processed keyword '%1': %2 updated, %3 removed" ).arg( W::keywordName.c_str() ).arg( replacedCount ).arg( removedCount ) );
+    RiaLogging::info( std::format( "Processed keyword '{}': {} updated, {} removed", W::keywordName.c_str(), replacedCount, removedCount ) );
 
     return {};
 }
@@ -2118,8 +2116,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
         auto keywordsWithIndices = deckFile.findAllKeywordsWithIndices( keywordName );
         if ( keywordsWithIndices.empty() ) continue;
 
-        RiaLogging::info(
-            QString( "Processing %1 occurrence(s) of keyword '%2'" ).arg( keywordsWithIndices.size() ).arg( keywordName.c_str() ) );
+        RiaLogging::info( std::format( "Processing {} occurrence(s) of keyword '{}'", keywordsWithIndices.size(), keywordName.c_str() ) );
 
         int replacedCount = 0;
         int removedCount  = 0;
@@ -2184,7 +2181,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                             else
                             {
                                 RiaLogging::warning(
-                                    QString( "Failed to process WELSPECS for well %1: %2" ).arg( wellName.c_str() ).arg( result.error() ) );
+                                    std::format( "Failed to process WELSPECS for well {}: {}", wellName.c_str(), result.error() ) );
                             }
                         }
                         else if ( keywordName == "COMPDAT" )
@@ -2197,7 +2194,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                             else
                             {
                                 RiaLogging::warning(
-                                    QString( "Failed to process COMPDAT for well %1: %2" ).arg( wellName.c_str() ).arg( result.error() ) );
+                                    std::format( "Failed to process COMPDAT for well {}: {}", wellName.c_str(), result.error() ) );
                             }
                         }
                         else if ( keywordName == "COMPSEGS" )
@@ -2210,7 +2207,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                             else
                             {
                                 RiaLogging::warning(
-                                    QString( "Failed to process COMPSEGS for well %1: %2" ).arg( wellName.c_str() ).arg( result.error() ) );
+                                    std::format( "Failed to process COMPSEGS for well {}: {}", wellName.c_str(), result.error() ) );
                             }
                         }
                         else if ( keywordName == "WELSEGS" )
@@ -2228,7 +2225,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
             }
             catch ( std::exception& e )
             {
-                RiaLogging::warning( QString( "EXCEPTION for keyword '%1': %2" ).arg( keyword.name().c_str() ).arg( e.what() ) );
+                RiaLogging::warning( std::format( "EXCEPTION for keyword '{}': {}", keyword.name().c_str(), e.what() ) );
             }
 
             // Replace or remove this keyword occurrence in place
@@ -2246,8 +2243,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
             }
         }
 
-        RiaLogging::info(
-            QString( "Processed keyword '%1': %2 replaced, %3 removed" ).arg( keywordName.c_str() ).arg( replacedCount ).arg( removedCount ) );
+        RiaLogging::info( std::format( "Processed keyword '{}': {} replaced, {} removed", keywordName.c_str(), replacedCount, removedCount ) );
     }
 
     return {};
@@ -2262,8 +2258,7 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
                                                                                   int                         operNumRegion,
                                                                                   double                      porvMultiplier )
 {
-    RiaLogging::info(
-        QString( "Adding OPERNUM region %1 with PORV multiplier %2 using refined grid" ).arg( operNumRegion ).arg( porvMultiplier ) );
+    RiaLogging::info( std::format( "Adding OPERNUM region {} with PORV multiplier {} using refined grid", operNumRegion, porvMultiplier ) );
 
     // Ensure REGDIMS keyword exists
     if ( !deckFile.ensureRegdimsKeyword() )
@@ -2334,7 +2329,7 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
         return std::unexpected( "Failed to add OPERATER keyword to EDIT section" );
     }
 
-    RiaLogging::info( QString( "Added OPERATER keyword to multiply PORV in region %1 by %2" ).arg( operNumRegion ).arg( porvMultiplier ) );
+    RiaLogging::info( std::format( "Added OPERATER keyword to multiply PORV in region {} by {}", operNumRegion, porvMultiplier ) );
 
     return {};
 }
@@ -2552,7 +2547,7 @@ std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEc
     }
 
     RiaLogging::info(
-        QString( "Found %1 internal EDITNNC connections in sector (out of %2 total)" ).arg( sectorConnections.size() ).arg( allConnections.size() ) );
+        std::format( "Found {} internal EDITNNC connections in sector (out of {} total)", sectorConnections.size(), allConnections.size() ) );
 
     // Step 3: Transform and refine
     bool hasRef = settings.hasRefinement();

@@ -430,8 +430,7 @@ void RimStimPlanModelPressureCalculator::binByDepthAndAverage( DepthValuePairVec
     double minDepth = std::floor( depthValuePairs.front().first );
     double maxDepth = std::ceil( depthValuePairs.back().first );
 
-    RiaLogging::debug(
-        QString( "Binning: min depth=%1 max depth=%2. Vec size=%3." ).arg( minDepth ).arg( maxDepth ).arg( depthValuePairs.size() ) );
+    RiaLogging::debug( std::format( "Binning: min depth={} max depth={}. Vec size={}.", minDepth, maxDepth, depthValuePairs.size() ) );
 
     double binSize = 1.0;
 
@@ -643,7 +642,7 @@ bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrati
     if ( eqlNumValues.size() != ( values.size() + 4 ) )
     {
         RiaLogging::error( QString( "Failed to build EQLNUM pressure data for initial pressure: result length mismatch." ) );
-        RiaLogging::error( QString( "EQLNUM length: %1 PRESSURE length: %2" ).arg( eqlNumValues.size() ).arg( values.size() ) );
+        RiaLogging::error( std::format( "EQLNUM length: {} PRESSURE length: {}", eqlNumValues.size(), values.size() ) );
         return false;
     }
 
@@ -711,7 +710,7 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
     if ( eqlNumValues.size() != ( values.size() + 4 ) )
     {
         RiaLogging::error( QString( "Failed to build EQLNUM pressure data: result length mismatch." ) );
-        RiaLogging::error( QString( "EQLNUM length: %1 PRESSURE length: %2" ).arg( eqlNumValues.size() ).arg( values.size() ) );
+        RiaLogging::error( std::format( "EQLNUM length: {} PRESSURE length: {}", eqlNumValues.size(), values.size() ) );
         return false;
     }
 
@@ -737,7 +736,7 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
                 {
                     values[i] = p2 - p1;
                 }
-                RiaLogging::debug( QString( "INTERPOLATING PRESSURE DIFF: %1 %2 = %3" ).arg( p1 ).arg( p2 ).arg( p2 - p1 ) );
+                RiaLogging::debug( std::format( "INTERPOLATING PRESSURE DIFF: {} {} = {}", p1, p2, p2 - p1 ) );
             }
         }
     }

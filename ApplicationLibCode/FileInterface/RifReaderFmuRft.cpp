@@ -378,7 +378,7 @@ std::vector<RifReaderFmuRft::WellDate> RifReaderFmuRft::importWellDates( const Q
 {
     if ( !( QFile::exists( fileName ) ) )
     {
-        RiaLogging::error( QString( "%1 cannot be found at '%s'" ).arg( RifReaderFmuRft::wellPathFileName() ).arg( fileName ) );
+        RiaLogging::error( std::format( "{} cannot be found at '%s'", RifReaderFmuRft::wellPathFileName(), fileName ) );
         return {};
     }
 
@@ -527,7 +527,7 @@ std::vector<RifReaderFmuRft::Observation>
 
         if ( lineStream.status() != QTextStream::Ok )
         {
-            RiaLogging::error( QString( "Failed to parse line %1 of '%2'" ).arg( lineNumber + 1 ).arg( fileName ) );
+            RiaLogging::error( std::format( "Failed to parse line {} of '{}'", lineNumber + 1, fileName ) );
             return {};
         }
 

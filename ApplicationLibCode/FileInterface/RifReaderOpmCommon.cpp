@@ -92,7 +92,7 @@ RifReaderOpmCommon::GridDimensions RifReaderOpmCommon::readGridDimensions( const
     }
     catch ( std::exception& e )
     {
-        RiaLogging::debug( QString( "Failed to read grid dimensions from %1: %2" ).arg( gridFileName ).arg( e.what() ) );
+        RiaLogging::debug( std::format( "Failed to read grid dimensions from {}: {}", gridFileName, e.what() ) );
     }
 
     return result;

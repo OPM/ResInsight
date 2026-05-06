@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RicEclipseCellResultToFileImpl.h"
 #include "RicExportFeatureImpl.h"
@@ -96,7 +97,7 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand( RimEclipseView*    
     QFile exportFile( exportSettings.exportFilename );
     if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
-        RiaLogging::error( QString( "%1: Unable to open file '%2' for writing." ).arg( logPrefix ).arg( exportSettings.exportFilename ) );
+        RiaLogging::error( std::format( "{}: Unable to open file '{}' for writing.", logPrefix, exportSettings.exportFilename() ) );
         return;
     }
 

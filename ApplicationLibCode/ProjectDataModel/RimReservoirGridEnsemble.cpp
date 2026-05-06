@@ -902,7 +902,7 @@ void RimReservoirGridEnsemble::loadGridsInSharedMode()
 {
     auto allCases = cases();
 
-    RiaLogging::info( QString( "Grid ensemble '%1': Loading grid in shared mode for %2 cases." ).arg( name() ).arg( allCases.size() ) );
+    RiaLogging::info( std::format( "Grid ensemble '{}': Loading grid in shared mode for {} cases.", name(), allCases.size() ) );
 
     // Load first case fully
     RimEclipseCase* firstCase = allCases[0];
@@ -936,7 +936,7 @@ void RimReservoirGridEnsemble::loadGridsInIndividualMode()
 {
     auto allCases = cases();
 
-    RiaLogging::info( QString( "Grid ensemble '%1': Loading grids in individual mode for %2 cases." ).arg( name() ).arg( allCases.size() ) );
+    RiaLogging::info( std::format( "Grid ensemble '{}': Loading grids in individual mode for {} cases.", name(), allCases.size() ) );
 
     for ( auto eclipseCase : allCases )
     {

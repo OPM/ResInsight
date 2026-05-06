@@ -544,7 +544,7 @@ void RimSummaryEnsembleSumo::updateResultAddresses()
     auto caseName = m_sumoDataSource->caseId().get();
     auto ensName  = m_sumoDataSource->ensembleName();
 
-    RiaLogging::info( QString( "Case: %1, ens: %2,  vector count: %3" ).arg( caseName ).arg( ensName ).arg( m_resultAddresses.size() ) );
+    RiaLogging::info( std::format( "Case: {}, ens: {},  vector count: {}", caseName, ensName, m_resultAddresses.size() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

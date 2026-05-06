@@ -641,7 +641,7 @@ void RiaSumoConnector::requestBlobDownload( const QString& blobId )
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestBlobByRedirectUri( const QString& blobId, const QString& redirectUri )
 {
-    RiaLogging::debug( QString( "Requesting blob. Id: %1 Redirect URL: %2" ).arg( blobId ).arg( redirectUri ) );
+    RiaLogging::debug( std::format( "Requesting blob. Id: {} Redirect URL: {}", blobId, redirectUri ) );
 
     requestTokenBlocking();
 

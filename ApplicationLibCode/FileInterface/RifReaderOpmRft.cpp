@@ -478,7 +478,7 @@ void RifReaderOpmRft::openFiles( const QString& fileName, const QString& dataDec
     }
     catch ( const std::exception& e )
     {
-        RiaLogging::error( QString( "Failed to open RFT file %1\n%2" ).arg( fileName ).arg( e.what() ) );
+        RiaLogging::error( std::format( "Failed to open RFT file {}\n{}", fileName, e.what() ) );
     }
     catch ( ... )
     {

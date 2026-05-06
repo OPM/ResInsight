@@ -28,6 +28,7 @@
 #define signals Q_SIGNALS
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaTextStringTools.h"
 
 #include "RifArrowTools.h"
@@ -156,7 +157,7 @@ std::pair<cvf::ref<RigWellPath>, QString> RifOsduWellPathReader::readWellPathDat
         if ( column->type()->id() == arrow::Type::DOUBLE )
         {
             std::vector<double> columnVector = RifArrowTools::chunkedArrayToVector<arrow::DoubleArray, double>( column );
-            RiaLogging::debug( QString( "Column name: %1. Size: %2" ).arg( QString::fromStdString( columnName ) ).arg( columnVector.size() ) );
+            RiaLogging::debug( std::format( "Column name: {}. Size: {}", QString::fromStdString( columnName ), columnVector.size() ) );
             readValues[columnName] = columnVector;
         }
     }

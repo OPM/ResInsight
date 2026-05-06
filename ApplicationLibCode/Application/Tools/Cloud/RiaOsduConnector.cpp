@@ -390,7 +390,7 @@ void RiaOsduConnector::parseWellboresByFieldId( QNetworkReply* reply, const QStr
 
                 if ( std::isinf( datumElevation ) )
                 {
-                    RiaLogging::warning( QString( "Missing datum elevation for well bore '%1'. Id: %2" ).arg( name ).arg( id ) );
+                    RiaLogging::warning( std::format( "Missing datum elevation for well bore '{}'. Id: {}", name, id ) );
                     datumElevation = 0.0;
                 }
 
@@ -496,8 +496,7 @@ void RiaOsduConnector::parseWellLogs( QNetworkReply* reply, const QString& wellb
                     QString unit             = curve["CurveUnit"].toString();
                     QString depthUnit        = curve["DepthUnit"].toString();
 
-                    RiaLogging::debug(
-                        QString( "%1: '%2' (%3 - %4)" ).arg( curveId ).arg( curveDescription ).arg( curveTopDepth ).arg( curveBaseDepth ) );
+                    RiaLogging::debug( std::format( "{}: '{}' ({} - {})", curveId, curveDescription, curveTopDepth, curveBaseDepth ) );
                     channels.push_back( OsduWellLogChannel{ .id              = curveId,
                                                             .mnemonic        = mnemonic,
                                                             .description     = curveDescription,

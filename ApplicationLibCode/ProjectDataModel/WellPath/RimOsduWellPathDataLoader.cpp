@@ -21,6 +21,7 @@
 #include "Cloud/RiaOsduConnector.h"
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RimOsduWellPath.h"
 
@@ -105,7 +106,7 @@ void RimOsduWellPathDataLoader::parquetDownloadComplete( const QByteArray& conte
 
     if ( m_wellPaths.find( id ) != m_wellPaths.end() && m_taskIds.find( id ) != m_taskIds.end() )
     {
-        RiaLogging::info( QString( "Parquet download complete. Id: %1 Size: %2" ).arg( id ).arg( contents.size() ) );
+        RiaLogging::info( std::format( "Parquet download complete. Id: {} Size: {}", id, contents.size() ) );
         int taskId = m_taskIds[id];
 
         if ( !contents.isEmpty() )

@@ -355,7 +355,7 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
 
     if ( minLayerK > maxLayerK )
     {
-        RiaLogging::error( QString( "Invalid K layers found. Minimum: %1 > Maximum : %2" ).arg( minLayerK ).arg( maxLayerK ) );
+        RiaLogging::error( std::format( "Invalid K layers found. Minimum: {} > Maximum : {}", minLayerK, maxLayerK ) );
         return nullptr;
     }
 

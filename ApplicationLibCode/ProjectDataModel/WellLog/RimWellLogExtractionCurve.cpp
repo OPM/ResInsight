@@ -21,6 +21,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaWellLogUnitTools.h"
@@ -765,7 +766,7 @@ void RimWellLogExtractionCurve::mapPropertyValuesFromReferenceWell( std::vector<
                                                        *std::max_element( indexKValues.cbegin(), indexKValues.cend() ) ) );
     if ( minLayerK > maxLayerK )
     {
-        RiaLogging::error( QString( "Invalid K layers found. Minimum: %1 > Maximum : %2" ).arg( minLayerK ).arg( maxLayerK ) );
+        RiaLogging::error( std::format( "Invalid K layers found. Minimum: {} > Maximum : {}", minLayerK, maxLayerK ) );
         return;
     }
 

@@ -271,7 +271,7 @@ cvf::ref<RigResultAccessor>
         // Look for input properties starting with the same name as result definition
         if ( inputProperty && inputProperty->resultName().startsWith( resultName ) )
         {
-            RiaLogging::info( QString( "Found missing values result for %1: %2" ).arg( resultName ).arg( inputProperty->resultName() ) );
+            RiaLogging::info( std::format( "Found missing values result for {}: {}", resultName, inputProperty->resultName() ) );
 
             RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::INPUT_PROPERTY, inputProperty->resultName() );
             caseData->results( porosityModelType )->ensureKnownResultLoaded( resultAddress );
@@ -618,7 +618,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefi
         RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
         eclExtractor.curveData( backupResAcc.p(), &replacementValues );
 
-        RiaLogging::debug( QString( "Read %1 values for '%2'" ).arg( replacementValues.size() ).arg( resultVariable ) );
+        RiaLogging::debug( std::format( "Read {} values for '{}'", replacementValues.size(), resultVariable ) );
 
         if ( values.empty() )
         {

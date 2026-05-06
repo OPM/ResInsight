@@ -151,9 +151,9 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
 
         if ( RiaApplication::enableDevelopmentFeatures() )
         {
-            RiaLogging::info( QString( "Grid dimensions: %1 %2 %3" ).arg( nx ).arg( ny ).arg( nz ) );
-            RiaLogging::info( QString( "Offset: %1 %2 %3" ).arg( xOffset ).arg( yOffset ).arg( zOffset ) );
-            RiaLogging::info( QString( "Scale: %1 %2 %3" ).arg( xScale ).arg( yScale ).arg( zScale ) );
+            RiaLogging::info( std::format( "Grid dimensions: {} {} {}", nx, ny, nz ) );
+            RiaLogging::info( std::format( "Offset: {} {} {}", xOffset, yOffset, zOffset ) );
+            RiaLogging::info( std::format( "Scale: {} {} {}", xScale, yScale, zScale ) );
         }
 
         std::vector<float> cornerLines = reader.getFloatArray( "cornerLines" + roff::Parser::postFixData() );
@@ -570,8 +570,7 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 
                 if ( !appendNewInputPropertyResult( eclipseCaseData, newResultName, keyword, kind, reader ) )
                 {
-                    RiaLogging::error(
-                        QString( "Unable to import result '%1' from %2" ).arg( QString::fromStdString( keyword ) ).arg( fileName ) );
+                    RiaLogging::error( std::format( "Unable to import result '{}' from {}", QString::fromStdString( keyword ), fileName ) );
                     return std::make_pair( false, keywordMapping );
                 }
 

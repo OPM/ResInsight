@@ -72,7 +72,7 @@ cvf::Vec3d RigStimPlanModelTools::calculateTSTDirection( RigEclipseCaseData* ecl
         }
     }
 
-    RiaLogging::info( QString( "TST contributing cells: %1/%2" ).arg( numContributingCells ).arg( closeCells.size() ) );
+    RiaLogging::info( std::format( "TST contributing cells: {}/{}", numContributingCells, closeCells.size() ) );
     if ( numContributingCells == 0 )
     {
         // No valid close cells found: just point straight up

@@ -539,7 +539,7 @@ std::pair<cvf::Vec3d, cvf::Vec3d>
     plane.setFromPoints( p0, p1, p2 );
 
     cvf::Vec3d planeNormal = plane.normal().getNormalized();
-    RiaLogging::info( QString( "Plane normal: [%1 %2 %3]" ).arg( planeNormal.x() ).arg( planeNormal.y() ).arg( planeNormal.z() ) );
+    RiaLogging::info( std::format( "Plane normal: [{} {} {}]", planeNormal.x(), planeNormal.y(), planeNormal.z() ) );
 
     cvf::Plane xyPlane;
     xyPlane.setFromPointAndNormal( cvf::Vec3d::ZERO, cvf::Vec3d::Z_AXIS );

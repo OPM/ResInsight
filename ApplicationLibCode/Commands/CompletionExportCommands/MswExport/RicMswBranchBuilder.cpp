@@ -41,6 +41,7 @@
 #include "RimWellPathValve.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include <algorithm>
 #include <limits>
@@ -162,7 +163,7 @@ RigMswBranch buildMainBoreBranchFromGeometry( const RimWellPath*                
         const double cellLength = std::fabs( cellInfo.endMD - cellInfo.startMD );
         if ( cellLength <= segmentLengthThreshold )
         {
-            RiaLogging::info( QString( "Skipping segment, threshold = %1, length = %2" ).arg( segmentLengthThreshold ).arg( cellLength ) );
+            RiaLogging::info( std::format( "Skipping segment, threshold = {}, length = {}", segmentLengthThreshold, cellLength ) );
             continue;
         }
 

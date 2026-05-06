@@ -227,7 +227,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
     int nz = m_nz();
     if ( nx <= 0 || ny <= 0 || nz <= 0 ) return std::unexpected( "Invalid grid size. nx, ny and nz must be positive." );
 
-    RiaLogging::info( QString( "Grid dimensions: [%1 %2 %3]" ).arg( nx ).arg( ny ).arg( nz ) );
+    RiaLogging::info( std::format( "Grid dimensions: [{} {} {}]", nx, ny, nz ) );
     RiaLogging::info( std::format( "Coord: {}", m_coordKey() ) );
     RiaLogging::info( std::format( "Zcorn: {}", m_zcornKey() ) );
     RiaLogging::info( std::format( "Actnum: {}", m_actnumKey() ) );

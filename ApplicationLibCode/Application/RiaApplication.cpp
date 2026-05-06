@@ -391,7 +391,7 @@ void RiaApplication::setThreadCount() const
 
     if ( threadCount.has_value() )
     {
-        RiaLogging::info( QString( "Setting number of threads to %1 from %2" ).arg( threadCount.value() ).arg( source ) );
+        RiaLogging::info( std::format( "Setting number of threads to {} from {}", threadCount.value(), source ) );
 
         RiaOpenMPTools::setMaxThreads( threadCount.value() );
     }

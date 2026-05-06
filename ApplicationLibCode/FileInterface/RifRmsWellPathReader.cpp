@@ -92,7 +92,7 @@ RifWellPathImporter::WellData RifRmsWellPathReader::readWellData( const QString&
     {
         if ( e.what() )
         {
-            RiaLogging::error( QString( "Failed to import RMS well path: %1. Error: %2" ).arg( filePath ).arg( e.what() ) );
+            RiaLogging::error( std::format( "Failed to import RMS well path: {}. Error: {}", filePath, e.what() ) );
         }
     }
 

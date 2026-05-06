@@ -101,7 +101,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addFracture::execute(
                                                                                  position,
                                                                                  boundingBoxHorizontal,
                                                                                  boundingBoxVertical );
-            RiaLogging::info( QString( "Direction: %1 %2 %3" ).arg( direction.x() ).arg( direction.y() ).arg( direction.z() ) );
+            RiaLogging::info( std::format( "Direction: {} {} {}", direction.x(), direction.y(), direction.z() ) );
             cvf::Vec3d fractureDirectionNormal = wellPathFracture->computeFractureDirectionNormal();
 
             cvf::Vec3d formationDirection = RimStimPlanModel::projectVectorIntoFracturePlane( position, fractureDirectionNormal, direction );

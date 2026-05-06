@@ -346,7 +346,7 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
     CAF_ASSERT( area.size() == conductivity.size() );
     for ( size_t i = 0; i < okFilePaths.size(); i++ )
     {
-        RiaLogging::info( QString( "%1 Area: %2 Conductivity: %3" ).arg( okFilePaths[i] ).arg( area[i] ).arg( conductivity[i] ) );
+        RiaLogging::info( std::format( "{} Area: {} Conductivity: {}", okFilePaths[i], area[i], conductivity[i] ) );
     }
 
     if ( m_excludeZeroWidthFractures() )
@@ -401,7 +401,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
     std::vector<double> gridXs;
     std::vector<double> gridYs;
     auto [minX, maxX, minY, maxY] = findSamplingIntervals( stimPlanFractureDefinitions, gridXs, gridYs );
-    RiaLogging::info( QString( "Ensemble Fracture Size: X = [%1, %2] Y = [%3, %4]" ).arg( minX ).arg( maxX ).arg( minY ).arg( maxY ) );
+    RiaLogging::info( std::format( "Ensemble Fracture Size: X = [{}, {}] Y = [{}, {}]", minX, maxX, minY, maxY ) );
 
     for ( auto result : availableResults )
     {
@@ -748,7 +748,7 @@ void RimEnsembleFractureStatistics::generateAdaptiveMesh( double minX,
     double binSize    = totalDepth / targetNumLayers;
 
     RiaLogging::info(
-        QString( "Adaptive mesh. Total depth: %1. Number of layers: %2. Layer thickness: %3" ).arg( totalDepth ).arg( targetNumLayers ).arg( binSize ) );
+        std::format( "Adaptive mesh. Total depth: {}. Number of layers: {}. Layer thickness: {}", totalDepth, targetNumLayers, binSize ) );
 
     std::vector<double> baseDepth;
     std::vector<double> means;
@@ -1252,7 +1252,7 @@ std::shared_ptr<RigSlice2D> RimEnsembleFractureStatistics::setCellsToFillTargetA
         }
     }
 
-    RiaLogging::info( QString( "Statistics fracture area: %1 target area: %2" ).arg( area ).arg( targetArea ) );
+    RiaLogging::info( std::format( "Statistics fracture area: {} target area: {}", area, targetArea ) );
 
     return outputGrid;
 }
