@@ -21,6 +21,7 @@
 #include "RiaCurveMerger.h"
 #include "RiaDefines.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 #include "RiaWeightedMeanCalculator.h"
 #include "RiaWellLogUnitTools.h"
@@ -99,14 +100,14 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogLasFil
             RiaDefines::DepthUnitType depthUnitInFile = fileData->depthUnit();
             if ( m_depthUnit != RiaDefines::DepthUnitType::UNIT_NONE && m_depthUnit != depthUnitInFile )
             {
-                RiaLogging::error( QString( "Unexpected depth unit in file %1." ).arg( wellLogFile->fileName() ) );
+                RiaLogging::error( std::format( "Unexpected depth unit in file {}.", wellLogFile->fileName() ) );
             }
             m_depthUnit = depthUnitInFile;
 
             QString logChannelUnitString = fileData->wellLogChannelUnitString( wellLogChannelName );
             if ( m_logChannelUnitString != RiaWellLogUnitTools<double>::noUnitString() && m_logChannelUnitString != logChannelUnitString )
             {
-                RiaLogging::error( QString( "Unexpected unit in file %1." ).arg( wellLogFile->fileName() ) );
+                RiaLogging::error( std::format( "Unexpected unit in file {}.", wellLogFile->fileName() ) );
             }
             m_logChannelUnitString = logChannelUnitString;
 
@@ -122,7 +123,7 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogLasFil
         }
         else
         {
-            RiaLogging::error( errorMessage );
+            RiaLogging::error( errorMessage.toStdString() );
         }
     }
     bool includeValuesFromPartialCurves = true;
@@ -273,7 +274,8 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
                                .arg( offsets->getTopMd( kIndex ) )
                                .arg( offsets->getBottomMd( kIndex ) )
                                .arg( topMean )
-                               .arg( bottomMean ) );
+                               .arg( bottomMean )
+                               .toStdString() );
     }
 }
 
@@ -348,13 +350,13 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
         }
         else
         {
-            RiaLogging::error( errorMessage );
+            RiaLogging::error( errorMessage.toStdString() );
         }
     }
 
     if ( minLayerK > maxLayerK )
     {
-        RiaLogging::error( QString( "Invalid K layers found. Minimum: %1 > Maximum : %2" ).arg( minLayerK ).arg( maxLayerK ) );
+        RiaLogging::error( std::format( "Invalid K layers found. Minimum: {} > Maximum : {}", minLayerK, maxLayerK ) );
         return nullptr;
     }
 
@@ -372,7 +374,8 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
                                    .arg( topMd )
                                    .arg( bottomMd )
                                    .arg( numTopMds[kLayer] )
-                                   .arg( numBottomMds[kLayer] ) );
+                                   .arg( numBottomMds[kLayer] )
+                                   .toStdString() );
             offset->setIndexOffsetDepth( kLayer, topMd, bottomMd, topTvd, bottomTvd );
         }
     }

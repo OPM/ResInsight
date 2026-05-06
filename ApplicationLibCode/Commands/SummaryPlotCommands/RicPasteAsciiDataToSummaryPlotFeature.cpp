@@ -23,6 +23,7 @@
 #include "Summary/RiaSummaryPlotTools.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RimAsciiDataCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
@@ -159,7 +160,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
     auto parseResult = parser.parse( parseOptions );
     if ( !parseResult )
     {
-        RiaLogging::error( QString( "Failed to parse pasted data: " ) + parseResult.error() );
+        RiaLogging::error( std::format( "Failed to parse pasted data: {}", parseResult.error() ) );
         return curves;
     }
 

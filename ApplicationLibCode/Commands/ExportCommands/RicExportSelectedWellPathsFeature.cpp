@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RicExportWellPathsUi.h"
 
@@ -71,7 +72,7 @@ void RicExportSelectedWellPathsFeature::exportWellPath( gsl::not_null<const RimW
     writeWellPathGeometryToStream( *stream, wellPath->name(), xValues, yValues, tvdValues, mdValues, showTextMdRkb, writeProjectInfo );
     filePtr->close();
 
-    RiaLogging::info( QString( "Exported well geometry to %1" ).arg( filePtr->fileName() ) );
+    RiaLogging::info( std::format( "Exported well geometry to {}", filePtr->fileName() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,7 +150,7 @@ QFilePtr RicExportSelectedWellPathsFeature::openFileForExport( const QString& fo
     if ( !exportFolder.exists() )
     {
         bool createdPath = exportFolder.mkpath( "." );
-        if ( createdPath ) RiaLogging::info( "Created export folder " + folderName );
+        if ( createdPath ) RiaLogging::info( "Created export folder " + folderName.toStdString() );
     }
 
     QString  filePath = exportFolder.filePath( fileName );
@@ -157,7 +158,7 @@ QFilePtr RicExportSelectedWellPathsFeature::openFileForExport( const QString& fo
     if ( !exportFile->open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
         auto errorMessage = QString( "Export Well Path: Could not open the file: %1" ).arg( filePath );
-        RiaLogging::error( errorMessage );
+        RiaLogging::error( errorMessage.toStdString() );
     }
     return exportFile;
 }

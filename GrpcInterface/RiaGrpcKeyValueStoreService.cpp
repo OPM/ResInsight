@@ -61,7 +61,7 @@ public:
     Status init( const std::string& name, size_t numElements )
     {
         RiaLogging::debug(
-            QString( "Initializing stream: %1 size: %2" ).arg( QString::fromStdString( name ) ).arg( numElements ) );
+            QString( "Initializing stream: %1 size: %2" ).arg( QString::fromStdString( name ) ).arg( numElements ).toStdString() );
 
         m_name      = name;
         m_cellCount = numElements;
@@ -89,7 +89,8 @@ public:
     {
         std::string name = request->name();
 
-        RiaLogging::debug( QString( "Output stream request. Name='%1'" ).arg( QString::fromStdString( name ) ) );
+        RiaLogging::debug(
+            QString( "Output stream request. Name='%1'" ).arg( QString::fromStdString( name ) ).toStdString() );
 
         auto result = RiaApplication::instance()->keyValueStore()->get( name );
         if ( result.has_value() )
@@ -159,7 +160,8 @@ public:
 
                 RiaLogging::debug( QString( "Received stream request. Start index: %1. Size after request: %2" )
                                        .arg( currentCellIdx )
-                                       .arg( m_data.size() ) );
+                                       .arg( m_data.size() )
+                                       .toStdString() );
                 reply->set_accepted_value_count( static_cast<int64_t>( m_data.size() ) );
                 return Status::OK;
             }
@@ -172,8 +174,10 @@ public:
     //--------------------------------------------------------------------------------------------------
     void finish()
     {
-        RiaLogging::debug(
-            QString( "Stream finished: name=%1 size=%2" ).arg( QString::fromStdString( m_name ) ).arg( m_data.size() ) );
+        RiaLogging::debug( QString( "Stream finished: name=%1 size=%2" )
+                               .arg( QString::fromStdString( m_name ) )
+                               .arg( m_data.size() )
+                               .toStdString() );
         if ( !m_name.empty() && !m_data.empty() )
         {
             RiaApplication::instance()->keyValueStore()->set( m_name, RiaKeyValueStoreUtil::convertToByteVector( m_data ) );

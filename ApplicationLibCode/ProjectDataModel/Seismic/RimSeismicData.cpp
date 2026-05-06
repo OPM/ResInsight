@@ -145,7 +145,7 @@ bool RimSeismicData::openFileIfNotOpen()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicData::logError( QString msg )
 {
-    if ( m_nErrorsLogged < 4 ) RiaLogging::error( msg );
+    if ( m_nErrorsLogged < 4 ) RiaLogging::error( msg.toStdString() );
     m_nErrorsLogged++;
 }
 

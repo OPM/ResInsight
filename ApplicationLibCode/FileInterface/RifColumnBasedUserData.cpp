@@ -21,6 +21,7 @@
 #include "RiaDateStringParser.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaQStringFormatter.h"
 
 #include "RifColumnBasedUserDataParser.h"
 #include "RifEclipseUserDataKeywordTools.h"
@@ -60,7 +61,7 @@ bool RifColumnBasedUserData::parse( const QString& data, QString* errorText )
     m_parser = std::make_unique<RifColumnBasedUserDataParser>( data, errorText );
     if ( !m_parser )
     {
-        RiaLogging::error( QString( "Failed to parse file" ) );
+        RiaLogging::error( "Failed to parse file" );
 
         return false;
     }
@@ -155,8 +156,8 @@ void RifColumnBasedUserData::buildTimeStepsAndMappings()
 
         if ( timeStepsForTable.empty() )
         {
-            RiaLogging::warning( QString( "Failed to find time data for table %1 in file %2" ).arg( tableIndex ) );
-            RiaLogging::warning( QString( "No data for this table is imported" ) );
+            RiaLogging::warning( std::format( "Failed to find time data for table {}", tableIndex ) );
+            RiaLogging::warning( "No data for this table is imported" );
 
             return;
         }

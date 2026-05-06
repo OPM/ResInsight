@@ -61,7 +61,7 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
     exportSnapshotOfPlotsIntoFolder( snapshotFolderName, activateWidget );
 
     QString text = QString( "Exported snapshots to folder : \n%1" ).arg( snapshotFolderName );
-    RiaLogging::info( text );
+    RiaLogging::info( text.toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------

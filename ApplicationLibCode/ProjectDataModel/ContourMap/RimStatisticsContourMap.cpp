@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaQStringFormatter.h"
 #include "RigStatisticsTools.h"
 
 #include "RicNewStatisticsContourMapViewFeature.h"
@@ -666,7 +667,7 @@ void RimStatisticsContourMap::computeStatisticsSharedGrid( RigContourMapGrid*  c
 
         if ( eCase->ensureReservoirCaseIsOpen() )
         {
-            RiaLogging::info( QString( "Processing Grid: %1" ).arg( eCase->caseUserDescription() ) );
+            RiaLogging::info( std::format( "Processing Grid: {}", eCase->caseUserDescription() ) );
 
             auto eclipseCaseData = eCase->eclipseCaseData();
             sharedProjection.updateRealizationData( eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
@@ -714,7 +715,7 @@ void RimStatisticsContourMap::computeStatisticsIndividualGrids( RigContourMapGri
 
         if ( eCase->ensureReservoirCaseIsOpen() )
         {
-            RiaLogging::info( QString( "Processing Grid: %1" ).arg( eCase->caseUserDescription() ) );
+            RiaLogging::info( std::format( "Processing Grid: {}", eCase->caseUserDescription() ) );
 
             auto eclipseCaseData = eCase->eclipseCaseData();
             auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -735,7 +736,7 @@ void RimStatisticsContourMap::computeStatisticsIndividualGrids( RigContourMapGri
             }
             else
             {
-                RiaLogging::warning( QString( "Formation names are missing for case %1, skipping case." ).arg( eCase->caseUserDescription() ) );
+                RiaLogging::warning( std::format( "Formation names are missing for case {}, skipping case.", eCase->caseUserDescription() ) );
             }
         }
 

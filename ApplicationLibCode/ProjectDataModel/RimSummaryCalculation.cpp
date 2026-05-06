@@ -22,6 +22,7 @@
 
 #include "RiaCurveMerger.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiuMessageDialog.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "Summary/RiaSummaryTools.h"
@@ -283,7 +284,7 @@ void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationV
     }
     else
     {
-        RiaLogging::error( QString( "Unhandled subst for category: %1" ).arg( address.uiText().c_str() ) );
+        RiaLogging::error( std::format( "Unhandled subst for category: {}", address.uiText().c_str() ) );
     }
 
     if ( isHandledBySteppingTools )

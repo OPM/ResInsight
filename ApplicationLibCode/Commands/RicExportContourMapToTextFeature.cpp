@@ -131,11 +131,11 @@ void RicExportContourMapToTextFeature::onActionTriggered( bool isChecked )
             QString displayMessage = QString( "Problem exporting contour map:\n%2" ).arg( messages.join( "\n" ) );
             if ( response.status() == caf::PdmScriptResponse::COMMAND_ERROR )
             {
-                RiaLogging::error( displayMessage );
+                RiaLogging::error( displayMessage.toStdString() );
             }
             else
             {
-                RiaLogging::warning( displayMessage );
+                RiaLogging::warning( displayMessage.toStdString() );
             }
         }
     }

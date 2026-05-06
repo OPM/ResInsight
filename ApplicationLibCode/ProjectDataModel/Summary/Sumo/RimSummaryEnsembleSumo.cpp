@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaTimeTTools.h"
 #include "Summary/RiaSummaryDefines.h"
 #include "Summary/RiaSummaryTools.h"
@@ -119,7 +120,7 @@ void RimSummaryEnsembleSumo::loadSummaryData( const RifEclipseSummaryAddress& re
     if ( m_parquetTable.find( key ) == m_parquetTable.end() )
     {
         auto contents = loadParquetData( key );
-        RiaLogging::debug( QString( "Load Summary Data. Contents size: %1" ).arg( contents.size() ) );
+        RiaLogging::debug( std::format( "Load Summary Data. Contents size: {}", contents.size() ) );
 
         std::shared_ptr<arrow::Table> table = readParquetTable( contents, QString::fromStdString( resultAddress.uiText() ) );
         m_parquetTable[key]                 = table;
@@ -131,7 +132,7 @@ void RimSummaryEnsembleSumo::loadSummaryData( const RifEclipseSummaryAddress& re
     if ( m_parquetTable.find( parametersKey ) == m_parquetTable.end() )
     {
         auto contents = m_sumoConnector->requestParametersParquetDataBlocking( sumoCaseId, sumoEnsembleName );
-        RiaLogging::debug( QString( "Load ensemble parameter sensitivities. Contents size: %1" ).arg( contents.size() ) );
+        RiaLogging::debug( std::format( "Load ensemble parameter sensitivities. Contents size: {}", contents.size() ) );
 
         std::shared_ptr<arrow::Table> table = readParquetTable( contents, QString( "%1 parameter sensitivities" ).arg( sumoEnsembleName ) );
         m_parquetTable[parametersKey]       = table;
@@ -168,18 +169,16 @@ std::shared_ptr<arrow::Table> RimSummaryEnsembleSumo::readParquetTable( const QB
         std::unique_ptr<parquet::arrow::FileReader> arrow_reader = std::move( openResult ).ValueOrDie();
         if ( auto readResult = arrow_reader->ReadTable( &table ); readResult.ok() )
         {
-            RiaLogging::info( QString( "Parquet: Read table successfully for %1" ).arg( messageTag ) );
+            RiaLogging::info( std::format( "Parquet: Read table successfully for {}", messageTag ) );
         }
         else
         {
-            RiaLogging::warning(
-                QString( "Parquet: Error detected during parsing of table. Message: %1" ).arg( QString::fromStdString( readResult.ToString() ) ) );
+            RiaLogging::warning( std::format( "Parquet: Error detected during parsing of table. Message: {}", readResult.ToString() ) );
         }
     }
     else
     {
-        RiaLogging::warning(
-            QString( "Parquet: Not able to open data stream. Message: %1" ).arg( QString::fromStdString( openResult.status().ToString() ) ) );
+        RiaLogging::warning( std::format( "Parquet: Not able to open data stream. Message: {}", openResult.status().ToString() ) );
     }
 #else
     // Old API: OpenFile takes output parameter
@@ -188,18 +187,16 @@ std::shared_ptr<arrow::Table> RimSummaryEnsembleSumo::readParquetTable( const QB
     {
         if ( auto readResult = arrow_reader->ReadTable( &table ); readResult.ok() )
         {
-            RiaLogging::info( QString( "Parquet: Read table successfully for %1" ).arg( messageTag ) );
+            RiaLogging::info( std::format( "Parquet: Read table successfully for {}", messageTag ) );
         }
         else
         {
-            RiaLogging::warning(
-                QString( "Parquet: Error detected during parsing of table. Message: %1" ).arg( QString::fromStdString( readResult.ToString() ) ) );
+            RiaLogging::warning( std::format( "Parquet: Error detected during parsing of table. Message: {}", readResult.ToString() ) );
         }
     }
     else
     {
-        RiaLogging::warning(
-            QString( "Parquet: Not able to open data stream. Message: %1" ).arg( QString::fromStdString( openResult.ToString() ) ) );
+        RiaLogging::warning( std::format( "Parquet: Not able to open data stream. Message: {}", openResult.ToString() ) );
     }
 #endif
 
@@ -226,7 +223,7 @@ void RimSummaryEnsembleSumo::distributeDataToRealizations( const RifEclipseSumma
             txt += QString::fromStdString( columnName ) + " ";
         }
 
-        RiaLogging::info( txt );
+        RiaLogging::info( txt.toStdString() );
     }
 
     std::vector<time_t>  timeSteps;
@@ -351,7 +348,7 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
                    QString::fromStdString( table->GetColumnByName( columnName )->type()->ToString() + ") " );
         }
 
-        RiaLogging::debug( txt );
+        RiaLogging::debug( txt.toStdString() );
     }
 
     std::vector<int64_t> realizations;
@@ -399,7 +396,7 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
             }
             else
             {
-                RiaLogging::warning( QString( "Failed to find values column for %1" ).arg( QString::fromStdString( columnName ) ) );
+                RiaLogging::warning( std::format( "Failed to find values column for {}", columnName ) );
                 return;
             }
         }
@@ -543,7 +540,7 @@ void RimSummaryEnsembleSumo::updateResultAddresses()
     auto caseName = m_sumoDataSource->caseId().get();
     auto ensName  = m_sumoDataSource->ensembleName();
 
-    RiaLogging::info( QString( "Case: %1, ens: %2,  vector count: %3" ).arg( caseName ).arg( ensName ).arg( m_resultAddresses.size() ) );
+    RiaLogging::info( std::format( "Case: {}, ens: {},  vector count: {}", caseName, ensName, m_resultAddresses.size() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

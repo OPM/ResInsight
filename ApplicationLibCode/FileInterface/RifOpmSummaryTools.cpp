@@ -21,6 +21,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaQStringFormatter.h"
 
 #ifdef _MSC_VER
 // Disable warning from external library to make sure treat warnings as error works
@@ -118,7 +119,7 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
         /*
             for ( const auto& kw : invalidKeywords )
             {
-                RiaLogging::warning( QString::fromStdString( kw ) );
+                RiaLogging::warning( kw );
             }
         */
     }
@@ -190,25 +191,23 @@ bool RifOpmSummaryTools::isEsmryConversionRequired( const QString& fileName )
         const QString smspecFileNameShort = QFileInfo( smspecFileName ).fileName();
         const QString esmryFileNameShort  = QFileInfo( candidateEsmryFileName ).fileName();
 
-        RiaLogging::debug(
-            QString( " %3 : %1 is older than %2, recreating %1." ).arg( esmryFileNameShort ).arg( smspecFileNameShort ).arg( root ) );
+        RiaLogging::debug( std::format( " {2} : {0} is older than {1}, recreating {0}.", esmryFileNameShort, smspecFileNameShort, root ) );
 
         // Check if we have write permission in the folder
         QFileInfo info( smspecFileName );
 
         if ( !info.isWritable() )
         {
-            QString txt = QString( "ESMRY is older than SMSPEC, but export to file %1 failed due to missing write permissions. "
-                                   "Aborting operation." )
-                              .arg( candidateEsmryFileName );
-            RiaLogging::error( txt );
+            RiaLogging::error( std::format( "ESMRY is older than SMSPEC, but export to file {} failed due to missing write permissions. "
+                                            "Aborting operation.",
+                                            candidateEsmryFileName ) );
 
             return false;
         }
 
         if ( !std::filesystem::remove( candidateEsmryFileName.toStdString() ) )
         {
-            RiaLogging::error( QString( "Failed to remove file: %1" ).arg( candidateEsmryFileName ) );
+            RiaLogging::error( std::format( "Failed to remove file: {}", candidateEsmryFileName ) );
             return false;
         }
 

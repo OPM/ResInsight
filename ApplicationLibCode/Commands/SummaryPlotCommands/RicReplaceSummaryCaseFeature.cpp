@@ -20,6 +20,7 @@
 
 #include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RicImportGeneralDataFeature.h"
@@ -69,7 +70,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
     summaryCase->updateConnectedEditors();
 
-    RiaLogging::info( QString( "Replaced summary data for %1" ).arg( oldSummaryHeaderFilename ) );
+    RiaLogging::info( std::format( "Replaced summary data for {}", oldSummaryHeaderFilename ) );
 
     RiaEclipseFileNameTools helper( newFileName );
     auto                    newGridFileName = helper.findRelatedGridFile();
@@ -94,7 +95,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
 
             RimReloadCaseTools::reloadEclipseGrid( gridModel );
 
-            RiaLogging::info( QString( "Replaced grid data for %1" ).arg( previousGridFileName ) );
+            RiaLogging::info( std::format( "Replaced grid data for {}", previousGridFileName ) );
         }
     }
 }

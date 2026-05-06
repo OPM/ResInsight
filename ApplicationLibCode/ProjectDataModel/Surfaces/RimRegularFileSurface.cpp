@@ -88,7 +88,7 @@ bool RimRegularFileSurface::onLoadData()
         return true;
     }
 
-    RiaLogging::error( QString::fromStdString( surfaceData.error() ) );
+    RiaLogging::error( surfaceData.error() );
 
     return false;
 }

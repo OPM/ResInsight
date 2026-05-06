@@ -66,7 +66,7 @@ caf::PdmScriptResponse RicfExportMsw::execute()
     if ( !eclipseCase )
     {
         QString error = QString( "exportMsw: Could not find case with ID %1." ).arg( m_caseId() );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -86,7 +86,7 @@ caf::PdmScriptResponse RicfExportMsw::execute()
     if ( !wellPath )
     {
         QString error = QString( "exportMsw: Could not find well path with name %1" ).arg( m_wellPathName() );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

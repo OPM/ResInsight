@@ -51,7 +51,7 @@ caf::PdmScriptResponse RicfScaleFractureTemplate::execute()
     if ( m_id < 0 )
     {
         QString error( "scaleFractureTemplate: Fracture template id not specified" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -60,7 +60,7 @@ caf::PdmScriptResponse RicfScaleFractureTemplate::execute()
     if ( !project )
     {
         QString error( "scaleFractureTemplate: Project not found" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -71,7 +71,7 @@ caf::PdmScriptResponse RicfScaleFractureTemplate::execute()
     if ( !templ )
     {
         QString error = QString( "scaleFractureTemplate: Fracture template not found. Id=%1" ).arg( m_id() );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

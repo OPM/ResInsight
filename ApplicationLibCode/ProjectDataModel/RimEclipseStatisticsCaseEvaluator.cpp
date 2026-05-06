@@ -279,7 +279,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     }
                                     else
                                     {
-                                        RiaLogging::warning( QString::fromStdString( resultValues.error() ) );
+                                        RiaLogging::warning( resultValues.error() );
                                     }
                                 }
                                 else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::PercentileCalcType::HISTOGRAM_ESTIMATED )
@@ -313,7 +313,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     }
                                     else
                                     {
-                                        RiaLogging::warning( QString::fromStdString( resultValues.error() ) );
+                                        RiaLogging::warning( resultValues.error() );
                                     }
                                 }
                                 else

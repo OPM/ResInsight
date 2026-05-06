@@ -22,6 +22,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesOpm.h"
+#include "RiaQStringFormatter.h"
 #include "RiaWslTools.h"
 
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
@@ -581,15 +582,17 @@ bool RimOpmFlowJob::openDeckFile()
             }
             else
             {
-                RiaLogging::error(
-                    QString( "Failed to open %1. Error: %2." ).arg( m_deckFileName().path() ).arg( QString::fromStdString( loadResult.error() ) ) );
+                RiaLogging::error( QString( "Failed to open %1. Error: %2." )
+                                       .arg( m_deckFileName().path() )
+                                       .arg( QString::fromStdString( loadResult.error() ) )
+                                       .toStdString() );
                 deckLoadOk = false;
             }
         }
         catch ( std::filesystem::filesystem_error& )
         {
             deckLoadOk = false;
-            RiaLogging::error( QString( "Failed to open %1, possibly unsupported or incorrect format." ).arg( m_deckFileName().path() ) );
+            RiaLogging::error( std::format( "Failed to open {}, possibly unsupported or incorrect format.", m_deckFileName().path() ) );
         }
 
         if ( !deckLoadOk )
@@ -764,7 +767,7 @@ bool RimOpmFlowJob::onPrepare()
     closeDeckFile();
     if ( !openDeckFile() )
     {
-        RiaLogging::error( "Unable to open input DATA file " + m_deckFileName().path() );
+        RiaLogging::error( "Unable to open input DATA file " + m_deckFileName().path().toStdString() );
         return false;
     }
 
@@ -1107,7 +1110,7 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
                                                                                   exportDate );
     if ( !mswDataResult.has_value() )
     {
-        RiaLogging::error( QString::fromStdString( mswDataResult.error() ) );
+        RiaLogging::error( mswDataResult.error() );
         return failure;
     }
 

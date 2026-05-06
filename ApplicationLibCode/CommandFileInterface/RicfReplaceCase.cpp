@@ -70,7 +70,7 @@ caf::PdmScriptResponse RicfSingleCaseReplace::execute()
         if ( lastProjectPath.isNull() )
         {
             QString errMsg( "replaceCase: The project must be saved as a file before calling 'replaceCase'." );
-            RiaLogging::error( errMsg );
+            RiaLogging::error( errMsg.toStdString() );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
         }
         projectPath = lastProjectPath;
@@ -98,7 +98,7 @@ caf::PdmScriptResponse RicfSingleCaseReplace::execute()
     if ( !RiaApplication::instance()->loadProject( projectPath, RiaApplication::ProjectLoadAction::PLA_NONE, projectModifier.p() ) )
     {
         QString errMsg( "Could not reload project" );
-        RiaLogging::error( errMsg );
+        RiaLogging::error( errMsg.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
@@ -130,7 +130,7 @@ caf::PdmScriptResponse RicfMultiCaseReplace::execute()
     if ( m_caseIdToGridFileNameMap.empty() )
     {
         QString errMsg( "replaceCaseImpl: No replacements available." );
-        RiaLogging::error( errMsg );
+        RiaLogging::error( errMsg.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
@@ -139,7 +139,7 @@ caf::PdmScriptResponse RicfMultiCaseReplace::execute()
     {
         QString errMsg( "replaceCase: 'openProject' must be called before 'replaceCase' to specify project file to "
                         "replace case in." );
-        RiaLogging::error( errMsg );
+        RiaLogging::error( errMsg.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
@@ -168,7 +168,7 @@ caf::PdmScriptResponse RicfMultiCaseReplace::execute()
     if ( !RiaApplication::instance()->loadProject( lastProjectPath, RiaApplication::ProjectLoadAction::PLA_NONE, projectModifier.p() ) )
     {
         QString errMsg( "Could not reload project" );
-        RiaLogging::error( errMsg );
+        RiaLogging::error( errMsg.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 

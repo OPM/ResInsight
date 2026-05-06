@@ -116,7 +116,7 @@ std::map<QString, QString> RifEclipseInputPropertyLoader::readProperties( const 
         }
         else
         {
-            RiaLogging::error( errorText );
+            RiaLogging::error( errorText.toStdString() );
         }
     }
 

@@ -69,7 +69,7 @@ RimFormationNames* RimFormationTools::loadFormationNamesFromFolder( const QStrin
     std::vector<RimFormationNames*> formationNames = fomNameColl->importFiles( fileList );
     if ( formationNames.size() > 1 )
     {
-        RiaLogging::warning( QString( "Multiple formation name files found in ensemble folders." ) );
+        RiaLogging::warning( "Multiple formation name files found in ensemble folders." );
     }
 
     return formationNames.front();

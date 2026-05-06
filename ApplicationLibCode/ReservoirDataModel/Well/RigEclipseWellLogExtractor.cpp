@@ -159,7 +159,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
                     else
                     {
                         QString txt = "Detected two points assumed to be in the same cell, but they are in two different cells";
-                        RiaLogging::debug( txt );
+                        RiaLogging::debug( txt.toStdString() );
                     }
                 }
             }

@@ -46,7 +46,7 @@ void RimWellLogFileDataLoader::loadData( caf::PdmObject& pdmObject, const QStrin
         QString errorMessage;
         if ( !wellLogFile->readFile( &errorMessage ) )
         {
-            RiaLogging::warning( errorMessage );
+            RiaLogging::warning( errorMessage.toStdString() );
         }
     }
 

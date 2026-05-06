@@ -54,7 +54,7 @@ namespace internal
         QFile         file( filename );
         if ( !file.open( QIODevice::WriteOnly ) )
         {
-            RiaLogging::error( "Couldn't open file : " + filename );
+            RiaLogging::error( "Couldn't open file : " + filename.toStdString() );
             return;
         }
         file.write( jsonDoc.toJson() );
@@ -68,7 +68,7 @@ namespace internal
         QFile file( filename );
         if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
         {
-            RiaLogging::error( "Couldn't open file : " + filename );
+            RiaLogging::error( "Couldn't open file : " + filename.toStdString() );
             return {};
         }
 
@@ -77,7 +77,7 @@ namespace internal
 
         if ( !jsonDoc.isObject() )
         {
-            RiaLogging::error( "Invalid JSON format in : " + filename );
+            RiaLogging::error( "Invalid JSON format in : " + filename.toStdString() );
             return {};
         }
 

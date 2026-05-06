@@ -89,7 +89,8 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
                                .arg( gridA_k )
                                .arg( gridB_i )
                                .arg( gridB_j )
-                               .arg( gridB_k ) );
+                               .arg( gridB_k )
+                               .toStdString() );
 
         return false;
     }

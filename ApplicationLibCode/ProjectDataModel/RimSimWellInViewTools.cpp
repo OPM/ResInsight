@@ -153,7 +153,7 @@ double extractValueForTimeStep( RifSummaryReaderInterface* summaryReader,
     if ( !summaryReader->hasAddress( addr ) )
     {
         QString message = "ERROR: no address found for well " + wellName + " " + QString::fromStdString( vectorName );
-        RiaLogging::warning( message );
+        RiaLogging::warning( message.toStdString() );
 
         *isOk = false;
         return 0.0;
@@ -164,7 +164,7 @@ double extractValueForTimeStep( RifSummaryReaderInterface* summaryReader,
     if ( values.empty() || timeSteps.empty() )
     {
         QString message = "ERROR: no data found for well " + wellName + " " + QString::fromStdString( vectorName );
-        RiaLogging::warning( message );
+        RiaLogging::warning( message.toStdString() );
 
         *isOk = false;
         return 0.0;
@@ -185,7 +185,7 @@ double extractValueForTimeStep( RifSummaryReaderInterface* summaryReader,
     }
 
     QString message = "ERROR: no resampled values found for well " + wellName + " " + QString::fromStdString( vectorName );
-    RiaLogging::warning( message );
+    RiaLogging::warning( message.toStdString() );
 
     *isOk = false;
     return -1;

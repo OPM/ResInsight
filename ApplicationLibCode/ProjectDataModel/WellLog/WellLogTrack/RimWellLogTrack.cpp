@@ -2790,7 +2790,8 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
                                .arg( m_description() )
                                .arg( m_resultDefinition->resultVariable() )
                                .arg( resultTypeStr )
-                               .arg( eclipseCase->caseUserDescription() ) );
+                               .arg( eclipseCase->caseUserDescription() )
+                               .toStdString() );
         return;
     }
 

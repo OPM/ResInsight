@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
+#include "RiaQStringFormatter.h"
 
 #include "VdeArrayDataPacket.h"
 #include "VdeFileExporter.h"
@@ -85,7 +86,7 @@ RicHoloLensSession* RicHoloLensSession::createSession( const QString&           
     if ( !dbgExportFolder.isEmpty() )
     {
         newSession->m_dbgFileExportDestinationFolder = dbgExportFolder;
-        RiaLogging::info( QString( "HoloLens: Debug file export will be written to folder: %1" ).arg( dbgExportFolder ) );
+        RiaLogging::info( std::format( "HoloLens: Debug file export will be written to folder: {}", dbgExportFolder ) );
     }
 
     return newSession;
@@ -167,8 +168,8 @@ void RicHoloLensSession::updateSessionDataFromView( const RimGridView& activeVie
 
     if ( m_restClient )
     {
-        RiaLogging::info(
-            QString( "HoloLens: Sending updated meta data to sharing server (sequenceNumber=%1)" ).arg( m_lastExtractionMetaDataSequenceNumber ) );
+        RiaLogging::info( std::format( "HoloLens: Sending updated meta data to sharing server (sequenceNumber={})",
+                                       m_lastExtractionMetaDataSequenceNumber ) );
         m_restClient->sendMetaData( m_lastExtractionMetaDataSequenceNumber, modelMetaJsonStr );
     }
 
@@ -180,7 +181,7 @@ void RicHoloLensSession::updateSessionDataFromView( const RimGridView& activeVie
 
         if ( !outputDir.mkpath( "." ) )
         {
-            RiaLogging::error( QString( "HoloLens: Could not create debug file export folder: %1" ).arg( absOutputFolder ) );
+            RiaLogging::error( std::format( "HoloLens: Could not create debug file export folder: {}", absOutputFolder ) );
             return;
         }
 
@@ -198,8 +199,10 @@ void RicHoloLensSession::updateSessionDataFromView( const RimGridView& activeVie
         // This will write all packets seen in this extraction to file
         // packetIdsToWrite = allReferencedPacketIds;
 
-        RiaLogging::info(
-            QString( "HoloLens: Doing debug export of data (%1 packets) to folder: %2" ).arg( packetIdsToWrite.size() ).arg( absOutputFolder ) );
+        RiaLogging::info( QString( "HoloLens: Doing debug export of data (%1 packets) to folder: %2" )
+                              .arg( packetIdsToWrite.size() )
+                              .arg( absOutputFolder )
+                              .toStdString() );
         VdeFileExporter fileExporter( absOutputFolder );
         if ( !fileExporter.exportToFile( modelMetaJsonStr, m_packetDirectory, packetIdsToWrite ) )
         {
@@ -239,12 +242,12 @@ void RicHoloLensSession::handleSuccessfulSendMetaData( int metaDataSequenceNumbe
 {
     cvf::Timer tim;
 
-    RiaLogging::info( QString( "HoloLens: Processing server response (meta data sequenceNumber=%1)" ).arg( metaDataSequenceNumber ) );
+    RiaLogging::info( std::format( "HoloLens: Processing server response (meta data sequenceNumber={})", metaDataSequenceNumber ) );
 
     if ( m_lastExtractionMetaDataSequenceNumber != metaDataSequenceNumber )
     {
-        RiaLogging::warning(
-            QString( "HoloLens: Ignoring server response, the meta data sequenceNumber(%1) has been superseded" ).arg( metaDataSequenceNumber ) );
+        RiaLogging::warning( std::format( "HoloLens: Ignoring server response, the meta data sequenceNumber({}) has been superseded",
+                                          metaDataSequenceNumber ) );
         return;
     }
 
@@ -276,7 +279,7 @@ void RicHoloLensSession::handleSuccessfulSendMetaData( int metaDataSequenceNumbe
         return;
     }
 
-    RiaLogging::info( QString( "HoloLens: Start sending data to server, %1 data arrays have been requested" ).arg( arrayIdsToSend.size() ) );
+    RiaLogging::info( std::format( "HoloLens: Start sending data to server, {} data arrays have been requested", arrayIdsToSend.size() ) );
 
     size_t totalBytesSent     = 0;
     size_t totalNumArraysSent = 0;
@@ -292,7 +295,7 @@ void RicHoloLensSession::handleSuccessfulSendMetaData( int metaDataSequenceNumbe
             const VdeArrayDataPacket* packet  = m_packetDirectory.lookupPacket( arrayId );
             if ( !packet )
             {
-                RiaLogging::warning( QString( "HoloLens: Could not get the requested data from cache, array id: %1 " ).arg( arrayId ) );
+                RiaLogging::warning( std::format( "HoloLens: Could not get the requested data from cache, array id: {} ", arrayId ) );
                 continue;
             }
 
@@ -301,7 +304,8 @@ void RicHoloLensSession::handleSuccessfulSendMetaData( int metaDataSequenceNumbe
             RiaLogging::info( QString( "HoloLens:     sending array id: %1, %2KB (%3 bytes)" )
                                   .arg( arrayId )
                                   .arg( packetByteArr.size() / 1024.0, 0, 'f', 2 )
-                                  .arg( packetByteArr.size() ) );
+                                  .arg( packetByteArr.size() )
+                                  .toStdString() );
 
             m_restClient->sendBinaryData( packetByteArr, "arrId" + QByteArray::number( arrayId ) );
 
@@ -325,7 +329,8 @@ void RicHoloLensSession::handleSuccessfulSendMetaData( int metaDataSequenceNumbe
         RiaLogging::info( QString( "HoloLens: Sending data to server (%1 arrays combined), %2KB (%3 bytes)" )
                               .arg( totalNumArraysSent )
                               .arg( totalBytesSent / 1024.0, 0, 'f', 2 )
-                              .arg( totalBytesSent ) );
+                              .arg( totalBytesSent )
+                              .toStdString() );
 
         m_restClient->sendBinaryData( combinedPacketArr, "metaSeqNum" + QByteArray::number( metaDataSequenceNumber ) );
     }
@@ -335,7 +340,8 @@ void RicHoloLensSession::handleSuccessfulSendMetaData( int metaDataSequenceNumbe
                           .arg( totalNumArraysSent )
                           .arg( totalMb, 0, 'f', 2 )
                           .arg( totalBytesSent )
-                          .arg( static_cast<int>( tim.time() * 1000 ) ) );
+                          .arg( static_cast<int>( tim.time() * 1000 ) )
+                          .toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -390,7 +396,7 @@ void RicHoloLensSession::handleError( const QString& errMsg, const QString& url,
 
     fullMsg += "\n    url: " + url;
 
-    RiaLogging::error( fullMsg );
+    RiaLogging::error( fullMsg.toStdString() );
 
     // It is probably not correct to always consider an error a state change, but for now
     notifyObserver( RicHoloLensSessionObserver::GeneralError );

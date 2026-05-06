@@ -19,6 +19,7 @@
 #include "RimObservedEclipseUserData.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RifColumnBasedUserData.h"
 #include "RifColumnBasedUserDataParser.h"
@@ -58,7 +59,7 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
         QFile file( summaryHeaderFilename() );
         if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
         {
-            RiaLogging::error( QString( "Failed to open %1" ).arg( summaryHeaderFilename() ) );
+            RiaLogging::error( std::format( "Failed to open {}", summaryHeaderFilename() ) );
 
             return;
         }

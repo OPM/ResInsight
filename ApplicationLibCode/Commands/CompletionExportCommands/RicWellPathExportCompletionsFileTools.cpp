@@ -45,11 +45,11 @@ std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFile( const QS
     {
         bool createdPath = exportFolder.mkpath( "." );
         if ( createdPath )
-            RiaLogging::info( "Created export folder " + folderName );
+            RiaLogging::info( "Created export folder " + folderName.toStdString() );
         else
         {
             auto errorMessage = QString( "Selected output folder does not exist, and could not be created." );
-            RiaLogging::error( errorMessage );
+            RiaLogging::error( errorMessage.toStdString() );
             return nullptr;
         }
     }
@@ -60,7 +60,7 @@ std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFile( const QS
     if ( !exportFile->open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
         auto errorMessage = QString( "Export Completions Data: Could not open the file: %1" ).arg( filePath );
-        RiaLogging::error( errorMessage );
+        RiaLogging::error( errorMessage.toStdString() );
         return nullptr;
     }
     return exportFile;

@@ -23,6 +23,7 @@
 #include "RiaOpmParserTools.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 #include "RiaStdStringTools.h"
 
@@ -91,7 +92,7 @@ RifReaderOpmCommon::GridDimensions RifReaderOpmCommon::readGridDimensions( const
     }
     catch ( std::exception& e )
     {
-        RiaLogging::debug( QString( "Failed to read grid dimensions from %1: %2" ).arg( gridFileName ).arg( e.what() ) );
+        RiaLogging::debug( std::format( "Failed to read grid dimensions from {}: {}", gridFileName, e.what() ) );
     }
 
     return result;
@@ -114,7 +115,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
 
         if ( !importGrid( eclipseCaseData->mainGrid(), eclipseCaseData ) )
         {
-            RiaLogging::error( "Failed to open grid file " + fileName );
+            RiaLogging::error( std::format( "Failed to open grid file {}", fileName ) );
 
             return false;
         }
@@ -189,7 +190,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
 
         QString errorMsg = "Unable to read cell data from grid.\nOpen Preferences->Grid->EGRID settings, and set 'Model Reader' to "
                            "'resdata' and try again.";
-        RiaLogging::error( errorMsg );
+        RiaLogging::error( errorMsg.toStdString() );
 
         return false;
     }
@@ -219,24 +220,21 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     if ( gridUnitStr.starts_with( 'M' ) )
     {
         m_gridUnit = 1;
-        RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as METRIC)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+        RiaLogging::debug( std::format( "Grid unit from EGRID file: '{}' (interpreted as METRIC)", opmGrid.grid_unit() ) );
     }
     else if ( gridUnitStr.starts_with( 'F' ) )
     {
         m_gridUnit = 2;
-        RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as FIELD)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+        RiaLogging::debug( std::format( "Grid unit from EGRID file: '{}' (interpreted as FIELD)", opmGrid.grid_unit() ) );
     }
     else if ( gridUnitStr.starts_with( 'C' ) )
     {
         m_gridUnit = 3;
-        RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as LAB)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+        RiaLogging::debug( std::format( "Grid unit from EGRID file: '{}' (interpreted as LAB)", opmGrid.grid_unit() ) );
     }
     else if ( !gridUnitStr.empty() )
     {
-        RiaLogging::warning( QString( "Unknown grid unit from EGRID file: '%1'" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+        RiaLogging::warning( std::format( "Unknown grid unit from EGRID file: '{}'", opmGrid.grid_unit() ) );
     }
 
     auto totalCellCount           = opmGrid.totalNumberOfCells();
@@ -1120,7 +1118,7 @@ std::vector<int> RifReaderOpmCommon::readInteheadKeyword() const
         }
         catch ( const std::exception& e )
         {
-            RiaLogging::warning( QString( "Failed to read INTEHEAD keyword from init file: %1" ).arg( e.what() ) );
+            RiaLogging::warning( std::format( "Failed to read INTEHEAD keyword from init file: {}", e.what() ) );
         }
     }
 

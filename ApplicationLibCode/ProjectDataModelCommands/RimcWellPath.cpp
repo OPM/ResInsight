@@ -24,6 +24,7 @@
 #include "RiaApplication.h"
 #include "RiaKeyValueStoreUtil.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseTools.h"
@@ -100,14 +101,14 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addFracture::execute(
                                                                                  position,
                                                                                  boundingBoxHorizontal,
                                                                                  boundingBoxVertical );
-            RiaLogging::info( QString( "Direction: %1 %2 %3" ).arg( direction.x() ).arg( direction.y() ).arg( direction.z() ) );
+            RiaLogging::info( std::format( "Direction: {} {} {}", direction.x(), direction.y(), direction.z() ) );
             cvf::Vec3d fractureDirectionNormal = wellPathFracture->computeFractureDirectionNormal();
 
             cvf::Vec3d formationDirection = RimStimPlanModel::projectVectorIntoFracturePlane( position, fractureDirectionNormal, direction );
             if ( !formationDirection.isUndefined() )
             {
                 double formationDip = RigStimPlanModelTools::calculateFormationDipFromHorizontal( formationDirection );
-                RiaLogging::info( QString( "Computed formation dip: %1" ).arg( formationDip ) );
+                RiaLogging::info( std::format( "Computed formation dip: {}", formationDip ) );
 
                 wellPathFracture->setDip( formationDip );
             }

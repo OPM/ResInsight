@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaQStringFormatter.h"
 #include "RiaVersionInfo.h"
 
 #include "cafPdmUiTextEditor.h"
@@ -105,7 +106,7 @@ void RiaPreferencesOpenTelemetry::setData( const std::map<QString, QString>& key
         }
         else
         {
-            RiaLogging::warning( QString( "Unknown OpenTelemetry config key: '%1'" ).arg( key ) );
+            RiaLogging::warning( std::format( "Unknown OpenTelemetry config key: '{}'", key ) );
         }
     }
 }

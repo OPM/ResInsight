@@ -148,7 +148,7 @@ std::expected<QStringList, QString> RimcCommandRouter_extractSurfaces::extractSu
             else
             {
                 surfaceFileNames << surfaceFilename;
-                RiaLogging::info( "Successfully exported surface data to " + surfaceFilename );
+                RiaLogging::info( "Successfully exported surface data to " + surfaceFilename.toStdString() );
             }
         }
 
@@ -176,7 +176,7 @@ bool RimcCommandRouter_extractSurfaces::readMinMaxLayerFromGridFile( const QStri
     }
     catch ( ... )
     {
-        RiaLogging::error( "Unable to read dimensions from " + gridFileName );
+        RiaLogging::error( "Unable to read dimensions from " + gridFileName.toStdString() );
         return false;
     }
 }

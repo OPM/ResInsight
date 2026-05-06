@@ -140,7 +140,8 @@ bool RimWellLogLasFile::readFile( QString* errorMessage )
     {
         RiaLogging::warning( QString( "The LAS-file '%1' contains no recognizable date. Please assign a date in the "
                                       "LAS-file property panel." )
-                                 .arg( m_name() ) );
+                                 .arg( m_name() )
+                                 .toStdString() );
 
         m_date = DEFAULT_DATE_TIME;
     }

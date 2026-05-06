@@ -285,7 +285,7 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( cons
 
     if ( !errorText.isEmpty() )
     {
-        RiaLogging::error( errorText );
+        RiaLogging::error( errorText.toStdString() );
         return false;
     }
 

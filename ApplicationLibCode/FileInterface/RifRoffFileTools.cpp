@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 
 #include "RicFaciesPropertiesImportTools.h"
@@ -95,7 +96,7 @@ RifRoffFileTools::~RifRoffFileTools()
 //--------------------------------------------------------------------------------------------------
 bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData* eclipseCase, QString* errorMessages )
 {
-    RiaLogging::info( QString( "Opening roff file: %1" ).arg( fileName ) );
+    RiaLogging::info( std::format( "Opening roff file: {}", fileName ) );
 
     std::string filename = fileName.toStdString();
 
@@ -150,9 +151,9 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
 
         if ( RiaApplication::enableDevelopmentFeatures() )
         {
-            RiaLogging::info( QString( "Grid dimensions: %1 %2 %3" ).arg( nx ).arg( ny ).arg( nz ) );
-            RiaLogging::info( QString( "Offset: %1 %2 %3" ).arg( xOffset ).arg( yOffset ).arg( zOffset ) );
-            RiaLogging::info( QString( "Scale: %1 %2 %3" ).arg( xScale ).arg( yScale ).arg( zScale ) );
+            RiaLogging::info( std::format( "Grid dimensions: {} {} {}", nx, ny, nz ) );
+            RiaLogging::info( std::format( "Offset: {} {} {}", xOffset, yOffset, zOffset ) );
+            RiaLogging::info( std::format( "Scale: {} {} {}", xScale, yScale, zScale ) );
         }
 
         std::vector<float> cornerLines = reader.getFloatArray( "cornerLines" + roff::Parser::postFixData() );
@@ -263,21 +264,21 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
             auto gridConstructionDone = high_resolution_clock::now();
 
             auto tokenizeDuration = duration_cast<milliseconds>( tokenizeDone - totalStart );
-            RiaLogging::info( QString( "Tokenizing: %1 ms" ).arg( tokenizeDuration.count() ) );
+            RiaLogging::info( std::format( "Tokenizing: {} ms", tokenizeDuration.count() ) );
 
             auto parsingDuration = duration_cast<milliseconds>( parsingDone - tokenizeDone );
-            RiaLogging::info( QString( "Parsing: %1 ms" ).arg( parsingDuration.count() ) );
+            RiaLogging::info( std::format( "Parsing: {} ms", parsingDuration.count() ) );
 
             auto gridConstructionDuration = duration_cast<milliseconds>( gridConstructionDone - parsingDone );
-            RiaLogging::info( QString( "Grid Construction: %1 ms" ).arg( gridConstructionDuration.count() ) );
+            RiaLogging::info( std::format( "Grid Construction: {} ms", gridConstructionDuration.count() ) );
 
             auto totalDuration = duration_cast<milliseconds>( gridConstructionDone - totalStart );
-            RiaLogging::info( QString( "Total: %1 ms" ).arg( totalDuration.count() ) );
+            RiaLogging::info( std::format( "Total: {} ms", totalDuration.count() ) );
         }
     }
     catch ( std::runtime_error& err )
     {
-        RiaLogging::error( QString( "Roff file import failed: %1" ).arg( err.what() ) );
+        RiaLogging::error( std::format( "Roff file import failed: {}", err.what() ) );
         return false;
     }
 
@@ -494,7 +495,7 @@ size_t RifRoffFileTools::computeActiveCellMatrixIndex( std::vector<int>& activeC
 std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputProperties( const QString&      fileName,
                                                                                      RigEclipseCaseData* eclipseCaseData )
 {
-    RiaLogging::info( QString( "Reading properties from roff file: %1" ).arg( fileName ) );
+    RiaLogging::info( std::format( "Reading properties from roff file: {}", fileName ) );
 
     std::string filename = fileName.toStdString();
 
@@ -542,10 +543,8 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
             size_t keywordLength = reader.getArrayLength( keyword );
             if ( RiaApplication::enableDevelopmentFeatures() )
             {
-                RiaLogging::info( QString( "Array found: '%1'. Type: %2 with size: %3." )
-                                      .arg( QString::fromStdString( keyword ) )
-                                      .arg( QString::fromStdString( roff::Token::kindToString( kind ) ) )
-                                      .arg( keywordLength ) );
+                RiaLogging::info(
+                    std::format( "Array found: '{}'. Type: {} with size: {}.", keyword, roff::Token::kindToString( kind ), keywordLength ) );
             }
 
             QString keywordUpperCase = QString::fromStdString( keyword ).toUpper();
@@ -554,7 +553,7 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
             {
                 if ( !appendZoneIndexPropertyFromSubgrids( eclipseCaseData, reader, keywordMapping ) )
                 {
-                    RiaLogging::warning( QString( "Unable to import ROFF subgrids zonation from %1" ).arg( fileName ) );
+                    RiaLogging::warning( std::format( "Unable to import ROFF subgrids zonation from {}", fileName ) );
                 }
             }
             else if ( eclipseCaseData->mainGrid()->cellCount() == keywordLength )
@@ -569,8 +568,7 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 
                 if ( !appendNewInputPropertyResult( eclipseCaseData, newResultName, keyword, kind, reader ) )
                 {
-                    RiaLogging::error(
-                        QString( "Unable to import result '%1' from %2" ).arg( QString::fromStdString( keyword ) ).arg( fileName ) );
+                    RiaLogging::error( std::format( "Unable to import result '{}' from {}", keyword, fileName ) );
                     return std::make_pair( false, keywordMapping );
                 }
 
@@ -621,7 +619,7 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
     }
     catch ( std::runtime_error& err )
     {
-        RiaLogging::error( QString( "Roff property file import failed: %1" ).arg( err.what() ) );
+        RiaLogging::error( std::format( "Roff property file import failed: {}", err.what() ) );
         return std::make_pair( false, keywordMapping );
     }
 
@@ -684,9 +682,7 @@ std::vector<double>
     }
     else
     {
-        RiaLogging::error( QString( "Unsupported property type '%1' for keyword '%2'." )
-                               .arg( QString::fromStdString( roff::Token::kindToString( kind ) ) )
-                               .arg( QString::fromStdString( keyword ) ) );
+        RiaLogging::error( std::format( "Unsupported property type '{}' for keyword '{}'.", roff::Token::kindToString( kind ), keyword ) );
     }
 
     return doubleVals;
@@ -802,7 +798,7 @@ bool RifRoffFileTools::appendZoneIndexPropertyFromSubgrids( RigEclipseCaseData* 
     if ( values.empty() )
     {
         RiaLogging::warning(
-            QString( "ROFF subgrids.nLayers could not be expanded to grid K dimension (%1). Skipping zonation import." ).arg( nz ) );
+            std::format( "ROFF subgrids.nLayers could not be expanded to grid K dimension ({}). Skipping zonation import.", nz ) );
         return false;
     }
 
