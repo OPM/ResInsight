@@ -19,6 +19,7 @@
 #include "RifElementPropertyReader.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "cvfAssert.h"
 
@@ -226,5 +227,5 @@ void RifElementPropertyReader::outputWarningAboutWrongFileData()
 {
     QString warningText = QString( "The chosen result property does not fit the model" );
 
-    RiaLogging::errorInMessageBox( nullptr, "Element Property Reader", warningText );
+    RiuMessageDialog::showError( nullptr, "Element Property Reader", warningText );
 }

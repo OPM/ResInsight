@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "ExportCommands/RicExportLgrFeature.h"
 #include "RicExportFeatureImpl.h"
@@ -166,7 +167,7 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
             if ( !folder.exists() )
             {
                 QString txt = QString( "The path '%1' does not exist. Aborting export." ).arg( exportSettings->folder );
-                RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Export", txt );
+                RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "Export", txt );
 
                 return;
             }

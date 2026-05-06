@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "RimProject.h"
 #include "Riu3DMainWindowTools.h"
@@ -81,7 +82,7 @@ void RicWellLogsImportFileFeature::onActionTriggered( bool isChecked )
         if ( !errorMessages.empty() )
         {
             QString displayMessage = "Errors opening the LAS files: \n" + errorMessages.join( "\n" );
-            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
+            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
         }
     }
 }

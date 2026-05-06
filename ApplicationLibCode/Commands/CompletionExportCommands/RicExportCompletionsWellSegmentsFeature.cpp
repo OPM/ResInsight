@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "RifTextDataTableFormatter.h"
 
@@ -98,7 +99,7 @@ void RicExportCompletionsWellSegmentsFeature::onActionTriggered( bool isChecked 
             if ( !folder.exists() )
             {
                 QString txt = QString( "The path '%1' does not exist. Aborting export." ).arg( exportSettings.folder );
-                RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Export", txt );
+                RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "Export", txt );
 
                 return;
             }

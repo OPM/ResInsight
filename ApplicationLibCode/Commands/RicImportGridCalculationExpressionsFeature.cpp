@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiuMessageDialog.h"
 
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseResultAddress.h"
@@ -61,9 +62,9 @@ void RicImportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
     auto [calculations, errorMessage] = RifGridCalculationImporter::readFromFile( fileName.toStdString() );
     if ( !errorMessage.empty() )
     {
-        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
-                                       "Grid Calculation Import Error",
-                                       QString::fromStdString( errorMessage ) );
+        RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(),
+                                     "Grid Calculation Import Error",
+                                     QString::fromStdString( errorMessage ) );
         return;
     }
 

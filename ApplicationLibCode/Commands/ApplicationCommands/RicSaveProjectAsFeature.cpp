@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RicSaveProjectFeature.h"
 #include "Riu3DMainWindowTools.h"
+#include "RiuMessageDialog.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -69,7 +70,7 @@ void RicSaveProjectAsFeature::onActionTriggered( bool isChecked )
         if ( response.status() != caf::PdmScriptResponse::COMMAND_OK )
         {
             QString displayMessage = response.messages().join( "\n" );
-            RiaLogging::errorInMessageBox( nullptr, "Error when saving project file", displayMessage );
+            RiuMessageDialog::showError( nullptr, "Error when saving project file", displayMessage );
         }
     }
 }

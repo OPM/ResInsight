@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "ApplicationCommands/RicOpenInTextEditorFeature.h"
 #include "RicRefreshScriptsFeature.h"
@@ -102,9 +103,9 @@ void RicNewOctaveScriptFeature::onActionTriggered( bool isChecked )
         QFile file( fullPathFilenameNewScript );
         if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )
         {
-            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
-                                           "Script editor",
-                                           "Failed to create file\n" + fullPathFilenameNewScript );
+            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(),
+                                         "Script editor",
+                                         "Failed to create file\n" + fullPathFilenameNewScript );
 
             return;
         }

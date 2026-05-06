@@ -21,6 +21,7 @@
 #include "RiaLogging.h"
 #include "RiaTextStringTools.h"
 #include "RigPolyLinesData.h"
+#include "RiuMessageDialog.h"
 
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationLineAppearance.h"
@@ -207,7 +208,7 @@ void RimPolylinesFromFileAnnotation::fieldChangedByUi( const caf::PdmFieldHandle
         if ( !errorMessage.isEmpty() )
         {
             QString totalError = "\nError in: " + fileName() + "\n\t" + errorMessage;
-            RiaLogging::errorInMessageBox( nullptr, "Import Polylines", totalError );
+            RiuMessageDialog::showError( nullptr, "Import Polylines", totalError );
         }
     }
     else if ( changedField == &m_showLines )

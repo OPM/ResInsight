@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeature.h"
 #include "RicExportLgrUi.h"
@@ -814,11 +815,11 @@ void RicExportLgrFeature::onActionTriggered( bool isChecked )
         if ( !wellsIntersectingOtherLgrs.empty() )
         {
             auto wellsList = wellsIntersectingOtherLgrs.join( ", " );
-            RiaLogging::errorInMessageBox( nullptr,
-                                           "LGR cells intersected",
-                                           "No export for some wells due to existing intersecting LGR(s). Affected "
-                                           "wells: " +
-                                               wellsList );
+            RiuMessageDialog::showError( nullptr,
+                                         "LGR cells intersected",
+                                         "No export for some wells due to existing intersecting LGR(s). Affected "
+                                         "wells: " +
+                                             wellsList );
         }
     }
 }

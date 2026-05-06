@@ -23,6 +23,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaResultNames.h"
+#include "RiuMessageDialog.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -182,7 +183,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         QString errorMessage = QString( "Could not open the Eclipse Grid file: \n" ) + mainCase->gridFileName() + "\n" +
                                "Current working directory is: \n" + QDir::currentPath();
 
-        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Error when opening project file", errorMessage );
+        RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "Error when opening project file", errorMessage );
         return;
     }
 

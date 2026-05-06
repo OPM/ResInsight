@@ -39,6 +39,7 @@
 #include "RiaSocketServer.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
+#include "RiuMessageDialog.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "EclipseCommands/RicImportEclipseCaseFeature.h"
@@ -1327,7 +1328,7 @@ void RiaGuiApplication::onProjectBeingOpened()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onProjectOpeningError( const QString& errMsg )
 {
-    RiaLogging::errorInMessageBox( nullptr, "Error when opening project file", errMsg );
+    RiuMessageDialog::showError( nullptr, "Error when opening project file", errMsg );
     if ( m_mainWindow ) m_mainWindow->setPdmRoot( nullptr );
 }
 

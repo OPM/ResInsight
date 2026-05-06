@@ -25,6 +25,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiuMessageDialog.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -105,7 +106,7 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
         QFile exportFile( fileName );
         if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
         {
-            RiaLogging::errorInMessageBox( nullptr, "Save Plot Template", QString( "Could not save to the file: %1" ).arg( fileName ) );
+            RiuMessageDialog::showError( nullptr, "Save Plot Template", QString( "Could not save to the file: %1" ).arg( fileName ) );
             return;
         }
 

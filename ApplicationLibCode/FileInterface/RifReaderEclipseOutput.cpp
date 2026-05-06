@@ -24,6 +24,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaStringEncodingTools.h"
+#include "RiuMessageDialog.h"
 
 #include "RifActiveCellsReader.h"
 #include "RifEclipseInputFileTools.h"
@@ -454,7 +455,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
             {
                 QString msg = QString( "The grid appears to be a radial grid.\nTo import this grid, open Preferences, and set 'Radial "
                                        "Grid Display Mode' to 'Show Cells as Cylinder Segments'." );
-                RiaLogging::errorInMessageBox( nullptr, "Potential Radial Grid", msg );
+                RiuMessageDialog::showError( nullptr, "Potential Radial Grid", msg );
             }
 
             if ( readerSettings().useCylindricalCoordinates )

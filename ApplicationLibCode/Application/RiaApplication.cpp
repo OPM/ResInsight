@@ -45,6 +45,7 @@
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 #include "RiaWellNameComparer.h"
+#include "RiuMessageDialog.h"
 
 #include "RicImportEclipseCaseFeature.h"
 #include "RicImportGeneralDataFeature.h"
@@ -1874,7 +1875,7 @@ RiaOsduConnector* RiaApplication::makeOsduConnector()
         errMsg +=
             "Make sure that the SSL libraries are available (on Windows platform, they are called 'libcrypto*.dll' and 'libssl*.dll').";
 #endif
-        RiaLogging::errorInMessageBox( nullptr, "OSDU Service Connection", errMsg );
+        RiuMessageDialog::showError( nullptr, "OSDU Service Connection", errMsg );
 
         return nullptr;
     }

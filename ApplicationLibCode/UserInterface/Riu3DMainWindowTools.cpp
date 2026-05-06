@@ -20,6 +20,7 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "RiuMainWindow.h"
 
@@ -62,5 +63,5 @@ void Riu3DMainWindowTools::selectAsCurrentItem( const caf::PdmObject* object, bo
 //--------------------------------------------------------------------------------------------------
 void Riu3DMainWindowTools::reportAndShowWarning( const QString& warningDialogHeader, const QString& warningtext )
 {
-    RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), warningDialogHeader, warningtext );
+    RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), warningDialogHeader, warningtext );
 }

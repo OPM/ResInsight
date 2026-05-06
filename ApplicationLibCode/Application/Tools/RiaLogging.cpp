@@ -17,9 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaLogging.h"
-#include "RiaGuiApplication.h"
+#include "RiaApplication.h"
 #include "RiaPreferencesSystem.h"
-#include "RiaRegressionTestRunner.h"
 
 #include <iostream>
 #include <sstream>
@@ -38,7 +37,6 @@
 #include <cstring>
 #endif
 
-#include <QMessageBox>
 #include <QString>
 
 //==================================================================================================
@@ -344,25 +342,6 @@ void RiaLogging::debug( const QString& message, const QString logKeyword )
     }
 
     setLastMessage( message );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaLogging::errorInMessageBox( QWidget* parent, const QString& title, const QString& text )
-{
-    if ( RiaGuiApplication::isRunning() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
-    {
-        if ( parent == nullptr )
-        {
-            parent = RiaGuiApplication::widgetToUseAsParent();
-        }
-        QMessageBox dlg( QMessageBox::Critical, title, text, QMessageBox::Ok, parent );
-        dlg.setWindowFlags( dlg.windowFlags() | Qt::WindowStaysOnTopHint );
-        dlg.exec();
-    }
-
-    RiaLogging::error( text );
 }
 
 //--------------------------------------------------------------------------------------------------

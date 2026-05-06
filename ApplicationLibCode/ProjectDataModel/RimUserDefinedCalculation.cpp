@@ -22,6 +22,7 @@
 
 #include "RiaLogging.h"
 #include "RiaNetworkTools.h"
+#include "RiuMessageDialog.h"
 
 #include "RimProject.h"
 #include "RimUserDefinedCalculationVariable.h"
@@ -192,7 +193,7 @@ bool RimUserDefinedCalculation::parseExpression()
     QString leftHandSideVariableName = RimUserDefinedCalculation::findLeftHandSide( m_expression );
     if ( leftHandSideVariableName.isEmpty() )
     {
-        RiaLogging::errorInMessageBox( nullptr, "Expression Parser", "Failed to detect left hand side of equation" );
+        RiuMessageDialog::showError( nullptr, "Expression Parser", "Failed to detect left hand side of equation" );
 
         return false;
     }
@@ -200,7 +201,7 @@ bool RimUserDefinedCalculation::parseExpression()
     std::vector<QString> variableNames = ExpressionParser::detectReferencedVariables( m_expression );
     if ( variableNames.empty() )
     {
-        RiaLogging::errorInMessageBox( nullptr, "Expression Parser", "Failed to detect any variable names" );
+        RiuMessageDialog::showError( nullptr, "Expression Parser", "Failed to detect any variable names" );
 
         return false;
     }
