@@ -117,7 +117,7 @@ bool RimObservedDataCollection::fileExists( const QString& fileName, QString* er
     if ( !file.exists() )
     {
         QString s = QString( "File does not exist, %1" ).arg( fileName );
-        RiaLogging::error( s );
+        RiaLogging::error( s.toStdString() );
 
         if ( errorText ) errorText->append( s );
         return false;

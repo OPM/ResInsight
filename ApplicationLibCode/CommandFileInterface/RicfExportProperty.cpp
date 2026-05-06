@@ -68,7 +68,7 @@ caf::PdmScriptResponse RicfExportProperty::execute()
         if ( !eclipseCase )
         {
             QString error = QString( "exportProperty: Could not find case with ID %1" ).arg( m_caseId() );
-            RiaLogging::error( error );
+            RiaLogging::error( error.toStdString() );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
 
@@ -77,7 +77,7 @@ caf::PdmScriptResponse RicfExportProperty::execute()
             if ( !eclipseCase->openReservoirCase() )
             {
                 QString error = QString( "exportProperty: Could not find eclipseCaseData with ID %1" ).arg( m_caseId() );
-                RiaLogging::error( error );
+                RiaLogging::error( error.toStdString() );
                 return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
             }
         }
@@ -90,7 +90,7 @@ caf::PdmScriptResponse RicfExportProperty::execute()
     if ( !cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( m_propertyName ) ) )
     {
         QString error = QString( "exportProperty: Could not find result property : %1" ).arg( m_propertyName() );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

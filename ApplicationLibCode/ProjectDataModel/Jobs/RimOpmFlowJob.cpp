@@ -582,8 +582,10 @@ bool RimOpmFlowJob::openDeckFile()
             }
             else
             {
-                RiaLogging::error(
-                    QString( "Failed to open %1. Error: %2." ).arg( m_deckFileName().path() ).arg( QString::fromStdString( loadResult.error() ) ) );
+                RiaLogging::error( QString( "Failed to open %1. Error: %2." )
+                                       .arg( m_deckFileName().path() )
+                                       .arg( QString::fromStdString( loadResult.error() ) )
+                                       .toStdString() );
                 deckLoadOk = false;
             }
         }
@@ -765,7 +767,7 @@ bool RimOpmFlowJob::onPrepare()
     closeDeckFile();
     if ( !openDeckFile() )
     {
-        RiaLogging::error( "Unable to open input DATA file " + m_deckFileName().path() );
+        RiaLogging::error( "Unable to open input DATA file " + m_deckFileName().path().toStdString() );
         return false;
     }
 

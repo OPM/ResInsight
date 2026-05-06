@@ -93,7 +93,7 @@ void RimPolygonFile::loadData()
 
     if ( polygonsFromFile.empty() )
     {
-        RiaLogging::warning( "No polygons found in file: " + m_fileName().path() );
+        RiaLogging::warning( "No polygons found in file: " + m_fileName().path().toStdString() );
     }
     else
     {
@@ -185,7 +185,7 @@ std::vector<RimPolygon*> RimPolygonFile::importDataFromFile( const QString& file
 
     if ( !errorMessages.isEmpty() )
     {
-        RiaLogging::error( errorMessages );
+        RiaLogging::error( errorMessages.toStdString() );
     }
 
     return polygons;

@@ -106,7 +106,7 @@ void RicImportWellLogOsduFeature::onActionTriggered( bool isChecked )
                 }
                 else
                 {
-                    RiaLogging::error( "Importing OSDU well log failed: " + errorMessage );
+                    RiaLogging::error( "Importing OSDU well log failed: " + errorMessage.toStdString() );
                 }
             }
         }

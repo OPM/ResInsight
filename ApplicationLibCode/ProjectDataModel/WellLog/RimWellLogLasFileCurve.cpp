@@ -172,7 +172,7 @@ void RimWellLogLasFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 {
                     QString tmp = QString( "The LAS curve can not be displayed.\n%1\n" ).arg( errMsg );
 
-                    RiaLogging::warning( tmp );
+                    RiaLogging::warning( tmp.toStdString() );
                 }
             }
 

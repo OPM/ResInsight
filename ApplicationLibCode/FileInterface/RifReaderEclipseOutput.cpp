@@ -368,7 +368,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
         QString errorMessage = QFileInfo( fileName ).fileName() +
                                QString( " is not a valid Eclipse file name.\n"
                                         "Please make sure the file does not contain a mix of upper and lower case letters." );
-        RiaLogging::error( errorMessage );
+        RiaLogging::error( errorMessage.toStdString() );
         return false;
     }
 
@@ -394,7 +394,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
         if ( !mainEclGrid )
         {
             QString errorMessage = QString( " Failed to create a main grid from file\n%1" ).arg( m_fileName );
-            RiaLogging::error( errorMessage );
+            RiaLogging::error( errorMessage.toStdString() );
 
             return false;
         }
@@ -591,8 +591,10 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
     {
         if ( allTimeSteps().size() != sourSimTimeSteps.size() )
         {
-            RiaLogging::error(
-                QString( "HDF: Time step count mismatch, Eclipse : %1 ; HDF : %2 " ).arg( allTimeSteps().size() ).arg( sourSimTimeSteps.size() ) );
+            RiaLogging::error( QString( "HDF: Time step count mismatch, Eclipse : %1 ; HDF : %2 " )
+                                   .arg( allTimeSteps().size() )
+                                   .arg( sourSimTimeSteps.size() )
+                                   .toStdString() );
 
             return;
         }
@@ -610,8 +612,10 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
             }
             else
             {
-                RiaLogging::error(
-                    QString( "HDF: Time step count mismatch, Eclipse : %1 ; HDF : %2 " ).arg( timeStepInfos.size() ).arg( sourSimTimeSteps.size() ) );
+                RiaLogging::error( QString( "HDF: Time step count mismatch, Eclipse : %1 ; HDF : %2 " )
+                                       .arg( timeStepInfos.size() )
+                                       .arg( sourSimTimeSteps.size() )
+                                       .toStdString() );
 
                 // We have less soursim time steps than eclipse time steps
                 isTimeStampsEqual = false;
@@ -1100,14 +1104,16 @@ std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeSt
         {
             RiaLogging::error( QString( "Time step count mismatch: timeStepsOnFile = %1, daysSinceSimulationStartOnFile = %2" )
                                    .arg( timeStepsOnFile.size() )
-                                   .arg( daysSinceSimulationStartOnFile.size() ) );
+                                   .arg( daysSinceSimulationStartOnFile.size() )
+                                   .toStdString() );
             return {};
         }
         if ( timeStepsOnFile.size() != reportNumbersOnFile.size() )
         {
             RiaLogging::error( QString( "Time step count mismatch: timeStepsOnFile = %1, reportNumbersOnFile = %2" )
                                    .arg( timeStepsOnFile.size() )
-                                   .arg( reportNumbersOnFile.size() ) );
+                                   .arg( reportNumbersOnFile.size() )
+                                   .toStdString() );
             return {};
         }
 

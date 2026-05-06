@@ -582,7 +582,8 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
                 telemetryAttributes["pdm.error"]  = result.error().toStdString();
                 RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.pdm_method_call", telemetryAttributes );
 
-                RiaLogging::error( QString( "Method '%1' failed. Error: %2" ).arg( methodKeyword ).arg( result.error() ) );
+                RiaLogging::error(
+                    QString( "Method '%1' failed. Error: %2" ).arg( methodKeyword ).arg( result.error() ).toStdString() );
                 return grpc::Status( grpc::NOT_FOUND, result.error().toStdString() );
             }
             else

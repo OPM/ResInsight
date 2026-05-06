@@ -113,9 +113,10 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnFile()
     if ( polygonPropertySet )
         RiaLogging::info( QString( "Calculating polygon outline based on %1 at timestep %2" )
                               .arg( m_borderPolygonResultName )
-                              .arg( m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex] ) );
+                              .arg( m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex] )
+                              .toStdString() );
     else
-        RiaLogging::info( QString( "Property for polygon calculation not set." ) );
+        RiaLogging::info( QString( "Property for polygon calculation not set." ).toStdString() );
 
     if ( m_stimPlanFractureDefinitionData->orientation() == RigStimPlanFractureDefinition::Orientation::TRANSVERSE )
     {
@@ -179,7 +180,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
                                                                                   RifStimPlanXmlReader::MirrorMode::MIRROR_AUTO,
                                                                                   fractureTemplateUnit(),
                                                                                   &errorMessage );
-    if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage );
+    if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage.toStdString() );
 
     if ( m_stimPlanFractureDefinitionData.notNull() )
     {
@@ -492,9 +493,10 @@ void RimStimPlanFractureTemplate::convertToUnitSystem( RiaDefines::EclipseUnitSy
     if ( polygonPropertySet )
         RiaLogging::info( QString( "Calculating polygon outline based on %1 at timestep %2" )
                               .arg( m_borderPolygonResultName )
-                              .arg( m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex] ) );
+                              .arg( m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex] )
+                              .toStdString() );
     else
-        RiaLogging::info( QString( "Property for polygon calculation not set." ) );
+        RiaLogging::info( QString( "Property for polygon calculation not set." ).toStdString() );
 
     if ( !m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty() )
     {

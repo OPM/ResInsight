@@ -270,48 +270,79 @@ std::optional<RILogLevel> RiaLogging::parseLogLevelString( const QString& logLev
 }
 
 //--------------------------------------------------------------------------------------------------
-/// QString overloads forward to the templated StdStringLike overloads, which hold the canonical
-/// implementation. The QByteArray locals keep the underlying bytes alive for the call.
+///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::error( const QString& message, const QString& logKeyword )
+void RiaLogging::error( std::string_view message, std::string_view logKeyword )
 {
-    const auto msgUtf8 = message.toUtf8();
-    const auto kwUtf8  = logKeyword.toUtf8();
-    error( std::string_view{ msgUtf8.constData(), static_cast<size_t>( msgUtf8.size() ) },
-           std::string_view{ kwUtf8.constData(), static_cast<size_t>( kwUtf8.size() ) } );
+    if ( !isKeywordEnabled( logKeyword ) ) return;
+    if ( isSameMessage( message ) ) return;
+    const std::string buf{ message };
+    for ( const auto& logger : sm_logger )
+    {
+        if ( logger && logger->level() >= int( RILogLevel::RI_LL_ERROR ) )
+        {
+#pragma omp critical( critical_section_logging )
+            logger->error( buf.c_str() );
+        }
+    }
+    setLastMessage( message );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::warning( const QString& message, const QString& logKeyword )
+void RiaLogging::warning( std::string_view message, std::string_view logKeyword )
 {
-    const auto msgUtf8 = message.toUtf8();
-    const auto kwUtf8  = logKeyword.toUtf8();
-    warning( std::string_view{ msgUtf8.constData(), static_cast<size_t>( msgUtf8.size() ) },
-             std::string_view{ kwUtf8.constData(), static_cast<size_t>( kwUtf8.size() ) } );
+    if ( !isKeywordEnabled( logKeyword ) ) return;
+    if ( isSameMessage( message ) ) return;
+    const std::string buf{ message };
+    for ( const auto& logger : sm_logger )
+    {
+        if ( logger && logger->level() >= int( RILogLevel::RI_LL_WARNING ) )
+        {
+#pragma omp critical( critical_section_logging )
+            logger->warning( buf.c_str() );
+        }
+    }
+    setLastMessage( message );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::info( const QString& message, const QString& logKeyword )
+void RiaLogging::info( std::string_view message, std::string_view logKeyword )
 {
-    const auto msgUtf8 = message.toUtf8();
-    const auto kwUtf8  = logKeyword.toUtf8();
-    info( std::string_view{ msgUtf8.constData(), static_cast<size_t>( msgUtf8.size() ) },
-          std::string_view{ kwUtf8.constData(), static_cast<size_t>( kwUtf8.size() ) } );
+    if ( !isKeywordEnabled( logKeyword ) ) return;
+    if ( isSameMessage( message ) ) return;
+    const std::string buf{ message };
+    for ( const auto& logger : sm_logger )
+    {
+        if ( logger && logger->level() >= int( RILogLevel::RI_LL_INFO ) )
+        {
+#pragma omp critical( critical_section_logging )
+            logger->info( buf.c_str() );
+        }
+    }
+    setLastMessage( message );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::debug( const QString& message, const QString& logKeyword )
+void RiaLogging::debug( std::string_view message, std::string_view logKeyword )
 {
-    const auto msgUtf8 = message.toUtf8();
-    const auto kwUtf8  = logKeyword.toUtf8();
-    debug( std::string_view{ msgUtf8.constData(), static_cast<size_t>( msgUtf8.size() ) },
-           std::string_view{ kwUtf8.constData(), static_cast<size_t>( kwUtf8.size() ) } );
+    if ( !isKeywordEnabled( logKeyword ) ) return;
+    if ( isSameMessage( message ) ) return;
+    const std::string buf{ message };
+    for ( const auto& logger : sm_logger )
+    {
+        if ( logger && logger->level() >= int( RILogLevel::RI_LL_DEBUG ) )
+        {
+#pragma omp critical( critical_section_logging )
+            logger->debug( buf.c_str() );
+        }
+    }
+    setLastMessage( message );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,7 +381,7 @@ void RiaLogging::logElapsedTime( std::string_view message, const std::chrono::ti
         text                  = prefix + QString( " (duration: %1 minutes %2 seconds)" ).arg( minutes ).arg( remainingSeconds, 0, 'f', 1 );
     }
 
-    RiaLogging::debug( text );
+    RiaLogging::debug( text.toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------

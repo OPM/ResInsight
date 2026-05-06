@@ -431,7 +431,7 @@ void RimMudWeightWindowParameters::handleFieldChanged( RimGeoMechCase*          
                     QString importMessage = QString( "Please import '%1' from file by "
                                                      "selecting 'Import Element Property Table' on the Geomechanical Model." )
                                                 .arg( title );
-                    RiaLogging::info( importMessage );
+                    RiaLogging::info( importMessage.toStdString() );
                     // Set back to default value
                     *typeField = typeField->defaultValue();
                     return;

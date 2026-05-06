@@ -1716,7 +1716,7 @@ bool RigFemPartResultsCollection::isValidBiotData( const std::vector<float>& bio
     {
         if ( !std::isinf( b ) && ( b < 0.0 || b > 1.0 ) )
         {
-            RiaLogging::error( QString( "Found unexpected biot coefficient. The value must be in the [0, 1] interval." ) );
+            RiaLogging::error( QString( "Found unexpected biot coefficient. The value must be in the [0, 1] interval." ).toStdString() );
             return false;
         }
     }

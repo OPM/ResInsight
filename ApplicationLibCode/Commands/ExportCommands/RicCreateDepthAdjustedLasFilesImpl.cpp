@@ -362,7 +362,7 @@ std::map<int, RicCreateDepthAdjustedLasFilesImpl::IndexKDepthData>
     // Must have non-empty equal length vectors!
     if ( wellIndexKValues.empty() )
     {
-        RiaLogging::info( QString( "Empty vector of index-K values" ) );
+        RiaLogging::info( QString( "Empty vector of index-K values" ).toStdString() );
         return indexKDepthsMap;
     }
     if ( wellMdValues.size() != wellTvdValues.size() || wellMdValues.size() != wellIndexKValues.size() )

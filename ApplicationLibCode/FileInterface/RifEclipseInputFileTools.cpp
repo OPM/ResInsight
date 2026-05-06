@@ -206,7 +206,7 @@ bool RifEclipseInputFileTools::openGridFile( const QString& fileName, RigEclipse
         // Import additional keywords as input properties
         RifEclipseInputPropertyLoader::createInputPropertiesFromKeywords( eclipseCase, objects, &errorMessages );
 
-        if ( !errorMessages.isEmpty() ) RiaLogging::error( errorMessages );
+        if ( !errorMessages.isEmpty() ) RiaLogging::error( errorMessages.toStdString() );
 
         return true;
     }
@@ -216,7 +216,7 @@ bool RifEclipseInputFileTools::openGridFile( const QString& fileName, RigEclipse
     if ( !zCornKw ) txt += " ZCORN";
     if ( !coordKw ) txt += " COORD";
 
-    RiaLogging::error( txt );
+    RiaLogging::error( txt.toStdString() );
 
     return false;
 }
@@ -489,7 +489,7 @@ void RifEclipseInputFileTools::saveFault( QString                               
     QFile exportFile( completeFilename );
     if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
-        RiaLogging::error( "Could not open the file : " + completeFilename );
+        RiaLogging::error( "Could not open the file : " + completeFilename.toStdString() );
         return;
     }
 
@@ -1060,7 +1060,7 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
 {
     QStringList gridSectionFilenames;
 
-    RiaLogging::info( "Looking for faults in 'PFLOTRAN' file: " + fileName );
+    RiaLogging::info( "Looking for faults in 'PFLOTRAN' file: " + fileName.toStdString() );
 
     {
         // Find all referenced grdecl files in a pflotran input file, in the GRID section, example
@@ -1141,7 +1141,7 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
                     parseAndReadFaults( absoluteFilePath, faults );
                     if ( currentFaultCount != faults->size() )
                     {
-                        RiaLogging::info( "Imported faults from " + absoluteFilePath );
+                        RiaLogging::info( "Imported faults from " + absoluteFilePath.toStdString() );
                     }
                 }
             }
@@ -1683,11 +1683,11 @@ void RifEclipseInputFileTools::readFaults( QFile& data, qint64 filePos, cvf::Col
 
     for ( QString errorMessage : errorMessages )
     {
-        RiaLogging::error( errorMessage );
+        RiaLogging::error( errorMessage.toStdString() );
     }
 
     for ( QString warningMessage : warningMessages )
     {
-        RiaLogging::warning( warningMessage );
+        RiaLogging::warning( warningMessage.toStdString() );
     }
 }

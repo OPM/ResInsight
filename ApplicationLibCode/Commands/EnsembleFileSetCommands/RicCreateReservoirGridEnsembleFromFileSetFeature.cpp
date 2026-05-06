@@ -90,7 +90,7 @@ void RicCreateReservoirGridEnsembleFromFileSetFeature::onActionTriggered( bool i
 
         // Always create RimReservoirGridEnsemble
         RiaLogging::info(
-            QString( "Creating Reservoir Grid Ensemble for '%1' with %2 grid files." ).arg( fileSet->name() ).arg( gridFiles.size() ) );
+            QString( "Creating Reservoir Grid Ensemble for '%1' with %2 grid files." ).arg( fileSet->name() ).arg( gridFiles.size() ).toStdString() );
 
         RimReservoirGridEnsemble* gridEnsemble = new RimReservoirGridEnsemble();
         gridEnsemble->setEnsembleFileSet( fileSet );

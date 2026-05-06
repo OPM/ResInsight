@@ -175,7 +175,8 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
                                                                            rkbDiff ) )
         {
             RiaLogging::error( QString( "Unable to extract pressure values for property: %1" )
-                                   .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+                                   .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() )
+                                   .toStdString() );
             return false;
         }
 
@@ -467,7 +468,8 @@ void RimStimPlanModelPressureCalculator::binByDepthAndAverage( DepthValuePairVec
                                .arg( min )
                                .arg( max )
                                .arg( mean )
-                               .arg( dev ) );
+                               .arg( dev )
+                               .toStdString() );
 
         if ( !std::isinf( mean ) )
         {
@@ -525,12 +527,14 @@ bool RimStimPlanModelPressureCalculator::buildPressureTablesPerEqlNum( const Rim
         RiaLogging::error( QString( "EQLNUM grid dimensions: [ %1, %2, %3]" )
                                .arg( eqlNumGrid->cellCountI() )
                                .arg( eqlNumGrid->cellCountJ() )
-                               .arg( eqlNumGrid->cellCountK() ) );
+                               .arg( eqlNumGrid->cellCountK() )
+                               .toStdString() );
 
         RiaLogging::error( QString( "PRESSURE grid dimensions: [ %1, %2, %3]" )
                                .arg( pressureGrid->cellCountI() )
                                .arg( pressureGrid->cellCountJ() )
-                               .arg( pressureGrid->cellCountK() ) );
+                               .arg( pressureGrid->cellCountK() )
+                               .toStdString() );
         return false;
     }
 
@@ -597,7 +601,8 @@ double RimStimPlanModelPressureCalculator::interpolatePressure( const DepthValue
                           .arg( startValue )
                           .arg( endDepth )
                           .arg( endValue )
-                          .arg( value ) );
+                          .arg( value )
+                          .toStdString() );
 
     return value;
 }
@@ -641,7 +646,7 @@ bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrati
     // EQLNUM data has values for over/underburden, but the pressure values does not.
     if ( eqlNumValues.size() != ( values.size() + 4 ) )
     {
-        RiaLogging::error( QString( "Failed to build EQLNUM pressure data for initial pressure: result length mismatch." ) );
+        RiaLogging::error( QString( "Failed to build EQLNUM pressure data for initial pressure: result length mismatch." ).toStdString() );
         RiaLogging::error( std::format( "EQLNUM length: {} PRESSURE length: {}", eqlNumValues.size(), values.size() ) );
         return false;
     }
@@ -709,7 +714,7 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
     // EQLNUM data has values for over/underburden, but the pressure values does not.
     if ( eqlNumValues.size() != ( values.size() + 4 ) )
     {
-        RiaLogging::error( QString( "Failed to build EQLNUM pressure data: result length mismatch." ) );
+        RiaLogging::error( QString( "Failed to build EQLNUM pressure data: result length mismatch." ).toStdString() );
         RiaLogging::error( std::format( "EQLNUM length: {} PRESSURE length: {}", eqlNumValues.size(), values.size() ) );
         return false;
     }

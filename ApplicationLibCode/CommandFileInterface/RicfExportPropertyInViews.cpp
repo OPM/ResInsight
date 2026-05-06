@@ -64,7 +64,7 @@ caf::PdmScriptResponse RicfExportPropertyInViews::execute()
     if ( !eclipseCase )
     {
         QString error( QString( "exportProperty: Could not find case with ID %1" ).arg( m_caseId() ) );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -132,7 +132,7 @@ caf::PdmScriptResponse RicfExportPropertyInViews::execute()
                                   .arg( m_caseId() )
                                   .arg( view->currentTimeStep() )
                                   .arg( propertyName );
-            RiaLogging::warning( warning );
+            RiaLogging::warning( warning.toStdString() );
             response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
             continue;
         }

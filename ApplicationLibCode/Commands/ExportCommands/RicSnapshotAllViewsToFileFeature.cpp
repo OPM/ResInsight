@@ -66,7 +66,7 @@ void RicSnapshotAllViewsToFileFeature::saveAllViews()
     exportSnapshotOfViewsIntoFolder( snapshotFolderName );
 
     QString text = QString( "Exported snapshots to folder : \n%1" ).arg( snapshotFolderName );
-    RiaLogging::info( text );
+    RiaLogging::info( text.toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -81,7 +81,7 @@ caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
                         QString warning = QString( "computeCaseGroupStatistics: Found case with ID %1, but it is not a "
                                                    "statistics case, cannot compute statistics." )
                                               .arg( caseId );
-                        RiaLogging::warning( warning );
+                        RiaLogging::warning( warning.toStdString() );
                         response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
                     }
                     foundCase = true;
@@ -96,7 +96,7 @@ caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
         {
             QString warning = QString( "computeCaseGroupStatistics: Could not find statistics case with ID %1." ).arg( caseId );
 
-            RiaLogging::warning( warning );
+            RiaLogging::warning( warning.toStdString() );
             response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
         }
     }

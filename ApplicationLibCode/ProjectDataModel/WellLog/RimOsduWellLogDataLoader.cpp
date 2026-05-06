@@ -106,7 +106,7 @@ void RimOsduWellLogDataLoader::parquetDownloadComplete( const QByteArray& conten
             }
             else
             {
-                RiaLogging::warning( errorMessage );
+                RiaLogging::warning( errorMessage.toStdString() );
             }
         }
 

@@ -115,7 +115,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
 
         if ( !importGrid( eclipseCaseData->mainGrid(), eclipseCaseData ) )
         {
-            RiaLogging::error( "Failed to open grid file " + fileName );
+            RiaLogging::error( "Failed to open grid file " + fileName.toStdString() );
 
             return false;
         }
@@ -190,7 +190,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
 
         QString errorMsg = "Unable to read cell data from grid.\nOpen Preferences->Grid->EGRID settings, and set 'Model Reader' to "
                            "'resdata' and try again.";
-        RiaLogging::error( errorMsg );
+        RiaLogging::error( errorMsg.toStdString() );
 
         return false;
     }

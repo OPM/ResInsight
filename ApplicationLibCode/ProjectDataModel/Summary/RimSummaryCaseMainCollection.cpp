@@ -591,7 +591,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( const std::vector<Ri
         }
         for ( const auto& txt : threadSafeLogger.messages() )
         {
-            RiaLogging::info( txt );
+            RiaLogging::info( txt.toStdString() );
         }
     }
 
@@ -700,7 +700,7 @@ std::vector<RimSummaryCase*>
                 else
                 {
                     QString txt = QString( "No UNSMRY file found for %1" ).arg( smspecFileName );
-                    RiaLogging::warning( txt );
+                    RiaLogging::warning( txt.toStdString() );
                 }
             }
 

@@ -40,7 +40,7 @@ bool createTableIfNeeded()
                       "content TEXT)" ) )
     {
         QString txt = "Error creating table:" + query.lastError().text();
-        RiaLogging::error( txt );
+        RiaLogging::error( txt.toStdString() );
         return false;
     }
 
@@ -60,7 +60,7 @@ bool insertContent( const QString& content )
     if ( !query.exec() )
     {
         QString txt = "Error saving file content to database:" + query.lastError().text();
-        RiaLogging::error( txt );
+        RiaLogging::error( txt.toStdString() );
         return false;
     }
 
@@ -74,7 +74,7 @@ bool deleteOldRecords( int maximumRecordCount )
     QSqlQuery countQuery( "SELECT COUNT(*) FROM file_versions" );
     if ( !countQuery.exec() || !countQuery.next() )
     {
-        RiaLogging::error( "Error counting records: " + countQuery.lastError().text() );
+        RiaLogging::error( "Error counting records: " + countQuery.lastError().text().toStdString() );
         return false;
     }
 
@@ -89,7 +89,7 @@ bool deleteOldRecords( int maximumRecordCount )
     if ( !query.exec() )
     {
         QString txt = "Error deleting old records:" + query.lastError().text();
-        RiaLogging::error( txt );
+        RiaLogging::error( txt.toStdString() );
         return false;
     }
 
@@ -122,7 +122,7 @@ bool appendTextToDatabase( const QString& databaseFilePath, int maximumRecordCou
     if ( !db.open() )
     {
         QString txt = "Error opening database:" + db.lastError().text();
-        RiaLogging::error( txt );
+        RiaLogging::error( txt.toStdString() );
         return false;
     }
 

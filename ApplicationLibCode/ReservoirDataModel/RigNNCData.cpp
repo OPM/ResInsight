@@ -200,7 +200,7 @@ bool RigNNCData::ensureAllConnectionDataIsProcessed()
         caf::ProgressInfo progressInfo( 3, "Computing NNC Data" );
 
         const QString logKeyword = "RigNNCData";
-        RiaLogging::info( "NNC geometry computation - starting process", logKeyword );
+        RiaLogging::info( "NNC geometry computation - starting process", logKeyword.toStdString() );
 
         buildPolygonsForEclipseConnections();
         progressInfo.incrementProgress();
@@ -217,7 +217,7 @@ bool RigNNCData::ensureAllConnectionDataIsProcessed()
 
         size_t noCommonAreaCount = connectionsWithNoCommonArea( noCommonAreaText, maxItemCount );
 
-        RiaLogging::info( "NNC geometry computation - completed process", logKeyword );
+        RiaLogging::info( "NNC geometry computation - completed process", logKeyword.toStdString() );
 
         RiaLogging::info( std::format( "Native NNC count : {}", eclipseConnectionCount() ), logKeyword.toStdString() );
         RiaLogging::info( std::format( "Computed NNC count : {}", m_connections.size() ), logKeyword.toStdString() );
@@ -230,7 +230,7 @@ bool RigNNCData::ensureAllConnectionDataIsProcessed()
 
             for ( const auto& s : noCommonAreaText )
             {
-                RiaLogging::info( s, logKeyword );
+                RiaLogging::info( s.toStdString(), logKeyword.toStdString() );
             }
         }
     }

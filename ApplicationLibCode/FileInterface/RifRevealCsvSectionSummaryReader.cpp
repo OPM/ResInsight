@@ -21,6 +21,7 @@
 #include "RiaDateStringParser.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaQStringFormatter.h"
 
 #include "RifCsvUserDataParser.h"
 #include "RifEclipseSummaryAddress.h"
@@ -100,7 +101,7 @@ bool RifRevealCsvSectionSummaryReader::parse( const QString&                    
     auto parseResult = m_parser->parse( parseOptions, nameMapping, unitMapping );
     if ( !parseResult )
     {
-        RiaLogging::error( QString( "Failed to parse file: " ) + parseResult.error() );
+        RiaLogging::error( std::format( "Failed to parse file: {}", parseResult.error() ) );
         return false;
     }
 

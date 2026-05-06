@@ -142,11 +142,12 @@ bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
     RiaLogging::debug( QString( "Read FEM parts: %1, steps: %2, element type: %3" )
                            .arg( parts.size() )
                            .arg( m_stepNames.size() )
-                           .arg( QString::fromStdString( RigFemTypes::elementTypeText( elementType ) ) ) );
+                           .arg( QString::fromStdString( RigFemTypes::elementTypeText( elementType ) ) )
+                           .toStdString() );
 
     if ( !RigFemTypes::is8NodeElement( elementType ) )
     {
-        RiaLogging::error( QString( "Unsupported element type." ) );
+        RiaLogging::error( QString( "Unsupported element type." ).toStdString() );
         return false;
     }
 
@@ -326,7 +327,8 @@ std::expected<RigElementType, std::string>
         RiaLogging::info( QString( "Found %1 displacements and %2 properties for timestep %3." )
                               .arg( partDisplacements.size() )
                               .arg( partProperties.size() )
-                              .arg( d.timestep ) );
+                              .arg( d.timestep )
+                              .toStdString() );
 
         properties[partId].push_back( partProperties );
         displacements[partId].push_back( partDisplacements );

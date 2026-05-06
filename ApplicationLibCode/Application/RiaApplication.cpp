@@ -544,7 +544,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         std::vector<QString> deprecationMessages = m_project->readFile( defaultDeprecations() );
         for ( const QString& deprecationMessage : deprecationMessages )
         {
-            RiaLogging::info( deprecationMessage );
+            RiaLogging::info( deprecationMessage.toStdString() );
         }
 
         m_project->updatesAfterProjectFileIsRead();
@@ -962,7 +962,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     }
     else
     {
-        RiaLogging::info( logText );
+        RiaLogging::info( logText.toStdString() );
     }
 
     return true;
@@ -1125,7 +1125,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
     {
         if ( gmcase->gridFileName() == fileName )
         {
-            RiaLogging::warning( "File has already been opened. Cannot open the file twice! - " + fileName );
+            RiaLogging::warning( "File has already been opened. Cannot open the file twice! - " + fileName.toStdString() );
             return false;
         }
     }

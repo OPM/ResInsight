@@ -92,7 +92,7 @@ RimEnsembleWellLogs* RicImportEnsembleWellLogsFeature::createSingleEnsembleWellL
         cases.push_back( logFileInfo );
         if ( !errorMessage.isEmpty() )
         {
-            RiaLogging::warning( errorMessage );
+            RiaLogging::warning( errorMessage.toStdString() );
         }
     }
 

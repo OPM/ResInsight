@@ -83,7 +83,7 @@ std::pair<bool, QString> RifStimPlanCsvSummaryReader::parse( const QString& file
     if ( !parseResult )
     {
         QString errorMsg = QString( "Failed to parse file: " ) + parseResult.error();
-        RiaLogging::error( errorMsg );
+        RiaLogging::error( errorMsg.toStdString() );
         if ( errorText ) *errorText = parseResult.error();
         return std::make_pair( false, "" );
     }

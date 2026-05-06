@@ -95,7 +95,7 @@ caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
         if ( !wellsNotFound.empty() )
         {
             QString error = QString( "createMultipleFractures: These well paths were not found: %1" ).arg( wellsNotFound.join( ", " ) );
-            RiaLogging::error( error );
+            RiaLogging::error( error.toStdString() );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
@@ -103,28 +103,28 @@ caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
     if ( !gridCase )
     {
         QString error = QString( "createMultipleFractures: Could not find case with ID %1" ).arg( m_caseId() );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     if ( !fractureTemplate )
     {
         QString error = QString( "createMultipleFractures: Could not find fracture template with ID %1" ).arg( m_templateId() );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     if ( wellPaths.empty() )
     {
         QString error( "createMultipleFractures: No wellpaths found" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     if ( !validateArguments() )
     {
         QString error( "createMultipleFractures: Mandatory argument(s) missing" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

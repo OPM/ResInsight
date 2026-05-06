@@ -163,11 +163,11 @@ void RiaGrpcServerImpl::initialize()
 
     if ( !m_server )
     {
-        RiaLogging::error( QString( "Failed to start server on %1" ).arg( serverAddress ) );
+        RiaLogging::error( QString( "Failed to start server on %1" ).arg( serverAddress ).toStdString() );
         return;
     }
 
-    RiaLogging::debug( QString( "Server listening on %1" ).arg( serverAddress ) );
+    RiaLogging::debug( QString( "Server listening on %1" ).arg( serverAddress ).toStdString() );
 
     // Spawn new CallData instances to serve new clients.
     for ( auto service : m_services )

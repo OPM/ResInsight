@@ -423,7 +423,8 @@ RigWellAllocationOverTime RimWellAllocationOverTimePlot::createWellAllocationOve
     {
         RiaLogging::error( QString( "Selected 'From Time Step' (%1) must be prior to selected 'To Time Step' (%2)" )
                                .arg( m_selectedFromTimeStep().toString( dateFormatString() ) )
-                               .arg( m_selectedToTimeStep().toString( dateFormatString() ) ) );
+                               .arg( m_selectedToTimeStep().toString( dateFormatString() ) )
+                               .toStdString() );
         return RigWellAllocationOverTime( {}, {} );
     }
     const RigSimWellData* simWellData = m_case->eclipseCaseData()->findSimWellData( m_wellName );

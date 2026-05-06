@@ -199,7 +199,7 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
         RimSummaryCurve::onLoadDataAndUpdate( updateParentPlot );
 
         QString errMsg = errorMessages.join( "\n" );
-        RiaLogging::error( errMsg );
+        RiaLogging::error( errMsg.toStdString() );
 
         return;
     }

@@ -276,7 +276,8 @@ std::pair<std::vector<int>, int> generateOperNumResult( RimEclipseCase*         
                                               .arg( gridAdapter.originalMax().z() - gridAdapter.originalMin().z() + 1 )
                                               .arg( refinedNI )
                                               .arg( refinedNJ )
-                                              .arg( refinedNK ) );
+                                              .arg( refinedNK )
+                                              .toStdString() );
                     }
                 }
             }

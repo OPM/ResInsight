@@ -81,7 +81,7 @@ caf::PdmScriptResponse RicfRunOctaveScript::execute()
     if ( !ok )
     {
         QString error = QString( "runOctaveScript: Could not execute script %1" ).arg( m_path() );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
     else

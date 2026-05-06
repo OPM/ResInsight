@@ -271,7 +271,7 @@ void RicExportEclipseSectorModelFeature::exportFaults( RimEclipseView* view, con
 
         if ( !exportFile.open( QIODevice::Text | QIODevice::WriteOnly | openFlag ) )
         {
-            RiaLogging::error( "Could not open the file : " + fileName );
+            RiaLogging::error( "Could not open the file : " + fileName.toStdString() );
         }
 
         QTextStream stream( &exportFile );

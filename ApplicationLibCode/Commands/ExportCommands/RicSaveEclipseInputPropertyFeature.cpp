@@ -135,7 +135,7 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
         }
         else
         {
-            RiaLogging::error( errorMsg );
+            RiaLogging::error( errorMsg.toStdString() );
         }
     }
 }

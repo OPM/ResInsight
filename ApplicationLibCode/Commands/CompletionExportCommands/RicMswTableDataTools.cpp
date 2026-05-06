@@ -574,7 +574,8 @@ void RicMswTableDataTools::generateWsegAicdTableRecursively( RicMswExportInfo&  
                 {
                     RiaLogging::error( QString( "Export AICD Valve (%1): Valve is invalid. At least one required "
                                                 "template parameter is not set." )
-                                           .arg( aicd->label() ) );
+                                           .arg( aicd->label() )
+                                           .toStdString() );
                 }
             }
         }
@@ -1029,7 +1030,8 @@ void RicMswTableDataTools::generateWsegSicdTableRecursively( RicMswExportInfo&  
                 {
                     RiaLogging::error( QString( "Export SICD Valve (%1): Valve is invalid. At least one required "
                                                 "template parameter is not set." )
-                                           .arg( sicd->label() ) );
+                                           .arg( sicd->label() )
+                                           .toStdString() );
                 }
             }
         }

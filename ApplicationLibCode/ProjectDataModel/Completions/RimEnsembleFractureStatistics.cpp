@@ -677,7 +677,8 @@ void RimEnsembleFractureStatistics::generateUniformMesh( double               mi
                           .arg( numSamplesX )
                           .arg( numSamplesY )
                           .arg( sampleDistanceX )
-                          .arg( sampleDistanceY ) );
+                          .arg( sampleDistanceY )
+                          .toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -857,7 +858,8 @@ void RimEnsembleFractureStatistics::computeMeanThicknessPerLayer( const std::vec
                               .arg( nMatches )
                               .arg( arithmeticMean )
                               .arg( harmonicMean )
-                              .arg( geometricMean ) );
+                              .arg( geometricMean )
+                              .toStdString() );
 
         double mean = std::numeric_limits<double>::infinity();
         if ( m_adaptiveMeanType() == MeanType::HARMONIC )

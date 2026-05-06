@@ -106,7 +106,8 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     {
         RiaLogging::warning( QString( "Exporting model with too many layers: %1. Maximum supported number of layers is %2." )
                                  .arg( tvd.size() )
-                                 .arg( MAX_STIMPLAN_LAYERS ) );
+                                 .arg( MAX_STIMPLAN_LAYERS )
+                                 .toStdString() );
     }
 
     // Make sure stress gradients are in the valid interval
@@ -323,7 +324,8 @@ void RifStimPlanModelGeologicalFrkExporter::fixupStressGradients( std::vector<do
                                      .arg( minStressGradient )
                                      .arg( maxStressGradient )
                                      .arg( stressGradients[i] )
-                                     .arg( defaultStressGradient ) );
+                                     .arg( defaultStressGradient )
+                                     .toStdString() );
 
             stressGradients[i] = defaultStressGradient;
         }
@@ -342,7 +344,8 @@ void RifStimPlanModelGeologicalFrkExporter::fixupLowerBoundary( std::vector<doub
             RiaLogging::warning( QString( "Found %1 outside valid lower boundary (%2). Replacing %3 with default value: %2." )
                                      .arg( property )
                                      .arg( minValue )
-                                     .arg( value ) );
+                                     .arg( value )
+                                     .toStdString() );
             value = minValue;
         }
     }

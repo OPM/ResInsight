@@ -121,7 +121,7 @@ void RiaOsduConnector::requestFieldsByName( const QString& server, const QString
                  {
                      QString errorMessage =
                          QString( "Download failed for fields by name (%1). Error: %2" ).arg( fieldName ).arg( reply->errorString() );
-                     RiaLogging::error( errorMessage );
+                     RiaLogging::error( errorMessage.toStdString() );
                  }
              } );
 }
@@ -157,7 +157,7 @@ void RiaOsduConnector::requestWellboresByFieldId( const QString& server, const Q
                  {
                      QString errorMessage =
                          QString( "Request failed for wellbores for field (%1). Error: %2" ).arg( fieldId ).arg( reply->errorString() );
-                     RiaLogging::error( errorMessage );
+                     RiaLogging::error( errorMessage.toStdString() );
                  }
              } );
 }
@@ -211,7 +211,7 @@ void RiaOsduConnector::requestWellLogsByWellboreId( const QString& server,
                  {
                      QString errorMessage =
                          QString( "Request failed for well logs by wellbore (%1). Error: %2" ).arg( wellboreId ).arg( reply->errorString() );
-                     RiaLogging::error( errorMessage );
+                     RiaLogging::error( errorMessage.toStdString() );
                  }
              } );
 }
@@ -250,7 +250,7 @@ void RiaOsduConnector::requestWellboreTrajectoryByWellboreId( const QString& ser
                  {
                      QString errorMessage =
                          QString( "Request failed for well trajectory by wellbore (%1). Error: %2" ).arg( wellboreId ).arg( reply->errorString() );
-                     RiaLogging::error( errorMessage );
+                     RiaLogging::error( errorMessage.toStdString() );
                  }
              } );
 }
@@ -402,7 +402,7 @@ void RiaOsduConnector::parseWellboresByFieldId( QNetworkReply* reply, const QStr
     }
     else
     {
-        RiaLogging::error( "Failed to download wellbores for field with id " + fieldId + ": " + reply->errorString() );
+        RiaLogging::error( std::format( "Failed to download wellbores for field with id {}: {}", fieldId, reply->errorString() ) );
     }
 }
 
@@ -632,7 +632,7 @@ std::vector<OsduWellboreTrajectory> RiaOsduConnector::wellboreTrajectories( cons
 void RiaOsduConnector::requestWellboreTrajectoryParquetDataById( const QString& wellboreTrajectoryId )
 {
     QString url = constructWellboreTrajectoriesDownloadUrl( m_server, wellboreTrajectoryId );
-    RiaLogging::debug( "Wellbore trajectory URL: " + url );
+    RiaLogging::debug( "Wellbore trajectory URL: " + url.toStdString() );
     requestParquetDataByUrl( url, wellboreTrajectoryId );
 }
 
@@ -642,7 +642,7 @@ void RiaOsduConnector::requestWellboreTrajectoryParquetDataById( const QString& 
 void RiaOsduConnector::requestWellLogParquetDataById( const QString& wellLogId )
 {
     QString url = constructWellLogDownloadUrl( m_server, wellLogId );
-    RiaLogging::debug( "Well log URL: " + url );
+    RiaLogging::debug( "Well log URL: " + url.toStdString() );
 
     requestParquetDataByUrl( url, wellLogId );
 }
@@ -661,7 +661,7 @@ void RiaOsduConnector::requestParquetDataByUrl( const QString& url, const QStrin
 std::pair<QByteArray, QString> RiaOsduConnector::requestWellboreTrajectoryParquetDataByIdBlocking( const QString& wellboreTrajectoryId )
 {
     QString url = constructWellboreTrajectoriesDownloadUrl( m_server, wellboreTrajectoryId );
-    RiaLogging::debug( "Wellbore trajectory URL: " + url );
+    RiaLogging::debug( "Wellbore trajectory URL: " + url.toStdString() );
 
     return requestParquetDataByUrlBlocking( url, wellboreTrajectoryId );
 }
@@ -672,7 +672,7 @@ std::pair<QByteArray, QString> RiaOsduConnector::requestWellboreTrajectoryParque
 std::pair<QByteArray, QString> RiaOsduConnector::requestWellLogParquetDataByIdBlocking( const QString& wellLogId )
 {
     QString url = constructWellLogDownloadUrl( m_server, wellLogId );
-    RiaLogging::debug( "Well log URL: " + url );
+    RiaLogging::debug( "Well log URL: " + url.toStdString() );
 
     return requestParquetDataByUrlBlocking( url, wellLogId );
 }
@@ -698,7 +698,7 @@ std::pair<QByteArray, QString> RiaOsduConnector::requestParquetDataByUrlBlocking
 //--------------------------------------------------------------------------------------------------
 void RiaOsduConnector::requestParquetData( const QString& url, const QString& dataPartitionId, const QString& token, const QString& id )
 {
-    RiaLogging::info( "Requesting download of parquet from: " + url );
+    RiaLogging::info( "Requesting download of parquet from: " + url.toStdString() );
 
     auto reply = makeDownloadRequest( url, dataPartitionId, token, RiaCloudDefines::contentTypeParquet() );
     m_repliesMutex.lock();
@@ -718,7 +718,7 @@ void RiaOsduConnector::requestParquetData( const QString& url, const QString& da
                  else
                  {
                      QString errorMessage = "Request failed: " + url + " failed." + reply->errorString();
-                     RiaLogging::error( errorMessage );
+                     RiaLogging::error( errorMessage.toStdString() );
                      emit parquetDownloadFinished( QByteArray(), errorMessage, id );
                  }
              } );

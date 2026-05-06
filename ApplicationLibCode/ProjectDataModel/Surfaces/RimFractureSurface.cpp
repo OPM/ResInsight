@@ -107,7 +107,7 @@ bool RimFractureSurface::loadSurfaceDataForTimeStep( int timeStep )
     {
         QString message =
             QString( "Failed to load surface data for time step: %1. Available time steps: %2" ).arg( timeStep ).arg( m_surfacePerTimeStep.size() );
-        RiaLogging::warning( message );
+        RiaLogging::warning( message.toStdString() );
         setSurfaceData( nullptr );
         return false;
     }

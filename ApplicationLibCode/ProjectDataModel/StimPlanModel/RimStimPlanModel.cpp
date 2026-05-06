@@ -669,7 +669,7 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
     if ( foundFault )
     {
         RiaLogging::info(
-            QString( "Found barrier distance: %1. Dip: %2. Fault: %3" ).arg( shortestDistance ).arg( barrierDip ).arg( foundFault->name() ) );
+            QString( "Found barrier distance: %1. Dip: %2. Fault: %3" ).arg( shortestDistance ).arg( barrierDip ).arg( foundFault->name() ).toStdString() );
         QString barrierText =
             QString( "Barrier Fault for %1\nFault: %2\nDistance: %3m" ).arg( name() ).arg( foundFault->name() ).arg( shortestDistance );
 
@@ -707,7 +707,8 @@ cvf::Vec3d RimStimPlanModel::computeFractureDirectionNormal( RimWellPath* wellPa
     wellPathGeometry->twoClosestPoints( position, &p1, &p2 );
     RiaLogging::info( QString( "Closest points on well path: %1 %2" )
                           .arg( RigStimPlanModelTools::vecToString( p1 ) )
-                          .arg( RigStimPlanModelTools::vecToString( p2 ) ) );
+                          .arg( RigStimPlanModelTools::vecToString( p2 ) )
+                          .toStdString() );
 
     // Create a well direction based on the two points
     cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();

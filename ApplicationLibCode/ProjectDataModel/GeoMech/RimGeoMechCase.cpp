@@ -759,7 +759,7 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
                     {
                         QString importMessage = QString( "Please import biot coefficients from file (typically called alpha.inp) by "
                                                          "selecting 'Import Element Property Table' on the Geomechanical Model." );
-                        RiaLogging::info( importMessage );
+                        RiaLogging::info( importMessage.toStdString() );
                         // Set back to default value
                         m_biotCoefficientType = RimGeoMechCase::BiotCoefficientType::BIOT_NONE;
                         return;
@@ -802,7 +802,7 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
                     {
                         QString importMessage = QString( "Please import initial permeability from file (typically called perm.inp) by "
                                                          "selecting 'Import Element Property Table' on the Geomechanical Model." );
-                        RiaLogging::info( importMessage );
+                        RiaLogging::info( importMessage.toStdString() );
                         // Set back to default value
                         m_initialPermeabilityType = RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED;
                         return;

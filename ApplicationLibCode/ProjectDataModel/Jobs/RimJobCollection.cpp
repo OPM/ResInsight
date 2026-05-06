@@ -116,7 +116,7 @@ void RimJobCollection::deleteAllJobs()
         if ( job->isRunning() )
         {
             job->stop();
-            RiaLogging::info( "Stopped running job '" + job->name() );
+            RiaLogging::info( "Stopped running job '" + job->name().toStdString() );
         }
     }
     m_jobs.deleteChildren();

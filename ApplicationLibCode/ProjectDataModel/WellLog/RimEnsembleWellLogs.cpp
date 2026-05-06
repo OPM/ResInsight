@@ -71,7 +71,7 @@ void RimEnsembleWellLogs::loadDataAndUpdate()
         QString errorMessage;
         if ( !w->readFile( &errorMessage ) )
         {
-            RiaLogging::warning( errorMessage );
+            RiaLogging::warning( errorMessage.toStdString() );
         }
     }
 }

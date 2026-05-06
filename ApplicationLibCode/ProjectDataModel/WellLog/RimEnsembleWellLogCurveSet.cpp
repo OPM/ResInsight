@@ -788,7 +788,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
                 }
                 else
                 {
-                    RiaLogging::warning( errorMessage );
+                    RiaLogging::warning( errorMessage.toStdString() );
                 }
 
                 RimWellPath* wellPath = RimProject::current()->wellPathByName( wellLogFile->wellName() );

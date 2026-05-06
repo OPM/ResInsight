@@ -47,7 +47,7 @@ caf::PdmScriptResponse RicfSetFractureContainment::execute()
     if ( m_id < 0 || m_topLayer < 0 || m_baseLayer < 0 )
     {
         QString error( "setFractureContainment: Required argument missing" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -56,7 +56,7 @@ caf::PdmScriptResponse RicfSetFractureContainment::execute()
     if ( !project )
     {
         QString error( "setFractureContainment: Project not found" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -67,7 +67,7 @@ caf::PdmScriptResponse RicfSetFractureContainment::execute()
     if ( !templ )
     {
         QString error = QString( "setFractureContainment: Fracture template not found. Id=%1" ).arg( m_id() );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

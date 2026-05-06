@@ -98,7 +98,7 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
             if ( std::find( missingValueStratgies.begin(), missingValueStratgies.end(), RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE ) !=
                  missingValueStratgies.end() )
             {
-                RiaLogging::warning( QString( "Extraction failed. Trying fallback" ) );
+                RiaLogging::warning( QString( "Extraction failed. Trying fallback" ).toStdString() );
                 if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, values, measuredDepthValues, tvDepthValues, rkbDiff ) )
                 {
                     RiaLogging::error( "Fallback failed too." );
@@ -203,7 +203,8 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
 
     RiaLogging::debug( QString( "Well log for '%1' done. Size: %2." )
                            .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() )
-                           .arg( values.size() ) );
+                           .arg( values.size() )
+                           .toStdString() );
     return true;
 }
 
@@ -385,7 +386,8 @@ void RimStimPlanModelWellLogCalculator::scaleByNetToGross( const RimStimPlanMode
     {
         RiaLogging::error( QString( "Different sizes for net to gross calculation. NTG length: %1. Values length: %2" )
                                .arg( netToGross.size() )
-                               .arg( values.size() ) );
+                               .arg( values.size() )
+                               .toStdString() );
         return;
     }
 
@@ -433,7 +435,8 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForPropertyWithConfiguratio
                               .arg( curvePropertyName )
                               .arg( resultVariable )
                               .arg( caf::AppEnum<RiaDefines::ResultCatType>( resultType ).uiText() )
-                              .arg( caf::AppEnum<RimExtractionConfiguration::EclipseCaseType>( eclipseCaseType ).uiText() ) );
+                              .arg( caf::AppEnum<RimExtractionConfiguration::EclipseCaseType>( eclipseCaseType ).uiText() )
+                              .toStdString() );
 
         RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForType( eclipseCaseType );
 
@@ -522,7 +525,8 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
 
     RiaLogging::info( QString( "Extracting values for '%1' from grid '%2'." )
                           .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() )
-                          .arg( eclipseCase->caseUserDescription() ) );
+                          .arg( eclipseCase->caseUserDescription() )
+                          .toStdString() );
 
     auto eclipseCaseData = eclipseCase->eclipseCaseData();
     if ( !eclipseCaseData )
@@ -559,7 +563,8 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
         RiaLogging::info( QString( "Extracted values %1 from grid '%2' for '%3'." )
                               .arg( values.size() )
                               .arg( eclipseCase->caseUserDescription() )
-                              .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+                              .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() )
+                              .toStdString() );
     }
     else
     {
@@ -693,7 +698,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherProperty( R
 
     if ( initialValues.empty() )
     {
-        RiaLogging::error( QString( "Empty replacement data found for fracture model curve." ) );
+        RiaLogging::error( QString( "Empty replacement data found for fracture model curve." ).toStdString() );
         return false;
     }
 
@@ -790,7 +795,8 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
                                            .arg( tvd )
                                            .arg( i + 1 )
                                            .arg( j + 1 )
-                                           .arg( k + 1 ) );
+                                           .arg( k + 1 )
+                                           .toStdString() );
 
                     int       neighborK = static_cast<int>( k ) + moveDirection;
                     const int minK      = static_cast<int>( 1 );
@@ -813,7 +819,8 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
                                                       .arg( j + 1 )
                                                       .arg( neighborK + 1 )
                                                       .arg( neighborCellIdx )
-                                                      .arg( neighborValue ) );
+                                                      .arg( neighborValue )
+                                                      .toStdString() );
                                 isFound     = true;
                                 values[idx] = neighborValue;
                             }
@@ -830,7 +837,8 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
                                        .arg( tvd )
                                        .arg( position.x() )
                                        .arg( position.y() )
-                                       .arg( position.z() ) );
+                                       .arg( position.z() )
+                                       .toStdString() );
             }
         }
     }

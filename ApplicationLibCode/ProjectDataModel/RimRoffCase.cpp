@@ -90,7 +90,7 @@ bool RimRoffCase::openEclipseGridFile()
         }
         else
         {
-            RiaLogging::error( errorMessages );
+            RiaLogging::error( errorMessages.toStdString() );
             return false;
         }
     }

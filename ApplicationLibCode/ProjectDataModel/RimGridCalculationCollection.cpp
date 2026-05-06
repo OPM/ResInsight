@@ -82,7 +82,7 @@ std::vector<RimGridCalculation*> RimGridCalculationCollection::sortedGridCalcula
             if ( isSourceDependingOnOther( source, other ) && isSourceDependingOnOther( other, source ) )
             {
                 QString txt = "Detected circular dependency between " + source->description() + " and " + other->description();
-                RiaLogging::error( txt );
+                RiaLogging::error( txt.toStdString() );
 
                 return sortedCalculations;
             }
@@ -140,7 +140,7 @@ bool RimGridCalculationCollection::dependentCalculationsRecursively( RimGridCalc
 {
     if ( std::find( calculations.begin(), calculations.end(), sourceCalculation ) != calculations.end() )
     {
-        RiaLogging::error( "Detected circular dependency for " + sourceCalculation->description() );
+        RiaLogging::error( "Detected circular dependency for " + sourceCalculation->description().toStdString() );
         return false;
     }
 

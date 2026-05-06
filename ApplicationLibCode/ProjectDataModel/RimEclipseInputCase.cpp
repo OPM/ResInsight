@@ -145,7 +145,7 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
     {
         for ( QString errorMessages : allErrorMessages )
         {
-            RiaLogging::error( errorMessages );
+            RiaLogging::error( errorMessages.toStdString() );
         }
         return false; // No grid present
     }

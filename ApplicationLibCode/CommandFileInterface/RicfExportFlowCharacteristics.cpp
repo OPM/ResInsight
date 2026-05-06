@@ -61,7 +61,7 @@ caf::PdmScriptResponse RicfExportFlowCharacteristics::execute()
     if ( !eclipseCase )
     {
         QString error = QString( "exportFlowCharacteristics: Could not find case with ID %1." ).arg( m_caseId() );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

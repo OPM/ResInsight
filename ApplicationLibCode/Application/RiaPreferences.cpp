@@ -1105,12 +1105,12 @@ void RiaPreferences::importPreferenceValuesFromFile( const QString& fileName )
             this->readObjectFromXmlString( fileContent, caf::PdmDefaultObjectFactory::instance() );
         }
         auto txt = "Imported preferences from " + fileName;
-        RiaLogging::info( txt );
+        RiaLogging::info( txt.toStdString() );
     }
     else
     {
         auto txt = QString( "Unable to open file: " ) + fileName;
-        RiaLogging::error( txt );
+        RiaLogging::error( txt.toStdString() );
     }
 }
 
@@ -1129,11 +1129,11 @@ void RiaPreferences::exportPreferenceValuesToFile( const QString& fileName )
         file.close();
 
         QString txt = "Exported preferences to " + fileName;
-        RiaLogging::info( txt );
+        RiaLogging::info( txt.toStdString() );
     }
     else
     {
         auto txt = QString( "Unable to open file: " ) + fileName;
-        RiaLogging::error( txt );
+        RiaLogging::error( txt.toStdString() );
     }
 }

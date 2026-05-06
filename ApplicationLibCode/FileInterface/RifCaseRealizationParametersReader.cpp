@@ -156,7 +156,7 @@ void RifCaseRealizationParametersReader::parse()
 
     for ( const auto& s : errors )
     {
-        RiaLogging::warning( s );
+        RiaLogging::warning( s.toStdString() );
     }
 }
 
@@ -242,7 +242,7 @@ void RifCaseRealizationRunspecificationReader::parse()
 
     for ( const auto& s : errors )
     {
-        RiaLogging::warning( s );
+        RiaLogging::warning( s.toStdString() );
     }
 }
 

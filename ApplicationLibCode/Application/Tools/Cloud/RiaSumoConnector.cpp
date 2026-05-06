@@ -625,13 +625,13 @@ void RiaSumoConnector::requestBlobDownload( const QString& blobId )
                      else
                      {
                          QString errorMessage = "Not able to parse and interpret valid redirect Url";
-                         RiaLogging::error( errorMessage );
+                         RiaLogging::error( errorMessage.toStdString() );
                      }
                  }
                  else
                  {
                      QString errorMessage = "Download failed: " + url + " failed." + reply->errorString();
-                     RiaLogging::error( errorMessage );
+                     RiaLogging::error( errorMessage.toStdString() );
                  }
              } );
 }
@@ -659,7 +659,7 @@ void RiaSumoConnector::requestBlobByRedirectUri( const QString& blobId, const QS
                      auto contents = reply->readAll();
 
                      QString msg = "Received data from : " + redirectUri;
-                     RiaLogging::info( msg );
+                     RiaLogging::info( msg.toStdString() );
 
                      parquetDownloadComplete( blobId, contents, redirectUri );
 
@@ -668,7 +668,7 @@ void RiaSumoConnector::requestBlobByRedirectUri( const QString& blobId, const QS
                  else
                  {
                      QString errorMessage = "Download failed: " + redirectUri + " failed." + reply->errorString();
-                     RiaLogging::error( errorMessage );
+                     RiaLogging::error( errorMessage.toStdString() );
 
                      emit parquetDownloadFinished( {}, redirectUri );
                  }
@@ -974,7 +974,7 @@ QNetworkReply* RiaSumoConnector::makeDownloadRequest( const QString& url, const 
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestParquetData( const QString& url, const QString& token )
 {
-    RiaLogging::info( "Requesting download of parquet from: " + url );
+    RiaLogging::info( "Requesting download of parquet from: " + url.toStdString() );
 
     auto reply = makeDownloadRequest( url, token, RiaCloudDefines::contentTypeJson() );
     connect( reply,
@@ -990,7 +990,7 @@ void RiaSumoConnector::requestParquetData( const QString& url, const QString& to
                  else
                  {
                      QString errorMessage = "Download failed: " + url + " failed." + reply->errorString();
-                     RiaLogging::error( errorMessage );
+                     RiaLogging::error( errorMessage.toStdString() );
                      emit parquetDownloadFinished( QByteArray(), errorMessage );
                  }
              } );

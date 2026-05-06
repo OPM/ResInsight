@@ -439,7 +439,7 @@ void RiaConsoleApplication::invokeProcessEvents( QEventLoop::ProcessEventsFlags 
 //--------------------------------------------------------------------------------------------------
 void RiaConsoleApplication::onProjectOpeningError( const QString& errMsg )
 {
-    RiaLogging::error( errMsg );
+    RiaLogging::error( errMsg.toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------

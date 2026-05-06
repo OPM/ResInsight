@@ -150,7 +150,7 @@ QFilePtr RicExportSelectedWellPathsFeature::openFileForExport( const QString& fo
     if ( !exportFolder.exists() )
     {
         bool createdPath = exportFolder.mkpath( "." );
-        if ( createdPath ) RiaLogging::info( "Created export folder " + folderName );
+        if ( createdPath ) RiaLogging::info( "Created export folder " + folderName.toStdString() );
     }
 
     QString  filePath = exportFolder.filePath( fileName );
@@ -158,7 +158,7 @@ QFilePtr RicExportSelectedWellPathsFeature::openFileForExport( const QString& fo
     if ( !exportFile->open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
         auto errorMessage = QString( "Export Well Path: Could not open the file: %1" ).arg( filePath );
-        RiaLogging::error( errorMessage );
+        RiaLogging::error( errorMessage.toStdString() );
     }
     return exportFile;
 }

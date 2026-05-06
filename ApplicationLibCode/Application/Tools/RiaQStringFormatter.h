@@ -36,8 +36,6 @@ struct std::formatter<QString> : std::formatter<std::string_view>
     auto format( const QString& value, std::format_context& ctx ) const
     {
         const QByteArray bytes = value.toUtf8();
-        return std::formatter<std::string_view>::format(
-            std::string_view{ bytes.constData(), static_cast<size_t>( bytes.size() ) },
-            ctx );
+        return std::formatter<std::string_view>::format( std::string_view{ bytes.constData(), static_cast<size_t>( bytes.size() ) }, ctx );
     }
 };

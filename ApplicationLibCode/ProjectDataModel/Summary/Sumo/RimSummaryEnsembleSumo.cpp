@@ -223,7 +223,7 @@ void RimSummaryEnsembleSumo::distributeDataToRealizations( const RifEclipseSumma
             txt += QString::fromStdString( columnName ) + " ";
         }
 
-        RiaLogging::info( txt );
+        RiaLogging::info( txt.toStdString() );
     }
 
     std::vector<time_t>  timeSteps;
@@ -348,7 +348,7 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
                    QString::fromStdString( table->GetColumnByName( columnName )->type()->ToString() + ") " );
         }
 
-        RiaLogging::debug( txt );
+        RiaLogging::debug( txt.toStdString() );
     }
 
     std::vector<int64_t> realizations;

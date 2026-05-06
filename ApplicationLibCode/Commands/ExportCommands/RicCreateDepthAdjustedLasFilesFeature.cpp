@@ -61,7 +61,7 @@ void RicCreateDepthAdjustedLasFilesFeature::onActionTriggered( bool isChecked )
     {
         if ( !featureUi.hasValidSelections() )
         {
-            RiaLogging::warning( featureUi.invalidSelectionsLogString() );
+            RiaLogging::warning( featureUi.invalidSelectionsLogString().toStdString() );
         }
         else
         {
@@ -77,7 +77,7 @@ void RicCreateDepthAdjustedLasFilesFeature::onActionTriggered( bool isChecked )
 
             if ( eclipseCase == nullptr && geomCase == nullptr )
             {
-                RiaLogging::warning( QString( "The selected case is invalid" ) );
+                RiaLogging::warning( QString( "The selected case is invalid" ).toStdString() );
                 return;
             }
 

@@ -109,7 +109,7 @@ std::pair<bool, std::vector<double>> RimDeltaSummaryCase::values( const RifEclip
                 QString txt = "Summary vector " + QString::fromStdString( resultAddress.toEclipseTextAddress() ) +
                               " is only present in one of the source ensembles, no values are calculated for this vector.";
 
-                RiaLogging::warning( txt );
+                RiaLogging::warning( txt.toStdString() );
 
                 return { false, {} };
             }
@@ -148,7 +148,7 @@ std::pair<bool, std::vector<double>> RimDeltaSummaryCase::values( const RifEclip
                     QString txt = "Delta for summary vector " + QString::fromStdString( resultAddress.toEclipseTextAddress() ) +
                                   ": One or both source realizations are incomplete, no values are calculated.";
 
-                    RiaLogging::warning( txt );
+                    RiaLogging::warning( txt.toStdString() );
 
                     return { false, {} };
                 }

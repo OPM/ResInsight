@@ -202,7 +202,7 @@ std::vector<WellPathCellIntersectionInfo>
                                    .arg( ijkTextNext )
                                    .arg( next.startMD );
 
-                RiaLogging::info( text );
+                RiaLogging::info( text.toStdString() );
             }
 
             extraIntersection.globCellIndex               = std::numeric_limits<size_t>::max();

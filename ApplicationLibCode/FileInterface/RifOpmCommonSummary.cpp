@@ -168,7 +168,8 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
         RiaLogging::warning( QString( " %3 : %1 is older than %2, importing data from newest file %2." )
                                  .arg( esmryFileNameShort )
                                  .arg( smspecFileNameShort )
-                                 .arg( root ) );
+                                 .arg( root )
+                                 .toStdString() );
     }
 
     auto timeBeforeReader = RiaLogging::currentTime();
@@ -217,7 +218,7 @@ std::pair<bool, std::vector<double>> RifOpmCommonEclipseSummary::values( const R
         catch ( const std::exception& e )
         {
             RiaLogging::warning(
-                QString( "Summary reader failed to load keyword '%1': %2" ).arg( QString::fromStdString( keyword ) ).arg( e.what() ) );
+                QString( "Summary reader failed to load keyword '%1': %2" ).arg( QString::fromStdString( keyword ) ).arg( e.what() ).toStdString() );
             return { false, {} };
         }
         return { true, values };

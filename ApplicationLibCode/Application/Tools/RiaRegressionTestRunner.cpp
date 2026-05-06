@@ -26,6 +26,7 @@
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
+#include "RiaQStringFormatter.h"
 #include "RiaRegressionTest.h"
 #include "RiaTextFileCompare.h"
 #include "RiaTextStringTools.h"
@@ -85,7 +86,7 @@ void logInfoTextWithTimeInSeconds( const QElapsedTimer& time, const QString& msg
 
     QString timeText = QString( "(%1 s) " ).arg( timeRunning, 0, 'f', 1 );
 
-    RiaLogging::info( timeText + msg );
+    RiaLogging::info( std::format( "{}{}", timeText, msg ) );
     QApplication::processEvents();
 }
 
@@ -189,7 +190,7 @@ void RiaRegressionTestRunner::runRegressionTest()
     }
 
     RiaLogging::info( "--------------------------------------------------" );
-    RiaLogging::info( QTime::currentTime().toString() + ": Launching regression tests" );
+    RiaLogging::info( std::format( "{}: Launching regression tests", QTime::currentTime().toString() ) );
     RiaLogging::info( "--------------------------------------------------" );
 
     QElapsedTimer timeStamp;
@@ -209,7 +210,7 @@ void RiaRegressionTestRunner::runRegressionTest()
         if ( !testPrefsFile.isEmpty() )
         {
             RiaPreferences::current()->importPreferenceValuesFromFile( testPrefsFile );
-            RiaLogging::info( "Loaded test-specific preferences from: " + testPrefsFile );
+            RiaLogging::info( "Loaded test-specific preferences from: " + testPrefsFile.toStdString() );
         }
 
         bool anyCommandFilesExecuted = findAndExecuteCommandFiles( testCaseFolder, regressionTestConfig, htmlReportFileName );
@@ -282,8 +283,9 @@ void RiaRegressionTestRunner::runRegressionTest()
             }
             else
             {
-                RiaLogging::error( "Could not find a regression test file named : " + testCaseFolder.absolutePath() + "/" +
-                                   regTestProjectName + ".rsp" );
+                RiaLogging::error( std::format( "Could not find a regression test file named : {}/{}.rsp",
+                                                testCaseFolder.absolutePath(),
+                                                regTestProjectName ) );
             }
         }
 
@@ -320,7 +322,7 @@ void RiaRegressionTestRunner::runRegressionTest()
     {
         auto timeText = QString( "(%1 s) " ).arg( testDuration, 5, 'f', 1 );
         auto logInfo  = QString( "%1 %2    %3 %4" ).arg( timeText ).arg( beforeMemory ).arg( afterMemory ).arg( name );
-        RiaLogging::info( logInfo );
+        RiaLogging::info( logInfo.toStdString() );
     }
 
     // Invoke git diff
@@ -415,7 +417,7 @@ bool RiaRegressionTestRunner::findAndExecuteCommandFiles( const QDir&           
         QFile file( commandFile );
         if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
         {
-            RiaLogging::error( "Failed to open command file : " + commandFile );
+            RiaLogging::error( "Failed to open command file : " + commandFile.toStdString() );
         }
         else
         {

@@ -370,7 +370,8 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
         {
             RiaLogging::error( QString( "Unexpected empty input data for %1 in stress calculation for StimPlan Model: %2" )
                                    .arg( propertyName )
-                                   .arg( m_stimPlanModel->name() ) );
+                                   .arg( m_stimPlanModel->name() )
+                                   .toStdString() );
             return false;
         }
 
@@ -379,7 +380,8 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
         {
             RiaLogging::error( QString( "Unexpected input data size for %1 in stress calculation for StimPlan Model: %2" )
                                    .arg( propertyName )
-                                   .arg( m_stimPlanModel->name() ) );
+                                   .arg( m_stimPlanModel->name() )
+                                   .toStdString() );
             return false;
         }
 
@@ -389,7 +391,8 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
         {
             RiaLogging::error( QString( "Unexpected bad data for %1 in stress calculation for StimPlan Model: %2." )
                                    .arg( propertyName )
-                                   .arg( m_stimPlanModel->name() ) );
+                                   .arg( m_stimPlanModel->name() )
+                                   .toStdString() );
             return false;
         }
 
@@ -694,21 +697,21 @@ std::pair<std::vector<double>, std::vector<QString>> RimStimPlanModelCalculator:
     RimStimPlanModelTemplate* stimPlanModelTemplate = m_stimPlanModel->stimPlanModelTemplate();
     if ( !stimPlanModelTemplate )
     {
-        RiaLogging::error( QString( "No fracture model template found" ) );
+        RiaLogging::error( QString( "No fracture model template found" ).toStdString() );
         return std::make_pair( values, faciesNames );
     }
 
     RimFaciesProperties* faciesProperties = stimPlanModelTemplate->faciesProperties();
     if ( !faciesProperties )
     {
-        RiaLogging::error( QString( "No facies properties found when extracting elastic properties." ) );
+        RiaLogging::error( QString( "No facies properties found when extracting elastic properties." ).toStdString() );
         return std::make_pair( values, faciesNames );
     }
 
     RimColorLegend* colorLegend = faciesProperties->colorLegend();
     if ( !colorLegend )
     {
-        RiaLogging::error( QString( "No color legend found when extracting elastic properties." ) );
+        RiaLogging::error( QString( "No color legend found when extracting elastic properties." ).toStdString() );
         return std::make_pair( values, faciesNames );
     }
 
@@ -765,7 +768,8 @@ bool RimStimPlanModelCalculator::isValidInputData( const std::vector<double>&   
                                    .arg( propertyName )
                                    .arg( i )
                                    .arg( depthTopOfZone )
-                                   .arg( value ) );
+                                   .arg( value )
+                                   .toStdString() );
             return false;
         }
     }

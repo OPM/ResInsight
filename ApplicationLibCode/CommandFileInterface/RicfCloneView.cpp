@@ -73,6 +73,6 @@ caf::PdmScriptResponse RicfCloneView::execute()
     }
 
     QString error = QString( "cloneView: Could not clone view with id %1" ).arg( m_viewId() );
-    RiaLogging::error( error );
+    RiaLogging::error( error.toStdString() );
     return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
 }

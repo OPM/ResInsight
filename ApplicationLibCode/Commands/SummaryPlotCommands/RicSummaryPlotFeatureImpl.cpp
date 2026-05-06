@@ -27,6 +27,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaQStringFormatter.h"
 #include "RiaTextStringTools.h"
 #include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryStringTools.h"
@@ -213,7 +214,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
             }
             else
             {
-                RiaLogging::error( "The summaryplot option: \"" + arguments[optionIdx] + "\" is unknown." );
+                RiaLogging::error( std::format( "The summaryplot option: \"{}\" is unknown.", arguments[optionIdx] ) );
             }
         }
         else
@@ -396,8 +397,8 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                                     ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                     ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                         {
-                            RiaLogging::warning( "Could not find a restart result property with name: \"" +
-                                                 cellResAddr.eclipseResultAddress.resultName() + "\"" );
+                            RiaLogging::warning( std::format( "Could not find a restart result property with name: \"{}\"",
+                                                              cellResAddr.eclipseResultAddress.resultName() ) );
                             continue;
                         }
 
@@ -455,8 +456,8 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                                     ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                     ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                         {
-                            RiaLogging::warning( "Could not find a restart result property with name: \"" +
-                                                 cellResAddr.eclipseResultAddress.resultName() + "\"" );
+                            RiaLogging::warning( std::format( "Could not find a restart result property with name: \"{}\"",
+                                                              cellResAddr.eclipseResultAddress.resultName() ) );
                             continue;
                         }
                         RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
@@ -688,8 +689,9 @@ std::set<RifEclipseSummaryAddress>
         {
             if ( !usedFilters[cfIdx] )
             {
-                RiaLogging::warning( "Vector filter \"" + summaryAddressFilters[static_cast<int>( cfIdx )] +
-                                     "\" did not match anything in case: \"" + sumCase->nativeCaseName() + "\"" );
+                RiaLogging::warning( std::format( "Vector filter \"{}\" did not match anything in case: \"{}\"",
+                                                  summaryAddressFilters[static_cast<int>( cfIdx )],
+                                                  sumCase->nativeCaseName() ) );
             }
         }
     }
@@ -720,8 +722,9 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
     {
         if ( !usedFilters[cfIdx] )
         {
-            RiaLogging::warning( "Vector filter \"" + curveFilters[static_cast<int>( cfIdx )] + "\" did not match anything in case: \"" +
-                                 summaryCase->nativeCaseName() + "\"" );
+            RiaLogging::warning( std::format( "Vector filter \"{}\" did not match anything in case: \"{}\"",
+                                              curveFilters[static_cast<int>( cfIdx )],
+                                              summaryCase->nativeCaseName() ) );
         }
     }
 

@@ -215,7 +215,7 @@ void RifReaderFmuRft::importData()
     if ( !( fileInfo.exists() && fileInfo.isDir() && fileInfo.isReadable() ) )
     {
         auto errorMsg = QString( "Directory '%1' does not exist or isn't readable" ).arg( m_filePath );
-        RiaLogging::error( errorMsg );
+        RiaLogging::error( errorMsg.toStdString() );
         return;
     }
 

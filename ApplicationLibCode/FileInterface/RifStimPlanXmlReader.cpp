@@ -69,15 +69,17 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
         caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem = stimPlanFileData->unitSet();
 
         if ( unitSystem != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
-            RiaLogging::info(
-                QString( "Setting unit system for StimPlan fracture template %1 to %2" ).arg( stimPlanFileName ).arg( unitSystem.uiText() ) );
+            RiaLogging::info( QString( "Setting unit system for StimPlan fracture template %1 to %2" )
+                                  .arg( stimPlanFileName )
+                                  .arg( unitSystem.uiText() )
+                                  .toStdString() );
         else
             RiaLogging::error( std::format( "Found invalid units for {}. Unit system not set.", stimPlanFileName ) );
 
         if ( xmlStream.hasError() )
         {
             RiaLogging::error( std::format( "Failed to parse file '{}'", dataFile.fileName() ) );
-            RiaLogging::error( xmlStream.errorString() );
+            RiaLogging::error( xmlStream.errorString().toStdString() );
         }
         dataFile.close();
     }
@@ -103,7 +105,7 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
     QString parameter;
     QString unit;
 
-    RiaLogging::info( QString( "Properties available in file:" ) );
+    RiaLogging::info( QString( "Properties available in file:" ).toStdString() );
     int propertiesElementCount = 0;
     while ( !xmlStream2.atEnd() && propertiesElementCount < 2 )
     {
@@ -159,12 +161,12 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
     if ( xmlStream2.hasError() )
     {
         RiaLogging::error( std::format( "Failed to parse file: '{}'", dataFile.fileName() ) );
-        RiaLogging::error( xmlStream2.errorString() );
+        RiaLogging::error( xmlStream2.errorString().toStdString() );
     }
     else if ( dataFile.error() != QFile::NoError )
     {
         RiaLogging::error( std::format( "Cannot read file: '{}'", dataFile.fileName() ) );
-        RiaLogging::error( dataFile.errorString() );
+        RiaLogging::error( dataFile.errorString().toStdString() );
     }
     else
     {
@@ -348,7 +350,7 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
 
     if ( startNegValuesYs > 0 )
     {
-        RiaLogging::error( QString( "Negative depth values detected in XML file" ) );
+        RiaLogging::error( QString( "Negative depth values detected in XML file" ).toStdString() );
     }
 }
 

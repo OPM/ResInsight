@@ -738,7 +738,7 @@ void RimGridCalculation::filterResults( RimGridView*                            
         {
             QString errorMessage =
                 "Grid Property Calculator: Invalid input data for default result property, no data assigned to non-visible cells.";
-            RiaLogging::error( errorMessage );
+            RiaLogging::error( errorMessage.toStdString() );
         }
     }
     else
@@ -829,12 +829,12 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
     if ( isMultipleCasesPresent )
     {
         QString txt = "Starting calculation '" + description() + "' for " + QString::number( calculationCases.size() ) + " cases.";
-        RiaLogging::info( txt );
+        RiaLogging::info( txt.toStdString() );
 
         if ( hasAggregationExpression )
         {
             RiaLogging::info( std::format( "  Detected aggregated value in expression '{}'.", m_expression() ) );
-            RiaLogging::info( QString( "  Aggregated value per realization is displayed in one column per time step." ) );
+            RiaLogging::info( QString( "  Aggregated value per realization is displayed in one column per time step." ).toStdString() );
         }
     }
 
@@ -890,7 +890,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 else
                     timeHeader += "Undefined";
             }
-            RiaLogging::info( timeHeader );
+            RiaLogging::info( timeHeader.toStdString() );
         }
 
         std::vector<std::vector<double>>* scalarResultFrames =
@@ -1006,7 +1006,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
 
             allAggregatedValues.push_back( aggregatedValuesOneTimeStep );
 
-            RiaLogging::info( txt );
+            RiaLogging::info( txt.toStdString() );
         }
     }
 
@@ -1022,12 +1022,12 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             RiaLogging::info( "  Statistics" );
             for ( const auto& txt : statisticsText )
             {
-                RiaLogging::info( txt );
+                RiaLogging::info( txt.toStdString() );
             }
         }
 
         QString txt = "Completed calculation '" + description() + "' for " + QString::number( calculationCases.size() ) + " cases.";
-        RiaLogging::info( txt );
+        RiaLogging::info( txt.toStdString() );
     }
 
     return !anyErrorsDetected;
@@ -1149,7 +1149,7 @@ std::pair<bool, QStringList> RimGridCalculation::createStatisticsText( const std
         {
             QString msg = "Detected mismatch in number of time steps for aggregated values. All grid "
                           "cases must have identical number of time steps.";
-            RiaLogging::error( msg );
+            RiaLogging::error( msg.toStdString() );
             anyErrorsDetected = true;
             return { anyErrorsDetected, statisticsText };
         }

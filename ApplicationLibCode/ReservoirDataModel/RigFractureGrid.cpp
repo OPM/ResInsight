@@ -95,8 +95,8 @@ const RigFractureCell& RigFractureGrid::cellFromIndex( size_t index ) const
     else
     {
         // TODO: Better error handling?
-        RiaLogging::error( QString( "Requesting non-existent StimPlanCell" ) );
-        RiaLogging::error( QString( "Returning cell 0, results will be invalid" ) );
+        RiaLogging::error( QString( "Requesting non-existent StimPlanCell" ).toStdString() );
+        RiaLogging::error( QString( "Returning cell 0, results will be invalid" ).toStdString() );
         const RigFractureCell& cell = m_fractureCells[0];
         return cell;
     }

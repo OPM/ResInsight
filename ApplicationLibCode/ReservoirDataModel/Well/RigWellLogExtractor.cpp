@@ -423,7 +423,7 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
         errorMessages.removeDuplicates();
         for ( auto message : errorMessages )
         {
-            RiaLogging::warning( message );
+            RiaLogging::warning( message.toStdString() );
         }
     }
 }

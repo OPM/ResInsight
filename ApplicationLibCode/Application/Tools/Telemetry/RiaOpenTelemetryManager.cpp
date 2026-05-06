@@ -598,7 +598,7 @@ bool RiaOpenTelemetryManager::createExporter()
         }
 
         // Using Application Insights REST API for telemetry
-        RiaLogging::info( QString( "Application Insights REST API configured for production environment" ) );
+        RiaLogging::info( QString( "Application Insights REST API configured for production environment" ).toStdString() );
 
         return true;
     }

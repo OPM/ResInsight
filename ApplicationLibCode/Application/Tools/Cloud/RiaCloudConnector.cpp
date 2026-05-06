@@ -106,20 +106,20 @@ RiaCloudConnector::RiaCloudConnector( QObject*       parent,
     m_networkAccessManager = new QNetworkAccessManager( this );
     m_authCodeFlow->setNetworkAccessManager( m_networkAccessManager );
 
-    RiaLogging::debug( "SSL BUILD VERSION: " + QSslSocket::sslLibraryBuildVersionString() );
-    RiaLogging::debug( "SSL VERSION STRING: " + QSslSocket::sslLibraryVersionString() );
+    RiaLogging::debug( "SSL BUILD VERSION: " + QSslSocket::sslLibraryBuildVersionString().toStdString() );
+    RiaLogging::debug( "SSL VERSION STRING: " + QSslSocket::sslLibraryVersionString().toStdString() );
 
     RiaLogging::debug( "Cloud config:" );
-    RiaLogging::debug( "  server: '" + server + "'" );
-    RiaLogging::debug( "  authority: '" + authority + "'" );
-    RiaLogging::debug( "  scopes: '" + scopes + "'" );
-    RiaLogging::debug( "  client id: '" + clientId + "'" );
+    RiaLogging::debug( std::format( "  server: '{}'", server ) );
+    RiaLogging::debug( std::format( "  authority: '{}'", authority ) );
+    RiaLogging::debug( std::format( "  scopes: '{}'", scopes ) );
+    RiaLogging::debug( std::format( "  client id: '{}'", clientId ) );
 
     connect( m_authCodeFlow,
              &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
              []( QUrl url )
              {
-                 RiaLogging::info( "Authorize with url: " + url.toString() );
+                 RiaLogging::info( "Authorize with url: " + url.toString().toStdString() );
                  QUrlQuery query( url );
                  url.setQuery( query );
                  QDesktopServices::openUrl( url );
@@ -137,7 +137,7 @@ RiaCloudConnector::RiaCloudConnector( QObject*       parent,
 
     auto replyHandler = new RiaOAuthHttpServerReplyHandler( port, this );
     m_authCodeFlow->setReplyHandler( replyHandler );
-    RiaLogging::debug( "Server callback: " + replyHandler->callback() );
+    RiaLogging::debug( "Server callback: " + replyHandler->callback().toStdString() );
 
     connect( m_authCodeFlow, SIGNAL( granted() ), this, SLOT( accessGranted() ) );
 
@@ -210,7 +210,7 @@ void RiaCloudConnector::accessGranted()
 //--------------------------------------------------------------------------------------------------
 void RiaCloudConnector::errorReceived( const QString& error, const QString& errorDescription, const QUrl& uri )
 {
-    RiaLogging::debug( "Cloud Error Received: " + error + ". Description: " + errorDescription );
+    RiaLogging::debug( std::format( "Cloud Error Received: {}. Description: {}", error, errorDescription ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,7 +221,7 @@ void RiaCloudConnector::authorizationCallbackReceived( const QVariantMap& data )
     RiaLogging::debug( "Authorization callback received:" );
     for ( const auto& [key, value] : data.toStdMap() )
     {
-        RiaLogging::debug( "  Key: " + key + " Value: " + value.toString() );
+        RiaLogging::debug( std::format( "  Key: {} Value: {}", key, value.toString() ) );
     }
 }
 

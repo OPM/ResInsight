@@ -428,7 +428,7 @@ bool RiuMohrsCirclePlot::addOrUpdateCurves( const RimGeoMechResultDefinition* ge
     }
 
     auto txt = QString( "Not able to create Mohr plot for element index:%1, element ID:%2" ).arg( elmIndex ).arg( elmId );
-    RiaLogging::warning( txt );
+    RiaLogging::warning( txt.toStdString() );
 
     return false;
 }

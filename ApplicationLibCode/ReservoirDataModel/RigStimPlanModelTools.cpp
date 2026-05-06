@@ -211,7 +211,8 @@ bool RigStimPlanModelTools::findThicknessTargetPoints( RigEclipseCaseData* eclip
 
     RiaLogging::info( QString( "All cells bounding box: %1 %2" )
                           .arg( RigStimPlanModelTools::vecToString( allCellsBoundingBox.min() ) )
-                          .arg( RigStimPlanModelTools::vecToString( allCellsBoundingBox.max() ) ) );
+                          .arg( RigStimPlanModelTools::vecToString( allCellsBoundingBox.max() ) )
+                          .toStdString() );
     cvf::BoundingBox geometryBoundingBox( allCellsBoundingBox );
 
     // Use smaller depth bounding box for extraction if configured
@@ -286,7 +287,8 @@ double RigStimPlanModelTools::calculatePerforationLength( const cvf::Vec3d& dire
     RiaLogging::info( QString( "Perforation length correction: original length: %1 inclination: %2 corrected length: %3" )
                           .arg( perforationLength )
                           .arg( cvf::Math::toDegrees( inclination ) )
-                          .arg( correctedPerforationLength ) );
+                          .arg( correctedPerforationLength )
+                          .toStdString() );
 
     // Handle well inclination close to 90 dgr to ensure visual perforation interval in StimPlan model plot
     if ( std::fabs( cvf::Math::toDegrees( inclination ) - 90.0 ) < 0.1 )

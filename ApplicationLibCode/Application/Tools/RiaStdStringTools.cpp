@@ -470,13 +470,13 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s 
     {
         QString str = QString( "Failed to convert text string \" %1 \" to list of integers : " ).arg( QString::fromStdString( s ) ) +
                       QString::fromStdString( e.what() );
-        RiaLogging::error( str );
+        RiaLogging::error( str.toStdString() );
     }
     catch ( ... )
     {
         QString str =
             QString( "Failed to convert text string \" %1 \" to list of integers : Caught unknown exception" ).arg( QString::fromStdString( s ) );
-        RiaLogging::error( str );
+        RiaLogging::error( str.toStdString() );
     }
 
     return {};
@@ -565,13 +565,13 @@ std::set<int> RiaStdStringTools::valuesFromRangeSelection( const std::string& s,
     {
         QString str = QString( "Failed to convert text string \" %1 \" to list of integers : " ).arg( QString::fromStdString( s ) ) +
                       QString::fromStdString( e.what() );
-        RiaLogging::error( str );
+        RiaLogging::error( str.toStdString() );
     }
     catch ( ... )
     {
         QString str =
             QString( "Failed to convert text string \" %1 \" to list of integers : Caught unknown exception" ).arg( QString::fromStdString( s ) );
-        RiaLogging::error( str );
+        RiaLogging::error( str.toStdString() );
     }
 
     return {};

@@ -68,13 +68,13 @@ RiaSocketServer::RiaSocketServer( QObject* parent )
     {
         QString txt = QString( "Not able to communicate with Octave plugins. Failed to use port number : %1" ).arg( portNumber );
 
-        RiaLogging::warning( txt );
+        RiaLogging::warning( txt.toStdString() );
 
         return;
     }
 
     QString txt = QString( "Octave is using port: %1" ).arg( portNumber );
-    RiaLogging::debug( txt );
+    RiaLogging::debug( txt.toStdString() );
 
     connect( m_nextPendingConnectionTimer, SIGNAL( timeout() ), this, SLOT( slotNewClientConnection() ) );
     connect( m_tcpServer, SIGNAL( newConnection() ), this, SLOT( slotNewClientConnection() ) );
@@ -124,7 +124,7 @@ void RiaSocketServer::slotNewClientConnection()
             QString txt;
             txt = "ResInsight SocketServer : The command did not finish up correctly at the presence of a new one.";
 
-            RiaLogging::error( txt );
+            RiaLogging::error( txt.toStdString() );
         }
     }
 
@@ -231,7 +231,7 @@ bool RiaSocketServer::readCommandFromOctave()
         bool finished = m_currentCommand->interpretCommand( this, args, socketStream );
 
         QString logMsg = QString( "Executed command: %1" ).arg( args[0].data() );
-        RiaLogging::info( logMsg );
+        RiaLogging::info( logMsg.toStdString() );
 
         // Report command execution to OpenTelemetry
         std::map<std::string, std::string> attributes;
@@ -246,7 +246,7 @@ bool RiaSocketServer::readCommandFromOctave()
         QString txt;
         txt = QString( "ResInsight SocketServer: Unknown command: %1" ).arg( args[0].data() );
 
-        RiaLogging::error( txt );
+        RiaLogging::error( txt.toStdString() );
         return true;
     }
 }
@@ -267,7 +267,7 @@ void RiaSocketServer::slotCurrentClientDisconnected()
             txt = QString( "ResInsight SocketServer: The command was interrupted and did not finish because the "
                            "connection to octave disconnected." );
 
-            RiaLogging::error( txt );
+            RiaLogging::error( txt.toStdString() );
         }
     }
 
@@ -303,7 +303,7 @@ void RiaSocketServer::slotReadyRead()
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::showErrorMessage( const QString& message ) const
 {
-    RiaLogging::error( message );
+    RiaLogging::error( message.toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------

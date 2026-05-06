@@ -136,7 +136,7 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                                                                                     RiaResultNames::activeFormationNamesResultName() ) );
     if ( !formationResultAccessor.notNull() )
     {
-        RiaLogging::error( QString( "No formation result found." ) );
+        RiaLogging::error( QString( "No formation result found." ).toStdString() );
         return false;
     }
 
@@ -149,49 +149,49 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
     RimStimPlanModelTemplate* stimPlanModelTemplate = stimPlanModel->stimPlanModelTemplate();
     if ( !stimPlanModelTemplate )
     {
-        RiaLogging::error( QString( "No fracture model template found" ) );
+        RiaLogging::error( QString( "No fracture model template found" ).toStdString() );
         return false;
     }
 
     RimFaciesProperties* faciesProperties = stimPlanModelTemplate->faciesProperties();
     if ( !faciesProperties )
     {
-        RiaLogging::error( QString( "No facies properties found when extracting elastic properties." ) );
+        RiaLogging::error( QString( "No facies properties found when extracting elastic properties." ).toStdString() );
         return false;
     }
 
     QString defaultFacies = stimPlanModelTemplate->defaultFacies();
     if ( defaultFacies.isEmpty() )
     {
-        RiaLogging::error( QString( "No default facies defined when extracting elastic properties." ) );
+        RiaLogging::error( QString( "No default facies defined when extracting elastic properties." ).toStdString() );
         return false;
     }
 
     RimColorLegend* colorLegend = faciesProperties->colorLegend();
     if ( !colorLegend )
     {
-        RiaLogging::error( QString( "No color legend found when extracting elastic properties." ) );
+        RiaLogging::error( QString( "No color legend found when extracting elastic properties." ).toStdString() );
         return false;
     }
 
     RimElasticProperties* elasticProperties = stimPlanModelTemplate->elasticProperties();
     if ( !elasticProperties )
     {
-        RiaLogging::error( QString( "No elastic properties found when extracting elastic properties." ) );
+        RiaLogging::error( QString( "No elastic properties found when extracting elastic properties." ).toStdString() );
         return false;
     }
 
     std::vector<double> faciesValues = m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::FACIES, timeStep );
     if ( faciesValues.empty() )
     {
-        RiaLogging::error( QString( "No facies values found when extracting elastic properties." ) );
+        RiaLogging::error( QString( "No facies values found when extracting elastic properties." ).toStdString() );
         return false;
     }
 
     std::vector<double> poroValues = m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::POROSITY_UNSCALED, timeStep );
     if ( poroValues.empty() )
     {
-        RiaLogging::error( QString( "No porosity values found when extracting elastic properties." ) );
+        RiaLogging::error( QString( "No porosity values found when extracting elastic properties." ).toStdString() );
         return false;
     }
 
@@ -237,7 +237,8 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
             RiaLogging::error( QString( "Missing facies name for facies value: %1 (%2). Color legend: '%3'" )
                                    .arg( static_cast<int>( faciesValues[i] ) )
                                    .arg( faciesValues[i] )
-                                   .arg( colorLegend->colorLegendName() ) );
+                                   .arg( colorLegend->colorLegendName() )
+                                   .toStdString() );
             values.clear();
             return false;
         }
@@ -245,8 +246,10 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
         int idx = static_cast<int>( formationValues[i] );
         if ( std::isinf( formationValues[i] ) || idx < 0 || idx >= static_cast<int>( formationNamesVector.size() ) )
         {
-            RiaLogging::error(
-                QString( "Unknown formation found in elastic properties. Value: %1, tvd: %2" ).arg( formationValues[i] ).arg( tvDepthValues[i] ) );
+            RiaLogging::error( QString( "Unknown formation found in elastic properties. Value: %1, tvd: %2" )
+                                   .arg( formationValues[i] )
+                                   .arg( tvDepthValues[i] )
+                                   .toStdString() );
             values.clear();
             return false;
         }
@@ -274,7 +277,8 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                                            .arg( faciesName )
                                            .arg( tvDepthValues[i] )
                                            .arg( porosity )
-                                           .arg( val ) );
+                                           .arg( val )
+                                           .toStdString() );
                 }
 
                 //
@@ -300,7 +304,8 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                                                    .arg( netToGrossFaciesName )
                                                    .arg( tvDepthValues[i] )
                                                    .arg( porosity )
-                                                   .arg( val ) );
+                                                   .arg( val )
+                                                   .toStdString() );
                         }
                     }
                 }
@@ -318,7 +323,8 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
             RiaLogging::error( QString( "Missing elastic properties. Formation='%1', facies='%2'. Facies value: %3" )
                                    .arg( formationName )
                                    .arg( faciesName )
-                                   .arg( static_cast<int>( faciesValues[i] ) ) );
+                                   .arg( static_cast<int>( faciesValues[i] ) )
+                                   .toStdString() );
             values.clear();
             return false;
         }

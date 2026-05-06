@@ -69,7 +69,7 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
                                "radial grids. Adjust grid reader in Preferences. The grid is imported as estimated Cartesian grid." )
                           .arg( QString::fromStdString( m_gridFileName ) );
 
-        RiaLogging::warning( txt );
+        RiaLogging::warning( txt.toStdString() );
     }
 
     const auto& dims = opmGrid.dimension();

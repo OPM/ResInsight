@@ -63,7 +63,7 @@ caf::PdmScriptResponse RicfCreateSaturationPressurePlots::execute()
     if ( caseIds.empty() )
     {
         QString error( "createSaturationPressurePlots: No cases found" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -71,7 +71,7 @@ caf::PdmScriptResponse RicfCreateSaturationPressurePlots::execute()
     if ( !project )
     {
         QString error( "No project loaded" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

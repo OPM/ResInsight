@@ -55,7 +55,7 @@ caf::PdmScriptResponse RicfSetExportFolder::execute()
             if ( !dir.exists( m_path ) )
             {
                 QString error = QString( "Could not create folder : %1" ).arg( m_path );
-                RiaLogging::error( error );
+                RiaLogging::error( error.toStdString() );
                 return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
             }
         }

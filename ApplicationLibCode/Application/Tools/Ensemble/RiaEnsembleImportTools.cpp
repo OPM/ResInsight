@@ -64,7 +64,7 @@ std::vector<RimSummaryCase*> createSummaryCasesFromFiles( const QStringList& fil
         if ( fileSelector.foundErrors() )
         {
             QString errorMessage = fileSelector.createCombinedErrorMessage();
-            RiaLogging::error( errorMessage );
+            RiaLogging::error( errorMessage.toStdString() );
         }
     }
     else

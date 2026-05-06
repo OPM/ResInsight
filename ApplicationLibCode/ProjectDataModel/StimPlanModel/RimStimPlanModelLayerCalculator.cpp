@@ -107,7 +107,7 @@ bool RimStimPlanModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
                                                                                     RiaResultNames::activeFormationNamesResultName() ) );
     if ( !formationResultAccessor.notNull() )
     {
-        RiaLogging::error( QString( "No formation result found." ) );
+        RiaLogging::error( QString( "No formation result found." ).toStdString() );
         return false;
     }
 
@@ -131,14 +131,14 @@ bool RimStimPlanModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
     std::vector<double> faciesValues = m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::FACIES, timeStep );
     if ( faciesValues.empty() )
     {
-        RiaLogging::error( QString( "Empty facies data found for layer curve." ) );
+        RiaLogging::error( QString( "Empty facies data found for layer curve." ).toStdString() );
         return false;
     }
 
     std::vector<double> netToGrossValues = m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::NET_TO_GROSS, timeStep );
     if ( netToGrossValues.empty() )
     {
-        RiaLogging::warning( QString( "Empty net-to-gross data found for layer curve." ) );
+        RiaLogging::warning( QString( "Empty net-to-gross data found for layer curve." ).toStdString() );
     }
 
     measuredDepthValues = curveData.md;

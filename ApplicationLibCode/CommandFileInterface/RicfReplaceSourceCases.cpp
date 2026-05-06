@@ -45,7 +45,7 @@ caf::PdmScriptResponse RicfReplaceSourceCases::execute()
     if ( m_gridListFile().isNull() )
     {
         QString error( "replaceSourceCases: Required parameter gridListFile." );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -54,7 +54,7 @@ caf::PdmScriptResponse RicfReplaceSourceCases::execute()
     {
         QString error( "replaceSourceCases: 'openProject' must be called before 'replaceSourceCases' to specify "
                        "project file to replace cases in." );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -75,7 +75,7 @@ caf::PdmScriptResponse RicfReplaceSourceCases::execute()
                                                    projectModifier.p() ) )
     {
         QString error( "Could not reload project" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
     return caf::PdmScriptResponse();

@@ -136,7 +136,7 @@ std::vector<RigCompletionData>
                 msg += " ";
                 msg += r;
             }
-            RiaLogging::error( msg );
+            RiaLogging::error( msg.toStdString() );
 
             return fractureCompletions;
         }
@@ -462,8 +462,9 @@ bool RicExportFractureCompletionsImpl::checkForStimPlanConductivity( const RimFr
     {
         if ( !fracTemplateStimPlan->hasConductivity() )
         {
-            RiaLogging::error( "Trying to export completion data for stimPlan fracture without conductivity data for " + fracture->name() );
-            RiaLogging::error( "No transmissibilities will be calculated for " + fracture->name() );
+            RiaLogging::error( "Trying to export completion data for stimPlan fracture without conductivity data for " +
+                               fracture->name().toStdString() );
+            RiaLogging::error( "No transmissibilities will be calculated for " + fracture->name().toStdString() );
             return false;
         }
     }
@@ -692,11 +693,14 @@ std::vector<cvf::Vec3d> RicExportFractureCompletionsImpl::computeWellPointsInFra
     cvf::Vec3d transformedStartPos = rotatePoint( startPos, anchorPosition, rotMat );
     RiaLogging::info( QString( "Perforation start position: original: %1 --> adapted: %2" )
                           .arg( vecToString( startPos ) )
-                          .arg( vecToString( transformedStartPos ) ) );
+                          .arg( vecToString( transformedStartPos ) )
+                          .toStdString() );
 
     cvf::Vec3d transformedEndPos = rotatePoint( endPos, anchorPosition, rotMat );
-    RiaLogging::info(
-        QString( "Perforation end position: original: %1 --> adapted: %2" ).arg( vecToString( endPos ) ).arg( vecToString( transformedEndPos ) ) );
+    RiaLogging::info( QString( "Perforation end position: original: %1 --> adapted: %2" )
+                          .arg( vecToString( endPos ) )
+                          .arg( vecToString( transformedEndPos ) )
+                          .toStdString() );
 
     return wellPathPoints;
 }

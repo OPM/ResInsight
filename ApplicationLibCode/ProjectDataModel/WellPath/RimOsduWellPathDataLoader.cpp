@@ -119,7 +119,7 @@ void RimOsduWellPathDataLoader::parquetDownloadComplete( const QByteArray& conte
             }
             else
             {
-                RiaLogging::warning( errorMessage );
+                RiaLogging::warning( errorMessage.toStdString() );
             }
         }
 

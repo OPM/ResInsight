@@ -111,9 +111,10 @@ void RimThermalFractureTemplate::setDefaultsBasedOnFile()
     if ( polygonPropertySet )
         RiaLogging::info( QString( "Calculating polygon outline based on %1 at timestep %2" )
                               .arg( m_borderPolygonResultName )
-                              .arg( m_fractureDefinitionData->timeSteps()[m_activeTimeStepIndex] ) );
+                              .arg( m_fractureDefinitionData->timeSteps()[m_activeTimeStepIndex] )
+                              .toStdString() );
     else
-        RiaLogging::info( QString( "Property for polygon calculation not set." ) );
+        RiaLogging::info( QString( "Property for polygon calculation not set." ).toStdString() );
 
     QStringList resultNames = conductivityResultNames();
     if ( !resultNames.isEmpty() )
@@ -174,7 +175,7 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
     if ( m_readError ) return;
 
     auto [fractureDefinitionData, errorMessage] = RifThermalFractureReader::readFractureCsvFile( m_stimPlanFileName().path() );
-    if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage );
+    if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage.toStdString() );
 
     m_fractureDefinitionData = fractureDefinitionData;
     if ( m_fractureDefinitionData )
@@ -531,9 +532,10 @@ void RimThermalFractureTemplate::convertToUnitSystem( RiaDefines::EclipseUnitSys
     if ( polygonPropertySet )
         RiaLogging::info( QString( "Calculating polygon outline based on %1 at timestep %2" )
                               .arg( m_borderPolygonResultName )
-                              .arg( m_fractureDefinitionData->timeSteps()[m_activeTimeStepIndex] ) );
+                              .arg( m_fractureDefinitionData->timeSteps()[m_activeTimeStepIndex] )
+                              .toStdString() );
     else
-        RiaLogging::info( QString( "Property for polygon calculation not set." ) );
+        RiaLogging::info( QString( "Property for polygon calculation not set." ).toStdString() );
 
     if ( !conductivityResultNames().isEmpty() )
     {
@@ -801,8 +803,11 @@ bool RimThermalFractureTemplate::placeFractureUsingTemplateData( RimFracture* fr
 
     double md = wellPathGeometry->closestMeasuredDepth( centerPosition );
 
-    RiaLogging::info(
-        QString( "Placing thermal fracture. Position: [%1 %2 %3]" ).arg( centerPosition.x() ).arg( centerPosition.y() ).arg( centerPosition.z() ) );
+    RiaLogging::info( QString( "Placing thermal fracture. Position: [%1 %2 %3]" )
+                          .arg( centerPosition.x() )
+                          .arg( centerPosition.y() )
+                          .arg( centerPosition.z() )
+                          .toStdString() );
     RiaLogging::info( std::format( "Computed MD: {}", md ) );
 
     RimWellPathFracture* wellPathFracture = dynamic_cast<RimWellPathFracture*>( fracture );

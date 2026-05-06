@@ -328,7 +328,8 @@ std::expected<void, QString> RigSimulationInputTool::scaleMinpvForRefinement( co
     RiaLogging::info( QString( "Scaled MINPV from %1 to %2 (refinement factor = %3) so refined sub-cells don't fall below threshold" )
                           .arg( currentValue )
                           .arg( scaledValue )
-                          .arg( factor ) );
+                          .arg( factor )
+                          .toStdString() );
 
     return {};
 }
@@ -1240,7 +1241,8 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processWelspecsR
                               .arg( origI + 1 )
                               .arg( origJ + 1 )
                               .arg( sectorI )
-                              .arg( sectorJ ) );
+                              .arg( sectorJ )
+                              .toStdString() );
     }
 
     using W = Opm::ParserKeywords::WELSPECS;
@@ -1412,7 +1414,8 @@ std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
                               .arg( origMin.y() + 1 )
                               .arg( origMax.y() + 1 )
                               .arg( origMin.z() + 1 )
-                              .arg( origMax.z() + 1 ) );
+                              .arg( origMax.z() + 1 )
+                              .toStdString() );
         return std::unexpected( QString( "%1 record does not overlap with sector" ).arg( keywordName ) );
     }
 
@@ -1441,7 +1444,8 @@ std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
                 .arg( clampedMin.y() + 1 )
                 .arg( clampedMax.y() + 1 )
                 .arg( clampedMin.z() + 1 )
-                .arg( clampedMax.z() + 1 ) );
+                .arg( clampedMax.z() + 1 )
+                .toStdString() );
     }
 
     // Transform clamped coordinates to sector-relative coordinates
@@ -1964,19 +1968,18 @@ std::set<std::string> RigSimulationInputTool::wellNamesToInclude( RimEclipseCase
         }
     }
 
-    RiaLogging::info( QString( "Found %1 wells intersecting with sector: %2" )
-                          .arg( validWellNames.size() )
-                          .arg( QString::fromStdString(
-                              [&validWellNames]()
-                              {
-                                  std::string names;
-                                  for ( const auto& name : validWellNames )
-                                  {
-                                      if ( !names.empty() ) names += ", ";
-                                      names += name;
-                                  }
-                                  return names;
-                              }() ) ) );
+    RiaLogging::info( std::format( "Found {} wells intersecting with sector: {}",
+                                   validWellNames.size(),
+                                   [&validWellNames]()
+                                   {
+                                       std::string names;
+                                       for ( const auto& name : validWellNames )
+                                       {
+                                           if ( !names.empty() ) names += ", ";
+                                           names += name;
+                                       }
+                                       return names;
+                                   }() ) );
 
     return validWellNames;
 }
@@ -2029,7 +2032,8 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
                 RiaLogging::warning( QString( "Unsupported %1 operation '%2' in list '%3', skipping" )
                                          .arg( W::keywordName.c_str() )
                                          .arg( operationName.c_str() )
-                                         .arg( listName.c_str() ) );
+                                         .arg( listName.c_str() )
+                                         .toStdString() );
                 continue;
             }
 
@@ -2307,7 +2311,8 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
         RiaLogging::info( QString( "Replaced OPERNUM values for refined grid with dimensions %1x%2x%3" )
                               .arg( gridAdapter.cellCountI() )
                               .arg( gridAdapter.cellCountJ() )
-                              .arg( gridAdapter.cellCountK() ) );
+                              .arg( gridAdapter.cellCountK() )
+                              .toStdString() );
     }
     else
     {
@@ -2361,8 +2366,7 @@ std::vector<RigSimulationInputTool::NNCConnection> RigSimulationInputTool::extra
             // Validate indices
             if ( c1Idx == cvf::UNDEFINED_SIZE_T || c2Idx == cvf::UNDEFINED_SIZE_T )
             {
-                RiaLogging::warning(
-                    std::format( "Invalid EDITNNC connection in deck: ({})-({})", ijk1.toString(), ijk2.toString() ) );
+                RiaLogging::warning( std::format( "Invalid EDITNNC connection in deck: ({})-({})", ijk1.toString(), ijk2.toString() ) );
                 continue;
             }
 
@@ -2569,7 +2573,7 @@ std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEc
             }
             else
             {
-                RiaLogging::warning( result.error() );
+                RiaLogging::warning( result.error().toStdString() );
             }
         }
     }

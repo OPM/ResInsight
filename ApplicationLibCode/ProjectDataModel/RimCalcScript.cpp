@@ -108,7 +108,7 @@ QStringList RimCalcScript::createCommandLineArguments( const QString& absoluteFi
     {
         QString argumentString = arguments.join( " " );
 
-        RiaLogging::info( "Scriptarguments : " + argumentString );
+        RiaLogging::info( "Scriptarguments : " + argumentString.toStdString() );
     }
 
     return arguments;

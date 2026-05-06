@@ -84,7 +84,7 @@ void RimCsvSummaryCase::createSummaryReaderInterface()
             else
             {
                 RiaLogging::error( "Failed to read Reveal summary file" );
-                RiaLogging::error( errorMessage );
+                RiaLogging::error( errorMessage.toStdString() );
             }
         }
         else if ( m_fileType == FileType::STIMPLAN )
@@ -99,7 +99,7 @@ void RimCsvSummaryCase::createSummaryReaderInterface()
             else
             {
                 RiaLogging::error( "Failed to read StimPlan summary file" );
-                RiaLogging::error( errorMessage );
+                RiaLogging::error( errorMessage.toStdString() );
             }
         }
     }

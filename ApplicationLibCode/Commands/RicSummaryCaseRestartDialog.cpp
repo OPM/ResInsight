@@ -289,7 +289,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
         dialogResult.gridFiles.clear();
 
         for ( const QString& warning : warnings )
-            RiaLogging::error( warning );
+            RiaLogging::error( warning.toStdString() );
     }
     else
     {

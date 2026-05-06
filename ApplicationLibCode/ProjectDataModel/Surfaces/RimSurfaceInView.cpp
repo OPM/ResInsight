@@ -240,7 +240,7 @@ void RimSurfaceInView::loadDataAndUpdate( int timeStep )
                 QString message = QString( "Surface has different number of time steps. Expected %1, but found %2." )
                                       .arg( ownerView->timeStepCount() )
                                       .arg( surface()->timeStepCount() );
-                RiaLogging::warning( message );
+                RiaLogging::warning( message.toStdString() );
             }
         }
 

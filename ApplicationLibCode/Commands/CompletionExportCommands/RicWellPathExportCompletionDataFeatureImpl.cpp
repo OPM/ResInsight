@@ -114,7 +114,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
             if ( !outputDir.mkpath( "." ) )
             {
                 QString errMsg = QString( "Could not create export folder: %1" ).arg( exportSettings.folder );
-                RiaLogging::error( errMsg );
+                RiaLogging::error( errMsg.toStdString() );
                 return;
             }
 
@@ -174,7 +174,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                     int     caseId = exportSettings.caseToApply->caseId();
                     QString format = QString( "Unit systems for well path \"%1\" must match unit system of chosen eclipse case \"%2\"" );
                     QString errMsg = format.arg( wellPath->name() ).arg( caseId );
-                    RiaLogging::error( errMsg );
+                    RiaLogging::error( errMsg.toStdString() );
                 }
 
                 std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellAllCompletionTypes;
@@ -448,7 +448,7 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
             QString errorMessage = QString( "Invalid or negative transmissibility value (%1) in cell %3" )
                                        .arg( transmissibility )
                                        .arg( cellIndexIJK.oneBasedLocalCellIndexString() );
-            RiaLogging::error( errorMessage );
+            RiaLogging::error( errorMessage.toStdString() );
             resultCompletion.addMetadata( "ERROR", errorMessage );
             continue;
         }
@@ -491,7 +491,7 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
             {
                 QString errorMessage =
                     QString( "Cannot combine completions of different types in same cell %1" ).arg( cellIndexIJK.oneBasedLocalCellIndexString() );
-                RiaLogging::error( errorMessage );
+                RiaLogging::error( errorMessage.toStdString() );
                 resultCompletion.addMetadata( "ERROR", errorMessage );
                 return resultCompletion; // Returning empty completion, should not be exported
             }
@@ -500,7 +500,7 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
             {
                 QString errorMessage =
                     QString( "Transmissibility calculation has failed for cell %1" ).arg( cellIndexIJK.oneBasedLocalCellIndexString() );
-                RiaLogging::error( errorMessage );
+                RiaLogging::error( errorMessage.toStdString() );
                 resultCompletion.addMetadata( "ERROR", errorMessage );
                 return resultCompletion; // Returning empty completion, should not be exported
             }

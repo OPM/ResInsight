@@ -1410,7 +1410,8 @@ std::vector<T> RigGeoMechWellLogExtractor::interpolateInterfaceValues( RigFemRes
                                  .arg( QString::fromStdString( nativeAddr.fieldName ) )
                                  .arg( QString::fromStdString( nativeAddr.componentName ) )
                                  .arg( timeStepIndex )
-                                 .arg( frameIndex ) );
+                                 .arg( frameIndex )
+                                 .toStdString() );
         return interpolatedInterfaceValues;
     }
 

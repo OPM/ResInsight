@@ -131,7 +131,7 @@ void RimFileSummaryCase::createSummaryReaderInterface()
     auto messages = threadSafeLogger.messages();
     for ( const auto& m : messages )
     {
-        RiaLogging::info( m );
+        RiaLogging::info( m.toStdString() );
     }
 }
 
@@ -181,7 +181,7 @@ std::unique_ptr<RifSummaryReaderInterface> RimFileSummaryCase::findRelatedFilesA
                 auto realizationNumber = RifOpmSummaryTools::extractRealizationNumber( headerFileName );
                 if ( !realizationNumber.has_value() )
                 {
-                    RiaLogging::error( realizationNumber.error() );
+                    RiaLogging::error( realizationNumber.error().toStdString() );
                     return {};
                 }
                 return ensembleImportState.restartFilesForRealization( realizationNumber.value() );
@@ -355,7 +355,7 @@ std::expected<void, QString>
                                .arg( QString::fromStdString( keyword ) )
                                .arg( MAX_KEYWORD_LENGTH )
                                .arg( keyword.length() );
-        RiaLogging::error( errorMsg );
+        RiaLogging::error( errorMsg.toStdString() );
         return std::unexpected( errorMsg );
     }
 
@@ -367,7 +367,7 @@ std::expected<void, QString>
                                .arg( QString::fromStdString( keyword ) )
                                .arg( mainSummaryFileValueCount )
                                .arg( values.size() );
-        RiaLogging::error( errorMsg );
+        RiaLogging::error( errorMsg.toStdString() );
         return std::unexpected( errorMsg );
     }
 
@@ -408,7 +408,7 @@ std::expected<void, QString>
         for ( const auto& txt : errorMessages )
         {
             QString errorMsg = QString::fromStdString( txt );
-            RiaLogging::error( errorMsg );
+            RiaLogging::error( errorMsg.toStdString() );
             if ( !combinedErrors.isEmpty() ) combinedErrors += "; ";
             combinedErrors += errorMsg;
         }
@@ -446,7 +446,7 @@ void RimFileSummaryCase::onProjectBeingSaved()
             else
             {
                 QString txt = "Error when copying temporary file to " + currentFilePath;
-                RiaLogging::error( txt );
+                RiaLogging::error( txt.toStdString() );
             }
         }
     }

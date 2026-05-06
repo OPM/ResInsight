@@ -458,7 +458,7 @@ void RifReaderOpmRft::readWseglink( const std::string& filePath )
         text += QString( "  No WSEGLINK data found." );
     }
 
-    RiaLogging::info( text );
+    RiaLogging::info( text.toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------

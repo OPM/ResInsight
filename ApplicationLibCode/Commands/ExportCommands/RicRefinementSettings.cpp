@@ -137,7 +137,7 @@ std::unique_ptr<RigNonUniformRefinement> RicRefinementSettings::nonUniformRefine
     auto subMode = m_nonUniformSubMode();
 
     RiaLogging::info(
-        QString( "Non-uniform refinement: sector size [%1, %2, %3]" ).arg( sectorSize.x() ).arg( sectorSize.y() ).arg( sectorSize.z() ) );
+        QString( "Non-uniform refinement: sector size [%1, %2, %3]" ).arg( sectorSize.x() ).arg( sectorSize.y() ).arg( sectorSize.z() ).toStdString() );
 
     for ( const auto& dc : dims )
     {
@@ -156,7 +156,8 @@ std::unique_ptr<RigNonUniformRefinement> RicRefinementSettings::nonUniformRefine
             {
                 RiaLogging::warning( QString( "Non-uniform refinement %1: no valid widths parsed from '%2'" )
                                          .arg( dimLabels[static_cast<size_t>( dc.dim )] )
-                                         .arg( dc.intervals ) );
+                                         .arg( dc.intervals )
+                                         .toStdString() );
                 continue;
             }
 
@@ -165,7 +166,8 @@ std::unique_ptr<RigNonUniformRefinement> RicRefinementSettings::nonUniformRefine
                                   .arg( sectorStart )
                                   .arg( sectorEnd )
                                   .arg( result->sectorSize( dc.dim ) )
-                                  .arg( widths.size() ) );
+                                  .arg( widths.size() )
+                                  .toStdString() );
 
             result->distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
         }
@@ -183,7 +185,8 @@ std::unique_ptr<RigNonUniformRefinement> RicRefinementSettings::nonUniformRefine
                                   .arg( dimLabels[static_cast<size_t>( dc.dim )] )
                                   .arg( dc.subcellCount )
                                   .arg( sectorStart )
-                                  .arg( sectorEnd ) );
+                                  .arg( sectorEnd )
+                                  .toStdString() );
         }
         else if ( subMode == LOGARITHMIC_CENTER )
         {
@@ -193,7 +196,8 @@ std::unique_ptr<RigNonUniformRefinement> RicRefinementSettings::nonUniformRefine
                                   .arg( dimLabels[static_cast<size_t>( dc.dim )] )
                                   .arg( dc.totalCells )
                                   .arg( sectorStart )
-                                  .arg( sectorEnd ) );
+                                  .arg( sectorEnd )
+                                  .toStdString() );
 
             result->distributeWidthsAcrossCells( dc.dim, sectorStart, sectorEnd, widths );
         }
@@ -201,7 +205,8 @@ std::unique_ptr<RigNonUniformRefinement> RicRefinementSettings::nonUniformRefine
         RiaLogging::info( QString( "Non-uniform refinement %1: total refined count = %2 (was %3)" )
                               .arg( dimLabels[static_cast<size_t>( dc.dim )] )
                               .arg( result->totalRefinedCount( dc.dim ) )
-                              .arg( result->sectorSize( dc.dim ) ) );
+                              .arg( result->sectorSize( dc.dim ) )
+                              .toStdString() );
     }
 
     return result;

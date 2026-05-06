@@ -666,7 +666,7 @@ void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseRe
                                        "categories will be displayed. Please use a different color mapping." )
                                   .arg( visibleCategoryValues.size() )
                                   .arg( maxCategoryCount );
-                RiaLogging::error( txt );
+                RiaLogging::error( txt.toStdString() );
 
                 visibleCategoryValues.resize( maxCategoryCount );
             }

@@ -44,13 +44,13 @@ caf::PdmScriptResponse RicfSetStartDir::execute()
     if ( !directory.exists() )
     {
         QString error = QString( "Path does not exist: %1" ).arg( m_path );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
     if ( !directory.isReadable() )
     {
         QString error = QString( "Path does not exist: %1" ).arg( m_path );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

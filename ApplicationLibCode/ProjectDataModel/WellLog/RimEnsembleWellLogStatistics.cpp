@@ -123,7 +123,7 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogLasFil
         }
         else
         {
-            RiaLogging::error( errorMessage );
+            RiaLogging::error( errorMessage.toStdString() );
         }
     }
     bool includeValuesFromPartialCurves = true;
@@ -274,7 +274,8 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
                                .arg( offsets->getTopMd( kIndex ) )
                                .arg( offsets->getBottomMd( kIndex ) )
                                .arg( topMean )
-                               .arg( bottomMean ) );
+                               .arg( bottomMean )
+                               .toStdString() );
     }
 }
 
@@ -349,7 +350,7 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
         }
         else
         {
-            RiaLogging::error( errorMessage );
+            RiaLogging::error( errorMessage.toStdString() );
         }
     }
 
@@ -373,7 +374,8 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
                                    .arg( topMd )
                                    .arg( bottomMd )
                                    .arg( numTopMds[kLayer] )
-                                   .arg( numBottomMds[kLayer] ) );
+                                   .arg( numBottomMds[kLayer] )
+                                   .toStdString() );
             offset->setIndexOffsetDepth( kLayer, topMd, bottomMd, topTvd, bottomTvd );
         }
     }

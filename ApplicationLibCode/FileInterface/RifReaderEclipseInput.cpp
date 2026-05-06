@@ -79,7 +79,7 @@ bool RifReaderEclipseInput::open( const QString& fileName, RigEclipseCaseData* e
         isOk = RifEclipseInputFileTools::openGridFile( fileName, eclipseCase, isFaultImportEnabled(), &errorMesssages );
         if ( !isOk )
         {
-            RiaLogging::error( errorMesssages );
+            RiaLogging::error( errorMesssages.toStdString() );
         }
     }
 

@@ -121,7 +121,7 @@ void RifReaderPressureDepthData::load()
     auto [pressureDepthDataItems, errorMsg] = RifPressureDepthTextFileReader::readFile( m_filePath );
     if ( !errorMsg.isEmpty() )
     {
-        RiaLogging::error( errorMsg );
+        RiaLogging::error( errorMsg.toStdString() );
     }
     else
     {

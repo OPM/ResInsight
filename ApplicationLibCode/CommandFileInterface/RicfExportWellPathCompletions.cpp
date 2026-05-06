@@ -144,7 +144,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
         if ( !eclipseCase )
         {
             QString error = QString( "exportWellPathCompletions: Could not find case with ID %1" ).arg( m_caseId() );
-            RiaLogging::error( error );
+            RiaLogging::error( error.toStdString() );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
         exportSettings.caseToApply = eclipseCase;
@@ -175,7 +175,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
             else
             {
                 QString warning = QString( "exportWellPathCompletions: Could not find well path with name %1" ).arg( wellPathName );
-                RiaLogging::warning( warning );
+                RiaLogging::warning( warning.toStdString() );
                 response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
             }
         }

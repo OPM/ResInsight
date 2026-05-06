@@ -146,7 +146,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
         QString message = QString( "Nnc connection imported from Eclipse are not unique\nNNC count : %1\nUnique : %2" )
                               .arg( nativeConnections.size() )
                               .arg( nativeCellPairs.size() );
-        RiaLogging::warning( message, "RigCellFaceGeometryTools" );
+        RiaLogging::warning( message.toStdString(), "RigCellFaceGeometryTools" );
     }
 
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
@@ -202,7 +202,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
                             "inactive cells can be managed from Preferences->Eclipse Grid->Include Inactive Cells" )
                        .arg( otherConnections.size() )
                        .arg( nncCountWarningThreshold );
-        RiaLogging::warning( txt, "RigCellFaceGeometryTools" );
+        RiaLogging::warning( txt.toStdString(), "RigCellFaceGeometryTools" );
     }
 
     otherConnections.remove_duplicates();

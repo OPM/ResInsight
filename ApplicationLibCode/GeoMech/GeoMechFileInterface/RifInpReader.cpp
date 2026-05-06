@@ -124,11 +124,12 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
     RiaLogging::debug( QString( "Read FEM parts: %1, steps: %2, element type: %3" )
                            .arg( parts.size() )
                            .arg( m_stepNames.size() )
-                           .arg( QString::fromStdString( RigFemTypes::elementTypeText( elementType ) ) ) );
+                           .arg( QString::fromStdString( RigFemTypes::elementTypeText( elementType ) ) )
+                           .toStdString() );
 
     if ( !RigFemTypes::is8NodeElement( elementType ) )
     {
-        RiaLogging::error( QString( "Unsupported element type." ) );
+        RiaLogging::error( QString( "Unsupported element type." ).toStdString() );
         return false;
     }
 

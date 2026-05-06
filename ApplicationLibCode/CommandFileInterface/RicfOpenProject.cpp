@@ -54,7 +54,7 @@ caf::PdmScriptResponse RicfOpenProject::execute()
     if ( !ok )
     {
         QString errMsg = QString( "openProject: Unable to open project at %1" ).arg( m_path() );
-        RiaLogging::error( errMsg );
+        RiaLogging::error( errMsg.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 

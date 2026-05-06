@@ -64,7 +64,7 @@ caf::PdmScriptResponse RicfExportWellPaths::execute()
         if ( !wellsNotFound.empty() )
         {
             QString error( QString( "exportWellPaths: These well paths were not found: " ) + wellsNotFound.join( ", " ) );
-            RiaLogging::error( error );
+            RiaLogging::error( error.toStdString() );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
@@ -72,7 +72,7 @@ caf::PdmScriptResponse RicfExportWellPaths::execute()
     if ( wellPaths.empty() )
     {
         QString error( "No well paths found" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

@@ -1032,7 +1032,7 @@ RiaDefines::EclipseUnitSystem RifEclipseOutputFileTools::determineUnitSystem( co
                                   .arg( getUnitName( selectedUnit.value() ) )
                                   .arg( selectedSource )
                                   .arg( conflicts.join( " and " ) );
-            RiaLogging::warning( warning );
+            RiaLogging::warning( warning.toStdString() );
         }
 
         return selectedUnit.value();

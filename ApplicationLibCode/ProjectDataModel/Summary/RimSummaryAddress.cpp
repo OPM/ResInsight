@@ -284,7 +284,7 @@ void RimSummaryAddress::initAfterRead()
     // completion number.
     if ( m_vectorName().contains( "__" ) && m_category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
     {
-        RiaLogging::info( "Converting lumped vector with '*L__N' syntax into Well Completion." + m_vectorName() );
+        RiaLogging::info( "Converting lumped vector with '*L__N' syntax into Well Completion." + m_vectorName().toStdString() );
 
         m_category             = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION;
         m_wellCompletionNumber = m_vectorName().split( "__" ).last().toInt();
@@ -294,7 +294,7 @@ void RimSummaryAddress::initAfterRead()
     // Lumped connection vectors was previously displayed as well completion vectors. Move them into well completions
     if ( m_vectorName().startsWith( "C" ) && m_category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION )
     {
-        RiaLogging::info( "Converting completion vector starting with 'C' syntax into Well Connection." + m_vectorName() );
+        RiaLogging::info( "Converting completion vector starting with 'C' syntax into Well Connection." + m_vectorName().toStdString() );
 
         m_category = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_CONNECTION;
     }

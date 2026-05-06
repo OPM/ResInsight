@@ -54,7 +54,7 @@ void RifReaderRegularGridModel::writeCache( const QString& fileName, RimEclipseC
     QFile cacheFile( fileName );
     if ( !cacheFile.open( QIODevice::WriteOnly ) )
     {
-        RiaLogging::error( "Saving project: Can't open the cache file : " + fileName );
+        RiaLogging::error( "Saving project: Can't open the cache file : " + fileName.toStdString() );
         return;
     }
 
@@ -72,7 +72,7 @@ void RifReaderRegularGridModel::writeCache( const QString& fileName, RimEclipseC
     const bool writeEchoKeywords = false;
     if ( !RifEclipseInputFileTools::exportKeywords( fileName, eclipseCase->eclipseCaseData(), keywords, writeEchoKeywords ) )
     {
-        RiaLogging::error( "Error detected when writing the cache file : " + fileName );
+        RiaLogging::error( "Error detected when writing the cache file : " + fileName.toStdString() );
     }
 }
 
