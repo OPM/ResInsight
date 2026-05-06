@@ -21,8 +21,11 @@
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
+#include "cafPdmPtrField.h"
 
 #include <QString>
+
+class RimCellFilter;
 
 //==================================================================================================
 ///
@@ -111,4 +114,26 @@ public:
     RimcEclipseCase_clearResultAliases( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
+};
+
+//==================================================================================================
+/// Apply a cell filter to this case for a given grid + time step and write a per-cell 0/1 mask
+/// (1 = passes the filter, 0 = filtered out) to the key-value store under m_maskKey. The vector
+/// length and ordering match case.grid_property(..., grid_index) so the two can be combined
+/// element-wise.
+//==================================================================================================
+class RimcEclipseCase_filteredCellsInternal : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcEclipseCase_filteredCellsInternal( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrField<RimCellFilter*> m_filter;
+    caf::PdmField<QString>           m_maskKey;
+    caf::PdmField<int>               m_timeStep;
+    caf::PdmField<int>               m_gridIndex;
 };
