@@ -28,6 +28,8 @@
 #include "RimCase.h"
 #include "RimTools.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiSliderEditor.h"
 
@@ -42,36 +44,36 @@ CAF_PDM_SOURCE_INIT( RimCellRangeFilter, "CellRangeFilter" );
 RimCellRangeFilter::RimCellRangeFilter()
     : RimCellFilter( RimCellFilter::RANGE )
 {
-    CAF_PDM_InitObject( "Cell Range Filter", ":/CellFilter_Range.png" );
+    CAF_PDM_InitScriptableObject( "Cell Range Filter", ":/CellFilter_Range.png" );
 
     CAF_PDM_InitField( &m_labelI, "LabelI", QString( "I" ), "I" );
     m_labelI.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
     m_labelI.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &startIndexI, "StartIndexI", 1, "I Start" );
+    CAF_PDM_InitScriptableField( &startIndexI, "StartIndexI", 1, "I Start" );
     startIndexI.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &cellCountI, "CellCountI", 1, "  Width" );
+    CAF_PDM_InitScriptableField( &cellCountI, "CellCountI", 1, "  Width" );
     cellCountI.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_labelJ, "LabelJ", QString( "J" ), "J" );
     m_labelJ.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
     m_labelJ.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &startIndexJ, "StartIndexJ", 1, "J Start" );
+    CAF_PDM_InitScriptableField( &startIndexJ, "StartIndexJ", 1, "J Start" );
     startIndexJ.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &cellCountJ, "CellCountJ", 1, "  Width" );
+    CAF_PDM_InitScriptableField( &cellCountJ, "CellCountJ", 1, "  Width" );
     cellCountJ.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_labelK, "LabelK", QString( "K" ), "K" );
     m_labelK.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
     m_labelK.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &startIndexK, "StartIndexK", 1, "K Start" );
+    CAF_PDM_InitScriptableField( &startIndexK, "StartIndexK", 1, "K Start" );
     startIndexK.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &cellCountK, "CellCountK", 1, "  Width" );
+    CAF_PDM_InitScriptableField( &cellCountK, "CellCountK", 1, "  Width" );
     cellCountK.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     m_propagateToSubGrids = true;
