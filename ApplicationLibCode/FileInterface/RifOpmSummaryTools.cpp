@@ -118,7 +118,7 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
         /*
             for ( const auto& kw : invalidKeywords )
             {
-                RiaLogging::warning( QString::fromStdString( kw ) );
+                RiaLogging::warning( kw );
             }
         */
     }

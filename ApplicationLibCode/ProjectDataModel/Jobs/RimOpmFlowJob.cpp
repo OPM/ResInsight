@@ -1107,7 +1107,7 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
                                                                                   exportDate );
     if ( !mswDataResult.has_value() )
     {
-        RiaLogging::error( QString::fromStdString( mswDataResult.error() ) );
+        RiaLogging::error( mswDataResult.error() );
         return failure;
     }
 

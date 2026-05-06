@@ -53,7 +53,7 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
     }
     catch ( RifRoffReaderException& ex )
     {
-        RiaLogging::error( QString::fromStdString( ex.message ) );
+        RiaLogging::error( ex.message );
         return;
     }
 

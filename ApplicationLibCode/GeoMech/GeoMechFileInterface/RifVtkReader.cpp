@@ -130,7 +130,7 @@ bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
     auto result = read( m_inputPath, parts, nodes, elements, elementSets, properties, m_displacements, m_stepNames );
     if ( !result )
     {
-        RiaLogging::error( QString::fromStdString( result.error() ) );
+        RiaLogging::error( result.error() );
         return false;
     }
 

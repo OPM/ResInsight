@@ -453,7 +453,7 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
         auto result = extractKeywordData( eclipseCase, keyword, min, maxIn, refinement );
         if ( !result )
         {
-            RiaLogging::warning( QString::fromStdString( result.error() ) );
+            RiaLogging::warning( result.error() );
             continue;
         }
 

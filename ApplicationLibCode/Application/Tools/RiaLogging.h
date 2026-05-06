@@ -19,12 +19,16 @@
 #pragma once
 
 #include <chrono>
+#include <concepts>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
 
 #include <QString>
+
+template <typename T>
+concept StdStringLike = std::same_as<std::remove_cvref_t<T>, std::string> || std::same_as<std::remove_cvref_t<T>, std::string_view>;
 
 enum class RILogLevel
 {
@@ -68,21 +72,98 @@ public:
     static RILogLevel                logLevelBasedOnPreferences();
     static std::optional<RILogLevel> parseLogLevelString( const QString& logLevelString );
 
-    static void error( const QString& message, const QString logKeyword = "" );
-    static void warning( const QString& message, const QString logKeyword = "" );
-    static void info( const QString& message, const QString logKeyword = "" );
-    static void debug( const QString& message, const QString logKeyword = "" );
+    static void error( const QString& message, const QString& logKeyword = "" );
+    static void warning( const QString& message, const QString& logKeyword = "" );
+    static void info( const QString& message, const QString& logKeyword = "" );
+    static void debug( const QString& message, const QString& logKeyword = "" );
+
+    template <StdStringLike Msg, StdStringLike Kw = std::string_view>
+    static void error( const Msg& message, const Kw& logKeyword = std::string_view{} )
+    {
+        const std::string_view svMsg{ message };
+        const std::string_view svKw{ logKeyword };
+        if ( !isKeywordEnabled( svKw ) ) return;
+        if ( isSameMessage( svMsg ) ) return;
+        const std::string buf{ svMsg };
+        for ( const auto& logger : sm_logger )
+        {
+            if ( logger && logger->level() >= int( RILogLevel::RI_LL_ERROR ) )
+            {
+#pragma omp critical( critical_section_logging )
+                logger->error( buf.c_str() );
+            }
+        }
+        setLastMessage( svMsg );
+    }
+
+    template <StdStringLike Msg, StdStringLike Kw = std::string_view>
+    static void warning( const Msg& message, const Kw& logKeyword = std::string_view{} )
+    {
+        const std::string_view svMsg{ message };
+        const std::string_view svKw{ logKeyword };
+        if ( !isKeywordEnabled( svKw ) ) return;
+        if ( isSameMessage( svMsg ) ) return;
+        const std::string buf{ svMsg };
+        for ( const auto& logger : sm_logger )
+        {
+            if ( logger && logger->level() >= int( RILogLevel::RI_LL_WARNING ) )
+            {
+#pragma omp critical( critical_section_logging )
+                logger->warning( buf.c_str() );
+            }
+        }
+        setLastMessage( svMsg );
+    }
+
+    template <StdStringLike Msg, StdStringLike Kw = std::string_view>
+    static void info( const Msg& message, const Kw& logKeyword = std::string_view{} )
+    {
+        const std::string_view svMsg{ message };
+        const std::string_view svKw{ logKeyword };
+        if ( !isKeywordEnabled( svKw ) ) return;
+        if ( isSameMessage( svMsg ) ) return;
+        const std::string buf{ svMsg };
+        for ( const auto& logger : sm_logger )
+        {
+            if ( logger && logger->level() >= int( RILogLevel::RI_LL_INFO ) )
+            {
+#pragma omp critical( critical_section_logging )
+                logger->info( buf.c_str() );
+            }
+        }
+        setLastMessage( svMsg );
+    }
+
+    template <StdStringLike Msg, StdStringLike Kw = std::string_view>
+    static void debug( const Msg& message, const Kw& logKeyword = std::string_view{} )
+    {
+        const std::string_view svMsg{ message };
+        const std::string_view svKw{ logKeyword };
+        if ( !isKeywordEnabled( svKw ) ) return;
+        if ( isSameMessage( svMsg ) ) return;
+        const std::string buf{ svMsg };
+        for ( const auto& logger : sm_logger )
+        {
+            if ( logger && logger->level() >= int( RILogLevel::RI_LL_DEBUG ) )
+            {
+#pragma omp critical( critical_section_logging )
+                logger->debug( buf.c_str() );
+            }
+        }
+        setLastMessage( svMsg );
+    }
 
     static std::chrono::time_point<std::chrono::high_resolution_clock> currentTime();
     static void logElapsedTime( std::string_view message, const std::chrono::time_point<std::chrono::high_resolution_clock>& startTime );
 
 private:
-    static void setLastMessage( const QString& message );
-    static bool isSameMessage( const QString& message );
+    static void setLastMessage( std::string_view message );
+    static bool isSameMessage( std::string_view message );
+    static bool isKeywordEnabled( std::string_view keyword );
 
 private:
     static std::vector<std::unique_ptr<RiaLogger>>                     sm_logger;
-    static QString                                                     sm_lastMessage;
+    static std::string                                                 sm_lastMessage;
     static std::chrono::time_point<std::chrono::high_resolution_clock> sm_lastMessageTime;
 };
 

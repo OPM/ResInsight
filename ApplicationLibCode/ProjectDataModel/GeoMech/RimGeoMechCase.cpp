@@ -203,7 +203,7 @@ void RimGeoMechCase::reloadDataAndUpdate()
         std::string errMsg;
         if ( openGeoMechCase( &errMsg ) == CASE_OPEN_ERROR )
         {
-            RiaLogging::error( QString::fromStdString( errMsg ) );
+            RiaLogging::error( errMsg );
         }
         for ( auto& v : geoMechViews() )
         {

@@ -162,7 +162,7 @@ void RimMswSegmentCollection::updateSegments( RimWellPath* topLevelWell, RimEcli
 
     if ( !tableDataResult.has_value() )
     {
-        RiaLogging::error( QString::fromStdString( tableDataResult.error() ) );
+        RiaLogging::error( tableDataResult.error() );
         scheduleRedraw();
         return;
     }
