@@ -609,7 +609,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             addToRecentFiles( fullPathProjectFileName );
         }
 
-        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName.toStdString(), startTime );
     }
 
     {
@@ -673,7 +673,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             oilField->polygonCollection()->loadData();
         }
 
-        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName.toStdString(), startTime );
     }
 
     {
@@ -732,7 +732,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             oilField->surfaceCollection()->loadData();
         }
 
-        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName.toStdString(), startTime );
     }
 
     {
@@ -755,7 +755,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             }
         }
 
-        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName.toStdString(), startTime );
     }
 
     {
@@ -885,7 +885,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             }
         }
 
-        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName.toStdString(), startTime );
     }
 
     {
@@ -951,13 +951,13 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdates();
 
-        if ( logTiming ) RiaLogging::logElapsedTime( taskName, startTime );
+        if ( logTiming ) RiaLogging::logElapsedTime( taskName.toStdString(), startTime );
     }
 
     auto logText = QString( "Project file '%1' loaded successfully." ).arg( projectFileName );
     if ( logTiming )
     {
-        RiaLogging::logElapsedTime( logText, startTime );
+        RiaLogging::logElapsedTime( logText.toStdString(), startTime );
     }
     else
     {
