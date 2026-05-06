@@ -69,7 +69,7 @@ public:
     void cleanUpTemporaryWidgets();
 
     void              removeViewer( QWidget* viewer ) override;
-    void              initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
+    void              initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
     void              setActiveViewer( QWidget* subWindow ) override;
     ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) override;
 
@@ -77,12 +77,6 @@ public:
     void enable3DSelectionLink( bool enable );
     bool selection3DLinkEnabled();
 
-    bool                  isAnyMdiSubWindowVisible();
-    QMdiSubWindow*        findMdiSubWindow( QWidget* viewer ) override;
-    RimViewWindow*        findViewWindowFromSubWindow( QMdiSubWindow* subWindow );
-    QList<QMdiSubWindow*> subWindowList( QMdiArea::WindowOrder order );
-
-    void setWidthOfMdiWindow( QWidget* mdiWindowWidget, int newWidth );
     void addToTemporaryWidgets( QWidget* widget );
 
     void updateWellLogPlotToolBar();
@@ -123,11 +117,9 @@ private slots:
     void slotToggleAutoUpdate();
     void slotReloadSelectedCases();
 
-    friend class RiuMdiSubWindow;
-
     void slotBuildWindowActions();
 
-    void slotSubWindowActivated( QMdiSubWindow* subWindow );
+    // void slotSubWindowActivated( QMdiSubWindow* subWindow );
 
     void selectedObjectsChanged( caf::PdmUiTreeView* projectTree, caf::PdmUiPropertyView* propertyView );
     void customMenuRequested( const QPoint& pos );

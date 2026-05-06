@@ -41,8 +41,7 @@ class RiuViewerToViewInterface
 public:
     virtual caf::PdmObjectHandle* implementingPdmObject() = 0;
 
-    virtual void handleMdiWindowClosed()                                            = 0;
-    virtual void setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry ) = 0;
+    virtual void handleMdiWindowClosed() = 0;
 
     virtual void setCameraPosition( const cvf::Mat4d& cameraPosition )               = 0;
     virtual void setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest ) = 0;

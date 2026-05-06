@@ -546,7 +546,7 @@ void RimEclipseContourMapView::childFieldChangedByUi( const caf::PdmFieldHandle*
 {
     if ( changedChildField == &m_contourMapProjection )
     {
-        updateMdiWindowTitle();
+        updateWindowTitle();
     }
 }
 

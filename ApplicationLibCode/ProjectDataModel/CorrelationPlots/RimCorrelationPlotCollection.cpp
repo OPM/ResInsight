@@ -58,7 +58,7 @@ RimCorrelationPlotCollection::~RimCorrelationPlotCollection()
 RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot( bool defaultToFirstEnsembleFopt )
 {
     RimCorrelationPlot* plot = new RimCorrelationPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
 
     if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, { "FOPT" } );
     plot->selectAllParameters();
@@ -75,7 +75,7 @@ RimCorrelationPlot*
     RimCorrelationPlotCollection::createCorrelationPlot( RimSummaryEnsemble* ensemble, const QString& quantityName, std::time_t timeStep )
 {
     RimCorrelationPlot* plot = new RimCorrelationPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
 
     applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, { quantityName }, timeStep );
     plot->selectAllParameters();
@@ -91,7 +91,7 @@ RimCorrelationPlot*
 RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixPlot( bool defaultToFirstEnsembleField )
 {
     RimCorrelationMatrixPlot* plot = new RimCorrelationMatrixPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
     if ( defaultToFirstEnsembleField ) applyFirstEnsembleFieldAddressesToPlot( plot, { "FOPT", "FWPT", "FGPT" } );
     plot->selectAllParameters();
 
@@ -108,7 +108,7 @@ RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixP
                                                                                      std::time_t                 timeStep )
 {
     RimCorrelationMatrixPlot* plot = new RimCorrelationMatrixPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
     applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, quantityNames, timeStep );
     plot->selectAllParameters();
 
@@ -123,7 +123,7 @@ RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixP
 RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResultCrossPlot( bool defaultToFirstEnsembleFopt )
 {
     RimParameterResultCrossPlot* plot = new RimParameterResultCrossPlot;
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
     if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, { "FOPT" } );
 
     addPlot( plot );
@@ -139,7 +139,7 @@ RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResult
                                                                                            std::time_t         timeStep )
 {
     RimParameterResultCrossPlot* plot = new RimParameterResultCrossPlot;
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
     applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, { quantityName }, timeStep );
     plot->setEnsembleParameter( paramName );
 
@@ -153,7 +153,7 @@ RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResult
 RimCorrelationReportPlot* RimCorrelationPlotCollection::createCorrelationReportPlot( bool defaultToFirstEnsembleField /*= true */ )
 {
     RimCorrelationReportPlot* report = new RimCorrelationReportPlot;
-    report->setAsPlotMdiWindow();
+    report->dockAsPlotWindow();
     if ( defaultToFirstEnsembleField ) applyFirstEnsembleFieldAddressesToReport( report, { "FOPT", "FWPT", "FGPT" }, "FOPT" );
     report->matrixPlot()->selectAllParameters();
     report->correlationPlot()->selectAllParameters();
@@ -170,7 +170,7 @@ RimCorrelationReportPlot* RimCorrelationPlotCollection::createCorrelationReportP
                                                                                      std::time_t    timeStep )
 {
     RimCorrelationReportPlot* report = new RimCorrelationReportPlot;
-    report->setAsPlotMdiWindow();
+    report->dockAsPlotWindow();
     applyEnsembleFieldAndTimeStepToReport( report, ensemble, matrixQuantityNames, tornadoAndCrossPlotQuantityName, timeStep );
     report->matrixPlot()->selectAllParameters();
     report->correlationPlot()->selectAllParameters();
@@ -184,7 +184,7 @@ RimCorrelationReportPlot* RimCorrelationPlotCollection::createCorrelationReportP
 RimRftCorrelationReportPlot* RimCorrelationPlotCollection::createRftCorrelationReportPlot( RimWellRftPlot* source )
 {
     auto* report = new RimRftCorrelationReportPlot;
-    report->setAsPlotMdiWindow();
+    report->dockAsPlotWindow();
 
     if ( source )
     {

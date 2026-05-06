@@ -172,7 +172,7 @@ void RimMainPlotCollection::initAfterRead()
 
         auto* summaryMultiPlot = new RimSummaryMultiPlot;
         summaryMultiPlot->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( m_summaryMultiPlotCollection->multiPlots().size() + 1 ) );
-        summaryMultiPlot->setAsPlotMdiWindow();
+        summaryMultiPlot->dockAsPlotWindow();
         m_summaryMultiPlotCollection->addSummaryMultiPlot( summaryMultiPlot );
 
         // We want to convert RimSummaryCrossPlot into a RimSummaryPlot. The cross plot is derived from RimSummaryPlot, but we need to

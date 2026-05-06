@@ -28,11 +28,6 @@
 #include <memory>
 #include <vector>
 
-class RiuMdiArea;
-struct RimMdiWindowGeometry;
-
-class RiuMdiArea;
-
 namespace ads
 {
 class CDockManager;
@@ -49,8 +44,6 @@ class PdmUiPropertyView;
 } // namespace caf
 
 class QAction;
-class QMdiArea;
-class QMdiSubWindow;
 class QUndoView;
 
 //==================================================================================================
@@ -66,22 +59,17 @@ public:
 
     virtual QString mainWindowName() = 0;
 
-    QMdiSubWindow*    createViewWindow();
     ads::CDockWidget* createDockViewWindow();
 
-    virtual void removeViewer( QWidget* viewer )                                                                                 = 0;
-    virtual void initializeViewer( QMdiSubWindow* viewWindow, QWidget* viewWidget, const RimMdiWindowGeometry& windowsGeometry ) = 0;
-    virtual void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) {};
+    virtual void removeViewer( QWidget* viewer ) = 0;
+    virtual void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) {};
     virtual void setActiveViewer( QWidget* subWindow ) = 0;
 
     virtual ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) = 0;
 
-    virtual QMdiSubWindow* findMdiSubWindow( QWidget* viewer ) = 0;
-
-    RimMdiWindowGeometry windowGeometryForViewer( QWidget* viewer );
-    void                 loadWinGeoAndDockToolBarLayout();
-    void                 saveWinGeoAndDockToolBarLayout();
-    void                 showWindow();
+    void loadWinGeoAndDockToolBarLayout();
+    void saveWinGeoAndDockToolBarLayout();
+    void showWindow();
 
     std::vector<caf::PdmUiTreeView*> projectTreeViews();
     caf::PdmUiTreeView*              projectTreeView( int treeId );
@@ -92,8 +80,6 @@ public:
     void selectAsCurrentItem( const caf::PdmObject* object, bool allowActiveViewChange = true );
     void toggleItemInSelection( const caf::PdmObject* object, bool allowActiveViewChange = true );
 
-    void enableShowFirstVisibleMdiWindowMaximized( bool enable );
-
     void setBlockSubWindowActivatedSignal( bool block );
     bool isBlockingSubWindowActivatedSignal() const;
 
@@ -102,12 +88,12 @@ public:
 
     ads::CDockManager* dockManager() const;
 
-    RiuMdiArea* mdiArea();
+    // RiuMdiArea* mdiArea();
 
 protected:
     void createTreeViews( int numberOfTrees );
-    void removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer );
-    void initializeSubWindow( RiuMdiArea* mdiArea, QMdiSubWindow* mdiSubWindow, const QPoint& subWindowPos, const QSize& subWindowSize );
+    void setUpCentralDockWidget();
+
     void removeViewerFromDockArea( QWidget* viewer );
 
     void restoreTreeViewStates( QString treeStateString, QString treeIndexString );
@@ -149,21 +135,23 @@ protected:
     // RiuMdiArea* m_mdiArea;
     QMenu* m_windowMenu;
 
-    const int DOCKSTATE_VERSION = 3;
+    const int DOCKSTATE_VERSION = 4;
 
     QByteArray m_lastDockState;
 
     std::vector<caf::PdmUiTreeView*>                     m_projectTreeViews;
     std::vector<std::shared_ptr<caf::PdmUiPropertyView>> m_propertyViews;
 
+    QPointer<ads::CDockWidget> m_centralDockWidget;
+
 private:
     QString registryFolderName();
 
     std::vector<std::unique_ptr<caf::PdmUiDragDropInterface>> m_dragDropInterfaces;
-    bool                                                      m_showFirstVisibleWindowMaximized;
-    bool                                                      m_blockSubWindowActivation;
-    bool                                                      m_blockSubWindowProjectTreeSelection;
-    bool                                                      m_hasBeenVisible;
+
+    bool m_blockSubWindowActivation;
+    bool m_blockSubWindowProjectTreeSelection;
+    bool m_hasBeenVisible;
 
     ads::CDockManager* m_dockManager;
 };

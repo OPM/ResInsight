@@ -121,7 +121,7 @@ void RimVfpPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle* chi
 {
     for ( auto plot : plots() )
     {
-        plot->updateMdiWindowVisibility();
+        plot->updateDockWindowVisibility();
     }
 }
 

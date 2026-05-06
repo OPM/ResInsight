@@ -55,7 +55,6 @@ class RimWellAllocationPlot;
 
 class RiuMainWindow;
 class RiuMainWindowBase;
-class RiuMdiMaximizeWindowGuard;
 class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
 class RiaArgumentParser;
@@ -167,6 +166,4 @@ private:
     std::unique_ptr<RiuPlotMainWindow> m_mainPlotWindow;
 
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
-
-    std::unique_ptr<RiuMdiMaximizeWindowGuard> m_maximizeWindowGuard;
 };

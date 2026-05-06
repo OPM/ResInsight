@@ -186,7 +186,7 @@ Rim3dView::Rim3dView()
     m_annotationsPartManager = new RivAnnotationsPartMgr( this );
     m_measurementPartManager = new RivMeasurementPartMgr( this );
 
-    this->setAs3DViewMdiWindow();
+    this->dockAs3DViewWindow();
 
     // Every timer tick, send a signal for updating animations.
     // Any animation is supposed to connect to this signal
@@ -214,10 +214,13 @@ Rim3dView::~Rim3dView()
     // Make sure the object is disconnected from other objects before delete
     prepareForDelete();
 
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
 
-    delete m_viewer;
-    m_viewer = nullptr;
+    if ( m_viewer )
+    {
+        m_viewer->deleteLater();
+        m_viewer = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -396,7 +399,7 @@ void Rim3dView::assignIdIfNecessary()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::updateMdiWindowTitle()
+void Rim3dView::updateWindowTitle()
 {
     if ( m_viewer )
     {
@@ -991,7 +994,7 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
     }
     else if ( changedField == m_nameConfig->nameField() )
     {
-        updateMdiWindowTitle();
+        updateWindowTitle();
 
         if ( viewController() )
         {
@@ -1437,7 +1440,7 @@ void Rim3dView::updateFonts()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::performAutoNameUpdate()
 {
-    updateMdiWindowTitle();
+    updateWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1675,14 +1678,6 @@ void Rim3dView::disablePerspectiveProjectionField()
 void Rim3dView::handleMdiWindowClosed()
 {
     RimViewWindow::handleMdiWindowClosed();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim3dView::setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry )
-{
-    RimViewWindow::setMdiWindowGeometry( windowGeometry );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1927,7 +1922,7 @@ void Rim3dView::convertToDocking( RiuMainWindowBase* mainWindow )
 {
     if ( isDockingViewer() ) return;
 
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
 
     QWidget* viewWidget = createViewWidget( nullptr );
 
@@ -1950,7 +1945,7 @@ void Rim3dView::convertToMdi( RiuMainWindowBase* mainWindow )
 
     m_windowController->updateViewerWidget();
 
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     updateViewWidgetAfterCreation();
     scheduleCreateDisplayModelAndRedraw();

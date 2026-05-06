@@ -217,7 +217,7 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     CAF_PDM_InitField( &m_dockState, "DockState", QString(), "Dock State" );
     m_dockState.uiCapability()->setUiHidden( true );
 
-    setAsPlotMdiWindow();
+    dockAsPlotWindow();
 
     m_showWindow      = true;
     m_showPlotLegends = false;
@@ -255,7 +255,7 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 //--------------------------------------------------------------------------------------------------
 RimCorrelationReportPlot::~RimCorrelationReportPlot()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
     cleanupBeforeClose();
 }
 
@@ -550,7 +550,7 @@ void RimCorrelationReportPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     if ( m_showWindow )
     {

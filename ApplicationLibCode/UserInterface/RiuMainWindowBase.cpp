@@ -31,8 +31,6 @@
 #include "RiuDragDrop.h"
 #include "RiuGuiTheme.h"
 #include "RiuMainWindowTools.h"
-#include "RiuMdiArea.h"
-#include "RiuMdiSubWindow.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmObject.h"
@@ -46,11 +44,10 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QInputDialog>
-#include <QMdiArea>
-#include <QMdiSubWindow>
 #include <QMenu>
 #include <QMessageBox>
 #include <QSettings>
+#include <QTextEdit>
 #include <QTreeView>
 #include <QUndoStack>
 #include <QUndoView>
@@ -60,12 +57,10 @@
 //--------------------------------------------------------------------------------------------------
 RiuMainWindowBase::RiuMainWindowBase()
     : m_allowActiveViewChangeFromSelection( true )
-    , m_showFirstVisibleWindowMaximized( true )
     , m_blockSubWindowActivation( false )
     , m_blockSubWindowProjectTreeSelection( false )
     , m_hasBeenVisible( false )
     , m_windowMenu( nullptr )
-//    , m_mdiArea( nullptr )
 {
     ads::CDockManager::setAutoHideConfigFlags( ads::CDockManager::DefaultAutoHideConfig );
     m_dockManager = new ads::CDockManager( this );
@@ -117,27 +112,18 @@ ads::CDockManager* RiuMainWindowBase::dockManager() const
     return m_dockManager;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuMdiArea* RiuMainWindowBase::mdiArea()
-{
-    return nullptr;
-    // return m_mdiArea;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QMdiSubWindow* RiuMainWindowBase::createViewWindow()
-{
-    RiuMdiSubWindow* subWin =
-        new RiuMdiSubWindow( nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint );
-    subWin->setAttribute( Qt::WA_DeleteOnClose ); // Make sure the contained widget is destroyed when the MDI window
-                                                  // is closed
-
-    return subWin;
-}
+////--------------------------------------------------------------------------------------------------
+/////
+////--------------------------------------------------------------------------------------------------
+// QMdiSubWindow* RiuMainWindowBase::createViewWindow()
+//{
+//     RiuMdiSubWindow* subWin =
+//         new RiuMdiSubWindow( nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint );
+//     subWin->setAttribute( Qt::WA_DeleteOnClose ); // Make sure the contained widget is destroyed when the MDI window
+//                                                   // is closed
+//
+//     return subWin;
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -147,21 +133,6 @@ ads::CDockWidget* RiuMainWindowBase::createDockViewWindow()
     auto widget = RiuDockWidgetTools::createDockWidget( "3D view", "3dview", this );
 
     return widget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RiuMainWindowBase::windowGeometryForViewer( QWidget* viewer )
-{
-    RiuMdiSubWindow* mdiWindow = dynamic_cast<RiuMdiSubWindow*>( findMdiSubWindow( viewer ) );
-    if ( mdiWindow )
-    {
-        return mdiWindow->windowGeometry();
-    }
-
-    RimMdiWindowGeometry geo;
-    return geo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -327,14 +298,6 @@ void RiuMainWindowBase::toggleItemInSelection( const caf::PdmObject* object, boo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::enableShowFirstVisibleMdiWindowMaximized( bool enable )
-{
-    m_showFirstVisibleWindowMaximized = enable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setBlockSubWindowActivatedSignal( bool block )
 {
     m_blockSubWindowActivation = block;
@@ -375,51 +338,51 @@ void RiuMainWindowBase::removeViewerFromDockArea( QWidget* viewer )
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer )
-{
-    bool removedSubWindowWasActive = false;
-    bool wasMaximized              = true;
-
-    if ( QMdiSubWindow* subWindowBeingClosed = findMdiSubWindow( viewer ) )
-    {
-        wasMaximized = subWindowBeingClosed->isMaximized();
-
-        if ( subWindowBeingClosed->isActiveWindow() )
-        {
-            // If we are removing the active window, we will need a new active window
-            // Start by making the window inactive so Qt doesn't pick the active window itself
-            mdiArea->setActiveSubWindow( nullptr );
-            removedSubWindowWasActive = true;
-        }
-        mdiArea->removeSubWindow( subWindowBeingClosed );
-
-        // These two lines had to be introduced after themes was used
-        // Probably related to polish/unpolish of widgets in an MDI setting
-        // https://github.com/OPM/ResInsight/issues/6676
-        subWindowBeingClosed->hide();
-        subWindowBeingClosed->deleteLater();
-    }
-
-    QList<QMdiSubWindow*> subWindowList = mdiArea->subWindowList( QMdiArea::ActivationHistoryOrder );
-    if ( !subWindowList.empty() )
-    {
-        if ( removedSubWindowWasActive )
-        {
-            mdiArea->setActiveSubWindow( nullptr );
-            // Make the last activated window the current activated one
-            mdiArea->setActiveSubWindow( subWindowList.back() );
-        }
-        if ( wasMaximized && mdiArea->currentSubWindow() )
-        {
-            mdiArea->currentSubWindow()->showMaximized();
-        }
-
-        mdiArea->applyTiling();
-    }
-}
+////--------------------------------------------------------------------------------------------------
+/////
+////--------------------------------------------------------------------------------------------------
+// void RiuMainWindowBase::removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer )
+//{
+//     bool removedSubWindowWasActive = false;
+//     bool wasMaximized              = true;
+//
+//     if ( QMdiSubWindow* subWindowBeingClosed = findMdiSubWindow( viewer ) )
+//     {
+//         wasMaximized = subWindowBeingClosed->isMaximized();
+//
+//         if ( subWindowBeingClosed->isActiveWindow() )
+//         {
+//             // If we are removing the active window, we will need a new active window
+//             // Start by making the window inactive so Qt doesn't pick the active window itself
+//             mdiArea->setActiveSubWindow( nullptr );
+//             removedSubWindowWasActive = true;
+//         }
+//         mdiArea->removeSubWindow( subWindowBeingClosed );
+//
+//         // These two lines had to be introduced after themes was used
+//         // Probably related to polish/unpolish of widgets in an MDI setting
+//         // https://github.com/OPM/ResInsight/issues/6676
+//         subWindowBeingClosed->hide();
+//         subWindowBeingClosed->deleteLater();
+//     }
+//
+//     QList<QMdiSubWindow*> subWindowList = mdiArea->subWindowList( QMdiArea::ActivationHistoryOrder );
+//     if ( !subWindowList.empty() )
+//     {
+//         if ( removedSubWindowWasActive )
+//         {
+//             mdiArea->setActiveSubWindow( nullptr );
+//             // Make the last activated window the current activated one
+//             mdiArea->setActiveSubWindow( subWindowList.back() );
+//         }
+//         if ( wasMaximized && mdiArea->currentSubWindow() )
+//         {
+//             mdiArea->currentSubWindow()->showMaximized();
+//         }
+//
+//         mdiArea->applyTiling();
+//     }
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -446,52 +409,6 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
             // Raise the dock widget to make it visible if the widget is part of a tab widget
             dockWidget->raise();
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::initializeSubWindow( RiuMdiArea* mdiArea, QMdiSubWindow* mdiSubWindow, const QPoint& subWindowPos, const QSize& subWindowSize )
-{
-    bool initialStateMaximized  = false;
-    auto initialState3dWindow   = RimProject::current()->subWindowsTileMode3DWindow();
-    auto initialStatePlotWindow = RimProject::current()->subWindowsTileModePlotWindow();
-
-    if ( m_showFirstVisibleWindowMaximized && mdiArea->subWindowList().empty() )
-    {
-        // Show first 3D view maximized
-        initialStateMaximized = true;
-    }
-
-    if ( mdiArea->currentSubWindow() && mdiArea->currentSubWindow()->isMaximized() )
-    {
-        initialStateMaximized = true;
-    }
-
-    mdiArea->addSubWindow( mdiSubWindow );
-
-    if ( subWindowPos.x() > -1 )
-    {
-        mdiSubWindow->move( subWindowPos );
-    }
-    mdiSubWindow->resize( subWindowSize );
-
-    if ( initialStateMaximized )
-    {
-        mdiSubWindow->showMaximized();
-    }
-    else
-    {
-        mdiSubWindow->showNormal();
-
-        if ( !isBlockingSubWindowActivatedSignal() )
-        {
-            RimProject::current()->setSubWindowsTileMode3DWindow( initialState3dWindow );
-            RimProject::current()->setSubWindowsTileModePlotWindow( initialStatePlotWindow );
-        }
-
-        mdiArea->applyTiling();
     }
 }
 
@@ -550,6 +467,20 @@ void RiuMainWindowBase::createTreeViews( int numberOfTrees )
         tv->setDragDropInterface( dragDropInterface );
         m_projectTreeViews.push_back( tv );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::setUpCentralDockWidget()
+{
+    m_centralDockWidget = RiuDockWidgetTools::createDockWidget( "Welcome", "Welcome", this );
+    QTextEdit* welcome  = new QTextEdit();
+    welcome->setReadOnly( true );
+    welcome->setPlainText( "\nWelcome to ResInsight!\n" );
+    m_centralDockWidget->setWidget( welcome );
+    m_centralDockWidget->setFeature( ads::CDockWidget::NoTab, true );
+    dockManager()->setCentralWidget( m_centralDockWidget );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -103,7 +103,6 @@
 #include "RiuGuiTheme.h"
 #include "RiuMainWindow.h"
 #include "RiuMainWindowTools.h"
-#include "RiuMdiMaximizeWindowGuard.h"
 #include "RiuMessagePanel.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -133,7 +132,6 @@
 #include <QErrorMessage>
 #include <QGridLayout>
 #include <QKeyEvent>
-#include <QMdiSubWindow>
 #include <QMessageBox>
 #include <QProcessEnvironment>
 #include <QPushButton>
@@ -446,11 +444,11 @@ RimViewWindow* RiaGuiApplication::activePlotWindow() const
 
     if ( m_mainPlotWindow )
     {
-        QList<QMdiSubWindow*> subwindows = m_mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
-        if ( !subwindows.empty() )
-        {
-            viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
-        }
+        // QList<QMdiSubWindow*> subwindows = m_mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
+        // if ( !subwindows.empty() )
+        //{
+        //     viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
+        // }
     }
 
     return viewWindow;
@@ -1149,11 +1147,11 @@ RimViewWindow* RiaGuiApplication::activeViewWindow()
     {
         RiuPlotMainWindow* mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( mainWindowWidget );
 
-        QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
-        if ( !subwindows.empty() )
-        {
-            viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
-        }
+        // QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
+        // if ( !subwindows.empty() )
+        //{
+        //     viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
+        // }
     }
 
     return viewWindow;
@@ -1314,9 +1312,6 @@ void RiaGuiApplication::onFileSuccessfullyLoaded( const QString& fileName, RiaDe
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onProjectBeingOpened()
 {
-    // When importing a project, do not maximize the first MDI window to be created
-    m_maximizeWindowGuard = std::make_unique<RiuMdiMaximizeWindowGuard>();
-
     if ( m_mainWindow ) m_mainWindow->setBlockSubWindowActivatedSignal( true );
     if ( mainPlotWindow() ) mainPlotWindow()->setBlockSubWindowActivatedSignal( true );
 }
@@ -1374,8 +1369,6 @@ void RiaGuiApplication::onProjectOpened()
     }
 
     setWindowCaptionFromAppState();
-
-    m_maximizeWindowGuard.reset();
 
     processEvents();
 

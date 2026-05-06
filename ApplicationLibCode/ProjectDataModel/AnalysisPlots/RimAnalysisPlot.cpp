@@ -170,7 +170,7 @@ RimAnalysisPlot::RimAnalysisPlot()
 //--------------------------------------------------------------------------------------------------
 RimAnalysisPlot::~RimAnalysisPlot()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
 
     cleanupBeforeClose();
 }
@@ -762,7 +762,7 @@ void RimAnalysisPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     updateAndGetCurveAnalyzer();
 
