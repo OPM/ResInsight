@@ -23,6 +23,7 @@
 #include "RiaPlotDefines.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"
+#include "RiuMessageDialog.h"
 
 #include "RifReaderRftInterface.h"
 
@@ -171,7 +172,7 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
     }
     if ( presentUnitSystems.size() > 1 )
     {
-        RiaLogging::errorInMessageBox( nullptr, "ResInsight PLT Plot", "Inconsistent units in PLT plot" );
+        RiuMessageDialog::showError( nullptr, "ResInsight PLT Plot", "Inconsistent units in PLT plot" );
     }
 
     if ( presentUnitSystems.empty() ) return;
@@ -858,7 +859,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
                                                "well log path, and the curve will be hidden "
                                                "in this mode.\n\n" );
 
-                        RiaLogging::errorInMessageBox( nullptr, "Grid/RFT curve without MD", tmp );
+                        RiuMessageDialog::showError( nullptr, "Grid/RFT curve without MD", tmp );
 
                         // Do not show multiple dialogs
                         break;

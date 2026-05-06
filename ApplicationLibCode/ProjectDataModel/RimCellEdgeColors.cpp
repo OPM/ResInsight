@@ -22,6 +22,7 @@
 
 #include "RiaLogging.h"
 #include "RiaResultNames.h"
+#include "RiuMessageDialog.h"
 
 #include "RicCreateEnsembleWellLogUi.h"
 
@@ -132,7 +133,7 @@ void RimCellEdgeColors::loadResult()
                                     "data will be loaded.\n\nPlease select equal to or less than 6 properties to show data." )
                                .arg( resultNames.size() );
 
-            RiaLogging::errorInMessageBox( nullptr, title, text );
+            RiuMessageDialog::showError( nullptr, title, text );
 
             return;
         }

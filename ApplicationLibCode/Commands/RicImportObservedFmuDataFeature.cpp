@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "RicImportFormationNamesFeature.h"
 
@@ -62,7 +63,7 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
                               .arg( RifReaderFmuRft::wellPathFileName() )
                               .arg( directory );
 
-        RiaLogging::errorInMessageBox( nullptr, "Import of Observed FMU Data", message );
+        RiuMessageDialog::showError( nullptr, "Import of Observed FMU Data", message );
 
         return;
     }

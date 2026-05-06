@@ -21,6 +21,7 @@
 #include "RiaLogging.h"
 #include "RifFormationNamesReader.h"
 #include "RigFormationNames.h"
+#include "RiuMessageDialog.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
@@ -70,7 +71,7 @@ void RimFormationNames::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         readFormationNamesFile( &errorMessage );
         if ( !errorMessage.isEmpty() )
         {
-            RiaLogging::errorInMessageBox( nullptr, "Formation Names", errorMessage );
+            RiuMessageDialog::showError( nullptr, "Formation Names", errorMessage );
         }
         updateConnectedViews();
     }

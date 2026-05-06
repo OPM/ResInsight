@@ -28,6 +28,7 @@
 #include "RiaPreferencesSummary.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaStdStringTools.h"
+#include "RiuMessageDialog.h"
 
 #include "RifEclipseSummaryAddressDefines.h"
 
@@ -1095,7 +1096,7 @@ void RimSummaryPlot::overrideTimeAxisSettingsIfTooManyCustomTickmarks( RimSummar
                                             "To prevent slow response the configuration will be reset to default: \n\n"
                                             "Interval = Years and Interval Step = 1." )
                                        .arg( MAX_NUM_TICKS );
-            RiaLogging::errorInMessageBox( RiuPlotMainWindow::instance(), errorTitle, errorMessage );
+            RiuMessageDialog::showError( RiuPlotMainWindow::instance(), errorTitle, errorMessage );
         }
 
         timeAxisProperties->setTickmarkInterval( RimSummaryTimeAxisProperties::TickmarkInterval::YEARS );

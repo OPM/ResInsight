@@ -20,6 +20,7 @@
 #include "RicNewPltPlotFeature.h"
 
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "RicNewWellLogPlotFeatureImpl.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
@@ -91,7 +92,7 @@ void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
         QString displayMessage =
             "To create a PLT plot, either import a LAS file with observed production data or import a well path trajectory.";
 
-        RiaLogging::errorInMessageBox( nullptr, "No well data available to create a PLT plot", displayMessage );
+        RiuMessageDialog::showError( nullptr, "No well data available to create a PLT plot", displayMessage );
         return;
     }
 

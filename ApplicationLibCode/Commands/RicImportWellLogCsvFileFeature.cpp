@@ -20,6 +20,7 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -76,7 +77,7 @@ void RicImportWellLogCsvFileFeature::onActionTriggered( bool isChecked )
         {
             wellPath->deleteWellLog( wellLogCsvFile );
             QString displayMessage = "Errors opening the CSV file: \n" + errorMessage;
-            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
+            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
             return;
         }
         else

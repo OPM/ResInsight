@@ -22,6 +22,7 @@
 
 #include "RiaCurveMerger.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -125,25 +126,23 @@ bool RimSummaryCalculation::checkVariables() const
 
         if ( !v->summaryCase() )
         {
-            RiaLogging::errorInMessageBox( nullptr,
-                                           "Expression Parser",
-                                           QString( "No summary case defined for variable : %1" ).arg( v->name() ) );
+            RiuMessageDialog::showError( nullptr, "Expression Parser", QString( "No summary case defined for variable : %1" ).arg( v->name() ) );
             return false;
         }
 
         if ( !v->summaryAddress() )
         {
-            RiaLogging::errorInMessageBox( nullptr,
-                                           "Expression Parser",
-                                           QString( "No summary address defined for variable : %1" ).arg( v->name() ) );
+            RiuMessageDialog::showError( nullptr,
+                                         "Expression Parser",
+                                         QString( "No summary address defined for variable : %1" ).arg( v->name() ) );
             return false;
         }
 
         if ( v->summaryAddress()->address().id() == id() )
         {
-            RiaLogging::errorInMessageBox( nullptr,
-                                           "Expression Parser",
-                                           QString( "Recursive calculation detected for variable : %1" ).arg( v->name() ) );
+            RiuMessageDialog::showError( nullptr,
+                                         "Expression Parser",
+                                         QString( "Recursive calculation detected for variable : %1" ).arg( v->name() ) );
             return false;
         }
 
@@ -152,9 +151,9 @@ bool RimSummaryCalculation::checkVariables() const
             std::set<int> calcIds;
             if ( detectCyclicCalculation( v->summaryAddress()->address().id(), calcIds ) )
             {
-                RiaLogging::errorInMessageBox( nullptr,
-                                               "Expression Parser",
-                                               QString( "Cyclic calculation detected for variable : %1" ).arg( v->name() ) );
+                RiuMessageDialog::showError( nullptr,
+                                             "Expression Parser",
+                                             QString( "Cyclic calculation detected for variable : %1" ).arg( v->name() ) );
                 return false;
             }
         }
@@ -392,7 +391,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
         QString s = "The following error message was received from the parser library : \n\n";
         s += evaluateResult.error();
 
-        RiaLogging::errorInMessageBox( nullptr, "Expression Parser", s );
+        RiuMessageDialog::showError( nullptr, "Expression Parser", s );
     }
 
     return {};

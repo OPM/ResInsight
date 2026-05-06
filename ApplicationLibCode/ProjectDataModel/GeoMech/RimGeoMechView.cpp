@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
+#include "RiuMessageDialog.h"
 
 #include "RicfCommandObject.h"
 
@@ -173,7 +174,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
                 QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->gridFileName()
                                                               : QString::fromStdString( errorMessage );
 
-                RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
+                RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
             }
 
             m_geomechCase = nullptr;

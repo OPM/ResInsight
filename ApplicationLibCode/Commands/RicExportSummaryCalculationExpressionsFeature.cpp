@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiuMessageDialog.h"
 
 #include "RifSummaryCalculation.h"
 #include "RifSummaryCalculationExporter.h"
@@ -106,7 +107,7 @@ void RicExportSummaryCalculationExpressionsFeature::onActionTriggered( bool isCh
     auto [isOk, errorMessage] = RifSummaryCalculationExporter::writeToFile( calculations, fileName.toStdString() );
     if ( !isOk )
     {
-        RiaLogging::errorInMessageBox( RiuPlotMainWindow::instance(), "Summary Calculation Export Error", QString::fromStdString( errorMessage ) );
+        RiuMessageDialog::showError( RiuPlotMainWindow::instance(), "Summary Calculation Export Error", QString::fromStdString( errorMessage ) );
     }
 }
 

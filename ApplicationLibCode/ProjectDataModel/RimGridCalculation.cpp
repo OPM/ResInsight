@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
 #include "RiaRegressionTestRunner.h"
+#include "RiuMessageDialog.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -189,7 +190,7 @@ bool RimGridCalculation::calculate()
             else
             {
                 QString msg = QString( "No data available for case %1, aborting calculation" ).arg( calculationCase->caseUserDescription() );
-                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+                RiuMessageDialog::showError( nullptr, "Grid Property Calculator", msg );
                 return false;
             }
         }
@@ -198,7 +199,7 @@ bool RimGridCalculation::calculate()
         {
             QString msg =
                 QString( "No active cell data available for case %1, aborting calculation" ).arg( calculationCase->caseUserDescription() );
-            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+            RiuMessageDialog::showError( nullptr, "Grid Property Calculator", msg );
             return false;
         }
 
@@ -210,7 +211,7 @@ bool RimGridCalculation::calculate()
                 {
                     QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
                                   "cases must have identical IJK sizes.";
-                    RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+                    RiuMessageDialog::showError( nullptr, "Grid Property Calculator", msg );
                     return false;
                 }
             }
@@ -235,7 +236,7 @@ bool RimGridCalculation::calculate()
         {
             QString msg = "No data available for result defined in 'Non-visible Cell Value'";
 
-            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+            RiuMessageDialog::showError( nullptr, "Grid Property Calculator", msg );
             return false;
         }
     }
@@ -812,7 +813,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
     auto [isOk, errorMessage] = validateVariables();
     if ( !isOk )
     {
-        RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
+        RiuMessageDialog::showError( nullptr, "Grid Property Calculator", errorMessage );
         return false;
     }
 
@@ -843,9 +844,9 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
     {
         if ( !calculationCase )
         {
-            RiaLogging::errorInMessageBox( nullptr,
-                                           "Grid Property Calculator",
-                                           QString( "No case found for calculation : %1" ).arg( leftHandSideVariableName ) );
+            RiuMessageDialog::showError( nullptr,
+                                         "Grid Property Calculator",
+                                         QString( "No case found for calculation : %1" ).arg( leftHandSideVariableName ) );
             anyErrorsDetected = true;
             continue;
         }
@@ -986,7 +987,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 QString s = "The following error message was received from the parser library : \n\n";
                 s += evaluateResult.error();
 
-                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", s );
+                RiuMessageDialog::showError( nullptr, "Grid Property Calculator", s );
                 return false;
             }
 

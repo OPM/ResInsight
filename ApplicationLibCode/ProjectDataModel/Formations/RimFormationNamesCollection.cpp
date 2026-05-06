@@ -23,6 +23,7 @@
 #include "RimColorLegendCollection.h"
 #include "RimFormationNames.h"
 #include "RimProject.h"
+#include "RiuMessageDialog.h"
 
 CAF_PDM_SOURCE_INIT( RimFormationNamesCollection, "FormationNamesCollectionObject" );
 
@@ -100,7 +101,7 @@ std::vector<RimFormationNames*> RimFormationNamesCollection::importFiles( const 
 
     if ( !totalErrorMessage.isEmpty() )
     {
-        RiaLogging::errorInMessageBox( nullptr, "Import Formation Names", totalErrorMessage );
+        RiuMessageDialog::showError( nullptr, "Import Formation Names", totalErrorMessage );
     }
 
     return m_formationNamesList.childrenByType();

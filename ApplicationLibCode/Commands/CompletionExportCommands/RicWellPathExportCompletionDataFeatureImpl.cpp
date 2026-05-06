@@ -22,6 +22,7 @@
 #include "RiaPreferencesSystem.h"
 #include "RiaWeightedMeanCalculator.h"
 #include "RigStatisticsTools.h"
+#include "RiuMessageDialog.h"
 
 #include "ExportCommands/RicExportLgrFeature.h"
 #include "RicExportCompletionDataSettingsUi.h"
@@ -92,7 +93,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         if ( !folder.exists() )
         {
             QString txt = QString( "The path '%1' does not exist. Aborting export." ).arg( exportSettings.folder );
-            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Export", txt );
+            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "Export", txt );
 
             return;
         }

@@ -28,6 +28,7 @@
 #include "RiaPreferences.h"
 #include "RiaTextStringTools.h"
 #include "RiaWellNameComparer.h"
+#include "RiuMessageDialog.h"
 
 #include "RifOsduWellLogReader.h"
 #include "RifOsduWellPathReader.h"
@@ -537,7 +538,7 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
 
     if ( fileReadSuccess )
     {
-        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage );
+        RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage );
     }
 
     sortWellsByName();
@@ -895,7 +896,7 @@ void RimWellPathCollection::readWellPathFormationFiles()
         QString errorMessage;
         if ( !wellPath->readWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter.get() ) )
         {
-            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
+            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
         }
     }
 }
@@ -912,7 +913,7 @@ void RimWellPathCollection::reloadAllWellPathFormations()
         QString errorMessage;
         if ( !wellPath->reloadWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter.get() ) )
         {
-            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
+            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
         }
 
         progress.setProgressDescription( QString( "Reloading formation file for %1" ).arg( wellPath->name() ) );

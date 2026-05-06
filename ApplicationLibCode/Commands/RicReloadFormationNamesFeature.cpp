@@ -19,6 +19,7 @@
 #include "RicReloadFormationNamesFeature.h"
 
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "Formations/RimFormationNames.h"
 #include "Formations/RimFormationNamesCollection.h"
@@ -64,7 +65,7 @@ void RicReloadFormationNamesFeature::onActionTriggered( bool isChecked )
         fnames->readFormationNamesFile( &errorMessage );
         if ( !errorMessage.isEmpty() )
         {
-            RiaLogging::errorInMessageBox( nullptr, "Reload Formation Names", errorMessage );
+            RiuMessageDialog::showError( nullptr, "Reload Formation Names", errorMessage );
         }
 
         fnames->updateConnectedViews();

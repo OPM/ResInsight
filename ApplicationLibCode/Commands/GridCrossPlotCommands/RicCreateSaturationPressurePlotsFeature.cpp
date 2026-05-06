@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
+#include "RiuMessageDialog.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -170,7 +171,7 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
         text += "and DISGAS are disabled, saturation pressure are not valid.\n\n";
         text += "See error log for more details.";
 
-        RiaLogging::errorInMessageBox( nullptr, "Saturation Pressure Plots", text );
+        RiuMessageDialog::showError( nullptr, "Saturation Pressure Plots", text );
     }
     else
     {

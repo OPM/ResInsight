@@ -21,6 +21,7 @@
 #include "RiaCellDividingTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "ExportCommands/RicExportLgrFeature.h"
 #include "ExportCommands/RicExportLgrUi.h"
@@ -122,10 +123,10 @@ void RicCreateTemporaryLgrFeature::onActionTriggered( bool isChecked )
 
         if ( !wellsIntersectingOtherLgrs.empty() )
         {
-            RiaLogging::errorInMessageBox( nullptr,
-                                           "LGR cells intersected",
-                                           "At least one completion intersects with an LGR. No LGR(s) for those cells "
-                                           "are produced" );
+            RiuMessageDialog::showError( nullptr,
+                                         "LGR cells intersected",
+                                         "At least one completion intersects with an LGR. No LGR(s) for those cells "
+                                         "are produced" );
         }
     }
 }

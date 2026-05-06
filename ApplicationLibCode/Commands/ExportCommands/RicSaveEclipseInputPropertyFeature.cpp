@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "RicEclipseCellResultToFileImpl.h"
 #include "RicExportFeatureImpl.h"
@@ -68,10 +69,10 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 
         if ( !isResolved )
         {
-            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
-                                           "Export failure",
-                                           "Property is not resolved, and then it is not possible to export the "
-                                           "property." );
+            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(),
+                                         "Export failure",
+                                         "Property is not resolved, and then it is not possible to export the "
+                                         "property." );
 
             return;
         }

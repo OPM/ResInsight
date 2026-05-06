@@ -24,6 +24,7 @@
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -212,7 +213,7 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
                                            "fracture template of unit '%1'" )
                                       .arg( fractureUnitText );
 
-            RiaLogging::errorInMessageBox( nullptr, "Fracture Template Selection", warningText );
+            RiuMessageDialog::showError( nullptr, "Fracture Template Selection", warningText );
 
             PdmObjectHandle* prevValue    = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
             auto             prevTemplate = dynamic_cast<RimFractureTemplate*>( prevValue );
@@ -551,7 +552,7 @@ void RimFracture::setFractureTemplateNoUpdate( RimFractureTemplate* fractureTemp
                                        "fracture template of unit '%1'" )
                                   .arg( fractureUnitText );
 
-        RiaLogging::errorInMessageBox( nullptr, "Fracture Template Selection", warningText );
+        RiuMessageDialog::showError( nullptr, "Fracture Template Selection", warningText );
 
         return;
     }

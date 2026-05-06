@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
@@ -80,7 +81,7 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 
         if ( !errorText.isEmpty() )
         {
-            RiaLogging::errorInMessageBox( nullptr, "Errors detected during import", errorText );
+            RiuMessageDialog::showError( nullptr, "Errors detected during import", errorText );
         }
     }
 

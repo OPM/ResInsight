@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaRegressionTestRunner.h"
 #include "Riu3DMainWindowTools.h"
+#include "RiuMessageDialog.h"
 
 #include <QFile>
 #include <QStringList>
@@ -63,17 +64,17 @@ std::map<QString, cvf::ref<RigWellPathFormations>> RifWellPathFormationReader::r
 
     if ( wellNames.empty() || formationNames.empty() )
     {
-        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
-                                       "Import failure",
-                                       QString( "Failed to parse %1 as a well pick file" ).arg( filePath ) );
+        RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(),
+                                     "Import failure",
+                                     QString( "Failed to parse %1 as a well pick file" ).arg( filePath ) );
 
         return result;
     }
     else if ( !( mdIsPresent || tvdIsPresent ) )
     {
-        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
-                                       "Import failure",
-                                       QString( "Failed to parse %1 as a well pick file. Neither MD or TVD is present." ).arg( filePath ) );
+        RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(),
+                                     "Import failure",
+                                     QString( "Failed to parse %1 as a well pick file. Neither MD or TVD is present." ).arg( filePath ) );
 
         return result;
     }

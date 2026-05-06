@@ -22,6 +22,7 @@
 #include "Rim2dIntersectionView.h"
 #include "RimCase.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RiuMessageDialog.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
@@ -68,7 +69,7 @@ void RicNewIntersectionViewFeature::onActionTriggered( bool isChecked )
                                         "in the view ." )
                                    .arg( intersection->name() );
 
-                RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "New Intersection View", text );
+                RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "New Intersection View", text );
             }
 
             Rim2dIntersectionView* intersectionView = intersection->correspondingIntersectionView();

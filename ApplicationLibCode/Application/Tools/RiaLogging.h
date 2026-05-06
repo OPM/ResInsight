@@ -25,8 +25,6 @@
 
 #include <QString>
 
-class QWidget;
-
 enum class RILogLevel
 {
     RI_LL_DISABLED = 0,
@@ -73,8 +71,6 @@ public:
     static void warning( const QString& message, const QString logKeyword = "" );
     static void info( const QString& message, const QString logKeyword = "" );
     static void debug( const QString& message, const QString logKeyword = "" );
-
-    static void errorInMessageBox( QWidget* parent, const QString& title, const QString& text );
 
     static std::chrono::time_point<std::chrono::high_resolution_clock> currentTime();
     static void logElapsedTime( const QString& message, const std::chrono::time_point<std::chrono::high_resolution_clock>& startTime );

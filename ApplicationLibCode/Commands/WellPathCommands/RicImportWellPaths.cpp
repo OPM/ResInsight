@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "RimFileWellPath.h"
 #include "RimOilField.h"
@@ -218,7 +219,7 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
         if ( !messages.empty() )
         {
             QString displayMessage = QString( "Problem loading well path files:\n%2" ).arg( messages.join( "\n" ) );
-            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Well Path Loading", displayMessage );
+            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(), "Well Path Loading", displayMessage );
         }
     }
 }

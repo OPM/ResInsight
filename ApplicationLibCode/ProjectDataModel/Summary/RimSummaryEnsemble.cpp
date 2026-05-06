@@ -25,6 +25,7 @@
 #include "RiaStdStringTools.h"
 #include "RiaTextStringTools.h"
 #include "RigStatisticsTools.h"
+#include "RiuMessageDialog.h"
 #include "Summary/Ensemble/RimSummaryEnsembleParameterCollection.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryTools.h"
@@ -704,7 +705,7 @@ bool RimSummaryEnsemble::validateEnsembleCases( const std::vector<RimSummaryCase
         const int maxNumberOfCharactersToDisplaye = 1000;
         QString   textToDisplay                   = errors.left( maxNumberOfCharactersToDisplaye );
 
-        RiaLogging::errorInMessageBox( nullptr, "", textToDisplay );
+        RiuMessageDialog::showError( nullptr, "", textToDisplay );
 
         return false;
     }

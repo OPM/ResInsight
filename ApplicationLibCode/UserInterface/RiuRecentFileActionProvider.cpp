@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaStringListSerializer.h"
+#include "RiuMessageDialog.h"
 
 #include <QAction>
 #include <QDir>
@@ -152,7 +153,7 @@ void RiuRecentFileActionProvider::slotOpenRecentFile()
         }
         else
         {
-            RiaLogging::errorInMessageBox( nullptr, "File open", "Failed to import file located at\n" + fileName );
+            RiuMessageDialog::showError( nullptr, "File open", "Failed to import file located at\n" + fileName );
 
             removeFileName( fileName );
         }

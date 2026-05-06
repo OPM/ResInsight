@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiuMessageDialog.h"
 
 #include "RifGridCalculation.h"
 #include "RifGridCalculationExporter.h"
@@ -99,9 +100,9 @@ void RicExportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
     auto [isOk, errorMessage] = RifGridCalculationExporter::writeToFile( calculations, fileName.toStdString() );
     if ( !isOk )
     {
-        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
-                                       "Grid Calculation Export Error",
-                                       QString::fromStdString( errorMessage ) );
+        RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(),
+                                     "Grid Calculation Export Error",
+                                     QString::fromStdString( errorMessage ) );
     }
 }
 

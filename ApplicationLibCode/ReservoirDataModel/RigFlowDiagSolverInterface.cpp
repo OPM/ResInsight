@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RiaResultNames.h"
+#include "RiuMessageDialog.h"
 
 #include "RifEclipseOutputFileTools.h"
 #include "RifReaderEclipseOutput.h"
@@ -214,11 +215,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
             if ( restartFileCount <= timeStepIndex && restartFileCount != maxTimeStepCount )
             {
-                RiaLogging::errorInMessageBox( nullptr,
-                                               "ResInsight",
-                                               "Flow Diagnostics: Could not find all the restart files. Results will "
-                                               "not be "
-                                               "loaded." );
+                RiuMessageDialog::showError( nullptr,
+                                             "ResInsight",
+                                             "Flow Diagnostics: Could not find all the restart files. Results will "
+                                             "not be "
+                                             "loaded." );
                 return result;
             }
 
@@ -234,7 +235,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     }
     catch ( const std::exception& e )
     {
-        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
+        RiuMessageDialog::showError( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
         return result;
     }
 
@@ -265,11 +266,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
     if ( !currentRestartData->selectReportStep( reportStepNumber ) )
     {
-        RiaLogging::errorInMessageBox( nullptr,
-                                       "ResInsight",
-                                       "Flow Diagnostics: Could not find the requested timestep in the result file. "
-                                       "Results "
-                                       "will not be loaded." );
+        RiuMessageDialog::showError( nullptr,
+                                     "ResInsight",
+                                     "Flow Diagnostics: Could not find the requested timestep in the result file. "
+                                     "Results "
+                                     "will not be loaded." );
         return result;
     }
 
@@ -308,7 +309,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     }
     catch ( const std::exception& e )
     {
-        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
+        RiuMessageDialog::showError( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
         return result;
     }
 
@@ -424,7 +425,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     }
     catch ( const std::exception& e )
     {
-        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
+        RiuMessageDialog::showError( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
         return result;
     }
 
@@ -583,7 +584,7 @@ RigFlowDiagDefines::FlowCharacteristicsResultFrame
     }
     catch ( const std::exception& e )
     {
-        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics: " + QString( e.what() ) );
+        RiuMessageDialog::showError( nullptr, "ResInsight", "Flow Diagnostics: " + QString( e.what() ) );
     }
 
     return result;

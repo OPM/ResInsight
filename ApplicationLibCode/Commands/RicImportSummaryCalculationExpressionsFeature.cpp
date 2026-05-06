@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiuMessageDialog.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -61,7 +62,7 @@ void RicImportSummaryCalculationExpressionsFeature::onActionTriggered( bool isCh
     auto [calculations, errorMessage] = RifSummaryCalculationImporter::readFromFile( fileName.toStdString() );
     if ( !errorMessage.empty() )
     {
-        RiaLogging::errorInMessageBox( RiuPlotMainWindow::instance(), "Summary Calculation Import Error", QString::fromStdString( errorMessage ) );
+        RiuMessageDialog::showError( RiuPlotMainWindow::instance(), "Summary Calculation Import Error", QString::fromStdString( errorMessage ) );
         return;
     }
 

@@ -26,6 +26,7 @@
 #include "RiaPreferencesSummary.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
+#include "RiuMessageDialog.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "Summary/RiaSummaryDefines.h"
 #include "Summary/RiaSummaryTools.h"
@@ -1299,7 +1300,7 @@ void RimSummaryCurve::checkForMatchingCrossPlotTimeSteps()
                     QString( "Time step range for Y : '%1' - '%2'" ).arg( first.toString( formatString ) ).arg( last.toString( formatString ) );
             }
 
-            RiaLogging::errorInMessageBox( nullptr, "Detected no overlapping time steps", description );
+            RiuMessageDialog::showError( nullptr, "Detected no overlapping time steps", description );
         }
     }
 }

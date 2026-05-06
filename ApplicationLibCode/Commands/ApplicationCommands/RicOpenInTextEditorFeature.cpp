@@ -20,6 +20,7 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiuMessageDialog.h"
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "RimPressureDepthData.h"
@@ -49,9 +50,9 @@ void RicOpenInTextEditorFeature::openFileInTextEditor( const QString& filePath, 
 
         if ( !myProcess->waitForStarted( 1000 ) )
         {
-            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
-                                           "Text editor",
-                                           "Failed to start text editor\n" + textEditorExecutablePath );
+            RiuMessageDialog::showError( Riu3DMainWindowTools::mainWindowWidget(),
+                                         "Text editor",
+                                         "Failed to start text editor\n" + textEditorExecutablePath );
         }
     }
 }
