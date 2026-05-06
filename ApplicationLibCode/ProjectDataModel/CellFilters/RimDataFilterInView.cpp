@@ -36,7 +36,14 @@ RimDataFilterInView::RimDataFilterInView()
     CAF_PDM_InitFieldNoDefault( &m_sourceFilter, "SourceFilter", "Source Filter" );
     m_sourceFilter.uiCapability()->setUiHidden( true );
 
-    setCheckState( true );
+    // Proxy delegates the wrapper's user-visible name to the source filter in both directions.
+    // The inherited m_name (from RimNamedObject) is no longer the source of truth for display.
+    CAF_PDM_InitFieldNoDefault( &m_displayName, "DisplayName", "Name" );
+    m_displayName.registerGetMethod( this, &RimDataFilterInView::sourceName );
+    m_displayName.registerSetMethod( this, &RimDataFilterInView::setSourceName );
+    m_displayName.xmlCapability()->disableIO();
+
+    setCheckState( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +65,7 @@ RimCellFilter* RimDataFilterInView::sourceFilter() const
 void RimDataFilterInView::setSourceFilter( RimCellFilter* sourceFilter )
 {
     m_sourceFilter = sourceFilter;
-    syncNameFromSource();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +109,7 @@ void RimDataFilterInView::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 void RimDataFilterInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( nameField() );
+    uiOrdering.add( &m_displayName );
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -117,15 +124,23 @@ void RimDataFilterInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDataFilterInView::initAfterRead()
+caf::PdmFieldHandle* RimDataFilterInView::userDescriptionField()
 {
-    syncNameFromSource();
+    return &m_displayName;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDataFilterInView::syncNameFromSource()
+QString RimDataFilterInView::sourceName() const
 {
-    if ( m_sourceFilter() ) setName( m_sourceFilter()->name() );
+    return m_sourceFilter() ? m_sourceFilter()->name() : QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDataFilterInView::setSourceName( const QString& name )
+{
+    if ( m_sourceFilter() ) m_sourceFilter()->setName( name );
 }
