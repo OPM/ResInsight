@@ -76,7 +76,7 @@ RimWellLogPlot* RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( Rim
                                                                              RimEclipseCase*           eclipseCase )
 {
     RimWellLogPlot* newWellLogPlot = new RimWellLogPlot;
-    newWellLogPlot->setAsPlotMdiWindow();
+    newWellLogPlot->dockAsPlotWindow();
 
     wellLogPlotCollection->addWellLogPlot( newWellLogPlot );
 

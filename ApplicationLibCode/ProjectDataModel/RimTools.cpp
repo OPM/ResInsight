@@ -654,7 +654,7 @@ void RimTools::updateViewWindowContent( std::vector<caf::PdmObjectHandle*>& obje
             }
             else
             {
-                viewWindow->updateMdiWindowVisibility();
+                viewWindow->updateDockWindowVisibility();
             }
         }
     }

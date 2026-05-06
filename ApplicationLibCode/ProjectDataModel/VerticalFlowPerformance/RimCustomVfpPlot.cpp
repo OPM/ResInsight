@@ -163,7 +163,7 @@ RimCustomVfpPlot::RimCustomVfpPlot()
     m_showWindow      = true;
     m_showPlotLegends = true;
 
-    setAsPlotMdiWindow();
+    dockAsPlotWindow();
 
     setDeletable( true );
 }
@@ -173,7 +173,7 @@ RimCustomVfpPlot::RimCustomVfpPlot()
 //--------------------------------------------------------------------------------------------------
 RimCustomVfpPlot::~RimCustomVfpPlot()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
     deleteViewWidget();
 }
 
@@ -333,7 +333,7 @@ void RimCustomVfpPlot::updateLegend()
 
     // Hide the legend when in multiplot mode, as the legend is handled by the multi plot grid layout
     bool doShowLegend = false;
-    if ( isMdiWindow() )
+    if ( isMainDockedWindow() )
     {
         doShowLegend = m_showPlotLegends;
     }
@@ -612,9 +612,9 @@ void generateCombinations( const std::vector<std::vector<double>>& vectors,
 //--------------------------------------------------------------------------------------------------
 void RimCustomVfpPlot::onLoadDataAndUpdate()
 {
-    if ( isMdiWindow() )
+    if ( isMainDockedWindow() )
     {
-        updateMdiWindowVisibility();
+        updateDockWindowVisibility();
     }
     else
     {
@@ -1394,7 +1394,7 @@ void RimCustomVfpPlot::updatePlotTitle( const QString& plotTitle )
 {
     m_plotTitle = plotTitle;
 
-    updateMdiWindowTitle();
+    updateWindowTitle();
 
     if ( m_plotWidget )
     {

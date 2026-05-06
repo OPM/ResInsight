@@ -26,6 +26,7 @@
 
 #include "RicfCommandObject.h"
 
+#include "Rim3dView.h"
 #include "RimDockWindowController.h"
 #include "RimProject.h"
 
@@ -46,18 +47,12 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. 
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::RimViewWindow()
     : m_dockWidget( nullptr )
+    , m_windowController( nullptr )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
 
-    CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "" );
-    m_windowController.uiCapability()->setUiTreeChildrenHidden( true );
-
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window" );
     m_showWindow.uiCapability()->setUiHidden( true );
-
-    // Obsolete field
-    CAF_PDM_InitFieldNoDefault( &obsoleteField_windowGeometry, "WindowGeometry", "" );
-    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &obsoleteField_windowGeometry );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +60,6 @@ RimViewWindow::RimViewWindow()
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::~RimViewWindow()
 {
-    if ( m_windowController() ) delete m_windowController();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,9 +91,17 @@ void RimViewWindow::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::removeMdiWindowFromMdiArea()
+bool RimViewWindow::isMainDockedWindow() const
 {
-    if ( m_windowController() ) m_windowController->removeWindowFromDock();
+    return m_windowController != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::removeWindowFromDock()
+{
+    if ( m_windowController != nullptr ) m_windowController->removeWindowFromDock();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,19 +124,28 @@ QString RimViewWindow::windowTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::handleMdiWindowClosed()
+void RimViewWindow::deleteDockViewer()
 {
-    if ( m_windowController() ) m_windowController->handleViewerDeletion();
+    m_dockWidget->deleteDockWidget();
+    m_dockWidget = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::updateMdiWindowVisibility()
+void RimViewWindow::handleMdiWindowClosed()
+{
+    if ( m_windowController != nullptr ) m_windowController->handleViewerDeletion();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::updateDockWindowVisibility()
 {
     if ( !RiaGuiApplication::isRunning() ) return;
 
-    if ( m_windowController() )
+    if ( m_windowController != nullptr )
     {
         m_windowController->updateViewerWidget();
     }
@@ -157,58 +168,17 @@ void RimViewWindow::updateMdiWindowVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::setAs3DViewMdiWindow()
+void RimViewWindow::dockAs3DViewWindow()
 {
-    setAsMdiWindow( 0 );
+    dockInWindow( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::setAsPlotMdiWindow()
+void RimViewWindow::dockAsPlotWindow()
 {
-    setAsMdiWindow( 1 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimViewWindow::revokeMdiWindowStatus()
-{
-    if ( m_windowController() )
-    {
-        handleMdiWindowClosed();
-        deleteViewWidget();
-        delete m_windowController();
-        m_windowController = nullptr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimViewWindow::isMdiWindow() const
-{
-    return m_windowController() != nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimViewWindow::setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry )
-{
-    if ( m_windowController() ) m_windowController()->setWindowGeometry( windowGeometry );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RimViewWindow::mdiWindowGeometry()
-{
-    if ( m_windowController() )
-        return m_windowController()->windowGeometry();
-    else
-        return RimMdiWindowGeometry();
+    dockInWindow( 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,7 +242,7 @@ void RimViewWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
         }
         else
         {
-            updateMdiWindowVisibility();
+            updateDockWindowVisibility();
         }
         uiCapability()->updateUiIconFromToggleField();
     }
@@ -281,7 +251,7 @@ void RimViewWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::updateMdiWindowTitle()
+void RimViewWindow::updateWindowTitle()
 {
     if ( viewWidget() && dockWidget() )
     {
@@ -293,44 +263,21 @@ void RimViewWindow::updateMdiWindowTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::setAsMdiWindow( int mainWindowID )
+void RimViewWindow::dockInWindow( int mainWindowID )
 {
-    if ( !m_windowController() )
+    if ( m_windowController == nullptr )
     {
-        m_windowController = new RimDockWindowController;
-        RimMdiWindowGeometry mwg;
-        mwg.mainWindowID = mainWindowID;
-        setMdiWindowGeometry( mwg );
+        m_windowController = new RimDockWindowController();
+        m_windowController->setViewToControl( this );
     }
+    m_windowController->setMainWindowId( mainWindowID );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-#include "Rim3dView.h"
-
 void RimViewWindow::initAfterRead()
 {
-    if ( obsoleteField_windowGeometry.value().size() == 5 )
-    {
-        RimMdiWindowGeometry wg;
-        int                  mainWindowID = -1;
-
-        if ( dynamic_cast<Rim3dView*>( this ) )
-            mainWindowID = 0;
-        else
-            mainWindowID = 1;
-
-        wg.mainWindowID = mainWindowID;
-        wg.x            = obsoleteField_windowGeometry.value()[0];
-        wg.y            = obsoleteField_windowGeometry.value()[1];
-        wg.width        = obsoleteField_windowGeometry.value()[2];
-        wg.height       = obsoleteField_windowGeometry.value()[3];
-        wg.isMaximized  = obsoleteField_windowGeometry.value()[4];
-
-        setAsMdiWindow( mainWindowID );
-        setMdiWindowGeometry( wg );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

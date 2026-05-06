@@ -1,7 +1,6 @@
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotWindowFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowMainWindowFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicTileWindowsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenProjectFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenLastUsedFileFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveProjectFeature.cpp

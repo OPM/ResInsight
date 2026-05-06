@@ -72,7 +72,7 @@ RimGridCrossPlot::RimGridCrossPlot()
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlot::~RimGridCrossPlot()
 {
-    removeMdiWindowFromMdiArea();
+    if ( isMainDockedWindow() ) removeWindowFromDock();
     cleanupBeforeClose();
 }
 
@@ -464,7 +464,7 @@ void RimGridCrossPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     for ( auto dataSet : m_crossPlotDataSets )
     {
@@ -485,7 +485,7 @@ void RimGridCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     caf::PdmUiGroup* generalGroup = uiOrdering.addNewGroup( "Plot Options" );
     generalGroup->add( &m_showInfoBox );
 
-    if ( isMdiWindow() )
+    if ( isMainDockedWindow() )
     {
         RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
     }
@@ -595,7 +595,7 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
         m_plotWidget->setPlotTitle( plotTitle );
         m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
     }
-    updateMdiWindowTitle();
+    updateWindowTitle();
     updateInfoBox();
 }
 

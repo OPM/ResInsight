@@ -61,7 +61,7 @@ RimTofAccumulatedPhaseFractionsPlot::RimTofAccumulatedPhaseFractionsPlot()
 //--------------------------------------------------------------------------------------------------
 RimTofAccumulatedPhaseFractionsPlot::~RimTofAccumulatedPhaseFractionsPlot()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
 
     if ( m_tofAccumulatedPhaseFractionsPlotWidget )
     {
@@ -173,7 +173,7 @@ void RimTofAccumulatedPhaseFractionsPlot::fieldChangedByUi( const caf::PdmFieldH
 
     if ( changedField == &m_userName || changedField == &m_showPlotTitle )
     {
-        updateMdiWindowTitle();
+        updateWindowTitle();
     }
     else if ( changedField == &m_maxTof )
     {
@@ -199,7 +199,7 @@ QImage RimTofAccumulatedPhaseFractionsPlot::snapshotWindowContent()
 void RimTofAccumulatedPhaseFractionsPlot::setDescription( const QString& description )
 {
     m_userName = description;
-    updateMdiWindowTitle();
+    updateWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,7 +222,7 @@ void RimTofAccumulatedPhaseFractionsPlot::assignIdIfNecessary()
 //--------------------------------------------------------------------------------------------------
 void RimTofAccumulatedPhaseFractionsPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     if ( m_tofAccumulatedPhaseFractionsPlotWidget && m_showWindow() )
     {

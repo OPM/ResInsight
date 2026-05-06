@@ -121,7 +121,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitFieldNoDefault( &m_tofAccumulatedPhaseFractionsPlot, "TofAccumulatedPhaseFractionsPlot", "TOF Accumulated Phase Fractions" );
     m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
 
-    setAsPlotMdiWindow();
+    dockAsPlotWindow();
 
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
     m_accumulatedWellFlowPlot->setAvailableDepthTypes(
@@ -141,7 +141,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot::~RimWellAllocationPlot()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
 
     delete m_accumulatedWellFlowPlot();
     delete m_totalWellAllocationPlot();
@@ -524,7 +524,7 @@ void RimWellAllocationPlot::addStackedCurve( const QString&             tracerNa
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateWidgetTitleWindowTitle()
 {
-    updateMdiWindowTitle();
+    updateWindowTitle();
 
     if ( m_wellAllocationPlotWidget )
     {
@@ -739,7 +739,7 @@ QString RimWellAllocationPlot::wellName() const
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::removeFromMdiAreaAndDeleteViewWidget()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
     deleteViewWidget();
 }
 
@@ -862,7 +862,7 @@ QString RimWellAllocationPlot::description() const
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     if ( !m_case )
     {

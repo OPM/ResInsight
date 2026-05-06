@@ -89,7 +89,7 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QS
     std::vector<RimViewWindow*> viewWindows = RimMainPlotCollection::current()->descendantsIncludingThisOfType<RimViewWindow>();
     for ( auto viewWindow : viewWindows )
     {
-        if ( viewWindow->isMdiWindow() && viewWindow->viewWidget() && ( viewId == -1 || viewId == viewWindow->id() ) )
+        if ( viewWindow->isMainDockedWindow() && viewWindow->viewWidget() && ( viewId == -1 || viewId == viewWindow->id() ) )
         {
             QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName( viewWindow );
             if ( !prefix.isEmpty() )

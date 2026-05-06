@@ -86,7 +86,7 @@ RimCorrelationPlot::RimCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 RimCorrelationPlot::~RimCorrelationPlot()
 {
-    if ( isMdiWindow() ) removeMdiWindowFromMdiArea();
+    if ( isMainDockedWindow() ) removeWindowFromDock();
 
     cleanupBeforeClose();
 }
@@ -177,7 +177,7 @@ QList<caf::PdmOptionItemInfo> RimCorrelationPlot::calculateValueOptions( const c
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     m_selectedVarsUiField = selectedVectorNamesText();
 

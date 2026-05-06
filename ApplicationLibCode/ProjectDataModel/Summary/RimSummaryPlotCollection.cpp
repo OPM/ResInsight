@@ -56,7 +56,7 @@ RimSummaryPlotCollection::~RimSummaryPlotCollection()
 RimSummaryPlot* RimSummaryPlotCollection::createSummaryPlotWithAutoTitle()
 {
     RimSummaryPlot* plot = new RimSummaryPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
 
     plot->enableAutoPlotTitle( true );
 
@@ -71,7 +71,7 @@ RimSummaryPlot* RimSummaryPlotCollection::createSummaryPlotWithAutoTitle()
 RimSummaryPlot* RimSummaryPlotCollection::createNamedSummaryPlot( const QString& name )
 {
     RimSummaryPlot* plot = new RimSummaryPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
 
     addPlot( plot );
 

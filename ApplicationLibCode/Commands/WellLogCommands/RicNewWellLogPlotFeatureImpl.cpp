@@ -62,7 +62,7 @@ RimWellBoreStabilityPlot* RicNewWellLogPlotFeatureImpl::createWellBoreStabilityP
         plot->copyWbsParameters( params );
     }
 
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
 
     wellLogPlotColl->addWellLogPlot( plot );
 
@@ -131,7 +131,7 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
 
     RimWellLogPlot* plot = new RimWellLogPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
 
     wellLogPlotColl->addWellLogPlot( plot );
 

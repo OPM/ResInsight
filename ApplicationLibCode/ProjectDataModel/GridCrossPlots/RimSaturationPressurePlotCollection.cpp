@@ -87,7 +87,7 @@ std::vector<RimSaturationPressurePlot*>
         if ( eqlnumRegionIdsFound.find( zeroBasedEquilibriumRegion + 1 ) != eqlnumRegionIdsFound.end() )
         {
             RimSaturationPressurePlot* plot = new RimSaturationPressurePlot();
-            plot->setAsPlotMdiWindow();
+            plot->dockAsPlotWindow();
 
             // As discussed with Liv Merete, it is not any use for creation of different plots for matrix/fracture. For
             // now, use hardcoded value for MATRIX

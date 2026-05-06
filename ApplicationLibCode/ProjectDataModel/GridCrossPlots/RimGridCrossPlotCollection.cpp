@@ -61,7 +61,7 @@ size_t RimGridCrossPlotCollection::plotCount() const
 RimGridCrossPlot* RimGridCrossPlotCollection::createGridCrossPlot()
 {
     RimGridCrossPlot* plot = new RimGridCrossPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
 
     // plot->setDescription(QString("Summary Cross Plot %1").arg(m_gridCrossPlots.size()));
     addPlot( plot );

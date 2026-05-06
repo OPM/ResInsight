@@ -80,7 +80,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 
     m_showWindow = false;
 
-    setAsPlotMdiWindow();
+    dockAsPlotWindow();
 
     addPlot( new RimWellDistributionPlot( RiaDefines::PhaseType::OIL_PHASE ) );
     addPlot( new RimWellDistributionPlot( RiaDefines::PhaseType::GAS_PHASE ) );
@@ -92,7 +92,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimWellDistributionPlotCollection::~RimWellDistributionPlotCollection()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
     m_plots.deleteChildren();
 
     cleanupBeforeClose();
@@ -188,7 +188,7 @@ caf::PdmFieldHandle* RimWellDistributionPlotCollection::userDescriptionField()
 void RimWellDistributionPlotCollection::onLoadDataAndUpdate()
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::onLoadDataAndUpdate()");
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
     updatePlots();
     updateLayout();
 }

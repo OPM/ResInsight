@@ -194,7 +194,7 @@ RimWellConnectivityTable::RimWellConnectivityTable()
     CAF_PDM_InitFieldNoDefault( &m_rangeType, "RangeType", "Range Type" );
 
     setLegendsVisible( true );
-    setAsPlotMdiWindow();
+    dockAsPlotWindow();
     setShowWindow( false );
 }
 
@@ -203,7 +203,7 @@ RimWellConnectivityTable::RimWellConnectivityTable()
 //--------------------------------------------------------------------------------------------------
 RimWellConnectivityTable::~RimWellConnectivityTable()
 {
-    if ( isMdiWindow() ) removeMdiWindowFromMdiArea();
+    if ( isMainDockedWindow() ) removeWindowFromDock();
 
     cleanupBeforeClose();
 }
@@ -531,7 +531,7 @@ void RimWellConnectivityTable::defineEditorAttribute( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 void RimWellConnectivityTable::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     if ( m_matrixPlotWidget == nullptr || m_case == nullptr )
     {

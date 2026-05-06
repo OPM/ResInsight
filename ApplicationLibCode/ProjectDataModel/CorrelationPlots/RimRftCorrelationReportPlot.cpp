@@ -114,13 +114,13 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
     CAF_PDM_InitField( &m_dockState, "DockState", QString(), "Dock State" );
     m_dockState.uiCapability()->setUiHidden( true );
 
-    setAsPlotMdiWindow();
+    dockAsPlotWindow();
 
     m_showWindow      = true;
     m_showPlotLegends = false;
 
     m_wellRftPlot = new RimWellRftPlot;
-    m_wellRftPlot->revokeMdiWindowStatus();
+    m_wellRftPlot->removeWindowFromDock();
     m_wellRftPlot->setShowWindow( true );
 
     m_parameterRftCrossPlot = new RimParameterRftCrossPlot;
@@ -134,7 +134,7 @@ RimRftCorrelationReportPlot::RimRftCorrelationReportPlot()
 //--------------------------------------------------------------------------------------------------
 RimRftCorrelationReportPlot::~RimRftCorrelationReportPlot()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
     cleanupBeforeClose();
 }
 
@@ -374,7 +374,7 @@ void RimRftCorrelationReportPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     if ( m_showWindow )
     {

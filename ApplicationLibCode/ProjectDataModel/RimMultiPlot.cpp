@@ -85,7 +85,7 @@ RimMultiPlot::~RimMultiPlot()
 {
     m_isValid = false;
 
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
     m_plots.deleteChildren();
 
     cleanupBeforeClose();
@@ -259,7 +259,7 @@ void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, in
         }
         else
         {
-            plotsToMove[tIdx]->removeFromMdiAreaAndCollection();
+            plotsToMove[tIdx]->removeFromDockAreaAndCollection();
         }
     }
 
@@ -790,7 +790,7 @@ void RimMultiPlot::onLoadDataAndUpdate()
     bool originalShowState = m_showPlotLegends();
     m_showPlotLegends      = false;
 
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
     updatePlotTitles();
     applyPlotWindowTitleToWidgets();
     updatePlots();
@@ -820,7 +820,7 @@ void RimMultiPlot::applyPlotWindowTitleToWidgets()
         m_viewer->setTitleVisible( m_showPlotWindowTitle() );
         m_viewer->setPlotTitle( multiPlotTitle() );
     }
-    updateMdiWindowTitle();
+    updateWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
