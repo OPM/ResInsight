@@ -1906,7 +1906,7 @@ TEST( RigSimulationInputTool, ExpandBoxContext_EqualsInheritsBoxIndices )
     settings.setMax( caf::VecIjk0( 9, 9, 4 ) );
     setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
-    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+    EXPECT_TRUE( RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile ).has_value() );
 
     // Verify EQUALS now has explicit box indices matching the BOX keyword
     auto equalsAfterVec = deckFile.findAllKeywordsWithIndices( "EQUALS" );
@@ -1956,7 +1956,7 @@ TEST( RigSimulationInputTool, ExpandBoxContext_ExplicitIndicesPreserved )
     settings.setMax( caf::VecIjk0( 9, 9, 4 ) );
     setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
-    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+    EXPECT_TRUE( RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile ).has_value() );
 
     auto equalsVec = deckFile.findAllKeywordsWithIndices( "EQUALS" );
     ASSERT_EQ( 1u, equalsVec.size() );
@@ -2003,7 +2003,7 @@ TEST( RigSimulationInputTool, ExpandBoxContext_OutsideBoxNotModified )
     settings.setMax( caf::VecIjk0( 9, 9, 4 ) );
     setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
-    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+    EXPECT_TRUE( RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile ).has_value() );
 
     auto equalsVec = deckFile.findAllKeywordsWithIndices( "EQUALS" );
     ASSERT_EQ( 1u, equalsVec.size() );
@@ -2059,7 +2059,7 @@ TEST( RigSimulationInputTool, CropDataKeywordsInsideBoxContext )
     settings.setMax( caf::VecIjk0( 7, 7, 4 ) );
     setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
-    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+    EXPECT_TRUE( RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile ).has_value() );
 
     // After cropping: should still find two EQLNUM keywords
     auto eqlnumAfter = deckFile.findAllKeywordsWithIndices( "EQLNUM" );
@@ -2120,7 +2120,7 @@ TEST( RigSimulationInputTool, CropDataKeywordsInsideBoxContext_NoIntersection )
     settings.setMax( caf::VecIjk0( 7, 7, 2 ) );
     setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
-    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+    EXPECT_TRUE( RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile ).has_value() );
 
     // Boxed EQLNUM should be removed since box doesn't intersect sector
     auto eqlnumAfter = deckFile.findAllKeywordsWithIndices( "EQLNUM" );
@@ -2419,7 +2419,7 @@ TEST( RigSimulationInputTool, MultiplyInsideBoxContext_NoIntersection )
     settings.setMax( caf::VecIjk0( 7, 7, 2 ) );
     setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
-    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+    EXPECT_TRUE( RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile ).has_value() );
 
     // MULTIPLY record with box K=5 (0-based K=4) outside sector K[0-2] should be removed
     auto multiplyAll = deckFile.findAllKeywordsWithIndices( "MULTIPLY" );
@@ -2464,7 +2464,7 @@ TEST( RigSimulationInputTool, MultiplyInsideBoxContext_WithIntersection )
     settings.setMax( caf::VecIjk0( 7, 7, 4 ) );
     setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
-    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+    EXPECT_TRUE( RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile ).has_value() );
 
     auto multiplyAll = deckFile.findAllKeywordsWithIndices( "MULTIPLY" );
     ASSERT_EQ( 1u, multiplyAll.size() );
@@ -2520,7 +2520,7 @@ TEST( RigSimulationInputTool, AddInsideBoxContext_WithIntersection )
     settings.setMax( caf::VecIjk0( 7, 7, 4 ) );
     setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
-    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+    EXPECT_TRUE( RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile ).has_value() );
 
     auto addAll = deckFile.findAllKeywordsWithIndices( "ADD" );
     ASSERT_EQ( 1u, addAll.size() );
@@ -2577,7 +2577,7 @@ TEST( RigSimulationInputTool, AddInsideBoxContext_NoIntersection )
     settings.setMax( caf::VecIjk0( 7, 7, 2 ) );
     setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) );
 
-    RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile );
+    EXPECT_TRUE( RigSimulationInputTool::transformKeywordsInDeckFile( nullptr, settings, deckFile ).has_value() );
 
     // ADD record with box K=5 (0-based K=4) outside sector K[0-2] should be removed
     auto addAll = deckFile.findAllKeywordsWithIndices( "ADD" );
