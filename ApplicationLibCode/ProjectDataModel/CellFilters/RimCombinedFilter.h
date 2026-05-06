@@ -85,6 +85,13 @@ public:
     void        setCombineMode( CombineMode mode );
     CombineMode combineMode() const;
 
+    // Auto-derive: when true (default), the combined filter's display name is recomputed from its
+    // children's names on every relevant change (add/remove/child filterChanged/mode toggle). When
+    // the user provides a name (via Rimc, UI rename, or Python), the flag flips to false and the
+    // user-set name is preserved verbatim.
+    void setAutoDeriveName( bool enable );
+    bool isAutoDeriveName() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
@@ -94,8 +101,10 @@ protected:
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
 
 private:
-    bool wouldCreateCycle( RimCellFilter* candidate ) const;
-    void onChildFilterChanged( const caf::SignalEmitter* emitter );
+    bool    wouldCreateCycle( RimCellFilter* candidate ) const;
+    void    onChildFilterChanged( const caf::SignalEmitter* emitter );
+    void    recomputeDerivedNameIfAuto();
+    QString deriveName() const;
 
     // Combined filters only sit inside RimEclipsePropertyFilterCollection, which doesn't use
     // filterChanged signals — it requires an explicit updateDisplayModelNotifyManagedViews() call
@@ -104,4 +113,5 @@ private:
 
     caf::PdmChildArrayField<RimCellFilter*>  m_filters;
     caf::PdmField<caf::AppEnum<CombineMode>> m_combineMode;
+    caf::PdmField<bool>                      m_autoDeriveName;
 };
