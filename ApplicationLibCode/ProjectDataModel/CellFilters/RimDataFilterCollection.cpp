@@ -24,6 +24,8 @@
 #include "RimEclipsePropertyFilter.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimDataFilterCollection, "DataFilterCollection" );
 
@@ -33,9 +35,9 @@ CAF_PDM_SOURCE_INIT( RimDataFilterCollection, "DataFilterCollection" );
 RimDataFilterCollection::RimDataFilterCollection()
     : filtersChanged( this )
 {
-    CAF_PDM_InitObject( "Data Filters", ":/CellFilter.png" );
+    CAF_PDM_InitScriptableObject( "Data Filters", ":/CellFilter.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_items, "Filters", "Filters" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_items, "Filters", "Filters" );
 
     CAF_PDM_InitFieldNoDefault( &m_srcCase, "SourceCase", "Source Case" );
     m_srcCase.uiCapability()->setUiHidden( true );

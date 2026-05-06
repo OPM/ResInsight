@@ -125,7 +125,7 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_dataFilterCollection, "DataFilterCollection", "Data Filters" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_dataFilterCollection, "DataFilterCollection", "Data Filters" );
     m_dataFilterCollection = new RimDataFilterCollection;
     m_dataFilterCollection->setCase( this );
 
