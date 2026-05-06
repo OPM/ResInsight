@@ -1579,3 +1579,36 @@ def replace_corner_point_grid(
         zcorn_key=zcorn_key,
         actnum_key=actnum_key,
     )
+
+
+@add_method(EclipseCase)
+def filtered_cells(self, filter, time_step: int = 0, grid_index: int = 0) -> List[int]:
+    """Apply a cell filter to this case and return a per-cell 0/1 mask.
+
+    The returned list has the same length and ordering as
+    ``case.grid_property("STATIC_NATIVE", "PERMX", grid_index)``, so the two
+    vectors can be combined element-wise.
+
+    Arguments:
+        filter (CellFilter): The cell filter to apply (e.g. a CombinedFilter
+            obtained from ``case.data_filter_collection().filters()``).
+        time_step (int): Time step index used by property-filter children.
+        grid_index (int): Grid index (0 = main grid, >0 = LGRs).
+
+    Returns:
+        List[int]: 1 if the cell passes the filter, 0 otherwise.
+    """
+    mask_key = "{}_{}".format(uuid.uuid4(), "filtered_cells")
+    project = self.ancestor(rips.project.Project)
+    if not project:
+        raise RuntimeError("Unable to get project from case")
+    try:
+        self.filtered_cells_internal(
+            filter=filter,
+            mask_key=mask_key,
+            time_step=time_step,
+            grid_index=grid_index,
+        )
+        return [int(v) for v in project.key_values(mask_key)]
+    finally:
+        project.remove_key_values(mask_key)

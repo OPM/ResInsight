@@ -28,6 +28,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigGridBase.h"
 #include "RigGridExportAdapter.h"
 #include "RigMainGrid.h"
 #include "RigNoRefinement.h"
@@ -36,6 +37,7 @@
 #include "RigResultAccessorFactory.h"
 
 #include "RimCase.h"
+#include "RimCellFilter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
@@ -45,9 +47,12 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 
+#include "cvfArray.h"
+
 #include <QDir>
 #include <QFileInfo>
 
+#include <algorithm>
 #include <expected>
 #include <limits>
 #include <vector>
@@ -331,5 +336,74 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_clearResultAliases
         return std::unexpected( "Unable to get Eclipse case." );
     }
     eclipseCase->clearResultAliases();
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimcEclipseCase_filteredCellsInternal, "filtered_cells_internal" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcEclipseCase_filteredCellsInternal::RimcEclipseCase_filteredCellsInternal( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Filtered Cells Internal",
+                        "",
+                        "",
+                        "Apply a cell filter to this case for a grid + time step and write a per-cell 0/1 mask "
+                        "to the key-value store. The vector length and ordering match grid_property(...) for the "
+                        "same grid index." );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filter, "Filter", "", "", "", "Cell Filter" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_maskKey, "MaskKey", "" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "" );
+    CAF_PDM_InitScriptableField( &m_gridIndex, "GridIndex", 0, "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_filteredCellsInternal::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase || !eclipseCase->eclipseCaseData() )
+    {
+        return std::unexpected( QString( "Self is not an Eclipse case with case data." ) );
+    }
+    if ( m_maskKey().isEmpty() )
+    {
+        return std::unexpected( QString( "Mask key is empty." ) );
+    }
+
+    RimCellFilter* filter = m_filter();
+    if ( !filter )
+    {
+        return std::unexpected( QString( "Filter argument is null." ) );
+    }
+
+    RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+    const size_t        gridIdx  = static_cast<size_t>( std::max( 0, m_gridIndex() ) );
+    if ( gridIdx >= caseData->gridCount() )
+    {
+        return std::unexpected( QString( "Grid index out of range." ) );
+    }
+
+    const RigGridBase* grid = caseData->grid( gridIdx );
+    const size_t       n    = grid->cellCount();
+
+    cvf::UByteArray cellVis( n );
+    cellVis.setAll( 1 );
+    filter->applyToCellVisibility( &cellVis, grid, static_cast<size_t>( std::max( 0, m_timeStep() ) ) );
+
+    std::vector<float> values;
+    values.reserve( n );
+    for ( size_t i = 0; i < n; ++i )
+    {
+        values.push_back( cellVis[i] ? 1.0f : 0.0f );
+    }
+
+    auto keyValueStore = RiaApplication::instance()->keyValueStore();
+    keyValueStore->set( m_maskKey().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( values ) );
+
     return nullptr;
 }
