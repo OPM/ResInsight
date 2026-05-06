@@ -51,6 +51,9 @@ RimCombinedFilter::RimCombinedFilter()
     caf::PdmFieldReorderCapability::addToField( &m_filters );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_combineMode, "CombineMode", "Combine Mode" );
+
+    CAF_PDM_InitField( &m_autoDeriveName, "AutoDeriveName", true, "" );
+    m_autoDeriveName.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,6 +208,7 @@ void RimCombinedFilter::addFilter( RimCellFilter* child )
     m_filters.push_back( child );
     child->setCase( m_srcCase() );
     child->filterChanged.connect( this, &RimCombinedFilter::onChildFilterChanged );
+    recomputeDerivedNameIfAuto();
     updateConnectedEditors();
     triggerFilterChanged();
 }
@@ -216,6 +220,8 @@ void RimCombinedFilter::removeFilter( RimCellFilter* child )
 {
     if ( !child ) return;
     m_filters.removeChild( child );
+    recomputeDerivedNameIfAuto();
+    updateConnectedEditors();
     triggerFilterChanged();
 }
 
@@ -246,6 +252,49 @@ RimCombinedFilter::CombineMode RimCombinedFilter::combineMode() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCombinedFilter::setAutoDeriveName( bool enable )
+{
+    m_autoDeriveName = enable;
+    recomputeDerivedNameIfAuto();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCombinedFilter::isAutoDeriveName() const
+{
+    return m_autoDeriveName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Recompute the display name from children when auto-derive is enabled. No-op when the user has
+/// supplied an explicit name.
+//--------------------------------------------------------------------------------------------------
+void RimCombinedFilter::recomputeDerivedNameIfAuto()
+{
+    if ( !m_autoDeriveName() ) return;
+    setName( deriveName() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Build a name from child filters' names joined by the combine-mode separator.
+//--------------------------------------------------------------------------------------------------
+QString RimCombinedFilter::deriveName() const
+{
+    QStringList parts;
+    for ( RimCellFilter* child : m_filters )
+    {
+        if ( child ) parts.append( child->name() );
+    }
+    if ( parts.isEmpty() ) return "Combined Filter";
+
+    const QString sep = ( m_combineMode() == CombineMode::AND ) ? " AND " : " OR ";
+    return parts.join( sep );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCombinedFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( nameField() );
@@ -268,6 +317,17 @@ void RimCombinedFilter::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrde
 //--------------------------------------------------------------------------------------------------
 void RimCombinedFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    if ( changedField == nameField() )
+    {
+        // User-driven rename (UI tree edit or Python `combined.user_description = "..."`).
+        // Preserve the typed string verbatim from now on.
+        m_autoDeriveName = false;
+    }
+    else if ( changedField == &m_combineMode )
+    {
+        recomputeDerivedNameIfAuto();
+    }
+
     updateIconState();
     triggerFilterChanged();
     notifyHostCollection();
@@ -279,6 +339,8 @@ void RimCombinedFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 void RimCombinedFilter::onChildAdded( caf::PdmFieldHandle* /*containerForNewObject*/ )
 {
+    recomputeDerivedNameIfAuto();
+    updateConnectedEditors();
     triggerFilterChanged();
     notifyHostCollection();
 }
@@ -314,6 +376,8 @@ void RimCombinedFilter::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimCombinedFilter::onChildFilterChanged( const caf::SignalEmitter* /*emitter*/ )
 {
+    recomputeDerivedNameIfAuto();
+    updateConnectedEditors();
     triggerFilterChanged();
     notifyHostCollection();
 }

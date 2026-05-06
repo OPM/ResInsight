@@ -94,3 +94,85 @@ def test_combined_filter_mode_toggle(rips_instance, initialize_test):
 
     refreshed = data_filters.filters()[0]
     assert refreshed.combine_mode == "AND"
+
+
+def test_combined_filter_named_preserves_name(rips_instance, initialize_test):
+    """User-supplied name is kept verbatim and does not change when child bounds change."""
+    case = _open_case(rips_instance)
+    data_filters = case.data_filter_collection()
+
+    combined = data_filters.add_combined_filter(name="My Custom", combine_mode="AND")
+    pf = combined.add_property_filter(
+        result_variable="SOIL", result_type="DYNAMIC_NATIVE"
+    )
+    pf.lower_bound = 0.3
+    pf.upper_bound = 0.6
+    pf.update()
+
+    refreshed = data_filters.filters()[0]
+    assert refreshed.name == "My Custom"
+
+
+def test_combined_filter_auto_derived_name_tracks_children(
+    rips_instance, initialize_test
+):
+    """No name supplied: combined-filter name is auto-derived and updates when children change."""
+    case = _open_case(rips_instance)
+    data_filters = case.data_filter_collection()
+
+    combined = data_filters.add_combined_filter(combine_mode="AND")
+
+    # Empty: falls back to the default placeholder.
+    refreshed_empty = data_filters.filters()[0]
+    assert refreshed_empty.name == "Combined Filter"
+
+    pf = combined.add_property_filter(
+        result_variable="SOIL", result_type="DYNAMIC_NATIVE"
+    )
+    pf.lower_bound = 0.3
+    pf.upper_bound = 0.6
+    pf.update()
+
+    refreshed = data_filters.filters()[0]
+    name_at_lower_03 = refreshed.name
+    assert "0.3" in name_at_lower_03
+    assert "SOIL" in name_at_lower_03
+
+    # Add a second child — auto-derive should append it with the AND separator.
+    combined.add_range_filter(name="K=5..10", start_k=5, cell_count_k=6)
+    refreshed = data_filters.filters()[0]
+    assert " AND " in refreshed.name
+    assert "K=5..10" in refreshed.name
+
+    # Mutate the lower bound — auto-derive picks up the new value.
+    pf.lower_bound = 0.4
+    pf.update()
+    refreshed = data_filters.filters()[0]
+    assert "0.4" in refreshed.name
+    assert "0.3" not in refreshed.name
+
+
+def test_combined_filter_user_rename_disables_auto_derive(
+    rips_instance, initialize_test
+):
+    """Renaming an auto-derived combined filter via Python locks the name in place."""
+    case = _open_case(rips_instance)
+    data_filters = case.data_filter_collection()
+
+    combined = data_filters.add_combined_filter(combine_mode="AND")
+    pf = combined.add_property_filter(
+        result_variable="SOIL", result_type="DYNAMIC_NATIVE"
+    )
+    pf.lower_bound = 0.3
+    pf.upper_bound = 0.6
+    pf.update()
+
+    # Rename via Python: that disables auto-derive.
+    combined.name = "Locked Name"
+    combined.update()
+
+    pf.lower_bound = 0.4
+    pf.update()
+
+    refreshed = data_filters.filters()[0]
+    assert refreshed.name == "Locked Name"
