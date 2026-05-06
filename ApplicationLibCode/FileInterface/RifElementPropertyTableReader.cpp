@@ -20,6 +20,7 @@
 #include "RifFileParseTools.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiuMainWindow.h"
 
 #include <QFile>
@@ -211,7 +212,7 @@ QFile* openFile( const QString& fileName )
     file = new QFile( fileName );
     if ( !file->open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
-        RiaLogging::error( QString( "Failed to open %1" ).arg( fileName ) );
+        RiaLogging::error( std::format( "Failed to open {}", fileName ) );
 
         delete file;
         return nullptr;

@@ -21,6 +21,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaQStringFormatter.h"
 
 #ifdef _MSC_VER
 // Disable warning from external library to make sure treat warnings as error works
@@ -208,7 +209,7 @@ bool RifOpmSummaryTools::isEsmryConversionRequired( const QString& fileName )
 
         if ( !std::filesystem::remove( candidateEsmryFileName.toStdString() ) )
         {
-            RiaLogging::error( QString( "Failed to remove file: %1" ).arg( candidateEsmryFileName ) );
+            RiaLogging::error( std::format( "Failed to remove file: {}", candidateEsmryFileName ) );
             return false;
         }
 

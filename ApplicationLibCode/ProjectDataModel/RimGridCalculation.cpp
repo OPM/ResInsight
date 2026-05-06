@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
+#include "RiaQStringFormatter.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiuMessageDialog.h"
 
@@ -832,7 +833,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
 
         if ( hasAggregationExpression )
         {
-            RiaLogging::info( QString( "  Detected aggregated value in expression '%1'." ).arg( m_expression() ) );
+            RiaLogging::info( std::format( "  Detected aggregated value in expression '{}'.", m_expression() ) );
             RiaLogging::info( QString( "  Aggregated value per realization is displayed in one column per time step." ) );
         }
     }
@@ -916,7 +917,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 auto dataForVariable = getActiveCellValuesForVariable( v, tsId, porosityModel, sourceCase, calculationCase );
                 if ( dataForVariable.empty() )
                 {
-                    RiaLogging::error( QString( "  No data found for variable '%1'." ).arg( v->name() ) );
+                    RiaLogging::error( std::format( "  No data found for variable '{}'.", v->name() ) );
                 }
                 else if ( inputValueVisibilityFilter && hasAggregationExpression )
                 {

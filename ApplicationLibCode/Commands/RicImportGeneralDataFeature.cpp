@@ -24,6 +24,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaQStringFormatter.h"
 
 #include "RicImportSummaryCasesFeature.h"
 
@@ -338,7 +339,7 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
 
     if ( !openEclipseFilesFromFileNames( fileNames, true, true ) )
     {
-        RiaLogging::error( QString( "Failed to open file names: %1" ).arg( fileNames.join( ", " ) ) );
+        RiaLogging::error( std::format( "Failed to open file names: {}", fileNames.join( ", " ) ) );
     }
     else
     {

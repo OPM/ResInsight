@@ -22,6 +22,7 @@
 
 #include "RiaCellDividingTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 #include "RiaStringEncodingTools.h"
 #include "RiaTextStringTools.h"
@@ -516,7 +517,7 @@ void RifEclipseInputFileTools::saveFault( QTextStream&                          
 
     if ( faultName.contains( ' ' ) )
     {
-        RiaLogging::error( QString( "Fault name '%1' contains spaces" ).arg( faultName ) );
+        RiaLogging::error( std::format( "Fault name '{}' contains spaces", faultName ) );
         return;
     }
 

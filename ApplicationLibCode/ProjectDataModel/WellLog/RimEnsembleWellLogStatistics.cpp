@@ -21,6 +21,7 @@
 #include "RiaCurveMerger.h"
 #include "RiaDefines.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 #include "RiaWeightedMeanCalculator.h"
 #include "RiaWellLogUnitTools.h"
@@ -99,14 +100,14 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogLasFil
             RiaDefines::DepthUnitType depthUnitInFile = fileData->depthUnit();
             if ( m_depthUnit != RiaDefines::DepthUnitType::UNIT_NONE && m_depthUnit != depthUnitInFile )
             {
-                RiaLogging::error( QString( "Unexpected depth unit in file %1." ).arg( wellLogFile->fileName() ) );
+                RiaLogging::error( std::format( "Unexpected depth unit in file {}.", wellLogFile->fileName() ) );
             }
             m_depthUnit = depthUnitInFile;
 
             QString logChannelUnitString = fileData->wellLogChannelUnitString( wellLogChannelName );
             if ( m_logChannelUnitString != RiaWellLogUnitTools<double>::noUnitString() && m_logChannelUnitString != logChannelUnitString )
             {
-                RiaLogging::error( QString( "Unexpected unit in file %1." ).arg( wellLogFile->fileName() ) );
+                RiaLogging::error( std::format( "Unexpected unit in file {}.", wellLogFile->fileName() ) );
             }
             m_logChannelUnitString = logChannelUnitString;
 

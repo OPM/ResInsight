@@ -19,6 +19,7 @@
 #include "RicWellPathExportMswTableData.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "MswExport/RicWellPathExportMswGeometryPath.h"
 #include "RicExportCompletionDataSettingsUi.h"
@@ -632,7 +633,7 @@ bool RicWellPathExportMswTableData::generateWellSegmentsForMswExportInfo( const 
 
                     if ( hasIntersection )
                     {
-                        RiaLogging::error( QString( "Valve overlap detected for perforation interval : %1" ).arg( perfInterval->name() ) );
+                        RiaLogging::error( std::format( "Valve overlap detected for perforation interval : {}", perfInterval->name() ) );
 
                         RiaLogging::error( "Name of valves" );
                         RiaLogging::error( valve->name() );

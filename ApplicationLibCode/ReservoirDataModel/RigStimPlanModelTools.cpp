@@ -19,6 +19,7 @@
 #include "RigStimPlanModelTools.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
@@ -119,7 +120,7 @@ std::tuple<const RigFault*, double, cvf::Vec3d, double> RigStimPlanModelTools::f
     std::vector<WellPathCellIntersectionInfo> intersections =
         RigStimPlanModelTools::generateBarrierIntersections( eclipseCaseData, position, directionToBarrier );
 
-    RiaLogging::info( QString( "Intersections: %1" ).arg( intersections.size() ) );
+    RiaLogging::info( std::format( "Intersections: {}", intersections.size() ) );
 
     double shortestDistance = std::numeric_limits<double>::max();
 
@@ -200,8 +201,8 @@ bool RigStimPlanModelTools::findThicknessTargetPoints( RigEclipseCaseData* eclip
 {
     if ( !eclipseCaseData ) return false;
 
-    RiaLogging::info( QString( "Position:  %1" ).arg( RigStimPlanModelTools::vecToString( position ) ) );
-    RiaLogging::info( QString( "Direction: %1" ).arg( RigStimPlanModelTools::vecToString( direction ) ) );
+    RiaLogging::info( std::format( "Position:  {}", RigStimPlanModelTools::vecToString( position ) ) );
+    RiaLogging::info( std::format( "Direction: {}", RigStimPlanModelTools::vecToString( direction ) ) );
 
     // Create a "fake" well path which from top to bottom of formation
     // passing through the point and with the given direction
@@ -243,7 +244,7 @@ bool RigStimPlanModelTools::findThicknessTargetPoints( RigEclipseCaseData* eclip
         return false;
     }
 
-    RiaLogging::info( QString( "Top: %1" ).arg( RigStimPlanModelTools::vecToString( topPosition ) ) );
+    RiaLogging::info( std::format( "Top: {}", RigStimPlanModelTools::vecToString( topPosition ) ) );
 
     // Find and add point on bottom plane
     cvf::Vec3d belowPlane = position + ( direction * 10000.0 );
@@ -253,7 +254,7 @@ bool RigStimPlanModelTools::findThicknessTargetPoints( RigEclipseCaseData* eclip
         return false;
     }
 
-    RiaLogging::info( QString( "Bottom: %1" ).arg( RigStimPlanModelTools::vecToString( bottomPosition ) ) );
+    RiaLogging::info( std::format( "Bottom: {}", RigStimPlanModelTools::vecToString( bottomPosition ) ) );
 
     return true;
 }

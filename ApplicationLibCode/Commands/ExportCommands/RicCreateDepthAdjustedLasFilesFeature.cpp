@@ -19,6 +19,7 @@
 #include "RicCreateDepthAdjustedLasFilesFeature.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RicCreateDepthAdjustedLasFilesImpl.h"
 #include "RicCreateDepthAdjustedLasFilesUi.h"
@@ -126,7 +127,7 @@ void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromEc
     cvf::ref<RigEclipseWellLogExtractor> sourceWellExtractor = wellLogCollection->findOrCreateExtractor( sourceWell, eclipseCase );
     if ( sourceWellExtractor.isNull() )
     {
-        RiaLogging::info( QString( "Could not create RigEclipseWellLogExtractor for %1" ).arg( sourceWell->name() ) );
+        RiaLogging::info( std::format( "Could not create RigEclipseWellLogExtractor for {}", sourceWell->name() ) );
         return;
     }
     const double rkbDiff = sourceWellExtractor->wellPathGeometry()->rkbDiff();
@@ -155,7 +156,7 @@ void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromGe
     cvf::ref<RigGeoMechWellLogExtractor> sourceWellExtractor = wellLogCollection->findOrCreateExtractor( sourceWell, geoMechCase );
     if ( sourceWellExtractor.isNull() )
     {
-        RiaLogging::info( QString( "Could not create RigGeoMechWellLogExtractor for %1" ).arg( sourceWell->name() ) );
+        RiaLogging::info( std::format( "Could not create RigGeoMechWellLogExtractor for {}", sourceWell->name() ) );
         return;
     }
     const double rkbDiff = sourceWellExtractor->wellPathGeometry()->rkbDiff();

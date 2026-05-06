@@ -26,6 +26,7 @@
 #include "RigFemTypes.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "cafProgressInfo.h"
 
@@ -99,7 +100,7 @@ bool RifVtkReader::openFile( const std::string& fileName, std::string* errorMess
     }
     else
     {
-        RiaLogging::info( QString( "Found %1 timesteps" ).arg( dataset.size() ) );
+        RiaLogging::info( std::format( "Found {} timesteps", dataset.size() ) );
         m_inputPath = filePath;
         return true;
     }

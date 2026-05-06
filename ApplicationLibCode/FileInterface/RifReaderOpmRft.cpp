@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 #include "RiaRftDefines.h"
 #include "RiaStdStringTools.h"
@@ -481,7 +482,7 @@ void RifReaderOpmRft::openFiles( const QString& fileName, const QString& dataDec
     }
     catch ( ... )
     {
-        RiaLogging::error( QString( "Failed to open RFT file %1" ).arg( fileName ) );
+        RiaLogging::error( std::format( "Failed to open RFT file {}", fileName ) );
     }
 
     m_detectedErrorWhenOpeningRftFile = true;

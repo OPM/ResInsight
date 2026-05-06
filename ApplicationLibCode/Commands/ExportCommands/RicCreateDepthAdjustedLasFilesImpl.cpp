@@ -20,6 +20,7 @@
 #include "RicCreateDepthAdjustedLasFilesImpl.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 
 #include "RicCreateDepthAdjustedLasFilesUi.h"
@@ -294,12 +295,12 @@ std::map<int, RicCreateDepthAdjustedLasFilesImpl::IndexKDepthData>
         cvf::ref<RigEclipseWellLogExtractor> wellExtractor = wellLogCollection->findOrCreateExtractor( wellPath, eclipseCase );
         if ( wellExtractor.isNull() )
         {
-            RiaLogging::info( QString( "Could not create RigEclipseWellLogExtractor for %1" ).arg( wellPath->name() ) );
+            RiaLogging::info( std::format( "Could not create RigEclipseWellLogExtractor for {}", wellPath->name() ) );
         }
         const auto result = createIndexKDepthDataMap( wellExtractor, createIndexKResultAccessor( eclipseCase ) );
         if ( result.empty() )
         {
-            RiaLogging::info( QString( "Not able to create Index-K depth map for %1" ).arg( wellPath->name() ) );
+            RiaLogging::info( std::format( "Not able to create Index-K depth map for {}", wellPath->name() ) );
         }
         return result;
     }
@@ -308,17 +309,17 @@ std::map<int, RicCreateDepthAdjustedLasFilesImpl::IndexKDepthData>
         cvf::ref<RigGeoMechWellLogExtractor> wellExtractor = wellLogCollection->findOrCreateExtractor( wellPath, geomCase );
         if ( wellExtractor.isNull() )
         {
-            RiaLogging::info( QString( "Could not create RigGeoMechWellLogExtractor for %1" ).arg( wellPath->name() ) );
+            RiaLogging::info( std::format( "Could not create RigGeoMechWellLogExtractor for {}", wellPath->name() ) );
         }
         const auto result = createIndexKDepthDataMap( wellExtractor );
         if ( result.empty() )
         {
-            RiaLogging::info( QString( "Not able to create Index-K depth map for %1" ).arg( wellPath->name() ) );
+            RiaLogging::info( std::format( "Not able to create Index-K depth map for {}", wellPath->name() ) );
         }
         return result;
     }
 
-    RiaLogging::info( QString( "Invalid case when creating Index-K depth map for %1" ).arg( wellPath->name() ) );
+    RiaLogging::info( std::format( "Invalid case when creating Index-K depth map for {}", wellPath->name() ) );
     return std::map<int, RicCreateDepthAdjustedLasFilesImpl::IndexKDepthData>();
 }
 

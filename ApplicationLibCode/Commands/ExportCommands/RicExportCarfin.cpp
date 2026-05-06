@@ -19,6 +19,7 @@
 #include "RicExportCarfin.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RicCellRangeUi.h"
 #include "RicExportCarfinUi.h"
@@ -69,7 +70,7 @@ void RicExportCarfin::onActionTriggered( bool isChecked )
         QFile   exportFile( filePath );
         if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
         {
-            RiaLogging::error( QString( "Export CARFIN: Could not open the file: %1" ).arg( filePath ) );
+            RiaLogging::error( std::format( "Export CARFIN: Could not open the file: {}", filePath ) );
             return;
         }
 

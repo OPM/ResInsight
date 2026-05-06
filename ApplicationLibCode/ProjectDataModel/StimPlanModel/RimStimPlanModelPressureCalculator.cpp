@@ -21,6 +21,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStimPlanModelDefines.h"
 
 #include "RigActiveCellInfo.h"
@@ -629,7 +630,7 @@ bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrati
 
     std::set<int> presentEqlNums = findUniqueValues( eqlNumValues );
 
-    RiaLogging::info( QString( "Found %1 EQLNUM values." ).arg( presentEqlNums.size() ) );
+    RiaLogging::info( std::format( "Found {} EQLNUM values.", presentEqlNums.size() ) );
 
     EqlNumToDepthValuePairMap valuesPerEqlNum;
     if ( !buildPressureTablesPerEqlNum( stimPlanModel, valuesPerEqlNum, presentEqlNums ) )
@@ -694,7 +695,7 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
 
     std::set<int> presentEqlNums = findUniqueValues( eqlNumValues );
 
-    RiaLogging::info( QString( "Found %1 EQLNUM values." ).arg( presentEqlNums.size() ) );
+    RiaLogging::info( std::format( "Found {} EQLNUM values.", presentEqlNums.size() ) );
 
     EqlNumToDepthValuePairMap valuesPerEqlNum;
     if ( !buildPressureTablesPerEqlNum( stimPlanModel, valuesPerEqlNum, presentEqlNums ) )

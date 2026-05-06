@@ -23,6 +23,7 @@
 #include "RiaOpmParserTools.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 #include "RiaStdStringTools.h"
 
@@ -220,23 +221,23 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
     {
         m_gridUnit = 1;
         RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as METRIC)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+            std::format( "Grid unit from EGRID file: '{}' (interpreted as METRIC)", QString::fromStdString( opmGrid.grid_unit() ) ) );
     }
     else if ( gridUnitStr.starts_with( 'F' ) )
     {
         m_gridUnit = 2;
         RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as FIELD)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+            std::format( "Grid unit from EGRID file: '{}' (interpreted as FIELD)", QString::fromStdString( opmGrid.grid_unit() ) ) );
     }
     else if ( gridUnitStr.starts_with( 'C' ) )
     {
         m_gridUnit = 3;
         RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as LAB)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+            std::format( "Grid unit from EGRID file: '{}' (interpreted as LAB)", QString::fromStdString( opmGrid.grid_unit() ) ) );
     }
     else if ( !gridUnitStr.empty() )
     {
-        RiaLogging::warning( QString( "Unknown grid unit from EGRID file: '%1'" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+        RiaLogging::warning( std::format( "Unknown grid unit from EGRID file: '{}'", QString::fromStdString( opmGrid.grid_unit() ) ) );
     }
 
     auto totalCellCount           = opmGrid.totalNumberOfCells();
@@ -1120,7 +1121,7 @@ std::vector<int> RifReaderOpmCommon::readInteheadKeyword() const
         }
         catch ( const std::exception& e )
         {
-            RiaLogging::warning( QString( "Failed to read INTEHEAD keyword from init file: %1" ).arg( e.what() ) );
+            RiaLogging::warning( std::format( "Failed to read INTEHEAD keyword from init file: {}", e.what() ) );
         }
     }
 

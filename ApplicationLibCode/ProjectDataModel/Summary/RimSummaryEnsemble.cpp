@@ -22,6 +22,7 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStdStringTools.h"
 #include "RiaTextStringTools.h"
 #include "RigStatisticsTools.h"
@@ -244,7 +245,7 @@ void RimSummaryEnsemble::reloadCases()
     {
         RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
 
-        RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
+        RiaLogging::info( std::format( "Reloaded data for {}", summaryCase->summaryHeaderFilename() ) );
     }
 }
 

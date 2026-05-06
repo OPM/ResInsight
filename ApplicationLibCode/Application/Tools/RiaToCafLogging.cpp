@@ -19,6 +19,7 @@
 #include "RiaToCafLogging.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 //--------------------------------------------------------------------------------------------------
 // Static member definitions
@@ -55,7 +56,7 @@ void RiaToCafLoggingBridge::setLevel( int logLevel )
 //--------------------------------------------------------------------------------------------------
 void RiaToCafLoggingBridge::error( const QString& message )
 {
-    RiaLogging::error( QString( "CAF: %1" ).arg( message ) );
+    RiaLogging::error( std::format( "CAF: {}", message ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +64,7 @@ void RiaToCafLoggingBridge::error( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaToCafLoggingBridge::warning( const QString& message )
 {
-    RiaLogging::warning( QString( "CAF: %1" ).arg( message ) );
+    RiaLogging::warning( std::format( "CAF: {}", message ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,7 +72,7 @@ void RiaToCafLoggingBridge::warning( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaToCafLoggingBridge::info( const QString& message )
 {
-    RiaLogging::info( QString( "CAF: %1" ).arg( message ) );
+    RiaLogging::info( std::format( "CAF: {}", message ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +80,7 @@ void RiaToCafLoggingBridge::info( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaToCafLoggingBridge::debug( const QString& message )
 {
-    RiaLogging::debug( QString( "CAF: %1" ).arg( message ) );
+    RiaLogging::debug( std::format( "CAF: {}", message ) );
 }
 
 //--------------------------------------------------------------------------------------------------

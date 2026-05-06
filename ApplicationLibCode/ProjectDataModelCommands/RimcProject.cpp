@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 
 #include "RicImportSummaryCasesFeature.h"
@@ -227,9 +228,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
     if ( nx <= 0 || ny <= 0 || nz <= 0 ) return std::unexpected( "Invalid grid size. nx, ny and nz must be positive." );
 
     RiaLogging::info( QString( "Grid dimensions: [%1 %2 %3]" ).arg( nx ).arg( ny ).arg( nz ) );
-    RiaLogging::info( QString( "Coord: %1" ).arg( m_coordKey() ) );
-    RiaLogging::info( QString( "Zcorn: %1" ).arg( m_zcornKey() ) );
-    RiaLogging::info( QString( "Actnum: %1" ).arg( m_actnumKey() ) );
+    RiaLogging::info( std::format( "Coord: {}", m_coordKey() ) );
+    RiaLogging::info( std::format( "Zcorn: {}", m_zcornKey() ) );
+    RiaLogging::info( std::format( "Actnum: {}", m_actnumKey() ) );
 
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
 

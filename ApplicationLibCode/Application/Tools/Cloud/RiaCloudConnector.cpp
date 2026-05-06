@@ -22,6 +22,7 @@
 #include "RiaConnectorTools.h"
 #include "RiaLogging.h"
 #include "RiaOAuthHttpServerReplyHandler.h"
+#include "RiaQStringFormatter.h"
 
 #include <QDateTime>
 #include <QDesktopServices>
@@ -90,14 +91,14 @@ RiaCloudConnector::RiaCloudConnector( QObject*       parent,
 
         if ( validOption )
         {
-            RiaLogging::info( QString( "Setting SSL protocol to %1 (from RESINSIGHT_SSL_PROTOCOL)" ).arg( sslProtocolEnv ) );
+            RiaLogging::info( std::format( "Setting SSL protocol to {} (from RESINSIGHT_SSL_PROTOCOL)", sslProtocolEnv ) );
             QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
             sslConfig.setProtocol( protocol );
             QSslConfiguration::setDefaultConfiguration( sslConfig );
         }
         else
         {
-            RiaLogging::warning( QString( "Invalid RESINSIGHT_SSL_PROTOCOL value: %1" ).arg( sslProtocolEnv ) );
+            RiaLogging::warning( std::format( "Invalid RESINSIGHT_SSL_PROTOCOL value: {}", sslProtocolEnv ) );
         }
     }
 
@@ -173,7 +174,7 @@ RiaCloudConnector::RiaCloudConnector( QObject*       parent,
              this,
              [&]( const QDateTime& expiration )
              {
-                 RiaLogging::debug( QString( "Access token expiration changed: %1" ).arg( expiration.toString() ) );
+                 RiaLogging::debug( std::format( "Access token expiration changed: {}", expiration.toString() ) );
                  exportTokenToFile();
              } );
 }

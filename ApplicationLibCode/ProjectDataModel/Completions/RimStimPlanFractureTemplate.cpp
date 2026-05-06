@@ -23,6 +23,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedMeanCalculator.h"
 
@@ -104,7 +105,7 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnFile()
     computeDepthOfWellPathAtFracture();
     computePerforationLength();
 
-    RiaLogging::info( QString( "Setting well/fracture intersection depth at %1" ).arg( m_wellPathDepthAtFracture() ) );
+    RiaLogging::info( std::format( "Setting well/fracture intersection depth at {}", m_wellPathDepthAtFracture() ) );
 
     m_activeTimeStepIndex = static_cast<int>( m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1 );
 

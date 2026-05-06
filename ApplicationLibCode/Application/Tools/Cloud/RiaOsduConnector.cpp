@@ -20,6 +20,7 @@
 #include "RiaCloudDefines.h"
 #include "RiaLogging.h"
 #include "RiaOsduDefines.h"
+#include "RiaQStringFormatter.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -340,7 +341,7 @@ void RiaOsduConnector::parseFields( QNetworkReply* reply )
                 m_fields.push_back( OsduField{ id, kind, fieldName } );
             }
 
-            RiaLogging::debug( QString( "Found %1 fields." ).arg( m_fields.size() ) );
+            RiaLogging::debug( std::format( "Found {} fields.", m_fields.size() ) );
         }
 
         emit fieldsFinished();
@@ -480,7 +481,7 @@ void RiaOsduConnector::parseWellLogs( QNetworkReply* reply, const QString& wellb
                 double      samplingStop  = dataObj["SamplingStop"].toDouble( std::numeric_limits<double>::infinity() );
 
                 QJsonArray curvesArray = dataObj["Curves"].toArray();
-                RiaLogging::debug( QString( "Curves for '%1':" ).arg( id ) );
+                RiaLogging::debug( std::format( "Curves for '{}':", id ) );
 
                 std::vector<OsduWellLogChannel> channels;
                 for ( const QJsonValue& curve : curvesArray )
@@ -712,7 +713,7 @@ void RiaOsduConnector::requestParquetData( const QString& url, const QString& da
                  if ( reply->error() == QNetworkReply::NoError )
                  {
                      QByteArray contents = reply->readAll();
-                     RiaLogging::info( QString( "Download succeeded: %1 bytes." ).arg( contents.length() ) );
+                     RiaLogging::info( std::format( "Download succeeded: {} bytes.", contents.length() ) );
                      emit parquetDownloadFinished( contents, "", id );
                  }
                  else

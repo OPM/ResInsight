@@ -19,6 +19,7 @@
 #include "RicfCommandFileExecutor.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RicfCloseProject.h"
 #include "RicfCommandObject.h"
@@ -72,11 +73,11 @@ void RicfCommandFileExecutor::executeCommands( QTextStream& stream )
         {
             if ( message.first == caf::PdmScriptIOMessages::MESSAGE_WARNING )
             {
-                RiaLogging::warning( QString( "Command file parsing warning: %1" ).arg( message.second ) );
+                RiaLogging::warning( std::format( "Command file parsing warning: {}", message.second ) );
             }
             else
             {
-                RiaLogging::error( QString( "Command file parsing error: %1" ).arg( message.second ) );
+                RiaLogging::error( std::format( "Command file parsing error: {}", message.second ) );
 
                 for ( auto& command : fileCommands )
                 {

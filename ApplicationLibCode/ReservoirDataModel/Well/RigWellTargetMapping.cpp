@@ -24,6 +24,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 #include "RiaWeightedMeanCalculator.h"
 
@@ -201,7 +202,7 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
         }
     }
 
-    RiaLogging::info( QString( "Found %1 clusters." ).arg( numClustersFound ) );
+    RiaLogging::info( std::format( "Found {} clusters.", numClustersFound ) );
 
     auto finish = std::chrono::high_resolution_clock::now();
 

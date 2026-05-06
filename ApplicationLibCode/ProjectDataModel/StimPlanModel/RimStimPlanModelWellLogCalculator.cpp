@@ -20,6 +20,7 @@
 #include "RiaDefines.h"
 #include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStimPlanModelDefines.h"
 
 #include "RigActiveCellInfo.h"
@@ -84,7 +85,7 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
                                                    std::vector<double>&      tvDepthValues,
                                                    double&                   rkbDiff ) const
 {
-    RiaLogging::debug( QString( "Calculating well log for '%1'." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+    RiaLogging::debug( std::format( "Calculating well log for '{}'.", caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
 
     std::deque<RimExtractionConfiguration> extractionConfigurations = stimPlanModel->extractionConfigurations( curveProperty );
 
@@ -460,7 +461,7 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForPropertyWithConfiguratio
         }
     }
 
-    RiaLogging::info( QString( "Extraction failed. Tried %1 configurations." ).arg( extractionConfigurations.size() ) );
+    RiaLogging::info( std::format( "Extraction failed. Tried {} configurations.", extractionConfigurations.size() ) );
     return false;
 }
 
@@ -562,7 +563,7 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
     }
     else
     {
-        RiaLogging::error( QString( "No result found for %1" ).arg( eclipseResultDefinition.resultVariable() ) );
+        RiaLogging::error( std::format( "No result found for {}", eclipseResultDefinition.resultVariable() ) );
         return false;
     }
 
@@ -611,7 +612,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefi
 
     if ( backupResAcc.notNull() )
     {
-        RiaLogging::info( QString( "Reading missing values from input properties for %1." ).arg( resultVariable ) );
+        RiaLogging::info( std::format( "Reading missing values from input properties for {}.", resultVariable ) );
         std::vector<double> replacementValues;
 
         RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
@@ -759,7 +760,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
     QString                   resultName = stimPlanModel->eclipseResultVariable( curveProperty );
     if ( resultName.isEmpty() )
     {
-        RiaLogging::error( QString( "Invalid result for k layer replacement: %1" ).arg( stimPlanModel->name() ) );
+        RiaLogging::error( std::format( "Invalid result for k layer replacement: {}", stimPlanModel->name() ) );
         return false;
     }
 

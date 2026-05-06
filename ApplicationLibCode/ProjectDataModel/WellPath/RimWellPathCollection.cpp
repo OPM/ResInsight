@@ -26,6 +26,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaQStringFormatter.h"
 #include "RiaTextStringTools.h"
 #include "RiaWellNameComparer.h"
 #include "RiuMessageDialog.h"
@@ -521,7 +522,7 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
                 wellPath = new RimWellPath();
                 wellPath->setName( newFormation.first );
                 addWellPath( wellPath );
-                RiaLogging::info( QString( "Created new well: %1" ).arg( wellPath->name() ) );
+                RiaLogging::info( std::format( "Created new well: {}", wellPath->name() ) );
             }
             wellPath->setFormationsGeometry( newFormation.second );
 

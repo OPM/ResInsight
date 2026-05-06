@@ -23,6 +23,7 @@
 #include "RiaCellDividingTools.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStringEncodingTools.h"
 #include "RiuMessageDialog.h"
 
@@ -561,7 +562,7 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
         return;
     }
 
-    RiaLogging::info( QString( "HDF: Start import of data from : " ).arg( fileName ) );
+    RiaLogging::info( std::format( "HDF: Start import of data from : ", fileName ) );
 
     RiaLogging::info( "HDF: Removing all existing Sour Sim data ..." );
     matrixModelResults->eraseAllSourSimData();
@@ -1140,8 +1141,8 @@ bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual( const QDateTime&
     {
         RiaLogging::error( "HDF: Time steps does not match" );
 
-        RiaLogging::error( QString( "  %1 - Eclipse" ).arg( eclipseDateTime.toString( dateStr ) ) );
-        RiaLogging::error( QString( "  %1 - SourSim" ).arg( sourSimDateTime.toString( dateStr ) ) );
+        RiaLogging::error( std::format( "  {} - Eclipse", eclipseDateTime.toString( dateStr ) ) );
+        RiaLogging::error( std::format( "  {} - SourSim", sourSimDateTime.toString( dateStr ) ) );
 
         return false;
     }
@@ -1149,8 +1150,8 @@ bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual( const QDateTime&
     if ( eclipseDateTime.time().second() != sourSimDateTime.time().second() )
     {
         RiaLogging::warning( "HDF: Time steps differ, but within time step compare threshold" );
-        RiaLogging::warning( QString( "  %1 - Eclipse" ).arg( eclipseDateTime.toString( dateStr ) ) );
-        RiaLogging::warning( QString( "  %1 - SourSim" ).arg( sourSimDateTime.toString( dateStr ) ) );
+        RiaLogging::warning( std::format( "  {} - Eclipse", eclipseDateTime.toString( dateStr ) ) );
+        RiaLogging::warning( std::format( "  {} - SourSim", sourSimDateTime.toString( dateStr ) ) );
     }
 
     return true;

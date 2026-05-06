@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RiaPreferencesSystem.h"
+#include "RiaQStringFormatter.h"
 #include "RiaWeightedMeanCalculator.h"
 #include "RigStatisticsTools.h"
 #include "RiuMessageDialog.h"
@@ -124,7 +125,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
             if ( !fractureTransmissibilityExportInformationFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
             {
                 RiaLogging::error(
-                    QString( "Export Completions Data: Could not open the file: %1" ).arg( fractureTransmisibillityExportInformationPath ) );
+                    std::format( "Export Completions Data: Could not open the file: {}", fractureTransmisibillityExportInformationPath ) );
             }
             else
             {
@@ -893,7 +894,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
         }
     }
 
-    RiaLogging::info( QString( "Successfully exported completion data to %1" ).arg( exportFile->fileName() ) );
+    RiaLogging::info( std::format( "Successfully exported completion data to {}", exportFile->fileName() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RifSurfio.h"
 
@@ -146,9 +147,9 @@ void RicExportSurfaceToGriFeature::exportSurfaces( const std::vector<RimSurface*
                          : RifSurfio::exportToIrap( fileName.toStdString(), gridParams, depthValues );
 
         if ( ok )
-            RiaLogging::info( QString( "Exported surface to: %1" ).arg( fileName ) );
+            RiaLogging::info( std::format( "Exported surface to: {}", fileName ) );
         else
-            RiaLogging::error( QString( "Failed to export surface to: %1" ).arg( fileName ) );
+            RiaLogging::error( std::format( "Failed to export surface to: {}", fileName ) );
     }
 }
 

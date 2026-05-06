@@ -26,6 +26,7 @@
 #include "RifJsonEncodeDecode.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "cvfAssert.h"
 #include "cvfDrawableGeo.h"
@@ -257,7 +258,8 @@ std::unique_ptr<VdeMesh> VdeVizDataExtractor::createMeshFromExportPart( const Vd
     const cvf::PrimitiveType primType = primSet->primitiveType();
     if ( primType != cvf::PT_TRIANGLES && primType != cvf::PT_LINES )
     {
-        RiaLogging::debug( QString( "Currently only triangle and line primitive sets are supported (saw primitive type: %1)" ).arg( primType ) );
+        RiaLogging::debug(
+            std::format( "Currently only triangle and line primitive sets are supported (saw primitive type: {})", static_cast<int>( primType ) ) );
         return nullptr;
     }
 

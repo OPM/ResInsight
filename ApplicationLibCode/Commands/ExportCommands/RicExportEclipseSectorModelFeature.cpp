@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaModelExportDefines.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 
 #include "RicExportEclipseSectorModelUi.h"
@@ -173,7 +174,7 @@ void RicExportEclipseSectorModelFeature::exportGrid( RimEclipseView* view, const
 
     if ( !worked )
     {
-        RiaLogging::error( QString( "Unable to write grid to '%1'" ).arg( exportSettings.exportGridFilename() ) );
+        RiaLogging::error( std::format( "Unable to write grid to '{}'", exportSettings.exportGridFilename() ) );
     }
     else
     {
@@ -210,7 +211,7 @@ void RicExportEclipseSectorModelFeature::exportParameters( RimEclipseView* view,
                                                                     exportSettings.refinement() );
             if ( !worked )
             {
-                RiaLogging::error( QString( "Unable to write results to '%1'" ).arg( fileName ) );
+                RiaLogging::error( std::format( "Unable to write results to '{}'", fileName ) );
             }
         }
     }
@@ -232,7 +233,7 @@ void RicExportEclipseSectorModelFeature::exportParameters( RimEclipseView* view,
 
         if ( !worked )
         {
-            RiaLogging::error( QString( "Unable to write results to '%1'" ).arg( fileName ) );
+            RiaLogging::error( std::format( "Unable to write results to '{}'", fileName ) );
         }
     }
 }

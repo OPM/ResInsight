@@ -19,6 +19,7 @@
 #include "RifOpmCommonSummary.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStdStringTools.h"
 #include "RifOpmSummaryTools.h"
 
@@ -375,7 +376,7 @@ void RifOpmCommonEclipseSummary::populateTimeSteps()
     }
     catch ( const std::exception& e )
     {
-        RiaLogging::warning( QString( "Summary reader failed to load time steps: %1" ).arg( e.what() ) );
+        RiaLogging::warning( std::format( "Summary reader failed to load time steps: {}", e.what() ) );
     }
 
     const auto   startAsTimeT    = std::chrono::system_clock::to_time_t( startOfSimulation );

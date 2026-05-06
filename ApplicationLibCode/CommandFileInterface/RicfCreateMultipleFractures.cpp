@@ -34,6 +34,7 @@
 #include "RimWellPath.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaWellNameComparer.h"
 
 #include "cafCmdFeatureManager.h"
@@ -181,6 +182,6 @@ RimFractureTemplate* RicfCreateMultipleFractures::fractureTemplateFromId( int te
         if ( t->id() == templateId ) return t;
     }
 
-    RiaLogging::error( QString( "createMultipleFractures: Could not find fracture template with ID %1" ).arg( templateId ) );
+    RiaLogging::error( std::format( "createMultipleFractures: Could not find fracture template with ID {}", templateId ) );
     return nullptr;
 }

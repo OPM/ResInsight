@@ -23,6 +23,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 
 #include "RicCloseCaseFeature.h"
@@ -156,7 +157,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
         RimEclipseCase* eclipseCase = loadEclipseCase( fileName );
         if ( !eclipseCase )
         {
-            RiaLogging::error( QString( "Failed to load model from file: " ).arg( fileName ) );
+            RiaLogging::error( std::format( "Failed to load model from file: ", fileName ) );
             return;
         }
 
@@ -169,7 +170,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
         {
             if ( !fi.absoluteDir().mkpath( wellLogExportDirName ) )
             {
-                RiaLogging::error( QString( "Unable to create directory for well log export: " ).arg( exportFolder ) );
+                RiaLogging::error( std::format( "Unable to create directory for well log export: ", exportFolder ) );
                 RicCloseCaseFeature::deleteEclipseCase( eclipseCase );
                 return;
             }

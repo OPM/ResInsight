@@ -19,6 +19,7 @@
 #include "RimReservoirGridEnsemble.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 
 #include "RifReaderOpmCommon.h"
@@ -461,7 +462,7 @@ RimEclipseStatisticsCase* RimReservoirGridEnsemble::createAndAppendStatisticsCas
 {
     if ( !hasSharedGrid() )
     {
-        RiaLogging::warning( QString( "Cannot create statistics case for ensemble '%1': grids are not identical." ).arg( name() ) );
+        RiaLogging::warning( std::format( "Cannot create statistics case for ensemble '{}': grids are not identical.", name() ) );
         return nullptr;
     }
 
@@ -816,7 +817,7 @@ void RimReservoirGridEnsemble::createCaseObjectsFromEnsembleFileSet()
 
     if ( gridFiles.empty() )
     {
-        RiaLogging::warning( QString( "No grid files found for ensemble '%1'" ).arg( name() ) );
+        RiaLogging::warning( std::format( "No grid files found for ensemble '{}'", name() ) );
         return;
     }
 

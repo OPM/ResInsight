@@ -19,6 +19,7 @@
 #include "RimRegularSurface.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "Surface/RigSurface.h"
 
@@ -212,7 +213,7 @@ bool RimRegularSurface::updateSurfaceData()
 {
     if ( m_depthProperty() != internal::fixedDepth() && !m_properties.contains( m_depthProperty() ) )
     {
-        RiaLogging::warning( QString( "Surface '%1': Depth property '%2' not found." ).arg( userDescription(), m_depthProperty() ) );
+        RiaLogging::warning( std::format( "Surface '{}': Depth property '{}' not found.", userDescription(), m_depthProperty() ) );
         setSurfaceData( nullptr );
 
         return false;

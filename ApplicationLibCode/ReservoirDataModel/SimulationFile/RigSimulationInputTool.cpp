@@ -19,6 +19,7 @@
 #include "RigSimulationInputTool.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStdStringTools.h"
 
 #include "RifEclipseInputFileTools.h"
@@ -87,7 +88,7 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
     }
     if ( noOfRemovedKeywords > 0 )
     {
-        RiaLogging::info( QString( "Removed %1 user specified keywords from deck file." ).arg( noOfRemovedKeywords ) );
+        RiaLogging::info( std::format( "Removed {} user specified keywords from deck file.", noOfRemovedKeywords ) );
     }
 
     if ( auto result = settings.validateBox(); !result )
@@ -342,7 +343,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
 {
     // Extract and replace keyword data for all keywords in the deck
     auto keywords = deckFile.keywords( false );
-    RiaLogging::info( QString( "Processing %1 keywords from deck file" ).arg( keywords.size() ) );
+    RiaLogging::info( std::format( "Processing {} keywords from deck file", keywords.size() ) );
 
     for ( const auto& keywordStdStr : keywords )
     {
@@ -374,7 +375,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
             }
             else
             {
-                RiaLogging::debug( QString( "'%1' is not a data keyword, skipping" ).arg( keyword ) );
+                RiaLogging::debug( std::format( "'{}' is not a data keyword, skipping", keyword ) );
             }
         }
     }
@@ -478,7 +479,7 @@ std::set<std::string> RigSimulationInputTool::cropDataKeywordsInDeckFile( RimEcl
 
     if ( !croppedKeywords.empty() )
     {
-        RiaLogging::info( QString( "Cropped %1 data keywords directly from deck" ).arg( croppedKeywords.size() ) );
+        RiaLogging::info( std::format( "Cropped {} data keywords directly from deck", croppedKeywords.size() ) );
     }
 
     return croppedKeywords;
@@ -723,7 +724,7 @@ static std::expected<Modification, QString> processBoxKeywordEntry( const Opm::D
             }
             else
             {
-                RiaLogging::warning( QString( "Failed to process BOX record: %1" ).arg( result.error() ) );
+                RiaLogging::warning( std::format( "Failed to process BOX record: {}", result.error() ) );
                 return Modification{ index, Modification::Remove, Opm::DeckKeyword{} };
             }
         }
@@ -757,7 +758,7 @@ static std::optional<Modification> cropDataKeywordInBoxContext( const Opm::DeckK
     if ( intMin.x() > intMax.x() || intMin.y() > intMax.y() || intMin.z() > intMax.z() )
     {
         RiaLogging::info(
-            QString( "Removing data keyword '%1' inside BOX/ENDBOX: box does not intersect sector" ).arg( QString::fromStdString( name ) ) );
+            std::format( "Removing data keyword '{}' inside BOX/ENDBOX: box does not intersect sector", QString::fromStdString( name ) ) );
         return Modification{ index, Modification::Remove, Opm::DeckKeyword{} };
     }
 
@@ -1039,7 +1040,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordWithBoxIndice
                 // Replace with transformed keyword
                 if ( transformedKeyword.size() > 0 )
                 {
-                    RiaLogging::info( QString( "Got %1 keywords." ).arg( transformedKeyword.size() ) );
+                    RiaLogging::info( std::format( "Got {} keywords.", transformedKeyword.size() ) );
                     deckFile.replaceKeywordAtIndex( index, transformedKeyword );
                 }
                 else
@@ -2589,7 +2590,7 @@ std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEc
         return std::unexpected( "Failed to transform any EDITNNC connections" );
     }
 
-    RiaLogging::info( QString( "Exporting %1 EDITNNC connections to sector model" ).arg( transformedConnections.size() ) );
+    RiaLogging::info( std::format( "Exporting {} EDITNNC connections to sector model", transformedConnections.size() ) );
 
     // Step 4: Create keyword
     auto editnncKw = RimKeywordFactory::editnncKeyword( transformedConnections );

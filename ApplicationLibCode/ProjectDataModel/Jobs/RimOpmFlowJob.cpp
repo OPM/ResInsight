@@ -22,6 +22,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesOpm.h"
+#include "RiaQStringFormatter.h"
 #include "RiaWslTools.h"
 
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
@@ -589,7 +590,7 @@ bool RimOpmFlowJob::openDeckFile()
         catch ( std::filesystem::filesystem_error& )
         {
             deckLoadOk = false;
-            RiaLogging::error( QString( "Failed to open %1, possibly unsupported or incorrect format." ).arg( m_deckFileName().path() ) );
+            RiaLogging::error( std::format( "Failed to open {}, possibly unsupported or incorrect format.", m_deckFileName().path() ) );
         }
 
         if ( !deckLoadOk )

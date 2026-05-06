@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
+#include "RiaQStringFormatter.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlot.h"
@@ -71,11 +72,11 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, cons
     {
         if ( image.save( fileName ) )
         {
-            RiaLogging::info( QString( "Exported snapshot image to %1" ).arg( fileName ) );
+            RiaLogging::info( std::format( "Exported snapshot image to {}", fileName ) );
         }
         else
         {
-            RiaLogging::error( QString( "Error when trying to export snapshot image to %1" ).arg( fileName ) );
+            RiaLogging::error( std::format( "Error when trying to export snapshot image to {}", fileName ) );
         }
     }
 }
@@ -120,7 +121,7 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
     }
     else
     {
-        RiaLogging::error( QString( "Could not write PDF to %1" ).arg( fileName ) );
+        RiaLogging::error( std::format( "Could not write PDF to {}", fileName ) );
     }
 }
 

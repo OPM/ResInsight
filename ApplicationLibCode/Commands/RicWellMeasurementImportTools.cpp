@@ -19,6 +19,7 @@
 #include "RicWellMeasurementImportTools.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "Rim3dView.h"
 #include "RimGridView.h"
@@ -70,7 +71,7 @@ void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const QStri
     }
     catch ( FileParseException& exception )
     {
-        RiaLogging::warning( QString( "Well measurement import failed: '%1'." ).arg( exception.message ) );
+        RiaLogging::warning( std::format( "Well measurement import failed: '{}'.", exception.message ) );
         return;
     }
 

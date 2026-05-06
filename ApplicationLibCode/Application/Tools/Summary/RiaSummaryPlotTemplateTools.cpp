@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaQStringFormatter.h"
 #include "Summary/RiaSummaryAddressAnalyzer.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -57,7 +58,7 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFil
     QFile importFile( fileName );
     if ( !importFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
-        RiaLogging::error( QString( "Create Plot from Template : Could not open the file: %1" ).arg( fileName ) );
+        RiaLogging::error( std::format( "Create Plot from Template : Could not open the file: {}", fileName ) );
         return nullptr;
     }
 

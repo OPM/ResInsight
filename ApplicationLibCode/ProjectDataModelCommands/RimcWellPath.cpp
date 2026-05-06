@@ -24,6 +24,7 @@
 #include "RiaApplication.h"
 #include "RiaKeyValueStoreUtil.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseTools.h"
@@ -107,7 +108,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addFracture::execute(
             if ( !formationDirection.isUndefined() )
             {
                 double formationDip = RigStimPlanModelTools::calculateFormationDipFromHorizontal( formationDirection );
-                RiaLogging::info( QString( "Computed formation dip: %1" ).arg( formationDip ) );
+                RiaLogging::info( std::format( "Computed formation dip: {}", formationDip ) );
 
                 wellPathFracture->setDip( formationDip );
             }

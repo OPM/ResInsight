@@ -19,6 +19,7 @@
 #include "RifHdf5Reader.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RiaQDateTimeTools.h"
 
@@ -201,7 +202,7 @@ QStringList RifHdf5Reader::propertyNames() const
     {
         propNames.clear();
 
-        RiaLogging::error( QString( "Failed to read properties from file : '%1'" ).arg( fileName.c_str() ) );
+        RiaLogging::error( std::format( "Failed to read properties from file : '{}'", fileName.c_str() ) );
     }
 
     return propNames;

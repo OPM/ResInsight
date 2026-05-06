@@ -38,6 +38,7 @@
 #include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaProjectModifier.h"
+#include "RiaQStringFormatter.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketServer.h"
 #include "RiaTextStringTools.h"
@@ -529,13 +530,13 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         onProjectBeingOpened();
 
-        RiaLogging::info( QString( "Starting to open project file : '%1'" ).arg( projectFileName ) );
+        RiaLogging::info( std::format( "Starting to open project file : '{}'", projectFileName ) );
 
         // Create a absolute path file name, as this is required for update of file references in the project modifier object
         QString fullPathProjectFileName = caf::Utils::absoluteFileName( projectFileName );
         if ( !caf::Utils::fileExists( fullPathProjectFileName ) )
         {
-            RiaLogging::info( QString( "File does not exist : '%1'" ).arg( fullPathProjectFileName ) );
+            RiaLogging::info( std::format( "File does not exist : '{}'", fullPathProjectFileName ) );
             return false;
         }
 
@@ -909,7 +910,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             {
                 auto ensembleTask = progress.task( QString( "Loading Summary Ensemble '%1'" ).arg( ensemble->name() ), stepSize );
                 ensemble->loadDataAndUpdate();
-                RiaLogging::info( QString( "Loaded ensemble : '%1'" ).arg( ensemble->name() ) );
+                RiaLogging::info( std::format( "Loaded ensemble : '{}'", ensemble->name() ) );
             }
             sumMainCollection->updateEnsembleNames();
 

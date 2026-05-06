@@ -19,6 +19,7 @@
 #include "RicReloadSummaryCaseFeature.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RimObservedDataCollection.h"
@@ -148,6 +149,6 @@ void RicReloadSummaryCaseFeature::reloadSelectedCasesAndUpdate()
         RiaSummaryTools::reloadSummaryCaseAndUpdateConnectedPlots( summaryCase );
         summaryCase->updateConnectedEditors();
 
-        RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
+        RiaLogging::info( std::format( "Reloaded data for {}", summaryCase->summaryHeaderFilename() ) );
     }
 }

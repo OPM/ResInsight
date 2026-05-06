@@ -21,6 +21,7 @@
 #include "RiaDefines.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
+#include "RiaQStringFormatter.h"
 
 #include "RiaResultNames.h"
 #include "RigActiveCellInfo.h"
@@ -184,7 +185,7 @@ std::pair<std::vector<int>, int> generateOperNumResult( RimEclipseCase*         
     // Auto-determine border cell value if not specified
     if ( borderCellValue == -1 )
     {
-        RiaLogging::info( QString( "Found max OPERNUM: %1" ).arg( maxOperNum ) );
+        RiaLogging::info( std::format( "Found max OPERNUM: {}", maxOperNum ) );
         // If no existing OPERNUM found (maxOperNum == 0), use default value of 2
         if ( maxOperNum == 0 )
         {
@@ -230,8 +231,7 @@ std::pair<std::vector<int>, int> generateOperNumResult( RimEclipseCase*         
 
                 if ( !resultValues.empty() )
                 {
-                    RiaLogging::info(
-                        QString( "Using existing OPERNUM data (%1 values) and refining to match grid" ).arg( resultValues.size() ) );
+                    RiaLogging::info( std::format( "Using existing OPERNUM data ({} values) and refining to match grid", resultValues.size() ) );
 
                     // Get the main grid to access cells
                     auto mainGrid = eclipseCase->eclipseCaseData()->mainGrid();

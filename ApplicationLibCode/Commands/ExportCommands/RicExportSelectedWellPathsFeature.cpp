@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RicExportWellPathsUi.h"
 
@@ -71,7 +72,7 @@ void RicExportSelectedWellPathsFeature::exportWellPath( gsl::not_null<const RimW
     writeWellPathGeometryToStream( *stream, wellPath->name(), xValues, yValues, tvdValues, mdValues, showTextMdRkb, writeProjectInfo );
     filePtr->close();
 
-    RiaLogging::info( QString( "Exported well geometry to %1" ).arg( filePtr->fileName() ) );
+    RiaLogging::info( std::format( "Exported well geometry to {}", filePtr->fileName() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

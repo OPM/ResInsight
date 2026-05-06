@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaOAuthHttpServerReplyHandler.h"
 #include "RiaOsduDefines.h"
+#include "RiaQStringFormatter.h"
 
 #include <QEventLoop>
 #include <QJsonArray>
@@ -284,11 +285,11 @@ void RiaSumoConnector::parseEnsembleNames( QNetworkReply* reply, const SumoCaseI
             m_ensembleNames.push_back( { caseId, ensembleName } );
         }
 
-        RiaLogging::debug( QString( "Ensemble count : %1" ).arg( m_ensembleNames.size() ) );
+        RiaLogging::debug( std::format( "Ensemble count : {}", m_ensembleNames.size() ) );
     }
     else
     {
-        RiaLogging::error( QString( "Request ensemble names failed: : '%s'" ).arg( reply->errorString() ) );
+        RiaLogging::error( std::format( "Request ensemble names failed: : '%s'", reply->errorString() ) );
     }
 
     emit ensembleNamesFinished();
@@ -524,7 +525,7 @@ void RiaSumoConnector::requestParametersBlobIdForEnsemble( const SumoCaseId& cas
                  }
                  else
                  {
-                     RiaLogging::error( QString( "Request parameters failed: : '%s'" ).arg( reply->errorString() ) );
+                     RiaLogging::error( std::format( "Request parameters failed: : '%s'", reply->errorString() ) );
                  }
              } );
 }
@@ -797,12 +798,12 @@ void RiaSumoConnector::parseAssets( QNetworkReply* reply )
 
         for ( auto a : m_assets )
         {
-            RiaLogging::info( QString( "Asset: %1" ).arg( a.name ) );
+            RiaLogging::info( std::format( "Asset: {}", a.name ) );
         }
     }
     else
     {
-        RiaLogging::error( QString( "Request assets failed: : '%s'" ).arg( reply->errorString() ) );
+        RiaLogging::error( std::format( "Request assets failed: : '%s'", reply->errorString() ) );
     }
 
     emit assetsFinished();
@@ -838,11 +839,11 @@ void RiaSumoConnector::parseCases( QNetworkReply* reply )
             m_cases.push_back( SumoCase{ SumoCaseId( id ), kind, fieldName } );
         }
 
-        RiaLogging::debug( QString( "Case count : %1" ).arg( m_cases.size() ) );
+        RiaLogging::debug( std::format( "Case count : {}", m_cases.size() ) );
     }
     else
     {
-        RiaLogging::error( QString( "Request cases failed: : '%s'" ).arg( reply->errorString() ) );
+        RiaLogging::error( std::format( "Request cases failed: : '%s'", reply->errorString() ) );
     }
 
     emit casesFinished();
@@ -875,7 +876,7 @@ void RiaSumoConnector::parseVectorNames( QNetworkReply* reply, const SumoCaseId&
     }
     else
     {
-        RiaLogging::error( QString( "Request vector names failed: : '%s'" ).arg( reply->errorString() ) );
+        RiaLogging::error( std::format( "Request vector names failed: : '%s'", reply->errorString() ) );
     }
 
     emit vectorNamesFinished();
@@ -983,7 +984,7 @@ void RiaSumoConnector::requestParquetData( const QString& url, const QString& to
                  if ( reply->error() == QNetworkReply::NoError )
                  {
                      QByteArray contents = reply->readAll();
-                     RiaLogging::info( QString( "Download succeeded: %1 bytes." ).arg( contents.length() ) );
+                     RiaLogging::info( std::format( "Download succeeded: {} bytes.", contents.length() ) );
                      emit parquetDownloadFinished( contents, "" );
                  }
                  else

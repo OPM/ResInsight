@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RifInputPropertyLoader.h"
 #include "RifRoffFileTools.h"
@@ -326,7 +327,7 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
     auto endTime = high_resolution_clock::now();
 
     auto totalDuration = duration_cast<milliseconds>( endTime - startTime );
-    RiaLogging::info( QString( "Total: %1 ms" ).arg( totalDuration.count() ) );
+    RiaLogging::info( std::format( "Total: {} ms", totalDuration.count() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

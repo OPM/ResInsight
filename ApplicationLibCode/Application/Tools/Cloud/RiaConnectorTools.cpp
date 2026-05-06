@@ -25,6 +25,7 @@
 #include "RiaPreferencesOpenTelemetry.h"
 #include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSumo.h"
+#include "RiaQStringFormatter.h"
 
 #include <QDir>
 #include <QFile>
@@ -188,7 +189,7 @@ void RiaConnectorTools::readCloudConfigFiles( RiaPreferences* preferences )
         auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( filePath );
         if ( !keyValuePairs.empty() )
         {
-            RiaLogging::debug( QString( "Imported OSDU configuration from : '%1'" ).arg( filePath ) );
+            RiaLogging::debug( std::format( "Imported OSDU configuration from : '{}'", filePath ) );
             preferences->osduPreferences()->setData( keyValuePairs, filePath );
             break;
         }
@@ -200,7 +201,7 @@ void RiaConnectorTools::readCloudConfigFiles( RiaPreferences* preferences )
         auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( filePath );
         if ( !keyValuePairs.empty() )
         {
-            RiaLogging::debug( QString( "Imported SUMO configuration from : '%1'" ).arg( filePath ) );
+            RiaLogging::debug( std::format( "Imported SUMO configuration from : '{}'", filePath ) );
             preferences->sumoPreferences()->setData( keyValuePairs, filePath );
             break;
         }
@@ -212,7 +213,7 @@ void RiaConnectorTools::readCloudConfigFiles( RiaPreferences* preferences )
         auto keyValuePairs = RiaConnectorTools::readKeyValuePairs( filePath );
         if ( !keyValuePairs.empty() )
         {
-            RiaLogging::debug( QString( "Imported OpenTelemetry configuration from : '%1'" ).arg( filePath ) );
+            RiaLogging::debug( std::format( "Imported OpenTelemetry configuration from : '{}'", filePath ) );
             RiaPreferencesOpenTelemetry::current()->setData( keyValuePairs, filePath );
             break;
         }

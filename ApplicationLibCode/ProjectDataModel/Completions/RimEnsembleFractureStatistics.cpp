@@ -22,6 +22,7 @@
 #include "RiaDefines.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaQStringFormatter.h"
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedHarmonicMeanCalculator.h"
 
@@ -353,7 +354,7 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
         size_t numBeforeFiltering   = stimPlanFractureDefinitions.size();
         stimPlanFractureDefinitions = RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
         size_t numRemoved           = numBeforeFiltering - stimPlanFractureDefinitions.size();
-        RiaLogging::info( QString( "Excluded %1 zero width fractures." ).arg( numRemoved ) );
+        RiaLogging::info( std::format( "Excluded {} zero width fractures.", numRemoved ) );
     }
 
     m_statisticsTable = generateStatisticsTable( stimPlanFractureDefinitions );
@@ -404,7 +405,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
 
     for ( auto result : availableResults )
     {
-        RiaLogging::info( QString( "Creating statistics for result: %1" ).arg( result.first ) );
+        RiaLogging::info( std::format( "Creating statistics for result: {}", result.first ) );
 
         std::vector<cvf::cref<RigFractureGrid>> fractureGrids =
             createFractureGrids( stimPlanFractureDefinitions, unitSystem, result.first, m_meshAlignmentType() );
@@ -473,7 +474,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
         for ( double depth : gridYs )
             gridYsWithOffset.push_back( referenceDepth - depth );
 
-        RiaLogging::info( QString( "Writing fracture group statistics to: %1" ).arg( xmlFilePath ) );
+        RiaLogging::info( std::format( "Writing fracture group statistics to: {}", xmlFilePath ) );
         RifEnsembleFractureStatisticsExporter::writeAsStimPlanXml( statisticsSlices,
                                                                    properties,
                                                                    xmlFilePath,
@@ -510,7 +511,7 @@ std::pair<std::vector<cvf::ref<RigStimPlanFractureDefinition>>, std::vector<QStr
     std::vector<QString>                                 okFilePaths;
     for ( auto filePath : m_filePaths.v() )
     {
-        RiaLogging::info( QString( "Loading file: %1" ).arg( filePath.path() ) );
+        RiaLogging::info( std::format( "Loading file: {}", filePath.path() ) );
         QString                                 errorMessage;
         cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData =
             RifStimPlanXmlReader::readStimPlanXMLFile( filePath.path(),
@@ -520,7 +521,7 @@ std::pair<std::vector<cvf::ref<RigStimPlanFractureDefinition>>, std::vector<QStr
                                                        &errorMessage );
         if ( !errorMessage.isEmpty() )
         {
-            RiaLogging::error( QString( "Error when reading file: '%1'" ).arg( errorMessage ) );
+            RiaLogging::error( std::format( "Error when reading file: '{}'", errorMessage ) );
         }
 
         if ( stimPlanFractureDefinitionData.notNull() )

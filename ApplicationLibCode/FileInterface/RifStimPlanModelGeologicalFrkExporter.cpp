@@ -21,6 +21,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaQStringFormatter.h"
 
 #include "RifCsvDataTableFormatter.h"
 #include "RifStimPlanModelPerfsFrkExporter.h"
@@ -355,7 +356,7 @@ bool RifStimPlanModelGeologicalFrkExporter::warnOnInvalidData( const QString& la
     bool isInvalid = hasInvalidData( values );
     if ( isInvalid )
     {
-        RiaLogging::warning( QString( "Found invalid data in Geological.FRK export of property '%1'." ).arg( label ) );
+        RiaLogging::warning( std::format( "Found invalid data in Geological.FRK export of property '{}'.", label ) );
     }
 
     return isInvalid;

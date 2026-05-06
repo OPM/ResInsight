@@ -21,6 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 #include "RiaPlotDefines.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 
 #include "RicNewWellLogPlotFeatureImpl.h"
@@ -186,7 +187,7 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
 
     if ( !wellPathGeometry )
     {
-        RiaLogging::error( QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" ).arg( wellPath->name() ) );
+        RiaLogging::error( std::format( "The well path {} has no geometry. Cannot create a Well Bore Stability Plot", wellPath->name() ) );
         return;
     }
     if ( wellPathGeometry->rkbDiff() == HUGE_VAL )

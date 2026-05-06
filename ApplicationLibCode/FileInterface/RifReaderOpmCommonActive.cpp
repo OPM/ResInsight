@@ -19,6 +19,7 @@
 #include "RifReaderOpmCommonActive.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStdStringTools.h"
 
 #include "RifOpmRadialGridTools.h"
@@ -83,23 +84,23 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
     {
         m_gridUnit = 1;
         RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as METRIC)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+            std::format( "Grid unit from EGRID file: '{}' (interpreted as METRIC)", QString::fromStdString( opmGrid.grid_unit() ) ) );
     }
     else if ( gridUnitStr.starts_with( 'F' ) )
     {
         m_gridUnit = 2;
         RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as FIELD)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+            std::format( "Grid unit from EGRID file: '{}' (interpreted as FIELD)", QString::fromStdString( opmGrid.grid_unit() ) ) );
     }
     else if ( gridUnitStr.starts_with( 'C' ) )
     {
         m_gridUnit = 3;
         RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as LAB)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+            std::format( "Grid unit from EGRID file: '{}' (interpreted as LAB)", QString::fromStdString( opmGrid.grid_unit() ) ) );
     }
     else if ( !gridUnitStr.empty() )
     {
-        RiaLogging::warning( QString( "Unknown grid unit from EGRID file: '%1'" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+        RiaLogging::warning( std::format( "Unknown grid unit from EGRID file: '{}'", QString::fromStdString( opmGrid.grid_unit() ) ) );
     }
 
     auto totalCellCount           = opmGrid.totalNumberOfCells();

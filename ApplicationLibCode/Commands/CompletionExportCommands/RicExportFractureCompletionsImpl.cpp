@@ -23,6 +23,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaQStringFormatter.h"
 #include "RigEclipseResultAddress.h"
 #include "Summary/RiaSummaryTools.h"
 
@@ -640,7 +641,7 @@ std::vector<cvf::Vec3d> RicExportFractureCompletionsImpl::computeWellPointsInFra
     std::vector<cvf::Vec3d> wellPathPoints = wellPathGeometry->wellPathPointsIncludingInterpolatedIntersectionPoint( fracture->fractureMD() );
 
     RiaLogging::info( "Using user-defined perforation length on azimuth fracture." );
-    RiaLogging::info( QString( "Perforation length: %1" ).arg( fracture->perforationLength() ) );
+    RiaLogging::info( std::format( "Perforation length: {}", fracture->perforationLength() ) );
     double startMd = fracture->fractureMD() - fracture->perforationLength() / 2.0;
     double endMd   = fracture->fractureMD() + fracture->perforationLength() / 2.0;
 
@@ -663,15 +664,15 @@ std::vector<cvf::Vec3d> RicExportFractureCompletionsImpl::computeWellPointsInFra
 
     auto vecToString = []( const cvf::Vec3d& vec ) { return QString( "[%1 %2 %3]" ).arg( vec.x() ).arg( vec.y() ).arg( vec.z() ); };
 
-    RiaLogging::info( QString( "Start perforation position: %1" ).arg( vecToString( startPos ) ) );
-    RiaLogging::info( QString( "Start perforation position in fracture plane: %1" ).arg( vecToString( startPosInFracturePlane ) ) );
-    RiaLogging::info( QString( "Anchor pos: %1" ).arg( vecToString( anchorPosition ) ) );
-    RiaLogging::info( QString( "Direction anchor to start position in plane: %1" ).arg( vecToString( directionToStartPosInFracturePlane ) ) );
-    RiaLogging::info( QString( "Direction anchor to original start position: %1" ).arg( vecToString( directionToStartPos ) ) );
+    RiaLogging::info( std::format( "Start perforation position: {}", vecToString( startPos ) ) );
+    RiaLogging::info( std::format( "Start perforation position in fracture plane: {}", vecToString( startPosInFracturePlane ) ) );
+    RiaLogging::info( std::format( "Anchor pos: {}", vecToString( anchorPosition ) ) );
+    RiaLogging::info( std::format( "Direction anchor to start position in plane: {}", vecToString( directionToStartPosInFracturePlane ) ) );
+    RiaLogging::info( std::format( "Direction anchor to original start position: {}", vecToString( directionToStartPos ) ) );
 
     // Find the angle between the real direction (tangential to well path) and the fracture plane
     double angle = cvf::GeometryTools::getAngle( directionToStartPosInFracturePlane, directionToStartPos );
-    RiaLogging::info( QString( "Angle: %1 degrees." ).arg( cvf::Math::toDegrees( angle ) ) );
+    RiaLogging::info( std::format( "Angle: {} degrees.", cvf::Math::toDegrees( angle ) ) );
     auto rotMat = cvf::GeometryTools::rotationMatrixBetweenVectors( directionToStartPos, directionToStartPosInFracturePlane );
 
     auto rotatePoint = []( const cvf::Vec3d& point, const cvf::Vec3d& offset, auto rotMat )

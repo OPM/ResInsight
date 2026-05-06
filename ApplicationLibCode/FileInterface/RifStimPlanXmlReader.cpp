@@ -22,6 +22,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaTextStringTools.h"
 
 #include "RigStimPlanFractureDefinition.h"
@@ -49,7 +50,7 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
                                                                                    RiaDefines::EclipseUnitSystem requiredUnit,
                                                                                    QString*                      errorMessage )
 {
-    RiaLogging::info( QString( "Starting to open StimPlan XML file: '%1'" ).arg( stimPlanFileName ) );
+    RiaLogging::info( std::format( "Starting to open StimPlan XML file: '{}'", stimPlanFileName ) );
 
     cvf::ref<RigStimPlanFractureDefinition> stimPlanFileData = new RigStimPlanFractureDefinition;
     {
@@ -71,11 +72,11 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
             RiaLogging::info(
                 QString( "Setting unit system for StimPlan fracture template %1 to %2" ).arg( stimPlanFileName ).arg( unitSystem.uiText() ) );
         else
-            RiaLogging::error( QString( "Found invalid units for %1. Unit system not set." ).arg( stimPlanFileName ) );
+            RiaLogging::error( std::format( "Found invalid units for {}. Unit system not set.", stimPlanFileName ) );
 
         if ( xmlStream.hasError() )
         {
-            RiaLogging::error( QString( "Failed to parse file '%1'" ).arg( dataFile.fileName() ) );
+            RiaLogging::error( std::format( "Failed to parse file '{}'", dataFile.fileName() ) );
             RiaLogging::error( xmlStream.errorString() );
         }
         dataFile.close();
@@ -83,10 +84,10 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
 
     size_t numberOfYValues = stimPlanFileData->yCount();
     RiaLogging::debug(
-        QString( "Grid size X: %1, Y: %2" ).arg( QString::number( stimPlanFileData->xCount() ), QString::number( numberOfYValues ) ) );
+        std::format( "Grid size X: {}, Y: {}", QString::number( stimPlanFileData->xCount() ), QString::number( numberOfYValues ) ) );
 
     size_t numberOfTimeSteps = stimPlanFileData->timeSteps().size();
-    RiaLogging::debug( QString( "Number of time-steps: %1" ).arg( numberOfTimeSteps ) );
+    RiaLogging::debug( std::format( "Number of time-steps: {}", numberOfTimeSteps ) );
 
     // Start reading from top:
     QFile dataFile( stimPlanFileName );
@@ -119,7 +120,7 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
                 unit      = getAttributeValueString( xmlStream2, QString( "uom" ) );
                 parameter = getAttributeValueString( xmlStream2, QString( "name" ) );
 
-                RiaLogging::info( QString( "%1 [%2]" ).arg( parameter, unit ) );
+                RiaLogging::info( std::format( "{} [{}]", parameter, unit ) );
             }
             else if ( RiaTextStringTools::isTextEqual( xmlStream2.name(), QString( "time" ) ) )
             {
@@ -131,7 +132,7 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
                 bool valuesOK = stimPlanFileData->numberOfParameterValuesOK( propertyValuesAtTimestep );
                 if ( !valuesOK )
                 {
-                    RiaLogging::error( QString( "Inconsistency detected in reading XML file: '%1'" ).arg( dataFile.fileName() ) );
+                    RiaLogging::error( std::format( "Inconsistency detected in reading XML file: '{}'", dataFile.fileName() ) );
                     return nullptr;
                 }
 
@@ -157,17 +158,17 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
 
     if ( xmlStream2.hasError() )
     {
-        RiaLogging::error( QString( "Failed to parse file: '%1'" ).arg( dataFile.fileName() ) );
+        RiaLogging::error( std::format( "Failed to parse file: '{}'", dataFile.fileName() ) );
         RiaLogging::error( xmlStream2.errorString() );
     }
     else if ( dataFile.error() != QFile::NoError )
     {
-        RiaLogging::error( QString( "Cannot read file: '%1'" ).arg( dataFile.fileName() ) );
+        RiaLogging::error( std::format( "Cannot read file: '{}'", dataFile.fileName() ) );
         RiaLogging::error( dataFile.errorString() );
     }
     else
     {
-        RiaLogging::info( QString( "Successfully read XML file: '%1'" ).arg( stimPlanFileName ) );
+        RiaLogging::info( std::format( "Successfully read XML file: '{}'", stimPlanFileName ) );
     }
 
     return stimPlanFileData;

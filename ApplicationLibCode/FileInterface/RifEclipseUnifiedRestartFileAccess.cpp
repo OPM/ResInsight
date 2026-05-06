@@ -22,6 +22,7 @@
 
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaQStringFormatter.h"
 
 #include "RiaStringEncodingTools.h"
 #include "RifEclipseOutputFileTools.h"
@@ -89,7 +90,7 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
                                                      ECL_FILE_CLOSE_STREAM );
                     if ( !m_ecl_file )
                     {
-                        RiaLogging::error( QString( "Failed to open file %1 using index file." ).arg( m_filename ) );
+                        RiaLogging::error( std::format( "Failed to open file {} using index file.", m_filename ) );
                     }
                 }
             }
@@ -100,7 +101,7 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
             m_ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_filename ).data(), ECL_FILE_CLOSE_STREAM );
             if ( !m_ecl_file )
             {
-                RiaLogging::error( QString( "Failed to open file %1" ).arg( m_filename ) );
+                RiaLogging::error( std::format( "Failed to open file {}", m_filename ) );
             }
             else
             {
@@ -114,7 +115,7 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 
                         if ( !success )
                         {
-                            RiaLogging::error( QString( "Failed to exported index file to %1 " ).arg( indexFileName ) );
+                            RiaLogging::error( std::format( "Failed to exported index file to {} ", indexFileName ) );
                         }
                     }
                 }

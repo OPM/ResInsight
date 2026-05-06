@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RimWellLogPlot.h"
 
@@ -79,7 +80,7 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered( bool isChecked )
         bool    writeFiles = caf::Utils::getSaveDirectoryAndCheckOverwriteFiles( defaultDir, fileNames, &saveDir );
         if ( !writeFiles ) return;
 
-        RiaLogging::info( QString( "Writing to directory %!" ).arg( saveDir ) );
+        RiaLogging::info( std::format( "Writing to directory %!", saveDir ) );
         for ( RimWellLogPlot* wellLogPlot : selectedWellLogPlots )
         {
             QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename( wellLogPlot->description() ) + ".ascii";
@@ -126,7 +127,7 @@ bool RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( const QString&
         return false;
     }
 
-    RiaLogging::info( QString( "Writing values for plot(s) to file: %1" ).arg( fileName ) );
+    RiaLogging::info( std::format( "Writing values for plot(s) to file: {}", fileName ) );
 
     QTextStream out( &file );
 
@@ -135,7 +136,7 @@ bool RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( const QString&
     out << wellLogPlot->asciiDataForPlotExport();
     out << "\n\n";
 
-    RiaLogging::info( QString( "Competed writing values for plot(s) to file %1" ).arg( fileName ) );
+    RiaLogging::info( std::format( "Competed writing values for plot(s) to file {}", fileName ) );
 
     return true;
 }

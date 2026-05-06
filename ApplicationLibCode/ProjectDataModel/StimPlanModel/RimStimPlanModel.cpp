@@ -22,6 +22,7 @@
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStimPlanModelDefines.h"
 
 #include "RigEclipseCaseData.h"
@@ -647,7 +648,7 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
     const cvf::Vec3d& position = anchorPosition();
 
     RiaLogging::info( "Computing distance to barrier." );
-    RiaLogging::info( QString( "Anchor position: %1" ).arg( RigStimPlanModelTools::vecToString( position ) ) );
+    RiaLogging::info( std::format( "Anchor position: {}", RigStimPlanModelTools::vecToString( position ) ) );
 
     cvf::Vec3d fractureDirectionNormal = computeFractureDirectionNormal( wellPath(), position );
 
@@ -660,7 +661,7 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
     cvf::Vec3d directionToBarrier = projectVectorIntoFracturePlane( position, fractureDirectionNormal, m_thicknessDirection );
     if ( directionToBarrier.isUndefined() ) return;
 
-    RiaLogging::info( QString( "Direction to barrier: %1" ).arg( RigStimPlanModelTools::vecToString( directionToBarrier ) ) );
+    RiaLogging::info( std::format( "Direction to barrier: {}", RigStimPlanModelTools::vecToString( directionToBarrier ) ) );
 
     auto [foundFault, shortestDistance, barrierPosition, barrierDip] =
         RigStimPlanModelTools::findClosestFaultBarrier( eclipseCaseData, position, directionToBarrier );
@@ -710,7 +711,7 @@ cvf::Vec3d RimStimPlanModel::computeFractureDirectionNormal( RimWellPath* wellPa
 
     // Create a well direction based on the two points
     cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();
-    RiaLogging::info( QString( "Well direction: %1" ).arg( RigStimPlanModelTools::vecToString( wellDirection ) ) );
+    RiaLogging::info( std::format( "Well direction: {}", RigStimPlanModelTools::vecToString( wellDirection ) ) );
 
     cvf::Vec3d fractureDirectionNormal = wellDirection;
     if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
@@ -1125,7 +1126,7 @@ double RimStimPlanModel::getOverburdenGradient( RiaDefines::CurveProperty curveP
     else
     {
         RiaLogging::error(
-            QString( "Missing overburden gradient for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+            std::format( "Missing overburden gradient for {}.", caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -1147,7 +1148,7 @@ double RimStimPlanModel::getUnderburdenGradient( RiaDefines::CurveProperty curve
     else
     {
         RiaLogging::error(
-            QString( "Missing underburden gradient for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+            std::format( "Missing underburden gradient for {}.", caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -1171,7 +1172,7 @@ double RimStimPlanModel::getDefaultValueForProperty( RiaDefines::CurveProperty c
     }
     else
     {
-        RiaLogging::error( QString( "Missing default for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+        RiaLogging::error( std::format( "Missing default for {}.", caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }

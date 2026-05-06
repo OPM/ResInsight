@@ -23,6 +23,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaThermalFractureDefines.h"
 
 #include "RifThermalFractureReader.h"
@@ -102,7 +103,7 @@ void RimThermalFractureTemplate::setDefaultsBasedOnFile()
     computeDepthOfWellPathAtFracture();
     computePerforationLength();
 
-    RiaLogging::info( QString( "Setting well/fracture intersection depth at %1" ).arg( m_wellPathDepthAtFracture() ) );
+    RiaLogging::info( std::format( "Setting well/fracture intersection depth at {}", m_wellPathDepthAtFracture() ) );
 
     m_activeTimeStepIndex = static_cast<int>( m_fractureDefinitionData->numTimeSteps() - 1 );
 
@@ -802,7 +803,7 @@ bool RimThermalFractureTemplate::placeFractureUsingTemplateData( RimFracture* fr
 
     RiaLogging::info(
         QString( "Placing thermal fracture. Position: [%1 %2 %3]" ).arg( centerPosition.x() ).arg( centerPosition.y() ).arg( centerPosition.z() ) );
-    RiaLogging::info( QString( "Computed MD: %1" ).arg( md ) );
+    RiaLogging::info( std::format( "Computed MD: {}", md ) );
 
     RimWellPathFracture* wellPathFracture = dynamic_cast<RimWellPathFracture*>( fracture );
     if ( wellPathFracture ) wellPathFracture->setMeasuredDepth( md );

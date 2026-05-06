@@ -19,6 +19,7 @@
 #include "RifRmsWellPathReader.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStringEncodingTools.h"
 
 #include "RifWellPathImporter.h"
@@ -95,6 +96,6 @@ RifWellPathImporter::WellData RifRmsWellPathReader::readWellData( const QString&
         }
     }
 
-    RiaLogging::error( QString( "Failed to import RMS well path: %1." ).arg( filePath ) );
+    RiaLogging::error( std::format( "Failed to import RMS well path: {}.", filePath ) );
     return RifWellPathImporter::WellData();
 }

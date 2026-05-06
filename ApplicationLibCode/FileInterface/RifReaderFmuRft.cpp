@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaQStringFormatter.h"
 #include "RiaTextStringTools.h"
 
 #include "cafAssert.h"
@@ -223,7 +224,7 @@ void RifReaderFmuRft::importData()
     auto wellDates = importWellDates( dir.absoluteFilePath( RifReaderFmuRft::wellPathFileName() ) );
     if ( wellDates.empty() )
     {
-        RiaLogging::error( QString( "'%1' contains no valid FMU RFT data" ).arg( m_filePath ) );
+        RiaLogging::error( std::format( "'{}' contains no valid FMU RFT data", m_filePath ) );
         return;
     }
 
@@ -384,7 +385,7 @@ std::vector<RifReaderFmuRft::WellDate> RifReaderFmuRft::importWellDates( const Q
     QFile wellDateFile( fileName );
     if ( !wellDateFile.open( QIODevice::Text | QIODevice::ReadOnly ) )
     {
-        RiaLogging::error( QString( "Could not read '%1'" ).arg( fileName ) );
+        RiaLogging::error( std::format( "Could not read '{}'", fileName ) );
         return {};
     }
 
@@ -420,7 +421,7 @@ std::vector<RifReaderFmuRft::WellDate> RifReaderFmuRft::importWellDates( const Q
             QStringList dateWords = words[1].split( "-" );
             if ( dateWords.size() != 3 )
             {
-                RiaLogging::error( QString( "Failed to parse '%1'" ).arg( fileName ) );
+                RiaLogging::error( std::format( "Failed to parse '{}'", fileName ) );
                 return {};
             }
 
@@ -432,7 +433,7 @@ std::vector<RifReaderFmuRft::WellDate> RifReaderFmuRft::importWellDates( const Q
         }
         else
         {
-            RiaLogging::error( QString( "Failed to parse '%1'" ).arg( fileName ) );
+            RiaLogging::error( std::format( "Failed to parse '{}'", fileName ) );
             return {};
         }
 
@@ -453,7 +454,7 @@ std::vector<RifReaderFmuRft::Location> RifReaderFmuRft::importLocations( const Q
     QFile file( fileName );
     if ( !file.open( QIODevice::Text | QIODevice::ReadOnly ) )
     {
-        RiaLogging::error( QString( "Could not open '%1'" ).arg( fileName ) );
+        RiaLogging::error( std::format( "Could not open '{}'", fileName ) );
         return {};
     }
 
@@ -477,7 +478,7 @@ std::vector<RifReaderFmuRft::Location> RifReaderFmuRft::importLocations( const Q
 
         if ( lineStream.status() != QTextStream::Ok )
         {
-            RiaLogging::error( QString( "Failed to parse '%1'" ).arg( fileName ) );
+            RiaLogging::error( std::format( "Failed to parse '{}'", fileName ) );
             return {};
         }
 
@@ -496,7 +497,7 @@ std::vector<RifReaderFmuRft::Observation>
     QFile file( fileName );
     if ( !file.open( QIODevice::Text | QIODevice::ReadOnly ) )
     {
-        RiaLogging::error( QString( "Could not open '%1'" ).arg( fileName ) );
+        RiaLogging::error( std::format( "Could not open '{}'", fileName ) );
         return {};
     }
 
@@ -514,7 +515,7 @@ std::vector<RifReaderFmuRft::Observation>
 
         if ( lineNumber >= locations.size() )
         {
-            RiaLogging::error( QString( "'%1' has more lines than corresponding txt file" ).arg( fileName ) );
+            RiaLogging::error( std::format( "'{}' has more lines than corresponding txt file", fileName ) );
             return {};
         }
 

@@ -21,6 +21,7 @@
 #include "RiaDefines.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RicExportEclipseSectorModelFeature.h"
 #include "RicExportSectorModelUi.h"
@@ -129,11 +130,11 @@ void RicExportSectorModelFeature::doExport( RicExportSectorModelUi* exportSettin
                                                                                                          exportSettings->wellPadding() );
     if ( auto result = RigSimulationInputTool::exportSimulationInput( *view->eclipseCase(), settings, cellVisibility.p() ); !result )
     {
-        RiaLogging::error( QString( "Failed to export sector model to DATA file: %1" ).arg( result.error() ) );
+        RiaLogging::error( std::format( "Failed to export sector model to DATA file: {}", result.error() ) );
     }
     else
     {
-        RiaLogging::info( QString( "Successfully exported sector model to DATA file: %1" ).arg( exportSettings->exportDeckFilename() ) );
+        RiaLogging::info( std::format( "Successfully exported sector model to DATA file: {}", exportSettings->exportDeckFilename() ) );
     }
 
     auto jobColl = RimTools::jobCollection();
