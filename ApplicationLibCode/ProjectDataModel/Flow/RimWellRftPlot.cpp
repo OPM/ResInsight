@@ -147,7 +147,7 @@ RimWellRftPlot::RimWellRftPlot()
 
     setPlotTitleVisible( true );
 
-    setAsPlotMdiWindow();
+    dockAsPlotWindow();
     m_isOnLoad = true;
 }
 
@@ -156,7 +156,7 @@ RimWellRftPlot::RimWellRftPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellRftPlot::~RimWellRftPlot()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
 
     deleteViewWidget();
 }
@@ -1358,7 +1358,7 @@ void RimWellRftPlot::onLoadDataAndUpdate()
         m_isOnLoad = false;
     }
 
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
     updateFormationsOnPlot();
 
     if ( depthType() == RiaDefines::DepthType::MEASURED_DEPTH )

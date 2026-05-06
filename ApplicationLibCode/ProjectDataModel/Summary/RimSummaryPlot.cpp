@@ -192,7 +192,7 @@ RimSummaryPlot::~RimSummaryPlot()
 {
     m_isValid = false;
 
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
 
     deletePlotCurvesAndPlotWidget();
 
@@ -503,7 +503,7 @@ void RimSummaryPlot::updatePlotTitle()
     }
 
     updateCurveNames();
-    updateMdiWindowTitle();
+    updateWindowTitle();
 
     if ( plotWidget() )
     {
@@ -1784,7 +1784,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
     updatePlotTitle();
 
     auto plotWindow = firstAncestorOrThisOfType<RimMultiPlot>();
-    if ( plotWindow == nullptr ) updateMdiWindowVisibility();
+    if ( plotWindow == nullptr ) updateDockWindowVisibility();
 
     if ( m_summaryCurveCollection )
     {
@@ -2516,7 +2516,7 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
 
     caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
-    if ( isMdiWindow() )
+    if ( isMainDockedWindow() )
     {
         mainOptions->add( &m_showPlotTitle );
         if ( m_showPlotTitle )
@@ -2534,7 +2534,7 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     mainOptions->add( &m_normalizeCurveYValues );
 
-    if ( isMdiWindow() )
+    if ( isMainDockedWindow() )
     {
         RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
     }

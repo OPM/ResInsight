@@ -54,8 +54,6 @@
 #include "RiuCellSelectionTool.h"
 #include "RiuDepthQwtPlot.h"
 #include "RiuDockWidgetTools.h"
-#include "RiuMdiArea.h"
-#include "RiuMdiSubWindow.h"
 #include "RiuMenuBarBuildTools.h"
 #include "RiuMessagePanel.h"
 #include "RiuMohrsCirclePlot.h"
@@ -142,22 +140,7 @@ RiuMainWindow::RiuMainWindow()
 {
     setAttribute( Qt::WA_DeleteOnClose );
 
-    // m_mdiArea = new RiuMdiArea( this );
-    // connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
-
-    // ads::CDockWidget* cWidget = RiuDockWidgetTools::createDockWidget( "3D Views", RiuDockWidgetTools::main3DWindowName(), this );
-    // cWidget->setWidget( m_mdiArea );
-    // dockManager()->setCentralWidget( cWidget );
-
-    m_centralDockWidget = RiuDockWidgetTools::createDockWidget( "Welcome", "Welcome", this );
-    QTextEdit* welcome  = new QTextEdit();
-    welcome->setReadOnly( true );
-    welcome->setPlainText( "Welcome to ResInsight!\n\n"
-                           "To get started, open a project from the File menu or drag and drop a project file into this window." );
-    m_centralDockWidget->setWidget( welcome );
-    m_centralDockWidget->setFeature( ads::CDockWidget::NoTab, true );
-    dockManager()->setCentralWidget( m_centralDockWidget );
-
+    setUpCentralDockWidget();
     createActions();
     createMenus();
     createToolBars();
@@ -649,7 +632,6 @@ void RiuMainWindow::createToolBars()
         toolbar->setObjectName( toolbar->windowTitle() );
         toolbar->addAction( cmdFeatureMgr->action( "RicShowPlotWindowFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLinkVisibleViewsFeature" ) );
-        toolbar->addAction( cmdFeatureMgr->action( "RicTileWindowsFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicShowGridCalculatorFeature" ) );
     }
 
@@ -1011,7 +993,7 @@ void RiuMainWindow::slotRefreshViewActions()
 
     {
         QStringList commandIds;
-        commandIds << "RicLinkVisibleViewsFeature" << "RicTileWindowsFeature" << "RicTogglePerspectiveViewFeature"
+        commandIds << "RicLinkVisibleViewsFeature" << "RicTogglePerspectiveViewFeature"
                    << "RicViewZoomAllFeature" << "RicApplyUserDefinedCameraFeature" << "RicStoreUserDefinedCameraFeature";
 
         caf::CmdFeatureManager::instance()->refreshEnabledState( commandIds );
@@ -1019,7 +1001,6 @@ void RiuMainWindow::slotRefreshViewActions()
 
     {
         QStringList commandIds;
-        commandIds << "RicTileWindowsFeature";
         commandIds << "RicToggleMeasurementModeFeature";
         commandIds << "RicTogglePolyMeasurementModeFeature";
 
@@ -1152,53 +1133,6 @@ void RiuMainWindow::slotInputMockModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMdiSubWindow* RiuMainWindow::findMdiSubWindow( QWidget* viewer )
-{
-    // QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
-    // int                   i;
-    // for ( i = 0; i < subws.size(); ++i )
-    //{
-    //     if ( subws[i]->widget() == viewer )
-    //     {
-    //         return subws[i];
-    //     }
-    // }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimViewWindow* RiuMainWindow::findViewWindowFromSubWindow( QMdiSubWindow* subWindow )
-{
-    if ( subWindow )
-    {
-        std::vector<RimViewWindow*> allViewWindows = RimProject::current()->descendantsIncludingThisOfType<RimViewWindow>();
-
-        for ( RimViewWindow* viewWindow : allViewWindows )
-        {
-            if ( viewWindow->viewWidget() == subWindow->widget() )
-            {
-                return viewWindow;
-            }
-        }
-    }
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<QMdiSubWindow*> RiuMainWindow::subWindowList( QMdiArea::WindowOrder order )
-{
-    //    return m_mdiArea->subWindowList( order );
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiuResultQwtPlot* RiuMainWindow::resultPlot()
 {
     return m_resultQwtPlot;
@@ -1257,38 +1191,13 @@ RiuMessagePanel* RiuMainWindow::messagePanel()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::removeViewer( QWidget* viewer )
 {
-    // m_dockManager->removeDockWidget( viewer );
     slotRefreshViewActions();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
-{
-    QSize  subWindowSize;
-    QPoint subWindowPos( -1, -1 );
-
-    if ( windowsGeometry.isValid() )
-    {
-        subWindowPos  = QPoint( windowsGeometry.x, windowsGeometry.y );
-        subWindowSize = QSize( windowsGeometry.width, windowsGeometry.height );
-    }
-    else
-    {
-        subWindowSize = QSize( 400, 400 );
-    }
-
-    // initializeSubWindow( m_mdiArea, subWindow, subWindowPos, subWindowSize );
-    subWindow->setWidget( viewer );
-
-    slotRefreshViewActions();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
+void RiuMainWindow::initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer )
 {
     dockManager()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, dockWidget, dockManager()->centralWidget()->dockAreaWidget() );
 
@@ -1413,30 +1322,6 @@ void RiuMainWindow::slotViewFromBelow()
     {
         RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, 0, 1 ), cvf::Vec3d( 0, 1, 0 ) );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
-{
-    if ( isBlockingSubWindowActivatedSignal() ) return;
-
-    Rim3dView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
-    Rim3dView* activatedView               = dynamic_cast<Rim3dView*>( findViewWindowFromSubWindow( subWindow ) );
-
-    if ( !activatedView || ( previousActiveReservoirView == activatedView ) ) return;
-
-    RiaApplication::instance()->setActiveReservoirView( activatedView );
-
-    if ( !isBlockingViewSelectionOnSubWindowActivated() )
-    {
-        selectViewInProjectTreePreservingSubItemSelection( previousActiveReservoirView, activatedView );
-    }
-
-    slotRefreshViewActions();
-    refreshAnimationActions();
-    refreshDrawStyleActions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2131,15 +2016,6 @@ void RiuMainWindow::customMenuRequested( const QPoint& pos )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuMainWindow::isAnyMdiSubWindowVisible()
-{
-    // return !m_mdiArea->subWindowList().empty();
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RicGridCalculatorDialog* RiuMainWindow::gridCalculatorDialog( bool createIfNotPresent )
 {
     if ( !m_gridCalculatorDialog && createIfNotPresent )
@@ -2166,7 +2042,7 @@ QStringList RiuMainWindow::defaultDockStateNames()
 //--------------------------------------------------------------------------------------------------
 QStringList RiuMainWindow::windowsMenuFeatureNames()
 {
-    return { "RicTileWindowsFeature", "RicTileWindowsVerticallyFeature", "RicTileWindowsHorizontallyFeature" };
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

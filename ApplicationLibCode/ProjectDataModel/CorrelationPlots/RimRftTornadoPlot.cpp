@@ -279,7 +279,7 @@ RiuPlotWidget* RimRftTornadoPlot::doCreatePlotViewWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void RimRftTornadoPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     if ( m_plotWidget )
     {

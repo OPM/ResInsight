@@ -51,7 +51,7 @@ RimAnalysisPlotCollection::~RimAnalysisPlotCollection()
 RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot()
 {
     RimAnalysisPlot* plot = new RimAnalysisPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
 
     if ( firstEnsemble() )
     {
@@ -86,7 +86,7 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot()
 RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot( RimSummaryEnsemble* ensemble, const QString& quantityName, std::time_t timeStep )
 {
     RimAnalysisPlot* plot = new RimAnalysisPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
 
     applySummaryCaseCollectionAndFieldAddressToPlot( plot, ensemble, quantityName.toStdString() );
     plot->setTimeSteps( { timeStep } );

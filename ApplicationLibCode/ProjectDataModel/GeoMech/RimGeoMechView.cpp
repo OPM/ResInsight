@@ -193,7 +193,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
     progress.incrementProgress();
     progress.setProgressDescription( "Create Display model" );
 
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();

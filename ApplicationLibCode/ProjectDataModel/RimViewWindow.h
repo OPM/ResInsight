@@ -25,36 +25,12 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include <vector>
-
 class RimDockWindowController;
 
 namespace ads
 {
 class CDockWidget;
 } // namespace ads
-
-struct RimMdiWindowGeometry
-{
-    RimMdiWindowGeometry()
-        : mainWindowID( -1 )
-        , x( 0 )
-        , y( 0 )
-        , width( -1 )
-        , height( -1 )
-        , isMaximized( false )
-    {
-    }
-    bool isValid() const { return ( mainWindowID >= 0 && width >= 0 && height >= 0 ); }
-
-    int mainWindowID;
-
-    int  x;
-    int  y;
-    int  width;
-    int  height;
-    bool isMaximized;
-};
 
 class RimViewWindow : public caf::PdmObject, public caf::FontHolderInterface
 {
@@ -69,18 +45,16 @@ public:
     bool showWindow() const;
     void setShowWindow( bool showWindow );
 
+    bool isMainDockedWindow() const;
+
     void loadDataAndUpdate();
     void handleMdiWindowClosed();
-    void updateMdiWindowVisibility();
+    void updateDockWindowVisibility();
 
-    void setAs3DViewMdiWindow();
-    void setAsPlotMdiWindow();
-    void revokeMdiWindowStatus();
+    void removeWindowFromDock();
 
-    bool isMdiWindow() const;
-
-    void                 setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry );
-    RimMdiWindowGeometry mdiWindowGeometry();
+    void dockAs3DViewWindow();
+    void dockAsPlotWindow();
 
     virtual QWidget* viewWidget() = 0;
 
@@ -92,11 +66,9 @@ public:
 
     void viewNavigationChanged();
 
-    virtual void updateMdiWindowTitle();
+    virtual void updateWindowTitle();
 
 protected:
-    void removeMdiWindowFromMdiArea();
-
     ///////// Interface for the Window controller
     friend class RimDockWindowController;
 
@@ -107,6 +79,7 @@ protected:
     virtual void     onLoadDataAndUpdate() = 0;
     virtual void     onViewNavigationChanged();
     virtual bool     isWindowVisible() const; // Virtual To allow special visibility control
+    void             deleteDockViewer();
     //////////
 
     // Derived classes are not supposed to override this function. The intention is to always use m_showWindow
@@ -121,15 +94,11 @@ protected:
 private:
     friend class RimProject;
 
-    void         setAsMdiWindow( int mainWindowID );
+    void         dockInWindow( int mainWindowID );
     virtual void assignIdIfNecessary() = 0;
 
 protected:
-    caf::PdmField<bool>                          m_showWindow;
-    caf::PdmChildField<RimDockWindowController*> m_windowController;
-    ads::CDockWidget*                            m_dockWidget;
-
-private:
-    // Obsoleted field
-    caf::PdmField<std::vector<int>> obsoleteField_windowGeometry;
+    caf::PdmField<bool>      m_showWindow;
+    RimDockWindowController* m_windowController;
+    ads::CDockWidget*        m_dockWidget;
 };

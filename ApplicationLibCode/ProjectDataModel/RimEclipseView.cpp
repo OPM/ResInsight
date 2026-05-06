@@ -579,7 +579,7 @@ void RimEclipseView::childFieldChangedByUi( const caf::PdmFieldHandle* changedCh
 {
     if ( changedChildField == &m_cellResult )
     {
-        updateMdiWindowTitle();
+        updateWindowTitle();
 
         m_propertyFilterCollection->updateDefaultResult( m_cellResult() );
     }
@@ -1268,7 +1268,7 @@ void RimEclipseView::onLoadDataAndUpdate()
     faultResultSettings()->customFaultResult()->loadResult();
     fractureColors()->loadDataAndUpdate();
 
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     m_propertyFilterCollection()->loadAndInitializePropertyFilters();
 

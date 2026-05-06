@@ -131,7 +131,7 @@ RimHistogramPlot::~RimHistogramPlot()
 {
     m_isValid = false;
 
-    removeMdiWindowFromMdiArea();
+    if ( isMainDockedWindow() ) removeWindowFromDock();
 
     deletePlotCurvesAndPlotWidget();
 }
@@ -261,7 +261,7 @@ void RimHistogramPlot::updatePlotTitle()
     }
 
     updateCurveNames();
-    updateMdiWindowTitle();
+    updateWindowTitle();
 
     if ( plotWidget() )
     {
@@ -662,7 +662,7 @@ void RimHistogramPlot::onLoadDataAndUpdate()
     updatePlotTitle();
 
     auto plotWindow = firstAncestorOrThisOfType<RimMultiPlot>();
-    if ( plotWindow == nullptr ) updateMdiWindowVisibility();
+    if ( plotWindow == nullptr ) updateDockWindowVisibility();
 
     if ( m_histogramCurveCollection )
     {
@@ -987,7 +987,7 @@ void RimHistogramPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
 
-    if ( isMdiWindow() )
+    if ( isMainDockedWindow() )
     {
         mainOptions->add( &m_showPlotTitle );
         if ( m_showPlotTitle )
@@ -1008,7 +1008,7 @@ void RimHistogramPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_histogramFrequencyType );
     uiOrdering.add( &m_graphType );
 
-    if ( isMdiWindow() )
+    if ( isMainDockedWindow() )
     {
         RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
     }

@@ -15,8 +15,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiuMdiArea.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiuMdiSubWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuProcessMonitor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.cpp
@@ -93,7 +91,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuDepthQwtPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellPathComponentPlotItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiuMdiMaximizeWindowGuard.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuComparisonViewMover.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.cpp

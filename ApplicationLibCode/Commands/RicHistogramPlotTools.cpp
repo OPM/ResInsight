@@ -124,7 +124,7 @@ RimHistogramMultiPlot* RicHistogramPlotTools::addNewHistogramMultiplot( RimHisto
     CAF_ASSERT( collection );
 
     RimHistogramMultiPlot* multiplot = collection->appendHistogramMultiPlot();
-    multiplot->setAsPlotMdiWindow();
+    multiplot->dockAsPlotWindow();
     multiplot->setShowWindow( true );
     multiplot->loadDataAndUpdate();
     collection->updateConnectedEditors();
