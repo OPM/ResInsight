@@ -301,7 +301,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     bool showDebugTiming = false;
     if ( showDebugTiming )
     {
-        QString timingText = "RimEnsembleStatisticsCase::calculate" + QString::fromStdString( inputAddress.toEclipseTextAddress() );
+        std::string timingText = "RimEnsembleStatisticsCase::calculate" + inputAddress.toEclipseTextAddress();
         RiaLogging::logElapsedTime( timingText, startTime );
     }
 }

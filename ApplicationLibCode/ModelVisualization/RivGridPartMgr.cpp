@@ -133,7 +133,7 @@ void RivGridPartMgr::generatePartGeometry( cvf::StructGridGeometryGenerator& geo
         if ( showDebugTiming )
         {
             auto text = caf::AppEnum<RivCellSetEnum>::text( m_cellSetType );
-            RiaLogging::logElapsedTime( text, startTime );
+            RiaLogging::logElapsedTime( text.toStdString(), startTime );
         }
 
         if ( geo.notNull() )

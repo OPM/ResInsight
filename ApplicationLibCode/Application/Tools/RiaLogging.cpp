@@ -355,28 +355,29 @@ std::chrono::time_point<std::chrono::high_resolution_clock> RiaLogging::currentT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::logElapsedTime( const QString& message, const std::chrono::time_point<std::chrono::high_resolution_clock>& startTime )
+void RiaLogging::logElapsedTime( std::string_view message, const std::chrono::time_point<std::chrono::high_resolution_clock>& startTime )
 {
     auto end      = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( end - startTime );
 
+    QString prefix = QString::fromUtf8( message.data(), static_cast<qsizetype>( message.size() ) );
     QString text;
     auto    totalMs = duration.count();
 
     if ( totalMs < 1000 )
     {
-        text = message + QString( " (duration: %1 milliseconds)" ).arg( totalMs );
+        text = prefix + QString( " (duration: %1 milliseconds)" ).arg( totalMs );
     }
     else if ( totalMs < 60000 )
     {
         double seconds = totalMs / 1000.0;
-        text           = message + QString( " (duration: %1 seconds)" ).arg( seconds, 0, 'f', 1 );
+        text           = prefix + QString( " (duration: %1 seconds)" ).arg( seconds, 0, 'f', 1 );
     }
     else
     {
         auto minutes          = totalMs / 60000;
         auto remainingSeconds = ( totalMs % 60000 ) / 1000.0;
-        text                  = message + QString( " (duration: %1 minutes %2 seconds)" ).arg( minutes ).arg( remainingSeconds, 0, 'f', 1 );
+        text                  = prefix + QString( " (duration: %1 minutes %2 seconds)" ).arg( minutes ).arg( remainingSeconds, 0, 'f', 1 );
     }
 
     RiaLogging::debug( text );
