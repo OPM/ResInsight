@@ -839,8 +839,7 @@ void RifReaderOpmCommon::setupInitAndRestartAccess()
             m_restartFile = std::make_unique<EclIO::ERst>( m_restartFileName );
 
             const bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "RifReaderOpmCommon" );
-            if ( isLoggingEnabled )
-                RiaLogging::logElapsedTime( "Import of meta data from " + QString::fromStdString( m_restartFileName ), startTime );
+            if ( isLoggingEnabled ) RiaLogging::logElapsedTime( "Import of meta data from " + m_restartFileName, startTime );
         }
         catch ( ... )
         {
