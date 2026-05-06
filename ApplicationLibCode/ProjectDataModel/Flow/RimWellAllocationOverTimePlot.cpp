@@ -126,7 +126,7 @@ RimWellAllocationOverTimePlot::RimWellAllocationOverTimePlot()
     m_axisValueFontSize = caf::FontTools::RelativeSize::Medium;
     m_legendFontSize    = caf::FontTools::RelativeSize::Medium;
 
-    setAsPlotMdiWindow();
+    dockAsPlotWindow();
     setShowWindow( false );
 }
 
@@ -135,7 +135,7 @@ RimWellAllocationOverTimePlot::RimWellAllocationOverTimePlot()
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationOverTimePlot::~RimWellAllocationOverTimePlot()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
     deleteViewWidget();
 }
 
@@ -302,7 +302,7 @@ void RimWellAllocationOverTimePlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationOverTimePlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     if ( m_plotWidget == nullptr || m_case == nullptr )
     {

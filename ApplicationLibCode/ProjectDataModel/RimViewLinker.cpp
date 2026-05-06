@@ -233,13 +233,13 @@ void RimViewLinker::updateOverrides()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateWindowTitles()
 {
-    if ( m_masterView ) m_masterView->updateMdiWindowTitle();
+    if ( m_masterView ) m_masterView->updateWindowTitle();
 
     for ( RimViewController* viewController : m_viewControllers )
     {
         if ( auto view = viewController->managedView() )
         {
-            view->updateMdiWindowTitle();
+            view->updateWindowTitle();
         }
     }
 }

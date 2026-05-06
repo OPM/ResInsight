@@ -55,7 +55,7 @@ RimTotalWellAllocationPlot::RimTotalWellAllocationPlot()
 //--------------------------------------------------------------------------------------------------
 RimTotalWellAllocationPlot::~RimTotalWellAllocationPlot()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
 
     if ( m_wellTotalAllocationPlotWidget )
     {
@@ -127,7 +127,7 @@ void RimTotalWellAllocationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     if ( changedField == &m_userName || changedField == &m_showPlotTitle )
     {
-        updateMdiWindowTitle();
+        updateWindowTitle();
     }
 }
 
@@ -156,7 +156,7 @@ QImage RimTotalWellAllocationPlot::snapshotWindowContent()
 void RimTotalWellAllocationPlot::setDescription( const QString& description )
 {
     m_userName = description;
-    updateMdiWindowTitle();
+    updateWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,7 +220,7 @@ void RimTotalWellAllocationPlot::clearSlices()
 //--------------------------------------------------------------------------------------------------
 void RimTotalWellAllocationPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------

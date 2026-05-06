@@ -185,7 +185,7 @@ RimDepthTrackPlot::~RimDepthTrackPlot()
     delete m_commonDataSource;
     delete m_nameConfig;
 
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
     m_plots.deleteChildren();
 
     cleanupBeforeClose();
@@ -791,7 +791,7 @@ void RimDepthTrackPlot::performAutoNameUpdate()
         m_viewer->setTitleVisible( m_showPlotTitle() );
         m_viewer->setPlotTitle( m_plotWindowTitle );
     }
-    updateMdiWindowTitle();
+    updateWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1228,7 +1228,7 @@ void RimDepthTrackPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
     performAutoNameUpdate();
     updatePlots();
     updateLayout();

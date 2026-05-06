@@ -26,7 +26,6 @@
 
 #include <QEvent>
 #include <QLabel>
-#include <QMdiArea>
 #include <QPointer>
 #include <QString>
 
@@ -34,7 +33,6 @@
 #include <vector>
 
 class QActionGroup;
-class QMdiSubWindow;
 class QToolButton;
 class QComboBox;
 class QTimer;
@@ -53,13 +51,10 @@ class RiuDepthQwtPlot;
 class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
-class RiuMdiArea;
 class RiuSeismicHistogramPanel;
 class RiuCellSelectionTool;
 
 class RicGridCalculatorDialog;
-
-struct RimMdiWindowGeometry;
 
 namespace caf
 {
@@ -98,8 +93,7 @@ public:
     void cleanupGuiBeforeProjectClose();
 
     void removeViewer( QWidget* viewer ) override;
-    void initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
-    void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
+    void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
     void setActiveViewer( QWidget* subWindow ) override;
 
     ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) override;
@@ -117,11 +111,6 @@ public:
     void setDefaultWindowSize();
 
     void refreshDrawStyleActions();
-
-    bool                  isAnyMdiSubWindowVisible();
-    QMdiSubWindow*        findMdiSubWindow( QWidget* viewer ) override;
-    RimViewWindow*        findViewWindowFromSubWindow( QMdiSubWindow* lhs );
-    QList<QMdiSubWindow*> subWindowList( QMdiArea::WindowOrder order );
 
     RiuResultQwtPlot*                 resultPlot();
     RiuDepthQwtPlot*                  depthPlot();
@@ -207,8 +196,6 @@ private:
     // Menu and action slots
 private slots:
 
-    friend class RiuMdiSubWindow;
-
     // Memory update slot
     void updateMemoryUsage();
 
@@ -256,7 +243,7 @@ private slots:
 
     // Windows slots
     void slotBuildWindowActions();
-    void slotSubWindowActivated( QMdiSubWindow* subWindow );
+    // void slotSubWindowActivated( QMdiSubWindow* subWindow );
 
     void selectedObjectsChanged();
     void customMenuRequested( const QPoint& pos );
@@ -290,8 +277,6 @@ private:
     QSlider* m_animationSlider;
 
     QToolBar* m_holoLensToolBar;
-
-    QPointer<ads::CDockWidget> m_centralDockWidget;
 
     std::vector<QPointer<ads::CDockWidget>> m_additionalProjectViews;
 };

@@ -51,17 +51,17 @@ void RicViewZoomAllFeature::onActionTriggered( bool isChecked )
     }
     else if ( dynamic_cast<RiuPlotMainWindow*>( topLevelWidget ) )
     {
-        RiuPlotMainWindow*    mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( topLevelWidget );
-        QList<QMdiSubWindow*> subwindows     = mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
-        if ( !subwindows.empty() )
-        {
-            RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
+        RiuPlotMainWindow* mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( topLevelWidget );
+        // QList<QMdiSubWindow*> subwindows     = mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
+        // if ( !subwindows.empty() )
+        //{
+        //     RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
 
-            if ( viewWindow )
-            {
-                viewWindow->zoomAll();
-            }
-        }
+        //    if ( viewWindow )
+        //    {
+        //        viewWindow->zoomAll();
+        //    }
+        //}
     }
 }
 

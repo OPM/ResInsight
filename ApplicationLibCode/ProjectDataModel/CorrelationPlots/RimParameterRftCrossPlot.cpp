@@ -514,7 +514,7 @@ RiuPlotWidget* RimParameterRftCrossPlot::doCreatePlotViewWidget( QWidget* parent
 //--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     if ( m_plotWidget )
     {

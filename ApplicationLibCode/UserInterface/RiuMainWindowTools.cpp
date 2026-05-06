@@ -214,12 +214,12 @@ void RiuMainWindowTools::setFixedWindowSizeFor3dViews( RiuMainWindowBase* mainWi
     {
         if ( riv && riv->viewer() )
         {
-            // Make sure all views are maximized for snapshotting
-            QMdiSubWindow* subWnd = mainWindow->findMdiSubWindow( riv->viewer()->layoutWidget() );
-            if ( subWnd )
-            {
-                subWnd->showMaximized();
-            }
+            //// Make sure all views are maximized for snapshotting
+            // QMdiSubWindow* subWnd = mainWindow->findMdiSubWindow( riv->viewer()->layoutWidget() );
+            // if ( subWnd )
+            //{
+            //     subWnd->showMaximized();
+            // }
 
             // This size is set to match the regression test reference images
             QSize windowSize( width, height );

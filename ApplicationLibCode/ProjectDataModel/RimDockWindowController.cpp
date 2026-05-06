@@ -33,12 +33,9 @@ CAF_PDM_XML_SOURCE_INIT( RimDockWindowController, "DockWindowController" );
 //--------------------------------------------------------------------------------------------------
 RimDockWindowController::RimDockWindowController()
 {
-    CAF_PDM_InitField( &m_mainWindowID, "MainWindowID", -1, "" );
-    CAF_PDM_InitField( &m_x, "xPos", -1, "" );
-    CAF_PDM_InitField( &m_y, "yPos", -1, "" );
-    CAF_PDM_InitField( &m_width, "Width", -1, "" );
-    CAF_PDM_InitField( &m_height, "Height", -1, "" );
-    CAF_PDM_InitField( &m_isMaximized, "IsMaximized", false, "" );
+    CAF_PDM_InitField( &m_mainWindowID, "MainWindowID", 0, "" );
+    CAF_PDM_InitFieldNoDefault( &m_viewToControl, "ViewToControl", "" );
+    m_viewToControl = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,36 +43,6 @@ RimDockWindowController::RimDockWindowController()
 //--------------------------------------------------------------------------------------------------
 RimDockWindowController::~RimDockWindowController()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDockWindowController::setWindowGeometry( const RimMdiWindowGeometry& windowGeometry )
-{
-    m_mainWindowID = windowGeometry.mainWindowID;
-    m_x            = windowGeometry.x;
-    m_y            = windowGeometry.y;
-    m_width        = windowGeometry.width;
-    m_height       = windowGeometry.height;
-    m_isMaximized  = windowGeometry.isMaximized;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RimDockWindowController::windowGeometry()
-{
-    RimMdiWindowGeometry windowGeometry;
-
-    windowGeometry.mainWindowID = m_mainWindowID;
-    windowGeometry.x            = m_x;
-    windowGeometry.y            = m_y;
-    windowGeometry.width        = m_width;
-    windowGeometry.height       = m_height;
-    windowGeometry.isMaximized  = m_isMaximized;
-
-    return windowGeometry;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,10 +65,12 @@ void RimDockWindowController::handleViewerDeletion()
 void RimDockWindowController::removeWindowFromDock()
 {
     RiuMainWindowBase* mainWin = getMainWindow();
-    if ( mainWin && viewWidget() )
+    if ( mainWin && viewWidget() && viewPdmObject() )
     {
-        mainWin->removeViewer( viewWidget() );
+        viewPdmObject()->deleteDockViewer();
         viewPdmObject()->deleteViewWidget();
+
+        mainWin->removeViewer( viewWidget() );
     }
 }
 
@@ -110,7 +79,7 @@ void RimDockWindowController::removeWindowFromDock()
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RimDockWindowController::viewPdmObject()
 {
-    return firstAncestorOrThisOfType<RimViewWindow>();
+    return m_viewToControl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,6 +87,7 @@ RimViewWindow* RimDockWindowController::viewPdmObject()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimDockWindowController::viewWidget()
 {
+    if ( !viewPdmObject() ) return nullptr;
     return viewPdmObject()->viewWidget();
 }
 
@@ -138,10 +108,6 @@ RiuMainWindowBase* RimDockWindowController::getMainWindow()
 //--------------------------------------------------------------------------------------------------
 void RimDockWindowController::setupBeforeSave()
 {
-    if ( viewWidget() && getMainWindow() )
-    {
-        setWindowGeometry( getMainWindow()->windowGeometryForViewer( viewWidget() ) );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,6 +117,7 @@ void RimDockWindowController::updateViewerWidget()
 {
     RiuMainWindowBase* mainWindow = getMainWindow();
     if ( !mainWindow ) return;
+    if ( !viewPdmObject() ) return;
 
     if ( viewPdmObject()->isWindowVisible() )
     {
@@ -159,22 +126,37 @@ void RimDockWindowController::updateViewerWidget()
             ads::CDockWidget* dockWidget = viewPdmObject()->createDockWidget();
             QWidget*          viewWidget = viewPdmObject()->createViewWidget( dockWidget );
             dockWidget->setWidget( viewWidget );
-            mainWindow->initializeViewer( dockWidget, viewWidget, windowGeometry() );
+            mainWindow->initializeViewer( dockWidget, viewWidget );
 
             viewPdmObject()->updateViewWidgetAfterCreation();
         }
 
-        viewPdmObject()->updateMdiWindowTitle();
+        viewPdmObject()->updateWindowTitle();
     }
     else
     {
         if ( viewWidget() )
         {
-            setWindowGeometry( mainWindow->windowGeometryForViewer( viewWidget() ) );
-
+            viewPdmObject()->deleteDockViewer();
             mainWindow->removeViewer( viewWidget() );
 
             viewPdmObject()->deleteViewWidget();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDockWindowController::setMainWindowId( int mainId )
+{
+    m_mainWindowID = mainId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDockWindowController::setViewToControl( RimViewWindow* view )
+{
+    m_viewToControl = view;
 }

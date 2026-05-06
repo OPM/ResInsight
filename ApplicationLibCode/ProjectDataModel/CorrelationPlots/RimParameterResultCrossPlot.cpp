@@ -97,7 +97,7 @@ RimParameterResultCrossPlot::RimParameterResultCrossPlot()
 //--------------------------------------------------------------------------------------------------
 RimParameterResultCrossPlot::~RimParameterResultCrossPlot()
 {
-    if ( isMdiWindow() ) removeMdiWindowFromMdiArea();
+    if ( isMainDockedWindow() ) removeWindowFromDock();
     cleanupBeforeClose();
 }
 
@@ -255,7 +255,7 @@ void RimParameterResultCrossPlot::defineEditorAttribute( const caf::PdmFieldHand
 //--------------------------------------------------------------------------------------------------
 void RimParameterResultCrossPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     m_selectedVarsUiField = selectedVectorNamesText();
 

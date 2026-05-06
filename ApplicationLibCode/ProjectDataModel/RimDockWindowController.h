@@ -23,7 +23,6 @@
 #include "cafPdmObject.h"
 
 class RiuMainWindowBase;
-// class RiuMdiSubWindow;
 class RimViewWindow;
 struct RimMdiWindowGeometry;
 
@@ -39,8 +38,8 @@ public:
     RimDockWindowController();
     ~RimDockWindowController() override;
 
-    void                 setWindowGeometry( const RimMdiWindowGeometry& windowGeometry );
-    RimMdiWindowGeometry windowGeometry();
+    void setMainWindowId( int mainId );
+    void setViewToControl( RimViewWindow* view );
 
     void updateViewerWidget();
     void handleViewerDeletion();
@@ -55,11 +54,6 @@ protected:
     void setupBeforeSave() override;
 
 private:
-    caf::PdmField<int> m_mainWindowID;
-
-    caf::PdmField<int>  m_x;
-    caf::PdmField<int>  m_y;
-    caf::PdmField<int>  m_width;
-    caf::PdmField<int>  m_height;
-    caf::PdmField<bool> m_isMaximized;
+    caf::PdmField<int>               m_mainWindowID;
+    caf::PdmPtrField<RimViewWindow*> m_viewToControl;
 };

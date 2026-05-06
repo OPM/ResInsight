@@ -161,7 +161,7 @@ RimMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots )
 
     auto* plotWindow = new RimMultiPlot;
     plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
-    plotWindow->setAsPlotMdiWindow();
+    plotWindow->dockAsPlotWindow();
     plotCollection->addMultiPlot( plotWindow );
 
     appendPlotsToMultiPlot( plotWindow, plots );
@@ -190,7 +190,7 @@ RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<caf::Pdm
 
     auto* plotWindow = new RimSummaryMultiPlot;
     plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
-    plotWindow->setAsPlotMdiWindow();
+    plotWindow->dockAsPlotWindow();
     plotCollection->addSummaryMultiPlot( plotWindow );
 
     plotWindow->handleDroppedObjects( objects );
@@ -221,7 +221,7 @@ void appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*
     {
         // Remove the current window controller, as this will be managed by the multi plot
         // This must be done before adding the plot to the multi plot to ensure that the viewer widget is recreated
-        plot->revokeMdiWindowStatus();
+        plot->removeWindowFromDock();
 
         multiPlot->addPlot( plot );
 
@@ -266,7 +266,7 @@ RimSummaryMultiPlot* createAndAppendDefaultSummaryMultiPlot( const std::vector<R
     auto* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
     auto* summaryMultiPlot = new RimSummaryMultiPlot();
-    summaryMultiPlot->setAsPlotMdiWindow();
+    summaryMultiPlot->dockAsPlotWindow();
     plotCollection->addSummaryMultiPlot( summaryMultiPlot );
 
     RimSummaryPlot* plot = new RimSummaryPlot();
@@ -318,7 +318,7 @@ RimSummaryMultiPlot* createAndAppendSingleSummaryMultiPlotNoAutoSettings( RimSum
     auto* summaryMultiPlot = new RimSummaryMultiPlot();
     summaryMultiPlot->setColumnCount( RiaDefines::ColumnCount::COLUMNS_1 );
     summaryMultiPlot->setRowCount( RiaDefines::RowCount::ROWS_1 );
-    summaryMultiPlot->setAsPlotMdiWindow();
+    summaryMultiPlot->dockAsPlotWindow();
 
     if ( !plot->autoPlotTitle() )
     {
@@ -353,7 +353,7 @@ RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<RimSumma
     auto* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
     auto* summaryMultiPlot = new RimSummaryMultiPlot();
-    summaryMultiPlot->setAsPlotMdiWindow();
+    summaryMultiPlot->dockAsPlotWindow();
     plotCollection->addSummaryMultiPlot( summaryMultiPlot );
 
     appendPlotsToSummaryMultiPlot( summaryMultiPlot, plots );
@@ -407,7 +407,7 @@ void appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* multiPlot, const std::v
     multiPlot->startBatchAddOperation();
     for ( auto plot : plots )
     {
-        plot->revokeMdiWindowStatus();
+        plot->removeWindowFromDock();
 
         multiPlot->addPlot( plot );
 

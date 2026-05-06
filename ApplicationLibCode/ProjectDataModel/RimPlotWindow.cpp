@@ -389,9 +389,9 @@ bool RimPlotWindow::hasCustomPageLayout( QPageLayout* customPageLayout ) const
 //--------------------------------------------------------------------------------------------------
 void RimPlotWindow::updateWindowVisibility()
 {
-    if ( isMdiWindow() )
+    if ( isMainDockedWindow() )
     {
-        updateMdiWindowVisibility();
+        updateDockWindowVisibility();
     }
     else
     {
@@ -414,7 +414,7 @@ void RimPlotWindow::setId( int id )
 //--------------------------------------------------------------------------------------------------
 void RimPlotWindow::assignIdIfNecessary()
 {
-    if ( m_id == -1 && isMdiWindow() )
+    if ( m_id == -1 && isMainDockedWindow() )
     {
         RimProject::current()->assignPlotIdToPlotWindow( this );
     }

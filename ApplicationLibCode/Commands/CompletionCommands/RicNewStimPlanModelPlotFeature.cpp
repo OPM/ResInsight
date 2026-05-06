@@ -415,7 +415,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createStimPlanModelPlot( b
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
 
     RimStimPlanModelPlot* plot = new RimStimPlanModelPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
 
     stimPlanModelPlotColl->addStimPlanModelPlot( plot );
 

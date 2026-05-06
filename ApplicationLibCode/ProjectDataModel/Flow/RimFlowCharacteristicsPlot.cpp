@@ -98,7 +98,7 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     CAF_PDM_InitField( &m_maxTof, "MaxTof", 146000, "Max Time of Flight [days]" );
 
     m_showWindow = false;
-    setAsPlotMdiWindow();
+    dockAsPlotWindow();
     setDeletable( true );
 }
 
@@ -107,7 +107,7 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 //--------------------------------------------------------------------------------------------------
 RimFlowCharacteristicsPlot::~RimFlowCharacteristicsPlot()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
 
     if ( m_flowCharPlotWidget )
     {
@@ -585,7 +585,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     if ( m_flowDiagSolution && m_flowCharPlotWidget )
     {
