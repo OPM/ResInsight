@@ -22,6 +22,7 @@
 #include "RiaDefines.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaQStringFormatter.h"
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedHarmonicMeanCalculator.h"
 
@@ -345,7 +346,7 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
     CAF_ASSERT( area.size() == conductivity.size() );
     for ( size_t i = 0; i < okFilePaths.size(); i++ )
     {
-        RiaLogging::info( QString( "%1 Area: %2 Conductivity: %3" ).arg( okFilePaths[i] ).arg( area[i] ).arg( conductivity[i] ) );
+        RiaLogging::info( std::format( "{} Area: {} Conductivity: {}", okFilePaths[i], area[i], conductivity[i] ) );
     }
 
     if ( m_excludeZeroWidthFractures() )
@@ -353,7 +354,7 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
         size_t numBeforeFiltering   = stimPlanFractureDefinitions.size();
         stimPlanFractureDefinitions = RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
         size_t numRemoved           = numBeforeFiltering - stimPlanFractureDefinitions.size();
-        RiaLogging::info( QString( "Excluded %1 zero width fractures." ).arg( numRemoved ) );
+        RiaLogging::info( std::format( "Excluded {} zero width fractures.", numRemoved ) );
     }
 
     m_statisticsTable = generateStatisticsTable( stimPlanFractureDefinitions );
@@ -400,11 +401,11 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
     std::vector<double> gridXs;
     std::vector<double> gridYs;
     auto [minX, maxX, minY, maxY] = findSamplingIntervals( stimPlanFractureDefinitions, gridXs, gridYs );
-    RiaLogging::info( QString( "Ensemble Fracture Size: X = [%1, %2] Y = [%3, %4]" ).arg( minX ).arg( maxX ).arg( minY ).arg( maxY ) );
+    RiaLogging::info( std::format( "Ensemble Fracture Size: X = [{}, {}] Y = [{}, {}]", minX, maxX, minY, maxY ) );
 
     for ( auto result : availableResults )
     {
-        RiaLogging::info( QString( "Creating statistics for result: %1" ).arg( result.first ) );
+        RiaLogging::info( std::format( "Creating statistics for result: {}", result.first ) );
 
         std::vector<cvf::cref<RigFractureGrid>> fractureGrids =
             createFractureGrids( stimPlanFractureDefinitions, unitSystem, result.first, m_meshAlignmentType() );
@@ -473,7 +474,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
         for ( double depth : gridYs )
             gridYsWithOffset.push_back( referenceDepth - depth );
 
-        RiaLogging::info( QString( "Writing fracture group statistics to: %1" ).arg( xmlFilePath ) );
+        RiaLogging::info( std::format( "Writing fracture group statistics to: {}", xmlFilePath ) );
         RifEnsembleFractureStatisticsExporter::writeAsStimPlanXml( statisticsSlices,
                                                                    properties,
                                                                    xmlFilePath,
@@ -510,7 +511,7 @@ std::pair<std::vector<cvf::ref<RigStimPlanFractureDefinition>>, std::vector<QStr
     std::vector<QString>                                 okFilePaths;
     for ( auto filePath : m_filePaths.v() )
     {
-        RiaLogging::info( QString( "Loading file: %1" ).arg( filePath.path() ) );
+        RiaLogging::info( std::format( "Loading file: {}", filePath.path() ) );
         QString                                 errorMessage;
         cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData =
             RifStimPlanXmlReader::readStimPlanXMLFile( filePath.path(),
@@ -520,7 +521,7 @@ std::pair<std::vector<cvf::ref<RigStimPlanFractureDefinition>>, std::vector<QStr
                                                        &errorMessage );
         if ( !errorMessage.isEmpty() )
         {
-            RiaLogging::error( QString( "Error when reading file: '%1'" ).arg( errorMessage ) );
+            RiaLogging::error( std::format( "Error when reading file: '{}'", errorMessage ) );
         }
 
         if ( stimPlanFractureDefinitionData.notNull() )
@@ -676,7 +677,8 @@ void RimEnsembleFractureStatistics::generateUniformMesh( double               mi
                           .arg( numSamplesX )
                           .arg( numSamplesY )
                           .arg( sampleDistanceX )
-                          .arg( sampleDistanceY ) );
+                          .arg( sampleDistanceY )
+                          .toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -747,7 +749,7 @@ void RimEnsembleFractureStatistics::generateAdaptiveMesh( double minX,
     double binSize    = totalDepth / targetNumLayers;
 
     RiaLogging::info(
-        QString( "Adaptive mesh. Total depth: %1. Number of layers: %2. Layer thickness: %3" ).arg( totalDepth ).arg( targetNumLayers ).arg( binSize ) );
+        std::format( "Adaptive mesh. Total depth: {}. Number of layers: {}. Layer thickness: {}", totalDepth, targetNumLayers, binSize ) );
 
     std::vector<double> baseDepth;
     std::vector<double> means;
@@ -856,7 +858,8 @@ void RimEnsembleFractureStatistics::computeMeanThicknessPerLayer( const std::vec
                               .arg( nMatches )
                               .arg( arithmeticMean )
                               .arg( harmonicMean )
-                              .arg( geometricMean ) );
+                              .arg( geometricMean )
+                              .toStdString() );
 
         double mean = std::numeric_limits<double>::infinity();
         if ( m_adaptiveMeanType() == MeanType::HARMONIC )
@@ -1251,7 +1254,7 @@ std::shared_ptr<RigSlice2D> RimEnsembleFractureStatistics::setCellsToFillTargetA
         }
     }
 
-    RiaLogging::info( QString( "Statistics fracture area: %1 target area: %2" ).arg( area ).arg( targetArea ) );
+    RiaLogging::info( std::format( "Statistics fracture area: {} target area: {}", area, targetArea ) );
 
     return outputGrid;
 }

@@ -79,7 +79,7 @@ caf::PdmScriptResponse RicfLoadCase::execute()
     if ( fileOpenMetaData.createdCaseIds.empty() )
     {
         QString error = QString( "loadCase: Unable to load case from %1" ).arg( absolutePath );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

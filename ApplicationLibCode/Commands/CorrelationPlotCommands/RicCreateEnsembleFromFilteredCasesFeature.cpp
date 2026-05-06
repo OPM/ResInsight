@@ -140,7 +140,7 @@ void RicCreateEnsembleFromFilteredCasesFeature::onActionTriggered( bool isChecke
     {
         RiaSummaryPlotTools::createAndAppendDefaultSummaryMultiPlot( {}, { newEnsemble } );
 
-        RiaLogging::info( "Created ensemble " + newEnsemble->name() );
+        RiaLogging::info( "Created ensemble " + newEnsemble->name().toStdString() );
     }
     else
     {

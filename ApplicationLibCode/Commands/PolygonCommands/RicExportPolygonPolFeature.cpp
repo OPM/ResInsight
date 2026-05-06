@@ -62,11 +62,11 @@ void RicExportPolygonPolFeature::onActionTriggered( bool isChecked )
 
     if ( !RimPolygonTools::exportPolygonPol( selPolygons, fileName ) )
     {
-        RiaLogging::error( "Failed to export polygon(s) to " + fileName );
+        RiaLogging::error( "Failed to export polygon(s) to " + fileName.toStdString() );
     }
     else
     {
-        RiaLogging::info( "Completed polygon export to " + fileName );
+        RiaLogging::info( "Completed polygon export to " + fileName.toStdString() );
         RiaApplication::instance()->setLastUsedDialogDirectory( RimPolygonTools::polygonCacheName(), QFileInfo( fileName ).absolutePath() );
     }
 }

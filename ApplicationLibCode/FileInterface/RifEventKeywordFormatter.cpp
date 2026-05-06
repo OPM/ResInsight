@@ -25,6 +25,7 @@
 #include "RimWellEventKeywordItem.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "cafAppEnum.h"
 
@@ -88,7 +89,7 @@ QString RifEventKeywordFormatter::formatKeyword( const QString& keywordName, con
     }
     catch ( const std::exception& e )
     {
-        RiaLogging::error( QString( "Failed to create keyword '%1': %2" ).arg( keyword ).arg( e.what() ) );
+        RiaLogging::error( std::format( "Failed to create keyword '{}': {}", keyword, e.what() ) );
         return "";
     }
 }

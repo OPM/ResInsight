@@ -71,7 +71,7 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
         if ( !wellsNotFound.empty() )
         {
             QString error( QString( "exportLgrForCompletions: These well paths were not found: " ) + wellsNotFound.join( ", " ) );
-            RiaLogging::error( error );
+            RiaLogging::error( error.toStdString() );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
@@ -79,7 +79,7 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
     if ( wellPaths.empty() )
     {
         QString error( "exportLgrForCompletions: Could not find any well paths" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -93,7 +93,7 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
     if ( !eclipseCase )
     {
         QString error( QString( "exportLgrForCompletions: Could not find case with ID %1" ).arg( m_caseId() ) );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -116,7 +116,7 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
     {
         auto wellsList = wellsIntersectingOtherLgrs.join( ", " );
         QString warning( "exportLgrForCompletions: No export for some wells due to existing intersecting LGR(s).Affected wells : " + wellsList );
-        RiaLogging::warning( warning );
+        RiaLogging::warning( warning.toStdString() );
         response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
     }
     return response;

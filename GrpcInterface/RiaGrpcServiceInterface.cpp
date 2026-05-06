@@ -145,11 +145,11 @@ std::expected<void, QString> RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf
             auto lowerCase = QString::fromStdString( p.first ).toLower();
             if ( uniqueNames.count( lowerCase ) > 0 )
             {
-                QString txt = "When receiving an object from Python, multiple key/values for a field keyword was "
-                              "detected. This is an error will most likely fail to update the object as intended. "
-                              "Keyword name : " +
-                              QString::fromStdString( p.first );
-                RiaLogging::error( txt );
+                RiaLogging::error(
+                    std::format( "When receiving an object from Python, multiple key/values for a field keyword was "
+                                 "detected. This is an error will most likely fail to update the object as intended. "
+                                 "Keyword name : {}",
+                                 p.first ) );
             }
             uniqueNames.insert( lowerCase );
         }

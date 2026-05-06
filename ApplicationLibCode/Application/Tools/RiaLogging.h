@@ -68,21 +68,22 @@ public:
     static RILogLevel                logLevelBasedOnPreferences();
     static std::optional<RILogLevel> parseLogLevelString( const QString& logLevelString );
 
-    static void error( const QString& message, const QString logKeyword = "" );
-    static void warning( const QString& message, const QString logKeyword = "" );
-    static void info( const QString& message, const QString logKeyword = "" );
-    static void debug( const QString& message, const QString logKeyword = "" );
+    static void error( std::string_view message, std::string_view logKeyword = "" );
+    static void warning( std::string_view message, std::string_view logKeyword = "" );
+    static void info( std::string_view message, std::string_view logKeyword = "" );
+    static void debug( std::string_view message, std::string_view logKeyword = "" );
 
     static std::chrono::time_point<std::chrono::high_resolution_clock> currentTime();
     static void logElapsedTime( std::string_view message, const std::chrono::time_point<std::chrono::high_resolution_clock>& startTime );
 
 private:
-    static void setLastMessage( const QString& message );
-    static bool isSameMessage( const QString& message );
+    static void setLastMessage( std::string_view message );
+    static bool isSameMessage( std::string_view message );
+    static bool isKeywordEnabled( std::string_view keyword );
 
 private:
     static std::vector<std::unique_ptr<RiaLogger>>                     sm_logger;
-    static QString                                                     sm_lastMessage;
+    static std::string                                                 sm_lastMessage;
     static std::chrono::time_point<std::chrono::high_resolution_clock> sm_lastMessageTime;
 };
 

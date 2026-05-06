@@ -26,6 +26,7 @@
 #include "RifJsonEncodeDecode.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "cvfAssert.h"
 #include "cvfDrawableGeo.h"
@@ -202,7 +203,8 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
                            .arg( totNumPrimitives )
                            .arg( static_cast<int>( tim.time() * 1000 ) )
                            .arg( buildMeshes_ms )
-                           .arg( fillPacketDir_ms ) );
+                           .arg( fillPacketDir_ms )
+                           .toStdString() );
 
     // cvf::Trace::show("Total number of primitives extracted: %d in %dms", totNumPrimitives,
     // static_cast<int>(tim.time()*1000));
@@ -257,7 +259,8 @@ std::unique_ptr<VdeMesh> VdeVizDataExtractor::createMeshFromExportPart( const Vd
     const cvf::PrimitiveType primType = primSet->primitiveType();
     if ( primType != cvf::PT_TRIANGLES && primType != cvf::PT_LINES )
     {
-        RiaLogging::debug( QString( "Currently only triangle and line primitive sets are supported (saw primitive type: %1)" ).arg( primType ) );
+        RiaLogging::debug( std::format( "Currently only triangle and line primitive sets are supported (saw primitive type: {})",
+                                        static_cast<int>( primType ) ) );
         return nullptr;
     }
 

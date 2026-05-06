@@ -80,7 +80,7 @@ caf::PdmScriptResponse RicfExportVisibleCells::execute()
     if ( m_caseId < 0 || ( m_viewName().isEmpty() && m_viewId() < 0 ) )
     {
         QString error( "exportVisibleCells: CaseId or view name or view id not specified" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
     RimEclipseView* eclipseView = nullptr;
@@ -98,7 +98,7 @@ caf::PdmScriptResponse RicfExportVisibleCells::execute()
                            .arg( m_viewId() )
                            .arg( m_viewName() )
                            .arg( m_caseId() ) );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

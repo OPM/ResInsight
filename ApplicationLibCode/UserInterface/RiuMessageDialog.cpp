@@ -40,5 +40,5 @@ void RiuMessageDialog::showError( QWidget* parent, const QString& title, const Q
         dlg.exec();
     }
 
-    RiaLogging::error( text );
+    RiaLogging::error( text.toStdString() );
 }

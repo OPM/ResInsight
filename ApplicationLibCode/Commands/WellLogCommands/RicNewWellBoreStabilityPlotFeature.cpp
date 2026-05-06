@@ -21,6 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 #include "RiaPlotDefines.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 
 #include "RicNewWellLogPlotFeatureImpl.h"
@@ -186,7 +187,7 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
 
     if ( !wellPathGeometry )
     {
-        RiaLogging::error( QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" ).arg( wellPath->name() ) );
+        RiaLogging::error( std::format( "The well path {} has no geometry. Cannot create a Well Bore Stability Plot", wellPath->name() ) );
         return;
     }
     if ( wellPathGeometry->rkbDiff() == HUGE_VAL )
@@ -194,7 +195,8 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
         RiaLogging::error( QString( "The well path %1 has no datum elevation and we cannot estimate TVDRKB. Cannot "
                                     "create a Well Bore Stability Plot\nTo solve this issue, please activate the Property Editor, "
                                     "select Well Targets and activate Generate Well Target at Sea Level" )
-                               .arg( wellPath->name() ) );
+                               .arg( wellPath->name() )
+                               .toStdString() );
         return;
     }
 

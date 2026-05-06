@@ -23,6 +23,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedMeanCalculator.h"
 
@@ -104,7 +105,7 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnFile()
     computeDepthOfWellPathAtFracture();
     computePerforationLength();
 
-    RiaLogging::info( QString( "Setting well/fracture intersection depth at %1" ).arg( m_wellPathDepthAtFracture() ) );
+    RiaLogging::info( std::format( "Setting well/fracture intersection depth at {}", m_wellPathDepthAtFracture() ) );
 
     m_activeTimeStepIndex = static_cast<int>( m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1 );
 
@@ -112,9 +113,10 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnFile()
     if ( polygonPropertySet )
         RiaLogging::info( QString( "Calculating polygon outline based on %1 at timestep %2" )
                               .arg( m_borderPolygonResultName )
-                              .arg( m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex] ) );
+                              .arg( m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex] )
+                              .toStdString() );
     else
-        RiaLogging::info( QString( "Property for polygon calculation not set." ) );
+        RiaLogging::info( "Property for polygon calculation not set." );
 
     if ( m_stimPlanFractureDefinitionData->orientation() == RigStimPlanFractureDefinition::Orientation::TRANSVERSE )
     {
@@ -178,7 +180,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
                                                                                   RifStimPlanXmlReader::MirrorMode::MIRROR_AUTO,
                                                                                   fractureTemplateUnit(),
                                                                                   &errorMessage );
-    if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage );
+    if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage.toStdString() );
 
     if ( m_stimPlanFractureDefinitionData.notNull() )
     {
@@ -491,9 +493,10 @@ void RimStimPlanFractureTemplate::convertToUnitSystem( RiaDefines::EclipseUnitSy
     if ( polygonPropertySet )
         RiaLogging::info( QString( "Calculating polygon outline based on %1 at timestep %2" )
                               .arg( m_borderPolygonResultName )
-                              .arg( m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex] ) );
+                              .arg( m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex] )
+                              .toStdString() );
     else
-        RiaLogging::info( QString( "Property for polygon calculation not set." ) );
+        RiaLogging::info( "Property for polygon calculation not set." );
 
     if ( !m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty() )
     {

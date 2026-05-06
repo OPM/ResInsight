@@ -364,7 +364,7 @@ void RifEclEclipseSummary::createAndSetAddresses()
                                 .arg( QString::fromStdString( ertAdrText ) )
                                 .arg( QString::fromStdString( adrFromText ) );
 
-                        RiaLogging::debug( detectedInconsiteny );
+                        RiaLogging::debug( detectedInconsiteny.toStdString() );
                     }
                 }
 

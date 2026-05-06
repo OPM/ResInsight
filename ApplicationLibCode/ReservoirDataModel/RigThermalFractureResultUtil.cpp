@@ -20,6 +20,7 @@
 
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RiaWeightedMeanCalculator.h"
 #include "RigCellGeometryTools.h"
@@ -239,7 +240,7 @@ cvf::cref<RigFractureGrid>
         getDataAtTimeIndex( fractureDefinition, resultName, conductivityUnitTextOnFile, activeTimeStepIndex );
     if ( conductivityValues.empty() )
     {
-        RiaLogging::error( QString( "No conductivity values found for result: %1" ).arg( resultName ) );
+        RiaLogging::error( std::format( "No conductivity values found for result: {}", resultName ) );
         return nullptr;
     }
 
@@ -538,7 +539,7 @@ std::pair<cvf::Vec3d, cvf::Vec3d>
     plane.setFromPoints( p0, p1, p2 );
 
     cvf::Vec3d planeNormal = plane.normal().getNormalized();
-    RiaLogging::info( QString( "Plane normal: [%1 %2 %3]" ).arg( planeNormal.x() ).arg( planeNormal.y() ).arg( planeNormal.z() ) );
+    RiaLogging::info( std::format( "Plane normal: [{} {} {}]", planeNormal.x(), planeNormal.y(), planeNormal.z() ) );
 
     cvf::Plane xyPlane;
     xyPlane.setFromPointAndNormal( cvf::Vec3d::ZERO, cvf::Vec3d::Z_AXIS );
@@ -549,9 +550,9 @@ std::pair<cvf::Vec3d, cvf::Vec3d>
     double azimuth = cvf::Math::toDegrees( cvf::GeometryTools::getAngle( inPlane, cvf::Vec3d::Y_AXIS ) ) + 90.0;
     double dip     = cvf::Math::toDegrees( cvf::GeometryTools::getAngle( inPlane, cvf::Vec3d::Z_AXIS ) ) - 90.0;
     double tilt    = cvf::Math::toDegrees( cvf::GeometryTools::getAngle( planeNormal, cvf::Vec3d::Z_AXIS ) ) - 90.0;
-    RiaLogging::info( QString( "Dip: %1" ).arg( dip ) );
-    RiaLogging::info( QString( "Tilt: %1" ).arg( tilt ) );
-    RiaLogging::info( QString( "Azimuth: %1" ).arg( azimuth ) );
+    RiaLogging::info( std::format( "Dip: {}", dip ) );
+    RiaLogging::info( std::format( "Tilt: {}", tilt ) );
+    RiaLogging::info( std::format( "Azimuth: {}", azimuth ) );
 
     cvf::Vec3d rotation( azimuth, dip, tilt );
     return std::make_pair( fractureDefinition->centerPosition(), rotation );

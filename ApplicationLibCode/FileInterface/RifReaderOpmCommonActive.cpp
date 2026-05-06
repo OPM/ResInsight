@@ -19,6 +19,7 @@
 #include "RifReaderOpmCommonActive.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStdStringTools.h"
 
 #include "RifOpmRadialGridTools.h"
@@ -68,7 +69,7 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
                                "radial grids. Adjust grid reader in Preferences. The grid is imported as estimated Cartesian grid." )
                           .arg( QString::fromStdString( m_gridFileName ) );
 
-        RiaLogging::warning( txt );
+        RiaLogging::warning( txt.toStdString() );
     }
 
     const auto& dims = opmGrid.dimension();
@@ -82,24 +83,21 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
     if ( gridUnitStr.starts_with( 'M' ) )
     {
         m_gridUnit = 1;
-        RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as METRIC)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+        RiaLogging::debug( std::format( "Grid unit from EGRID file: '{}' (interpreted as METRIC)", opmGrid.grid_unit() ) );
     }
     else if ( gridUnitStr.starts_with( 'F' ) )
     {
         m_gridUnit = 2;
-        RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as FIELD)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+        RiaLogging::debug( std::format( "Grid unit from EGRID file: '{}' (interpreted as FIELD)", opmGrid.grid_unit() ) );
     }
     else if ( gridUnitStr.starts_with( 'C' ) )
     {
         m_gridUnit = 3;
-        RiaLogging::debug(
-            QString( "Grid unit from EGRID file: '%1' (interpreted as LAB)" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+        RiaLogging::debug( std::format( "Grid unit from EGRID file: '{}' (interpreted as LAB)", opmGrid.grid_unit() ) );
     }
     else if ( !gridUnitStr.empty() )
     {
-        RiaLogging::warning( QString( "Unknown grid unit from EGRID file: '%1'" ).arg( QString::fromStdString( opmGrid.grid_unit() ) ) );
+        RiaLogging::warning( std::format( "Unknown grid unit from EGRID file: '{}'", opmGrid.grid_unit() ) );
     }
 
     auto totalCellCount           = opmGrid.totalNumberOfCells();
@@ -185,9 +183,9 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
     // grid geometry
     {
-        RiaLogging::info( QString( "Loading %0 active of %1 total cells in main grid." )
-                              .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( opmGrid.totalActiveCells() ) ) )
-                              .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( opmGrid.totalNumberOfCells() ) ) ),
+        RiaLogging::info( std::format( "Loading {} active of {} total cells in main grid.",
+                                       RiaStdStringTools::formatThousandGrouping( opmGrid.totalActiveCells() ),
+                                       RiaStdStringTools::formatThousandGrouping( opmGrid.totalNumberOfCells() ) ),
                           "RifReaderOpmCommonActive" );
 
         auto task = progInfo.task( "Loading Active Cell Main Grid Geometry" );
@@ -199,11 +197,10 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
 
         for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
         {
-            RiaLogging::info( QString( "Loading %0 active of %1 total cells in LGR grid %2." )
-                                  .arg( QString::fromStdString( RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalActiveCells() ) ) )
-                                  .arg( QString::fromStdString(
-                                      RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalNumberOfCells() ) ) )
-                                  .arg( lgrIdx + 1 ),
+            RiaLogging::info( std::format( "Loading {} active of {} total cells in LGR grid {}.",
+                                           RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalActiveCells() ),
+                                           RiaStdStringTools::formatThousandGrouping( lgrGrids[lgrIdx].totalNumberOfCells() ),
+                                           lgrIdx + 1 ),
                               "RifReaderOpmCommonActive" );
 
             RigGridBase* parentGrid = hasParentInfo ? activeGrid->gridByName( lgr_parent_names[lgrIdx] ) : activeGrid;

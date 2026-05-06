@@ -49,7 +49,7 @@ void RimFileWellPathDataLoader::loadData( caf::PdmObject& pdmObject, const QStri
         QString      errorMessage;
         if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter.get(), false ) )
         {
-            RiaLogging::warning( errorMessage );
+            RiaLogging::warning( errorMessage.toStdString() );
         }
     }
     taskDone.send( dataType, taskId );

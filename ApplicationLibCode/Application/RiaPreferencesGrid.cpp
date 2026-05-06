@@ -310,13 +310,13 @@ void RiaPreferencesGrid::setGridModelReaderOverride( const std::string& readerNa
     }
     else
     {
-        RiaLogging::warning( QString::fromStdString( "Unknown EGRID reader type specified on command line: " + readerName ) );
+        RiaLogging::warning( "Unknown EGRID reader type specified on command line: " + readerName );
         return;
     }
 
     if ( readerType != RiaDefines::GridModelReader::NOT_SET )
     {
-        RiaLogging::info( QString::fromStdString( "Using EGRID reader: " + readerName ) );
+        RiaLogging::info( "Using EGRID reader: " + readerName );
     }
 
     m_gridModelReaderOverride = readerType;

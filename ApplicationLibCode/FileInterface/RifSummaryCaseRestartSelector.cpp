@@ -299,7 +299,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
                 }
 
                 for ( const QString& warning : warnings )
-                    RiaLogging::error( warning );
+                    RiaLogging::error( warning.toStdString() );
             }
         }
 

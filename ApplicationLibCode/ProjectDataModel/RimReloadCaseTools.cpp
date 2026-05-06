@@ -23,6 +23,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaQStringFormatter.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "ApplicationCommands/RicShowMainWindowFeature.h"
@@ -224,13 +225,13 @@ bool RimReloadCaseTools::openOrImportGridModelFromSummaryCase( const RimSummaryC
         auto              id         = RiaImportEclipseCaseTools::openEclipseCaseFromFile( candidateGridFileName, createView, rs );
         if ( id > -1 )
         {
-            RiaLogging::info( QString( "Imported %1" ).arg( candidateGridFileName ) );
+            RiaLogging::info( std::format( "Imported {}", candidateGridFileName ) );
 
             return true;
         }
     }
 
-    RiaLogging::info( QString( "No grid case found based on summary file %1" ).arg( summaryFileName ) );
+    RiaLogging::info( std::format( "No grid case found based on summary file {}", summaryFileName ) );
 
     return false;
 }

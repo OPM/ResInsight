@@ -45,13 +45,13 @@ caf::PdmScriptResponse RicfExportMultiCaseSnapshots::execute()
     if ( !app )
     {
         QString error( "exportMultiCaseSnapshots: Requires GUI Application" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
     if ( m_gridListFile().isNull() )
     {
         QString error( "exportMultiCaseSnapshots: Required parameter gridListFile." );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
@@ -60,7 +60,7 @@ caf::PdmScriptResponse RicfExportMultiCaseSnapshots::execute()
     {
         QString error( "exportMultiCaseSnapshots: 'openProject' must be called before 'exportMultiCaseSnapshots' to "
                        "specify project file to replace cases in." );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

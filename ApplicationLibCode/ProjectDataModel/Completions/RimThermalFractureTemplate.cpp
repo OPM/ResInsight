@@ -23,6 +23,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaThermalFractureDefines.h"
 
 #include "RifThermalFractureReader.h"
@@ -102,7 +103,7 @@ void RimThermalFractureTemplate::setDefaultsBasedOnFile()
     computeDepthOfWellPathAtFracture();
     computePerforationLength();
 
-    RiaLogging::info( QString( "Setting well/fracture intersection depth at %1" ).arg( m_wellPathDepthAtFracture() ) );
+    RiaLogging::info( std::format( "Setting well/fracture intersection depth at {}", m_wellPathDepthAtFracture() ) );
 
     m_activeTimeStepIndex = static_cast<int>( m_fractureDefinitionData->numTimeSteps() - 1 );
 
@@ -110,9 +111,10 @@ void RimThermalFractureTemplate::setDefaultsBasedOnFile()
     if ( polygonPropertySet )
         RiaLogging::info( QString( "Calculating polygon outline based on %1 at timestep %2" )
                               .arg( m_borderPolygonResultName )
-                              .arg( m_fractureDefinitionData->timeSteps()[m_activeTimeStepIndex] ) );
+                              .arg( m_fractureDefinitionData->timeSteps()[m_activeTimeStepIndex] )
+                              .toStdString() );
     else
-        RiaLogging::info( QString( "Property for polygon calculation not set." ) );
+        RiaLogging::info( "Property for polygon calculation not set." );
 
     QStringList resultNames = conductivityResultNames();
     if ( !resultNames.isEmpty() )
@@ -173,7 +175,7 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
     if ( m_readError ) return;
 
     auto [fractureDefinitionData, errorMessage] = RifThermalFractureReader::readFractureCsvFile( m_stimPlanFileName().path() );
-    if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage );
+    if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage.toStdString() );
 
     m_fractureDefinitionData = fractureDefinitionData;
     if ( m_fractureDefinitionData )
@@ -530,9 +532,10 @@ void RimThermalFractureTemplate::convertToUnitSystem( RiaDefines::EclipseUnitSys
     if ( polygonPropertySet )
         RiaLogging::info( QString( "Calculating polygon outline based on %1 at timestep %2" )
                               .arg( m_borderPolygonResultName )
-                              .arg( m_fractureDefinitionData->timeSteps()[m_activeTimeStepIndex] ) );
+                              .arg( m_fractureDefinitionData->timeSteps()[m_activeTimeStepIndex] )
+                              .toStdString() );
     else
-        RiaLogging::info( QString( "Property for polygon calculation not set." ) );
+        RiaLogging::info( "Property for polygon calculation not set." );
 
     if ( !conductivityResultNames().isEmpty() )
     {
@@ -800,9 +803,12 @@ bool RimThermalFractureTemplate::placeFractureUsingTemplateData( RimFracture* fr
 
     double md = wellPathGeometry->closestMeasuredDepth( centerPosition );
 
-    RiaLogging::info(
-        QString( "Placing thermal fracture. Position: [%1 %2 %3]" ).arg( centerPosition.x() ).arg( centerPosition.y() ).arg( centerPosition.z() ) );
-    RiaLogging::info( QString( "Computed MD: %1" ).arg( md ) );
+    RiaLogging::info( QString( "Placing thermal fracture. Position: [%1 %2 %3]" )
+                          .arg( centerPosition.x() )
+                          .arg( centerPosition.y() )
+                          .arg( centerPosition.z() )
+                          .toStdString() );
+    RiaLogging::info( std::format( "Computed MD: {}", md ) );
 
     RimWellPathFracture* wellPathFracture = dynamic_cast<RimWellPathFracture*>( fracture );
     if ( wellPathFracture ) wellPathFracture->setMeasuredDepth( md );

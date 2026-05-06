@@ -78,6 +78,6 @@ caf::PdmScriptResponse RicfCreateView::execute()
     }
 
     QString error = QString( "createView: Could not create view for case id %1" ).arg( m_caseId() );
-    RiaLogging::error( error );
+    RiaLogging::error( error.toStdString() );
     return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
 }

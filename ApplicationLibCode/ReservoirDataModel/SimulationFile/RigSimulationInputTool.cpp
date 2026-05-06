@@ -19,6 +19,7 @@
 #include "RigSimulationInputTool.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStdStringTools.h"
 
 #include "RifEclipseInputFileTools.h"
@@ -87,7 +88,7 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
     }
     if ( noOfRemovedKeywords > 0 )
     {
-        RiaLogging::info( QString( "Removed %1 user specified keywords from deck file." ).arg( noOfRemovedKeywords ) );
+        RiaLogging::info( std::format( "Removed {} user specified keywords from deck file.", noOfRemovedKeywords ) );
     }
 
     if ( auto result = settings.validateBox(); !result )
@@ -187,7 +188,7 @@ std::expected<void, QString> RigSimulationInputTool::exportSimulationInput( RimE
         return std::unexpected( QString( "Failed to save modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
     }
 
-    RiaLogging::info( QString( "Saved modified deck file to '%1/%2'" ).arg( outputFolder ).arg( outputFile ) );
+    RiaLogging::info( std::format( "Saved modified deck file to '{}/{}'", outputFolder, outputFile ) );
     return {};
 }
 
@@ -327,7 +328,8 @@ std::expected<void, QString> RigSimulationInputTool::scaleMinpvForRefinement( co
     RiaLogging::info( QString( "Scaled MINPV from %1 to %2 (refinement factor = %3) so refined sub-cells don't fall below threshold" )
                           .arg( currentValue )
                           .arg( scaledValue )
-                          .arg( factor ) );
+                          .arg( factor )
+                          .toStdString() );
 
     return {};
 }
@@ -342,7 +344,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
 {
     // Extract and replace keyword data for all keywords in the deck
     auto keywords = deckFile.keywords( false );
-    RiaLogging::info( QString( "Processing %1 keywords from deck file" ).arg( keywords.size() ) );
+    RiaLogging::info( std::format( "Processing {} keywords from deck file", keywords.size() ) );
 
     for ( const auto& keywordStdStr : keywords )
     {
@@ -369,12 +371,11 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordValuesInDeckF
             // Replace keyword values in deck with extracted data
             if ( deckFile.replaceKeyword( keywordStdStr, result.value(), true /* data kw */ ) )
             {
-                RiaLogging::info(
-                    QString( "Successfully replaced data for keyword '%1' (%2 values)" ).arg( keyword ).arg( result.value().size() ) );
+                RiaLogging::info( std::format( "Successfully replaced data for keyword '{}' ({} values)", keyword, result.value().size() ) );
             }
             else
             {
-                RiaLogging::debug( QString( "'%1' is not a data keyword, skipping" ).arg( keyword ) );
+                RiaLogging::debug( std::format( "'{}' is not a data keyword, skipping", keyword ) );
             }
         }
     }
@@ -458,10 +459,8 @@ std::set<std::string> RigSimulationInputTool::cropDataKeywordsInDeckFile( RimEcl
 
             if ( deckFile.replaceKeyword( name, croppedData, true ) )
             {
-                RiaLogging::info( QString( "Cropped data keyword '%1' from deck (%2 -> %3 values)" )
-                                      .arg( QString::fromStdString( name ) )
-                                      .arg( fullCellCount )
-                                      .arg( croppedData.size() ) );
+                RiaLogging::info(
+                    std::format( "Cropped data keyword '{}' from deck ({} -> {} values)", name, fullCellCount, croppedData.size() ) );
                 croppedKeywords.insert( name );
             }
         };
@@ -478,7 +477,7 @@ std::set<std::string> RigSimulationInputTool::cropDataKeywordsInDeckFile( RimEcl
 
     if ( !croppedKeywords.empty() )
     {
-        RiaLogging::info( QString( "Cropped %1 data keywords directly from deck" ).arg( croppedKeywords.size() ) );
+        RiaLogging::info( std::format( "Cropped {} data keywords directly from deck", croppedKeywords.size() ) );
     }
 
     return croppedKeywords;
@@ -723,7 +722,7 @@ static std::expected<Modification, QString> processBoxKeywordEntry( const Opm::D
             }
             else
             {
-                RiaLogging::warning( QString( "Failed to process BOX record: %1" ).arg( result.error() ) );
+                RiaLogging::warning( std::format( "Failed to process BOX record: {}", result.error() ) );
                 return Modification{ index, Modification::Remove, Opm::DeckKeyword{} };
             }
         }
@@ -756,8 +755,7 @@ static std::optional<Modification> cropDataKeywordInBoxContext( const Opm::DeckK
 
     if ( intMin.x() > intMax.x() || intMin.y() > intMax.y() || intMin.z() > intMax.z() )
     {
-        RiaLogging::info(
-            QString( "Removing data keyword '%1' inside BOX/ENDBOX: box does not intersect sector" ).arg( QString::fromStdString( name ) ) );
+        RiaLogging::info( std::format( "Removing data keyword '{}' inside BOX/ENDBOX: box does not intersect sector", name ) );
         return Modification{ index, Modification::Remove, Opm::DeckKeyword{} };
     }
 
@@ -822,10 +820,8 @@ static std::optional<Modification> cropDataKeywordInBoxContext( const Opm::DeckK
 
         newKw.addRecord( std::move( record ) );
 
-        RiaLogging::info( QString( "Cropped data keyword '%1' inside BOX/ENDBOX (%2 -> %3 values)" )
-                              .arg( QString::fromStdString( name ) )
-                              .arg( sourceData.size() )
-                              .arg( croppedData.size() ) );
+        RiaLogging::info(
+            std::format( "Cropped data keyword '{}' inside BOX/ENDBOX ({} -> {} values)", name, sourceData.size(), croppedData.size() ) );
 
         return Modification{ index, Modification::Replace, std::move( newKw ) };
     };
@@ -891,7 +887,7 @@ static std::expected<Modification, QString> processRecordBasedKeyword( const Opm
             }
             else
             {
-                RiaLogging::warning( QString( "Failed to process %1 record: %2" ).arg( QString::fromStdString( name ) ).arg( result.error() ) );
+                RiaLogging::warning( std::format( "Failed to process {} record: {}", name, result.error() ) );
             }
         }
 
@@ -1008,7 +1004,7 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordWithBoxIndice
     auto keywordsWithIndices = deckFile.findAllKeywordsWithIndices( keywordName );
     if ( !keywordsWithIndices.empty() )
     {
-        RiaLogging::info( QString( "Processing %1 occurrence(s) of %2 keyword" ).arg( keywordsWithIndices.size() ).arg( keywordName.c_str() ) );
+        RiaLogging::info( std::format( "Processing {} occurrence(s) of {} keyword", keywordsWithIndices.size(), keywordName.c_str() ) );
 
         // Process in reverse order so indices remain valid after modifications
         for ( auto it = keywordsWithIndices.rbegin(); it != keywordsWithIndices.rend(); ++it )
@@ -1032,14 +1028,14 @@ std::expected<void, QString> RigSimulationInputTool::replaceKeywordWithBoxIndice
                     }
                     else
                     {
-                        RiaLogging::warning( QString( "Failed to process %1 record: %2" ).arg( keywordName.c_str() ).arg( result.error() ) );
+                        RiaLogging::warning( std::format( "Failed to process {} record: {}", keywordName.c_str(), result.error() ) );
                     }
                 }
 
                 // Replace with transformed keyword
                 if ( transformedKeyword.size() > 0 )
                 {
-                    RiaLogging::info( QString( "Got %1 keywords." ).arg( transformedKeyword.size() ) );
+                    RiaLogging::info( std::format( "Got {} keywords.", transformedKeyword.size() ) );
                     deckFile.replaceKeywordAtIndex( index, transformedKeyword );
                 }
                 else
@@ -1245,7 +1241,8 @@ std::expected<Opm::DeckRecord, QString> RigSimulationInputTool::processWelspecsR
                               .arg( origI + 1 )
                               .arg( origJ + 1 )
                               .arg( sectorI )
-                              .arg( sectorJ ) );
+                              .arg( sectorJ )
+                              .toStdString() );
     }
 
     using W = Opm::ParserKeywords::WELSPECS;
@@ -1417,7 +1414,8 @@ std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
                               .arg( origMin.y() + 1 )
                               .arg( origMax.y() + 1 )
                               .arg( origMin.z() + 1 )
-                              .arg( origMax.z() + 1 ) );
+                              .arg( origMax.z() + 1 )
+                              .toStdString() );
         return std::unexpected( QString( "%1 record does not overlap with sector" ).arg( keywordName ) );
     }
 
@@ -1446,7 +1444,8 @@ std::expected<RigBoundingBoxIjk<caf::VecIjk0>, QString>
                 .arg( clampedMin.y() + 1 )
                 .arg( clampedMax.y() + 1 )
                 .arg( clampedMin.z() + 1 )
-                .arg( clampedMax.z() + 1 ) );
+                .arg( clampedMax.z() + 1 )
+                .toStdString() );
     }
 
     // Transform clamped coordinates to sector-relative coordinates
@@ -1969,19 +1968,18 @@ std::set<std::string> RigSimulationInputTool::wellNamesToInclude( RimEclipseCase
         }
     }
 
-    RiaLogging::info( QString( "Found %1 wells intersecting with sector: %2" )
-                          .arg( validWellNames.size() )
-                          .arg( QString::fromStdString(
-                              [&validWellNames]()
-                              {
-                                  std::string names;
-                                  for ( const auto& name : validWellNames )
-                                  {
-                                      if ( !names.empty() ) names += ", ";
-                                      names += name;
-                                  }
-                                  return names;
-                              }() ) ) );
+    RiaLogging::info( std::format( "Found {} wells intersecting with sector: {}",
+                                   validWellNames.size(),
+                                   [&validWellNames]()
+                                   {
+                                       std::string names;
+                                       for ( const auto& name : validWellNames )
+                                       {
+                                           if ( !names.empty() ) names += ", ";
+                                           names += name;
+                                       }
+                                       return names;
+                                   }() ) );
 
     return validWellNames;
 }
@@ -2034,7 +2032,8 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
                 RiaLogging::warning( QString( "Unsupported %1 operation '%2' in list '%3', skipping" )
                                          .arg( W::keywordName.c_str() )
                                          .arg( operationName.c_str() )
-                                         .arg( listName.c_str() ) );
+                                         .arg( listName.c_str() )
+                                         .toStdString() );
                 continue;
             }
 
@@ -2090,8 +2089,7 @@ std::expected<void, QString> RigSimulationInputTool::updateWellListKeywords( std
         }
     }
 
-    RiaLogging::info(
-        QString( "Processed keyword '%1': %2 updated, %3 removed" ).arg( W::keywordName.c_str() ).arg( replacedCount ).arg( removedCount ) );
+    RiaLogging::info( std::format( "Processed keyword '{}': {} updated, {} removed", W::keywordName.c_str(), replacedCount, removedCount ) );
 
     return {};
 }
@@ -2117,8 +2115,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
         auto keywordsWithIndices = deckFile.findAllKeywordsWithIndices( keywordName );
         if ( keywordsWithIndices.empty() ) continue;
 
-        RiaLogging::info(
-            QString( "Processing %1 occurrence(s) of keyword '%2'" ).arg( keywordsWithIndices.size() ).arg( keywordName.c_str() ) );
+        RiaLogging::info( std::format( "Processing {} occurrence(s) of keyword '{}'", keywordsWithIndices.size(), keywordName.c_str() ) );
 
         int replacedCount = 0;
         int removedCount  = 0;
@@ -2183,7 +2180,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                             else
                             {
                                 RiaLogging::warning(
-                                    QString( "Failed to process WELSPECS for well %1: %2" ).arg( wellName.c_str() ).arg( result.error() ) );
+                                    std::format( "Failed to process WELSPECS for well {}: {}", wellName.c_str(), result.error() ) );
                             }
                         }
                         else if ( keywordName == "COMPDAT" )
@@ -2196,7 +2193,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                             else
                             {
                                 RiaLogging::warning(
-                                    QString( "Failed to process COMPDAT for well %1: %2" ).arg( wellName.c_str() ).arg( result.error() ) );
+                                    std::format( "Failed to process COMPDAT for well {}: {}", wellName.c_str(), result.error() ) );
                             }
                         }
                         else if ( keywordName == "COMPSEGS" )
@@ -2209,7 +2206,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
                             else
                             {
                                 RiaLogging::warning(
-                                    QString( "Failed to process COMPSEGS for well %1: %2" ).arg( wellName.c_str() ).arg( result.error() ) );
+                                    std::format( "Failed to process COMPSEGS for well {}: {}", wellName.c_str(), result.error() ) );
                             }
                         }
                         else if ( keywordName == "WELSEGS" )
@@ -2227,7 +2224,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
             }
             catch ( std::exception& e )
             {
-                RiaLogging::warning( QString( "EXCEPTION for keyword '%1': %2" ).arg( keyword.name().c_str() ).arg( e.what() ) );
+                RiaLogging::warning( std::format( "EXCEPTION for keyword '{}': {}", keyword.name().c_str(), e.what() ) );
             }
 
             // Replace or remove this keyword occurrence in place
@@ -2245,8 +2242,7 @@ std::expected<void, QString> RigSimulationInputTool::filterAndUpdateWellKeywords
             }
         }
 
-        RiaLogging::info(
-            QString( "Processed keyword '%1': %2 replaced, %3 removed" ).arg( keywordName.c_str() ).arg( replacedCount ).arg( removedCount ) );
+        RiaLogging::info( std::format( "Processed keyword '{}': {} replaced, {} removed", keywordName.c_str(), replacedCount, removedCount ) );
     }
 
     return {};
@@ -2261,8 +2257,7 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
                                                                                   int                         operNumRegion,
                                                                                   double                      porvMultiplier )
 {
-    RiaLogging::info(
-        QString( "Adding OPERNUM region %1 with PORV multiplier %2 using refined grid" ).arg( operNumRegion ).arg( porvMultiplier ) );
+    RiaLogging::info( std::format( "Adding OPERNUM region {} with PORV multiplier {} using refined grid", operNumRegion, porvMultiplier ) );
 
     // Ensure REGDIMS keyword exists
     if ( !deckFile.ensureRegdimsKeyword() )
@@ -2316,7 +2311,8 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
         RiaLogging::info( QString( "Replaced OPERNUM values for refined grid with dimensions %1x%2x%3" )
                               .arg( gridAdapter.cellCountI() )
                               .arg( gridAdapter.cellCountJ() )
-                              .arg( gridAdapter.cellCountK() ) );
+                              .arg( gridAdapter.cellCountK() )
+                              .toStdString() );
     }
     else
     {
@@ -2333,7 +2329,7 @@ std::expected<void, QString> RigSimulationInputTool::addOperNumRegionAndOperater
         return std::unexpected( "Failed to add OPERATER keyword to EDIT section" );
     }
 
-    RiaLogging::info( QString( "Added OPERATER keyword to multiply PORV in region %1 by %2" ).arg( operNumRegion ).arg( porvMultiplier ) );
+    RiaLogging::info( std::format( "Added OPERATER keyword to multiply PORV in region {} by {}", operNumRegion, porvMultiplier ) );
 
     return {};
 }
@@ -2370,9 +2366,7 @@ std::vector<RigSimulationInputTool::NNCConnection> RigSimulationInputTool::extra
             // Validate indices
             if ( c1Idx == cvf::UNDEFINED_SIZE_T || c2Idx == cvf::UNDEFINED_SIZE_T )
             {
-                RiaLogging::warning( QString( "Invalid EDITNNC connection in deck: (%1)-(%2)" )
-                                         .arg( QString::fromStdString( ijk1.toString() ) )
-                                         .arg( QString::fromStdString( ijk2.toString() ) ) );
+                RiaLogging::warning( std::format( "Invalid EDITNNC connection in deck: ({})-({})", ijk1.toString(), ijk2.toString() ) );
                 continue;
             }
 
@@ -2551,7 +2545,7 @@ std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEc
     }
 
     RiaLogging::info(
-        QString( "Found %1 internal EDITNNC connections in sector (out of %2 total)" ).arg( sectorConnections.size() ).arg( allConnections.size() ) );
+        std::format( "Found {} internal EDITNNC connections in sector (out of {} total)", sectorConnections.size(), allConnections.size() ) );
 
     // Step 3: Transform and refine
     bool hasRef = settings.hasRefinement();
@@ -2579,7 +2573,7 @@ std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEc
             }
             else
             {
-                RiaLogging::warning( result.error() );
+                RiaLogging::warning( result.error().toStdString() );
             }
         }
     }
@@ -2589,7 +2583,7 @@ std::expected<void, QString> RigSimulationInputTool::exportEditNncKeyword( RimEc
         return std::unexpected( "Failed to transform any EDITNNC connections" );
     }
 
-    RiaLogging::info( QString( "Exporting %1 EDITNNC connections to sector model" ).arg( transformedConnections.size() ) );
+    RiaLogging::info( std::format( "Exporting {} EDITNNC connections to sector model", transformedConnections.size() ) );
 
     // Step 4: Create keyword
     auto editnncKw = RimKeywordFactory::editnncKeyword( transformedConnections );

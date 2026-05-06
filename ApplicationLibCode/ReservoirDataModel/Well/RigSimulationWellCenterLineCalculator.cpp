@@ -183,7 +183,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( c
             }
         }
 
-        RiaLogging::debug( txt );
+        RiaLogging::debug( txt.toStdString() );
     }
 }
 
@@ -236,7 +236,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeSt
                     branchTxt += QString( " %1 \n" ).arg( QString::fromStdString( ( *resultPoint.cellIjk() ).toOneBased().toString() ) );
                 }
             }
-            RiaLogging::debug( branchTxt );
+            RiaLogging::debug( branchTxt.toStdString() );
         }
     }
 

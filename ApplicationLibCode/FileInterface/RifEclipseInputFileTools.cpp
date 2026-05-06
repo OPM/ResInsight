@@ -22,6 +22,7 @@
 
 #include "RiaCellDividingTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 #include "RiaStringEncodingTools.h"
 #include "RiaTextStringTools.h"
@@ -205,7 +206,7 @@ bool RifEclipseInputFileTools::openGridFile( const QString& fileName, RigEclipse
         // Import additional keywords as input properties
         RifEclipseInputPropertyLoader::createInputPropertiesFromKeywords( eclipseCase, objects, &errorMessages );
 
-        if ( !errorMessages.isEmpty() ) RiaLogging::error( errorMessages );
+        if ( !errorMessages.isEmpty() ) RiaLogging::error( errorMessages.toStdString() );
 
         return true;
     }
@@ -215,7 +216,7 @@ bool RifEclipseInputFileTools::openGridFile( const QString& fileName, RigEclipse
     if ( !zCornKw ) txt += " ZCORN";
     if ( !coordKw ) txt += " COORD";
 
-    RiaLogging::error( txt );
+    RiaLogging::error( txt.toStdString() );
 
     return false;
 }
@@ -453,7 +454,7 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
         auto result = extractKeywordData( eclipseCase, keyword, min, maxIn, refinement );
         if ( !result )
         {
-            RiaLogging::warning( QString::fromStdString( result.error() ) );
+            RiaLogging::warning( result.error() );
             continue;
         }
 
@@ -488,7 +489,7 @@ void RifEclipseInputFileTools::saveFault( QString                               
     QFile exportFile( completeFilename );
     if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
-        RiaLogging::error( "Could not open the file : " + completeFilename );
+        RiaLogging::error( std::format( "Could not open the file : {}", completeFilename ) );
         return;
     }
 
@@ -516,7 +517,7 @@ void RifEclipseInputFileTools::saveFault( QTextStream&                          
 
     if ( faultName.contains( ' ' ) )
     {
-        RiaLogging::error( QString( "Fault name '%1' contains spaces" ).arg( faultName ) );
+        RiaLogging::error( std::format( "Fault name '{}' contains spaces", faultName ) );
         return;
     }
 
@@ -1059,7 +1060,7 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
 {
     QStringList gridSectionFilenames;
 
-    RiaLogging::info( "Looking for faults in 'PFLOTRAN' file: " + fileName );
+    RiaLogging::info( std::format( "Looking for faults in 'PFLOTRAN' file: {}", fileName ) );
 
     {
         // Find all referenced grdecl files in a pflotran input file, in the GRID section, example
@@ -1140,7 +1141,7 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
                     parseAndReadFaults( absoluteFilePath, faults );
                     if ( currentFaultCount != faults->size() )
                     {
-                        RiaLogging::info( "Imported faults from " + absoluteFilePath );
+                        RiaLogging::info( std::format( "Imported faults from {}", absoluteFilePath ) );
                     }
                 }
             }
@@ -1682,11 +1683,11 @@ void RifEclipseInputFileTools::readFaults( QFile& data, qint64 filePos, cvf::Col
 
     for ( QString errorMessage : errorMessages )
     {
-        RiaLogging::error( errorMessage );
+        RiaLogging::error( errorMessage.toStdString() );
     }
 
     for ( QString warningMessage : warningMessages )
     {
-        RiaLogging::warning( warningMessage );
+        RiaLogging::warning( warningMessage.toStdString() );
     }
 }

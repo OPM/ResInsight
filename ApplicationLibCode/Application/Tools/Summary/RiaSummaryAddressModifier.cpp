@@ -57,7 +57,7 @@ RifEclipseSummaryAddress RiaSummaryAddressModifier::replaceTokenForCategory( con
                                          "for region text : %1" )
                                     .arg( QString::fromStdString( token ) );
 
-            RiaLogging::error( errorText );
+            RiaLogging::error( errorText.toStdString() );
         }
         else
         {
@@ -73,7 +73,7 @@ RifEclipseSummaryAddress RiaSummaryAddressModifier::replaceTokenForCategory( con
                                          "for region text : %1" )
                                     .arg( QString::fromStdString( token ) );
 
-            RiaLogging::error( errorText );
+            RiaLogging::error( errorText.toStdString() );
         }
         else
         {
@@ -89,7 +89,7 @@ RifEclipseSummaryAddress RiaSummaryAddressModifier::replaceTokenForCategory( con
                                          "for aquifer text : %1" )
                                     .arg( QString::fromStdString( token ) );
 
-            RiaLogging::error( errorText );
+            RiaLogging::error( errorText.toStdString() );
         }
         else
         {

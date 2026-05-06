@@ -19,6 +19,7 @@
 #include "Summary/RiaSummaryStringTools.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStdStringTools.h"
 #include "RiaTextStringTools.h"
 #include "Summary/RiaSummaryTools.h"
@@ -65,7 +66,7 @@ void RiaSummaryStringTools::splitAddressFiltersInGridAndSummary( RimSummaryCase*
                 }
                 else
                 {
-                    RiaLogging::warning( "No summary or restart vectors matched \"" + address + "\"" );
+                    RiaLogging::warning( std::format( "No summary or restart vectors matched \"{}\"", address ) );
                 }
             }
         }

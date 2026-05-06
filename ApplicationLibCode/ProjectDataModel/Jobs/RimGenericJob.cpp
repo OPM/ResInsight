@@ -21,6 +21,7 @@
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RimJobMonitor.h"
 #include "RimProcess.h"
@@ -113,7 +114,7 @@ bool RimGenericJob::stop()
     if ( !m_process.isNull() )
     {
         RimProcessQueue::stopProcess( m_process->ID() );
-        RiaLogging::info( "Job \"" + name() + "\" stopped by user." );
+        RiaLogging::info( std::format( "Job \"{}\" stopped by user.", name() ) );
         return true;
     }
     return false;

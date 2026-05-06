@@ -162,7 +162,7 @@ void RimMswSegmentCollection::updateSegments( RimWellPath* topLevelWell, RimEcli
 
     if ( !tableDataResult.has_value() )
     {
-        RiaLogging::error( QString::fromStdString( tableDataResult.error() ) );
+        RiaLogging::error( tableDataResult.error() );
         scheduleRedraw();
         return;
     }
@@ -183,7 +183,7 @@ void RimMswSegmentCollection::updateSegments( RimWellPath* topLevelWell, RimEcli
         if ( !targetWellPath )
         {
             RiaLogging::warning(
-                QString( "Unable to find well path '%1' for MSW segment update." ).arg( QString::fromStdString( sourceWellName ) ) );
+                QString( "Unable to find well path '%1' for MSW segment update." ).arg( QString::fromStdString( sourceWellName ) ).toStdString() );
             continue;
         }
 

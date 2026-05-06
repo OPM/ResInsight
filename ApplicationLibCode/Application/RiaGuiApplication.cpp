@@ -35,6 +35,7 @@
 #include "RiaPreferencesGrid.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaProjectModifier.h"
+#include "RiaQStringFormatter.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketServer.h"
 #include "RiaVersionInfo.h"
@@ -581,7 +582,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         QString errMsg;
         if ( !RiaApplication::generateCode( outputFile, &errMsg ) )
         {
-            RiaLogging::error( QString( "Error: %1" ).arg( errMsg ) );
+            RiaLogging::error( std::format( "Error: {}", errMsg ) );
             return RiaApplication::ApplicationStatus::KEEP_GOING;
         }
 
