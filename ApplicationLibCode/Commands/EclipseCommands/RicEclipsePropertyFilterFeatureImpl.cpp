@@ -95,6 +95,10 @@ RimEclipsePropertyFilter* RicEclipsePropertyFilterFeatureImpl::addPropertyFilter
     combined->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
 
+    // setDefaults updates m_name via updateFilterName but doesn't fire a filterChanged signal.
+    // Notify here so the combined parent can refresh its auto-derived display name.
+    propertyFilter->triggerFilterChanged();
+
     return propertyFilter;
 }
 

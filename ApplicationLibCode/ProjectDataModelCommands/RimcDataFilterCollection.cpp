@@ -53,6 +53,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcDataFilterCollection_addCombin
     if ( !m_name().isEmpty() )
     {
         combined->setName( m_name() );
+        combined->setAutoDeriveName( false );
     }
 
     const QString modeStr = m_combineMode().trimmed().toUpper();

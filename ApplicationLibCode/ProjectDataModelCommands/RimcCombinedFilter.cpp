@@ -137,6 +137,10 @@ std::expected<caf::PdmObjectHandle*, QString> RimcCombinedFilter_addRangeFilter:
 
     rf->updateConnectedEditors();
 
+    // After the final name is set, notify the combined parent so it can refresh its
+    // auto-derived display name.
+    rf->triggerFilterChanged();
+
     return rf;
 }
 
