@@ -75,9 +75,9 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicEclipsePropertyFilterFeatureImpl::addPropertyFilterToCombinedFilter( RimCombinedFilter* combined )
+RimEclipsePropertyFilter* RicEclipsePropertyFilterFeatureImpl::addPropertyFilterToCombinedFilter( RimCombinedFilter* combined )
 {
-    if ( !combined ) return;
+    if ( !combined ) return nullptr;
 
     auto* propertyFilter = new RimEclipsePropertyFilter();
     combined->addFilter( propertyFilter );
@@ -94,6 +94,8 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilterToCombinedFilter( Rim
 
     combined->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
+
+    return propertyFilter;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,13 +141,17 @@ void RicEclipsePropertyFilterFeatureImpl::setDefaults( RimEclipsePropertyFilter*
 {
     CVF_ASSERT( propertyFilter );
 
-    auto reservoirView = propertyFilter->firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
-
-    propertyFilter->resultDefinition()->setEclipseCase( reservoirView->eclipseCase() );
-
-    if ( !RiaResultNames::isPerCellFaceResult( reservoirView->cellResult()->resultVariable() ) )
+    // View-tolerant: case-level data filters have no RimEclipseView ancestor; the result
+    // definition's eclipse case is already wired by RimEclipsePropertyFilter::setCase via the
+    // owning collection's onItemsChanged hook.
+    if ( auto* reservoirView = propertyFilter->firstAncestorOrThisOfType<RimEclipseView>() )
     {
-        propertyFilter->resultDefinition()->simpleCopy( reservoirView->cellResult() );
+        propertyFilter->resultDefinition()->setEclipseCase( reservoirView->eclipseCase() );
+
+        if ( !RiaResultNames::isPerCellFaceResult( reservoirView->cellResult()->resultVariable() ) )
+        {
+            propertyFilter->resultDefinition()->simpleCopy( reservoirView->cellResult() );
+        }
     }
 
     propertyFilter->resultDefinition()->loadResult();
