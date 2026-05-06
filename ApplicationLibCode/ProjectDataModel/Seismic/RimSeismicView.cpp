@@ -411,7 +411,7 @@ void RimSeismicView::onLoadDataAndUpdate()
     synchronizeLocalAnnotationsFromGlobal();
     onUpdateScaleTransform();
 
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     if ( m_surfaceCollection ) m_surfaceCollection->loadData( m_currentTimeStep );
 

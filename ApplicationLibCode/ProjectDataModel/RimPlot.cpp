@@ -138,11 +138,11 @@ void RimPlot::setColSpan( RowOrColSpan colSpan )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlot::removeFromMdiAreaAndCollection()
+void RimPlot::removeFromDockAreaAndCollection()
 {
-    if ( isMdiWindow() )
+    if ( isMainDockedWindow() )
     {
-        revokeMdiWindowStatus();
+        removeWindowFromDock();
     }
 
     auto plotCollection = firstAncestorOfType<RimAbstractPlotCollection>();
@@ -165,7 +165,7 @@ void RimPlot::updateAfterInsertingIntoMultiPlot()
 //--------------------------------------------------------------------------------------------------
 void RimPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( !isMdiWindow() )
+    if ( !isMainDockedWindow() )
     {
         uiOrdering.add( &m_rowSpan );
         uiOrdering.add( &m_colSpan );

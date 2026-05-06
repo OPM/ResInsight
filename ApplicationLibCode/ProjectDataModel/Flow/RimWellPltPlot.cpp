@@ -137,7 +137,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_nameConfig->setCustomName( "PLT Plot" );
     setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
 
-    setAsPlotMdiWindow();
+    dockAsPlotWindow();
     m_doInitAfterLoad       = false;
     m_isOnLoad              = true;
     m_plotLegendsHorizontal = false;
@@ -151,7 +151,7 @@ RimWellPltPlot::RimWellPltPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellPltPlot::~RimWellPltPlot()
 {
-    removeMdiWindowFromMdiArea();
+    removeWindowFromDock();
 
     deleteViewWidget();
 }
@@ -1073,7 +1073,7 @@ void RimWellPltPlot::onLoadDataAndUpdate()
         m_isOnLoad = false;
     }
 
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
     updateFormationsOnPlot();
     syncCurvesFromUiSelection();
 }

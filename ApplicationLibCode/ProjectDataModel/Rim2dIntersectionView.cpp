@@ -794,7 +794,7 @@ cvf::Transform* Rim2dIntersectionView::scaleTransform()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     scheduleCreateDisplayModelAndRedraw();
 }

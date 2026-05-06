@@ -116,7 +116,7 @@ void RimSummaryCrossPlotCollection::removePlot( RimSummaryPlot* plot )
 RimSummaryPlot* RimSummaryCrossPlotCollection::createSummaryPlot()
 {
     RimSummaryPlot* plot = new RimSummaryCrossPlot();
-    plot->setAsPlotMdiWindow();
+    plot->dockAsPlotWindow();
 
     plot->setDescription( QString( "Summary Cross Plot %1" ).arg( m_summaryCrossPlots.size() ) );
 

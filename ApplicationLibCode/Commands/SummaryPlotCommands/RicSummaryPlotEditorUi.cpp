@@ -644,7 +644,7 @@ void RicSummaryPlotEditorUi::createNewPlot()
     if ( m_plotContainer )
     {
         newSummaryPlot = new RimSummaryPlot();
-        newSummaryPlot->setAsPlotMdiWindow();
+        newSummaryPlot->dockAsPlotWindow();
         newSummaryPlot->enableAutoPlotTitle( true );
         m_plotContainer->addPlot( newSummaryPlot );
     }

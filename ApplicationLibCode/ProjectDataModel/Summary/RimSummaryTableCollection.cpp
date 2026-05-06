@@ -104,7 +104,7 @@ RimSummaryTable* RimSummaryTableCollection::createDefaultSummaryTable()
 {
     RimSummaryTable* table = new RimSummaryTable();
     table->setDefaultCaseAndCategoryAndVectorName();
-    table->setAsPlotMdiWindow();
+    table->dockAsPlotWindow();
 
     return table;
 }
@@ -118,7 +118,7 @@ RimSummaryTable* RimSummaryTableCollection::createSummaryTableFromCategoryAndVec
 {
     RimSummaryTable* table = new RimSummaryTable();
     table->setFromCaseAndCategoryAndVectorName( summaryCase, category, vectorName );
-    table->setAsPlotMdiWindow();
+    table->dockAsPlotWindow();
 
     return table;
 }

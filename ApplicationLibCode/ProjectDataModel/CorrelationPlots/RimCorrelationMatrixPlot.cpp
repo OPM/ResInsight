@@ -144,7 +144,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
 //--------------------------------------------------------------------------------------------------
 RimCorrelationMatrixPlot::~RimCorrelationMatrixPlot()
 {
-    if ( isMdiWindow() ) removeMdiWindowFromMdiArea();
+    if ( isMainDockedWindow() ) removeWindowFromDock();
 
     cleanupBeforeClose();
 }
@@ -385,7 +385,7 @@ QList<caf::PdmOptionItemInfo> RimCorrelationMatrixPlot::calculateValueOptions( c
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
 
     m_selectedVarsUiField = selectedVectorNamesText();
 
@@ -735,7 +735,7 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
     {
         m_plotWidget->setPlotTitle( m_description );
         m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
-        if ( isMdiWindow() )
+        if ( isMainDockedWindow() )
         {
             m_plotWidget->setPlotTitleFontSize( titleFontSize() );
         }

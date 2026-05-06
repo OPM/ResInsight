@@ -121,7 +121,7 @@ RimSummaryTable::RimSummaryTable()
     CAF_PDM_InitField( &m_endDate, "EndDate", QDateTime::currentDateTime(), "End Date" );
 
     setLegendsVisible( true );
-    setAsPlotMdiWindow();
+    dockAsPlotWindow();
     setShowWindow( true );
     setDeletable( true );
 }
@@ -131,7 +131,7 @@ RimSummaryTable::RimSummaryTable()
 //--------------------------------------------------------------------------------------------------
 RimSummaryTable::~RimSummaryTable()
 {
-    if ( isMdiWindow() ) removeMdiWindowFromMdiArea();
+    if ( isMainDockedWindow() ) removeWindowFromDock();
 
     cleanupBeforeClose();
 }
@@ -432,7 +432,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTable::onLoadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
+    updateDockWindowVisibility();
     createTableData();
     setExcludedRowsUiSelectionsFromTableData();
 

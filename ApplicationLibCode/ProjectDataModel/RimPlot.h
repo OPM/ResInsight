@@ -73,7 +73,7 @@ public:
     RowOrColSpan colSpan() const;
     void         setRowSpan( RowOrColSpan rowSpan );
     void         setColSpan( RowOrColSpan colSpan );
-    void         removeFromMdiAreaAndCollection();
+    void         removeFromDockAreaAndCollection();
     void         updateAfterInsertingIntoMultiPlot();
 
     // Pure virtual interface methods

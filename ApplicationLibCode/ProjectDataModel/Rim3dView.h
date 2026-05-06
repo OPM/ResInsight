@@ -200,7 +200,7 @@ public:
     Rim3dView*              activeComparisonView() const;
     void                    setComparisonView( Rim3dView* compView );
     std::set<Rim3dView*>    viewsUsingThisAsComparisonView();
-    void                    updateMdiWindowTitle() override;
+    void                    updateWindowTitle() override;
     std::vector<Rim3dView*> validComparisonViews() const;
 
     RimViewLinker*     assosiatedViewLinker() const override;
@@ -318,7 +318,6 @@ private:
     caf::PdmObjectHandle* implementingPdmObject() override;
 
     void handleMdiWindowClosed() override;
-    void setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry ) override;
 
     // Pure private methods
 
