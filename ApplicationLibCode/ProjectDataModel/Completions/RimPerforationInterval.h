@@ -28,9 +28,11 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 #include <QDate>
 
+class RimCellFilter;
 class RimWellPathValve;
 
 //==================================================================================================
@@ -68,6 +70,9 @@ public:
     std::vector<RimWellPathValve*> valves() const;
     void                           updateAllReferringTracks();
 
+    RimCellFilter* cellFilter() const;
+    void           setCellFilter( RimCellFilter* filter );
+
     // RimWellPathCompletionInterface overrides
     bool                              isEnabled() const override;
     RiaDefines::WellPathComponentType componentType() const override;
@@ -84,6 +89,7 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void initAfterRead() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     caf::PdmField<double> m_startMD;
@@ -99,6 +105,8 @@ private:
     caf::PdmField<QDateTime> m_endDate;
 
     caf::PdmChildArrayField<RimWellPathValve*> m_valves;
+
+    caf::PdmPtrField<RimCellFilter*> m_cellFilter;
 
     caf::PdmField<bool> m_startOfHistory_OBSOLETE;
 };

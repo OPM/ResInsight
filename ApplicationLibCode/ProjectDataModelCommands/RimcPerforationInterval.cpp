@@ -18,6 +18,7 @@
 
 #include "RimcPerforationInterval.h"
 
+#include "RimCellFilter.h"
 #include "RimEclipseCase.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
@@ -79,4 +80,56 @@ std::expected<caf::PdmObjectHandle*, QString> RimcPerforationInterval_addValve::
 QString RimcPerforationInterval_addValve::classKeywordReturnedType() const
 {
     return RimWellPathValve::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimPerforationInterval, RimcPerforationInterval_addFilter, "AddFilter" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcPerforationInterval_addFilter::RimcPerforationInterval_addFilter( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Add Cell Filter", "", "", "Set the cell filter associated with this perforation interval (replaces any existing filter)" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filter, "Filter", "", "", "", "Cell Filter" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcPerforationInterval_addFilter::execute()
+{
+    auto* perfInterval = self<RimPerforationInterval>();
+    perfInterval->setCellFilter( m_filter() );
+    perfInterval->updateConnectedEditors();
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimPerforationInterval, RimcPerforationInterval_cellFilter, "cell_filter" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcPerforationInterval_cellFilter::RimcPerforationInterval_cellFilter( caf::PdmObjectHandle* self )
+    : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+{
+    CAF_PDM_InitObject( "Cell Filter", "", "", "Cell filter associated with this perforation interval, or null if none" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcPerforationInterval_cellFilter::execute()
+{
+    return self<RimPerforationInterval>()->cellFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcPerforationInterval_cellFilter::classKeywordReturnedType() const
+{
+    return RimCellFilter::classKeywordStatic();
 }

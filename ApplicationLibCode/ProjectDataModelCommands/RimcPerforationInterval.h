@@ -25,6 +25,7 @@
 
 #include <QString>
 
+class RimCellFilter;
 class RimValveTemplate;
 
 //==================================================================================================
@@ -45,4 +46,34 @@ private:
     caf::PdmField<double>               m_startMd;
     caf::PdmField<double>               m_endMd;
     caf::PdmField<int>                  m_valveCount;
+};
+
+//==================================================================================================
+/// Set the cell filter associated with this perforation interval. Replaces any existing filter.
+//==================================================================================================
+class RimcPerforationInterval_addFilter : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcPerforationInterval_addFilter( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrField<RimCellFilter*> m_filter;
+};
+
+//==================================================================================================
+/// Returns the cell filter associated with this perforation interval, or null if none.
+//==================================================================================================
+class RimcPerforationInterval_cellFilter : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcPerforationInterval_cellFilter( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
 };

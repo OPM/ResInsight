@@ -26,6 +26,7 @@
 #include "RigCaseCellResultsData.h"
 #include "Well/RigWellPath.h"
 
+#include "RimCellFilter.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimWellLogTrack.h"
@@ -62,6 +63,12 @@ RimPerforationInterval::RimPerforationInterval()
     CAF_PDM_InitField( &m_endDate, "EndDate", QDateTime::currentDateTime(), "End Date" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_valves, "Valves", "Valves" );
+
+    // Non-scriptable: a scriptable PdmPtrField surfaces in Python as an opaque address string.
+    // Keeping the field non-scriptable makes the generator emit a `cell_filter()` accessor that
+    // resolves to a CellFilter object (same pattern as `valve.template()`). The setter goes
+    // through RimcPerforationInterval_addFilter ("AddFilter").
+    CAF_PDM_InitFieldNoDefault( &m_cellFilter, "CellFilter", "Cell Filter" );
 
     nameField()->uiCapability()->setUiReadOnly( true );
 
@@ -249,6 +256,22 @@ std::vector<RimWellPathValve*> RimPerforationInterval::valves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCellFilter* RimPerforationInterval::cellFilter() const
+{
+    return m_cellFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::setCellFilter( RimCellFilter* filter )
+{
+    m_cellFilter = filter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::updateAllReferringTracks()
 {
     std::vector<RimWellLogTrack*> wellLogTracks = objectsWithReferringPtrFieldsOfType<RimWellLogTrack>();
@@ -382,6 +405,9 @@ void RimPerforationInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     uiOrdering.add( &m_skinFactor );
     uiOrdering.add( &m_completionNumber );
 
+    auto filterGrp = uiOrdering.addNewGroup( "Cell Filter" );
+    filterGrp->add( &m_cellFilter );
+
     auto dateGrp = uiOrdering.addNewGroup( "Date Settings" );
     dateGrp->setCollapsedByDefault();
     dateGrp->add( &m_useCustomStartDate );
@@ -392,6 +418,30 @@ void RimPerforationInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     m_endDate.uiCapability()->setUiReadOnly( !m_useCustomEndDate );
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Populate the "Cell Filter" dropdown with every RimCellFilter reachable in the project so the
+/// user can pick one. Without this the field renders as an empty selector.
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimPerforationInterval::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_cellFilter )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", static_cast<RimCellFilter*>( nullptr ) ) );
+
+        if ( auto* project = RimProject::current() )
+        {
+            for ( RimCellFilter* filter : project->descendantsIncludingThisOfType<RimCellFilter>() )
+            {
+                if ( filter ) options.push_back( caf::PdmOptionItemInfo( filter->name(), filter ) );
+            }
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
