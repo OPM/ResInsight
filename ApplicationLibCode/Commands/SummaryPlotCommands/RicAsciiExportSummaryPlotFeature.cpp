@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaQStringFormatter.h"
 
 #include "RicResampleDialog.h"
 
@@ -88,7 +89,7 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered( bool isChecked )
         caf::ProgressInfo pi( selectedSummaryPlots.size(), QString( "Exporting plot data to ASCII" ) );
         size_t            progress = 0;
 
-        RiaLogging::info( QString( "Writing to directory %1" ).arg( saveDir ) );
+        RiaLogging::info( std::format( "Writing to directory {}", saveDir ) );
         for ( RimSummaryPlot* summaryPlot : selectedSummaryPlots )
         {
             QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename( summaryPlot->description() ) + ".ascii";
@@ -143,13 +144,13 @@ bool RicAsciiExportSummaryPlotFeature::exportTextToFile( const QString& fileName
         return false;
     }
 
-    RiaLogging::info( QString( "Writing values for summary plot(s) to file: %1" ).arg( fileName ) );
+    RiaLogging::info( std::format( "Writing values for summary plot(s) to file: {}", fileName ) );
 
     QTextStream out( &file );
 
     out << text;
 
-    RiaLogging::info( QString( "Competed writing values for summary plot(s) to file %1" ).arg( fileName ) );
+    RiaLogging::info( std::format( "Competed writing values for summary plot(s) to file {}", fileName ) );
 
     return true;
 }

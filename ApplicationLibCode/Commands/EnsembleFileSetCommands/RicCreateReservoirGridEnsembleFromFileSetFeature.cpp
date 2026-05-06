@@ -19,6 +19,7 @@
 #include "RicCreateReservoirGridEnsembleFromFileSetFeature.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "RimEclipseCaseCollection.h"
@@ -76,20 +77,20 @@ void RicCreateReservoirGridEnsembleFromFileSetFeature::onActionTriggered( bool i
             }
             else
             {
-                RiaLogging::warning( QString( "Grid file does not exist: %1" ).arg( filePath ) );
+                RiaLogging::warning( std::format( "Grid file does not exist: {}", filePath ) );
             }
         }
         gridFiles = existingGridFiles;
 
         if ( gridFiles.empty() )
         {
-            RiaLogging::warning( QString( "No existing grid files found for ensemble '%1'" ).arg( fileSet->name() ) );
+            RiaLogging::warning( std::format( "No existing grid files found for ensemble '{}'", fileSet->name() ) );
             continue;
         }
 
         // Always create RimReservoirGridEnsemble
         RiaLogging::info(
-            QString( "Creating Reservoir Grid Ensemble for '%1' with %2 grid files." ).arg( fileSet->name() ).arg( gridFiles.size() ) );
+            QString( "Creating Reservoir Grid Ensemble for '%1' with %2 grid files." ).arg( fileSet->name() ).arg( gridFiles.size() ).toStdString() );
 
         RimReservoirGridEnsemble* gridEnsemble = new RimReservoirGridEnsemble();
         gridEnsemble->setEnsembleFileSet( fileSet );

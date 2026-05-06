@@ -8,6 +8,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaImageFileCompare.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaImageTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaLogging.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaQStringFormatter.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaProjectModifier.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTest.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaImportEclipseCaseTools.h

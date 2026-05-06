@@ -165,14 +165,14 @@ std::tuple<Opm::UnitSystem, std::vector<RifVfpProdTable>, std::vector<RifVfpInjT
                            .arg( QString::fromStdString( dataDeckFilename ) )
                            .arg( QString::fromStdString( e.what() ) );
 
-        RiaLogging::warning( text );
+        RiaLogging::warning( text.toStdString() );
     }
     catch ( ... )
     {
         QString text = QString( "Error detected when parsing '%1'. Imported data might be missing or incomplete." )
                            .arg( QString::fromStdString( dataDeckFilename ) );
 
-        RiaLogging::warning( text );
+        RiaLogging::warning( text.toStdString() );
     }
 
     Opm::UnitSystem unitSystemValue;

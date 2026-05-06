@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RiaPreferencesOpenTelemetry.h"
+#include "RiaQStringFormatter.h"
 #include "RifJsonEncodeDecode.h"
 
 #include <QCryptographicHash>
@@ -417,7 +418,7 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
         }
     }
 
-    RiaLogging::error( QString( "Crash reported to OpenTelemetry (signal: %1)" ).arg( signalCode ) );
+    RiaLogging::error( std::format( "Crash reported to OpenTelemetry (signal: {})", signalCode ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -597,7 +598,7 @@ bool RiaOpenTelemetryManager::createExporter()
         }
 
         // Using Application Insights REST API for telemetry
-        RiaLogging::info( QString( "Application Insights REST API configured for production environment" ) );
+        RiaLogging::info( "Application Insights REST API configured for production environment" );
 
         return true;
     }
@@ -832,7 +833,7 @@ void RiaOpenTelemetryManager::handleError( TelemetryError error, const QString& 
         m_errorCallback( error, context );
     }
 
-    RiaLogging::warning( QString( "OpenTelemetry error: %1" ).arg( context ) );
+    RiaLogging::warning( std::format( "OpenTelemetry error: {}", context ) );
 }
 
 //--------------------------------------------------------------------------------------------------

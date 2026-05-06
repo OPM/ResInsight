@@ -20,6 +20,7 @@
 #include "RimGeoMechModels.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
@@ -79,7 +80,7 @@ RimGeoMechCase* RimGeoMechModels::copyCase( RimGeoMechCase* thecase, const QStri
     {
         if ( gmcase->gridFileName() == newInputFileName )
         {
-            RiaLogging::warning( "File has already been opened. Cannot open the file twice! - " + newInputFileName );
+            RiaLogging::warning( "File has already been opened. Cannot open the file twice! - " + newInputFileName.toStdString() );
             return nullptr;
         }
     }
@@ -87,8 +88,9 @@ RimGeoMechCase* RimGeoMechModels::copyCase( RimGeoMechCase* thecase, const QStri
     RimGeoMechCase* copy = thecase->createCopy( newInputFileName );
     if ( !copy )
     {
-        RiaLogging::warning( "Could not create a copy of the geomech case" + thecase->caseUserDescription() + " using the new input file " +
-                             newInputFileName );
+        RiaLogging::warning( std::format( "Could not create a copy of the geomech case{} using the new input file {}",
+                                          thecase->caseUserDescription(),
+                                          newInputFileName ) );
         return nullptr;
     }
 

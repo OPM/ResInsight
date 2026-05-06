@@ -73,7 +73,7 @@ void RimProcessMonitor::error( QProcess::ProcessError error )
             break;
     }
 
-    RiaLogging::error( addPrefix( errorStr ) );
+    RiaLogging::error( addPrefix( errorStr ).toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ void RimProcessMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus 
                 finishStr = QString( "Crash exit, code %1" ).arg( exitCode );
                 break;
         }
-        RiaLogging::debug( addPrefix( finishStr ) );
+        RiaLogging::debug( addPrefix( finishStr ).toStdString() );
     }
 
     RimProcessQueue::onProcessFinished( m_processId );
@@ -116,7 +116,7 @@ void RimProcessMonitor::readyReadStandardError()
             m_stdErr.append( line );
             if ( m_logStdOutErr )
             {
-                RiaLogging::error( addPrefix( line ) );
+                RiaLogging::error( addPrefix( line ).toStdString() );
             }
         }
     }
@@ -138,7 +138,7 @@ void RimProcessMonitor::readyReadStandardOutput()
             m_stdOut.append( line );
             if ( m_logStdOutErr )
             {
-                RiaLogging::info( addPrefix( line ) );
+                RiaLogging::info( addPrefix( line ).toStdString() );
             }
         }
     }
@@ -149,7 +149,7 @@ void RimProcessMonitor::readyReadStandardOutput()
 //--------------------------------------------------------------------------------------------------
 void RimProcessMonitor::started()
 {
-    if ( m_logStdOutErr ) RiaLogging::debug( addPrefix( "Started" ) );
+    if ( m_logStdOutErr ) RiaLogging::debug( addPrefix( "Started" ).toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------

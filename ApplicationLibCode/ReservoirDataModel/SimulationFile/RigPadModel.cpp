@@ -22,6 +22,7 @@
 #include "RigModelPaddingSettings.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "cvfVector3.h"
 
@@ -1009,10 +1010,8 @@ std::expected<void, QString> RigPadModel::extendGrid( RifOpmFlowDeckFile& deckFi
 
     const int nzNew = static_cast<int>( gridSize.z() ) + settings.nzUpper() + settings.nzLower();
 
-    RiaLogging::info(
-        QString( "Applying model padding: %1 upper layers, %2 lower layers" ).arg( settings.nzUpper() ).arg( settings.nzLower() ) );
-    RiaLogging::info(
-        QString( "Grid dimensions: %1 x %2 x %3 -> %1 x %2 x %4" ).arg( gridSize.x() ).arg( gridSize.y() ).arg( gridSize.z() ).arg( nzNew ) );
+    RiaLogging::info( std::format( "Applying model padding: {} upper layers, {} lower layers", settings.nzUpper(), settings.nzLower() ) );
+    RiaLogging::info( std::format( "Grid dimensions: {} x {} x {} -> nz {}", gridSize.x(), gridSize.y(), gridSize.z(), nzNew ) );
 
     // Save actnum before any extensions for region filtering
     auto actnumOld = getActnumOld( *fileDeck, gridSize );
@@ -1063,7 +1062,7 @@ std::expected<void, QString> RigPadModel::extendGrid( RifOpmFlowDeckFile& deckFi
     // Step 11: Operators K-shift (ADD/BOX/EQUALS etc.)
     extendOperators( settings, *fileDeck );
 
-    RiaLogging::info( QString( "Model padding applied successfully: %1 x %2 x %3" ).arg( gridSize.x() ).arg( gridSize.y() ).arg( nzNew ) );
+    RiaLogging::info( std::format( "Model padding applied successfully: {} x {} x {}", gridSize.x(), gridSize.y(), nzNew ) );
 
     return {};
 }

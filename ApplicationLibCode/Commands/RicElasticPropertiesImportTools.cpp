@@ -19,6 +19,7 @@
 #include "RicElasticPropertiesImportTools.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RifCsvUserDataParser.h"
 #include "RifElasticPropertiesReader.h"
@@ -59,7 +60,7 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
     }
     catch ( FileParseException& exception )
     {
-        RiaLogging::warning( QString( "Facies properties import failed: '%1'." ).arg( exception.message ) );
+        RiaLogging::warning( std::format( "Facies properties import failed: '{}'.", exception.message ) );
         return;
     }
 

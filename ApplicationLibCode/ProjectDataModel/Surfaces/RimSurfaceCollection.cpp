@@ -209,7 +209,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 
     if ( !errorMessages.isEmpty() )
     {
-        RiaLogging::warning( "Import Surfaces : Could not import the following files:\n" + errorMessages );
+        RiaLogging::warning( "Import Surfaces : Could not import the following files:\n" + errorMessages.toStdString() );
     }
 
     updateConnectedEditors();
@@ -259,7 +259,7 @@ RimSurface* RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surface
         }
         else
         {
-            RiaLogging::warning( "Create Surface Copy: Could not create a copy of the surface " + surface->fullName() );
+            RiaLogging::warning( "Create Surface Copy: Could not create a copy of the surface " + surface->fullName().toStdString() );
         }
     }
 

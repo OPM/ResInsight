@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
+#include "RiaQStringFormatter.h"
 #include "RiaViewRedrawScheduler.h"
 
 #include "Rim3dOverlayInfoConfig.h"
@@ -65,7 +66,7 @@ void RicSnapshotAllViewsToFileFeature::saveAllViews()
     exportSnapshotOfViewsIntoFolder( snapshotFolderName );
 
     QString text = QString( "Exported snapshots to folder : \n%1" ).arg( snapshotFolderName );
-    RiaLogging::info( text );
+    RiaLogging::info( text.toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +111,7 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
     }
 
     const QString absSnapshotPath = snapshotPath.absolutePath();
-    RiaLogging::info( QString( "Exporting snapshot of all views to %1" ).arg( snapshotFolderName ) );
+    RiaLogging::info( std::format( "Exporting snapshot of all views to {}", snapshotFolderName ) );
 
     for ( auto riv : viewsForSnapshot )
     {

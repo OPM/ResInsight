@@ -87,7 +87,7 @@ caf::PdmScriptResponse RicfSetTimeStep::execute()
         if ( !foundCase )
         {
             QString error = QString( "setTimeStep: Could not find case with ID %1" ).arg( m_caseId() );
-            RiaLogging::error( error );
+            RiaLogging::error( error.toStdString() );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
@@ -99,7 +99,7 @@ caf::PdmScriptResponse RicfSetTimeStep::execute()
                             .arg( m_timeStepIndex() )
                             .arg( maxTimeStep )
                             .arg( m_caseId() );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

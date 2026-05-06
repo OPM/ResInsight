@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSystem.h"
+#include "RiaQStringFormatter.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RifCaseRealizationParametersReader.h"
@@ -582,7 +583,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( const std::vector<Ri
                 if ( isLoggingEnabled )
                 {
                     RiaLogging::logElapsedTime( "Setting of realization parameters", startTime );
-                    RiaLogging::info( QString( "Completed %1" ).arg( fileSummaryCase->summaryHeaderFilename() ) );
+                    RiaLogging::info( std::format( "Completed {}", fileSummaryCase->summaryHeaderFilename() ) );
                 }
             }
 
@@ -590,14 +591,14 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( const std::vector<Ri
         }
         for ( const auto& txt : threadSafeLogger.messages() )
         {
-            RiaLogging::info( txt );
+            RiaLogging::info( txt.toStdString() );
         }
     }
 
     auto numberOfEsmryFilesCreated = RifOpmCommonEclipseSummary::numberOfEnhancedSummaryFileCreated();
     if ( numberOfEsmryFilesCreated > 0 )
     {
-        RiaLogging::info( QString( "Summary Files : Converted and created %1 '*.ESMRY' files on disk." ).arg( numberOfEsmryFilesCreated ) );
+        RiaLogging::info( std::format( "Summary Files : Converted and created {} '*.ESMRY' files on disk.", numberOfEsmryFilesCreated ) );
     }
 
     // This loop is not thread safe, use serial loop
@@ -699,7 +700,7 @@ std::vector<RimSummaryCase*>
                 else
                 {
                     QString txt = QString( "No UNSMRY file found for %1" ).arg( smspecFileName );
-                    RiaLogging::warning( txt );
+                    RiaLogging::warning( txt.toStdString() );
                 }
             }
 

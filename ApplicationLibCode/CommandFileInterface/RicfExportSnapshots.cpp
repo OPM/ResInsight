@@ -79,7 +79,7 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
     if ( !RiaGuiApplication::isRunning() )
     {
         QString error( "RicfExportSnapshot: Command cannot run without a GUI" );
-        RiaLogging::error( error );
+        RiaLogging::error( error.toStdString() );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 

@@ -94,7 +94,7 @@ bool RigWellLogCsvFile::open( const QString& fileName, RigWellPath* wellPath, QS
     if ( m_tvdMslLogName.isEmpty() )
     {
         QString message = "CSV file does not have TVD values.";
-        RiaLogging::error( message );
+        RiaLogging::error( message.toStdString() );
         if ( errorMessage ) *errorMessage = message;
         return false;
     }

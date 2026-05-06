@@ -19,6 +19,7 @@
 #include "RimPolygonFile.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RifPolygonReader.h"
 
@@ -92,11 +93,11 @@ void RimPolygonFile::loadData()
 
     if ( polygonsFromFile.empty() )
     {
-        RiaLogging::warning( "No polygons found in file: " + m_fileName().path() );
+        RiaLogging::warning( "No polygons found in file: " + m_fileName().path().toStdString() );
     }
     else
     {
-        RiaLogging::info( QString( "Imported %1 polygon(s) from file: " ).arg( polygonsFromFile.size() ) + m_fileName().path() );
+        RiaLogging::info( std::format( "Imported {} polygon(s) from file: {}", polygonsFromFile.size(), m_fileName().path() ) );
     }
 }
 
@@ -184,7 +185,7 @@ std::vector<RimPolygon*> RimPolygonFile::importDataFromFile( const QString& file
 
     if ( !errorMessages.isEmpty() )
     {
-        RiaLogging::error( errorMessages );
+        RiaLogging::error( errorMessages.toStdString() );
     }
 
     return polygons;

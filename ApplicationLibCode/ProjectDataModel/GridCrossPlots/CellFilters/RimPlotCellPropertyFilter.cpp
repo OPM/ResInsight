@@ -174,7 +174,7 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter( size_t timeStepI
             QString message =
                 QString( "Size of visible Cells (%1) is less than total cell count (%2)" ).arg( visibleCells->size() ).arg( totalReservoirCellCount );
 
-            RiaLogging::error( message );
+            RiaLogging::error( message.toStdString() );
 
             return;
         }

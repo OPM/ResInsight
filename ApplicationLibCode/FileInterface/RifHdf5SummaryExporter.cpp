@@ -67,10 +67,9 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( const std::ve
 
     if ( hdfFilesCreatedCount > 0 )
     {
-        QString txt = QString( "Created [ %1 ] h5 files from a total of [ %2 ] summary files" )
-                          .arg( static_cast<int>( hdfFilesCreatedCount ) )
-                          .arg( static_cast<int>( smspecFileNames.size() ) );
-        RiaLogging::info( txt );
+        RiaLogging::info( std::format( "Created [ {} ] h5 files from a total of [ {} ] summary files",
+                                       static_cast<int>( hdfFilesCreatedCount ),
+                                       static_cast<int>( smspecFileNames.size() ) ) );
     }
 
     return true;
@@ -111,10 +110,9 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
 
         if ( !info.isWritable() )
         {
-            QString txt =
-                QString( "HDF is older than SMSPEC, but export to file %1 failed due to missing write permissions. Aborting operation." )
-                    .arg( QString::fromStdString( h5FileName ) );
-            RiaLogging::error( txt );
+            RiaLogging::error(
+                std::format( "HDF is older than SMSPEC, but export to file {} failed due to missing write permissions. Aborting operation.",
+                             h5FileName ) );
 
             return false;
         }
@@ -146,9 +144,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
         }
         catch ( std::exception& e )
         {
-            QString txt = QString( "HDF export to file %1 failed : %2" ).arg( QString::fromStdString( smspecFileName ), e.what() );
-
-            RiaLogging::error( txt );
+            RiaLogging::error( std::format( "HDF export to file {} failed : {}", smspecFileName, e.what() ) );
 
             return false;
         }
@@ -279,8 +275,7 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
         }
         auto txt = RiaStdStringTools::joinStrings( keywordVector, ',' );
 
-        QString errorTxt = QString( "Failed to export keywords %1 " ).arg( QString::fromStdString( txt ) );
-        RiaLogging::error( errorTxt );
+        RiaLogging::error( std::format( "Failed to export keywords {} ", txt ) );
     }
 
     return true;

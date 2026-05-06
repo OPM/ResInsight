@@ -26,6 +26,7 @@
 #include "RigFemTypes.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "cafProgressInfo.h"
 
@@ -99,7 +100,7 @@ bool RifVtkReader::openFile( const std::string& fileName, std::string* errorMess
     }
     else
     {
-        RiaLogging::info( QString( "Found %1 timesteps" ).arg( dataset.size() ) );
+        RiaLogging::info( std::format( "Found {} timesteps", dataset.size() ) );
         m_inputPath = filePath;
         return true;
     }
@@ -130,7 +131,7 @@ bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
     auto result = read( m_inputPath, parts, nodes, elements, elementSets, properties, m_displacements, m_stepNames );
     if ( !result )
     {
-        RiaLogging::error( QString::fromStdString( result.error() ) );
+        RiaLogging::error( result.error() );
         return false;
     }
 
@@ -141,11 +142,12 @@ bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
     RiaLogging::debug( QString( "Read FEM parts: %1, steps: %2, element type: %3" )
                            .arg( parts.size() )
                            .arg( m_stepNames.size() )
-                           .arg( QString::fromStdString( RigFemTypes::elementTypeText( elementType ) ) ) );
+                           .arg( QString::fromStdString( RigFemTypes::elementTypeText( elementType ) ) )
+                           .toStdString() );
 
     if ( !RigFemTypes::is8NodeElement( elementType ) )
     {
-        RiaLogging::error( QString( "Unsupported element type." ) );
+        RiaLogging::error( "Unsupported element type." );
         return false;
     }
 
@@ -325,7 +327,8 @@ std::expected<RigElementType, std::string>
         RiaLogging::info( QString( "Found %1 displacements and %2 properties for timestep %3." )
                               .arg( partDisplacements.size() )
                               .arg( partProperties.size() )
-                              .arg( d.timestep ) );
+                              .arg( d.timestep )
+                              .toStdString() );
 
         properties[partId].push_back( partProperties );
         displacements[partId].push_back( partDisplacements );

@@ -20,6 +20,7 @@
 
 #include "Ensemble/RiaEnsembleImportTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "Summary/RiaSummaryTools.h"
 
 #include "RicImportSummaryCasesFeature.h"
@@ -56,7 +57,7 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
     auto summaryEnsemble = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryEnsemble>();
     if ( !summaryEnsemble ) return;
 
-    RiaLogging::info( QString( "Starting replace ensemble for '" ) + summaryEnsemble->name() + "'" );
+    RiaLogging::info( std::format( "Starting replace ensemble for '{}'", summaryEnsemble->name() ) );
 
     QString pathCacheName = "ENSEMBLE_FILES";
     auto    result = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Import Ensemble", pathCacheName );
@@ -77,7 +78,7 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
             collection->updateFileSetNames();
             collection->updateAllRequiredEditors();
 
-            RiaLogging::info( QString( "Completed replace ensemble, new name is '" ) + summaryEnsemble->name() + "'" );
+            RiaLogging::info( std::format( "Completed replace ensemble, new name is '{}'", summaryEnsemble->name() ) );
 
             return;
         }
@@ -115,7 +116,7 @@ void RicReplaceSummaryEnsembleFeature::onActionTriggered( bool isChecked )
 
     RiaSummaryTools::updateConnectedPlots( summaryEnsemble );
 
-    RiaLogging::info( QString( "Completed replace ensemble, new name is '" ) + summaryEnsemble->name() + "'" );
+    RiaLogging::info( std::format( "Completed replace ensemble, new name is '{}'", summaryEnsemble->name() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

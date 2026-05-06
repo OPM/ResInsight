@@ -92,7 +92,7 @@ caf::PdmScriptResponse RicfCreateWellBoreStabilityPlotFeature::execute()
         {
             QString error =
                 QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" ).arg( chosenWellPath->name() );
-            RiaLogging::error( error );
+            RiaLogging::error( error.toStdString() );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
 
@@ -104,6 +104,6 @@ caf::PdmScriptResponse RicfCreateWellBoreStabilityPlotFeature::execute()
     }
 
     QString error = QString( "createWellBoreStabilityPlot: Could not find GeoMech case with id %1" ).arg( m_caseId() );
-    RiaLogging::error( error );
+    RiaLogging::error( error.toStdString() );
     return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
 }

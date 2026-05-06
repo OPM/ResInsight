@@ -23,6 +23,7 @@
 #include "RiaCellDividingTools.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStringEncodingTools.h"
 #include "RiuMessageDialog.h"
 
@@ -367,7 +368,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
         QString errorMessage = QFileInfo( fileName ).fileName() +
                                QString( " is not a valid Eclipse file name.\n"
                                         "Please make sure the file does not contain a mix of upper and lower case letters." );
-        RiaLogging::error( errorMessage );
+        RiaLogging::error( errorMessage.toStdString() );
         return false;
     }
 
@@ -393,7 +394,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
         if ( !mainEclGrid )
         {
             QString errorMessage = QString( " Failed to create a main grid from file\n%1" ).arg( m_fileName );
-            RiaLogging::error( errorMessage );
+            RiaLogging::error( errorMessage.toStdString() );
 
             return false;
         }
@@ -561,7 +562,7 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
         return;
     }
 
-    RiaLogging::info( QString( "HDF: Start import of data from : " ).arg( fileName ) );
+    RiaLogging::info( std::format( "HDF: Start import of data from : ", fileName ) );
 
     RiaLogging::info( "HDF: Removing all existing Sour Sim data ..." );
     matrixModelResults->eraseAllSourSimData();
@@ -591,7 +592,7 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
         if ( allTimeSteps().size() != sourSimTimeSteps.size() )
         {
             RiaLogging::error(
-                QString( "HDF: Time step count mismatch, Eclipse : %1 ; HDF : %2 " ).arg( allTimeSteps().size() ).arg( sourSimTimeSteps.size() ) );
+                std::format( "HDF: Time step count mismatch, Eclipse : {} ; HDF : {} ", allTimeSteps().size(), sourSimTimeSteps.size() ) );
 
             return;
         }
@@ -610,7 +611,7 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
             else
             {
                 RiaLogging::error(
-                    QString( "HDF: Time step count mismatch, Eclipse : %1 ; HDF : %2 " ).arg( timeStepInfos.size() ).arg( sourSimTimeSteps.size() ) );
+                    std::format( "HDF: Time step count mismatch, Eclipse : {} ; HDF : {} ", timeStepInfos.size(), sourSimTimeSteps.size() ) );
 
                 // We have less soursim time steps than eclipse time steps
                 isTimeStampsEqual = false;
@@ -1097,16 +1098,16 @@ std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeSt
 
         if ( timeStepsOnFile.size() != daysSinceSimulationStartOnFile.size() )
         {
-            RiaLogging::error( QString( "Time step count mismatch: timeStepsOnFile = %1, daysSinceSimulationStartOnFile = %2" )
-                                   .arg( timeStepsOnFile.size() )
-                                   .arg( daysSinceSimulationStartOnFile.size() ) );
+            RiaLogging::error( std::format( "Time step count mismatch: timeStepsOnFile = {}, daysSinceSimulationStartOnFile = {}",
+                                            timeStepsOnFile.size(),
+                                            daysSinceSimulationStartOnFile.size() ) );
             return {};
         }
         if ( timeStepsOnFile.size() != reportNumbersOnFile.size() )
         {
-            RiaLogging::error( QString( "Time step count mismatch: timeStepsOnFile = %1, reportNumbersOnFile = %2" )
-                                   .arg( timeStepsOnFile.size() )
-                                   .arg( reportNumbersOnFile.size() ) );
+            RiaLogging::error( std::format( "Time step count mismatch: timeStepsOnFile = {}, reportNumbersOnFile = {}",
+                                            timeStepsOnFile.size(),
+                                            reportNumbersOnFile.size() ) );
             return {};
         }
 
@@ -1140,8 +1141,8 @@ bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual( const QDateTime&
     {
         RiaLogging::error( "HDF: Time steps does not match" );
 
-        RiaLogging::error( QString( "  %1 - Eclipse" ).arg( eclipseDateTime.toString( dateStr ) ) );
-        RiaLogging::error( QString( "  %1 - SourSim" ).arg( sourSimDateTime.toString( dateStr ) ) );
+        RiaLogging::error( std::format( "  {} - Eclipse", eclipseDateTime.toString( dateStr ) ) );
+        RiaLogging::error( std::format( "  {} - SourSim", sourSimDateTime.toString( dateStr ) ) );
 
         return false;
     }
@@ -1149,8 +1150,8 @@ bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual( const QDateTime&
     if ( eclipseDateTime.time().second() != sourSimDateTime.time().second() )
     {
         RiaLogging::warning( "HDF: Time steps differ, but within time step compare threshold" );
-        RiaLogging::warning( QString( "  %1 - Eclipse" ).arg( eclipseDateTime.toString( dateStr ) ) );
-        RiaLogging::warning( QString( "  %1 - SourSim" ).arg( sourSimDateTime.toString( dateStr ) ) );
+        RiaLogging::warning( std::format( "  {} - Eclipse", eclipseDateTime.toString( dateStr ) ) );
+        RiaLogging::warning( std::format( "  {} - SourSim", sourSimDateTime.toString( dateStr ) ) );
     }
 
     return true;

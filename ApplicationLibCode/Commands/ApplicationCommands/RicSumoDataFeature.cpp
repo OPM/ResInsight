@@ -207,7 +207,7 @@ void SimpleDialog::onShowContentParquetClicked()
 
     // TODO: show content using parquet reader
     auto tableText = RifArrowTools::readFirstRowsOfTable( content );
-    RiaLogging::info( tableText );
+    RiaLogging::info( tableText.toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ void SimpleDialog::onRealizationsClicked()
     auto ids = m_sumoConnector->realizationIds();
     for ( const auto& id : ids )
     {
-        RiaLogging::info( id );
+        RiaLogging::info( id.toStdString() );
     }
 }
 
@@ -252,7 +252,7 @@ bool SimpleDialog::isTokenValid()
 //--------------------------------------------------------------------------------------------------
 void SimpleDialog::onTokenReady( const QString& token )
 {
-    RiaLogging::info( "Token ready: " + token );
+    RiaLogging::info( "Token ready: " + token.toStdString() );
 }
 
 void SimpleDialog::onOkClicked()

@@ -24,6 +24,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
+#include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 #include "RiaWeightedMeanCalculator.h"
 
@@ -108,8 +109,8 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     {
         if ( volumeType == VolumeType::GAS || volumeType == VolumeType::HYDROCARBON )
         {
-            RiaLogging::error( "Missing SGAS result needed for well target mapping volume type: " +
-                               caf::AppEnum<VolumeType>::uiText( volumeType ) );
+            RiaLogging::error( std::format( "Missing SGAS result needed for well target mapping volume type: {}",
+                                            caf::AppEnum<VolumeType>::uiText( volumeType ) ) );
             return;
         }
     }
@@ -179,8 +180,9 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
                                   .arg( clusterId )
                                   .arg( startCell->i() + 1 )
                                   .arg( startCell->j() + 1 )
-                                  .arg( startCell->k() + 1 ),
-                              logKeyword );
+                                  .arg( startCell->k() + 1 )
+                                  .toStdString(),
+                              logKeyword.toStdString() );
 
             RigWellTargetMappingTools::growCluster( eclipseCase,
                                                     startCell.value(),
@@ -201,12 +203,12 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
         }
     }
 
-    RiaLogging::info( QString( "Found %1 clusters." ).arg( numClustersFound ) );
+    RiaLogging::info( std::format( "Found {} clusters.", numClustersFound ) );
 
     auto finish = std::chrono::high_resolution_clock::now();
 
     auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>( finish - start );
-    RiaLogging::info( QString( "Time spent: %1 ms" ).arg( milliseconds.count() ), logKeyword );
+    RiaLogging::info( std::format( "Time spent: {} ms", milliseconds.count() ), logKeyword.toStdString() );
 
     QString resultName = RigWellTargetMapping::wellTargetResultName();
     RigWellTargetMappingTools::createResultVector( *eclipseCase, resultName, clusters, timeStepIdx );
@@ -237,11 +239,12 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     {
         auto logIfValid = [&logKeyword]( const QString& pattern, double value )
         {
-            if ( !std::isinf( value ) && !std::isnan( value ) ) RiaLogging::info( pattern.arg( value ), logKeyword );
+            if ( !std::isinf( value ) && !std::isnan( value ) )
+                RiaLogging::info( pattern.arg( value ).toStdString(), logKeyword.toStdString() );
         };
 
-        RiaLogging::info( QString( "Cluster #%1 Statistics" ).arg( s.id ), logKeyword );
-        RiaLogging::info( QString( "Number of cells: %1" ).arg( s.numCells ), logKeyword );
+        RiaLogging::info( std::format( "Cluster #{} Statistics", s.id ), logKeyword.toStdString() );
+        RiaLogging::info( std::format( "Number of cells: {}", s.numCells ), logKeyword.toStdString() );
         logIfValid( "Total PORV*SOIL: %1", s.totalPorvSoil );
         logIfValid( "Total PORV*SOIL: %1", s.totalPorvSoil );
         logIfValid( "Total PORV*SGAS: %1", s.totalPorvSgas );
@@ -383,10 +386,16 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( const std:
         boundingBox.add( bb );
     }
 
-    RiaLogging::debug(
-        QString( "Clusters bounding box min: [%1 %2 %3]" ).arg( boundingBox.min().x() ).arg( boundingBox.min().y() ).arg( boundingBox.min().z() ) );
-    RiaLogging::debug(
-        QString( "Clusters bounding box max: [%1 %2 %3]" ).arg( boundingBox.max().x() ).arg( boundingBox.max().y() ).arg( boundingBox.max().z() ) );
+    RiaLogging::debug( QString( "Clusters bounding box min: [%1 %2 %3]" )
+                           .arg( boundingBox.min().x() )
+                           .arg( boundingBox.min().y() )
+                           .arg( boundingBox.min().z() )
+                           .toStdString() );
+    RiaLogging::debug( QString( "Clusters bounding box max: [%1 %2 %3]" )
+                           .arg( boundingBox.max().x() )
+                           .arg( boundingBox.max().y() )
+                           .arg( boundingBox.max().z() )
+                           .toStdString() );
 
     RimRegularGridCase* targetCase = new RimRegularGridCase;
     targetCase->setBoundingBox( boundingBox );

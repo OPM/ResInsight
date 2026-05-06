@@ -216,7 +216,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
     if ( selector.foundErrors() )
     {
         QString errorMessage = selector.createCombinedErrorMessage();
-        RiaLogging::error( errorMessage );
+        RiaLogging::error( errorMessage.toStdString() );
     }
 
     project->activeOilField()->completionTemplateCollection()->setDefaultUnitSystemBasedOnLoadedCases();

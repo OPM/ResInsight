@@ -100,7 +100,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
         exportFile->close();
     }
 
-    RiaLogging::info( "Completed export of Fishbones well path laterals to : " + fileName );
+    RiaLogging::info( "Completed export of Fishbones well path laterals to : " + fileName.toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------

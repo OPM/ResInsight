@@ -21,6 +21,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RiaStimPlanModelDefines.h"
 
 #include "RigActiveCellInfo.h"
@@ -174,7 +175,8 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
                                                                            rkbDiff ) )
         {
             RiaLogging::error( QString( "Unable to extract pressure values for property: %1" )
-                                   .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+                                   .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() )
+                                   .toStdString() );
             return false;
         }
 
@@ -429,8 +431,7 @@ void RimStimPlanModelPressureCalculator::binByDepthAndAverage( DepthValuePairVec
     double minDepth = std::floor( depthValuePairs.front().first );
     double maxDepth = std::ceil( depthValuePairs.back().first );
 
-    RiaLogging::debug(
-        QString( "Binning: min depth=%1 max depth=%2. Vec size=%3." ).arg( minDepth ).arg( maxDepth ).arg( depthValuePairs.size() ) );
+    RiaLogging::debug( std::format( "Binning: min depth={} max depth={}. Vec size={}.", minDepth, maxDepth, depthValuePairs.size() ) );
 
     double binSize = 1.0;
 
@@ -467,7 +468,8 @@ void RimStimPlanModelPressureCalculator::binByDepthAndAverage( DepthValuePairVec
                                .arg( min )
                                .arg( max )
                                .arg( mean )
-                               .arg( dev ) );
+                               .arg( dev )
+                               .toStdString() );
 
         if ( !std::isinf( mean ) )
         {
@@ -525,12 +527,14 @@ bool RimStimPlanModelPressureCalculator::buildPressureTablesPerEqlNum( const Rim
         RiaLogging::error( QString( "EQLNUM grid dimensions: [ %1, %2, %3]" )
                                .arg( eqlNumGrid->cellCountI() )
                                .arg( eqlNumGrid->cellCountJ() )
-                               .arg( eqlNumGrid->cellCountK() ) );
+                               .arg( eqlNumGrid->cellCountK() )
+                               .toStdString() );
 
         RiaLogging::error( QString( "PRESSURE grid dimensions: [ %1, %2, %3]" )
                                .arg( pressureGrid->cellCountI() )
                                .arg( pressureGrid->cellCountJ() )
-                               .arg( pressureGrid->cellCountK() ) );
+                               .arg( pressureGrid->cellCountK() )
+                               .toStdString() );
         return false;
     }
 
@@ -597,7 +601,8 @@ double RimStimPlanModelPressureCalculator::interpolatePressure( const DepthValue
                           .arg( startValue )
                           .arg( endDepth )
                           .arg( endValue )
-                          .arg( value ) );
+                          .arg( value )
+                          .toStdString() );
 
     return value;
 }
@@ -629,7 +634,7 @@ bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrati
 
     std::set<int> presentEqlNums = findUniqueValues( eqlNumValues );
 
-    RiaLogging::info( QString( "Found %1 EQLNUM values." ).arg( presentEqlNums.size() ) );
+    RiaLogging::info( std::format( "Found {} EQLNUM values.", presentEqlNums.size() ) );
 
     EqlNumToDepthValuePairMap valuesPerEqlNum;
     if ( !buildPressureTablesPerEqlNum( stimPlanModel, valuesPerEqlNum, presentEqlNums ) )
@@ -641,8 +646,8 @@ bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrati
     // EQLNUM data has values for over/underburden, but the pressure values does not.
     if ( eqlNumValues.size() != ( values.size() + 4 ) )
     {
-        RiaLogging::error( QString( "Failed to build EQLNUM pressure data for initial pressure: result length mismatch." ) );
-        RiaLogging::error( QString( "EQLNUM length: %1 PRESSURE length: %2" ).arg( eqlNumValues.size() ).arg( values.size() ) );
+        RiaLogging::error( "Failed to build EQLNUM pressure data for initial pressure: result length mismatch." );
+        RiaLogging::error( std::format( "EQLNUM length: {} PRESSURE length: {}", eqlNumValues.size(), values.size() ) );
         return false;
     }
 
@@ -694,7 +699,7 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
 
     std::set<int> presentEqlNums = findUniqueValues( eqlNumValues );
 
-    RiaLogging::info( QString( "Found %1 EQLNUM values." ).arg( presentEqlNums.size() ) );
+    RiaLogging::info( std::format( "Found {} EQLNUM values.", presentEqlNums.size() ) );
 
     EqlNumToDepthValuePairMap valuesPerEqlNum;
     if ( !buildPressureTablesPerEqlNum( stimPlanModel, valuesPerEqlNum, presentEqlNums ) )
@@ -709,8 +714,8 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
     // EQLNUM data has values for over/underburden, but the pressure values does not.
     if ( eqlNumValues.size() != ( values.size() + 4 ) )
     {
-        RiaLogging::error( QString( "Failed to build EQLNUM pressure data: result length mismatch." ) );
-        RiaLogging::error( QString( "EQLNUM length: %1 PRESSURE length: %2" ).arg( eqlNumValues.size() ).arg( values.size() ) );
+        RiaLogging::error( "Failed to build EQLNUM pressure data: result length mismatch." );
+        RiaLogging::error( std::format( "EQLNUM length: {} PRESSURE length: {}", eqlNumValues.size(), values.size() ) );
         return false;
     }
 
@@ -736,7 +741,7 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
                 {
                     values[i] = p2 - p1;
                 }
-                RiaLogging::debug( QString( "INTERPOLATING PRESSURE DIFF: %1 %2 = %3" ).arg( p1 ).arg( p2 ).arg( p2 - p1 ) );
+                RiaLogging::debug( std::format( "INTERPOLATING PRESSURE DIFF: {} {} = {}", p1, p2, p2 - p1 ) );
             }
         }
     }

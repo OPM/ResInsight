@@ -19,6 +19,7 @@
 #include "RimProcess.h"
 
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 #include "RimProcessMonitor.h"
 
 #include "cafPdmFieldCapability.h"
@@ -176,7 +177,7 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
     m_qProcess  = new QProcess();
     QString cmd = commandLine();
 
-    if ( m_enableLogging ) RiaLogging::info( QString( "Start process %1: %2" ).arg( m_id() ).arg( cmd ) );
+    if ( m_enableLogging ) RiaLogging::info( std::format( "Start process {}: {}", m_id(), cmd ) );
 
     m_monitor->clearStdOutErr();
 
@@ -200,7 +201,7 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
     if ( !m_qProcess->waitForStarted( -1 ) )
     {
         auto error = m_qProcess->errorString();
-        RiaLogging::error( QString( "Failed to start process %1. %2." ).arg( m_id() ).arg( error ) );
+        RiaLogging::error( std::format( "Failed to start process {}. {}.", m_id(), error ) );
         return false;
     }
 

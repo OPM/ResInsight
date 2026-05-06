@@ -166,11 +166,11 @@ void RiaDefaultConsoleLogger::writeToConsole( const std::string& str )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::setLastMessage( const QString& message )
+void RiaLogging::setLastMessage( std::string_view message )
 {
 #pragma omp critical( critical_section_logging )
     {
-        sm_lastMessage     = message;
+        sm_lastMessage.assign( message );
         sm_lastMessageTime = std::chrono::high_resolution_clock::now();
     }
 }
@@ -178,7 +178,7 @@ void RiaLogging::setLastMessage( const QString& message )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaLogging::isSameMessage( const QString& message )
+bool RiaLogging::isSameMessage( std::string_view message )
 {
     bool isSame = false;
 
@@ -199,6 +199,15 @@ bool RiaLogging::isSameMessage( const QString& message )
     return isSame;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaLogging::isKeywordEnabled( std::string_view keyword )
+{
+    return RiaPreferencesSystem::current()->isLoggingActivatedForKeyword(
+        QString::fromUtf8( keyword.data(), static_cast<qsizetype>( keyword.size() ) ) );
+}
+
 //==================================================================================================
 //
 //
@@ -206,7 +215,7 @@ bool RiaLogging::isSameMessage( const QString& message )
 //==================================================================================================
 
 std::vector<std::unique_ptr<RiaLogger>>                     RiaLogging::sm_logger;
-QString                                                     RiaLogging::sm_lastMessage;
+std::string                                                 RiaLogging::sm_lastMessage;
 std::chrono::time_point<std::chrono::high_resolution_clock> RiaLogging::sm_lastMessageTime;
 
 //--------------------------------------------------------------------------------------------------
@@ -264,84 +273,76 @@ std::optional<RILogLevel> RiaLogging::parseLogLevelString( const QString& logLev
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::error( const QString& message, const QString logKeyword )
+void RiaLogging::error( std::string_view message, std::string_view logKeyword )
 {
-    if ( !RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( logKeyword ) ) return;
-
+    if ( !isKeywordEnabled( logKeyword ) ) return;
     if ( isSameMessage( message ) ) return;
-
+    const std::string buf{ message };
     for ( const auto& logger : sm_logger )
     {
         if ( logger && logger->level() >= int( RILogLevel::RI_LL_ERROR ) )
         {
 #pragma omp critical( critical_section_logging )
-            logger->error( message.toLatin1().constData() );
+            logger->error( buf.c_str() );
         }
     }
-
     setLastMessage( message );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::warning( const QString& message, const QString logKeyword )
+void RiaLogging::warning( std::string_view message, std::string_view logKeyword )
 {
-    if ( !RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( logKeyword ) ) return;
-
+    if ( !isKeywordEnabled( logKeyword ) ) return;
     if ( isSameMessage( message ) ) return;
-
+    const std::string buf{ message };
     for ( const auto& logger : sm_logger )
     {
         if ( logger && logger->level() >= int( RILogLevel::RI_LL_WARNING ) )
         {
 #pragma omp critical( critical_section_logging )
-            logger->warning( message.toLatin1().constData() );
+            logger->warning( buf.c_str() );
         }
     }
-
     setLastMessage( message );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::info( const QString& message, const QString logKeyword )
+void RiaLogging::info( std::string_view message, std::string_view logKeyword )
 {
-    if ( !RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( logKeyword ) ) return;
-
+    if ( !isKeywordEnabled( logKeyword ) ) return;
     if ( isSameMessage( message ) ) return;
-
+    const std::string buf{ message };
     for ( const auto& logger : sm_logger )
     {
         if ( logger && logger->level() >= int( RILogLevel::RI_LL_INFO ) )
         {
 #pragma omp critical( critical_section_logging )
-            logger->info( message.toLatin1().constData() );
+            logger->info( buf.c_str() );
         }
     }
-
     setLastMessage( message );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::debug( const QString& message, const QString logKeyword )
+void RiaLogging::debug( std::string_view message, std::string_view logKeyword )
 {
-    if ( !RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( logKeyword ) ) return;
-
+    if ( !isKeywordEnabled( logKeyword ) ) return;
     if ( isSameMessage( message ) ) return;
-
+    const std::string buf{ message };
     for ( const auto& logger : sm_logger )
     {
         if ( logger && logger->level() >= int( RILogLevel::RI_LL_DEBUG ) )
         {
 #pragma omp critical( critical_section_logging )
-            logger->debug( message.toLatin1().constData() );
+            logger->debug( buf.c_str() );
         }
     }
-
     setLastMessage( message );
 }
 
