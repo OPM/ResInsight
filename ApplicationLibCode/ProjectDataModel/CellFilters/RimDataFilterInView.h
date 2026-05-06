@@ -20,6 +20,7 @@
 
 #include "RimCheckableNamedObject.h"
 
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 #include "cvfArray.h"
@@ -51,10 +52,12 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void initAfterRead() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    void syncNameFromSource();
+    QString sourceName() const;
+    void    setSourceName( const QString& name );
 
     caf::PdmPtrField<RimCellFilter*> m_sourceFilter;
+    caf::PdmProxyValueField<QString> m_displayName;
 };
