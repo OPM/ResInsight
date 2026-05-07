@@ -5,8 +5,11 @@
 #include "RifWellPathImporter.h"
 
 #include "RimProject.h"
+#include "RimTools.h"
 
 #include "cafUtils.h"
+
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimFileWellPath, "WellPath" );
 
@@ -38,6 +41,12 @@ RimFileWellPath::RimFileWellPath()
 
     CAF_PDM_InitFieldNoDefault( &m_filePath, "WellPathFilepath", "File Path" );
     m_filePath.uiCapability()->setUiReadOnly( true );
+
+    // Read-only legacy field used to migrate SSIHUB-cached well paths saved before commit
+    // bdb46d9df407878f0016ea2c150f44cc07fef698 removed the cache mechanism. See initAfterRead.
+    CAF_PDM_InitFieldNoDefault( &m_filePathInCache_OBSOLETE, "WellPathFilePathInCache", "File Name" );
+    m_filePathInCache_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_filePathInCache_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_wellPathIndexInFile, "WellPathNumberInFile", -1, "Well Number in File" );
     m_wellPathIndexInFile.uiCapability()->setUiReadOnly( true );
@@ -213,5 +222,23 @@ void RimFileWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileWellPath::initAfterRead()
+{
+    RimWellPath::initAfterRead();
+
+    QString cachedPath = m_filePathInCache_OBSOLETE().path();
+    if ( cachedPath.isEmpty() ) return;
+
+    QString newCacheFileName = RimTools::getCacheRootDirectoryPathFromProject() + "_wellpaths/" + QFileInfo( cachedPath ).fileName();
+
+    if ( caf::Utils::fileExists( newCacheFileName ) )
+    {
+        m_filePath = newCacheFileName;
     }
 }
