@@ -349,6 +349,9 @@ void RigMainGrid::setFlipAxis( bool flipXAxis, bool flipYAxis )
 
         m_flipXAxis = flipXAxis;
         m_flipYAxis = flipYAxis;
+
+        // Cell face normals flip direction with the geometry, so a cached value computed before the flip is stale.
+        m_isFaceNormalsOutwardsComputed = false;
     }
 }
 
