@@ -41,6 +41,13 @@ public:
 
     caf::PdmField<quint64> totalCellCount;
 
+    caf::PdmField<double> extentX;
+    caf::PdmField<double> extentY;
+    caf::PdmField<double> extentZ;
+
+    caf::PdmField<double> offsetX;
+    caf::PdmField<double> offsetY;
+
     caf::PdmField<quint64> resultCount;
     caf::PdmField<quint64> timeStepCount;
 

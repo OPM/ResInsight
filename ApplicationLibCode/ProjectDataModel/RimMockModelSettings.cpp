@@ -35,6 +35,16 @@ RimMockModelSettings::RimMockModelSettings()
     CAF_PDM_InitFieldNoDefault( &totalCellCount, "TotalCellCount", "Total Cell Count" );
     totalCellCount.uiCapability()->setUiReadOnly( true );
 
+    CAF_PDM_InitField( &extentX, "ExtentX", 6000.0, "Extent X" );
+    extentX.setMinValue( 0.0 );
+    CAF_PDM_InitField( &extentY, "ExtentY", 12000.0, "Extent Y" );
+    extentY.setMinValue( 0.0 );
+    CAF_PDM_InitField( &extentZ, "ExtentZ", 500.0, "Extent Z" );
+    extentZ.setMinValue( 0.0 );
+
+    CAF_PDM_InitField( &offsetX, "OffsetX", 400000.0, "Offset X" );
+    CAF_PDM_InitField( &offsetY, "OffsetY", 6000000.0, "Offset Y" );
+
     CAF_PDM_InitField( &resultCount, "ResultCount", quint64( 3 ), "Result Count" );
     CAF_PDM_InitField( &timeStepCount, "TimeStepCount", quint64( 10 ), "Time Step Count" );
 }
@@ -70,6 +80,15 @@ void RimMockModelSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     gridSizeGroup->add( &cellCountY );
     gridSizeGroup->add( &cellCountZ );
     gridSizeGroup->add( &totalCellCount );
+
+    caf::PdmUiGroup* extentGroup = uiOrdering.addNewGroup( "Extent" );
+    extentGroup->add( &extentX );
+    extentGroup->add( &extentY );
+    extentGroup->add( &extentZ );
+
+    caf::PdmUiGroup* offsetGroup = uiOrdering.addNewGroup( "Offset" );
+    offsetGroup->add( &offsetX );
+    offsetGroup->add( &offsetY );
 
     caf::PdmUiGroup* resultGroup = uiOrdering.addNewGroup( "Results" );
     resultGroup->add( &resultCount );

@@ -534,13 +534,13 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
             double startY = 0;
             double startZ = 0;
 
-            double widthX = 6000;
-            double widthY = 12000;
-            double widthZ = 500;
+            double widthX = mockModelSettings->extentX;
+            double widthY = mockModelSettings->extentY;
+            double widthZ = mockModelSettings->extentZ;
 
-            // Test code to simulate UTM coordinates
-            double offsetX = 400000;
-            double offsetY = 6000000;
+            // Offset to simulate UTM coordinates
+            double offsetX = mockModelSettings->offsetX;
+            double offsetY = mockModelSettings->offsetY;
             double offsetZ = 0;
 
             mockFileInterface->setWorldCoordinates( cvf::Vec3d( startX + offsetX, startY + offsetY, startZ + offsetZ ),
