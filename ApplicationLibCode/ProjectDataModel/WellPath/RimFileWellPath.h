@@ -34,6 +34,7 @@ public:
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void initAfterRead() override;
 
 private:
     QString surveyType() { return m_surveyType; }
@@ -42,6 +43,7 @@ private:
     void ensureWellPathStartAtSeaLevel( RigWellPath* wellPath );
 
     caf::PdmField<caf::FilePath> m_filePath;
+    caf::PdmField<caf::FilePath> m_filePathInCache_OBSOLETE; // Legacy SSIHUB cache path, read-only for migration
     caf::PdmField<int>           m_wellPathIndexInFile; // -1 means none.
 
     caf::PdmField<QString> id;
