@@ -191,8 +191,7 @@ bool RifOpmSummaryTools::isEsmryConversionRequired( const QString& fileName )
         const QString smspecFileNameShort = QFileInfo( smspecFileName ).fileName();
         const QString esmryFileNameShort  = QFileInfo( candidateEsmryFileName ).fileName();
 
-        RiaLogging::debug(
-            std::format( " {2} : {0} is older than {1}, recreating {0}.", esmryFileNameShort, smspecFileNameShort, root ) );
+        RiaLogging::debug( std::format( " {2} : {0} is older than {1}, recreating {0}.", esmryFileNameShort, smspecFileNameShort, root ) );
 
         // Check if we have write permission in the folder
         QFileInfo info( smspecFileName );

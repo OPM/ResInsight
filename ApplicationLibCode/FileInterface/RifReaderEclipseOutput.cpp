@@ -591,7 +591,8 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
     {
         if ( allTimeSteps().size() != sourSimTimeSteps.size() )
         {
-            RiaLogging::error( std::format( "HDF: Time step count mismatch, Eclipse : {} ; HDF : {} ", allTimeSteps().size(), sourSimTimeSteps.size() ) );
+            RiaLogging::error(
+                std::format( "HDF: Time step count mismatch, Eclipse : {} ; HDF : {} ", allTimeSteps().size(), sourSimTimeSteps.size() ) );
 
             return;
         }
@@ -609,7 +610,8 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
             }
             else
             {
-                RiaLogging::error( std::format( "HDF: Time step count mismatch, Eclipse : {} ; HDF : {} ", timeStepInfos.size(), sourSimTimeSteps.size() ) );
+                RiaLogging::error(
+                    std::format( "HDF: Time step count mismatch, Eclipse : {} ; HDF : {} ", timeStepInfos.size(), sourSimTimeSteps.size() ) );
 
                 // We have less soursim time steps than eclipse time steps
                 isTimeStampsEqual = false;
@@ -1103,8 +1105,9 @@ std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeSt
         }
         if ( timeStepsOnFile.size() != reportNumbersOnFile.size() )
         {
-            RiaLogging::error(
-                std::format( "Time step count mismatch: timeStepsOnFile = {}, reportNumbersOnFile = {}", timeStepsOnFile.size(), reportNumbersOnFile.size() ) );
+            RiaLogging::error( std::format( "Time step count mismatch: timeStepsOnFile = {}, reportNumbersOnFile = {}",
+                                            timeStepsOnFile.size(),
+                                            reportNumbersOnFile.size() ) );
             return {};
         }
 

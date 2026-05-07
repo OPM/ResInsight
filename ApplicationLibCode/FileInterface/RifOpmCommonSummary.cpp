@@ -165,10 +165,8 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
         const QString smspecFileNameShort = QFileInfo( smspecFileName ).fileName();
         const QString esmryFileNameShort  = QFileInfo( candidateEsmryFileName ).fileName();
 
-        RiaLogging::warning( std::format( " {2} : {0} is older than {1}, importing data from newest file {1}.",
-                                          esmryFileNameShort,
-                                          smspecFileNameShort,
-                                          root ) );
+        RiaLogging::warning(
+            std::format( " {2} : {0} is older than {1}, importing data from newest file {1}.", esmryFileNameShort, smspecFileNameShort, root ) );
     }
 
     auto timeBeforeReader = RiaLogging::currentTime();
