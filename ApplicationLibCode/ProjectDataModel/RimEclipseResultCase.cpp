@@ -291,6 +291,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         CVF_ASSERT( readerInterface.notNull() );
 
         progInfo.setProgressDescription( "Computing Case Cache" );
+        eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
         computeCachedData();
         loadAndSynchronizeInputProperties( false );
 
