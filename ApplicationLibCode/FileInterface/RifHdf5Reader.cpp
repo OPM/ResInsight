@@ -105,7 +105,7 @@ bool RifHdf5Reader::dynamicResult( const QString& result, size_t stepIndex, std:
 
     catch ( ... ) // catch any failure
     {
-        RiaLogging::error( QString( "Failed to read SourSimRL dynamic results" ) );
+        RiaLogging::error( "Failed to read SourSimRL dynamic results" );
 
         return false;
     }
@@ -157,7 +157,7 @@ std::vector<QDateTime> RifHdf5Reader::timeSteps() const
     {
         times.clear();
 
-        RiaLogging::error( QString( "Failed to read SourSimRL time steps" ) );
+        RiaLogging::error( "Failed to read SourSimRL time steps" );
     }
 
     return times;
@@ -176,7 +176,7 @@ QStringList RifHdf5Reader::propertyNames() const
 
     if ( m_timeStepFileNames.empty() )
     {
-        RiaLogging::error( QString( "Failed to read properties. Transient data does not exist." ) );
+        RiaLogging::error( "Failed to read properties. Transient data does not exist." );
         return propNames;
     }
 
