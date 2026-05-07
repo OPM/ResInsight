@@ -104,10 +104,9 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     // Warn if the generated model has too many layers for StimPlan
     if ( tvd.size() > MAX_STIMPLAN_LAYERS )
     {
-        RiaLogging::warning( QString( "Exporting model with too many layers: %1. Maximum supported number of layers is %2." )
-                                 .arg( tvd.size() )
-                                 .arg( MAX_STIMPLAN_LAYERS )
-                                 .toStdString() );
+        RiaLogging::warning( std::format( "Exporting model with too many layers: {}. Maximum supported number of layers is {}.",
+                                          tvd.size(),
+                                          MAX_STIMPLAN_LAYERS ) );
     }
 
     // Make sure stress gradients are in the valid interval
@@ -320,12 +319,11 @@ void RifStimPlanModelGeologicalFrkExporter::fixupStressGradients( std::vector<do
     {
         if ( stressGradients[i] < minStressGradient || stressGradients[i] > maxStressGradient )
         {
-            RiaLogging::warning( QString( "Found stress gradient outside valid range [%1, %2]. Replacing %3 with default value: %4." )
-                                     .arg( minStressGradient )
-                                     .arg( maxStressGradient )
-                                     .arg( stressGradients[i] )
-                                     .arg( defaultStressGradient )
-                                     .toStdString() );
+            RiaLogging::warning( std::format( "Found stress gradient outside valid range [{}, {}]. Replacing {} with default value: {}.",
+                                              minStressGradient,
+                                              maxStressGradient,
+                                              stressGradients[i],
+                                              defaultStressGradient ) );
 
             stressGradients[i] = defaultStressGradient;
         }
@@ -341,11 +339,8 @@ void RifStimPlanModelGeologicalFrkExporter::fixupLowerBoundary( std::vector<doub
     {
         if ( value < minValue )
         {
-            RiaLogging::warning( QString( "Found %1 outside valid lower boundary (%2). Replacing %3 with default value: %2." )
-                                     .arg( property )
-                                     .arg( minValue )
-                                     .arg( value )
-                                     .toStdString() );
+            RiaLogging::warning(
+                std::format( "Found {0} outside valid lower boundary ({1}). Replacing {2} with default value: {1}.", property, minValue, value ) );
             value = minValue;
         }
     }

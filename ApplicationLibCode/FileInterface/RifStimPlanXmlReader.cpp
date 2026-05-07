@@ -69,10 +69,8 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
         caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem = stimPlanFileData->unitSet();
 
         if ( unitSystem != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
-            RiaLogging::info( QString( "Setting unit system for StimPlan fracture template %1 to %2" )
-                                  .arg( stimPlanFileName )
-                                  .arg( unitSystem.uiText() )
-                                  .toStdString() );
+            RiaLogging::info(
+                std::format( "Setting unit system for StimPlan fracture template {} to {}", stimPlanFileName, unitSystem.uiText() ) );
         else
             RiaLogging::error( std::format( "Found invalid units for {}. Unit system not set.", stimPlanFileName ) );
 
@@ -105,7 +103,7 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
     QString parameter;
     QString unit;
 
-    RiaLogging::info( QString( "Properties available in file:" ).toStdString() );
+    RiaLogging::info( "Properties available in file:" );
     int propertiesElementCount = 0;
     while ( !xmlStream2.atEnd() && propertiesElementCount < 2 )
     {
@@ -350,7 +348,7 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
 
     if ( startNegValuesYs > 0 )
     {
-        RiaLogging::error( QString( "Negative depth values detected in XML file" ).toStdString() );
+        RiaLogging::error( "Negative depth values detected in XML file" );
     }
 }
 

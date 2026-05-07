@@ -591,10 +591,7 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
     {
         if ( allTimeSteps().size() != sourSimTimeSteps.size() )
         {
-            RiaLogging::error( QString( "HDF: Time step count mismatch, Eclipse : %1 ; HDF : %2 " )
-                                   .arg( allTimeSteps().size() )
-                                   .arg( sourSimTimeSteps.size() )
-                                   .toStdString() );
+            RiaLogging::error( std::format( "HDF: Time step count mismatch, Eclipse : {} ; HDF : {} ", allTimeSteps().size(), sourSimTimeSteps.size() ) );
 
             return;
         }
@@ -612,10 +609,7 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
             }
             else
             {
-                RiaLogging::error( QString( "HDF: Time step count mismatch, Eclipse : %1 ; HDF : %2 " )
-                                       .arg( timeStepInfos.size() )
-                                       .arg( sourSimTimeSteps.size() )
-                                       .toStdString() );
+                RiaLogging::error( std::format( "HDF: Time step count mismatch, Eclipse : {} ; HDF : {} ", timeStepInfos.size(), sourSimTimeSteps.size() ) );
 
                 // We have less soursim time steps than eclipse time steps
                 isTimeStampsEqual = false;
@@ -1102,18 +1096,15 @@ std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeSt
 
         if ( timeStepsOnFile.size() != daysSinceSimulationStartOnFile.size() )
         {
-            RiaLogging::error( QString( "Time step count mismatch: timeStepsOnFile = %1, daysSinceSimulationStartOnFile = %2" )
-                                   .arg( timeStepsOnFile.size() )
-                                   .arg( daysSinceSimulationStartOnFile.size() )
-                                   .toStdString() );
+            RiaLogging::error( std::format( "Time step count mismatch: timeStepsOnFile = {}, daysSinceSimulationStartOnFile = {}",
+                                            timeStepsOnFile.size(),
+                                            daysSinceSimulationStartOnFile.size() ) );
             return {};
         }
         if ( timeStepsOnFile.size() != reportNumbersOnFile.size() )
         {
-            RiaLogging::error( QString( "Time step count mismatch: timeStepsOnFile = %1, reportNumbersOnFile = %2" )
-                                   .arg( timeStepsOnFile.size() )
-                                   .arg( reportNumbersOnFile.size() )
-                                   .toStdString() );
+            RiaLogging::error(
+                std::format( "Time step count mismatch: timeStepsOnFile = {}, reportNumbersOnFile = {}", timeStepsOnFile.size(), reportNumbersOnFile.size() ) );
             return {};
         }
 

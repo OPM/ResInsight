@@ -489,7 +489,7 @@ void RifEclipseInputFileTools::saveFault( QString                               
     QFile exportFile( completeFilename );
     if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
-        RiaLogging::error( "Could not open the file : " + completeFilename.toStdString() );
+        RiaLogging::error( std::format( "Could not open the file : {}", completeFilename ) );
         return;
     }
 
@@ -1060,7 +1060,7 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
 {
     QStringList gridSectionFilenames;
 
-    RiaLogging::info( "Looking for faults in 'PFLOTRAN' file: " + fileName.toStdString() );
+    RiaLogging::info( std::format( "Looking for faults in 'PFLOTRAN' file: {}", fileName ) );
 
     {
         // Find all referenced grdecl files in a pflotran input file, in the GRID section, example
@@ -1141,7 +1141,7 @@ void RifEclipseInputFileTools::parsePflotranInputFile( const QString& fileName, 
                     parseAndReadFaults( absoluteFilePath, faults );
                     if ( currentFaultCount != faults->size() )
                     {
-                        RiaLogging::info( "Imported faults from " + absoluteFilePath.toStdString() );
+                        RiaLogging::info( std::format( "Imported faults from {}", absoluteFilePath ) );
                     }
                 }
             }

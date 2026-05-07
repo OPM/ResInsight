@@ -115,7 +115,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
 
         if ( !importGrid( eclipseCaseData->mainGrid(), eclipseCaseData ) )
         {
-            RiaLogging::error( "Failed to open grid file " + fileName.toStdString() );
+            RiaLogging::error( std::format( "Failed to open grid file {}", fileName ) );
 
             return false;
         }

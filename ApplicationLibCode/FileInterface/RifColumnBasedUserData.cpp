@@ -61,7 +61,7 @@ bool RifColumnBasedUserData::parse( const QString& data, QString* errorText )
     m_parser = std::make_unique<RifColumnBasedUserDataParser>( data, errorText );
     if ( !m_parser )
     {
-        RiaLogging::error( QString( "Failed to parse file" ).toStdString() );
+        RiaLogging::error( "Failed to parse file" );
 
         return false;
     }
@@ -157,7 +157,7 @@ void RifColumnBasedUserData::buildTimeStepsAndMappings()
         if ( timeStepsForTable.empty() )
         {
             RiaLogging::warning( std::format( "Failed to find time data for table {}", tableIndex ) );
-            RiaLogging::warning( QString( "No data for this table is imported" ).toStdString() );
+            RiaLogging::warning( "No data for this table is imported" );
 
             return;
         }

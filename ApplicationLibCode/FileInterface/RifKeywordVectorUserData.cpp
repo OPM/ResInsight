@@ -58,7 +58,7 @@ bool RifKeywordVectorUserData::parse( const QString& data, const QString& custom
     m_parser = std::make_unique<RifKeywordVectorParser>( data );
     if ( !m_parser )
     {
-        RiaLogging::error( QString( "Failed to parse file" ).toStdString() );
+        RiaLogging::error( "Failed to parse file" );
 
         return false;
     }

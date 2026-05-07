@@ -88,9 +88,8 @@ bool RifOpmRadialGridTools::importCylindricalCoordinates( const std::string& gri
 
             if ( opmMainGrid.is_radial() && opmMainGrid.dimension().at( 1 ) < minimumAngularCellCount )
             {
-                RiaLogging::info( QString( "Radial grid with less than 4 cells in J direction detected, creating refinement : %1" )
-                                      .arg( QString::fromStdString( gridFilePath ) )
-                                      .toStdString() );
+                RiaLogging::info(
+                    std::format( "Radial grid with less than 4 cells in J direction detected, creating refinement : {}", gridFilePath ) );
 
                 int radialRefinement = ( minimumAngularCellCount / opmMainGrid.dimension().at( 1 ) ) + 1;
 
@@ -104,8 +103,7 @@ bool RifOpmRadialGridTools::importCylindricalCoordinates( const std::string& gri
     }
     catch ( ... )
     {
-        RiaLogging::warning(
-            QString( "Failed to open grid case for import of radial coordinates : %1" ).arg( QString::fromStdString( gridFilePath ) ).toStdString() );
+        RiaLogging::warning( std::format( "Failed to open grid case for import of radial coordinates : {}", gridFilePath ) );
     }
 
     return false;
@@ -171,8 +169,7 @@ bool RifOpmRadialGridTools::tryConvertRadialGridToCartesianGrid( const std::stri
     }
     catch ( ... )
     {
-        RiaLogging::warning(
-            QString( "Failed to open grid case for import of radial coordinates : %1" ).arg( QString::fromStdString( gridFilePath ) ).toStdString() );
+        RiaLogging::warning( std::format( "Failed to open grid case for import of radial coordinates : {}", gridFilePath ) );
     }
 
     return true;

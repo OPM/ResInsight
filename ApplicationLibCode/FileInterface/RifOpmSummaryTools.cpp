@@ -192,17 +192,16 @@ bool RifOpmSummaryTools::isEsmryConversionRequired( const QString& fileName )
         const QString esmryFileNameShort  = QFileInfo( candidateEsmryFileName ).fileName();
 
         RiaLogging::debug(
-            QString( " %3 : %1 is older than %2, recreating %1." ).arg( esmryFileNameShort ).arg( smspecFileNameShort ).arg( root ).toStdString() );
+            std::format( " {2} : {0} is older than {1}, recreating {0}.", esmryFileNameShort, smspecFileNameShort, root ) );
 
         // Check if we have write permission in the folder
         QFileInfo info( smspecFileName );
 
         if ( !info.isWritable() )
         {
-            QString txt = QString( "ESMRY is older than SMSPEC, but export to file %1 failed due to missing write permissions. "
-                                   "Aborting operation." )
-                              .arg( candidateEsmryFileName );
-            RiaLogging::error( txt.toStdString() );
+            RiaLogging::error( std::format( "ESMRY is older than SMSPEC, but export to file {} failed due to missing write permissions. "
+                                            "Aborting operation.",
+                                            candidateEsmryFileName ) );
 
             return false;
         }

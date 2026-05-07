@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include "RifEclipseInputFileTools.h"
 #include "RifEclipseInputPropertyLoader.h"
@@ -54,7 +55,7 @@ void RifReaderRegularGridModel::writeCache( const QString& fileName, RimEclipseC
     QFile cacheFile( fileName );
     if ( !cacheFile.open( QIODevice::WriteOnly ) )
     {
-        RiaLogging::error( "Saving project: Can't open the cache file : " + fileName.toStdString() );
+        RiaLogging::error( std::format( "Saving project: Can't open the cache file : {}", fileName ) );
         return;
     }
 
@@ -72,7 +73,7 @@ void RifReaderRegularGridModel::writeCache( const QString& fileName, RimEclipseC
     const bool writeEchoKeywords = false;
     if ( !RifEclipseInputFileTools::exportKeywords( fileName, eclipseCase->eclipseCaseData(), keywords, writeEchoKeywords ) )
     {
-        RiaLogging::error( "Error detected when writing the cache file : " + fileName.toStdString() );
+        RiaLogging::error( std::format( "Error detected when writing the cache file : {}", fileName ) );
     }
 }
 
