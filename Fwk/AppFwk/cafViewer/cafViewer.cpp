@@ -577,19 +577,21 @@ bool caf::Viewer::calculateNearFarPlanes( const cvf::Rendering* rendering,
 
     if ( rendering->camera()->projection() == cvf::Camera::PERSPECTIVE || isOrthoNearPlaneFollowingCamera )
     {
-        // Choose the one furthest from the camera of: 0.8*bbox distance, m_defaultPerspectiveNearPlaneDistance.
-        ( *nearPlaneDist ) = CVF_MAX( m_defaultPerspectiveNearPlaneDistance, 0.8 * minDistEyeToCornerAlongViewDir );
+        // Place the near plane just in front of the closest geometry along the view direction.
+        // Do not floor against m_defaultPerspectiveNearPlaneDistance here: for very small models
+        // the closest corner can be well within that default distance, and clamping would push
+        // the near plane past the model and clip it entirely.
+        ( *nearPlaneDist ) = 0.8 * minDistEyeToCornerAlongViewDir;
 
-        // If the camera is inside (or past) the bounding box, allow the near plane to move
-        // closer to the camera based on the point of interest distance, so zooming into details
-        // does not clip geometry.
+        // If the camera is inside (or past) the bounding box, derive the near plane from the
+        // point of interest distance so zooming into details does not clip geometry.
         if ( minDistEyeToCornerAlongViewDir <= 0 && m_navigationPolicy.notNull() && m_navigationPolicyEnabled )
         {
             double pointOfInterestDist = ( eye - navPointOfinterest ).length();
-            ( *nearPlaneDist )         = CVF_MAX( m_defaultPerspectiveNearPlaneDistance, pointOfInterestDist * 0.1 );
+            ( *nearPlaneDist )         = pointOfInterestDist * 0.1;
         }
 
-        // Guard against the zero nearplane possibility
+        // Guard against the zero/negative nearplane possibility (e.g. camera on a bbox corner).
         if ( ( *nearPlaneDist ) <= 0 ) ( *nearPlaneDist ) = m_defaultPerspectiveNearPlaneDistance;
     }
     else // Orthographic projection. Set to encapsulate the complete boundingbox, possibly setting a negative nearplane
