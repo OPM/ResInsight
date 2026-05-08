@@ -18,16 +18,15 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "RimEnsembleFractureStatistics.h"
 
-class RimEnsembleFractureStatistics;
+#include "cafPdmObjectCollection.h"
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimEnsembleFractureStatisticsCollection : public caf::PdmObject
+class RimEnsembleFractureStatisticsCollection : public caf::PdmObjectCollection<RimEnsembleFractureStatistics>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -37,7 +36,4 @@ public:
     void addFractureGroupStatistics( RimEnsembleFractureStatistics* fractureGroupStatistics );
 
     void loadAndUpdateData();
-
-private:
-    caf::PdmChildArrayField<RimEnsembleFractureStatistics*> m_fractureGroupStatistics;
 };

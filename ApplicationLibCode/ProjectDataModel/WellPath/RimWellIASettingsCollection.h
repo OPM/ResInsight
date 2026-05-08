@@ -17,18 +17,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmField.h"
+#include "RimWellIASettings.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "cafPdmObjectCollection.h"
 
 #include <QString>
 
-class RimWellIASettings;
 class RimWellPath;
 class RimGeoMechCase;
 
-class RimWellIASettingsCollection : public caf::PdmObject
+class RimWellIASettingsCollection : public caf::PdmObjectCollection<RimWellIASettings>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -45,7 +43,4 @@ public:
         startWellIntegrationAnalysis( QString baseDir, RimWellPath* wellPath, double measuredDepth, RimGeoMechCase* theCase, QString& outErrmsg );
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
-
-private:
-    caf::PdmChildArrayField<RimWellIASettings*> m_wellIASettings;
 };

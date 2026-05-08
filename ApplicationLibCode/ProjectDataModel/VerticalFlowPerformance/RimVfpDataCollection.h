@@ -17,17 +17,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "RimVfpTableData.h"
+
+#include "cafPdmObjectCollection.h"
 
 class RimVfpTable;
-class RimVfpTableData;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimVfpDataCollection : public caf::PdmObject
+class RimVfpDataCollection : public caf::PdmObjectCollection<RimVfpTableData>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -46,7 +46,4 @@ public:
 
 private:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-
-private:
-    caf::PdmChildArrayField<RimVfpTableData*> m_vfpTableData;
 };

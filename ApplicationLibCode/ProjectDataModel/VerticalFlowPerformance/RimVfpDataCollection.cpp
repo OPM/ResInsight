@@ -32,7 +32,7 @@ RimVfpDataCollection::RimVfpDataCollection()
 {
     CAF_PDM_InitObject( "VFP Data", ":/VfpPlotCollection.svg" );
 
-    CAF_PDM_InitFieldNoDefault( &m_vfpTableData, "VfpPlots", "Vertical Flow Performance Data" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "VfpPlots", "Vertical Flow Performance Data" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ RimVfpTable* RimVfpDataCollection::appendTableDataObject( const QString& fileNam
 {
     auto* vfpTableData = new RimVfpTableData();
     vfpTableData->setFileName( fileName );
-    m_vfpTableData.push_back( vfpTableData );
+    addItem( vfpTableData );
 
     vfpTableData->ensureDataIsImported();
     auto dataSources = vfpTableData->tableDataSources();
@@ -70,7 +70,7 @@ std::vector<RimVfpTable*> RimVfpDataCollection::vfpTableData() const
 {
     std::vector<RimVfpTable*> tableDataSources;
 
-    for ( auto vfpTableData : m_vfpTableData.childrenByType() )
+    for ( auto vfpTableData : items() )
     {
         for ( auto table : vfpTableData->tableDataSources() )
         {
@@ -86,7 +86,7 @@ std::vector<RimVfpTable*> RimVfpDataCollection::vfpTableData() const
 //--------------------------------------------------------------------------------------------------
 void RimVfpDataCollection::loadDataAndUpdate()
 {
-    for ( auto vfpTableData : m_vfpTableData.childrenByType() )
+    for ( auto vfpTableData : items() )
     {
         vfpTableData->ensureDataIsImported();
     }
@@ -97,7 +97,7 @@ void RimVfpDataCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimVfpDataCollection::deleteAllData()
 {
-    m_vfpTableData.deleteChildren();
+    deleteAllItems();
 }
 
 //--------------------------------------------------------------------------------------------------

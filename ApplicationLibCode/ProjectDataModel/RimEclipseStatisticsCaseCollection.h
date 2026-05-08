@@ -20,13 +20,10 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "RimEclipseStatisticsCase.h"
 
-#include "cvfObject.h"
+#include "cafPdmObjectCollection.h"
 
-class RimEclipseStatisticsCase;
 class RimIdenticalGridCaseGroup;
 
 //==================================================================================================
@@ -34,14 +31,14 @@ class RimIdenticalGridCaseGroup;
 //
 //
 //==================================================================================================
-class RimEclipseStatisticsCaseCollection : public caf::PdmObject
+class RimEclipseStatisticsCaseCollection : public caf::PdmObjectCollection<RimEclipseStatisticsCase>
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimEclipseStatisticsCaseCollection();
 
-    caf::PdmChildArrayField<RimEclipseStatisticsCase*> cases;
+    std::vector<RimEclipseStatisticsCase*> cases() const;
 
     RimIdenticalGridCaseGroup* parentCaseGroup();
 };

@@ -627,8 +627,7 @@ public:
                         inputProperty->resultName     = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName       = QString( "" );
-                        inputRes->inputPropertyCollection()->inputProperties.push_back( inputProperty );
-                        inputRes->inputPropertyCollection()->updateConnectedEditors();
+                        inputRes->inputPropertyCollection()->addItem( inputProperty );
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
@@ -995,8 +994,7 @@ public:
                         inputProperty->resultName     = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName       = QString( "" );
-                        inputRes->inputPropertyCollection()->inputProperties.push_back( inputProperty );
-                        inputRes->inputPropertyCollection()->updateConnectedEditors();
+                        inputRes->inputPropertyCollection()->addItem( inputProperty );
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }

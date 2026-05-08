@@ -18,8 +18,6 @@
 
 #include "RimEnsembleFractureStatisticsCollection.h"
 
-#include "RimEnsembleFractureStatistics.h"
-
 CAF_PDM_SOURCE_INIT( RimEnsembleFractureStatisticsCollection, "FractureGroupStatisticsCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -29,7 +27,7 @@ RimEnsembleFractureStatisticsCollection::RimEnsembleFractureStatisticsCollection
 {
     CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplates16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureGroupStatistics, "FractureGroupStatistics", "" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "FractureGroupStatistics", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -37,7 +35,7 @@ RimEnsembleFractureStatisticsCollection::RimEnsembleFractureStatisticsCollection
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatisticsCollection::addFractureGroupStatistics( RimEnsembleFractureStatistics* fractureGroupStatistics )
 {
-    m_fractureGroupStatistics.push_back( fractureGroupStatistics );
+    addItem( fractureGroupStatistics );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,7 +43,7 @@ void RimEnsembleFractureStatisticsCollection::addFractureGroupStatistics( RimEns
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatisticsCollection::loadAndUpdateData()
 {
-    for ( auto f : m_fractureGroupStatistics.childrenByType() )
+    for ( auto f : items() )
     {
         f->loadAndUpdateData();
     }

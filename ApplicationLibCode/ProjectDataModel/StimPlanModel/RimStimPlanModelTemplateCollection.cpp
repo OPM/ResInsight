@@ -39,7 +39,7 @@ RimStimPlanModelTemplateCollection::RimStimPlanModelTemplateCollection()
 {
     CAF_PDM_InitScriptableObject( "StimPlan Model Templates", ":/FractureTemplates16x16.png" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModelTemplates, "StimPlanModelTemplates", "StimPlan Model Templates" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_items, "StimPlanModelTemplates", "StimPlan Model Templates" );
 
     CAF_PDM_InitField( &m_nextValidId_OBSOLETE, "NextValidId", 0, "" );
     m_nextValidId_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -51,7 +51,7 @@ RimStimPlanModelTemplateCollection::RimStimPlanModelTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelTemplate* RimStimPlanModelTemplateCollection::stimPlanModelTemplate( int id ) const
 {
-    for ( const auto& templ : m_stimPlanModelTemplates )
+    for ( const auto& templ : m_items )
     {
         if ( templ->id() == id ) return templ;
     }
@@ -64,7 +64,7 @@ RimStimPlanModelTemplate* RimStimPlanModelTemplateCollection::stimPlanModelTempl
 std::vector<RimStimPlanModelTemplate*> RimStimPlanModelTemplateCollection::stimPlanModelTemplates() const
 {
     std::vector<RimStimPlanModelTemplate*> templates;
-    for ( auto& templ : m_stimPlanModelTemplates )
+    for ( auto& templ : m_items )
     {
         templates.push_back( templ );
     }
@@ -77,7 +77,7 @@ std::vector<RimStimPlanModelTemplate*> RimStimPlanModelTemplateCollection::stimP
 void RimStimPlanModelTemplateCollection::addStimPlanModelTemplate( RimStimPlanModelTemplate* templ )
 {
     templ->setId( nextFractureTemplateId() );
-    m_stimPlanModelTemplates.push_back( templ );
+    addItem( templ );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void RimStimPlanModelTemplateCollection::addStimPlanModelTemplate( RimStimPlanMo
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelTemplateCollection::loadAndUpdateData()
 {
-    for ( RimStimPlanModelTemplate* f : m_stimPlanModelTemplates() )
+    for ( RimStimPlanModelTemplate* f : m_items() )
     {
         f->loadDataAndUpdate();
     }
@@ -97,7 +97,7 @@ void RimStimPlanModelTemplateCollection::loadAndUpdateData()
 void RimStimPlanModelTemplateCollection::initAfterRead()
 {
     // Assign template id if not already assigned
-    for ( auto& templ : m_stimPlanModelTemplates )
+    for ( auto& templ : m_items )
     {
         if ( templ->id() < 0 ) templ->setId( nextFractureTemplateId() );
     }
@@ -109,7 +109,7 @@ void RimStimPlanModelTemplateCollection::initAfterRead()
 int RimStimPlanModelTemplateCollection::nextFractureTemplateId()
 {
     int nextValidId = 0;
-    for ( const auto& templ : m_stimPlanModelTemplates )
+    for ( const auto& templ : m_items )
     {
         nextValidId = std::max( nextValidId, templ->id() + 1 );
     }

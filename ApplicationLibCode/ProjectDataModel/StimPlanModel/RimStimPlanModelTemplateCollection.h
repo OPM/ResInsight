@@ -18,17 +18,16 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
+#include "RimStimPlanModelTemplate.h"
+
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
-
-class RimStimPlanModelTemplate;
+#include "cafPdmObjectCollection.h"
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimStimPlanModelTemplateCollection : public caf::PdmObject
+class RimStimPlanModelTemplateCollection : public caf::PdmObjectCollection<RimStimPlanModelTemplate>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -49,6 +48,5 @@ protected:
 private:
     int nextFractureTemplateId();
 
-    caf::PdmChildArrayField<RimStimPlanModelTemplate*> m_stimPlanModelTemplates;
-    caf::PdmField<int>                                 m_nextValidId_OBSOLETE;
+    caf::PdmField<int> m_nextValidId_OBSOLETE;
 };

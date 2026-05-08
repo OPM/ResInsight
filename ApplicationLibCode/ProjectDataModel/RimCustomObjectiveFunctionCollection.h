@@ -18,19 +18,17 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "RimCustomObjectiveFunction.h"
+
+#include "cafPdmObjectCollection.h"
 #include "cafSignal.h"
 
 #include <QString>
 
-class RimCustomObjectiveFunction;
-
 //==================================================================================================
 ///
 //==================================================================================================
-class RimCustomObjectiveFunctionCollection : public caf::PdmObject
+class RimCustomObjectiveFunctionCollection : public caf::PdmObjectCollection<RimCustomObjectiveFunction>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -47,7 +45,4 @@ public:
 private:
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
-
-private:
-    caf::PdmChildArrayField<RimCustomObjectiveFunction*> m_objectiveFunctions;
 };

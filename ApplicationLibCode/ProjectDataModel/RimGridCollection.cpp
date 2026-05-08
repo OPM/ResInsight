@@ -156,7 +156,7 @@ RimGridInfoCollection::RimGridInfoCollection()
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Show Grid Cells" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_gridInfos, "GridInfos", "Grid Infos" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "GridInfos", "Grid Infos" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ bool RimGridInfoCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 void RimGridInfoCollection::addGridInfo( RimGridInfo* gridInfo )
 {
-    m_gridInfos.push_back( gridInfo );
+    addItem( gridInfo );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ void RimGridInfoCollection::addGridInfo( RimGridInfo* gridInfo )
 //--------------------------------------------------------------------------------------------------
 void RimGridInfoCollection::clear()
 {
-    m_gridInfos.deleteChildren();
+    deleteAllItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,7 +188,7 @@ void RimGridInfoCollection::clear()
 //--------------------------------------------------------------------------------------------------
 bool RimGridInfoCollection::containsGrid( const QString& gridName ) const
 {
-    for ( auto gridInfo : m_gridInfos )
+    for ( auto gridInfo : m_items )
     {
         if ( gridInfo->name() == gridName ) return true;
     }
@@ -200,13 +200,11 @@ bool RimGridInfoCollection::containsGrid( const QString& gridName ) const
 //--------------------------------------------------------------------------------------------------
 void RimGridInfoCollection::deleteGridInfo( const QString& gridName )
 {
-    for ( size_t i = 0; i < m_gridInfos.size(); i++ )
+    for ( auto* gridInfo : items() )
     {
-        auto gridInfo = m_gridInfos[i];
         if ( gridInfo->name() == gridName )
         {
-            m_gridInfos.erase( i );
-            delete gridInfo;
+            deleteItem( gridInfo );
             break;
         }
     }
@@ -217,7 +215,7 @@ void RimGridInfoCollection::deleteGridInfo( const QString& gridName )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridInfo*> RimGridInfoCollection::gridInfos() const
 {
-    return m_gridInfos.childrenByType();
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------

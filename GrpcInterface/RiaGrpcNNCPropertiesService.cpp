@@ -456,8 +456,7 @@ void RiaNNCInputValuesStateHandler::finish()
                 inputProperty->resultName     = m_propertyName;
                 inputProperty->eclipseKeyword = "";
                 inputProperty->fileName       = QString( "" );
-                inputRes->inputPropertyCollection()->inputProperties.push_back( inputProperty );
-                inputRes->inputPropertyCollection()->updateConnectedEditors();
+                inputRes->inputPropertyCollection()->addItem( inputProperty );
             }
             inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
         }

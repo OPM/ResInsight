@@ -267,7 +267,7 @@ cvf::ref<RigResultAccessor>
 
     RiaDefines::PorosityModelType porosityModelType = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
-    for ( RimEclipseInputProperty* inputProperty : inputPropertyCollection->inputProperties() )
+    for ( RimEclipseInputProperty* inputProperty : inputPropertyCollection->items() )
     {
         // Look for input properties starting with the same name as result definition
         if ( inputProperty && inputProperty->resultName().startsWith( resultName ) )

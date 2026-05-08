@@ -20,8 +20,6 @@
 
 #include "RimEclipseInputPropertyCollection.h"
 
-#include "RimEclipseInputProperty.h"
-
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimEclipseInputPropertyCollection, "RimInputPropertyCollection" );
@@ -33,7 +31,7 @@ RimEclipseInputPropertyCollection::RimEclipseInputPropertyCollection()
 {
     CAF_PDM_InitObject( "Input Properties", ":/EclipseInput48x48.png" );
 
-    CAF_PDM_InitFieldNoDefault( &inputProperties, "InputProperties", "" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "InputProperties", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,12 +41,12 @@ std::vector<RimEclipseInputProperty*> RimEclipseInputPropertyCollection::findInp
 {
     QFileInfo                             fileInfo( fileName );
     std::vector<RimEclipseInputProperty*> result;
-    for ( size_t i = 0; i < inputProperties.size(); ++i )
+    for ( auto* prop : items() )
     {
-        if ( !inputProperties[i] ) continue;
+        if ( !prop ) continue;
 
-        QFileInfo propFile( inputProperties[i]->fileName().path() );
-        if ( fileInfo == propFile ) result.push_back( inputProperties[i] );
+        QFileInfo propFile( prop->fileName().path() );
+        if ( fileInfo == propFile ) result.push_back( prop );
     }
 
     return result;
@@ -59,12 +57,9 @@ std::vector<RimEclipseInputProperty*> RimEclipseInputPropertyCollection::findInp
 //--------------------------------------------------------------------------------------------------
 RimEclipseInputProperty* RimEclipseInputPropertyCollection::findInputProperty( QString resultName )
 {
-    for ( size_t i = 0; i < inputProperties.size(); i++ )
+    for ( auto* prop : items() )
     {
-        if ( inputProperties[i] && inputProperties[i]->resultName() == resultName )
-        {
-            return inputProperties[i];
-        }
+        if ( prop && prop->resultName() == resultName ) return prop;
     }
 
     return nullptr;

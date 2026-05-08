@@ -35,9 +35,9 @@ RimIntersectionResultsDefinitionCollection::RimIntersectionResultsDefinitionColl
     CAF_PDM_InitField( &m_isActive, "isActive", false, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_intersectionResultsDefs, "IntersectionResultDefinitions", "Data Sources" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "IntersectionResultDefinitions", "Data Sources" );
 
-    m_intersectionResultsDefs.push_back( new RimIntersectionResultDefinition ); // Add the default result definition
+    addItem( new RimIntersectionResultDefinition() ); // Add the default result definition
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ bool RimIntersectionResultsDefinitionCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimIntersectionResultDefinition*> RimIntersectionResultsDefinitionCollection::intersectionResultsDefinitions() const
 {
-    return m_intersectionResultsDefs.childrenByType();
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ std::vector<RimIntersectionResultDefinition*> RimIntersectionResultsDefinitionCo
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionResultsDefinitionCollection::appendIntersectionResultDefinition( RimIntersectionResultDefinition* interResDef )
 {
-    m_intersectionResultsDefs.push_back( interResDef );
+    addItem( interResDef );
 
     if ( interResDef->activeCase() == nullptr )
     {

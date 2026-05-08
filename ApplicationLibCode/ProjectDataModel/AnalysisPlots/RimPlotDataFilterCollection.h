@@ -17,16 +17,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "RimPlotDataFilterItem.h"
 
-class RimPlotDataFilterItem;
+#include "cafPdmField.h"
+#include "cafPdmObjectCollection.h"
+#include "cafSignal.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimPlotDataFilterCollection : public caf::PdmObject
+class RimPlotDataFilterCollection : public caf::PdmObjectCollection<RimPlotDataFilterItem>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -47,6 +47,5 @@ private:
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
 private:
-    caf::PdmField<bool>                             m_isActive;
-    caf::PdmChildArrayField<RimPlotDataFilterItem*> m_filters;
+    caf::PdmField<bool> m_isActive;
 };

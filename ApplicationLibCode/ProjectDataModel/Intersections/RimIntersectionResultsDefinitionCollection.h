@@ -17,14 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmChildArrayField.h"
+#include "RimIntersectionResultDefinition.h"
+
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
+#include "cafPdmObjectCollection.h"
 
-class RimIntersectionResultDefinition;
-
-class RimIntersectionResultsDefinitionCollection : public caf::PdmObject
+class RimIntersectionResultsDefinitionCollection : public caf::PdmObjectCollection<RimIntersectionResultDefinition>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -45,6 +43,5 @@ protected:
     void initAfterRead() override;
 
 private:
-    caf::PdmField<bool>                                       m_isActive;
-    caf::PdmChildArrayField<RimIntersectionResultDefinition*> m_intersectionResultsDefs;
+    caf::PdmField<bool> m_isActive;
 };

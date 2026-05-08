@@ -43,7 +43,7 @@ std::vector<QString> RifInputPropertyLoader::loadAndSynchronizeInputProperties( 
 
     if ( !inputPropertyCollection || !eclipseCaseData || filenames.empty() ) return loadedProperties;
 
-    std::vector<RimEclipseInputProperty*> existingProperties = inputPropertyCollection->inputProperties.childrenByType();
+    std::vector<RimEclipseInputProperty*> existingProperties = inputPropertyCollection->items();
 
     caf::ProgressInfo progInfo( static_cast<int>( filenames.size() ), "Reading Input properties" );
 
@@ -78,7 +78,7 @@ std::vector<QString> RifInputPropertyLoader::loadAndSynchronizeInputProperties( 
                 inputProperty->eclipseKeyword          = eclipseKeyword;
                 inputProperty->fileName                = filename;
                 inputProperty->resolvedState           = RimEclipseInputProperty::RESOLVED;
-                inputPropertyCollection->inputProperties.push_back( inputProperty );
+                inputPropertyCollection->addItem( inputProperty );
             }
 
             if ( allowImportOfFaults && isFaultKeywordPresent )

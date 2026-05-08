@@ -19,17 +19,15 @@
 
 #include "RiaSeismicDefines.h"
 
-#include "cafPdmField.h"
+#include "RimSeismicView.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "cafPdmObjectCollection.h"
 
 #include <QString>
 
-class RimSeismicView;
 class RimSeismicDataInterface;
 
-class RimSeismicViewCollection : public caf::PdmObject
+class RimSeismicViewCollection : public caf::PdmObjectCollection<RimSeismicView>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -37,12 +35,7 @@ public:
     RimSeismicViewCollection();
     ~RimSeismicViewCollection() override;
 
-    bool isEmpty();
-
     RimSeismicView* addView( RimSeismicDataInterface* data, RiaDefines::SeismicSectionType defaultSection );
 
     std::vector<RimSeismicView*> views() const;
-
-private:
-    caf::PdmChildArrayField<RimSeismicView*> m_views;
 };
