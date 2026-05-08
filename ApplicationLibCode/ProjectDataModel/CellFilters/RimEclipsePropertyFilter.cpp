@@ -199,8 +199,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
         updateIconState();
         uiCapability()->updateConnectedEditors();
 
-        if ( auto* container = parentContainer() )
-            container->updateDisplayModelNotifyManagedViews( this );
+        if ( auto* container = parentContainer() ) container->updateDisplayModelNotifyManagedViews( this );
         triggerFilterChanged();
     }
 }
