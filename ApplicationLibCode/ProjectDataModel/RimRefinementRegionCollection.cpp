@@ -40,7 +40,7 @@ RimRefinementRegionCollection::RimRefinementRegionCollection()
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Show Regions in 3D View" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_regions, "Regions", "Regions" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "Regions", "Regions" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ bool RimRefinementRegionCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 bool RimRefinementRegionCollection::shouldBeVisibleInTree() const
 {
-    return !m_regions.empty();
+    return !isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ bool RimRefinementRegionCollection::shouldBeVisibleInTree() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimRefinementRegion*> RimRefinementRegionCollection::regions() const
 {
-    return m_regions.childrenByType();
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ std::vector<RimRefinementRegion*> RimRefinementRegionCollection::regions() const
 std::vector<RimRefinementRegion*> RimRefinementRegionCollection::activeRegions() const
 {
     std::vector<RimRefinementRegion*> result;
-    for ( auto r : m_regions )
+    for ( auto r : m_items )
     {
         if ( r && r->isActive() ) result.push_back( r );
     }
@@ -86,15 +86,14 @@ std::vector<RimRefinementRegion*> RimRefinementRegionCollection::activeRegions()
 RimRefinementRegion* RimRefinementRegionCollection::addNewRegion( RimEclipseCase* eclipseCase )
 {
     auto* region = new RimRefinementRegion();
-    region->setRegionName( QString( "Region %1" ).arg( m_regions.size() + 1 ) );
-    m_regions.push_back( region );
+    region->setRegionName( QString( "Region %1" ).arg( count() + 1 ) );
+    addItem( region );
 
     // Defaults depend on the case's grid; set after the region is inserted into the tree so
     // that view/case ancestor lookups work inside the region.
     region->setDefaultsFromCase( eclipseCase );
 
-    updateConnectedEditors();
-    // Visibility of this collection in the parent view's tree depends on m_regions being non-empty,
+    // Visibility of this collection in the parent view's tree depends on m_items being non-empty,
     // so refresh the parent so the folder appears when the first region is added.
     if ( auto* view = firstAncestorOrThisOfType<Rim3dView>() ) view->updateConnectedEditors();
     return region;
@@ -105,7 +104,7 @@ RimRefinementRegion* RimRefinementRegionCollection::addNewRegion( RimEclipseCase
 //--------------------------------------------------------------------------------------------------
 void RimRefinementRegionCollection::addRegion( RimRefinementRegion* region )
 {
-    if ( region ) m_regions.push_back( region );
+    addItem( region );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,9 +113,7 @@ void RimRefinementRegionCollection::addRegion( RimRefinementRegion* region )
 void RimRefinementRegionCollection::removeRegion( RimRefinementRegion* region )
 {
     if ( !region ) return;
-    m_regions.removeChild( region );
-    delete region;
-    updateConnectedEditors();
+    deleteItem( region );
     if ( auto* view = firstAncestorOrThisOfType<Rim3dView>() ) view->updateConnectedEditors();
 }
 

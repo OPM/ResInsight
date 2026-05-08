@@ -18,7 +18,6 @@
 
 #include "RimEnsembleFileSetCollection.h"
 
-#include "RimEnsembleFileSet.h"
 #include "RimTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -34,8 +33,8 @@ RimEnsembleFileSetCollection::RimEnsembleFileSetCollection()
 {
     CAF_PDM_InitObject( "Disc Data", ":/SummaryEnsemble.svg", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fileSets, "FileSets", "File Sets", "", "", "" );
-    m_fileSets.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_items, "FileSets", "File Sets", "", "", "" );
+    m_items.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,7 +42,7 @@ RimEnsembleFileSetCollection::RimEnsembleFileSetCollection()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFileSetCollection::addFileSet( RimEnsembleFileSet* fileSet )
 {
-    if ( fileSet ) m_fileSets.push_back( fileSet );
+    addItem( fileSet );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,7 +50,7 @@ void RimEnsembleFileSetCollection::addFileSet( RimEnsembleFileSet* fileSet )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleFileSet*> RimEnsembleFileSetCollection::fileSets() const
 {
-    return m_fileSets.childrenByType();
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +58,7 @@ std::vector<RimEnsembleFileSet*> RimEnsembleFileSetCollection::fileSets() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFileSetCollection::deleteAllFileSets()
 {
-    m_fileSets.deleteChildren();
+    deleteAllItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,10 +72,7 @@ void RimEnsembleFileSetCollection::deleteFileSetIfPossible( RimEnsembleFileSet* 
         auto connectedObjects = fileSet->objectsWithReferringPtrFields();
         if ( connectedObjects.empty() )
         {
-            m_fileSets.removeChild( fileSet );
-            delete fileSet;
-
-            updateConnectedEditors();
+            deleteItem( fileSet );
         }
     }
 }
@@ -103,7 +99,7 @@ void RimEnsembleFileSetCollection::updateFilePathsFromProjectPath( const QString
 QList<caf::PdmOptionItemInfo> RimEnsembleFileSetCollection::ensembleFileSetOptions() const
 {
     QList<caf::PdmOptionItemInfo> options;
-    for ( const auto& fileset : m_fileSets )
+    for ( const auto& fileset : m_items )
     {
         options.push_back( caf::PdmOptionItemInfo( fileset->name(), fileset, false, fileset->uiIconProvider() ) );
     }

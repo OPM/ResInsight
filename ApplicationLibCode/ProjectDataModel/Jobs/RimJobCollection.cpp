@@ -21,7 +21,6 @@
 #include "RiaLogging.h"
 
 #include "Rim3dView.h"
-#include "RimGenericJob.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 
@@ -36,7 +35,7 @@ RimJobCollection::RimJobCollection()
 {
     CAF_PDM_InitObject( "Jobs", ":/gear_icon_16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_jobs, "Jobs", "Jobs" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "Jobs", "Jobs" );
 
     setCustomContextMenuEnabled( true );
     setDeletable( false );
@@ -54,7 +53,7 @@ RimJobCollection::~RimJobCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGenericJob*> RimJobCollection::jobs() const
 {
-    return m_jobs.childrenByType();
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,17 +77,9 @@ std::vector<RimGenericJob*> RimJobCollection::jobsMatchingKeyValue( const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimJobCollection::isEmpty()
-{
-    return !m_jobs.hasChildren();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimJobCollection::addNewJob( RimGenericJob* newJob )
 {
-    m_jobs.push_back( newJob );
+    addItem( newJob );
     updateAllRequiredEditors();
 }
 
@@ -119,7 +110,7 @@ void RimJobCollection::deleteAllJobs()
             RiaLogging::info( "Stopped running job '" + job->name().toStdString() );
         }
     }
-    m_jobs.deleteChildren();
+    deleteAllItems();
 }
 
 //--------------------------------------------------------------------------------------------------

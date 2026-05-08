@@ -18,20 +18,18 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPtrArrayField.h"
+#include "RimFieldQuickAccessGroup.h"
+
+#include "cafPdmObjectCollection.h"
 
 class RimFieldQuickAccess;
-class RimFieldQuickAccessGroup;
 class RimFieldReference;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimQuickAccessCollection : public caf::PdmObject
+class RimQuickAccessCollection : public caf::PdmObjectCollection<RimFieldQuickAccessGroup>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -54,7 +52,4 @@ private:
 
     static void    updateGroupName( RimFieldQuickAccessGroup* group );
     static QString defaultGroupName();
-
-private:
-    caf::PdmChildArrayField<RimFieldQuickAccessGroup*> m_fieldQuickAccesGroups;
 };

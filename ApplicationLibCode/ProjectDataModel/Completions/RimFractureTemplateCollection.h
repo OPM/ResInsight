@@ -20,18 +20,18 @@
 
 #include "RiaDefines.h"
 
-#include "cafPdmChildArrayField.h"
+#include "RimFractureTemplate.h"
+
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafPdmObjectCollection.h"
 
 class RimEllipseFractureTemplate;
-class RimFractureTemplate;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimFractureTemplateCollection : public caf::PdmObject
+class RimFractureTemplateCollection : public caf::PdmObjectCollection<RimFractureTemplate>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -67,7 +67,6 @@ protected:
 private:
     int nextFractureTemplateId();
 
-    caf::PdmChildArrayField<RimFractureTemplate*>              m_fractureDefinitions;
     caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_defaultUnitsForFracTemplates;
     caf::PdmField<int>                                         m_nextValidFractureTemplateId_OBSOLETE;
 };
