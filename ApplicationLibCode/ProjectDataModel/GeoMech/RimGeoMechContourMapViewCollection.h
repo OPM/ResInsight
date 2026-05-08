@@ -18,13 +18,11 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "RimGeoMechContourMapView.h"
 
-class RimGeoMechContourMapView;
+#include "cafPdmObjectCollection.h"
 
-class RimGeoMechContourMapViewCollection : public caf::PdmObject
+class RimGeoMechContourMapViewCollection : public caf::PdmObjectCollection<RimGeoMechContourMapView>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -34,7 +32,4 @@ public:
 
     std::vector<RimGeoMechContourMapView*> views();
     void                                   addView( RimGeoMechContourMapView* contourMap );
-
-private:
-    caf::PdmChildArrayField<RimGeoMechContourMapView*> m_contourMapViews;
 };

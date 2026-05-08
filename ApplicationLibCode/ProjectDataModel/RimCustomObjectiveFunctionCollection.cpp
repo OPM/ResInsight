@@ -32,7 +32,7 @@ RimCustomObjectiveFunctionCollection::RimCustomObjectiveFunctionCollection()
 {
     CAF_PDM_InitObject( "Custom Objective Functions", ":/ObjectiveFunctionCollection.svg" );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctions, "ObjectiveFunctions", "" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "ObjectiveFunctions", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ RimCustomObjectiveFunctionCollection::RimCustomObjectiveFunctionCollection()
 RimCustomObjectiveFunction* RimCustomObjectiveFunctionCollection::addObjectiveFunction()
 {
     auto newFunction = new RimCustomObjectiveFunction();
-    m_objectiveFunctions.push_back( newFunction );
+    addItem( newFunction );
     return newFunction;
 }
 
@@ -58,7 +58,7 @@ void RimCustomObjectiveFunctionCollection::onObjectiveFunctionChanged( RimCustom
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCustomObjectiveFunction*> RimCustomObjectiveFunctionCollection::objectiveFunctions() const
 {
-    return m_objectiveFunctions.childrenByType();
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------

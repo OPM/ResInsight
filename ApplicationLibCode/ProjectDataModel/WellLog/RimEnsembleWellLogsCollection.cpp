@@ -18,8 +18,6 @@
 
 #include "RimEnsembleWellLogsCollection.h"
 
-#include "RimEnsembleWellLogs.h"
-
 #include "cafProgressInfo.h"
 
 CAF_PDM_SOURCE_INIT( RimEnsembleWellLogsCollection, "EnsembleWellLogsCollection" );
@@ -31,7 +29,7 @@ RimEnsembleWellLogsCollection::RimEnsembleWellLogsCollection()
 {
     CAF_PDM_InitObject( "Ensemble Well Logs", ":/LasFile16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogs, "EnsembleWellLogsCollection", "" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "EnsembleWellLogsCollection", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -39,7 +37,7 @@ RimEnsembleWellLogsCollection::RimEnsembleWellLogsCollection()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogsCollection::addEnsembleWellLogs( RimEnsembleWellLogs* ensembleWellLogs )
 {
-    m_ensembleWellLogs.push_back( ensembleWellLogs );
+    addItem( ensembleWellLogs );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,12 +45,7 @@ void RimEnsembleWellLogsCollection::addEnsembleWellLogs( RimEnsembleWellLogs* en
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleWellLogs*> RimEnsembleWellLogsCollection::ensembleWellLogs() const
 {
-    std::vector<RimEnsembleWellLogs*> ensembleWellLogs;
-    for ( const auto& e : m_ensembleWellLogs )
-    {
-        ensembleWellLogs.push_back( e );
-    }
-    return ensembleWellLogs;
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +53,7 @@ std::vector<RimEnsembleWellLogs*> RimEnsembleWellLogsCollection::ensembleWellLog
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogsCollection::loadDataAndUpdate()
 {
-    for ( const auto& e : m_ensembleWellLogs )
+    for ( const auto& e : m_items )
     {
         e->loadDataAndUpdate();
     }

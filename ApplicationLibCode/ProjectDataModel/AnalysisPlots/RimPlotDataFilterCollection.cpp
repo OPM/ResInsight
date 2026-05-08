@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimPlotDataFilterCollection.h"
-#include "RimPlotDataFilterItem.h"
 
 CAF_PDM_SOURCE_INIT( RimPlotDataFilterCollection, "PlotDataFilterCollection" );
 
@@ -31,7 +30,7 @@ RimPlotDataFilterCollection::RimPlotDataFilterCollection()
 
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "IsActive" );
     m_isActive.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_filters, "PlotDataFiltersField", "" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "PlotDataFiltersField", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,7 +39,7 @@ RimPlotDataFilterCollection::RimPlotDataFilterCollection()
 RimPlotDataFilterItem* RimPlotDataFilterCollection::addFilter()
 {
     auto newFilter = new RimPlotDataFilterItem();
-    m_filters.push_back( newFilter );
+    addItem( newFilter );
 
     newFilter->updateMaxMinAndDefaultValues( false );
 
@@ -54,8 +53,7 @@ RimPlotDataFilterItem* RimPlotDataFilterCollection::addFilter()
 //--------------------------------------------------------------------------------------------------
 void RimPlotDataFilterCollection::removeFilter( RimPlotDataFilterItem* filter )
 {
-    m_filters.removeChild( filter );
-    delete filter;
+    deleteItem( filter );
 
     filtersChanged.send();
 }
@@ -73,7 +71,7 @@ void RimPlotDataFilterCollection::childFieldChangedByUi( const caf::PdmFieldHand
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotDataFilterItem*> RimPlotDataFilterCollection::filters() const
 {
-    return m_filters.childrenByType();
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------

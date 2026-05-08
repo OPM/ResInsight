@@ -273,7 +273,7 @@ cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel( QString model
         inputProperty->resultName              = "PORO";
         inputProperty->eclipseKeyword          = "PORO";
         inputProperty->fileName                = QString( "PORO.prop" );
-        m_inputPropertyCollection->inputProperties.push_back( inputProperty );
+        m_inputPropertyCollection->addItem( inputProperty );
     }
 
     setReservoirData( reservoir.p() );
@@ -315,7 +315,7 @@ QString RimEclipseInputCase::locationOnDisc() const
 void RimEclipseInputCase::updateAdditionalFileFolder( const QString& newFolder )
 {
     QDir newDir( newFolder );
-    for ( RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
+    for ( RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->items() )
     {
         if ( inputProperty->fileName == gridFileName() ) continue;
 

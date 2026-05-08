@@ -20,20 +20,16 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "RimEclipseInputProperty.h"
 
-#include "cvfObject.h"
-
-class RimEclipseInputProperty;
+#include "cafPdmObjectCollection.h"
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RimEclipseInputPropertyCollection : public caf::PdmObject
+class RimEclipseInputPropertyCollection : public caf::PdmObjectCollection<RimEclipseInputProperty>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -41,7 +37,4 @@ public:
     RimEclipseInputPropertyCollection();
     std::vector<RimEclipseInputProperty*> findInputProperties( QString fileName );
     RimEclipseInputProperty*              findInputProperty( QString resultName );
-
-    // Fields:
-    caf::PdmChildArrayField<RimEclipseInputProperty*> inputProperties;
 };

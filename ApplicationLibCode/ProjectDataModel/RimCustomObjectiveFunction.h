@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "RimCustomObjectiveFunctionCollection.h"
 #include "RimObjectiveFunction.h"
 
 #include "cafPdmChildArrayField.h"
@@ -29,6 +28,7 @@
 
 #include <QString>
 
+class RimCustomObjectiveFunctionCollection;
 class RimCustomObjectiveFunctionWeight;
 class RimEnsembleCurveSet;
 class RimSummaryCase;

@@ -17,15 +17,14 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "RimEnsembleWellLogs.h"
 
-class RimEnsembleWellLogs;
+#include "cafPdmObjectCollection.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimEnsembleWellLogsCollection : public caf::PdmObject
+class RimEnsembleWellLogsCollection : public caf::PdmObjectCollection<RimEnsembleWellLogs>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -36,7 +35,4 @@ public:
 
     void addEnsembleWellLogs( RimEnsembleWellLogs* ensembleWellLogs );
     void loadDataAndUpdate();
-
-private:
-    caf::PdmChildArrayField<RimEnsembleWellLogs*> m_ensembleWellLogs;
 };

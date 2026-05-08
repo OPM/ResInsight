@@ -12,7 +12,7 @@ RimEclipseContourMapViewCollection::RimEclipseContourMapViewCollection()
 {
     CAF_PDM_InitObject( "Contour Maps", ":/2DMaps16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_contourMapViews, "EclipseViews", "Contour Maps", ":/CrossSection16x16.png" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "EclipseViews", "Contour Maps", ":/CrossSection16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ RimEclipseContourMapViewCollection::~RimEclipseContourMapViewCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseContourMapView*> RimEclipseContourMapViewCollection::views()
 {
-    return m_contourMapViews.childrenByType();
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ std::vector<RimEclipseContourMapView*> RimEclipseContourMapViewCollection::views
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapViewCollection::addView( RimEclipseContourMapView* contourMap )
 {
-    m_contourMapViews.push_back( contourMap );
+    addItem( contourMap );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ void RimEclipseContourMapViewCollection::onChildDeleted( caf::PdmChildArrayField
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapViewCollection::clearWithoutDelete()
 {
-    m_contourMapViews.clearWithoutDelete();
+    m_items.clearWithoutDelete();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,5 +61,5 @@ void RimEclipseContourMapViewCollection::clearWithoutDelete()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapViewCollection::removeChild( RimEclipseContourMapView* contourMap )
 {
-    m_contourMapViews.removeChild( contourMap );
+    m_items.removeChild( contourMap );
 }

@@ -789,7 +789,7 @@ RimEclipseInputPropertyCollection* RimEclipseCase::inputPropertyCollection() con
 std::vector<QString> RimEclipseCase::additionalFiles() const
 {
     std::vector<QString> additionalFiles;
-    for ( const RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
+    for ( const RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->items() )
     {
         if ( inputProperty->fileName == gridFileName() ) continue;
 

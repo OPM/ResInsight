@@ -18,13 +18,11 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "RimEclipseContourMapView.h"
 
-class RimEclipseContourMapView;
+#include "cafPdmObjectCollection.h"
 
-class RimEclipseContourMapViewCollection : public caf::PdmObject
+class RimEclipseContourMapViewCollection : public caf::PdmObjectCollection<RimEclipseContourMapView>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -39,7 +37,4 @@ public:
 
     void clearWithoutDelete();
     void removeChild( RimEclipseContourMapView* contourMap );
-
-private:
-    caf::PdmChildArrayField<RimEclipseContourMapView*> m_contourMapViews;
 };

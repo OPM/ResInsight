@@ -18,6 +18,7 @@
 
 #include "RimCustomObjectiveFunction.h"
 
+#include "RimCustomObjectiveFunctionCollection.h"
 #include "RimCustomObjectiveFunctionWeight.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryEnsemble.h"

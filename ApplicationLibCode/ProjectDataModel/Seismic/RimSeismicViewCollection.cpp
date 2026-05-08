@@ -23,7 +23,6 @@
 #include "Rim3dView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
-#include "RimSeismicView.h"
 
 CAF_PDM_SOURCE_INIT( RimSeismicViewCollection, "SeismicViewCollection", "SeismicViewCollection" );
 
@@ -34,7 +33,7 @@ RimSeismicViewCollection::RimSeismicViewCollection()
 {
     CAF_PDM_InitObject( "Views", ":/SeismicViews24x24.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_views, "Views", "Seismic Views" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "Views", "Seismic Views" );
 
     setDeletable( false );
 }
@@ -51,15 +50,7 @@ RimSeismicViewCollection::~RimSeismicViewCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSeismicView*> RimSeismicViewCollection::views() const
 {
-    return m_views.childrenByType();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSeismicViewCollection::isEmpty()
-{
-    return !m_views.hasChildren();
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,7 +65,7 @@ RimSeismicView* RimSeismicViewCollection::addView( RimSeismicDataInterface* data
 
     view->addSlice( defaultSection );
 
-    m_views.push_back( view );
+    addItem( view );
 
     return view;
 }

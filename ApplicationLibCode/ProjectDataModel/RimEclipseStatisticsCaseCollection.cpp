@@ -20,7 +20,6 @@
 
 #include "RimEclipseStatisticsCaseCollection.h"
 
-#include "RimEclipseStatisticsCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 
 CAF_PDM_SOURCE_INIT( RimEclipseStatisticsCaseCollection, "RimStatisticalCollection" );
@@ -29,11 +28,18 @@ CAF_PDM_SOURCE_INIT( RimEclipseStatisticsCaseCollection, "RimStatisticalCollecti
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCaseCollection::RimEclipseStatisticsCaseCollection()
-    : PdmObject()
 {
     CAF_PDM_InitObject( "Derived Statistics" );
 
-    CAF_PDM_InitFieldNoDefault( &cases, "Reservoirs", "" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "Reservoirs", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseStatisticsCase*> RimEclipseStatisticsCaseCollection::cases() const
+{
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------

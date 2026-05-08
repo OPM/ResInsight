@@ -23,6 +23,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectCollection.h"
 
 #include <QString>
 
@@ -62,7 +63,7 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimGridInfoCollection : public caf::PdmObject
+class RimGridInfoCollection : public caf::PdmObjectCollection<RimGridInfo>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -82,8 +83,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    caf::PdmField<bool>                   m_isActive;
-    caf::PdmChildArrayField<RimGridInfo*> m_gridInfos;
+    caf::PdmField<bool> m_isActive;
 };
 
 //==================================================================================================
