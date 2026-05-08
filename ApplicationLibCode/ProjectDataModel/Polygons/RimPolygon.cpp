@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTools.h"
+#include "RiaVec3Tools.h"
 
 #include "RigPolyLinesData.h"
 
@@ -50,6 +51,12 @@ RimPolygon::RimPolygon()
 
     CAF_PDM_InitField( &m_isReadOnly, "IsReadOnly", false, "Read Only" );
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_pointsInDomainCoords, "PointsInDomainCoords", "Coordinates", "Points" );
+    m_pointsInDomainCoords.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_pointsInDomainCoordsForUi, "PointsInDomainCoordsUi", "Coordinates" );
+    m_pointsInDomainCoordsForUi.registerSetMethod( this, &RimPolygon::setPointsInDomainCoordsFromXyd );
+    m_pointsInDomainCoordsForUi.registerGetMethod( this, &RimPolygon::pointsInDomainCoordsXyd );
+    m_pointsInDomainCoordsForUi.xmlCapability()->disableIO();
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_appearance, "Appearance", "Appearance" );
     m_appearance = new RimPolygonAppearance;
@@ -101,6 +108,22 @@ void RimPolygon::setPointsInDomainCoords( const std::vector<cvf::Vec3d>& points 
 std::vector<cvf::Vec3d> RimPolygon::pointsInDomainCoords() const
 {
     return m_pointsInDomainCoords();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimPolygon::pointsInDomainCoordsXyd() const
+{
+    return RiaVec3Tools::invertZSign( m_pointsInDomainCoords() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::setPointsInDomainCoordsFromXyd( const std::vector<cvf::Vec3d>& pointsXyd )
+{
+    m_pointsInDomainCoords = RiaVec3Tools::invertZSign( pointsXyd );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,9 +206,9 @@ void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiO
 
     auto groupPoints = uiOrdering.addNewGroup( "Points" );
     groupPoints->setCollapsedByDefault();
-    groupPoints->add( &m_pointsInDomainCoords );
+    groupPoints->add( &m_pointsInDomainCoordsForUi );
 
-    m_pointsInDomainCoords.uiCapability()->setUiReadOnly( m_isReadOnly() );
+    m_pointsInDomainCoordsForUi.uiCapability()->setUiReadOnly( m_isReadOnly() );
 
     auto group = uiOrdering.addNewGroup( "Appearance" );
     m_appearance->uiOrdering( uiConfigName, *group );
@@ -196,7 +219,7 @@ void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiO
 //--------------------------------------------------------------------------------------------------
 void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_pointsInDomainCoords )
+    if ( changedField == &m_pointsInDomainCoords || changedField == &m_pointsInDomainCoordsForUi )
     {
         coordinatesChanged.send();
     }
