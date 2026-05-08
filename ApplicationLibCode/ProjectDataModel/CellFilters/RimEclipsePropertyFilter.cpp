@@ -201,8 +201,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
 
         if ( auto* container = parentContainer() )
             container->updateDisplayModelNotifyManagedViews( this );
-        else
-            triggerFilterChanged();
+        triggerFilterChanged();
     }
 }
 

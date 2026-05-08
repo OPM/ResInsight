@@ -57,6 +57,7 @@ void RimDataFilterInViewCollection::setSourceCollection( RimDataFilterCollection
 {
     if ( m_sourceCollection() == sourceCollection ) return;
 
+    if ( m_sourceCollection() ) m_sourceCollection()->filtersChanged.disconnect( this );
     m_sourceCollection = sourceCollection;
     connectSourceSignal();
     syncWithSource();
@@ -90,9 +91,7 @@ void RimDataFilterInViewCollection::syncWithSource()
 
     if ( !m_sourceCollection() )
     {
-        m_wrappers.clearWithoutDelete();
-        for ( auto* w : existing )
-            delete w;
+        m_wrappers.deleteChildren();
         updateConnectedEditors();
         return;
     }
