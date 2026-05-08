@@ -201,8 +201,7 @@ std::unique_ptr<RifSummaryReaderInterface> RimFileSummaryCase::findRelatedFilesA
         }
 
         bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "OpmSummaryImport" );
-        if ( isLoggingEnabled )
-            RiaLogging::logElapsedTime( "Searched for restart files for " + headerFileName.toStdString(), startTime );
+        if ( isLoggingEnabled ) RiaLogging::logElapsedTime( "Searched for restart files for " + headerFileName.toStdString(), startTime );
 
         if ( !restartFileNames.empty() )
         {
