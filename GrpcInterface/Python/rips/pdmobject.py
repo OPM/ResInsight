@@ -3,6 +3,7 @@
 ResInsight caf::PdmObject connection module
 """
 
+from enum import Enum
 from functools import wraps
 import grpc
 import re
@@ -243,6 +244,8 @@ class PdmObjectBase:
             if value:
                 return "true"
             return "false"
+        if isinstance(value, Enum):
+            return str(value.value)
         if isinstance(value, PdmObjectBase):
             return value.__class__.__name__ + ":" + str(value.address())
         if isinstance(value, list):

@@ -51,6 +51,7 @@ class PdmPythonGenerator : public PdmCodeGenerator
 public:
     QString        generate( PdmObjectFactory* factory, std::vector<QString>& errorMessages ) const override;
     static QString camelToSnakeCase( const QString& camelString );
+    static QString snakeToCamelCase( const QString& snakeString );
     static QString dataTypeString( const PdmFieldHandle* field, bool useStrForUnknownDataTypes );
 
     static QString pythonifyDataValue( const QString& dataValue );

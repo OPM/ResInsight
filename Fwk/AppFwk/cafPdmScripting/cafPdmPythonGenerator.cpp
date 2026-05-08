@@ -149,6 +149,128 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     std::map<QString, QString>                                        classCommentsGenerated;
     std::set<QString>                                                 dataTypesInChildFields;
 
+    // Bookkeeping for AppEnum-typed fields. Each unique C++ AppEnum type (keyed by its xml
+    // dataTypeName, which is typeid().name() and therefore unique per type) gets one Python
+    // StrEnum class. Names are derived from the script field name to stay readable.
+    struct EnumClassDef
+    {
+        QString                                  className;
+        std::vector<std::pair<QString, QString>> members; // (memberName, originalText), in declaration order
+        std::map<QString, QString>               memberNameByText;
+    };
+    std::map<QString, EnumClassDef> enumDefByDataTypeName;
+    std::map<QString, QString>      enumClassNameByDataTypeName;
+    // Seed with names that are already bound at module scope in the generated file (imports
+    // and module-level functions) so a generated enum cannot shadow them.
+    std::set<QString> usedEnumClassNames = { "PdmObjectBase",
+                                             "PdmObject_pb2",
+                                             "grpc",
+                                             "StrEnum",
+                                             "Optional",
+                                             "Dict",
+                                             "List",
+                                             "Tuple",
+                                             "Type",
+                                             "class_dict",
+                                             "class_from_keyword" };
+    for ( std::shared_ptr<PdmObject> object : dummyObjects )
+    {
+        QString scriptClassName =
+            PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( object->classKeyword() );
+        if ( scriptClassName.isEmpty() ) scriptClassName = object->classKeyword();
+        usedEnumClassNames.insert( scriptClassName );
+    }
+
+    auto sanitizeEnumMemberName = []( const QString& text ) -> QString
+    {
+        // Python identifiers must start with a letter or underscore and may only contain
+        // letters, digits, and underscores. Some AppEnum texts (e.g. "R-G", "None") violate
+        // these rules — coerce them into valid identifiers without changing the wire value.
+        static const std::set<QString> pythonKeywords = { "False",  "None",     "True",  "and",    "as",       "assert",
+                                                          "async",  "await",    "break", "class",  "continue", "def",
+                                                          "del",    "elif",     "else",  "except", "finally",  "for",
+                                                          "from",   "global",   "if",    "import", "in",       "is",
+                                                          "lambda", "nonlocal", "not",   "or",     "pass",     "raise",
+                                                          "return", "try",      "while", "with",   "yield",    "match",
+                                                          "case" };
+        QString                        s;
+        for ( QChar ch : text )
+        {
+            if ( ch.isLetterOrNumber() || ch == '_' )
+                s += ch;
+            else
+                s += '_';
+        }
+        if ( s.isEmpty() ) s = "_";
+        if ( s[0].isDigit() ) s = "_" + s;
+        if ( pythonKeywords.count( s ) ) s += "_";
+        return s;
+    };
+
+    auto enumClassNameForField = [&]( PdmFieldHandle* field, PdmAbstractFieldScriptingCapability* scriptability ) -> QString
+    {
+        QStringList enumTexts = scriptability->enumScriptTexts();
+        if ( enumTexts.empty() ) return QString();
+
+        QString dataTypeName = field->capability<PdmXmlFieldHandle>()->dataTypeName();
+        auto    cached       = enumClassNameByDataTypeName.find( dataTypeName );
+        if ( cached != enumClassNameByDataTypeName.end() ) return cached->second;
+
+        QString baseName = snakeToCamelCase( camelToSnakeCase( scriptability->scriptFieldName() ) );
+        if ( baseName.isEmpty() ) baseName = "Enum";
+
+        QString candidate = baseName;
+        int     suffix    = 1;
+        while ( usedEnumClassNames.count( candidate ) )
+        {
+            candidate = baseName + QString::number( ++suffix );
+        }
+
+        EnumClassDef def;
+        def.className = candidate;
+        std::set<QString> usedMemberNames;
+        for ( const QString& text : enumTexts )
+        {
+            QString memberName   = sanitizeEnumMemberName( text );
+            int     memberSuffix = 1;
+            QString unique       = memberName;
+            while ( usedMemberNames.count( unique ) )
+            {
+                unique = memberName + QString( "_%1" ).arg( ++memberSuffix );
+            }
+            usedMemberNames.insert( unique );
+            def.members.push_back( { unique, text } );
+            def.memberNameByText[text] = unique;
+        }
+
+        enumClassNameByDataTypeName[dataTypeName] = candidate;
+        enumDefByDataTypeName[dataTypeName]       = def;
+        usedEnumClassNames.insert( candidate );
+        return candidate;
+    };
+
+    auto enumDefaultValueExpression =
+        [&]( PdmFieldHandle* field, const QString& enumClassName, const QString& quotedDefault ) -> QString
+    {
+        // The existing getDefaultValue() returns the AppEnum text wrapped in double quotes (because
+        // dataTypeString reports "str" for enum fields). Convert "MATRIX_MODEL" -> EnumName.MATRIX_MODEL.
+        // If the default isn't a quoted string (e.g. the literal None for fields with no default),
+        // leave it unchanged.
+        if ( !quotedDefault.startsWith( '"' ) || !quotedDefault.endsWith( '"' ) || quotedDefault.size() < 2 )
+        {
+            return quotedDefault;
+        }
+        QString stripped = quotedDefault.mid( 1, quotedDefault.size() - 2 );
+        if ( stripped.isEmpty() ) return quotedDefault;
+
+        QString dataTypeName = field->capability<PdmXmlFieldHandle>()->dataTypeName();
+        auto    it           = enumDefByDataTypeName.find( dataTypeName );
+        QString memberName   = ( it != enumDefByDataTypeName.end() && it->second.memberNameByText.count( stripped ) )
+                                   ? it->second.memberNameByText.at( stripped )
+                                   : sanitizeEnumMemberName( stripped );
+        return QString( "%1.%2" ).arg( enumClassName ).arg( memberName );
+    };
+
     // First generate all attributes and comments to go into each object
     for ( std::shared_ptr<PdmObject> object : dummyObjects )
     {
@@ -262,6 +384,13 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                                     // TODO: Consider using PdmField<std::optional<T>> for optional fields instead of
                                     // using the default value to manipulate the type
                                     dataType = QString( "Optional[%1]" ).arg( dataType );
+                                }
+
+                                QString enumClassName = enumClassNameForField( field, scriptability );
+                                if ( !enumClassName.isEmpty() )
+                                {
+                                    dataType     = enumClassName;
+                                    defaultValue = enumDefaultValueExpression( field, enumClassName, defaultValue );
                                 }
 
                                 QString fieldCode =
@@ -393,6 +522,13 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                         commentOrEnumDescription = "One of [" + enumTexts.join( ", " ) + "]";
                     }
 
+                    QString enumClassName = enumClassNameForField( field, scriptability );
+                    if ( !enumClassName.isEmpty() )
+                    {
+                        dataType     = enumClassName;
+                        defaultValue = enumDefaultValueExpression( field, enumClassName, defaultValue );
+                    }
+
                     inputArgumentStrings.push_back(
                         QString( "%1: %2=%3" ).arg( argumentName ).arg( dataType ).arg( defaultValue ) );
                     outputArgumentStrings.push_back( QString( "%1=%1" ).arg( argumentName ) );
@@ -444,8 +580,25 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     out << "from rips.pdmobject import PdmObjectBase\n";
     out << "import PdmObject_pb2\n";
     out << "import grpc\n";
+    out << "from enum import StrEnum\n";
     out << "from typing import Optional, Dict, List, Tuple, Type\n";
     out << "\n";
+
+    // Emit enum classes sorted by name for stable diffs across regenerations.
+    std::map<QString, const EnumClassDef*> enumDefByClassName;
+    for ( const auto& [dataTypeName, def] : enumDefByDataTypeName )
+    {
+        enumDefByClassName[def.className] = &def;
+    }
+    for ( const auto& [enumClassName, def] : enumDefByClassName )
+    {
+        out << QString( "class %1(StrEnum):\n" ).arg( enumClassName );
+        for ( const auto& [memberName, originalText] : def->members )
+        {
+            out << QString( "    %1 = \"%2\"\n" ).arg( memberName ).arg( originalText );
+        }
+        out << "\n";
+    }
 
     for ( std::shared_ptr<PdmObject> object : dummyObjects )
     {
@@ -629,6 +782,19 @@ QString PdmPythonGenerator::camelToSnakeCase( const QString& camelString )
     snake_case.replace( re1, "\\1_\\2" );
     snake_case.replace( re2, "\\1_\\2" );
     return snake_case.toLower();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmPythonGenerator::snakeToCamelCase( const QString& snakeString )
+{
+    QString camel;
+    for ( const QString& part : snakeString.split( '_', Qt::SkipEmptyParts ) )
+    {
+        camel += part.left( 1 ).toUpper() + part.mid( 1 ).toLower();
+    }
+    return camel;
 }
 
 //--------------------------------------------------------------------------------------------------

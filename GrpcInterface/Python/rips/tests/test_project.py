@@ -30,13 +30,15 @@ def test_well_log_plots(rips_instance, initialize_test):
     for plot in plots:
         if isinstance(plot, rips.WellLogPlot):
             assert plot.depth_type == "MEASURED_DEPTH"
+            assert plot.depth_type == rips.DepthType.MEASURED_DEPTH
             well_log_plots.append(plot)
     assert len(well_log_plots) == 2
 
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
         for well_log_plot in well_log_plots:
-            well_log_plot.depth_type = "TRUE_VERTICAL_DEPTH_RKB"
+            well_log_plot.depth_type = rips.DepthType.TRUE_VERTICAL_DEPTH_RKB
             well_log_plot.update()
+            assert well_log_plot.depth_type == "TRUE_VERTICAL_DEPTH_RKB"
             if rips_instance.is_gui():
                 well_log_plot.export_snapshot(tmpdirname)
             well_log_plot.export_data_as_las(tmpdirname)
