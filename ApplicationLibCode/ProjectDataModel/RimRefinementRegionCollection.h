@@ -18,9 +18,10 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
+#include "RimRefinementRegion.h"
+
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafPdmObjectCollection.h"
 #include "cafVecIjk.h"
 
 #include <expected>
@@ -32,7 +33,6 @@
 
 class RigRefinement;
 class RimEclipseCase;
-class RimRefinementRegion;
 
 //==================================================================================================
 ///
@@ -40,7 +40,7 @@ class RimRefinementRegion;
 /// regions into a single RigRefinement for use in sector-model export.
 ///
 //==================================================================================================
-class RimRefinementRegionCollection : public caf::PdmObject
+class RimRefinementRegionCollection : public caf::PdmObjectCollection<RimRefinementRegion>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -72,6 +72,5 @@ protected:
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
-    caf::PdmField<bool>                           m_isActive;
-    caf::PdmChildArrayField<RimRefinementRegion*> m_regions;
+    caf::PdmField<bool> m_isActive;
 };

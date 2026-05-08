@@ -18,18 +18,16 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPointer.h"
+#include "RimEnsembleFileSet.h"
 
-class RimEnsembleFileSet;
+#include "cafPdmObjectCollection.h"
 
 //==================================================================================================
 ///
 /// Class to manage a collection of ensemble filesets
 ///
 //==================================================================================================
-class RimEnsembleFileSetCollection : public caf::PdmObject
+class RimEnsembleFileSetCollection : public caf::PdmObjectCollection<RimEnsembleFileSet>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -50,7 +48,4 @@ public:
 private:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void initAfterRead() override;
-
-private:
-    caf::PdmChildArrayField<RimEnsembleFileSet*> m_fileSets;
 };

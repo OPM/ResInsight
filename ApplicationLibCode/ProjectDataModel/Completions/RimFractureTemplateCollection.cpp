@@ -50,7 +50,7 @@ RimFractureTemplateCollection::RimFractureTemplateCollection()
                        caf::AppEnum<RiaDefines::EclipseUnitSystem>( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
                        "Default unit system for fracture templates" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureDefinitions, "FractureDefinitions", "" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "FractureDefinitions", "" );
 
     CAF_PDM_InitField( &m_nextValidFractureTemplateId_OBSOLETE, "NextValidFractureTemplateId", 0, "" );
     m_nextValidFractureTemplateId_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -62,7 +62,7 @@ RimFractureTemplateCollection::RimFractureTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RimFractureTemplateCollection::fractureTemplate( int id ) const
 {
-    for ( const auto& templ : m_fractureDefinitions )
+    for ( const auto& templ : m_items )
     {
         if ( templ->id() == id ) return templ;
     }
@@ -75,7 +75,7 @@ RimFractureTemplate* RimFractureTemplateCollection::fractureTemplate( int id ) c
 std::vector<RimFractureTemplate*> RimFractureTemplateCollection::fractureTemplates() const
 {
     std::vector<RimFractureTemplate*> templates;
-    for ( auto& templ : m_fractureDefinitions )
+    for ( auto& templ : m_items )
     {
         templates.push_back( templ );
     }
@@ -104,7 +104,7 @@ RimEllipseFractureTemplate* RimFractureTemplateCollection::addDefaultEllipseTemp
 void RimFractureTemplateCollection::addFractureTemplate( RimFractureTemplate* templ )
 {
     templ->setId( nextFractureTemplateId() );
-    m_fractureDefinitions.push_back( templ );
+    addItem( templ );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ void RimFractureTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RimFractureTemplateCollection::firstFractureOfUnit( RiaDefines::EclipseUnitSystem unitSet ) const
 {
-    for ( RimFractureTemplate* f : m_fractureDefinitions() )
+    for ( RimFractureTemplate* f : m_items() )
     {
         if ( f->fractureTemplateUnit() == unitSet )
         {
@@ -152,7 +152,7 @@ std::vector<std::pair<QString, QString>> RimFractureTemplateCollection::resultNa
 {
     std::set<std::pair<QString, QString>> nameSet;
 
-    for ( const RimFractureTemplate* f : m_fractureDefinitions() )
+    for ( const RimFractureTemplate* f : m_items() )
     {
         std::vector<std::pair<QString, QString>> namesAndUnits = f->uiResultNamesWithUnit();
 
@@ -180,7 +180,7 @@ void RimFractureTemplateCollection::computeMinMax( const QString& uiResultName,
     MinMaxAccumulator minMaxAccumulator;
     PosNegAccumulator posNegAccumulator;
 
-    for ( const RimFractureTemplate* f : m_fractureDefinitions() )
+    for ( const RimFractureTemplate* f : m_items() )
     {
         if ( f )
         {
@@ -203,7 +203,7 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
 
     std::vector<RimFractureTemplate*> templatesToBeAdded;
 
-    for ( RimFractureTemplate* fractureTemplate : m_fractureDefinitions() )
+    for ( RimFractureTemplate* fractureTemplate : m_items() )
     {
         if ( fractureTemplate )
         {
@@ -249,7 +249,7 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
 
     for ( auto templateWithMatchingUnit : templatesToBeAdded )
     {
-        m_fractureDefinitions.push_back( templateWithMatchingUnit );
+        addItem( templateWithMatchingUnit );
     }
 }
 
@@ -258,7 +258,7 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::loadAndUpdateData()
 {
-    for ( RimFractureTemplate* f : m_fractureDefinitions() )
+    for ( RimFractureTemplate* f : m_items() )
     {
         RimMeshFractureTemplate* stimPlanFracture = dynamic_cast<RimMeshFractureTemplate*>( f );
         if ( stimPlanFracture )
@@ -280,7 +280,7 @@ void RimFractureTemplateCollection::loadAndUpdateData()
 void RimFractureTemplateCollection::initAfterRead()
 {
     // Assign template id if not already assigned
-    for ( auto& templ : m_fractureDefinitions )
+    for ( auto& templ : m_items )
     {
         if ( templ->id() < 0 ) templ->setId( nextFractureTemplateId() );
     }
@@ -292,7 +292,7 @@ void RimFractureTemplateCollection::initAfterRead()
 int RimFractureTemplateCollection::nextFractureTemplateId()
 {
     int nextValidId = 0;
-    for ( const auto& templ : m_fractureDefinitions )
+    for ( const auto& templ : m_items )
     {
         nextValidId = std::max( nextValidId, templ->id() + 1 );
     }

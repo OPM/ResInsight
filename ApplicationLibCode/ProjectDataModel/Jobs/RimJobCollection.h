@@ -17,16 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmField.h"
+#include "RimGenericJob.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "cafPdmObjectCollection.h"
 
 #include <QString>
 
-class RimGenericJob;
-
-class RimJobCollection : public caf::PdmObject
+class RimJobCollection : public caf::PdmObjectCollection<RimGenericJob>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -35,8 +32,6 @@ public:
     ~RimJobCollection() override;
 
     void addNewJob( RimGenericJob* newJob );
-
-    bool isEmpty();
 
     int numberOfRunningJobs() const;
 
@@ -48,7 +43,4 @@ public:
 
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-
-private:
-    caf::PdmChildArrayField<RimGenericJob*> m_jobs;
 };

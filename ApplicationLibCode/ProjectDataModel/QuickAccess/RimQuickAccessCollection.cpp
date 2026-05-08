@@ -38,7 +38,7 @@ RimQuickAccessCollection::RimQuickAccessCollection()
 {
     CAF_PDM_InitObject( "Field Reference Collection" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fieldQuickAccesGroups, "FieldReferencesGroup", "Field References Group" );
+    CAF_PDM_InitFieldNoDefault( &m_items, "FieldReferencesGroup", "Field References Group" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ void RimQuickAccessCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     std::vector<RimFieldQuickAccessGroup*> groupsForView;
 
-    for ( auto group : m_fieldQuickAccesGroups )
+    for ( auto group : m_items )
     {
         if ( group->ownerView() == activeView )
         {
@@ -177,7 +177,7 @@ void RimQuickAccessCollection::deleteMarkedObjects()
     {
         std::set<RimFieldQuickAccess*> toBeDeleted;
 
-        for ( auto group : m_fieldQuickAccesGroups.childrenByType() )
+        for ( auto group : items() )
         {
             for ( auto quickAccess : group->fieldQuickAccesses() )
             {
@@ -190,7 +190,7 @@ void RimQuickAccessCollection::deleteMarkedObjects()
 
         for ( auto quickAccess : toBeDeleted )
         {
-            for ( auto group : m_fieldQuickAccesGroups )
+            for ( auto group : m_items )
             {
                 group->removeFieldQuickAccess( quickAccess );
             }
@@ -202,7 +202,7 @@ void RimQuickAccessCollection::deleteMarkedObjects()
     // Delete groups with no quick access fields
     {
         std::set<RimFieldQuickAccessGroup*> toBeDeleted;
-        for ( auto group : m_fieldQuickAccesGroups.childrenByType() )
+        for ( auto group : items() )
         {
             if ( group->fieldQuickAccesses().empty() )
             {
@@ -212,8 +212,7 @@ void RimQuickAccessCollection::deleteMarkedObjects()
 
         for ( auto group : toBeDeleted )
         {
-            m_fieldQuickAccesGroups.removeChild( group );
-            delete group;
+            deleteItem( group );
         }
     }
 }
@@ -228,7 +227,7 @@ RimFieldQuickAccessGroup* RimQuickAccessCollection::findOrCreateGroup( caf::PdmO
     auto parentView = object->firstAncestorOrThisOfType<RimGridView>();
     if ( !parentView ) return nullptr;
 
-    for ( auto group : m_fieldQuickAccesGroups )
+    for ( auto group : m_items )
     {
         if ( !group ) continue;
 
@@ -244,7 +243,7 @@ RimFieldQuickAccessGroup* RimQuickAccessCollection::findOrCreateGroup( caf::PdmO
     auto group = new RimFieldQuickAccessGroup();
     group->setName( groupName );
     group->setOwnerView( parentView );
-    m_fieldQuickAccesGroups.push_back( group );
+    addItem( group );
 
     return group;
 }
