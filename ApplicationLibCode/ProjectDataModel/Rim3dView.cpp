@@ -416,6 +416,7 @@ void Rim3dView::updateWindowTitle()
 
         m_viewer->layoutWidget()->setWindowTitle( title );
     }
+    RimViewWindow::updateWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
