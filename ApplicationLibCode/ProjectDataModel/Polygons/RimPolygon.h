@@ -23,6 +23,7 @@
 
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmProxyValueField.h"
 
 #include "cvfColor3.h"
 #include "cvfVector3.h"
@@ -74,8 +75,12 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
+    std::vector<cvf::Vec3d> pointsInDomainCoordsXyd() const;
+    void                    setPointsInDomainCoordsFromXyd( const std::vector<cvf::Vec3d>& pointsXyd );
+
 private:
-    caf::PdmField<bool>                       m_isReadOnly;
-    caf::PdmField<std::vector<cvf::Vec3d>>    m_pointsInDomainCoords;
-    caf::PdmChildField<RimPolygonAppearance*> m_appearance;
+    caf::PdmField<bool>                              m_isReadOnly;
+    caf::PdmField<std::vector<cvf::Vec3d>>           m_pointsInDomainCoords;
+    caf::PdmProxyValueField<std::vector<cvf::Vec3d>> m_pointsInDomainCoordsForUi;
+    caf::PdmChildField<RimPolygonAppearance*>        m_appearance;
 };
