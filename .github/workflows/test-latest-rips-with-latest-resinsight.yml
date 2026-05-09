@@ -1,0 +1,123 @@
+name: Test latest rips with latest ResInsight
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * *"
+
+jobs:
+  test-latest-rips:
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Find latest successful dev-branch build
+        id: latest-run
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+              owner,
+              repo,
+              workflow_id: "ResInsightWithCache.yml",
+              branch: "dev",
+              status: "completed",
+              per_page: 100,
+            });
+
+            const successfulRun = runs.find((run) => run.conclusion === "success");
+            if (!successfulRun) {
+              core.setFailed("Could not find a successful dev-branch run for ResInsightWithCache.yml");
+              return;
+            }
+
+            core.info(`Using run id ${successfulRun.id} from ${successfulRun.created_at}`);
+            core.setOutput("run_id", successfulRun.id.toString());
+
+      - name: Find ResInsight Linux artifact
+        id: artifact
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const runId = Number("${{ steps.latest-run.outputs.run_id }}");
+            const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+              owner,
+              repo,
+              run_id: runId,
+              per_page: 100,
+            });
+
+            const artifact = artifacts.find((candidate) => candidate.name === "ResInsight-Ubuntu 24.04 gcc");
+            if (!artifact) {
+              core.setFailed("Could not find artifact 'ResInsight-Ubuntu 24.04 gcc' on selected run");
+              return;
+            }
+
+            core.info(`Using artifact id ${artifact.id}: ${artifact.name}`);
+            core.setOutput("download_url", artifact.archive_download_url);
+
+      - name: Download and unpack ResInsight artifact
+        env:
+          ARTIFACT_URL: ${{ steps.artifact.outputs.download_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -o resinsight-artifact.zip \
+            "${ARTIFACT_URL}"
+
+          unzip -q resinsight-artifact.zip -d resinsight-install
+
+      - name: Find ResInsight executable
+        id: executable
+        run: |
+          executable="$(find resinsight-install -type f -name ResInsight | head -n 1)"
+          if [ -z "${executable}" ]; then
+            echo "Could not find ResInsight executable in downloaded artifact"
+            exit 1
+          fi
+
+          chmod +x "${executable}"
+          echo "path=${executable}" >> "${GITHUB_OUTPUT}"
+          echo "Found executable: ${executable}"
+
+      - name: Install Linux runtime dependencies
+        run: |
+          sudo apt-get update --option="APT::Acquire::Retries=3"
+          sudo apt-get install --option="APT::Acquire::Retries=3" -y \
+            libxkbcommon-x11-0 \
+            libgl1-mesa-dev \
+            mesa-common-dev \
+            libglfw3-dev \
+            libglu1-mesa-dev
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install latest rips from PyPI
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install rips
+
+      - name: Verify ResInsight and rips communication
+        env:
+          RESINSIGHT_EXECUTABLE: ${{ steps.executable.outputs.path }}
+        run: |
+          python - <<'PYCODE'
+          import os
+          import rips
+
+          executable = os.environ["RESINSIGHT_EXECUTABLE"]
+          print(f"Using executable: {executable}")
+
+          instance = rips.Instance.launch(resinsight_executable=executable, console=True, init_timeout=120)
+          print(f"Connected to ResInsight server version: {instance.version_string()}")
+          instance.project.close()
+          instance.exit()
+          PYCODE
