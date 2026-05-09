@@ -17,11 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimGenericJob.h"
-
 #include "cafPdmObjectCollection.h"
 
 #include <QString>
+
+class RimGenericJob;
 
 class RimJobCollection : public caf::PdmObjectCollection<RimGenericJob>
 {

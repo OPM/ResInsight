@@ -21,6 +21,7 @@
 #include "RiaLogging.h"
 
 #include "Rim3dView.h"
+#include "RimGenericJob.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 
