@@ -29,6 +29,8 @@ namespace caf
 template <typename T>
 PdmObjectCollection<T>::PdmObjectCollection()
 {
+    static_assert( DerivedFromPdmObject<T>, "T must inherit from caf::PdmObject" );
+
     // m_items field must be initialized by derived class using CAF_PDM_InitFieldNoDefault
 }
 
