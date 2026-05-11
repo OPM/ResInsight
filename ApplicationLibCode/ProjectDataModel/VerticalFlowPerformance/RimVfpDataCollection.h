@@ -17,11 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimVfpTableData.h"
-
 #include "cafPdmObjectCollection.h"
 
 class RimVfpTable;
+class RimVfpTableData;
 
 //==================================================================================================
 ///

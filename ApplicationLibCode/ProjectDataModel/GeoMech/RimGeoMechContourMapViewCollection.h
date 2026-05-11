@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include "RimGeoMechContourMapView.h"
-
 #include "cafPdmObjectCollection.h"
+
+class RimGeoMechContourMapView;
 
 class RimGeoMechContourMapViewCollection : public caf::PdmObjectCollection<RimGeoMechContourMapView>
 {

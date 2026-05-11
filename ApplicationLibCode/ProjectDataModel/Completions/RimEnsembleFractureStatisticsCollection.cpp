@@ -18,6 +18,8 @@
 
 #include "RimEnsembleFractureStatisticsCollection.h"
 
+#include "RimEnsembleFractureStatistics.h"
+
 CAF_PDM_SOURCE_INIT( RimEnsembleFractureStatisticsCollection, "FractureGroupStatisticsCollection" );
 
 //--------------------------------------------------------------------------------------------------

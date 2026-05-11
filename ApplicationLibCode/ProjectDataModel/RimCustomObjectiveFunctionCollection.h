@@ -18,12 +18,12 @@
 
 #pragma once
 
-#include "RimCustomObjectiveFunction.h"
-
 #include "cafPdmObjectCollection.h"
 #include "cafSignal.h"
 
 #include <QString>
+
+class RimCustomObjectiveFunction;
 
 //==================================================================================================
 ///

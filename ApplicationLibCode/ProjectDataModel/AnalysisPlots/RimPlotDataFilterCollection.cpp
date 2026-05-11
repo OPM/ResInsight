@@ -18,6 +18,8 @@
 
 #include "RimPlotDataFilterCollection.h"
 
+#include "RimPlotDataFilterItem.h"
+
 CAF_PDM_SOURCE_INIT( RimPlotDataFilterCollection, "PlotDataFilterCollection" );
 
 //--------------------------------------------------------------------------------------------------

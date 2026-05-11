@@ -18,6 +18,7 @@
 
 #include "RimEnsembleFileSetCollection.h"
 
+#include "RimEnsembleFileSet.h"
 #include "RimTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"

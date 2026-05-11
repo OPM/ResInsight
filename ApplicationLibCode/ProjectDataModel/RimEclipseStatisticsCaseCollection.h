@@ -20,10 +20,9 @@
 
 #pragma once
 
-#include "RimEclipseStatisticsCase.h"
-
 #include "cafPdmObjectCollection.h"
 
+class RimEclipseStatisticsCase;
 class RimIdenticalGridCaseGroup;
 
 //==================================================================================================

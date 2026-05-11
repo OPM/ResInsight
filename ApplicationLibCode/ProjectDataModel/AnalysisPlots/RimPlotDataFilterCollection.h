@@ -17,11 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimPlotDataFilterItem.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObjectCollection.h"
 #include "cafSignal.h"
+
+class RimPlotDataFilterItem;
 
 //==================================================================================================
 ///

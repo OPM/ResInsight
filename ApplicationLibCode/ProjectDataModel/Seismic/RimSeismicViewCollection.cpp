@@ -23,6 +23,7 @@
 #include "Rim3dView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
+#include "RimSeismicView.h"
 
 CAF_PDM_SOURCE_INIT( RimSeismicViewCollection, "SeismicViewCollection", "SeismicViewCollection" );
 

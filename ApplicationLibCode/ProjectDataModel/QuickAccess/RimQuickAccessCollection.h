@@ -18,11 +18,10 @@
 
 #pragma once
 
-#include "RimFieldQuickAccessGroup.h"
-
 #include "cafPdmObjectCollection.h"
 
 class RimFieldQuickAccess;
+class RimFieldQuickAccessGroup;
 class RimFieldReference;
 
 //==================================================================================================

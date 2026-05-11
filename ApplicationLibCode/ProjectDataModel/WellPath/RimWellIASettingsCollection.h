@@ -17,14 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimWellIASettings.h"
-
 #include "cafPdmObjectCollection.h"
 
 #include <QString>
 
-class RimWellPath;
 class RimGeoMechCase;
+class RimWellIASettings;
+class RimWellPath;
 
 class RimWellIASettingsCollection : public caf::PdmObjectCollection<RimWellIASettings>
 {
