@@ -59,7 +59,7 @@ if resinsight is not None:
             for tidx, timestep in enumerate(time_step_info):
                 # Read the full SOIL result for time step
                 soil_results = case.selected_cell_property(
-                    "DYNAMIC_NATIVE", "SOIL", tidx
+                    rips.PropertyType.DYNAMIC_NATIVE, "SOIL", tidx
                 )
                 print(
                     "SOIL: {} ({}.{}.{})".format(

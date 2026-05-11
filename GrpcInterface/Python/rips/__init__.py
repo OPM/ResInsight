@@ -30,6 +30,15 @@ from .surface import RegularSurface as RegularSurface  # noqa: E402
 from . import well_events as well_events  # noqa: F401, E402
 from . import category_mapping as category_mapping  # noqa: F401, E402
 
+# Enums for proto types not visible to the AppEnum auto-generator.
+# PorosityModelType is auto-generated into resinsight_classes (already imported
+# above) and intentionally not re-imported here to avoid a duplicate symbol.
+from .enums import (  # noqa: E402
+    PropertyType as PropertyType,
+    PropertyDataType as PropertyDataType,
+    NNCPropertyType as NNCPropertyType,
+)
+
 __all__: List[str] = []
 for key in class_dict():  # noqa: F405
     __all__.append(key)
@@ -37,5 +46,13 @@ for key in class_dict():  # noqa: F405
 # Add classes not in resinsight_classes
 __all__.append("Grid")
 __all__.append("Instance")
+
+for _enum_name in (
+    "PropertyType",
+    "PropertyDataType",
+    "NNCPropertyType",
+):
+    if _enum_name not in __all__:
+        __all__.append(_enum_name)
 
 __all__.sort()

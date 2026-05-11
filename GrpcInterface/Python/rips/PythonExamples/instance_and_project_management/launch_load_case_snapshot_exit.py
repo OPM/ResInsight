@@ -27,7 +27,9 @@ view1 = case.views()[0]
 view1.set_time_step(time_step=2)
 
 # Set cell result to SOIL
-view1.apply_cell_result(result_type="DYNAMIC_NATIVE", result_variable="SOIL")
+view1.apply_cell_result(
+    result_type=rips.ResultType.DYNAMIC_NATIVE, result_variable="SOIL"
+)
 
 # Set export folder for snapshots and properties
 resinsight.set_export_folder(export_type="SNAPSHOTS", path="e:/temp")

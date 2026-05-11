@@ -40,12 +40,14 @@ except rips.RipsError as e:
 
 case = resinsight.project.case(case_id=0)
 if case is not None:
-    results = case.active_cell_property("STATIC_NATIVE", "PORO", 0)
+    results = case.active_cell_property(rips.PropertyType.STATIC_NATIVE, "PORO", 0)
     active_cell_count = len(results)
 
     # Send the results back to ResInsight inside try / except construct
     try:
-        case.set_active_cell_property(results, "GENERATED", "POROAPPENDED", 0)
+        case.set_active_cell_property(
+            results, rips.PropertyType.GENERATED, "POROAPPENDED", 0
+        )
         print("Everything went well as expected")
     except Exception as e:  # Match any exception, but it should not happen
         print("Ooops!", e)
@@ -55,7 +57,9 @@ if case is not None:
 
     # This time we should get a rips.RipsError exception.
     try:
-        case.set_active_cell_property(results, "GENERATED", "POROAPPENDED", 0)
+        case.set_active_cell_property(
+            results, rips.PropertyType.GENERATED, "POROAPPENDED", 0
+        )
         print("Everything went well??")
     except rips.RipsError as e:
         print("Server Exception Received: ", e)
@@ -68,7 +72,9 @@ if case is not None:
     case.chunk_size = active_cell_count
 
     try:
-        case.set_active_cell_property(results, "GENERATED", "POROAPPENDED", 0)
+        case.set_active_cell_property(
+            results, rips.PropertyType.GENERATED, "POROAPPENDED", 0
+        )
         print("Everything went well??")
     except rips.RipsError as e:
         print("Got unexpected server exception", e, "This should not happen now")
