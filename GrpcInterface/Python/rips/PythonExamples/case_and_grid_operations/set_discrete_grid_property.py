@@ -4,8 +4,9 @@
 #
 # A discrete property is visualized with a category legend, in contrast
 # to the continuous legend used for floating point properties. Passing
-# data_type="INTEGER" flags the property as discrete regardless of the
-# property name (previously this required the name to end with "NUM").
+# data_type=rips.PropertyDataType.INTEGER flags the property as discrete
+# regardless of the property name (previously this required the name to
+# end with "NUM").
 ######################################################################
 import rips
 
@@ -22,7 +23,13 @@ for i in range(0, grid_cell_count):
     values.append(i % 4)
 
 print("Applying discrete values to main grid")
-case.set_grid_property(values, "STATIC_NATIVE", "MY_REGION", 0, data_type="INTEGER")
+case.set_grid_property(
+    values,
+    rips.PropertyType.STATIC_NATIVE,
+    "MY_REGION",
+    0,
+    data_type=rips.PropertyDataType.INTEGER,
+)
 
 # Bind integer values to text labels so the legend shows names instead of numbers.
 # Colors are optional — values without a color get an auto-assigned palette color.

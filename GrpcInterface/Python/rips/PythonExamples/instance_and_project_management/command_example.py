@@ -26,7 +26,9 @@ view2 = view1.clone()
 view1.set_time_step(time_step=2)
 
 # Set cell result to SOIL
-view1.apply_cell_result(result_type="DYNAMIC_NATIVE", result_variable="SOIL")
+view1.apply_cell_result(
+    result_type=rips.ResultType.DYNAMIC_NATIVE, result_variable="SOIL"
+)
 
 
 # Create a temporary directory which will disappear at the end of this script

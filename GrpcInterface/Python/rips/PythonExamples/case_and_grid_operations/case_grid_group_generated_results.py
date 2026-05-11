@@ -24,11 +24,11 @@ print("Got " + str(len(cases)) + " cases: ")
 
 for case in cases:
     time_step_info = case.time_steps()
-    porv_results = case.active_cell_property("STATIC_NATIVE", "PORV", 0)
+    porv_results = case.active_cell_property(rips.PropertyType.STATIC_NATIVE, "PORV", 0)
 
     for time_step_index in range(0, len(time_step_info)):
         pressure_results = case.active_cell_property(
-            "DYNAMIC_NATIVE", "PRESSURE", time_step_index
+            rips.PropertyType.DYNAMIC_NATIVE, "PRESSURE", time_step_index
         )
 
         results = []
@@ -37,7 +37,7 @@ for case in cases:
 
         # set the computed values in the case
         case.set_active_cell_property(
-            results, "GENERATED", "PRESSURE_PORV", time_step_index
+            results, rips.PropertyType.GENERATED, "PRESSURE_PORV", time_step_index
         )
 
     print(
@@ -49,9 +49,9 @@ for case in cases:
 
 print("Transferred all results back to ResInsight")
 
-# one of "GENERATED", "DYNAMIC_NATIVE", "STATIC_NATIVE", "IMPORTED"
+# Pick a value from rips.ResultType (e.g. GENERATED, DYNAMIC_NATIVE, STATIC_NATIVE).
 # https://api.resinsight.org/en/main/rips.html#result-definition
-property_type = "GENERATED"
+property_type = rips.ResultType.GENERATED
 
 property_name = "PRESSURE_PORV"
 

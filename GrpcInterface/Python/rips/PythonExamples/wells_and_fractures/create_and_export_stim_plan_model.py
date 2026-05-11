@@ -45,14 +45,14 @@ print("Overburden: ", stim_plan_model_template.overburden_formation)
 
 # Set eclipse result for facies definition
 eclipse_result = stim_plan_model_template.facies_properties().facies_definition()
-eclipse_result.result_type = "INPUT_PROPERTY"
+eclipse_result.result_type = rips.ResultType.INPUT_PROPERTY
 eclipse_result.result_variable = "OPERNUM_1"
 eclipse_result.update()
 
 # Set eclipse result for non-net layers
 non_net_layers = stim_plan_model_template.non_net_layers()
 non_net_layers_result = non_net_layers.facies_definition()
-non_net_layers_result.result_type = "STATIC_NATIVE"
+non_net_layers_result.result_type = rips.ResultType.STATIC_NATIVE
 non_net_layers_result.result_variable = "NTG"
 non_net_layers_result.update()
 non_net_layers.formation = "Not"

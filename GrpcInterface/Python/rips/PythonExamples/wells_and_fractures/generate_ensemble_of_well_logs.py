@@ -12,10 +12,10 @@ home_dir = expanduser("~")
 
 
 properties = [
-    ("STATIC_NATIVE", "INDEX_K", 0),
-    ("STATIC_NATIVE", "PORO", 0),
-    ("STATIC_NATIVE", "PERMX", 0),
-    ("DYNAMIC_NATIVE", "PRESSURE", 0),
+    (rips.ResultType.STATIC_NATIVE, "INDEX_K", 0),
+    (rips.ResultType.STATIC_NATIVE, "PORO", 0),
+    (rips.ResultType.STATIC_NATIVE, "PERMX", 0),
+    (rips.ResultType.DYNAMIC_NATIVE, "PRESSURE", 0),
 ]
 
 export_folder = tempfile.mkdtemp()

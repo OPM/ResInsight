@@ -37,7 +37,7 @@ roff_case = resinsight.project.load_case(roff_case_path)
 
 # PORO and EQLNUM should not be among available properties yet
 print("Available properties:")
-for prop in roff_case.available_properties("INPUT_PROPERTY"):
+for prop in roff_case.available_properties(rips.PropertyType.INPUT_PROPERTY):
     print(prop)
 
 # Import properties with file paths
@@ -58,5 +58,5 @@ for name in imported_names.values:
 
 # PORO and EQLNUM should now be among available properties
 print("Available properties:")
-for prop in roff_case.available_properties("INPUT_PROPERTY"):
+for prop in roff_case.available_properties(rips.PropertyType.INPUT_PROPERTY):
     print(prop)

@@ -16,8 +16,10 @@ for case in cases:
     sum_poro = 0.0
     cell_cout = 0
 
-    eqlnum = case.active_cell_property("STATIC_NATIVE", "EQLNUM", time_step)
-    poro = case.active_cell_property("STATIC_NATIVE", "PORO", time_step)
+    eqlnum = case.active_cell_property(
+        rips.PropertyType.STATIC_NATIVE, "EQLNUM", time_step
+    )
+    poro = case.active_cell_property(rips.PropertyType.STATIC_NATIVE, "PORO", time_step)
     if len(eqlnum) != len(poro):
         print("Size of eqlnum and poro is not identical.")
         break

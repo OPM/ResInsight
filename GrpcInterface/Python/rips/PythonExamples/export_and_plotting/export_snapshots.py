@@ -38,7 +38,7 @@ for case in cases:
     for view in case.views():
         for property in property_list:
             view.apply_cell_result(
-                result_type="DYNAMIC_NATIVE", result_variable=property
+                result_type=rips.ResultType.DYNAMIC_NATIVE, result_variable=property
             )
         for time_step in range(0, len(time_steps), 10):
             view.set_time_step(time_step=time_step)

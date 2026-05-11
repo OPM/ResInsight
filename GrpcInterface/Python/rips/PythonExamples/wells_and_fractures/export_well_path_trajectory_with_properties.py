@@ -47,12 +47,12 @@ if resinsight is not None:
 
             # Extract some properties
             properties = [
-                ("DYNAMIC_NATIVE", "PRESSURE", 0),
-                ("STATIC_NATIVE", "FAULTDIST", 0),
+                (rips.PropertyType.DYNAMIC_NATIVE, "PRESSURE", 0),
+                (rips.PropertyType.STATIC_NATIVE, "FAULTDIST", 0),
             ]
 
             for property_type, property_name, time_step in properties:
-                porosity_model = "MATRIX_MODEL"
+                porosity_model = rips.PorosityModelType.MATRIX_MODEL
                 result[property_name] = c.grid_property_for_positions(
                     positions, property_type, property_name, time_step, porosity_model
                 )

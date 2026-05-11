@@ -205,7 +205,9 @@ def test_selected_cells(rips_instance, initialize_test):
     time_step_info = case.time_steps()
     for tidx, timestep in enumerate(time_step_info):
         # Try to read for SOIL the time step (will be empty since nothing is selected)
-        soil_results = case.selected_cell_property("DYNAMIC_NATIVE", "SOIL", tidx)
+        soil_results = case.selected_cell_property(
+            rips.PropertyType.DYNAMIC_NATIVE, "SOIL", tidx
+        )
         assert len(soil_results) == 0
 
 
@@ -235,9 +237,9 @@ def test_10k_property_for_positions(rips_instance, initialize_test):
         [3598.62, 5274.48, 4181.96],
     ]
 
-    property_type = "STATIC_NATIVE"
+    property_type = rips.PropertyType.STATIC_NATIVE
     property_name = "DX"
-    porosity_model = "MATRIX_MODEL"
+    porosity_model = rips.PorosityModelType.MATRIX_MODEL
     time_step = 0
     result = case.grid_property_for_positions(
         positions, property_type, property_name, time_step, porosity_model
@@ -258,9 +260,9 @@ def test_10k_property_for_positions_outside_of_model(rips_instance, initialize_t
         [3690.07, 52400.69, 4180.02],
     ]
 
-    property_type = "STATIC_NATIVE"
+    property_type = rips.PropertyType.STATIC_NATIVE
     property_name = "DX"
-    porosity_model = "MATRIX_MODEL"
+    porosity_model = rips.PorosityModelType.MATRIX_MODEL
     time_step = 0
     result = case.grid_property_for_positions(
         positions, property_type, property_name, time_step, porosity_model
@@ -278,9 +280,9 @@ def test_10k_property_for_positions_no_positions(rips_instance, initialize_test)
 
     positions = []
 
-    property_type = "STATIC_NATIVE"
+    property_type = rips.PropertyType.STATIC_NATIVE
     property_name = "DX"
-    porosity_model = "MATRIX_MODEL"
+    porosity_model = rips.PorosityModelType.MATRIX_MODEL
     time_step = 0
     with pytest.raises(rips.RipsError, match="Invalid positions specified"):
         case.grid_property_for_positions(
@@ -298,9 +300,9 @@ def test_10k_property_for_positions_invalid_property_name(
         [3655.67, 5145.34, 4176.63],
     ]
 
-    property_type = "STATIC_NATIVE"
+    property_type = rips.PropertyType.STATIC_NATIVE
     invalid_property_name = "NON_EXISTING_RESULT"
-    porosity_model = "MATRIX_MODEL"
+    porosity_model = rips.PorosityModelType.MATRIX_MODEL
     time_step = 0
     with pytest.raises(rips.RipsError, match="Result property not found."):
         case.grid_property_for_positions(
@@ -320,7 +322,7 @@ def test_10k_property_for_positions_invalid_property_type(
 
     property_type = "NON_EXISTING_PROPERTY_TYPE"
     invalid_property_name = "PRESSURE"
-    porosity_model = "MATRIX_MODEL"
+    porosity_model = rips.PorosityModelType.MATRIX_MODEL
     time_step = 0
     with pytest.raises(rips.RipsError, match="Invalid property type."):
         case.grid_property_for_positions(
@@ -338,9 +340,9 @@ def test_10k_property_for_positions_invalid_time_step(rips_instance, initialize_
         [3655.67, 5145.34, 4176.63],
     ]
 
-    property_type = "DYNAMIC_NATIVE"
+    property_type = rips.PropertyType.DYNAMIC_NATIVE
     property_name = "PRESSURE"
-    porosity_model = "MATRIX_MODEL"
+    porosity_model = rips.PorosityModelType.MATRIX_MODEL
     invalid_time_step = 99
     with pytest.raises(rips.RipsError, match="Invalid time step."):
         case.grid_property_for_positions(
@@ -348,23 +350,37 @@ def test_10k_property_for_positions_invalid_time_step(rips_instance, initialize_
         )
 
 
+def test_10k_grid_property_strenum(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+
+    from_str = case.grid_property("DYNAMIC_NATIVE", "SOIL", 3)
+    from_enum = case.grid_property(
+        rips.PropertyType.DYNAMIC_NATIVE,
+        "SOIL",
+        3,
+        porosity_model=rips.PorosityModelType.MATRIX_MODEL,
+    )
+    assert from_str == from_enum
+
+
 def test_10k_result_alias(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=case_path)
 
-    result_permx = case.grid_property("STATIC_NATIVE", "PERMX", 0)
-    result_soil = case.grid_property("DYNAMIC_NATIVE", "SOIL", 3)
+    result_permx = case.grid_property(rips.PropertyType.STATIC_NATIVE, "PERMX", 0)
+    result_soil = case.grid_property(rips.PropertyType.DYNAMIC_NATIVE, "SOIL", 3)
 
     case.add_result_alias("PERMX", "PERMW")
     case.add_result_alias("SOIL", "SPOIL")
 
-    result_permw = case.grid_property("STATIC_NATIVE", "PERMW", 0)
+    result_permw = case.grid_property(rips.PropertyType.STATIC_NATIVE, "PERMW", 0)
     assert len(result_permw) == len(result_permx)
 
     for i in range(len(result_permx)):
         assert result_permw[i] == result_permx[i]
 
-    result_spoil = case.grid_property("DYNAMIC_NATIVE", "SPOIL", 3)
+    result_spoil = case.grid_property(rips.PropertyType.DYNAMIC_NATIVE, "SPOIL", 3)
 
     assert len(result_spoil) == len(result_soil)
 
@@ -374,4 +390,4 @@ def test_10k_result_alias(rips_instance, initialize_test):
     case.clear_result_aliases()
 
     with pytest.raises(rips.RipsError, match="No such result"):
-        case.grid_property("DYNAMIC_NATIVE", "SPOIL", 3)
+        case.grid_property(rips.PropertyType.DYNAMIC_NATIVE, "SPOIL", 3)

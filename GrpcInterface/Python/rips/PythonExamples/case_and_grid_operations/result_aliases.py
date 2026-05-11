@@ -37,7 +37,7 @@ roff_case = resinsight.project.load_case(roff_case_path)
 
 # Print all available properties
 print("Results on file:")
-for prop in roff_case.available_properties("STATIC_NATIVE"):
+for prop in roff_case.available_properties(rips.PropertyType.STATIC_NATIVE):
     print(prop)
 
 # The name "DYBDE" should point to the "DEPTH" result
@@ -48,11 +48,11 @@ roff_case.add_result_alias("BOTTOM", "PERMX")
 
 # Print all available properties, now with two additional props
 print("Results including aliases:")
-for prop in roff_case.available_properties("STATIC_NATIVE"):
+for prop in roff_case.available_properties(rips.PropertyType.STATIC_NATIVE):
     print(prop)
 
-real_result = roff_case.grid_property("STATIC_NATIVE", "BOTTOM", 0)
-alias_result = roff_case.grid_property("STATIC_NATIVE", "PERMX", 0)
+real_result = roff_case.grid_property(rips.PropertyType.STATIC_NATIVE, "BOTTOM", 0)
+alias_result = roff_case.grid_property(rips.PropertyType.STATIC_NATIVE, "PERMX", 0)
 
 if real_result[40] == alias_result[40]:
     print("Result values at index 40 match!")
@@ -62,10 +62,10 @@ roff_case.clear_result_aliases()
 
 # Print all available properties, now just the original ones
 print("Original results:")
-for prop in roff_case.available_properties("STATIC_NATIVE"):
+for prop in roff_case.available_properties(rips.PropertyType.STATIC_NATIVE):
     print(prop)
 
 try:
-    alias_result = roff_case.grid_property("STATIC_NATIVE", "PERMX", 0)
+    alias_result = roff_case.grid_property(rips.PropertyType.STATIC_NATIVE, "PERMX", 0)
 except Exception:
     print("Result PERMX no longer exists!")

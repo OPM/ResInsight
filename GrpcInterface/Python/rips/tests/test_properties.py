@@ -13,7 +13,9 @@ def test_10kAsync(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
 
-    resultChunks = case.active_cell_property_async("DYNAMIC_NATIVE", "SOIL", 1)
+    resultChunks = case.active_cell_property_async(
+        rips.PropertyType.DYNAMIC_NATIVE, "SOIL", 1
+    )
     mysum = 0.0
     count = 0
     for chunk in resultChunks:
@@ -29,7 +31,7 @@ def test_10kSync(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
 
-    results = case.active_cell_property("DYNAMIC_NATIVE", "SOIL", 1)
+    results = case.active_cell_property(rips.PropertyType.DYNAMIC_NATIVE, "SOIL", 1)
     mysum = sum(results)
     average = mysum / len(results)
     assert mysum == pytest.approx(621.768, abs=0.001)
@@ -41,29 +43,33 @@ def test_10k_set(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
 
-    results = case.active_cell_property("DYNAMIC_NATIVE", "SOIL", 1)
-    case.set_active_cell_property(results, "GENERATED", "SOIL", 1)
+    results = case.active_cell_property(rips.PropertyType.DYNAMIC_NATIVE, "SOIL", 1)
+    case.set_active_cell_property(results, rips.PropertyType.GENERATED, "SOIL", 1)
 
 
 def test_10k_set_out_of_bounds(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
 
-    results = case.active_cell_property("DYNAMIC_NATIVE", "SOIL", 1)
+    results = case.active_cell_property(rips.PropertyType.DYNAMIC_NATIVE, "SOIL", 1)
     results.append(5.0)
     with pytest.raises(rips.RipsError):
-        assert case.set_active_cell_property(results, "GENERATED", "SOIL", 1)
+        assert case.set_active_cell_property(
+            results, rips.PropertyType.GENERATED, "SOIL", 1
+        )
 
 
 def test_10k_set_out_of_bounds_client(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
 
-    results = case.active_cell_property("DYNAMIC_NATIVE", "SOIL", 1)
+    results = case.active_cell_property(rips.PropertyType.DYNAMIC_NATIVE, "SOIL", 1)
     case.chunk_size = len(results)
     results.append(5.0)
     with pytest.raises(IndexError):
-        assert case.set_active_cell_property(results, "GENERATED", "SOIL", 1)
+        assert case.set_active_cell_property(
+            results, rips.PropertyType.GENERATED, "SOIL", 1
+        )
 
 
 def createResult(poroChunks, permxChunks):
@@ -84,16 +90,23 @@ def test_10k_PoroPermX(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
 
-    poroChunks = case.active_cell_property_async("STATIC_NATIVE", "PORO", 0)
-    permxChunks = case.active_cell_property_async("STATIC_NATIVE", "PERMX", 0)
-
-    case.set_active_cell_property_async(
-        createResult(poroChunks, permxChunks), "GENERATED", "POROPERMXAS", 0
+    poroChunks = case.active_cell_property_async(
+        rips.PropertyType.STATIC_NATIVE, "PORO", 0
+    )
+    permxChunks = case.active_cell_property_async(
+        rips.PropertyType.STATIC_NATIVE, "PERMX", 0
     )
 
-    poro = case.active_cell_property("STATIC_NATIVE", "PORO", 0)
-    permx = case.active_cell_property("STATIC_NATIVE", "PERMX", 0)
-    poroPermX = case.active_cell_property("GENERATED", "POROPERMXAS", 0)
+    case.set_active_cell_property_async(
+        createResult(poroChunks, permxChunks),
+        rips.PropertyType.GENERATED,
+        "POROPERMXAS",
+        0,
+    )
+
+    poro = case.active_cell_property(rips.PropertyType.STATIC_NATIVE, "PORO", 0)
+    permx = case.active_cell_property(rips.PropertyType.STATIC_NATIVE, "PERMX", 0)
+    poroPermX = case.active_cell_property(rips.PropertyType.GENERATED, "POROPERMXAS", 0)
 
     checkResults(poro, permx, poroPermX)
 
@@ -102,16 +115,22 @@ def test_10k_set_integer_active_cell_property(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
 
-    results = case.active_cell_property("STATIC_NATIVE", "PORO", 0)
+    results = case.active_cell_property(rips.PropertyType.STATIC_NATIVE, "PORO", 0)
     integer_values = [int(v * 100) for v in results]
 
     # A name that does not end with "NUM" - only the data_type flag should
     # cause this to be treated as a discrete/category property.
     case.set_active_cell_property(
-        integer_values, "GENERATED", "MY_DISCRETE_ACTIVE", 0, data_type="INTEGER"
+        integer_values,
+        rips.PropertyType.GENERATED,
+        "MY_DISCRETE_ACTIVE",
+        0,
+        data_type=rips.PropertyDataType.INTEGER,
     )
 
-    round_trip = case.active_cell_property("GENERATED", "MY_DISCRETE_ACTIVE", 0)
+    round_trip = case.active_cell_property(
+        rips.PropertyType.GENERATED, "MY_DISCRETE_ACTIVE", 0
+    )
     assert len(round_trip) == len(integer_values)
     for expected, actual in zip(integer_values, round_trip):
         assert expected == int(actual)
@@ -126,10 +145,14 @@ def test_10k_set_integer_grid_property(rips_instance, initialize_test):
     integer_values = [i % 4 for i in range(grid_cell_count)]
 
     case.set_grid_property(
-        integer_values, "GENERATED", "MY_DISCRETE_GRID", 0, data_type="INTEGER"
+        integer_values,
+        rips.PropertyType.GENERATED,
+        "MY_DISCRETE_GRID",
+        0,
+        data_type=rips.PropertyDataType.INTEGER,
     )
 
-    round_trip = case.grid_property("GENERATED", "MY_DISCRETE_GRID", 0)
+    round_trip = case.grid_property(rips.PropertyType.GENERATED, "MY_DISCRETE_GRID", 0)
     assert len(round_trip) == len(integer_values)
     for expected, actual in zip(integer_values, round_trip):
         assert expected == int(actual)
