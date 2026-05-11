@@ -8,42 +8,42 @@ import rips
 
 # Connect to ResInsight
 resinsight = rips.Instance.find()
-if resinsight is not None:
-    # Get a list of all cases
-    cases = resinsight.project.cases()
 
-    for c in cases:
-        print("Case name: " + c.name)
+# Get a list of all cases
+cases = resinsight.project.cases()
 
-        # create a polygon which is same a the bounding box in x and y.
-        # depth is set to middle of the bounding box
-        bbox = c.reservoir_boundingbox()
-        depth = bbox.max_z - ((bbox.max_z - bbox.min_z) / 2.0)
+for c in cases:
+    print("Case name: " + c.name)
 
-        coordinates = []
-        coordinates.append([bbox.min_x, bbox.min_y, depth])
-        coordinates.append([bbox.max_x, bbox.min_y, depth])
-        coordinates.append([bbox.max_x, bbox.max_y, depth])
-        coordinates.append([bbox.min_x, bbox.max_y, depth])
+    # create a polygon which is same a the bounding box in x and y.
+    # depth is set to middle of the bounding box
+    bbox = c.reservoir_boundingbox()
+    depth = bbox.max_z - ((bbox.max_z - bbox.min_z) / 2.0)
 
-        polygon_collection = resinsight.project.descendants(rips.PolygonCollection)[0]
-        p = polygon_collection.create_polygon(
-            name="{} bounding box".format(c.name), coordinates=coordinates
-        )
-        print("Coordinates for {}:".format(p.name))
-        for coord in p.coordinates:
-            print(coord)
+    coordinates = []
+    coordinates.append([bbox.min_x, bbox.min_y, depth])
+    coordinates.append([bbox.max_x, bbox.min_y, depth])
+    coordinates.append([bbox.max_x, bbox.max_y, depth])
+    coordinates.append([bbox.min_x, bbox.max_y, depth])
 
-        # Customize appearance
-        appearance = p.appearance()
-        if appearance is not None:
-            appearance.line_color = "#ff0000"
-            appearance.line_thickness = 5
-            appearance.show_spheres = True
-            appearance.sphere_color = "#0000ff"
-            appearance.update()
-            print(
-                "Appearance updated: line_color={}, line_thickness={}".format(
-                    appearance.line_color, appearance.line_thickness
-                )
+    polygon_collection = resinsight.project.descendants(rips.PolygonCollection)[0]
+    p = polygon_collection.create_polygon(
+        name="{} bounding box".format(c.name), coordinates=coordinates
+    )
+    print("Coordinates for {}:".format(p.name))
+    for coord in p.coordinates:
+        print(coord)
+
+    # Customize appearance
+    appearance = p.appearance()
+    if appearance is not None:
+        appearance.line_color = "#ff0000"
+        appearance.line_thickness = 5
+        appearance.show_spheres = True
+        appearance.sphere_color = "#0000ff"
+        appearance.update()
+        print(
+            "Appearance updated: line_color={}, line_thickness={}".format(
+                appearance.line_color, appearance.line_thickness
             )
+        )

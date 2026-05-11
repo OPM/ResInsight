@@ -23,39 +23,39 @@ def print_dictionary(title, data):
 
 # Connect to ResInsight
 resinsight = rips.Instance.find()
-if resinsight is not None:
-    # Get a list of all wells
-    wells = resinsight.project.well_paths()
 
-    # Find the first case
-    cases = resinsight.project.cases()
-    c = cases[0] if len(cases) else None
+# Get a list of all wells
+wells = resinsight.project.well_paths()
 
-    for well in wells:
-        result = well.trajectory_properties(resampling_interval=10.0)
+# Find the first case
+cases = resinsight.project.cases()
+c = cases[0] if len(cases) else None
 
-        if c:
-            # Convert the result data into points
-            positions = [
-                list(coord)
-                for coord in zip(
-                    result["coordinate_x"],
-                    result["coordinate_y"],
-                    result["coordinate_z"],
-                )
-            ]
+for well in wells:
+    result = well.trajectory_properties(resampling_interval=10.0)
 
-            # Extract some properties
-            properties = [
-                (rips.PropertyType.DYNAMIC_NATIVE, "PRESSURE", 0),
-                (rips.PropertyType.STATIC_NATIVE, "FAULTDIST", 0),
-            ]
+    if c:
+        # Convert the result data into points
+        positions = [
+            list(coord)
+            for coord in zip(
+                result["coordinate_x"],
+                result["coordinate_y"],
+                result["coordinate_z"],
+            )
+        ]
 
-            for property_type, property_name, time_step in properties:
-                porosity_model = rips.PorosityModelType.MATRIX_MODEL
-                result[property_name] = c.grid_property_for_positions(
-                    positions, property_type, property_name, time_step, porosity_model
-                )
+        # Extract some properties
+        properties = [
+            (rips.PropertyType.DYNAMIC_NATIVE, "PRESSURE", 0),
+            (rips.PropertyType.STATIC_NATIVE, "FAULTDIST", 0),
+        ]
 
-            title = "Well name: " + well.name
-            print_dictionary(title, result)
+        for property_type, property_name, time_step in properties:
+            porosity_model = rips.PorosityModelType.MATRIX_MODEL
+            result[property_name] = c.grid_property_for_positions(
+                positions, property_type, property_name, time_step, porosity_model
+            )
+
+        title = "Well name: " + well.name
+        print_dictionary(title, result)

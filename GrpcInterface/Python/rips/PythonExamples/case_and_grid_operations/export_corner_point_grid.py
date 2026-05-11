@@ -34,9 +34,10 @@ def validate_grid_dimensions(coord_array, zcorn_array, actnum_array, nx, ny, nz)
 
 
 def main():
-    # Connect to ResInsight
-    resinsight = rips.Instance.find()
-    if resinsight is None:
+    # Connect to ResInsight, launching it if no existing instance is found.
+    try:
+        resinsight = rips.Instance.find()
+    except rips.RipsError:
         print("Starting ResInsight...")
         resinsight = rips.Instance.launch(console=True)
 

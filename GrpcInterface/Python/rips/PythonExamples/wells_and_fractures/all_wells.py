@@ -8,10 +8,10 @@ import rips
 
 # Connect to ResInsight
 resinsight = rips.Instance.find()
-if resinsight is not None:
-    # Get a list of all wells
-    wells = resinsight.project.well_paths()
 
-    print("Got " + str(len(wells)) + " wells: ")
-    for well in wells:
-        print("Well name: " + well.name)
+# Get a list of all wells
+wells = resinsight.project.well_paths()
+
+print("Got " + str(len(wells)) + " wells: ")
+for well in wells:
+    print("Well name: " + well.name)

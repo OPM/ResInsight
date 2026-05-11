@@ -116,7 +116,7 @@ class Instance:
         init_timeout: int = 300,
         command_line_parameters: List[str] = [],
         enable_heartbeat: bool = True,
-    ) -> Optional[Instance]:
+    ) -> Instance:
         """Launch a new Instance of ResInsight. This requires the environment variable
         RESINSIGHT_EXECUTABLE to be set or the parameter resinsight_executable to be provided.
         The RESINSIGHT_GRPC_PORT environment variable can be set to an alternative port number.
@@ -135,7 +135,7 @@ class Instance:
                 server periodically and aborts pending RPCs if it dies. Disable on
                 slow boxes where false positives matter (long GC pauses, debugger).
         Returns:
-            Instance: an instance object if it worked. None if not.
+            Instance: a connected instance object. Raises :class:`RipsError` on failure.
         """
 
         requested_port: int = 50051
@@ -193,29 +193,23 @@ class Instance:
 
             process = subprocess.Popen(parameters)
             pid = process.pid
-            if pid:
-                port = Instance.__read_port_number_from_file(
-                    port_number_file, init_timeout
-                )
-                if port == -1:
-                    # Need to kill the process using PID since there is no GRPC connection to use.
-                    Instance.__kill_process(pid)
-                    raise RipsError("Unable to read port number. Launch failed.")
-                else:
-                    instance = Instance(
-                        port=port,
-                        launched=True,
-                        enable_heartbeat=enable_heartbeat,
-                    )
-                    return instance
-        return None
+            port = Instance.__read_port_number_from_file(port_number_file, init_timeout)
+            if port == -1:
+                # Need to kill the process using PID since there is no GRPC connection to use.
+                Instance.__kill_process(pid)
+                raise RipsError("Unable to read port number. Launch failed.")
+            return Instance(
+                port=port,
+                launched=True,
+                enable_heartbeat=enable_heartbeat,
+            )
 
     @staticmethod
     def find(
         start_port: int = 50051,
         end_port: int = 50071,
         enable_heartbeat: bool = True,
-    ) -> Optional[Instance]:
+    ) -> Instance:
         """Search for an existing Instance of ResInsight by testing ports.
 
         By default we search from port 50051 to 50071 or if the environment

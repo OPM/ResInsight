@@ -8,11 +8,10 @@
 import rips
 
 resinsight = rips.Instance.find()
-if resinsight is not None:
-    cases = resinsight.project.selected_cases()
+cases = resinsight.project.selected_cases()
 
-    print("Got " + str(len(cases)) + " cases: ")
-    for case in cases:
-        print(case.name)
-        for property in case.available_properties(rips.PropertyType.DYNAMIC_NATIVE):
-            print(property)
+print("Got " + str(len(cases)) + " cases: ")
+for case in cases:
+    print(case.name)
+    for property in case.available_properties(rips.PropertyType.DYNAMIC_NATIVE):
+        print(property)
