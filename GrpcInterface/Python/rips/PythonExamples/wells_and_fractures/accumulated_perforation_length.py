@@ -11,8 +11,6 @@ import sys
 
 # Connect to ResInsight
 resinsight = rips.Instance.find()
-if resinsight is None:
-    sys.exit("ResInsight is not running. Please start ResInsight and try again.")
 
 # Get a list of all wells
 cases = resinsight.project.cases()

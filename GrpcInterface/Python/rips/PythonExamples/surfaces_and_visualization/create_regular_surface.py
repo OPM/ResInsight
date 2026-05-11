@@ -34,58 +34,56 @@ resinsight = rips.Instance.find()
 
 project = resinsight.project
 
+# Get a list of all cases
+cases = resinsight.project.cases()
 
-if resinsight is not None:
-    # Get a list of all cases
-    cases = resinsight.project.cases()
+for c in cases:
+    bbox = c.reservoir_boundingbox()
+    depth = bbox.max_z - ((bbox.max_z - bbox.min_z) / 2.0)
 
-    for c in cases:
-        bbox = c.reservoir_boundingbox()
-        depth = bbox.max_z - ((bbox.max_z - bbox.min_z) / 2.0)
+    origin_x = bbox.min_x
+    origin_y = bbox.min_y
 
-        origin_x = bbox.min_x
-        origin_y = bbox.min_y
+    name = "{} surface".format(c.name)
 
-        name = "{} surface".format(c.name)
+    nx = 200
+    ny = 100
 
-        nx = 200
-        ny = 100
+    increment_x = (bbox.max_x - bbox.min_x) / float(nx)
+    increment_y = (bbox.max_y - bbox.min_y) / float(ny)
 
-        increment_x = (bbox.max_x - bbox.min_x) / float(nx)
-        increment_y = (bbox.max_y - bbox.min_y) / float(ny)
+    surface_collection = resinsight.project.descendants(rips.SurfaceCollection)[0]
 
-        surface_collection = resinsight.project.descendants(rips.SurfaceCollection)[0]
+    # Create a surface at a given depth
+    s = surface_collection.new_regular_surface(
+        name=name,
+        origin_x=origin_x,
+        origin_y=origin_y,
+        depth=-depth,
+        nx=nx,
+        ny=ny,
+        increment_x=increment_x,
+        increment_y=increment_y,
+    )
 
-        # Create a surface at a given depth
-        s = surface_collection.new_regular_surface(
-            name=name,
-            origin_x=origin_x,
-            origin_y=origin_y,
-            depth=-depth,
-            nx=nx,
-            ny=ny,
-            increment_x=increment_x,
-            increment_y=increment_y,
-        )
+    # Rotate the resulting surface
+    s.rotation = 45.0
+    s.update()
 
-        # Rotate the resulting surface
-        s.rotation = 45.0
-        s.update()
+    # Add one property
+    s.set_property("first_property", create_x_surface(nx, ny))
 
-        # Add one property
-        s.set_property("first_property", create_x_surface(nx, ny))
+    # Add a wave surface
+    s.set_property("wave", create_wave_surface(nx, ny))
 
-        # Add a wave surface
-        s.set_property("wave", create_wave_surface(nx, ny))
+    wave_values = s.get_property("wave")
+    print(
+        f"Retrieved {len(wave_values)} wave property values, min={min(wave_values):.2f}, max={max(wave_values):.2f}"
+    )
 
-        wave_values = s.get_property("wave")
-        print(
-            f"Retrieved {len(wave_values)} wave property values, min={min(wave_values):.2f}, max={max(wave_values):.2f}"
-        )
+    # List available properties
+    props = s.available_properties()
+    print(f"Available properties: {props}")
 
-        # List available properties
-        props = s.available_properties()
-        print(f"Available properties: {props}")
-
-        # Use the wave as depth for the surface
-        s.set_property_as_depth("wave")
+    # Use the wave as depth for the surface
+    s.set_property_as_depth("wave")

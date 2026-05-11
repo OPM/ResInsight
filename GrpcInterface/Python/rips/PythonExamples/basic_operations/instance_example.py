@@ -3,9 +3,8 @@
 #######################################
 import rips
 
-resinsight = rips.Instance.find()
-
-if resinsight is None:
-    print("ERROR: could not find ResInsight")
-else:
+try:
+    resinsight = rips.Instance.find()
     print("Successfully connected to ResInsight")
+except rips.RipsError as e:
+    print(f"ERROR: could not find ResInsight: {e}")

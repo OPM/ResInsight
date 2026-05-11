@@ -34,9 +34,6 @@ def point_in_polygon_2d(px, py, polygon_xy):
 
 
 resinsight = rips.Instance.find()
-if resinsight is None:
-    print("No ResInsight instance found")
-    exit()
 
 cases = resinsight.project.cases()
 if not cases:

@@ -17,8 +17,6 @@ def fieldValueOrDefaultText(grpc_object, optional_field_name: str):
 
 # Connect to ResInsight
 resinsight = rips.Instance.find()
-if resinsight is None:
-    exit(1)
 
 # Get a list of all wells
 wells = resinsight.project.well_paths()

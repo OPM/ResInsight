@@ -1,8 +1,6 @@
 import rips
 
 resinsight = rips.Instance.find()
-if resinsight is None:
-    raise RuntimeError("No running ResInsight instance found on the expected ports.")
 
 # Create a modeled well path and add well path targets
 # The coordinates are based on the Norne case

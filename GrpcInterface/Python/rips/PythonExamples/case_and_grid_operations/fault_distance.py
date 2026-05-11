@@ -5,8 +5,6 @@
 import rips
 
 resinsight = rips.Instance.find()
-if resinsight is None:
-    exit(1)
 
 cases = resinsight.project.cases()
 if len(cases) == 0:
