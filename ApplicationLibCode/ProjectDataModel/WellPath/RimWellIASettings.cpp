@@ -19,6 +19,7 @@
 #include "RimWellIASettings.h"
 
 #include "RiaApplication.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaPreferencesGeoMech.h"
 
 #include "RifParameterXmlReader.h"
@@ -468,7 +469,7 @@ bool RimWellIASettings::updateResInsightParameters()
         double stressValue = dataAccess.interpolatedResultValue( "ST", nativeKeys[i], RigFemResultPosEnum::RIG_ELEMENT_NODAL, position, 0, 0 );
         if ( std::isfinite( stressValue ) )
         {
-            initialStress->addParameter( paramKeys[i], stressValue * 100000.0 );
+            initialStress->addParameter( paramKeys[i], RiaEclipseUnitTools::barToPascal( stressValue ) );
         }
         else
         {
@@ -484,7 +485,7 @@ bool RimWellIASettings::updateResInsightParameters()
                                                          0 );
     if ( std::isfinite( ppValue ) )
     {
-        initialStress->addParameter( "PP", ppValue * 100000.0 );
+        initialStress->addParameter( "PP", RiaEclipseUnitTools::barToPascal( ppValue ) );
     }
     else
     {
