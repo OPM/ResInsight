@@ -20,12 +20,11 @@
 
 #include "RiaDefines.h"
 
-#include "RimFractureTemplate.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObjectCollection.h"
 
 class RimEllipseFractureTemplate;
+class RimFractureTemplate;
 
 //==================================================================================================
 ///

@@ -18,10 +18,10 @@
 
 #pragma once
 
-#include "RimStimPlanModelTemplate.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObjectCollection.h"
+
+class RimStimPlanModelTemplate;
 
 //==================================================================================================
 ///

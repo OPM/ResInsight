@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include "RimEnsembleFractureStatistics.h"
-
 #include "cafPdmObjectCollection.h"
+
+class RimEnsembleFractureStatistics;
 
 //==================================================================================================
 ///

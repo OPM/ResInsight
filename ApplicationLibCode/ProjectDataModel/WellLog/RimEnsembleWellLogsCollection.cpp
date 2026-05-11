@@ -18,6 +18,8 @@
 
 #include "RimEnsembleWellLogsCollection.h"
 
+#include "RimEnsembleWellLogs.h"
+
 #include "cafProgressInfo.h"
 
 CAF_PDM_SOURCE_INIT( RimEnsembleWellLogsCollection, "EnsembleWellLogsCollection" );

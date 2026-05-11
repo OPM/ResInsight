@@ -20,6 +20,7 @@
 
 #include "RimEclipseStatisticsCaseCollection.h"
 
+#include "RimEclipseStatisticsCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 
 CAF_PDM_SOURCE_INIT( RimEclipseStatisticsCaseCollection, "RimStatisticalCollection" );

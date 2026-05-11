@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include "RimEnsembleFileSet.h"
-
 #include "cafPdmObjectCollection.h"
+
+class RimEnsembleFileSet;
 
 //==================================================================================================
 ///

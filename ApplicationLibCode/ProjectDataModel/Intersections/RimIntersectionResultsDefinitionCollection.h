@@ -17,10 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimIntersectionResultDefinition.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObjectCollection.h"
+
+class RimIntersectionResultDefinition;
 
 class RimIntersectionResultsDefinitionCollection : public caf::PdmObjectCollection<RimIntersectionResultDefinition>
 {

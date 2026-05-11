@@ -20,9 +20,9 @@
 
 #pragma once
 
-#include "RimEclipseInputProperty.h"
-
 #include "cafPdmObjectCollection.h"
+
+class RimEclipseInputProperty;
 
 //==================================================================================================
 //

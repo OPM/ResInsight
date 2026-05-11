@@ -19,13 +19,12 @@
 
 #include "RiaSeismicDefines.h"
 
-#include "RimSeismicView.h"
-
 #include "cafPdmObjectCollection.h"
 
 #include <QString>
 
 class RimSeismicDataInterface;
+class RimSeismicView;
 
 class RimSeismicViewCollection : public caf::PdmObjectCollection<RimSeismicView>
 {

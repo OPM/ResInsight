@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RimRefinementRegion.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObjectCollection.h"
 #include "cafVecIjk.h"
@@ -33,6 +31,7 @@
 
 class RigRefinement;
 class RimEclipseCase;
+class RimRefinementRegion;
 
 //==================================================================================================
 ///

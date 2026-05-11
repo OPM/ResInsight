@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include "RimEclipseContourMapView.h"
-
 #include "cafPdmObjectCollection.h"
+
+class RimEclipseContourMapView;
 
 class RimEclipseContourMapViewCollection : public caf::PdmObjectCollection<RimEclipseContourMapView>
 {

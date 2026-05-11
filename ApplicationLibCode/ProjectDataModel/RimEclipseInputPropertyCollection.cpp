@@ -20,6 +20,8 @@
 
 #include "RimEclipseInputPropertyCollection.h"
 
+#include "RimEclipseInputProperty.h"
+
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimEclipseInputPropertyCollection, "RimInputPropertyCollection" );
