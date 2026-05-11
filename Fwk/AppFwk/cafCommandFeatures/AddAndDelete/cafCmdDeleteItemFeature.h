@@ -50,7 +50,6 @@ class CmdDeleteItemFeature : public CmdFeature
 protected:
     CmdExecuteCommand* createExecuteCommand();
 
-    // Overrides
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
