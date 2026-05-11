@@ -158,6 +158,32 @@ def test_10k_set_integer_grid_property(rips_instance, initialize_test):
         assert expected == int(actual)
 
 
+def test_10k_property_strings(rips_instance, initialize_test):
+    # Backward-compat coverage: the property/porosity/data-type arguments accept
+    # plain strings as an alternative to the typed StrEnum classes. This test
+    # exercises only the string form end-to-end so a future refactor that
+    # accidentally narrows the accepted types would be caught.
+    casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=casePath)
+
+    available = case.available_properties("STATIC_NATIVE", "MATRIX_MODEL")
+    assert "PORO" in available
+    assert "PERMX" in available
+
+    poro = case.active_cell_property("STATIC_NATIVE", "PORO", 0)
+    assert len(poro) > 0
+
+    grid_poro = case.grid_property("STATIC_NATIVE", "PORO", 0)
+    assert len(grid_poro) > 0
+
+    integer_values = [int(v * 100) for v in poro]
+    case.set_active_cell_property(
+        integer_values, "GENERATED", "MY_STRING_DISCRETE", 0, data_type="INTEGER"
+    )
+    round_trip = case.active_cell_property("GENERATED", "MY_STRING_DISCRETE", 0)
+    assert len(round_trip) == len(integer_values)
+
+
 def test_exportPropertyInView(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(case_path)

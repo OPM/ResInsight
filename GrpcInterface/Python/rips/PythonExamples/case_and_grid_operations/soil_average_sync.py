@@ -1,5 +1,9 @@
 ###########################################################################################
 # This example will synchronously calculate the average value for SOIL for all time steps
+#
+# Property/porosity types accept either a typed enum (rips.PropertyType.DYNAMIC_NATIVE) or
+# a plain string ("DYNAMIC_NATIVE"). This example uses the string form; see
+# soil_average_async.py for the typed-enum form.
 ###########################################################################################
 import rips
 import time
@@ -17,7 +21,7 @@ time_steps = case.time_steps()
 averages = []
 for i in range(0, len(time_steps)):
     # Get a list of all the results for time step i
-    results = case.active_cell_property(rips.PropertyType.DYNAMIC_NATIVE, "SOIL", i)
+    results = case.active_cell_property("DYNAMIC_NATIVE", "SOIL", i)
     mysum = sum(results)
     averages.append(mysum / len(results))
 
