@@ -317,8 +317,6 @@ private:
 
     caf::PdmObjectHandle* implementingPdmObject() override;
 
-    void handleMdiWindowClosed() override;
-
     // Pure private methods
 
     void createHighlightAndGridBoxDisplayModel();

@@ -52,6 +52,8 @@ public:
     static QString mainPlotWindowName();
     static QString main3DWindowName();
 
+    static QString welcomeScreenName();
+
     static QString mainWindowPropertyEditorName();
     static QString mainWindowResultInfoName();
     static QString mainWindowProcessMonitorName();
