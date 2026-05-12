@@ -32,7 +32,6 @@
 #include <QStringList>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_importSurface, "ImportSurface" );
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_addFolder, "AddFolder" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_newSurface, "NewSurface" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_newRegularSurface, "NewRegularSurface" );
 
@@ -69,42 +68,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_importSurfac
 QString RimcSurfaceCollection_importSurface::classKeywordReturnedType() const
 {
     return RimFileSurface::classKeywordStatic();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimcSurfaceCollection_addFolder::RimcSurfaceCollection_addFolder( caf::PdmObjectHandle* self )
-    : PdmObjectCreationMethod( self )
-{
-    CAF_PDM_InitObject( "Add Folder", "", "", "Add a new surface folder" );
-
-    CAF_PDM_InitScriptableField( &m_folderName, "FolderName", QString( "Surfaces" ), "", "", "", "New surface folder name" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_addFolder::execute()
-{
-    RimSurfaceCollection* coll = self<RimSurfaceCollection>();
-    if ( coll )
-    {
-        RimSurfaceCollection* newcoll = new RimSurfaceCollection();
-        newcoll->setCollectionName( m_folderName() );
-
-        coll->addSubCollection( newcoll );
-        return newcoll;
-    }
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcSurfaceCollection_addFolder::classKeywordReturnedType() const
-{
-    return RimSurfaceCollection::classKeywordStatic();
 }
 
 //--------------------------------------------------------------------------------------------------

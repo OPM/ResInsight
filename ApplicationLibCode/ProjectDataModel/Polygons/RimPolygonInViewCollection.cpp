@@ -22,7 +22,6 @@
 #include "Rim3dView.h"
 #include "RimPolygon.h"
 #include "RimPolygonCollection.h"
-#include "RimPolygonFile.h"
 #include "RimPolygonInView.h"
 #include "RimTools.h"
 
@@ -37,8 +36,10 @@ RimPolygonInViewCollection::RimPolygonInViewCollection()
 {
     CAF_PDM_InitObject( "Polygons", ":/Folder.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_polygonsInView, "Polygons", "Polygons" );
+    CAF_PDM_InitFieldNoDefault( &m_itemsInView, "Polygons", "Polygons" );
     CAF_PDM_InitFieldNoDefault( &m_collectionsInView, "Collections", "Collections" );
+    CAF_PDM_InitFieldNoDefault( &m_sourceCollection, "SourceCollection", "Source Collection" );
+    m_sourceCollection.uiCapability()->setUiHidden( true );
 
     nameField()->uiCapability()->setUiHidden( true );
 }
@@ -48,7 +49,11 @@ RimPolygonInViewCollection::RimPolygonInViewCollection()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::updateFromPolygonCollection()
 {
-    updateAllViewItems();
+    if ( !sourceCollection() )
+    {
+        setSourceCollection( RimTools::polygonCollection() );
+    }
+    updateFromSource();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +63,7 @@ std::vector<RimPolygonInView*> RimPolygonInViewCollection::visiblePolygonsInView
 {
     if ( !m_isChecked ) return {};
 
-    std::vector<RimPolygonInView*> polys = m_polygonsInView.childrenByType();
+    std::vector<RimPolygonInView*> polys = m_itemsInView.childrenByType();
 
     for ( auto coll : m_collectionsInView )
     {
@@ -76,7 +81,7 @@ std::vector<RimPolygonInView*> RimPolygonInViewCollection::visiblePolygonsInView
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolygonInView*> RimPolygonInViewCollection::allPolygonsInView() const
 {
-    std::vector<RimPolygonInView*> polys = m_polygonsInView.childrenByType();
+    std::vector<RimPolygonInView*> polys = m_itemsInView.childrenByType();
 
     for ( auto coll : m_collectionsInView )
     {
@@ -85,24 +90,6 @@ std::vector<RimPolygonInView*> RimPolygonInViewCollection::allPolygonsInView() c
     }
 
     return polys;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::setPolygonFile( RimPolygonFile* polygonFile )
-{
-    m_polygonFile = polygonFile;
-
-    updateName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimPolygonFile* RimPolygonInViewCollection::polygonFile() const
-{
-    return m_polygonFile;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,156 +128,27 @@ void RimPolygonInViewCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& me
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::updateAllViewItems()
+std::vector<RimPolygonContainer*> RimPolygonInViewCollection::sourceSubCollections() const
 {
-    // Based on the same concept as RimSurfaceInViewCollection
-
-    syncCollectionsWithView();
-    syncPolygonsWithView();
-    updateConnectedEditors();
+    if ( auto* src = sourceCollection() ) return src->subCollections();
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::syncCollectionsWithView()
+std::vector<RimPolygon*> RimPolygonInViewCollection::sourceItems() const
 {
-    // Based on the same concept as RimSurfaceInViewCollection
-
-    auto colls = m_collectionsInView.childrenByType();
-
-    for ( auto coll : colls )
-    {
-        if ( !coll->polygonFile() )
-        {
-            m_collectionsInView.removeChild( coll );
-            delete coll;
-        }
-    }
-
-    if ( !m_polygonFile )
-    {
-        std::vector<RimPolygonInViewCollection*> orderedColls;
-
-        if ( auto polygonCollection = RimTools::polygonCollection() )
-        {
-            std::vector<RimPolygonInView*> newPolygonsInView;
-
-            for ( auto polygonFile : polygonCollection->polygonFiles() )
-            {
-                if ( polygonFile->polygons().empty() ) continue;
-                if ( polygonFile->polygons().size() == 1 ) continue;
-
-                auto viewPolygonFile = getCollectionInViewForPolygonFile( polygonFile );
-                if ( viewPolygonFile == nullptr )
-                {
-                    auto newColl = new RimPolygonInViewCollection();
-                    newColl->setPolygonFile( polygonFile );
-                    orderedColls.push_back( newColl );
-                }
-                else
-                {
-                    viewPolygonFile->updateName();
-                    orderedColls.push_back( viewPolygonFile );
-                }
-            }
-        }
-
-        m_collectionsInView.clearWithoutDelete();
-        for ( auto viewColl : orderedColls )
-        {
-            m_collectionsInView.push_back( viewColl );
-            viewColl->updateAllViewItems();
-        }
-    }
-
-    updateName();
+    if ( auto* src = sourceCollection() ) return src->items();
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::syncPolygonsWithView()
+RimPolygonInView* RimPolygonInViewCollection::createItemInView( RimPolygon* source )
 {
-    std::vector<RimPolygonInView*> existingPolygonsInView = m_polygonsInView.childrenByType();
-    m_polygonsInView.clearWithoutDelete();
-
-    std::vector<RimPolygon*> polygons;
-
-    if ( m_polygonFile )
-    {
-        polygons = m_polygonFile->polygons();
-    }
-    else
-    {
-        auto polygonCollection = RimTools::polygonCollection();
-        polygons               = polygonCollection->userDefinedPolygons();
-        for ( auto polyfile : polygonCollection->polygonFiles() )
-        {
-            if ( polyfile->polygons().size() == 1 )
-            {
-                polygons.push_back( polyfile->polygons()[0] );
-            }
-        }
-    }
-
-    std::vector<RimPolygonInView*> newPolygonsInView;
-
-    for ( auto polygon : polygons )
-    {
-        auto it = std::find_if( existingPolygonsInView.begin(),
-                                existingPolygonsInView.end(),
-                                [polygon]( auto* polygonInView ) { return polygonInView->polygon() == polygon; } );
-
-        if ( it != existingPolygonsInView.end() )
-        {
-            newPolygonsInView.push_back( *it );
-            ( *it )->updateTargetsFromPolygon();
-            existingPolygonsInView.erase( it );
-        }
-        else
-        {
-            auto polygonInView = new RimPolygonInView();
-            polygonInView->setPolygon( polygon );
-            newPolygonsInView.push_back( polygonInView );
-        }
-    }
-
-    m_polygonsInView.setValue( newPolygonsInView );
-
-    for ( auto polyInView : existingPolygonsInView )
-    {
-        delete polyInView;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::updateName()
-{
-    QString name = "Polygons";
-
-    if ( m_polygonFile )
-    {
-        name = m_polygonFile->name();
-    }
-
-    setName( name );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimPolygonInViewCollection* RimPolygonInViewCollection::getCollectionInViewForPolygonFile( const RimPolygonFile* polygonFile ) const
-{
-    for ( auto collInView : m_collectionsInView )
-    {
-        if ( collInView->polygonFile() == polygonFile )
-        {
-            return collInView;
-        }
-    }
-
-    return nullptr;
+    auto* viewItem = new RimPolygonInView();
+    viewItem->setPolygon( source );
+    return viewItem;
 }

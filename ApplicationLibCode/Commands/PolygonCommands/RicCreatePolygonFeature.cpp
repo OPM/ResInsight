@@ -28,6 +28,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafSelectionManagerTools.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicCreatePolygonFeature, "RicCreatePolygonFeature" );
@@ -37,7 +39,13 @@ CAF_CMD_SOURCE_INIT( RicCreatePolygonFeature, "RicCreatePolygonFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicCreatePolygonFeature::onActionTriggered( bool isChecked )
 {
-    auto polygonCollection = RimTools::polygonCollection();
+    RimPolygonCollection* polygonCollection = nullptr;
+
+    auto selected = caf::selectedObjectsByTypeStrict<RimPolygonCollection*>();
+    if ( !selected.empty() ) polygonCollection = selected.front();
+
+    if ( !polygonCollection ) polygonCollection = RimTools::polygonCollection();
+    if ( !polygonCollection ) return;
 
     auto newPolygon = polygonCollection->appendUserDefinedPolygon();
     polygonCollection->uiCapability()->updateAllRequiredEditors();

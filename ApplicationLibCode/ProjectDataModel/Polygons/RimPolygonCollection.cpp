@@ -37,10 +37,30 @@ CAF_PDM_SOURCE_INIT( RimPolygonCollection, "PolygonCollection", "RimPolygonColle
 //--------------------------------------------------------------------------------------------------
 RimPolygonCollection::RimPolygonCollection()
 {
-    CAF_PDM_InitScriptableObject( "Polygons", ":/PolylinesFromFile16x16.png" );
+    CAF_PDM_InitScriptableObject( "Polygons", ":/Folder.png" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
-    CAF_PDM_InitFieldNoDefault( &m_polygonFiles, "PolygonFiles", "Polygon Files" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "PolygonCollectionName", "Name" );
+    m_collectionName = "Polygons";
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_subCollections, "SubCollections", "Subcollections" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_items, "Polygons", "Polygons" );
+
+    CAF_PDM_InitFieldNoDefault( &m_polygonFiles_OBSOLETE, "PolygonFiles", "Polygon Files" );
+    m_polygonFiles_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_polygonFiles_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    setDeletable( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygonCollection* RimPolygonCollection::createTopmost()
+{
+    auto* coll = new RimPolygonCollection();
+    coll->setAsTopmostFolder();
+    coll->uiCapability()->setUiIconFromResourceString( ":/PolylinesFromFile16x16.png" );
+    return coll;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,9 +68,17 @@ RimPolygonCollection::RimPolygonCollection()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::loadData()
 {
-    for ( auto& p : m_polygonFiles() )
+    for ( auto* sub : subCollections() )
     {
-        p->loadData();
+        if ( !sub ) continue;
+        if ( auto* file = dynamic_cast<RimPolygonFile*>( sub ) )
+        {
+            file->loadData();
+        }
+        else if ( auto* coll = dynamic_cast<RimPolygonCollection*>( sub ) )
+        {
+            coll->loadData();
+        }
     }
 }
 
@@ -60,10 +88,10 @@ void RimPolygonCollection::loadData()
 RimPolygon* RimPolygonCollection::createUserDefinedPolygon()
 {
     auto newPolygon = new RimPolygon();
-    newPolygon->setName( "Polygon " + QString::number( userDefinedPolygons().size() + 1 ) );
+    newPolygon->setName( "Polygon " + QString::number( allPolygons().size() + 1 ) );
 
     auto colorCandidates = RiaColorTables::summaryCurveDefaultPaletteColors();
-    newPolygon->setColor( colorCandidates.cycledColor3f( userDefinedPolygons().size() ) );
+    newPolygon->setColor( colorCandidates.cycledColor3f( allPolygons().size() ) );
 
     return newPolygon;
 }
@@ -84,7 +112,7 @@ RimPolygon* RimPolygonCollection::appendUserDefinedPolygon()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::addUserDefinedPolygon( RimPolygon* polygon )
 {
-    m_polygons().push_back( polygon );
+    m_items.push_back( polygon );
 
     connectPolygonSignals( polygon );
 
@@ -97,7 +125,7 @@ void RimPolygonCollection::addUserDefinedPolygon( RimPolygon* polygon )
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::deleteUserDefinedPolygons()
 {
-    m_polygons().deleteChildren();
+    m_items.deleteChildren();
 
     updateViewTreeItems();
     scheduleRedrawViews();
@@ -108,40 +136,11 @@ void RimPolygonCollection::deleteUserDefinedPolygons()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::deleteAllPolygons()
 {
-    m_polygons().deleteChildren();
-    m_polygonFiles().deleteChildren();
+    m_items.deleteChildren();
+    m_subCollections.deleteChildren();
 
     updateViewTreeItems();
     scheduleRedrawViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolygonCollection::addPolygonFile( RimPolygonFile* polygonFile )
-{
-    m_polygonFiles().push_back( polygonFile );
-
-    connectPolygonFileSignals( polygonFile );
-
-    updateViewTreeItems();
-    scheduleRedrawViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimPolygon*> RimPolygonCollection::userDefinedPolygons() const
-{
-    return m_polygons.childrenByType();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimPolygonFile*> RimPolygonCollection::polygonFiles() const
-{
-    return m_polygonFiles.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,22 +148,21 @@ std::vector<RimPolygonFile*> RimPolygonCollection::polygonFiles() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolygon*> RimPolygonCollection::allPolygons() const
 {
-    std::vector<RimPolygon*> allPolygons;
+    return allItems();
+}
 
-    for ( auto& p : m_polygonFiles() )
-    {
-        for ( auto& polygon : p->polygons() )
-        {
-            allPolygons.push_back( polygon );
-        }
-    }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::addPolygonFile( RimPolygonFile* polygonFile )
+{
+    if ( !polygonFile ) return;
 
-    for ( auto& polygon : m_polygons.childrenByType() )
-    {
-        allPolygons.push_back( polygon );
-    }
+    addSubCollection( polygonFile );
+    connectPolygonFileSignals( polygonFile );
 
-    return allPolygons;
+    updateViewTreeItems();
+    scheduleRedrawViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,7 +198,19 @@ void RimPolygonCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuil
 {
     RimPolygonCollection::appendPolygonMenuItems( menuBuilder );
     menuBuilder.addSeparator();
+    menuBuilder << "RicNewNestedCollectionFeature";
+    menuBuilder.addSeparator();
     menuBuilder << "RicDeleteAllPolygonsFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_collectionName );
+    uiOrdering.add( &m_subCollections );
+    uiOrdering.add( &m_items );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,15 +278,51 @@ void RimPolygonCollection::onPolygonFileChanged( const caf::SignalEmitter* emitt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonCollection::initAfterRead()
+void RimPolygonCollection::connectSignalsRecursively()
 {
-    for ( auto& p : m_polygons() )
+    connectSignalsForContainer( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::connectSignalsForContainer( RimPolygonContainer* container )
+{
+    if ( !container ) return;
+
+    for ( auto* polygon : container->items() )
     {
-        connectPolygonSignals( p );
+        connectPolygonSignals( polygon );
     }
 
-    for ( auto& pf : m_polygonFiles() )
+    for ( auto* sub : container->subCollections() )
     {
-        connectPolygonFileSignals( pf );
+        if ( !sub ) continue;
+        if ( auto* file = dynamic_cast<RimPolygonFile*>( sub ) )
+        {
+            connectPolygonFileSignals( file );
+        }
+        connectSignalsForContainer( sub );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::initAfterRead()
+{
+    // Migrate legacy m_polygonFiles into m_subCollections so files become polymorphic
+    // children alongside folders. Old projects had files in a separate field; new
+    // projects store everything in m_subCollections.
+    if ( !m_polygonFiles_OBSOLETE.empty() )
+    {
+        std::vector<RimPolygonFile*> legacy = m_polygonFiles_OBSOLETE.childrenByType();
+        m_polygonFiles_OBSOLETE.clearWithoutDelete();
+        for ( auto* file : legacy )
+        {
+            m_subCollections.push_back( file );
+        }
+    }
+
+    connectSignalsRecursively();
 }

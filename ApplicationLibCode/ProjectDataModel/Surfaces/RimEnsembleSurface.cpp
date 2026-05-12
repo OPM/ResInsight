@@ -270,7 +270,7 @@ RimSurfaceCollection* RimEnsembleSurface::sourceFileSurfaceCollection() const
 {
     auto name = ensembleSourceFileCollectionName();
 
-    return getSubCollection( name );
+    return findSubCollectionByName( name );
 }
 
 //--------------------------------------------------------------------------------------------------

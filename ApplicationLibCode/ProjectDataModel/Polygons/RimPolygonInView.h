@@ -47,9 +47,12 @@ class RimPolygonInView : public RimCheckableNamedObject, public RimPolylinesData
     CAF_PDM_HEADER_INIT;
 
 public:
+    using SourceItemT = RimPolygon;
+
     RimPolygonInView();
 
     RimPolygon* polygon() const;
+    RimPolygon* sourceItem() const { return polygon(); }
     void        setPolygon( RimPolygon* polygon );
     void        updateTargetsFromPolygon();
 

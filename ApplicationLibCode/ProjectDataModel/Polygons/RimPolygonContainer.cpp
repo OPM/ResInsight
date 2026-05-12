@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2026     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,45 +16,30 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSurfaceCollectionFeature.h"
+#include "RimPolygonContainer.h"
 
-#include "RimOilField.h"
-#include "RimProject.h"
-#include "RimSurface.h"
-#include "RimSurfaceCollection.h"
+#include "RimPolygon.h"
+#include "RimPolygonCollection.h"
 
-#include "Riu3DMainWindowTools.h"
-
-#include "cafSelectionManagerTools.h"
-#include "cafUtils.h"
-
-#include <QAction>
-
-CAF_CMD_SOURCE_INIT( RicNewSurfaceCollectionFeature, "RicNewSurfaceCollectionFeature" );
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPolygonContainer, "RimPolygonContainer" ); // Abstract class
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSurfaceCollectionFeature::onActionTriggered( bool isChecked )
+RimPolygonContainer::RimPolygonContainer()
 {
-    std::vector<RimSurfaceCollection*> colls = caf::selectedObjectsByTypeStrict<RimSurfaceCollection*>();
-    if ( colls.empty() ) return;
-    RimSurfaceCollection* surfColl = colls[0];
+    CAF_PDM_InitObject( "Polygon Container" );
 
-    if ( surfColl )
-    {
-        // add a new surface collection and select it in the tree
-        RimSurfaceCollection* newcoll = new RimSurfaceCollection();
-        surfColl->addSubCollection( newcoll );
-        Riu3DMainWindowTools::selectAsCurrentItem( newcoll );
-    }
+    // m_collectionName, m_subCollections and m_items are initialized by derived classes
+    // with derived-specific XML keywords, matching the caf::PdmNestedCollection convention.
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSurfaceCollectionFeature::setupActionLook( QAction* actionToSetup )
+RimPolygonContainer* RimPolygonContainer::addNewSubCollection()
 {
-    actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.png" ) );
-    actionToSetup->setText( "Add Folder" );
+    auto* sub = new RimPolygonCollection();
+    addSubCollection( sub );
+    return sub;
 }

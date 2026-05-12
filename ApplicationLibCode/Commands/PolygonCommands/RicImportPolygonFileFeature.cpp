@@ -29,6 +29,8 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
 
+#include "cafSelectionManagerTools.h"
+
 #include <QAction>
 #include <QFileInfo>
 
@@ -55,7 +57,13 @@ void RicImportPolygonFileFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( RimPolygonTools::polygonCacheName(), QFileInfo( fileNames.last() ).absolutePath() );
 
-    auto polygonCollection = RimTools::polygonCollection();
+    RimPolygonCollection* polygonCollection = nullptr;
+
+    auto selected = caf::selectedObjectsByTypeStrict<RimPolygonCollection*>();
+    if ( !selected.empty() ) polygonCollection = selected.front();
+
+    if ( !polygonCollection ) polygonCollection = RimTools::polygonCollection();
+    if ( !polygonCollection ) return;
 
     RimPolygon* objectToSelect = nullptr;
 

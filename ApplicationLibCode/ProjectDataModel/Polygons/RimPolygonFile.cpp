@@ -40,11 +40,19 @@ RimPolygonFile::RimPolygonFile()
 {
     CAF_PDM_InitObject( "PolygonFile", ":/Folder.png" );
 
+    // Inherited fields. The polygon items keep the original "Polygons" keyword so
+    // existing files load. The previous Name field was provided by RimNamedObject under
+    // keyword "Name"; reuse that keyword for m_collectionName for backward compatibility.
+    CAF_PDM_InitFieldNoDefault( &m_collectionName, "Name", "Name" );
+
+    CAF_PDM_InitFieldNoDefault( &m_subCollections, "SubCollections", "Subcollections" );
+    m_subCollections.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_items, "Polygons", "Polygons" );
+
     CAF_PDM_InitFieldNoDefault( &m_fileName, "FileName", "File Name" );
     m_fileName.registerKeywordAlias( "StimPlanFileName" );
     m_fileName.uiCapability()->setUiReadOnly( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
 
     setDeletable( true );
 }
@@ -71,11 +79,12 @@ void RimPolygonFile::loadData()
         polygonsFromFile[0]->setName( name() );
     }
 
-    if ( m_polygons.size() == polygonsFromFile.size() )
+    auto existingPolygons = items();
+    if ( existingPolygons.size() == polygonsFromFile.size() )
     {
-        for ( size_t i = 0; i < m_polygons.size(); i++ )
+        for ( size_t i = 0; i < existingPolygons.size(); i++ )
         {
-            auto projectPoly = m_polygons()[i];
+            auto projectPoly = existingPolygons[i];
             projectPoly->setDeletable( false );
             auto filePoly = polygonsFromFile[i];
             projectPoly->setPointsInDomainCoords( filePoly->pointsInDomainCoords() );
@@ -86,9 +95,9 @@ void RimPolygonFile::loadData()
     }
     else
     {
-        m_polygons.deleteChildren();
+        m_items.deleteChildren();
 
-        m_polygons.setValue( polygonsFromFile );
+        m_items.setValue( polygonsFromFile );
     }
 
     if ( polygonsFromFile.empty() )
@@ -106,7 +115,7 @@ void RimPolygonFile::loadData()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolygon*> RimPolygonFile::polygons() const
 {
-    return m_polygons.childrenByType();
+    return items();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +123,7 @@ std::vector<RimPolygon*> RimPolygonFile::polygons() const
 //--------------------------------------------------------------------------------------------------
 QString RimPolygonFile::name() const
 {
-    QString nameCandidate = RimNamedObject::name();
+    QString nameCandidate = m_collectionName.value();
 
     if ( !nameCandidate.isEmpty() )
     {
@@ -134,9 +143,17 @@ QString RimPolygonFile::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPolygonContainer* RimPolygonFile::addNewSubCollection()
+{
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( nameField() );
+    uiOrdering.add( &m_collectionName );
     uiOrdering.add( &m_fileName );
     uiOrdering.skipRemainingFields();
 }
@@ -150,7 +167,7 @@ void RimPolygonFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     {
         updateName();
 
-        m_polygons.deleteChildren();
+        m_items.deleteChildren();
         loadData();
     }
 
@@ -197,7 +214,7 @@ std::vector<RimPolygon*> RimPolygonFile::importDataFromFile( const QString& file
 void RimPolygonFile::updateName()
 {
     QFileInfo fileInfo( m_fileName().path() );
-    setName( fileInfo.baseName() );
+    setCollectionName( fileInfo.baseName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,7 +230,7 @@ void RimPolygonFile::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) 
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFile::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( m_polygons.empty() )
+    if ( m_items.empty() )
     {
         caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( attribute, ":/warning.svg" );
     }
