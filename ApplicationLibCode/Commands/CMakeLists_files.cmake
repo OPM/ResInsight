@@ -106,6 +106,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridAndSummaryEnsembleFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicHistogramPlotTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridStatisticsPlotFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewNestedCollectionFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -216,6 +217,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridAndSummaryEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicHistogramPlotTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridStatisticsPlotFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewNestedCollectionFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
