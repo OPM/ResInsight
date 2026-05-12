@@ -98,6 +98,7 @@ IconProvider& IconProvider::operator=( const IconProvider& rhs )
     m_overlayResourceString  = rhs.m_overlayResourceString;
     m_backgroundColorStrings = rhs.m_backgroundColorStrings;
     m_preferredSize          = rhs.m_preferredSize;
+    m_pixmap.reset();
     copyPixmap( rhs );
 
     return *this;
