@@ -48,7 +48,6 @@ public:
     bool isMainDockedWindow() const;
 
     void loadDataAndUpdate();
-    void handleMdiWindowClosed();
     void updateDockWindowVisibility();
 
     void removeWindowFromDock();
@@ -68,6 +67,8 @@ public:
 
     virtual void updateWindowTitle();
 
+    QString dockWindowName() const;
+
 protected:
     ///////// Interface for the Window controller
     friend class RimDockWindowController;
@@ -79,7 +80,7 @@ protected:
     virtual void     onLoadDataAndUpdate() = 0;
     virtual void     onViewNavigationChanged();
     virtual bool     isWindowVisible() const; // Virtual To allow special visibility control
-    void             deleteDockViewer();
+    void             deleteDockWidget();
     //////////
 
     // Derived classes are not supposed to override this function. The intention is to always use m_showWindow
@@ -87,7 +88,6 @@ protected:
     // can be controlled from the project tree using check box toggles
     caf::PdmFieldHandle* objectToggleField() final;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void initAfterRead() override;
 
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
@@ -101,4 +101,7 @@ protected:
     caf::PdmField<bool>      m_showWindow;
     RimDockWindowController* m_windowController;
     ads::CDockWidget*        m_dockWidget;
+    size_t                   m_dockWindowId;
+
+    static size_t m_nextDockWindowId;
 };
