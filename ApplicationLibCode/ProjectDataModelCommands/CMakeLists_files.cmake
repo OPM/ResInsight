@@ -40,6 +40,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathValve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellEventTimeline.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcColorLegend.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimcNestedCollectionBase.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -84,6 +85,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathValve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellEventTimeline.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcColorLegend.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcNestedCollectionBase.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
