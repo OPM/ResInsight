@@ -67,7 +67,7 @@ void RimDockWindowController::removeWindowFromDock()
     RiuMainWindowBase* mainWin = getMainWindow();
     if ( mainWin && viewWidget() && viewPdmObject() )
     {
-        viewPdmObject()->deleteDockViewer();
+        viewPdmObject()->deleteDockWidget();
         viewPdmObject()->deleteViewWidget();
 
         mainWin->removeViewer( viewWidget() );
@@ -126,6 +126,7 @@ void RimDockWindowController::updateViewerWidget()
             ads::CDockWidget* dockWidget = viewPdmObject()->createDockWidget();
             QWidget*          viewWidget = viewPdmObject()->createViewWidget( dockWidget );
             dockWidget->setWidget( viewWidget );
+            dockWidget->setObjectName( viewPdmObject()->dockWindowName() );
             mainWindow->initializeViewer( dockWidget, viewWidget );
 
             viewPdmObject()->updateViewWidgetAfterCreation();
@@ -137,7 +138,7 @@ void RimDockWindowController::updateViewerWidget()
     {
         if ( viewWidget() )
         {
-            viewPdmObject()->deleteDockViewer();
+            viewPdmObject()->deleteDockWidget();
             mainWindow->removeViewer( viewWidget() );
 
             viewPdmObject()->deleteViewWidget();

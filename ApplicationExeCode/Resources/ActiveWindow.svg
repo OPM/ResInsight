@@ -1,0 +1,25 @@
+<svg
+  width="64"
+  height="64"
+  viewBox="0 0 64 64"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <!-- Outer ring -->
+  <circle
+    cx="32"
+    cy="32"
+    r="30"
+    stroke="#D1D5DB"
+    stroke-width="4"
+    fill="none"
+  />
+
+  <!-- Record button -->
+  <circle
+    cx="32"
+    cy="32"
+    r="18"
+    fill="#EF4444"
+  />
+</svg>

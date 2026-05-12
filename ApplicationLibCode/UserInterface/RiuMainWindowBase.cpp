@@ -475,10 +475,10 @@ void RiuMainWindowBase::createTreeViews( int numberOfTrees )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setUpCentralDockWidget()
 {
-    m_centralDockWidget = RiuDockWidgetTools::createDockWidget( "Welcome", "Welcome", this );
-    QTextEdit* welcome  = new QTextEdit();
-    welcome->setReadOnly( true );
-    welcome->setPlainText( "\nWelcome to ResInsight!\n" );
+    m_centralDockWidget = RiuDockWidgetTools::createDockWidget( "Welcome", RiuDockWidgetTools::welcomeScreenName(), this );
+    QLabel* welcome     = new QLabel();
+    welcome->setAutoFillBackground( true );
+    welcome->setStyleSheet( "QLabel { background-color: darkgrey; }" );
     m_centralDockWidget->setWidget( welcome );
     m_centralDockWidget->setFeature( ads::CDockWidget::NoTab, true );
     dockManager()->setCentralWidget( m_centralDockWidget );
@@ -687,6 +687,7 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     keys.sort();
     for ( auto& key : keys )
     {
+        if ( key == RiuDockWidgetTools::welcomeScreenName() ) continue;
         auto dock = dockMap[key];
         dockWindowsMenu->addAction( dock->toggleViewAction() );
     }
