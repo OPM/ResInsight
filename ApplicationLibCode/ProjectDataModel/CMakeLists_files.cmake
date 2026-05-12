@@ -71,6 +71,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimNestedMirrorCollectionInView.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimNestedMirrorCollectionInView.inl
     ${CMAKE_CURRENT_LIST_DIR}/RimGridTimeHistoryCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDialogData.h
