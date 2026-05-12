@@ -70,8 +70,7 @@ RimOilField::RimOilField()
     measurement.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &surfaceCollection, "SurfaceCollection", "Surfaces" );
-    surfaceCollection = new RimSurfaceCollection();
-    surfaceCollection->setAsTopmostFolder();
+    surfaceCollection = RimSurfaceCollection::createTopmost();
 
     CAF_PDM_InitFieldNoDefault( &seismicDataCollection, "SeismicCollection", "Seismic Data" );
     seismicDataCollection = new RimSeismicDataCollection();
@@ -93,7 +92,7 @@ RimOilField::RimOilField()
     formationNamesCollection     = new RimFormationNamesCollection();
     annotationCollection         = new RimAnnotationCollection();
     ensembleWellLogsCollection   = new RimEnsembleWellLogsCollection();
-    polygonCollection            = new RimPolygonCollection();
+    polygonCollection            = RimPolygonCollection::createTopmost();
 
     CAF_PDM_InitFieldNoDefault( &vfpDataCollection, "VfpDataCollection", "VFP Data" );
     vfpDataCollection = new RimVfpDataCollection();

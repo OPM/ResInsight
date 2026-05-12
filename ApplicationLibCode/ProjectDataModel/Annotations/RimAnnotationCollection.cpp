@@ -108,7 +108,7 @@ void RimAnnotationCollection::initAfterRead()
         if ( oldPoly == nullptr ) continue;
 
         RimPolygonFile* newPoly = new RimPolygonFile();
-        newPoly->setName( oldPoly->uiName() );
+        newPoly->setCollectionName( oldPoly->uiName() );
 
         newPoly->setFileName( oldPoly->fileName() );
 

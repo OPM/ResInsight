@@ -18,8 +18,7 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "RimPolygonContainer.h"
 
 class RimPolygon;
 class RimPolygonFile;
@@ -28,12 +27,17 @@ class RimPolygonFile;
 ///
 ///
 //==================================================================================================
-class RimPolygonCollection : public caf::PdmObject
+class RimPolygonCollection : public RimPolygonContainer
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimPolygonCollection();
+
+    // Construct the single top-level polygon collection. Marks the instance as the topmost folder
+    // and applies the branded polygon icon. Sub-folders use the default folder icon from the
+    // constructor.
+    static RimPolygonCollection* createTopmost();
 
     void        loadData();
     RimPolygon* createUserDefinedPolygon();
@@ -42,11 +46,13 @@ public:
     void        deleteUserDefinedPolygons();
     void        deleteAllPolygons();
 
-    void addPolygonFile( RimPolygonFile* polygonFile );
+    std::vector<RimPolygon*> allPolygons() const;
 
-    std::vector<RimPolygon*>     userDefinedPolygons() const;
-    std::vector<RimPolygonFile*> polygonFiles() const;
-    std::vector<RimPolygon*>     allPolygons() const;
+    // Adds a polygon file as a sub-collection and wires the runtime side-effects
+    // (file-changed signal, view-tree refresh, redraw). Use this when introducing a
+    // file at runtime; addSubCollection() alone is fine when the side-effects will
+    // be triggered another way (e.g., during initAfterRead).
+    void addPolygonFile( RimPolygonFile* polygonFile );
 
     static void appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder );
 
@@ -54,6 +60,7 @@ private:
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     void updateViewTreeItems();
     void scheduleRedrawViews();
@@ -63,9 +70,14 @@ private:
     void onPolygonChanged( const caf::SignalEmitter* emitter );
     void onPolygonFileChanged( const caf::SignalEmitter* emitter );
 
+    void connectSignalsRecursively();
+    void connectSignalsForContainer( RimPolygonContainer* container );
+
 private:
-    caf::PdmChildArrayField<RimPolygon*>     m_polygons;
-    caf::PdmChildArrayField<RimPolygonFile*> m_polygonFiles;
+    // Legacy field. Polygon files are now stored polymorphically inside m_subCollections
+    // (inherited from RimPolygonContainer). Kept declared so old projects load; migrated
+    // into m_subCollections in initAfterRead.
+    caf::PdmChildArrayField<RimPolygonFile*> m_polygonFiles_OBSOLETE;
 
 protected:
     void initAfterRead() override;

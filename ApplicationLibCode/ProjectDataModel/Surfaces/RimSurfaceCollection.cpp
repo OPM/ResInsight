@@ -51,9 +51,8 @@ CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSurfaceCollection::RimSurfaceCollection()
-    : m_isTopLevelFolder( false )
 {
-    CAF_PDM_InitScriptableObject( "Surfaces", ":/ReservoirSurfaces16x16.png" );
+    CAF_PDM_InitScriptableObject( "Surfaces", ":/Folder.png" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "SurfaceUserDescription", "Name" );
     m_collectionName.registerKeywordAlias( "SurfaceUserDecription" );
@@ -64,7 +63,7 @@ RimSurfaceCollection::RimSurfaceCollection()
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_subCollections );
     reorderability->orderChanged.connect( this, &RimSurfaceCollection::orderChanged );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_items, "SurfacesField", "Surfaces" );
 
     setDeletable( true );
 }
@@ -79,44 +78,12 @@ RimSurfaceCollection::~RimSurfaceCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceCollection::setAsTopmostFolder()
+RimSurfaceCollection* RimSurfaceCollection::createTopmost()
 {
-    m_collectionName.uiCapability()->setUiHidden( true );
-    m_collectionName.xmlCapability()->disableIO();
-    setDeletable( false );
-    m_isTopLevelFolder = true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSurfaceCollection::collectionName() const
-{
-    return m_collectionName.value();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurfaceCollection::setCollectionName( const QString name )
-{
-    if ( !m_isTopLevelFolder )
-    {
-        m_collectionName.setValue( name );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSurfaceCollection::userDescriptionField()
-{
-    if ( !m_isTopLevelFolder )
-    {
-        return &m_collectionName;
-    }
-
-    return nullptr;
+    auto* coll = new RimSurfaceCollection();
+    coll->setAsTopmostFolder();
+    coll->uiCapability()->setUiIconFromResourceString( ":/ReservoirSurfaces16x16.png" );
+    return coll;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,7 +91,7 @@ caf::PdmFieldHandle* RimSurfaceCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::addSurface( RimSurface* surface )
 {
-    m_surfaces.push_back( surface );
+    m_items.push_back( surface );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,7 +148,7 @@ RimSurface* RimSurfaceCollection::createSurfaceFromFile( const QString& fileName
 RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fileNames, bool showLegend /* = true */ )
 {
     size_t  newSurfCount      = 0;
-    size_t  existingSurfCount = m_surfaces().size();
+    size_t  existingSurfCount = m_items().size();
     QString errorMessages;
 
     std::vector<RimSurface*> surfacesToLoad;
@@ -216,9 +183,9 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 
     updateViews( surfacesToLoad, showLegend );
 
-    if ( newSurfCount > 0 && !m_surfaces.empty() )
+    if ( newSurfCount > 0 && !m_items.empty() )
     {
-        return m_surfaces[m_surfaces.size() - 1];
+        return m_items[m_items.size() - 1];
     }
     else
     {
@@ -266,7 +233,7 @@ RimSurface* RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surface
     RimSurface* retsurf = nullptr;
     for ( RimSurface* surface : newsurfaces )
     {
-        m_surfaces.push_back( surface );
+        m_items.push_back( surface );
         retsurf = surface;
     }
 
@@ -291,7 +258,7 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int o
         return nullptr;
     }
 
-    m_surfaces.push_back( s );
+    m_items.push_back( s );
 
     updateConnectedEditors();
 
@@ -307,15 +274,7 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int o
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 {
-    return m_surfaces.childrenByType();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSurfaceCollection*> RimSurfaceCollection::subCollections() const
-{
-    return m_subCollections.childrenByType();
+    return m_items.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -330,7 +289,7 @@ void RimSurfaceCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuil
     menuBuilder << "RicImportEnsembleSurfaceFeature";
     menuBuilder << "RicCreateEnsembleSurfaceFeature";
     menuBuilder.addSeparator();
-    menuBuilder << "RicNewSurfaceCollectionFeature";
+    menuBuilder << "RicNewNestedCollectionFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -338,7 +297,7 @@ void RimSurfaceCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuil
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::loadData()
 {
-    for ( auto surf : m_surfaces )
+    for ( auto surf : m_items )
     {
         surf->loadDataIfRequired();
     }
@@ -441,7 +400,7 @@ void RimSurfaceCollection::orderChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::removeSurface( RimSurface* surface )
 {
-    m_surfaces.removeChild( surface );
+    m_items.removeChild( surface );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -484,11 +443,11 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
     if ( !surfaces.empty() ) returnSurface = surfaces[0];
 
     // insert position at end?
-    if ( ( position >= static_cast<int>( m_surfaces.size() ) ) || ( position < 0 ) )
+    if ( ( position >= static_cast<int>( m_items.size() ) ) || ( position < 0 ) )
     {
         for ( auto surf : surfaces )
         {
-            m_surfaces.push_back( surf );
+            m_items.push_back( surf );
         }
     }
     else
@@ -500,7 +459,7 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
 
         while ( i < position )
         {
-            orderedSurfs.push_back( m_surfaces[i++] );
+            orderedSurfs.push_back( m_items[i++] );
         }
 
         for ( auto surf : surfaces )
@@ -508,17 +467,17 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
             orderedSurfs.push_back( surf );
         }
 
-        int surfcount = static_cast<int>( m_surfaces.size() );
+        int surfcount = static_cast<int>( m_items.size() );
         while ( i < surfcount )
         {
-            orderedSurfs.push_back( m_surfaces[i++] );
+            orderedSurfs.push_back( m_items[i++] );
         }
 
         // reset the surface collection and use the new order
-        m_surfaces.clearWithoutDelete();
+        m_items.clearWithoutDelete();
         for ( auto surf : orderedSurfs )
         {
-            m_surfaces.push_back( surf );
+            m_items.push_back( surf );
         }
     }
 
@@ -526,45 +485,6 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
     updateViews();
 
     return returnSurface;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurfaceCollection::addSubCollection( RimSurfaceCollection* subcoll )
-{
-    m_subCollections.push_back( subcoll );
-    updateConnectedEditors();
-
-    updateViews();
-
-    return;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSurfaceCollection* RimSurfaceCollection::getSubCollection( const QString& name ) const
-{
-    for ( auto coll : m_subCollections )
-    {
-        if ( coll->collectionName() == name ) return coll;
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurfaceCollection::deleteSubCollection( const QString& name )
-{
-    auto coll = getSubCollection( name );
-    if ( coll )
-    {
-        auto index = m_subCollections.indexOf( coll );
-        m_subCollections.erase( index );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

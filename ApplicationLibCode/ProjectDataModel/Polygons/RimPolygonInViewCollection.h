@@ -18,20 +18,17 @@
 
 #pragma once
 
-#include "RimCheckableNamedObject.h"
+#include "RimNestedMirrorCollectionInView.h"
+#include "RimPolygonContainer.h"
+#include "RimPolygonInView.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmPointer.h"
-
-class RimPolygonInView;
-class RimPolygonFile;
 class RimPolygon;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimPolygonInViewCollection : public RimCheckableNamedObject
+class RimPolygonInViewCollection : public RimNestedMirrorCollectionInView<RimPolygonInViewCollection, RimPolygonContainer, RimPolygonInView>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -43,23 +40,12 @@ public:
     std::vector<RimPolygonInView*> visiblePolygonsInView() const;
     std::vector<RimPolygonInView*> allPolygonsInView() const;
 
+protected:
+    std::vector<RimPolygonContainer*> sourceSubCollections() const override;
+    std::vector<RimPolygon*>          sourceItems() const override;
+    RimPolygonInView*                 createItemInView( RimPolygon* source ) override;
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-
-    void            setPolygonFile( RimPolygonFile* polygonFile );
-    RimPolygonFile* polygonFile() const;
-
-    void updateAllViewItems();
-    void syncCollectionsWithView();
-    void syncPolygonsWithView();
-    void updateName();
-
-    RimPolygonInViewCollection* getCollectionInViewForPolygonFile( const RimPolygonFile* polygonFile ) const;
-
-private:
-    caf::PdmChildArrayField<RimPolygonInView*>           m_polygonsInView;
-    caf::PdmChildArrayField<RimPolygonInViewCollection*> m_collectionsInView;
-
-    caf::PdmPointer<RimPolygonFile> m_polygonFile;
 };

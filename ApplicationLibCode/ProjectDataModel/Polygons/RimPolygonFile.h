@@ -17,14 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimNamedObject.h"
+#include "RimPolygonContainer.h"
 
 #include "cafFilePath.h"
-#include "cafPdmChildArrayField.h"
+#include "cafSignal.h"
 
-class RimPolygon;
-
-class RimPolygonFile : public RimNamedObject
+class RimPolygonFile : public RimPolygonContainer
 {
     CAF_PDM_HEADER_INIT;
 
@@ -40,7 +38,11 @@ public:
 
     std::vector<RimPolygon*> polygons() const;
 
-    QString name() const override;
+    QString name() const;
+
+    // A file is a leaf folder. Refuse to grow sub-folders inside it.
+    bool                 canAddSubCollection() const override { return false; }
+    RimPolygonContainer* addNewSubCollection() override;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -54,6 +56,4 @@ private:
 
 private:
     caf::PdmField<caf::FilePath> m_fileName;
-
-    caf::PdmChildArrayField<RimPolygon*> m_polygons;
 };

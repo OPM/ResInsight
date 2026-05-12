@@ -53,23 +53,6 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcSurfaceCollection_addFolder : public caf::PdmObjectCreationMethod
-{
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimcSurfaceCollection_addFolder( caf::PdmObjectHandle* self );
-
-    std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    QString                                       classKeywordReturnedType() const override;
-
-private:
-    caf::PdmField<QString> m_folderName;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
 class RimcSurfaceCollection_newSurface : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
