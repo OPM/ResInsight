@@ -42,12 +42,15 @@
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. Abstract class
 
+size_t RimViewWindow::m_nextDockWindowId = 0;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::RimViewWindow()
     : m_dockWidget( nullptr )
     , m_windowController( nullptr )
+    , m_dockWindowId( m_nextDockWindowId++ )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
 
@@ -124,18 +127,10 @@ QString RimViewWindow::windowTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::deleteDockViewer()
+void RimViewWindow::deleteDockWidget()
 {
     m_dockWidget->deleteDockWidget();
     m_dockWidget = nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimViewWindow::handleMdiWindowClosed()
-{
-    if ( m_windowController != nullptr ) m_windowController->handleViewerDeletion();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,7 +252,16 @@ void RimViewWindow::updateWindowTitle()
     {
         viewWidget()->setWindowTitle( windowTitle() );
         dockWidget()->setWindowTitle( windowTitle() );
+        dockWidget()->setIcon( QIcon( ":/ActiveWindow.svg" ) );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimViewWindow::dockWindowName() const
+{
+    return QString( "DockViewWindow_%1" ).arg( m_dockWindowId );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,13 +275,6 @@ void RimViewWindow::dockInWindow( int mainWindowID )
         m_windowController->setViewToControl( this );
     }
     m_windowController->setMainWindowId( mainWindowID );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimViewWindow::initAfterRead()
-{
 }
 
 //--------------------------------------------------------------------------------------------------
