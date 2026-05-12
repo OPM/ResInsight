@@ -212,7 +212,8 @@ void RimQuickAccessCollection::deleteMarkedObjects()
 
         for ( auto group : toBeDeleted )
         {
-            deleteItem( group );
+            m_items.removeChild( group );
+            delete group;
         }
     }
 }
@@ -243,7 +244,7 @@ RimFieldQuickAccessGroup* RimQuickAccessCollection::findOrCreateGroup( caf::PdmO
     auto group = new RimFieldQuickAccessGroup();
     group->setName( groupName );
     group->setOwnerView( parentView );
-    addItem( group );
+    m_items.push_back( group );
 
     return group;
 }
