@@ -64,6 +64,39 @@ python -m ruff check --fix test_polygons.py
 3. It is unacceptable to remove or edit unrelated tests
 4. Documentation changes do not need to be linted, built or tested unless there are specific tests for documentation
 
+### Header / Implementation Split (C++)
+
+Put function bodies in the `.cpp` file, not inline in the header.
+
+- Declare member functions in the header; define them in the matching `.cpp`.
+- This applies even to one-line bodies (`return false;`, `return m_field;`, trivial forwarders).
+- Exceptions: function templates that must stay in the header, and `constexpr` functions where the compiler requires the definition to be visible.
+
+```cpp
+// Bad – inline body in the header
+class RimFoo
+{
+public:
+    bool canAddSubCollection() const override { return false; }
+};
+
+// Good – declared in the header, defined in the .cpp
+// RimFoo.h
+class RimFoo
+{
+public:
+    bool canAddSubCollection() const override;
+};
+
+// RimFoo.cpp
+bool RimFoo::canAddSubCollection() const
+{
+    return false;
+}
+```
+
+Why: keeps headers light (faster builds, smaller include surface), keeps the implementation file as the single source of truth for behavior, and matches the existing style across `ApplicationLibCode`.
+
 ### Lambda Functions
 
 Keep lambdas short and readable:
