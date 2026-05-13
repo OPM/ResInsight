@@ -39,7 +39,6 @@ public:
     // constructor.
     static RimPolygonCollection* createTopmost();
 
-    void        loadData();
     RimPolygon* createUserDefinedPolygon();
     RimPolygon* appendUserDefinedPolygon();
     void        addUserDefinedPolygon( RimPolygon* polygon );

@@ -34,14 +34,14 @@ public:
 
     void setFileName( const QString& fileName );
 
-    void loadData();
+    void loadData() override;
 
     std::vector<RimPolygon*> polygons() const;
 
     QString name() const;
 
     // A file is a leaf folder. Refuse to grow sub-folders inside it.
-    bool                 canAddSubCollection() const override { return false; }
+    bool                 canAddSubCollection() const override;
     RimPolygonContainer* addNewSubCollection() override;
 
 protected:

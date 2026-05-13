@@ -44,4 +44,8 @@ public:
     // the return type stays at RimPolygonContainer* to avoid pulling RimPolygonCollection.h into
     // this header (which would create an include cycle).
     RimPolygonContainer* addNewSubCollection() override;
+
+    // Default behavior recurses into sub-collections. Leaf containers (e.g., file-backed)
+    // override to load their own data; folder containers inherit the recursion.
+    virtual void loadData();
 };

@@ -52,7 +52,7 @@ public:
     RimPolygonInView();
 
     RimPolygon* polygon() const;
-    RimPolygon* sourceItem() const { return polygon(); }
+    RimPolygon* sourceItem() const;
     void        setPolygon( RimPolygon* polygon );
     void        updateTargetsFromPolygon();
 
