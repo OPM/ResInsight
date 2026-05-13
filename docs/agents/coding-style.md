@@ -38,7 +38,7 @@ python -m ruff check --fix test_polygons.py
 ## Language Standards
 
 - **C++**: C++23 standard
-- **Python**: Python 3.8+
+- **Python**: Python 3.11+
 
 ## Best Practices
 

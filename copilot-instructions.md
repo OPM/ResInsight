@@ -49,7 +49,7 @@ These documents contain the authoritative information about the project. Always 
 - Check style with `ruff check`
 - Use type hints where helpful
 - Follow snake_case naming convention
-- Keep code compatible with Python 3.8+
+- Keep code compatible with Python 3.11+
 
 ## When to Stop and Ask
 

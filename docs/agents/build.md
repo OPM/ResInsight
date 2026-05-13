@@ -4,7 +4,7 @@ ResInsight uses CMake with multiple build generators supported. The project requ
 - CMake 3.26+ (boost dependency requirement)
 - C++23 standard
 - GCC 13+ or Clang 19+ (Linux) / MSVC 2022 17.8+ (Windows)
-- Python 3.8+
+- Python 3.11+
 - Qt 6.4+
 
 ## Prerequisites and Dependencies
@@ -35,7 +35,7 @@ ThirdParty/vcpkg/bootstrap-vcpkg.sh
 # - Visual Studio 2022 (17.8+) with C++ workload and CMake tools
 # - Qt 6.4+ (via Qt Online Installer or vcpkg)
 # - Git for Windows
-# - Python 3.8+
+# - Python 3.11+
 
 # Clone repository and initialize submodules
 git clone https://github.com/OPM/ResInsight
