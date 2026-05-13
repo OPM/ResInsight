@@ -18,10 +18,15 @@
 
 #pragma once
 
+#include "RiaApplication.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimCellFilterCollection.h"
 #include "RimCombinedFilter.h"
 #include "RimDataFilterCollection.h"
+#include "RimFilterInViewCollection.h"
+#include "RimGridView.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -54,6 +59,27 @@ bool addNewFilterIfCombinedSelected( Init&& init )
     T*                 created = target->addNewFilter<T>( std::forward<Init>( init ) );
     if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Resolve the per-view RimCellFilterCollection to target for a "New ... cell filter" command.
+/// Looks at the current selection first (cell-filter collection or RimFilterInViewCollection facade),
+/// then falls back to the active grid view. Returns nullptr if no view is active.
+//--------------------------------------------------------------------------------------------------
+inline RimCellFilterCollection* resolveTargetCellFilterCollection()
+{
+    auto colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
+    if ( !colls.empty() ) return colls.front();
+
+    auto facades = caf::selectedObjectsByTypeStrict<RimFilterInViewCollection*>();
+    if ( !facades.empty() && facades.front()->cellFilters() ) return facades.front()->cellFilters();
+
+    if ( auto* view = RiaApplication::instance()->activeMainOrComparisonGridView() )
+    {
+        return view->cellFilterCollection();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -22,6 +22,7 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 class RimCellFilter;
 class RimDataFilterCollection;
@@ -40,6 +41,8 @@ class RimDataFilterInViewCollection : public RimCheckableNamedObject
 public:
     RimDataFilterInViewCollection();
     ~RimDataFilterInViewCollection() override;
+
+    caf::Signal<> wrappersChanged;
 
     void                     setSourceCollection( RimDataFilterCollection* sourceCollection );
     RimDataFilterCollection* sourceCollection() const;

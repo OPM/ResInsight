@@ -47,10 +47,9 @@ bool RicEclipseCombinedPropertyFilterNewFeature::isCommandEnabled() const
     auto dataColls = caf::selectedObjectsByTypeStrict<RimDataFilterCollection*>();
     if ( !dataColls.empty() ) return true;
 
-    auto filterCollections = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();
-    if ( filterCollections.size() == 1 )
+    if ( auto* target = RicEclipsePropertyFilterFeatureImpl::resolveTargetPropertyFilterCollection() )
     {
-        return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( filterCollections[0] );
+        return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( target );
     }
     return false;
 }
@@ -82,11 +81,11 @@ void RicEclipseCombinedPropertyFilterNewFeature::onActionTriggered( bool isCheck
         return;
     }
 
-    auto filterCollections = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();
-    if ( filterCollections.size() != 1 ) return;
+    auto* target = RicEclipsePropertyFilterFeatureImpl::resolveTargetPropertyFilterCollection();
+    if ( !target ) return;
 
-    RimCombinedFilter* created = filterCollections[0]->addNewCombinedFilter();
-    filterCollections[0]->updateConnectedEditors();
+    RimCombinedFilter* created = target->addNewCombinedFilter();
+    target->updateConnectedEditors();
     if ( created )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( created );

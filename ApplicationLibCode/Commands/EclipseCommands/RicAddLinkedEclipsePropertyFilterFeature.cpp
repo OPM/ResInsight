@@ -34,10 +34,9 @@ CAF_CMD_SOURCE_INIT( RicAddLinkedEclipsePropertyFilterFeature, "RicAddLinkedEcli
 //--------------------------------------------------------------------------------------------------
 bool RicAddLinkedEclipsePropertyFilterFeature::isCommandEnabled() const
 {
-    auto filterCollections = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();
-    if ( filterCollections.size() == 1 )
+    if ( auto* target = RicEclipsePropertyFilterFeatureImpl::resolveTargetPropertyFilterCollection() )
     {
-        return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( filterCollections[0] );
+        return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( target );
     }
 
     return false;
@@ -48,11 +47,8 @@ bool RicAddLinkedEclipsePropertyFilterFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicAddLinkedEclipsePropertyFilterFeature::onActionTriggered( bool isChecked )
 {
-    auto filterCollections = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();
-
-    if ( filterCollections.size() == 1 )
+    if ( auto* coll = RicEclipsePropertyFilterFeatureImpl::resolveTargetPropertyFilterCollection() )
     {
-        auto coll   = filterCollections[0];
         auto filter = coll->addFilterLinkedToCellResult();
         coll->updateAllRequiredEditors();
 

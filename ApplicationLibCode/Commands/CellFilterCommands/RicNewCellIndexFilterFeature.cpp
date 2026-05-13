@@ -57,10 +57,8 @@ void RicNewCellIndexFilterFeature::onActionTriggered( bool isChecked )
     if ( RicCellFilterFeatureTools::addNewFilterIfCombinedSelected<RimCellIndexFilter>( []( RimCellIndexFilter* ) {} ) ) return;
     if ( RicCellFilterFeatureTools::addNewFilterToDataCollectionIfSelected<RimCellIndexFilter>( []( RimCellIndexFilter* ) {} ) ) return;
 
-    // Find the selected Cell Filter Collection
-    std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
-    if ( colls.empty() ) return;
-    RimCellFilterCollection* filtColl = colls[0];
+    RimCellFilterCollection* filtColl = RicCellFilterFeatureTools::resolveTargetCellFilterCollection();
+    if ( !filtColl ) return;
 
     // and the case to use
     if ( RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase() )

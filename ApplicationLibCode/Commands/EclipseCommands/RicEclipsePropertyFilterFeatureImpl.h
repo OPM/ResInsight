@@ -40,6 +40,11 @@ public:
     static std::vector<RimEclipsePropertyFilter*>           selectedPropertyFilters();
     static std::vector<RimEclipsePropertyFilterCollection*> selectedPropertyFilterCollections();
 
+    // Looks at the strict selection first, then at any selected RimFilterInViewCollection facade. Returns
+    // nullptr if neither is selected. Used by the property-filter "New ..." commands so they fire
+    // when invoked from the unified facade tree node.
+    static RimEclipsePropertyFilterCollection* resolveTargetPropertyFilterCollection();
+
     static void                      addPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection );
     static RimEclipsePropertyFilter* addPropertyFilterToCombinedFilter( RimCombinedFilter* combined );
     static void                      insertPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection, size_t index );

@@ -24,6 +24,7 @@
 #include "RimCase.h"
 #include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
+#include "RimFilterInViewCollection.h"
 
 #include "cafPdmObjectGroup.h"
 #include "cafPdmPointer.h"
@@ -45,7 +46,10 @@ bool RicPasteCellFiltersFeature::isCommandEnabled() const
     objectGroup.objectsByType( &typedObjects );
     if ( typedObjects.empty() ) return false;
 
-    return dynamic_cast<RimCellFilterCollection*>( caf::SelectionManager::instance()->selectedItem() ) != nullptr;
+    auto* selected = caf::SelectionManager::instance()->selectedItem();
+    if ( dynamic_cast<RimCellFilterCollection*>( selected ) ) return true;
+    if ( auto* facade = dynamic_cast<RimFilterInViewCollection*>( selected ) ) return facade->cellFilters() != nullptr;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +57,12 @@ bool RicPasteCellFiltersFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicPasteCellFiltersFeature::onActionTriggered( bool isChecked )
 {
-    auto cellFilterCollection = dynamic_cast<RimCellFilterCollection*>( caf::SelectionManager::instance()->selectedItem() );
+    auto* selected             = caf::SelectionManager::instance()->selectedItem();
+    auto* cellFilterCollection = dynamic_cast<RimCellFilterCollection*>( selected );
+    if ( !cellFilterCollection )
+    {
+        if ( auto* facade = dynamic_cast<RimFilterInViewCollection*>( selected ) ) cellFilterCollection = facade->cellFilters();
+    }
     if ( !cellFilterCollection ) return;
 
     auto view = cellFilterCollection->firstAncestorOfType<Rim3dView>();

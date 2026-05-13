@@ -28,6 +28,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimFilterInViewCollection.h"
 #include "RimViewController.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -50,6 +51,20 @@ std::vector<RimEclipsePropertyFilter*> RicEclipsePropertyFilterFeatureImpl::sele
 std::vector<RimEclipsePropertyFilterCollection*> RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections()
 {
     return caf::SelectionManager::instance()->objectsByType<RimEclipsePropertyFilterCollection>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipsePropertyFilterCollection* RicEclipsePropertyFilterFeatureImpl::resolveTargetPropertyFilterCollection()
+{
+    auto direct = caf::SelectionManager::instance()->objectsByType<RimEclipsePropertyFilterCollection>();
+    if ( !direct.empty() ) return direct.front();
+
+    auto facades = caf::SelectionManager::instance()->objectsByType<RimFilterInViewCollection>();
+    if ( !facades.empty() && facades.front()->propertyFilters() ) return facades.front()->propertyFilters();
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

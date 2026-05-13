@@ -61,25 +61,12 @@ void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
     if ( RicCellFilterFeatureTools::addNewFilterIfCombinedSelected<RimCellRangeFilter>( initSlice ) ) return;
     if ( RicCellFilterFeatureTools::addNewFilterToDataCollectionIfSelected<RimCellRangeFilter>( initSlice ) ) return;
 
-    RimCellFilterCollection* filterCollection = nullptr;
+    RimCellFilterCollection* filterCollection = RicCellFilterFeatureTools::resolveTargetCellFilterCollection();
     RimCase*                 sourceCase       = nullptr;
 
-    std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
-    if ( !colls.empty() )
+    if ( filterCollection )
     {
-        filterCollection = colls.front();
-        sourceCase       = filterCollection->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();
-    }
-
-    if ( !filterCollection )
-    {
-        // Find filter collection for active view
-
-        RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
-        if ( !viewOrComparisonView ) return;
-
-        filterCollection = viewOrComparisonView->cellFilterCollection();
-        sourceCase       = viewOrComparisonView->ownerCase();
+        if ( auto* view = filterCollection->firstAncestorOrThisOfType<Rim3dView>() ) sourceCase = view->ownerCase();
     }
 
     if ( sourceCase && filterCollection )

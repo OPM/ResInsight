@@ -41,6 +41,7 @@ CAF_PDM_SOURCE_INIT( RimEclipsePropertyFilterCollection, "CellPropertyFilters" )
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
+    : filtersChanged( this )
 {
     CAF_PDM_InitObject( "Property Filters", ":/CellFilter_Values.png" );
 
@@ -294,6 +295,25 @@ void RimEclipsePropertyFilterCollection::appendMenuItems( caf::CmdFeatureMenuBui
     menuBuilder << "RicAddLinkedEclipsePropertyFilterFeature";
     menuBuilder << "Separator";
     menuBuilder << "RicEclipseCombinedPropertyFilterNewFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilterCollection::onChildAdded( caf::PdmFieldHandle* containerForNewObject )
+{
+    RimPropertyFilterCollection::onChildAdded( containerForNewObject );
+    filtersChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                         std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimPropertyFilterCollection::onChildDeleted( childArray, referringObjects );
+    filtersChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -51,6 +51,7 @@
 #include "RimAnnotationInViewCollection.h"
 #include "RimCameraPosition.h"
 #include "RimCellEdgeColors.h"
+#include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
 #include "RimCombinedFilter.h"
 #include "RimDataFilterCollection.h"
@@ -67,6 +68,7 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFaultReactivationModelCollection.h"
+#include "RimFilterInViewCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFracture.h"
@@ -213,6 +215,14 @@ RimEclipseView::RimEclipseView()
 
     CAF_PDM_InitFieldNoDefault( &m_dataFiltersInView, "DataFiltersInView", "Data Filters" );
     m_dataFiltersInView = new RimDataFilterInViewCollection();
+
+    CAF_PDM_InitFieldNoDefault( &m_filterInViewCollection, "FilterInViewCollection", "Filters" );
+    m_filterInViewCollection = new RimFilterInViewCollection();
+    m_filterInViewCollection->setSourceCollections( cellFilterCollection(), m_propertyFilterCollection(), m_dataFiltersInView() );
+
+    cellFilterCollection()->uiCapability()->setUiTreeHidden( true );
+    m_propertyFilterCollection()->uiCapability()->setUiTreeHidden( true );
+    m_dataFiltersInView()->uiCapability()->setUiTreeHidden( true );
 
     // Visualization fields
     CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells" );
@@ -2078,9 +2088,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     if ( m_refinementRegions() && m_refinementRegions()->shouldBeVisibleInTree() ) uiTreeOrdering.add( m_refinementRegions() );
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
-    uiTreeOrdering.add( cellFilterCollection() );
-    uiTreeOrdering.add( m_dataFiltersInView() );
-    uiTreeOrdering.add( m_propertyFilterCollection() );
+    uiTreeOrdering.add( m_filterInViewCollection() );
 
     uiTreeOrdering.add( elementVectorResult() );
     if ( m_streamlineCollection->shouldBeAvailable() ) uiTreeOrdering.add( &m_streamlineCollection );

@@ -33,6 +33,7 @@ CAF_PDM_SOURCE_INIT( RimDataFilterInViewCollection, "DataFilterInViewCollection"
 ///
 //--------------------------------------------------------------------------------------------------
 RimDataFilterInViewCollection::RimDataFilterInViewCollection()
+    : wrappersChanged( this )
 {
     CAF_PDM_InitObject( "Data Filters", ":/CellFilter.png" );
 
@@ -95,6 +96,7 @@ void RimDataFilterInViewCollection::syncWithSource()
     {
         m_wrappers.deleteChildren();
         updateConnectedEditors();
+        wrappersChanged.send();
         return;
     }
 
@@ -118,6 +120,7 @@ void RimDataFilterInViewCollection::syncWithSource()
         m_wrappers.push_back( w );
     }
     updateConnectedEditors();
+    wrappersChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

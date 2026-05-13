@@ -54,6 +54,7 @@ class RimEclipseFaultColors;
 class RimEclipsePropertyFilter;
 class RimEclipsePropertyFilterCollection;
 class RimFaultInViewCollection;
+class RimFilterInViewCollection;
 class RimReservoirCellResultsStorage;
 class RimReservoirCellResultsStorage;
 class RimSimWellInViewCollection;
@@ -274,6 +275,8 @@ private:
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 
     caf::PdmChildField<RimDataFilterInViewCollection*> m_dataFiltersInView;
+
+    caf::PdmChildField<RimFilterInViewCollection*> m_filterInViewCollection;
 
     caf::PdmPtrField<RimEclipseCase*> m_customEclipseCase_OBSOLETE;
 
