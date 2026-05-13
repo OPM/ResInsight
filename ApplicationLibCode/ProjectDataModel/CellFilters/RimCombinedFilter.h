@@ -56,8 +56,6 @@ public:
     void updateCompundFilter( cvf::CellRangeFilter*, int ) override {}
     void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
 
-    QString fullName() const override;
-
     void                        addFilter( RimCellFilter* child );
     void                        removeFilter( RimCellFilter* child );
     std::vector<RimCellFilter*> filters() const;

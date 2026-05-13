@@ -192,15 +192,6 @@ void RimCombinedFilter::updateCellIndexFilter( cvf::UByteArray* includeVisibilit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimCombinedFilter::fullName() const
-{
-    const QString modeStr = ( m_combineMode() == CombineMode::AND ) ? "AND" : "OR";
-    return QString( "%1  [%2: %3]" ).arg( name() ).arg( modeStr ).arg( m_filters.size() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimCombinedFilter::addFilter( RimCellFilter* child )
 {
     if ( !child ) return;
