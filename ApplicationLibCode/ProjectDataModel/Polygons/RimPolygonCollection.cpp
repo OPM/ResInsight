@@ -66,25 +66,6 @@ RimPolygonCollection* RimPolygonCollection::createTopmost()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonCollection::loadData()
-{
-    for ( auto* sub : subCollections() )
-    {
-        if ( !sub ) continue;
-        if ( auto* file = dynamic_cast<RimPolygonFile*>( sub ) )
-        {
-            file->loadData();
-        }
-        else if ( auto* coll = dynamic_cast<RimPolygonCollection*>( sub ) )
-        {
-            coll->loadData();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimPolygon* RimPolygonCollection::createUserDefinedPolygon()
 {
     auto newPolygon = new RimPolygon();

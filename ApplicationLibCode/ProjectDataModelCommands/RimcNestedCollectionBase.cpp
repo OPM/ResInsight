@@ -42,13 +42,13 @@ std::expected<caf::PdmObjectHandle*, QString> RimcNestedCollectionBase::execute(
     auto* coll = self<caf::PdmNestedCollectionBase>();
     if ( !coll || !coll->canAddSubCollection() )
     {
-        return std::unexpected<QString>( QString( "Cannot add subfolder" ) );
+        return std::unexpected( "Cannot add subfolder" );
     }
 
     caf::PdmObject* added = coll->addNewSubCollection();
     if ( !added )
     {
-        return std::unexpected<QString>( QString( "Failed to add subfolder" ) );
+        return std::unexpected( "Failed to add subfolder" );
     }
 
     if ( auto* asNested = dynamic_cast<caf::PdmNestedCollectionBase*>( added ) )

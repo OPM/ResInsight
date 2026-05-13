@@ -43,3 +43,14 @@ RimPolygonContainer* RimPolygonContainer::addNewSubCollection()
     addSubCollection( sub );
     return sub;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonContainer::loadData()
+{
+    for ( auto* sub : subCollections() )
+    {
+        if ( sub ) sub->loadData();
+    }
+}
