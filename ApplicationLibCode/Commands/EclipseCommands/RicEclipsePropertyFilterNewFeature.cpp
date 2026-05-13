@@ -50,11 +50,9 @@ bool RicEclipsePropertyFilterNewFeature::isCommandEnabled() const
     auto dataColls = caf::selectedObjectsByTypeStrict<RimDataFilterCollection*>();
     if ( !dataColls.empty() ) return true;
 
-    std::vector<RimEclipsePropertyFilterCollection*> filterCollections =
-        RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();
-    if ( filterCollections.size() == 1 )
+    if ( auto* target = RicEclipsePropertyFilterFeatureImpl::resolveTargetPropertyFilterCollection() )
     {
-        return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( filterCollections[0] );
+        return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( target );
     }
 
     return false;
@@ -92,11 +90,9 @@ void RicEclipsePropertyFilterNewFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    std::vector<RimEclipsePropertyFilterCollection*> filterCollections =
-        RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();
-    if ( filterCollections.size() == 1 )
+    if ( auto* target = RicEclipsePropertyFilterFeatureImpl::resolveTargetPropertyFilterCollection() )
     {
-        RicEclipsePropertyFilterNewExec* filterExec = new RicEclipsePropertyFilterNewExec( filterCollections[0] );
+        RicEclipsePropertyFilterNewExec* filterExec = new RicEclipsePropertyFilterNewExec( target );
         caf::CmdExecCommandManager::instance()->processExecuteCommand( filterExec );
     }
 }

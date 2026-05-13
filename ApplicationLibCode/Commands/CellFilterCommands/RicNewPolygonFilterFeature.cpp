@@ -18,6 +18,8 @@
 
 #include "RicNewPolygonFilterFeature.h"
 
+#include "RicCellFilterFeatureTools.h"
+
 #include "RiaApplication.h"
 
 #include "Polygons/RimPolygon.h"
@@ -119,15 +121,7 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    auto cellFilterCollection = caf::SelectionManager::instance()->selectedItemOfType<RimCellFilterCollection>();
-    if ( !cellFilterCollection )
-    {
-        RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
-        if ( activeView )
-        {
-            cellFilterCollection = activeView->cellFilterCollection();
-        }
-    }
+    auto cellFilterCollection = RicCellFilterFeatureTools::resolveTargetCellFilterCollection();
     if ( !cellFilterCollection ) return;
 
     auto sourceCase = cellFilterCollection->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase();

@@ -23,6 +23,7 @@
 #include "RimPropertyFilterCollection.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafSignal.h"
 
 class RimCellFilter;
 class RimCombinedFilter;
@@ -40,6 +41,8 @@ class RimEclipsePropertyFilterCollection : public RimPropertyFilterCollection
 
 public:
     RimEclipsePropertyFilterCollection();
+
+    caf::Signal<> filtersChanged;
 
     RimEclipseView* reservoirView();
     void            setIsDuplicatedFromLinkedView();
@@ -63,6 +66,9 @@ public:
     void                      updateDefaultResult( const RimEclipseCellColors* result );
     RimEclipsePropertyFilter* addFilterLinkedToCellResult();
     RimCombinedFilter*        addNewCombinedFilter();
+
+    void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 protected:
     void initAfterRead() override;
