@@ -23,7 +23,7 @@ set(PROJECT_FILES
     gtest/gtest-all.cpp
 )
 
-qt_add_executable(${PROJECT_NAME} ${PROJECT_FILES})
+qt_add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${PROJECT_FILES})
 
 target_link_libraries(
   ${PROJECT_NAME} PRIVATE cafUserInterface ${QT_LIBRARIES} ${THREAD_LIBRARY}

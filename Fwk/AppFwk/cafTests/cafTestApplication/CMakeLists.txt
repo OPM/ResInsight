@@ -67,7 +67,7 @@ set(PROJECT_FILES
 )
 
 qt_add_executable(
-  ${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES} ${QRC_FILES}
+  ${PROJECT_NAME} MACOSX_BUNDLE ${PROJECT_FILES} ${MOC_SOURCE_FILES} ${QRC_FILES}
   $<TARGET_OBJECTS:cafCommandFeatures> # Needed for cmake version < 3.12. Remove
   # when we can use target_link_libraries with OBJECT libraries
 )
