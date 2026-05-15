@@ -20,6 +20,8 @@
 
 #include <QByteArray>
 #include <QMainWindow>
+#include <QString>
+#include <QStringList>
 
 #include "cafPdmUiDragDropInterface.h"
 
@@ -63,7 +65,7 @@ public:
 
     virtual void removeViewer( QWidget* viewer ) = 0;
     virtual void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) {};
-    virtual void setActiveViewer( QWidget* subWindow ) = 0;
+    virtual void setActiveViewer( QString viewerName );
 
     virtual ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) = 0;
 
@@ -111,6 +113,8 @@ protected:
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void slotRefreshHelpActions();
+
+    void slotDockViewerVisibilityChanged( bool );
 
     void slotRedo();
     void slotUndo();

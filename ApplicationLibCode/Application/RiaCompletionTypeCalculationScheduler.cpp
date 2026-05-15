@@ -151,7 +151,7 @@ void RiaCompletionTypeCalculationScheduler::performScheduledUpdates()
         RiaApplication::instance()->setActiveReservoirView( activeView );
         if ( RiuMainWindow::instance() )
         {
-            RiuMainWindow::instance()->setActiveViewer( activeView->viewer()->layoutWidget() );
+            RiuMainWindow::instance()->setActiveViewer( activeView->dockWindowName() );
         }
     }
 }
