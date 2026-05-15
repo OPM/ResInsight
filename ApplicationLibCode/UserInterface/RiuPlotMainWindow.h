@@ -70,7 +70,6 @@ public:
 
     void              removeViewer( QWidget* viewer ) override;
     void              initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
-    void              setActiveViewer( QWidget* subWindow ) override;
     ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) override;
 
     void setDefaultWindowSize();

@@ -37,9 +37,9 @@ QWidget* Riu3DMainWindowTools::mainWindowWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riu3DMainWindowTools::setActiveViewer( QWidget* subWindow )
+void Riu3DMainWindowTools::setActiveViewer( QString viewerName )
 {
-    if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->setActiveViewer( subWindow );
+    if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->setActiveViewer( viewerName );
 }
 
 //--------------------------------------------------------------------------------------------------

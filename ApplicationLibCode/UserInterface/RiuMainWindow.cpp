@@ -1405,15 +1405,6 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setActiveViewer( QWidget* viewer )
-{
-    // QMdiSubWindow* swin = findMdiSubWindow( viewer );
-    // if ( swin ) m_mdiArea->setActiveSubWindow( swin );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiuProcessMonitor* RiuMainWindow::processMonitor()
 {
     return m_processMonitor;
@@ -1483,10 +1474,10 @@ void RiuMainWindow::selectedObjectsChanged()
         if ( selectedReservoirView )
         {
             // Set focus in MDI area to this window if it exists
-            if ( selectedReservoirView->viewer() )
+            if ( selectedReservoirView->viewer() && selectedReservoirView->viewer()->ownerViewWindow() )
             {
                 setBlockViewSelectionOnSubWindowActivated( true );
-                setActiveViewer( selectedReservoirView->viewer()->layoutWidget() );
+                setActiveViewer( selectedReservoirView->viewer()->ownerViewWindow()->dockWindowName() );
                 setBlockViewSelectionOnSubWindowActivated( false );
 
                 isActiveViewChanged = true;
