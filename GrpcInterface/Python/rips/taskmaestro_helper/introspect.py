@@ -11,11 +11,13 @@ from __future__ import annotations
 
 import datetime
 import json
+import pathlib
 import sys
 from pathlib import Path
 from types import UnionType
-from typing import Any, Union, get_args, get_origin
+from typing import Annotated, Any, Union, get_args, get_origin
 
+from pydantic import TypeAdapter
 from pydantic.fields import FieldInfo
 
 from .refs import annotation_to_resinsight_type
@@ -28,11 +30,22 @@ _SCALAR_TYPE_MAP: dict[type, str] = {
     float: "number",
 }
 
-# Annotations reported as JSON-schema "string" with an extra `format` marker.
-_DATE_FORMAT_MAP: dict[type, str] = {
-    datetime.date: "date",
-    datetime.datetime: "date-time",
-}
+
+def _format_for(field_info: FieldInfo) -> str | None:
+    """Ask Pydantic for the JSON-schema `format` of a field, if any.
+
+    Pydantic stores e.g. `pydantic.DirectoryPath` (which is
+    `Annotated[Path, PathType('dir')]`) as `annotation=Path` and
+    `metadata=[PathType('dir')]`. We reassemble both before asking
+    TypeAdapter, so format markers like `directory-path` survive.
+    """
+    annotation = field_info.annotation
+    if field_info.metadata:
+        annotation = Annotated[tuple([annotation, *field_info.metadata])]
+    try:
+        return TypeAdapter(annotation).json_schema().get("format")
+    except Exception:
+        return None
 
 
 def _annotation_type(annotation: object) -> str:
@@ -71,8 +84,10 @@ def _field_schema(field_name: str, field_info: FieldInfo) -> dict[str, Any]:
         if default is not None:
             if isinstance(default, (datetime.date, datetime.datetime)):
                 default = default.isoformat()
+            elif isinstance(default, pathlib.PurePath):
+                default = str(default)
             entry["default"] = default
-    fmt = _DATE_FORMAT_MAP.get(field_info.annotation)
+    fmt = _format_for(field_info)
     if fmt is not None:
         entry["format"] = fmt
     ri_type = annotation_to_resinsight_type(field_info.annotation)
