@@ -9,6 +9,7 @@ introspection.
 
 from __future__ import annotations
 
+import datetime
 import json
 import sys
 from pathlib import Path
@@ -25,6 +26,12 @@ _SCALAR_TYPE_MAP: dict[type, str] = {
     bool: "boolean",
     int: "integer",
     float: "number",
+}
+
+# Annotations reported as JSON-schema "string" with an extra `format` marker.
+_DATE_FORMAT_MAP: dict[type, str] = {
+    datetime.date: "date",
+    datetime.datetime: "date-time",
 }
 
 
@@ -62,7 +69,12 @@ def _field_schema(field_name: str, field_info: FieldInfo) -> dict[str, Any]:
     if not field_info.is_required():
         default = field_info.get_default(call_default_factory=False)
         if default is not None:
+            if isinstance(default, (datetime.date, datetime.datetime)):
+                default = default.isoformat()
             entry["default"] = default
+    fmt = _DATE_FORMAT_MAP.get(field_info.annotation)
+    if fmt is not None:
+        entry["format"] = fmt
     ri_type = annotation_to_resinsight_type(field_info.annotation)
     if ri_type is not None:
         entry["resinsight_type"] = ri_type
