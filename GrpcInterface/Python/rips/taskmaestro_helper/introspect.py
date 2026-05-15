@@ -71,7 +71,21 @@ def _annotation_type(annotation: object) -> str:
     return "string"
 
 
-def _field_schema(field_name: str, field_info: FieldInfo) -> dict[str, Any]:
+_SENTINEL = object()
+
+
+def _serialize_default(value: Any) -> Any:
+    """Convert a Python value into a JSON-friendly form for the schema's `default`."""
+    if isinstance(value, (datetime.date, datetime.datetime)):
+        return value.isoformat()
+    if isinstance(value, pathlib.PurePath):
+        return str(value)
+    return value
+
+
+def _field_schema(
+    field_name: str, field_info: FieldInfo, input_value: Any = _SENTINEL
+) -> dict[str, Any]:
     entry: dict[str, Any] = {
         "name": field_name,
         "type": _annotation_type(field_info.annotation),
@@ -79,14 +93,16 @@ def _field_schema(field_name: str, field_info: FieldInfo) -> dict[str, Any]:
     }
     if field_info.description:
         entry["description"] = field_info.description
-    if not field_info.is_required():
+
+    # Prefer the value the user already has in input.yaml; fall back to the
+    # Pydantic-side default so the UI is pre-filled in either case.
+    if input_value is not _SENTINEL and input_value is not None:
+        entry["default"] = _serialize_default(input_value)
+    elif not field_info.is_required():
         default = field_info.get_default(call_default_factory=False)
         if default is not None:
-            if isinstance(default, (datetime.date, datetime.datetime)):
-                default = default.isoformat()
-            elif isinstance(default, pathlib.PurePath):
-                default = str(default)
-            entry["default"] = default
+            entry["default"] = _serialize_default(default)
+
     fmt = _format_for(field_info)
     if fmt is not None:
         entry["format"] = fmt
@@ -112,7 +128,7 @@ def collect_schema(workflow_dir: Path) -> dict[str, Any]:
     from taskmaestro.task import get_input_type
     from taskmaestro.yaml_config import _load_workflow_only
 
-    wf, _ = _load_workflow_only(
+    wf, jc = _load_workflow_only(
         workflow_yaml,
         input_yaml if input_yaml.is_file() else None,
     )
@@ -122,6 +138,8 @@ def collect_schema(workflow_dir: Path) -> dict[str, Any]:
         config_field_names = wf.get_config_fields(task_name)
         if not config_field_names:
             continue
+
+        task_config = jc.get_config_for_task(task_name) if jc is not None else {}
 
         input_type = get_input_type(task_cls)
         config_fields: list[dict[str, Any]] = []
@@ -137,7 +155,10 @@ def collect_schema(workflow_dir: Path) -> dict[str, Any]:
                     }
                 )
                 continue
-            config_fields.append(_field_schema(field_name, field_info))
+            input_value = task_config.get(field_name, _SENTINEL)
+            config_fields.append(
+                _field_schema(field_name, field_info, input_value=input_value)
+            )
 
         tasks.append({"name": task_name, "config_fields": config_fields})
 
