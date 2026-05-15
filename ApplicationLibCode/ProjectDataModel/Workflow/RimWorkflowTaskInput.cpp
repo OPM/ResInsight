@@ -20,6 +20,7 @@
 
 #include "RimWorkflowBoolBinding.h"
 #include "RimWorkflowCaseBinding.h"
+#include "RimWorkflowDateBinding.h"
 #include "RimWorkflowNumberBinding.h"
 #include "RimWorkflowStringBinding.h"
 #include "RimWorkflowViewBinding.h"
@@ -39,7 +40,9 @@ RimWorkflowFieldBinding* createBinding( const QJsonObject& schema )
     if ( resinsightType == "WellPath" ) return new RimWorkflowWellPathBinding;
     if ( resinsightType == "View" ) return new RimWorkflowViewBinding;
 
-    const QString type = schema.value( "type" ).toString( "string" );
+    const QString type   = schema.value( "type" ).toString( "string" );
+    const QString format = schema.value( "format" ).toString();
+    if ( type == "string" && format == "date" ) return new RimWorkflowDateBinding;
     if ( type == "boolean" ) return new RimWorkflowBoolBinding;
     if ( type == "number" || type == "integer" ) return new RimWorkflowNumberBinding;
     return new RimWorkflowStringBinding;
