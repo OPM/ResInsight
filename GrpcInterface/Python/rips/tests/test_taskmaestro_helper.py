@@ -23,7 +23,9 @@ SYNTHETIC_PIPELINE = '''
 from __future__ import annotations
 
 import datetime
+import pathlib
 
+import pydantic
 from pydantic import BaseModel, Field
 
 from taskmaestro import EmptyConfig, ExecutionContext, Task
@@ -33,6 +35,8 @@ class GreetInput(BaseModel):
     name: str = Field(description="Person to greet", default="world")
     times: int = Field(description="How many times", ge=1)
     when: datetime.date = Field(description="Greet date", default=datetime.date(2024, 1, 1))
+    out_file: pathlib.Path = Field(description="Where to write greeting", default=pathlib.Path("/tmp/hi.txt"))
+    out_dir: pydantic.DirectoryPath = Field(description="Where to write logs")
 
 
 class GreetOutput(BaseModel):
@@ -68,13 +72,14 @@ SYNTHETIC_WORKFLOW_YAML = """workflow:
     - task: pipeline.Start
     - task: pipeline.Greet
       depends_on: pipeline.Start
-      config_fields: [name, times, when]
+      config_fields: [name, times, when, out_file, out_dir]
 """
 
 
 SYNTHETIC_INPUT_YAML = """greet:
   name: alice
   times: 3
+  out_dir: /tmp
 """
 
 
@@ -114,6 +119,14 @@ def test_collect_schema_extracts_field_types_and_metadata(workflow_dir: Path) ->
     assert fields_by_name["when"]["type"] == "string"
     assert fields_by_name["when"]["format"] == "date"
     assert fields_by_name["when"]["default"] == "2024-01-01"
+
+    assert fields_by_name["out_file"]["type"] == "string"
+    assert fields_by_name["out_file"]["format"] == "path"
+    assert fields_by_name["out_file"]["default"] == "/tmp/hi.txt"
+
+    assert fields_by_name["out_dir"]["type"] == "string"
+    assert fields_by_name["out_dir"]["format"] == "directory-path"
+    assert fields_by_name["out_dir"]["required"] is True
 
 
 def test_resolve_refs_substitutes_object_model_value() -> None:

@@ -21,6 +21,7 @@
 #include "RimWorkflowBoolBinding.h"
 #include "RimWorkflowCaseBinding.h"
 #include "RimWorkflowDateBinding.h"
+#include "RimWorkflowFilePathBinding.h"
 #include "RimWorkflowNumberBinding.h"
 #include "RimWorkflowStringBinding.h"
 #include "RimWorkflowViewBinding.h"
@@ -43,6 +44,8 @@ RimWorkflowFieldBinding* createBinding( const QJsonObject& schema )
     const QString type   = schema.value( "type" ).toString( "string" );
     const QString format = schema.value( "format" ).toString();
     if ( type == "string" && format == "date" ) return new RimWorkflowDateBinding;
+    if ( type == "string" && ( format == "path" || format == "file-path" || format == "directory-path" ) )
+        return new RimWorkflowFilePathBinding;
     if ( type == "boolean" ) return new RimWorkflowBoolBinding;
     if ( type == "number" || type == "integer" ) return new RimWorkflowNumberBinding;
     return new RimWorkflowStringBinding;
