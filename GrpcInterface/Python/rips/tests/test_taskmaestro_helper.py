@@ -107,26 +107,33 @@ def test_collect_schema_extracts_field_types_and_metadata(workflow_dir: Path) ->
     [greet] = schema["tasks"]
     fields_by_name = {f["name"]: f for f in greet["config_fields"]}
 
+    # input.yaml has `name: alice`, so that wins over the Pydantic default "world"
     assert fields_by_name["name"]["type"] == "string"
-    assert fields_by_name["name"]["default"] == "world"
+    assert fields_by_name["name"]["default"] == "alice"
     assert fields_by_name["name"]["description"] == "Person to greet"
     assert fields_by_name["name"]["required"] is False
 
+    # input.yaml has `times: 3`; field has no Pydantic default but is required
     assert fields_by_name["times"]["type"] == "integer"
     assert fields_by_name["times"]["required"] is True
+    assert fields_by_name["times"]["default"] == 3
     assert "resinsight_type" not in fields_by_name["times"]
 
+    # input.yaml has no `when:` block, so Pydantic default kicks in
     assert fields_by_name["when"]["type"] == "string"
     assert fields_by_name["when"]["format"] == "date"
     assert fields_by_name["when"]["default"] == "2024-01-01"
 
+    # input.yaml has no out_file; Pydantic default flows through
     assert fields_by_name["out_file"]["type"] == "string"
     assert fields_by_name["out_file"]["format"] == "path"
     assert fields_by_name["out_file"]["default"] == "/tmp/hi.txt"
 
+    # input.yaml has `out_dir: /tmp`; pre-fills even though field is required
     assert fields_by_name["out_dir"]["type"] == "string"
     assert fields_by_name["out_dir"]["format"] == "directory-path"
     assert fields_by_name["out_dir"]["required"] is True
+    assert fields_by_name["out_dir"]["default"] == "/tmp"
 
 
 def test_resolve_refs_substitutes_object_model_value() -> None:
