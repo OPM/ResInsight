@@ -31,7 +31,9 @@
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
 #include "RiuGuiTheme.h"
+#include "RiuInterfaceToViewWindow.h"
 #include "RiuMainWindowTools.h"
+#include "RiuViewer.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmObject.h"
@@ -113,18 +115,16 @@ ads::CDockManager* RiuMainWindowBase::dockManager() const
     return m_dockManager;
 }
 
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// QMdiSubWindow* RiuMainWindowBase::createViewWindow()
-//{
-//     RiuMdiSubWindow* subWin =
-//         new RiuMdiSubWindow( nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint );
-//     subWin->setAttribute( Qt::WA_DeleteOnClose ); // Make sure the contained widget is destroyed when the MDI window
-//                                                   // is closed
-//
-//     return subWin;
-// }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::setActiveViewer( QString viewerName )
+{
+    if ( auto dockWidget = dockManager()->findDockWidget( viewerName ) )
+    {
+        dockWidget->setAsCurrentTab();
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -409,6 +409,38 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
         {
             // Raise the dock widget to make it visible if the widget is part of a tab widget
             dockWidget->raise();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::slotDockViewerVisibilityChanged( bool visible )
+{
+    if ( visible ) return;
+
+    // TODO - handle undocking views
+
+    if ( auto dockWidget = dynamic_cast<ads::CDockWidget*>( sender() ) )
+    {
+        auto           mainWidget = dockWidget->widget();
+        RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( mainWidget );
+        if ( !viewWindow )
+        {
+            RiuViewer* viewer = mainWidget->findChild<RiuViewer*>();
+            if ( viewer )
+            {
+                viewWindow = viewer->ownerViewWindow();
+            }
+        }
+
+        if ( viewWindow )
+        {
+            viewWindow->setShowWindow( false );
+            viewWindow->removeWindowFromDock();
+            viewWindow->updateConnectedEditors();
         }
     }
 }

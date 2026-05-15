@@ -827,15 +827,6 @@ void RiuPlotMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::setActiveViewer( QWidget* viewer )
-{
-    // QMdiSubWindow* swin = findMdiSubWindow( viewer );
-    // if ( swin ) m_mdiArea->setActiveSubWindow( swin );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::slotBuildWindowActions()
 {
     m_windowMenu->clear();
@@ -906,7 +897,7 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
             if ( selectedWindow->viewWidget() )
             {
                 setBlockViewSelectionOnSubWindowActivated( true );
-                setActiveViewer( selectedWindow->viewWidget() );
+                setActiveViewer( selectedWindow->dockWindowName() );
                 setBlockViewSelectionOnSubWindowActivated( false );
             }
 

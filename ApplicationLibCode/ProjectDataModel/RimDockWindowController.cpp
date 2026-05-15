@@ -21,7 +21,9 @@
 #include "RiaGuiApplication.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
+
 #include "RiuMainWindowBase.h"
+#include "RiuViewer.h"
 
 #include "DockManager.h"
 #include "DockWidget.h"
@@ -128,6 +130,8 @@ void RimDockWindowController::updateViewerWidget()
             dockWidget->setWidget( viewWidget );
             dockWidget->setObjectName( viewPdmObject()->dockWindowName() );
             mainWindow->initializeViewer( dockWidget, viewWidget );
+
+            mainWindow->connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), mainWindow, SLOT( slotDockViewerVisibilityChanged( bool ) ) );
 
             viewPdmObject()->updateViewWidgetAfterCreation();
         }
