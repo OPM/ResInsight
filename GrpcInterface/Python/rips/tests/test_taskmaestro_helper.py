@@ -22,6 +22,8 @@ SYNTHETIC_PIPELINE = '''
 
 from __future__ import annotations
 
+import datetime
+
 from pydantic import BaseModel, Field
 
 from taskmaestro import EmptyConfig, ExecutionContext, Task
@@ -30,6 +32,7 @@ from taskmaestro import EmptyConfig, ExecutionContext, Task
 class GreetInput(BaseModel):
     name: str = Field(description="Person to greet", default="world")
     times: int = Field(description="How many times", ge=1)
+    when: datetime.date = Field(description="Greet date", default=datetime.date(2024, 1, 1))
 
 
 class GreetOutput(BaseModel):
@@ -65,7 +68,7 @@ SYNTHETIC_WORKFLOW_YAML = """workflow:
     - task: pipeline.Start
     - task: pipeline.Greet
       depends_on: pipeline.Start
-      config_fields: [name, times]
+      config_fields: [name, times, when]
 """
 
 
@@ -107,6 +110,10 @@ def test_collect_schema_extracts_field_types_and_metadata(workflow_dir: Path) ->
     assert fields_by_name["times"]["type"] == "integer"
     assert fields_by_name["times"]["required"] is True
     assert "resinsight_type" not in fields_by_name["times"]
+
+    assert fields_by_name["when"]["type"] == "string"
+    assert fields_by_name["when"]["format"] == "date"
+    assert fields_by_name["when"]["default"] == "2024-01-01"
 
 
 def test_resolve_refs_substitutes_object_model_value() -> None:
