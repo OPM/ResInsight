@@ -78,7 +78,6 @@
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
-#include "Workflow/RimWorkflowCollection.h"
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicView.h"
 #include "RimSeismicViewCollection.h"
@@ -102,6 +101,7 @@
 #include "Tools/RimAutomationSettings.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
+#include "Workflow/RimWorkflowCollection.h"
 
 #include "RiuPlotMainWindow.h"
 

@@ -52,9 +52,7 @@ QString RimWorkflowFilePathBinding::toYamlValue() const
     return QString( "\"%1\"" ).arg( p );
 }
 
-void RimWorkflowFilePathBinding::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute )
+void RimWorkflowFilePathBinding::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_value )
     {

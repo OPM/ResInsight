@@ -46,10 +46,10 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    caf::PdmField<QString>                          m_name;
-    caf::PdmField<QString>                          m_description;
-    caf::PdmField<caf::FilePath>                    m_workflowDirectory;
-    caf::PdmField<QString>                          m_loadError;
-    caf::PdmField<bool>                             m_runButton;
-    caf::PdmChildArrayField<RimWorkflowTaskInput*>  m_taskInputs;
+    caf::PdmField<QString>                         m_name;
+    caf::PdmField<QString>                         m_description;
+    caf::PdmField<caf::FilePath>                   m_workflowDirectory;
+    caf::PdmField<QString>                         m_loadError;
+    caf::PdmField<bool>                            m_runButton;
+    caf::PdmChildArrayField<RimWorkflowTaskInput*> m_taskInputs;
 };

@@ -143,7 +143,7 @@ bool RimWorkflow::loadFromDirectory( QString* errorMessage )
 
     QStringList args{ "-m", "rips.taskmaestro_helper", "introspect", dir };
 
-    QProcess         proc;
+    QProcess            proc;
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     proc.setProcessEnvironment( env );
     proc.start( python, args );
@@ -173,7 +173,7 @@ bool RimWorkflow::loadFromDirectory( QString* errorMessage )
         return false;
     }
 
-    QJsonParseError parseErr{};
+    QJsonParseError     parseErr{};
     const QJsonDocument doc = QJsonDocument::fromJson( stdoutBytes, &parseErr );
     if ( parseErr.error != QJsonParseError::NoError || !doc.isObject() )
     {
@@ -196,11 +196,8 @@ bool RimWorkflow::loadFromDirectory( QString* errorMessage )
         m_taskInputs.push_back( input );
     }
 
-    RiaLogging::info( QString( "Loaded workflow '%1' (%2 tasks with config) from %3" )
-                          .arg( m_name() )
-                          .arg( m_taskInputs.size() )
-                          .arg( dir )
-                          .toStdString() );
+    RiaLogging::info(
+        QString( "Loaded workflow '%1' (%2 tasks with config) from %3" ).arg( m_name() ).arg( m_taskInputs.size() ).arg( dir ).toStdString() );
 
     return true;
 }
@@ -239,7 +236,7 @@ void RimWorkflow::runWorkflow()
         return;
     }
 
-    QDir tmp( QDir::tempPath() );
+    QDir    tmp( QDir::tempPath() );
     QString runDir = QString( "resinsight_workflow_%1" ).arg( QUuid::createUuid().toString( QUuid::WithoutBraces ) );
     if ( !tmp.mkpath( runDir ) )
     {
@@ -253,14 +250,7 @@ void RimWorkflow::runWorkflow()
         return;
     }
 
-    QStringList args{ "-m",
-                      "rips.taskmaestro_helper",
-                      "run",
-                      dir,
-                      "--input",
-                      inputPath,
-                      "--grpc-port",
-                      QString::number( port.value() ) };
+    QStringList args{ "-m", "rips.taskmaestro_helper", "run", dir, "--input", inputPath, "--grpc-port", QString::number( port.value() ) };
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 

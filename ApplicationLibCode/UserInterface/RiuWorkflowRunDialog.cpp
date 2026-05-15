@@ -53,10 +53,7 @@ RiuWorkflowRunDialog::RiuWorkflowRunDialog( const QString& workflowName, QWidget
 
     connect( &m_process, &QProcess::readyReadStandardOutput, this, &RiuWorkflowRunDialog::onReadyReadStdout );
     connect( &m_process, &QProcess::readyReadStandardError, this, &RiuWorkflowRunDialog::onReadyReadStderr );
-    connect( &m_process,
-             QOverload<int, QProcess::ExitStatus>::of( &QProcess::finished ),
-             this,
-             &RiuWorkflowRunDialog::onProcessFinished );
+    connect( &m_process, QOverload<int, QProcess::ExitStatus>::of( &QProcess::finished ), this, &RiuWorkflowRunDialog::onProcessFinished );
 }
 
 RiuWorkflowRunDialog::~RiuWorkflowRunDialog()
@@ -87,8 +84,7 @@ void RiuWorkflowRunDialog::onReadyReadStderr()
 
 void RiuWorkflowRunDialog::onProcessFinished( int exitCode, QProcess::ExitStatus status )
 {
-    QString tail = ( status == QProcess::NormalExit ) ? QString( "[exited with code %1]" ).arg( exitCode )
-                                                      : QString( "[crashed]" );
+    QString tail = ( status == QProcess::NormalExit ) ? QString( "[exited with code %1]" ).arg( exitCode ) : QString( "[crashed]" );
     appendLog( "\n" + tail );
     m_cancelButton->setEnabled( false );
     m_closeButton->setEnabled( true );
