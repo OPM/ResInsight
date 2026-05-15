@@ -16,35 +16,27 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWorkflowNumberBinding.h"
+#include "RimWorkflowFloatBinding.h"
 
 #include <QJsonObject>
 
-CAF_PDM_SOURCE_INIT( RimWorkflowNumberBinding, "WorkflowNumberBinding" );
+CAF_PDM_SOURCE_INIT( RimWorkflowFloatBinding, "WorkflowFloatBinding" );
 
-RimWorkflowNumberBinding::RimWorkflowNumberBinding()
-    : m_isInteger( false )
+RimWorkflowFloatBinding::RimWorkflowFloatBinding()
 {
     CAF_PDM_InitField( &m_value, "Value", 0.0, "Value" );
 }
 
-void RimWorkflowNumberBinding::setIsInteger( bool isInteger )
-{
-    m_isInteger = isInteger;
-}
-
-void RimWorkflowNumberBinding::applySchema( const QJsonObject& fieldSchema )
+void RimWorkflowFloatBinding::applySchema( const QJsonObject& fieldSchema )
 {
     RimWorkflowFieldBinding::applySchema( fieldSchema );
-    setIsInteger( fieldSchema.value( "type" ).toString() == "integer" );
     if ( fieldSchema.contains( "default" ) )
     {
         m_value = fieldSchema.value( "default" ).toDouble();
     }
 }
 
-QString RimWorkflowNumberBinding::toYamlValue() const
+QString RimWorkflowFloatBinding::toYamlValue() const
 {
-    if ( m_isInteger ) return QString::number( static_cast<long long>( m_value() ) );
     return QString::number( m_value(), 'g', 17 );
 }
