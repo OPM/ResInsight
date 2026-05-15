@@ -53,6 +53,7 @@ class RimObservedSummaryData;
 class RimOilField;
 class RimColorLegendCollection;
 class RimScriptCollection;
+class RimWorkflowCollection;
 class RimSummaryCase;
 class RimSummaryEnsemble;
 class RimSummaryCaseMainCollection;
@@ -99,6 +100,7 @@ public:
     caf::PdmChildArrayField<RimOilField*>                oilFields;
     caf::PdmChildField<RimColorLegendCollection*>        colorLegendCollection;
     caf::PdmChildField<RimScriptCollection*>             scriptCollection;
+    caf::PdmChildField<RimWorkflowCollection*>           workflowCollection;
     caf::PdmChildField<RimViewLinkerCollection*>         viewLinkerCollection;
     caf::PdmChildField<RimSummaryCalculationCollection*> calculationCollection;
     caf::PdmChildField<RimGridCalculationCollection*>    gridCalculationCollection;
