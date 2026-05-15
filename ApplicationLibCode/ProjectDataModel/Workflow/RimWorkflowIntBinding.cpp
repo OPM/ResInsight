@@ -16,22 +16,27 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RimWorkflowIntBinding.h"
 
-#include "RimWorkflowFieldBinding.h"
+#include <QJsonObject>
 
-class RimWorkflowNumberBinding : public RimWorkflowFieldBinding
+CAF_PDM_SOURCE_INIT( RimWorkflowIntBinding, "WorkflowIntBinding" );
+
+RimWorkflowIntBinding::RimWorkflowIntBinding()
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_PDM_InitField( &m_value, "Value", 0, "Value" );
+}
 
-public:
-    RimWorkflowNumberBinding();
+void RimWorkflowIntBinding::applySchema( const QJsonObject& fieldSchema )
+{
+    RimWorkflowFieldBinding::applySchema( fieldSchema );
+    if ( fieldSchema.contains( "default" ) )
+    {
+        m_value = fieldSchema.value( "default" ).toInt();
+    }
+}
 
-    void    setIsInteger( bool isInteger );
-    void    applySchema( const QJsonObject& fieldSchema ) override;
-    QString toYamlValue() const override;
-
-private:
-    caf::PdmField<double> m_value;
-    bool                  m_isInteger;
-};
+QString RimWorkflowIntBinding::toYamlValue() const
+{
+    return QString::number( m_value() );
+}
