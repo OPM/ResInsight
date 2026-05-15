@@ -36,13 +36,13 @@ void RiuPlotMainWindowTools::showPlotMainWindow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindowTools::setActiveViewer( QWidget* subWindow )
+void RiuPlotMainWindowTools::setActiveViewer( QString viewerName )
 {
     if ( RiaGuiApplication::isRunning() )
     {
         RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
 
-        if ( mpw ) mpw->setActiveViewer( subWindow );
+        if ( mpw ) mpw->setActiveViewer( viewerName );
     }
 }
 

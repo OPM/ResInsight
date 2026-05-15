@@ -117,10 +117,11 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
     {
         RiuViewer* viewer = riv->viewer();
         if ( !viewer ) continue;
+        if ( !viewer->ownerViewWindow() ) continue;
 
         RiaApplication::instance()->setActiveReservoirView( riv );
 
-        Riu3DMainWindowTools::setActiveViewer( viewer->layoutWidget() );
+        Riu3DMainWindowTools::setActiveViewer( viewer->ownerViewWindow()->dockWindowName() );
 
         RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
         RiaPlotWindowRedrawScheduler::instance()->clearAllScheduledUpdates();
@@ -152,17 +153,17 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllViewsToFileFeature::onActionTriggered( bool isChecked )
 {
-    QWidget* currentActiveWidget = nullptr;
+    QString currentActiveViewerName;
     if ( RiaGuiApplication::activeViewWindow() )
     {
-        currentActiveWidget = RiaGuiApplication::activeViewWindow()->viewWidget();
+        currentActiveViewerName = RiaGuiApplication::activeViewWindow()->dockWindowName();
     }
 
     RicSnapshotAllViewsToFileFeature::saveAllViews();
 
-    if ( currentActiveWidget )
+    if ( !currentActiveViewerName.isEmpty() )
     {
-        Riu3DMainWindowTools::setActiveViewer( currentActiveWidget );
+        Riu3DMainWindowTools::setActiveViewer( currentActiveViewerName );
     }
 }
 

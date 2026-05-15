@@ -120,17 +120,17 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QS
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllPlotsToFileFeature::onActionTriggered( bool isChecked )
 {
-    QWidget* currentActiveWidget = nullptr;
+    QString currentActiveViewerName;
     if ( RiaGuiApplication::activeViewWindow() )
     {
-        currentActiveWidget = RiaGuiApplication::activeViewWindow()->viewWidget();
+        currentActiveViewerName = RiaGuiApplication::activeViewWindow()->dockWindowName();
     }
 
     RicSnapshotAllPlotsToFileFeature::saveAllPlots();
 
-    if ( currentActiveWidget )
+    if ( !currentActiveViewerName.isEmpty() )
     {
-        RiuPlotMainWindowTools::setActiveViewer( currentActiveWidget );
+        RiuPlotMainWindowTools::setActiveViewer( currentActiveViewerName );
     }
 }
 

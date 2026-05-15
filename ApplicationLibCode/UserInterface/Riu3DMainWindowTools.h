@@ -19,7 +19,8 @@
 #pragma once
 
 class QWidget;
-class QString;
+
+#include <QString>
 
 namespace caf
 {
@@ -31,7 +32,7 @@ class Riu3DMainWindowTools
 {
 public:
     static QWidget* mainWindowWidget();
-    static void     setActiveViewer( QWidget* subWindow );
+    static void     setActiveViewer( QString viewerName );
     static void     setExpanded( const caf::PdmUiItem* uiItem, bool expanded = true );
     static void     selectAsCurrentItem( const caf::PdmObject* object, bool allowActiveViewChange = true );
     static void     reportAndShowWarning( const QString& warningDialogHeader, const QString& warningtext );

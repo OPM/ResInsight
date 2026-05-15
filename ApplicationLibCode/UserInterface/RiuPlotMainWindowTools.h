@@ -18,7 +18,7 @@
 
 #pragma once
 
-class QWidget;
+#include <QString>
 
 namespace caf
 {
@@ -30,7 +30,7 @@ class RiuPlotMainWindowTools
 {
 public:
     static void showPlotMainWindow();
-    static void setActiveViewer( QWidget* subWindow );
+    static void setActiveViewer( QString viewerName );
     static void setExpanded( const caf::PdmUiItem* uiItem );
     static void selectAsCurrentItem( const caf::PdmObject* object );
     static void selectOrToggleObject( const caf::PdmObject* object, bool toggle );

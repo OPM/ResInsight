@@ -26,7 +26,6 @@
 
 #include "RicfCommandObject.h"
 
-#include "Rim3dView.h"
 #include "RimDockWindowController.h"
 #include "RimProject.h"
 
