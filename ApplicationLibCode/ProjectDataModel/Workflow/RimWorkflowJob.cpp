@@ -27,9 +27,9 @@
 #include "RiuMainWindow.h"
 #include "RiuWorkflowRunDialog.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiOrdering.h"
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QDir>
@@ -74,10 +74,6 @@ RimWorkflowJob::RimWorkflowJob()
 
     CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name" );
 
-    CAF_PDM_InitField( &m_runButton, "RunButton", false, "Run" );
-    m_runButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_runButton.xmlCapability()->disableIO();
-
     CAF_PDM_InitFieldNoDefault( &m_taskInputs, "TaskInputs", "" );
 }
 
@@ -95,7 +91,6 @@ void RimWorkflowJob::initAfterRead()
 void RimWorkflowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
-    uiOrdering.add( &m_runButton );
 
     for ( RimWorkflowTaskInput* task : m_taskInputs.childrenByType() )
     {
@@ -136,16 +131,16 @@ void RimWorkflowJob::setTaskInputs( std::vector<RimWorkflowTaskInput*> inputs )
 
 void RimWorkflowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_runButton )
-    {
-        m_runButton = false;
-        runJob();
-    }
-    else if ( changedField == &m_name )
+    if ( changedField == &m_name )
     {
         setUiName( m_name() );
         uiCapability()->updateConnectedEditors();
     }
+}
+
+void RimWorkflowJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicRunWorkflowJobFeature";
 }
 
 QString RimWorkflowJob::writeInputYaml( const QString& path ) const

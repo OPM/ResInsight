@@ -44,9 +44,9 @@ protected:
     void initAfterRead() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     caf::PdmField<QString>                         m_name;
-    caf::PdmField<bool>                            m_runButton;
     caf::PdmChildArrayField<RimWorkflowTaskInput*> m_taskInputs;
 };
