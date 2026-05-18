@@ -554,8 +554,8 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
 
     if ( m_showFilterLabel ) // Filter label, drawn just below the Z scale label
     {
-        QSize size( m_filterLabel->sizeHint().width(), m_filterLabel->sizeHint().height() );
-        int   yTop = margin + edgeAxisFrameBorderHeight + ( m_showZScaleLabel ? m_zScaleLabel->height() : 0 );
+        QSize  size( m_filterLabel->sizeHint().width(), m_filterLabel->sizeHint().height() );
+        int    yTop = margin + edgeAxisFrameBorderHeight + ( m_showZScaleLabel ? m_zScaleLabel->height() : 0 );
         QPoint pos( margin + edgeAxisFrameBorderWidth, yTop );
         m_filterLabel->resize( size.width(), size.height() );
         m_filterLabel->render( painter, pos );
