@@ -67,6 +67,7 @@
 #include <QWidget>
 
 #include <cmath>
+#include <optional>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1130,10 +1131,10 @@ void RiuMultiPlotPage::alignAxes()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::alignAxis( QwtAxisId axis, int targetRowOrColumn, std::function<bool( int, int, int )> matchPosition )
 {
-    auto rowAndColumnFromIdx = [this]( int idx )
+    auto rowAndColumnFromIdx = [this]( int idx ) -> std::optional<std::pair<int, int>>
     {
         auto hit = m_visibleIndexToPositionMapping.find( idx );
-        CAF_ASSERT( hit != m_visibleIndexToPositionMapping.end() );
+        if ( hit == m_visibleIndexToPositionMapping.end() ) return std::nullopt;
         return hit->second;
     };
 
@@ -1144,8 +1145,10 @@ void RiuMultiPlotPage::alignAxis( QwtAxisId axis, int targetRowOrColumn, std::fu
     for ( int tIdx = 0; tIdx < plotWidgets.size(); ++tIdx )
     {
         RiuPlotWidget* plotWidget = plotWidgets[tIdx];
-        auto [row, column]        = rowAndColumnFromIdx( tIdx );
-        bool matchesRowOrColumn   = matchPosition( row, column, targetRowOrColumn );
+        auto           position   = rowAndColumnFromIdx( tIdx );
+        if ( !position ) continue;
+        auto [row, column]      = *position;
+        bool matchesRowOrColumn = matchPosition( row, column, targetRowOrColumn );
         if ( plotWidget && matchesRowOrColumn )
         {
             RiuQwtPlotWidget* riuQwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
@@ -1168,8 +1171,10 @@ void RiuMultiPlotPage::alignAxis( QwtAxisId axis, int targetRowOrColumn, std::fu
     for ( int tIdx = 0; tIdx < plotWidgets.size(); ++tIdx )
     {
         RiuPlotWidget* plotWidget = plotWidgets[tIdx];
-        auto [row, column]        = rowAndColumnFromIdx( tIdx );
-        bool matchesRowOrColumn   = matchPosition( row, column, targetRowOrColumn );
+        auto           position   = rowAndColumnFromIdx( tIdx );
+        if ( !position ) continue;
+        auto [row, column]      = *position;
+        bool matchesRowOrColumn = matchPosition( row, column, targetRowOrColumn );
         if ( plotWidget && matchesRowOrColumn )
         {
             RiuQwtPlotWidget* riuQwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
