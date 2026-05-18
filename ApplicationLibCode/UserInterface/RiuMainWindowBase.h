@@ -61,13 +61,9 @@ public:
 
     virtual QString mainWindowName() = 0;
 
-    ads::CDockWidget* createDockViewWindow();
-
     virtual void removeViewer( QWidget* viewer ) = 0;
     virtual void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) {};
     virtual void setActiveViewer( QString viewerName );
-
-    virtual ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) = 0;
 
     void loadWinGeoAndDockToolBarLayout();
     void saveWinGeoAndDockToolBarLayout();
@@ -112,9 +108,9 @@ protected:
 
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
+    void slotDockViewerVisibilityChanged( bool visible );
+    void slotDockViewerClosed();
     void slotRefreshHelpActions();
-
-    void slotDockViewerVisibilityChanged( bool );
 
     void slotRedo();
     void slotUndo();

@@ -47,6 +47,9 @@ public:
 
     bool isMainDockedWindow() const;
 
+    bool isDockedIn3DView() const;
+    bool isDockedInPlotView() const;
+
     void loadDataAndUpdate();
     void updateDockWindowVisibility();
 

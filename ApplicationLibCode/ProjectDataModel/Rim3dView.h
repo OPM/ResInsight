@@ -101,8 +101,6 @@ public:
 
     int id() const final;
 
-    bool isDockingViewer() const { return !m_dockWidget.isNull(); }
-
     // Public fields:
 
     caf::PdmField<bool> isPerspectiveView;
@@ -211,8 +209,8 @@ public:
     RimAnnotationInViewCollection* annotationCollection() const;
     void                           synchronizeLocalAnnotationsFromGlobal();
 
-    void convertToDocking( RiuMainWindowBase* mainWindow );
-    void convertToMdi( RiuMainWindowBase* mainWindow );
+    void dockInMainWindow();
+    void dockInPlotWindow();
 
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
@@ -369,6 +367,4 @@ private:
     std::unique_ptr<QTimer> m_animationTimer;
     const int               m_animationIntervalMillisec;
     int                     m_animationTimerUsers;
-
-    QPointer<ads::CDockWidget> m_dockWidget;
 };

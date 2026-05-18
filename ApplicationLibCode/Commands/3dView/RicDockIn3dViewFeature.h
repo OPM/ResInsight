@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicConvert3dToMdiFeature : public caf::CmdFeature
+class RicDockIn3dViewFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
