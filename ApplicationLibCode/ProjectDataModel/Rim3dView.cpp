@@ -335,6 +335,7 @@ QWidget* Rim3dView::createViewWidget( QWidget* mainWindowParent )
     m_viewer->setAxisLabels( xLabel, yLabel, zLabel );
 
     updateZScaleLabel();
+    updateFilterLabel();
     return m_viewer->layoutWidget();
 }
 
@@ -717,6 +718,7 @@ void Rim3dView::createDisplayModelAndRedraw()
         onCreateDisplayModel();
         createHighlightAndGridBoxDisplayModel();
         updateDisplayModelVisibility();
+        updateFilterLabel();
 
         if ( m_cameraPosition().isIdentity() )
         {
@@ -1279,6 +1281,33 @@ void Rim3dView::updateScaling()
 void Rim3dView::updateZScaleLabel()
 {
     if ( viewer() ) viewer()->setZScale( m_scaleZ() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim3dView::activeFiltersDisplayText() const
+{
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateFilterLabel()
+{
+    if ( !viewer() ) return;
+
+    const QString text = activeFiltersDisplayText();
+    if ( text.isEmpty() )
+    {
+        viewer()->showFilterLabel( false );
+    }
+    else
+    {
+        viewer()->setFilterText( QStringLiteral( "Filter : %1" ).arg( text ) );
+        viewer()->showFilterLabel( true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

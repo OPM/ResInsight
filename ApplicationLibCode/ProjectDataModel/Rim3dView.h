@@ -185,6 +185,9 @@ public:
     bool   isScaleZEditable();
     double scaleZ() const;
 
+    virtual QString activeFiltersDisplayText() const;
+    void            updateFilterLabel();
+
     bool                    isMasterView() const;
     Rim3dView*              activeComparisonView() const;
     void                    setComparisonView( Rim3dView* compView );

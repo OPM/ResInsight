@@ -176,6 +176,8 @@ public:
 
     bool isUsingFormationNames() const override;
 
+    QString activeFiltersDisplayText() const override;
+
     void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) override;
 
     void calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep = 0 ) override;

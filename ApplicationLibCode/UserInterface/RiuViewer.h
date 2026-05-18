@@ -89,6 +89,9 @@ public:
     void showZScaleLabel( bool enable );
     void setZScale( double scale );
 
+    void showFilterLabel( bool enable );
+    void setFilterText( const QString& text );
+
     void showHistogram( bool enable );
     void setHistogram( double min, double max, const std::vector<size_t>& histogram );
     void setHistogramPercentiles( double pmin, double pmax, double mean );
@@ -178,6 +181,9 @@ private:
     bool    m_hideZScaleCheckbox;
     double  m_zScale;
     int     m_fontSize;
+
+    QLabel* m_filterLabel;
+    bool    m_showFilterLabel;
 
     caf::QStyledProgressBar*  m_animationProgress;
     caf::QStyledProgressBar*  m_animationProgressCompView;

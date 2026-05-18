@@ -69,6 +69,8 @@ public:
 
     bool isGridVisualizationMode() const override;
 
+    QString activeFiltersDisplayText() const override;
+
     void updateWellMeasurements();
     void updateViewTreeItems( RiaDefines::ItemIn3dView itemType ) override;
 
