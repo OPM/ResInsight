@@ -69,7 +69,6 @@ RimWellPathFracture* RicNewWellPathFractureFeature::addFracture( gsl::not_null<R
     }
 
     auto wellPathGeometry = wellPath->wellPathGeometry();
-    CVF_ASSERT( wellPathGeometry );
     if ( !wellPathGeometry ) return nullptr;
 
     RimProject* project = RimProject::current();
