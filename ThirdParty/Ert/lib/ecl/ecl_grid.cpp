@@ -21,10 +21,12 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
+#include <cinttypes>
 
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include <limits>
 
 #include <ert/util/util.h>
 #include <ert/util/double_vector.hpp>
@@ -2732,6 +2734,42 @@ static ecl_grid_type * ecl_grid_alloc_GRDECL_kw__(ecl_grid_type * global_grid ,
   nz      = ecl_kw_iget_int(gridhead_kw , GRIDHEAD_NZ_INDEX);
   lgr_nr  = ecl_kw_iget_int(gridhead_kw , GRIDHEAD_LGR_INDEX);
 
+  if (nx <= 0 || ny <= 0 || nz <= 0) {
+    fprintf(stderr, "%s: Invalid grid dimensions: nx=%d, ny=%d, nz=%d\n",
+            __func__, nx, ny, nz);
+    return NULL;
+  }
+
+  const int64_t nx64 = nx;
+  const int64_t ny64 = ny;
+  const int64_t nz64 = nz;
+  const int64_t expected_coord_size = int64_t{6} * (nx64 + 1) * (ny64 + 1);
+  const int64_t expected_zcorn_size = int64_t{8} * nx64 * ny64 * nz64;
+
+  if (expected_coord_size > std::numeric_limits<int>::max() ||
+      expected_zcorn_size > std::numeric_limits<int>::max()) {
+    fprintf(stderr, "%s: Grid dimensions too large: nx=%d, ny=%d, nz=%d\n",
+            __func__, nx, ny, nz);
+    return NULL;
+  }
+
+  const int coord_size = static_cast<int>(expected_coord_size);
+  const int zcorn_size = static_cast<int>(expected_zcorn_size);
+
+  if (ecl_kw_get_size(coord_kw) != coord_size) {
+    fprintf(stderr, "%s: Invalid size of COORD keyword = %d, expected 6 * "
+                    "(nx + 1) * (ny + 1) = %d\n",
+            __func__, ecl_kw_get_size(coord_kw), coord_size);
+    return NULL;
+  }
+
+  if (ecl_kw_get_size(zcorn_kw) != zcorn_size) {
+    fprintf(stderr, "%s: Invalid size of ZCORN keyword = %d, expected 8 * "
+                    "nx * ny * nz = %d\n",
+            __func__, ecl_kw_get_size(zcorn_kw), zcorn_size);
+    return NULL;
+  }
+
   /*
     The code used to have this test:
 
@@ -2748,11 +2786,28 @@ static ecl_grid_type * ecl_grid_alloc_GRDECL_kw__(ecl_grid_type * global_grid ,
     const float * mapaxes_data = NULL;
     const int   * corsnum_data = NULL;
 
-    if (mapaxes_kw)
+    if (mapaxes_kw) {
+      if (ecl_kw_get_size(mapaxes_kw) != 6) {
+        fprintf(stderr,
+                "%s: Invalid size of MAPAXES keyword = %d, expected 6\n",
+                __func__, ecl_kw_get_size(mapaxes_kw));
+        return NULL;
+      }
       mapaxes_data = ecl_grid_get_mapaxes_from_kw__(mapaxes_kw);
+    }
 
-    if (corsnum_kw)
+    if (corsnum_kw) {
+      const int64_t expected_corsnum_size = nx64 * ny64 * nz64;
+      if (expected_corsnum_size > std::numeric_limits<int>::max() ||
+          ecl_kw_get_size(corsnum_kw) != expected_corsnum_size) {
+        fprintf(stderr, "%s: Invalid size of CORSNUM keyword = %d, expected "
+                        "nx * ny * nz = %" PRId64 "\n",
+                __func__, ecl_kw_get_size(corsnum_kw),
+                expected_corsnum_size);
+        return NULL;
+      }
       corsnum_data = ecl_kw_get_int_ptr( corsnum_kw );
+    }
 
     if (gridunit_kw)
       unit_system = ecl_grid_check_unit_system(gridunit_kw);
@@ -2786,8 +2841,25 @@ ecl_grid_type * ecl_grid_alloc_GRDECL_kw( int nx, int ny , int nz ,
                                           const ecl_kw_type * mapaxes_kw ) {   /* Can be NULL */
 
   const int * actnum_data = NULL;
-  if (actnum_kw)
+  if (actnum_kw) {
+    const int64_t expected_actnum_size = int64_t{nx} * ny * nz;
+
+    if (expected_actnum_size > std::numeric_limits<int>::max()) {
+      fprintf(stderr, "%s: Grid dimensions too large: nx=%d, ny=%d, nz=%d\n",
+              __func__, nx, ny, nz);
+      return NULL;
+    }
+
+    const int actnum_size = static_cast<int>(expected_actnum_size);
+
+    if (ecl_kw_get_size(actnum_kw) != actnum_size) {
+      fprintf(stderr, "%s: Invalid size of ACTNUM keyword = %d, expected nz "
+                      "* nx * ny = %d\n",
+              __func__, ecl_kw_get_size(actnum_kw), actnum_size);
+      return NULL;
+    }
     actnum_data = ecl_kw_get_int_ptr(actnum_kw);
+  }
 
   bool apply_mapaxes = true;
   ecl_kw_type * gridhead_kw = ecl_grid_alloc_gridhead_kw( nx, ny, nz, 0);
@@ -3080,6 +3152,9 @@ static ecl_grid_type * ecl_grid_alloc_EGRID__( ecl_grid_type * main_grid , const
                                                            mapaxes_kw ,
                                                            corsnum_kw,
                                                            actnum_data);
+
+    if (!ecl_grid)
+      return NULL;
 
     if (ECL_GRID_MAINGRID_LGR_NR != grid_nr) ecl_grid_set_lgr_name_EGRID(ecl_grid , ecl_file , grid_nr);
     ecl_grid->eclipse_version = eclipse_version;
