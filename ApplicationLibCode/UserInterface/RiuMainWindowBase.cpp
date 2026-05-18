@@ -128,16 +128,6 @@ void RiuMainWindowBase::setActiveViewer( QString viewerName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ads::CDockWidget* RiuMainWindowBase::createDockViewWindow()
-{
-    auto widget = RiuDockWidgetTools::createDockWidget( "3D view", "3dview", this );
-
-    return widget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
 {
     // Company and appname set through QCoreApplication
@@ -338,52 +328,6 @@ void RiuMainWindowBase::removeViewerFromDockArea( QWidget* viewer )
     }
 }
 
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// void RiuMainWindowBase::removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer )
-//{
-//     bool removedSubWindowWasActive = false;
-//     bool wasMaximized              = true;
-//
-//     if ( QMdiSubWindow* subWindowBeingClosed = findMdiSubWindow( viewer ) )
-//     {
-//         wasMaximized = subWindowBeingClosed->isMaximized();
-//
-//         if ( subWindowBeingClosed->isActiveWindow() )
-//         {
-//             // If we are removing the active window, we will need a new active window
-//             // Start by making the window inactive so Qt doesn't pick the active window itself
-//             mdiArea->setActiveSubWindow( nullptr );
-//             removedSubWindowWasActive = true;
-//         }
-//         mdiArea->removeSubWindow( subWindowBeingClosed );
-//
-//         // These two lines had to be introduced after themes was used
-//         // Probably related to polish/unpolish of widgets in an MDI setting
-//         // https://github.com/OPM/ResInsight/issues/6676
-//         subWindowBeingClosed->hide();
-//         subWindowBeingClosed->deleteLater();
-//     }
-//
-//     QList<QMdiSubWindow*> subWindowList = mdiArea->subWindowList( QMdiArea::ActivationHistoryOrder );
-//     if ( !subWindowList.empty() )
-//     {
-//         if ( removedSubWindowWasActive )
-//         {
-//             mdiArea->setActiveSubWindow( nullptr );
-//             // Make the last activated window the current activated one
-//             mdiArea->setActiveSubWindow( subWindowList.back() );
-//         }
-//         if ( wasMaximized && mdiArea->currentSubWindow() )
-//         {
-//             mdiArea->currentSubWindow()->showMaximized();
-//         }
-//
-//         mdiArea->applyTiling();
-//     }
-// }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -418,10 +362,17 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::slotDockViewerVisibilityChanged( bool visible )
 {
-    if ( visible ) return;
+    if ( auto dockWidget = dynamic_cast<ads::CDockWidget*>( sender() ) )
+    {
+    }
+}
 
-    // TODO - handle undocking views
-
+//--------------------------------------------------------------------------------------------------
+///
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::slotDockViewerClosed()
+{
     if ( auto dockWidget = dynamic_cast<ads::CDockWidget*>( sender() ) )
     {
         auto           mainWidget = dockWidget->widget();

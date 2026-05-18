@@ -131,6 +131,7 @@ void RimDockWindowController::updateViewerWidget()
             dockWidget->setObjectName( viewPdmObject()->dockWindowName() );
             mainWindow->initializeViewer( dockWidget, viewWidget );
 
+            mainWindow->connect( dockWidget, SIGNAL( closed() ), mainWindow, SLOT( slotDockViewerClosed() ) );
             mainWindow->connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), mainWindow, SLOT( slotDockViewerVisibilityChanged( bool ) ) );
 
             viewPdmObject()->updateViewWidgetAfterCreation();
@@ -164,4 +165,12 @@ void RimDockWindowController::setMainWindowId( int mainId )
 void RimDockWindowController::setViewToControl( RimViewWindow* view )
 {
     m_viewToControl = view;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimDockWindowController::mainWindowId() const
+{
+    return m_mainWindowID;
 }

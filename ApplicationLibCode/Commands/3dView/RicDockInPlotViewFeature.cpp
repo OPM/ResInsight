@@ -16,46 +16,48 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicPopOutToPlotViewFeature.h"
+#include "RicDockInPlotViewFeature.h"
 
-#include "RiaGuiApplication.h"
-
-#include "RimGridView.h"
-#include "RiuMainWindow.h"
-
-#include "RiuViewer.h"
+#include "Rim3dView.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
 #include <QSettings>
 
-CAF_CMD_SOURCE_INIT( RicPopOutToPlotViewFeature, "RicPopOutToPlotViewFeature" );
+CAF_CMD_SOURCE_INIT( RicDockInPlotViewFeature, "RicDockInPlotViewFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPopOutToPlotViewFeature::isCommandEnabled() const
+bool RicDockInPlotViewFeature::isCommandEnabled() const
 {
-    return true;
+    if ( auto view = dynamic_cast<Rim3dView*>( caf::SelectionManager::instance()->selectedItem() ) )
+    {
+        if ( ( view->showWindow() ) && ( !view->isDockedInPlotView() ) )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPopOutToPlotViewFeature::onActionTriggered( bool isChecked )
+void RicDockInPlotViewFeature::onActionTriggered( bool isChecked )
 {
     if ( auto view = dynamic_cast<Rim3dView*>( caf::SelectionManager::instance()->selectedItem() ) )
     {
-        view->convertToDocking( RiaGuiApplication::instance()->mainPlotWindow() );
+        view->dockInPlotWindow();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPopOutToPlotViewFeature::setupActionLook( QAction* actionToSetup )
+void RicDockInPlotViewFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Pop Out (in Plot View)" );
+    actionToSetup->setText( "Dock in Plot Window" );
     actionToSetup->setIcon( QIcon( ":/PlotWindow.svg" ) );
 }

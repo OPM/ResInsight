@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicConvert3dToMdiFeature.h"
+#include "RicDockIn3dViewFeature.h"
 
 #include "RiaGuiApplication.h"
 
@@ -30,16 +30,19 @@
 #include <QAction>
 #include <QSettings>
 
-CAF_CMD_SOURCE_INIT( RicConvert3dToMdiFeature, "RicConvert3dToMdiFeature" );
+CAF_CMD_SOURCE_INIT( RicDockIn3dViewFeature, "RicDockIn3dViewFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicConvert3dToMdiFeature::isCommandEnabled() const
+bool RicDockIn3dViewFeature::isCommandEnabled() const
 {
     if ( auto view = dynamic_cast<Rim3dView*>( caf::SelectionManager::instance()->selectedItem() ) )
     {
-        return view->isDockingViewer();
+        if ( ( view->showWindow() ) && ( !view->isDockedIn3DView() ) )
+        {
+            return true;
+        }
     }
     return false;
 }
@@ -47,19 +50,19 @@ bool RicConvert3dToMdiFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicConvert3dToMdiFeature::onActionTriggered( bool isChecked )
+void RicDockIn3dViewFeature::onActionTriggered( bool isChecked )
 {
     if ( auto view = dynamic_cast<Rim3dView*>( caf::SelectionManager::instance()->selectedItem() ) )
     {
-        view->convertToMdi( RiaGuiApplication::instance()->mainWindow() );
+        view->dockInMainWindow();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicConvert3dToMdiFeature::setupActionLook( QAction* actionToSetup )
+void RicDockIn3dViewFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Convert to MDI view" );
+    actionToSetup->setText( "Dock in 3D Window" );
     actionToSetup->setIcon( QIcon( ":/3DWindow.svg" ) );
 }

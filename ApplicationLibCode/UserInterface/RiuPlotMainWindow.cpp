@@ -759,18 +759,6 @@ void RiuPlotMainWindow::initializeViewer( ads::CDockWidget* dockWidget, QWidget*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ads::CDockWidget* RiuPlotMainWindow::initializeDockingViewer( QWidget* viewer )
-{
-    auto dockViewer = RiuDockWidgetTools::createDockWidget( "3D Viewer", "3D view", dockManager() );
-    dockViewer->setWidget( viewer );
-    dockManager()->addDockWidgetFloating( dockViewer );
-
-    return dockViewer;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
 {
     for ( auto tv : projectTreeViews() )

@@ -1897,49 +1897,28 @@ void Rim3dView::synchronizeLocalAnnotationsFromGlobal()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    if ( isDockingViewer() )
-    {
-        menuBuilder << "RicConvert3dToMdiFeature";
-    }
-    else
-    {
-        menuBuilder << "RicPopOutTo3dViewFeature";
-        menuBuilder << "RicPopOutToPlotViewFeature";
-    }
+    menuBuilder << "RicDockIn3dViewFeature";
+    menuBuilder << "RicDockInPlotViewFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::convertToDocking( RiuMainWindowBase* mainWindow )
+void Rim3dView::dockInMainWindow()
 {
-    if ( isDockingViewer() ) return;
-
     removeWindowFromDock();
-
-    QWidget* viewWidget = createViewWidget( nullptr );
-
-    m_dockWidget = mainWindow->initializeDockingViewer( viewWidget );
-    updateViewWidgetAfterCreation();
+    dockAs3DViewWindow();
+    updateDockWindowVisibility();
     scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::convertToMdi( RiuMainWindowBase* mainWindow )
+void Rim3dView::dockInPlotWindow()
 {
-    if ( !isDockingViewer() ) return;
-
-    mainWindow->dockManager()->removeDockWidget( m_dockWidget );
-
-    m_dockWidget->takeWidget();
-    m_dockWidget = nullptr;
-
-    m_windowController->updateViewerWidget();
-
+    removeWindowFromDock();
+    dockAsPlotWindow();
     updateDockWindowVisibility();
-
-    updateViewWidgetAfterCreation();
     scheduleCreateDisplayModelAndRedraw();
 }

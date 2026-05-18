@@ -40,6 +40,7 @@ public:
 
     void setMainWindowId( int mainId );
     void setViewToControl( RimViewWindow* view );
+    int  mainWindowId() const;
 
     void updateViewerWidget();
     void handleViewerDeletion();
