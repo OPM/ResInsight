@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRunWorkflowJobFeature.h"
+#include "RicCancelWorkflowJobFeature.h"
 
 #include "Workflow/RimWorkflowJob.h"
 
@@ -24,23 +24,23 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicRunWorkflowJobFeature, "RicRunWorkflowJobFeature" );
+CAF_CMD_SOURCE_INIT( RicCancelWorkflowJobFeature, "RicCancelWorkflowJobFeature" );
 
-void RicRunWorkflowJobFeature::onActionTriggered( bool isChecked )
+void RicCancelWorkflowJobFeature::onActionTriggered( bool isChecked )
 {
     auto jobs = caf::selectedObjectsByType<RimWorkflowJob*>();
     if ( jobs.size() != 1 ) return;
-    jobs.front()->runJob();
+    jobs.front()->cancelJob();
 }
 
-void RicRunWorkflowJobFeature::setupActionLook( QAction* actionToSetup )
+void RicCancelWorkflowJobFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Run" );
-    actionToSetup->setIcon( QIcon( ":/Play.svg" ) );
+    actionToSetup->setText( "Cancel Job" );
+    actionToSetup->setIcon( QIcon( ":/stop.svg" ) );
 }
 
-bool RicRunWorkflowJobFeature::isCommandEnabled() const
+bool RicCancelWorkflowJobFeature::isCommandEnabled() const
 {
     auto jobs = caf::selectedObjectsByType<RimWorkflowJob*>();
-    return jobs.size() == 1 && !jobs.front()->isRunning();
+    return jobs.size() == 1 && jobs.front()->isRunning();
 }

@@ -24,6 +24,10 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QPointer>
+
+class RiuWorkflowJobRunner;
+
 class RimWorkflowJob : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -38,6 +42,8 @@ public:
 
     QString writeInputYaml( const QString& path ) const;
     void    runJob();
+    void    cancelJob();
+    bool    isRunning() const;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -49,4 +55,5 @@ protected:
 private:
     caf::PdmField<QString>                         m_name;
     caf::PdmChildArrayField<RimWorkflowTaskInput*> m_taskInputs;
+    QPointer<RiuWorkflowJobRunner>                 m_runner;
 };

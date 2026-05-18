@@ -18,32 +18,34 @@
 
 #pragma once
 
-#include <QDialog>
+#include "RiaLogging.h"
+
+#include <QByteArray>
+#include <QObject>
 #include <QProcess>
+#include <QString>
+#include <QStringList>
 
-class QPlainTextEdit;
-class QPushButton;
-
-class RiuWorkflowRunDialog : public QDialog
+class RiuWorkflowJobRunner : public QObject
 {
     Q_OBJECT
 public:
-    explicit RiuWorkflowRunDialog( const QString& workflowName, QWidget* parent = nullptr );
-    ~RiuWorkflowRunDialog() override;
+    RiuWorkflowJobRunner( const QString& label, QObject* parent = nullptr );
 
     void start( const QString& program, const QStringList& arguments, const QProcessEnvironment& env );
+    void cancel();
+    bool isRunning() const;
 
 private slots:
     void onReadyReadStdout();
     void onReadyReadStderr();
     void onProcessFinished( int exitCode, QProcess::ExitStatus status );
-    void onCancelClicked();
 
 private:
-    void appendLog( const QString& text );
+    void drainLines( QByteArray& buffer, RILogLevel level );
 
-    QProcess        m_process;
-    QPlainTextEdit* m_log;
-    QPushButton*    m_cancelButton;
-    QPushButton*    m_closeButton;
+    QString    m_label;
+    QProcess   m_process;
+    QByteArray m_stdoutBuf;
+    QByteArray m_stderrBuf;
 };
