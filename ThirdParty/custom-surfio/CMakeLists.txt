@@ -16,6 +16,10 @@ if(NOT mdspan_POPULATED)
   add_subdirectory(${mdspan_SOURCE_DIR} ${mdspan_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+# surfio uses parse_number/parse_number.h which falls back to fast_float
+# when std::from_chars for floats is not available. fast_float is provided via vcpkg.
+find_package(FastFloat CONFIG REQUIRED)
+
 # surfio_lib
 set(SRC_PATH "${CMAKE_CURRENT_LIST_DIR}/surfio/src/lib")
 add_library(surfio_lib)
@@ -32,5 +36,7 @@ target_include_directories(
   PRIVATE ../mio
 )
 
-target_link_libraries(surfio_lib PUBLIC mdspan)
+target_compile_definitions(surfio_lib PRIVATE STD_FROM_CHARS_FLOAT_SUPPORT=0)
+
+target_link_libraries(surfio_lib PUBLIC mdspan PRIVATE FastFloat::fast_float)
 
