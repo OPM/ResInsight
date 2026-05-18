@@ -16,31 +16,16 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRunWorkflowJobFeature.h"
+#pragma once
 
-#include "Workflow/RimWorkflowJob.h"
+#include "cafCmdFeature.h"
 
-#include "cafSelectionManagerTools.h"
-
-#include <QAction>
-
-CAF_CMD_SOURCE_INIT( RicRunWorkflowJobFeature, "RicRunWorkflowJobFeature" );
-
-void RicRunWorkflowJobFeature::onActionTriggered( bool isChecked )
+class RicCancelWorkflowJobFeature : public caf::CmdFeature
 {
-    auto jobs = caf::selectedObjectsByType<RimWorkflowJob*>();
-    if ( jobs.size() != 1 ) return;
-    jobs.front()->runJob();
-}
+    CAF_CMD_HEADER_INIT;
 
-void RicRunWorkflowJobFeature::setupActionLook( QAction* actionToSetup )
-{
-    actionToSetup->setText( "Run" );
-    actionToSetup->setIcon( QIcon( ":/Play.svg" ) );
-}
-
-bool RicRunWorkflowJobFeature::isCommandEnabled() const
-{
-    auto jobs = caf::selectedObjectsByType<RimWorkflowJob*>();
-    return jobs.size() == 1 && !jobs.front()->isRunning();
-}
+protected:
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandEnabled() const override;
+};

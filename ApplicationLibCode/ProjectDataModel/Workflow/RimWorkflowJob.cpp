@@ -25,7 +25,7 @@
 #include "RiaPreferences.h"
 
 #include "RiuMainWindow.h"
-#include "RiuWorkflowRunDialog.h"
+#include "RiuWorkflowJobRunner.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiGroup.h"
@@ -141,6 +141,17 @@ void RimWorkflowJob::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 void RimWorkflowJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicRunWorkflowJobFeature";
+    menuBuilder << "RicCancelWorkflowJobFeature";
+}
+
+bool RimWorkflowJob::isRunning() const
+{
+    return m_runner && m_runner->isRunning();
+}
+
+void RimWorkflowJob::cancelJob()
+{
+    if ( m_runner ) m_runner->cancel();
 }
 
 QString RimWorkflowJob::writeInputYaml( const QString& path ) const
@@ -160,6 +171,12 @@ QString RimWorkflowJob::writeInputYaml( const QString& path ) const
 
 void RimWorkflowJob::runJob()
 {
+    if ( isRunning() )
+    {
+        RiaLogging::warning( "Job is already running." );
+        return;
+    }
+
     auto* workflow = firstAncestorOrThisOfType<RimWorkflow>();
     if ( !workflow )
     {
@@ -200,10 +217,9 @@ void RimWorkflowJob::runJob()
 
     QStringList args{ "-m", "rips.taskmaestro_helper", "run", dir, "--input", inputPath, "--grpc-port", QString::number( port.value() ) };
 
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    QProcessEnvironment env   = QProcessEnvironment::systemEnvironment();
+    const QString       label = workflow->uiName() + " / " + m_name();
 
-    auto* dialog = new RiuWorkflowRunDialog( workflow->uiName() + " / " + m_name(), RiuMainWindow::instance() );
-    dialog->setAttribute( Qt::WA_DeleteOnClose );
-    dialog->show();
-    dialog->start( python, args, env );
+    m_runner = new RiuWorkflowJobRunner( label, RiuMainWindow::instance() );
+    m_runner->start( python, args, env );
 }
