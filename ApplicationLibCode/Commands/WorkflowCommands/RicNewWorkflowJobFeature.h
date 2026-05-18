@@ -18,30 +18,14 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafCmdFeature.h"
 
-class QJsonObject;
-
-class RimWorkflowFieldBinding : public caf::PdmObject
+class RicNewWorkflowJobFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimWorkflowFieldBinding();
-
-    QString fieldName() const;
-    void    setFieldName( const QString& name );
-    void    setDescription( const QString& description );
-    void    setRequired( bool required );
-
-    virtual void    applySchema( const QJsonObject& fieldSchema );
-    virtual QString toYamlValue() const = 0;
-
-    virtual caf::PdmFieldHandle* valueField() = 0;
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    caf::PdmField<QString> m_fieldName;
-    caf::PdmField<QString> m_description;
-    caf::PdmField<bool>    m_required;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandEnabled() const override;
 };

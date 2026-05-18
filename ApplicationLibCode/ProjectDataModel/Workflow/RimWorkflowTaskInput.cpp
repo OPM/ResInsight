@@ -28,6 +28,9 @@
 #include "RimWorkflowViewBinding.h"
 #include "RimWorkflowWellPathBinding.h"
 
+#include "cafPdmUiOrdering.h"
+#include "cafPdmUiTreeOrdering.h"
+
 #include <QJsonArray>
 #include <QJsonObject>
 
@@ -84,6 +87,20 @@ void RimWorkflowTaskInput::buildFromSchema( const QJsonArray& configFields )
         binding->applySchema( schema );
         addItem( binding );
     }
+}
+
+void RimWorkflowTaskInput::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    for ( RimWorkflowFieldBinding* b : items() )
+    {
+        if ( b && b->valueField() ) uiOrdering.add( b->valueField() );
+    }
+    uiOrdering.skipRemainingFields( true );
+}
+
+void RimWorkflowTaskInput::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 QString RimWorkflowTaskInput::toTaskYamlBlock() const
