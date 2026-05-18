@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicPopOutTo3dViewFeature : public caf::CmdFeature
+class RicDockInPlotViewFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

@@ -101,6 +101,22 @@ bool RimViewWindow::isMainDockedWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimViewWindow::isDockedIn3DView() const
+{
+    return ( m_windowController != nullptr ) && ( m_windowController->mainWindowId() == 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimViewWindow::isDockedInPlotView() const
+{
+    return ( m_windowController != nullptr ) && ( m_windowController->mainWindowId() == 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimViewWindow::removeWindowFromDock()
 {
     if ( m_windowController != nullptr ) m_windowController->removeWindowFromDock();
