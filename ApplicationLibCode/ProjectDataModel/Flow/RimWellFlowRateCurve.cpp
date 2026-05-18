@@ -183,6 +183,8 @@ void RimWellFlowRateCurve::updateCurveAppearance()
 {
     RimWellLogCurve::updateCurveAppearance();
 
+    if ( !m_plotCurve ) return;
+
     bool isLastCurveInGroup = false;
     {
         auto                                         wellLogTrack       = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
