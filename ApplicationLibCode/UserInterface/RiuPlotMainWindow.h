@@ -68,9 +68,8 @@ public:
     void cleanupGuiBeforeProjectClose();
     void cleanUpTemporaryWidgets();
 
-    void              removeViewer( QWidget* viewer ) override;
-    void              initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
-    ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) override;
+    void removeViewer( QWidget* viewer ) override;
+    void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
 
     void setDefaultWindowSize();
     void enable3DSelectionLink( bool enable );

@@ -95,8 +95,6 @@ public:
     void removeViewer( QWidget* viewer ) override;
     void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
 
-    ads::CDockWidget* initializeDockingViewer( QWidget* viewer ) override;
-
     void setResultInfo( const QString& info ) const;
 
     void refreshViewActions();
