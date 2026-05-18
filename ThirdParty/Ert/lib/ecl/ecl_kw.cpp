@@ -2709,6 +2709,10 @@ void ecl_kw_max_min(const ecl_kw_type * ecl_kw , void * _max , void *_min) {
 
 #define ECL_KW_MAX_MIN( ctype )                                                       \
 void ecl_kw_max_min_ ## ctype ( const ecl_kw_type * ecl_kw , ctype * _max , ctype * _min) { \
+ if (ecl_kw->size < 1) {                                                              \
+   fprintf(stderr, "%s: size of zero length array is undefined\n", __func__);         \
+   return;                                                                            \
+ }                                                                                    \
  KW_MAX_MIN( ctype );                                                                 \
 }
 
