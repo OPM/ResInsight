@@ -18,30 +18,35 @@
 
 #pragma once
 
-#include "RimWorkflowFieldBinding.h"
+#include "RimWorkflowTaskInput.h"
 
-#include "cafPdmObjectCollection.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
-class QJsonArray;
-
-class RimWorkflowTaskInput : public caf::PdmObjectCollection<RimWorkflowFieldBinding>
+class RimWorkflowJob : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWorkflowTaskInput();
+    RimWorkflowJob();
 
-    QString taskName() const;
-    void    setTaskName( const QString& name );
+    void setJobName( const QString& name );
 
-    void buildFromSchema( const QJsonArray& configFields );
+    std::vector<RimWorkflowTaskInput*> taskInputs() const;
+    void                               setTaskInputs( std::vector<RimWorkflowTaskInput*> inputs );
 
-    QString toTaskYamlBlock() const;
+    QString writeInputYaml( const QString& path ) const;
+    void    runJob();
 
 protected:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void initAfterRead() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
-    caf::PdmField<QString> m_taskName;
+    caf::PdmField<QString>                         m_name;
+    caf::PdmField<bool>                            m_runButton;
+    caf::PdmChildArrayField<RimWorkflowTaskInput*> m_taskInputs;
 };

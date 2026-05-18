@@ -33,6 +33,8 @@ public:
 
     QString toYamlValue() const override;
 
+    caf::PdmFieldHandle* valueField() override { return &m_case; }
+
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
