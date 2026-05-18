@@ -32,6 +32,8 @@ public:
     void    applySchema( const QJsonObject& fieldSchema ) override;
     QString toYamlValue() const override;
 
+    caf::PdmFieldHandle* valueField() override { return &m_value; }
+
 private:
     caf::PdmField<QDate> m_value;
 };

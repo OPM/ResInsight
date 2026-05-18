@@ -18,16 +18,14 @@
 
 #include "RimWorkflow.h"
 
-#include "RiaApplication.h"
+#include "RimWorkflowJob.h"
+#include "RimWorkflowTaskInput.h"
+
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
-#include "RiuMainWindow.h"
-#include "RiuWorkflowRunDialog.h"
+#include "cafCmdFeatureMenuBuilder.h"
 
-#include "cafPdmUiPushButtonEditor.h"
-
-#include <QApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QJsonArray>
@@ -36,8 +34,6 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QStandardPaths>
-#include <QUuid>
-#include <QWidget>
 
 CAF_PDM_SOURCE_INIT( RimWorkflow, "Workflow" );
 
@@ -84,20 +80,12 @@ RimWorkflow::RimWorkflow()
     CAF_PDM_InitFieldNoDefault( &m_loadError, "LoadError", "Load Error" );
     m_loadError.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_runButton, "RunButton", false, "Run" );
-    m_runButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_runButton.xmlCapability()->disableIO();
-
-    CAF_PDM_InitFieldNoDefault( &m_taskInputs, "TaskInputs", "" );
+    CAF_PDM_InitFieldNoDefault( &m_jobs, "Jobs", "" );
 }
 
-void RimWorkflow::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+QString RimWorkflow::name() const
 {
-    if ( changedField == &m_runButton )
-    {
-        m_runButton = false;
-        runWorkflow();
-    }
+    return m_name();
 }
 
 void RimWorkflow::setWorkflowDirectory( const QString& directory )
@@ -113,20 +101,30 @@ QString RimWorkflow::workflowDirectory() const
     return m_workflowDirectory().path();
 }
 
-std::vector<RimWorkflowTaskInput*> RimWorkflow::taskInputs() const
+std::vector<RimWorkflowJob*> RimWorkflow::jobs() const
 {
-    std::vector<RimWorkflowTaskInput*> result;
-    result.reserve( m_taskInputs.size() );
-    for ( RimWorkflowTaskInput* t : m_taskInputs.childrenByType() )
+    std::vector<RimWorkflowJob*> result;
+    result.reserve( m_jobs.size() );
+    for ( RimWorkflowJob* j : m_jobs.childrenByType() )
     {
-        if ( t ) result.push_back( t );
+        if ( j ) result.push_back( j );
     }
     return result;
 }
 
+void RimWorkflow::addJob( RimWorkflowJob* job )
+{
+    if ( job ) m_jobs.push_back( job );
+}
+
+void RimWorkflow::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewWorkflowJobFeature";
+}
+
 bool RimWorkflow::loadFromDirectory( QString* errorMessage )
 {
-    m_taskInputs.deleteChildren();
+    m_jobs.deleteChildren();
     m_loadError = "";
 
     const QString dir = workflowDirectory();
@@ -187,75 +185,23 @@ bool RimWorkflow::loadFromDirectory( QString* errorMessage )
     if ( root.contains( "description" ) ) m_description = root.value( "description" ).toString();
     setUiName( m_name() );
 
+    std::vector<RimWorkflowTaskInput*> taskInputs;
     for ( const QJsonValue& tv : root.value( "tasks" ).toArray() )
     {
         const QJsonObject taskObj = tv.toObject();
         auto*             input   = new RimWorkflowTaskInput;
         input->setTaskName( taskObj.value( "name" ).toString() );
         input->buildFromSchema( taskObj.value( "config_fields" ).toArray() );
-        m_taskInputs.push_back( input );
+        taskInputs.push_back( input );
     }
+
+    auto* job = new RimWorkflowJob;
+    job->setJobName( "Default" );
+    job->setTaskInputs( taskInputs );
+    m_jobs.push_back( job );
 
     RiaLogging::info(
-        QString( "Loaded workflow '%1' (%2 tasks with config) from %3" ).arg( m_name() ).arg( m_taskInputs.size() ).arg( dir ).toStdString() );
+        QString( "Loaded workflow '%1' (%2 tasks with config) from %3" ).arg( m_name() ).arg( taskInputs.size() ).arg( dir ).toStdString() );
 
     return true;
-}
-
-QString RimWorkflow::writeInputYaml( const QString& path ) const
-{
-    QString body;
-    for ( RimWorkflowTaskInput* t : m_taskInputs.childrenByType() )
-    {
-        if ( t ) body += t->toTaskYamlBlock();
-    }
-
-    QFile out( path );
-    if ( !out.open( QIODevice::WriteOnly | QIODevice::Truncate ) ) return {};
-    out.write( body.toUtf8() );
-    out.close();
-    return path;
-}
-
-void RimWorkflow::runWorkflow()
-{
-    const QString dir = workflowDirectory();
-    if ( dir.isEmpty() ) return;
-
-    auto port = RiaApplication::instance()->activeGrpcPortNumber();
-    if ( !port.has_value() )
-    {
-        RiaLogging::warning( "Cannot run workflow: gRPC server is not active. Enable it in Preferences." );
-        return;
-    }
-
-    QString python = findPythonExecutable();
-    if ( python.isEmpty() )
-    {
-        RiaLogging::warning( "Cannot run workflow: no Python interpreter found." );
-        return;
-    }
-
-    QDir    tmp( QDir::tempPath() );
-    QString runDir = QString( "resinsight_workflow_%1" ).arg( QUuid::createUuid().toString( QUuid::WithoutBraces ) );
-    if ( !tmp.mkpath( runDir ) )
-    {
-        RiaLogging::warning( "Cannot create temp dir for workflow run." );
-        return;
-    }
-    QString inputPath = tmp.absoluteFilePath( runDir + "/input.yaml" );
-    if ( writeInputYaml( inputPath ).isEmpty() )
-    {
-        RiaLogging::warning( "Failed to write input.yaml" );
-        return;
-    }
-
-    QStringList args{ "-m", "rips.taskmaestro_helper", "run", dir, "--input", inputPath, "--grpc-port", QString::number( port.value() ) };
-
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-
-    auto* dialog = new RiuWorkflowRunDialog( m_name(), RiuMainWindow::instance() );
-    dialog->setAttribute( Qt::WA_DeleteOnClose );
-    dialog->show();
-    dialog->start( python, args, env );
 }
