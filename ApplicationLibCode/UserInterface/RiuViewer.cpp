@@ -148,6 +148,14 @@ RiuViewer::RiuViewer( QWidget* parent )
     m_showZScaleLabel    = true;
     m_hideZScaleCheckbox = false;
 
+    // Filter label
+    m_filterLabel = new QLabel();
+    m_filterLabel->setFrameShape( QFrame::NoFrame );
+    m_filterLabel->setAlignment( Qt::AlignLeft );
+    m_filterLabel->setObjectName( "FilterLabel" );
+    m_filterLabel->setFont( font );
+    m_showFilterLabel = false;
+
     // Animation progress bar
     m_animationProgress = new caf::QStyledProgressBar( "AnimationProgress" );
     m_animationProgress->setFormat( "Time Step: %v/%m" );
@@ -183,6 +191,7 @@ RiuViewer::RiuViewer( QWidget* parent )
         m_animationProgress->setFont( regTestFont );
         m_histogramWidget->setFont( regTestFont );
         m_zScaleLabel->setFont( regTestFont );
+        m_filterLabel->setFont( regTestFont );
     }
 
     // When a context menu is created in the viewer is, and the action triggered is displaying a dialog,
@@ -543,6 +552,15 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
         m_zScaleLabel->render( painter, pos );
     }
 
+    if ( m_showFilterLabel ) // Filter label, drawn just below the Z scale label
+    {
+        QSize size( m_filterLabel->sizeHint().width(), m_filterLabel->sizeHint().height() );
+        int   yTop = margin + edgeAxisFrameBorderHeight + ( m_showZScaleLabel ? m_zScaleLabel->height() : 0 );
+        QPoint pos( margin + edgeAxisFrameBorderWidth, yTop );
+        m_filterLabel->resize( size.width(), size.height() );
+        m_filterLabel->render( painter, pos );
+    }
+
     if ( !m_cursorPositionDomainCoords.isUndefined() )
     {
         if ( mainCamera() )
@@ -613,6 +631,22 @@ void RiuViewer::setZScale( double scale )
     m_zScaleLabel->setText( QString( "Z: %1" ).arg( scale ) );
 
     if ( isScaleChanged ) m_selectionVisualizerManager->updateVisibleEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showFilterLabel( bool enable )
+{
+    m_showFilterLabel = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setFilterText( const QString& text )
+{
+    m_filterLabel->setText( text );
 }
 
 //--------------------------------------------------------------------------------------------------

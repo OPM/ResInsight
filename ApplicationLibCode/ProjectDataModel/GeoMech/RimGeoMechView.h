@@ -93,6 +93,8 @@ public:
 
     bool isUsingFormationNames() const override;
 
+    QString activeFiltersDisplayText() const override;
+
     void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int viewerTimeStep ) override;
 
     void updateLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int viewerTimeStep );

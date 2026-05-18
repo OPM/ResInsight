@@ -43,6 +43,8 @@
 #include "RimGeoMechFaultReactivationResult.h"
 #include "RimGeoMechPart.h"
 #include "RimGeoMechPartCollection.h"
+#include "RimFilterDisplayUtil.h"
+#include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
@@ -1073,6 +1075,30 @@ RimGeoMechResultDefinition* RimGeoMechView::cellResultResultDefinition() const
 const RimPropertyFilterCollection* RimGeoMechView::propertyFilterCollection() const
 {
     return geoMechPropertyFilterCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechView::activeFiltersDisplayText() const
+{
+    QStringList parts;
+
+    const QString cellPart = RimGridView::activeFiltersDisplayText();
+    if ( !cellPart.isEmpty() ) parts << cellPart;
+
+    if ( const auto* pfc = geoMechPropertyFilterCollection(); pfc && pfc->isActive && pfc->hasActiveFilters() )
+    {
+        std::vector<RimCellFilter*> asCellFilters;
+        for ( size_t i = 0; i < pfc->propertyFilters.size(); i++ )
+        {
+            if ( RimGeoMechPropertyFilter* p = pfc->propertyFilters[i] ) asCellFilters.push_back( p );
+        }
+        const QString propPart = RimFilterDisplayUtil::filterNamesJoined( asCellFilters, /*useAnd*/ true );
+        if ( !propPart.isEmpty() ) parts << propPart;
+    }
+
+    return parts.join( QStringLiteral( ", " ) );
 }
 
 //--------------------------------------------------------------------------------------------------

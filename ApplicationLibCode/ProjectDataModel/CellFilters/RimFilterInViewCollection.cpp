@@ -25,12 +25,14 @@
 #include "RimDataFilterInView.h"
 #include "RimDataFilterInViewCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimFilterDisplayUtil.h"
 #include "RimTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QIcon>
+#include <QStringList>
 #include <QVariant>
 
 CAF_PDM_SOURCE_INIT( RimFilterInViewCollection, "FilterInViewCollection" );
@@ -103,6 +105,40 @@ RimEclipsePropertyFilterCollection* RimFilterInViewCollection::propertyFilters()
 RimDataFilterInViewCollection* RimFilterInViewCollection::dataFiltersInView() const
 {
     return m_dataFiltersInView();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFilterInViewCollection::activeFiltersDisplayText() const
+{
+    if ( !isChecked() ) return {};
+
+    QStringList parts;
+
+    if ( auto* cf = m_cellFilters(); cf && cf->isActive() && cf->hasActiveFilters() )
+    {
+        const QString cellPart = RimFilterDisplayUtil::filterNamesJoined( cf->filters(), cf->useAndOperation() );
+        if ( !cellPart.isEmpty() ) parts << cellPart;
+    }
+
+    if ( auto* pf = m_propertyFilters(); pf && pf->isActive && pf->hasActiveFilters() )
+    {
+        const QString propPart = RimFilterDisplayUtil::filterNamesJoined( pf->filtersForEvaluation(), /*useAnd*/ true );
+        if ( !propPart.isEmpty() ) parts << propPart;
+    }
+
+    if ( auto* df = m_dataFiltersInView(); df && df->isChecked() && df->hasActiveFilters() )
+    {
+        QStringList dataNames;
+        for ( auto* w : df->activeWrappers() )
+        {
+            if ( w ) dataNames << w->name();
+        }
+        if ( !dataNames.isEmpty() ) parts << dataNames.join( QStringLiteral( " AND " ) );
+    }
+
+    return parts.join( QStringLiteral( ", " ) );
 }
 
 //--------------------------------------------------------------------------------------------------
