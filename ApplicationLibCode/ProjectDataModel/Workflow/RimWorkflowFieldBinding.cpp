@@ -62,4 +62,10 @@ void RimWorkflowFieldBinding::applySchema( const QJsonObject& fieldSchema )
     setFieldName( fieldSchema.value( "name" ).toString() );
     setDescription( fieldSchema.value( "description" ).toString() );
     setRequired( fieldSchema.value( "required" ).toBool( false ) );
+
+    if ( auto* vf = valueField() )
+    {
+        vf->uiCapability()->setUiName( m_fieldName() );
+        if ( !m_description().isEmpty() ) vf->uiCapability()->setUiToolTip( m_description() );
+    }
 }

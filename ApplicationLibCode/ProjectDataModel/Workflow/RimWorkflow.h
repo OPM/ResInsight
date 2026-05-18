@@ -18,12 +18,12 @@
 
 #pragma once
 
-#include "RimWorkflowTaskInput.h"
-
 #include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
+class RimWorkflowJob;
 
 class RimWorkflow : public caf::PdmObject
 {
@@ -32,24 +32,22 @@ class RimWorkflow : public caf::PdmObject
 public:
     RimWorkflow();
 
+    QString name() const;
     void    setWorkflowDirectory( const QString& directory );
     QString workflowDirectory() const;
 
-    bool    loadFromDirectory( QString* errorMessage = nullptr );
-    QString writeInputYaml( const QString& path ) const;
+    bool loadFromDirectory( QString* errorMessage = nullptr );
 
-    std::vector<RimWorkflowTaskInput*> taskInputs() const;
-
-    void runWorkflow();
+    std::vector<RimWorkflowJob*> jobs() const;
+    void                         addJob( RimWorkflowJob* job );
 
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
-    caf::PdmField<QString>                         m_name;
-    caf::PdmField<QString>                         m_description;
-    caf::PdmField<caf::FilePath>                   m_workflowDirectory;
-    caf::PdmField<QString>                         m_loadError;
-    caf::PdmField<bool>                            m_runButton;
-    caf::PdmChildArrayField<RimWorkflowTaskInput*> m_taskInputs;
+    caf::PdmField<QString>                    m_name;
+    caf::PdmField<QString>                    m_description;
+    caf::PdmField<caf::FilePath>              m_workflowDirectory;
+    caf::PdmField<QString>                    m_loadError;
+    caf::PdmChildArrayField<RimWorkflowJob*>  m_jobs;
 };
