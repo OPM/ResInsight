@@ -43,8 +43,8 @@ void RicNewWorkflowJobFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    auto* clone = dynamic_cast<RimWorkflowJob*>(
-        jobs.front()->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto* clone =
+        dynamic_cast<RimWorkflowJob*>( jobs.front()->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     if ( !clone ) return;
 
     clone->setJobName( QString( "Job %1" ).arg( jobs.size() + 1 ) );

@@ -45,9 +45,9 @@ protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
-    caf::PdmField<QString>                    m_name;
-    caf::PdmField<QString>                    m_description;
-    caf::PdmField<caf::FilePath>              m_workflowDirectory;
-    caf::PdmField<QString>                    m_loadError;
-    caf::PdmChildArrayField<RimWorkflowJob*>  m_jobs;
+    caf::PdmField<QString>                   m_name;
+    caf::PdmField<QString>                   m_description;
+    caf::PdmField<caf::FilePath>             m_workflowDirectory;
+    caf::PdmField<QString>                   m_loadError;
+    caf::PdmChildArrayField<RimWorkflowJob*> m_jobs;
 };
