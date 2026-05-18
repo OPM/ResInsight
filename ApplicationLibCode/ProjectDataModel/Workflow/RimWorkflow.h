@@ -41,6 +41,8 @@ public:
     std::vector<RimWorkflowJob*> jobs() const;
     void                         addJob( RimWorkflowJob* job );
 
+    static QString findPythonExecutable();
+
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 

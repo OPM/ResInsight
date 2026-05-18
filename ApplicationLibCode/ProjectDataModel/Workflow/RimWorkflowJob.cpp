@@ -22,7 +22,6 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
 
 #include "RiuMainWindow.h"
 #include "RiuWorkflowJobRunner.h"
@@ -34,39 +33,10 @@
 
 #include <QDir>
 #include <QFile>
-#include <QFileInfo>
 #include <QProcessEnvironment>
-#include <QStandardPaths>
 #include <QUuid>
 
 CAF_PDM_SOURCE_INIT( RimWorkflowJob, "WorkflowJob" );
-
-namespace
-{
-QString findPythonExecutable()
-{
-    QStringList candidates;
-    if ( auto* prefs = RiaPreferences::current() )
-    {
-        QString configured = prefs->pythonExecutable();
-        if ( !configured.isEmpty() && configured != "python" ) candidates << configured;
-    }
-    candidates << "python3" << "python";
-
-    for ( const QString& cand : candidates )
-    {
-        if ( cand.contains( '/' ) || cand.contains( '\\' ) )
-        {
-            if ( QFileInfo( cand ).isExecutable() ) return cand;
-        }
-        else if ( !QStandardPaths::findExecutable( cand ).isEmpty() )
-        {
-            return cand;
-        }
-    }
-    return {};
-}
-} // namespace
 
 RimWorkflowJob::RimWorkflowJob()
 {
@@ -194,7 +164,7 @@ void RimWorkflowJob::runJob()
         return;
     }
 
-    QString python = findPythonExecutable();
+    QString python = RimWorkflow::findPythonExecutable();
     if ( python.isEmpty() )
     {
         RiaLogging::warning( "Cannot run workflow: no Python interpreter found." );

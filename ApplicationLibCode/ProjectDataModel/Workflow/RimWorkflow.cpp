@@ -37,33 +37,6 @@
 
 CAF_PDM_SOURCE_INIT( RimWorkflow, "Workflow" );
 
-namespace
-{
-QString findPythonExecutable()
-{
-    QStringList candidates;
-    if ( auto* prefs = RiaPreferences::current() )
-    {
-        QString configured = prefs->pythonExecutable();
-        if ( !configured.isEmpty() && configured != "python" ) candidates << configured;
-    }
-    candidates << "python3" << "python";
-
-    for ( const QString& cand : candidates )
-    {
-        if ( cand.contains( '/' ) || cand.contains( '\\' ) )
-        {
-            if ( QFileInfo( cand ).isExecutable() ) return cand;
-        }
-        else if ( !QStandardPaths::findExecutable( cand ).isEmpty() )
-        {
-            return cand;
-        }
-    }
-    return {};
-}
-} // namespace
-
 RimWorkflow::RimWorkflow()
 {
     CAF_PDM_InitObject( "Workflow", ":/Folder.png" );
@@ -130,7 +103,7 @@ bool RimWorkflow::loadFromDirectory( QString* errorMessage )
     const QString dir = workflowDirectory();
     if ( dir.isEmpty() ) return false;
 
-    QString python = findPythonExecutable();
+    QString python = RimWorkflow::findPythonExecutable();
     if ( python.isEmpty() )
     {
         m_loadError = "No usable Python interpreter found";
@@ -204,4 +177,28 @@ bool RimWorkflow::loadFromDirectory( QString* errorMessage )
         QString( "Loaded workflow '%1' (%2 tasks with config) from %3" ).arg( m_name() ).arg( taskInputs.size() ).arg( dir ).toStdString() );
 
     return true;
+}
+
+QString RimWorkflow::findPythonExecutable()
+{
+    QStringList candidates;
+    if ( auto* prefs = RiaPreferences::current() )
+    {
+        QString configured = prefs->pythonExecutable();
+        if ( !configured.isEmpty() && configured != "python" ) candidates << configured;
+    }
+    candidates << "python3" << "python";
+
+    for ( const QString& cand : candidates )
+    {
+        if ( cand.contains( '/' ) || cand.contains( '\\' ) )
+        {
+            if ( QFileInfo( cand ).isExecutable() ) return cand;
+        }
+        else if ( !QStandardPaths::findExecutable( cand ).isEmpty() )
+        {
+            return cand;
+        }
+    }
+    return {};
 }
