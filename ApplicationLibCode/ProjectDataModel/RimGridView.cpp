@@ -19,9 +19,11 @@
 #include "RimGridView.h"
 
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimFilterDisplayUtil.h"
 #include "RimGeoMechPartCollection.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
@@ -241,6 +243,17 @@ const RimCellFilterCollection* RimGridView::cellFilterCollection() const
     {
         return m_cellFilterCollection;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridView::activeFiltersDisplayText() const
+{
+    const auto* coll = cellFilterCollection();
+    if ( !coll || !coll->isActive() || !coll->hasActiveFilters() ) return {};
+
+    return RimFilterDisplayUtil::filterNamesJoined( coll->filters(), coll->useAndOperation() );
 }
 
 //--------------------------------------------------------------------------------------------------

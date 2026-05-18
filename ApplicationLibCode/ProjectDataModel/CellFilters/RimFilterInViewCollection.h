@@ -54,6 +54,8 @@ public:
     RimEclipsePropertyFilterCollection* propertyFilters() const;
     RimDataFilterInViewCollection*      dataFiltersInView() const;
 
+    QString activeFiltersDisplayText() const;
+
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

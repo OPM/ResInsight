@@ -2600,6 +2600,16 @@ const RimPropertyFilterCollection* RimEclipseView::propertyFilterCollection() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimEclipseView::activeFiltersDisplayText() const
+{
+    if ( m_filterInViewCollection() ) return m_filterInViewCollection()->activeFiltersDisplayText();
+
+    return RimGridView::activeFiltersDisplayText();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimPropertyFilterCollection* RimEclipseView::nativePropertyFilterCollection()
 {
     return m_propertyFilterCollection();
