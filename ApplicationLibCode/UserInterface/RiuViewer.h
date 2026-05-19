@@ -147,6 +147,7 @@ protected:
     void mouseMoveEvent( QMouseEvent* e ) override;
     void enterEvent( QEnterEvent* e ) override;
     void leaveEvent( QEvent* ) override;
+    void mousePressEvent( QMouseEvent* e ) override;
 
 private:
     void updateLegendLayout();
@@ -161,7 +162,6 @@ private:
     void paintOverlayItems( QPainter* painter ) override;
 
     void mouseReleaseEvent( QMouseEvent* event ) override;
-    void mousePressEvent( QMouseEvent* event ) override;
     void mouseDoubleClickEvent( QMouseEvent* event ) override;
 
 private:
