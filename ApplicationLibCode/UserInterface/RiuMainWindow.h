@@ -92,8 +92,10 @@ public:
     void cleanupGuiCaseClose();
     void cleanupGuiBeforeProjectClose();
 
-    void removeViewer( QWidget* viewer ) override;
+    void onViewerRemoved() override;
     void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
+
+    std::vector<RimViewWindow*> viewWindows() override;
 
     void setResultInfo( const QString& info ) const;
 
