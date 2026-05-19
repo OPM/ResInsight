@@ -25,6 +25,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicMswTableDataTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RicScheduleDataGenerator.h
     ${CMAKE_CURRENT_LIST_DIR}/RicTransmissibilityCalculator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicPerforationCellFilterEvaluator.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -54,6 +55,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicMswTableDataTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicScheduleDataGenerator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicTransmissibilityCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicPerforationCellFilterEvaluator.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
