@@ -20,6 +20,7 @@
 
 #include <QByteArray>
 #include <QMainWindow>
+#include <QPointer>
 #include <QString>
 #include <QStringList>
 
