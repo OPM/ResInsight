@@ -174,3 +174,15 @@ int RimDockWindowController::mainWindowId() const
 {
     return m_mainWindowID;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDockWindowController::setActiveViewer()
+{
+    if ( auto pdmView = viewPdmObject() )
+    {
+        if ( pdmView->isActive() ) return;
+        pdmView->setActive( true );
+    }
+}
