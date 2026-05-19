@@ -119,9 +119,14 @@ ads::CDockManager* RiuMainWindowBase::dockManager() const
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setActiveViewer( QString viewerName )
 {
-    if ( auto dockWidget = dockManager()->findDockWidget( viewerName ) )
+    for ( auto view : viewWindows() )
     {
-        dockWidget->setAsCurrentTab();
+        if ( view->dockWidget() && view->dockWidget()->objectName() == viewerName )
+        {
+            view->setAsActiveViewer();
+            view->dockWidget()->setAsCurrentTab();
+            break;
+        }
     }
 }
 
@@ -362,8 +367,18 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::slotDockViewerVisibilityChanged( bool visible )
 {
+    if ( !visible ) return;
+
     if ( auto dockWidget = dynamic_cast<ads::CDockWidget*>( sender() ) )
     {
+        for ( auto view : viewWindows() )
+        {
+            if ( view->dockWidget() == dockWidget )
+            {
+                view->setAsActiveViewer();
+                break;
+            }
+        }
     }
 }
 

@@ -1143,15 +1143,9 @@ RimViewWindow* RiaGuiApplication::activeViewWindow()
     {
         viewWindow = RiaGuiApplication::instance()->activeReservoirView();
     }
-    else if ( dynamic_cast<RiuPlotMainWindow*>( mainWindowWidget ) )
+    else if ( auto mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( mainWindowWidget ) )
     {
-        RiuPlotMainWindow* mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( mainWindowWidget );
-
-        // QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
-        // if ( !subwindows.empty() )
-        //{
-        //     viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
-        // }
+        viewWindow = mainPlotWindow->activePlotView();
     }
 
     return viewWindow;

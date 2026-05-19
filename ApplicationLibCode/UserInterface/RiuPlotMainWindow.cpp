@@ -741,9 +741,8 @@ void RiuPlotMainWindow::showAndSetKeyboardFocusToSummaryPlotManager()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::removeViewer( QWidget* viewer )
+void RiuPlotMainWindow::onViewerRemoved()
 {
-    // removeViewerFromMdiArea( m_mdiArea, viewer );
     refreshToolbars();
 }
 
@@ -754,6 +753,37 @@ void RiuPlotMainWindow::initializeViewer( ads::CDockWidget* dockWidget, QWidget*
 {
     dockManager()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, dockWidget, dockManager()->centralWidget()->dockAreaWidget() );
     viewer->update();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimViewWindow*> RiuPlotMainWindow::viewWindows()
+{
+    std::vector<RimViewWindow*> views;
+
+    for ( auto v : RimProject::current()->descendantsOfType<RimPlotWindow>() )
+    {
+        views.push_back( v );
+    }
+
+    return views;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuPlotMainWindow::activePlotView()
+{
+    for ( auto view : viewWindows() )
+    {
+        if ( view->isActive() )
+        {
+            return view;
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

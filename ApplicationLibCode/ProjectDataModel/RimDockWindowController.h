@@ -42,7 +42,7 @@ public:
     void setViewToControl( RimViewWindow* view );
     int  mainWindowId() const;
 
-    void setActiveViewer();
+    void setAsActiveViewer();
 
     void updateViewerWidget();
     void handleViewerDeletion();

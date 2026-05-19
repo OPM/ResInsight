@@ -68,8 +68,10 @@ public:
     void cleanupGuiBeforeProjectClose();
     void cleanUpTemporaryWidgets();
 
-    void removeViewer( QWidget* viewer ) override;
-    void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
+    void                        onViewerRemoved() override;
+    void                        initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
+    std::vector<RimViewWindow*> viewWindows() override;
+    RimViewWindow*              activePlotView();
 
     void setDefaultWindowSize();
     void enable3DSelectionLink( bool enable );
