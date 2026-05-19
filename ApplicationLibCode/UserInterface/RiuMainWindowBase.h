@@ -48,6 +48,8 @@ class PdmUiPropertyView;
 class QAction;
 class QUndoView;
 
+class RimViewWindow;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -61,9 +63,11 @@ public:
 
     virtual QString mainWindowName() = 0;
 
-    virtual void removeViewer( QWidget* viewer ) = 0;
     virtual void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) {};
     virtual void setActiveViewer( QString viewerName );
+    virtual void onViewerRemoved() = 0;
+
+    virtual std::vector<RimViewWindow*> viewWindows() = 0;
 
     void loadWinGeoAndDockToolBarLayout();
     void saveWinGeoAndDockToolBarLayout();

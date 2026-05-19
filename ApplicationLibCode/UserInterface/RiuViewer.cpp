@@ -724,10 +724,7 @@ void RiuViewer::mousePressEvent( QMouseEvent* mouseEvent )
     {
         m_lastMousePressPosition = mouseEvent->pos();
 
-        if ( mouseEvent->button() == Qt::LeftButton )
-        {
-            if ( auto ownView = ownerViewWindow() ) ownView->setAsActiveViewer();
-        }
+        if ( auto ownView = ownerViewWindow() ) ownView->setAsActiveViewer();
     }
 }
 
