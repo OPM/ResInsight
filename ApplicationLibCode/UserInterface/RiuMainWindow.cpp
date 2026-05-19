@@ -1189,9 +1189,11 @@ RiuMessagePanel* RiuMainWindow::messagePanel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::removeViewer( QWidget* viewer )
+void RiuMainWindow::onViewerRemoved()
 {
     slotRefreshViewActions();
+    refreshAnimationActions();
+    refreshDrawStyleActions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1202,6 +1204,21 @@ void RiuMainWindow::initializeViewer( ads::CDockWidget* dockWidget, QWidget* vie
     dockManager()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, dockWidget, dockManager()->centralWidget()->dockAreaWidget() );
 
     slotRefreshViewActions();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimViewWindow*> RiuMainWindow::viewWindows()
+{
+    std::vector<RimViewWindow*> views;
+
+    for ( auto v : RimProject::current()->allViews() )
+    {
+        views.push_back( v );
+    }
+
+    return views;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1480,7 +1497,7 @@ void RiuMainWindow::selectedObjectsChanged()
             slotRefreshViewActions();
 
             // The only way to get to this code is by selection change initiated from the project tree view
-            // As we are activating an MDI-window, the focus is given to this MDI-window
+            // As we are activating an view window, the focus might be given to this window
             // Set focus back to the tree view to be able to continue keyboard tree view navigation
             projectTree->treeView()->setFocus();
         }

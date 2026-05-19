@@ -91,6 +91,8 @@ public:
     static QString dockStateHideAllPlotWindowName();
     static QString dockStateHideAll3DWindowName();
 
+    static QString viewWindowPrefix();
+
     static QAction* toggleActionForWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName );
 
     static ads::CDockWidget* findDockWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName );
