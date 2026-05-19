@@ -718,9 +718,17 @@ void RiuViewer::showHistogram( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::mousePressEvent( QMouseEvent* event )
+void RiuViewer::mousePressEvent( QMouseEvent* mouseEvent )
 {
-    m_lastMousePressPosition = event->pos();
+    if ( mouseEvent )
+    {
+        m_lastMousePressPosition = mouseEvent->pos();
+
+        if ( mouseEvent->button() == Qt::LeftButton )
+        {
+            if ( auto ownView = ownerViewWindow() ) ownView->setAsActiveViewer();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

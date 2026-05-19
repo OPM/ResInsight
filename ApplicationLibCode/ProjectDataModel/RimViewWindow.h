@@ -45,6 +45,8 @@ public:
     bool showWindow() const;
     void setShowWindow( bool showWindow );
 
+    void setAsActiveViewer();
+
     bool isMainDockedWindow() const;
 
     bool isDockedIn3DView() const;
@@ -73,7 +75,7 @@ public:
     QString dockWindowName() const;
 
 protected:
-    ///////// Interface for the Window controller
+    //// Interface for the Window controller
     friend class RimDockWindowController;
 
     QString          windowTitle();
@@ -84,7 +86,9 @@ protected:
     virtual void     onViewNavigationChanged();
     virtual bool     isWindowVisible() const; // Virtual To allow special visibility control
     void             deleteDockWidget();
-    //////////
+    void             setActive( bool active );
+    bool             isActive() const;
+    ////
 
     // Derived classes are not supposed to override this function. The intention is to always use m_showWindow
     // as the objectToggleField for this class. This way the visibility of a widget being part of a composite widget
@@ -105,6 +109,7 @@ protected:
     RimDockWindowController* m_windowController;
     ads::CDockWidget*        m_dockWidget;
     size_t                   m_dockWindowId;
+    bool                     m_activeViewer;
 
     static size_t m_nextDockWindowId;
 };

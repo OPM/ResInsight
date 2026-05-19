@@ -50,6 +50,7 @@ RimViewWindow::RimViewWindow()
     : m_dockWidget( nullptr )
     , m_windowController( nullptr )
     , m_dockWindowId( m_nextDockWindowId++ )
+    , m_activeViewer( false )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
 
@@ -78,6 +79,14 @@ bool RimViewWindow::showWindow() const
 void RimViewWindow::setShowWindow( bool showWindow )
 {
     m_showWindow = showWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::setAsActiveViewer()
+{
+    if ( m_windowController ) m_windowController->setAsActiveViewer();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -329,4 +338,20 @@ ads::CDockWidget* RimViewWindow::createDockWidget()
         m_dockWidget = new ads::CDockWidget( windowTitle() );
     }
     return m_dockWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::setActive( bool active )
+{
+    m_activeViewer = active;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimViewWindow::isActive() const
+{
+    return m_activeViewer;
 }
