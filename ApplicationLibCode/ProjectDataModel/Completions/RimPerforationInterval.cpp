@@ -27,6 +27,8 @@
 #include "Well/RigWellPath.h"
 
 #include "RimCellFilter.h"
+#include "RimDataFilterCollection.h"
+#include "RimEclipseCase.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimWellLogTrack.h"
@@ -421,8 +423,9 @@ void RimPerforationInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Populate the "Cell Filter" dropdown with every RimCellFilter reachable in the project so the
-/// user can pick one. Without this the field renders as an empty selector.
+/// Populate the "Cell Filter" dropdown with case-level data filters only. View-owned filters
+/// (under RimGridView's RimCellFilterCollection) are excluded — completion export operates on a
+/// case, not a view, so per-view filters are not applicable here.
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimPerforationInterval::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
@@ -434,9 +437,18 @@ QList<caf::PdmOptionItemInfo> RimPerforationInterval::calculateValueOptions( con
 
         if ( auto* project = RimProject::current() )
         {
-            for ( RimCellFilter* filter : project->descendantsIncludingThisOfType<RimCellFilter>() )
+            for ( RimCase* rimCase : project->allGridCases() )
             {
-                if ( filter ) options.push_back( caf::PdmOptionItemInfo( filter->name(), filter ) );
+                auto* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
+                if ( !eclipseCase ) continue;
+
+                RimDataFilterCollection* dataFilters = eclipseCase->dataFilterCollection();
+                if ( !dataFilters ) continue;
+
+                for ( RimCellFilter* filter : dataFilters->filters() )
+                {
+                    if ( filter ) options.push_back( caf::PdmOptionItemInfo( filter->name(), filter ) );
+                }
             }
         }
     }
