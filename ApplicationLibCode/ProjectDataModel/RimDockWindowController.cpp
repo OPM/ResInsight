@@ -19,9 +19,11 @@
 #include "RimDockWindowController.h"
 
 #include "RiaGuiApplication.h"
+#include "Rim3dView.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
 
+#include "RiuDockWidgetTools.h"
 #include "RiuMainWindowBase.h"
 #include "RiuViewer.h"
 
@@ -72,7 +74,7 @@ void RimDockWindowController::removeWindowFromDock()
         viewPdmObject()->deleteDockWidget();
         viewPdmObject()->deleteViewWidget();
 
-        mainWin->removeViewer( viewWidget() );
+        mainWin->onViewerRemoved();
     }
 }
 
@@ -129,6 +131,7 @@ void RimDockWindowController::updateViewerWidget()
             QWidget*          viewWidget = viewPdmObject()->createViewWidget( dockWidget );
             dockWidget->setWidget( viewWidget );
             dockWidget->setObjectName( viewPdmObject()->dockWindowName() );
+            viewWidget->setObjectName( viewPdmObject()->dockWindowName() );
             mainWindow->initializeViewer( dockWidget, viewWidget );
 
             mainWindow->connect( dockWidget, SIGNAL( closed() ), mainWindow, SLOT( slotDockViewerClosed() ) );
@@ -144,9 +147,8 @@ void RimDockWindowController::updateViewerWidget()
         if ( viewWidget() )
         {
             viewPdmObject()->deleteDockWidget();
-            mainWindow->removeViewer( viewWidget() );
-
             viewPdmObject()->deleteViewWidget();
+            mainWindow->onViewerRemoved();
         }
     }
 }
@@ -178,11 +180,35 @@ int RimDockWindowController::mainWindowId() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDockWindowController::setActiveViewer()
+void RimDockWindowController::setAsActiveViewer()
 {
+    if ( getMainWindow() == nullptr ) return;
+
     if ( auto pdmView = viewPdmObject() )
     {
         if ( pdmView->isActive() ) return;
+
+        for ( auto viewWin : getMainWindow()->viewWindows() )
+        {
+            if ( viewWin->isActive() )
+            {
+                viewWin->setActive( false );
+                viewWin->updateWindowTitle();
+            }
+        }
+
         pdmView->setActive( true );
+        pdmView->updateWindowTitle();
+
+        if ( auto resView = dynamic_cast<Rim3dView*>( pdmView ) )
+        {
+            RiaApplication::instance()->setActiveReservoirView( resView );
+            if ( auto mainWin = dynamic_cast<RiuMainWindow*>( getMainWindow() ) )
+            {
+                mainWin->refreshViewActions();
+                mainWin->refreshAnimationActions();
+                mainWin->refreshDrawStyleActions();
+            }
+        }
     }
 }

@@ -29,6 +29,8 @@
 #include "RimDockWindowController.h"
 #include "RimProject.h"
 
+#include "RiuDockWidgetTools.h"
+
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeViewEditor.h"
 
@@ -275,8 +277,22 @@ void RimViewWindow::updateWindowTitle()
     if ( viewWidget() && dockWidget() )
     {
         viewWidget()->setWindowTitle( windowTitle() );
-        dockWidget()->setWindowTitle( windowTitle() );
-        dockWidget()->setIcon( QIcon( ":/ActiveWindow.svg" ) );
+        if ( dockWidget()->isFloating() && isActive() )
+        {
+            dockWidget()->setWindowTitle( "* " + windowTitle() );
+        }
+        else
+        {
+            dockWidget()->setWindowTitle( windowTitle() );
+        }
+        if ( isActive() )
+        {
+            dockWidget()->setIcon( QIcon( ":/ActiveWindow.svg" ) );
+        }
+        else
+        {
+            dockWidget()->setIcon( QIcon() );
+        }
     }
 }
 
@@ -285,7 +301,7 @@ void RimViewWindow::updateWindowTitle()
 //--------------------------------------------------------------------------------------------------
 QString RimViewWindow::dockWindowName() const
 {
-    return QString( "DockViewWindow_%1" ).arg( m_dockWindowId );
+    return QString( "%1_%2" ).arg( RiuDockWidgetTools::viewWindowPrefix() ).arg( m_dockWindowId );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,6 +46,7 @@ public:
     void setShowWindow( bool showWindow );
 
     void setAsActiveViewer();
+    bool isActive() const;
 
     bool isMainDockedWindow() const;
 
@@ -87,7 +88,6 @@ protected:
     virtual bool     isWindowVisible() const; // Virtual To allow special visibility control
     void             deleteDockWidget();
     void             setActive( bool active );
-    bool             isActive() const;
     ////
 
     // Derived classes are not supposed to override this function. The intention is to always use m_showWindow
