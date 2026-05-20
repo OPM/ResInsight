@@ -55,6 +55,7 @@
 #include "RiuDragDrop.h"
 #include "RiuMenuBarBuildTools.h"
 #include "RiuMessagePanel.h"
+#include "RiuMultiPlotBook.h"
 #include "RiuMultiPlotPage.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTools.h"
@@ -751,7 +752,17 @@ void RiuPlotMainWindow::onViewerRemoved()
 void RiuPlotMainWindow::initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer )
 {
     dockManager()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, dockWidget, dockManager()->centralWidget()->dockAreaWidget() );
-    viewer->update();
+
+    if ( auto book = dynamic_cast<RiuMultiPlotBook*>( viewer ) )
+    {
+        book->scheduleReplotOfAllPlots();
+    }
+    else
+    {
+        viewer->update();
+    }
+
+    refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
