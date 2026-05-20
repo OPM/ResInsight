@@ -122,6 +122,51 @@ def test_well_path_by_name(rips_instance, initialize_test):
     assert project.well_path_by_name("Nonexistent Well Path") is None
 
 
+def test_import_formation_names(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+
+    rips_instance.project.import_formation_names(
+        formation_files=dataroot.PATH + "/20Layers.lyr"
+    )
+
+    available = case.available_properties(rips.PropertyType.FORMATION_NAMES)
+    assert "Active Formation Names" in available
+
+
+_MINIMAL_LAS = """~Version Information
+ VERS.                 2.0 : CWLS log ASCII Standard - VERSION 2.0
+ WRAP.                 NO  : One line per depth step
+~Well Information
+#MNEM.UNIT       Value      Description
+#---------    -----------   ---------------
+ STRT.M       1000.0       : Start Depth
+ STOP.M       1002.0       : Stop Depth
+ STEP.M          1.0       : Step
+ NULL.        -999.25      : Null Value
+ WELL.        RIPS_TEST    : WELL
+~Curve Information
+ DEPT.M               : Depth
+ GR.GAPI              : Gamma Ray
+~ASCII
+ 1000.0   50.0
+ 1001.0   55.0
+ 1002.0   60.0
+"""
+
+
+def test_import_well_log_files(rips_instance, initialize_test):
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        las_path = os.path.join(tmpdirname, "rips_test.las")
+        with open(las_path, "w") as las_file:
+            las_file.write(_MINIMAL_LAS)
+
+        well_path_names = rips_instance.project.import_well_log_files(
+            well_log_folder=tmpdirname
+        )
+        assert "RIPS_TEST" in well_path_names
+
+
 def test_exportSnapshots(rips_instance, initialize_test):
     if not rips_instance.is_gui():
         pytest.skip("Cannot run test without a GUI")
