@@ -158,10 +158,16 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
             allDateTimes.push_back( dateTime );
         }
 
-        std::vector<int> filteredTimeStepIndices =
-            RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
+        if ( !allDateTimes.empty() )
+        {
+            std::vector<int> filteredTimeStepIndices =
+                RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
 
-        m_timeStep = allDateTimes[filteredTimeStepIndices.back()];
+            if ( !filteredTimeStepIndices.empty() )
+            {
+                m_timeStep = allDateTimes[filteredTimeStepIndices.back()];
+            }
+        }
 
         updateConnectedEditors();
     }
