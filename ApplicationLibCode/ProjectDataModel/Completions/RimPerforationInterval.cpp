@@ -437,6 +437,7 @@ QList<caf::PdmOptionItemInfo> RimPerforationInterval::calculateValueOptions( con
 
         if ( auto* project = RimProject::current() )
         {
+            std::vector<std::pair<RimEclipseCase*, std::vector<RimCellFilter*>>> filtersByCase;
             for ( RimCase* rimCase : project->allGridCases() )
             {
                 auto* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
@@ -445,9 +446,22 @@ QList<caf::PdmOptionItemInfo> RimPerforationInterval::calculateValueOptions( con
                 RimDataFilterCollection* dataFilters = eclipseCase->dataFilterCollection();
                 if ( !dataFilters ) continue;
 
+                std::vector<RimCellFilter*> caseFilters;
                 for ( RimCellFilter* filter : dataFilters->filters() )
                 {
-                    if ( filter ) options.push_back( caf::PdmOptionItemInfo( filter->name(), filter ) );
+                    if ( filter ) caseFilters.push_back( filter );
+                }
+                if ( !caseFilters.empty() ) filtersByCase.emplace_back( eclipseCase, caseFilters );
+            }
+
+            const bool prefixWithCaseName = filtersByCase.size() > 1;
+            for ( const auto& [eclipseCase, caseFilters] : filtersByCase )
+            {
+                for ( RimCellFilter* filter : caseFilters )
+                {
+                    QString label = prefixWithCaseName ? QString( "%1 : %2" ).arg( eclipseCase->caseUserDescription(), filter->name() )
+                                                       : filter->name();
+                    options.push_back( caf::PdmOptionItemInfo( label, filter ) );
                 }
             }
         }
