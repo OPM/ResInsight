@@ -4,6 +4,7 @@ generated
 dist
 build
 rips.egg-info
+rips/_version.py
 grpc
 grpcio*
 six*
