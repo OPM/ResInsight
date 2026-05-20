@@ -45,6 +45,9 @@
 #include "Well/RigWellPath.h"
 #include "Well/RigWellPathIntersectionTools.h"
 
+#include "RicPerforationCellFilterEvaluator.h"
+
+#include "RimCellFilter.h"
 #include "RimEclipseCase.h"
 #include "RimFishbonesCollection.h"
 #include "RimNonDarcyPerforationParameters.h"
@@ -1170,10 +1173,15 @@ std::vector<RigCompletionData>
                                                                                   perforationPointsAndMD.first,
                                                                                   perforationPointsAndMD.second );
 
+            RicPerforationCellFilterEvaluator filterEval( interval->cellFilter(), settings.caseToApply );
+
+            const size_t completionCountBefore = completionData.size();
+
             for ( auto& cell : intersectedCells )
             {
                 bool cellIsActive = activeCellInfo->isActive( ReservoirCellIndex( cell.globCellIndex ) );
                 if ( !cellIsActive ) continue;
+                if ( !filterEval.includesGlobalCell( cell.globCellIndex ) ) continue;
 
                 RigCompletionData completion( wellPath->completionSettings()->wellNameForExport(),
                                               RigCompletionDataGridCell( cell.globCellIndex, settings.caseToApply->mainGrid() ),
@@ -1231,6 +1239,16 @@ std::vector<RigCompletionData>
                                             QString( " Transmissibility: " ) + QString::number( transmissibility ) );
                 completion.setSourcePdmObject( interval );
                 completionData.push_back( completion );
+            }
+
+            if ( filterEval.isEnabled() && completionData.size() == completionCountBefore && filterEval.rejectedCellCount() > 0 )
+            {
+                RiaLogging::info(
+                    std::format( "Perforation '{}' on well '{}': all {} intersected cells suppressed by attached cell filter '{}'.",
+                                 interval->name(),
+                                 wellPath->name(),
+                                 filterEval.rejectedCellCount(),
+                                 interval->cellFilter() ? interval->cellFilter()->fullName() : QString() ) );
             }
         }
     }

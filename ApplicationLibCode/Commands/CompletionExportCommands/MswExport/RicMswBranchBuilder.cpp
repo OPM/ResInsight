@@ -20,6 +20,9 @@
 
 #include "RicExportFractureCompletionsImpl.h"
 #include "RicMswTableDataTools.h"
+#include "RicPerforationCellFilterEvaluator.h"
+
+#include "RimCellFilter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -134,6 +137,7 @@ int findOutletSegmentForMD( const std::vector<CellSegmentEntry>& cellSegMap, dou
 RigMswBranch buildMainBoreBranchFromGeometry( const RimWellPath*                                wellPath,
                                               const std::vector<WellPathCellIntersectionInfo>&  filteredIntersections,
                                               const RigMainGrid*                                mainGrid,
+                                              const RimEclipseCase*                             eclipseCase,
                                               const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                               const std::set<const RimPerforationInterval*>&    valvedIntervals,
                                               const std::string&                                infoType,
@@ -157,6 +161,18 @@ RigMswBranch buildMainBoreBranchFromGeometry( const RimWellPath*                
     double prevOutTVD = heelTVD;
     int    prevSegNum = outletSegmentNumber;
     bool   firstSeg   = true;
+
+    std::map<const RimPerforationInterval*, RicPerforationCellFilterEvaluator> filterEvaluators;
+    std::map<const RimPerforationInterval*, size_t>                            overlapCountPerInterval;
+    std::map<const RimPerforationInterval*, size_t>                            emittedCountPerInterval;
+    for ( const auto* perf : perforationIntervals )
+    {
+        filterEvaluators.emplace( std::piecewise_construct,
+                                  std::forward_as_tuple( perf ),
+                                  std::forward_as_tuple( perf->cellFilter(), eclipseCase ) );
+        overlapCountPerInterval[perf] = 0;
+        emittedCountPerInterval[perf] = 0;
+    }
 
     for ( const auto& cellInfo : filteredIntersections )
     {
@@ -182,7 +198,14 @@ RigMswBranch buildMainBoreBranchFromGeometry( const RimWellPath*                
                 if ( activeCellInfo && cellInfo.globCellIndex < mainGrid->totalCellCount() &&
                      !activeCellInfo->isActive( ReservoirCellIndex( cellInfo.globCellIndex ) ) )
                     continue;
-                if ( auto ci = toMswCellIntersection( cellInfo, mainGrid, overlapStart, overlapEnd ) ) cellCompsegs.push_back( *ci );
+                overlapCountPerInterval[perf]++;
+                auto& filterEval = filterEvaluators.at( perf );
+                if ( !filterEval.includesGlobalCell( cellInfo.globCellIndex ) ) continue;
+                if ( auto ci = toMswCellIntersection( cellInfo, mainGrid, overlapStart, overlapEnd ) )
+                {
+                    cellCompsegs.push_back( *ci );
+                    emittedCountPerInterval[perf]++;
+                }
             }
         }
 
@@ -255,6 +278,19 @@ RigMswBranch buildMainBoreBranchFromGeometry( const RimWellPath*                
         }
     }
 
+    for ( const auto* perf : perforationIntervals )
+    {
+        const auto& filterEval = filterEvaluators.at( perf );
+        if ( !filterEval.isEnabled() ) continue;
+        if ( overlapCountPerInterval[perf] == 0 ) continue;
+        if ( emittedCountPerInterval[perf] > 0 ) continue;
+        RiaLogging::info( std::format( "Perforation '{}' on well '{}': all {} intersected cells suppressed by attached cell filter '{}'.",
+                                       perf->name(),
+                                       wellPath->name(),
+                                       filterEval.rejectedCellCount(),
+                                       perf->cellFilter() ? perf->cellFilter()->fullName() : QString() ) );
+    }
+
     return RigMswBranch{ branchNumber, std::nullopt, std::move( result ) };
 }
 
@@ -264,6 +300,7 @@ RigMswBranch buildMainBoreBranchFromGeometry( const RimWellPath*                
 std::vector<RigMswBranch> buildValveBranchesFromGeometry( const RimWellPath*                                wellPath,
                                                           const std::vector<WellPathCellIntersectionInfo>&  filteredIntersections,
                                                           const RigMainGrid*                                mainGrid,
+                                                          const RimEclipseCase*                             eclipseCase,
                                                           const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                                           const std::vector<CellSegmentEntry>&              cellSegMap,
                                                           const std::string&                                infoType,
@@ -283,6 +320,8 @@ std::vector<RigMswBranch> buildValveBranchesFromGeometry( const RimWellPath*    
     for ( const auto* perf : perforationIntervals )
     {
         if ( exportDate.has_value() && !perf->isActiveOnDate( exportDate.value() ) ) continue;
+
+        RicPerforationCellFilterEvaluator filterEval( perf->cellFilter(), eclipseCase );
 
         auto valves = perf->descendantsIncludingThisOfType<RimWellPathValve>();
         for ( const auto* valve : valves )
@@ -321,6 +360,7 @@ std::vector<RigMswBranch> buildValveBranchesFromGeometry( const RimWellPath*    
                         const double overlapStart = std::max( valveSegStart, cellInfo.startMD );
                         const double overlapEnd   = std::min( valveSegEnd, cellInfo.endMD );
                         if ( overlapEnd <= overlapStart ) continue;
+                        if ( !filterEval.includesGlobalCell( cellInfo.globCellIndex ) ) continue;
                         if ( auto ci = toMswCellIntersection( cellInfo, mainGrid, overlapStart, overlapEnd ) )
                         {
                             double overlapMD = overlapEnd - overlapStart;
@@ -406,6 +446,7 @@ std::vector<RigMswBranch> buildValveBranchesFromGeometry( const RimWellPath*    
                             const double overlapStart = std::max( valveSegStart, cellInfo.startMD );
                             const double overlapEnd   = std::min( valveSegEnd, cellInfo.endMD );
                             if ( overlapEnd <= overlapStart ) continue;
+                            if ( !filterEval.includesGlobalCell( cellInfo.globCellIndex ) ) continue;
                             if ( auto ci = toMswCellIntersection( cellInfo, mainGrid, overlapStart, overlapEnd ) )
                             {
                                 cells.push_back( { *ci, overlapEnd - overlapStart } );
@@ -518,6 +559,7 @@ std::vector<RigMswBranch> buildValveBranchesFromGeometry( const RimWellPath*    
                     const double overlapEnd   = std::min( valveSegEnd, cellInfo.endMD );
                     if ( overlapEnd > overlapStart )
                     {
+                        if ( !filterEval.includesGlobalCell( cellInfo.globCellIndex ) ) continue;
                         if ( auto ci = toMswCellIntersection( cellInfo, mainGrid, overlapStart, overlapEnd ) )
                             valveSeg.intersections.push_back( *ci );
                     }
