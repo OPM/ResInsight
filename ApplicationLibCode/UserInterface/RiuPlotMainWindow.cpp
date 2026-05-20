@@ -896,7 +896,7 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
 
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
     {
-        // Find the reservoir view or the Plot that the selected item is within
+        // Find the plot view that the selected item is within
         if ( !firstSelectedObject )
         {
             caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>( uiItems.front() );
@@ -910,16 +910,6 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
         {
             selectedWindow = firstSelectedObject->firstAncestorOrThisOfType<RimViewWindow>();
         }
-
-        // If we can't find the view window as an MDI sub window, we search higher in the
-        // project tree to find a possible parent view window that has.
-        // if ( selectedWindow && !findMdiSubWindow( selectedWindow->viewWidget() ) )
-        //{
-        //    if ( selectedWindow->parentField() && selectedWindow->parentField()->ownerObject() )
-        //    {
-        //        selectedWindow = selectedWindow->parentField()->ownerObject()->firstAncestorOrThisOfType<RimViewWindow>();
-        //    }
-        //}
 
         if ( selectedWindow )
         {
@@ -948,7 +938,7 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
             }
 
             // The only way to get to this code is by selection change initiated from the project tree view
-            // As we are activating an MDI-window, the focus is given to this MDI-window
+            // As we are activating an view window, the focus might be given to this window
             // Set focus back to the tree view to be able to continue keyboard tree view navigation
             projectTree->treeView()->setFocus();
         }
