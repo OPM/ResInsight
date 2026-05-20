@@ -521,7 +521,7 @@ void RiaGuiApplication::initialize()
 
         RiaLogging::appendLoggerInstance( std::move( fileLogger ) );
     }
-    m_socketServer = new RiaSocketServer( this );    
+    m_socketServer = new RiaSocketServer( this );
 }
 
 //--------------------------------------------------------------------------------------------------
