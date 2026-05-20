@@ -66,6 +66,61 @@ def test_loadGridCaseGroup(rips_instance, initialize_test):
     )
     assert grid_case_group is not None and grid_case_group.group_id == 0
 
+    project = rips_instance.project
+    groups = project.grid_case_groups()
+    assert len(groups) == 1
+    looked_up = project.grid_case_group(grid_case_group.group_id)
+    assert looked_up is not None
+    assert looked_up.group_id == grid_case_group.group_id
+    assert project.grid_case_group(9999) is None
+
+
+def test_save_project_round_trip(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    project = rips_instance.project
+    project.load_case(case_path)
+    assert len(project.cases()) == 1
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        project_file = os.path.join(tmpdirname, "round_trip.rsp")
+        project.save(project_file)
+        assert os.path.exists(project_file)
+
+        project.close()
+        assert len(rips_instance.project.cases()) == 0
+
+        reopened = rips_instance.project.open(project_file)
+        cases = reopened.cases()
+        assert len(cases) == 1
+        assert cases[0].name == "TEST10K_FLT_LGR_NNC"
+
+
+def test_views_and_view_lookup(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    case.create_view()
+
+    project = rips_instance.project
+    views = project.views()
+    assert len(views) >= 1
+
+    first_view = views[0]
+    looked_up = project.view(first_view.id)
+    assert looked_up is not None
+    assert looked_up.id == first_view.id
+    assert project.view(999999) is None
+
+
+def test_well_path_by_name(rips_instance, initialize_test):
+    well_files = [dataroot.PATH + "/TEST10K_FLT_LGR_NNC/wellpath_a.dev"]
+    rips_instance.project.import_well_paths(well_path_files=well_files)
+
+    project = rips_instance.project
+    well_path = project.well_path_by_name("Well Path A")
+    assert well_path is not None
+    assert well_path.name == "Well Path A"
+    assert project.well_path_by_name("Nonexistent Well Path") is None
+
 
 def test_exportSnapshots(rips_instance, initialize_test):
     if not rips_instance.is_gui():
