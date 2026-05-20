@@ -184,6 +184,42 @@ def test_10k_property_strings(rips_instance, initialize_test):
     assert len(round_trip) == len(integer_values)
 
 
+def test_10k_grid_property_async(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=casePath)
+
+    chunks = case.grid_property_async(rips.PropertyType.STATIC_NATIVE, "PORO", 0)
+    accumulated = []
+    chunk_count = 0
+    for chunk in chunks:
+        accumulated.extend(chunk.values)
+        chunk_count += 1
+    assert chunk_count > 0
+
+    sync_values = case.grid_property(rips.PropertyType.STATIC_NATIVE, "PORO", 0)
+    assert len(accumulated) == len(sync_values)
+    for async_value, sync_value in zip(accumulated, sync_values):
+        assert async_value == pytest.approx(sync_value)
+
+
+def test_10k_available_properties_categories(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=casePath)
+
+    dynamic = case.available_properties(rips.PropertyType.DYNAMIC_NATIVE)
+    assert "SOIL" in dynamic
+    assert "PRESSURE" in dynamic
+
+    cell_count_info = case.cell_count()
+    zeros = [0.0] * cell_count_info.active_cell_count
+    case.set_active_cell_property(
+        zeros, rips.PropertyType.GENERATED, "AVAILABLE_PROBE", 0
+    )
+
+    generated = case.available_properties(rips.PropertyType.GENERATED)
+    assert "AVAILABLE_PROBE" in generated
+
+
 def test_exportPropertyInView(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(case_path)
