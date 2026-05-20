@@ -178,6 +178,8 @@ message ScaleFractureTemplateRequest {
   int32 id = 1;
   double halfLength = 2;
   double height = 3;
+  double dFactor = 4;
+  double conductivity = 5;
 }
 
 message SetFracContainmentRequest {
