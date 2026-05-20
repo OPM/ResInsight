@@ -61,6 +61,27 @@ def test_10kSync(rips_instance, initialize_test):
         assert new_data[i] == new_prop_vals[i]
 
 
+def test_10k_nnc_connections_async(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=casePath)
+
+    accumulated = []
+    chunk_count = 0
+    for chunk in case.nnc_connections_async():
+        accumulated.extend(chunk.connections)
+        chunk_count += 1
+    assert chunk_count > 0
+
+    sync_connections = case.nnc_connections()
+    assert len(accumulated) == len(sync_connections)
+
+    first = accumulated[0]
+    assert first.cell1.i == 33
+    assert first.cell1.j == 40
+    assert first.cell1.k == 14
+    assert first.cell_grid_index1 == 0
+
+
 def test_non_existing_dynamic_values(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
