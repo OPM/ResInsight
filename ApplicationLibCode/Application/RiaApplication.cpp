@@ -1692,6 +1692,8 @@ void RiaApplication::initialize()
     m_preferences->initAfterReadRecursively();
     applyPreferences();
 
+    RiaConnectorTools::configureCloudServices();
+
     // Start with a project
     m_project = std::make_unique<RimProject>();
     m_project->setScriptDirectories( m_preferences->scriptDirectories(), m_preferences->maxScriptFoldersDepth() );
