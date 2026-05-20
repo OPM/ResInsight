@@ -58,6 +58,8 @@ public:
 
     bool hasActiveFilters() const;
 
+    void loadAndInitializeFilters();
+
 protected:
     void onItemsChanged() override;
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
