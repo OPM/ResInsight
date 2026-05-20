@@ -284,12 +284,11 @@ RigMswBranch buildMainBoreBranchFromGeometry( const RimWellPath*                
         if ( !filterEval.isEnabled() ) continue;
         if ( overlapCountPerInterval[perf] == 0 ) continue;
         if ( emittedCountPerInterval[perf] > 0 ) continue;
-        RiaLogging::info( QString( "Perforation '%1' on well '%2': all %3 intersected cells suppressed by attached cell filter '%4'." )
-                              .arg( perf->name() )
-                              .arg( wellPath->name() )
-                              .arg( filterEval.rejectedCellCount() )
-                              .arg( perf->cellFilter() ? perf->cellFilter()->fullName() : QString() )
-                              .toStdString() );
+        RiaLogging::info( std::format( "Perforation '{}' on well '{}': all {} intersected cells suppressed by attached cell filter '{}'.",
+                                       perf->name(),
+                                       wellPath->name(),
+                                       filterEval.rejectedCellCount(),
+                                       perf->cellFilter() ? perf->cellFilter()->fullName() : QString() ) );
     }
 
     return RigMswBranch{ branchNumber, std::nullopt, std::move( result ) };

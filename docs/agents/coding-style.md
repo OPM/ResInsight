@@ -97,6 +97,21 @@ bool RimFoo::canAddSubCollection() const
 
 Why: keeps headers light (faster builds, smaller include surface), keeps the implementation file as the single source of truth for behavior, and matches the existing style across `ApplicationLibCode`.
 
+### Logging
+
+Use `std::format` to build log messages — not `QString(...).arg(...)`.
+
+- `RiaLogging::info` / `warning` / `error` take `std::string_view`. Passing a `QString` requires a trailing `.toStdString()`; `std::format` avoids that and reads better.
+- `QString` arguments can be passed directly to `std::format` — include `RiaQStringFormatter.h`, which provides a `std::formatter<QString>` specialization.
+
+```cpp
+// Bad – QString with positional placeholders, manual conversion
+RiaLogging::info( QString( "Exported %1 cells for well '%2'." ).arg( count ).arg( wellName ).toStdString() );
+
+// Good – std::format, QString passed directly
+RiaLogging::info( std::format( "Exported {} cells for well '{}'.", count, wellName ) );
+```
+
 ### Lambda Functions
 
 Keep lambdas short and readable:

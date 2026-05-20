@@ -1243,13 +1243,12 @@ std::vector<RigCompletionData>
 
             if ( filterEval.isEnabled() && completionData.size() == completionCountBefore && filterEval.rejectedCellCount() > 0 )
             {
-                RiaLogging::info( QString( "Perforation '%1' on well '%2': all %3 intersected cells suppressed by attached cell "
-                                           "filter '%4'." )
-                                      .arg( interval->name() )
-                                      .arg( wellPath->name() )
-                                      .arg( filterEval.rejectedCellCount() )
-                                      .arg( interval->cellFilter() ? interval->cellFilter()->fullName() : QString() )
-                                      .toStdString() );
+                RiaLogging::info(
+                    std::format( "Perforation '{}' on well '{}': all {} intersected cells suppressed by attached cell filter '{}'.",
+                                 interval->name(),
+                                 wellPath->name(),
+                                 filterEval.rejectedCellCount(),
+                                 interval->cellFilter() ? interval->cellFilter()->fullName() : QString() ) );
             }
         }
     }
