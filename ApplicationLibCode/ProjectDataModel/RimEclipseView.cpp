@@ -1256,6 +1256,11 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     m_propertyFilterCollection()->loadAndInitializePropertyFilters();
 
+    if ( auto* dataFilters = eclipseCase()->dataFilterCollection() )
+    {
+        dataFilters->loadAndInitializeFilters();
+    }
+
     faultCollection()->synchronizeFaults();
 
     m_wellCollection->scaleWellDisks();

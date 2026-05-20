@@ -22,6 +22,7 @@
 #include "RimCellRangeFilter.h"
 #include "RimCombinedFilter.h"
 #include "RimEclipsePropertyFilter.h"
+#include "RimEclipseResultDefinition.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -123,6 +124,23 @@ bool RimDataFilterCollection::hasActiveFilters() const
         if ( filter && filter->isFilterEnabled() ) return true;
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Populate per-filter caches that depend on case data (e.g. the formation-name category list for
+/// property filters). PDM's initAfterRead runs during XML deserialization, before the grid and
+/// formation names are loaded, so categories cannot be resolved there. Without this pass a saved
+/// FORMATION_NAMES selection has its value preserved but no options list to render against — the
+/// selection only appears after the user toggles the filter (which routes through fieldChangedByUi
+/// → computeResultValueRange). See OPM/ResInsight#14022.
+//--------------------------------------------------------------------------------------------------
+void RimDataFilterCollection::loadAndInitializeFilters()
+{
+    for ( auto* propertyFilter : descendantsIncludingThisOfType<RimEclipsePropertyFilter>() )
+    {
+        propertyFilter->resultDefinition()->loadResult();
+        propertyFilter->computeResultValueRange();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
