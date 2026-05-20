@@ -1476,7 +1476,7 @@ void RiuMainWindow::selectedObjectsChanged()
 
         if ( selectedReservoirView )
         {
-            // Set focus in MDI area to this window if it exists
+            // Set focus in dock area to this window if it exists
             if ( selectedReservoirView->viewer() && selectedReservoirView->viewer()->ownerViewWindow() )
             {
                 setBlockViewSelectionOnSubWindowActivated( true );
