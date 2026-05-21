@@ -185,15 +185,15 @@ void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
             }
         },
         "aggs": {
-            "iteration_uuids": {
+            "ensemble_uuids": {
                 "terms": {
-                    "field": "fmu.iteration.uuid.keyword",
+                    "field": "fmu.ensemble.uuid.keyword",
                     "size": 100
                 }
             },
-            "iteration_names": {
+            "ensemble_names": {
                 "terms": {
-                    "field": "fmu.iteration.name.keyword",
+                    "field": "fmu.ensemble.name.keyword",
                     "size": 100
                 }
             },
@@ -203,15 +203,15 @@ void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
                     "size": 100
                 }
             },
-            "iterations": {
+            "ensembles": {
                 "terms": {
-                    "field": "fmu.iteration.uuid.keyword",
+                    "field": "fmu.ensemble.uuid.keyword",
                     "size": 100
                 },
                 "aggs": {
-                    "iteration_name": {
+                    "ensemble_name": {
                         "terms": {
-                            "field": "fmu.iteration.name.keyword",
+                            "field": "fmu.ensemble.name.keyword",
                             "size": 100
                         }
                     },
@@ -274,7 +274,7 @@ void RiaSumoConnector::parseEnsembleNames( QNetworkReply* reply, const SumoCaseI
         QJsonDocument doc                      = QJsonDocument::fromJson( result );
         QJsonObject   jsonObj                  = doc.object();
         QJsonObject   aggregationsObject       = jsonObj["aggregations"].toObject();
-        QJsonObject   aggregationColumnsObject = aggregationsObject["iteration_names"].toObject();
+        QJsonObject   aggregationColumnsObject = aggregationsObject["ensemble_names"].toObject();
 
         QJsonArray bucketsArray = aggregationColumnsObject["buckets"].toArray();
         for ( const QJsonValue& bucket : bucketsArray )
@@ -319,7 +319,7 @@ void RiaSumoConnector::requestVectorNamesForEnsemble( const SumoCaseId& caseId, 
             "must": [
                 {"term": {"class": "table"}},
                 {"term": {"_sumo.parent_object.keyword": "%1"}},
-                {"term": {"fmu.iteration.name.keyword": "%2"}},
+                {"term": {"fmu.ensemble.name.keyword": "%2"}},
                 {"term": {"fmu.context.stage.keyword": "iteration"}},
                 {"term": {"fmu.aggregation.operation.keyword": "collection"}},
                 {"term": {"data.tagname.keyword": "summary"}},
@@ -328,9 +328,7 @@ void RiaSumoConnector::requestVectorNamesForEnsemble( const SumoCaseId& caseId, 
         },
     "aggs": {
         "smry_tables": {
-            "terms": {
-                "field": "data.name.keyword"
-            },
+            "terms": { "field": "data.name.keyword" },
             "aggs": {
                 "smry_columns": {
                     "terms": {
@@ -382,28 +380,29 @@ void RiaSumoConnector::requestRealizationIdsForEnsemble( const SumoCaseId& caseI
     QString payloadTemplate = R"(
 {
     "track_total_hits": true,
-    "query":  {
-           "bool": {
+    "query": {
+        "bool": {
             "must": [
                 {"term": {"class": "table"}},
                 {"term": {"_sumo.parent_object.keyword": "%1"}},
-                {"term": {"fmu.iteration.name.keyword": "%2"}},
+                {"term": {"fmu.ensemble.name.keyword": "%2"}},
                 {"term": {"fmu.context.stage.keyword": "iteration"}},
                 {"term": {"fmu.aggregation.operation.keyword": "collection"}},
                 {"term": {"data.tagname.keyword": "summary"}},
                 {"term": {"data.content.keyword": "timeseries"}}
-            ]}
+            ]
+        }
     },
     "aggs": {
         "realization-ids": {
             "terms": {
-            "field": "fmu.aggregation.realization_ids",
-            "size":1000
+                "field": "fmu.aggregation.realization_ids",
+                "size": 1000
             }
         }
     },
     "_source": false,
-    "size":0
+    "size": 0
 }
 )";
     m_realizationIds.clear();
@@ -495,7 +494,7 @@ void RiaSumoConnector::requestParametersBlobIdForEnsemble( const SumoCaseId& cas
                 {"term": {"class": "table"}},
                 {"term": {"_sumo.parent_object.keyword": "%1"}},
                 {"term": {"data.tagname.keyword": "all"}},
-                {"term": {"fmu.iteration.name.keyword": "%2"}},
+                {"term": {"fmu.ensemble.name.keyword": "%2"}},
                 {"term": {"fmu.aggregation.operation.keyword": "collection"}}
             ]}
         },
@@ -544,17 +543,18 @@ void RiaSumoConnector::requestBlobIdForEnsemble( const SumoCaseId& caseId, const
             "must": [
                 {"term": {"class": "table"}},
                 {"term": {"_sumo.parent_object.keyword": "%1"}},
-                {"term": {"fmu.iteration.name.keyword": "%2"}},
+                {"term": {"fmu.ensemble.name.keyword": "%2"}},
                 {"term": {"fmu.context.stage.keyword": "iteration"}},
                 {"term": {"fmu.aggregation.operation.keyword": "collection"}},
                 {"term": {"data.tagname.keyword": "summary"}},
+                {"term": {"data.content.keyword": "timeseries"}},
                 {"term": {"data.spec.columns.keyword": "%3"}}
             ]}
         },
-         "fields": [
-            "data.name",
-            "_sumo.blob_name"
-        ],
+    "fields": [
+        "data.name",
+        "_sumo.blob_name"
+    ],
     "_source": true,
     "size": 1
 }
