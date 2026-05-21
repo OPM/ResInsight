@@ -15,6 +15,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicfSetExportFolder.h
     ${CMAKE_CURRENT_LIST_DIR}/RicfSetMainWindowSize.h
     ${CMAKE_CURRENT_LIST_DIR}/RicfSetPlotWindowSize.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicfSetSnapshotSize.h
     ${CMAKE_CURRENT_LIST_DIR}/RicfSetStartDir.h
     ${CMAKE_CURRENT_LIST_DIR}/RicfSetTimeStep.h
     ${CMAKE_CURRENT_LIST_DIR}/RicfScaleFractureTemplate.h
@@ -55,6 +56,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicfSetExportFolder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfSetMainWindowSize.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfSetPlotWindowSize.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicfSetSnapshotSize.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfSetStartDir.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfSetTimeStep.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfScaleFractureTemplate.cpp

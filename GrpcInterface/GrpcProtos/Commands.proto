@@ -338,6 +338,7 @@ message CommandParams {
     SetWindowSizeParams setPlotWindowSize = 37;
     ExportContourMapToTextRequest exportContourMapToText = 38;
     SaveProjectRequest saveProject = 39;
+    SetWindowSizeParams setSnapshotSize = 40;
   }
 }
 
