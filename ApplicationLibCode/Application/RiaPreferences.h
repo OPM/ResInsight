@@ -73,6 +73,8 @@ public:
 
     bool useUndoRedo() const;
 
+    bool useImprovedMswDataStructures() const;
+
     const QString& dateFormat() const;
     const QString& timeFormat() const;
     QString
@@ -182,6 +184,7 @@ private:
     caf::PdmField<QString> m_timeFormat;
 
     caf::PdmField<bool> m_useUndoRedo;
+    caf::PdmField<bool> m_useImprovedMswDataStructures;
 
     caf::PdmField<caf::AppEnum<RiaDefines::ThemeEnum>> m_guiTheme;
 

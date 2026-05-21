@@ -70,18 +70,17 @@ public:
                                                                                  CompletionType completionType = CompletionType::ALL,
                                                                                  const std::optional<QDateTime>& exportDate = std::nullopt );
 
-    static std::expected<RigMswTableData, std::string> extractSingleWellMswDataTree( RimEclipseCase* eclipseCase,
-                                                                                     RimWellPath*    wellPath,
-                                                                                     bool exportCompletionsAfterMainBoreSegments = true,
-                                                                                     CompletionType completionType = CompletionType::ALL,
-                                                                                     const std::optional<QDateTime>& exportDate = std::nullopt );
+    static std::expected<RigMswTableData, std::string> extractSingleWellMsw_Legacy( RimEclipseCase* eclipseCase,
+                                                                                    RimWellPath*    wellPath,
+                                                                                    bool exportCompletionsAfterMainBoreSegments = true,
+                                                                                    CompletionType completionType = CompletionType::ALL,
+                                                                                    const std::optional<QDateTime>& exportDate = std::nullopt );
 
-    static std::expected<RigMswTableData, std::string>
-        extractSingleWellMswDataGeometry( RimEclipseCase*                 eclipseCase,
-                                          RimWellPath*                    wellPath,
-                                          bool                            exportCompletionsAfterMainBoreSegments = true,
-                                          CompletionType                  completionType                         = CompletionType::ALL,
-                                          const std::optional<QDateTime>& exportDate                             = std::nullopt );
+    static std::expected<RigMswTableData, std::string> extractSingleWellMsw( RimEclipseCase* eclipseCase,
+                                                                             RimWellPath*    wellPath,
+                                                                             bool            exportCompletionsAfterMainBoreSegments = true,
+                                                                             CompletionType  completionType = CompletionType::ALL,
+                                                                             const std::optional<QDateTime>& exportDate = std::nullopt );
 
     static CompletionType convertFromExportSettings( const class RicExportCompletionDataSettingsUi& settings );
 

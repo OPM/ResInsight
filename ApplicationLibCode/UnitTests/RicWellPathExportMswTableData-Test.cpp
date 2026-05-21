@@ -100,7 +100,7 @@ std::vector<std::tuple<size_t, size_t, size_t, std::string>> extractSortedCells(
 // Parameterized integration tests: Tree mode vs Geometry mode for all MSW project files.
 //
 // The test loads a ResInsight project file, extracts well MSW data using both the tree-based
-// (extractSingleWellMswDataTree) and geometry-based (extractSingleWellMswDataGeometry)
+// (extractSingleWellMsw_Legacy) and geometry-based (extractSingleWellMsw)
 // algorithms, and verifies that both produce equivalent results for every well path:
 //
 //   - The same set of reservoir cells in COMPSEGS (sorted {i,j,k,gridName} tuples)
@@ -155,8 +155,8 @@ TEST_P( MswTreeVsGeometryTest, CompareTreeAndGeometryModes )
 
         if ( !wellPath->isTopLevelWellPath() ) continue;
 
-        auto treeResult     = RicWellPathExportMswTableData::extractSingleWellMswDataTree( eclipseCase, wellPath );
-        auto geometryResult = RicWellPathExportMswTableData::extractSingleWellMswDataGeometry( eclipseCase, wellPath );
+        auto treeResult     = RicWellPathExportMswTableData::extractSingleWellMsw_Legacy( eclipseCase, wellPath );
+        auto geometryResult = RicWellPathExportMswTableData::extractSingleWellMsw( eclipseCase, wellPath );
 
         // If one mode fails, the other should fail too (no MSW data for this well path).
         if ( !treeResult.has_value() && !geometryResult.has_value() )
