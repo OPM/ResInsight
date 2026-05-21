@@ -522,9 +522,6 @@ void RiaGuiApplication::initialize()
         RiaLogging::appendLoggerInstance( std::move( fileLogger ) );
     }
     m_socketServer = new RiaSocketServer( this );
-
-    // Configure cloud services after logger is created
-    RiaConnectorTools::configureCloudServices();
 }
 
 //--------------------------------------------------------------------------------------------------
