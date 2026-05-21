@@ -111,7 +111,7 @@ QString RiuFemResultTextBuilder::mainResultText()
     appendDetails( text, formationDetails() );
     text += "\n";
 
-    if ( m_geomResDef->resultPositionType() != RIG_ELEMENT )
+    if ( ( m_geomResDef != nullptr ) && ( m_geomResDef->resultPositionType() != RIG_ELEMENT ) )
     {
         appendDetails( text, gridResultDetails() );
     }
@@ -126,7 +126,7 @@ QString RiuFemResultTextBuilder::geometrySelectionText( QString itemSeparator )
 {
     QString text;
 
-    if ( m_geomResDef->geoMechCase() )
+    if ( ( m_geomResDef != nullptr ) && m_geomResDef->geoMechCase() )
     {
         RigGeoMechCaseData* geomData = m_geomResDef->geoMechCase()->geoMechData();
         if ( geomData )
@@ -206,7 +206,7 @@ QString RiuFemResultTextBuilder::gridResultDetails()
 {
     QString text;
 
-    if ( m_geomResDef->geoMechCase() && m_geomResDef->geoMechCase()->geoMechData() )
+    if ( m_geomResDef && m_geomResDef->geoMechCase() && m_geomResDef->geoMechCase()->geoMechData() )
     {
         RigGeoMechCaseData* eclipseCaseData = m_geomResDef->geoMechCase()->geoMechData();
 
@@ -227,7 +227,7 @@ QString RiuFemResultTextBuilder::gridResultDetails()
 QString RiuFemResultTextBuilder::formationDetails()
 {
     QString  text;
-    RimCase* rimCase = m_geomResDef->geoMechCase();
+    RimCase* rimCase = m_geomResDef ? m_geomResDef->geoMechCase() : nullptr;
     if ( rimCase )
     {
         if ( rimCase->activeFormationNames() && rimCase->activeFormationNames()->formationNamesData() )
@@ -396,14 +396,10 @@ void RiuFemResultTextBuilder::appendDetails( QString& text, const QString& detai
 QString RiuFemResultTextBuilder::closestNodeResultText( RimGeoMechResultDefinition* resultColors )
 {
     QString text;
-    if ( !resultColors )
-    {
-        return text;
-    }
 
-    if ( resultColors->hasResult() )
+    if ( resultColors && resultColors->hasResult() )
     {
-        if ( !( m_geomResDef->geoMechCase() && m_geomResDef->geoMechCase()->geoMechData() ) ) return text;
+        if ( !( m_geomResDef && m_geomResDef->geoMechCase() && m_geomResDef->geoMechCase()->geoMechData() ) ) return text;
 
         RigGeoMechCaseData* geomData = m_geomResDef->geoMechCase()->geoMechData();
 
