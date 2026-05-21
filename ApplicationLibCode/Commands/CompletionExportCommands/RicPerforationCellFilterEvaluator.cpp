@@ -57,6 +57,12 @@ bool RicPerforationCellFilterEvaluator::includesGlobalCell( size_t globalCellInd
 
     const RigMainGrid* mainGrid = m_eclipseCase->eclipseCaseData()->mainGrid();
 
+    if ( globalCellIndex >= mainGrid->totalCellCount() )
+    {
+        ++m_rejectedCellCount;
+        return false;
+    }
+
     size_t             localCellIndex = 0;
     const RigGridBase* localGrid      = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( globalCellIndex, &localCellIndex );
     if ( !localGrid )
