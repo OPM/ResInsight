@@ -26,6 +26,12 @@ summary_plot_collection.new_summary_plot(
     summary_cases=[summary_case], address="WOPR:A*;WOPR:B*"
 )
 
+# Resize the plot sub-windows so the exported PNGs come out at the
+# requested resolution. Without this, the offscreen layout engine picks
+# its own (typically small) geometry and snapshots ignore the --size
+# launch parameter.
+resinsight.set_snapshot_size(1200, 1000)
+
 plots = resinsight.project.plots()
 for plot in plots:
     plot.export_snapshot()

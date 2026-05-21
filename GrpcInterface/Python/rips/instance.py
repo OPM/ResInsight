@@ -561,6 +561,42 @@ class Instance:
             )
         )
 
+    def set_snapshot_size(self, width: int, height: int):
+        """
+        Set the size used for snapshot export of plots and 3D views.
+
+        Affects subsequent calls to ``export_snapshot`` /
+        ``export_snapshots``. Equivalent to the ``--snapshotsize`` CLI
+        flag. Must be called after at least one plot window has been
+        created (otherwise there is nothing to resize).
+
+        Unlike :meth:`set_plot_window_size`, which only resizes the
+        outer plot main window, this method un-maximizes and resizes
+        each MDI sub-window so the actual plot widget is rendered at
+        the requested dimensions.
+
+        Recommended call order for a filled snapshot:
+
+        1. :meth:`set_plot_window_size` *before* creating plots, so the
+           plots are realized inside MDI sub-windows.
+        2. Create the plot(s).
+        3. ``project.plots()`` to fetch the plot to export. This can
+           re-tile the MDI sub-windows back to their defaults, so call
+           ``set_snapshot_size`` *after* it, not before.
+        4. ``set_snapshot_size(width, height)``.
+        5. ``plot.export_snapshot(...)``.
+
+        **Parameters**::
+
+            Parameter | Description      | Type
+            --------- | ---------------- | -----
+            width     | Width in pixels  | Integer
+            height    | Height in pixels | Integer
+        """
+        return self.__execute_command(
+            setSnapshotSize=Commands_pb2.SetWindowSizeParams(width=width, height=height)
+        )
+
     def major_version(self) -> int:
         """Get an integer with the major version number"""
         return int(self.__version_message().major_version)
