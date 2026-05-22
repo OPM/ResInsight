@@ -1283,7 +1283,21 @@ void RiuMainWindow::slotViewFullScreen( bool showFullScreen )
     }
     else
     {
+        QString activeViewerName;
+        if ( auto activeViewer = RiaGuiApplication::instance()->activeReservoirView() )
+        {
+            activeViewerName = activeViewer->dockWindowName();
+        }
+
         dockManager()->restoreState( m_lastDockState, DOCKSTATE_VERSION );
+
+        if ( !activeViewerName.isEmpty() )
+        {
+            if ( auto dw = dockManager()->findDockWidget( activeViewerName ) )
+            {
+                dw->setAsCurrentTab();
+            }
+        }
     }
 }
 
