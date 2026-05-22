@@ -35,9 +35,13 @@
 //##################################################################################################
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafAssert.h"
+#include "cafPdmDataContainerEnum.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+
+#include <QStringList>
 
 #include <expected>
 
@@ -84,6 +88,14 @@ public:
     virtual QString selfClassKeyword() const;
     virtual QString classKeywordReturnedType() const = 0;
 
+    /// Optional metadata describing an enum return value. When returnEnumScriptName() is non-empty
+    /// the Python code generator emits a StrEnum class with the listed texts and wraps the call
+    /// site so the caller receives a typed enum value rather than the raw container. execute()
+    /// must still return a PdmObject whose scriptable "value" field carries the enum text — use
+    /// PdmDataContainerEnum (or derive from PdmEnumObjectMethod<T> which handles this for you).
+    virtual QString     returnEnumScriptName() const { return {}; }
+    virtual QStringList returnEnumTexts() const { return {}; }
+
     bool isNullptrValidResult() const;
     bool resultIsPersistent() const;
 
@@ -124,6 +136,49 @@ class PdmObjectCreationMethod : public PdmObjectMethod
 
 public:
     PdmObjectCreationMethod( PdmObjectHandle* self );
+};
+
+//==================================================================================================
+/// Base class for scriptable methods that return a single value drawn from a caf::AppEnum<EnumType>.
+/// Subclasses only implement executeEnum() (returning the typed enum value) and returnEnumScriptName()
+/// (the desired Python class name). The base wraps the value into a PdmDataContainerEnum at gRPC
+/// boundaries and feeds the AppEnum's registered texts to the Python code generator so the call site
+/// returns a typed StrEnum value.
+//==================================================================================================
+template <typename EnumType>
+class PdmEnumObjectMethod : public PdmObjectMethod
+{
+public:
+    explicit PdmEnumObjectMethod( PdmObjectHandle* self )
+        : PdmObjectMethod( self, NullPointerType::NULL_IS_INVALID, ResultType::PERSISTENT_FALSE )
+    {
+    }
+
+    /// Subclasses produce the typed enum value. The base wraps it into the PdmDataContainerEnum
+    /// returned across gRPC.
+    virtual std::expected<EnumType, QString> executeEnum() = 0;
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() final
+    {
+        auto result = executeEnum();
+        if ( !result ) return std::unexpected( result.error() );
+
+        auto* container    = new PdmDataContainerEnum();
+        container->m_value = caf::AppEnum<EnumType>::text( *result );
+        return container;
+    }
+
+    QString classKeywordReturnedType() const final { return PdmDataContainerEnum::classKeywordStatic(); }
+
+    QStringList returnEnumTexts() const final
+    {
+        QStringList texts;
+        for ( size_t i = 0; i < caf::AppEnum<EnumType>::size(); ++i )
+        {
+            texts.push_back( caf::AppEnum<EnumType>::textFromIndex( i ) );
+        }
+        return texts;
+    }
 };
 
 //==================================================================================================
