@@ -2833,6 +2833,10 @@ void RimSummaryPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, 
 
     auto rimPlotCurve = riuPlotCurve->ownerRimCurve();
 
+    // if ( auto multiPlot = firstAncestorOrThisOfType<RimMultiPlot>() )
+    //{
+    //     RiuPlotMainWindowTools::setActiveViewer( multiPlot->dockWindowName() );
+    // }
     RiuPlotMainWindowTools::selectOrToggleObject( rimPlotCurve, toggle );
 }
 

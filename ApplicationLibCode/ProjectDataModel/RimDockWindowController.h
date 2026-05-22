@@ -21,6 +21,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 class RiuMainWindowBase;
 class RimViewWindow;
