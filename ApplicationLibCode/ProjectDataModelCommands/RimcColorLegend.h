@@ -101,3 +101,21 @@ private:
     caf::PdmPtrField<RimCase*> m_case;
     caf::PdmField<QString>     m_resultName;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcColorLegendCollection_findDefaultLegendForResult : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcColorLegendCollection_findDefaultLegendForResult( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmPtrField<RimCase*> m_case;
+    caf::PdmField<QString>     m_resultName;
+};

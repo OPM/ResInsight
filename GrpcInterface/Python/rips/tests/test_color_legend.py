@@ -73,3 +73,31 @@ def test_set_and_delete_default_color_legend_for_result(rips_instance, initializ
 
     # Deleting the binding should also succeed.
     collection.delete_color_legend(case=case, result_name="SOIL")
+
+
+def test_discrete_property_category_round_trip(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+    assert case is not None
+
+    # Before anything is set, the getters return empty dicts.
+    assert case.discrete_property_category_names("FACIES") == {}
+    assert case.discrete_property_category_colors("FACIES") == {}
+
+    expected_names = {0: "Sand", 1: "Shale", 2: "Coal"}
+    expected_colors = {0: "#e6c878", 1: "#646464", 2: "#202020"}
+
+    case.set_discrete_property_category_names(
+        property_name="FACIES",
+        value_names=expected_names,
+        value_colors=expected_colors,
+    )
+
+    assert case.discrete_property_category_names("FACIES") == expected_names
+    assert case.discrete_property_category_colors("FACIES") == expected_colors
+
+    # Clearing the mapping with an empty dict should make the getters
+    # report empty dicts again.
+    case.set_discrete_property_category_names(property_name="FACIES", value_names={})
+    assert case.discrete_property_category_names("FACIES") == {}
+    assert case.discrete_property_category_colors("FACIES") == {}

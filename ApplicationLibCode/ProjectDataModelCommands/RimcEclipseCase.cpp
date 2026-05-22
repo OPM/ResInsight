@@ -407,3 +407,66 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_filteredCellsInter
 
     return nullptr;
 }
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimcEclipseCase_propertyDataType, "property_data_type" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcEclipseCase_propertyDataType::RimcEclipseCase_propertyDataType( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+{
+    CAF_PDM_InitObject( "Property Data Type", "", "", "Get the data type (FLOAT or INTEGER) of a grid property" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_propertyType, "PropertyType", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_propertyName, "PropertyName", "" );
+    CAF_PDM_InitScriptableField( &m_porosityModel, "PorosityModel", QString( "MATRIX_MODEL" ), "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_propertyDataType::execute()
+{
+    auto eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No eclipse case" );
+
+    caf::AppEnum<RiaDefines::ResultCatType> resultCatTypeEnum;
+    if ( !resultCatTypeEnum.setFromText( m_propertyType ) )
+    {
+        return std::unexpected( "Invalid property type." );
+    }
+
+    caf::AppEnum<RiaDefines::PorosityModelType> porosityModel;
+    if ( !porosityModel.setFromText( m_porosityModel ) )
+    {
+        return std::unexpected( "Invalid porosity model." );
+    }
+
+    auto resultsData = eclipseCase->results( porosityModel );
+    if ( !resultsData )
+    {
+        return std::unexpected( "Eclipse case has no result data." );
+    }
+
+    for ( const auto& address : resultsData->existingResults() )
+    {
+        if ( address.resultCatType() == resultCatTypeEnum && address.resultName() == m_propertyName() )
+        {
+            auto*      dataObject  = new RimcDataContainerString();
+            const bool isInteger   = address.dataType() == RiaDefines::ResultDataType::INTEGER;
+            dataObject->m_stringValues = { isInteger ? QString( "INTEGER" ) : QString( "FLOAT" ) };
+            return dataObject;
+        }
+    }
+
+    return std::unexpected( QString( "Property not found: %1" ).arg( m_propertyName() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcEclipseCase_propertyDataType::classKeywordReturnedType() const
+{
+    return RimcDataContainerString::classKeywordStatic();
+}
