@@ -650,7 +650,7 @@ size_t RimSimWellInView::resultWellIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSimWellInView::isWellDiskVisible() const
+bool RimSimWellInView::isWellDiskVisible( size_t frameIndex ) const
 {
     const auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
 
@@ -663,6 +663,14 @@ bool RimSimWellInView::isWellDiskVisible() const
     if ( !showWell() ) return false;
 
     if ( !showWellDisks() ) return false;
+
+    if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
+
+    if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
+         ( reservoirView->cellFilterCollection()->hasActiveFilters() || reservoirView->propertyFilterCollection()->hasActiveFilters() ) )
+    {
+        return intersectsDynamicWellCellsFilteredCells( frameIndex );
+    }
 
     return true;
 }

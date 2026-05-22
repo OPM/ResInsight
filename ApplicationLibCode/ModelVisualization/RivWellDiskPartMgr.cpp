@@ -461,7 +461,7 @@ void RivWellDiskPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
     if ( m_rimWell.isNull() ) return;
     if ( !viewWithSettings() ) return;
 
-    if ( !m_rimWell->isWellDiskVisible() ) return;
+    if ( !m_rimWell->isWellDiskVisible( frameIndex ) ) return;
     if ( !m_rimWell->isValidDisk() ) return;
 
     buildWellDiskParts( frameIndex, displayXf );
