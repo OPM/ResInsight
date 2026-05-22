@@ -21,4 +21,4 @@ case_group = resinsight.project.create_grid_case_group(case_paths=case_paths)
 case_group.compute_statistics()
 
 view = case_group.views()[0]
-view.apply_cell_result(rips.ResultType.DYNAMIC_NATIVE, "PRESSURE_DEV")
+view.apply_cell_result(rips.PropertyType.DYNAMIC_NATIVE, "PRESSURE_DEV")

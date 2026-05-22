@@ -55,6 +55,7 @@ from .resinsight_classes import (
     GeoMechCase as GeoMechCase,
     PorosityModelType as PorosityModelType,
     PropertyDataType as PropertyDataType,
+    PropertyType as PropertyType,
     Reservoir as Reservoir,
     WellBoreStabilityPlot as WellBoreStabilityPlot,
     WbsParameters as WbsParameters,
@@ -66,9 +67,6 @@ from .project import Project as Project
 from .pdmobject import add_method
 from .view import View as View
 from .simulation_well import SimulationWell
-from .enums import (
-    PropertyType,
-)
 import rips.project  # full name import due to circular dependency
 
 

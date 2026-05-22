@@ -97,6 +97,6 @@ print(f"  Unassigned (no polygon): {unassigned} cells")
 # Apply the generated result in the view to visualize the regions
 view = case.views()[0] if case.views() else case.create_view()
 view.apply_cell_result(
-    result_type=rips.ResultType.GENERATED, result_variable=property_name
+    result_type=rips.PropertyType.GENERATED, result_variable=property_name
 )
 print(f"Applied '{property_name}' cell result to view")

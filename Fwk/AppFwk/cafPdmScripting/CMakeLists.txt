@@ -16,6 +16,7 @@ set(PROJECT_FILES
     cafPdmDataContainerEnum.cpp
     cafPdmObjectMethod.h
     cafPdmObjectMethod.cpp
+    cafPdmScriptEnumNameRegistry.h
     cafPdmObjectScriptingCapabilityRegister.h
     cafPdmObjectScriptingCapabilityRegister.cpp
     cafPdmPythonGenerator.h

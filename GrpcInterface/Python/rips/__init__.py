@@ -30,15 +30,6 @@ from .surface import RegularSurface as RegularSurface  # noqa: E402
 from . import well_events as well_events  # noqa: F401, E402
 from . import category_mapping as category_mapping  # noqa: F401, E402
 
-# Enums for proto types not visible to the AppEnum auto-generator.
-# PorosityModelType and PropertyDataType are auto-generated into resinsight_classes
-# (already imported above) and intentionally not re-imported here to avoid a
-# duplicate symbol.
-from .enums import (  # noqa: E402
-    PropertyType as PropertyType,
-    NNCPropertyType as NNCPropertyType,
-)
-
 __all__: List[str] = []
 for key in class_dict():  # noqa: F405
     __all__.append(key)
@@ -47,10 +38,13 @@ for key in class_dict():  # noqa: F405
 __all__.append("Grid")
 __all__.append("Instance")
 
+# PropertyType, PropertyDataType, and PorosityModelType are auto-generated
+# StrEnum classes (driven by their caf::AppEnum<T> registrations) that the
+# wildcard import above pulls in but class_dict() does not list.
 for _enum_name in (
-    "PropertyType",
+    "PorosityModelType",
     "PropertyDataType",
-    "NNCPropertyType",
+    "PropertyType",
 ):
     if _enum_name not in __all__:
         __all__.append(_enum_name)
