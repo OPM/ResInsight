@@ -67,6 +67,55 @@ def test_10k(rips_instance, initialize_test):
     check_corner(cell_corners[cell_index].c7, expected_corners[7])
 
 
+def test_10k_cell_centers_async(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=casePath)
+    grid = case.grid(index=0)
+
+    accumulated = []
+    for chunk in grid.cell_centers_async():
+        accumulated.extend(chunk.centers)
+
+    sync_centers = grid.cell_centers()
+    assert len(accumulated) == len(sync_centers)
+
+    cell_index = 168143
+    assert math.isclose(accumulated[cell_index].x, sync_centers[cell_index].x)
+    assert math.isclose(accumulated[cell_index].y, sync_centers[cell_index].y)
+    assert math.isclose(accumulated[cell_index].z, sync_centers[cell_index].z)
+
+
+def test_10k_cell_corners_async(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=casePath)
+    grid = case.grid(index=0)
+
+    accumulated = []
+    for chunk in grid.cell_corners_async():
+        accumulated.extend(chunk.cells)
+
+    sync_corners = grid.cell_corners()
+    assert len(accumulated) == len(sync_corners)
+
+    cell_index = 168143
+    check_corner(
+        accumulated[cell_index].c0,
+        [
+            sync_corners[cell_index].c0.x,
+            sync_corners[cell_index].c0.y,
+            sync_corners[cell_index].c0.z,
+        ],
+    )
+    check_corner(
+        accumulated[cell_index].c7,
+        [
+            sync_corners[cell_index].c7.x,
+            sync_corners[cell_index].c7.y,
+            sync_corners[cell_index].c7.z,
+        ],
+    )
+
+
 def check_reek_grid_box(case: rips.Case):
     assert len(case.grids()) == 1
     grid = case.grid(index=0)
