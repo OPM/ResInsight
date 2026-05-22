@@ -249,6 +249,39 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
         return candidate;
     };
 
+    auto enumClassNameForMethodReturn = [&]( const QString& scriptName, const QStringList& enumTexts ) -> QString
+    {
+        if ( scriptName.isEmpty() || enumTexts.empty() ) return QString();
+
+        // Key by the script name so methods that declare the same return enum share one class.
+        // Prefixed to avoid colliding with AppEnum field keys (which are typeid().name()).
+        QString dataTypeKey = QString( "__method_return__:" ) + scriptName;
+        auto    cached      = enumClassNameByDataTypeName.find( dataTypeKey );
+        if ( cached != enumClassNameByDataTypeName.end() ) return cached->second;
+
+        EnumClassDef def;
+        def.className = scriptName;
+        std::set<QString> usedMemberNames;
+        for ( const QString& text : enumTexts )
+        {
+            QString memberName   = sanitizeEnumMemberName( text );
+            int     memberSuffix = 1;
+            QString unique       = memberName;
+            while ( usedMemberNames.count( unique ) )
+            {
+                unique = memberName + QString( "_%1" ).arg( ++memberSuffix );
+            }
+            usedMemberNames.insert( unique );
+            def.members.push_back( { unique, text } );
+            def.memberNameByText[text] = unique;
+        }
+
+        enumClassNameByDataTypeName[dataTypeKey] = scriptName;
+        enumDefByDataTypeName[dataTypeKey]       = def;
+        usedEnumClassNames.insert( scriptName );
+        return scriptName;
+    };
+
     auto enumDefaultValueExpression =
         [&]( PdmFieldHandle* field, const QString& enumClassName, const QString& quotedDefault ) -> QString
     {
@@ -479,18 +512,30 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
 
                 QString returnDataType = "None";
                 QString returnComment;
+                QString returnEnumClassName =
+                    enumClassNameForMethodReturn( method->returnEnumScriptName(), method->returnEnumTexts() );
+                QString containerClassName;
                 if ( !method->classKeywordReturnedType().isEmpty() )
                 {
                     QString classKeywordReturnedType = method->classKeywordReturnedType();
                     returnComment                    = classKeywordReturnedType;
-                    returnDataType =
+                    containerClassName =
                         PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeywordReturnedType );
 
-                    outputArgumentStrings.push_back( QString( "%1" ).arg( returnDataType ) );
+                    returnDataType = containerClassName;
+                    outputArgumentStrings.push_back( QString( "%1" ).arg( containerClassName ) );
 
                     if ( method->isNullptrValidResult() )
                     {
                         returnDataType = QString( "Optional[%1]" ).arg( returnDataType );
+                    }
+
+                    if ( !returnEnumClassName.isEmpty() )
+                    {
+                        // Method declares an enum return. Override the annotation; the body emission
+                        // below will unwrap the container's "value" field into the enum.
+                        returnDataType = returnEnumClassName;
+                        returnComment  = returnEnumClassName;
                     }
                 }
 
@@ -544,7 +589,15 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                 QString methodBody = QString( "self._call_pdm_method_void(%1)" ).arg( outputArgumentStrings.join( ", " ) );
                 if ( returnDataType != "None" )
                 {
-                    if ( method->isNullptrValidResult() )
+                    if ( !returnEnumClassName.isEmpty() )
+                    {
+                        // Unwrap the typed container's "value" field into the enum at the call site.
+                        methodBody = QString( "_container = self._call_pdm_method_return_value(%1)\n"
+                                              "        return %2(_container.value)" )
+                                         .arg( outputArgumentStrings.join( ", " ) )
+                                         .arg( returnEnumClassName );
+                    }
+                    else if ( method->isNullptrValidResult() )
                     {
                         methodBody = QString( "return self._call_pdm_method_return_optional_value(%1)" )
                                          .arg( outputArgumentStrings.join( ", " ) );

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -117,18 +119,18 @@ public:
 };
 
 //==================================================================================================
-/// Return the data type ("FLOAT" or "INTEGER") of a grid property. Inverse of the data_type
-/// flag passed to set_active_cell_property / set_grid_property.
+/// Return the data type (one of caf::AppEnum<RiaDefines::ResultDataType>) of a grid property.
+/// Inverse of the data_type flag passed to set_active_cell_property / set_grid_property.
 //==================================================================================================
-class RimcEclipseCase_propertyDataType : public caf::PdmObjectMethod
+class RimcEclipseCase_propertyDataType : public caf::PdmEnumObjectMethod<RiaDefines::ResultDataType>
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     explicit RimcEclipseCase_propertyDataType( caf::PdmObjectHandle* self );
 
-    std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    QString                                       classKeywordReturnedType() const override;
+    std::expected<RiaDefines::ResultDataType, QString> executeEnum() override;
+    QString                                            returnEnumScriptName() const override { return "PropertyDataType"; }
 
 private:
     caf::PdmField<QString> m_propertyType;
