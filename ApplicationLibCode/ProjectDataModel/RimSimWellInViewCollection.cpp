@@ -880,11 +880,14 @@ void RimSimWellInViewCollection::scaleWellDisks()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::scaleWellDisksFromConfig( const RimWellDiskConfig& wellDiskConfig )
 {
+    if ( !m_reservoirView ) return;
+    size_t frameIndex = static_cast<size_t>( m_reservoirView->currentTimeStep() );
+
     double minValue = std::numeric_limits<double>::max();
     double maxValue = -minValue;
     for ( RimSimWellInView* w : wells )
     {
-        if ( !w->isWellDiskVisible() ) continue;
+        if ( !w->isWellDiskVisible( frameIndex ) ) continue;
 
         bool   isOk  = true;
         double value = w->calculateInjectionProductionFractions( wellDiskConfig, &isOk );
