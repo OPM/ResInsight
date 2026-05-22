@@ -774,7 +774,7 @@ std::vector<RimViewWindow*> RiuPlotMainWindow::viewWindows()
 
     for ( auto v : RimProject::current()->descendantsOfType<RimPlotWindow>() )
     {
-        views.push_back( v );
+        if ( v->dockWidget() ) views.push_back( v );
     }
 
     return views;
@@ -913,27 +913,29 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
 
         if ( selectedWindow )
         {
-            if ( selectedWindow->viewWidget() )
-            {
-                setBlockViewSelectionOnSubWindowActivated( true );
-                setActiveViewer( selectedWindow->dockWindowName() );
-                setBlockViewSelectionOnSubWindowActivated( false );
-            }
-
             m_activePlotViewWindow = selectedWindow;
 
-            if ( firstSelectedObject )
+            if ( auto multiSummaryPlot = firstSelectedObject->firstAncestorOrThisOfType<RimSummaryMultiPlot>() )
             {
-                auto multiSummaryPlot = firstSelectedObject->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
-                if ( multiSummaryPlot )
-                {
-                    updateMultiPlotToolBar();
+                setBlockViewSelectionOnSubWindowActivated( true );
+                setActiveViewer( multiSummaryPlot->dockWindowName() );
+                setBlockViewSelectionOnSubWindowActivated( false );
 
-                    auto summaryPlot = firstSelectedObject->firstAncestorOrThisOfType<RimSummaryPlot>();
-                    if ( summaryPlot )
-                    {
-                        multiSummaryPlot->makeSureIsVisible( summaryPlot );
-                    }
+                updateMultiPlotToolBar();
+
+                auto summaryPlot = firstSelectedObject->firstAncestorOrThisOfType<RimSummaryPlot>();
+                if ( summaryPlot )
+                {
+                    multiSummaryPlot->makeSureIsVisible( summaryPlot );
+                }
+            }
+            else
+            {
+                if ( selectedWindow->dockWidget() )
+                {
+                    setBlockViewSelectionOnSubWindowActivated( true );
+                    setActiveViewer( selectedWindow->dockWindowName() );
+                    setBlockViewSelectionOnSubWindowActivated( false );
                 }
             }
 
@@ -987,9 +989,11 @@ void RiuPlotMainWindow::customMenuRequested( const QPoint& pos )
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::dragEnterEvent( QDragEnterEvent* event )
 {
-    // QPoint curpos = m_mdiArea->mapFromGlobal( QCursor::pos() );
-
-    // if ( m_mdiArea->rect().contains( curpos ) ) event->acceptProposedAction();
+    if ( m_centralDockWidget != nullptr )
+    {
+        QPoint curpos = m_centralDockWidget->mapFromGlobal( QCursor::pos() );
+        if ( m_centralDockWidget->rect().contains( curpos ) ) event->acceptProposedAction();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
