@@ -34,4 +34,4 @@ print("Time elapsed: ", end - start)
 
 print("Transferred all results back")
 
-view = case.views()[0].apply_cell_result(rips.ResultType.GENERATED, "SOILPORVSync")
+view = case.views()[0].apply_cell_result(rips.PropertyType.GENERATED, "SOILPORVSync")

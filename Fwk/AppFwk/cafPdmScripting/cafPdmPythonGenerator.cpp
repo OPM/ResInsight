@@ -45,6 +45,7 @@
 #include "cafPdmObjectMethod.h"
 #include "cafPdmObjectScriptingCapabilityRegister.h"
 #include "cafPdmProxyValueField.h"
+#include "cafPdmScriptEnumNameRegistry.h"
 #include "cafPdmXmlFieldHandle.h"
 
 #ifndef CAF_EXCLUDE_CVF
@@ -216,7 +217,10 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
         auto    cached       = enumClassNameByDataTypeName.find( dataTypeName );
         if ( cached != enumClassNameByDataTypeName.end() ) return cached->second;
 
-        QString baseName = snakeToCamelCase( camelToSnakeCase( scriptability->scriptFieldName() ) );
+        // Prefer an explicit override registered by application code so the Python enum class name
+        // is stable independent of which field the generator visits first.
+        QString baseName = PdmScriptEnumNameRegistry::lookup( dataTypeName );
+        if ( baseName.isEmpty() ) baseName = snakeToCamelCase( camelToSnakeCase( scriptability->scriptFieldName() ) );
         if ( baseName.isEmpty() ) baseName = "Enum";
 
         QString candidate = baseName;

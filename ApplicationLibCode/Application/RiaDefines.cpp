@@ -23,6 +23,7 @@
 #include "RiaResultNames.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmScriptEnumNameRegistry.h"
 
 namespace caf
 {
@@ -178,6 +179,19 @@ void caf::AppEnum<RiaDefines::RowCount>::setUp()
 }
 
 } // namespace caf
+
+namespace
+{
+// Pin the Python StrEnum class name for caf::AppEnum<RiaDefines::ResultCatType> to "PropertyType".
+// Without this override the generator derives the class name from the first field's script keyword
+// ("ResultType"), which both diverges from the proto PropertyType name and shifts whenever class
+// iteration order changes.
+struct RegisterScriptEnumNames
+{
+    RegisterScriptEnumNames() { caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::ResultCatType>( "PropertyType" ); }
+};
+const RegisterScriptEnumNames s_registerScriptEnumNames;
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///

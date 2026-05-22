@@ -26,10 +26,10 @@ def test_10k_well_log_extraction(rips_instance, initialize_test):
     well_path = wells[0]
 
     properties = [
-        (rips.ResultType.STATIC_NATIVE, "INDEX_K", 0),
-        (rips.ResultType.STATIC_NATIVE, "PORO", 0),
-        (rips.ResultType.STATIC_NATIVE, "PERMX", 0),
-        (rips.ResultType.DYNAMIC_NATIVE, "PRESSURE", 0),
+        (rips.PropertyType.STATIC_NATIVE, "INDEX_K", 0),
+        (rips.PropertyType.STATIC_NATIVE, "PORO", 0),
+        (rips.PropertyType.STATIC_NATIVE, "PERMX", 0),
+        (rips.PropertyType.DYNAMIC_NATIVE, "PRESSURE", 0),
     ]
 
     well_log_plot_collection = rips_instance.project.descendants(

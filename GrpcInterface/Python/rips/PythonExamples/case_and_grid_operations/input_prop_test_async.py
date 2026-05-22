@@ -45,4 +45,4 @@ case.set_active_cell_property_async(
 end = time.time()
 print("Time elapsed: ", end - start)
 print("Transferred all results back")
-view = case.views()[0].apply_cell_result(rips.ResultType.GENERATED, "POROPERMXAS")
+view = case.views()[0].apply_cell_result(rips.PropertyType.GENERATED, "POROPERMXAS")
