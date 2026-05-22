@@ -51,6 +51,7 @@ import NNCProperties_pb2
 import NNCProperties_pb2_grpc
 from .resinsight_classes import (
     Case as Case,
+    DataContainerString as DataContainerString,
     EclipseCase as EclipseCase,
     GeoMechCase as GeoMechCase,
     PorosityModelType as PorosityModelType,
@@ -671,6 +672,36 @@ def available_properties(
         porosity_model=porosity_model_enum,
     )
     return self.__properties_stub.GetAvailableProperties(request).property_names
+
+
+@add_method(Reservoir)
+def property_data_type(
+    self,
+    property_type: PropertyType,
+    property_name: str,
+    porosity_model: PorosityModelType = PorosityModelType.MATRIX_MODEL,
+) -> PropertyDataType:
+    """Get the data type (FLOAT or INTEGER) of a grid property.
+
+    Inverse of the data_type argument to set_active_cell_property and
+    set_grid_property.
+
+    Arguments:
+        property_type (str): string corresponding to property_type enum.
+        property_name (str): name of an Eclipse property.
+        porosity_model (str): 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
+
+    Returns:
+        PropertyDataType.FLOAT or PropertyDataType.INTEGER.
+    """
+    result = self._call_pdm_method_return_value(
+        "property_data_type",
+        DataContainerString,
+        property_type=property_type,
+        property_name=property_name,
+        porosity_model=porosity_model,
+    )
+    return PropertyDataType(result.values[0])
 
 
 @add_method(Case)
