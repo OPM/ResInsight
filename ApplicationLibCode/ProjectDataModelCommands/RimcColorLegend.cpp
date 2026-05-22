@@ -167,3 +167,38 @@ std::expected<caf::PdmObjectHandle*, QString> RimcColorLegendCollection_deleteCo
 
     return nullptr;
 }
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimColorLegendCollection, RimcColorLegendCollection_findDefaultLegendForResult, "FindDefaultLegendForResult" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcColorLegendCollection_findDefaultLegendForResult::RimcColorLegendCollection_findDefaultLegendForResult( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
+{
+    CAF_PDM_InitObject( "Find Default Color Legend For Result", "", "", "Look up the color legend bound to a (case, resultName) pair" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "Case" );
+    CAF_PDM_InitScriptableField( &m_resultName, "ResultName", QString(), "Result Name" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcColorLegendCollection_findDefaultLegendForResult::execute()
+{
+    auto collection = self<RimColorLegendCollection>();
+    if ( !collection ) return std::unexpected( "No color legend collection found" );
+
+    if ( !m_case() ) return std::unexpected( "No case provided" );
+
+    return collection->findDefaultLegendForResult( m_case(), m_resultName() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcColorLegendCollection_findDefaultLegendForResult::classKeywordReturnedType() const
+{
+    return RimColorLegend::classKeywordStatic();
+}

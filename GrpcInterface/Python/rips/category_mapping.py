@@ -12,7 +12,7 @@ from typing import Dict, List, Optional
 
 from .pdmobject import add_method
 from .project import Project
-from .resinsight_classes import Case, ColorLegend
+from .resinsight_classes import Case, ColorLegend, ColorLegendItem
 
 
 # Palette of distinct colors used when the caller does not supply colors.
@@ -104,3 +104,76 @@ def set_discrete_property_category_names(
     )
 
     return legend
+
+
+def _find_default_legend(case: Case, property_name: str) -> Optional[ColorLegend]:
+    """Look up the color legend bound to (case, property_name).
+
+    Returns None when no mapping has been registered.
+    """
+    project = case.ancestor(Project)
+    if project is None:
+        raise RuntimeError("Could not find parent project")
+
+    collection = project.color_legend_collection()
+    if collection is None:
+        raise RuntimeError("Could not find ColorLegendCollection in project")
+
+    return collection.find_default_legend_for_result(
+        case=case,
+        result_name=property_name,
+    )
+
+
+@add_method(Case)
+def discrete_property_category_names(
+    self: Case,
+    property_name: str,
+) -> Dict[int, str]:
+    """Return the integer-value to label mapping for a discrete property.
+
+    Inverse of set_discrete_property_category_names. Returns an empty
+    dict when no mapping is registered for this property.
+
+    Arguments:
+        property_name (str): Name of the discrete property result.
+
+    Returns:
+        Dict mapping each integer category value to its label string.
+    """
+    legend = _find_default_legend(self, property_name)
+    if legend is None:
+        return {}
+
+    return {
+        item.category_value: item.category_name
+        for item in legend.children("ColorLegendItems", ColorLegendItem)
+    }
+
+
+@add_method(Case)
+def discrete_property_category_colors(
+    self: Case,
+    property_name: str,
+) -> Dict[int, str]:
+    """Return the integer-value to color mapping for a discrete property.
+
+    Inverse of the value_colors argument to
+    set_discrete_property_category_names. Colors are returned as hex
+    strings (e.g. "#ff8800") in the same form accepted by the setter.
+    Returns an empty dict when no mapping is registered.
+
+    Arguments:
+        property_name (str): Name of the discrete property result.
+
+    Returns:
+        Dict mapping each integer category value to its hex color.
+    """
+    legend = _find_default_legend(self, property_name)
+    if legend is None:
+        return {}
+
+    return {
+        item.category_value: item.color
+        for item in legend.children("ColorLegendItems", ColorLegendItem)
+    }
