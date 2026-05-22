@@ -114,7 +114,7 @@ bool RimViewWindow::isMainDockedWindow() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewWindow::isDockedIn3DView() const
 {
-    return ( m_windowController != nullptr ) && ( m_windowController->mainWindowId() == 0 );
+    return ( m_windowController != nullptr ) && ( m_windowController->mainWindowId() == RiaDefines::RIMainWindow::MAIN_WINDOW_3D );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ bool RimViewWindow::isDockedIn3DView() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewWindow::isDockedInPlotView() const
 {
-    return ( m_windowController != nullptr ) && ( m_windowController->mainWindowId() == 1 );
+    return ( m_windowController != nullptr ) && ( m_windowController->mainWindowId() == RiaDefines::RIMainWindow::MAIN_WINDOW_PLOTS );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ void RimViewWindow::updateDockWindowVisibility()
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::dockAs3DViewWindow()
 {
-    dockInWindow( 0 );
+    dockInWindow( RiaDefines::RIMainWindow::MAIN_WINDOW_3D );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,7 +199,7 @@ void RimViewWindow::dockAs3DViewWindow()
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::dockAsPlotWindow()
 {
-    dockInWindow( 1 );
+    dockInWindow( RiaDefines::RIMainWindow::MAIN_WINDOW_PLOTS );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,7 +307,7 @@ QString RimViewWindow::dockWindowName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::dockInWindow( int mainWindowID )
+void RimViewWindow::dockInWindow( RiaDefines::RIMainWindow mainWindowID )
 {
     if ( m_windowController == nullptr )
     {

@@ -103,7 +103,7 @@ public:
     RiuPlotMainWindow* getOrCreateMainPlotWindow();
     RiuPlotMainWindow* getOrCreateAndShowMainPlotWindow();
     RiuPlotMainWindow* mainPlotWindow();
-    RiuMainWindowBase* mainWindowByID( int mainWindowID );
+    RiuMainWindowBase* mainWindowByID( RiaDefines::RIMainWindow mainWindowID );
 
     static RimViewWindow*     activeViewWindow();
     static RiuMainWindowBase* activeMainWindow();
