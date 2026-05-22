@@ -1,0 +1,62 @@
+name: Build RHEL8 CI Image
+
+# Builds the Docker image used by the RHEL8 unit test workflow. The image bakes
+# in the toolchain (gcc-toolset-14, libstdc++exp, Qt) and a prebuilt vcpkg
+# binary cache so CI runs do not have to reprovision them every time.
+
+on:
+  schedule:
+    # Nightly at 00:00 UTC, before the RHEL8 unit tests run at 02:00 UTC.
+    - cron: "0 0 * * *"
+  push:
+    paths:
+      - ".github/docker/Dockerfile.rhel8"
+      - ".github/workflows/build-rhel8-image.yml"
+      - "vcpkg.json"
+      - "vcpkg-configuration-rhel8.json"
+      - ".gitmodules"
+  workflow_dispatch:
+
+concurrency:
+  group: build-rhel8-image
+  cancel-in-progress: false
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Compute image name and tag
+        id: meta
+        run: |
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}/ci-rhel8" >> "$GITHUB_OUTPUT"
+          echo "date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .github/docker/Dockerfile.rhel8
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}:latest
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.date }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
