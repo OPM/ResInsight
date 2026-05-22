@@ -122,6 +122,7 @@ void RiuMainWindowBase::setActiveViewer( QString viewerName )
 {
     for ( auto view : viewWindows() )
     {
+        auto dockName = view->dockWidget()->objectName();
         if ( view->dockWidget() && view->dockWidget()->objectName() == viewerName )
         {
             view->setAsActiveViewer();

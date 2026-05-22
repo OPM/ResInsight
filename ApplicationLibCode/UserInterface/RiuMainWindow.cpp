@@ -1264,7 +1264,22 @@ void RiuMainWindow::slotViewFullScreen( bool showFullScreen )
     if ( showFullScreen )
     {
         m_lastDockState = dockManager()->saveState( DOCKSTATE_VERSION );
+
+        QString activeViewerName;
+        if ( auto activeViewer = RiaGuiApplication::instance()->activeReservoirView() )
+        {
+            activeViewerName = activeViewer->dockWindowName();
+        }
+
         dockManager()->restoreState( RiuDockWidgetTools::hideAllDocking3DState(), DOCKSTATE_VERSION );
+
+        if ( !activeViewerName.isEmpty() )
+        {
+            if ( auto dw = dockManager()->findDockWidget( activeViewerName ) )
+            {
+                dockManager()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, dw, dockManager()->centralWidget()->dockAreaWidget() );
+            }
+        }
     }
     else
     {
