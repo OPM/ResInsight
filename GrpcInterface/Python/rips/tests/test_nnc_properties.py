@@ -82,6 +82,31 @@ def test_10k_nnc_connections_async(rips_instance, initialize_test):
     assert first.cell_grid_index1 == 0
 
 
+def test_10k_nnc_connections_static_values_async(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=casePath)
+
+    accumulated = []
+    for chunk in case.nnc_connections_static_values_async("TRAN"):
+        accumulated.extend(chunk.values)
+    assert accumulated == case.nnc_connections_static_values("TRAN")
+
+
+def test_10k_nnc_connections_generated_values_async(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=casePath)
+
+    nnc_connections = case.nnc_connections()
+    new_data = [float(c) for c, _ in enumerate(nnc_connections)]
+    property_name = "ASYNC_PROP"
+    case.set_nnc_connections_values(new_data, property_name, 0)
+
+    accumulated = []
+    for chunk in case.nnc_connections_generated_values_async(property_name, 0):
+        accumulated.extend(chunk.values)
+    assert accumulated == new_data
+
+
 def test_non_existing_dynamic_values(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
