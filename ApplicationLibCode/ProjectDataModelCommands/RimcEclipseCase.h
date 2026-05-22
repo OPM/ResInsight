@@ -19,7 +19,9 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaPorosityModel.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -133,9 +135,9 @@ public:
     QString                                            returnEnumScriptName() const override { return "PropertyDataType"; }
 
 private:
-    caf::PdmField<QString> m_propertyType;
-    caf::PdmField<QString> m_propertyName;
-    caf::PdmField<QString> m_porosityModel;
+    caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>>     m_propertyType;
+    caf::PdmField<QString>                                     m_propertyName;
+    caf::PdmField<caf::AppEnum<RiaDefines::PorosityModelType>> m_porosityModel;
 };
 
 //==================================================================================================

@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 
+#include "RiaPorosityModel.h"
 #include "RiaResultNames.h"
 
 #include "cafAppEnum.h"
@@ -182,13 +183,16 @@ void caf::AppEnum<RiaDefines::RowCount>::setUp()
 
 namespace
 {
-// Pin the Python StrEnum class name for caf::AppEnum<RiaDefines::ResultCatType> to "PropertyType".
-// Without this override the generator derives the class name from the first field's script keyword
-// ("ResultType"), which both diverges from the proto PropertyType name and shifts whenever class
-// iteration order changes.
+// Pin the Python StrEnum class names so the code generator emits stable identifiers regardless of
+// which field it visits first. Without an override the class name is derived from the field's
+// script keyword, and adding/removing fields can silently rename existing Python classes.
 struct RegisterScriptEnumNames
 {
-    RegisterScriptEnumNames() { caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::ResultCatType>( "PropertyType" ); }
+    RegisterScriptEnumNames()
+    {
+        caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::ResultCatType>( "PropertyType" );
+        caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::PorosityModelType>( "PorosityModelType" );
+    }
 };
 const RegisterScriptEnumNames s_registerScriptEnumNames;
 } // namespace

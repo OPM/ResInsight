@@ -420,7 +420,10 @@ RimcEclipseCase_propertyDataType::RimcEclipseCase_propertyDataType( caf::PdmObje
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_propertyType, "PropertyType", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_propertyName, "PropertyName", "" );
-    CAF_PDM_InitScriptableField( &m_porosityModel, "PorosityModel", QString( "MATRIX_MODEL" ), "" );
+    CAF_PDM_InitScriptableField( &m_porosityModel,
+                                 "PorosityModel",
+                                 caf::AppEnum<RiaDefines::PorosityModelType>( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                 "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,19 +434,7 @@ std::expected<RiaDefines::ResultDataType, QString> RimcEclipseCase_propertyDataT
     auto eclipseCase = self<RimEclipseCase>();
     if ( !eclipseCase ) return std::unexpected( "No eclipse case" );
 
-    caf::AppEnum<RiaDefines::ResultCatType> resultCatTypeEnum;
-    if ( !resultCatTypeEnum.setFromText( m_propertyType ) )
-    {
-        return std::unexpected( "Invalid property type." );
-    }
-
-    caf::AppEnum<RiaDefines::PorosityModelType> porosityModel;
-    if ( !porosityModel.setFromText( m_porosityModel ) )
-    {
-        return std::unexpected( "Invalid porosity model." );
-    }
-
-    auto resultsData = eclipseCase->results( porosityModel );
+    auto resultsData = eclipseCase->results( m_porosityModel() );
     if ( !resultsData )
     {
         return std::unexpected( "Eclipse case has no result data." );
@@ -451,7 +442,7 @@ std::expected<RiaDefines::ResultDataType, QString> RimcEclipseCase_propertyDataT
 
     for ( const auto& address : resultsData->existingResults() )
     {
-        if ( address.resultCatType() == resultCatTypeEnum && address.resultName() == m_propertyName() )
+        if ( address.resultCatType() == m_propertyType() && address.resultName() == m_propertyName() )
         {
             return address.dataType();
         }
