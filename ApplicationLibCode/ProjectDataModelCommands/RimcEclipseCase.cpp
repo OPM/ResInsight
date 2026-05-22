@@ -414,7 +414,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimcEclipseCase_propertyDataT
 ///
 //--------------------------------------------------------------------------------------------------
 RimcEclipseCase_propertyDataType::RimcEclipseCase_propertyDataType( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_INVALID, PdmObjectMethod::ResultType::PERSISTENT_FALSE )
+    : caf::PdmEnumObjectMethod<RiaDefines::ResultDataType>( self )
 {
     CAF_PDM_InitObject( "Property Data Type", "", "", "Get the data type (FLOAT or INTEGER) of a grid property" );
 
@@ -426,7 +426,7 @@ RimcEclipseCase_propertyDataType::RimcEclipseCase_propertyDataType( caf::PdmObje
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_propertyDataType::execute()
+std::expected<RiaDefines::ResultDataType, QString> RimcEclipseCase_propertyDataType::executeEnum()
 {
     auto eclipseCase = self<RimEclipseCase>();
     if ( !eclipseCase ) return std::unexpected( "No eclipse case" );
@@ -453,20 +453,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_propertyDataType::
     {
         if ( address.resultCatType() == resultCatTypeEnum && address.resultName() == m_propertyName() )
         {
-            auto*      dataObject  = new RimcDataContainerString();
-            const bool isInteger   = address.dataType() == RiaDefines::ResultDataType::INTEGER;
-            dataObject->m_stringValues = { isInteger ? QString( "INTEGER" ) : QString( "FLOAT" ) };
-            return dataObject;
+            return address.dataType();
         }
     }
 
     return std::unexpected( QString( "Property not found: %1" ).arg( m_propertyName() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimcEclipseCase_propertyDataType::classKeywordReturnedType() const
-{
-    return RimcDataContainerString::classKeywordStatic();
 }

@@ -5,11 +5,12 @@ and ``NNCProperties.proto``. They give users typed, autocompletable enum members
 while remaining wire-compatible with the existing string-based API (``StrEnum``
 members are strings).
 
-Auto-generated ``StrEnum`` classes for ``caf::AppEnum`` scriptable fields live in
-``rips.generated.generated_classes`` and are emitted by ``cafPdmPythonGenerator``.
-``PorosityModelType`` is one of those auto-generated enums and is imported from
-``resinsight_classes``; the enums in this module cover the gRPC-only proto enums
-that the auto-generator does not see.
+Auto-generated ``StrEnum`` classes for ``caf::AppEnum`` scriptable fields and for
+PdmObjectMethod enum return values live in ``rips.generated.generated_classes``
+and are emitted by ``cafPdmPythonGenerator``. ``PorosityModelType`` and
+``PropertyDataType`` are auto-generated and imported from ``resinsight_classes``;
+the enums in this module cover the gRPC-only proto enums that the auto-generator
+does not see.
 """
 
 from enum import StrEnum
@@ -27,12 +28,6 @@ class PropertyType(StrEnum):
     INJECTION_FLOODING = "INJECTION_FLOODING"
     REMOVED = "REMOVED"
     UNDEFINED = "UNDEFINED"
-
-
-# Keep in sync with PropertyDataType in GrpcInterface/GrpcProtos/Properties.proto
-class PropertyDataType(StrEnum):
-    FLOAT = "FLOAT"
-    INTEGER = "INTEGER"
 
 
 # Keep in sync with NNCPropertyType in GrpcInterface/GrpcProtos/NNCProperties.proto

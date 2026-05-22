@@ -12,6 +12,8 @@ set(PROJECT_FILES
     cafPdmAbstractFieldScriptingCapability.cpp
     cafPdmFieldScriptingCapability.h
     cafPdmFieldScriptingCapability.cpp
+    cafPdmDataContainerEnum.h
+    cafPdmDataContainerEnum.cpp
     cafPdmObjectMethod.h
     cafPdmObjectMethod.cpp
     cafPdmObjectScriptingCapabilityRegister.h
