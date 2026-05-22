@@ -72,7 +72,7 @@ std::expected<RigMswTableData, std::string>
                                                              CompletionType                  completionType,
                                                              const std::optional<QDateTime>& exportDate )
 {
-    // Data prcessing for MSW has improved. Currently, there exist two code paths for extracting MSW data. The preference for using the
+    // Data processing for MSW has improved. Currently, there exist two code paths for extracting MSW data. The preference for using the
     // legacy code path is controlled by the "Use Improved MSW Data Structures" preference (General tab, Other group).
     bool useLegacy = !RiaPreferences::current()->useImprovedMswDataStructures();
     if ( useLegacy )
