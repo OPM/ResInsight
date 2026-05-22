@@ -101,7 +101,7 @@ protected:
 private:
     friend class RimProject;
 
-    void         dockInWindow( int mainWindowID );
+    void         dockInWindow( RiaDefines::RIMainWindow mainWindowID );
     virtual void assignIdIfNecessary() = 0;
 
 protected:
