@@ -168,9 +168,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcColorLegendCollection_deleteCo
     return nullptr;
 }
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimColorLegendCollection,
-                                   RimcColorLegendCollection_findDefaultLegendForResult,
-                                   "FindDefaultLegendForResult" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimColorLegendCollection, RimcColorLegendCollection_findDefaultLegendForResult, "FindDefaultLegendForResult" );
 
 //--------------------------------------------------------------------------------------------------
 ///
