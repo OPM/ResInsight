@@ -47,6 +47,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QInputDialog>
+#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QSettings>
