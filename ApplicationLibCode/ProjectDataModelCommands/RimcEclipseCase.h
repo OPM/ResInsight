@@ -117,6 +117,26 @@ public:
 };
 
 //==================================================================================================
+/// Return the data type ("FLOAT" or "INTEGER") of a grid property. Inverse of the data_type
+/// flag passed to set_active_cell_property / set_grid_property.
+//==================================================================================================
+class RimcEclipseCase_propertyDataType : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    explicit RimcEclipseCase_propertyDataType( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_propertyType;
+    caf::PdmField<QString> m_propertyName;
+    caf::PdmField<QString> m_porosityModel;
+};
+
+//==================================================================================================
 /// Apply a cell filter to this case for a given grid + time step and write a per-cell 0/1 mask
 /// (1 = passes the filter, 0 = filtered out) to the key-value store under m_maskKey. The vector
 /// length and ordering match case.grid_property(..., grid_index) so the two can be combined
