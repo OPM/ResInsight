@@ -20,11 +20,13 @@
 
 #include "RiaGuiApplication.h"
 #include "Rim3dView.h"
+#include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
 
 #include "RiuDockWidgetTools.h"
 #include "RiuMainWindowBase.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuViewer.h"
 
 #include "DockManager.h"
@@ -209,6 +211,10 @@ void RimDockWindowController::setAsActiveViewer()
                 mainWin->refreshAnimationActions();
                 mainWin->refreshDrawStyleActions();
             }
+        }
+        else if ( auto plotView = dynamic_cast<RimPlotWindow*>( pdmView ) )
+        {
+            RiuPlotMainWindowTools::selectAsCurrentItem( plotView );
         }
     }
 }
