@@ -25,6 +25,7 @@
 #include "RimViewWindow.h"
 
 #include "RiuDockWidgetTools.h"
+#include "RiuMainWindow.h"
 #include "RiuMainWindowBase.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuViewer.h"
