@@ -29,6 +29,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 
+#include <QMouseEvent>
 #include <QPainter>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not use. Abstract class
@@ -434,4 +435,15 @@ bool RimPlotWindow::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 bool RimPlotWindow::handleGlobalWheelEvent( QWheelEvent* wheelEvent )
 {
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::onMousePressEvent( QMouseEvent* mouseEvent )
+{
+    if ( mouseEvent )
+    {
+        setAsActiveViewer();
+    }
 }
