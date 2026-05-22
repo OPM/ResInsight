@@ -1120,11 +1120,11 @@ RiuPlotMainWindow* RiaGuiApplication::mainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMainWindowBase* RiaGuiApplication::mainWindowByID( int mainWindowID )
+RiuMainWindowBase* RiaGuiApplication::mainWindowByID( RiaDefines::RIMainWindow mainWindowID )
 {
-    if ( mainWindowID == 0 )
+    if ( mainWindowID == RiaDefines::RIMainWindow::MAIN_WINDOW_3D )
         return m_mainWindow;
-    else if ( mainWindowID == 1 )
+    else if ( mainWindowID == RiaDefines::RIMainWindow::MAIN_WINDOW_PLOTS )
         return m_mainPlotWindow.get();
     else
         return nullptr;

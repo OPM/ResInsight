@@ -23,6 +23,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include "RiaDefines.h"
+
 class RiuMainWindowBase;
 class RimViewWindow;
 struct RimMdiWindowGeometry;
@@ -39,9 +41,9 @@ public:
     RimDockWindowController();
     ~RimDockWindowController() override;
 
-    void setMainWindowId( int mainId );
-    void setViewToControl( RimViewWindow* view );
-    int  mainWindowId() const;
+    void                     setMainWindowId( RiaDefines::RIMainWindow mainId );
+    void                     setViewToControl( RimViewWindow* view );
+    RiaDefines::RIMainWindow mainWindowId() const;
 
     void setAsActiveViewer();
 
@@ -58,6 +60,6 @@ protected:
     void setupBeforeSave() override;
 
 private:
-    caf::PdmField<int>               m_mainWindowID;
+    RiaDefines::RIMainWindow         m_mainWindowID;
     caf::PdmPtrField<RimViewWindow*> m_viewToControl;
 };
