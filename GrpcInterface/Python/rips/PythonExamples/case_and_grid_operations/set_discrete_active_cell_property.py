@@ -30,3 +30,14 @@ case.set_discrete_property_category_names(
     property_name="MY_REGION",
     value_names={0: "Sand", 1: "Shale", 2: "Coal", 3: "Limestone"},
 )
+
+# Introspect the property: data_type, category names, and category colors.
+data_type = case.property_data_type(
+    property_type=rips.PropertyType.GENERATED,
+    property_name="MY_REGION",
+)
+print(f"MY_REGION data type: {data_type}")
+assert data_type == rips.PropertyDataType.INTEGER
+
+print("MY_REGION category names:", case.discrete_property_category_names("MY_REGION"))
+print("MY_REGION category colors:", case.discrete_property_category_colors("MY_REGION"))
