@@ -20,21 +20,23 @@ on:
 jobs:
   copilot-setup-steps:
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
-
-    env:
-      BUILD_TYPE: Release
-      CC: gcc-14
-      CXX: g++-14
-      QT_VERSION: 6.7.0
-      BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
-      BUILDCACHE_ACCURACY: SLOPPY
+    timeout-minutes: 59
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           submodules: true
+
+      - name: Fetch default branch reference
+        shell: bash
+        run: |
+          default_branch="${{ github.event.repository.default_branch }}"
+          if [ -n "$default_branch" ]; then
+            git fetch --no-tags origin "+refs/heads/${default_branch}:refs/remotes/origin/${default_branch}"
+          fi
 
       - name: Set apt mirror
         # https://github.com/actions/runner-images/issues/7048
@@ -47,6 +49,7 @@ jobs:
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" -y \
+            ninja-build \
             libxkbcommon-x11-0 \
             libgl1-mesa-dev \
             mesa-common-dev \
@@ -86,21 +89,21 @@ jobs:
       - name: Restore buildcache
         uses: actions/cache@v5
         with:
-          path: ${{ env.BUILDCACHE_DIR }}
+          path: ${{ github.workspace }}/buildcache_dir
           # Key/restore-keys mirror ResInsightWithCache.yml's gcc-14 leg so the
           # nightly CI cache is reused here. Restore-keys fall back to any
           # older entry in the same family if today's bucket is empty.
-          key: ubuntu-24.04-gcc-14-${{ env.QT_VERSION }}-cache-v03-${{ steps.current-time.outputs.formattedTime }}
+          key: ubuntu-24.04-gcc-14-6.7.0-cache-v03-${{ steps.current-time.outputs.formattedTime }}
           restore-keys: |
-            ubuntu-24.04-gcc-14-${{ env.QT_VERSION }}-cache-v03-
+            ubuntu-24.04-gcc-14-6.7.0-cache-v03-
 
       - name: Create buildcache dir
-        run: mkdir -p ${{ env.BUILDCACHE_DIR }}
+        run: mkdir -p ${{ github.workspace }}/buildcache_dir
 
       - name: Install Qt
         uses: CeetronSolutions/install-qt-action@bump-node24
         with:
-          version: ${{ env.QT_VERSION }}
+          version: 6.7.0
           dir: ${{ github.workspace }}/Qt/
           cache: true
           setup-python: false
@@ -123,12 +126,16 @@ jobs:
 
       - name: Configure
         env:
+          BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
+          BUILDCACHE_ACCURACY: SLOPPY
           VCPKG_FEATURE_FLAGS: binarycaching
           VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
         run: |
           cmake -S . -B cmakebuild \
             -DVCPKG_BUILD_TYPE=release \
-            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=gcc-14 \
+            -DCMAKE_CXX_COMPILER=g++-14 \
             -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true \
             -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=false \
             -DRESINSIGHT_ENABLE_UNITY_BUILD=false \
