@@ -149,3 +149,24 @@ clone path has to match the warmup compile's `/src` for the cache to hit.
 Unity build is disabled in both the warmup and the CI configure for the same
 reason: with unity on, a single `.cpp` change invalidates the entire unity
 blob's cache entry.
+
+## Retention
+
+`.github/workflows/cleanup-rhel8-image.yml` runs daily at 03:00 UTC and
+deletes old dated tags from GHCR:
+
+- The `:latest` tag is always kept (the consumer workflow pulls it).
+- The 3 most recent versions are kept regardless of age (safety floor so a
+  string of broken nightly builds can't strand CI without a working image).
+- Of the rest, anything older than 5 days is deleted.
+
+The retention window and dry-run mode are exposed as `workflow_dispatch`
+inputs for ad-hoc invocation:
+
+```
+gh workflow run cleanup-rhel8-image.yml --repo <owner>/ResInsight \
+  -f dry_run=true -f retention_days=7
+```
+
+Owner type (User vs Organization) is auto-detected so the workflow runs
+unchanged on the upstream repo and on forks.

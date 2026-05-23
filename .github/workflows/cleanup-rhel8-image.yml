@@ -1,0 +1,130 @@
+name: Cleanup RHEL8 CI Image Versions
+
+# Daily cleanup of old dated tags pushed by build-rhel8-image.yml.
+#
+# Retention rules:
+#   * Versions tagged "latest" are always kept (the consumer workflow pulls
+#     `:latest`, so deleting it would break CI).
+#   * The most recent MIN_KEEP versions by updated_at are kept regardless of
+#     age. This is a safety floor: if the last few nightly builds break, we
+#     can still roll back to a working older image.
+#   * Of what remains, anything older than RETENTION_DAYS is deleted.
+#
+# Owner type (User vs Organization) is auto-detected so the same workflow
+# runs unchanged on the upstream (OPM/ResInsight, org) and on forks
+# (e.g. magnesj/ResInsight, user).
+
+on:
+  schedule:
+    # 03:00 UTC -- after the nightly image build (00:00) and the unit-test
+    # consumer (02:00) have both finished, so we never race them.
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "List versions that would be deleted without deleting"
+        type: boolean
+        default: false
+      retention_days:
+        description: "Delete versions older than this many days"
+        type: string
+        default: "5"
+
+concurrency:
+  group: cleanup-rhel8-image
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Delete old image versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run == true && 'true' || 'false' }}
+          RETENTION_DAYS: ${{ inputs.retention_days || '5' }}
+          MIN_KEEP: "3"
+        run: |
+          set -euo pipefail
+
+          owner="${GITHUB_REPOSITORY_OWNER}"
+          repo_name_lc="${GITHUB_REPOSITORY##*/}"
+          repo_name_lc="${repo_name_lc,,}"
+          pkg="${repo_name_lc}/ci-rhel8"
+          pkg_enc="${pkg/\//%2F}"
+
+          # Owner type drives both the list endpoint and the delete endpoint.
+          # User-owned packages delete via /user/... (authenticated user), org
+          # packages via /orgs/<org>/...
+          owner_type=$(gh api "/users/$owner" --jq '.type')
+          case "$owner_type" in
+            Organization)
+              list_path="/orgs/$owner/packages/container/$pkg_enc/versions"
+              del_prefix="/orgs/$owner/packages/container/$pkg_enc/versions"
+              ;;
+            User)
+              list_path="/users/$owner/packages/container/$pkg_enc/versions"
+              del_prefix="/user/packages/container/$pkg_enc/versions"
+              ;;
+            *)
+              echo "Unknown owner type: $owner_type" >&2
+              exit 1
+              ;;
+          esac
+
+          echo "Owner          : $owner ($owner_type)"
+          echo "Package        : $pkg"
+          echo "Retention days : $RETENTION_DAYS"
+          echo "Safety floor   : keep $MIN_KEEP most recent versions"
+          echo "Dry run        : $DRY_RUN"
+
+          # Tolerate 404: the package legitimately does not exist on a fork
+          # that has never published an image yet.
+          if ! versions=$(gh api --paginate "$list_path" 2>/tmp/api.err); then
+            if grep -qiE 'not found|HTTP 404' /tmp/api.err; then
+              echo "Package $pkg not found on $owner -- nothing to clean up."
+              exit 0
+            fi
+            cat /tmp/api.err >&2
+            exit 1
+          fi
+
+          cutoff_epoch=$(date -u -d "$RETENTION_DAYS days ago" +%s)
+          echo "Cutoff (UTC)   : $(date -u -d @"$cutoff_epoch" -Iseconds)"
+
+          # jq pipeline:
+          #   1. drop versions whose tags include "latest"
+          #   2. sort newest-first
+          #   3. skip the first MIN_KEEP (safety floor)
+          #   4. keep only those older than the cutoff
+          to_delete=$(jq -c \
+            --argjson keep "$MIN_KEEP" \
+            --argjson cutoff "$cutoff_epoch" '
+              [ .[] | select((.metadata.container.tags // []) | index("latest") | not) ]
+              | sort_by(.updated_at) | reverse
+              | .[$keep:]
+              | [ .[] | select((.updated_at | fromdateiso8601) < $cutoff) ]
+            ' <<<"$versions")
+
+          count=$(jq 'length' <<<"$to_delete")
+          echo "Versions to delete: $count"
+          jq -r '.[] | "  - id=\(.id) updated=\(.updated_at) tags=\((.metadata.container.tags // []) | join(","))"' <<<"$to_delete"
+
+          if [[ "$count" -eq 0 ]]; then
+            echo "Nothing to do."
+            exit 0
+          fi
+
+          if [[ "$DRY_RUN" == "true" ]]; then
+            echo "Dry run -- not deleting."
+            exit 0
+          fi
+
+          jq -r '.[].id' <<<"$to_delete" | while read -r id; do
+            echo "DELETE $del_prefix/$id"
+            gh api -X DELETE "$del_prefix/$id"
+          done
+
+          echo "Cleanup complete."
