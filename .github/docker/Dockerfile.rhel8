@@ -74,15 +74,28 @@ ENV Qt6_DIR=/opt/Qt/${QT_VERSION}/gcc_64 \
     CMAKE_PREFIX_PATH=/opt/Qt/${QT_VERSION}/gcc_64 \
     PATH=/opt/Qt/${QT_VERSION}/gcc_64/bin:${PATH}
 
-# buildcache (pinned). When this binary is on PATH at CMake configure time, the
-# project's top-level CMakeLists.txt auto-detects it via find_program() and
-# wires CMAKE_CXX_COMPILER_LAUNCHER. No further CMake plumbing is needed.
-ARG BUILDCACHE_VERSION=v0.28.4
-RUN curl -L -o /tmp/buildcache.tar.gz \
-      "https://github.com/mbitsnbites/buildcache/releases/download/${BUILDCACHE_VERSION}/buildcache-linux.tar.gz" \
- && tar -xzf /tmp/buildcache.tar.gz -C /opt \
- && ln -sf /opt/buildcache/bin/buildcache /usr/local/bin/buildcache \
- && rm /tmp/buildcache.tar.gz
+# buildcache (pinned, built from source). When this binary is on PATH at CMake
+# configure time, the project's top-level CMakeLists.txt auto-detects it via
+# find_program() and wires CMAKE_CXX_COMPILER_LAUNCHER. No further CMake
+# plumbing is needed.
+#
+# Built from source rather than downloaded because the upstream
+# `buildcache-linux.tar.gz` release binary is linked against glibc 2.29+, and
+# Rocky Linux 8 ships glibc 2.28 -- the binary loads but crashes the first
+# time the dynamic linker touches libm. Compiling here links against the
+# image's own glibc and is portable (~1-2 minutes).
+# Source from GitLab -- the canonical repo. The GitHub mirror is stale (last
+# tag v0.28.4, 2024-03), while GitLab has progressed to v0.33.0 with the GCC
+# 14 transitive-include fixes that v0.28.x lacks.
+ARG BUILDCACHE_VERSION=v0.33.0
+RUN source /opt/rh/gcc-toolset-14/enable \
+ && git clone --depth 1 --branch "${BUILDCACHE_VERSION}" \
+      https://gitlab.com/bits-n-bites/buildcache.git /tmp/buildcache-src \
+ && cmake -S /tmp/buildcache-src/src -B /tmp/buildcache-build -G Ninja \
+      -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+ && cmake --build /tmp/buildcache-build --target install \
+ && rm -rf /tmp/buildcache-src /tmp/buildcache-build \
+ && buildcache --version
 
 # -----------------------------------------------------------------------------
 # Stage 2: populate the vcpkg binary cache
