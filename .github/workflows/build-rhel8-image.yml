@@ -40,8 +40,19 @@ jobs:
       - name: Compute image name and tag
         id: meta
         run: |
-          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}/ci-rhel8" >> "$GITHUB_OUTPUT"
-          echo "date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+          image="ghcr.io/${GITHUB_REPOSITORY,,}/ci-rhel8"
+          date="$(date -u +%Y-%m-%d)"
+          repo_name_lc="${GITHUB_REPOSITORY##*/}"
+          repo_name_lc="${repo_name_lc,,}"
+          web_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/pkgs/container/${repo_name_lc}%2Fci-rhel8"
+          {
+            echo "image=$image"
+            echo "date=$date"
+            echo "web_url=$web_url"
+          } >> "$GITHUB_OUTPUT"
+          echo "Image refs : $image:latest"
+          echo "             $image:$date"
+          echo "GHCR page  : $web_url"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -53,7 +64,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # The image build is expensive (cold ~1.5-2 h). If an image tagged with
+      # today's UTC date is already in GHCR, treat the build as already done
+      # for this day and skip. To force a same-day rebuild, delete the dated
+      # tag from the GHCR package page (or via `gh api`) and rerun.
+      - name: Check if today's image already exists in GHCR
+        id: check
+        run: |
+          target="${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.date }}"
+          if docker buildx imagetools inspect "$target" >/dev/null 2>&1; then
+            echo "Image $target already exists -- skipping build."
+            echo "See: ${{ steps.meta.outputs.web_url }}"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Image $target not found -- proceeding with build."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build and push image
+        if: steps.check.outputs.exists != 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
