@@ -53,7 +53,7 @@ jobs:
         # schedule, workflow_dispatch and pull_request (merge commit) events.
         run: |
           git config --global --add safe.directory '*'
-          git config --global http.extraheader "AUTHORIZATION: bearer ${GH_TOKEN}"
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
           git clone --no-checkout "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" /src
           cd /src
           git fetch --no-tags --depth 1 origin "${GITHUB_SHA}"
