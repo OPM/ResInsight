@@ -1,0 +1,28 @@
+# Keep the Docker build context small and avoid shadowing the in-image build
+# tree with stale host outputs. The repo's own .gitignore does not apply to
+# Docker contexts -- this file is the canonical list of paths excluded from
+# `COPY . /src` (used by .github/docker/Dockerfile.rhel8).
+
+# Local CMake build outputs (host-side; can be tens of GB).
+build/
+build_*/
+cmakebuild/
+cmake-build-*/
+out/
+
+# Build/install logs at the repo root.
+*.log
+
+# IDE and editor state.
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# Python caches (rips, GrpcInterface tooling, etc.).
+__pycache__/
+*.pyc
+
+# OS metadata.
+.DS_Store
+Thumbs.db
