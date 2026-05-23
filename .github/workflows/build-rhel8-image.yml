@@ -1,0 +1,106 @@
+name: Build RHEL8 CI Image
+
+# Builds the Docker image used by the RHEL8 unit test workflow. The image bakes
+# in the toolchain (gcc-toolset-14, libstdc++exp, Qt) and a prebuilt vcpkg
+# binary cache so CI runs do not have to reprovision them every time.
+
+on:
+  schedule:
+    # Nightly at 00:00 UTC, before the RHEL8 unit tests run at 02:00 UTC.
+    - cron: "0 0 * * *"
+  push:
+    paths:
+      - ".github/docker/Dockerfile.rhel8"
+      - ".github/workflows/build-rhel8-image.yml"
+      - "vcpkg.json"
+      - "vcpkg-configuration-rhel8.json"
+      - ".gitmodules"
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: "Rebuild and overwrite today's image even if it already exists in GHCR"
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-rhel8-image
+  cancel-in-progress: false
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    # Cold first build runs the full ResInsight compile in the build-warmup
+    # stage (~1.5-2 h). Incremental nightly rebuilds reuse the BuildKit cache
+    # mount and finish much faster.
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Compute image name and tag
+        id: meta
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY,,}/ci-rhel8"
+          date="$(date -u +%Y-%m-%d)"
+          repo_name_lc="${GITHUB_REPOSITORY##*/}"
+          repo_name_lc="${repo_name_lc,,}"
+          web_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/pkgs/container/${repo_name_lc}%2Fci-rhel8"
+          {
+            echo "image=$image"
+            echo "date=$date"
+            echo "web_url=$web_url"
+          } >> "$GITHUB_OUTPUT"
+          echo "Image refs : $image:latest"
+          echo "             $image:$date"
+          echo "GHCR page  : $web_url"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The image build is expensive (cold ~1.5-2 h). If an image tagged with
+      # today's UTC date is already in GHCR, treat the build as already done
+      # for this day and skip. To force a same-day rebuild, dispatch the
+      # workflow with force_rebuild=true (or delete the dated tag from GHCR
+      # and rerun).
+      - name: Check if today's image already exists in GHCR
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.force_rebuild }}" == "true" ]]; then
+            echo "force_rebuild=true -- skipping existence check."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          target="${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.date }}"
+          if docker buildx imagetools inspect "$target" >/dev/null 2>&1; then
+            echo "Image $target already exists -- skipping build."
+            echo "See: ${{ steps.meta.outputs.web_url }}"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Image $target not found -- proceeding with build."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push image
+        if: steps.check.outputs.exists != 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .github/docker/Dockerfile.rhel8
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}:latest
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.date }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

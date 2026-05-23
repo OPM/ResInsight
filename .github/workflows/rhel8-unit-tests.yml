@@ -5,144 +5,74 @@ on:
   schedule:
     # Nightly at 2am UTC
     - cron: "0 2 * * *"
-  
+
 jobs:
-  rhel8-build-and-test:
+  # Resolves the prebuilt CI image name so it works in forks and upstream alike
+  # (GHCR requires a lowercase repository path).
+  resolve-image:
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - name: Compute image name
+        id: meta
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY,,}/ci-rhel8:latest" >> "$GITHUB_OUTPUT"
+
+  rhel8-build-and-test:
+    needs: resolve-image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     container:
-      image: rockylinux:8
+      # Prebuilt image with toolchain, baked vcpkg binary cache, and a warm
+      # ResInsight buildcache at /opt/buildcache.
+      # See .github/workflows/build-rhel8-image.yml
+      image: ${{ needs.resolve-image.outputs.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # Source must live at /src to match the path the image's warmup compiled
+    # at; buildcache hashes the absolute source path so any drift collapses
+    # the hit rate. The clone step overrides this default since /src does not
+    # exist yet at that point.
+    defaults:
+      run:
+        working-directory: /src
 
     steps:
-      - name: Install EPEL and development tools
-        run: |
-          dnf install -y epel-release
-          dnf config-manager --set-enabled powertools
-          dnf install -y \
-            gcc \
-            gcc-c++ \
-            make \
-            cmake \
-            ninja-build \
-            git \
-            curl \
-            zip \
-            unzip \
-            tar \
-            pkgconfig \
-            perl \
-            which \
-            python39 \
-            python39-devel \
-            python39-pip \
-            mesa-libGL-devel \
-            mesa-libGLU-devel \
-            mesa-libEGL-devel \
-            libxkbcommon-devel \
-            libxkbcommon-x11-devel \
-            xcb-util-keysyms-devel \
-            xcb-util-image-devel \
-            xcb-util-wm-devel \
-            xcb-util-renderutil-devel \
-            fontconfig-devel \
-            freetype-devel \
-            libX11-devel \
-            libXext-devel \
-            libXrender-devel \
-            flex \
-            bison \
-            xz
-
-      - name: Install GCC Toolset 14
-        run: |
-          dnf install -y gcc-toolset-14 gcc-toolset-14-gcc-c++ gcc-toolset-14-libatomic-devel gcc-toolset-14-libstdc++-devel
-
-      - name: Build libstdc++exp
-        run: |
-          source /opt/rh/gcc-toolset-14/enable
-
-          # Get full GCC version (e.g., 14.2.1)
-          GCC_FULL_VERSION=$(gcc -dumpfullversion)
-          # Get major.minor version for download (e.g., 14.2.0 - releases use .0 patch)
-          GCC_MAJOR_MINOR=$(echo $GCC_FULL_VERSION | cut -d. -f1,2)
-          GCC_VERSION="${GCC_MAJOR_MINOR}.0"
-          echo "GCC full version: $GCC_FULL_VERSION"
-          echo "GCC download version: $GCC_VERSION"
-
-          # Download GCC source
-          cd /tmp
-          curl -LO https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.xz
-          tar xf gcc-${GCC_VERSION}.tar.xz
-
-          # Build libstdc++exp
-          mkdir -p gcc-${GCC_VERSION}/build-libstdcxx
-          cd gcc-${GCC_VERSION}/build-libstdcxx
-
-          ../libstdc++-v3/configure \
-            --prefix=/opt/libstdcxx-exp \
-            --disable-multilib \
-            --disable-libstdcxx-pch \
-            --with-gxx-include-dir=/opt/rh/gcc-toolset-14/root/usr/include/c++/${GCC_VERSION}
-
-          # Build the experimental library (use -k to continue past unrelated failures like tzdb.cc)
-          make -k -j$(nproc) || true
-
-          # Verify and install the library
-          if [ ! -f src/experimental/.libs/libstdc++exp.a ]; then
-            echo "ERROR: libstdc++exp.a was not built"
-            exit 1
-          fi
-          mkdir -p /opt/libstdcxx-exp/lib
-          cp src/experimental/.libs/libstdc++exp.a /opt/libstdcxx-exp/lib/
-
-          echo "libstdc++exp built successfully"
-          ls -la /opt/libstdcxx-exp/lib/
-
-      - name: Configure git safe directory
+      - name: Clone source into /src
+        working-directory: /
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # actions/checkout writes inside GITHUB_WORKSPACE (e.g.
+        # /__w/ResInsight/ResInsight) which would not match the image's baked
+        # cache path. Clone manually into /src instead. GITHUB_SHA is fetched
+        # directly (GitHub allows any-SHA fetches on the workflow's own repo).
+        #
+        # The insteadOf rewrite is unset after the clone so the token is not
+        # left in /etc/gitconfig where a later `git config --list` for
+        # diagnostics could echo it into the log.
         run: |
           git config --global --add safe.directory '*'
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
+          git clone --no-checkout "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" /src
+          cd /src
+          git fetch --no-tags --depth 1 origin "${GITHUB_SHA}"
+          git checkout FETCH_HEAD
+          git submodule update --init --recursive --depth 1
+          git config --global --unset url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf
 
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          submodules: recursive
-
-      - name: Setup Python
-        run: |
-          alternatives --set python3 /usr/bin/python3.9
-          python3 --version
-          python3 -m pip install --upgrade pip
-          python3 -m pip install grpcio-tools
-
-      - name: Get Python executable path
-        id: python-path
-        run: |
-          echo "PYTHON_EXECUTABLE=$(python3 -c 'import sys; import pathlib; print(pathlib.PurePath(sys.executable).as_posix())')" >> $GITHUB_OUTPUT
-
-      - name: Install Qt 6 using aqtinstall
-        run: |
-          python3 -m pip install aqtinstall
-          python3 -m aqt install-qt linux desktop 6.6.3 gcc_64 -O /opt/Qt --modules qtnetworkauth
-          echo "Qt6_DIR=/opt/Qt/6.6.3/gcc_64" >> $GITHUB_ENV
-          echo "CMAKE_PREFIX_PATH=/opt/Qt/6.6.3/gcc_64" >> $GITHUB_ENV
-          echo "/opt/Qt/6.6.3/gcc_64/bin" >> $GITHUB_PATH
-
+      # /src was just freshly cloned, so the ThirdParty/vcpkg/vcpkg binary
+      # produced by bootstrap-vcpkg.sh is not present. The image's baked
+      # /opt/vcpkg-cache supplies prebuilt dependencies; the binary itself
+      # still has to exist locally for `vcpkg install` to run.
       - name: Bootstrap vcpkg
         run: |
           source /opt/rh/gcc-toolset-14/enable
           cd ThirdParty/vcpkg
           ./bootstrap-vcpkg.sh
-
-      - name: Get vcpkg submodule SHA
-        id: vcpkg-sha
-        shell: bash
-        run: echo "sha=$(git rev-parse HEAD:ThirdParty/vcpkg)" >> $GITHUB_OUTPUT
-
-      - name: Restore vcpkg cache
-        id: vcpkg-cache
-        uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
-        with:
-          cache-key: ${{ runner.os }}-g++-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
-          prefix: vcpkg-g++/
 
       - name: Use RHEL8 vcpkg configuration
         run: cp vcpkg-configuration-rhel8.json vcpkg-configuration.json
@@ -152,13 +82,19 @@ jobs:
           CC: /opt/rh/gcc-toolset-14/root/usr/bin/gcc
           CXX: /opt/rh/gcc-toolset-14/root/usr/bin/g++
           VCPKG_FEATURE_FLAGS: "binarycaching"
-          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
+          # Read vcpkg dependencies from the binary cache baked into the image.
+          # buildcache is auto-discovered on PATH by CMakeLists.txt's
+          # find_program() and wired as CMAKE_CXX_COMPILER_LAUNCHER -- no
+          # explicit setup step is needed. BUILDCACHE_DIR etc. are baked in
+          # the image ENV. Unity build must be OFF to match the warmup build
+          # (mismatched flag would collapse the cache hit rate).
+          VCPKG_BINARY_SOURCES: "clear;files,/opt/vcpkg-cache,read"
         run: |
           source /opt/rh/gcc-toolset-14/enable
-          cmake -S . -B cmakebuild -G Ninja \
+          cmake -S /src -B /src/cmakebuild -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true \
-            -DRESINSIGHT_ENABLE_UNITY_BUILD=true \
+            -DRESINSIGHT_ENABLE_UNITY_BUILD=false \
             -DRESINSIGHT_ENABLE_HDF5=false \
             -DRESINSIGHT_ENABLE_GRPC=false \
             -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
@@ -167,9 +103,13 @@ jobs:
       - name: Build
         run: |
           source /opt/rh/gcc-toolset-14/enable
-          cmake --build cmakebuild --target ResInsight-tests -- -j$(nproc)
+          cmake --build /src/cmakebuild --target ResInsight-tests -- -j$(nproc)
+
+      - name: Buildcache stats
+        if: always()
+        run: buildcache -s
 
       - name: Run Unit Tests
         run: |
           source /opt/rh/gcc-toolset-14/enable
-          ./cmakebuild/ResInsight-tests
+          /src/cmakebuild/ResInsight-tests
