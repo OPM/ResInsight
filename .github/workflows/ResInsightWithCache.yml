@@ -235,7 +235,6 @@ jobs:
           -DVCPKG_BUILD_TYPE=release
           -DCMAKE_INSTALL_PREFIX=cmakebuild/install
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DRESINSIGHT_QT5_BUNDLE_LIBRARIES=true
           -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
           -DRESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
           -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=false
