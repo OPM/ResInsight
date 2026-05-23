@@ -67,6 +67,15 @@ The image is built and pushed by `.github/workflows/build-rhel8-image.yml`:
   gh workflow run build-rhel8-image.yml --repo <owner>/ResInsight --ref <branch>
   ```
 
+  The workflow short-circuits if an image tagged with today's UTC date is
+  already in GHCR. To force a same-day rebuild (e.g. after iterating on the
+  Dockerfile within a single day), pass `force_rebuild=true`:
+
+  ```
+  gh workflow run build-rhel8-image.yml --repo <owner>/ResInsight --ref <branch> \
+    -f force_rebuild=true
+  ```
+
 Cold first build runs the full `ResInsight-tests` compile in the warmup stage
 (~1.5–2 h). Incremental nightly rebuilds reuse the BuildKit `gha` cache and
 finish much faster.

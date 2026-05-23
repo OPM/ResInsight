@@ -49,8 +49,11 @@ jobs:
         # actions/checkout writes inside GITHUB_WORKSPACE (e.g.
         # /__w/ResInsight/ResInsight) which would not match the image's baked
         # cache path. Clone manually into /src instead. GITHUB_SHA is fetched
-        # directly (GitHub allows any-SHA fetches), which covers push,
-        # schedule, workflow_dispatch and pull_request (merge commit) events.
+        # directly (GitHub allows any-SHA fetches on the workflow's own repo).
+        #
+        # The insteadOf rewrite is unset after the clone so the token is not
+        # left in /etc/gitconfig where a later `git config --list` for
+        # diagnostics could echo it into the log.
         run: |
           git config --global --add safe.directory '*'
           git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
@@ -59,7 +62,12 @@ jobs:
           git fetch --no-tags --depth 1 origin "${GITHUB_SHA}"
           git checkout FETCH_HEAD
           git submodule update --init --recursive --depth 1
+          git config --global --unset url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf
 
+      # /src was just freshly cloned, so the ThirdParty/vcpkg/vcpkg binary
+      # produced by bootstrap-vcpkg.sh is not present. The image's baked
+      # /opt/vcpkg-cache supplies prebuilt dependencies; the binary itself
+      # still has to exist locally for `vcpkg install` to run.
       - name: Bootstrap vcpkg
         run: |
           source /opt/rh/gcc-toolset-14/enable

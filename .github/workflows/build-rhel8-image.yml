@@ -16,6 +16,11 @@ on:
       - "vcpkg-configuration-rhel8.json"
       - ".gitmodules"
   workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: "Rebuild and overwrite today's image even if it already exists in GHCR"
+        type: boolean
+        default: false
 
 concurrency:
   group: build-rhel8-image
@@ -66,11 +71,17 @@ jobs:
 
       # The image build is expensive (cold ~1.5-2 h). If an image tagged with
       # today's UTC date is already in GHCR, treat the build as already done
-      # for this day and skip. To force a same-day rebuild, delete the dated
-      # tag from the GHCR package page (or via `gh api`) and rerun.
+      # for this day and skip. To force a same-day rebuild, dispatch the
+      # workflow with force_rebuild=true (or delete the dated tag from GHCR
+      # and rerun).
       - name: Check if today's image already exists in GHCR
         id: check
         run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.force_rebuild }}" == "true" ]]; then
+            echo "force_rebuild=true -- skipping existence check."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           target="${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.date }}"
           if docker buildx imagetools inspect "$target" >/dev/null 2>&1; then
             echo "Image $target already exists -- skipping build."

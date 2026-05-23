@@ -111,7 +111,14 @@ COPY . /src
 # toolchain is used here and in the final image, so the vcpkg ABI hashes match
 # and the cache is reused by CI builds. Later configure steps may fail inside
 # the build container; that is tolerated as the dependencies are already built
-# by then. The cache directory is verified to be non-empty afterwards.
+# by then.
+#
+# After configure, verify the cache contains a plausible number of entries.
+# vcpkg's `files` binary provider stores one .zip per package under
+# <cache>/<2-hex>/<full-hash>.zip. ResInsight depends on ~30+ packages, so a
+# threshold of 20 catches the failure mode where the configure dies early
+# (e.g. after building only a handful of leaf deps) while staying robust to
+# small manifest churn.
 RUN git config --global --add safe.directory '*' \
  && cp /src/vcpkg-configuration-rhel8.json /src/vcpkg-configuration.json \
  && mkdir -p "${VCPKG_DEFAULT_BINARY_CACHE}" \
@@ -128,7 +135,9 @@ RUN git config --global --add safe.directory '*' \
         -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
         -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
       || true; } \
- && test -n "$(ls -A "${VCPKG_DEFAULT_BINARY_CACHE}")" \
+ && vcpkg_zip_count=$(find "${VCPKG_DEFAULT_BINARY_CACHE}" -type f -name '*.zip' | wc -l) \
+ && echo "vcpkg binary cache entries: ${vcpkg_zip_count}" \
+ && test "${vcpkg_zip_count}" -ge 20 \
  && rm -rf /tmp/cfg /src
 
 # -----------------------------------------------------------------------------
@@ -138,8 +147,13 @@ RUN git config --global --add safe.directory '*' \
 # -----------------------------------------------------------------------------
 FROM base AS build-warmup
 
+# Cap at 4 GB. The baked cache from this stage is what CI reads, and CI also
+# writes back to the same /opt/buildcache, so the cap must be larger than
+# (baked entries + per-run accumulation) or LRU eviction starts dropping baked
+# entries between nightly rebuilds. 4 GB comfortably exceeds the observed
+# warm cache size for a full ResInsight-tests compile.
 ENV BUILDCACHE_ACCURACY=SLOPPY \
-    BUILDCACHE_MAX_CACHE_SIZE=2147483648
+    BUILDCACHE_MAX_CACHE_SIZE=4294967296
 
 COPY --from=vcpkg-builder /opt/vcpkg-cache /opt/vcpkg-cache
 COPY . /src
@@ -192,4 +206,4 @@ COPY --from=build-warmup /opt/buildcache /opt/buildcache
 ENV VCPKG_DEFAULT_BINARY_CACHE=/opt/vcpkg-cache \
     BUILDCACHE_DIR=/opt/buildcache \
     BUILDCACHE_ACCURACY=SLOPPY \
-    BUILDCACHE_MAX_CACHE_SIZE=2147483648
+    BUILDCACHE_MAX_CACHE_SIZE=4294967296

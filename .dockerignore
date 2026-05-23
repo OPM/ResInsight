@@ -10,6 +10,14 @@ cmakebuild/
 cmake-build-*/
 out/
 
+# vcpkg working directories (only present if vcpkg was run on the host; the
+# in-image build re-creates them from the manifest and the baked binary
+# cache).
+ThirdParty/vcpkg/buildtrees/
+ThirdParty/vcpkg/downloads/
+ThirdParty/vcpkg/packages/
+ThirdParty/vcpkg/installed/
+
 # Build/install logs at the repo root.
 *.log
 
