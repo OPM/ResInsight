@@ -3,10 +3,17 @@
 # =============================================================================
 # RHEL8 (Rocky Linux 8) CI image for ResInsight.
 #
-# Bakes in the toolchain (gcc-toolset-14, libstdc++exp, Qt) and a prebuilt
-# vcpkg binary cache so the RHEL8 unit test workflow does not have to
-# reprovision them on every run. Rebuilt nightly by
-# .github/workflows/build-rhel8-image.yml.
+# Bakes in:
+#   * The toolchain (gcc-toolset-14, libstdc++exp, Qt)
+#   * A prebuilt vcpkg binary cache (populated from the manifest)
+#   * A warm ResInsight buildcache populated by a full ResInsight-tests compile
+#     at the fixed path /src -> /src/cmakebuild.
+#
+# The CI workflow runs inside this image, checks out into /src (path must
+# match the warmup so buildcache hashes line up), and only recompiles
+# translation units that actually changed.
+#
+# Rebuilt nightly by .github/workflows/build-rhel8-image.yml.
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -67,6 +74,16 @@ ENV Qt6_DIR=/opt/Qt/${QT_VERSION}/gcc_64 \
     CMAKE_PREFIX_PATH=/opt/Qt/${QT_VERSION}/gcc_64 \
     PATH=/opt/Qt/${QT_VERSION}/gcc_64/bin:${PATH}
 
+# buildcache (pinned). When this binary is on PATH at CMake configure time, the
+# project's top-level CMakeLists.txt auto-detects it via find_program() and
+# wires CMAKE_CXX_COMPILER_LAUNCHER. No further CMake plumbing is needed.
+ARG BUILDCACHE_VERSION=v0.28.4
+RUN curl -L -o /tmp/buildcache.tar.gz \
+      "https://github.com/mbitsnbites/buildcache/releases/download/${BUILDCACHE_VERSION}/buildcache-linux.tar.gz" \
+ && tar -xzf /tmp/buildcache.tar.gz -C /opt \
+ && ln -sf /opt/buildcache/bin/buildcache /usr/local/bin/buildcache \
+ && rm /tmp/buildcache.tar.gz
+
 # -----------------------------------------------------------------------------
 # Stage 2: populate the vcpkg binary cache
 # -----------------------------------------------------------------------------
@@ -102,12 +119,64 @@ RUN git config --global --add safe.directory '*' \
  && rm -rf /tmp/cfg /src
 
 # -----------------------------------------------------------------------------
-# Stage 3: final image
+# Stage 3: warm the ResInsight buildcache by performing a full compile at
+#          /src -> /src/cmakebuild. CI runs at the same paths to get cache
+#          hits (buildcache hashes the absolute source path).
+# -----------------------------------------------------------------------------
+FROM base AS build-warmup
+
+ENV BUILDCACHE_ACCURACY=SLOPPY \
+    BUILDCACHE_MAX_CACHE_SIZE=2147483648
+
+COPY --from=vcpkg-builder /opt/vcpkg-cache /opt/vcpkg-cache
+COPY . /src
+
+# The buildcache directory is mounted as a BuildKit cache mount so it persists
+# across nightly image rebuilds (each rebuild only recompiles drift since the
+# previous run). After the compile finishes the populated cache is copied into
+# /opt/buildcache, a real path that is preserved in the image layer.
+#
+# Unity build is OFF here AND in the consumer workflow: with unity ON, a single
+# .cpp change invalidates the whole unity blob's cache entry, defeating the
+# point. The flag must match between this stage and CI or hit rate collapses
+# (the command line is part of the hash).
+RUN --mount=type=cache,id=ri-rhel8-buildcache,target=/var/cache/buildcache,sharing=locked \
+    git config --global --add safe.directory '*' \
+ && cp /src/vcpkg-configuration-rhel8.json /src/vcpkg-configuration.json \
+ && source /opt/rh/gcc-toolset-14/enable \
+ && ( cd /src/ThirdParty/vcpkg && ./bootstrap-vcpkg.sh ) \
+ && export CC=/opt/rh/gcc-toolset-14/root/usr/bin/gcc \
+ && export CXX=/opt/rh/gcc-toolset-14/root/usr/bin/g++ \
+ && export VCPKG_FEATURE_FLAGS=binarycaching \
+ && export VCPKG_BINARY_SOURCES="clear;files,/opt/vcpkg-cache,read" \
+ && export BUILDCACHE_DIR=/var/cache/buildcache \
+ && cmake -S /src -B /src/cmakebuild -G Ninja \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true \
+      -DRESINSIGHT_ENABLE_UNITY_BUILD=false \
+      -DRESINSIGHT_ENABLE_HDF5=false \
+      -DRESINSIGHT_ENABLE_GRPC=false \
+      -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
+      -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
+ && cmake --build /src/cmakebuild --target ResInsight-tests -- -j"$(nproc)" \
+ && buildcache -s \
+ && mkdir -p /opt/buildcache \
+ && cp -a /var/cache/buildcache/. /opt/buildcache/ \
+ && test -n "$(ls -A /opt/buildcache)" \
+ && rm -rf /src
+
+# -----------------------------------------------------------------------------
+# Stage 4: final image
 # -----------------------------------------------------------------------------
 FROM base
 
 LABEL org.opencontainers.image.source="https://github.com/OPM/ResInsight"
-LABEL org.opencontainers.image.description="RHEL8 CI image for ResInsight with prebuilt toolchain and vcpkg binary cache"
+LABEL org.opencontainers.image.description="RHEL8 CI image for ResInsight with prebuilt toolchain, vcpkg binary cache, and warm ResInsight buildcache"
 
 COPY --from=vcpkg-builder /opt/vcpkg-cache /opt/vcpkg-cache
-ENV VCPKG_DEFAULT_BINARY_CACHE=/opt/vcpkg-cache
+COPY --from=build-warmup /opt/buildcache /opt/buildcache
+
+ENV VCPKG_DEFAULT_BINARY_CACHE=/opt/vcpkg-cache \
+    BUILDCACHE_DIR=/opt/buildcache \
+    BUILDCACHE_ACCURACY=SLOPPY \
+    BUILDCACHE_MAX_CACHE_SIZE=2147483648
