@@ -50,6 +50,20 @@ jobs:
           echo "BUILDCACHE_DIR=${{ github.workspace }}/buildcache_dir" >> $GITHUB_ENV
           echo "BUILDCACHE_ACCURACY=SLOPPY" >> $GITHUB_ENV
 
+      - name: Exclude CI artifacts from git
+        # The Copilot agent's end-of-session `git add . -v` times out when the
+        # workspace contains hundreds of vcpkg/Qt/buildcache files. These are
+        # CI-only paths so we exclude them locally rather than polluting the
+        # repo's .gitignore. cmakebuild/ is already in .gitignore.
+        shell: bash
+        run: |
+          cat >> .git/info/exclude <<'EOF'
+          /buildcache_dir/
+          /Qt/
+          /.vcpkg-cache/
+          /vcpkg_installed/
+          EOF
+
       - name: Set apt mirror
         # https://github.com/actions/runner-images/issues/7048
         run: |
