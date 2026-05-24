@@ -147,6 +147,7 @@ jobs:
             -DVCPKG_BUILD_TYPE=release \
             -DCMAKE_BUILD_TYPE=Release \
             -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true \
+            -DRESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true \
             -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=false \
             -DRESINSIGHT_ENABLE_UNITY_BUILD=false \
             -DRESINSIGHT_ENABLE_GRPC=true \
