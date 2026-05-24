@@ -124,6 +124,41 @@ jobs:
           cache-key: ${{ runner.os }}-g++-14-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
           prefix: vcpkg-g++-14/
 
+      - name: Diagnose vcpkg cache layout
+        # Temporary diagnostic to figure out why vcpkg restores 0 packages on
+        # Copilot cloud agent runs even though the cache action reports a hit
+        # and extracts ~787 MB. Compare workspace, cwd, action output path,
+        # and the actual on-disk location of restored entries.
+        shell: bash
+        run: |
+          echo "=== environment ==="
+          echo "pwd:                  $(pwd)"
+          echo "GITHUB_WORKSPACE:     ${GITHUB_WORKSPACE}"
+          echo "RUNNER_WORKSPACE:     ${RUNNER_WORKSPACE}"
+          echo "github.workspace:     ${{ github.workspace }}"
+          echo "vcpkg-cache path out: ${{ steps.vcpkg-cache.outputs.path }}"
+          echo
+          echo "=== ls of expected cache dir ==="
+          ls -la "${{ steps.vcpkg-cache.outputs.path }}" 2>&1 | head -20 || echo "(missing)"
+          echo
+          echo "=== find any .vcpkg-cache on disk ==="
+          find / -maxdepth 6 -type d -name ".vcpkg-cache" 2>/dev/null || true
+          echo
+          echo "=== entry counts under each candidate ==="
+          for d in \
+            "${{ steps.vcpkg-cache.outputs.path }}" \
+            "${GITHUB_WORKSPACE}/.vcpkg-cache" \
+            "/home/runner/work/ResInsight/ResInsight/.vcpkg-cache" \
+            "/github/workspace/.vcpkg-cache"; do
+            if [ -d "$d" ]; then
+              count=$(find "$d" -type f 2>/dev/null | wc -l)
+              size=$(du -sh "$d" 2>/dev/null | awk '{print $1}')
+              echo "$d -> $count files, $size"
+            else
+              echo "$d -> (not a directory)"
+            fi
+          done
+
       - name: Configure
         env:
           BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
