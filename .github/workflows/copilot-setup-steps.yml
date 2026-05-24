@@ -16,25 +16,51 @@ on:
   push:
     paths:
       - .github/workflows/copilot-setup-steps.yml
+      - vcpkg.json
+      - vcpkg-configuration.json
+      - ThirdParty/vcpkg
 
 jobs:
   copilot-setup-steps:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
 
-    env:
-      BUILD_TYPE: Release
-      CC: gcc-14
-      CXX: g++-14
-      QT_VERSION: 6.7.0
-      BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
-      BUILDCACHE_ACCURACY: SLOPPY
-
+    # No job-level `env:` — the Copilot agent's per-step runner strips it, so
+    # the first step writes all shared vars to $GITHUB_ENV instead. That path
+    # works for both agent and workflow_dispatch runs.
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           submodules: true
+
+      - name: Export env to $GITHUB_ENV
+        # The Copilot coding agent invokes each step in its own context and
+        # drops the job-level `env:` block, so ${{ env.X }} expansions go
+        # empty (breaking cache keys and `path:` inputs). Re-export here so
+        # later steps see the values in both agent and workflow_dispatch runs.
+        shell: bash
+        run: |
+          echo "BUILD_TYPE=Release" >> $GITHUB_ENV
+          echo "CC=gcc-14" >> $GITHUB_ENV
+          echo "CXX=g++-14" >> $GITHUB_ENV
+          echo "QT_VERSION=6.7.0" >> $GITHUB_ENV
+          echo "BUILDCACHE_DIR=${{ github.workspace }}/buildcache_dir" >> $GITHUB_ENV
+          echo "BUILDCACHE_ACCURACY=SLOPPY" >> $GITHUB_ENV
+
+      - name: Exclude CI artifacts from git
+        # The Copilot agent's end-of-session `git add . -v` times out when the
+        # workspace contains hundreds of vcpkg/Qt/buildcache files. These are
+        # CI-only paths so we exclude them locally rather than polluting the
+        # repo's .gitignore. cmakebuild/ is already in .gitignore.
+        shell: bash
+        run: |
+          cat >> .git/info/exclude <<'EOF'
+          /buildcache_dir/
+          /Qt/
+          /.vcpkg-cache/
+          /vcpkg_installed/
+          EOF
 
       - name: Set apt mirror
         # https://github.com/actions/runner-images/issues/7048
@@ -86,21 +112,22 @@ jobs:
       - name: Restore buildcache
         uses: actions/cache@v5
         with:
-          path: ${{ env.BUILDCACHE_DIR }}
-          # Key/restore-keys mirror ResInsightWithCache.yml's gcc-14 leg so the
-          # nightly CI cache is reused here. Restore-keys fall back to any
-          # older entry in the same family if today's bucket is empty.
-          key: ubuntu-24.04-gcc-14-${{ env.QT_VERSION }}-cache-v03-${{ steps.current-time.outputs.formattedTime }}
+          # Inline literals (not ${{ env.X }}) so this works under the Copilot
+          # agent, whose per-step runner doesn't expose job-level env to
+          # expression evaluation. Key/restore-keys mirror ResInsightWithCache.yml's
+          # gcc-14 leg so the nightly CI cache is reused here.
+          path: ${{ github.workspace }}/buildcache_dir
+          key: ubuntu-24.04-gcc-14-6.7.0-cache-v03-${{ steps.current-time.outputs.formattedTime }}
           restore-keys: |
-            ubuntu-24.04-gcc-14-${{ env.QT_VERSION }}-cache-v03-
+            ubuntu-24.04-gcc-14-6.7.0-cache-v03-
 
       - name: Create buildcache dir
-        run: mkdir -p ${{ env.BUILDCACHE_DIR }}
+        run: mkdir -p ${{ github.workspace }}/buildcache_dir
 
       - name: Install Qt
         uses: CeetronSolutions/install-qt-action@bump-node24
         with:
-          version: ${{ env.QT_VERSION }}
+          version: 6.7.0
           dir: ${{ github.workspace }}/Qt/
           cache: true
           setup-python: false
@@ -125,11 +152,14 @@ jobs:
         env:
           VCPKG_FEATURE_FLAGS: binarycaching
           VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
+          CC: gcc-14
+          CXX: g++-14
         run: |
           cmake -S . -B cmakebuild \
             -DVCPKG_BUILD_TYPE=release \
-            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_BUILD_TYPE=Release \
             -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true \
+            -DRESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true \
             -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=false \
             -DRESINSIGHT_ENABLE_UNITY_BUILD=false \
             -DRESINSIGHT_ENABLE_GRPC=true \
@@ -143,7 +173,14 @@ jobs:
         # Builds the default targets so the agent's first incremental build
         # only recompiles what it edits. Unity build is off (set above) so a
         # single .cpp change doesn't invalidate a whole unity blob.
+        # BUILDCACHE_DIR/ACCURACY set step-local in case the agent runner
+        # doesn't propagate $GITHUB_ENV writes.
+        env:
+          BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
+          BUILDCACHE_ACCURACY: SLOPPY
         run: cmake --build cmakebuild
 
       - name: buildcache stats
+        env:
+          BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
         run: buildcache -s
