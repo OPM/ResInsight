@@ -78,6 +78,14 @@ jobs:
 
       - name: Configure
         env:
+          # vcpkg's compiler-hash detection runs before the CMake toolchain
+          # file is loaded, so -DCMAKE_C_COMPILER on the cmake line is too
+          # late -- vcpkg picks up /usr/bin/c++ (gcc-13 on Ubuntu 24.04) and
+          # computes an ABI hash that does not match the gcc-14 entries baked
+          # into /opt/vcpkg-cache-gcc. Forcing CC/CXX in the env matches what
+          # the Dockerfile's vcpkg-builder-gcc stage exports.
+          CC: gcc-14
+          CXX: g++-14
           VCPKG_FEATURE_FLAGS: binarycaching
           # Read vcpkg dependencies from the gcc binary cache baked into the
           # image. buildcache is auto-discovered on PATH by CMakeLists.txt's
