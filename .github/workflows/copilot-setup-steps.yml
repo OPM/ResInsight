@@ -22,14 +22,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
 
-    env:
-      BUILD_TYPE: Release
-      CC: gcc-14
-      CXX: g++-14
-      QT_VERSION: 6.7.0
-      BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
-      BUILDCACHE_ACCURACY: SLOPPY
-
+    # No job-level `env:` — the Copilot agent's per-step runner strips it, so
+    # the first step writes all shared vars to $GITHUB_ENV instead. That path
+    # works for both agent and workflow_dispatch runs.
     steps:
       - name: Checkout
         uses: actions/checkout@v6
