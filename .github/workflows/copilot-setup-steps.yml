@@ -16,6 +16,9 @@ on:
   push:
     paths:
       - .github/workflows/copilot-setup-steps.yml
+      - vcpkg.json
+      - vcpkg-configuration.json
+      - ThirdParty/vcpkg
 
 jobs:
   copilot-setup-steps:
