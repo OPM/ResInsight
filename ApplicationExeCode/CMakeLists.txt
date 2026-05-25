@@ -63,7 +63,7 @@ set(CODE_HEADER_FILES RiaMainTools.h)
 set(CODE_SOURCE_FILES RiaMain.cpp RiaMainTools.cpp)
 
 if(RESINSIGHT_ENABLE_GRPC)
-  list(APPEND CODE_HEAD_FILES RiaGrpcConsoleApplication.h
+  list(APPEND CODE_HEADER_FILES RiaGrpcConsoleApplication.h
        RiaGrpcGuiApplication.h
   )
   list(APPEND CODE_SOURCE_FILES RiaGrpcConsoleApplication.cpp
