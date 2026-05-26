@@ -452,6 +452,8 @@ void RiuMultiPlotBook::applyPagePreviewBookSize( int frameWidth )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::applyBookSize( int frameWidth, int frameHeight )
 {
+    qDebug() << "Size " << frameWidth << " x " << frameHeight << "\n";
+    if ( frameWidth == 54 ) return;
     int totalHeight = 0;
     for ( auto page : m_pages )
     {
