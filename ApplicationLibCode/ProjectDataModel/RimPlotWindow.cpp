@@ -440,10 +440,11 @@ bool RimPlotWindow::handleGlobalWheelEvent( QWheelEvent* wheelEvent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotWindow::onMousePressEvent( QMouseEvent* mouseEvent )
+bool RimPlotWindow::handleGlobalMousePressEvent( QMouseEvent* mouseEvent )
 {
-    if ( mouseEvent )
+    if ( mouseEvent && viewWidget() && viewWidget()->underMouse() )
     {
         setAsActiveViewer();
     }
+    return false;
 }
