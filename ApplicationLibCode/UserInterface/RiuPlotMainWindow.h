@@ -22,15 +22,11 @@
 
 #include "cafPdmPointer.h"
 
-#include <QMdiArea>
 #include <QPointer>
 #include <QString>
 
 #include <memory>
 
-struct RimMdiWindowGeometry;
-
-class QMdiSubWindow;
 class RiuViewer;
 class RimViewWindow;
 class RicSummaryPlotEditorDialog;
@@ -118,8 +114,6 @@ private slots:
     void slotReloadSelectedCases();
 
     void slotBuildWindowActions();
-
-    // void slotSubWindowActivated( QMdiSubWindow* subWindow );
 
     void selectedObjectsChanged( caf::PdmUiTreeView* projectTree, caf::PdmUiPropertyView* propertyView );
     void customMenuRequested( const QPoint& pos );

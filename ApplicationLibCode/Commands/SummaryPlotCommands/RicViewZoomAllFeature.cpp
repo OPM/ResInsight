@@ -28,7 +28,6 @@
 #include "RiuPlotMainWindow.h"
 
 #include <QAction>
-#include <QMdiSubWindow>
 
 CAF_CMD_SOURCE_INIT( RicViewZoomAllFeature, "RicViewZoomAllFeature" );
 
@@ -43,25 +42,17 @@ void RicViewZoomAllFeature::onActionTriggered( bool isChecked )
 
     if ( dynamic_cast<RiuMainWindow*>( topLevelWidget ) )
     {
-        RimViewWindow* viewWindow = RiaGuiApplication::instance()->activeReservoirView();
-        if ( viewWindow )
+        if ( auto viewWindow = RiaGuiApplication::instance()->activeReservoirView() )
         {
             viewWindow->zoomAll();
         }
     }
-    else if ( dynamic_cast<RiuPlotMainWindow*>( topLevelWidget ) )
+    else if ( auto plotMainWin = dynamic_cast<RiuPlotMainWindow*>( topLevelWidget ) )
     {
-        RiuPlotMainWindow* mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( topLevelWidget );
-        // QList<QMdiSubWindow*> subwindows     = mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
-        // if ( !subwindows.empty() )
-        //{
-        //     RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
-
-        //    if ( viewWindow )
-        //    {
-        //        viewWindow->zoomAll();
-        //    }
-        //}
+        if ( auto activePlotView = plotMainWin->activePlotView() )
+        {
+            activePlotView->zoomAll();
+        }
     }
 }
 

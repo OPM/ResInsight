@@ -861,7 +861,8 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 
                 if ( snapshotHeight > -1 && snapshotWidth > -1 )
                 {
-                    RiuMainWindowTools::setWindowSizeOnWidgetsInMdiWindows( mainPlotWnd, snapshotWidth, snapshotHeight );
+                    // TODO - handle snapshot view sizes
+                    // RiuMainWindowTools::setWindowSizeOnWidgetsInViewWindows( mainPlotWnd, snapshotWidth, snapshotHeight );
                 }
 
                 processEvents();
@@ -878,7 +879,8 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 
             if ( snapshotHeight > -1 && snapshotWidth > -1 )
             {
-                RiuMainWindowTools::setFixedWindowSizeFor3dViews( mainWnd, snapshotWidth, snapshotHeight );
+                // TODO - handle snapshot view sizes
+                // RiuMainWindowTools::setFixedWindowSizeFor3dViews( mainWnd, snapshotWidth, snapshotHeight );
             }
 
             processEvents();

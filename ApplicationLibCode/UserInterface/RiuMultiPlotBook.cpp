@@ -44,7 +44,6 @@
 #include <QFocusEvent>
 #include <QFontMetrics>
 #include <QHBoxLayout>
-#include <QMdiSubWindow>
 #include <QMenu>
 #include <QPagedPaintDevice>
 #include <QPainter>

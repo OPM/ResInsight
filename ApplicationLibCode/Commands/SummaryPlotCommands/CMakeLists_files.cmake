@@ -42,7 +42,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotCtxFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicToggleYAxisLinkingFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicToggleXAxisLinkingFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicOpenSummaryPlotEditorFromMdiAreaFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryTableFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryTableFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateDeclineCurvesFeature.cpp

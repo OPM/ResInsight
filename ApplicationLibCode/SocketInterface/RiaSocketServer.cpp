@@ -38,7 +38,6 @@
 #include "cafFactory.h"
 
 #include <QtNetwork>
-#include <QtWidgets/QMdiSubWindow>
 
 #include <cstdlib>
 
@@ -149,22 +148,6 @@ RimEclipseCase* RiaSocketServer::findReservoir( int caseId )
         {
             return eclipseView->eclipseCase();
         }
-
-        //// If the active mdi window is different from an Eclipse view, search through available mdi windows to find the
-        //// last activated Eclipse view. The sub windows are returned with the most recent activated window at the back.
-        // QList<QMdiSubWindow*> subWindows = RiuMainWindow::instance()->subWindowList( QMdiArea::ActivationHistoryOrder );
-        // for ( int i = subWindows.size() - 1; i > -1; i-- )
-        //{
-        //     RiuViewer* viewer = subWindows[i]->widget()->findChild<RiuViewer*>();
-        //     if ( viewer )
-        //     {
-        //         RimEclipseView* riv = dynamic_cast<RimEclipseView*>( viewer->ownerReservoirView() );
-        //         if ( riv )
-        //         {
-        //             return riv->eclipseCase();
-        //         }
-        //     }
-        // }
     }
     else
     {
