@@ -1,42 +1,3 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogFileCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogExtractionCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogRftCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotNameConfig.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurveNameConfig.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurveNameConfig.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurveNameConfig.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogs.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogsCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogCurveSet.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogStatistics.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogStatisticsCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFile.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCsvFile.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLog.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileUtil.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogChannel.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFileCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimRftTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimRftTopologyCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveInfoTextProvider.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCalculatedCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileDataLoader.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimOsduWellLogDataLoader.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimImportedWellLog.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimImportedWellLogData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogChannelData.h
-)
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.cpp
@@ -78,5 +39,4 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogChannelData.cpp
 )
 
-list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

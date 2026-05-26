@@ -1,66 +1,3 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RivCellEdgeEffectGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivNNCGeometryGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivGridPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivTernarySaturationOverlayItem.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivReservoirPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivReservoirViewPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivPipeGeometryGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivReservoirSimWellsPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivSourceInfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivWellPathSourceInfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivWellPathPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivWellPathsPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivSimWellPipesPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivWellHeadPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivResultToTextureMapper.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivCompletionTypeResultToTextureMapper.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivDefaultResultToTextureMapper.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivTernaryResultToTextureMapper.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivTextureCoordsCreator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivTernaryScalarMapper.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivTernaryTextureCoordsCreator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivTernaryScalarMapperEffectGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivScalarMapperUtils.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivCellEdgeGeometryUtils.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivPipeQuadToSegmentMapper.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivSingleCellPartGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivSimWellPipeSourceInfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivWellSpheresPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivPartPriority.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivObjectSourceInfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionsPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivFishbonesSubsPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivTensorResultPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivWellFracturePartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogPlanePartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogCurveGeometryGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionFactorPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionFactorGeometryGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionSourceInfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivSimWellConnectionSourceInfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogDrawSurfaceGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivMeshLinesSourceInfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivContourMapProjectionPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationsPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivTextAnnotationPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationSourceInfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivPolylinesAnnotationSourceInfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivPolylineGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivMeasurementPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivTextLabelSourceInfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivDiskGeometryGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivWellDiskPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivElementVectorResultPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivPolylinePartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivDrawableSpheres.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivBoxGeometryGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivRefinementRegionPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationSourceInfo.h
-)
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivCellEdgeEffectGenerator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivNNCGeometryGenerator.cpp
@@ -119,5 +56,4 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationSourceInfo.cpp
 )
 
-list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

@@ -1,26 +1,3 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RimCellFilter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimCombinedFilter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterInView.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterInViewCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilterCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilterCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilterCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimPolygonFilter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedFilter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterIntervalTool.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimCellIndexFilter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedIndexFilter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimFilterInViewCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimFilterDisplayUtil.h
-)
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCellFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterCollection.cpp
@@ -44,5 +21,4 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFilterDisplayUtil.cpp
 )
 
-list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
