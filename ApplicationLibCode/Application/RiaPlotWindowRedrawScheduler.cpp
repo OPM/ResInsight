@@ -18,9 +18,13 @@
 
 #include "RiaPlotWindowRedrawScheduler.h"
 
+#include "RimViewWindow.h"
+
 #include "RiuMultiPlotBook.h"
 #include "RiuMultiPlotPage.h"
 #include "RiuPlotWidget.h"
+
+#include "DockWidget.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -107,6 +111,13 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdates()
             {
                 if ( pagesToUpdate.count( page ) > 0 ) pagesToUpdate.erase( page );
             }
+        }
+
+        // TODO - add method to viewer interface to get dock container size
+        if ( auto pdmView = plotBook->ownerViewWindow() )
+        {
+            QSize s = pdmView->dockWidget()->size();
+            plotBook->resize( s );
         }
         plotBook->performUpdate( updateType );
     }
