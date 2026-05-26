@@ -103,8 +103,6 @@ endif()
 set(EXE_FILES
     ${EXE_FILES}
     ${CPP_SOURCES}
-    ${MOC_SOURCE_FILES}
-    ${FORM_FILES_CPP}
     ${QRC_FILES}
     ${WIN_RESOURCE}
     ${HEADER_FILES}
