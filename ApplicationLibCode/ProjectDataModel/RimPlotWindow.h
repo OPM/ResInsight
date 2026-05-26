@@ -92,9 +92,7 @@ public:
 
     virtual bool handleGlobalKeyEvent( QKeyEvent* keyEvent );
     virtual bool handleGlobalWheelEvent( QWheelEvent* wheelEvent );
-
-public slots:
-    void onMousePressEvent( QMouseEvent* event );
+    virtual bool handleGlobalMousePressEvent( QMouseEvent* mouseEvent );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
