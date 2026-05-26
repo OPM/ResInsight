@@ -61,6 +61,7 @@
 #include "RiuSummaryMultiPlotBook.h"
 #include "RiuSummaryVectorSelectionUi.h"
 
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -113,7 +114,7 @@ void RimSummaryMultiPlot::clearLayoutInfo()
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot::RimSummaryMultiPlot()
 {
-    CAF_PDM_InitObject( "Multi Summary Plot", ":/SummaryPlotLight16x16.png" );
+    CAF_PDM_InitScriptableObject( "Multi Summary Plot", ":/SummaryPlotLight16x16.png" );
     setDeletable( true );
 
     CAF_PDM_InitField( &m_autoPlotTitle, "AutoPlotTitle", true, "Auto Plot Title" );

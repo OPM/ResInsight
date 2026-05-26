@@ -61,10 +61,8 @@ RimMultiPlot::RimMultiPlot()
     reorderability->orderChanged.connect( this, &RimMultiPlot::onPlotsReordered );
 
     RiaPreferencesSummary* sumPrefs = RiaPreferencesSummary::current();
-    CAF_PDM_InitFieldNoDefault( &m_columnCount, "NumberOfColumns", "Number of Columns" );
-    m_columnCount = sumPrefs->defaultMultiPlotColumnCount();
-    CAF_PDM_InitFieldNoDefault( &m_rowsPerPage, "RowsPerPage", "Rows per Page" );
-    m_rowsPerPage = sumPrefs->defaultMultiPlotRowCount();
+    CAF_PDM_InitScriptableField( &m_columnCount, "NumberOfColumns", ColumnCountEnum( sumPrefs->defaultMultiPlotColumnCount() ), "Number of Columns" );
+    CAF_PDM_InitScriptableField( &m_rowsPerPage, "RowsPerPage", RowCountEnum( sumPrefs->defaultMultiPlotRowCount() ), "Rows per Page" );
 
     CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", true, "Show Sub Plot Titles" );
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
