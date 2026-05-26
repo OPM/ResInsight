@@ -73,10 +73,7 @@ endforeach(referencedfile)
 
 find_package(Eigen3 REQUIRED)
 
-add_library(
-  ${PROJECT_NAME} OBJECT
-  ${COMMAND_CODE_SOURCE_FILES}
-)
+add_library(${PROJECT_NAME} OBJECT ${COMMAND_CODE_SOURCE_FILES})
 
 if(RESINSIGHT_ENABLE_OPENVDS)
   add_definitions(-DUSE_OPENVDS)
