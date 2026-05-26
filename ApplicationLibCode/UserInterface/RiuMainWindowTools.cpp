@@ -36,7 +36,6 @@
 #include "cafPdmUiTreeView.h"
 
 #include <QMainWindow>
-#include <QMdiSubWindow>
 #include <QModelIndex>
 
 // Dark title bar is taken from
@@ -163,68 +162,6 @@ void RiuMainWindowTools::collapseSiblings( const caf::PdmUiItem* sourceUiItem )
             {
                 sourceTreeView->setExpanded( siblingTreeOrderingItem->activeItem(), false );
             }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindowTools::setWindowSizeOnWidgetsInMdiWindows( RiuMainWindowBase* mainWindow, int width, int height )
-{
-    if ( !mainWindow ) return;
-
-    auto widgets = mainWindow->findChildren<QMdiSubWindow*>();
-    for ( auto w : widgets )
-    {
-        if ( !w ) continue;
-
-        w->showNormal();
-    }
-
-    // Process events before resize to make sure the widget is ready for resize
-    // If not, a maximized window with not get the prescribed window size
-    QApplication::processEvents();
-
-    for ( auto w : widgets )
-    {
-        if ( !w ) continue;
-        auto viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( w->widget() );
-
-        if ( viewWindow && viewWindow->viewWidget() )
-        {
-            QWidget* viewWidget = viewWindow->viewWidget();
-
-            viewWidget->resize( width, height );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindowTools::setFixedWindowSizeFor3dViews( RiuMainWindowBase* mainWindow, int width, int height )
-{
-    if ( !mainWindow ) return;
-
-    RimProject* proj = RimProject::current();
-    if ( !proj ) return;
-
-    for ( Rim3dView* riv : proj->allViews() )
-    {
-        if ( riv && riv->viewer() )
-        {
-            //// Make sure all views are maximized for snapshotting
-            // QMdiSubWindow* subWnd = mainWindow->findMdiSubWindow( riv->viewer()->layoutWidget() );
-            // if ( subWnd )
-            //{
-            //     subWnd->showMaximized();
-            // }
-
-            // This size is set to match the regression test reference images
-            QSize windowSize( width, height );
-
-            riv->viewer()->setFixedSize( windowSize );
         }
     }
 }

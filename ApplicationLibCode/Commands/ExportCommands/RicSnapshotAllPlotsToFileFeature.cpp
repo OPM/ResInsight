@@ -37,7 +37,6 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QMdiSubWindow>
 
 CAF_CMD_SOURCE_INIT( RicSnapshotAllPlotsToFileFeature, "RicSnapshotAllPlotsToFileFeature" );
 
@@ -101,9 +100,6 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QS
 
             if ( activateWidget )
             {
-                // If the active MDI widget is maximized, all widgets will be maximized in the MDI area before taking
-                // snapshots
-
                 RiuPlotMainWindowTools::selectAsCurrentItem( viewWindow );
                 QApplication::processEvents();
             }

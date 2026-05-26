@@ -27,7 +27,6 @@
 
 class RiuMainWindowBase;
 class RimViewWindow;
-struct RimMdiWindowGeometry;
 
 //==================================================================================================
 ///
