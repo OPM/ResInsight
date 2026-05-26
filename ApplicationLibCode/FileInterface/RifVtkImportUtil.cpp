@@ -24,9 +24,20 @@
 
 #include <cstring>
 #include <filesystem>
-#include <spanstream>
 #include <string>
 #include <vector>
+
+// std::ispanstream is C++23.  libc++ on Homebrew llvm@19 does not ship
+// <spanstream>; fall back to std::istringstream when unavailable.  Only
+// difference: the fallback copies the string_view into an owning string.
+// See #14045.
+#if __has_include( <spanstream> )
+#include <spanstream>
+#define RIA_HAS_STD_SPANSTREAM 1
+#else
+#include <sstream>
+#define RIA_HAS_STD_SPANSTREAM 0
+#endif
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -204,7 +215,11 @@ std::vector<RifVtkImportUtil::PvdDataset> RifVtkImportUtil::parsePvdDatasets( co
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RifVtkImportUtil::parseVec3ds( std::string_view text )
 {
+#if RIA_HAS_STD_SPANSTREAM
     std::ispanstream iss( text );
+#else
+    std::istringstream iss{ std::string{ text } };
+#endif
 
     std::vector<cvf::Vec3d> vecs;
 
@@ -228,7 +243,11 @@ std::vector<cvf::Vec3d> RifVtkImportUtil::parseVec3ds( std::string_view text )
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3f> RifVtkImportUtil::parseVec3fs( std::string_view text )
 {
+#if RIA_HAS_STD_SPANSTREAM
     std::ispanstream iss( text );
+#else
+    std::istringstream iss{ std::string{ text } };
+#endif
 
     std::vector<cvf::Vec3f> vecs;
 
