@@ -353,6 +353,7 @@ void RimMultiPlot::doUpdateLayout()
         m_viewer->setPagePreviewModeEnabled( m_pagePreviewMode() );
 
         m_viewer->scheduleUpdate();
+        m_viewer->updateGeometry();
         m_viewer->adjustSize();
     }
 }
