@@ -293,15 +293,15 @@ void RiaOpenTelemetryManager::reportEventAsync( const std::string& eventName, co
     }
 
     // Create mutable copy and add hashed username if configured (privacy-preserving for regular events)
-    // Note: crash events already have real username added in reportCrash()
+    // Note: crash events already have hashed username added in reportCrash()
     std::map<std::string, std::string> enrichedAttributes = attributes;
 
     if ( !isCrashEvent )
     {
         std::lock_guard<std::mutex> configLock( m_configMutex );
-        if ( !m_username.empty() )
+        if ( !m_userHash.empty() )
         {
-            enrichedAttributes["user.hash"] = hashUsername( m_username );
+            enrichedAttributes["user.hash"] = m_userHash;
         }
 
         addOsInfo( enrichedAttributes );
@@ -388,12 +388,12 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
     // Add system information
     addOsInfo( attributes );
 
-    // Add real username for crash reports (not hashed - needed for debugging critical issues)
+    // Add hashed username so crashes can be grouped per user without revealing the cleartext name.
     {
         std::lock_guard<std::mutex> lock( m_configMutex );
-        if ( !m_username.empty() )
+        if ( !m_userHash.empty() )
         {
-            attributes["user.name"] = m_username;
+            attributes["user.hash"] = m_userHash;
         }
     }
 
@@ -451,9 +451,9 @@ void RiaOpenTelemetryManager::setErrorCallback( ErrorCallback callback )
 //--------------------------------------------------------------------------------------------------
 void RiaOpenTelemetryManager::setUsername( const std::string& username )
 {
+    // Hash at the boundary so the cleartext username is never retained in memory.
     std::lock_guard<std::mutex> lock( m_configMutex );
-    // Store original username - will be hashed for regular events but kept plain for crash reports
-    m_username = username;
+    m_userHash = hashUsername( username );
 }
 
 //--------------------------------------------------------------------------------------------------
