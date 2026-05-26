@@ -34,15 +34,30 @@
 
 #include <map>
 #include <sstream>
+
+// std::stacktrace is C++23; libc++ in Homebrew llvm@19 (and older) does not
+// ship it.  Without it we skip stack-trace capture in the crash path but
+// still log the signal.  See #14045.
+#if __has_include( <stacktrace> )
 #include <stacktrace>
+#define RIA_HAS_STD_STACKTRACE 1
+#else
+#define RIA_HAS_STD_STACKTRACE 0
+#endif
 
 #ifndef WIN32
 #include <signal.h>
+// macOS marks <ucontext.h> as deprecated and the mcontext layout
+// (gregs[REG_RIP]) is Linux-only — skip the program-counter capture
+// path on Apple platforms.  See #14045.
+#ifndef __APPLE__
 #include <ucontext.h>
+#endif
 #endif
 
 namespace internal
 {
+#if RIA_HAS_STD_STACKTRACE
 // Custom formatter for stacktrace
 std::string formatStacktrace( const std::stacktrace& st )
 {
@@ -55,6 +70,7 @@ std::string formatStacktrace( const std::stacktrace& st )
     }
     return ss.str();
 }
+#endif
 
 #ifndef WIN32
 static std::string signalCodeDescription( int signo, int siCode )
@@ -144,7 +160,9 @@ static std::string signalCodeDescription( int signo, int siCode )
 //--------------------------------------------------------------------------------------------------
 static void performCrashLogging( int signalCode, const std::map<std::string, std::string>& extraAttrs )
 {
-    auto st      = std::stacktrace::current();
+#if RIA_HAS_STD_STACKTRACE
+    auto st = std::stacktrace::current();
+#endif
     auto loggers = RiaLogging::loggerInstances();
 
     for ( auto logger : loggers )
@@ -161,8 +179,12 @@ static void performCrashLogging( int signalCode, const std::map<std::string, std
                 fileLogger->error( line.data() );
             }
 
+#if RIA_HAS_STD_STACKTRACE
             std::string message = "Stack trace:\n" + internal::formatStacktrace( st );
             logger->error( message.data() );
+#else
+            logger->error( "Stack trace: not available (compiled without <stacktrace>)" );
+#endif
 
             fileLogger->flush();
         }
@@ -171,7 +193,9 @@ static void performCrashLogging( int signalCode, const std::map<std::string, std
     auto& otelManager = RiaOpenTelemetryManager::instance();
     if ( otelManager.isEnabled() )
     {
+#if RIA_HAS_STD_STACKTRACE
         otelManager.reportCrash( signalCode, st, extraAttrs );
+#endif
     }
 }
 
@@ -206,6 +230,12 @@ void manageSegFailureSA( int signalCode, siginfo_t* info, void* ucontext )
         }
     }
 
+    // Program-counter capture relies on the Linux ucontext layout
+    // (gregs[REG_RIP] for x86_64, mcontext.pc for aarch64).  macOS exposes
+    // a different layout and marks <ucontext.h> as deprecated, so skip it
+    // there; remaining crash attributes (signal code, fault address) are
+    // still recorded.  See #14045.
+#if !defined( __APPLE__ )
 #if defined( __x86_64__ )
     if ( ucontext )
     {
@@ -222,6 +252,9 @@ void manageSegFailureSA( int signalCode, siginfo_t* info, void* ucontext )
         pcStr << "0x" << std::hex << ctx->uc_mcontext.pc;
         extraAttrs["crash.program_counter"] = pcStr.str();
     }
+#endif
+#else
+    (void)ucontext;
 #endif
 
     performCrashLogging( signalCode, extraAttrs );
