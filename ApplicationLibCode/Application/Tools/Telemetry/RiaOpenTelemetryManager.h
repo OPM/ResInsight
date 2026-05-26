@@ -172,7 +172,7 @@ private:
     size_t      m_maxQueueSize{ 10000 };
     bool        m_backpressureEnabled{ true };
     size_t      m_memoryThresholdMB{ 50 };
-    std::string m_username;
+    std::string m_userHash;
 
     // Error handling
     ErrorCallback                         m_errorCallback;
