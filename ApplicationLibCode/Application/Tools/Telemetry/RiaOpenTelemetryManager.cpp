@@ -325,6 +325,7 @@ static std::string extractRelevantPath( const std::string& fullPath )
     return fullPath;
 }
 
+#if RIA_HAS_STD_STACKTRACE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -420,6 +421,7 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
 
     RiaLogging::error( std::format( "Crash reported to OpenTelemetry (signal: {})", signalCode ) );
 }
+#endif // RIA_HAS_STD_STACKTRACE
 
 //--------------------------------------------------------------------------------------------------
 ///
