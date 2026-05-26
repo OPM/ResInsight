@@ -1,17 +1,3 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicAddStoredFlowCharacteristicsPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowWellAllocationPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowFlowCharacteristicsPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicAddStoredWellAllocationPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowContributingWellsFromPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowContributingWellsFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowContributingWellsFeatureImpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicPlotProductionRateFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicSelectViewUI.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowTotalAllocationDataFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowCumulativePhasePlotFeature.h
-)
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicAddStoredFlowCharacteristicsPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowWellAllocationPlotFeature.cpp
@@ -26,5 +12,4 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicShowCumulativePhasePlotFeature.cpp
 )
 
-list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

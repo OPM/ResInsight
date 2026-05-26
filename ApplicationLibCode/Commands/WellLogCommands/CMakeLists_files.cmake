@@ -1,41 +1,3 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicAddWellLogToPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogExtractionCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogRftCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewRftPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewPltPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogFileCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotFeatureImpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotTrackFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellLogPlotCurveFeatureImpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellLogsImportFileFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSubPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellLogPlotTrackFeatureImpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogTrackFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicChangeDataSourceFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicAsciiExportWellLogPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellLogFileCloseFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicMoveWellLogFilesFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicAdd3dWellLogCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicAdd3dWellLogFileCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicAdd3dWellLogRftCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurveDeleteFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurvePickEventHandler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellBoreStabilityPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellMeasurementCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewEnsembleWellLogCurveSetFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewRftWellLogPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewRftSegmentWellLogPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPhaseRftSegmentPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogCalculatedCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateRftPlotsFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateRftPlotsFeatureUi.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateRftCorrelationReportFeature.h
-)
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicAddWellLogToPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogExtractionCurveFeature.cpp
@@ -74,5 +36,4 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateRftCorrelationReportFeature.cpp
 )
 
-list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

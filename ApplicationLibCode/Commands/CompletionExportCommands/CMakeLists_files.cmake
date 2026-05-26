@@ -1,33 +1,3 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionDataSettingsUi.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionDataFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionDataFeatureImpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportMswCompletionsImpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionsFileTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicFishbonesTransmissibilityCalculationFeatureImp.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsWellSegmentsFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicCaseAndFileExportSettingsUi.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicExportFractureCompletionsImpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleWellPathsFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswBranch.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswCompletions.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswExportInfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswItem.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswSegment.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswSegmentCellIntersection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswValveAccumulators.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureTextReportFeatureImpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureReportItem.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForTemporaryLgrsFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportMswTableData.h
-    ${CMAKE_CURRENT_LIST_DIR}/MswExport/RicWellPathExportMswGeometryPath.h
-    ${CMAKE_CURRENT_LIST_DIR}/MswExport/RicMswBranchBuilder.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswTableDataTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicScheduleDataGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicTransmissibilityCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicPerforationCellFilterEvaluator.h
-)
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionDataSettingsUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionDataFeature.cpp
@@ -58,5 +28,4 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPerforationCellFilterEvaluator.cpp
 )
 
-list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

@@ -1,36 +1,3 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RigAccWellFlowCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseWellLogExtractor.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigFishbonesGeometry.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechWellLogExtractor.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigMswCenterLineCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigOsduWellLogData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigPipeInCellEvaluator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCenterLineCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCoordsAndMD.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigSimWellData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellAllocationOverTime.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellDiskData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCurveData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogExtractionTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogExtractor.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogIndexDepthOffset.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellPath.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellPathFormations.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryExporter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellPathIntersectionTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellResultBranch.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellResultFrame.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellTargetMapping.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellTargetMappingTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogLasFile.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCsvFile.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigImportedWellLogData.h
-)
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigAccWellFlowCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseWellLogExtractor.cpp
@@ -62,5 +29,4 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigImportedWellLogData.cpp
 )
 
-list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

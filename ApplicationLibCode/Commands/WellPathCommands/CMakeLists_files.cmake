@@ -1,41 +1,3 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicImportWellPaths.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewEditableWellPathFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowWellPlanFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathListTargetFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathAttributeFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathTargetFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathAttributeFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsImpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsUi.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathPickEventHandler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateWellTargetsPickEventHandler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionPickEventHandler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFormationsImportFileFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicPolylineTargetsPickEventHandler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewPolylineTargetFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicDeletePolylineTargetFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicImportWellMeasurementsFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathLateralAtDepthFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathLateralFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicPasteModeledWellPathFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleWellPathLaterals.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleWellPathLateralsUi.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicLinkWellPathFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/Ric3dObjectEditorHandle.h
-    ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.h
-    ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellTarget3dEditor.h
-    ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellPathGeometry3dEditor.h
-    ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulatorPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolyline3dEditor.h
-    ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolylineTarget3dEditor.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateWellPathFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicSetParentWellPathFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicHideGridGeometryFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowAllGeometryFeature.h
-)
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportWellPaths.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewEditableWellPathFeature.cpp
@@ -74,5 +36,4 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicShowAllGeometryFeature.cpp
 )
 
-list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

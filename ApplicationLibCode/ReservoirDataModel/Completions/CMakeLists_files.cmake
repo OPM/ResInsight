@@ -1,16 +1,3 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RigCompletionData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigCompletionDataGridCell.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseToStimPlanCellTransmissibilityCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseToThermalCellTransmissibilityCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityCondenser.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigFractureTransmissibilityEquations.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigWellPathStimplanIntersector.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigVirtualPerforationTransmissibilities.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseToStimPlanCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigPerforationTransmissibilityEquations.h
-)
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigCompletionData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCompletionDataGridCell.cpp
@@ -24,5 +11,4 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigPerforationTransmissibilityEquations.cpp
 )
 
-list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

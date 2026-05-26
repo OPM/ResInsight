@@ -1,50 +1,3 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryPlotCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryCase.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryResampleData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcProject.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcElasticProperties.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModelCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModelTemplateCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModelPlotCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModel.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcSurfaceCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcSurface.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerDouble.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerString.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerTime.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcWellLog.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlotCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathGeometryDef.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcModeledWellPath.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcWellPath.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcFractureTemplateCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcFractureTemplate.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcThermalFractureTemplate.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcIntersection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcCornerPointCase.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseCase.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseStatisticsCase.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcGridView.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcIdenticalGridCaseGroup.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcPressureTable.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcFishbonesCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcPolygonCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcDataFilterCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcCombinedFilter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcRegularSurface.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcPerforationInterval.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcValveTemplateCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathCompletionSettings.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathValve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcWellEventTimeline.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcColorLegend.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcNestedCollectionBase.h
-)
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryCase.cpp
@@ -92,5 +45,4 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcNestedCollectionBase.cpp
 )
 
-list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

@@ -1,25 +1,3 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RimFlowDiagSolution.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimFlowPlotCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimTotalWellAllocationPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimTofAccumulatedPhaseFractionsPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellFlowRateCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationPlotLegend.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimFlowCharacteristicsPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellRftPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellPltPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceForRftPlt.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellPlotTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellRftEnsembleCurveSet.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlotCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationOverTimePlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellConnectivityTable.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimFlowDiagnosticsTools.h
-)
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFlowDiagSolution.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFlowPlotCollection.cpp
@@ -42,5 +20,4 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFlowDiagnosticsTools.cpp
 )
 
-list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

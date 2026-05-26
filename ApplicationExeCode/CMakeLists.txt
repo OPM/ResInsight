@@ -58,14 +58,9 @@ endif()
 # Defining all the source (and header) files
 # ##############################################################################
 
-set(CODE_HEADER_FILES RiaMainTools.h)
-
 set(CODE_SOURCE_FILES RiaMain.cpp RiaMainTools.cpp)
 
 if(RESINSIGHT_ENABLE_GRPC)
-  list(APPEND CODE_HEAD_FILES RiaGrpcConsoleApplication.h
-       RiaGrpcGuiApplication.h
-  )
   list(APPEND CODE_SOURCE_FILES RiaGrpcConsoleApplication.cpp
        RiaGrpcGuiApplication.cpp
   )
@@ -108,11 +103,8 @@ endif()
 set(EXE_FILES
     ${EXE_FILES}
     ${CPP_SOURCES}
-    ${MOC_SOURCE_FILES}
-    ${FORM_FILES_CPP}
     ${QRC_FILES}
     ${WIN_RESOURCE}
-    ${HEADER_FILES}
     ${REFERENCED_CMAKE_FILES}
     .clang-format
     .clang-tidy
