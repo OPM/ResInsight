@@ -1,20 +1,13 @@
 name: ResInsight Mac Build
 
-# Nightly macOS build plus per-push validation while the macOS port is
-# being shaken out on mac-prototype.  Once macOS is green and on `dev`,
-# the push/PR filters should be broadened (or dropped) so all branches
-# get covered.  Manual runs available via workflow_dispatch.  Tracker:
-# OPM/ResInsight#14045.
-
 on:
-  schedule:
-    # 02:00 UTC daily, offset from ResInsightWithCache.yml's 01:00 slot.
-    - cron: '0 2 * * *'
-  workflow_dispatch:
   push:
-    branches: [mac-prototype]
   pull_request:
-    branches: [mac-prototype]
+  workflow_dispatch:
+  schedule:
+    # 02:00 UTC daily, offset from ResInsightWithCache.yml's 01:00 slot
+    # so the two workflows do not contend for the same Actions runners.
+    - cron: '0 2 * * *'
 
 permissions:
   contents: read
