@@ -107,7 +107,6 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
                  SLOT( onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ) );
         connect( this, SIGNAL( onKeyPressEvent( QKeyEvent* ) ), plotDefinition, SLOT( onKeyPressEvent( QKeyEvent* ) ) );
         connect( this, SIGNAL( onWheelEvent( QWheelEvent* ) ), plotDefinition, SLOT( onWheelEvent( QWheelEvent* ) ) );
-        connect( this, SIGNAL( onMousePressEvent( QMouseEvent* ) ), plotDefinition, SLOT( onMousePressEvent( QMouseEvent* ) ) );
         connect( this, SIGNAL( destroyed() ), plotDefinition, SLOT( onViewerDestroyed() ) );
     }
 

@@ -47,7 +47,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QImage>
-#include <QMdiSubWindow>
 
 CAF_CMD_SOURCE_INIT( RicSnapshotAllViewsToFileFeature, "RicSnapshotAllViewsToFileFeature" );
 

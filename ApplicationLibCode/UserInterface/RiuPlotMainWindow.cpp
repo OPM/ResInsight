@@ -76,7 +76,6 @@
 
 #include <QCloseEvent>
 #include <QLayout>
-#include <QMdiSubWindow>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QSettings>
@@ -236,7 +235,10 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 {
-    // m_mdiArea->closeAllSubWindows();
+    for ( auto v : viewWindows() )
+    {
+        v->removeWindowFromDock();
+    }
 
     setPdmRoot( nullptr );
 
@@ -806,52 +808,6 @@ void RiuPlotMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
         tv->setPdmItem( pdmRoot );
     }
 }
-
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
-//{
-//     if ( isBlockingSubWindowActivatedSignal() ) return;
-//
-//     RimViewWindow* activatedView = findViewWindowFromSubWindow( subWindow );
-//
-//     if ( !activatedView ) return;
-//     m_activePlotViewWindow = activatedView;
-//
-//     if ( !isBlockingViewSelectionOnSubWindowActivated() )
-//     {
-//         caf::PdmUiTreeView* projectTree = getTreeViewWithItem( activatedView );
-//         if ( projectTree )
-//         {
-//             std::vector<caf::PdmUiItem*> currentSelection;
-//             projectTree->selectedUiItems( currentSelection );
-//             bool childSelected = false;
-//             for ( caf::PdmUiItem* uiItem : currentSelection )
-//             {
-//                 caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( uiItem );
-//                 if ( pdmObject )
-//                 {
-//                     std::vector<RimViewWindow*> ancestralViews = pdmObject->allAncestorsOrThisOfType<RimViewWindow>();
-//                     for ( auto ancestralView : ancestralViews )
-//                     {
-//                         if ( ancestralView == activatedView )
-//                         {
-//                             childSelected = true;
-//                         }
-//                     }
-//                 }
-//             }
-//             if ( !childSelected )
-//             {
-//                 selectAsCurrentItem( activatedView );
-//             }
-//         }
-//     }
-//
-//     updateWellLogPlotToolBar();
-//     updateMultiPlotToolBar();
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///

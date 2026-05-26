@@ -87,7 +87,7 @@ public:
 
     QString wellName() const;
 
-    void removeFromMdiAreaAndDeleteViewWidget();
+    void removeFromDockAreaAndDeleteViewWidget();
 
     void showPlotLegend( bool doShow );
 

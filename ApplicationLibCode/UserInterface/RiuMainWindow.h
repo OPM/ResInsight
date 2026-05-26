@@ -242,7 +242,6 @@ private slots:
 
     // Windows slots
     void slotBuildWindowActions();
-    // void slotSubWindowActivated( QMdiSubWindow* subWindow );
 
     void selectedObjectsChanged();
     void customMenuRequested( const QPoint& pos );

@@ -33,7 +33,6 @@
 #include <QClipboard>
 #include <QDebug>
 #include <QFileInfo>
-#include <QMdiSubWindow>
 
 CAF_CMD_SOURCE_INIT( RicSnapshotViewToClipboardFeature, "RicSnapshotViewToClipboardFeature" );
 

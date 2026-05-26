@@ -100,7 +100,6 @@
 #include <QDir>
 #include <QLabel>
 #include <QLayout>
-#include <QMdiSubWindow>
 #include <QMenuBar>
 #include <QMimeData>
 #include <QSpinBox>
@@ -234,8 +233,6 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
-    // m_mdiArea->applyTiling();
-
     slotRefreshFileActions();
     slotRefreshUndoRedoActions();
     slotRefreshViewActions();
@@ -253,16 +250,6 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     {
         statusBar()->showMessage( "Ready ...", 5000 );
     }
-
-    // QMdiSubWindow* activeSubWindow = m_mdiArea->activeSubWindow();
-    // if ( activeSubWindow )
-    //{
-    //     auto w = findViewWindowFromSubWindow( activeSubWindow );
-    //     if ( w && w->mdiWindowGeometry().isMaximized )
-    //     {
-    //         activeSubWindow->showMaximized();
-    //     }
-    // }
 
     // Sync selections with property editor.
     // Go backwards as the most "important" tree view is first in the list
@@ -336,7 +323,10 @@ void RiuMainWindow::cleanupGuiCaseClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::cleanupGuiBeforeProjectClose()
 {
-    // m_mdiArea->closeAllSubWindows();
+    for ( auto v : viewWindows() )
+    {
+        v->removeWindowFromDock();
+    }
 
     setPdmRoot( nullptr );
 
