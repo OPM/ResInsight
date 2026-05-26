@@ -445,11 +445,7 @@ RimViewWindow* RiaGuiApplication::activePlotWindow() const
 
     if ( m_mainPlotWindow )
     {
-        // QList<QMdiSubWindow*> subwindows = m_mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
-        // if ( !subwindows.empty() )
-        //{
-        //     viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
-        // }
+        return m_mainPlotWindow->activePlotView();
     }
 
     return viewWindow;
@@ -1802,6 +1798,21 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
                 QKeyEvent*     keyEvent = static_cast<QKeyEvent*>( event );
                 RimPlotWindow* plot     = dynamic_cast<RimPlotWindow*>( activePlotWindow() );
                 if ( plot ) done = plot->handleGlobalKeyEvent( keyEvent );
+            }
+        }
+        else if ( event->type() == QEvent::MouseButtonPress )
+        {
+            if ( activeWindow() != mainWindow() )
+            {
+                if ( auto plotMain = mainPlotWindow() )
+                {
+                    QMouseEvent* mouseEvent = static_cast<QMouseEvent*>( event );
+                    for ( auto view : plotMain->viewWindows() )
+                    {
+                        RimPlotWindow* plot = dynamic_cast<RimPlotWindow*>( view );
+                        if ( plot ) done = plot->handleGlobalMousePressEvent( mouseEvent );
+                    }
+                }
             }
         }
         else if ( event->type() == QEvent::Wheel )
