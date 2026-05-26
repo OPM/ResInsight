@@ -27,7 +27,6 @@
 
 class RimCase;
 class RimViewLinker;
-struct RimMdiWindowGeometry;
 class RimViewController;
 
 namespace caf

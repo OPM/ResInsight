@@ -210,8 +210,8 @@ RimViewWindow* RiuMatrixPlotWidget::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 void RiuMatrixPlotWidget::contextMenuEvent( QContextMenuEvent* )
 {
-    // Added empty override to preventing menu for Mdi Area
-    // I.e.: RiuContextMenuLauncher for RiuPlotMainWindow (mdi area)
+    // Added empty override to preventing menu for central area
+    // I.e.: RiuContextMenuLauncher for RiuPlotMainWindow
     return;
 }
 

@@ -66,7 +66,7 @@ void RimFlowPlotCollection::deleteAllPlots()
 {
     if ( m_defaultWellAllocPlot )
     {
-        m_defaultWellAllocPlot->removeFromMdiAreaAndDeleteViewWidget();
+        m_defaultWellAllocPlot->removeFromDockAreaAndDeleteViewWidget();
         delete m_defaultWellAllocPlot();
     }
     delete m_defaultWellConnectivityTable;
