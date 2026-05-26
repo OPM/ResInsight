@@ -102,6 +102,7 @@ RiuMainWindowBase::~RiuMainWindowBase()
 {
     for ( auto v : m_projectTreeViews )
     {
+        v->setPdmItem( nullptr );
         delete v;
     }
 
