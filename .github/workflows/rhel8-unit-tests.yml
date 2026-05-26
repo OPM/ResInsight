@@ -1,10 +1,16 @@
 name: RHEL8 Unit Tests
 
 on:
+  push:
+  pull_request:
   workflow_dispatch:
   schedule:
-    # Nightly at 2am UTC
+    # Nightly at 2am UTC 
     - cron: "0 2 * * *"
+
+concurrency:
+  group: rhel8-unit-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # Resolves the prebuilt CI image name so it works in forks and upstream alike
