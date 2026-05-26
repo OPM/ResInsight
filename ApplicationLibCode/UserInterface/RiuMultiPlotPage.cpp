@@ -59,7 +59,6 @@
 #include <QFontMetrics>
 #include <QGraphicsDropShadowEffect>
 #include <QHBoxLayout>
-#include <QMdiSubWindow>
 #include <QMenu>
 #include <QPainter>
 #include <QScrollBar>

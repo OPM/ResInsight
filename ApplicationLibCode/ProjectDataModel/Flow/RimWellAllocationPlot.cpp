@@ -737,7 +737,7 @@ QString RimWellAllocationPlot::wellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::removeFromMdiAreaAndDeleteViewWidget()
+void RimWellAllocationPlot::removeFromDockAreaAndDeleteViewWidget()
 {
     removeWindowFromDock();
     deleteViewWidget();

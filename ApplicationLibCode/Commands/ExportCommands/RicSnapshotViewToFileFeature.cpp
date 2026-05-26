@@ -40,7 +40,6 @@
 #include <QClipboard>
 #include <QDebug>
 #include <QFileInfo>
-#include <QMdiSubWindow>
 #include <QPageLayout>
 #include <QPdfWriter>
 

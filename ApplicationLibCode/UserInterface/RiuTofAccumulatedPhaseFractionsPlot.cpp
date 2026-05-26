@@ -39,7 +39,6 @@
 
 #include <QFocusEvent>
 #include <QHBoxLayout>
-#include <QMdiSubWindow>
 #include <QMenu>
 
 #include <cmath>
