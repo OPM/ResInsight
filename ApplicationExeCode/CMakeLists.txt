@@ -105,7 +105,6 @@ set(EXE_FILES
     ${CPP_SOURCES}
     ${QRC_FILES}
     ${WIN_RESOURCE}
-    ${HEADER_FILES}
     ${REFERENCED_CMAKE_FILES}
     .clang-format
     .clang-tidy
