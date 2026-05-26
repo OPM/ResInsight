@@ -5,7 +5,7 @@ on:
   pull_request:
   workflow_dispatch:
   schedule:
-    # Nightly at 2am UTC
+    # Nightly at 2am UTC 
     - cron: "0 2 * * *"
 
 concurrency:
