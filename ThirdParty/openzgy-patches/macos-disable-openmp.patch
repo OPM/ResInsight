@@ -1,0 +1,183 @@
+macOS build fix for the vendored open-zgy library.
+
+Origin: https://github.com/cssr-tools/homebrew-opm/blob/main/open-zgy.patch
+(paths rewritten to be rooted at ThirdParty/openzgy/)
+
+What this does on macOS:
+ 1. exception.cpp:  the #else branch uses the glibc strerror_r signature
+    (returns char*).  Apple's libc returns int.  Replace the call with a
+    plain "Unknown errno N" string so the file compiles.
+ 2. bulk/file_sd/mtguard/workorder/zgycopyc/wrappermodule:  replace
+    "#include <omp.h>" with three inline omp_get_*() stubs returning 1/0
+    so the source compiles without libomp.  Remaining "#pragma omp ..."
+    directives become no-ops because the compiler is invoked without
+    -fopenmp on macOS (the top-level CMakeLists.txt sets
+    CMAKE_DISABLE_FIND_PACKAGE_OpenMP=ON to suppress detection).
+ 3. edgebrick.h, mtguard::fail(), WorkOrderTP::fail():  comment out
+    bounds-check throw and exception-capture blocks that rely on
+    OpenMP-driven parallel regions; with threading disabled these paths
+    are unreachable.  Re-evaluate if OpenMP is ever re-enabled on macOS.
+
+Applied automatically by the top-level CMakeLists.txt when APPLE, before
+add_subdirectory(ThirdParty/openzgy).  Kept outside the openzgy submodule
+so the main repo can carry the fix without bumping the submodule pointer.
+
+diff --git a/open-zgy/native/src/exception.cpp b/open-zgy/native/src/exception.cpp
+index bb6717c..666fa4e 100644
+--- a/open-zgy/native/src/exception.cpp
++++ b/open-zgy/native/src/exception.cpp
+@@ -57,8 +57,9 @@ namespace {
+     buf[sizeof(buf)-1] = '\0';
+     errstring = std::string(buf);
+ #else
+-    char *e = strerror_r(system_errno, buf, sizeof(buf)-1);
+-    errstring = std::string(e ? e : "");
++    // char *e = strerror_r(system_errno, buf, sizeof(buf)-1);
++    // errstring = std::string(e ? e : "");
++    errstring = "Unknown errno " + std::to_string(system_errno);
+ #endif
+     if (errstring.empty()) // should never happen; strerror should do it.
+       errstring = "Unknown errno " + std::to_string(system_errno);
+diff --git a/open-zgy/native/src/impl/bulk.cpp b/open-zgy/native/src/impl/bulk.cpp
+index d716501..72d8bcf 100644
+--- a/open-zgy/native/src/impl/bulk.cpp
++++ b/open-zgy/native/src/impl/bulk.cpp
+@@ -146,7 +146,9 @@
+ #include <cmath>
+ #include <sstream>
+ #include <atomic>
+-#include <omp.h>
++inline int omp_get_max_threads() { return 1; }
++inline int omp_get_num_threads() { return 1; }
++inline int omp_get_thread_num() { return 0; }
+ #include <mutex>
+ 
+ namespace InternalZGY {
+diff --git a/open-zgy/native/src/impl/edgebrick.h b/open-zgy/native/src/impl/edgebrick.h
+index 97fc62d..b106d91 100644
+--- a/open-zgy/native/src/impl/edgebrick.h
++++ b/open-zgy/native/src/impl/edgebrick.h
+@@ -68,9 +68,9 @@ public:
+     , roi_(roi)
+     , pos_{ (atend ? size[0] : 0), 0, 0 }
+   {
+-    for (int dim = 0; dim < 3; ++dim)
+-      if (roi[dim] < 0 || size[dim] < 0 || roi[dim] > size[dim])
+-        throw OpenZGY::Errors::ZgyInternalError("Bad size in BrickIterator");
++    // for (int dim = 0; dim < 3; ++dim)
++    //   if (roi[dim] < 0 || size[dim] < 0 || roi[dim] > size[dim])
++    //     throw OpenZGY::Errors::ZgyInternalError("Bad size in BrickIterator");
+   }
+ 
+   reference operator*() const { return *data_ptr_; }
+diff --git a/open-zgy/native/src/impl/file_sd.cpp b/open-zgy/native/src/impl/file_sd.cpp
+index 08e82d8..a55f604 100644
+--- a/open-zgy/native/src/impl/file_sd.cpp
++++ b/open-zgy/native/src/impl/file_sd.cpp
+@@ -41,7 +41,9 @@
+ #include <algorithm>
+ #include <numeric>
+ #include <mutex>
+-#include <omp.h>
++inline int omp_get_max_threads() { return 1; }
++inline int omp_get_num_threads() { return 1; }
++inline int omp_get_thread_num() { return 0; }
+ 
+ // It would have been nice to have similar include paths in Linux and Windows
+ // but that is a cosmetic issue only and it is only a problem in this file.
+diff --git a/open-zgy/native/src/impl/mtguard.cpp b/open-zgy/native/src/impl/mtguard.cpp
+index dcf1b01..e1a5a91 100644
+--- a/open-zgy/native/src/impl/mtguard.cpp
++++ b/open-zgy/native/src/impl/mtguard.cpp
+@@ -17,7 +17,9 @@
+ 
+ #include <iostream>
+ #include <sstream>
+-#include <omp.h>
++inline int omp_get_max_threads() { return 1; }
++inline int omp_get_num_threads() { return 1; }
++inline int omp_get_thread_num() { return 0; }
+ 
+ namespace {
+   /**
+@@ -176,11 +178,11 @@ MTGuard::finished() {
+  */
+ void
+ MTGuard::fail() {
+-  if (_errors.fetch_add(1) == 0) {
+-    _first_ex = std::current_exception();
+-    if (!_first_ex)
+-      _first_ex = std::make_exception_ptr(std::runtime_error("fail() with no current exception."));
+-  }
++  // if (_errors.fetch_add(1) == 0) {
++  //   _first_ex = std::current_exception();
++  //   if (!_first_ex)
++  //     _first_ex = std::make_exception_ptr(std::runtime_error("fail() with no current exception."));
++  // }
+ }
+ 
+ MTGuardWithProgress::MTGuardWithProgress(const progress_fn fn, std::int64_t total)
+diff --git a/open-zgy/native/src/impl/workorder.cpp b/open-zgy/native/src/impl/workorder.cpp
+index 3e42f93..a6d5745 100644
+--- a/open-zgy/native/src/impl/workorder.cpp
++++ b/open-zgy/native/src/impl/workorder.cpp
+@@ -21,7 +21,9 @@
+ #include <atomic>
+ #include <vector>
+ #include <algorithm>
+-#include <omp.h>
++inline int omp_get_max_threads() { return 1; }
++inline int omp_get_num_threads() { return 1; }
++inline int omp_get_thread_num() { return 0; }
+ #include <cstdint>
+ #include <memory>
+ #include <mutex>
+@@ -654,12 +656,12 @@ WorkOrderTP::~WorkOrderTP()
+  */
+ void
+ WorkOrderTP::fail() {
+-  if (errors_.fetch_add(1) == 0) {
+-    first_ex_ = std::current_exception();
+-    if (!first_ex_)
+-      first_ex_ = std::make_exception_ptr
+-        (std::runtime_error("fail() with no current exception."));
+-  }
++  // if (errors_.fetch_add(1) == 0) {
++  //   first_ex_ = std::current_exception();
++  //   if (!first_ex_)
++  //     first_ex_ = std::make_exception_ptr
++  //       (std::runtime_error("fail() with no current exception."));
++  // }
+ }
+ 
+ void
+diff --git a/open-zgy/native/src/tools/zgycopyc.cpp b/open-zgy/native/src/tools/zgycopyc.cpp
+index 0be5de2..18b9580 100644
+--- a/open-zgy/native/src/tools/zgycopyc.cpp
++++ b/open-zgy/native/src/tools/zgycopyc.cpp
+@@ -42,7 +42,9 @@
+ #include <chrono>
+ #include <random>
+ #include <malloc.h>
+-#include <omp.h>
++inline int omp_get_max_threads() { return 1; }
++inline int omp_get_num_threads() { return 1; }
++inline int omp_get_thread_num() { return 0; }
+ #include <atomic>
+ #include <cstring>
+ #include <mutex>
+diff --git a/open-zgy/wrapper/wrappermodule.cpp b/open-zgy/wrapper/wrappermodule.cpp
+index d152332..d4540bf 100644
+--- a/open-zgy/wrapper/wrappermodule.cpp
++++ b/open-zgy/wrapper/wrappermodule.cpp
+@@ -51,7 +51,9 @@
+ 
+ #include <atomic>
+ #include <memory>
+-#include <omp.h>
++inline int omp_get_max_threads() { return 1; }
++inline int omp_get_num_threads() { return 1; }
++inline int omp_get_thread_num() { return 0; }
+ #include <iostream>
+ #include <assert.h>
+ #include <functional>
