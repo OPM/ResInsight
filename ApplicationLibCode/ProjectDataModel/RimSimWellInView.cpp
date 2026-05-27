@@ -508,6 +508,8 @@ bool RimSimWellInView::isWellPipeVisible( size_t frameIndex ) const
 
     if ( !showWellPipe() ) return false;
 
+    if ( reservoirView->wellCollection()->showOnlyActiveWells() && !simWellData()->isOpen( frameIndex ) ) return false;
+
     if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
@@ -548,6 +550,8 @@ bool RimSimWellInView::isWellSpheresVisible( size_t frameIndex ) const
 
     if ( !showWellSpheres() ) return false;
 
+    if ( reservoirView->wellCollection()->showOnlyActiveWells() && !simWellData()->isOpen( frameIndex ) ) return false;
+
     if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() && reservoirView->cellFilterCollection()->hasActiveFilters() )
@@ -585,6 +589,8 @@ bool RimSimWellInView::isWellValvesVisible( size_t frameIndex ) const
 
     if ( !reservoirView->wellCollection()->isActive() ) return false;
     if ( !reservoirView->wellCollection()->showValves() ) return false;
+
+    if ( reservoirView->wellCollection()->showOnlyActiveWells() && !simWellData()->isOpen( frameIndex ) ) return false;
 
     if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
@@ -663,6 +669,8 @@ bool RimSimWellInView::isWellDiskVisible( size_t frameIndex ) const
     if ( !showWell() ) return false;
 
     if ( !showWellDisks() ) return false;
+
+    if ( reservoirView->wellCollection()->showOnlyActiveWells() && !simWellData()->isOpen( frameIndex ) ) return false;
 
     if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
