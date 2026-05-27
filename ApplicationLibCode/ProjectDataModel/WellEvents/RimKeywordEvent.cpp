@@ -101,6 +101,17 @@ void RimKeywordEvent::addDoubleItem( const QString& name, double value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimKeywordEvent::addFlagItem( const QString& name )
+{
+    auto* item = new RimWellEventKeywordItem();
+    item->setItemName( name );
+    item->setFlag();
+    m_items.push_back( item );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimWellEventKeywordItem*> RimKeywordEvent::items() const
 {
     std::vector<RimWellEventKeywordItem*> result;

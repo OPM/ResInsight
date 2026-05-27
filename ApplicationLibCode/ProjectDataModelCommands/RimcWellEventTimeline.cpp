@@ -406,9 +406,13 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addWellKeywo
             }
             event->addDoubleItem( name, doubleValue );
         }
+        else if ( type == "FLAG" )
+        {
+            event->addFlagItem( name );
+        }
         else
         {
-            return std::unexpected( QString( "Unknown item type: %1. Must be STRING, INT, or DOUBLE" ).arg( type ) );
+            return std::unexpected( QString( "Unknown item type: %1. Must be STRING, INT, DOUBLE, or FLAG" ).arg( type ) );
         }
     }
 
@@ -498,9 +502,13 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addKeywordEv
             }
             event->addDoubleItem( name, doubleValue );
         }
+        else if ( type == "FLAG" )
+        {
+            event->addFlagItem( name );
+        }
         else
         {
-            return std::unexpected( QString( "Unknown item type: %1. Must be STRING, INT, or DOUBLE" ).arg( type ) );
+            return std::unexpected( QString( "Unknown item type: %1. Must be STRING, INT, DOUBLE, or FLAG" ).arg( type ) );
         }
     }
 

@@ -116,6 +116,14 @@ void RimWellEventKeywordItem::setDoubleValue( double value )
     m_doubleValue = value;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventKeywordItem::setFlag()
+{
+    m_itemType = ItemType::FLAG;
+}
+
 namespace caf
 {
 template <>
@@ -124,6 +132,7 @@ void AppEnum<RimWellEventKeywordItem::ItemType>::setUp()
     addItem( RimWellEventKeywordItem::ItemType::STRING, "STRING", "String" );
     addItem( RimWellEventKeywordItem::ItemType::INTEGER, "INTEGER", "Integer" );
     addItem( RimWellEventKeywordItem::ItemType::DOUBLE, "DOUBLE", "Double" );
+    addItem( RimWellEventKeywordItem::ItemType::FLAG, "FLAG", "Flag" );
     setDefault( RimWellEventKeywordItem::ItemType::STRING );
 }
 } // namespace caf

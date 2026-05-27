@@ -42,5 +42,6 @@ Opm::DeckItem optionalItem( std::string name, std::optional<double> value );
 Opm::DeckItem defaultItem( std::string name );
 Opm::DeckItem item( std::string name, std::set<std::string> values );
 Opm::DeckItem item( std::string name, std::vector<std::string> values );
+Opm::DeckItem rawStringItem( std::string name, std::vector<std::string> values );
 
 } // namespace RifOpmDeckTools

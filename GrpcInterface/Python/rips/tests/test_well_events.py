@@ -1895,3 +1895,55 @@ class TestScheduleKeywordEvents:
         )
 
         assert event is not None, "Event with mixed types should be created"
+
+    def test_rptrst_mnemonic_output(self, project_with_case_and_well):
+        """RPTRST/RPTSCHED are mnemonic-list keywords. bool True must emit a
+        bare KEY, int/float/str must emit KEY=VALUE, bool False must be omitted.
+        """
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Schedule generation requires at least one well event so a well path is
+        # selected for output; the assertions below target only the RPTRST block.
+        timeline.add_control_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            control_mode="ORAT",
+            control_value=1000.0,
+            oil_rate=1000.0,
+            is_producer=True,
+        )
+
+        timeline.add_keyword_event(
+            event_date="2024-01-01",
+            keyword_name="RPTRST",
+            keyword_data={
+                "BASIC": 2,
+                "DEN": True,
+                "ROCKC": True,
+                "RPORV": True,
+                "RFIP": True,
+                "FLOWS": True,
+                "NORST": 1,
+                "FLORES": True,
+                "OBSOLETE": False,
+            },
+        )
+
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        print(f"\nRPTRST mnemonic output:\n{schedule_text}")
+
+        assert "RPTRST" in schedule_text
+        rptrst_block = schedule_text.split("RPTRST", 1)[1].split("/", 1)[0]
+
+        # Keyed mnemonics rendered as KEY=VALUE.
+        assert "BASIC=2" in rptrst_block
+        assert "NORST=1" in rptrst_block
+        # Flag mnemonics rendered as bare tokens. Whitespace-bounded so we don't accept
+        # accidental substring matches like 'DEN' inside another token.
+        for flag in ("DEN", "ROCKC", "RPORV", "RFIP", "FLOWS", "FLORES"):
+            assert f" {flag} " in rptrst_block or rptrst_block.rstrip().endswith(
+                f" {flag}"
+            ), f"flag {flag!r} missing from RPTRST output: {rptrst_block!r}"
+        # False-valued flag must be omitted entirely.
+        assert "OBSOLETE" not in rptrst_block
