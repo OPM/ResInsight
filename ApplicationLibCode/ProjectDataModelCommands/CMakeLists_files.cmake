@@ -31,6 +31,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcGridView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcIdenticalGridCaseGroup.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcPressureTable.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcFaultInViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcFishbonesCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcPolygonCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcDataFilterCollection.cpp

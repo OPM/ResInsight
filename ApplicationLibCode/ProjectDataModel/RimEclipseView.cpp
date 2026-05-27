@@ -198,7 +198,7 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitFieldNoDefault( &m_wellCollection, "WellCollection", "Simulation Wells" );
     m_wellCollection = new RimSimWellInViewCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_faultCollection, "FaultCollection", "Faults" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faultCollection, "FaultCollection", "Faults" );
     m_faultCollection = new RimFaultInViewCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_faultReactivationModelCollection, "FaultReactivationModelCollection", "Fault Reactivation Models" );
