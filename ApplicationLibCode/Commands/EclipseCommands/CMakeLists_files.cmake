@@ -18,6 +18,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipsePropertyFilterNewInViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseHideFaultFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseShowOnlyFaultFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewFaultDistanceResultFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRenameCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicAddGridCalculationFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCaseEnsemblesFromFilesFeature.cpp
