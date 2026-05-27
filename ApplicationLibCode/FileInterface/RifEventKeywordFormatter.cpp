@@ -35,8 +35,12 @@
 #include "opm/input/eclipse/Parser/Parser.hpp"
 #include "opm/input/eclipse/Parser/ParserKeyword.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
+#include "opm/input/eclipse/Parser/ParserRecord.hpp"
 
+#include <optional>
 #include <sstream>
+#include <unordered_map>
+#include <unordered_set>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -52,22 +56,75 @@ QString RifEventKeywordFormatter::formatKeyword( const QString& keywordName, con
         const Opm::ParserKeyword& parserKw = parser.getKeyword( kwName );
         Opm::DeckKeyword          kw( parserKw );
 
-        // Build deck items from stored data
-        std::vector<Opm::DeckItem> deckItems;
+        // Eclipse keyword records are positional: items must be emitted in the schema-defined order
+        // regardless of how the caller supplied them (e.g. Python dict insertion order).
+        std::unordered_map<std::string, const RimWellEventKeywordItem*> userItemsByName;
+        userItemsByName.reserve( items.size() );
         for ( const auto* item : items )
+        {
+            userItemsByName.emplace( item->itemName().toStdString(), item );
+        }
+
+        const Opm::ParserRecord& parserRecord = parserKw.getRecord( 0 );
+
+        // Determine the highest canonical index that the user actually provided; trailing
+        // unspecified items are dropped, intermediate gaps become default markers ("1*").
+        std::optional<size_t>           lastProvidedIdx;
+        std::unordered_set<std::string> canonicalNames;
+        canonicalNames.reserve( parserRecord.size() );
+        for ( size_t i = 0; i < parserRecord.size(); ++i )
+        {
+            const std::string& name = parserRecord.get( i ).name();
+            canonicalNames.insert( name );
+            if ( userItemsByName.contains( name ) )
+            {
+                lastProvidedIdx = i;
+            }
+        }
+
+        auto appendDeckItem = [&]( std::vector<Opm::DeckItem>& out, const std::string& name, const RimWellEventKeywordItem* item )
         {
             switch ( item->itemType() )
             {
                 case RimWellEventKeywordItem::ItemType::STRING:
-                    deckItems.push_back( RifOpmDeckTools::item( item->itemName().toStdString(), item->stringValue().toStdString() ) );
+                    out.push_back( RifOpmDeckTools::item( name, item->stringValue().toStdString() ) );
                     break;
                 case RimWellEventKeywordItem::ItemType::INTEGER:
-                    deckItems.push_back( RifOpmDeckTools::item( item->itemName().toStdString(), item->intValue() ) );
+                    out.push_back( RifOpmDeckTools::item( name, item->intValue() ) );
                     break;
                 case RimWellEventKeywordItem::ItemType::DOUBLE:
-                    deckItems.push_back( RifOpmDeckTools::item( item->itemName().toStdString(), item->doubleValue() ) );
+                    out.push_back( RifOpmDeckTools::item( name, item->doubleValue() ) );
                     break;
             }
+        };
+
+        std::vector<Opm::DeckItem> deckItems;
+        if ( lastProvidedIdx.has_value() )
+        {
+            deckItems.reserve( *lastProvidedIdx + 1 );
+            for ( size_t i = 0; i <= *lastProvidedIdx; ++i )
+            {
+                const std::string& name = parserRecord.get( i ).name();
+                auto               it   = userItemsByName.find( name );
+                if ( it == userItemsByName.end() )
+                {
+                    deckItems.push_back( RifOpmDeckTools::defaultItem( name ) );
+                }
+                else
+                {
+                    appendDeckItem( deckItems, name, it->second );
+                }
+            }
+        }
+
+        // Items not in the keyword's schema are still emitted (preserves behaviour for
+        // mnemonic-list keywords such as RPTRST/RPTSCHED) but in caller-supplied order
+        // after the canonical block.
+        for ( const auto* item : items )
+        {
+            const std::string name = item->itemName().toStdString();
+            if ( canonicalNames.contains( name ) ) continue;
+            appendDeckItem( deckItems, name, item );
         }
 
         if ( !deckItems.empty() )

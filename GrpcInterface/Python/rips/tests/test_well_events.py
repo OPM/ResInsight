@@ -1428,6 +1428,53 @@ class TestKeywordEvents:
         assert "WRFTPLT" in schedule_text, "Schedule should contain WRFTPLT keyword"
         assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
 
+    def test_wconhist_item_order_canonical(self, project_with_case_and_well):
+        """Regression for #14065: WCONHIST items must appear in the Eclipse-defined
+        canonical order regardless of how keyword_data was constructed in Python.
+
+        Canonical WCONHIST order: WELL, STATUS, CMODE, ORAT, WRAT, GRAT, VFP_TABLE,
+        ALQ, THP, BHP, WGASRAT_HIS, NGLRAT_HIS.
+        """
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # Intentionally non-canonical insertion order: BHP placed before ORAT/WRAT/GRAT.
+        timeline.add_well_keyword_event(
+            event_date="2024-01-15",
+            well_path=well_path,
+            keyword_name="WCONHIST",
+            keyword_data={
+                "WELL": well_path.name,
+                "STATUS": "OPEN",
+                "CMODE": "RESV",
+                "BHP": 250.0,
+                "ORAT": 3999.99,
+                "WRAT": 0.01,
+                "GRAT": 550678.44,
+                "VFP_TABLE": 1,
+            },
+        )
+
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        print(f"\nSchedule text for canonical-order check:\n{schedule_text}")
+
+        assert "WCONHIST" in schedule_text
+        # Extract the WCONHIST record body (between the keyword and its terminating '/').
+        wconhist_block = schedule_text.split("WCONHIST", 1)[1].split("/", 1)[0]
+
+        orat_pos = wconhist_block.find("3999.99")
+        grat_pos = wconhist_block.find("550678")
+        bhp_pos = wconhist_block.find("250")
+        assert orat_pos >= 0, "ORAT value missing from WCONHIST output"
+        assert grat_pos >= 0, "GRAT value missing from WCONHIST output"
+        assert bhp_pos >= 0, "BHP value missing from WCONHIST output"
+        assert orat_pos < bhp_pos, (
+            f"ORAT must precede BHP in canonical WCONHIST order; got block: {wconhist_block!r}"
+        )
+        assert grat_pos < bhp_pos, (
+            f"GRAT must precede BHP in canonical WCONHIST order; got block: {wconhist_block!r}"
+        )
+
     def test_invalid_keyword_data_unsupported_type(self, project_with_case_and_well):
         """Test error handling for unsupported data types in keyword events."""
         project, case, timeline = project_with_case_and_well
