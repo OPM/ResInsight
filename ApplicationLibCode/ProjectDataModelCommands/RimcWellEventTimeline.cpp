@@ -21,7 +21,6 @@
 #include "CompletionExportCommands/RicScheduleDataGenerator.h"
 #include "RimEclipseCase.h"
 #include "RimKeywordEvent.h"
-#include "RimProject.h"
 #include "RimWellEventControl.h"
 #include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
@@ -30,7 +29,6 @@
 #include "RimWellEventTubing.h"
 #include "RimWellEventValve.h"
 #include "RimWellPath.h"
-#include "RimWellPathCollection.h"
 #include "RimcDataContainerString.h"
 
 #include "cafAppEnum.h"
@@ -569,7 +567,7 @@ RimcWellEventTimeline_generateSchedule::RimcWellEventTimeline_generateSchedule( 
 {
     CAF_PDM_InitObject( "Generate Schedule", "", "", "Generate Eclipse schedule text for all wells in the collection" );
 
-    CAF_PDM_InitScriptableField( &m_eclipseCaseId, "EclipseCaseId", -1, "", "", "", "Eclipse Case ID" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
     CAF_PDM_InitScriptableField( &m_includeWelsegs, "IncludeWelsegs", true, "", "", "", "Include WELSEGS keyword in the exported schedule" );
     CAF_PDM_InitScriptableField( &m_includeCompsegs, "IncludeCompsegs", true, "", "", "", "Include COMPSEGS keyword in the exported schedule" );
 }
@@ -581,24 +579,10 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
 {
     auto timeline = self<RimWellEventTimeline>();
 
-    // Get the parent well path collection
-    RimWellPathCollection* wellPathCollection = timeline->firstAncestorOrThisOfType<RimWellPathCollection>();
-    if ( !wellPathCollection )
-    {
-        return std::unexpected( QString( "Could not find parent well path collection" ) );
-    }
-
-    // Find the Eclipse case by ID
-    RimProject* project = wellPathCollection->firstAncestorOrThisOfType<RimProject>();
-    if ( !project )
-    {
-        return std::unexpected( QString( "Could not find project" ) );
-    }
-
-    RimEclipseCase* eclipseCase = project->eclipseCaseFromCaseId( m_eclipseCaseId() );
+    RimEclipseCase* eclipseCase = m_eclipseCase();
     if ( !eclipseCase )
     {
-        return std::unexpected( QString( "Eclipse case with ID %1 not found" ).arg( m_eclipseCaseId() ) );
+        return std::unexpected( QString( "Eclipse case is required" ) );
     }
 
     // Get the last applied timestamp (from set_timestamp call)
