@@ -570,6 +570,8 @@ RimcWellEventTimeline_generateSchedule::RimcWellEventTimeline_generateSchedule( 
     CAF_PDM_InitObject( "Generate Schedule", "", "", "Generate Eclipse schedule text for all wells in the collection" );
 
     CAF_PDM_InitScriptableField( &m_eclipseCaseId, "EclipseCaseId", -1, "", "", "", "Eclipse Case ID" );
+    CAF_PDM_InitScriptableField( &m_includeWelsegs, "IncludeWelsegs", true, "", "", "", "Include WELSEGS keyword in the exported schedule" );
+    CAF_PDM_InitScriptableField( &m_includeCompsegs, "IncludeCompsegs", true, "", "", "", "Include COMPSEGS keyword in the exported schedule" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -633,7 +635,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
         return std::unexpected( QString( "No well paths with events found" ) );
     }
 
-    QString scheduleText = RicScheduleDataGenerator::generateSchedule( *timeline, *eclipseCase, wellPathsWithEvents, dates );
+    QString scheduleText =
+        RicScheduleDataGenerator::generateSchedule( *timeline, *eclipseCase, wellPathsWithEvents, dates, m_includeWelsegs(), m_includeCompsegs() );
 
     // Return the schedule text in a data container
     auto* dataObject           = new RimcDataContainerString();

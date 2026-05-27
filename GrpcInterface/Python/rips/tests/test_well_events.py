@@ -1231,6 +1231,65 @@ class TestScheduleGeneration:
         assert jan_pos < feb_pos, "January should come before February"
         assert feb_pos < jun_pos, "February should come before June"
 
+    def test_welsegs_compsegs_optional(self, project_with_case_and_well):
+        """Regression for #14064: callers can suppress WELSEGS and/or COMPSEGS
+        without affecting other keywords (WSEGVALV/WSEGAICD/COMPDAT/WELSPECS).
+        """
+        project, case, timeline = project_with_case_and_well
+        well_paths = project.well_paths()
+        assert len(well_paths) >= 1
+
+        wp = well_paths[0]
+        timeline.add_tubing_event(
+            event_date="2024-01-01",
+            well_path=wp,
+            start_md=0.0,
+            end_md=2500.0,
+            inner_diameter=0.15,
+            roughness=1.0e-5,
+        )
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=wp,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+        timeline.set_timestamp(timestamp="2024-12-31")
+
+        # Baseline (defaults) must still emit WELSEGS and COMPSEGS.
+        baseline = timeline.generate_schedule_text(eclipse_case=case)
+        assert "WELSEGS" in baseline
+        assert "COMPSEGS" in baseline
+
+        # Suppress both.
+        suppressed = timeline.generate_schedule_text(
+            eclipse_case=case, include_welsegs=False, include_compsegs=False
+        )
+        print(f"\nSchedule with WELSEGS/COMPSEGS suppressed:\n{suppressed}")
+        assert "WELSEGS" not in suppressed, (
+            f"WELSEGS should be suppressed:\n{suppressed}"
+        )
+        assert "COMPSEGS" not in suppressed, (
+            f"COMPSEGS should be suppressed:\n{suppressed}"
+        )
+        # COMPDAT (perforation completions) is unrelated to the MSW flags.
+        assert "COMPDAT" in suppressed
+
+        # Independent toggling.
+        only_compsegs_off = timeline.generate_schedule_text(
+            eclipse_case=case, include_compsegs=False
+        )
+        assert "WELSEGS" in only_compsegs_off
+        assert "COMPSEGS" not in only_compsegs_off
+
+        only_welsegs_off = timeline.generate_schedule_text(
+            eclipse_case=case, include_welsegs=False
+        )
+        assert "WELSEGS" not in only_welsegs_off
+        assert "COMPSEGS" in only_welsegs_off
+
     def test_keywords_grouped_across_wells(self, project_with_case_and_well):
         """Regression for #14063: WELSPECS / COMPDAT records for multiple wells on
         the same date must appear under a single keyword header (not one block per well).
