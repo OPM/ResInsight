@@ -22,7 +22,13 @@
 
 #include "cafPdmField.h"
 
+#include <optional>
 #include <vector>
+
+namespace Opm
+{
+class DeckKeyword;
+} // namespace Opm
 
 //==================================================================================================
 ///
@@ -51,8 +57,9 @@ public:
     std::vector<class RimWellEventKeywordItem*> items() const;
 
     // Override from RimWellEvent
-    EventType eventType() const override { return EventType::SCHEDULE_KEYWORD; }
-    QString   generateScheduleKeyword( const QString& wellName ) const override;
+    EventType                       eventType() const override { return EventType::SCHEDULE_KEYWORD; }
+    QString                         generateScheduleKeyword( const QString& wellName ) const override;
+    std::optional<Opm::DeckKeyword> generateDeckKeyword( const QString& wellName ) const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

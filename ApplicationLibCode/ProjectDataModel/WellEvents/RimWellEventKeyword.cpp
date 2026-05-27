@@ -22,6 +22,8 @@
 
 #include "FileInterface/RifEventKeywordFormatter.h"
 
+#include "opm/input/eclipse/Deck/DeckKeyword.hpp"
+
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiOrdering.h"
@@ -131,6 +133,14 @@ std::vector<RimWellEventKeywordItem*> RimWellEventKeyword::items() const
 QString RimWellEventKeyword::generateScheduleKeyword( const QString& wellName ) const
 {
     return RifEventKeywordFormatter::formatKeyword( m_keywordName(), items() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<Opm::DeckKeyword> RimWellEventKeyword::generateDeckKeyword( const QString& wellName ) const
+{
+    return RifEventKeywordFormatter::buildKeyword( m_keywordName(), items() );
 }
 
 //--------------------------------------------------------------------------------------------------

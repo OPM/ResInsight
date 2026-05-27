@@ -19,7 +19,13 @@
 #pragma once
 
 #include <QString>
+#include <optional>
 #include <vector>
+
+namespace Opm
+{
+class DeckKeyword;
+} // namespace Opm
 
 class RimWellEventControl;
 class RimWellEvent;
@@ -27,6 +33,13 @@ class RimWellEventKeywordItem;
 
 namespace RifEventKeywordFormatter
 {
+// build*: produce a structured Opm::DeckKeyword (used by callers that merge records across wells).
+std::optional<Opm::DeckKeyword> buildKeyword( const QString& keywordName, const std::vector<RimWellEventKeywordItem*>& items );
+std::optional<Opm::DeckKeyword> buildWconprod( const RimWellEventControl* controlEvent, const QString& wellName );
+std::optional<Opm::DeckKeyword> buildWconinje( const RimWellEventControl* controlEvent, const QString& wellName );
+std::optional<Opm::DeckKeyword> buildWellEvent( const RimWellEvent* event, const QString& wellName );
+
+// format*: serialize the build* result to text. Convenience for single-keyword stringification.
 QString formatKeyword( const QString& keywordName, const std::vector<RimWellEventKeywordItem*>& items );
 QString formatWconprod( const RimWellEventControl* controlEvent, const QString& wellName );
 QString formatWconinje( const RimWellEventControl* controlEvent, const QString& wellName );
