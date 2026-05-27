@@ -1,4 +1,6 @@
 set(SOURCE_GROUP_SOURCE_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimFaultDistanceResult.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFaultDistanceResultCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultInView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultInViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationModel.cpp

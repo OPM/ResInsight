@@ -21,6 +21,7 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -32,6 +33,7 @@
 #include <vector>
 
 class RimEclipseView;
+class RimFaultDistanceResultCollection;
 class RimFaultInView;
 
 //==================================================================================================
@@ -57,6 +59,7 @@ public:
     void setActive( bool bActive );
 
     std::vector<RimFaultInView*>       faults() const;
+    RimFaultDistanceResultCollection*  faultDistanceResults() const;
     cvf::Color3f                       faultLabelColor() const;
     caf::AppEnum<FaultFaceCullingMode> faultResult() const;
     bool                               showFaultFaces() const;
@@ -105,7 +108,8 @@ private:
 
     caf::PdmField<caf::AppEnum<FaultFaceCullingMode>> m_faultResult;
 
-    caf::PdmChildArrayField<RimFaultInView*> m_faults;
+    caf::PdmChildArrayField<RimFaultInView*>              m_faults;
+    caf::PdmChildField<RimFaultDistanceResultCollection*> m_distanceResults;
 
     caf::PdmField<bool> m_showFaultsOutsideFilters_obsolete;
 };

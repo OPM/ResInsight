@@ -22,11 +22,10 @@
 #include "RiaResultNames.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCell.h"
 #include "RigEclipseResultInfo.h"
+#include "RigFault.h"
+#include "RigFaultDistanceCalculator.h"
 #include "RigMainGrid.h"
-
-#include "cvfBoundingBoxTree.h"
 
 //==================================================================================================
 ///
@@ -80,92 +79,11 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
 
     const auto mainGrid = m_resultsData->m_ownerMainGrid;
 
-    std::vector<cvf::StructGridInterface::FaceType> faceTypes = cvf::StructGridInterface::validFaceTypes();
-
-    // Preprocessing: create vector of all fault face centers.
-    std::vector<cvf::Vec3d> faultFaceCenters;
-    const auto              activeCells = m_resultsData->activeCellInfo()->activeReservoirCellIndices();
-    for ( auto cellIdx : activeCells )
+    std::vector<const RigFault*> allFaults;
+    for ( size_t i = 0; i < mainGrid->faults().size(); ++i )
     {
-        const RigCell& cell = mainGrid->cell( cellIdx.value() );
-        if ( cell.isInvalid() ) continue;
-        for ( auto faceType : faceTypes )
-        {
-            if ( m_resultsData->m_ownerMainGrid->findFaultFromCellIndexAndCellFace( cellIdx.value(), faceType ) )
-                faultFaceCenters.push_back( cell.faceCenter( faceType ) );
-        }
+        allFaults.push_back( mainGrid->faults().at( i ) );
     }
 
-    if ( faultFaceCenters.empty() ) return;
-
-    // Create bounding box tree for all face centers
-    auto searchTree = new cvf::BoundingBoxTree;
-    {
-        std::vector<size_t>           faceIndicesForBoundingBoxes;
-        std::vector<cvf::BoundingBox> faceBBs;
-
-        size_t faceCenterIndex = 0;
-        for ( const auto& faultFaceCenter : faultFaceCenters )
-        {
-            cvf::BoundingBox bb;
-            bb.add( faultFaceCenter );
-            faceBBs.push_back( bb );
-            faceIndicesForBoundingBoxes.push_back( faceCenterIndex++ );
-        }
-        searchTree->buildTreeFromBoundingBoxes( faceBBs, &faceIndicesForBoundingBoxes );
-    }
-
-    const auto nodes      = m_resultsData->m_ownerMainGrid->nodes();
-    const auto mainGridBB = m_resultsData->m_ownerMainGrid->boundingBox();
-
-#pragma omp parallel for
-    for ( int activeIndex = 0; activeIndex < static_cast<int>( activeCells.size() ); activeIndex++ )
-    {
-        auto cellIdx = activeCells[activeIndex];
-        if ( cellIdx.value() == cvf::UNDEFINED_SIZE_T ) continue;
-
-        const RigCell& cell = mainGrid->cell( cellIdx.value() );
-        if ( cell.isInvalid() ) continue;
-
-        std::vector<size_t> candidateFaceIndices;
-        {
-            cvf::BoundingBox bb;
-            const auto&      cellIndices = cell.cornerIndices();
-            for ( const auto& i : cellIndices )
-            {
-                bb.add( nodes[i] );
-            }
-
-            searchTree->findIntersections( bb, &candidateFaceIndices );
-
-            bool bbIsBelowThreshold = true;
-            while ( candidateFaceIndices.empty() && bbIsBelowThreshold )
-            {
-                if ( bb.extent().x() > mainGridBB.extent().x() * 2 )
-                {
-                    bbIsBelowThreshold = false;
-                    break;
-                }
-                if ( bb.extent().y() > mainGridBB.extent().y() * 2 )
-                {
-                    bbIsBelowThreshold = false;
-                    break;
-                }
-
-                bb.expand( bb.extent().x() );
-                searchTree->findIntersections( bb, &candidateFaceIndices );
-            }
-        }
-
-        // Find closest fault face
-        double shortestDistance = std::numeric_limits<double>::infinity();
-
-        for ( const auto& faultFaceIndex : candidateFaceIndices )
-        {
-            const cvf::Vec3d& faultFaceCenter = faultFaceCenters[faultFaceIndex];
-            shortestDistance                  = std::min( cell.center().pointDistance( faultFaceCenter ), shortestDistance );
-        }
-
-        result[0][activeIndex] = shortestDistance;
-    }
+    RigFaultDistanceCalculator::computeFaultDistances( mainGrid, m_resultsData->activeCellInfo(), allFaults, result[0] );
 }
