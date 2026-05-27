@@ -1231,6 +1231,43 @@ class TestScheduleGeneration:
         assert jan_pos < feb_pos, "January should come before February"
         assert feb_pos < jun_pos, "February should come before June"
 
+    def test_keywords_grouped_across_wells(self, project_with_case_and_well):
+        """Regression for #14063: WELSPECS / COMPDAT records for multiple wells on
+        the same date must appear under a single keyword header (not one block per well).
+        """
+        project, case, timeline = project_with_case_and_well
+        well_paths = project.well_paths()
+        assert len(well_paths) >= 2, (
+            "Test requires at least two well paths in the fixture"
+        )
+
+        for wp in well_paths[:2]:
+            timeline.add_perf_event(
+                event_date="2024-01-01",
+                well_path=wp,
+                start_md=2000.0,
+                end_md=2200.0,
+                diameter=0.1,
+                state="OPEN",
+            )
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        print(f"\nSchedule text for multi-well grouping:\n{schedule_text}")
+
+        # Exactly one "WELSPECS\n" header for all wells.
+        welspecs_count = schedule_text.count("WELSPECS\n")
+        assert welspecs_count == 1, (
+            f"WELSPECS should appear once for grouped output; got {welspecs_count}:\n{schedule_text}"
+        )
+
+        # Both well names must appear inside the WELSPECS block (between header and trailing '/' line).
+        welspecs_block = schedule_text.split("WELSPECS\n", 1)[1].split("\n/\n", 1)[0]
+        for wp in well_paths[:2]:
+            assert wp.name.replace(" ", "") in welspecs_block.replace(" ", ""), (
+                f"Well {wp.name!r} missing from grouped WELSPECS block: {welspecs_block!r}"
+            )
+
 
 class TestKeywordEvents:
     """Tests for well keyword event functionality."""

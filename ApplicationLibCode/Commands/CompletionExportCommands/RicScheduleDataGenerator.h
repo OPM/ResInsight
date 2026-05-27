@@ -22,12 +22,18 @@
 #include <QString>
 
 #include <map>
+#include <optional>
 #include <vector>
 
 class RimEclipseCase;
 class RimWellPath;
 class RimWellEvent;
 class RimWellEventTimeline;
+
+namespace Opm
+{
+class DeckKeyword;
+} // namespace Opm
 
 //==================================================================================================
 ///
@@ -53,26 +59,26 @@ private:
                                         const std::vector<RimWellPath*>& wellPaths,
                                         const QDateTime&                 date );
 
-    static QString
+    static std::optional<Opm::DeckKeyword>
         generateWelspecsForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
 
     // Generate COMPDAT for a well at a specific date based on events
-    static QString
+    static std::optional<Opm::DeckKeyword>
         generateCompdatForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
 
-    // Generate WELSEGS and COMPSEGS for a well at a specific date, populating keyword blocks map
-    static void generateMswForWell( const RimWellEventTimeline& timeline,
-                                    RimEclipseCase&             eclipseCase,
-                                    RimWellPath&                well,
-                                    const QDateTime&            date,
-                                    std::map<QString, QString>& keywordBlocks );
+    // Generate WELSEGS / COMPSEGS / WSEGVALV / WSEGAICD for a well at a specific date, merging into the accumulator
+    static void generateMswForWell( const RimWellEventTimeline&          timeline,
+                                    RimEclipseCase&                      eclipseCase,
+                                    RimWellPath&                         well,
+                                    const QDateTime&                     date,
+                                    std::map<QString, Opm::DeckKeyword>& keywordBlocks );
 
-    // Generate well control keywords (WCONPROD, WCONINJE, WELOPEN) for a well at a specific date, populating keyword blocks map
-    static void generateWellControlForWell( const RimWellEventTimeline& timeline,
-                                            const RimWellPath&          well,
-                                            const QDateTime&            date,
-                                            std::map<QString, QString>& keywordBlocks );
+    // Generate well control / well keyword event keywords for a well at a specific date, merging into the accumulator
+    static void generateWellControlForWell( const RimWellEventTimeline&          timeline,
+                                            const RimWellPath&                   well,
+                                            const QDateTime&                     date,
+                                            std::map<QString, Opm::DeckKeyword>& keywordBlocks );
 
-    // Extract keyword name from the first non-comment line of a keyword block
-    static QString extractKeywordName( const QString& block );
+    // Append records of `kw` into the entry for `name`, creating it from `kw` if absent
+    static void mergeKeyword( std::map<QString, Opm::DeckKeyword>& acc, const QString& name, Opm::DeckKeyword kw );
 };

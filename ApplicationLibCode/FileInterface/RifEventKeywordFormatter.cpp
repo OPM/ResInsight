@@ -43,10 +43,23 @@
 #include <unordered_map>
 #include <unordered_set>
 
+namespace
+{
+QString keywordToString( const Opm::DeckKeyword& kw )
+{
+    if ( kw.name().empty() ) return {};
+    std::ostringstream oss;
+    Opm::DeckOutput    out( oss, 10 );
+    kw.write( out );
+    return QString::fromStdString( oss.str() );
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEventKeywordFormatter::formatKeyword( const QString& keywordName, const std::vector<RimWellEventKeywordItem*>& items )
+std::optional<Opm::DeckKeyword> RifEventKeywordFormatter::buildKeyword( const QString&                               keywordName,
+                                                                        const std::vector<RimWellEventKeywordItem*>& items )
 {
     QString     keyword = keywordName.toUpper();
     std::string kwName  = keyword.toStdString();
@@ -185,29 +198,20 @@ QString RifEventKeywordFormatter::formatKeyword( const QString& keywordName, con
             }
         }
 
-        // Return empty string if keyword creation failed
-        if ( kw.name().empty() )
-        {
-            return "";
-        }
-
-        // Format with OPM DeckOutput
-        std::ostringstream oss;
-        Opm::DeckOutput    out( oss, 10 );
-        kw.write( out );
-        return QString::fromStdString( oss.str() );
+        if ( kw.name().empty() ) return std::nullopt;
+        return kw;
     }
     catch ( const std::exception& e )
     {
         RiaLogging::error( std::format( "Failed to create keyword '{}': {}", keyword, e.what() ) );
-        return "";
+        return std::nullopt;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEventKeywordFormatter::formatWconprod( const RimWellEventControl* controlEvent, const QString& wellName )
+std::optional<Opm::DeckKeyword> RifEventKeywordFormatter::buildWconprod( const RimWellEventControl* controlEvent, const QString& wellName )
 {
     using W = Opm::ParserKeywords::WCONPROD;
 
@@ -243,17 +247,13 @@ QString RifEventKeywordFormatter::formatWconprod( const RimWellEventControl* con
 
     Opm::DeckKeyword kw{ W() };
     kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
-
-    std::ostringstream oss;
-    Opm::DeckOutput    out( oss, 10 );
-    kw.write( out );
-    return QString::fromStdString( oss.str() );
+    return kw;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEventKeywordFormatter::formatWconinje( const RimWellEventControl* controlEvent, const QString& wellName )
+std::optional<Opm::DeckKeyword> RifEventKeywordFormatter::buildWconinje( const RimWellEventControl* controlEvent, const QString& wellName )
 {
     using W = Opm::ParserKeywords::WCONINJE;
 
@@ -281,41 +281,57 @@ QString RifEventKeywordFormatter::formatWconinje( const RimWellEventControl* con
 
     Opm::DeckKeyword kw{ W() };
     kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
-
-    std::ostringstream oss;
-    Opm::DeckOutput    out( oss, 10 );
-    kw.write( out );
-    return QString::fromStdString( oss.str() );
+    return kw;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEventKeywordFormatter::formatWellEvent( const RimWellEvent* event, const QString& wellName )
+std::optional<Opm::DeckKeyword> RifEventKeywordFormatter::buildWellEvent( const RimWellEvent* event, const QString& wellName )
 {
     if ( event->eventType() == RimWellEvent::EventType::WCONTROL )
     {
-        auto* controlEvent = dynamic_cast<const RimWellEventControl*>( event );
+        const auto* controlEvent = dynamic_cast<const RimWellEventControl*>( event );
         if ( controlEvent )
         {
-            if ( controlEvent->isProducer() )
-            {
-                return formatWconprod( controlEvent, wellName );
-            }
-            else
-            {
-                return formatWconinje( controlEvent, wellName );
-            }
+            return controlEvent->isProducer() ? buildWconprod( controlEvent, wellName ) : buildWconinje( controlEvent, wellName );
         }
     }
     else if ( event->eventType() == RimWellEvent::EventType::KEYWORD )
     {
-        auto* keywordEvent = dynamic_cast<const RimWellEventKeyword*>( event );
+        const auto* keywordEvent = dynamic_cast<const RimWellEventKeyword*>( event );
         if ( keywordEvent )
         {
-            return formatKeyword( keywordEvent->keywordName(), keywordEvent->items() );
+            return buildKeyword( keywordEvent->keywordName(), keywordEvent->items() );
         }
     }
 
-    return {};
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// QString-returning wrappers: build the keyword and serialize once.
+//--------------------------------------------------------------------------------------------------
+QString RifEventKeywordFormatter::formatKeyword( const QString& keywordName, const std::vector<RimWellEventKeywordItem*>& items )
+{
+    auto kw = buildKeyword( keywordName, items );
+    return kw ? keywordToString( *kw ) : QString();
+}
+
+QString RifEventKeywordFormatter::formatWconprod( const RimWellEventControl* controlEvent, const QString& wellName )
+{
+    auto kw = buildWconprod( controlEvent, wellName );
+    return kw ? keywordToString( *kw ) : QString();
+}
+
+QString RifEventKeywordFormatter::formatWconinje( const RimWellEventControl* controlEvent, const QString& wellName )
+{
+    auto kw = buildWconinje( controlEvent, wellName );
+    return kw ? keywordToString( *kw ) : QString();
+}
+
+QString RifEventKeywordFormatter::formatWellEvent( const RimWellEvent* event, const QString& wellName )
+{
+    auto kw = buildWellEvent( event, wellName );
+    return kw ? keywordToString( *kw ) : QString();
 }
