@@ -28,11 +28,14 @@
 #include <mutex>
 #include <queue>
 #include <string>
+#include <version>
 
 // std::stacktrace is C++23.  libc++ shipped with Homebrew llvm@19 (and
 // older toolchains) does not provide it yet, so guard the include + the
-// reportCrash overload that uses it.  See #14045.
-#if __has_include( <stacktrace> )
+// reportCrash overload that uses it.  Use the feature-test macro from
+// <version> rather than __has_include, since the header may be present
+// without a usable implementation.  See #14045.
+#if defined( __cpp_lib_stacktrace ) && __cpp_lib_stacktrace >= 202011L
 #include <stacktrace>
 #define RIA_HAS_STD_STACKTRACE 1
 #else

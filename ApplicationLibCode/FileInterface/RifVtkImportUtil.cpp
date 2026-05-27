@@ -26,12 +26,15 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <version>
 
 // std::ispanstream is C++23.  libc++ on Homebrew llvm@19 does not ship
 // <spanstream>; fall back to std::istringstream when unavailable.  Only
 // difference: the fallback copies the string_view into an owning string.
+// Use the feature-test macro from <version> rather than __has_include,
+// since the header may be present without a usable implementation.
 // See #14045.
-#if __has_include( <spanstream> )
+#if defined( __cpp_lib_spanstream ) && __cpp_lib_spanstream >= 202106L
 #include <spanstream>
 #define RIA_HAS_STD_SPANSTREAM 1
 #else
