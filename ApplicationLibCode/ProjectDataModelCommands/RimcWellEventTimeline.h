@@ -225,7 +225,7 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<int>  m_eclipseCaseId;
-    caf::PdmField<bool> m_includeWelsegs;
-    caf::PdmField<bool> m_includeCompsegs;
+    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
+    caf::PdmField<bool>               m_includeWelsegs;
+    caf::PdmField<bool>               m_includeCompsegs;
 };

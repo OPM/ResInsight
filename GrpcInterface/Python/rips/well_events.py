@@ -10,7 +10,7 @@ from typing import Any, Dict
 from datetime import date, datetime
 
 from .pdmobject import add_method
-from .resinsight_classes import Case
+from .resinsight_classes import EclipseCase
 from .generated.generated_classes import (
     KeywordEvent,
     WellEventKeyword,
@@ -283,7 +283,7 @@ def add_keyword_event(
 @add_method(WellEventTimeline)
 def generate_schedule_text(
     self: WellEventTimeline,
-    eclipse_case: Case,
+    eclipse_case: EclipseCase,
     include_welsegs: bool = True,
     include_compsegs: bool = True,
 ) -> str:
@@ -297,7 +297,7 @@ def generate_schedule_text(
     text directly instead of a DataContainerString.
 
     Arguments:
-        eclipse_case (Case): Eclipse case to use for schedule generation.
+        eclipse_case (EclipseCase): Eclipse case to use for schedule generation.
         include_welsegs (bool): When False, omit the WELSEGS keyword from the
             output. Other multi-segment-well keywords (COMPSEGS, WSEGVALV,
             WSEGAICD) are not affected. Defaults to True.
@@ -342,7 +342,7 @@ def generate_schedule_text(
         ```
     """
     container = self.generate_schedule(
-        eclipse_case_id=eclipse_case.id,
+        eclipse_case=eclipse_case,
         include_welsegs=include_welsegs,
         include_compsegs=include_compsegs,
     )
