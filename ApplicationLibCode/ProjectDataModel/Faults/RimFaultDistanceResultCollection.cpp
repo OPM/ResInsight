@@ -20,6 +20,8 @@
 
 #include "RimFaultDistanceResult.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QRegularExpression>
@@ -31,9 +33,14 @@ CAF_PDM_SOURCE_INIT( RimFaultDistanceResultCollection, "RimFaultDistanceResultCo
 //--------------------------------------------------------------------------------------------------
 RimFaultDistanceResultCollection::RimFaultDistanceResultCollection()
 {
-    CAF_PDM_InitObject( "Fault Distance Results", ":/draw_style_faults_24x24.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Fault Distance Results",
+                                                    ":/draw_style_faults_24x24.png",
+                                                    "",
+                                                    "",
+                                                    "FaultDistanceResultCollection",
+                                                    "Collection of named, subset-based FAULTDIST results" );
 
-    CAF_PDM_InitFieldNoDefault( &m_items, "FaultDistanceResults", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_items, "FaultDistanceResults", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

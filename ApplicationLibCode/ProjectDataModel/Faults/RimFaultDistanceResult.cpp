@@ -31,6 +31,8 @@
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimFaultDistanceResult, "RimFaultDistanceResult" );
@@ -40,11 +42,16 @@ CAF_PDM_SOURCE_INIT( RimFaultDistanceResult, "RimFaultDistanceResult" );
 //--------------------------------------------------------------------------------------------------
 RimFaultDistanceResult::RimFaultDistanceResult()
 {
-    CAF_PDM_InitObject( "Fault Distance Result", ":/draw_style_faults_24x24.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Fault Distance Result",
+                                                    ":/draw_style_faults_24x24.png",
+                                                    "",
+                                                    "",
+                                                    "FaultDistanceResult",
+                                                    "Per-cell distance to a selected subset of faults" );
 
-    CAF_PDM_InitFieldNoDefault( &m_resultName, "ResultName", "Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_resultName, "ResultName", "Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_faults, "SelectedFaults", "Faults" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faults, "SelectedFaults", "Faults" );
     m_faults.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 }
 

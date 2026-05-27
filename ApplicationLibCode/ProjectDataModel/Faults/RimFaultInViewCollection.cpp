@@ -36,6 +36,8 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -59,7 +61,12 @@ CAF_PDM_SOURCE_INIT( RimFaultInViewCollection, "Faults" );
 //--------------------------------------------------------------------------------------------------
 RimFaultInViewCollection::RimFaultInViewCollection()
 {
-    CAF_PDM_InitObject( "Faults", ":/draw_style_faults_24x24.png" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Faults",
+                                                    ":/draw_style_faults_24x24.png",
+                                                    "",
+                                                    "",
+                                                    "FaultInViewCollection",
+                                                    "Per-view fault collection" );
 
     CAF_PDM_InitField( &m_showFaultCollection, "Active", true, "Active" );
     m_showFaultCollection.uiCapability()->setUiHidden( true );
@@ -97,9 +104,9 @@ RimFaultInViewCollection::RimFaultInViewCollection()
                        "Hide NNC Geometry if No NNC Result is Available" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_hideNNCsWhenNoResultIsAvailable );
 
-    CAF_PDM_InitFieldNoDefault( &m_faults, "Faults", "Faults" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faults, "Faults", "Faults" );
 
-    CAF_PDM_InitFieldNoDefault( &m_distanceResults, "FaultDistanceResults", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_distanceResults, "FaultDistanceResults", "" );
     m_distanceResults = new RimFaultDistanceResultCollection;
 
     CAF_PDM_InitField( &m_showFaultsOutsideFilters_obsolete, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters" );
