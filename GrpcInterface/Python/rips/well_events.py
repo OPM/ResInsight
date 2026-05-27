@@ -281,7 +281,12 @@ def add_keyword_event(
 
 
 @add_method(WellEventTimeline)
-def generate_schedule_text(self: WellEventTimeline, eclipse_case: Case) -> str:
+def generate_schedule_text(
+    self: WellEventTimeline,
+    eclipse_case: Case,
+    include_welsegs: bool = True,
+    include_compsegs: bool = True,
+) -> str:
     """Generate Eclipse schedule text for all wells in the collection.
 
     The timeline is shared across all wells in the well path collection.
@@ -293,6 +298,12 @@ def generate_schedule_text(self: WellEventTimeline, eclipse_case: Case) -> str:
 
     Arguments:
         eclipse_case (Case): Eclipse case to use for schedule generation.
+        include_welsegs (bool): When False, omit the WELSEGS keyword from the
+            output. Other multi-segment-well keywords (COMPSEGS, WSEGVALV,
+            WSEGAICD) are not affected. Defaults to True.
+        include_compsegs (bool): When False, omit the COMPSEGS keyword from
+            the output. WELSEGS, WSEGVALV, WSEGAICD are not affected.
+            Defaults to True.
 
     Returns:
         str: Eclipse schedule text containing DATES, COMPDAT, WELSEGS, WCONPROD, etc.
@@ -330,7 +341,11 @@ def generate_schedule_text(self: WellEventTimeline, eclipse_case: Case) -> str:
         print(schedule_text)
         ```
     """
-    container = self.generate_schedule(eclipse_case_id=eclipse_case.id)
+    container = self.generate_schedule(
+        eclipse_case_id=eclipse_case.id,
+        include_welsegs=include_welsegs,
+        include_compsegs=include_compsegs,
+    )
     if container and container.values:
         return "".join(container.values)
     return ""

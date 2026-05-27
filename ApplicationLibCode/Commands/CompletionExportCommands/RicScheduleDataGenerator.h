@@ -43,11 +43,15 @@ class DeckKeyword;
 class RicScheduleDataGenerator
 {
 public:
-    // Generate schedule for multiple wells at specified dates
+    // Generate schedule for multiple wells at specified dates.
+    // includeWelsegs / includeCompsegs gate the corresponding multi-segment-well keywords;
+    // WSEGVALV and WSEGAICD remain unaffected.
     static QString generateSchedule( const RimWellEventTimeline&      timeline,
                                      RimEclipseCase&                  eclipseCase,
                                      const std::vector<RimWellPath*>& wellPaths,
-                                     const std::vector<QDateTime>&    dates );
+                                     const std::vector<QDateTime>&    dates,
+                                     bool                             includeWelsegs  = true,
+                                     bool                             includeCompsegs = true );
 
     // Collect all unique dates from all wells' timelines
     static std::vector<QDateTime> collectAllDates( const RimWellEventTimeline& timeline, const std::vector<RimWellPath*>& wellPaths );
@@ -57,7 +61,9 @@ private:
     static QString generateDateSection( const RimWellEventTimeline&      timeline,
                                         RimEclipseCase&                  eclipseCase,
                                         const std::vector<RimWellPath*>& wellPaths,
-                                        const QDateTime&                 date );
+                                        const QDateTime&                 date,
+                                        bool                             includeWelsegs,
+                                        bool                             includeCompsegs );
 
     static std::optional<Opm::DeckKeyword>
         generateWelspecsForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
@@ -66,12 +72,15 @@ private:
     static std::optional<Opm::DeckKeyword>
         generateCompdatForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
 
-    // Generate WELSEGS / COMPSEGS / WSEGVALV / WSEGAICD for a well at a specific date, merging into the accumulator
+    // Generate WELSEGS / COMPSEGS / WSEGVALV / WSEGAICD for a well at a specific date, merging into the accumulator.
+    // includeWelsegs/includeCompsegs suppress only those two keywords; WSEGVALV/WSEGAICD always emit.
     static void generateMswForWell( const RimWellEventTimeline&          timeline,
                                     RimEclipseCase&                      eclipseCase,
                                     RimWellPath&                         well,
                                     const QDateTime&                     date,
-                                    std::map<QString, Opm::DeckKeyword>& keywordBlocks );
+                                    std::map<QString, Opm::DeckKeyword>& keywordBlocks,
+                                    bool                                 includeWelsegs,
+                                    bool                                 includeCompsegs );
 
     // Generate well control / well keyword event keywords for a well at a specific date, merging into the accumulator
     static void generateWellControlForWell( const RimWellEventTimeline&          timeline,
