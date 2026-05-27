@@ -31,7 +31,7 @@ class QTextStream;
 class RifStimPlanModelGeologicalFrkExporter
 {
 public:
-    static const int        MAX_STIMPLAN_LAYERS     = 100;
+    static constexpr int    MAX_STIMPLAN_LAYERS     = 100;
     static constexpr double MIN_STRESS_GRADIENT     = 0.3;
     static constexpr double MAX_STRESS_GRADIENT     = 0.8;
     static constexpr double DEFAULT_STRESS_GRADIENT = 0.7;
