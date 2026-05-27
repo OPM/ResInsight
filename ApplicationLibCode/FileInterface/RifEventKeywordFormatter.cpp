@@ -33,6 +33,7 @@
 #include "opm/input/eclipse/Deck/DeckOutput.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Parser/ParserItem.hpp"
 #include "opm/input/eclipse/Parser/ParserKeyword.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 #include "opm/input/eclipse/Parser/ParserRecord.hpp"
@@ -56,80 +57,132 @@ QString RifEventKeywordFormatter::formatKeyword( const QString& keywordName, con
         const Opm::ParserKeyword& parserKw = parser.getKeyword( kwName );
         Opm::DeckKeyword          kw( parserKw );
 
-        // Eclipse keyword records are positional: items must be emitted in the schema-defined order
-        // regardless of how the caller supplied them (e.g. Python dict insertion order).
-        std::unordered_map<std::string, const RimWellEventKeywordItem*> userItemsByName;
-        userItemsByName.reserve( items.size() );
-        for ( const auto* item : items )
-        {
-            userItemsByName.emplace( item->itemName().toStdString(), item );
-        }
-
         const Opm::ParserRecord& parserRecord = parserKw.getRecord( 0 );
 
-        // Determine the highest canonical index that the user actually provided; trailing
-        // unspecified items are dropped, intermediate gaps become default markers ("1*").
-        std::optional<size_t>           lastProvidedIdx;
-        std::unordered_set<std::string> canonicalNames;
-        canonicalNames.reserve( parserRecord.size() );
-        for ( size_t i = 0; i < parserRecord.size(); ++i )
-        {
-            const std::string& name = parserRecord.get( i ).name();
-            canonicalNames.insert( name );
-            if ( userItemsByName.contains( name ) )
-            {
-                lastProvidedIdx = i;
-            }
-        }
-
-        auto appendDeckItem = [&]( std::vector<Opm::DeckItem>& out, const std::string& name, const RimWellEventKeywordItem* item )
+        auto stringValue = []( const RimWellEventKeywordItem* item ) -> std::string
         {
             switch ( item->itemType() )
             {
                 case RimWellEventKeywordItem::ItemType::STRING:
-                    out.push_back( RifOpmDeckTools::item( name, item->stringValue().toStdString() ) );
-                    break;
+                    return item->stringValue().toStdString();
                 case RimWellEventKeywordItem::ItemType::INTEGER:
-                    out.push_back( RifOpmDeckTools::item( name, item->intValue() ) );
-                    break;
+                    return std::to_string( item->intValue() );
                 case RimWellEventKeywordItem::ItemType::DOUBLE:
-                    out.push_back( RifOpmDeckTools::item( name, item->doubleValue() ) );
-                    break;
+                    return std::to_string( item->doubleValue() );
+                case RimWellEventKeywordItem::ItemType::FLAG:
+                    return "";
             }
+            return "";
         };
 
-        std::vector<Opm::DeckItem> deckItems;
-        if ( lastProvidedIdx.has_value() )
+        // RPTRST / RPTSCHED-style keywords have a single ALL-sized item that holds a free-form
+        // list of mnemonics ("BASIC=2 DEN ROCKC ..."). Emit each user-supplied key either as
+        // "KEY=VALUE" (typed value) or bare "KEY" (FLAG), all packed into one DeckItem.
+        const bool isMnemonicList = parserRecord.size() == 1 && parserRecord.get( 0 ).sizeType() == Opm::ParserItem::item_size::ALL;
+
+        if ( isMnemonicList )
         {
-            deckItems.reserve( *lastProvidedIdx + 1 );
-            for ( size_t i = 0; i <= *lastProvidedIdx; ++i )
+            std::vector<std::string> tokens;
+            tokens.reserve( items.size() );
+            for ( const auto* item : items )
             {
-                const std::string& name = parserRecord.get( i ).name();
-                auto               it   = userItemsByName.find( name );
-                if ( it == userItemsByName.end() )
+                const std::string name = item->itemName().toStdString();
+                if ( item->itemType() == RimWellEventKeywordItem::ItemType::FLAG )
                 {
-                    deckItems.push_back( RifOpmDeckTools::defaultItem( name ) );
+                    tokens.push_back( name );
                 }
                 else
                 {
-                    appendDeckItem( deckItems, name, it->second );
+                    tokens.push_back( name + "=" + stringValue( item ) );
                 }
             }
-        }
 
-        // Items not in the keyword's schema are still emitted (preserves behaviour for
-        // mnemonic-list keywords such as RPTRST/RPTSCHED) but in caller-supplied order
-        // after the canonical block.
-        for ( const auto* item : items )
-        {
-            const std::string name = item->itemName().toStdString();
-            if ( canonicalNames.contains( name ) ) continue;
-            appendDeckItem( deckItems, name, item );
+            if ( !tokens.empty() )
+            {
+                std::vector<Opm::DeckItem> deckItems;
+                deckItems.push_back( RifOpmDeckTools::rawStringItem( parserRecord.get( 0 ).name(), std::move( tokens ) ) );
+                kw.addRecord( Opm::DeckRecord{ std::move( deckItems ) } );
+            }
         }
-
-        if ( !deckItems.empty() )
+        else
         {
-            kw.addRecord( Opm::DeckRecord{ std::move( deckItems ) } );
+            // Positional keyword (WCONHIST, WELTARG, ...): emit items in the schema-defined order
+            // regardless of caller-supplied order (e.g. Python dict insertion order).
+            std::unordered_map<std::string, const RimWellEventKeywordItem*> userItemsByName;
+            userItemsByName.reserve( items.size() );
+            for ( const auto* item : items )
+            {
+                userItemsByName.emplace( item->itemName().toStdString(), item );
+            }
+
+            // Highest canonical index actually provided by the user. Trailing unspecified items are
+            // dropped, intermediate gaps become default markers ("1*").
+            std::optional<size_t>           lastProvidedIdx;
+            std::unordered_set<std::string> canonicalNames;
+            canonicalNames.reserve( parserRecord.size() );
+            for ( size_t i = 0; i < parserRecord.size(); ++i )
+            {
+                const std::string& name = parserRecord.get( i ).name();
+                canonicalNames.insert( name );
+                if ( userItemsByName.contains( name ) )
+                {
+                    lastProvidedIdx = i;
+                }
+            }
+
+            auto appendDeckItem = [&]( std::vector<Opm::DeckItem>& out, const std::string& name, const RimWellEventKeywordItem* item )
+            {
+                switch ( item->itemType() )
+                {
+                    case RimWellEventKeywordItem::ItemType::STRING:
+                        out.push_back( RifOpmDeckTools::item( name, item->stringValue().toStdString() ) );
+                        break;
+                    case RimWellEventKeywordItem::ItemType::INTEGER:
+                        out.push_back( RifOpmDeckTools::item( name, item->intValue() ) );
+                        break;
+                    case RimWellEventKeywordItem::ItemType::DOUBLE:
+                        out.push_back( RifOpmDeckTools::item( name, item->doubleValue() ) );
+                        break;
+                    case RimWellEventKeywordItem::ItemType::FLAG:
+                        // FLAG only makes sense for mnemonic-list keywords; for positional schemas
+                        // there is no meaningful value to emit, so render as a default marker.
+                        out.push_back( RifOpmDeckTools::defaultItem( name ) );
+                        break;
+                }
+            };
+
+            std::vector<Opm::DeckItem> deckItems;
+            if ( lastProvidedIdx.has_value() )
+            {
+                deckItems.reserve( *lastProvidedIdx + 1 );
+                for ( size_t i = 0; i <= *lastProvidedIdx; ++i )
+                {
+                    const std::string& name = parserRecord.get( i ).name();
+                    auto               it   = userItemsByName.find( name );
+                    if ( it == userItemsByName.end() )
+                    {
+                        deckItems.push_back( RifOpmDeckTools::defaultItem( name ) );
+                    }
+                    else
+                    {
+                        appendDeckItem( deckItems, name, it->second );
+                    }
+                }
+            }
+
+            // Items not in the keyword's schema are still emitted in caller-supplied order
+            // after the canonical block.
+            for ( const auto* item : items )
+            {
+                const std::string name = item->itemName().toStdString();
+                if ( canonicalNames.contains( name ) ) continue;
+                appendDeckItem( deckItems, name, item );
+            }
+
+            if ( !deckItems.empty() )
+            {
+                kw.addRecord( Opm::DeckRecord{ std::move( deckItems ) } );
+            }
         }
 
         // Return empty string if keyword creation failed

@@ -45,6 +45,7 @@ public:
     void addStringItem( const QString& name, const QString& value );
     void addIntItem( const QString& name, int value );
     void addDoubleItem( const QString& name, double value );
+    void addFlagItem( const QString& name );
 
     std::vector<class RimWellEventKeywordItem*> items() const;
 

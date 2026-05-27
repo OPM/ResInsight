@@ -121,15 +121,24 @@ def add_well_keyword_event(
     item_values = []
 
     for name, value in keyword_data.items():
+        # Handle bool before int (bool is subclass of int in Python).
+        # bool semantics: True -> flag (emitted as bare KEY in mnemonic-list keywords,
+        # ignored elsewhere); False -> the entry is dropped entirely.
+        if isinstance(value, bool):
+            if not value:
+                continue
+            item_names.append(name)
+            item_types.append("FLAG")
+            # The value is ignored for FLAG items but must be a non-empty string;
+            # empty strings get dropped by the GRPC vector<string> serialization.
+            item_values.append("1")
+            continue
+
         item_names.append(name)
 
         if isinstance(value, str):
             item_types.append("STRING")
             item_values.append(value)
-        elif isinstance(value, bool):
-            # Handle bool before int (bool is subclass of int in Python)
-            item_types.append("INT")
-            item_values.append("1" if value else "0")
         elif isinstance(value, int):
             item_types.append("INT")
             item_values.append(str(value))
@@ -228,15 +237,24 @@ def add_keyword_event(
     item_values = []
 
     for name, value in keyword_data.items():
+        # Handle bool before int (bool is subclass of int in Python).
+        # bool semantics: True -> flag (emitted as bare KEY in mnemonic-list keywords,
+        # ignored elsewhere); False -> the entry is dropped entirely.
+        if isinstance(value, bool):
+            if not value:
+                continue
+            item_names.append(name)
+            item_types.append("FLAG")
+            # The value is ignored for FLAG items but must be a non-empty string;
+            # empty strings get dropped by the GRPC vector<string> serialization.
+            item_values.append("1")
+            continue
+
         item_names.append(name)
 
         if isinstance(value, str):
             item_types.append("STRING")
             item_values.append(value)
-        elif isinstance(value, bool):
-            # Handle bool before int (bool is subclass of int in Python)
-            item_types.append("INT")
-            item_values.append("1" if value else "0")
         elif isinstance(value, int):
             item_types.append("INT")
             item_values.append(str(value))

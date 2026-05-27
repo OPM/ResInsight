@@ -38,7 +38,8 @@ public:
     {
         STRING,
         INTEGER,
-        DOUBLE
+        DOUBLE,
+        FLAG
     };
 
     RimWellEventKeywordItem();
@@ -56,6 +57,7 @@ public:
     void setStringValue( const QString& value );
     void setIntValue( int value );
     void setDoubleValue( double value );
+    void setFlag();
 
 private:
     caf::PdmField<QString>                m_itemName;

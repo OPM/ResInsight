@@ -20,6 +20,7 @@
 
 #include "opm/input/eclipse/Deck/DeckItem.hpp"
 #include "opm/input/eclipse/Units/Dimension.hpp"
+#include "opm/input/eclipse/Utility/Typetools.hpp"
 
 namespace RifOpmDeckTools
 {
@@ -154,6 +155,18 @@ Opm::DeckItem item( std::string name, std::vector<std::string> values )
     Opm::DeckItem item1( name, "" );
     for ( const auto& value : values )
         item1.push_back( value );
+    return item1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Raw-string DeckItem: emitted by OPM DeckOutput without surrounding quotes.
+/// Used for free-form mnemonic lists (e.g. RPTRST tokens like "BASIC=2", "DEN").
+//--------------------------------------------------------------------------------------------------
+Opm::DeckItem rawStringItem( std::string name, std::vector<std::string> values )
+{
+    Opm::DeckItem item1( name, Opm::RawString{} );
+    for ( const auto& value : values )
+        item1.push_back( Opm::RawString{ value } );
     return item1;
 }
 
