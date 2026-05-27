@@ -125,6 +125,7 @@ public:
     bool showWellCells();
 
     bool showWellCommunicationLines() { return m_showWellCommunicationLines(); }
+    bool showOnlyActiveWells() const { return m_showOnlyActiveWells(); }
 
     caf::PdmField<WellFenceEnum> wellCellFenceType;
     caf::PdmField<double>        wellCellTransparencyLevel;
@@ -199,6 +200,7 @@ private:
 
     caf::PdmField<bool> m_showWellValves;
     caf::PdmField<bool> m_showWellCommunicationLines;
+    caf::PdmField<bool> m_showOnlyActiveWells;
 
     // Well Discs
     caf::PdmField<caf::AppEnum<WellDiskPropertyType>>       m_wellDiskPropertyType;

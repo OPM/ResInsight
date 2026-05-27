@@ -144,6 +144,8 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     // CAF_PDM_InitField(&showWellsIntersectingVisibleCells, "ShowWellsIntersectingVisibleCells", false, "Hide Wells
     // Missing Visible Cells");
 
+    CAF_PDM_InitField( &m_showOnlyActiveWells, "ShowOnlyActiveWells", false, "Active Wells Only" );
+
     // Appearance
     CAF_PDM_InitFieldNoDefault( &m_showWellHead, "ShowWellHeadTristate", "Well Head" );
     CAF_PDM_InitFieldNoDefault( &m_showWellLabel, "ShowWellLabelTristate", "Label" );
@@ -404,7 +406,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         }
 
         if ( &isActive == changedField || &m_showWellCells == changedField || &m_showWellCellFence == changedField ||
-             &wellCellFenceType == changedField || &showWellsIntersectingVisibleCells == changedField )
+             &wellCellFenceType == changedField || &showWellsIntersectingVisibleCells == changedField || &m_showOnlyActiveWells == changedField )
         {
             m_reservoirView->scheduleGeometryRegen( VISIBLE_WELL_CELLS );
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -611,6 +613,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
     if ( !isContourMap )
     {
         appearanceGroup->add( &showWellsIntersectingVisibleCells );
+        appearanceGroup->add( &m_showOnlyActiveWells );
     }
     appearanceGroup->add( &m_showWellLabel );
     appearanceGroup->add( &m_showWellHead );
