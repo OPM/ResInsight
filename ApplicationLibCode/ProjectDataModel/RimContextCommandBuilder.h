@@ -49,7 +49,6 @@ private:
     static void                      createExecuteScriptForCasesFeatureMenu( caf::CmdFeatureMenuBuilder& menuBuilder );
 
     static void appendScriptItems( caf::CmdFeatureMenuBuilder& menuBuilder, RimScriptCollection* scriptCollection );
-    static void appendPlotTemplateItems( caf::CmdFeatureMenuBuilder& menuBuilder, RimPlotTemplateFolderItem* plotTemplateRoot );
 
     static int appendImportMenu( caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu = false, bool addOsduMenuItem = false );
     static int appendCreateCompletions( caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu = false );
