@@ -177,6 +177,24 @@ jobs:
           ls cmakebuild/ResInsight-tests
           cmakebuild/ResInsight-tests
 
+      - name: Write macOS launch instructions
+        if: always()
+        run: |
+          cat > cmakebuild/install/README-macOS.txt <<'EOF'
+          ResInsight macOS build
+          ======================
+
+          This build is unsigned and unnotarised. macOS Gatekeeper will
+          quarantine ResInsight.app when the artifact is downloaded and
+          refuse to launch it ("app is damaged" or "cannot be opened").
+
+          Remove the quarantine attribute before first launch:
+
+              sudo xattr -r -d com.apple.quarantine ResInsight.app
+
+          Then start the app normally (double-click or `open ResInsight.app`).
+          EOF
+
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v7
