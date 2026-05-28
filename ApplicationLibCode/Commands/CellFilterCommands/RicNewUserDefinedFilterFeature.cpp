@@ -51,10 +51,7 @@ void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
     if ( sourceCase )
     {
         RimUserDefinedFilter* lastCreatedOrUpdated = filtColl->addNewUserDefinedFilter( sourceCase );
-        if ( lastCreatedOrUpdated )
-        {
-            Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
-        }
+        RicCellFilterFeatureTools::selectAndRefreshFilterTree( lastCreatedOrUpdated );
     }
 }
 

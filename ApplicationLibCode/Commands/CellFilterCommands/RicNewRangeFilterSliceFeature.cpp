@@ -73,10 +73,7 @@ void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
     {
         int            gridIndex            = 0;
         RimCellFilter* lastCreatedOrUpdated = filterCollection->addNewCellRangeFilter( sourceCase, gridIndex, m_sliceDirection );
-        if ( lastCreatedOrUpdated )
-        {
-            Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
-        }
+        RicCellFilterFeatureTools::selectAndRefreshFilterTree( lastCreatedOrUpdated );
     }
 }
 

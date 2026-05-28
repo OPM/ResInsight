@@ -53,10 +53,7 @@ void RicNewUserDefinedIndexFilterFeature::onActionTriggered( bool isChecked )
     if ( sourceCase )
     {
         auto* lastCreatedOrUpdated = filtColl->addNewUserDefinedIndexFilter( sourceCase );
-        if ( lastCreatedOrUpdated )
-        {
-            Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
-        }
+        RicCellFilterFeatureTools::selectAndRefreshFilterTree( lastCreatedOrUpdated );
     }
 }
 
