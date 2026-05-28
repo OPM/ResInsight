@@ -121,7 +121,7 @@ void RiuMenuBarBuildTools::addImportMenuForMainWindow( QObject* parent, QMenu* m
     importMenu->addAction( cmdFeatureMgr->action( "RicImportGridAndSummaryEnsembleFeature" ) );
 
     importMenu->addSeparator();
-    QMenu* importEclipseMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Other Grid Models" );
+    QMenu* importEclipseMenu = importMenu->addMenu( QIcon( ":/import.svg" ), "More" );
     caf::CmdFeatureMenuBuilder::appendToMenu( importEclipseMenu, RimEclipseCaseCollection::importMenuFeatureNames() );
 
     importMenu->addSeparator();
@@ -157,11 +157,11 @@ void RiuMenuBarBuildTools::addImportMenuForPlotWindow( QObject* parent, QMenu* m
 
     QMenu* importMenu = menu->addMenu( QIcon( ":/import.svg" ), "&Import" );
 
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportGridAndSummaryEnsembleFeature" ) );
-
-    importMenu->addSeparator();
     importMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
-    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase.svg" ), "Summary Cases" );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportGridAndSummaryEnsembleFeature" ) );
+    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/import.svg" ), "More" );
+    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportRevealSummaryCaseFeature" ) );
+    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportStimPlanSummaryCaseFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCasesFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryGroupFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportEnsembleFeature" ) );

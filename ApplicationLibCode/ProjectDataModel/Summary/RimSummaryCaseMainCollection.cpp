@@ -415,15 +415,13 @@ void RimSummaryCaseMainCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& 
 {
     menuBuilder << "RicImportSummaryCaseFeature";
     menuBuilder << "RicImportGridAndSummaryEnsembleFeature";
-    menuBuilder << "RicImportEnsembleFeature";
 
-    menuBuilder << "Separator";
-
-    menuBuilder.subMenuStart( "Other Imports" );
+    menuBuilder.subMenuStart( "More", QIcon( ":/import.svg" ) );
     menuBuilder << "RicImportRevealSummaryCaseFeature";
     menuBuilder << "RicImportStimPlanSummaryCaseFeature";
     menuBuilder << "RicImportSummaryCasesFeature";
     menuBuilder << "RicImportSummaryGroupFeature";
+    menuBuilder << "RicImportEnsembleFeature";
     menuBuilder.subMenuEnd();
 
     menuBuilder << "Separator";

@@ -125,7 +125,7 @@ void RimEclipseCaseCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menu
     menuBuilder << "RicImportGridAndSummaryEnsembleFeature";
     menuBuilder << "Separator";
 
-    menuBuilder.subMenuStart( "Other Grid Models", QIcon( ":/Case.svg" ) );
+    menuBuilder.subMenuStart( "More", QIcon( ":/import.svg" ) );
     menuBuilder << importMenuFeatureNames();
     menuBuilder.subMenuEnd();
 }
