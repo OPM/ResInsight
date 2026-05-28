@@ -56,5 +56,6 @@ void RicEclipseCaseNewGroupFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicEclipseCaseNewGroupFeature::setupActionLook( QAction* actionToSetup )
 {
+    actionToSetup->setIcon( QIcon( ":/CreateGridCaseGroup16x16.png" ) );
     actionToSetup->setText( "New Grid Case Group" );
 }

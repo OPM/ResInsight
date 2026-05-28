@@ -64,6 +64,7 @@ void RicNewStatisticsCaseFeature::onActionTriggered( bool isChecked )
 void RicNewStatisticsCaseFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Statistics Case" );
+    actionToSetup->setIcon( QIcon( ":/Histogram16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
