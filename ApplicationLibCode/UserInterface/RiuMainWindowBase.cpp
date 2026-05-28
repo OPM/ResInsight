@@ -120,6 +120,23 @@ ads::CDockManager* RiuMainWindowBase::dockManager() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuMainWindowBase::dockWidgetStateString() const
+{
+    return QString::fromUtf8( m_dockManager->saveState( DOCKSTATE_VERSION ).toBase64() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::restoreDockWidgetState( QString dockStateString )
+{
+    QByteArray dockState = QByteArray::fromBase64( dockStateString.toUtf8() );
+    m_dockManager->restoreState( dockState, DOCKSTATE_VERSION );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setActiveViewer( QString viewerName )
 {
     for ( auto view : viewWindows() )
@@ -585,10 +602,7 @@ void RiuMainWindowBase::setDefaultDockLayout()
     if ( action )
     {
         QString layoutName = action->text();
-
-        QByteArray state = RiuDockWidgetTools::defaultDockState( layoutName );
-
-        dockManager()->restoreState( state, DOCKSTATE_VERSION );
+        RiuDockWidgetTools::setDockLayout( this, layoutName );
     }
 }
 
@@ -601,7 +615,7 @@ void RiuMainWindowBase::setDockLayout()
     if ( action )
     {
         QString layoutName = action->text();
-        dockManager()->openPerspective( layoutName );
+        RiuDockWidgetTools::setDockLayout( this, layoutName );
     }
 }
 
@@ -729,13 +743,6 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
         connect( exportLayoutAction, SIGNAL( triggered() ), this, SLOT( exportDockLayout() ) );
     }
 
-    // m_windowMenu->addSeparator();
-    // QAction* cascadeWindowsAction = new QAction( "Cascade Windows", this );
-    // connect( cascadeWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( cascadeSubWindows() ) );
-
-    // QAction* closeAllSubWindowsAction = new QAction( "Close All Windows", this );
-    // connect( closeAllSubWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( closeAllSubWindows() ) );
-
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
 
     auto featureNames = windowsMenuFeatureNames();
@@ -743,9 +750,6 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     {
         m_windowMenu->addAction( cmdFeatureMgr->action( name ) );
     }
-
-    // m_windowMenu->addAction( cascadeWindowsAction );
-    // m_windowMenu->addAction( closeAllSubWindowsAction );
 }
 
 //--------------------------------------------------------------------------------------------------

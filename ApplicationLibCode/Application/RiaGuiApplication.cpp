@@ -227,11 +227,6 @@ RiaGuiApplication::~RiaGuiApplication()
     }
 
     processEvents();
-
-    delete m_mainWindow.data();
-    m_mainWindow.clear();
-
-    m_mainPlotWindow.reset();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -401,6 +396,37 @@ void RiaGuiApplication::storeTreeViewState()
 
         project()->plotWindowTreeViewStates         = treeStates.join( RiaDefines::stringListSeparator() );
         project()->plotWindowCurrentModelIndexPaths = treeIndexes.join( RiaDefines::stringListSeparator() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::storeDockState()
+{
+    if ( m_mainWindow )
+    {
+        project()->mainWindowDockState = m_mainWindow->dockWidgetStateString();
+    }
+
+    if ( m_mainPlotWindow )
+    {
+        project()->plotWindowDockState = m_mainPlotWindow->dockWidgetStateString();
+    }
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::restoreDockState()
+{
+    if ( m_mainWindow && !project()->mainWindowDockState().isEmpty() )
+    {
+        m_mainWindow->restoreDockWidgetState( project()->mainWindowDockState );
+    }
+
+    if ( m_mainPlotWindow && !project()->plotWindowDockState().isEmpty() )
+    {
+        m_mainPlotWindow->restoreDockWidgetState( project()->plotWindowDockState );
     }
 }
 
@@ -1074,7 +1100,7 @@ void RiaGuiApplication::createMainPlotWindow()
     // Always enable undo/redo framework, as multi-select operations perform significantly better with it enabled
     caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
 
-    m_mainPlotWindow = std::make_unique<RiuPlotMainWindow>();
+    m_mainPlotWindow = new RiuPlotMainWindow();
     m_mainPlotWindow->setWindowTitle( "Plots - ResInsight" );
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
@@ -1376,6 +1402,8 @@ void RiaGuiApplication::onProjectOpened()
         m_mainPlotWindow->raise();
         m_mainPlotWindow->activateWindow();
     }
+
+    restoreDockState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1417,6 +1445,7 @@ void RiaGuiApplication::onProjectBeingSaved()
 {
     setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( m_project->fileName() ).absolutePath() );
     storeTreeViewState();
+    storeDockState();
 
     if ( auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection() )
     {
