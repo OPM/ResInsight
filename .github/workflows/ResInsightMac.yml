@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-14
     env:
       BUILD_TYPE: Release
       VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
@@ -151,6 +151,7 @@ jobs:
           -DVCPKG_BUILD_TYPE=release
           -DCMAKE_INSTALL_PREFIX=cmakebuild/install
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0
           -DCMAKE_POLICY_VERSION_MINIMUM=3.5
           -DCMAKE_C_COMPILER_LAUNCHER=buildcache
           -DCMAKE_CXX_COMPILER_LAUNCHER=buildcache
