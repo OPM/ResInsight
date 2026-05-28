@@ -91,6 +91,9 @@ cmake --build --preset x64-relwithdebinfo --target ResInsight
 cmake --build --preset x64-relwithdebinfo --target extract-projectfile-versions
 ```
 
+**Important — use `cmake --build`, not `ninja` directly, when sharing `build/` with Visual Studio:**
+Visual Studio's "Open Folder" CMake integration uses its own bundled ninja (under `Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe`) and writes that path into `CMAKE_MAKE_PROGRAM`. If a CLI shell has a different `ninja.exe` first on `PATH`, invoking `ninja` directly produces a `.ninja_log` whose format the other ninja can't read (`ninja: warning: build log version is too old; starting over`), so both VS and the CLI repeatedly rebuild everything from scratch. `cmake --build build` dispatches to `CMAKE_MAKE_PROGRAM`, guaranteeing the same ninja binary as VS. If a build unexpectedly rebuilds far more than expected, verify with `where ninja` and `grep CMAKE_MAKE_PROGRAM build/CMakeCache.txt`.
+
 ## Build Presets
 
 Available CMake presets in `CMakePresets.json`:
