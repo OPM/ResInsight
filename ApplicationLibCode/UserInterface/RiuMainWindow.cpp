@@ -499,10 +499,10 @@ void RiuMainWindow::createMenus()
     fileMenu->addSeparator();
 
     // Import menu actions
-    RiuMenuBarBuildTools::addImportMenuWithActions( this, fileMenu );
+    RiuMenuBarBuildTools::addImportMenuForMainWindow( this, fileMenu );
 
     // Export menu actions
-    QMenu* exportMenu = fileMenu->addMenu( "&Export" );
+    QMenu* exportMenu = fileMenu->addMenu( QIcon( ":/export.svg" ), "&Export" );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );
     exportMenu->addAction( m_snapshotAllViewsToFile );
     exportMenu->addAction( cmdFeatureMgr->action( "RicAdvancedSnapshotExportFeature" ) );

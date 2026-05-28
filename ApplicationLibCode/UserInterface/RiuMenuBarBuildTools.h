@@ -33,7 +33,8 @@ QMenu* createDefaultEditMenu( QMenuBar* menuBar );
 QMenu* createDefaultViewMenu( QMenuBar* menuBar );
 QMenu* createDefaultHelpMenu( QMenuBar* menuBar );
 
-void addImportMenuWithActions( QObject* parent, QMenu* menu );
+void addImportMenuForMainWindow( QObject* parent, QMenu* menu );
+void addImportMenuForPlotWindow( QObject* parent, QMenu* menu );
 void addSaveProjectActions( QMenu* menu );
 void addCloseAndExitActions( QMenu* menu );
 
