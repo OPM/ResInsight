@@ -100,7 +100,7 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
         {
             lastItem = addOne( polygon );
         }
-        if ( lastItem ) Riu3DMainWindowTools::selectAsCurrentItem( lastItem );
+        RicCellFilterFeatureTools::selectAndRefreshFilterTree( lastItem );
         return;
     }
 
@@ -117,7 +117,7 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
             configurePolygonFilter( f, polygon );
             lastItem = f;
         }
-        if ( lastItem ) Riu3DMainWindowTools::selectAsCurrentItem( lastItem );
+        RicCellFilterFeatureTools::selectAndRefreshFilterTree( lastItem );
         return;
     }
 
@@ -141,10 +141,7 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    if ( lastItem )
-    {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastItem );
-    }
+    RicCellFilterFeatureTools::selectAndRefreshFilterTree( lastItem );
 }
 
 //--------------------------------------------------------------------------------------------------

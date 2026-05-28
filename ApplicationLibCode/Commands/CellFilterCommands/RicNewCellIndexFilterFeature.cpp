@@ -64,10 +64,7 @@ void RicNewCellIndexFilterFeature::onActionTriggered( bool isChecked )
     if ( RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<Rim3dView>()->ownerCase() )
     {
         RimCellIndexFilter* lastCreatedOrUpdated = filtColl->addNewCellIndexFilter( sourceCase );
-        if ( lastCreatedOrUpdated )
-        {
-            Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
-        }
+        RicCellFilterFeatureTools::selectAndRefreshFilterTree( lastCreatedOrUpdated );
     }
 }
 

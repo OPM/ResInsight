@@ -24,7 +24,10 @@
 #include "RimCase.h"
 #include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
+#include "RimEclipseView.h"
 #include "RimFilterInViewCollection.h"
+
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmObjectGroup.h"
 #include "cafPdmPointer.h"
@@ -74,13 +77,24 @@ void RicPasteCellFiltersFeature::onActionTriggered( bool isChecked )
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
+    RimCellFilter* lastPasted = nullptr;
     for ( auto obj : objectGroup.objects )
     {
         auto duplicatedObject = obj->copyObject<RimCellFilter>();
         if ( duplicatedObject )
         {
             cellFilterCollection->addFilterAndNotifyChanges( duplicatedObject, eclipseCase );
+            lastPasted = duplicatedObject;
         }
+    }
+
+    if ( lastPasted )
+    {
+        if ( auto* eclipseView = lastPasted->firstAncestorOrThisOfType<RimEclipseView>() )
+        {
+            if ( auto* facade = eclipseView->filterInViewCollection() ) facade->updateConnectedEditors();
+        }
+        Riu3DMainWindowTools::selectAsCurrentItem( lastPasted );
     }
 }
 

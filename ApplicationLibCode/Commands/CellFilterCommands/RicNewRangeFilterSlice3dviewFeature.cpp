@@ -18,6 +18,8 @@
 
 #include "RicNewRangeFilterSlice3dviewFeature.h"
 
+#include "RicCellFilterFeatureTools.h"
+
 #include "RiaApplication.h"
 
 #include "RigMainGrid.h"
@@ -101,7 +103,7 @@ void RicNewRangeFilterSlice3dviewFeature::onActionTriggered( bool isChecked )
     RimCellFilter* newFilter = filtColl->addNewCellRangeFilter( sourceCase, gridIndex, direction, sliceStart );
     if ( newFilter )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( newFilter );
+        RicCellFilterFeatureTools::selectAndRefreshFilterTree( newFilter );
         activeView->setSurfaceDrawstyle();
     }
 }

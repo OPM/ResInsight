@@ -22,9 +22,11 @@
 
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
 #include "RimCombinedFilter.h"
 #include "RimDataFilterCollection.h"
+#include "RimEclipseView.h"
 #include "RimFilterInViewCollection.h"
 #include "RimGridView.h"
 
@@ -42,6 +44,26 @@
 namespace RicCellFilterFeatureTools
 {
 //--------------------------------------------------------------------------------------------------
+/// After creating a new cell filter: select it in the tree, and refresh the per-view filter facade
+/// so the new entry appears immediately. The facade lives on RimEclipseView only, so the refresh
+/// is a no-op for filters created outside an eclipse view (e.g. case-level data filter collection).
+//--------------------------------------------------------------------------------------------------
+inline void selectAndRefreshFilterTree( RimCellFilter* filter )
+{
+    if ( !filter ) return;
+
+    if ( auto* eclipseView = filter->firstAncestorOrThisOfType<RimEclipseView>() )
+    {
+        if ( auto* facade = eclipseView->filterInViewCollection() )
+        {
+            facade->updateConnectedEditors();
+        }
+    }
+
+    Riu3DMainWindowTools::selectAsCurrentItem( filter );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// If a RimCombinedFilter is the current selection, create a new T inside it (configured via init)
 /// and select the result. Returns true when a combined filter was the selection — the caller should
 /// bail out of its own collection-targeted flow.
@@ -57,7 +79,7 @@ bool addNewFilterIfCombinedSelected( Init&& init )
     // need a Rim3dView ancestor here.
     RimCombinedFilter* target  = combined.front();
     T*                 created = target->addNewFilter<T>( std::forward<Init>( init ) );
-    if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
+    selectAndRefreshFilterTree( created );
     return true;
 }
 
@@ -100,7 +122,7 @@ bool addNewFilterToDataCollectionIfSelected( Init&& init )
     auto* created = new T();
     target->addFilter( created );
     std::forward<Init>( init )( created );
-    Riu3DMainWindowTools::selectAsCurrentItem( created );
+    selectAndRefreshFilterTree( created );
     return true;
 }
 } // namespace RicCellFilterFeatureTools
