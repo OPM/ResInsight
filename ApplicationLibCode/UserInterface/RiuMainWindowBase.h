@@ -59,6 +59,8 @@ class RiuMainWindowBase : public QMainWindow
     Q_OBJECT
 
 public:
+    static const int DOCKSTATE_VERSION = 4;
+
     RiuMainWindowBase();
     ~RiuMainWindowBase() override;
 
@@ -90,6 +92,9 @@ public:
     bool isBlockingViewSelectionOnSubWindowActivated() const;
 
     ads::CDockManager* dockManager() const;
+
+    QString dockWidgetStateString() const;
+    void    restoreDockWidgetState( QString dockStateString );
 
 protected:
     void createTreeViews( int numberOfTrees );
@@ -136,8 +141,6 @@ protected:
     QUndoView* m_undoView;
 
     QMenu* m_windowMenu;
-
-    const int DOCKSTATE_VERSION = 4;
 
     QByteArray m_lastDockState;
 
