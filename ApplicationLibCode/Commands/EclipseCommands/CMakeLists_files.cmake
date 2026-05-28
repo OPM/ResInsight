@@ -11,7 +11,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipsePropertyFilterNewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEclipseCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEclipseCasesFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicImportInputEclipseCaseFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStatisticsCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicApplyPropertyFilterAsCellResultFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEclipseCaseTimeStepFilterFeature.cpp
@@ -19,7 +19,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseHideFaultFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseShowOnlyFaultFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRenameCaseFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicImportRoffCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicAddGridCalculationFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCaseEnsemblesFromFilesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicAddLinkedEclipsePropertyFilterFeature.cpp

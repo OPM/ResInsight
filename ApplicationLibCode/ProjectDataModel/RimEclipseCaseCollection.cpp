@@ -121,7 +121,7 @@ void RimEclipseCaseCollection::removeCaseFromAllGroups( RimEclipseCase* reservoi
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCaseCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder << "RicImportEclipseCaseFeature";
+    menuBuilder << "RicImportGridModelFeature";
     menuBuilder << "RicImportGridAndSummaryEnsembleFeature";
     menuBuilder << "Separator";
 
@@ -202,9 +202,6 @@ QStringList RimEclipseCaseCollection::importMenuFeatureNames()
 {
     return { "RicImportEclipseCasesFeature",
              "RicImportEclipseCaseTimeStepFilterFeature",
-             "Separator",
-             "RicImportInputEclipseCaseFeature",
-             "RicImportRoffCaseFeature",
              "Separator",
              "RicCreateGridCaseGroupFromFilesFeature",
              "RicCreateGridCaseEnsemblesFromFilesFeature",

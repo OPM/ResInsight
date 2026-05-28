@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022-     Equinor ASA
+//  Copyright (C) 2026-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,12 +18,15 @@
 
 #pragma once
 
-#include "RicImportGeneralDataFeature.h"
+#include "cafCmdFeature.h"
 
 //==================================================================================================
-///
+/// Umbrella feature for importing grid models of any supported type
+/// (binary GRID/EGRID, text GRDECL, Roff). Presents a single file dialog with
+/// filter groups for each format plus a combined group, and routes the selected
+/// files to the matching importer based on extension.
 //==================================================================================================
-class RicImportRoffCaseFeature : public RicImportGeneralDataFeature
+class RicImportGridModelFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

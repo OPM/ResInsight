@@ -45,7 +45,7 @@ void RicImportEclipseCasesFeature::onActionTriggered( bool isChecked )
 
     RicRecursiveFileSearchDialogResult result =
         RicRecursiveFileSearchDialog::runRecursiveSearchDialog( RiaGuiApplication::widgetToUseAsParent(),
-                                                                "Import Eclipse Cases",
+                                                                "Import Grid Models",
                                                                 defaultDir,
                                                                 m_pathFilter,
                                                                 m_fileNameFilter,
@@ -78,5 +78,5 @@ void RicImportEclipseCasesFeature::onActionTriggered( bool isChecked )
 void RicImportEclipseCasesFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/Cases16x16.png" ) );
-    actionToSetup->setText( "Import Eclipse Cases Recursively" );
+    actionToSetup->setText( "Import Grid Models Recursively" );
 }

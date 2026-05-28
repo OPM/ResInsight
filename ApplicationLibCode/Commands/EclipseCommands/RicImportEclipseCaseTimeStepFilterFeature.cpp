@@ -38,9 +38,9 @@ void RicImportEclipseCaseTimeStepFilterFeature::onActionTriggered( bool isChecke
 
     QString defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
     QString fileName   = RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
-                                                            "Import Eclipse File",
+                                                            "Import Grid Model",
                                                             defaultDir,
-                                                            "Eclipse Grid Files (*.GRID *.EGRID)" );
+                                                            "Binary Grid Models (*.GRID *.EGRID)" );
     if ( !fileName.isEmpty() )
     {
         defaultDir = QFileInfo( fileName ).absolutePath();
@@ -59,5 +59,5 @@ void RicImportEclipseCaseTimeStepFilterFeature::onActionTriggered( bool isChecke
 void RicImportEclipseCaseTimeStepFilterFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/Case48x48.png" ) );
-    actionToSetup->setText( "Import Eclipse Case (Time Step Filtered)" );
+    actionToSetup->setText( "Import Grid Model (Time Step Filtered)" );
 }
