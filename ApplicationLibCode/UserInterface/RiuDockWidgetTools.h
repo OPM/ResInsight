@@ -26,7 +26,7 @@
 class QObject;
 class QAction;
 
-class Rim3dView;
+class RiuMainWindowBase;
 
 namespace ads
 {
@@ -92,6 +92,8 @@ public:
     static QString dockStateHideAll3DWindowName();
 
     static QString viewWindowPrefix();
+
+    static void setDockLayout( RiuMainWindowBase* mainWindow, const QString& layoutName );
 
     static QAction* toggleActionForWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName );
 

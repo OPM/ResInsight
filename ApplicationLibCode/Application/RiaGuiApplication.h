@@ -156,14 +156,16 @@ private:
     void createMainPlotWindow();
 
     void storeTreeViewState();
+    void storeDockState();
+    void restoreDockState();
 
 private slots:
     void slotWorkerProcessFinished( int exitCode, QProcess::ExitStatus exitStatus );
     void onLastWindowClosed();
 
 private:
-    QPointer<RiuMainWindow>            m_mainWindow;
-    std::unique_ptr<RiuPlotMainWindow> m_mainPlotWindow;
+    QPointer<RiuMainWindow>     m_mainWindow;
+    QPointer<RiuPlotMainWindow> m_mainPlotWindow;
 
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 };
