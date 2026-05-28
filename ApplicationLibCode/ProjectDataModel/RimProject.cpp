@@ -171,11 +171,11 @@ RimProject::RimProject()
     CAF_PDM_InitField( &m_showPlotWindowOnTopOf3DWindow, "showPlotWindowOnTopOf3DWindow", false, "Show Plot On Top" );
     m_showPlotWindowOnTopOf3DWindow.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_subWindowsTiled3DWindow_OBSOLETE, "tiled3DWindow", false, "Tile 3D Window" );
-    m_subWindowsTiled3DWindow_OBSOLETE.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &mainWindowDockState, "MainWindowDockState", QString(), "Dock State 3D Window" );
+    mainWindowDockState.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_subWindowsTiledPlotWindow_OBSOLETE, "tiledPlotWindow", false, "Tile Plot Window" );
-    m_subWindowsTiledPlotWindow_OBSOLETE.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &plotWindowDockState, "PlotWindowDockState", QString(), "Dock State Plot Window" );
+    plotWindowDockState.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_dialogData, "DialogData", "DialogData" );
     m_dialogData = new RimDialogData();
@@ -187,11 +187,6 @@ RimProject::RimProject()
 
     CAF_PDM_InitFieldNoDefault( &caseGroupsObsolete, "CaseGroups", "" );
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( &caseGroupsObsolete );
-
-    CAF_PDM_InitFieldNoDefault( &m_subWindowsTileMode3DWindow, "TileMode3DWindow", "TileMode3DWindow" );
-    m_subWindowsTileMode3DWindow.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_subWindowsTileModePlotWindow, "TileModePlotWindow", "TileModePlotWindow" );
-    m_subWindowsTileModePlotWindow.uiCapability()->setUiHidden( true );
 
     // Initialization
 
@@ -329,9 +324,6 @@ void RimProject::updatesAfterProjectFileIsRead()
         RimOilField* oilField = oilFields[oilFieldIdx];
         if ( oilField == nullptr || oilField->wellPathCollection == nullptr ) continue;
     }
-
-    if ( m_subWindowsTiled3DWindow_OBSOLETE ) m_subWindowsTileMode3DWindow = RiaDefines::WindowTileMode::DEFAULT;
-    if ( m_subWindowsTiledPlotWindow_OBSOLETE ) m_subWindowsTileModePlotWindow = RiaDefines::WindowTileMode::DEFAULT;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1010,38 +1002,6 @@ bool RimProject::showPlotWindow() const
 bool RimProject::showPlotWindowOnTop() const
 {
     return m_showPlotWindowOnTopOf3DWindow();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaDefines::WindowTileMode RimProject::subWindowsTileMode3DWindow() const
-{
-    return m_subWindowsTileMode3DWindow();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaDefines::WindowTileMode RimProject::subWindowsTileModePlotWindow() const
-{
-    return m_subWindowsTileModePlotWindow();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::setSubWindowsTileMode3DWindow( RiaDefines::WindowTileMode tileMode )
-{
-    m_subWindowsTileMode3DWindow = tileMode;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::setSubWindowsTileModePlotWindow( RiaDefines::WindowTileMode tileMode )
-{
-    m_subWindowsTileModePlotWindow = tileMode;
 }
 
 //--------------------------------------------------------------------------------------------------

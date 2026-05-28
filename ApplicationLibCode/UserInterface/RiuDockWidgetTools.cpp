@@ -18,6 +18,11 @@
 
 #include "RiuDockWidgetTools.h"
 
+#include "RiaGuiApplication.h"
+
+#include "Rim3dView.h"
+#include "RimViewWindow.h"
+
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
@@ -348,6 +353,40 @@ QAction* RiuDockWidgetTools::toggleActionForWidget( const ads::CDockManager* doc
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuDockWidgetTools::setDockLayout( RiuMainWindowBase* mainWindow, const QString& layoutName )
+{
+    if ( mainWindow == nullptr ) return;
+
+    QString activeViewerName;
+    if ( auto activeViewer = RiaGuiApplication::instance()->activeReservoirView() )
+    {
+        activeViewerName = activeViewer->dockWindowName();
+    }
+
+    if ( auto dm = mainWindow->dockManager() )
+    {
+        QByteArray state = RiuDockWidgetTools::defaultDockState( layoutName );
+        if ( dm->restoreState( state, RiuMainWindowBase::DOCKSTATE_VERSION ) )
+        {
+            for ( auto view : mainWindow->viewWindows() )
+            {
+                if ( view->showWindow() && view->dockWidget() )
+                {
+                    dm->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, view->dockWidget(), dm->centralWidget()->dockAreaWidget() );
+                }
+            }
+        }
+
+        if ( auto dw = dm->findDockWidget( activeViewerName ) )
+        {
+            dw->setAsCurrentTab();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
