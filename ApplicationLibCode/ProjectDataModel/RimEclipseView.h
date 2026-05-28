@@ -130,6 +130,7 @@ public:
     void                                      setOverridePropertyFilterCollection( RimEclipsePropertyFilterCollection* pfc );
 
     RimDataFilterInViewCollection* dataFiltersInView() const;
+    RimFilterInViewCollection*     filterInViewCollection() const;
 
     bool hasActivePropertyOrDataFilters() const;
     bool hasActiveDynamicPropertyOrDataFilters() const;

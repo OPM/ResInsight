@@ -2364,6 +2364,14 @@ RimDataFilterInViewCollection* RimEclipseView::dataFiltersInView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimFilterInViewCollection* RimEclipseView::filterInViewCollection() const
+{
+    return m_filterInViewCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseView::hasActivePropertyOrDataFilters() const
 {
     if ( eclipsePropertyFilterCollection()->hasActiveFilters() ) return true;
