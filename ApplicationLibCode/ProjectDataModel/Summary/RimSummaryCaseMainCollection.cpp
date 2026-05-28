@@ -53,6 +53,7 @@
 #include "RimSummaryPlot.h"
 #include "RimWellRftPlot.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldReorderCapability.h"
 #include "cafProgressInfo.h"
 
@@ -405,6 +406,29 @@ void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
             sumCase->summaryReader()->createAddressesIfRequired();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicImportSummaryCaseFeature";
+    menuBuilder << "RicImportGridAndSummaryEnsembleFeature";
+
+    menuBuilder.subMenuStart( "More", QIcon( ":/import.svg" ) );
+    menuBuilder << "RicImportRevealSummaryCaseFeature";
+    menuBuilder << "RicImportStimPlanSummaryCaseFeature";
+    menuBuilder << "RicImportSummaryCasesFeature";
+    menuBuilder << "RicImportSummaryGroupFeature";
+    menuBuilder << "RicImportEnsembleFeature";
+    menuBuilder.subMenuEnd();
+
+    menuBuilder << "Separator";
+    menuBuilder << "RicNewDerivedEnsembleFeature";
+    menuBuilder << "RicNewDerivedSummaryFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicShowSummaryCurveCalculatorFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

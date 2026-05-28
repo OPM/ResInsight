@@ -75,7 +75,8 @@ RimSummaryEnsemble* RicImportEnsembleFeature::createSummaryEnsemble( std::vector
 void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 {
     QString pathCacheName = "ENSEMBLE_FILES";
-    auto    result = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Import Ensemble", pathCacheName );
+    auto    result =
+        RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Custom Summary Ensemble Import", pathCacheName );
     QStringList                      fileNames            = result.files;
     RiaDefines::EnsembleGroupingMode ensembleGroupingMode = result.groupingMode;
     RiaDefines::FileType             fileType             = RicRecursiveFileSearchDialog::mapSummaryFileType( result.fileType );
@@ -215,7 +216,7 @@ RimSummaryEnsemble* RicImportEnsembleFeature::groupSummaryCases( std::vector<Rim
 void RicImportEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/SummaryEnsemble.svg" ) );
-    actionToSetup->setText( "Import Ensemble" );
+    actionToSetup->setText( "Custom Summary Ensemble Import..." );
 }
 
 //--------------------------------------------------------------------------------------------------

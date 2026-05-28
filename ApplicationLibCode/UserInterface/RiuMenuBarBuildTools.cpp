@@ -109,32 +109,23 @@ QMenu* RiuMenuBarBuildTools::createDefaultHelpMenu( QMenuBar* menuBar )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMenuBarBuildTools::addImportMenuWithActions( QObject* parent, QMenu* menu )
+void RiuMenuBarBuildTools::addImportMenuForMainWindow( QObject* parent, QMenu* menu )
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
 
     if ( !parent || !menu || !cmdFeatureMgr ) return;
 
-    QMenu* importMenu = menu->addMenu( "&Import" );
+    QMenu* importMenu = menu->addMenu( QIcon( ":/import.svg" ), "&Import" );
 
-    QMenu* importEclipseMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Eclipse Cases" );
-    caf::CmdFeatureMenuBuilder::appendToMenu( importEclipseMenu, RimEclipseCaseCollection::importMenuFeatureNames() );
-
-    QMenu* importRoffMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Roff Grid Models" );
-    importRoffMenu->addAction( cmdFeatureMgr->action( "RicImportRoffCaseFeature" ) );
-
-    importMenu->addSeparator();
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportGridAndSummaryEnsembleFeature" ) );
 
     importMenu->addSeparator();
-    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase.svg" ), "Summary Cases" );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCasesFeature" ) );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryGroupFeature" ) );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportEnsembleFeature" ) );
+    QMenu* importEclipseMenu = importMenu->addMenu( QIcon( ":/import.svg" ), "More" );
+    caf::CmdFeatureMenuBuilder::appendToMenu( importEclipseMenu, RimEclipseCaseCollection::importMenuFeatureNames() );
 
     importMenu->addSeparator();
-    QMenu* importGeoMechMenu = importMenu->addMenu( QIcon( ":/GeoMechCase24x24.png" ), "Geo Mechanical Cases" );
+    QMenu* importGeoMechMenu = importMenu->addMenu( QIcon( ":/GeoMechCase24x24.png" ), "Geo Mechanical Models" );
     importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseFeature" ) );
     importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseTimeStepFilterFeature" ) );
     importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportElementPropertyFeature" ) );
@@ -148,12 +139,37 @@ void RiuMenuBarBuildTools::addImportMenuWithActions( QObject* parent, QMenu* men
     importWellMenu->addAction( cmdFeatureMgr->action( "RicImportWellMeasurementsFeature" ) );
 
     importMenu->addSeparator();
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedDataFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedFmuDataFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportPressureDepthDataFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportFormationNamesFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportSurfacesFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportSeismicFeature" ) );
+
+    RiuTools::enableAllActionsOnShow( parent, importMenu );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMenuBarBuildTools::addImportMenuForPlotWindow( QObject* parent, QMenu* menu )
+{
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+
+    if ( !parent || !menu || !cmdFeatureMgr ) return;
+
+    QMenu* importMenu = menu->addMenu( QIcon( ":/import.svg" ), "&Import" );
+
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportGridAndSummaryEnsembleFeature" ) );
+    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/import.svg" ), "More" );
+    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportRevealSummaryCaseFeature" ) );
+    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportStimPlanSummaryCaseFeature" ) );
+    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCasesFeature" ) );
+    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryGroupFeature" ) );
+    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportEnsembleFeature" ) );
+
+    importMenu->addSeparator();
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedDataFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedFmuDataFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportPressureDepthDataFeature" ) );
 
     RiuTools::enableAllActionsOnShow( parent, importMenu );
 }

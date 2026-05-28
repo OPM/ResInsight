@@ -340,10 +340,10 @@ void RiuPlotMainWindow::createMenus()
     fileMenu->addSeparator();
 
     // Import menu actions
-    RiuMenuBarBuildTools::addImportMenuWithActions( this, fileMenu );
+    RiuMenuBarBuildTools::addImportMenuForPlotWindow( this, fileMenu );
 
     // Export menu actions
-    QMenu* exportMenu = fileMenu->addMenu( "&Export" );
+    QMenu* exportMenu = fileMenu->addMenu( QIcon( ":/export.svg" ), "&Export" );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToPdfFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotAllPlotsToFileFeature" ) );

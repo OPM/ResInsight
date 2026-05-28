@@ -81,6 +81,8 @@ public:
     void updateEnsembleNames();
 
 private:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
     void initAfterRead() override;
 
     static void loadSummaryCaseData( const std::vector<RimSummaryCase*>& summaryCases, bool extractStateFromFirstCase );

@@ -236,5 +236,5 @@ void RicImportGridAndSummaryEnsembleFeature::onActionTriggered( bool isChecked )
 void RicImportGridAndSummaryEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/GridAndSummaryEnsemble.svg" ) );
-    actionToSetup->setText( "Grid and Summary Ensemble" );
+    actionToSetup->setText( "Import Grid and Summary Ensemble" );
 }

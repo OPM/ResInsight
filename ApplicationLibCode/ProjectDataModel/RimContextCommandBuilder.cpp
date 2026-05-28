@@ -127,7 +127,6 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryMultiPlot.h"
@@ -758,19 +757,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimEnsembleCurveFilterCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewEnsembleCurveFilterFeature";
-        }
-        else if ( dynamic_cast<RimSummaryCaseMainCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicImportSummaryCaseFeature";
-            menuBuilder << "RicImportRevealSummaryCaseFeature";
-            menuBuilder << "RicImportStimPlanSummaryCaseFeature";
-            menuBuilder << "RicImportSummaryCasesFeature";
-            menuBuilder << "RicImportSummaryGroupFeature";
-            menuBuilder << "RicImportEnsembleFeature";
-            menuBuilder << "RicNewDerivedEnsembleFeature";
-            menuBuilder << "RicNewDerivedSummaryFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicShowSummaryCurveCalculatorFeature";
         }
         else if ( dynamic_cast<RimWellLogChannel*>( firstUiItem ) )
         {

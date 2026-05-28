@@ -252,5 +252,5 @@ QStringList RicImportEclipseCaseFeature::findPvdFilesToImport( const QStringList
 void RicImportEclipseCaseFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/Case.svg" ) );
-    actionToSetup->setText( "Import Eclipse Case" );
+    actionToSetup->setText( "Import Simulation Grid" );
 }
