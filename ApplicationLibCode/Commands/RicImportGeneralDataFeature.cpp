@@ -188,7 +188,7 @@ void RicImportGeneralDataFeature::onActionTriggered( bool isChecked )
 void RicImportGeneralDataFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/Case.svg" ) );
-    actionToSetup->setText( "Import Eclipse Files" );
+    actionToSetup->setText( "Import Grid Models" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -319,7 +319,7 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectory( defaultDirectoryLabel( fileType ) );
 
     // Use nullptr as parent to this dialog, as this function is called from both plot window and main window
-    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( nullptr, "Import Data File", defaultDir, fullPattern );
+    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( nullptr, "Import Grid Model", defaultDir, fullPattern );
 
     return fileNames;
 }

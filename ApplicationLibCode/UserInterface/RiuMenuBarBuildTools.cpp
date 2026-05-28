@@ -117,7 +117,7 @@ void RiuMenuBarBuildTools::addImportMenuForMainWindow( QObject* parent, QMenu* m
 
     QMenu* importMenu = menu->addMenu( QIcon( ":/import.svg" ), "&Import" );
 
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportGridModelFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportGridAndSummaryEnsembleFeature" ) );
 
     importMenu->addSeparator();
