@@ -25,6 +25,8 @@
 #include "RimCombinedFilter.h"
 #include "RimDataFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimFilterInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -68,6 +70,10 @@ void RicEclipseCombinedPropertyFilterNewFeature::onActionTriggered( bool isCheck
         RimCombinedFilter* parent  = combined.front();
         RimCombinedFilter* created = parent->addNewFilter<RimCombinedFilter>( []( RimCombinedFilter* ) {} );
         parent->updateConnectedEditors();
+        if ( auto* view = parent->firstAncestorOrThisOfType<RimEclipseView>() )
+        {
+            if ( auto* facade = view->filterInViewCollection() ) facade->updateConnectedEditors();
+        }
         if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
         return;
     }
@@ -86,6 +92,10 @@ void RicEclipseCombinedPropertyFilterNewFeature::onActionTriggered( bool isCheck
 
     RimCombinedFilter* created = target->addNewCombinedFilter();
     target->updateConnectedEditors();
+    if ( auto* view = target->reservoirView() )
+    {
+        if ( auto* facade = view->filterInViewCollection() ) facade->updateConnectedEditors();
+    }
     if ( created )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( created );
