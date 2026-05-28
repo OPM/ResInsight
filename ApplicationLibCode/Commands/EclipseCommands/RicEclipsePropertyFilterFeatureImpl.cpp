@@ -82,6 +82,10 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyF
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
+    if ( auto* facade = propertyFilterCollection->reservoirView()->filterInViewCollection() )
+    {
+        facade->updateConnectedEditors();
+    }
     Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
 
     propertyFilterCollection->onChildAdded( nullptr );
@@ -105,6 +109,8 @@ RimEclipsePropertyFilter* RicEclipsePropertyFilterFeatureImpl::addPropertyFilter
     {
         view->scheduleGeometryRegen( PROPERTY_FILTERED );
         view->scheduleCreateDisplayModelAndRedraw();
+
+        if ( auto* facade = view->filterInViewCollection() ) facade->updateConnectedEditors();
     }
 
     combined->updateConnectedEditors();
@@ -132,6 +138,10 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter( RimEclipseProper
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
+    if ( auto* facade = propertyFilterCollection->reservoirView()->filterInViewCollection() )
+    {
+        facade->updateConnectedEditors();
+    }
     Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
 }
 

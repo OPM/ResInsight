@@ -18,16 +18,14 @@
 
 #include "RicPasteCellFiltersFeature.h"
 
+#include "CellFilterCommands/RicCellFilterFeatureTools.h"
 #include "RicPasteFeatureImpl.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
-#include "RimEclipseView.h"
 #include "RimFilterInViewCollection.h"
-
-#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmObjectGroup.h"
 #include "cafPdmPointer.h"
@@ -88,14 +86,7 @@ void RicPasteCellFiltersFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    if ( lastPasted )
-    {
-        if ( auto* eclipseView = lastPasted->firstAncestorOrThisOfType<RimEclipseView>() )
-        {
-            if ( auto* facade = eclipseView->filterInViewCollection() ) facade->updateConnectedEditors();
-        }
-        Riu3DMainWindowTools::selectAsCurrentItem( lastPasted );
-    }
+    RicCellFilterFeatureTools::selectAndRefreshFilterTree( lastPasted );
 }
 
 //--------------------------------------------------------------------------------------------------

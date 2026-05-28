@@ -23,6 +23,8 @@
 
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimFilterInViewCollection.h"
 #include "RimGridView.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -66,4 +68,8 @@ void RicEclipsePropertyFilterNewExec::undo()
     m_propertyFilterCollection->propertyFiltersField().erase( m_propertyFilterCollection->propertyFiltersField().size() - 1 );
 
     m_propertyFilterCollection->updateConnectedEditors();
+    if ( auto* facade = m_propertyFilterCollection->reservoirView()->filterInViewCollection() )
+    {
+        facade->updateConnectedEditors();
+    }
 }

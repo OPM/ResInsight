@@ -29,6 +29,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFilterInViewCollection.h"
 #include "RimFlowDiagSolution.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
@@ -155,6 +156,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     propertyFilter->resultDefinition()->loadDataAndUpdate();
 
     propertyFilterCollection->updateConnectedEditors();
+    if ( auto* facade = viewToModify->filterInViewCollection() ) facade->updateConnectedEditors();
 
     Riu3DMainWindowTools::setExpanded( propertyFilterCollection );
 

@@ -22,6 +22,8 @@
 
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimFilterInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -51,6 +53,10 @@ void RicAddLinkedEclipsePropertyFilterFeature::onActionTriggered( bool isChecked
     {
         auto filter = coll->addFilterLinkedToCellResult();
         coll->updateAllRequiredEditors();
+        if ( auto* view = coll->reservoirView() )
+        {
+            if ( auto* facade = view->filterInViewCollection() ) facade->updateConnectedEditors();
+        }
 
         Riu3DMainWindowTools::setExpanded( filter );
     }
