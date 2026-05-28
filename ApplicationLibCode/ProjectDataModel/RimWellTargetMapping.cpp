@@ -386,6 +386,8 @@ void RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase, bool
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::generateEnsembleStatistics()
 {
+    // See RicNewWellTargetMappingFeature::isCommandEnabled() for comment on future support for ensembles with varying geometry.
+
     auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
     if ( !ensemble ) return;
 
@@ -649,13 +651,11 @@ void RimWellTargetMapping::onGenerateButtonClicked()
     }
     else if ( hasGridEnsembleParent )
     {
-        // For RimReservoirGridEnsemble, generate for first case
-        // Full ensemble statistics support can be added later
-        if ( auto eclipseCase = firstCase() )
-        {
-            bool setTimeStepInView = true;
-            generateCandidates( eclipseCase, setTimeStepInView );
-        }
+        // For RimReservoirGridEnsemble implement two variants, shared grid and individual grids. Individual grids variant will require more
+        // work, and is not currently prioritized, so for now just show a warning if user tries to generate candidates for a
+        // RimReservoirGridEnsemble
+        //
+        // See RicNewWellTargetMappingFeature::isCommandEnabled() for comment on future support for ensembles with varying geometry.
     }
     else if ( auto eclipseCase = firstCase() )
     {

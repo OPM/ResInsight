@@ -34,6 +34,27 @@ CAF_CMD_SOURCE_INIT( RicNewWellTargetMappingFeature, "RicNewWellTargetMappingFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RicNewWellTargetMappingFeature::isCommandEnabled() const
+{
+    if ( auto gridEnsembles = caf::selectedObjectsByTypeStrict<RimReservoirGridEnsemble*>(); !gridEnsembles.empty() )
+    {
+        // Computation of well target mappings for individual grids is implemented in RimWellTargetMapping::generateEnsembleStatistics().
+        //
+        // If there is a future need to support well target mappings for ensembles with individual grids, the implementation in
+        // RimWellTargetMapping::generateEnsembleStatistics() will need to be updated, and this check can be removed.
+        //
+        // The main performance reason is the memory consumption of loading all grids in the ensemble into memory at the same time, which is
+        // currently needed in order to compute the well target mapping for ensembles with individual grids. For ensembles with shared grid,
+        // only the shared grid needs to be loaded, which is much more memory efficient.
+
+        return false;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicNewWellTargetMappingFeature::onActionTriggered( bool isChecked )
 {
     if ( auto ensembles = caf::selectedObjectsByTypeStrict<RimEclipseCaseEnsemble*>(); !ensembles.empty() )
