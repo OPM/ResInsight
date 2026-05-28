@@ -46,8 +46,10 @@
 #include "RimWellTargetMapping.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafIconProvider.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiTreeAttributes.h"
 #include "cafProgressInfo.h"
 
 #include "RigCaseCellResultsData.h"
@@ -680,6 +682,7 @@ void RimReservoirGridEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* chan
 {
     if ( changedField == &m_autoDetectGridType || changedField == &m_gridMode )
     {
+        updateGridModeToolTip();
         updateStatisticsVisibility();
         updateConnectedEditors();
     }
@@ -864,8 +867,35 @@ void RimReservoirGridEnsemble::loadGridDataFromFiles()
         // loadGridsInIndividualMode();
     }
 
+    updateGridModeToolTip();
     updateStatisticsVisibility();
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::updateGridModeToolTip()
+{
+    const bool individualGrids = ( gridMode() == GridModeType::INDIVIDUAL_GRIDS );
+
+    uiCapability()->setUiToolTip( individualGrids ? QString( "This ensemble has grids with varying number of K layers." ) : QString() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    {
+        if ( gridMode() == GridModeType::INDIVIDUAL_GRIDS )
+        {
+            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
+            tag->icon = caf::IconProvider( ":/info.png" );
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

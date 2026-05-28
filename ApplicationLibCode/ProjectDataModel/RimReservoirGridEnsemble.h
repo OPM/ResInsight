@@ -122,6 +122,7 @@ public:
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void createDerivedObjects() override;
     void initAfterRead() override;
@@ -139,6 +140,7 @@ private:
     bool detectGridDimensionEquality();
     void loadGridsInSharedMode();
     void loadGridsInIndividualMode();
+    void updateGridModeToolTip();
 
 private:
     // File set reference
