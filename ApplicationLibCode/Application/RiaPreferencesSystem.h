@@ -70,6 +70,7 @@ protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void initAfterRead() override;
 
 private:
     caf::PdmField<bool> m_appendClassNameToUiText;
@@ -96,7 +97,9 @@ private:
     caf::PdmField<EclipseTextFileReaderModeType> m_eclipseReaderMode;
 
     caf::PdmField<QString> m_keywordsForLogging;
-    caf::PdmField<QString> m_featureKeywords;
+
+    caf::PdmField<std::vector<QString>> m_enabledFeatures;
+    caf::PdmField<QString>              m_featureKeywords; // Legacy free-text field, kept for migration only
 
     caf::PdmField<std::pair<bool, QString>> m_maximumNumberOfThreads;
 };
