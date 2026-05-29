@@ -6,7 +6,7 @@ in a timeline-based event system. Events can be perforation events, valve events
 tubing changes, well state changes, and production/injection control changes.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 from datetime import date, datetime
 
 from .pdmobject import add_method
@@ -15,6 +15,7 @@ from .generated.generated_classes import (
     KeywordEvent,
     WellEventKeyword,
     WellEventTimeline,
+    WellPath,
 )
 
 
@@ -111,7 +112,9 @@ def add_well_keyword_event(
 
         # Generate schedule
         case = project.cases()[0]
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[well_path]
+        )
         print(schedule_text)
         ```
     """
@@ -284,8 +287,7 @@ def add_keyword_event(
 def generate_schedule_text(
     self: WellEventTimeline,
     eclipse_case: EclipseCase,
-    include_welsegs: bool = True,
-    include_compsegs: bool = True,
+    export_msw_for_wells: List[WellPath] = [],
 ) -> str:
     """Generate Eclipse schedule text for all wells in the collection.
 
@@ -298,12 +300,10 @@ def generate_schedule_text(
 
     Arguments:
         eclipse_case (EclipseCase): Eclipse case to use for schedule generation.
-        include_welsegs (bool): When False, omit the WELSEGS keyword from the
-            output. Other multi-segment-well keywords (COMPSEGS, WSEGVALV,
-            WSEGAICD) are not affected. Defaults to True.
-        include_compsegs (bool): When False, omit the COMPSEGS keyword from
-            the output. WELSEGS, WSEGVALV, WSEGAICD are not affected.
-            Defaults to True.
+        export_msw_for_wells (List[WellPath]): Wells for which the
+            multi-segment-well keywords (WELSEGS, COMPSEGS, WSEGVALV, WSEGAICD)
+            are exported. Wells not in the list get no MSW keywords. An empty
+            list (the default) suppresses MSW export for all wells.
 
     Returns:
         str: Eclipse schedule text containing DATES, COMPDAT, WELSEGS, WCONPROD, etc.
@@ -335,16 +335,17 @@ def generate_schedule_text(
             state="OPEN"
         )
 
-        # Generate schedule text for all wells
+        # Generate schedule text, exporting MSW keywords for all wells
         case = project.cases()[0]
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
         print(schedule_text)
         ```
     """
     container = self.generate_schedule(
         eclipse_case=eclipse_case,
-        include_welsegs=include_welsegs,
-        include_compsegs=include_compsegs,
+        export_msw_for_wells=export_msw_for_wells,
     )
     if container and container.values:
         return "".join(container.values)

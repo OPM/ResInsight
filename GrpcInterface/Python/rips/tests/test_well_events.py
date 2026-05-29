@@ -297,7 +297,9 @@ class TestScheduleGeneration:
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         # Verify schedule text contains expected keywords
         assert schedule_text, "Schedule text should not be empty"
@@ -347,7 +349,9 @@ class TestScheduleGeneration:
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         # Verify we have schedule text with completions and controls
         assert schedule_text, "Schedule text should not be empty"
@@ -388,7 +392,9 @@ class TestScheduleGeneration:
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         # Verify schedule was generated
         assert schedule_text, "Schedule text should not be empty"
@@ -470,7 +476,9 @@ class TestScheduleGeneration:
         timeline.set_timestamp(timestamp="2024-02-01")
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
         print("SCHEDULE:", schedule_text)
 
         # Verify schedule is generated
@@ -644,7 +652,9 @@ class TestScheduleGeneration:
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
         print(schedule_text)
 
         # Verify schedule is generated with all dates
@@ -975,7 +985,9 @@ class TestScheduleGeneration:
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate Eclipse schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         # Debug output
         print(f"\nSchedule text ({len(schedule_text)} characters):")
@@ -1073,7 +1085,9 @@ class TestScheduleGeneration:
         )
 
         timeline.set_timestamp(timestamp="2024-12-31")
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule text for WELSEGS test:\n{schedule_text}")
 
@@ -1125,7 +1139,9 @@ class TestScheduleGeneration:
         )
 
         timeline.set_timestamp(timestamp="2024-12-31")
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule text for WSEGVALV test:\n{schedule_text}")
 
@@ -1151,7 +1167,9 @@ class TestScheduleGeneration:
             is_producer=True,
         )
 
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule text for WCONPROD test:\n{schedule_text}")
 
@@ -1176,7 +1194,9 @@ class TestScheduleGeneration:
 
         timeline.set_timestamp(timestamp="2024-01-01")
 
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule text for COMPDAT test:\n{schedule_text}")
 
@@ -1216,7 +1236,9 @@ class TestScheduleGeneration:
         )
 
         # Control events don't require set_timestamp
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule text for date ordering test:\n{schedule_text}")
 
@@ -1231,18 +1253,20 @@ class TestScheduleGeneration:
         assert jan_pos < feb_pos, "January should come before February"
         assert feb_pos < jun_pos, "February should come before June"
 
-    def test_welsegs_compsegs_optional(self, project_with_case_and_well):
-        """Regression for #14064: callers can suppress WELSEGS and/or COMPSEGS
-        without affecting other keywords (WSEGVALV/WSEGAICD/COMPDAT/WELSPECS).
+    def test_msw_export_gated_by_well_list(self, project_with_case_and_well):
+        """#14079: the multi-segment-well keywords (WELSEGS, COMPSEGS, WSEGVALV,
+        WSEGAICD) are emitted only for wells listed in export_msw_for_wells.
+
+        With the default (empty list) none of them appear, while unrelated
+        keywords (COMPDAT) are unaffected. Listing the well enables them.
         """
         project, case, timeline = project_with_case_and_well
         well_paths = project.well_paths()
-        assert len(well_paths) >= 1
+        well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
 
-        wp = well_paths[0]
         timeline.add_tubing_event(
             event_date="2024-01-01",
-            well_path=wp,
+            well_path=well_path_a,
             start_md=0.0,
             end_md=2500.0,
             inner_diameter=0.15,
@@ -1250,7 +1274,7 @@ class TestScheduleGeneration:
         )
         timeline.add_perf_event(
             event_date="2024-01-01",
-            well_path=wp,
+            well_path=well_path_a,
             start_md=2000.0,
             end_md=2200.0,
             diameter=0.1,
@@ -1258,37 +1282,139 @@ class TestScheduleGeneration:
         )
         timeline.set_timestamp(timestamp="2024-12-31")
 
-        # Baseline (defaults) must still emit WELSEGS and COMPSEGS.
-        baseline = timeline.generate_schedule_text(eclipse_case=case)
-        assert "WELSEGS" in baseline
-        assert "COMPSEGS" in baseline
+        # Default (no list) suppresses all MSW keywords, COMPDAT is unaffected.
+        default_text = timeline.generate_schedule_text(eclipse_case=case)
+        print(f"\nSchedule with no MSW wells:\n{default_text}")
+        assert "WELSEGS" not in default_text, (
+            f"WELSEGS should be absent:\n{default_text}"
+        )
+        assert "COMPSEGS" not in default_text, (
+            f"COMPSEGS should be absent:\n{default_text}"
+        )
+        assert "WSEGVALV" not in default_text
+        assert "WSEGAICD" not in default_text
+        assert "COMPDAT" in default_text
 
-        # Suppress both.
-        suppressed = timeline.generate_schedule_text(
-            eclipse_case=case, include_welsegs=False, include_compsegs=False
+        # An explicit empty list behaves identically to the default.
+        empty_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[]
         )
-        print(f"\nSchedule with WELSEGS/COMPSEGS suppressed:\n{suppressed}")
-        assert "WELSEGS" not in suppressed, (
-            f"WELSEGS should be suppressed:\n{suppressed}"
-        )
-        assert "COMPSEGS" not in suppressed, (
-            f"COMPSEGS should be suppressed:\n{suppressed}"
-        )
-        # COMPDAT (perforation completions) is unrelated to the MSW flags.
-        assert "COMPDAT" in suppressed
+        assert "WELSEGS" not in empty_text
+        assert "COMPSEGS" not in empty_text
 
-        # Independent toggling.
-        only_compsegs_off = timeline.generate_schedule_text(
-            eclipse_case=case, include_compsegs=False
+        # Listing the well enables WELSEGS and COMPSEGS for it.
+        enabled_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[well_path_a]
         )
-        assert "WELSEGS" in only_compsegs_off
-        assert "COMPSEGS" not in only_compsegs_off
+        assert "WELSEGS" in enabled_text, f"WELSEGS should be present:\n{enabled_text}"
+        assert "COMPSEGS" in enabled_text, (
+            f"COMPSEGS should be present:\n{enabled_text}"
+        )
+        assert "COMPDAT" in enabled_text
 
-        only_welsegs_off = timeline.generate_schedule_text(
-            eclipse_case=case, include_welsegs=False
+    def test_msw_export_selected_per_well(self, project_with_case_and_well):
+        """#14079: the well list selects MSW output per well and gates WSEGVALV
+        and WSEGAICD the same way as WELSEGS / COMPSEGS.
+
+        Well A carries an AICD valve (emits WSEGAICD, not WSEGVALV); well B
+        carries an ICD valve (emits WSEGVALV, not WSEGAICD). The presence of
+        each keyword therefore pinpoints exactly which well's MSW data was
+        exported.
+        """
+        project, case, timeline = project_with_case_and_well
+        well_paths = project.well_paths()
+        well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
+        well_path_b = [wp for wp in well_paths if "B" in wp.name][0]
+
+        # Well A: tubing + perforation + AICD valve -> WSEGAICD.
+        timeline.add_tubing_event(
+            event_date="2024-01-01",
+            well_path=well_path_a,
+            start_md=0.0,
+            end_md=2500.0,
+            inner_diameter=0.20,
+            roughness=3.0e-5,
         )
-        assert "WELSEGS" not in only_welsegs_off
-        assert "COMPSEGS" in only_welsegs_off
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path_a,
+            start_md=2250.0,
+            end_md=2400.0,
+            diameter=0.12,
+            state="OPEN",
+        )
+        timeline.add_valve_event(
+            event_date="2024-01-01",
+            well_path=well_path_a,
+            measured_depth=2300.0,
+            valve_type="AICD",
+            state="OPEN",
+            flow_coefficient=0.6,
+            area=0.00015,
+            aicd_strength=0.00021,
+            aicd_density_calib_fluid=1000.0,
+            aicd_viscosity_calib_fluid=1.0,
+            aicd_vol_flow_exp=2.1,
+            aicd_visc_func_exp=0.5,
+        )
+
+        # Well B: tubing + perforation + ICD valve -> WSEGVALV.
+        timeline.add_tubing_event(
+            event_date="2024-01-01",
+            well_path=well_path_b,
+            start_md=0.0,
+            end_md=2000.0,
+            inner_diameter=0.15,
+            roughness=2.0e-5,
+        )
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path_b,
+            start_md=1500.0,
+            end_md=1700.0,
+            diameter=0.2,
+            state="OPEN",
+        )
+        timeline.add_valve_event(
+            event_date="2024-01-01",
+            well_path=well_path_b,
+            measured_depth=1600.0,
+            valve_type="ICD",
+            state="OPEN",
+            flow_coefficient=0.6,
+            area=0.00012,
+        )
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+
+        # Both wells listed: all four MSW keywords present.
+        both = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[well_path_a, well_path_b]
+        )
+        assert "WELSEGS" in both
+        assert "COMPSEGS" in both
+        assert "WSEGVALV" in both  # from well B's ICD valve
+        assert "WSEGAICD" in both  # from well A's AICD valve
+
+        # Only well A: WSEGAICD present, WSEGVALV absent (B's ICD excluded).
+        only_a = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[well_path_a]
+        )
+        assert "WELSEGS" in only_a
+        assert "WSEGAICD" in only_a, f"WSEGAICD should be present:\n{only_a}"
+        assert "WSEGVALV" not in only_a, (
+            f"WSEGVALV (well B's ICD) should be excluded:\n{only_a}"
+        )
+
+        # Only well B: WSEGVALV present, WSEGAICD absent (A's AICD excluded).
+        only_b = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[well_path_b]
+        )
+        assert "WELSEGS" in only_b
+        assert "WSEGVALV" in only_b, f"WSEGVALV should be present:\n{only_b}"
+        assert "WSEGAICD" not in only_b, (
+            f"WSEGAICD (well A's AICD) should be excluded:\n{only_b}"
+        )
 
     def test_keywords_grouped_across_wells(self, project_with_case_and_well):
         """Regression for #14063: WELSPECS / COMPDAT records for multiple wells on
@@ -1311,7 +1437,9 @@ class TestScheduleGeneration:
             )
 
         timeline.set_timestamp(timestamp="2024-12-31")
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
         print(f"\nSchedule text for multi-well grouping:\n{schedule_text}")
 
         # Exactly one "WELSPECS\n" header for all wells.
@@ -1451,7 +1579,9 @@ class TestKeywordEvents:
         )
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule text for keyword event:\n{schedule_text}")
 
@@ -1513,7 +1643,9 @@ class TestKeywordEvents:
         )
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule text for multiple keywords:\n{schedule_text}")
 
@@ -1551,7 +1683,9 @@ class TestKeywordEvents:
             },
         )
 
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
         print(f"\nSchedule text for canonical-order check:\n{schedule_text}")
 
         assert "WCONHIST" in schedule_text
@@ -1632,7 +1766,9 @@ class TestKeywordEvents:
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule with perf and keyword events:\n{schedule_text}")
 
@@ -1671,7 +1807,9 @@ class TestKeywordEvents:
         )
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule with control and keyword events:\n{schedule_text}")
 
@@ -1725,7 +1863,9 @@ class TestKeywordEvents:
         )
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule with keyword events at multiple dates:\n{schedule_text}")
 
@@ -1766,7 +1906,9 @@ class TestKeywordEvents:
         assert event is not None, "Event with boolean values should be created"
 
         # Generate schedule to verify bool conversion
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule with boolean keyword values:\n{schedule_text}")
         assert schedule_text, "Schedule text should not be empty"
@@ -1867,7 +2009,9 @@ class TestScheduleKeywordEvents:
         )
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule text with RPTRST keyword:\n{schedule_text}")
 
@@ -1913,7 +2057,9 @@ class TestScheduleKeywordEvents:
         timeline.set_timestamp(timestamp="2024-12-31")
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(
             f"\nSchedule with mixed well and schedule-level keywords:\n{schedule_text}"
@@ -1966,7 +2112,9 @@ class TestScheduleKeywordEvents:
         )
 
         # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
 
         print(f"\nSchedule with keyword events at multiple dates:\n{schedule_text}")
 
@@ -2026,7 +2174,9 @@ class TestScheduleKeywordEvents:
             },
         )
 
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
         print(f"\nRPTRST mnemonic output:\n{schedule_text}")
 
         assert "RPTRST" in schedule_text
