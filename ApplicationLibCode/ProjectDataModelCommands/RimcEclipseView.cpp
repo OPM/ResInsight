@@ -16,8 +16,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimcFaultInViewCollection.h"
+#include "RimcEclipseView.h"
 
+#include "RimEclipseView.h"
 #include "RimFaultDistanceResult.h"
 #include "RimFaultDistanceResultCollection.h"
 #include "RimFaultInView.h"
@@ -26,12 +27,12 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFaultInViewCollection, RimcFaultInViewCollection_addFaultDistanceResult, "add_fault_distance_result" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimcEclipseView_addFaultDistanceResult, "add_fault_distance_result" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcFaultInViewCollection_addFaultDistanceResult::RimcFaultInViewCollection_addFaultDistanceResult( caf::PdmObjectHandle* self )
+RimcEclipseView_addFaultDistanceResult::RimcEclipseView_addFaultDistanceResult( caf::PdmObjectHandle* self )
     : caf::PdmObjectCreationMethod( self )
 {
     CAF_PDM_InitObject( "Add Fault Distance Result", "", "", "Create a FAULTDIST cell result for a chosen subset of faults" );
@@ -43,12 +44,12 @@ RimcFaultInViewCollection_addFaultDistanceResult::RimcFaultInViewCollection_addF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcFaultInViewCollection_addFaultDistanceResult::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcEclipseView_addFaultDistanceResult::execute()
 {
-    auto* hostCollection = self<RimFaultInViewCollection>();
-    if ( !hostCollection ) return std::unexpected( QString( "No fault collection" ) );
+    auto* eclipseView = self<RimEclipseView>();
+    if ( !eclipseView ) return std::unexpected( QString( "No view" ) );
 
-    auto* distanceCollection = hostCollection->faultDistanceResults();
+    auto* distanceCollection = eclipseView->faultDistanceResults();
     if ( !distanceCollection ) return std::unexpected( QString( "No fault distance results collection" ) );
 
     auto* newResult = distanceCollection->addResult();
@@ -57,12 +58,11 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFaultInViewCollection_addFault
     if ( !m_resultName().isEmpty() ) newResult->setResultName( m_resultName() );
 
     std::vector<RimFaultInView*> selected = m_faults.ptrReferencedObjectsByType();
-    if ( selected.empty() ) selected = hostCollection->faults();
+    if ( selected.empty() && eclipseView->faultCollection() ) selected = eclipseView->faultCollection()->faults();
 
     newResult->setSelectedFaults( selected );
 
-    hostCollection->updateConnectedEditors();
-    distanceCollection->updateConnectedEditors();
+    eclipseView->updateConnectedEditors();
 
     return newResult;
 }
@@ -70,7 +70,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcFaultInViewCollection_addFault
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimcFaultInViewCollection_addFaultDistanceResult::classKeywordReturnedType() const
+QString RimcEclipseView_addFaultDistanceResult::classKeywordReturnedType() const
 {
     return RimFaultDistanceResult::classKeywordStatic();
 }

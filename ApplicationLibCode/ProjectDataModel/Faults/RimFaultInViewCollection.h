@@ -33,7 +33,6 @@
 #include <vector>
 
 class RimEclipseView;
-class RimFaultDistanceResultCollection;
 class RimFaultInView;
 
 //==================================================================================================
@@ -59,7 +58,6 @@ public:
     void setActive( bool bActive );
 
     std::vector<RimFaultInView*>       faults() const;
-    RimFaultDistanceResultCollection*  faultDistanceResults() const;
     cvf::Color3f                       faultLabelColor() const;
     caf::AppEnum<FaultFaceCullingMode> faultResult() const;
     bool                               showFaultFaces() const;
@@ -108,8 +106,7 @@ private:
 
     caf::PdmField<caf::AppEnum<FaultFaceCullingMode>> m_faultResult;
 
-    caf::PdmChildArrayField<RimFaultInView*>              m_faults;
-    caf::PdmChildField<RimFaultDistanceResultCollection*> m_distanceResults;
+    caf::PdmChildArrayField<RimFaultInView*> m_faults;
 
     caf::PdmField<bool> m_showFaultsOutsideFilters_obsolete;
 };

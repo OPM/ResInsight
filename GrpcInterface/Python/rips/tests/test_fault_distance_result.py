@@ -25,7 +25,7 @@ def test_add_fault_distance_result_subset(rips_instance, initialize_test):
     faults = fault_collection.faults()
     assert len(faults) > 0
 
-    result = fault_collection.add_fault_distance_result("PY_FAULTDIST", faults[:1])
+    result = view.add_fault_distance_result("PY_FAULTDIST", faults[:1])
     assert result is not None
     assert result.result_name == "PY_FAULTDIST"
 
@@ -43,7 +43,7 @@ def test_add_fault_distance_result_all_matches_static(rips_instance, initialize_
         rips.PropertyType.STATIC_NATIVE, "FAULTDIST", 0
     )
 
-    fault_collection.add_fault_distance_result("PY_FAULTDIST_ALL", all_faults)
+    view.add_fault_distance_result("PY_FAULTDIST_ALL", all_faults)
 
     generated_values = case.active_cell_property(
         rips.PropertyType.GENERATED, "PY_FAULTDIST_ALL", 0

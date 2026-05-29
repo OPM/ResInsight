@@ -27,7 +27,6 @@
 
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
-#include "RimFaultDistanceResultCollection.h"
 #include "RimFaultInView.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
@@ -105,9 +104,6 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_hideNNCsWhenNoResultIsAvailable );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faults, "Faults", "Faults" );
-
-    CAF_PDM_InitScriptableFieldNoDefault( &m_distanceResults, "FaultDistanceResults", "" );
-    m_distanceResults = new RimFaultDistanceResultCollection;
 
     CAF_PDM_InitField( &m_showFaultsOutsideFilters_obsolete, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters" );
     m_showFaultsOutsideFilters_obsolete.xmlCapability()->setIOWritable( false );
@@ -402,11 +398,6 @@ void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
         uiTreeOrdering.appendChild( uiTree );
     }
 
-    if ( m_distanceResults() && !m_distanceResults()->isEmpty() )
-    {
-        uiTreeOrdering.add( m_distanceResults() );
-    }
-
     for ( const auto& fault : m_faults )
     {
         uiTreeOrdering.add( fault );
@@ -421,14 +412,6 @@ void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 RimEclipseView* RimFaultInViewCollection::parentView() const
 {
     return firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimFaultDistanceResultCollection* RimFaultInViewCollection::faultDistanceResults() const
-{
-    return m_distanceResults();
 }
 
 //--------------------------------------------------------------------------------------------------
