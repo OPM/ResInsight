@@ -1455,6 +1455,54 @@ class TestScheduleGeneration:
                 f"Well {wp.name!r} missing from grouped WELSPECS block: {welspecs_block!r}"
             )
 
+    def test_welsegs_compsegs_not_merged_across_wells(self, project_with_case_and_well):
+        """WELSEGS and COMPSEGS carry a per-well header record and therefore cannot
+        be merged across wells: each MSW well must get its own keyword block on the
+        same date, while the other keywords stay grouped.
+        """
+        project, case, timeline = project_with_case_and_well
+        well_paths = project.well_paths()
+        assert len(well_paths) >= 2, (
+            "Test requires at least two well paths in the fixture"
+        )
+
+        for wp in well_paths[:2]:
+            timeline.add_tubing_event(
+                event_date="2024-01-01",
+                well_path=wp,
+                start_md=0.0,
+                end_md=2500.0,
+                inner_diameter=0.15,
+                roughness=1.0e-5,
+            )
+            timeline.add_perf_event(
+                event_date="2024-01-01",
+                well_path=wp,
+                start_md=2000.0,
+                end_md=2200.0,
+                diameter=0.1,
+                state="OPEN",
+            )
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=well_paths[:2]
+        )
+        print(f"\nSchedule text for unmerged MSW keywords:\n{schedule_text}")
+
+        # One WELSEGS and one COMPSEGS header per MSW well (not merged into one block).
+        assert schedule_text.count("WELSEGS\n") == 2, (
+            f"WELSEGS should appear once per well; got {schedule_text.count('WELSEGS')}:\n{schedule_text}"
+        )
+        assert schedule_text.count("COMPSEGS\n") == 2, (
+            f"COMPSEGS should appear once per well; got {schedule_text.count('COMPSEGS')}:\n{schedule_text}"
+        )
+
+        # COMPDAT, by contrast, stays grouped under a single header.
+        assert schedule_text.count("COMPDAT\n") == 1, (
+            f"COMPDAT should stay grouped under one header; got {schedule_text.count('COMPDAT')}:\n{schedule_text}"
+        )
+
 
 class TestKeywordEvents:
     """Tests for well keyword event functionality."""

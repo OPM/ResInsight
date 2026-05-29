@@ -72,14 +72,17 @@ private:
     static std::optional<Opm::DeckKeyword>
         generateCompdatForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
 
-    // Generate WELSEGS / COMPSEGS / WSEGVALV / WSEGAICD for a well at a specific date, merging into the accumulator.
+    // Generate WELSEGS / COMPSEGS / WSEGVALV / WSEGAICD for a well at a specific date.
+    // WSEGVALV / WSEGAICD are merged into keywordBlocks; WELSEGS / COMPSEGS cannot be merged across
+    // wells and are appended as separate per-well blocks in unmergedBlocks.
     // All four keywords are emitted only when the well is present in mswWells; otherwise none are.
-    static void generateMswForWell( const RimWellEventTimeline&          timeline,
-                                    RimEclipseCase&                      eclipseCase,
-                                    RimWellPath&                         well,
-                                    const QDateTime&                     date,
-                                    std::map<QString, Opm::DeckKeyword>& keywordBlocks,
-                                    const std::set<const RimWellPath*>&  mswWells );
+    static void generateMswForWell( const RimWellEventTimeline&                       timeline,
+                                    RimEclipseCase&                                   eclipseCase,
+                                    RimWellPath&                                      well,
+                                    const QDateTime&                                  date,
+                                    std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
+                                    std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
+                                    const std::set<const RimWellPath*>&               mswWells );
 
     // Generate well control / well keyword event keywords for a well at a specific date, merging into the accumulator
     static void generateWellControlForWell( const RimWellEventTimeline&          timeline,
