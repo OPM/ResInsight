@@ -249,9 +249,12 @@ RimHistogramDataSource::HistogramResult RimEnsembleSummaryVectorHistogramDataSou
 
     result.valuesY = computeHistogramFrequencies( histogram, graphType, frequencyType );
 
-    result.p10  = histCalc.calculatePercentil( 0.1, RigStatisticsMath::PercentileStyle::SWITCHED );
-    result.mean = histCalc.calculatePercentil( 0.5, RigStatisticsMath::PercentileStyle::SWITCHED );
-    result.p90  = histCalc.calculatePercentil( 0.9, RigStatisticsMath::PercentileStyle::SWITCHED );
+    double p10, p50, p90, mean;
+    RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+
+    result.p10  = p10;
+    result.mean = mean;
+    result.p90  = p90;
 
     return result;
 }
