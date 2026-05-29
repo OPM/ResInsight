@@ -139,25 +139,28 @@ int main( int argc, char* argv[] )
     QLocale::setDefault( QLocale( QLocale::English, QLocale::UnitedStates ) );
     setlocale( LC_NUMERIC, "C" );
 
-    // Set up signal handlers
+    // Set up signal handlers for genuine fault/abort signals only.
+    // SIGINT and SIGTERM are graceful termination requests (Ctrl-C, kill, or a
+    // controlling process such as the Python rips client). They must NOT be routed
+    // through the crash handler: doing so captures the stack trace of wherever the
+    // main thread happens to be parked - e.g. inside the multi-second gRPC server
+    // EventEngine teardown during normal shutdown - and reports it as a spurious
+    // "Crash". Leaving them with their default disposition lets the process
+    // terminate cleanly.
 #ifndef WIN32
     // Use SA_SIGINFO on Linux to capture fault address, signal code, and program counter
     struct sigaction sa{};
     sa.sa_sigaction = manageSegFailureSA;
     sa.sa_flags     = SA_SIGINFO;
     sigemptyset( &sa.sa_mask );
-    sigaction( SIGINT, &sa, nullptr );
     sigaction( SIGILL, &sa, nullptr );
     sigaction( SIGFPE, &sa, nullptr );
     sigaction( SIGSEGV, &sa, nullptr );
-    sigaction( SIGTERM, &sa, nullptr );
     sigaction( SIGABRT, &sa, nullptr );
 #else
-    signal( SIGINT, manageSegFailure );
     signal( SIGILL, manageSegFailure );
     signal( SIGFPE, manageSegFailure );
     signal( SIGSEGV, manageSegFailure );
-    signal( SIGTERM, manageSegFailure );
     signal( SIGABRT, manageSegFailure );
 #endif
 
