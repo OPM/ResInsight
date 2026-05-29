@@ -52,7 +52,9 @@ def main():
     )
     print("   Added tubing event on 2024-01-01 (MD 0-2500m)")
 
-    # Add first perforation event
+    # Add first perforation event.
+    # completion_number assigns the perforation to a completion group, which makes
+    # the schedule emit a COMPLUMP keyword lumping these connections into group 1.
     _perf_event1 = timeline.add_perf_event(
         event_date="2024-02-01",
         well_path=well_path,
@@ -61,10 +63,11 @@ def main():
         diameter=0.1,
         skin_factor=0.5,
         state="OPEN",
+        completion_number=1,
     )
-    print("   Added perforation event on 2024-02-01 (MD 2000-2200m)")
+    print("   Added perforation event on 2024-02-01 (MD 2000-2200m, completion 1)")
 
-    # Add second perforation event (later)
+    # Add second perforation event (later), assigned to a different completion group.
     _perf_event2 = timeline.add_perf_event(
         event_date="2024-04-01",
         well_path=well_path,
@@ -73,8 +76,9 @@ def main():
         diameter=0.1,
         skin_factor=0.3,
         state="OPEN",
+        completion_number=2,
     )
-    print("   Added perforation event on 2024-04-01 (MD 2400-2600m)")
+    print("   Added perforation event on 2024-04-01 (MD 2400-2600m, completion 2)")
 
     # Add valve event (requires existing perforation)
     _valve_event = timeline.add_valve_event(
@@ -227,6 +231,8 @@ def main():
                 "DATES",
                 "WELSEGS",
                 "COMPSEGS",
+                "COMPDAT",
+                "COMPLUMP",
                 "WCONHIST",
                 "WELTARG",
                 "WRFTPLT",
@@ -250,6 +256,9 @@ def main():
             if "COMPSEGS" in schedule_text:
                 print("   ✓ COMPSEGS keyword generated (completion segments)")
 
+            if "COMPLUMP" in schedule_text:
+                print("   ✓ COMPLUMP keyword generated (perforation completion groups)")
+
             if "WSEGVALV" in schedule_text:
                 print("   ✓ WSEGVALV keyword generated (segment valves)")
                 # Extract valve parameters
@@ -268,6 +277,7 @@ def main():
             print(f"   - DATES entries: {schedule_text.count('DATES')}")
             print(f"   - WELSEGS entries: {schedule_text.count('WELSEGS')}")
             print(f"   - COMPSEGS entries: {schedule_text.count('COMPSEGS')}")
+            print(f"   - COMPLUMP entries: {schedule_text.count('COMPLUMP')}")
             print(f"   - WSEGVALV entries: {schedule_text.count('WSEGVALV')}")
             print(f"   - WCONHIST entries: {schedule_text.count('WCONHIST')}")
             print(f"   - WELTARG entries: {schedule_text.count('WELTARG')}")

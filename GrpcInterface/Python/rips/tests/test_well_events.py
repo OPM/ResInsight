@@ -1202,6 +1202,67 @@ class TestScheduleGeneration:
 
         assert "COMPDAT" in schedule_text
 
+    def test_perf_completion_number_triggers_complump(self, project_with_case_and_well):
+        """#13273 follow-up: a completion_number on add_perf_event must surface as a
+        COMPLUMP keyword (with that number) in the generated schedule.
+        """
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+            completion_number=3,
+        )
+
+        timeline.set_timestamp(timestamp="2024-01-01")
+
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
+
+        print(f"\nSchedule text for COMPLUMP test:\n{schedule_text}")
+
+        assert "COMPLUMP" in schedule_text, (
+            "Schedule should contain COMPLUMP when a perforation has a completion number"
+        )
+        # The completion number must appear inside the COMPLUMP block (header to trailing '/').
+        complump_block = schedule_text.split("COMPLUMP\n", 1)[1].split("\n/\n", 1)[0]
+        assert " 3 " in complump_block or complump_block.rstrip().endswith("3 /"), (
+            f"Completion number 3 missing from COMPLUMP block: {complump_block!r}"
+        )
+
+    def test_perf_without_completion_number_has_no_complump(
+        self, project_with_case_and_well
+    ):
+        """Without a completion_number, no COMPLUMP keyword should be emitted."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+
+        timeline.set_timestamp(timestamp="2024-01-01")
+
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
+
+        assert "COMPDAT" in schedule_text
+        assert "COMPLUMP" not in schedule_text, (
+            "COMPLUMP should not appear when no completion number is set"
+        )
+
     def test_schedule_multiple_dates_in_order(self, project_with_case_and_well):
         """Verify schedule dates are in chronological order."""
         project, case, timeline = project_with_case_and_well

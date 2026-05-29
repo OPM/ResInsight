@@ -489,6 +489,12 @@ bool RimWellEventTimeline::applyPerfEvent( const RimWellEventPerf& event, RimWel
     perfInterval->setSkinFactor( event.skinFactor() );
     perfInterval->setUnitSystemSpecificDefaults();
 
+    // A non-zero completion number drives COMPLUMP generation downstream.
+    if ( event.completionNumber() > 0 )
+    {
+        perfInterval->setCompletionNumber( event.completionNumber() );
+    }
+
     // Set the custom start date based on the event date
     perfInterval->enableCustomStartDate( true );
     perfInterval->setCustomStartDate( event.eventDate().date() );

@@ -68,9 +68,13 @@ private:
     static std::optional<Opm::DeckKeyword>
         generateWelspecsForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
 
-    // Generate COMPDAT for a well at a specific date based on events
-    static std::optional<Opm::DeckKeyword>
-        generateCompdatForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
+    // Generate COMPDAT (and COMPLUMP, when perforations carry a completion number) for a well at a
+    // specific date based on events, merging both into the accumulator.
+    static void generateCompletionsForWell( const RimWellEventTimeline&          timeline,
+                                            RimEclipseCase&                      eclipseCase,
+                                            RimWellPath&                         well,
+                                            const QDateTime&                     date,
+                                            std::map<QString, Opm::DeckKeyword>& keywordBlocks );
 
     // Generate WELSEGS / COMPSEGS / WSEGVALV / WSEGAICD for a well at a specific date.
     // WSEGVALV / WSEGAICD are merged into keywordBlocks; WELSEGS / COMPSEGS cannot be merged across

@@ -48,6 +48,7 @@ public:
     double diameter() const;
     double skinFactor() const;
     State  state() const;
+    int    completionNumber() const;
 
     // Setters
     void setStartMD( double md );
@@ -55,6 +56,7 @@ public:
     void setDiameter( double diameter );
     void setSkinFactor( double skinFactor );
     void setState( State state );
+    void setCompletionNumber( int completionNumber );
 
     // Override from RimWellEvent
     EventType eventType() const override;
@@ -70,6 +72,7 @@ private:
     caf::PdmField<double>              m_diameter;
     caf::PdmField<double>              m_skinFactor;
     caf::PdmField<caf::AppEnum<State>> m_state;
+    caf::PdmField<int>                 m_completionNumber;
 };
 
 namespace caf
