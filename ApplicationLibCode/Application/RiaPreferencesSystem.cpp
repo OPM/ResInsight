@@ -18,12 +18,17 @@
 
 #include "RiaApplication.h"
 
+#include "RiaExperimentalFeatures.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 
 #include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiTextEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
+
+#include <algorithm>
 
 namespace caf
 {
@@ -92,10 +97,25 @@ RiaPreferencesSystem::RiaPreferencesSystem()
                        QString(),
                        "Keywords to enable debug logging, separated by semicolon.\nType 'enable-all' to enable logging for all objects." );
 
+    CAF_PDM_InitFieldNoDefault( &m_enabledFeatures, "EnabledFeatures", "Experimental Features" );
+    m_enabledFeatures.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
+    // Transient UI helper fields, not stored in the preferences file.
+    CAF_PDM_InitFieldNoDefault( &m_currentFeatureKeyword, "currentFeatureKeyword", "" );
+    m_currentFeatureKeyword.uiCapability()->setUiHidden( true );
+    m_currentFeatureKeyword.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedFeatureDescription, "selectedFeatureDescription", "Description" );
+    m_selectedFeatureDescription.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+    m_selectedFeatureDescription.uiCapability()->setUiReadOnly( true );
+    m_selectedFeatureDescription.xmlCapability()->disableIO();
+
+    // Legacy free-text field, kept only to migrate older preference files into m_enabledFeatures.
     CAF_PDM_InitField( &m_featureKeywords,
                        "FeatureKeywords",
                        QString(),
                        "Keywords to enable experimental features separated by semicolon.\nType 'enable-all' for all." );
+    m_featureKeywords.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_maximumNumberOfThreads, "maximumNumberOfThreads", std::make_pair( false, QString( "4" ) ), "Maximum Number of Threads" );
     m_maximumNumberOfThreads.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
@@ -283,11 +303,9 @@ bool RiaPreferencesSystem::isFeatureEnabled( const QString& keyword ) const
 {
     if ( keyword.isEmpty() ) return false;
 
-    const QStringList keywords = m_featureKeywords().split( ";", Qt::SkipEmptyParts );
+    const std::vector<QString>& enabled = m_enabledFeatures();
 
-    if ( keywords.contains( "enable-all" ) ) return true;
-
-    return keywords.contains( keyword );
+    return std::find( enabled.begin(), enabled.end(), keyword ) != enabled.end();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -324,9 +342,13 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     }
 
     {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Experimental Features" );
+        group->add( &m_enabledFeatures );
+    }
+
+    {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Developer Settings" );
         group->add( &m_keywordsForLogging );
-        group->add( &m_featureKeywords );
         group->add( &m_gtestFilter );
     }
 
@@ -340,7 +362,39 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesSystem::calculateValueOptions( const
 {
     QList<caf::PdmOptionItemInfo> options;
 
+    if ( fieldNeedingOptions == &m_enabledFeatures )
+    {
+        for ( const auto& feature : RiaExperimentalFeatures::availableFeatures() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( feature.displayName, feature.keyword ) );
+        }
+    }
+
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesSystem::initAfterRead()
+{
+    // Migrate the legacy semicolon-separated keyword string into the checkbox-based field.
+    if ( !m_featureKeywords().isEmpty() )
+    {
+        std::vector<QString> enabled = m_enabledFeatures();
+
+        const QStringList legacyKeywords = m_featureKeywords().split( ";", Qt::SkipEmptyParts );
+        for ( const QString& keyword : legacyKeywords )
+        {
+            if ( std::find( enabled.begin(), enabled.end(), keyword ) == enabled.end() )
+            {
+                enabled.push_back( keyword );
+            }
+        }
+
+        m_enabledFeatures = enabled;
+        m_featureKeywords = QString();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

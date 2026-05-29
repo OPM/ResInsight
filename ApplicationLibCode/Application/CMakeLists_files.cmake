@@ -10,6 +10,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesGeoMech.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSystem.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaExperimentalFeatures.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOsdu.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesOpm.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSumo.cpp
