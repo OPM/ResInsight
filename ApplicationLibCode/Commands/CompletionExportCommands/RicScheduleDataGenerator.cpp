@@ -146,6 +146,11 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     // Records for each keyword name are accumulated across wells, then serialised once below.
     std::map<QString, Opm::DeckKeyword> keywordBlocks;
 
+    // WELSEGS and COMPSEGS cannot be merged across wells: each block carries a per-well header
+    // record followed by that well's segment records, so they are kept as separate per-well blocks
+    // (keyed by keyword name, preserving well order) and serialised individually.
+    std::map<QString, std::vector<Opm::DeckKeyword>> unmergedBlocks;
+
     for ( auto* well : wellPaths )
     {
         if ( !well ) continue;
@@ -160,7 +165,7 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
             mergeKeyword( keywordBlocks, "COMPDAT", std::move( *compdat ) );
         }
 
-        generateMswForWell( timeline, eclipseCase, *well, date, keywordBlocks, mswWells );
+        generateMswForWell( timeline, eclipseCase, *well, date, keywordBlocks, unmergedBlocks, mswWells );
         generateWellControlForWell( timeline, *well, date, keywordBlocks );
     }
 
@@ -184,16 +189,26 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
         result += "\n";
     };
 
+    auto appendUnmergedBlocks = [&]( const QString& name )
+    {
+        auto it = unmergedBlocks.find( name );
+        if ( it == unmergedBlocks.end() ) return;
+        for ( const auto& kw : it->second )
+        {
+            appendKeywordText( kw );
+        }
+    };
+
     // Output keywords in priority order
     std::set<QString> emitted;
     for ( const auto& kw : keywordOrder )
     {
-        auto it = keywordBlocks.find( kw );
-        if ( it != keywordBlocks.end() )
+        if ( auto it = keywordBlocks.find( kw ); it != keywordBlocks.end() )
         {
             appendKeywordText( it->second );
-            emitted.insert( kw );
         }
+        appendUnmergedBlocks( kw );
+        emitted.insert( kw );
     }
 
     // Output remaining keywords not in the priority list
@@ -201,6 +216,14 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     {
         if ( emitted.contains( kw ) ) continue;
         appendKeywordText( deckKw );
+    }
+    for ( const auto& [kw, blocks] : unmergedBlocks )
+    {
+        if ( emitted.contains( kw ) ) continue;
+        for ( const auto& deckKw : blocks )
+        {
+            appendKeywordText( deckKw );
+        }
     }
 
     return result;
@@ -269,12 +292,13 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateCompdatForWell
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&          timeline,
-                                                   RimEclipseCase&                      eclipseCase,
-                                                   RimWellPath&                         wellPath,
-                                                   const QDateTime&                     date,
-                                                   std::map<QString, Opm::DeckKeyword>& keywordBlocks,
-                                                   const std::set<const RimWellPath*>&  mswWells )
+void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&                       timeline,
+                                                   RimEclipseCase&                                   eclipseCase,
+                                                   RimWellPath&                                      wellPath,
+                                                   const QDateTime&                                  date,
+                                                   std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
+                                                   std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
+                                                   const std::set<const RimWellPath*>&               mswWells )
 {
     // MSW keywords are exported only for the wells the caller explicitly requested.
     if ( !mswWells.contains( &wellPath ) )
@@ -322,13 +346,21 @@ void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&  
 
     const auto& mswData = mswDataResult.value();
 
+    // WELSEGS and COMPSEGS are not merged across wells (see generateDateSection): each well keeps
+    // its own block, appended in well order.
+    auto appendUnmerged = [&unmergedBlocks]( const QString& name, Opm::DeckKeyword kw )
+    {
+        if ( kw.size() == 0 && !kw.isDataKeyword() ) return;
+        unmergedBlocks[name].push_back( std::move( kw ) );
+    };
+
     int  maxSegments = 0;
     int  maxBranches = 0;
     auto welsegsKw   = RimKeywordFactory::welsegsKeyword( mswData, maxSegments, maxBranches );
-    mergeKeyword( keywordBlocks, "WELSEGS", std::move( welsegsKw ) );
+    appendUnmerged( "WELSEGS", std::move( welsegsKw ) );
 
     auto compsegsKw = RimKeywordFactory::compsegsKeyword( mswData );
-    mergeKeyword( keywordBlocks, "COMPSEGS", std::move( compsegsKw ) );
+    appendUnmerged( "COMPSEGS", std::move( compsegsKw ) );
 
     auto wsegvalvKw = RimKeywordFactory::wsegvalvKeyword( mswData );
     mergeKeyword( keywordBlocks, "WSEGVALV", std::move( wsegvalvKw ) );
