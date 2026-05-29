@@ -35,6 +35,7 @@
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 
+#include <algorithm>
 #include <map>
 #include <set>
 
@@ -54,10 +55,23 @@ QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline& 
     result += "-- Schedule data based on well events\n";
     result += "--\n";
 
+    // The incoming well list is ordered by pointer (it originates from a std::set), which makes the
+    // per-well keyword records appear in a non-deterministic order. Sort once by the deck export
+    // name so every per-well keyword (WELSPECS, COMPDAT, COMPLUMP, WELSEGS/COMPSEGS, WSEGVALV/
+    // WSEGAICD, well control) is emitted in a stable, well-name-sorted order.
+    auto exportName = []( const RimWellPath* well ) -> QString
+    { return well && well->completionSettings() ? well->completionSettings()->wellNameForExport() : QString(); };
+
+    std::vector<RimWellPath*> sortedWellPaths = wellPaths;
+    std::stable_sort( sortedWellPaths.begin(),
+                      sortedWellPaths.end(),
+                      [&exportName]( const RimWellPath* a, const RimWellPath* b )
+                      { return QString::compare( exportName( a ), exportName( b ) ) < 0; } );
+
     // Generate section for each date
     for ( const auto& date : dates )
     {
-        QString dateSection = generateDateSection( timeline, eclipseCase, wellPaths, date, mswWells );
+        QString dateSection = generateDateSection( timeline, eclipseCase, sortedWellPaths, date, mswWells );
         if ( !dateSection.isEmpty() )
         {
             result += dateSection;

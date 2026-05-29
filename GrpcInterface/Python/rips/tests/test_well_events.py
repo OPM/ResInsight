@@ -1516,6 +1516,57 @@ class TestScheduleGeneration:
                 f"Well {wp.name!r} missing from grouped WELSPECS block: {welspecs_block!r}"
             )
 
+    def test_per_well_keywords_sorted_by_well_name(self, project_with_case_and_well):
+        """Per-well keyword records are emitted in deck-name-sorted well order, so WELSPECS
+        and COMPDAT share the same ascending well order rather than an arbitrary one.
+
+        Note: the fixture imports wells A then B, so insertion order already matches name
+        order; this test locks in the deterministic ascending ordering and cross-keyword
+        consistency that the sort guarantees.
+        """
+        project, case, timeline = project_with_case_and_well
+        well_paths = project.well_paths()
+        assert len(well_paths) >= 2, (
+            "Test requires at least two well paths in the fixture"
+        )
+
+        for wp in well_paths[:2]:
+            timeline.add_perf_event(
+                event_date="2024-01-01",
+                well_path=wp,
+                start_md=2000.0,
+                end_md=2200.0,
+                diameter=0.1,
+                state="OPEN",
+            )
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
+        print(f"\nSchedule text for sorted well order:\n{schedule_text}")
+
+        export_names = sorted(wp.name.replace(" ", "") for wp in well_paths[:2])
+
+        def first_positions(block):
+            squashed = block.replace(" ", "")
+            return [squashed.find(name) for name in export_names]
+
+        welspecs_block = schedule_text.split("WELSPECS\n", 1)[1].split("\n/\n", 1)[0]
+        compdat_block = schedule_text.split("COMPDAT\n", 1)[1].split("\n/\n", 1)[0]
+
+        for block_name, block in (
+            ("WELSPECS", welspecs_block),
+            ("COMPDAT", compdat_block),
+        ):
+            positions = first_positions(block)
+            assert all(p >= 0 for p in positions), (
+                f"Both wells must appear in the {block_name} block: {block!r}"
+            )
+            assert positions == sorted(positions), (
+                f"{block_name} wells not in ascending name order {export_names}: {block!r}"
+            )
+
     def test_welsegs_compsegs_not_merged_across_wells(self, project_with_case_and_well):
         """WELSEGS and COMPSEGS carry a per-well header record and therefore cannot
         be merged across wells: each MSW well must get its own keyword block on the
