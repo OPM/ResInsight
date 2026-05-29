@@ -2092,6 +2092,62 @@ class TestScheduleKeywordEvents:
 
         assert event is not None, "RPTSCHED event should be created"
 
+    def test_tuning_keyword_multi_record_output(self, project_with_case_and_well):
+        """TUNING is a multi-record keyword (3 records, each terminated by '/'). Items
+        spanning different records must be distributed into their own records, producing
+        three slashes rather than one.
+        """
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # A well event so the date section is emitted.
+        timeline.add_control_event(
+            event_date="2018-01-01",
+            well_path=well_path,
+            control_mode="ORAT",
+            control_value=1000.0,
+            oil_rate=1000.0,
+            is_producer=True,
+        )
+
+        # Items from record 1 (TSINIT, TSMAXZ, TMAXWC) and record 3 (NEWTMX..MXWPIT).
+        timeline.add_keyword_event(
+            event_date="2018-01-01",
+            keyword_name="TUNING",
+            keyword_data={
+                "TSINIT": 1,
+                "TSMAXZ": 30,
+                "TMAXWC": 1,
+                "NEWTMX": 12,
+                "NEWTMN": 1,
+                "LITMAX": 50,
+                "LITMIN": 1,
+                "MXWSIT": 50,
+                "MXWPIT": 50,
+            },
+        )
+
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
+
+        print(f"\nSchedule text with TUNING keyword:\n{schedule_text}")
+
+        assert "TUNING" in schedule_text, "Schedule should contain TUNING keyword"
+
+        # Isolate the TUNING block (header line up to the following blank line).
+        tuning_block = schedule_text.split("TUNING\n", 1)[1].split("\n\n", 1)[0]
+        record_terminators = [
+            line for line in tuning_block.splitlines() if line.strip().endswith("/")
+        ]
+        assert len(record_terminators) == 3, (
+            f"TUNING must emit three records (three '/'), got {len(record_terminators)}:\n{tuning_block}"
+        )
+
+        # Record 1 keeps TSMAXZ; record 3 keeps NEWTMX. Both values must survive.
+        assert "30" in tuning_block, "TSMAXZ value missing from TUNING record 1"
+        assert "12" in tuning_block, "NEWTMX value missing from TUNING record 3"
+
     def test_keyword_event_schedule_output(self, project_with_case_and_well):
         """Test that schedule keyword events appear in schedule text generation."""
         project, case, timeline = project_with_case_and_well
