@@ -41,12 +41,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline&      timeline,
-                                                    RimEclipseCase&                  eclipseCase,
-                                                    const std::vector<RimWellPath*>& wellPaths,
-                                                    const std::vector<QDateTime>&    dates,
-                                                    bool                             includeWelsegs,
-                                                    bool                             includeCompsegs )
+QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline&         timeline,
+                                                    RimEclipseCase&                     eclipseCase,
+                                                    const std::vector<RimWellPath*>&    wellPaths,
+                                                    const std::vector<QDateTime>&       dates,
+                                                    const std::set<const RimWellPath*>& mswWells )
 {
     QString result;
 
@@ -58,7 +57,7 @@ QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline& 
     // Generate section for each date
     for ( const auto& date : dates )
     {
-        QString dateSection = generateDateSection( timeline, eclipseCase, wellPaths, date, includeWelsegs, includeCompsegs );
+        QString dateSection = generateDateSection( timeline, eclipseCase, wellPaths, date, mswWells );
         if ( !dateSection.isEmpty() )
         {
             result += dateSection;
@@ -114,12 +113,11 @@ void RicScheduleDataGenerator::mergeKeyword( std::map<QString, Opm::DeckKeyword>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimeline&      timeline,
-                                                       RimEclipseCase&                  eclipseCase,
-                                                       const std::vector<RimWellPath*>& wellPaths,
-                                                       const QDateTime&                 date,
-                                                       bool                             includeWelsegs,
-                                                       bool                             includeCompsegs )
+QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimeline&         timeline,
+                                                       RimEclipseCase&                     eclipseCase,
+                                                       const std::vector<RimWellPath*>&    wellPaths,
+                                                       const QDateTime&                    date,
+                                                       const std::set<const RimWellPath*>& mswWells )
 {
     // Keyword priority order for output
     static const std::vector<QString> keywordOrder = { "WELSPECS",
@@ -162,7 +160,7 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
             mergeKeyword( keywordBlocks, "COMPDAT", std::move( *compdat ) );
         }
 
-        generateMswForWell( timeline, eclipseCase, *well, date, keywordBlocks, includeWelsegs, includeCompsegs );
+        generateMswForWell( timeline, eclipseCase, *well, date, keywordBlocks, mswWells );
         generateWellControlForWell( timeline, *well, date, keywordBlocks );
     }
 
@@ -276,9 +274,14 @@ void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&  
                                                    RimWellPath&                         wellPath,
                                                    const QDateTime&                     date,
                                                    std::map<QString, Opm::DeckKeyword>& keywordBlocks,
-                                                   bool                                 includeWelsegs,
-                                                   bool                                 includeCompsegs )
+                                                   const std::set<const RimWellPath*>&  mswWells )
 {
+    // MSW keywords are exported only for the wells the caller explicitly requested.
+    if ( !mswWells.contains( &wellPath ) )
+    {
+        return;
+    }
+
     auto* mswParams = wellPath.mswCompletionParameters();
     if ( !mswParams )
     {
@@ -319,19 +322,13 @@ void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&  
 
     const auto& mswData = mswDataResult.value();
 
-    if ( includeWelsegs )
-    {
-        int  maxSegments = 0;
-        int  maxBranches = 0;
-        auto welsegsKw   = RimKeywordFactory::welsegsKeyword( mswData, maxSegments, maxBranches );
-        mergeKeyword( keywordBlocks, "WELSEGS", std::move( welsegsKw ) );
-    }
+    int  maxSegments = 0;
+    int  maxBranches = 0;
+    auto welsegsKw   = RimKeywordFactory::welsegsKeyword( mswData, maxSegments, maxBranches );
+    mergeKeyword( keywordBlocks, "WELSEGS", std::move( welsegsKw ) );
 
-    if ( includeCompsegs )
-    {
-        auto compsegsKw = RimKeywordFactory::compsegsKeyword( mswData );
-        mergeKeyword( keywordBlocks, "COMPSEGS", std::move( compsegsKw ) );
-    }
+    auto compsegsKw = RimKeywordFactory::compsegsKeyword( mswData );
+    mergeKeyword( keywordBlocks, "COMPSEGS", std::move( compsegsKw ) );
 
     auto wsegvalvKw = RimKeywordFactory::wsegvalvKeyword( mswData );
     mergeKeyword( keywordBlocks, "WSEGVALV", std::move( wsegvalvKw ) );

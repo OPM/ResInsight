@@ -38,6 +38,7 @@
 #include <QDateTime>
 
 #include <algorithm>
+#include <set>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addPerfEvent, "AddPerfEvent" );
 
@@ -568,8 +569,13 @@ RimcWellEventTimeline_generateSchedule::RimcWellEventTimeline_generateSchedule( 
     CAF_PDM_InitObject( "Generate Schedule", "", "", "Generate Eclipse schedule text for all wells in the collection" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
-    CAF_PDM_InitScriptableField( &m_includeWelsegs, "IncludeWelsegs", true, "", "", "", "Include WELSEGS keyword in the exported schedule" );
-    CAF_PDM_InitScriptableField( &m_includeCompsegs, "IncludeCompsegs", true, "", "", "", "Include COMPSEGS keyword in the exported schedule" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_exportMswForWells,
+                                          "ExportMswForWells",
+                                          "",
+                                          "",
+                                          "",
+                                          "Wells for which multi-segment-well keywords (WELSEGS, COMPSEGS, WSEGVALV, WSEGAICD) are "
+                                          "exported" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -619,8 +625,10 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
         return std::unexpected( QString( "No well paths with events found" ) );
     }
 
-    QString scheduleText =
-        RicScheduleDataGenerator::generateSchedule( *timeline, *eclipseCase, wellPathsWithEvents, dates, m_includeWelsegs(), m_includeCompsegs() );
+    std::vector<RimWellPath*>    mswWellPaths = m_exportMswForWells.ptrReferencedObjectsByType();
+    std::set<const RimWellPath*> mswWells( mswWellPaths.begin(), mswWellPaths.end() );
+
+    QString scheduleText = RicScheduleDataGenerator::generateSchedule( *timeline, *eclipseCase, wellPathsWithEvents, dates, mswWells );
 
     // Return the schedule text in a data container
     auto* dataObject           = new RimcDataContainerString();

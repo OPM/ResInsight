@@ -28,6 +28,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectMethod.h"
+#include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
 #include <QString>
@@ -225,7 +226,6 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
-    caf::PdmField<bool>               m_includeWelsegs;
-    caf::PdmField<bool>               m_includeCompsegs;
+    caf::PdmPtrField<RimEclipseCase*>   m_eclipseCase;
+    caf::PdmPtrArrayField<RimWellPath*> m_exportMswForWells;
 };

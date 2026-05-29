@@ -206,8 +206,11 @@ def main():
         case = cases[0]
         print(f"   Using Eclipse case: {case.name}")
 
-        # Generate schedule text
-        schedule_text = timeline.generate_schedule_text(eclipse_case=case)
+        # Generate schedule text. Pass the wells that should get multi-segment-well
+        # keywords (WELSEGS, COMPSEGS, WSEGVALV, WSEGAICD); an empty list omits them.
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[well_path]
+        )
 
         if schedule_text:
             print(f"\n   Generated schedule text ({len(schedule_text)} characters)")
@@ -320,8 +323,12 @@ def main():
     print("      keyword_data={'BASIC': 2, 'FREQ': 1}")
     print("  )")
     print("- timeline.set_timestamp(timestamp='2024-06-01')  # Apply events up to date")
-    print("- schedule_text = timeline.generate_schedule_text(eclipse_case=case)")
-    print("  # Generate Eclipse schedule text")
+    print(
+        "- schedule_text = timeline.generate_schedule_text(eclipse_case=case, export_msw_for_wells=[well_path])"
+    )
+    print(
+        "  # Generate Eclipse schedule text (export_msw_for_wells enables MSW keywords)"
+    )
 
 
 if __name__ == "__main__":
