@@ -81,4 +81,10 @@ Opm::DeckKeyword editnncKeyword( const std::vector<RigSimulationInputTool::Trans
 Opm::DeckKeyword datesKeyword( const QDateTime& date );
 QString          deckKeywordToString( const Opm::DeckKeyword& keyword );
 
+// Serialize a keyword as human-readable text: a "--"-prefixed column-header comment line listing
+// the item names, followed by data rows right-aligned into fixed-width columns with a two-space
+// indent. Unlike deckKeywordToString(), each item renders in its own column (consecutive defaults
+// are not collapsed into "N*"), so columns stay aligned.
+QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword );
+
 } // namespace RimKeywordFactory

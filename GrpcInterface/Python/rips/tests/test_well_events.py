@@ -1262,6 +1262,94 @@ class TestScheduleGeneration:
 
         assert "COMPDAT" in schedule_text
 
+    def test_align_columns_adds_headers_and_alignment(self, project_with_case_and_well):
+        """align_columns=True must add a '--'-prefixed column-header comment per keyword and
+        indent right-aligned data rows, while the default (align_columns=False) keeps the
+        compact form. Only the formatting should differ between the two."""
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        # A perforation (COMPDAT) plus a WCONHIST keyword event gives several tabular keywords
+        # plus the always-present DATES keyword to exercise the aligned formatter.
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+        timeline.add_well_keyword_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            keyword_name="WCONHIST",
+            keyword_data={
+                "WELL": well_path.name,
+                "STATUS": "OPEN",
+                "CMODE": "RESV",
+                "ORAT": 3999.99,
+                "VFP_TABLE": 1,
+            },
+        )
+
+        timeline.set_timestamp(timestamp="2024-01-01")
+
+        # Force the first date to a DATES keyword (instead of the default leading comment) so the
+        # aligned DATES column header is exercised.
+        aligned = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=project.well_paths(),
+            first_date_as_comment=False,
+            align_columns=True,
+        )
+        default = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=project.well_paths(),
+            first_date_as_comment=False,
+            align_columns=False,
+        )
+
+        print(f"\nAligned schedule text:\n{aligned}")
+        print(f"\nDefault schedule text:\n{default}")
+
+        # The DATES keyword is always present; aligned output prefixes its item names as a comment.
+        assert "--DAY" in aligned, "Aligned output should carry a DATES column header"
+        assert "--DAY" not in default, "Default output should not carry column headers"
+
+        # WCONHIST item names appear only as a header comment in the aligned form (their values,
+        # e.g. 'OPEN'/'RESV', are what show up in both forms).
+        assert "CMODE" in aligned and "STATUS" in aligned, (
+            "Aligned output should list WCONHIST item names in a header comment"
+        )
+        assert "CMODE" not in default and "STATUS" not in default, (
+            "Default output should not list item names"
+        )
+
+        # Each aligned column-header line starts with '--' and its data rows are indented two
+        # spaces and terminate with ' /'.
+        wconhist_block = aligned.split("WCONHIST\n", 1)[1]
+        header_line = wconhist_block.splitlines()[0]
+        data_line = wconhist_block.splitlines()[1]
+        # Header is a comment whose names are right-aligned into their columns, so it starts with
+        # '--' and lists WELL/STATUS/CMODE (the first column may be padded ahead of 'WELL').
+        assert header_line.startswith("--") and "WELL" in header_line, (
+            f"WCONHIST header should be a '--' comment listing item names: {header_line!r}"
+        )
+        assert data_line.startswith("  "), (
+            f"WCONHIST data row should be indented two spaces: {data_line!r}"
+        )
+        assert data_line.rstrip().endswith("/"), (
+            f"WCONHIST data row should end with '/': {data_line!r}"
+        )
+        # Per-column defaults stay as individual '1*' markers (never accumulated into 'N*').
+        assert "1*" in data_line and " 2*" not in data_line, (
+            f"WCONHIST data row should keep per-column '1*' markers: {data_line!r}"
+        )
+
+        # Same keywords are produced either way.
+        for keyword in ("DATES", "COMPDAT", "WCONHIST"):
+            assert keyword in aligned and keyword in default
+
     def test_perf_completion_number_triggers_complump(self, project_with_case_and_well):
         """#13273 follow-up: a completion_number on add_perf_event must surface as a
         COMPLUMP keyword (with that number) in the generated schedule.

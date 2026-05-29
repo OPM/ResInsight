@@ -49,7 +49,8 @@ QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline& 
                                                     const std::vector<RimWellPath*>&    wellPaths,
                                                     const std::vector<QDateTime>&       dates,
                                                     const std::set<const RimWellPath*>& mswWells,
-                                                    bool                                firstDateAsComment )
+                                                    bool                                firstDateAsComment,
+                                                    bool                                alignColumns )
 {
     QString result;
 
@@ -76,7 +77,8 @@ QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline& 
     bool isFirstDate = true;
     for ( const auto& date : dates )
     {
-        QString dateSection = generateDateSection( timeline, eclipseCase, sortedWellPaths, date, mswWells, isFirstDate && firstDateAsComment );
+        QString dateSection =
+            generateDateSection( timeline, eclipseCase, sortedWellPaths, date, mswWells, isFirstDate && firstDateAsComment, alignColumns );
         if ( !dateSection.isEmpty() )
         {
             result += dateSection;
@@ -138,7 +140,8 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
                                                        const std::vector<RimWellPath*>&    wellPaths,
                                                        const QDateTime&                    date,
                                                        const std::set<const RimWellPath*>& mswWells,
-                                                       bool                                dateAsComment )
+                                                       bool                                dateAsComment,
+                                                       bool                                alignColumns )
 {
     // Keyword priority order for output
     static const std::vector<QString> keywordOrder = { "WELSPECS",
@@ -161,6 +164,9 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
 
     QString result;
 
+    auto serializeKeyword = [&]( const Opm::DeckKeyword& kw )
+    { return alignColumns ? RimKeywordFactory::deckKeywordToAlignedString( kw ) : RimKeywordFactory::deckKeywordToString( kw ); };
+
     // Generate DATES keyword, or a date comment when requested (e.g. for the first date, which
     // equals the simulation start date and is rejected as a DATES entry by some simulators).
     if ( dateAsComment )
@@ -171,7 +177,7 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     }
     else
     {
-        result += RimKeywordFactory::deckKeywordToString( RimKeywordFactory::datesKeyword( date ) ) + "\n";
+        result += serializeKeyword( RimKeywordFactory::datesKeyword( date ) ) + "\n";
     }
 
     // Records for each keyword name are accumulated across wells, then serialised once below.
@@ -213,7 +219,7 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     auto appendKeywordText = [&]( const Opm::DeckKeyword& kw )
     {
         if ( kw.size() == 0 && !kw.isDataKeyword() ) return;
-        result += RimKeywordFactory::deckKeywordToString( kw );
+        result += serializeKeyword( kw );
         result += "\n";
     };
 

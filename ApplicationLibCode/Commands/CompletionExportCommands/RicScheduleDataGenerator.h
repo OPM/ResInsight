@@ -51,12 +51,15 @@ public:
     // When firstDateAsComment is true, the first (earliest) date is written as a comment line
     // instead of a DATES keyword, since some commercial simulators reject a DATES entry that
     // equals the simulation start date. Later dates are always emitted as DATES keywords.
+    // When alignColumns is true, keywords are serialised with a "--"-prefixed column-header comment
+    // and right-aligned, fixed-width columns instead of the compact default form.
     static QString generateSchedule( const RimWellEventTimeline&         timeline,
                                      RimEclipseCase&                     eclipseCase,
                                      const std::vector<RimWellPath*>&    wellPaths,
                                      const std::vector<QDateTime>&       dates,
                                      const std::set<const RimWellPath*>& mswWells,
-                                     bool                                firstDateAsComment = true );
+                                     bool                                firstDateAsComment = true,
+                                     bool                                alignColumns       = false );
 
     // Collect all unique dates from all wells' timelines
     static std::vector<QDateTime> collectAllDates( const RimWellEventTimeline& timeline, const std::vector<RimWellPath*>& wellPaths );
@@ -69,7 +72,8 @@ private:
                                         const std::vector<RimWellPath*>&    wellPaths,
                                         const QDateTime&                    date,
                                         const std::set<const RimWellPath*>& mswWells,
-                                        bool                                dateAsComment = false );
+                                        bool                                dateAsComment = false,
+                                        bool                                alignColumns  = false );
 
     static std::optional<Opm::DeckKeyword>
         generateWelspecsForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );

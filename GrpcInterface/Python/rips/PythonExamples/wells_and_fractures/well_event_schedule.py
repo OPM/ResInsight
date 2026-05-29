@@ -237,6 +237,13 @@ def main():
             eclipse_case=case, export_msw_for_wells=[well_path]
         )
 
+        # Generate the same schedule with align_columns=True, which adds a "--"-prefixed
+        # column-header comment per keyword and right-aligns the data into fixed-width
+        # columns. Only the formatting differs from the unaligned text above.
+        schedule_text_aligned = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[well_path], align_columns=True
+        )
+
         if schedule_text:
             print(f"\n   Generated schedule text ({len(schedule_text)} characters)")
             print("   " + "=" * 60)
@@ -308,15 +315,20 @@ def main():
             print(f"   - GRUPTREE entries: {schedule_text.count('GRUPTREE')}")
             print(f"   - TUNING entries: {schedule_text.count('TUNING')}")
 
-            # Save to file
-            output_file = "generated_schedule.sch"
-            with open(output_file, "w") as f:
+            # Save both formats to file
+            unaligned_file = "generate_schedule_unaligned.sch"
+            with open(unaligned_file, "w") as f:
                 f.write(schedule_text)
-            print(f"\n   Schedule text saved to: {output_file}")
+            print(f"\n   Unaligned schedule text saved to: {unaligned_file}")
+
+            aligned_file = "generate_schedule_aligned.sch"
+            with open(aligned_file, "w") as f:
+                f.write(schedule_text_aligned)
+            print(f"   Aligned schedule text saved to:   {aligned_file}")
 
             # Show example of generated keywords
             print("\n8. Example of generated Eclipse keywords:")
-            print("   (See generated_schedule.sch for complete output)")
+            print(f"   (See {unaligned_file} / {aligned_file} for complete output)")
             if "WELSEGS" in schedule_text:
                 print("\n   Sample WELSEGS segment:")
                 for line in lines:
