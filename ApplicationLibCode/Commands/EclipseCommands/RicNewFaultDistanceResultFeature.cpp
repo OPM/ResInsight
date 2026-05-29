@@ -18,6 +18,7 @@
 
 #include "RicNewFaultDistanceResultFeature.h"
 
+#include "RimEclipseView.h"
 #include "RimFaultDistanceResult.h"
 #include "RimFaultDistanceResultCollection.h"
 #include "RimFaultInView.h"
@@ -33,28 +34,19 @@ CAF_CMD_SOURCE_INIT( RicNewFaultDistanceResultFeature, "RicNewFaultDistanceResul
 
 namespace
 {
-RimFaultInViewCollection* findHostCollection()
+RimEclipseView* findHostView()
 {
     const auto faultCollections = caf::SelectionManager::instance()->objectsByType<RimFaultInViewCollection>();
-    if ( !faultCollections.empty() ) return faultCollections.front();
+    if ( !faultCollections.empty() ) return faultCollections.front()->firstAncestorOrThisOfType<RimEclipseView>();
 
     const auto distanceCollections = caf::SelectionManager::instance()->objectsByType<RimFaultDistanceResultCollection>();
-    if ( !distanceCollections.empty() )
-    {
-        return distanceCollections.front()->firstAncestorOrThisOfType<RimFaultInViewCollection>();
-    }
+    if ( !distanceCollections.empty() ) return distanceCollections.front()->firstAncestorOrThisOfType<RimEclipseView>();
 
     const auto distanceResults = caf::SelectionManager::instance()->objectsByType<RimFaultDistanceResult>();
-    if ( !distanceResults.empty() )
-    {
-        return distanceResults.front()->firstAncestorOrThisOfType<RimFaultInViewCollection>();
-    }
+    if ( !distanceResults.empty() ) return distanceResults.front()->firstAncestorOrThisOfType<RimEclipseView>();
 
     const auto faults = caf::SelectionManager::instance()->objectsByType<RimFaultInView>();
-    if ( !faults.empty() )
-    {
-        return faults.front()->firstAncestorOrThisOfType<RimFaultInViewCollection>();
-    }
+    if ( !faults.empty() ) return faults.front()->firstAncestorOrThisOfType<RimEclipseView>();
 
     return nullptr;
 }
@@ -65,7 +57,7 @@ RimFaultInViewCollection* findHostCollection()
 //--------------------------------------------------------------------------------------------------
 bool RicNewFaultDistanceResultFeature::isCommandEnabled() const
 {
-    return findHostCollection() != nullptr;
+    return findHostView() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,10 +65,10 @@ bool RicNewFaultDistanceResultFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewFaultDistanceResultFeature::onActionTriggered( bool isChecked )
 {
-    RimFaultInViewCollection* hostCollection = findHostCollection();
-    if ( !hostCollection ) return;
+    RimEclipseView* eclipseView = findHostView();
+    if ( !eclipseView ) return;
 
-    RimFaultDistanceResultCollection* distanceCollection = hostCollection->faultDistanceResults();
+    RimFaultDistanceResultCollection* distanceCollection = eclipseView->faultDistanceResults();
     if ( !distanceCollection ) return;
 
     const auto                   selectedFaultPointers = caf::SelectionManager::instance()->objectsByType<RimFaultInView>();
@@ -89,13 +81,12 @@ void RicNewFaultDistanceResultFeature::onActionTriggered( bool isChecked )
     {
         newResult->setSelectedFaults( selectedFaults );
     }
-    else
+    else if ( eclipseView->faultCollection() )
     {
-        newResult->setSelectedFaults( hostCollection->faults() );
+        newResult->setSelectedFaults( eclipseView->faultCollection()->faults() );
     }
 
-    hostCollection->updateConnectedEditors();
-    distanceCollection->updateConnectedEditors();
+    eclipseView->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( newResult );
 }
 

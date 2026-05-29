@@ -66,6 +66,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimElementVectorResult.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimFaultDistanceResultCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFaultReactivationModelCollection.h"
 #include "RimFilterInViewCollection.h"
@@ -200,6 +201,9 @@ RimEclipseView::RimEclipseView()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faultCollection, "FaultCollection", "Faults" );
     m_faultCollection = new RimFaultInViewCollection;
+
+    CAF_PDM_InitFieldNoDefault( &m_faultDistanceResultCollection, "FaultDistanceResultCollection", "Fault Distance Results" );
+    m_faultDistanceResultCollection = new RimFaultDistanceResultCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_faultReactivationModelCollection, "FaultReactivationModelCollection", "Fault Reactivation Models" );
     m_faultReactivationModelCollection = new RimFaultReactivationModelCollection;
@@ -351,6 +355,14 @@ RimSimWellInViewCollection* RimEclipseView::wellCollection() const
 RimFaultInViewCollection* RimEclipseView::faultCollection() const
 {
     return m_faultCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFaultDistanceResultCollection* RimEclipseView::faultDistanceResults() const
+{
+    return m_faultDistanceResultCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2118,6 +2130,8 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     }
 
     uiTreeOrdering.add( faultCollection() );
+
+    if ( faultDistanceResults() && !faultDistanceResults()->isEmpty() ) uiTreeOrdering.add( faultDistanceResults() );
 
     if ( faultReactivationModelCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( faultReactivationModelCollection() );
 

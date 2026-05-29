@@ -53,6 +53,7 @@ class RimEclipseCellColors;
 class RimEclipseFaultColors;
 class RimEclipsePropertyFilter;
 class RimEclipsePropertyFilterCollection;
+class RimFaultDistanceResultCollection;
 class RimFaultInViewCollection;
 class RimFilterInViewCollection;
 class RimReservoirCellResultsStorage;
@@ -114,6 +115,7 @@ public:
     RimStimPlanColors*                   fractureColors() const;
     RimSimWellInViewCollection*          wellCollection() const;
     RimFaultInViewCollection*            faultCollection() const;
+    RimFaultDistanceResultCollection*    faultDistanceResults() const;
     RimVirtualPerforationResults*        virtualPerforationResult() const;
     RimStreamlineInViewCollection*       streamlineCollection() const;
     RimFaultReactivationModelCollection* faultReactivationModelCollection() const;
@@ -270,6 +272,7 @@ private:
 
     caf::PdmChildField<RimSimWellInViewCollection*>          m_wellCollection;
     caf::PdmChildField<RimFaultInViewCollection*>            m_faultCollection;
+    caf::PdmChildField<RimFaultDistanceResultCollection*>    m_faultDistanceResultCollection;
     caf::PdmChildField<RimFaultReactivationModelCollection*> m_faultReactivationModelCollection;
     caf::PdmChildField<RimStreamlineInViewCollection*>       m_streamlineCollection;
 

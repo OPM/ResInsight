@@ -30,12 +30,12 @@ class RimFaultInView;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcFaultInViewCollection_addFaultDistanceResult : public caf::PdmObjectCreationMethod
+class RimcEclipseView_addFaultDistanceResult : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcFaultInViewCollection_addFaultDistanceResult( caf::PdmObjectHandle* self );
+    RimcEclipseView_addFaultDistanceResult( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;

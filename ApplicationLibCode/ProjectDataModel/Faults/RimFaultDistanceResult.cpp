@@ -143,7 +143,8 @@ QList<caf::PdmOptionItemInfo> RimFaultDistanceResult::calculateValueOptions( con
 
     if ( fieldNeedingOptions == &m_faults )
     {
-        auto faultCollection = firstAncestorOrThisOfType<RimFaultInViewCollection>();
+        auto eclipseView     = firstAncestorOrThisOfType<RimEclipseView>();
+        auto faultCollection = eclipseView ? eclipseView->faultCollection() : nullptr;
         if ( faultCollection )
         {
             for ( RimFaultInView* fault : faultCollection->faults() )
