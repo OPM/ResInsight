@@ -57,6 +57,7 @@ private:
     caf::PdmField<double>                                m_diameter;
     caf::PdmField<double>                                m_skinFactor;
     caf::PdmField<caf::AppEnum<RimWellEventPerf::State>> m_state;
+    caf::PdmField<int>                                   m_completionNumber;
 };
 
 //==================================================================================================

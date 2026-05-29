@@ -58,6 +58,7 @@ RimcWellEventTimeline_addPerfEvent::RimcWellEventTimeline_addPerfEvent( caf::Pdm
     CAF_PDM_InitScriptableField( &m_skinFactor, "SkinFactor", 0.0, "", "", "", "Skin Factor" );
     auto defaultState = RimWellEventPerf::State::OPEN;
     CAF_PDM_InitScriptableField( &m_state, "State", defaultState, "", "", "", "State" );
+    CAF_PDM_InitScriptableField( &m_completionNumber, "CompletionNumber", 0, "", "", "", "Completion Number (for COMPLUMP, 0 = none)" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,6 +85,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addPerfEvent
     event->setDiameter( m_diameter() );
     event->setSkinFactor( m_skinFactor() );
     event->setState( m_state() );
+    event->setCompletionNumber( m_completionNumber() );
 
     return event;
 }

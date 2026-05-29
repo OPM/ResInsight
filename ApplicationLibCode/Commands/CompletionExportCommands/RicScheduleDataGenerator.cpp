@@ -160,10 +160,7 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
             mergeKeyword( keywordBlocks, "WELSPECS", std::move( *welspecs ) );
         }
 
-        if ( auto compdat = generateCompdatForWell( timeline, eclipseCase, *well, date ) )
-        {
-            mergeKeyword( keywordBlocks, "COMPDAT", std::move( *compdat ) );
-        }
+        generateCompletionsForWell( timeline, eclipseCase, *well, date, keywordBlocks );
 
         generateMswForWell( timeline, eclipseCase, *well, date, keywordBlocks, unmergedBlocks, mswWells );
         generateWellControlForWell( timeline, *well, date, keywordBlocks );
@@ -262,10 +259,11 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateCompdatForWell( const RimWellEventTimeline& timeline,
-                                                                                  RimEclipseCase&             eclipseCase,
-                                                                                  RimWellPath&                well,
-                                                                                  const QDateTime&            date )
+void RicScheduleDataGenerator::generateCompletionsForWell( const RimWellEventTimeline&          timeline,
+                                                           RimEclipseCase&                      eclipseCase,
+                                                           RimWellPath&                         well,
+                                                           const QDateTime&                     date,
+                                                           std::map<QString, Opm::DeckKeyword>& keywordBlocks )
 {
     auto events = timeline.getEventsAtDate( date );
 
@@ -279,14 +277,15 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateCompdatForWell
         }
     }
 
-    if ( !hasPerfEvents ) return std::nullopt;
+    if ( !hasPerfEvents ) return;
 
+    // Completion data is computed once and feeds both COMPDAT and COMPLUMP (the latter only emits
+    // records whose perforation has a completion number assigned). Both keywords merge across wells.
     auto compdata = RicWellPathExportCompletionDataFeatureImpl::completionDataForWellPath( &well, &eclipseCase, date );
     auto wellName = well.completionSettings()->wellNameForExport().toStdString();
 
-    auto compdatKw = RimKeywordFactory::compdatKeyword( compdata, wellName );
-    if ( compdatKw.name().empty() ) return std::nullopt;
-    return compdatKw;
+    mergeKeyword( keywordBlocks, "COMPDAT", RimKeywordFactory::compdatKeyword( compdata, wellName ) );
+    mergeKeyword( keywordBlocks, "COMPLUMP", RimKeywordFactory::complumpKeyword( compdata, wellName ) );
 }
 
 //--------------------------------------------------------------------------------------------------

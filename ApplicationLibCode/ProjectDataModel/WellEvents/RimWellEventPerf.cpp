@@ -47,6 +47,7 @@ RimWellEventPerf::RimWellEventPerf()
     CAF_PDM_InitScriptableField( &m_diameter, "Diameter", 0.216, "Diameter" );
     CAF_PDM_InitScriptableField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor" );
     CAF_PDM_InitScriptableField( &m_state, "State", caf::AppEnum<State>( State::OPEN ), "State" );
+    CAF_PDM_InitScriptableField( &m_completionNumber, "CompletionNumber", 0, "Completion Number" );
 
     setDeletable( true );
 }
@@ -101,6 +102,14 @@ RimWellEventPerf::State RimWellEventPerf::state() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimWellEventPerf::completionNumber() const
+{
+    return m_completionNumber();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellEventPerf::setStartMD( double md )
 {
     m_startMD = md;
@@ -136,6 +145,14 @@ void RimWellEventPerf::setSkinFactor( double skinFactor )
 void RimWellEventPerf::setState( State state )
 {
     m_state = state;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventPerf::setCompletionNumber( int completionNumber )
+{
+    m_completionNumber = completionNumber;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,6 +198,7 @@ void RimWellEventPerf::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_diameter );
     uiOrdering.add( &m_skinFactor );
     uiOrdering.add( &m_state );
+    uiOrdering.add( &m_completionNumber );
 
     uiOrdering.skipRemainingFields();
 }
