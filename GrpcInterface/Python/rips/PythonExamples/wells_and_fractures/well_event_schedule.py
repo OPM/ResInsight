@@ -172,6 +172,27 @@ def main():
     )
     print("   Added GRUPTREE event on 2024-01-01 (group tree definition)")
 
+    # Example 6: TUNING - Time stepping / convergence control.
+    # TUNING is a multi-record keyword: items are distributed into the record that
+    # defines them (record 1: TSINIT/TSMAXZ/TMAXWC, record 3: NEWTMX..MXWPIT), so the
+    # generated keyword has three records, each terminated by its own '/'.
+    _tuning_event = timeline.add_keyword_event(
+        event_date="2024-01-01",
+        keyword_name="TUNING",
+        keyword_data={
+            "TSINIT": 1,
+            "TSMAXZ": 30,
+            "TMAXWC": 1,
+            "NEWTMX": 12,
+            "NEWTMN": 1,
+            "LITMAX": 50,
+            "LITMIN": 1,
+            "MXWSIT": 50,
+            "MXWPIT": 50,
+        },
+    )
+    print("   Added TUNING event on 2024-01-01 (time stepping / convergence control)")
+
     # Apply events up to March 15, 2024
     # This should create:
     # - Tubing interval (Jan 1)
@@ -238,6 +259,7 @@ def main():
                 "WRFTPLT",
                 "RPTRST",
                 "GRUPTREE",
+                "TUNING",
             ]
             found_keywords = [kw for kw in expected_keywords if kw in schedule_text]
 
@@ -284,6 +306,7 @@ def main():
             print(f"   - WRFTPLT entries: {schedule_text.count('WRFTPLT')}")
             print(f"   - RPTRST entries: {schedule_text.count('RPTRST')}")
             print(f"   - GRUPTREE entries: {schedule_text.count('GRUPTREE')}")
+            print(f"   - TUNING entries: {schedule_text.count('TUNING')}")
 
             # Save to file
             output_file = "generated_schedule.sch"
