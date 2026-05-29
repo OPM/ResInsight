@@ -42,6 +42,8 @@
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckOutput.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
+#include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Parser/ParserKeyword.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/B.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/D.hpp"
@@ -765,6 +767,173 @@ QString deckKeywordToString( const Opm::DeckKeyword& keyword )
     std::ostringstream oss;
     Opm::DeckOutput    out( oss, 10 );
     keyword.write( out );
+    return QString::fromStdString( oss.str() );
+}
+
+namespace
+{
+    //--------------------------------------------------------------------------------------------------
+    /// Render a single DeckItem to text the same way OPM's DeckOutput does (quoted strings, raw strings
+    /// unquoted, integers, doubles at precision 10), except defaults always render as "1*" per value
+    /// rather than being accumulated into "N*". Multi-value items are space-joined into one column.
+    //--------------------------------------------------------------------------------------------------
+    std::string renderDeckItemValue( const Opm::DeckItem& item )
+    {
+        const size_t numValues = item.data_size();
+        if ( numValues == 0 ) return "1*";
+
+        auto renderOne = [&]( size_t i ) -> std::string
+        {
+            if ( item.defaultApplied( i ) ) return "1*";
+
+            switch ( item.getType() )
+            {
+                case Opm::type_tag::integer:
+                    return std::to_string( item.get<int>( i ) );
+                case Opm::type_tag::fdouble:
+                {
+                    std::ostringstream oss;
+                    oss.precision( 10 );
+                    oss << item.get<double>( i );
+                    return oss.str();
+                }
+                case Opm::type_tag::string:
+                    return "'" + item.get<std::string>( i ) + "'";
+                case Opm::type_tag::raw_string:
+                    return std::string( item.get<Opm::RawString>( i ) );
+                case Opm::type_tag::uda:
+                {
+                    const Opm::UDAValue& uda = item.getData<Opm::UDAValue>()[i];
+                    if ( uda.is<double>() )
+                    {
+                        std::ostringstream oss;
+                        oss.precision( 10 );
+                        oss << uda.get<double>();
+                        return oss.str();
+                    }
+                    return "'" + uda.get<std::string>() + "'";
+                }
+                default:
+                    return "1*";
+            }
+        };
+
+        std::string result;
+        for ( size_t i = 0; i < numValues; ++i )
+        {
+            if ( i > 0 ) result += " ";
+            result += renderOne( i );
+        }
+        return result;
+    }
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword )
+{
+    if ( keyword.name().empty() ) return {};
+
+    std::ostringstream oss;
+    oss << keyword.name() << "\n";
+
+    auto rightAlign = []( const std::string& s, size_t width ) { return std::string( width - s.size(), ' ' ) + s; };
+
+    // Emit the keyword as one or more groups of consecutive records that share the same ordered list
+    // of item names. Each group gets its own aligned column header. Tabular keywords (WCONHIST,
+    // COMPDAT, ...) form a single group; heterogeneous keywords (WELSEGS = header + segment records,
+    // TUNING = three distinct records) form one group per record shape.
+    const size_t numRecords  = keyword.size();
+    size_t       recordIndex = 0;
+    while ( recordIndex < numRecords )
+    {
+        // Group signature = item names of the first record in the group.
+        std::vector<std::string> header;
+        for ( const auto& item : keyword.getRecord( recordIndex ) )
+        {
+            header.push_back( item.name() );
+        }
+
+        // Collect every consecutive record matching this signature, rendering its values.
+        std::vector<std::vector<std::string>> rows;
+        size_t                                groupEnd = recordIndex;
+        for ( ; groupEnd < numRecords; ++groupEnd )
+        {
+            const Opm::DeckRecord& record = keyword.getRecord( groupEnd );
+            if ( record.size() != header.size() ) break;
+
+            bool   sameNames = true;
+            size_t col       = 0;
+            for ( const auto& item : record )
+            {
+                if ( item.name() != header[col] )
+                {
+                    sameNames = false;
+                    break;
+                }
+                ++col;
+            }
+            if ( !sameNames ) break;
+
+            std::vector<std::string> row;
+            row.reserve( record.size() );
+            for ( const auto& item : record )
+            {
+                row.push_back( renderDeckItemValue( item ) );
+            }
+            rows.push_back( std::move( row ) );
+        }
+
+        const size_t        numCols = header.size();
+        std::vector<size_t> width( numCols, 0 );
+        for ( size_t c = 0; c < numCols; ++c )
+            width[c] = header[c].size();
+        for ( const auto& row : rows )
+            for ( size_t c = 0; c < numCols; ++c )
+                width[c] = std::max( width[c], row[c].size() );
+
+        // Header comment line: "--" occupies the same two columns as the data-row indent so the
+        // header names line up with the values below them.
+        if ( numCols > 0 )
+        {
+            oss << "--";
+            for ( size_t c = 0; c < numCols; ++c )
+            {
+                if ( c > 0 ) oss << "  ";
+                oss << rightAlign( header[c], width[c] );
+            }
+            oss << "\n";
+        }
+
+        for ( const auto& row : rows )
+        {
+            oss << "  ";
+            for ( size_t c = 0; c < numCols; ++c )
+            {
+                if ( c > 0 ) oss << "  ";
+                oss << rightAlign( row[c], width[c] );
+            }
+            oss << " /\n";
+        }
+
+        recordIndex = groupEnd;
+    }
+
+    // Emit the keyword-terminating slash for variable-size keywords, matching OPM
+    // (DeckKeyword::m_slashTerminated == !ParserKeyword::hasFixedSize()).
+    bool slashTerminated = true;
+    try
+    {
+        Opm::Parser parser;
+        slashTerminated = !parser.getKeyword( keyword.name() ).hasFixedSize();
+    }
+    catch ( ... )
+    {
+        slashTerminated = true;
+    }
+    if ( slashTerminated ) oss << "/\n";
+
     return QString::fromStdString( oss.str() );
 }
 

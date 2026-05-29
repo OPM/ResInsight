@@ -585,6 +585,13 @@ RimcWellEventTimeline_generateSchedule::RimcWellEventTimeline_generateSchedule( 
                                  "",
                                  "",
                                  "Emit the first (simulation-start) date as a comment instead of a DATES keyword" );
+    CAF_PDM_InitScriptableField( &m_alignColumns,
+                                 "AlignColumns",
+                                 false,
+                                 "",
+                                 "",
+                                 "",
+                                 "Emit a column-header comment and right-aligned, fixed-width columns instead of the compact form" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -638,7 +645,13 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
     std::set<const RimWellPath*> mswWells( mswWellPaths.begin(), mswWellPaths.end() );
 
     QString scheduleText =
-        RicScheduleDataGenerator::generateSchedule( *timeline, *eclipseCase, wellPathsWithEvents, dates, mswWells, m_firstDateAsComment() );
+        RicScheduleDataGenerator::generateSchedule( *timeline,
+                                                    *eclipseCase,
+                                                    wellPathsWithEvents,
+                                                    dates,
+                                                    mswWells,
+                                                    m_firstDateAsComment(),
+                                                    m_alignColumns() );
 
     // Return the schedule text in a data container
     auto* dataObject           = new RimcDataContainerString();

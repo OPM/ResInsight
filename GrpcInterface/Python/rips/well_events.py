@@ -289,6 +289,7 @@ def generate_schedule_text(
     eclipse_case: EclipseCase,
     export_msw_for_wells: List[WellPath] = [],
     first_date_as_comment: bool = True,
+    align_columns: bool = False,
 ) -> str:
     """Generate Eclipse schedule text for all wells in the collection.
 
@@ -310,6 +311,9 @@ def generate_schedule_text(
             2024") instead of a DATES keyword. This avoids a DATES entry equal
             to the simulation start date, which some commercial simulators
             reject. Later dates are always emitted as DATES keywords.
+        align_columns (bool): When True, emit each keyword with a "--"-prefixed
+            column-header comment and right-aligned, fixed-width columns instead
+            of the compact default form. Defaults to False.
 
     Returns:
         str: Eclipse schedule text containing DATES, COMPDAT, WELSEGS, WCONPROD, etc.
@@ -353,6 +357,7 @@ def generate_schedule_text(
         eclipse_case=eclipse_case,
         export_msw_for_wells=export_msw_for_wells,
         first_date_as_comment=first_date_as_comment,
+        align_columns=align_columns,
     )
     if container and container.values:
         return "".join(container.values)
