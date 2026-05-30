@@ -128,6 +128,7 @@ list(
   ProjectDataModel/ProcessControl/CMakeLists_files.cmake
   ProjectDataModel/Polygons/CMakeLists_files.cmake
   ProjectDataModel/Polygons/Cloud/CMakeLists_files.cmake
+  ProjectDataModel/Workflow/CMakeLists_files.cmake
   ProjectDataModel/WellLog/CMakeLists_files.cmake
   ProjectDataModel/WellLog/WellLogTrack/CMakeLists_files.cmake
   ProjectDataModel/WellMeasurement/CMakeLists_files.cmake

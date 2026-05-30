@@ -60,6 +60,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     FractureCommands/CMakeLists_files.cmake
     PlotBuilderCommands/CMakeLists_files.cmake
     PolygonCommands/CMakeLists_files.cmake
+    WorkflowCommands/CMakeLists_files.cmake
     Sumo/CMakeLists_files.cmake
     ToolCommands/CMakeLists_files.cmake
     3dView/CMakeLists_files.cmake
