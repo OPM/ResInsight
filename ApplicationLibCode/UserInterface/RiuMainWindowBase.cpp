@@ -18,7 +18,6 @@
 
 #include "RiuMainWindowBase.h"
 
-#include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
@@ -768,7 +767,7 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
         }
     }
 
-    if ( RiaApplication::enableDevelopmentFeatures() )
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "export-dock-layout" ) )
     {
         QAction* exportLayoutAction = m_windowMenu->addAction( "Export Layout to Clipboard" );
         connect( exportLayoutAction, SIGNAL( triggered() ), this, SLOT( exportDockLayout() ) );

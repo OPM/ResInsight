@@ -32,6 +32,7 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
     static const std::vector<Feature> features = {
         { "osdu-well-logs", "OSDU Well Logs", "Enable import of well logs from OSDU." },
         { "undo-redo-view", "Undo/Redo View", "Show the command undo/redo history view." },
+        { "export-dock-layout", "Export Dock Layout", "Add a window menu action to export the dock layout to the clipboard." },
     };
 
     return features;
