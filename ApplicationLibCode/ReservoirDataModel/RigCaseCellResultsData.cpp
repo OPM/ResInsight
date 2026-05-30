@@ -20,11 +20,11 @@
 
 #include "RigCaseCellResultsData.h"
 
-#include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaResultNames.h"
 
 #include "RifReaderEclipseOutput.h"
@@ -1016,7 +1016,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     }
 
     // Oil Volume
-    if ( RiaApplication::enableDevelopmentFeatures() )
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "oil-volume-result" ) )
     {
         if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) ) )
         {
