@@ -29,7 +29,10 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
     //
     // Example:
     //   { "my-feature", "My Feature", "Short description of what it does." },
-    static const std::vector<Feature> features = {};
+    static const std::vector<Feature> features = {
+        { "osdu-well-logs", "OSDU Well Logs", "Enable import of well logs from OSDU." },
+        { "undo-redo-view", "Undo/Redo View", "Show the command undo/redo history view." },
+    };
 
     return features;
 }
