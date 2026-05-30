@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaVersionInfo.h"
 
@@ -71,7 +72,7 @@ RiuMainWindowBase::RiuMainWindowBase()
     m_dockManager = new ads::CDockManager( this );
     m_dockManager->setStyleSheet( "" );
 
-    if ( RiaPreferences::current()->useUndoRedo() && RiaApplication::enableDevelopmentFeatures() )
+    if ( RiaPreferences::current()->useUndoRedo() && RiaPreferencesSystem::current()->isFeatureEnabled( "undo-redo-view" ) )
     {
         m_undoView = new QUndoView( this );
     }
