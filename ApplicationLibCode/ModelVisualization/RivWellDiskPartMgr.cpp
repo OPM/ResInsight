@@ -113,6 +113,12 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
     cvf::Vec3d diskPosition = whEndPos;
     diskPosition.z() += pipeRadius + arrowLength * 2.0;
 
+    // Stagger disks vertically per well so wells whose disks overlap do not render coplanar and z-fight.
+    // resultWellIndex() gives a stable, unique per-well index; arrowLength keeps the spacing consistent with the disk
+    // scale and view zoom.
+    const double diskStaggerFactor = 0.05; // fraction of arrowLength per well index
+    diskPosition.z() += m_rimWell->resultWellIndex() * arrowLength * diskStaggerFactor;
+
     cvf::Vec3d textPosition = diskPosition;
     textPosition.z() += 0.1;
 
