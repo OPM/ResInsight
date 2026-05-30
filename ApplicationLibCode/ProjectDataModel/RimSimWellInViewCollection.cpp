@@ -884,14 +884,13 @@ void RimSimWellInViewCollection::scaleWellDisks()
 void RimSimWellInViewCollection::scaleWellDisksFromConfig( const RimWellDiskConfig& wellDiskConfig )
 {
     if ( !m_reservoirView ) return;
-    size_t frameIndex = static_cast<size_t>( m_reservoirView->currentTimeStep() );
 
+    // Compute the normalization range over all wells, independent of their current visibility. Using only the
+    // visible wells would make the disk radius of one well depend on whether other wells are filtered out (see #14083).
     double minValue = std::numeric_limits<double>::max();
     double maxValue = -minValue;
     for ( RimSimWellInView* w : wells )
     {
-        if ( !w->isWellDiskVisible( frameIndex ) ) continue;
-
         bool   isOk  = true;
         double value = w->calculateInjectionProductionFractions( wellDiskConfig, &isOk );
         if ( isOk )
