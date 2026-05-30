@@ -33,6 +33,7 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
         { "osdu-well-logs", "OSDU Well Logs", "Enable import of well logs from OSDU." },
         { "undo-redo-view", "Undo/Redo View", "Show the command undo/redo history view." },
         { "export-dock-layout", "Export Dock Layout", "Add a window menu action to export the dock layout to the clipboard." },
+        { "oil-volume-result", "Oil Volume Result", "Compute the derived oil volume cell result." },
     };
 
     return features;

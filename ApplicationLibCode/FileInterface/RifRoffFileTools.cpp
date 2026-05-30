@@ -149,12 +149,9 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         float yScale = getFloat( values, "scale.yscale" );
         float zScale = getFloat( values, "scale.zscale" );
 
-        if ( RiaApplication::enableDevelopmentFeatures() )
-        {
-            RiaLogging::info( std::format( "Grid dimensions: {} {} {}", nx, ny, nz ) );
-            RiaLogging::info( std::format( "Offset: {} {} {}", xOffset, yOffset, zOffset ) );
-            RiaLogging::info( std::format( "Scale: {} {} {}", xScale, yScale, zScale ) );
-        }
+        RiaLogging::debug( std::format( "Grid dimensions: {} {} {}", nx, ny, nz ) );
+        RiaLogging::debug( std::format( "Offset: {} {} {}", xOffset, yOffset, zOffset ) );
+        RiaLogging::debug( std::format( "Scale: {} {} {}", xScale, yScale, zScale ) );
 
         std::vector<float> cornerLines = reader.getFloatArray( "cornerLines" + roff::Parser::postFixData() );
         std::vector<float> zValues     = reader.getFloatArray( "zvalues" + roff::Parser::postFixData() );
@@ -259,22 +256,19 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         activeCellInfo->computeDerivedData();
         fractureActiveCellInfo->computeDerivedData();
 
-        if ( RiaApplication::enableDevelopmentFeatures() )
-        {
-            auto gridConstructionDone = high_resolution_clock::now();
+        auto gridConstructionDone = high_resolution_clock::now();
 
-            auto tokenizeDuration = duration_cast<milliseconds>( tokenizeDone - totalStart );
-            RiaLogging::info( std::format( "Tokenizing: {} ms", tokenizeDuration.count() ) );
+        auto tokenizeDuration = duration_cast<milliseconds>( tokenizeDone - totalStart );
+        RiaLogging::debug( std::format( "Tokenizing: {} ms", tokenizeDuration.count() ) );
 
-            auto parsingDuration = duration_cast<milliseconds>( parsingDone - tokenizeDone );
-            RiaLogging::info( std::format( "Parsing: {} ms", parsingDuration.count() ) );
+        auto parsingDuration = duration_cast<milliseconds>( parsingDone - tokenizeDone );
+        RiaLogging::debug( std::format( "Parsing: {} ms", parsingDuration.count() ) );
 
-            auto gridConstructionDuration = duration_cast<milliseconds>( gridConstructionDone - parsingDone );
-            RiaLogging::info( std::format( "Grid Construction: {} ms", gridConstructionDuration.count() ) );
+        auto gridConstructionDuration = duration_cast<milliseconds>( gridConstructionDone - parsingDone );
+        RiaLogging::debug( std::format( "Grid Construction: {} ms", gridConstructionDuration.count() ) );
 
-            auto totalDuration = duration_cast<milliseconds>( gridConstructionDone - totalStart );
-            RiaLogging::info( std::format( "Total: {} ms", totalDuration.count() ) );
-        }
+        auto totalDuration = duration_cast<milliseconds>( gridConstructionDone - totalStart );
+        RiaLogging::debug( std::format( "Total: {} ms", totalDuration.count() ) );
     }
     catch ( std::runtime_error& err )
     {
@@ -541,11 +535,8 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
         for ( auto [keyword, kind] : arrayTypes )
         {
             size_t keywordLength = reader.getArrayLength( keyword );
-            if ( RiaApplication::enableDevelopmentFeatures() )
-            {
-                RiaLogging::info(
-                    std::format( "Array found: '{}'. Type: {} with size: {}.", keyword, roff::Token::kindToString( kind ), keywordLength ) );
-            }
+            RiaLogging::debug(
+                std::format( "Array found: '{}'. Type: {} with size: {}.", keyword, roff::Token::kindToString( kind ), keywordLength ) );
 
             QString keywordUpperCase = QString::fromStdString( keyword ).toUpper();
 
