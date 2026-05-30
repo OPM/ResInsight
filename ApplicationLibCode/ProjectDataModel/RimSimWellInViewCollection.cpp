@@ -872,6 +872,12 @@ bool RimSimWellInViewCollection::showWellDiskQuantityLables() const
 void RimSimWellInViewCollection::scaleWellDisks()
 {
     if ( !isActive ) return;
+
+    // m_showWellDisks is a transient aggregate (disableIO) derived from the per-well showWellDisks() states. After a
+    // project reload it is still at its default (False) until the property panel is built, so sync it from the restored
+    // per-well states here to avoid skipping disk scaling on the first display-model build (see #14083).
+    updateStateForVisibilityCheckboxes();
+
     if ( m_showWellDisks().isFalse() ) return;
 
     RimWellDiskConfig wellDiskConfig = getActiveWellDiskConfig();

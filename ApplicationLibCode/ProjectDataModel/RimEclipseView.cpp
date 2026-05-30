@@ -1263,14 +1263,17 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     faultCollection()->synchronizeFaults();
 
-    m_wellCollection->scaleWellDisks();
-
     if ( m_surfaceCollection ) m_surfaceCollection->loadData( m_currentTimeStep );
 
     scheduleReservoirGridGeometryRegen();
     m_simWellsPartManager->clearGeometryCache();
 
     synchronizeWellsWithResults();
+
+    // Scale well disks after the wells have been (re)populated by synchronizeWellsWithResults(). Calling this earlier
+    // would iterate an empty well list, leaving each well's disk marked invalid so the disks are not drawn on the first
+    // display-model build after a project reload (see #14083).
+    m_wellCollection->scaleWellDisks();
 
     synchronizeLocalAnnotationsFromGlobal();
 
