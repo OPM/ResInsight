@@ -294,8 +294,7 @@ bool RiaPreferencesSystem::isFeatureEnabled( const QString& keyword ) const
 
     const std::vector<QString>& enabled = m_enabledFeatures();
 
-    auto contains = [&enabled]( const QString& value )
-    { return std::find( enabled.begin(), enabled.end(), value ) != enabled.end(); };
+    auto contains = [&enabled]( const QString& value ) { return std::find( enabled.begin(), enabled.end(), value ) != enabled.end(); };
 
     if ( contains( RiaExperimentalFeatures::enableAllKeyword() ) ) return true;
 
@@ -358,8 +357,7 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesSystem::calculateValueOptions( const
 
     if ( fieldNeedingOptions == &m_enabledFeatures )
     {
-        options.push_back(
-            caf::PdmOptionItemInfo( "Enable all experimental features", RiaExperimentalFeatures::enableAllKeyword() ) );
+        options.push_back( caf::PdmOptionItemInfo( "Enable all experimental features", RiaExperimentalFeatures::enableAllKeyword() ) );
 
         for ( const auto& feature : RiaExperimentalFeatures::availableFeatures() )
         {
