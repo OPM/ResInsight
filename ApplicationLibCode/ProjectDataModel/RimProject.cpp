@@ -102,6 +102,7 @@
 #include "Tools/RimAutomationSettings.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
+#include "Workflow/RimWorkflowCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -136,6 +137,9 @@ RimProject::RimProject()
 
     CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png" );
     scriptCollection.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &workflowCollection, "WorkflowCollection", "Workflows", ":/Folder.png" );
+    workflowCollection.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_jobCollection, "JobCollection", "Jobs", ":/gear.png" );
 
@@ -195,6 +199,9 @@ RimProject::RimProject()
     scriptCollection->directory.uiCapability()->setUiHidden( true );
     scriptCollection->uiCapability()->setUiName( "Scripts" );
     scriptCollection->uiCapability()->setUiIconFromResourceString( ":/octave.png" );
+
+    workflowCollection = new RimWorkflowCollection();
+    workflowCollection->uiCapability()->setUiName( "Workflows" );
 
     m_mainPlotCollection    = new RimMainPlotCollection();
     m_pinnedFieldCollection = new RimQuickAccessCollection();
@@ -1487,6 +1494,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     {
         uiTreeOrdering.add( scriptCollection() );
         uiTreeOrdering.add( jobCollection() );
+        uiTreeOrdering.add( workflowCollection() );
     }
     else if ( uiConfigName == "PlotWindow.Templates" )
     {
