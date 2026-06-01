@@ -107,10 +107,10 @@ private:
 protected:
     caf::PdmChildField<RimDockWindowController*> m_windowController;
 
-    caf::PdmField<bool> m_showWindow;
-    ads::CDockWidget*   m_dockWidget;
-    size_t              m_dockWindowId;
-    bool                m_isActiveViewer;
+    caf::PdmField<bool>   m_showWindow;
+    ads::CDockWidget*     m_dockWidget;
+    caf::PdmField<size_t> m_dockWindowId;
+    bool                  m_isActiveViewer;
 
     static size_t m_nextDockWindowId;
 };

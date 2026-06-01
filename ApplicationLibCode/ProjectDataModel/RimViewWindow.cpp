@@ -50,7 +50,6 @@ size_t RimViewWindow::m_nextDockWindowId = 0;
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::RimViewWindow()
     : m_dockWidget( nullptr )
-    , m_dockWindowId( m_nextDockWindowId++ )
     , m_isActiveViewer( false )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
@@ -60,6 +59,9 @@ RimViewWindow::RimViewWindow()
 
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window" );
     m_showWindow.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_dockWindowId, "DockWindowId", m_nextDockWindowId++, "Dock Window Id" );
+    m_dockWindowId.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,7 +301,7 @@ void RimViewWindow::updateWindowTitle()
 //--------------------------------------------------------------------------------------------------
 QString RimViewWindow::dockWindowName() const
 {
-    return QString( "%1_%2" ).arg( RiuDockWidgetTools::viewWindowPrefix() ).arg( m_dockWindowId );
+    return QString( "%1_%2" ).arg( RiuDockWidgetTools::viewWindowPrefix() ).arg( m_dockWindowId() );
 }
 
 //--------------------------------------------------------------------------------------------------
