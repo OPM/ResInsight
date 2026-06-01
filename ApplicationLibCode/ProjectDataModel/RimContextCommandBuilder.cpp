@@ -68,10 +68,7 @@
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleFractureStatisticsCollection.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimFaultDistanceResult.h"
-#include "RimFaultDistanceResultCollection.h"
 #include "RimFaultInView.h"
-#include "RimFaultInViewCollection.h"
 #include "RimFaultReactivationModel.h"
 #include "RimFileWellPath.h"
 #include "RimFishbones.h"
@@ -849,12 +846,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimFaultInView*>( firstUiItem ) )
         {
             menuBuilder << "RicExportFaultsFeature";
-            menuBuilder << "RicNewFaultDistanceResultFeature";
-        }
-        else if ( dynamic_cast<RimFaultInViewCollection*>( firstUiItem ) ||
-                  dynamic_cast<RimFaultDistanceResultCollection*>( firstUiItem ) || dynamic_cast<RimFaultDistanceResult*>( firstUiItem ) )
-        {
-            menuBuilder << "RicNewFaultDistanceResultFeature";
         }
         else if ( dynamic_cast<RimWellAllocationPlot*>( firstUiItem ) )
         {
@@ -1195,12 +1186,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimFaultInView*>( firstUiItem ) )
         {
             menuBuilder << "RicExportFaultsFeature";
-            menuBuilder << "RicNewFaultDistanceResultFeature";
-        }
-        else if ( dynamic_cast<RimFaultInViewCollection*>( firstUiItem ) ||
-                  dynamic_cast<RimFaultDistanceResultCollection*>( firstUiItem ) || dynamic_cast<RimFaultDistanceResult*>( firstUiItem ) )
-        {
-            menuBuilder << "RicNewFaultDistanceResultFeature";
         }
         else if ( dynamic_cast<RimSimWellInView*>( firstUiItem ) )
         {

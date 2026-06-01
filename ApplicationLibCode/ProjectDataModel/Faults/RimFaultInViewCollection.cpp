@@ -34,6 +34,7 @@
 #include "RiuMainWindow.h"
 
 #include "cafAppEnum.h"
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -481,4 +482,12 @@ void RimFaultInViewCollection::setShowOppositeFaultFaces( bool bEnabled )
 void RimFaultInViewCollection::setShowFaultLabelWithFieldChanged( bool bEnabled )
 {
     m_showFaultLabel.setValueWithFieldChanged( bEnabled );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewFaultDistanceResultFeature";
 }

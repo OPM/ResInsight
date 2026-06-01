@@ -24,6 +24,11 @@
 
 class RimFaultDistanceResult;
 
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+}
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -39,4 +44,5 @@ public:
 
 private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 };

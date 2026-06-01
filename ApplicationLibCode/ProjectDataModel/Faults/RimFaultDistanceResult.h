@@ -29,6 +29,11 @@
 class RigFault;
 class RimFaultInView;
 
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+}
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -52,6 +57,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     caf::PdmFieldHandle*          userDescriptionField() override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     void removeGeneratedResult( const QString& name );

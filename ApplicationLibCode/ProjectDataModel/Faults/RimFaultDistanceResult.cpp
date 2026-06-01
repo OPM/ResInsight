@@ -31,6 +31,7 @@
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -195,4 +196,12 @@ void RimFaultDistanceResult::removeGeneratedResult( const QString& name )
     if ( !resultsData ) return;
 
     resultsData->clearScalarResult( RiaDefines::ResultCatType::GENERATED, name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultDistanceResult::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewFaultDistanceResultFeature";
 }

@@ -28,6 +28,11 @@
 
 class RigFault;
 
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+}
+
 //==================================================================================================
 ///
 ///
@@ -48,6 +53,8 @@ public:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
     caf::PdmField<bool> showFault;
 

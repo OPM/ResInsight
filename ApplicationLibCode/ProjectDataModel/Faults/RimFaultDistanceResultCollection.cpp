@@ -20,6 +20,7 @@
 
 #include "RimFaultDistanceResult.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -83,4 +84,12 @@ void RimFaultDistanceResultCollection::defineUiTreeOrdering( caf::PdmUiTreeOrder
         uiTreeOrdering.add( result );
     }
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultDistanceResultCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewFaultDistanceResultFeature";
 }
