@@ -66,7 +66,7 @@ QString RiuDockWidgetTools::main3DWindowName()
 //--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::centralScreenName()
 {
-    return "dockCentralScreen";
+    return "dockWelcomeScreen";
 }
 
 //--------------------------------------------------------------------------------------------------

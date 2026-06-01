@@ -267,6 +267,8 @@ void RimProject::close()
     mainWindowTreeViewStates         = "";
     plotWindowCurrentModelIndexPaths = "";
     plotWindowTreeViewStates         = "";
+    mainWindowDockState              = "";
+    plotWindowDockState              = "";
 }
 
 //--------------------------------------------------------------------------------------------------
