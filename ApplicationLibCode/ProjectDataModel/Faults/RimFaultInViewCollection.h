@@ -35,6 +35,11 @@
 class RimEclipseView;
 class RimFaultInView;
 
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+}
+
 //==================================================================================================
 ///
 ///
@@ -89,6 +94,8 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void initAfterRead() override;
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
     RimEclipseView* parentView() const;
 

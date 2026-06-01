@@ -24,6 +24,7 @@
 #include "RimEclipseView.h"
 #include "RimIntersectionCollection.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
@@ -118,4 +119,12 @@ void RimFaultInView::setFaultGeometry( const RigFault* faultGeometry )
 const RigFault* RimFaultInView::faultGeometry() const
 {
     return m_rigFault;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewFaultDistanceResultFeature";
 }
