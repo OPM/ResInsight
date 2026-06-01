@@ -210,6 +210,11 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
         }
     }
 
+    for ( auto view : viewWindows() )
+    {
+        view->updateDockWindowVisibility();
+    }
+
     refreshToolbars();
 
     // Sync selections with property views.

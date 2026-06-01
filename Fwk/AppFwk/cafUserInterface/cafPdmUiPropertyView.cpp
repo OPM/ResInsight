@@ -115,7 +115,11 @@ PdmUiPropertyView::PdmUiPropertyView( QWidget* parent, Qt::WindowFlags f )
 //--------------------------------------------------------------------------------------------------
 PdmUiPropertyView::~PdmUiPropertyView()
 {
-    if ( m_defaultObjectEditor ) delete m_defaultObjectEditor;
+    if ( m_defaultObjectEditor )
+    {
+        m_defaultObjectEditor->setPdmObject( nullptr );
+        delete m_defaultObjectEditor;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
