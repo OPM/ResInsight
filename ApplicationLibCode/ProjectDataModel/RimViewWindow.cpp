@@ -263,6 +263,7 @@ void RimViewWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
         if ( isWindowVisible() )
         {
             onLoadDataAndUpdate();
+            setAsActiveViewer();
         }
         else
         {
@@ -280,14 +281,8 @@ void RimViewWindow::updateWindowTitle()
     if ( viewWidget() && dockWidget() )
     {
         viewWidget()->setWindowTitle( windowTitle() );
-        if ( dockWidget()->isFloating() && isActive() )
-        {
-            dockWidget()->setWindowTitle( "* " + windowTitle() );
-        }
-        else
-        {
-            dockWidget()->setWindowTitle( windowTitle() );
-        }
+        dockWidget()->setWindowTitle( windowTitle() );
+
         if ( isActive() )
         {
             dockWidget()->setIcon( QIcon( ":/ActiveWindow.svg" ) );
