@@ -40,9 +40,10 @@ void RiuPlotMainWindowTools::setActiveViewer( QString viewerName )
 {
     if ( RiaGuiApplication::isRunning() )
     {
-        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-
-        if ( mpw ) mpw->setActiveViewer( viewerName );
+        if ( auto mpw = RiaGuiApplication::instance()->mainPlotWindow() )
+        {
+            mpw->setActiveViewer( viewerName );
+        }
     }
 }
 
@@ -53,10 +54,10 @@ void RiuPlotMainWindowTools::setExpanded( const caf::PdmUiItem* uiItem )
 {
     if ( RiaGuiApplication::isRunning() )
     {
-        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-
-        bool expand = true;
-        if ( mpw ) mpw->setExpanded( uiItem, expand );
+        if ( auto mpw = RiaGuiApplication::instance()->mainPlotWindow() )
+        {
+            mpw->setExpanded( uiItem, true );
+        }
     }
 }
 
@@ -67,10 +68,10 @@ void RiuPlotMainWindowTools::selectAsCurrentItem( const caf::PdmObject* object )
 {
     if ( RiaGuiApplication::isRunning() )
     {
-        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-
-        bool allowActiveViewChange = true;
-        if ( mpw ) mpw->selectAsCurrentItem( object, allowActiveViewChange );
+        if ( auto mpw = RiaGuiApplication::instance()->mainPlotWindow() )
+        {
+            mpw->selectAsCurrentItem( object, true /* allowActiveViewChange */ );
+        }
     }
 }
 
@@ -81,17 +82,18 @@ const caf::PdmObject* RiuPlotMainWindowTools::firstVisibleAncestorOrThis( const 
 {
     if ( RiaGuiApplication::isRunning() )
     {
-        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-
-        auto current = const_cast<caf::PdmObject*>( object );
-        while ( current )
+        if ( auto mpw = RiaGuiApplication::instance()->mainPlotWindow() )
         {
-            if ( mpw->getTreeViewWithItem( current ) )
+            auto current = const_cast<caf::PdmObject*>( object );
+            while ( current )
             {
-                return current;
-            }
+                if ( mpw->getTreeViewWithItem( current ) )
+                {
+                    return current;
+                }
 
-            current = current->firstAncestorOfType<caf::PdmObject>();
+                current = current->firstAncestorOfType<caf::PdmObject>();
+            }
         }
     }
 
@@ -105,10 +107,10 @@ void RiuPlotMainWindowTools::toggleItemInSelection( const caf::PdmObject* object
 {
     if ( RiaGuiApplication::isRunning() )
     {
-        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-
-        bool allowActiveViewChange = true;
-        if ( mpw ) mpw->toggleItemInSelection( object, allowActiveViewChange );
+        if ( auto mpw = RiaGuiApplication::instance()->mainPlotWindow() )
+        {
+            mpw->toggleItemInSelection( object, true /* allowActiveViewChange */ );
+        }
     }
 }
 
@@ -134,9 +136,7 @@ void RiuPlotMainWindowTools::refreshToolbars()
 {
     if ( RiaGuiApplication::isRunning() )
     {
-        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-
-        if ( mpw )
+        if ( auto mpw = RiaGuiApplication::instance()->mainPlotWindow() )
         {
             mpw->updateWellLogPlotToolBar();
             mpw->updateMultiPlotToolBar();
