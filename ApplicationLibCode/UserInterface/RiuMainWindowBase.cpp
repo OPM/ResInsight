@@ -122,7 +122,7 @@ ads::CDockManager* RiuMainWindowBase::dockManager() const
 //--------------------------------------------------------------------------------------------------
 QString RiuMainWindowBase::dockWidgetStateString() const
 {
-    return QString::fromUtf8( m_dockManager->saveState( DOCKSTATE_VERSION ).toBase64() );
+    return QString::fromLatin1( m_dockManager->saveState( DOCKSTATE_VERSION ).toBase64() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ QString RiuMainWindowBase::dockWidgetStateString() const
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::restoreDockWidgetState( QString dockStateString )
 {
-    QByteArray dockState = QByteArray::fromBase64( dockStateString.toUtf8() );
+    QByteArray dockState = QByteArray::fromBase64( dockStateString.toLatin1() );
     m_dockManager->restoreState( dockState, DOCKSTATE_VERSION );
 }
 
