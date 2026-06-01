@@ -216,6 +216,7 @@ void RimDockWindowController::setAsActiveViewer()
         else if ( auto plotView = dynamic_cast<RimPlotWindow*>( pdmView ) )
         {
             RiuPlotMainWindowTools::selectAsCurrentItem( plotView );
+            RiuPlotMainWindowTools::refreshToolbars();
         }
     }
 }
