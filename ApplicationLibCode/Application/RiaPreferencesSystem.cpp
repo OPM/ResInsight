@@ -342,17 +342,26 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Experimental Features" );
-        group->add( &m_enabledFeatures );
-    }
-
-    {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Developer Settings" );
         group->add( &m_keywordsForLogging );
         group->add( &m_gtestFilter );
     }
 
     uiOrdering.add( &m_maximumNumberOfThreads );
+
+    // The experimental feature fields are shown on the dedicated Experimental tab, so do not let
+    // them auto-append to the System tab.
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesSystem::appendExperimentalFeaturesItems( caf::PdmUiOrdering& uiOrdering )
+{
+    caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Experimental Features" );
+    group->add( &m_enabledFeatures );
+    group->add( &m_selectedFeatureDescription );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -409,5 +418,43 @@ void RiaPreferencesSystem::defineEditorAttribute( const caf::PdmFieldHandle* fie
         {
             myAttr->m_selectDirectory = true;
         }
+    }
+    else if ( field == &m_enabledFeatures )
+    {
+        // Report the highlighted (clicked) feature so its description can be shown below the list.
+        if ( auto* myAttr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute ) )
+        {
+            myAttr->currentIndexFieldHandle = &m_currentFeatureKeyword;
+        }
+    }
+    else if ( field == &m_selectedFeatureDescription )
+    {
+        if ( auto* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute ) )
+        {
+            myAttr->wrapMode   = caf::PdmUiTextEditorAttribute::WordWrap;
+            myAttr->heightHint = 60;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesSystem::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_currentFeatureKeyword )
+    {
+        QString description;
+        for ( const auto& feature : RiaExperimentalFeatures::availableFeatures() )
+        {
+            if ( feature.keyword == m_currentFeatureKeyword() )
+            {
+                description = feature.description;
+                break;
+            }
+        }
+
+        m_selectedFeatureDescription = description;
+        m_selectedFeatureDescription.uiCapability()->updateConnectedEditors();
     }
 }

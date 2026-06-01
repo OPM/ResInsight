@@ -531,6 +531,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         openTelemetryGroup->setCollapsedByDefault();
         m_openTelemetryPreferences()->uiOrdering( uiConfigName, *openTelemetryGroup );
     }
+    else if ( uiConfigName == RiaPreferences::tabNameExperimental() )
+    {
+        m_systemPreferences()->appendExperimentalFeaturesItems( uiOrdering );
+    }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
         m_systemPreferences()->uiOrdering( uiConfigName, uiOrdering );
@@ -677,6 +681,14 @@ QString RiaPreferences::tabNameImportExport()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameExperimental()
+{
+    return "Experimental";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RiaPreferences::defaultMarginSize( QPageSize::PageSizeId pageSizeId )
 {
     QPageSize::Unit unit = QPageSize( pageSizeId ).definitionUnits();
@@ -707,6 +719,7 @@ QStringList RiaPreferences::tabNames()
     names << tabNameGeomech();
 #endif
     names << tabNameImportExport();
+    names << tabNameExperimental();
 
     if ( RiaApplication::enableDevelopmentFeatures() )
     {
