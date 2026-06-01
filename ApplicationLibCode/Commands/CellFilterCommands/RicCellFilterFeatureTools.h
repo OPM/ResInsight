@@ -25,6 +25,7 @@
 #include "RimCellFilterCollection.h"
 #include "RimCombinedFilter.h"
 #include "RimDataFilterCollection.h"
+#include "RimEclipseCase.h"
 #include "RimFilterInViewCollection.h"
 #include "RimGridView.h"
 
@@ -83,19 +84,35 @@ inline RimCellFilterCollection* resolveTargetCellFilterCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// If a RimDataFilterCollection (case-level) is the current selection, create a new T inside it,
-/// configure it via init, and select the result. Returns true when a data-filter collection was the
-/// selection — the caller should bail out of its own collection-targeted flow.
+/// Resolve the case-level RimDataFilterCollection to target from the current selection: either the
+/// data-filter collection node itself, or a selected RimEclipseCase (whose "Data Filters" node is
+/// hidden while empty, so the case node is right-clicked to create the first filter). Returns
+/// nullptr if neither is selected.
+//--------------------------------------------------------------------------------------------------
+inline RimDataFilterCollection* selectedDataFilterCollection()
+{
+    auto colls = caf::selectedObjectsByTypeStrict<RimDataFilterCollection*>();
+    if ( !colls.empty() ) return colls.front();
+
+    auto cases = caf::selectedObjectsByTypeStrict<RimEclipseCase*>();
+    if ( !cases.empty() && cases.front() ) return cases.front()->dataFilterCollection();
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// If a case-level data-filter collection is the current target (the collection node or a selected
+/// RimEclipseCase), create a new T inside it, configure it via init, and select the result. Returns
+/// true when a data-filter collection was the target — the caller should bail out of its own
+/// collection-targeted flow.
 //--------------------------------------------------------------------------------------------------
 template <typename T, typename Init>
 bool addNewFilterToDataCollectionIfSelected( Init&& init )
 {
     static_assert( std::is_base_of_v<RimCellFilter, T>, "T must derive from RimCellFilter" );
 
-    std::vector<RimDataFilterCollection*> selected = caf::selectedObjectsByTypeStrict<RimDataFilterCollection*>();
-    if ( selected.empty() ) return false;
-
-    RimDataFilterCollection* target = selected.front();
+    RimDataFilterCollection* target = selectedDataFilterCollection();
+    if ( !target ) return false;
 
     auto* created = new T();
     target->addFilter( created );

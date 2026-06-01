@@ -19,6 +19,7 @@
 
 #include "RicEclipsePropertyFilterNewFeature.h"
 
+#include "CellFilterCommands/RicCellFilterFeatureTools.h"
 #include "RicEclipsePropertyFilterFeatureImpl.h"
 #include "RicEclipsePropertyFilterNewExec.h"
 
@@ -47,8 +48,7 @@ bool RicEclipsePropertyFilterNewFeature::isCommandEnabled() const
     auto combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
     if ( !combined.empty() ) return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( combined.front() );
 
-    auto dataColls = caf::selectedObjectsByTypeStrict<RimDataFilterCollection*>();
-    if ( !dataColls.empty() ) return true;
+    if ( RicCellFilterFeatureTools::selectedDataFilterCollection() ) return true;
 
     if ( auto* target = RicEclipsePropertyFilterFeatureImpl::resolveTargetPropertyFilterCollection() )
     {
@@ -82,10 +82,9 @@ void RicEclipsePropertyFilterNewFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    auto dataColls = caf::selectedObjectsByTypeStrict<RimDataFilterCollection*>();
-    if ( !dataColls.empty() )
+    if ( auto* dataColl = RicCellFilterFeatureTools::selectedDataFilterCollection() )
     {
-        auto* created = dataColls.front()->addNewPropertyFilter();
+        auto* created = dataColl->addNewPropertyFilter();
         if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
         return;
     }

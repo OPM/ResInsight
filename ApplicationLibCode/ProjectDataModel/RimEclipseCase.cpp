@@ -78,6 +78,7 @@
 #include "RimWellPathCollection.h"
 #include "RimWellTargetMapping.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmDocument.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -675,7 +676,10 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
             uiTreeOrdering.add( &m_2dIntersectionViewCollection );
         }
 
-        uiTreeOrdering.add( m_dataFilterCollection() );
+        if ( m_dataFilterCollection() && m_dataFilterCollection()->shouldBeVisibleInTree() )
+        {
+            uiTreeOrdering.add( m_dataFilterCollection() );
+        }
 
         uiTreeOrdering.add( &m_wellTargetMappings );
     }
@@ -686,6 +690,18 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Expose the case-level data-filter creation commands directly on the case node. The "Data Filters"
+/// collection node is hidden while empty, so this lets the user create the first filter from here.
+/// Delegates to RimDataFilterCollection::appendMenuItems, wrapped in a single "Data Filters" submenu.
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder.subMenuStart( "Data Filters", QIcon( ":/CellFilter.png" ) );
+    m_dataFilterCollection->appendMenuItems( menuBuilder );
+    menuBuilder.subMenuEnd();
 }
 
 //--------------------------------------------------------------------------------------------------

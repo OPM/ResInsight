@@ -156,6 +156,10 @@ void RimDataFilterCollection::onItemsChanged()
         if ( child && m_srcCase() ) child->setCase( m_srcCase() );
     }
     filtersChanged.send();
+
+    // The collection node is hidden from the case tree while empty, so refresh the owner case to
+    // re-run its defineUiTreeOrdering and add the node once the first filter appears.
+    if ( auto* c = ownerCase() ) c->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,6 +170,9 @@ void RimDataFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* chi
 {
     updateConnectedEditors();
     filtersChanged.send();
+
+    // Refresh the owner case so its defineUiTreeOrdering re-runs and drops the node once empty.
+    if ( auto* c = ownerCase() ) c->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
