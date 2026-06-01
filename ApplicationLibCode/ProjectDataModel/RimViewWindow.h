@@ -101,15 +101,16 @@ protected:
 private:
     friend class RimProject;
 
-    void         dockInWindow( RiaDefines::RIMainWindow mainWindowID );
+    void         dockInWindow( int mainWindowID );
     virtual void assignIdIfNecessary() = 0;
 
 protected:
-    caf::PdmField<bool>      m_showWindow;
-    RimDockWindowController* m_windowController;
-    ads::CDockWidget*        m_dockWidget;
-    size_t                   m_dockWindowId;
-    bool                     m_activeViewer;
+    caf::PdmChildField<RimDockWindowController*> m_windowController;
+
+    caf::PdmField<bool> m_showWindow;
+    ads::CDockWidget*   m_dockWidget;
+    size_t              m_dockWindowId;
+    bool                m_isActiveViewer;
 
     static size_t m_nextDockWindowId;
 };
