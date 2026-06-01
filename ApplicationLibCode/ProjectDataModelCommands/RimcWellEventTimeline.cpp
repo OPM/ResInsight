@@ -644,14 +644,13 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
     std::vector<RimWellPath*>    mswWellPaths = m_exportMswForWells.ptrReferencedObjectsByType();
     std::set<const RimWellPath*> mswWells( mswWellPaths.begin(), mswWellPaths.end() );
 
-    QString scheduleText =
-        RicScheduleDataGenerator::generateSchedule( *timeline,
-                                                    *eclipseCase,
-                                                    wellPathsWithEvents,
-                                                    dates,
-                                                    mswWells,
-                                                    m_firstDateAsComment(),
-                                                    m_alignColumns() );
+    QString scheduleText = RicScheduleDataGenerator::generateSchedule( *timeline,
+                                                                       *eclipseCase,
+                                                                       wellPathsWithEvents,
+                                                                       dates,
+                                                                       mswWells,
+                                                                       m_firstDateAsComment(),
+                                                                       m_alignColumns() );
 
     // Return the schedule text in a data container
     auto* dataObject           = new RimcDataContainerString();
