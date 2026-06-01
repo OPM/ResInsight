@@ -118,7 +118,7 @@ void RicSetParentWellPathFeature::onActionTriggered( bool isChecked )
         if ( parentWellPath )
         {
             if ( !parentWellPath->wellPathGeometry() || parentWellPath->wellPathGeometry()->measuredDepths().size() < 2 ) return;
-            if ( selectedWellPath->wellPathGeometry()->wellPathPoints().empty() ) return;
+            if ( !selectedWellPath->wellPathGeometry() || selectedWellPath->wellPathGeometry()->wellPathPoints().empty() ) return;
 
             auto headOfLateral = selectedWellPath->wellPathGeometry()->wellPathPoints().front();
 
