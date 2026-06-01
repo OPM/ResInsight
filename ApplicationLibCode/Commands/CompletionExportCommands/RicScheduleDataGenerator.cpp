@@ -35,6 +35,8 @@
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 
+#include <QLocale>
+
 #include <algorithm>
 #include <map>
 #include <set>
@@ -46,7 +48,8 @@ QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline& 
                                                     RimEclipseCase&                     eclipseCase,
                                                     const std::vector<RimWellPath*>&    wellPaths,
                                                     const std::vector<QDateTime>&       dates,
-                                                    const std::set<const RimWellPath*>& mswWells )
+                                                    const std::set<const RimWellPath*>& mswWells,
+                                                    bool                                firstDateAsComment )
 {
     QString result;
 
@@ -68,14 +71,17 @@ QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline& 
                       [&exportName]( const RimWellPath* a, const RimWellPath* b )
                       { return QString::compare( exportName( a ), exportName( b ) ) < 0; } );
 
-    // Generate section for each date
+    // Generate section for each date. The first (earliest) date may be emitted as a comment
+    // instead of a DATES keyword when firstDateAsComment is set.
+    bool isFirstDate = true;
     for ( const auto& date : dates )
     {
-        QString dateSection = generateDateSection( timeline, eclipseCase, sortedWellPaths, date, mswWells );
+        QString dateSection = generateDateSection( timeline, eclipseCase, sortedWellPaths, date, mswWells, isFirstDate && firstDateAsComment );
         if ( !dateSection.isEmpty() )
         {
             result += dateSection;
         }
+        isFirstDate = false;
     }
 
     return result;
@@ -131,7 +137,8 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
                                                        RimEclipseCase&                     eclipseCase,
                                                        const std::vector<RimWellPath*>&    wellPaths,
                                                        const QDateTime&                    date,
-                                                       const std::set<const RimWellPath*>& mswWells )
+                                                       const std::set<const RimWellPath*>& mswWells,
+                                                       bool                                dateAsComment )
 {
     // Keyword priority order for output
     static const std::vector<QString> keywordOrder = { "WELSPECS",
@@ -154,8 +161,18 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
 
     QString result;
 
-    // Generate DATES keyword
-    result += RimKeywordFactory::deckKeywordToString( RimKeywordFactory::datesKeyword( date ) ) + "\n";
+    // Generate DATES keyword, or a date comment when requested (e.g. for the first date, which
+    // equals the simulation start date and is rejected as a DATES entry by some simulators).
+    if ( dateAsComment )
+    {
+        QLocale locale( QLocale::English );
+        QString month = locale.monthName( date.date().month(), QLocale::ShortFormat ).toUpper();
+        result += QString( "-- Date: %1 %2 %3\n" ).arg( date.date().day() ).arg( month ).arg( date.date().year() );
+    }
+    else
+    {
+        result += RimKeywordFactory::deckKeywordToString( RimKeywordFactory::datesKeyword( date ) ) + "\n";
+    }
 
     // Records for each keyword name are accumulated across wells, then serialised once below.
     std::map<QString, Opm::DeckKeyword> keywordBlocks;

@@ -48,22 +48,28 @@ public:
     // mswWells lists the wells for which the multi-segment-well keywords (WELSEGS, COMPSEGS,
     // WSEGVALV, WSEGAICD) are exported. Wells not in the set get no MSW keywords; an empty set
     // suppresses MSW export for all wells.
+    // When firstDateAsComment is true, the first (earliest) date is written as a comment line
+    // instead of a DATES keyword, since some commercial simulators reject a DATES entry that
+    // equals the simulation start date. Later dates are always emitted as DATES keywords.
     static QString generateSchedule( const RimWellEventTimeline&         timeline,
                                      RimEclipseCase&                     eclipseCase,
                                      const std::vector<RimWellPath*>&    wellPaths,
                                      const std::vector<QDateTime>&       dates,
-                                     const std::set<const RimWellPath*>& mswWells );
+                                     const std::set<const RimWellPath*>& mswWells,
+                                     bool                                firstDateAsComment = true );
 
     // Collect all unique dates from all wells' timelines
     static std::vector<QDateTime> collectAllDates( const RimWellEventTimeline& timeline, const std::vector<RimWellPath*>& wellPaths );
 
 private:
-    // Generate schedule section for a single date
+    // Generate schedule section for a single date. When dateAsComment is true, the date is
+    // written as a comment line instead of a DATES keyword.
     static QString generateDateSection( const RimWellEventTimeline&         timeline,
                                         RimEclipseCase&                     eclipseCase,
                                         const std::vector<RimWellPath*>&    wellPaths,
                                         const QDateTime&                    date,
-                                        const std::set<const RimWellPath*>& mswWells );
+                                        const std::set<const RimWellPath*>& mswWells,
+                                        bool                                dateAsComment = false );
 
     static std::optional<Opm::DeckKeyword>
         generateWelspecsForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );

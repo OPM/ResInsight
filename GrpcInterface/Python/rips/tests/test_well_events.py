@@ -296,9 +296,11 @@ class TestScheduleGeneration:
         # Apply events to create actual completions
         timeline.set_timestamp(timestamp="2024-12-31")
 
-        # Generate schedule text
+        # Generate schedule text (keep the first date as a DATES keyword for this assertion)
         schedule_text = timeline.generate_schedule_text(
-            eclipse_case=case, export_msw_for_wells=project.well_paths()
+            eclipse_case=case,
+            export_msw_for_wells=project.well_paths(),
+            first_date_as_comment=False,
         )
 
         # Verify schedule text contains expected keywords
@@ -348,9 +350,11 @@ class TestScheduleGeneration:
         # Apply events to create actual completions
         timeline.set_timestamp(timestamp="2024-12-31")
 
-        # Generate schedule text
+        # Generate schedule text (keep the first date as a DATES keyword for this assertion)
         schedule_text = timeline.generate_schedule_text(
-            eclipse_case=case, export_msw_for_wells=project.well_paths()
+            eclipse_case=case,
+            export_msw_for_wells=project.well_paths(),
+            first_date_as_comment=False,
         )
 
         # Verify we have schedule text with completions and controls
@@ -400,6 +404,62 @@ class TestScheduleGeneration:
         assert schedule_text, "Schedule text should not be empty"
         assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
         assert "2024" in schedule_text, "Schedule should contain event dates"
+
+    def test_first_date_as_comment(self, project_with_case_and_well):
+        """Test that the first (earliest) date can be emitted as a comment.
+
+        The first date equals the simulation start date, which some commercial
+        simulators reject as a DATES entry. With first_date_as_comment (the
+        default), the earliest date becomes a comment line while later dates
+        remain real DATES keywords.
+        """
+        project, case, timeline = project_with_case_and_well
+
+        well_paths = project.well_paths()
+        well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
+
+        # Two distinct dates: earliest 2024-01-01, later 2024-06-01
+        timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well_path_a,
+            start_md=1800.0,
+            end_md=2000.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+        timeline.add_perf_event(
+            event_date="2024-06-01",
+            well_path=well_path_a,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            state="OPEN",
+        )
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+
+        # Default (first_date_as_comment=True): first date is a comment, later date a DATES keyword
+        default_text = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=project.well_paths()
+        )
+        assert default_text, "Schedule text should not be empty"
+        assert "-- Date: 1 JAN 2024" in default_text, (
+            "First date should be emitted as a comment"
+        )
+        assert default_text.count("DATES") == 1, (
+            "Only the later date should be a DATES keyword"
+        )
+
+        # Explicit False: both dates emitted as DATES keywords (legacy behavior)
+        legacy_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=project.well_paths(),
+            first_date_as_comment=False,
+        )
+        assert "-- Date:" not in legacy_text, (
+            "No date comment should be present when first_date_as_comment is False"
+        )
+        assert legacy_text.count("DATES") == 2, "Both dates should be DATES keywords"
 
     def test_timestamp_filters_wells_in_schedule_output(
         self, project_with_case_and_well
@@ -1296,9 +1356,12 @@ class TestScheduleGeneration:
             is_producer=True,
         )
 
-        # Control events don't require set_timestamp
+        # Control events don't require set_timestamp. Keep all dates as DATES keywords
+        # so the chronological ordering of the keyword can be verified.
         schedule_text = timeline.generate_schedule_text(
-            eclipse_case=case, export_msw_for_wells=project.well_paths()
+            eclipse_case=case,
+            export_msw_for_wells=project.well_paths(),
+            first_date_as_comment=False,
         )
 
         print(f"\nSchedule text for date ordering test:\n{schedule_text}")
@@ -2224,9 +2287,11 @@ class TestScheduleKeywordEvents:
             },
         )
 
-        # Generate schedule text
+        # Generate schedule text (keep the first date as a DATES keyword for this assertion)
         schedule_text = timeline.generate_schedule_text(
-            eclipse_case=case, export_msw_for_wells=project.well_paths()
+            eclipse_case=case,
+            export_msw_for_wells=project.well_paths(),
+            first_date_as_comment=False,
         )
 
         print(f"\nSchedule text with RPTRST keyword:\n{schedule_text}")
