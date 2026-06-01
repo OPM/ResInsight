@@ -71,11 +71,6 @@ namespace caf
 class DisplayCoordTransform;
 }
 
-namespace ads
-{
-class CDockWidget;
-}
-
 enum PartRenderMaskEnum
 {
     surfaceBit               = 1,

@@ -93,7 +93,6 @@ protected:
     void timerEvent( QTimerEvent* event ) override;
 
     QStringList defaultDockStateNames() override;
-    QStringList windowsMenuFeatureNames() override;
 
 private:
     void setPdmRoot( caf::PdmObject* pdmRoot );

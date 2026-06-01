@@ -128,7 +128,6 @@ public:
 protected:
     void        closeEvent( QCloseEvent* event ) override;
     QStringList defaultDockStateNames() override;
-    QStringList windowsMenuFeatureNames() override;
 
     void dragEnterEvent( QDragEnterEvent* event ) override;
     void dropEvent( QDropEvent* event ) override;
