@@ -1,8 +1,6 @@
 name: ResInsight Mac Build
 
 on:
-  push:
-  pull_request:
   workflow_dispatch:
   schedule:
     # 02:00 UTC daily, offset from ResInsightWithCache.yml's 01:00 slot
