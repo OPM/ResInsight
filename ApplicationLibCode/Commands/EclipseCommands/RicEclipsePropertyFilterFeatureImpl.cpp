@@ -84,7 +84,7 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyF
     propertyFilterCollection->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
 
-    propertyFilterCollection->onChildAdded( nullptr );
+    propertyFilterCollection->notifyFiltersChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,6 +133,8 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter( RimEclipseProper
 
     propertyFilterCollection->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
+
+    propertyFilterCollection->notifyFiltersChanged();
 }
 
 //--------------------------------------------------------------------------------------------------

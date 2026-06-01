@@ -283,6 +283,8 @@ RimEclipsePropertyFilter* RimEclipsePropertyFilterCollection::addFilterLinkedToC
         updateDefaultResult( view->cellResult() );
     }
 
+    notifyFiltersChanged();
+
     return propertyFilter;
 }
 
@@ -319,6 +321,15 @@ void RimEclipsePropertyFilterCollection::onChildDeleted( caf::PdmChildArrayField
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilterCollection::notifyFiltersChanged()
+{
+    updateDisplayModelNotifyManagedViews( nullptr );
+    filtersChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimCombinedFilter* RimEclipsePropertyFilterCollection::addNewCombinedFilter()
 {
     auto* combined = new RimCombinedFilter();
@@ -331,5 +342,6 @@ RimCombinedFilter* RimEclipsePropertyFilterCollection::addNewCombinedFilter()
 
     m_propertyFilters.push_back( combined );
     updateConnectedEditors();
+    notifyFiltersChanged();
     return combined;
 }

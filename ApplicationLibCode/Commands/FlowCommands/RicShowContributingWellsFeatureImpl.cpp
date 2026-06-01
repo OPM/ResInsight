@@ -155,6 +155,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     propertyFilter->resultDefinition()->loadDataAndUpdate();
 
     propertyFilterCollection->updateConnectedEditors();
+    propertyFilterCollection->notifyFiltersChanged();
 
     Riu3DMainWindowTools::setExpanded( propertyFilterCollection );
 
