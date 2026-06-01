@@ -723,6 +723,8 @@ void RiuViewer::mousePressEvent( QMouseEvent* mouseEvent )
     if ( mouseEvent )
     {
         m_lastMousePressPosition = mouseEvent->pos();
+
+        if ( auto ownView = ownerViewWindow() ) ownView->setAsActiveViewer();
     }
 }
 
