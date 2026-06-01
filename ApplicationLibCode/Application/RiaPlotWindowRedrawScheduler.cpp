@@ -113,7 +113,6 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdates()
             }
         }
 
-        // TODO - add method to viewer interface to get dock container size
         if ( auto pdmView = plotBook->ownerViewWindow() )
         {
             QSize s = pdmView->dockWidget()->size();

@@ -492,11 +492,11 @@ void RiuMainWindowBase::createTreeViews( int numberOfTrees )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setUpCentralDockWidget()
 {
-    m_centralDockWidget = RiuDockWidgetTools::createDockWidget( "Welcome", RiuDockWidgetTools::welcomeScreenName(), this );
-    QLabel* welcome     = new QLabel();
-    welcome->setAutoFillBackground( true );
-    welcome->setStyleSheet( "QLabel { background-color: darkgrey; }" );
-    m_centralDockWidget->setWidget( welcome );
+    m_centralDockWidget = RiuDockWidgetTools::createDockWidget( "", RiuDockWidgetTools::centralScreenName(), this );
+    QLabel* label       = new QLabel();
+    label->setAutoFillBackground( true );
+    label->setStyleSheet( "QLabel { background-color: darkgrey; }" );
+    m_centralDockWidget->setWidget( label );
     m_centralDockWidget->setFeature( ads::CDockWidget::NoTab, true );
     dockManager()->setCentralWidget( m_centralDockWidget );
 }
@@ -701,7 +701,7 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     keys.sort();
     for ( auto& key : keys )
     {
-        if ( key == RiuDockWidgetTools::welcomeScreenName() ) continue;
+        if ( key == RiuDockWidgetTools::centralScreenName() ) continue;
         auto dock = dockMap[key];
         dockWindowsMenu->addAction( dock->toggleViewAction() );
     }
@@ -740,14 +740,6 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     {
         QAction* exportLayoutAction = m_windowMenu->addAction( "Export Layout to Clipboard" );
         connect( exportLayoutAction, SIGNAL( triggered() ), this, SLOT( exportDockLayout() ) );
-    }
-
-    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-
-    auto featureNames = windowsMenuFeatureNames();
-    for ( const auto& name : featureNames )
-    {
-        m_windowMenu->addAction( cmdFeatureMgr->action( name ) );
     }
 }
 
