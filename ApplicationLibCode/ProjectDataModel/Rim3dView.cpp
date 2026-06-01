@@ -186,7 +186,7 @@ Rim3dView::Rim3dView()
     m_annotationsPartManager = new RivAnnotationsPartMgr( this );
     m_measurementPartManager = new RivMeasurementPartMgr( this );
 
-    this->dockAs3DViewWindow();
+    dockAs3DViewWindow();
 
     // Every timer tick, send a signal for updating animations.
     // Any animation is supposed to connect to this signal

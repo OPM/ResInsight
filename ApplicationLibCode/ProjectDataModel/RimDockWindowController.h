@@ -37,12 +37,17 @@ class RimDockWindowController : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    static constexpr int MAIN_WINDOW_ID_UNASSIGNED = -1;
+    static constexpr int MAIN_WINDOW_ID_3D         = 0;
+    static constexpr int MAIN_WINDOW_ID_PLOTS      = 1;
+
+public:
     RimDockWindowController();
     ~RimDockWindowController() override;
 
-    void                     setMainWindowId( RiaDefines::RIMainWindow mainId );
-    void                     setViewToControl( RimViewWindow* view );
-    RiaDefines::RIMainWindow mainWindowId() const;
+    void setMainWindowId( int mainId );
+    void setViewToControl( RimViewWindow* view );
+    int  mainWindowId() const;
 
     void setAsActiveViewer();
 
@@ -59,6 +64,6 @@ protected:
     void setupBeforeSave() override;
 
 private:
-    RiaDefines::RIMainWindow         m_mainWindowID;
+    caf::PdmField<int>               m_mainWindowID;
     caf::PdmPtrField<RimViewWindow*> m_viewToControl;
 };
