@@ -112,8 +112,6 @@ protected:
 
     virtual QStringList defaultDockStateNames() = 0;
 
-    virtual QStringList windowsMenuFeatureNames() = 0;
-
     void showEvent( QShowEvent* event ) override;
 
 protected slots:

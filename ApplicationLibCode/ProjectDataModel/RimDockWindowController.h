@@ -60,9 +60,6 @@ protected:
     QWidget*           viewWidget();
     RiuMainWindowBase* getMainWindow();
 
-    // Overridden PDM methods
-    void setupBeforeSave() override;
-
 private:
     caf::PdmField<int>               m_mainWindowID;
     caf::PdmPtrField<RimViewWindow*> m_viewToControl;
