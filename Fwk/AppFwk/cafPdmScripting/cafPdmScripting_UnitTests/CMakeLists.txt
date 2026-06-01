@@ -26,7 +26,7 @@ set(PROJECT_FILES
     cafMockObjects.cpp
 )
 
-qt_add_executable(${PROJECT_NAME} ${PROJECT_FILES})
+qt_add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${PROJECT_FILES})
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(

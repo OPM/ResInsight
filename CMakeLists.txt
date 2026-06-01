@@ -37,11 +37,23 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   endif()
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  # Pure LLVM/Homebrew clang: require 19+ for the C++23 stdlib coverage
+  # ResInsight depends on.
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
     message(
       FATAL_ERROR
         "Minimum supported version is Clang 19, detected version: ${CMAKE_CXX_COMPILER_VERSION}"
+    )
+  endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  # AppleClang versions trail mainline LLVM by ~2 majors; AppleClang 17 in Xcode
+  # 16 is based on LLVM 19 and ships a libc++ with the C++23 features we use.
+  # Reject earlier AppleClang explicitly.
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 17.0)
+    message(
+      FATAL_ERROR
+        "Minimum supported version is AppleClang 17 (Xcode 16), detected version: ${CMAKE_CXX_COMPILER_VERSION}"
     )
   endif()
 endif()
@@ -90,6 +102,24 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   add_definitions(-DCVF_LINUX)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   add_definitions(-DCVF_OSX)
+
+  # macOS: Apple's SDK ships an older libc++ that lacks C++23 symbols ResInsight
+  # needs (std::to_chars(double), std::bad_expected_access, etc.).  Homebrew
+  # llvm packages place their own libc++ at <prefix>/lib/c++, but clang does not
+  # add that to its default link search, so -lc++ resolves to the SDK copy via
+  # -isysroot.  Prepend the toolchain's libc++ dir to the linker search (and
+  # rpath for runtime) when we detect a Homebrew layout.  See #14045.
+  get_filename_component(_ri_llvm_bin_dir "${CMAKE_CXX_COMPILER}" DIRECTORY)
+  get_filename_component(_ri_llvm_root "${_ri_llvm_bin_dir}" DIRECTORY)
+  set(_ri_llvm_libcxx_dir "${_ri_llvm_root}/lib/c++")
+  if(EXISTS "${_ri_llvm_libcxx_dir}/libc++.dylib")
+    message(
+      STATUS "macOS: forcing toolchain libc++ from ${_ri_llvm_libcxx_dir}"
+    )
+    add_link_options(
+      "-L${_ri_llvm_libcxx_dir}" "-Wl,-rpath,${_ri_llvm_libcxx_dir}"
+    )
+  endif()
 elseif(MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
   set(_HAS_STD_BYTE 0)
@@ -446,7 +476,17 @@ endif()
 # OpenVDS seismic file access
 # ##############################################################################
 
-option(RESINSIGHT_ENABLE_OPENVDS "Add support for OpenVDS seismic files" ON)
+# Bluware only ships Windows and Linux binaries (manylinux_2014); there is no
+# macOS distribution.  Default to OFF on Apple platforms so the feature can be
+# explicitly opted in if the user supplies their own build.  See #14045.
+if(APPLE)
+  set(_ri_default_openvds OFF)
+else()
+  set(_ri_default_openvds ON)
+endif()
+option(RESINSIGHT_ENABLE_OPENVDS "Add support for OpenVDS seismic files"
+       ${_ri_default_openvds}
+)
 
 if(RESINSIGHT_ENABLE_OPENVDS)
   message(STATUS "Starting download of external library OpenVDS ...")
@@ -569,6 +609,42 @@ list(APPEND THIRD_PARTY_LIBRARIES NRLib)
 # ##############################################################################
 
 add_definitions(-DOPENZGY_STATIC)
+
+# macOS: openzgy assumes the glibc strerror_r signature and unconditionally
+# includes <omp.h>.  Apply a local patch that stubs OpenMP and rewrites the
+# strerror_r fallback so the vendored sources compile without libomp.  The patch
+# is idempotent via git apply --reverse --check.
+if(APPLE)
+  set(CMAKE_DISABLE_FIND_PACKAGE_OpenMP
+      ON
+      CACHE BOOL "openzgy is patched to not require OpenMP on macOS" FORCE
+  )
+  set(_openzgy_macos_patch
+      "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/openzgy-patches/macos-disable-openmp.patch"
+  )
+  execute_process(
+    COMMAND git apply --reverse --check "${_openzgy_macos_patch}"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/openzgy"
+    RESULT_VARIABLE _openzgy_already_applied
+    OUTPUT_QUIET ERROR_QUIET
+  )
+  if(NOT _openzgy_already_applied EQUAL 0)
+    message(STATUS "openzgy: applying macOS OpenMP-disable patch")
+    execute_process(
+      COMMAND git apply "${_openzgy_macos_patch}"
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/openzgy"
+      RESULT_VARIABLE _openzgy_apply_result
+    )
+    if(NOT _openzgy_apply_result EQUAL 0)
+      message(
+        FATAL_ERROR
+          "openzgy: failed to apply ${_openzgy_macos_patch} - openzgy source may have been re-vendored; refresh the patch."
+      )
+    endif()
+  else()
+    message(STATUS "openzgy: macOS patch already applied")
+  endif()
+endif()
 
 # Suppress CMake deprecation warnings from openzgy/zfp's old CMakeLists.txt
 set(CMAKE_WARN_DEPRECATED

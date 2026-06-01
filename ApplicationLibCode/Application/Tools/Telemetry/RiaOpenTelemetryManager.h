@@ -27,8 +27,20 @@
 #include <memory>
 #include <mutex>
 #include <queue>
-#include <stacktrace>
 #include <string>
+#include <version>
+
+// std::stacktrace is C++23.  libc++ shipped with Homebrew llvm@19 (and
+// older toolchains) does not provide it yet, so guard the include + the
+// reportCrash overload that uses it.  Use the feature-test macro from
+// <version> rather than __has_include, since the header may be present
+// without a usable implementation.  See #14045.
+#if defined( __cpp_lib_stacktrace ) && __cpp_lib_stacktrace >= 202011L
+#include <stacktrace>
+#define RIA_HAS_STD_STACKTRACE 1
+#else
+#define RIA_HAS_STD_STACKTRACE 0
+#endif
 
 class QString;
 class QNetworkAccessManager;
@@ -88,7 +100,9 @@ public:
 
     // Event reporting
     void reportEventAsync( const std::string& eventName, const std::map<std::string, std::string>& attributes );
+#if RIA_HAS_STD_STACKTRACE
     void reportCrash( int signalCode, const std::stacktrace& trace, const std::map<std::string, std::string>& extraAttributes = {} );
+#endif
 
     // Configuration
     bool isEnabled() const;
