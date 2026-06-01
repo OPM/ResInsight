@@ -554,9 +554,8 @@ void RiaRegressionTestRunner::setDefaultSnapshotSizeFor3dViews()
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if ( !mainWnd ) return;
 
-    QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
-
     // TODO - fix snapshot view sizes
+    // QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
     // RiuMainWindowTools::setFixedWindowSizeFor3dViews( mainWnd, defaultSize.width(), defaultSize.height() );
 }
 
@@ -568,9 +567,8 @@ void RiaRegressionTestRunner::setDefaultSnapshotSizeForPlotWindows()
     RiuPlotMainWindow* plotMainWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if ( !plotMainWindow ) return;
 
-    QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
-
     // TODO - fix snapshot view sizes
+    // QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
     // RiuMainWindowTools::setWindowSizeOnWidgetsInViewWindows( plotMainWindow, defaultSize.width(), defaultSize.height() );
 }
 
