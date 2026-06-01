@@ -70,6 +70,10 @@ public:
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    // Refresh managed views and notify the filter facade after a filter is added or removed outside
+    // the PDM onChildAdded/onChildDeleted hooks (e.g. push_back/insertAt/erase, which do not fire them).
+    void notifyFiltersChanged();
+
 protected:
     void initAfterRead() override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
