@@ -50,11 +50,13 @@ size_t RimViewWindow::m_nextDockWindowId = 0;
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::RimViewWindow()
     : m_dockWidget( nullptr )
-    , m_windowController( nullptr )
     , m_dockWindowId( m_nextDockWindowId++ )
-    , m_activeViewer( false )
+    , m_isActiveViewer( false )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
+
+    CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "" );
+    m_windowController.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window" );
     m_showWindow.uiCapability()->setUiHidden( true );
@@ -114,7 +116,7 @@ bool RimViewWindow::isMainDockedWindow() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewWindow::isDockedIn3DView() const
 {
-    return ( m_windowController != nullptr ) && ( m_windowController->mainWindowId() == RiaDefines::RIMainWindow::MAIN_WINDOW_3D );
+    return ( m_windowController != nullptr ) && ( m_windowController->mainWindowId() == RimDockWindowController::MAIN_WINDOW_ID_3D );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,7 +124,7 @@ bool RimViewWindow::isDockedIn3DView() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewWindow::isDockedInPlotView() const
 {
-    return ( m_windowController != nullptr ) && ( m_windowController->mainWindowId() == RiaDefines::RIMainWindow::MAIN_WINDOW_PLOTS );
+    return ( m_windowController != nullptr ) && ( m_windowController->mainWindowId() == RimDockWindowController::MAIN_WINDOW_ID_PLOTS );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,6 +170,7 @@ void RimViewWindow::updateDockWindowVisibility()
 
     if ( m_windowController != nullptr )
     {
+        m_windowController->setViewToControl( this );
         m_windowController->updateViewerWidget();
     }
     else
@@ -191,7 +194,7 @@ void RimViewWindow::updateDockWindowVisibility()
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::dockAs3DViewWindow()
 {
-    dockInWindow( RiaDefines::RIMainWindow::MAIN_WINDOW_3D );
+    dockInWindow( RimDockWindowController::MAIN_WINDOW_ID_3D );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,7 +202,7 @@ void RimViewWindow::dockAs3DViewWindow()
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::dockAsPlotWindow()
 {
-    dockInWindow( RiaDefines::RIMainWindow::MAIN_WINDOW_PLOTS );
+    dockInWindow( RimDockWindowController::MAIN_WINDOW_ID_PLOTS );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,7 +310,7 @@ QString RimViewWindow::dockWindowName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::dockInWindow( RiaDefines::RIMainWindow mainWindowID )
+void RimViewWindow::dockInWindow( int mainWindowID )
 {
     if ( m_windowController == nullptr )
     {
@@ -361,7 +364,7 @@ ads::CDockWidget* RimViewWindow::createDockWidget()
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::setActive( bool active )
 {
-    m_activeViewer = active;
+    m_isActiveViewer = active;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,5 +372,5 @@ void RimViewWindow::setActive( bool active )
 //--------------------------------------------------------------------------------------------------
 bool RimViewWindow::isActive() const
 {
-    return m_activeViewer;
+    return m_isActiveViewer;
 }
