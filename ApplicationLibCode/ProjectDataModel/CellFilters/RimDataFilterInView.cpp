@@ -22,6 +22,8 @@
 #include "RimCellFilter.h"
 #include "RimGridView.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimDataFilterInView, "DataFilterInView" );
@@ -110,6 +112,12 @@ void RimDataFilterInView::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 void RimDataFilterInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_displayName );
+
+    if ( m_sourceFilter() )
+    {
+        uiOrdering.addNewButton( "Go to Data Filter", [this]() { Riu3DMainWindowTools::selectAsCurrentItem( m_sourceFilter() ); } );
+    }
+
     uiOrdering.skipRemainingFields( true );
 }
 
