@@ -59,6 +59,11 @@ class RimEclipseResultAddressCollection;
 class RimEclipseViewCollection;
 class RimResultNameAlias;
 
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+}
+
 //==================================================================================================
 //
 // Interface for reservoirs.
@@ -151,6 +156,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
     void resultAliasUiOrdering( caf::PdmUiOrdering& uiOrdering );
 

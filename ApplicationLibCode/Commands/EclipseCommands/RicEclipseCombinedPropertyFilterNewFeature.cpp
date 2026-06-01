@@ -18,6 +18,7 @@
 
 #include "RicEclipseCombinedPropertyFilterNewFeature.h"
 
+#include "CellFilterCommands/RicCellFilterFeatureTools.h"
 #include "RicEclipsePropertyFilterFeatureImpl.h"
 
 #include "Rim3dView.h"
@@ -44,8 +45,7 @@ bool RicEclipseCombinedPropertyFilterNewFeature::isCommandEnabled() const
     auto combined = caf::selectedObjectsByTypeStrict<RimCombinedFilter*>();
     if ( !combined.empty() ) return true;
 
-    auto dataColls = caf::selectedObjectsByTypeStrict<RimDataFilterCollection*>();
-    if ( !dataColls.empty() ) return true;
+    if ( RicCellFilterFeatureTools::selectedDataFilterCollection() ) return true;
 
     if ( auto* target = RicEclipsePropertyFilterFeatureImpl::resolveTargetPropertyFilterCollection() )
     {
@@ -72,11 +72,11 @@ void RicEclipseCombinedPropertyFilterNewFeature::onActionTriggered( bool isCheck
         return;
     }
 
-    // Case-level data filter collection: add a new combined filter directly there.
-    auto dataColls = caf::selectedObjectsByTypeStrict<RimDataFilterCollection*>();
-    if ( !dataColls.empty() )
+    // Case-level data filter collection (selected directly, or via the owning RimEclipseCase node):
+    // add a new combined filter directly there.
+    if ( auto* dataColl = RicCellFilterFeatureTools::selectedDataFilterCollection() )
     {
-        RimCombinedFilter* created = dataColls.front()->addNewCombinedFilter();
+        RimCombinedFilter* created = dataColl->addNewCombinedFilter();
         if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
         return;
     }

@@ -52,6 +52,8 @@ public:
     void                        addFilter( RimCellFilter* f ) { addItem( f ); }
     void                        removeFilter( RimCellFilter* f );
 
+    bool shouldBeVisibleInTree() const { return !filters().empty(); }
+
     RimEclipsePropertyFilter* addNewPropertyFilter();
     RimCellRangeFilter*       addNewRangeFilter();
     RimCombinedFilter*        addNewCombinedFilter();
@@ -60,11 +62,12 @@ public:
 
     void loadAndInitializeFilters();
 
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
 protected:
     void onItemsChanged() override;
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void initAfterRead() override;
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     void connectChildSignal( RimCellFilter* child );
