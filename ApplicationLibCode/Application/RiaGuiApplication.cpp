@@ -57,6 +57,7 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationTextAppearance.h"
+#include "RimDockWindowController.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
@@ -1144,11 +1145,11 @@ RiuPlotMainWindow* RiaGuiApplication::mainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMainWindowBase* RiaGuiApplication::mainWindowByID( RiaDefines::RIMainWindow mainWindowID )
+RiuMainWindowBase* RiaGuiApplication::mainWindowByID( int mainWindowID )
 {
-    if ( mainWindowID == RiaDefines::RIMainWindow::MAIN_WINDOW_3D )
+    if ( mainWindowID == RimDockWindowController::MAIN_WINDOW_ID_3D )
         return m_mainWindow;
-    else if ( mainWindowID == RiaDefines::RIMainWindow::MAIN_WINDOW_PLOTS )
+    else if ( mainWindowID == RimDockWindowController::MAIN_WINDOW_ID_PLOTS )
         return m_mainPlotWindow.get();
     else
         return nullptr;

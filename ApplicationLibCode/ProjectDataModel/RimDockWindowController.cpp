@@ -33,14 +33,14 @@
 #include "DockManager.h"
 #include "DockWidget.h"
 
-CAF_PDM_XML_SOURCE_INIT( RimDockWindowController, "DockWindowController" );
+CAF_PDM_XML_SOURCE_INIT( RimDockWindowController, "DockWindowController", "MdiWindowController" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimDockWindowController::RimDockWindowController()
 {
-    m_mainWindowID = RiaDefines::RIMainWindow::MAIN_WINDOW_3D;
+    CAF_PDM_InitField( &m_mainWindowID, "MainWindowID", RimDockWindowController::MAIN_WINDOW_ID_UNASSIGNED, "" );
     CAF_PDM_InitFieldNoDefault( &m_viewToControl, "ViewToControl", "" );
     m_viewToControl = nullptr;
 }
@@ -159,7 +159,7 @@ void RimDockWindowController::updateViewerWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDockWindowController::setMainWindowId( RiaDefines::RIMainWindow mainId )
+void RimDockWindowController::setMainWindowId( int mainId )
 {
     m_mainWindowID = mainId;
 }
@@ -175,9 +175,9 @@ void RimDockWindowController::setViewToControl( RimViewWindow* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::RIMainWindow RimDockWindowController::mainWindowId() const
+int RimDockWindowController::mainWindowId() const
 {
-    return m_mainWindowID;
+    return m_mainWindowID();
 }
 
 //--------------------------------------------------------------------------------------------------

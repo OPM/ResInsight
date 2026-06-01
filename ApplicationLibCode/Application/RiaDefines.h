@@ -200,12 +200,6 @@ enum class RINavigationPolicy : short
     NAVIGATION_POLICY_RMS
 };
 
-enum class RIMainWindow
-{
-    MAIN_WINDOW_3D    = 0,
-    MAIN_WINDOW_PLOTS = 1
-};
-
 enum class WellProductionType : short
 {
     PRODUCER,
