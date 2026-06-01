@@ -136,6 +136,20 @@ addNewButton( "Apply", [this]() { onApplyClicked(); } );
 void MyClass::onApplyClicked() { /* complex logic here */ }
 ```
 
+### Context Menus
+
+When adding or modifying context-menu items for a PDM object, override `appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder )` on that object and add the entries there.
+
+- Do **not** modify `RimContextCommandBuilder` to add object-specific menu items. It dispatches to each object's `appendMenuItems`; keep object-specific logic in the object.
+
+```cpp
+// Good – menu items added in the object's own appendMenuItems override
+void RimFoo::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicSomeFeature";
+}
+```
+
 ## Commit Conventions
 
 When creating commits:
