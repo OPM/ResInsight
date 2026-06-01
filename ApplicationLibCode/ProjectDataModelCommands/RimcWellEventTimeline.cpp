@@ -578,6 +578,13 @@ RimcWellEventTimeline_generateSchedule::RimcWellEventTimeline_generateSchedule( 
                                           "",
                                           "Wells for which multi-segment-well keywords (WELSEGS, COMPSEGS, WSEGVALV, WSEGAICD) are "
                                           "exported" );
+    CAF_PDM_InitScriptableField( &m_firstDateAsComment,
+                                 "FirstDateAsComment",
+                                 true,
+                                 "",
+                                 "",
+                                 "",
+                                 "Emit the first (simulation-start) date as a comment instead of a DATES keyword" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -630,7 +637,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
     std::vector<RimWellPath*>    mswWellPaths = m_exportMswForWells.ptrReferencedObjectsByType();
     std::set<const RimWellPath*> mswWells( mswWellPaths.begin(), mswWellPaths.end() );
 
-    QString scheduleText = RicScheduleDataGenerator::generateSchedule( *timeline, *eclipseCase, wellPathsWithEvents, dates, mswWells );
+    QString scheduleText =
+        RicScheduleDataGenerator::generateSchedule( *timeline, *eclipseCase, wellPathsWithEvents, dates, mswWells, m_firstDateAsComment() );
 
     // Return the schedule text in a data container
     auto* dataObject           = new RimcDataContainerString();

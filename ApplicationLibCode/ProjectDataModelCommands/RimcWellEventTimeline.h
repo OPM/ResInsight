@@ -229,4 +229,5 @@ public:
 private:
     caf::PdmPtrField<RimEclipseCase*>   m_eclipseCase;
     caf::PdmPtrArrayField<RimWellPath*> m_exportMswForWells;
+    caf::PdmField<bool>                 m_firstDateAsComment;
 };
