@@ -66,6 +66,8 @@ public:
     bool isLoggingActivatedForKeyword( const QString& keyword ) const;
     bool isFeatureEnabled( const QString& keyword ) const;
 
+    void appendExperimentalFeaturesItems( caf::PdmUiOrdering& uiOrdering );
+
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
