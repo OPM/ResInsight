@@ -182,8 +182,6 @@ void RimDockWindowController::setAsActiveViewer()
 
     if ( auto pdmView = viewPdmObject() )
     {
-        if ( pdmView->isActive() ) return;
-
         for ( auto viewWin : getMainWindow()->viewWindows() )
         {
             if ( viewWin->isActive() )

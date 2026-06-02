@@ -1909,6 +1909,7 @@ void Rim3dView::dockInMainWindow()
     removeWindowFromDock();
     dockAs3DViewWindow();
     updateDockWindowVisibility();
+    setAsActiveViewer();
     scheduleCreateDisplayModelAndRedraw();
 }
 
@@ -1920,5 +1921,6 @@ void Rim3dView::dockInPlotWindow()
     removeWindowFromDock();
     dockAsPlotWindow();
     updateDockWindowVisibility();
+    setAsActiveViewer();
     scheduleCreateDisplayModelAndRedraw();
 }
