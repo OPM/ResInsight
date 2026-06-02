@@ -100,7 +100,7 @@ jobs:
         run: python -c "import sys; print(sys.version)"
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8
 
       - name: Get Python executable path
         shell: bash
