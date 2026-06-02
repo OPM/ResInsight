@@ -43,8 +43,6 @@
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. Abstract class
 
-size_t RimViewWindow::m_nextDockWindowId = 0;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +58,7 @@ RimViewWindow::RimViewWindow()
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window" );
     m_showWindow.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_dockWindowId, "DockWindowId", m_nextDockWindowId++, "Dock Window Id" );
+    CAF_PDM_InitField( &m_dockWindowId, "DockWindowId", QString(), "Dock Window Id" );
     m_dockWindowId.uiCapability()->setUiHidden( true );
 }
 
@@ -299,9 +297,13 @@ void RimViewWindow::updateWindowTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimViewWindow::dockWindowName() const
+QString RimViewWindow::dockWindowName()
 {
-    return QString( "%1_%2" ).arg( RiuDockWidgetTools::viewWindowPrefix() ).arg( m_dockWindowId() );
+    if ( m_dockWindowId().isEmpty() )
+    {
+        m_dockWindowId = RiuDockWidgetTools::uniqueIdForDockWidget();
+    }
+    return m_dockWindowId();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -110,6 +110,8 @@ public:
     static std::vector<caf::PdmUiItem*> selectedItemsInTreeView( const QString& dockWidgetName );
     static void selectItemsInTreeView( const QString& dockWidgetName, const std::vector<const caf::PdmUiItem*>& items );
 
+    static QString uniqueIdForDockWidget();
+
 private:
     static QByteArray defaultEclipseDockState();
     static QByteArray defaultGeoMechDockState();

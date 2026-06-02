@@ -73,7 +73,7 @@ public:
 
     virtual void updateWindowTitle();
 
-    QString dockWindowName() const;
+    QString dockWindowName();
 
 protected:
     //// Interface for the Window controller
@@ -107,10 +107,8 @@ private:
 protected:
     caf::PdmChildField<RimDockWindowController*> m_windowController;
 
-    caf::PdmField<bool>   m_showWindow;
-    ads::CDockWidget*     m_dockWidget;
-    caf::PdmField<size_t> m_dockWindowId;
-    bool                  m_isActiveViewer;
-
-    static size_t m_nextDockWindowId;
+    caf::PdmField<bool>    m_showWindow;
+    ads::CDockWidget*      m_dockWidget;
+    caf::PdmField<QString> m_dockWindowId;
+    bool                   m_isActiveViewer;
 };

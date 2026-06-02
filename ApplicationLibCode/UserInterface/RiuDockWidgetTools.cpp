@@ -32,6 +32,8 @@
 #include "cafAssert.h"
 #include "cafPdmUiTreeView.h"
 
+#include <QUuid>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -525,6 +527,33 @@ void RiuDockWidgetTools::selectItemsInTreeView( const QString& dockWidgetName, c
             tree->selectItems( items );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::uniqueIdForDockWidget()
+{
+    auto main3dWindow   = RiuMainWindow::instance();
+    auto mainPlotWindow = RiuPlotMainWindow::instance();
+
+    QString strId;
+    do
+    {
+        strId = QUuid::createUuid().toString();
+        if ( main3dWindow && findDockWidget( main3dWindow->dockManager(), strId ) )
+        {
+            strId.clear();
+            continue;
+        }
+        if ( mainPlotWindow && findDockWidget( mainPlotWindow->dockManager(), strId ) )
+        {
+            strId.clear();
+            continue;
+        }
+    } while ( strId.isEmpty() );
+
+    return strId;
 }
 
 //--------------------------------------------------------------------------------------------------
