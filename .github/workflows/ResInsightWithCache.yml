@@ -21,27 +21,13 @@ jobs:
         build_type: [Release]
         config:
           - {
-              name: "Windows Latest MSVC",
+              name: "Windows_2022_qt_610",
               os: windows-2022,
               cc: "cl",
               cxx: "cl",
               build-python-module: true,
               execute-unit-tests: true,
               execute-pytests: true,
-              unity-build: true,
-              publish-to-pypi: false,
-              vcpkg-bootstrap: bootstrap-vcpkg.bat,
-              qt-version: 6.6.3,
-              ri-unit-test-path: "ResInsight-tests",
-            }
-          - {
-              name: "Windows_2022_qt_610",
-              os: windows-2022,
-              cc: "cl",
-              cxx: "cl",
-              build-python-module: false,
-              execute-unit-tests: true,
-              execute-pytests: false,
               unity-build: true,
               publish-to-pypi: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
@@ -100,7 +86,7 @@ jobs:
         run: python -c "import sys; print(sys.version)"
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Get Python executable path
         shell: bash
