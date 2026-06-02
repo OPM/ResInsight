@@ -89,6 +89,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered( bool isChecked )
     {
         auto* rimReservoirView = eclipseView->copyObject<RimEclipseView>();
         CVF_ASSERT( rimReservoirView );
+        rimReservoirView->resetDockWindowId();
 
         QString nameOfCopy = QString( "Copy of " ) + rimReservoirView->name();
         rimReservoirView->setName( nameOfCopy );
