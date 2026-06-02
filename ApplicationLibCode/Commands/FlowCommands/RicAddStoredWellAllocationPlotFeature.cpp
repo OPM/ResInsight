@@ -64,6 +64,7 @@ void RicAddStoredWellAllocationPlotFeature::onActionTriggered( bool isChecked )
 
         auto wellAllocationPlot = sourceObject->copyObject<RimWellAllocationPlot>();
         CVF_ASSERT( wellAllocationPlot );
+        wellAllocationPlot->resetDockWindowId();
 
         flowPlotColl->addWellAllocPlotToStoredPlots( wellAllocationPlot );
         wellAllocationPlot->resolveReferencesRecursively();

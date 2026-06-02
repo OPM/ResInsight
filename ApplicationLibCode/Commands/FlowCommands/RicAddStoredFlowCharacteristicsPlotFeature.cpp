@@ -65,6 +65,7 @@ void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered( bool isCheck
 
         auto flowCharacteristicsPlot = sourceObject->copyObject<RimFlowCharacteristicsPlot>();
         CVF_ASSERT( flowCharacteristicsPlot );
+        flowCharacteristicsPlot->resetDockWindowId();
 
         flowPlotColl->addFlowCharacteristicsPlotToStoredPlots( flowCharacteristicsPlot );
         flowCharacteristicsPlot->resolveReferencesRecursively();
