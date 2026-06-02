@@ -22,7 +22,7 @@ jobs:
         config:
           - {
               name: "Windows_2022_qt_610",
-              os: windows-2025-vs2026,
+              os: windows-2022,
               cc: "cl",
               cxx: "cl",
               build-python-module: false,
