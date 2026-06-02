@@ -400,6 +400,7 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView( const RimEclipseView* sour
 
     auto rimEclipseView = sourceView->copyObject<RimEclipseView>();
     CVF_ASSERT( rimEclipseView );
+    rimEclipseView->resetDockWindowId();
     rimEclipseView->setEclipseCase( this );
 
     caf::PdmDocument::updateUiIconStateRecursively( rimEclipseView );

@@ -105,6 +105,7 @@ void RicCreateRftPlotsFeature::appendRftPlotForWell( const QString& wellName, Ri
     auto rftPlot = sourcePlot->copyObject<RimWellRftPlot>();
     if ( !rftPlot ) return;
 
+    rftPlot->resetDockWindowId();
     rftPlot->setSimWellOrWellPathName( wellName );
     rftPlotColl->addPlot( rftPlot );
     rftPlot->resolveReferencesRecursively();

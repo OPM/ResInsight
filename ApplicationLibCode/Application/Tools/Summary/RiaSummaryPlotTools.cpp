@@ -114,6 +114,7 @@ std::vector<RimPlot*> duplicatePlots( const std::vector<RimPlot*>& sourcePlots )
     for ( auto plot : sourcePlots )
     {
         auto copy = plot->copyObject<RimPlot>();
+        copy->resetDockWindowId();
         {
             // TODO: Workaround for fixing the PdmPointer in RimEclipseResultDefinition
             //    caf::PdmPointer<RimEclipseCase> m_eclipseCase;
@@ -145,6 +146,7 @@ std::vector<RimSummaryPlot*> duplicateSummaryPlots( const std::vector<RimSummary
         auto copy = plot->copyObject<RimSummaryPlot>();
         if ( copy )
         {
+            copy->resetDockWindowId();
             plots.push_back( copy );
         }
     }

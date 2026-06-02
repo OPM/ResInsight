@@ -73,6 +73,7 @@ public:
 
     virtual void updateWindowTitle();
 
+    void    resetDockWindowId();
     QString dockWindowName();
 
 protected:

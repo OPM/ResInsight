@@ -159,6 +159,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
             {
                 auto copyOfGeoMechView = sourceGeoMechView->copyObject<RimGeoMechView>();
                 CVF_ASSERT( copyOfGeoMechView );
+                copyOfGeoMechView->resetDockWindowId();
 
                 geomCase->geoMechViews().push_back( copyOfGeoMechView );
 
