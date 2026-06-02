@@ -207,6 +207,7 @@ RimSummaryMultiPlot* RimSummaryMultiPlotCollection::duplicatePlot( RimSummaryMul
     if ( !plotToDuplicate ) return nullptr;
 
     auto plotCopy = plotToDuplicate->copyObject<RimSummaryMultiPlot>();
+    plotCopy->resetDockWindowId();
     addSummaryMultiPlot( plotCopy );
 
     plotCopy->resolveReferencesRecursively();
