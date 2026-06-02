@@ -212,6 +212,8 @@ RimEclipseContourMapView*
 {
     auto contourMap = existingContourMap->copyObject<RimEclipseContourMapView>();
     CVF_ASSERT( contourMap );
+
+    contourMap->resetDockWindowId();
     contourMap->setEclipseCase( eclipseCase );
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
@@ -242,6 +244,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
                                                                     caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( contourMap );
 
+    contourMap->resetDockWindowId();
     contourMap->setEclipseCase( eclipseCase );
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
@@ -308,6 +311,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
 
     RimEclipseContourMapView* contourMap = new RimEclipseContourMapView();
     contourMap->setEclipseCase( eclipseCase );
+    contourMap->resetDockWindowId();
 
     assignDefaultResultAndLegend( contourMap );
 
@@ -339,6 +343,7 @@ RimGeoMechContourMapView*
     auto contourMap = existingContourMap->copyObject<RimGeoMechContourMapView>();
     CVF_ASSERT( contourMap );
     contourMap->setGeoMechCase( geoMechCase );
+    contourMap->resetDockWindowId();
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
@@ -369,6 +374,7 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFr
     CVF_ASSERT( contourMap );
 
     contourMap->setGeoMechCase( geoMechCase );
+    contourMap->resetDockWindowId();
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
@@ -395,6 +401,7 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMap( 
 {
     RimGeoMechContourMapView* contourMap = new RimGeoMechContourMapView();
     contourMap->setGeoMechCase( geoMechCase );
+    contourMap->resetDockWindowId();
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 

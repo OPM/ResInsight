@@ -244,6 +244,7 @@ RimGeoMechView* RimGeoMechCase::createCopyAndAddView( const RimGeoMechView* sour
     auto rimGeoMechView = sourceView->copyObject<RimGeoMechView>();
     CVF_ASSERT( rimGeoMechView );
 
+    rimGeoMechView->resetDockWindowId();
     rimGeoMechView->setGeoMechCase( this );
 
     caf::PdmDocument::updateUiIconStateRecursively( rimGeoMechView );

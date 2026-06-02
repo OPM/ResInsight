@@ -75,6 +75,7 @@ void RicPasteWellLogPlotFeature::onActionTriggered( bool isChecked )
             auto newObject = fileCurve->copyObject<RimWellLogPlot>();
             CVF_ASSERT( newObject );
 
+            newObject->resetDockWindowId();
             wellLogPlotCollection->addWellLogPlot( newObject );
 
             // Resolve references after object has been inserted into the project data model
