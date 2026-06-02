@@ -29,6 +29,13 @@ dev = [
 [project.urls]
 Homepage = "http://www.resinsight.org"
 
+[tool.uv]
+# Supply-chain hardening: never resolve/install packages published within the
+# last week, to avoid pulling freshly published (potentially compromised)
+# releases. CI also enforces this via the UV_EXCLUDE_NEWER env var, since this
+# setting is only discovered when uv runs from this directory.
+exclude-newer = "1 week"
+
 [tool.setuptools.dynamic]
 version = {attr = "rips._version.__version__"}
 
