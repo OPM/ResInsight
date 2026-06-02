@@ -25,7 +25,7 @@ jobs:
               os: windows-2022,
               cc: "cl",
               cxx: "cl",
-              build-python-module: false,
+              build-python-module: true,
               execute-unit-tests: true,
               execute-pytests: true,
               unity-build: true,
