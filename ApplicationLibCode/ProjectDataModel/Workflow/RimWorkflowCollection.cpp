@@ -18,6 +18,8 @@
 
 #include "RimWorkflowCollection.h"
 
+#include "RiaPreferencesSystem.h"
+
 #include <QDir>
 #include <QFileInfo>
 
@@ -41,6 +43,8 @@ QString RimWorkflowCollection::discoveryDirectory()
 void RimWorkflowCollection::rescanWorkflows()
 {
     deleteAllItems();
+
+    if ( !RiaPreferencesSystem::current()->isFeatureEnabled( "workflows" ) ) return;
 
     QDir dir( discoveryDirectory() );
     if ( !dir.exists() ) return;
