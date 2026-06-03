@@ -37,6 +37,7 @@
 #include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
 
+#include <QCollator>
 #include <QColor>
 #include <QPainter>
 
@@ -960,18 +961,28 @@ RiuGroupedBarChartBuilder::BarEntry::BarEntry( const QString& majorTickText,
 //--------------------------------------------------------------------------------------------------
 bool RiuGroupedBarChartBuilder::BarEntry::operator<( const BarEntry& other ) const
 {
+    // Use a numeric-aware collator so that tick/legend texts containing numbers (e.g. realization
+    // names like "realization-2" and "realization-10") sort in natural numerical order instead of
+    // lexicographically (which would place "realization-10" before "realization-2").
+    static const QCollator collator = []()
+    {
+        QCollator c;
+        c.setNumericMode( true );
+        return c;
+    }();
+
     if ( m_majorSortValue != other.m_majorSortValue ) return m_majorSortValue > other.m_majorSortValue;
-    if ( m_majTickText != other.m_majTickText ) return m_majTickText < other.m_majTickText;
+    if ( m_majTickText != other.m_majTickText ) return collator.compare( m_majTickText, other.m_majTickText ) < 0;
     if ( m_midSortValue != other.m_midSortValue ) return m_midSortValue > other.m_midSortValue;
-    if ( m_midTickText != other.m_midTickText ) return m_midTickText < other.m_midTickText;
-    if ( m_minTickText != other.m_minTickText ) return m_minTickText < other.m_minTickText;
+    if ( m_midTickText != other.m_midTickText ) return collator.compare( m_midTickText, other.m_midTickText ) < 0;
+    if ( m_minTickText != other.m_minTickText ) return collator.compare( m_minTickText, other.m_minTickText ) < 0;
 
     if ( m_sortValue != other.m_sortValue )
     {
         return m_sortValue > other.m_sortValue;
     }
 
-    if ( m_legendText != other.m_legendText ) return m_legendText < other.m_legendText;
+    if ( m_legendText != other.m_legendText ) return collator.compare( m_legendText, other.m_legendText ) < 0;
 
     return false;
 }
