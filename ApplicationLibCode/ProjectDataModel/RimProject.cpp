@@ -25,6 +25,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaProjectBackupTools.h"
 #include "RiaProjectFileTools.h"
 #include "RiaVersionInfo.h"
@@ -1494,7 +1495,10 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     {
         uiTreeOrdering.add( scriptCollection() );
         uiTreeOrdering.add( jobCollection() );
-        uiTreeOrdering.add( workflowCollection() );
+        if ( RiaPreferencesSystem::current()->isFeatureEnabled( "workflows" ) )
+        {
+            uiTreeOrdering.add( workflowCollection() );
+        }
     }
     else if ( uiConfigName == "PlotWindow.Templates" )
     {
