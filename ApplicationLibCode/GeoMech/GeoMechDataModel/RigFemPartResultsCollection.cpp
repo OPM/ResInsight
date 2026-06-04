@@ -994,8 +994,7 @@ std::vector<std::string> RigFemPartResultsCollection::stepNames() const
 //--------------------------------------------------------------------------------------------------
 const std::pair<int, int> RigFemPartResultsCollection::stepListIndexToTimeStepAndDataFrameIndex( int stepIndex ) const
 {
-    if ( stepIndex < 0 ) return std::make_pair( stepIndex, -1 );
-    CVF_ASSERT( stepIndex < static_cast<int>( m_stepList.size() ) );
+    if ( stepIndex < 0 || stepIndex >= static_cast<int>( m_stepList.size() ) ) return std::make_pair( stepIndex, -1 );
     return m_stepList[stepIndex];
 }
 
