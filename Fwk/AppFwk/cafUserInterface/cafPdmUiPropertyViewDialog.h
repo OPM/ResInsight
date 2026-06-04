@@ -57,6 +57,9 @@ public:
 
     QDialogButtonBox* dialogButtonBox();
 
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
 private:
     void initialize( PdmObject* object, const QString& windowTitle, const QString& uiConfigName );
     void setupUi();
