@@ -223,7 +223,7 @@ void RimEclipseCellColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 {
     RimEclipseResultDefinition::defineUiOrdering( uiConfigName, uiOrdering );
 
-    if ( uiConfigName == "AddLegendLevels" )
+    if ( uiConfigName == "AddLegendLevels" && legendConfig() )
     {
         legendConfig()->uiOrdering( "NumIntervalsOnly", uiOrdering );
     }
