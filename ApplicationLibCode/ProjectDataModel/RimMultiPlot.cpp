@@ -35,6 +35,7 @@
 #include "cafPdmUiToolButtonEditor.h"
 
 #include <QPaintDevice>
+#include <QPainter>
 #include <QRegularExpression>
 
 #include <cvfAssert.h>
@@ -635,6 +636,25 @@ QImage RimMultiPlot::snapshotWindowContent()
         m_viewer->renderTo( &pix );
         image = pix.toImage();
     }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QImage RimMultiPlot::captureSnapshot( int width, int height )
+{
+    QImage image;
+
+    if ( m_viewer.isNull() ) return image;
+
+    QSize orgViewSize = m_viewer->size();
+
+    image = captureImage( m_viewer->bookWidget(), width, height );
+
+    m_viewer->resize( orgViewSize );
+    doUpdateLayout();
 
     return image;
 }
