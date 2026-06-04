@@ -112,6 +112,9 @@ RimRegularLegendConfig* RimEclipseContourMapProjection::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapProjection::updateLegend()
 {
+    RimRegularLegendConfig* legend = legendConfig();
+    if ( !legend ) return;
+
     RimEclipseCellColors* cellColors = view()->cellResult();
 
     auto [minValAllTimeSteps, maxValAllTimeSteps] = minmaxValuesAllTimeSteps();
@@ -119,11 +122,11 @@ void RimEclipseContourMapProjection::updateLegend()
     double minVal = m_contourMapProjection ? m_contourMapProjection->minValue() : std::numeric_limits<double>::infinity();
     double maxVal = m_contourMapProjection ? m_contourMapProjection->maxValue() : -std::numeric_limits<double>::infinity();
 
-    legendConfig()->setAutomaticRanges( minValAllTimeSteps, maxValAllTimeSteps, minVal, maxVal );
+    legend->setAutomaticRanges( minValAllTimeSteps, maxValAllTimeSteps, minVal, maxVal );
 
     if ( isColumnResult() )
     {
-        legendConfig()->setTitle( QString( "Map Projection\n%1" ).arg( m_resultAggregation().uiText() ) );
+        legend->setTitle( QString( "Map Projection\n%1" ).arg( m_resultAggregation().uiText() ) );
     }
     else
     {
@@ -134,7 +137,7 @@ void RimEclipseContourMapProjection::updateLegend()
         }
         projectionLegendText += QString( "\nResult: %1" ).arg( cellColors->resultVariableUiShortName() );
 
-        legendConfig()->setTitle( projectionLegendText );
+        legend->setTitle( projectionLegendText );
     }
 }
 

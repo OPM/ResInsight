@@ -112,23 +112,26 @@ RimRegularLegendConfig* RimStatisticsContourMapProjection::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMapProjection::updateLegend()
 {
+    RimRegularLegendConfig* legend = legendConfig();
+    if ( !legend ) return;
+
     auto [minValAllTimeSteps, maxValAllTimeSteps] = minmaxValuesAllTimeSteps();
 
     double minVal = m_contourMapProjection ? m_contourMapProjection->minValue() : std::numeric_limits<double>::infinity();
     double maxVal = m_contourMapProjection ? m_contourMapProjection->maxValue() : -std::numeric_limits<double>::infinity();
 
-    legendConfig()->setAutomaticRanges( minValAllTimeSteps, maxValAllTimeSteps, minVal, maxVal );
+    legend->setAutomaticRanges( minValAllTimeSteps, maxValAllTimeSteps, minVal, maxVal );
 
     if ( statisticsContourMap()->isColumnResult() )
     {
-        legendConfig()->setTitle( QString( "Map Projection\n%1" ).arg( resultVariableName() ) );
+        legend->setTitle( QString( "Map Projection\n%1" ).arg( resultVariableName() ) );
     }
     else
     {
         QString projectionLegendText = QString( "Map Projection\n%1" ).arg( resultAggregationText() );
         projectionLegendText += QString( "\nResult: %1" ).arg( resultVariableName() );
 
-        legendConfig()->setTitle( projectionLegendText );
+        legend->setTitle( projectionLegendText );
     }
 }
 
