@@ -98,6 +98,8 @@ public:
     // The code used to be called from RiuMultiPlotBook::showEvent(), but this caused a crash when a dock widget was hidden and shown again.
     void forcePerformUpdate();
 
+    QWidget* bookWidget();
+
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
 
