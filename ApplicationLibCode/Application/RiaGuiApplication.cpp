@@ -118,6 +118,7 @@
 #include "cafEffectGenerator.h"
 #include "cafFixedAtlasFont.h"
 #include "cafPdmUiModelChangeDetector.h"
+#include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"
 #include "cafProgressInfo.h"
 #include "cafQTreeViewStateSerializer.h"
@@ -1468,6 +1469,8 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
     {
         caf::EffectGenerator::setRenderingMode( caf::EffectGenerator::FIXED_FUNCTION );
     }
+
+    caf::PdmUiPropertyViewDialog::enableGeometryPersistence( RiaPreferencesSystem::current()->isFeatureEnabled( "remember-dialog-size" ) );
 
     if ( m_mainWindow )
     {

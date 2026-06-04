@@ -60,9 +60,23 @@ public:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
+    // Persisting the dialog geometry to QSettings is gated behind an experimental feature. The
+    // application pushes the current setting via enableGeometryPersistence(). The size floor in
+    // sizeHint()/minimumSizeHint() is always applied, regardless of this setting.
+    static void enableGeometryPersistence( bool enable );
+    static bool isGeometryPersistenceEnabled();
+
+protected:
+    void showEvent( QShowEvent* event ) override;
+    void done( int result ) override;
+
 private:
     void initialize( PdmObject* object, const QString& windowTitle, const QString& uiConfigName );
     void setupUi();
+
+    QString settingsKey() const;
+    bool    restoreDialogGeometry();
+    void    saveDialogGeometry();
 
 private:
     QString            m_windowTitle;
@@ -70,6 +84,9 @@ private:
     PdmObject*         m_pdmObject;
     PdmUiPropertyView* m_pdmUiPropertyView;
     QDialogButtonBox*  m_buttonBox;
+    bool               m_geometryRestored = false;
+
+    static bool sm_geometryPersistenceEnabled;
 };
 
 } // End of namespace caf

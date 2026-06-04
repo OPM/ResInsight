@@ -18,12 +18,16 @@
 
 #include "RiuPropertyViewTabWidget.h"
 
+#include "RiaPreferencesSystem.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmUiPropertyView.h"
 
 #include <QBoxLayout>
 #include <QDebug>
 #include <QDialogButtonBox>
+#include <QSettings>
+#include <QShowEvent>
 #include <QStringList>
 #include <QTabWidget>
 #include <QWidget>
@@ -36,6 +40,8 @@ RiuPropertyViewTabWidget::RiuPropertyViewTabWidget( QWidget*           parent,
                                                     const QString&     windowTitle,
                                                     const QStringList& uiConfigNameForTabs )
     : QDialog( parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint )
+    , m_windowTitle( windowTitle )
+    , m_objectClassKeyword( object ? object->classKeyword() : QString() )
 {
     setWindowTitle( windowTitle );
 
@@ -128,4 +134,69 @@ QSize RiuPropertyViewTabWidget::sizeHint() const
 QDialogButtonBox* RiuPropertyViewTabWidget::dialogButtonBox()
 {
     return m_dialogButtonBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPropertyViewTabWidget::showEvent( QShowEvent* event )
+{
+    // Restore the stored size on first show. Doing this here rather than in the constructor ensures
+    // the geometry is applied reliably for a modal dialog and is not overridden by the initial sizing.
+    // When no size is stored, the size is left to sizeHint()/minimumSizeHint().
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "remember-dialog-size" ) && !m_geometryRestored )
+    {
+        m_geometryRestored = true;
+        restoreDialogGeometry();
+    }
+
+    QDialog::showEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPropertyViewTabWidget::done( int result )
+{
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "remember-dialog-size" ) )
+    {
+        saveDialogGeometry();
+    }
+
+    QDialog::done( result );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuPropertyViewTabWidget::settingsKey() const
+{
+    QString title = m_windowTitle;
+    title.replace( '/', '_' );
+
+    return QString( "RiuPropertyViewTabWidget/%1/%2/geometry" ).arg( m_objectClassKeyword, title );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuPropertyViewTabWidget::restoreDialogGeometry()
+{
+    QSettings settings;
+    QVariant  geometry = settings.value( settingsKey() );
+    if ( geometry.isValid() )
+    {
+        return restoreGeometry( geometry.toByteArray() );
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPropertyViewTabWidget::saveDialogGeometry()
+{
+    QSettings settings;
+    settings.setValue( settingsKey(), saveGeometry() );
 }

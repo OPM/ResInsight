@@ -39,10 +39,30 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiPropertyView.h"
 
+#include <QSettings>
+#include <QShowEvent>
 #include <QVBoxLayout>
 
 namespace caf
 {
+bool PdmUiPropertyViewDialog::sm_geometryPersistenceEnabled = false;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiPropertyViewDialog::enableGeometryPersistence( bool enable )
+{
+    sm_geometryPersistenceEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiPropertyViewDialog::isGeometryPersistenceEnabled()
+{
+    return sm_geometryPersistenceEnabled;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -91,28 +111,6 @@ QDialogButtonBox* PdmUiPropertyViewDialog::dialogButtonBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QSize PdmUiPropertyViewDialog::sizeHint() const
-{
-    // Ensure the preferred size is never degenerate, regardless of how the contained scroll area
-    // reports its hints.
-    return QDialog::sizeHint().expandedTo( QSize( 300, 200 ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QSize PdmUiPropertyViewDialog::minimumSizeHint() const
-{
-    // The inner scroll area reports an artificially small minimum width, which lets some window
-    // managers open the dialog collapsed (issue #14104). Provide a sensible floor, capped by the
-    // content's preferred size so intentionally small dialogs are not enlarged.
-    QSize floor = QSize( 300, 150 ).boundedTo( QDialog::sizeHint() );
-    return QDialog::minimumSizeHint().expandedTo( floor );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiPropertyViewDialog::initialize( PdmObject* object, const QString& windowTitle, const QString& uiConfigName )
 {
     m_pdmObject    = object;
@@ -147,6 +145,96 @@ void PdmUiPropertyViewDialog::setupUi()
     connect( m_buttonBox, SIGNAL( rejected() ), this, SLOT( reject() ) );
 
     dialogLayout->addWidget( m_buttonBox );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiPropertyViewDialog::showEvent( QShowEvent* event )
+{
+    // Restore a previously stored size on first show. Restoring here rather than in the constructor
+    // ensures the geometry is applied reliably for a modal dialog and is not overridden by the initial
+    // sizing (see issue #14104). When no size is stored, the size is left to sizeHint()/minimumSizeHint()
+    // and any explicit resize() done by the caller, so the default appearance is preserved.
+    if ( sm_geometryPersistenceEnabled && !m_geometryRestored )
+    {
+        m_geometryRestored = true;
+        restoreDialogGeometry();
+    }
+
+    QDialog::showEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize PdmUiPropertyViewDialog::sizeHint() const
+{
+    // Ensure the preferred size is never degenerate, regardless of how the contained scroll area
+    // reports its hints.
+    return QDialog::sizeHint().expandedTo( QSize( 300, 200 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize PdmUiPropertyViewDialog::minimumSizeHint() const
+{
+    // The inner scroll area reports an artificially small minimum width, which lets some window
+    // managers open the dialog collapsed (issue #14104). Provide a sensible floor, capped by the
+    // content's preferred size so intentionally small dialogs are not enlarged.
+    QSize floor = QSize( 300, 150 ).boundedTo( QDialog::sizeHint() );
+    return QDialog::minimumSizeHint().expandedTo( floor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiPropertyViewDialog::done( int result )
+{
+    if ( sm_geometryPersistenceEnabled )
+    {
+        saveDialogGeometry();
+    }
+
+    QDialog::done( result );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmUiPropertyViewDialog::settingsKey() const
+{
+    QString id = m_uiConfigName.isEmpty() ? m_windowTitle : m_uiConfigName;
+    id.replace( '/', '_' );
+
+    QString classKeyword = m_pdmObject ? m_pdmObject->classKeyword() : QString();
+
+    return QString( "PdmUiPropertyViewDialog/%1/%2/geometry" ).arg( classKeyword, id );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiPropertyViewDialog::restoreDialogGeometry()
+{
+    QSettings settings;
+    QVariant  geometry = settings.value( settingsKey() );
+    if ( geometry.isValid() )
+    {
+        return restoreGeometry( geometry.toByteArray() );
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiPropertyViewDialog::saveDialogGeometry()
+{
+    QSettings settings;
+    settings.setValue( settingsKey(), saveGeometry() );
 }
 
 } // End of namespace caf

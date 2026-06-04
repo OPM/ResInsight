@@ -41,7 +41,19 @@ public:
     QSize             sizeHint() const override;
     QDialogButtonBox* dialogButtonBox();
 
+protected:
+    void showEvent( QShowEvent* event ) override;
+    void done( int result ) override;
+
 private:
+    QString settingsKey() const;
+    bool    restoreDialogGeometry();
+    void    saveDialogGeometry();
+
+private:
+    QString                              m_windowTitle;
+    QString                              m_objectClassKeyword;
     std::vector<caf::PdmUiPropertyView*> m_pageWidgets;
     QDialogButtonBox*                    m_dialogButtonBox;
+    bool                                 m_geometryRestored = false;
 };
