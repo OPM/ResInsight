@@ -91,6 +91,28 @@ QDialogButtonBox* PdmUiPropertyViewDialog::dialogButtonBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QSize PdmUiPropertyViewDialog::sizeHint() const
+{
+    // Ensure the preferred size is never degenerate, regardless of how the contained scroll area
+    // reports its hints.
+    return QDialog::sizeHint().expandedTo( QSize( 300, 200 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize PdmUiPropertyViewDialog::minimumSizeHint() const
+{
+    // The inner scroll area reports an artificially small minimum width, which lets some window
+    // managers open the dialog collapsed (issue #14104). Provide a sensible floor, capped by the
+    // content's preferred size so intentionally small dialogs are not enlarged.
+    QSize floor = QSize( 300, 150 ).boundedTo( QDialog::sizeHint() );
+    return QDialog::minimumSizeHint().expandedTo( floor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmUiPropertyViewDialog::initialize( PdmObject* object, const QString& windowTitle, const QString& uiConfigName )
 {
     m_pdmObject    = object;
