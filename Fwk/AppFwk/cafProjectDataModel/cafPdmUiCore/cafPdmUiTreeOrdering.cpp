@@ -51,7 +51,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeOrdering::add( PdmFieldHandle* field, QString uiConfigName )
 {
-    CAF_ASSERT( field );
+    if ( !field ) return;
 
     if ( field->uiCapability()->isUiTreeHidden( uiConfigName ) )
     {
@@ -75,7 +75,7 @@ void PdmUiTreeOrdering::add( PdmFieldHandle* field, QString uiConfigName )
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeOrdering* PdmUiTreeOrdering::add( PdmObjectHandle* object )
 {
-    CAF_ASSERT( object );
+    if ( !object ) return nullptr;
 
     auto node = new PdmUiTreeOrdering( this, object );
 
@@ -102,7 +102,7 @@ bool PdmUiTreeOrdering::containsField( const PdmFieldHandle* field )
     CAF_ASSERT( field );
     for ( int cIdx = 0; cIdx < this->childCount(); ++cIdx )
     {
-        PdmUiTreeOrdering* child = dynamic_cast<PdmUiTreeOrdering*>( this->child( cIdx ) ); // What ???
+        PdmUiTreeOrdering* child = this->child( cIdx );
 
         if ( child->m_field == field )
         {
