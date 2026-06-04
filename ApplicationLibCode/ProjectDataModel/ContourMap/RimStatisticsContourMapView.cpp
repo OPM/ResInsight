@@ -155,7 +155,10 @@ void RimStatisticsContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& 
 {
     uiTreeOrdering.add( m_overlayInfoConfig() );
     uiTreeOrdering.add( m_contourMapProjection );
-    uiTreeOrdering.add( cellResult()->legendConfig() );
+    if ( cellResult() && cellResult()->legendConfig() )
+    {
+        uiTreeOrdering.add( cellResult()->legendConfig() );
+    }
     uiTreeOrdering.add( wellCollection() );
     uiTreeOrdering.add( faultCollection() );
     uiTreeOrdering.add( annotationCollection() );
