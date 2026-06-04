@@ -66,6 +66,8 @@ public:
     ads::CDockWidget* dockWidget();
     ads::CDockWidget* createDockWidget();
 
+    virtual QImage captureSnapshot( int width, int height );
+
     virtual QImage snapshotWindowContent();
     virtual void   zoomAll() = 0;
 
@@ -98,6 +100,8 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+    QImage captureImage( QWidget* widget, int width, int height );
 
 private:
     friend class RimProject;

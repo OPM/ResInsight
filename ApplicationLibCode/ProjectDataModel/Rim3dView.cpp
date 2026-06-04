@@ -516,6 +516,31 @@ QImage Rim3dView::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QImage Rim3dView::captureSnapshot( int width, int height )
+{
+    QImage image;
+    if ( m_viewer )
+    {
+        QSize orgSize = m_viewer->layoutWidget()->size();
+
+        // adjust for possible display DPI scaling
+        const auto ratio = m_viewer->displayScalingRatio();
+        m_viewer->layoutWidget()->setFixedSize( (int)( 1.0 * width / ratio ), (int)( 1.0 * height / ratio ) );
+
+        image = m_viewer->snapshotImage();
+
+        // reset fixed size and restore original size
+        m_viewer->layoutWidget()->setMinimumSize( 0, 0 );
+        m_viewer->layoutWidget()->setMaximumSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+        m_viewer->layoutWidget()->resize( orgSize );
+    }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim3dView::scheduleCreateDisplayModelAndRedraw()
 {
     RiaViewRedrawScheduler::instance()->scheduleDisplayModelUpdateAndRedraw( this );

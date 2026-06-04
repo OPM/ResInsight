@@ -46,7 +46,7 @@ void RicSnapshotViewToPdfFeature::onActionTriggered( bool isChecked )
     RimViewWindow* viewWindow = RiaGuiApplication::activeViewWindow();
     if ( !viewWindow )
     {
-        RiaLogging::error( "No view window is available, nothing to do" );
+        RiaLogging::error( "No plot window is available, nothing to do" );
 
         return;
     }

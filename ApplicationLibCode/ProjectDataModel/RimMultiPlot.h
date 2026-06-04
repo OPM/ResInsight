@@ -117,6 +117,7 @@ public:
 
 protected:
     QImage snapshotWindowContent() override;
+    QImage captureSnapshot( int width, int height ) override;
 
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
