@@ -695,6 +695,20 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_selectedTimeSteps )
+    {
+        if ( auto* attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute ) )
+        {
+            attrib->heightHint = 150;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<time_t> RimAnalysisPlot::allAvailableTimeSteps() const
 {
     std::set<time_t> timeStepUnion;

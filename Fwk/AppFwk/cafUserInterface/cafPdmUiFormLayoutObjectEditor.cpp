@@ -88,12 +88,14 @@ caf::PdmUiFormLayoutObjectEditor::~PdmUiFormLayoutObjectEditor()
 //--------------------------------------------------------------------------------------------------
 bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( const PdmUiOrdering& uiOrdering,
                                                                                                QWidget* containerWidget,
-                                                                                               const QString& uiConfigName )
+                                                                                               const QString& uiConfigName,
+                                                                                               bool parentRowIsLast )
 {
     QSize beforeSize = containerWidget->sizeHint();
 
     ensureWidgetContainsEmptyGridLayout( containerWidget );
-    int stretch = recursivelyConfigureAndUpdateUiOrderingInGridLayout( uiOrdering, containerWidget, uiConfigName );
+    int stretch =
+        recursivelyConfigureAndUpdateUiOrderingInGridLayout( uiOrdering, containerWidget, uiConfigName, parentRowIsLast );
 
     QSize afterSize = containerWidget->sizeHint();
     if ( beforeSize != afterSize )
@@ -110,7 +112,8 @@ bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
 //--------------------------------------------------------------------------------------------------
 int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayout( const PdmUiOrdering& uiOrdering,
                                                                                            QWidget* containerWidgetWithGridLayout,
-                                                                                           const QString& uiConfigName )
+                                                                                           const QString& uiConfigName,
+                                                                                           bool parentRowIsLast )
 {
     int sumRowStretch = 0;
     CAF_ASSERT( containerWidgetWithGridLayout );
@@ -129,6 +132,10 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
     for ( int currentRowIndex = 0; currentRowIndex < totalRows; ++currentRowIndex )
     {
         int currentColumn = 0;
+
+        // True when this row is the bottom-most row of the entire form. Editors that can grow vertically
+        // use this to fill the remaining space rather than being constrained to a fixed height hint.
+        bool rowIsLast = parentRowIsLast && ( currentRowIndex == totalRows - 1 );
 
         const PdmUiOrdering::RowLayout& uiItemsInRow = tableLayout[currentRowIndex];
 
@@ -171,7 +178,8 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                                                                           parentLayout,
                                                                           currentRowIndex,
                                                                           currentColumn,
-                                                                          itemColumnSpan );
+                                                                          itemColumnSpan,
+                                                                          rowIsLast );
                 parentLayout->setRowStretch( currentRowIndex, groupStretchFactor );
                 currentColumn += itemColumnSpan;
                 sumRowStretch += groupStretchFactor;
@@ -313,6 +321,7 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                         parentLayout->setRowStretch( currentRowIndex, fieldEditor->rowStretchFactor() );
                         sumRowStretch += fieldEditor->rowStretchFactor();
                     }
+                    fieldEditor->setIsInLastFormRow( rowIsLast );
                     fieldEditor->updateUi( uiConfigName );
                 }
             }
@@ -334,13 +343,15 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout( PdmUiItem
                                                                        QGridLayout*   parentLayout,
                                                                        int            currentRowIndex,
                                                                        int            currentColumn,
-                                                                       int            itemColumnSpan )
+                                                                       int            itemColumnSpan,
+                                                                       bool           parentRowIsLast )
 {
     PdmUiGroup* group = static_cast<PdmUiGroup*>( currentItem );
 
     QMinimizePanel* groupBox = findOrCreateGroupBox( containerWidgetWithGridLayout, group, uiConfigName );
 
-    int stretch = recursivelyConfigureAndUpdateUiOrderingInGridLayout( *group, groupBox->contentFrame(), uiConfigName );
+    int stretch =
+        recursivelyConfigureAndUpdateUiOrderingInGridLayout( *group, groupBox->contentFrame(), uiConfigName, parentRowIsLast );
 
     /// Insert the group box at the correct position of the parent layout
     parentLayout->addWidget( groupBox, currentRowIndex, currentColumn, 1, itemColumnSpan );
