@@ -147,6 +147,7 @@ public:
     cvf::ref<caf::DisplayCoordTransform>  displayCoordTransform() const override;
     virtual std::vector<RimLegendConfig*> legendConfigs() const = 0;
 
+    QImage captureSnapshot( int width, int height ) override;
     QImage snapshotWindowContent() override;
     void   zoomAll() override;
     void   forceShowWindowOn();

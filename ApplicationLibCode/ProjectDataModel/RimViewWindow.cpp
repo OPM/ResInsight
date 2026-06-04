@@ -38,6 +38,7 @@
 
 #include <QDebug>
 #include <QImage>
+#include <QPainter>
 #include <QPixmap>
 #include <QWidget>
 
@@ -220,6 +221,39 @@ QImage RimViewWindow::snapshotWindowContent()
     }
 
     return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QImage RimViewWindow::captureSnapshot( int width, int height )
+{
+    return captureImage( viewWidget(), width, height );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QImage RimViewWindow::captureImage( QWidget* widget, int width, int height )
+{
+    if ( !widget ) return QImage();
+
+    QSize orgSize = widget->size();
+
+    widget->setFixedSize( width, height );
+
+    QPixmap pix( width, height );
+    pix.fill( Qt::transparent );
+
+    QPainter painter( &pix );
+    widget->render( &painter );
+
+    // reset fixed size and restore original size
+    widget->setMinimumSize( 0, 0 );
+    widget->setMaximumSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+    widget->resize( orgSize );
+
+    return pix.toImage();
 }
 
 //--------------------------------------------------------------------------------------------------
