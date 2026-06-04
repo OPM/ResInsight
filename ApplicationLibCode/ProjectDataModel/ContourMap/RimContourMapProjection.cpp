@@ -613,7 +613,10 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
         }
     }
 
-    legendConfig()->uiOrdering( "NumLevelsOnly", *mainGroup );
+    if ( legendConfig() )
+    {
+        legendConfig()->uiOrdering( "NumLevelsOnly", *mainGroup );
+    }
     mainGroup->add( &m_resolution );
     mainGroup->add( &m_showContourLines );
     mainGroup->add( &m_showContourLabels );
