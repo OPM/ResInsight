@@ -309,6 +309,23 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
     if ( m_attributes.heightHint > 0 )
     {
         m_treeView->setHeightHint( m_attributes.heightHint );
+
+        // The tree selection editor is a multi-row editor, so its row is given a stretch factor in the
+        // property layout. Without an upper bound the tree view would expand to fill all available vertical
+        // space, ignoring the height hint. Cap the height so the hint is respected - unless this editor is
+        // the bottom-most widget in the form, in which case let it grow to fill the remaining space.
+        if ( isInLastFormRow() )
+        {
+            m_treeView->setMaximumHeight( QWIDGETSIZE_MAX );
+        }
+        else
+        {
+            m_treeView->setMaximumHeight( m_attributes.heightHint );
+        }
+    }
+    else
+    {
+        m_treeView->setMaximumHeight( QWIDGETSIZE_MAX );
     }
 
     // If the tree doesn't have grand children we treat this as a straight list

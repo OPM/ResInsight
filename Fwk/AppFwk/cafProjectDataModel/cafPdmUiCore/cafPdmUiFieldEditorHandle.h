@@ -102,6 +102,11 @@ public:
     QMargins labelContentMargins() const;
     int      rowStretchFactor() const;
 
+    /// True if this editor occupies the bottom-most row of the entire form. Editors that can grow
+    /// vertically may use this to fill the remaining space instead of being constrained to a height hint.
+    void setIsInLastFormRow( bool isLast );
+    bool isInLastFormRow() const;
+
     void updateValidationState();
 
 protected: // Virtual interface to override
@@ -132,6 +137,7 @@ private:
     QPointer<QWidget> m_editorWidget;
     QPointer<QWidget> m_labelWidget;
     QPointer<QAction> m_validationErrorAction;
+    bool              m_isInLastFormRow = true;
 };
 
 //==================================================================================================
