@@ -1164,7 +1164,7 @@ ecl_grid_type* RifReaderEclipseOutput::loadAllGrids() const
 {
     ecl_grid_type* mainEclGrid = ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded( m_fileName ).data() );
 
-    if ( m_ecl_init_file )
+    if ( mainEclGrid && m_ecl_init_file )
     {
         // TODO : ecl_grid_alloc() will automatically read ACTNUM from EGRID file, and reading of active cell
         // information can be skipped if PORV is available
