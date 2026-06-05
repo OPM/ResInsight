@@ -43,7 +43,7 @@ CAF_PDM_SOURCE_INIT( RimFaultDistanceResult, "RimFaultDistanceResult" );
 //--------------------------------------------------------------------------------------------------
 RimFaultDistanceResult::RimFaultDistanceResult()
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "Fault Distance Result",
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Fault Distance",
                                                     ":/draw_style_faults_24x24.png",
                                                     "",
                                                     "",
