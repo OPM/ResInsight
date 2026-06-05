@@ -1,5 +1,6 @@
 import sys
 import os
+import math
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import dataroot
@@ -50,6 +51,13 @@ def test_export_corner_point_grid_basic(rips_instance, initialize_test):
         "TestGrid", nx, ny, nz, coord, zcorn, actnum
     )
 
+    # ACTNUM should be a queryable STATIC_NATIVE property (issue #14109)
+    assert "ACTNUM" in case.available_properties("STATIC_NATIVE")
+    active_count = case.cell_count().active_cell_count
+    actnum_values = case.active_cell_property("STATIC_NATIVE", "ACTNUM", 0)
+    assert len(actnum_values) == active_count
+    assert all(v == 1.0 for v in actnum_values)
+
     # Test our export function
     exported_zcorn, exported_coord, exported_actnum, export_nx, export_ny, export_nz = (
         case.export_corner_point_grid()
@@ -68,6 +76,72 @@ def test_export_corner_point_grid_basic(rips_instance, initialize_test):
     assert export_nx == nx, f"Dimension mismatch: nx={export_nx} vs expected {nx}"
     assert export_ny == ny, f"Dimension mismatch: ny={export_ny} vs expected {ny}"
     assert export_nz == nz, f"Dimension mismatch: nz={export_nz} vs expected {nz}"
+
+
+def test_create_corner_point_grid_with_inactive_cells(rips_instance, initialize_test):
+    """ACTNUM with some inactive cells: the result is sized per active cell, not per
+    reservoir cell, and every stored value is 1.0 (issue #14109)."""
+
+    nx, ny, nz = 2, 2, 2
+    total_cells = nx * ny * nz
+
+    # Generate simple coordinate data
+    coord = []
+    for j in range(ny + 1):
+        for i in range(nx + 1):
+            x = i * 100.0
+            y = j * 100.0
+            coord.extend([x, y, 1000.0])
+            coord.extend([x, y, 1100.0])
+
+    # Generate simple ZCORN data (8 values per cell)
+    zcorn = []
+    for k in range(nz):
+        for j in range(ny):
+            for i in range(nx):
+                base_depth = 1000.0 + k * 100.0
+                zcorn.extend([base_depth] * 4 + [base_depth + 100.0] * 4)
+
+    # Mark 3 of the 8 cells as inactive
+    actnum = [1] * total_cells
+    actnum[0] = 0
+    actnum[3] = 0
+    actnum[5] = 0
+    expected_active = sum(actnum)  # 5
+
+    case = rips_instance.project.create_corner_point_grid(
+        "InactiveGrid", nx, ny, nz, coord, zcorn, actnum
+    )
+
+    cell_count = case.cell_count()
+    # Inactive cells are excluded from the active-cell space, not stored as 0.
+    assert cell_count.reservoir_cell_count == total_cells
+    assert cell_count.active_cell_count == expected_active
+    assert cell_count.active_cell_count < cell_count.reservoir_cell_count
+
+    # ACTNUM is sized per active cell and every stored value is 1.0.
+    assert "ACTNUM" in case.available_properties("STATIC_NATIVE")
+    actnum_values = case.active_cell_property("STATIC_NATIVE", "ACTNUM", 0)
+    assert len(actnum_values) == expected_active
+    assert all(v == 1.0 for v in actnum_values)
+
+    # grid_property returns the larger per-reservoir-cell array (one value per cell). Active cells
+    # hold 1.0; inactive cells have no slot in the per-active-cell storage and so come back as the
+    # undefined marker (inf), not 0 - the per-active-cell layout cannot represent an explicit 0.
+    grid_values = case.grid_property("STATIC_NATIVE", "ACTNUM", 0)
+    assert len(grid_values) == total_cells
+    assert len(grid_values) > len(actnum_values)
+    inactive_indices = {0, 3, 5}
+    for i, v in enumerate(grid_values):
+        if i in inactive_indices:
+            assert math.isinf(v), f"cell {i} expected undefined (inf), got {v}"
+        else:
+            assert v == 1.0, f"cell {i} expected 1.0, got {v}"
+
+    # Round-tripping through export restores the per-cell activity flags.
+    _, _, exported_actnum, _, _, _ = case.export_corner_point_grid()
+    assert len(exported_actnum) == total_cells
+    assert sum(1 for x in exported_actnum if x > 0) == expected_active
 
 
 def test_export_corner_point_grid_return_types(rips_instance, initialize_test):
@@ -151,6 +225,14 @@ def test_export_corner_point_grid_roundtrip(rips_instance, initialize_test):
 
     # Compare active cell counts
     assert recreated_active_count == original_active_count
+
+    # The recreated grid should expose ACTNUM just like the loaded Eclipse grid (issue #14109)
+    assert "ACTNUM" in original_case.available_properties("STATIC_NATIVE")
+    assert "ACTNUM" in recreated_case.available_properties("STATIC_NATIVE")
+    assert (
+        len(recreated_case.active_cell_property("STATIC_NATIVE", "ACTNUM", 0))
+        == recreated_active_count
+    )
 
     # Compare number of corner points (should be same for active cells)
     assert len(recreated_cell_corners) == len(original_cell_corners)
@@ -269,6 +351,13 @@ def test_replace_corner_point_grid_basic(rips_instance, initialize_test):
     new_cell_count = case.cell_count()
     assert new_cell_count.reservoir_cell_count == nx_new * ny_new * nz_new
     assert new_cell_count.reservoir_cell_count == 27  # 3x3x3
+
+    # ACTNUM should be re-created for the replaced grid (issue #14109)
+    assert "ACTNUM" in case.available_properties("STATIC_NATIVE")
+    actnum_values = case.active_cell_property("STATIC_NATIVE", "ACTNUM", 0)
+    assert len(actnum_values) == new_cell_count.active_cell_count
+    assert len(actnum_values) == 27  # 3x3x3, all active
+    assert all(v == 1.0 for v in actnum_values)
 
     # Verify the grid has more cells than before
     assert new_cell_count.reservoir_cell_count > initial_cell_count.reservoir_cell_count

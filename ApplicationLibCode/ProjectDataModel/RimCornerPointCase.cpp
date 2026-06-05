@@ -29,6 +29,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 #include "RimReloadCaseTools.h"
 
@@ -41,6 +42,7 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include <algorithm>
 #include <chrono>
 
 #ifdef USE_OPENMP
@@ -324,10 +326,47 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
     activeCellInfo->computeDerivedData();
     fractureActiveCellInfo->computeDerivedData();
 
+    createActnumResult( eclipseCaseData );
+
     auto endTime = high_resolution_clock::now();
 
     auto totalDuration = duration_cast<milliseconds>( endTime - startTime );
     RiaLogging::info( std::format( "Total: {} ms", totalDuration.count() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Materialize an ACTNUM static result so the created grid exposes the same queryable property as a
+/// grid loaded from an Eclipse file. The corner point case has no reader interface, so the data
+/// cannot be loaded lazily and must be created here.
+///
+/// Why every value is 1.0: a STATIC_NATIVE result is stored in the per-active-cell layout, i.e. the
+/// array has exactly one slot per active cell, indexed by the active-cell result index. Inactive
+/// cells (input actnum <= 0) are already excluded upstream in buildGrid(): they receive no result
+/// index and are not counted by reservoirActiveCellCount(). Inactivity is therefore encoded by the
+/// absence of a slot, not by storing a 0 here, so every slot that exists corresponds to an active
+/// cell and must hold 1.0. This is the same thing the native readers do
+/// (RifReaderEclipseOutput/RifReaderOpmCommon::staticResult: resize(reservoirActiveCellCount(), 1.0)).
+/// Walking RigActiveCellInfo to set values per cell would only be needed for a per-reservoir-cell
+/// layout, where inactive cells need an explicit 0 — that is not the layout used for ACTNUM.
+//--------------------------------------------------------------------------------------------------
+void RimCornerPointCase::createActnumResult( RigEclipseCaseData& eclipseCaseData )
+{
+    RigActiveCellInfo* activeCellInfo = eclipseCaseData.activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    CVF_ASSERT( activeCellInfo );
+
+    RigCaseCellResultsData* matrixResults = eclipseCaseData.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    CVF_ASSERT( matrixResults );
+
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE, "ACTNUM" );
+    if ( matrixResults->hasResultEntry( resAddr ) ) return;
+
+    // One slot per active cell; all active by construction (see comment above), so fill with 1.0.
+    size_t activeCellCount = activeCellInfo->reservoirActiveCellCount();
+    matrixResults->addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "ACTNUM", false, activeCellCount );
+
+    auto modifiableData = matrixResults->modifiableCellScalarResultTimesteps( resAddr );
+    CVF_ASSERT( modifiableData && !modifiableData->empty() );
+    std::fill( ( *modifiableData )[0].begin(), ( *modifiableData )[0].end(), 1.0 );
 }
 
 //--------------------------------------------------------------------------------------------------
