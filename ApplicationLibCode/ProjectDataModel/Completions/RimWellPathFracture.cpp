@@ -141,6 +141,7 @@ cvf::Vec3d RimWellPathFracture::computeFractureDirectionNormal() const
     if ( !wellPath ) return cvf::Vec3d::UNDEFINED;
 
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+    if ( !wellPathGeometry ) return cvf::Vec3d::UNDEFINED;
 
     // Find the well path points closest to the anchor position
     cvf::Vec3d p1;

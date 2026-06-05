@@ -90,6 +90,7 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( RimEclips
     // types
     for ( const RimWellPath* wellPath : visibleWells )
     {
+        if ( !wellPath || !wellPath->wellPathGeometry() ) continue;
         auto intersectedCells =
             RigWellPathIntersectionTools::findIntersectedGlobalCellIndices( eclipseCaseData, wellPath->wellPathGeometry()->wellPathPoints() );
 

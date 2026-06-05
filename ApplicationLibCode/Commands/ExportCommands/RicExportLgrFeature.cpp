@@ -752,6 +752,8 @@ std::vector<RigCompletionDataGridCell> RicExportLgrFeature::allIntersectedCells(
 {
     std::vector<RigCompletionDataGridCell> cells;
 
+    if ( !wellPath || !wellPath->wellPathGeometry() ) return cells;
+
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
     auto globalCellIndices = RigWellPathIntersectionTools::findIntersectedGlobalCellIndices( eclipseCase->eclipseCaseData(),

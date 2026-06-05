@@ -298,7 +298,8 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
     double startDepth = m_startMD;
     double endDepth   = m_endMD;
 
-    if ( m_depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH || m_depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
+    if ( ( m_depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH || m_depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB ) &&
+         m_wellPath && m_wellPath->wellPathGeometry() )
     {
         endDepth       = -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_endMD ).z();
         double rkbDiff = m_wellPath->wellPathGeometry()->rkbDiff();

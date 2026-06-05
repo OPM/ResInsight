@@ -545,7 +545,7 @@ QString RigLasFileExporter::caseNameFromCurve( RimWellLogCurve* curve )
 double RigLasFileExporter::rkbDiff( RimWellLogCurve* curve )
 {
     RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
-    if ( extractionCurve && extractionCurve->wellPath() )
+    if ( extractionCurve && extractionCurve->wellPath() && extractionCurve->wellPath()->wellPathGeometry() )
     {
         return extractionCurve->wellPath()->wellPathGeometry()->rkbDiff();
     }
