@@ -62,6 +62,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseView_addFaultDistanceRe
 
     newResult->setSelectedFaults( selected );
 
+    // When created from Python, always trigger the calculation (the UI uses an explicit Generate button instead).
+    newResult->compute();
+
     eclipseView->updateConnectedEditors();
 
     return newResult;
