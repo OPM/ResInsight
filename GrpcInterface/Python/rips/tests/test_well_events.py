@@ -309,6 +309,38 @@ class TestScheduleGeneration:
         assert "2024" in schedule_text, "Schedule should contain the event date"
         assert "WELSEGS" in schedule_text, "Schedule should contain MSW WELSEGS keyword"
 
+    def test_generate_schedule_preserves_time_of_day(self, project_with_case_and_well):
+        """Event timestamps with a time-of-day must be preserved in the exported DATES keyword (issue #14111)."""
+        project, case, timeline = project_with_case_and_well
+
+        # Get well path
+        well_paths = project.well_paths()
+        well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
+
+        # Event date carrying an explicit, non-midnight time-of-day (ISO 8601).
+        timeline.add_perf_event(
+            event_date="2024-01-01T12:34:56.789",
+            well_path=well_path_a,
+            start_md=2000.0,
+            end_md=2200.0,
+            diameter=0.1,
+            skin_factor=0.5,
+            state="OPEN",
+        )
+
+        timeline.set_timestamp(timestamp="2024-12-31")
+
+        schedule_text = timeline.generate_schedule_text(
+            eclipse_case=case,
+            export_msw_for_wells=project.well_paths(),
+            first_date_as_comment=False,
+        )
+
+        assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
+        assert "12:34:56.789" in schedule_text, (
+            "DATES keyword should preserve the event time-of-day with millisecond precision (TIME field)"
+        )
+
     def test_generate_schedule_with_control_events(self, project_with_case_and_well):
         """Test schedule generation with well control events and MSW."""
         project, case, timeline = project_with_case_and_well
