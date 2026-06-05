@@ -80,6 +80,24 @@ def main():
     )
     print("   Added perforation event on 2024-04-01 (MD 2400-2600m, completion 2)")
 
+    # Add a perforation event with an explicit time-of-day. event_date accepts an ISO 8601
+    # timestamp, so a non-midnight time (here with millisecond precision) is preserved and
+    # emitted as the optional TIME field of the DATES keyword (e.g. "DATES\n 15 'MAY' 2024
+    # '14:45:30.500' /"). Date-only events keep their plain DAY/MONTH/YEAR output.
+    _perf_event3 = timeline.add_perf_event(
+        event_date="2024-05-15T14:45:30.500",
+        well_path=well_path,
+        start_md=2300.0,
+        end_md=2350.0,
+        diameter=0.1,
+        skin_factor=0.4,
+        state="OPEN",
+        completion_number=3,
+    )
+    print(
+        "   Added perforation event on 2024-05-15T14:45:30.500 (MD 2300-2350m, completion 3, time-of-day preserved)"
+    )
+
     # Add valve event (requires existing perforation)
     _valve_event = timeline.add_valve_event(
         event_date="2024-03-01",
@@ -271,6 +289,13 @@ def main():
             found_keywords = [kw for kw in expected_keywords if kw in schedule_text]
 
             print(f"   Keywords found: {', '.join(found_keywords)}")
+
+            # The 2024-05-15T14:45:30.500 perforation event should surface as a DATES
+            # keyword carrying the optional TIME field with millisecond precision.
+            if "14:45:30.500" in schedule_text:
+                print(
+                    "   ✓ DATES keyword preserves event time-of-day (TIME field: 14:45:30.500)"
+                )
 
             if "WELSEGS" in schedule_text:
                 print("   ✓ WELSEGS keyword generated (MSW well segments)")
