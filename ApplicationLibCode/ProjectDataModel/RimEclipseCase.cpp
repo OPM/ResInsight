@@ -61,6 +61,8 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
+#include "RimFaultDistanceResult.h"
+#include "RimFaultDistanceResultCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
@@ -131,6 +133,9 @@ RimEclipseCase::RimEclipseCase()
     m_dataFilterCollection->setCase( this );
 
     CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
+
+    CAF_PDM_InitFieldNoDefault( &m_faultDistanceResultCollection, "FaultDistanceResultCollection", "Fault Distance" );
+    m_faultDistanceResultCollection = new RimFaultDistanceResultCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_resultAliasList, "ResultAliasNames", "Result Name Aliases" );
     m_resultAliasList.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -666,6 +671,26 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     if ( uiConfigName == "MainWindow.ProjectTree" )
     {
+        const bool hasFaultDistance = m_faultDistanceResultCollection() && !m_faultDistanceResultCollection()->isEmpty();
+        const bool hasWellTargets   = !m_wellTargetMappings.empty();
+        if ( hasFaultDistance || hasWellTargets )
+        {
+            auto* dataAnalytics = uiTreeOrdering.add( "Data Analytics", ":/Folder.png" );
+
+            if ( hasFaultDistance )
+            {
+                for ( auto* result : m_faultDistanceResultCollection()->items() )
+                {
+                    dataAnalytics->add( result );
+                }
+            }
+
+            for ( RimWellTargetMapping* wellTargetMapping : m_wellTargetMappings )
+            {
+                dataAnalytics->add( wellTargetMapping );
+            }
+        }
+
         for ( auto view : m_viewCollection->views() )
         {
             uiTreeOrdering.add( view );
@@ -680,8 +705,6 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
         {
             uiTreeOrdering.add( m_dataFilterCollection() );
         }
-
-        uiTreeOrdering.add( &m_wellTargetMappings );
     }
     else if ( uiConfigName == "MainWindow.DataSources" )
     {
@@ -1431,4 +1454,12 @@ void RimEclipseCase::addWellTargetMapping( RimWellTargetMapping* generator )
 {
     m_wellTargetMappings.push_back( generator );
     generator->updateResultDefinition();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFaultDistanceResultCollection* RimEclipseCase::faultDistanceResults() const
+{
+    return m_faultDistanceResultCollection;
 }

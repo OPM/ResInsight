@@ -202,9 +202,6 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitScriptableFieldNoDefault( &m_faultCollection, "FaultCollection", "Faults" );
     m_faultCollection = new RimFaultInViewCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_faultDistanceResultCollection, "FaultDistanceResultCollection", "Fault Distance Results" );
-    m_faultDistanceResultCollection = new RimFaultDistanceResultCollection;
-
     CAF_PDM_InitFieldNoDefault( &m_faultReactivationModelCollection, "FaultReactivationModelCollection", "Fault Reactivation Models" );
     m_faultReactivationModelCollection = new RimFaultReactivationModelCollection;
 
@@ -362,7 +359,8 @@ RimFaultInViewCollection* RimEclipseView::faultCollection() const
 //--------------------------------------------------------------------------------------------------
 RimFaultDistanceResultCollection* RimEclipseView::faultDistanceResults() const
 {
-    return m_faultDistanceResultCollection;
+    RimEclipseCase* eclipseCase = this->eclipseCase();
+    return eclipseCase ? eclipseCase->faultDistanceResults() : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2136,8 +2134,6 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     }
 
     uiTreeOrdering.add( faultCollection() );
-
-    if ( faultDistanceResults() && !faultDistanceResults()->isEmpty() ) uiTreeOrdering.add( faultDistanceResults() );
 
     if ( faultReactivationModelCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( faultReactivationModelCollection() );
 
