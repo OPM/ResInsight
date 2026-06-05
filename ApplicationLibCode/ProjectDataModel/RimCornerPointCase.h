@@ -69,6 +69,8 @@ protected:
                            const std::vector<float>& zcorn,
                            const std::vector<float>& actnum );
 
+    static void createActnumResult( RigEclipseCaseData& eclipseCaseData );
+
     static std::array<cvf::Vec3d, 8> getCorners( const RigMainGrid&        grid,
                                                  const std::vector<float>& coord,
                                                  const std::vector<float>& zcorn,
