@@ -998,6 +998,81 @@ std::pair<RiuPlotCurve*, int> RiuQwtPlotWidget::findClosestCurve( const QPoint& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::highlightClosestPlotItemAtPosition( const QPoint& widgetPos )
+{
+    // highlightClosestPlotItem expects canvas coordinates, while widgetPos is given in widget coordinates.
+    QPoint canvasPos = qwtPlot()->canvas()->mapFromGlobal( mapToGlobal( widgetPos ) );
+    highlightClosestPlotItem( canvasPos );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Applies the visual highlight for the closest plot item, without changing the project tree / selection manager
+/// selection. Shared by selectClosestPlotItem (which additionally updates the selection) and highlightClosestPlotItem.
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::applyHighlightForClosestItem( QwtPlotItem* closestItem, const std::vector<RimPlotCurve*>& curvesToHighlight )
+{
+    bool updateCurveOrder = false;
+    resetPlotItemHighlighting( updateCurveOrder );
+
+    if ( !curvesToHighlight.empty() )
+    {
+        if ( RimSummaryEnsembleTools::isEnsembleCurve( curvesToHighlight.front() ) )
+        {
+            auto summaryCases = RimSummaryEnsembleTools::summaryCasesFromCurves( curvesToHighlight );
+            RimSummaryEnsembleTools::highlightCurvesForSummaryCases( summaryCases );
+        }
+        else
+        {
+            highlightCurvesUpdateOrder( curvesToHighlight );
+        }
+    }
+    else if ( closestItem )
+    {
+        // Currently used from the matrix plot to highlight the selected cell in the matrix plot, see
+        // RimCorrelationMatrixPlot::createMatrix()
+        highlightPlotShapeItems( { closestItem } );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::highlightClosestPlotItem( const QPoint& pos )
+{
+    QwtPlotItem* closestItem       = nullptr;
+    double       distanceFromClick = std::numeric_limits<double>::infinity();
+    int          closestCurvePoint = -1;
+
+    findClosestPlotItem( pos, &closestItem, &closestCurvePoint, &distanceFromClick );
+
+    if ( closestItem )
+    {
+        RimPlotCurve* closestCurve = nullptr;
+        if ( auto curve = dynamic_cast<RiuPlotCurve*>( closestItem ) )
+        {
+            closestCurve = curve->ownerRimCurve();
+        }
+
+        std::vector<RimPlotCurve*> curvesToHighlight;
+        if ( closestCurve && distanceFromClick < 100 )
+        {
+            curvesToHighlight.push_back( closestCurve );
+        }
+
+        applyHighlightForClosestItem( closestItem, curvesToHighlight );
+    }
+    else
+    {
+        RimSummaryEnsembleTools::resetHighlightAllPlots();
+    }
+
+    // Always do a replot, as the reset operation also requires replot
+    replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection /*= false*/ )
 {
     QwtPlotItem* closestItem       = nullptr;
@@ -1042,28 +1117,13 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
             }
         }
 
-        bool updateCurveOrder = false;
-        resetPlotItemHighlighting( updateCurveOrder );
+        if ( !curvesToSelect.empty() && RimSummaryEnsembleTools::isEnsembleCurve( curvesToSelect.front() ) )
+        {
+            auto summaryCases = RimSummaryEnsembleTools::summaryCasesFromCurves( curvesToSelect );
+            RimSummaryEnsembleTools::selectSummaryCasesInProjectTree( summaryCases );
+        }
 
-        if ( !curvesToSelect.empty() )
-        {
-            if ( RimSummaryEnsembleTools::isEnsembleCurve( curvesToSelect.front() ) )
-            {
-                auto summaryCases = RimSummaryEnsembleTools::summaryCasesFromCurves( curvesToSelect );
-                RimSummaryEnsembleTools::selectSummaryCasesInProjectTree( summaryCases );
-                RimSummaryEnsembleTools::highlightCurvesForSummaryCases( summaryCases );
-            }
-            else
-            {
-                highlightCurvesUpdateOrder( curvesToSelect );
-            }
-        }
-        else
-        {
-            // Currently used from the matrix plot to highlight the selected cell in the matrix plot, see
-            // RimCorrelationMatrixPlot::createMatrix()
-            highlightPlotShapeItems( { closestItem } );
-        }
+        applyHighlightForClosestItem( closestItem, curvesToSelect );
 
         auto plotItem = std::make_shared<RiuQwtPlotItem>( closestItem );
         emit plotItemSelected( plotItem, toggleItemInSelection, distanceFromClick < 10 ? closestCurvePoint : -1 );

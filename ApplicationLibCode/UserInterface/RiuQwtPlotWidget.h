@@ -167,6 +167,10 @@ public:
     void resetPlotItemHighlighting( bool doUpdateCurveOrder = true );
     std::vector<caf::PdmPointer<RimPlotCurve>> highlightedCurves() const;
 
+    // Highlights the plot item closest to the given position, given in widget coordinates. Unlike a left-click, this
+    // only applies the visual highlight and does not change the project tree / selection manager selection.
+    void highlightClosestPlotItemAtPosition( const QPoint& widgetPos );
+
     void replot() override;
 
 public slots:
@@ -205,6 +209,8 @@ protected:
 
 private:
     void selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
+    void highlightClosestPlotItem( const QPoint& pos );
+    void applyHighlightForClosestItem( QwtPlotItem* closestItem, const std::vector<RimPlotCurve*>& curvesToHighlight );
     void findClosestPlotItem( const QPoint& pos, QwtPlotItem** closestItem, int* closestCurveSampleIndex, double* distanceFromClick ) const;
 
     static int defaultMinimumWidth();

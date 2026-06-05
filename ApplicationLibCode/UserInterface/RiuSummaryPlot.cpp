@@ -29,8 +29,10 @@
 
 #include "RiuPlotCurve.h"
 #include "RiuPlotWidget.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafSelectionManager.h"
 
 #include <QApplication>
 #include <QMenu>
@@ -59,24 +61,38 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
 {
     if ( !plotWidget() ) return;
 
+    // Highlight the curve under the cursor before showing the menu, giving the same visual feedback as a left-click.
+    // Only the highlight is applied, not a selection change, so the plot is selected as the current item below.
+    if ( auto* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget() ) )
+    {
+        qwtPlotWidget->highlightClosestPlotItemAtPosition( pos );
+    }
+
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
     RimSummaryPlot* plot = dynamic_cast<RimSummaryPlot*>( plotWidget()->plotDefinition() );
+
+    // Select the plot before any menu commands are created, so the commands operate on this plot. This lets the plot
+    // commands below resolve the plot from the selection, instead of passing it as user data.
+    if ( plot ) caf::SelectionManager::instance()->setSelectedItem( plot );
+
     if ( plot )
     {
-        QVariant plotVariant( QVariant::fromValue( static_cast<void*>( plot ) ) );
-        menuBuilder.addCmdFeatureWithUserData( "RicShowPlotDataCtxFeature", "Show Plot Data", plotVariant );
-        menuBuilder.addCmdFeatureWithUserData( "RicEditSummaryPlotCtxFeature", "Edit Plot", plotVariant );
-        menuBuilder.addCmdFeatureWithUserData( "RicSplitMultiPlotFeature", "Split into Multiple Plots", plotVariant );
+        menuBuilder.addCmdFeature( "RicShowPlotDataFeature" );
+        menuBuilder.addCmdFeature( "RicEditSummaryPlotFeature" );
+        menuBuilder.addCmdFeature( "RicSplitMultiPlotFeature" );
         menuBuilder.addSeparator();
-        menuBuilder.addCmdFeatureWithUserData( "RicDeleteSubPlotCtxFeature", "Delete Plot", plotVariant );
+        menuBuilder.addCmdFeature( "RicDeleteSubPlotCtxFeature" );
         menuBuilder.addSeparator();
 
         for ( auto curveSet : plot->curveSets() )
         {
             if ( curveSet->isFiltered() )
             {
+                // Offer to create a new ensemble from the cases currently passing the curve set's filter. The curve set
+                // is passed as user data, as a plot can contain several filtered curve sets and the selected plot alone
+                // does not identify which one to use.
                 auto curveSetVariant = QVariant::fromValue( caf::PdmPointer<RimEnsembleCurveSet>( curveSet ) );
                 auto name            = "Create Ensemble from Filtered Cases: " + curveSet->name();
                 menuBuilder.addCmdFeatureWithUserData( "RicCreateEnsembleFromFilteredCasesFeature", name, curveSetVariant );
