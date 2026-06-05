@@ -66,7 +66,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimElementVectorResult.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimFaultDistanceResultCollection.h"
+#include "RimFaultDistanceCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFaultReactivationModelCollection.h"
 #include "RimFilterInViewCollection.h"
@@ -357,10 +357,10 @@ RimFaultInViewCollection* RimEclipseView::faultCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultDistanceResultCollection* RimEclipseView::faultDistanceResults() const
+RimFaultDistanceCollection* RimEclipseView::faultDistanceCollection() const
 {
     RimEclipseCase* eclipseCase = this->eclipseCase();
-    return eclipseCase ? eclipseCase->faultDistanceResults() : nullptr;
+    return eclipseCase ? eclipseCase->faultDistanceCollection() : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

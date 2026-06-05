@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFaultDistanceResult.h"
+#include "RimFaultDistance.h"
 
 #include "RiaDefines.h"
 
@@ -38,18 +38,18 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
-CAF_PDM_SOURCE_INIT( RimFaultDistanceResult, "RimFaultDistanceResult" );
+CAF_PDM_SOURCE_INIT( RimFaultDistance, "RimFaultDistance" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultDistanceResult::RimFaultDistanceResult()
+RimFaultDistance::RimFaultDistance()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Fault Distance",
                                                     ":/draw_style_faults_24x24.png",
                                                     "",
                                                     "",
-                                                    "FaultDistanceResult",
+                                                    "FaultDistance",
                                                     "Per-cell distance to a selected subset of faults" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resultName, "ResultName", "Name" );
@@ -64,7 +64,7 @@ RimFaultDistanceResult::RimFaultDistanceResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultDistanceResult::resultName() const
+QString RimFaultDistance::resultName() const
 {
     return m_resultName();
 }
@@ -72,7 +72,7 @@ QString RimFaultDistanceResult::resultName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultDistanceResult::setResultName( const QString& name )
+void RimFaultDistance::setResultName( const QString& name )
 {
     m_resultName = name;
 }
@@ -80,7 +80,7 @@ void RimFaultDistanceResult::setResultName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultDistanceResult::setSelectedFaults( const std::vector<RimFaultInView*>& faults )
+void RimFaultDistance::setSelectedFaults( const std::vector<RimFaultInView*>& faults )
 {
     m_faults.setValue( faults );
 }
@@ -88,7 +88,7 @@ void RimFaultDistanceResult::setSelectedFaults( const std::vector<RimFaultInView
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<const RigFault*> RimFaultDistanceResult::selectedRigFaults() const
+std::vector<const RigFault*> RimFaultDistance::selectedRigFaults() const
 {
     std::vector<const RigFault*> rigFaults;
     for ( RimFaultInView* fault : m_faults )
@@ -101,7 +101,7 @@ std::vector<const RigFault*> RimFaultDistanceResult::selectedRigFaults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultDistanceResult::compute()
+void RimFaultDistance::compute()
 {
     if ( m_resultName().isEmpty() ) return;
 
@@ -134,7 +134,7 @@ void RimFaultDistanceResult::compute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultDistanceResult::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimFaultDistance::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_resultName )
     {
@@ -154,7 +154,7 @@ void RimFaultDistanceResult::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimFaultDistanceResult::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimFaultDistance::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -178,7 +178,7 @@ QList<caf::PdmOptionItemInfo> RimFaultDistanceResult::calculateValueOptions( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFaultDistanceResult::userDescriptionField()
+caf::PdmFieldHandle* RimFaultDistance::userDescriptionField()
 {
     return &m_resultName;
 }
@@ -186,7 +186,7 @@ caf::PdmFieldHandle* RimFaultDistanceResult::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultDistanceResult::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimFaultDistance::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_resultName );
     uiOrdering.add( &m_faults );
@@ -197,7 +197,7 @@ void RimFaultDistanceResult::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultDistanceResult::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+void RimFaultDistance::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_generateButton )
     {
@@ -211,7 +211,7 @@ void RimFaultDistanceResult::defineEditorAttribute( const caf::PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultDistanceResult::removeGeneratedResult( const QString& name )
+void RimFaultDistance::removeGeneratedResult( const QString& name )
 {
     if ( name.isEmpty() ) return;
 
@@ -230,7 +230,7 @@ void RimFaultDistanceResult::removeGeneratedResult( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultDistanceResult::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+void RimFaultDistance::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewFaultDistanceResultFeature";
 }

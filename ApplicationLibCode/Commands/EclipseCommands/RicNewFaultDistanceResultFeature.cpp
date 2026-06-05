@@ -20,8 +20,8 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimFaultDistanceResult.h"
-#include "RimFaultDistanceResultCollection.h"
+#include "RimFaultDistance.h"
+#include "RimFaultDistanceCollection.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 
@@ -49,10 +49,10 @@ RimEclipseView* findHostView()
     const auto faultCollections = caf::SelectionManager::instance()->objectsByType<RimFaultInViewCollection>();
     if ( !faultCollections.empty() ) return faultCollections.front()->firstAncestorOrThisOfType<RimEclipseView>();
 
-    const auto distanceCollections = caf::SelectionManager::instance()->objectsByType<RimFaultDistanceResultCollection>();
+    const auto distanceCollections = caf::SelectionManager::instance()->objectsByType<RimFaultDistanceCollection>();
     if ( !distanceCollections.empty() ) return firstViewOfCase( distanceCollections.front() );
 
-    const auto distanceResults = caf::SelectionManager::instance()->objectsByType<RimFaultDistanceResult>();
+    const auto distanceResults = caf::SelectionManager::instance()->objectsByType<RimFaultDistance>();
     if ( !distanceResults.empty() ) return firstViewOfCase( distanceResults.front() );
 
     const auto faults = caf::SelectionManager::instance()->objectsByType<RimFaultInView>();
@@ -78,13 +78,13 @@ void RicNewFaultDistanceResultFeature::onActionTriggered( bool isChecked )
     RimEclipseView* eclipseView = findHostView();
     if ( !eclipseView ) return;
 
-    RimFaultDistanceResultCollection* distanceCollection = eclipseView->faultDistanceResults();
+    RimFaultDistanceCollection* distanceCollection = eclipseView->faultDistanceCollection();
     if ( !distanceCollection ) return;
 
     const auto                   selectedFaultPointers = caf::SelectionManager::instance()->objectsByType<RimFaultInView>();
     std::vector<RimFaultInView*> selectedFaults( selectedFaultPointers.begin(), selectedFaultPointers.end() );
 
-    RimFaultDistanceResult* newResult = distanceCollection->addResult();
+    RimFaultDistance* newResult = distanceCollection->addResult();
     if ( !newResult ) return;
 
     if ( !selectedFaults.empty() )

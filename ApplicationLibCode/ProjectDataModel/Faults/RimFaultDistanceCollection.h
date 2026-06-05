@@ -22,7 +22,7 @@
 
 #include <QString>
 
-class RimFaultDistanceResult;
+class RimFaultDistance;
 
 namespace caf
 {
@@ -32,15 +32,15 @@ class CmdFeatureMenuBuilder;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimFaultDistanceResultCollection : public caf::PdmObjectCollection<RimFaultDistanceResult>
+class RimFaultDistanceCollection : public caf::PdmObjectCollection<RimFaultDistance>
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFaultDistanceResultCollection();
+    RimFaultDistanceCollection();
 
-    RimFaultDistanceResult* addResult();
-    QString                 nextDefaultName() const;
+    RimFaultDistance* addResult();
+    QString           nextDefaultName() const;
 
 private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;

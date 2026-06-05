@@ -16,9 +16,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFaultDistanceResultCollection.h"
+#include "RimFaultDistanceCollection.h"
 
-#include "RimFaultDistanceResult.h"
+#include "RimFaultDistance.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -27,29 +27,29 @@
 
 #include <QRegularExpression>
 
-CAF_PDM_SOURCE_INIT( RimFaultDistanceResultCollection, "RimFaultDistanceResultCollection" );
+CAF_PDM_SOURCE_INIT( RimFaultDistanceCollection, "RimFaultDistanceCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultDistanceResultCollection::RimFaultDistanceResultCollection()
+RimFaultDistanceCollection::RimFaultDistanceCollection()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Fault Distance",
                                                     ":/draw_style_faults_24x24.png",
                                                     "",
                                                     "",
-                                                    "FaultDistanceResultCollection",
+                                                    "FaultDistanceCollection",
                                                     "Collection of named, subset-based FAULTDIST results" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_items, "FaultDistanceResults", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_items, "FaultDistances", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultDistanceResult* RimFaultDistanceResultCollection::addResult()
+RimFaultDistance* RimFaultDistanceCollection::addResult()
 {
-    auto* newResult = new RimFaultDistanceResult();
+    auto* newResult = new RimFaultDistance();
     newResult->setResultName( nextDefaultName() );
     addItem( newResult );
     return newResult;
@@ -58,11 +58,11 @@ RimFaultDistanceResult* RimFaultDistanceResultCollection::addResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultDistanceResultCollection::nextDefaultName() const
+QString RimFaultDistanceCollection::nextDefaultName() const
 {
     QRegularExpression pattern( "^FAULTDIST(\\d+)$" );
     int                maxIndex = 0;
-    for ( RimFaultDistanceResult* result : items() )
+    for ( RimFaultDistance* result : items() )
     {
         if ( !result ) continue;
         const QRegularExpressionMatch match = pattern.match( result->resultName() );
@@ -77,9 +77,9 @@ QString RimFaultDistanceResultCollection::nextDefaultName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultDistanceResultCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+void RimFaultDistanceCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    for ( RimFaultDistanceResult* result : items() )
+    for ( RimFaultDistance* result : items() )
     {
         uiTreeOrdering.add( result );
     }
@@ -89,7 +89,7 @@ void RimFaultDistanceResultCollection::defineUiTreeOrdering( caf::PdmUiTreeOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultDistanceResultCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+void RimFaultDistanceCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewFaultDistanceResultFeature";
 }

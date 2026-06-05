@@ -41,7 +41,7 @@
 class QString;
 
 class RimWellTargetMapping;
-class RimFaultDistanceResultCollection;
+class RimFaultDistanceCollection;
 class RigCaseCellResultsData;
 class RigEclipseCaseData;
 class RigFormationNames;
@@ -143,7 +143,7 @@ public:
 
     void addWellTargetMapping( RimWellTargetMapping* wellTargetMapping );
 
-    RimFaultDistanceResultCollection* faultDistanceResults() const;
+    RimFaultDistanceCollection* faultDistanceCollection() const;
 
     void updateResultAddressCollection();
 
@@ -206,7 +206,7 @@ private:
 
     caf::PdmChildArrayField<RimWellTargetMapping*> m_wellTargetMappings;
 
-    caf::PdmChildField<RimFaultDistanceResultCollection*> m_faultDistanceResultCollection;
+    caf::PdmChildField<RimFaultDistanceCollection*> m_faultDistanceCollection;
 
     caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
 
