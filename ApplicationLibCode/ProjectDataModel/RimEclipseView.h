@@ -272,7 +272,6 @@ private:
 
     caf::PdmChildField<RimSimWellInViewCollection*>          m_wellCollection;
     caf::PdmChildField<RimFaultInViewCollection*>            m_faultCollection;
-    caf::PdmChildField<RimFaultDistanceResultCollection*>    m_faultDistanceResultCollection;
     caf::PdmChildField<RimFaultReactivationModelCollection*> m_faultReactivationModelCollection;
     caf::PdmChildField<RimStreamlineInViewCollection*>       m_streamlineCollection;
 
