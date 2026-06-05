@@ -72,6 +72,11 @@ std::expected<RigMswTableData, std::string>
                                                              CompletionType                  completionType,
                                                              const std::optional<QDateTime>& exportDate )
 {
+    if ( !wellPath || !wellPath->wellPathGeometry() )
+    {
+        return std::unexpected( "Well path has no geometry; the well path file may be missing or failed to load." );
+    }
+
     // Data processing for MSW has improved. Currently, there exist two code paths for extracting MSW data. The preference for using the
     // legacy code path is controlled by the "Use Improved MSW Data Structures" preference (General tab, Other group).
     bool useLegacy = !RiaPreferences::current()->useImprovedMswDataStructures();
@@ -699,7 +704,7 @@ std::vector<WellPathCellIntersectionInfo> RicWellPathExportMswTableData::generat
                                                                                                const RimWellPath*    wellPath )
 {
     auto wellPathGeometry = wellPath->wellPathGeometry();
-    CVF_ASSERT( wellPathGeometry );
+    if ( !wellPathGeometry ) return {};
 
     const std::vector<cvf::Vec3d>& coords = wellPathGeometry->uniqueWellPathPoints();
     const std::vector<double>&     mds    = wellPathGeometry->uniqueMeasuredDepths();

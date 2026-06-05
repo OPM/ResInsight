@@ -412,7 +412,11 @@ std::vector<RimWellPath*> RimWellPathCollection::readAndAddWellPaths( std::vecto
     std::vector<RimWellPath*> addedWellPaths;
     for ( RimFileWellPath* wellPath : wellPathArray )
     {
-        wellPath->readWellPathFile( nullptr, m_wellPathImporter.get(), true );
+        QString errorMessage;
+        if ( !wellPath->readWellPathFile( &errorMessage, m_wellPathImporter.get(), true ) )
+        {
+            RiaLogging::warning( errorMessage.toStdString() );
+        }
 
         progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
 
