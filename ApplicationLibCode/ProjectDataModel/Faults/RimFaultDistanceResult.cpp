@@ -101,10 +101,7 @@ void RimFaultDistanceResult::compute()
 {
     if ( m_resultName().isEmpty() ) return;
 
-    auto eclipseView = firstAncestorOrThisOfType<RimEclipseView>();
-    if ( !eclipseView ) return;
-
-    RimEclipseCase* eclipseCase = eclipseView->eclipseCase();
+    RimEclipseCase* eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     if ( !eclipseCase ) return;
 
     RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
@@ -112,7 +109,8 @@ void RimFaultDistanceResult::compute()
 
     RigSelectedFaultDistanceResultCalculator::compute( caseData, m_resultName(), selectedRigFaults() );
 
-    eclipseView->scheduleCreateDisplayModelAndRedraw();
+    const auto views = eclipseCase->reservoirViews();
+    if ( !views.empty() && views.front() ) views.front()->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,8 +142,9 @@ QList<caf::PdmOptionItemInfo> RimFaultDistanceResult::calculateValueOptions( con
 
     if ( fieldNeedingOptions == &m_faults )
     {
-        auto eclipseView     = firstAncestorOrThisOfType<RimEclipseView>();
-        auto faultCollection = eclipseView ? eclipseView->faultCollection() : nullptr;
+        RimEclipseCase* eclipseCase     = firstAncestorOrThisOfType<RimEclipseCase>();
+        const auto      views           = eclipseCase ? eclipseCase->reservoirViews() : std::vector<RimEclipseView*>();
+        auto            faultCollection = ( !views.empty() && views.front() ) ? views.front()->faultCollection() : nullptr;
         if ( faultCollection )
         {
             for ( RimFaultInView* fault : faultCollection->faults() )
@@ -183,10 +182,7 @@ void RimFaultDistanceResult::removeGeneratedResult( const QString& name )
 {
     if ( name.isEmpty() ) return;
 
-    auto eclipseView = firstAncestorOrThisOfType<RimEclipseView>();
-    if ( !eclipseView ) return;
-
-    RimEclipseCase* eclipseCase = eclipseView->eclipseCase();
+    RimEclipseCase* eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     if ( !eclipseCase ) return;
 
     RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();

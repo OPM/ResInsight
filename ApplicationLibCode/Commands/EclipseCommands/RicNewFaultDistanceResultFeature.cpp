@@ -18,6 +18,7 @@
 
 #include "RicNewFaultDistanceResultFeature.h"
 
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultDistanceResult.h"
 #include "RimFaultDistanceResultCollection.h"
@@ -34,16 +35,25 @@ CAF_CMD_SOURCE_INIT( RicNewFaultDistanceResultFeature, "RicNewFaultDistanceResul
 
 namespace
 {
+RimEclipseView* firstViewOfCase( const caf::PdmObjectHandle* object )
+{
+    if ( !object ) return nullptr;
+    RimEclipseCase* eclipseCase = object->firstAncestorOrThisOfType<RimEclipseCase>();
+    if ( !eclipseCase ) return nullptr;
+    const auto views = eclipseCase->reservoirViews();
+    return views.empty() ? nullptr : views.front();
+}
+
 RimEclipseView* findHostView()
 {
     const auto faultCollections = caf::SelectionManager::instance()->objectsByType<RimFaultInViewCollection>();
     if ( !faultCollections.empty() ) return faultCollections.front()->firstAncestorOrThisOfType<RimEclipseView>();
 
     const auto distanceCollections = caf::SelectionManager::instance()->objectsByType<RimFaultDistanceResultCollection>();
-    if ( !distanceCollections.empty() ) return distanceCollections.front()->firstAncestorOrThisOfType<RimEclipseView>();
+    if ( !distanceCollections.empty() ) return firstViewOfCase( distanceCollections.front() );
 
     const auto distanceResults = caf::SelectionManager::instance()->objectsByType<RimFaultDistanceResult>();
-    if ( !distanceResults.empty() ) return distanceResults.front()->firstAncestorOrThisOfType<RimEclipseView>();
+    if ( !distanceResults.empty() ) return firstViewOfCase( distanceResults.front() );
 
     const auto faults = caf::SelectionManager::instance()->objectsByType<RimFaultInView>();
     if ( !faults.empty() ) return faults.front()->firstAncestorOrThisOfType<RimEclipseView>();
