@@ -19,23 +19,23 @@
 #include "RimcEclipseView.h"
 
 #include "RimEclipseView.h"
-#include "RimFaultDistanceResult.h"
-#include "RimFaultDistanceResultCollection.h"
+#include "RimFaultDistance.h"
+#include "RimFaultDistanceCollection.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimcEclipseView_addFaultDistanceResult, "add_fault_distance_result" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimcEclipseView_addFaultDistance, "add_fault_distance" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcEclipseView_addFaultDistanceResult::RimcEclipseView_addFaultDistanceResult( caf::PdmObjectHandle* self )
+RimcEclipseView_addFaultDistance::RimcEclipseView_addFaultDistance( caf::PdmObjectHandle* self )
     : caf::PdmObjectCreationMethod( self )
 {
-    CAF_PDM_InitObject( "Add Fault Distance Result", "", "", "Create a FAULTDIST cell result for a chosen subset of faults" );
+    CAF_PDM_InitObject( "Add Fault Distance", "", "", "Create a FAULTDIST cell result for a chosen subset of faults" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resultName, "Name", "Name (default FAULTDIST<n> if empty)" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_faults, "Faults", "Faults to include (empty = all)" );
@@ -44,12 +44,12 @@ RimcEclipseView_addFaultDistanceResult::RimcEclipseView_addFaultDistanceResult( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcEclipseView_addFaultDistanceResult::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcEclipseView_addFaultDistance::execute()
 {
     auto* eclipseView = self<RimEclipseView>();
     if ( !eclipseView ) return std::unexpected( QString( "No view" ) );
 
-    auto* distanceCollection = eclipseView->faultDistanceResults();
+    auto* distanceCollection = eclipseView->faultDistanceCollection();
     if ( !distanceCollection ) return std::unexpected( QString( "No fault distance results collection" ) );
 
     auto* newResult = distanceCollection->addResult();
@@ -73,7 +73,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseView_addFaultDistanceRe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimcEclipseView_addFaultDistanceResult::classKeywordReturnedType() const
+QString RimcEclipseView_addFaultDistance::classKeywordReturnedType() const
 {
-    return RimFaultDistanceResult::classKeywordStatic();
+    return RimFaultDistance::classKeywordStatic();
 }

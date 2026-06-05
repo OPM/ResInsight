@@ -61,8 +61,8 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
-#include "RimFaultDistanceResult.h"
-#include "RimFaultDistanceResultCollection.h"
+#include "RimFaultDistance.h"
+#include "RimFaultDistanceCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
@@ -134,8 +134,8 @@ RimEclipseCase::RimEclipseCase()
 
     CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
 
-    CAF_PDM_InitFieldNoDefault( &m_faultDistanceResultCollection, "FaultDistanceResultCollection", "Fault Distance" );
-    m_faultDistanceResultCollection = new RimFaultDistanceResultCollection;
+    CAF_PDM_InitFieldNoDefault( &m_faultDistanceCollection, "FaultDistanceCollection", "Fault Distance" );
+    m_faultDistanceCollection = new RimFaultDistanceCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_resultAliasList, "ResultAliasNames", "Result Name Aliases" );
     m_resultAliasList.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -671,7 +671,7 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     if ( uiConfigName == "MainWindow.ProjectTree" )
     {
-        const bool hasFaultDistance = m_faultDistanceResultCollection() && !m_faultDistanceResultCollection()->isEmpty();
+        const bool hasFaultDistance = m_faultDistanceCollection() && !m_faultDistanceCollection()->isEmpty();
         const bool hasWellTargets   = !m_wellTargetMappings.empty();
         if ( hasFaultDistance || hasWellTargets )
         {
@@ -679,7 +679,7 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
             if ( hasFaultDistance )
             {
-                for ( auto* result : m_faultDistanceResultCollection()->items() )
+                for ( auto* result : m_faultDistanceCollection()->items() )
                 {
                     dataAnalytics->add( result );
                 }
@@ -1459,7 +1459,7 @@ void RimEclipseCase::addWellTargetMapping( RimWellTargetMapping* generator )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultDistanceResultCollection* RimEclipseCase::faultDistanceResults() const
+RimFaultDistanceCollection* RimEclipseCase::faultDistanceCollection() const
 {
-    return m_faultDistanceResultCollection;
+    return m_faultDistanceCollection;
 }
