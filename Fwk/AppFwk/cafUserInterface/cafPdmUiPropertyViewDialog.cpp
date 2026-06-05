@@ -152,17 +152,27 @@ void PdmUiPropertyViewDialog::setupUi()
 //--------------------------------------------------------------------------------------------------
 void PdmUiPropertyViewDialog::showEvent( QShowEvent* event )
 {
-    // Restore a previously stored size on first show. Restoring here rather than in the constructor
-    // ensures the geometry is applied reliably for a modal dialog and is not overridden by the initial
-    // sizing (see issue #14104). When no size is stored, the size is left to sizeHint()/minimumSizeHint()
-    // and any explicit resize() done by the caller, so the default appearance is preserved.
-    if ( sm_geometryPersistenceEnabled && !m_geometryRestored )
+    // Let the base class perform its initial sizing first, so the dialog is associated with the
+    // screen it actually opens on before we adjust its size.
+    QDialog::showEvent( event );
+
+    if ( !m_geometryRestored )
     {
         m_geometryRestored = true;
-        restoreDialogGeometry();
-    }
 
-    QDialog::showEvent( event );
+        // Restore a previously stored size on first show. Doing this here rather than in the
+        // constructor ensures the size is applied reliably for a modal dialog and is not overridden
+        // by the initial sizing (see issue #14104).
+        const bool restored = sm_geometryPersistenceEnabled && restoreDialogGeometry();
+        if ( !restored )
+        {
+            // No stored size: the dialog was laid out while associated with the screen it was built
+            // on, which on a multi-monitor setup can have a different DPI than the screen it ends up
+            // on. Recompute the layout for the current screen so the dialog is not shown collapsed
+            // (issue #14104). sizeHint()/minimumSizeHint() provide the floor.
+            adjustSize();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -105,7 +105,9 @@ QSize RiuPropertyViewTabWidget::minimumSizeHint() const
         maxSizeHint = maxSizeHint.expandedTo( pageSize );
     }
 
-    return maxSizeHint;
+    // The inner scroll area reports an artificially small minimum width, which lets some window
+    // managers open the dialog collapsed (issue #14104). Provide a sensible floor.
+    return maxSizeHint.expandedTo( QSize( 300, 150 ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,16 +143,27 @@ QDialogButtonBox* RiuPropertyViewTabWidget::dialogButtonBox()
 //--------------------------------------------------------------------------------------------------
 void RiuPropertyViewTabWidget::showEvent( QShowEvent* event )
 {
-    // Restore the stored size on first show. Doing this here rather than in the constructor ensures
-    // the geometry is applied reliably for a modal dialog and is not overridden by the initial sizing.
-    // When no size is stored, the size is left to sizeHint()/minimumSizeHint().
-    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "remember-dialog-size" ) && !m_geometryRestored )
+    // Let the base class perform its initial sizing first, so the dialog is associated with the
+    // screen it actually opens on before we adjust its size.
+    QDialog::showEvent( event );
+
+    if ( !m_geometryRestored )
     {
         m_geometryRestored = true;
-        restoreDialogGeometry();
-    }
 
-    QDialog::showEvent( event );
+        // Restore the stored size on first show. Doing this here rather than in the constructor
+        // ensures the size is applied reliably for a modal dialog and is not overridden by the
+        // initial sizing.
+        const bool restored = RiaPreferencesSystem::current()->isFeatureEnabled( "remember-dialog-size" ) && restoreDialogGeometry();
+        if ( !restored )
+        {
+            // No stored size: the dialog was laid out while associated with the screen it was built
+            // on, which on a multi-monitor setup can have a different DPI than the screen it ends up
+            // on. Recompute the layout for the current screen so the dialog is not shown collapsed
+            // (issue #14104). sizeHint()/minimumSizeHint() provide the floor.
+            adjustSize();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
