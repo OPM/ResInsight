@@ -37,12 +37,12 @@ class CmdFeatureMenuBuilder;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimFaultDistanceResult : public caf::PdmObject
+class RimFaultDistance : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFaultDistanceResult();
+    RimFaultDistance();
 
     QString resultName() const;
     void    setResultName( const QString& name );

@@ -53,7 +53,7 @@ class RimEclipseCellColors;
 class RimEclipseFaultColors;
 class RimEclipsePropertyFilter;
 class RimEclipsePropertyFilterCollection;
-class RimFaultDistanceResultCollection;
+class RimFaultDistanceCollection;
 class RimFaultInViewCollection;
 class RimFilterInViewCollection;
 class RimReservoirCellResultsStorage;
@@ -115,7 +115,7 @@ public:
     RimStimPlanColors*                   fractureColors() const;
     RimSimWellInViewCollection*          wellCollection() const;
     RimFaultInViewCollection*            faultCollection() const;
-    RimFaultDistanceResultCollection*    faultDistanceResults() const;
+    RimFaultDistanceCollection*          faultDistanceCollection() const;
     RimVirtualPerforationResults*        virtualPerforationResult() const;
     RimStreamlineInViewCollection*       streamlineCollection() const;
     RimFaultReactivationModelCollection* faultReactivationModelCollection() const;
