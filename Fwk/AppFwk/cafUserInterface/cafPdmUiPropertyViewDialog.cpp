@@ -210,19 +210,23 @@ QString PdmUiPropertyViewDialog::settingsKey() const
 
     QString classKeyword = m_pdmObject ? m_pdmObject->classKeyword() : QString();
 
-    return QString( "PdmUiPropertyViewDialog/%1/%2/geometry" ).arg( classKeyword, id );
+    return QString( "PdmUiPropertyViewDialog/%1/%2" ).arg( classKeyword, id );
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Restore the dialog size from the stored width and height. Only the size is persisted; the window
+/// position is left to the window manager to avoid the off-screen/wrong-monitor problems that come
+/// with restoring an absolute position.
 //--------------------------------------------------------------------------------------------------
 bool PdmUiPropertyViewDialog::restoreDialogGeometry()
 {
     QSettings settings;
-    QVariant  geometry = settings.value( settingsKey() );
-    if ( geometry.isValid() )
+    QVariant  width  = settings.value( settingsKey() + "/width" );
+    QVariant  height = settings.value( settingsKey() + "/height" );
+    if ( width.isValid() && height.isValid() )
     {
-        return restoreGeometry( geometry.toByteArray() );
+        resize( width.toInt(), height.toInt() );
+        return true;
     }
 
     return false;
@@ -234,7 +238,8 @@ bool PdmUiPropertyViewDialog::restoreDialogGeometry()
 void PdmUiPropertyViewDialog::saveDialogGeometry()
 {
     QSettings settings;
-    settings.setValue( settingsKey(), saveGeometry() );
+    settings.setValue( settingsKey() + "/width", size().width() );
+    settings.setValue( settingsKey() + "/height", size().height() );
 }
 
 } // End of namespace caf
