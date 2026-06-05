@@ -172,9 +172,8 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     if ( dateAsComment )
     {
         QLocale locale( QLocale::English );
-        QString month = locale.monthName( date.date().month(), QLocale::ShortFormat ).toUpper();
-        QString dateStr =
-            QString( "-- Date: %1 %2 %3" ).arg( date.date().day() ).arg( month ).arg( date.date().year() );
+        QString month   = locale.monthName( date.date().month(), QLocale::ShortFormat ).toUpper();
+        QString dateStr = QString( "-- Date: %1 %2 %3" ).arg( date.date().day() ).arg( month ).arg( date.date().year() );
 
         // Mirror the TIME field emitted in DATES keywords (see RimKeywordFactory::datesKeyword): include the
         // time-of-day in the comment only when the timestamp is not at midnight.
