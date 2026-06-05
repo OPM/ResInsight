@@ -77,6 +77,16 @@ void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
         RimWellPath::copyCompletionSettings( wellPath, this );
     }
 
+    if ( !wellPath->wellPathGeometry() )
+    {
+        // The child has no geometry (e.g. the source well path file is missing). Keep it as a child, but skip
+        // all geometry merging to avoid dereferencing a null geometry.
+        m_childWellPaths.push_back( wellPath );
+        wellPath->nameChanged.connect( this, &RimWellPathGroup::onChildNameChanged );
+        updateAllRequiredEditors();
+        return;
+    }
+
     if ( !wellPathGeometry()->wellPathPoints().empty() )
     {
         m_childWellPaths.push_back( wellPath );
@@ -184,7 +194,10 @@ void RimWellPathGroup::createWellPathGeometry()
         {
             lateral->createWellPathGeometry();
         }
-        wellPath->wellPathGeometry()->setUniqueStartAndEndIndex( childStartIndex, std::numeric_limits<size_t>::max() );
+        if ( auto geometry = wellPath->wellPathGeometry(); geometry )
+        {
+            geometry->setUniqueStartAndEndIndex( childStartIndex, std::numeric_limits<size_t>::max() );
+        }
     }
 }
 
@@ -383,6 +396,7 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
 
     for ( auto wellPath : m_childWellPaths )
     {
+        if ( !wellPath->wellPathGeometry() ) continue;
         auto childWellPathPoints = wellPath->wellPathGeometry()->wellPathPoints();
         if ( childWellPathPoints.size() > wellPathPoints.size() )
         {

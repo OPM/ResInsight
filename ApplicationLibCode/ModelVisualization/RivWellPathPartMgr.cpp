@@ -212,7 +212,7 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel( cvf::ModelBasicList*  
                                                           const caf::DisplayCoordTransform* displayCoordTransform,
                                                           double                            characteristicCellSize )
 {
-    if ( !m_rimWellPath ) return;
+    if ( !m_rimWellPath || !m_rimWellPath->wellPathGeometry() ) return;
 
     RivPipeGeometryGenerator           geoGenerator;
     std::vector<RimWellPathAttribute*> attributes = m_rimWellPath->attributeCollection()->attributes();
@@ -300,7 +300,7 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
                                                         const caf::DisplayCoordTransform* displayCoordTransform,
                                                         double                            characteristicCellSize )
 {
-    if ( !m_rimWellPath ) return;
+    if ( !m_rimWellPath || !m_rimWellPath->wellPathGeometry() ) return;
 
     RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
     if ( !gridView ) return;
@@ -483,6 +483,8 @@ void RivWellPathPartMgr::appendValvesToModel( cvf::ModelBasicList*              
                                               double                                wellPathRadius,
                                               const caf::DisplayCoordTransform*     displayCoordTransform )
 {
+    if ( !m_rimWellPath || !m_rimWellPath->wellPathGeometry() ) return;
+
     for ( auto valve : valves )
     {
         if ( valve == nullptr ) continue;

@@ -71,7 +71,7 @@ void RicCreateMultipleWellPathLaterals::onActionTriggered( bool isChecked )
 
                 if ( auto parentWell = tieIn->parentWell() )
                 {
-                    if ( !parentWell->wellPathGeometry()->measuredDepths().empty() )
+                    if ( parentWell->wellPathGeometry() && !parentWell->wellPathGeometry()->measuredDepths().empty() )
                     {
                         double candidate = parentWell->wellPathGeometry()->measuredDepths().back() - 50.0;
 
