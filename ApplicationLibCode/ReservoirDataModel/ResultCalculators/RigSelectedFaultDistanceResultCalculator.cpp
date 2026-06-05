@@ -27,6 +27,8 @@
 #include "RigFaultDistanceCalculator.h"
 #include "RigMainGrid.h"
 
+#include "cafProgressInfo.h"
+
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------
@@ -47,8 +49,11 @@ void RigSelectedFaultDistanceResultCalculator::compute( RigEclipseCaseData*     
     const size_t activeCellCount = activeCellInfo->reservoirActiveCellCount();
     if ( activeCellCount == 0 ) return;
 
+    caf::ProgressInfo progressInfo( 3, "Computing fault distance" );
+
     RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
 
+    progressInfo.setProgressDescription( "Preparing result storage" );
     if ( !resultsData->hasResultEntry( resultAddress ) )
     {
         resultsData->addStaticScalarResult( RiaDefines::ResultCatType::GENERATED, resultName, false, activeCellCount );
@@ -58,8 +63,13 @@ void RigSelectedFaultDistanceResultCalculator::compute( RigEclipseCaseData*     
     if ( !resultVector ) return;
 
     resultVector->assign( activeCellCount, std::numeric_limits<double>::infinity() );
+    progressInfo.incrementProgress();
 
+    progressInfo.setProgressDescription( "Computing distances to faults" );
     RigFaultDistanceCalculator::computeFaultDistances( caseData->mainGrid(), activeCellInfo, selectedFaults, *resultVector );
+    progressInfo.incrementProgress();
 
+    progressInfo.setProgressDescription( "Updating statistics" );
     resultsData->recalculateStatistics( resultAddress );
+    progressInfo.incrementProgress();
 }
