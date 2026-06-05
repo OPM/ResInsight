@@ -27,6 +27,7 @@
 #include "RigSelectedFaultDistanceResultCalculator.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
@@ -34,6 +35,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimFaultDistanceResult, "RimFaultDistanceResult" );
@@ -54,6 +56,9 @@ RimFaultDistanceResult::RimFaultDistanceResult()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faults, "SelectedFaults", "Faults" );
     m_faults.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_generateButton, "Generate", "" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_generateButton );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +83,6 @@ void RimFaultDistanceResult::setResultName( const QString& name )
 void RimFaultDistanceResult::setSelectedFaults( const std::vector<RimFaultInView*>& faults )
 {
     m_faults.setValue( faults );
-    compute();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +114,21 @@ void RimFaultDistanceResult::compute()
     RigSelectedFaultDistanceResultCalculator::compute( caseData, m_resultName(), selectedRigFaults() );
 
     const auto views = eclipseCase->reservoirViews();
-    if ( !views.empty() && views.front() ) views.front()->scheduleCreateDisplayModelAndRedraw();
+    if ( !views.empty() && views.front() )
+    {
+        RimEclipseView* firstView = views.front();
+
+        // Select the generated result in the first view so the computation result is visible.
+        if ( RimEclipseCellColors* cellResult = firstView->cellResult() )
+        {
+            cellResult->setResultType( RiaDefines::ResultCatType::GENERATED );
+            cellResult->setResultVariable( m_resultName() );
+            cellResult->loadResult();
+            cellResult->updateConnectedEditors();
+        }
+
+        firstView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,10 +143,10 @@ void RimFaultDistanceResult::fieldChangedByUi( const caf::PdmFieldHandle* change
         {
             removeGeneratedResult( previousName );
         }
-        compute();
     }
-    else if ( changedField == &m_faults )
+    else if ( changedField == &m_generateButton )
     {
+        m_generateButton = false;
         compute();
     }
 }
@@ -172,7 +190,22 @@ void RimFaultDistanceResult::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 {
     uiOrdering.add( &m_resultName );
     uiOrdering.add( &m_faults );
+    uiOrdering.add( &m_generateButton );
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultDistanceResult::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_generateButton )
+    {
+        if ( auto* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            attrib->m_buttonText = "Generate";
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
