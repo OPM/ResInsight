@@ -754,6 +754,16 @@ Opm::DeckKeyword datesKeyword( const QDateTime& date )
     items.push_back( RifOpmDeckTools::item( D::MONTH::itemName, month.toStdString() ) );
     items.push_back( RifOpmDeckTools::item( D::YEAR::itemName, year ) );
 
+    // Emit the optional TIME field (HH:MM:SS[.SSS], default 00:00:00) only when the timestamp carries a
+    // non-midnight time, so date-only events keep their plain DAY/MONTH/YEAR output. QDateTime resolves
+    // to milliseconds, which is the finest precision we can preserve here.
+    const QTime time = date.time();
+    if ( time.isValid() && ( time.hour() != 0 || time.minute() != 0 || time.second() != 0 || time.msec() != 0 ) )
+    {
+        const QString timeStr = ( time.msec() != 0 ) ? time.toString( "HH:mm:ss.zzz" ) : time.toString( "HH:mm:ss" );
+        items.push_back( RifOpmDeckTools::item( D::TIME::itemName, timeStr.toStdString() ) );
+    }
+
     Opm::DeckKeyword kw{ D() };
     kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
     return kw;
