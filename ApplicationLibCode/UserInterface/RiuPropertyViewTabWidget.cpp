@@ -174,19 +174,23 @@ QString RiuPropertyViewTabWidget::settingsKey() const
     QString title = m_windowTitle;
     title.replace( '/', '_' );
 
-    return QString( "RiuPropertyViewTabWidget/%1/%2/geometry" ).arg( m_objectClassKeyword, title );
+    return QString( "RiuPropertyViewTabWidget/%1/%2" ).arg( m_objectClassKeyword, title );
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Restore the dialog size from the stored width and height. Only the size is persisted; the window
+/// position is left to the window manager to avoid the off-screen/wrong-monitor problems that come
+/// with restoring an absolute position.
 //--------------------------------------------------------------------------------------------------
 bool RiuPropertyViewTabWidget::restoreDialogGeometry()
 {
     QSettings settings;
-    QVariant  geometry = settings.value( settingsKey() );
-    if ( geometry.isValid() )
+    QVariant  width  = settings.value( settingsKey() + "/width" );
+    QVariant  height = settings.value( settingsKey() + "/height" );
+    if ( width.isValid() && height.isValid() )
     {
-        return restoreGeometry( geometry.toByteArray() );
+        resize( width.toInt(), height.toInt() );
+        return true;
     }
 
     return false;
@@ -198,5 +202,6 @@ bool RiuPropertyViewTabWidget::restoreDialogGeometry()
 void RiuPropertyViewTabWidget::saveDialogGeometry()
 {
     QSettings settings;
-    settings.setValue( settingsKey(), saveGeometry() );
+    settings.setValue( settingsKey() + "/width", size().width() );
+    settings.setValue( settingsKey() + "/height", size().height() );
 }
