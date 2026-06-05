@@ -38,6 +38,7 @@
 #include "cvfqtUtils.h"
 
 #include <QFile>
+#include <QtGlobal>
 
 #ifndef WIN32
 #include <sys/types.h>
@@ -50,6 +51,31 @@ void manageSegFailure( int signalCode );
 #ifndef WIN32
 void manageSegFailureSA( int signalCode, siginfo_t* info, void* ucontext );
 #endif
+
+namespace
+{
+QtMessageHandler g_previousMessageHandler = nullptr;
+
+//--------------------------------------------------------------------------------------------------
+/// Filter out a harmless Qt6 warning seen on some Linux platforms (e.g. RHEL8) where Qt validates an
+/// empty (all-zero) QColorSpacePrimaries and prints:
+///   "QColorSpace attempted constructed from invalid primaries: QPointF(0,0) ..."
+/// The message has no functional impact, so suppress it while forwarding everything else unchanged.
+/// See https://github.com/OPM/ResInsight/issues/11802
+//--------------------------------------------------------------------------------------------------
+void riaFilteredMessageHandler( QtMsgType type, const QMessageLogContext& context, const QString& msg )
+{
+    if ( msg.startsWith( QLatin1String( "QColorSpace attempted constructed from invalid primaries" ) ) )
+    {
+        return;
+    }
+
+    if ( g_previousMessageHandler )
+    {
+        g_previousMessageHandler( type, context, msg );
+    }
+}
+} // namespace
 
 RiaApplication* createApplication( int& argc, char* argv[] )
 {
@@ -83,6 +109,9 @@ int main( int argc, char* argv[] )
         return 1;
     }
 #endif
+
+    // Install a message handler to filter out a harmless Qt6 color-space warning (see #11802)
+    g_previousMessageHandler = qInstallMessageHandler( riaFilteredMessageHandler );
 
     RiaMainTools::deleteStaleSettingsLockFiles();
 
