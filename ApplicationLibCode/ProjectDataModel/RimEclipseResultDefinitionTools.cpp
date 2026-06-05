@@ -605,8 +605,7 @@ void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseRe
                 legendConfigToUpdate->setCategoryItems( categories );
             }
         }
-        else if ( resultDefinition->resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
-                  resultDefinition->resultVariable() == RiaResultNames::completionTypeResultName() )
+        else if ( resultDefinition->isCompletionTypeSelected() )
         {
             const std::vector<int>& visibleCategories = cellResultsData->uniqueCellScalarValues( resultDefinition->eclipseResultAddress() );
 
@@ -754,7 +753,9 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinitionTools::calcOptionsForVar
     {
         if ( s == RiaResultNames::completionTypeResultName() )
         {
-            if ( results->timeStepDates().empty() ) continue;
+            // The dynamic completion type requires time steps, so hide it when there are none. The static
+            // variant can be computed from grid geometry alone, so it stays available (see issue #14127).
+            if ( resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE && results->timeStepDates().empty() ) continue;
         }
 
         if ( RiaResultNames::isPerCellFaceResult( s ) )

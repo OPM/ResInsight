@@ -1031,6 +1031,12 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                 RiaResultNames::completionTypeResultName() ),
                                        needsToBeStored );
+
+        // Also register a static variant so completion type can be computed/viewed when only grid
+        // geometry is loaded (no restart / no simulation time steps). See issue #14127.
+        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                RiaResultNames::completionTypeResultName() ),
+                                       needsToBeStored );
     }
 
     // Fault results
@@ -1517,6 +1523,15 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     }
     else if ( resultName == RiaResultNames::completionTypeResultName() )
     {
+        if ( type == RiaDefines::ResultCatType::STATIC_NATIVE )
+        {
+            // Single time-step-independent frame, computed even when no restart data is loaded.
+            caf::ProgressInfo progressInfo( 1, "Calculate Completion Type Results" );
+            computeStaticCompletionType();
+            progressInfo.incrementProgress();
+            return scalarResultIndex;
+        }
+
         caf::ProgressInfo progressInfo( maxTimeStepCount(), "Calculate Completion Type Results" );
         m_cellScalarResults[scalarResultIndex].resize( maxTimeStepCount() );
         for ( size_t timeStepIdx = 0; timeStepIdx < maxTimeStepCount(); ++timeStepIdx )
@@ -1708,6 +1723,12 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
     {
         size_t completionTypeScalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
         computeCompletionTypeForTimeStep( timeStepIndex );
+        return completionTypeScalarResultIndex;
+    }
+    else if ( type == RiaDefines::ResultCatType::STATIC_NATIVE && resultName == RiaResultNames::completionTypeResultName() )
+    {
+        size_t completionTypeScalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
+        computeStaticCompletionType();
         return completionTypeScalarResultIndex;
     }
 
@@ -2764,24 +2785,62 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep( size_t timeStep )
         m_cellScalarResults[completionTypeResultIndex].resize( maxTimeStepCount() );
     }
 
-    std::vector<double>& completionTypeResult = m_cellScalarResults[completionTypeResultIndex][timeStep];
+    computeCompletionTypeForFrame( m_cellScalarResults[completionTypeResultIndex][timeStep], timeStep );
+}
 
+//--------------------------------------------------------------------------------------------------
+/// Static completion type: a single frame, computed independent of simulation time steps. Used when
+/// only grid geometry is loaded (no restart). See issue #14127.
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeStaticCompletionType()
+{
+    size_t completionTypeResultIndex = findScalarResultIndexFromAddress(
+        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::completionTypeResultName() ) );
+
+    if ( completionTypeResultIndex == cvf::UNDEFINED_SIZE_T ) return;
+
+    if ( m_cellScalarResults[completionTypeResultIndex].empty() )
+    {
+        m_cellScalarResults[completionTypeResultIndex].resize( 1 );
+    }
+
+    // calcTimeStep 0: RigVirtualPerforationTransmissibilities::multipleCompletionsPerEclipseCell clamps to the single
+    // available frame, and RimEclipseCase::computeAndGetVirtualPerforationTransmissibilities builds exactly one frame
+    // when timeStepDates() is empty.
+    computeCompletionTypeForFrame( m_cellScalarResults[completionTypeResultIndex][0], 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Core computation populating a single completion-type frame. calcTimeStep is the time step passed to
+/// calculateCompletionTypeResult; it is clamped to a valid virtual-perforation frame downstream.
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeCompletionTypeForFrame( std::vector<double>& frameValues, size_t calcTimeStep )
+{
     size_t resultValues = m_ownerMainGrid->totalCellCount();
 
-    if ( completionTypeResult.size() == resultValues )
+    if ( frameValues.size() == resultValues )
     {
         return;
     }
 
-    completionTypeResult.resize( resultValues );
-    std::fill( completionTypeResult.begin(), completionTypeResult.end(), HUGE_VAL );
+    frameValues.resize( resultValues );
+    std::fill( frameValues.begin(), frameValues.end(), HUGE_VAL );
 
     RimEclipseCase* eclipseCase = m_ownerCaseData->ownerCase();
 
     if ( !eclipseCase ) return;
 
-    // If permeabilities are generated by calculations, make sure that generated data is calculated
-    // See RicExportFractureCompletionsImpl::generateCompdatValues()
+    triggerGeneratedPermeabilityCalculations( eclipseCase );
+
+    RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( eclipseCase, frameValues, calcTimeStep );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// If permeabilities are generated by calculations, make sure that generated data is calculated.
+/// See RicExportFractureCompletionsImpl::generateCompdatValues()
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::triggerGeneratedPermeabilityCalculations( RimEclipseCase* eclipseCase )
+{
     for ( const QString propertyName : { "PERMX", "PERMY", "PERMZ" } )
     {
         for ( auto userCalculation : RimProject::current()->gridCalculationCollection()->calculations() )
@@ -2799,8 +2858,6 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep( size_t timeStep )
             }
         }
     }
-
-    RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( eclipseCase, completionTypeResult, timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -110,6 +110,10 @@ void RiaCompletionTypeCalculationScheduler::clearCompletionTypeResults( const st
             ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
             ->clearScalarResult( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::completionTypeResultName() );
 
+        eclipseCase->eclipseCaseData()
+            ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+            ->clearScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::completionTypeResultName() );
+
         // Delete virtual perforation transmissibilities, as these are the basis for the computation of completion type
         eclipseCase->eclipseCaseData()->setVirtualPerforationTransmissibilities( nullptr );
     }
