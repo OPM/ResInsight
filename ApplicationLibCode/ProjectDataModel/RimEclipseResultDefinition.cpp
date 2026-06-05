@@ -1427,7 +1427,8 @@ bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isCompletionTypeSelected() const
 {
-    return ( m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE && m_resultVariable() == RiaResultNames::completionTypeResultName() );
+    return ( ( m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE || m_resultType() == RiaDefines::ResultCatType::STATIC_NATIVE ) &&
+             m_resultVariable() == RiaResultNames::completionTypeResultName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1456,8 +1457,7 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
          !m_eclipseCase->eclipseCaseData()->formationNames().empty() )
         return true;
 
-    if ( m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE && resultVariable() == RiaResultNames::completionTypeResultName() )
-        return true;
+    if ( isCompletionTypeSelected() ) return true;
 
     if ( m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS &&
          m_resultVariable() == RigFlowDiagDefines::maxFractionTracerResultName() )

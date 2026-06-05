@@ -201,6 +201,9 @@ private:
     void computeNncCombRiTRANSbyArea();
 
     void   computeCompletionTypeForTimeStep( size_t timeStep );
+    void   computeStaticCompletionType();
+    void   computeCompletionTypeForFrame( std::vector<double>& frameValues, size_t calcTimeStep );
+    void   triggerGeneratedPermeabilityCalculations( RimEclipseCase* eclipseCase );
     double darchysValue();
 
     void computeOilVolumes();
