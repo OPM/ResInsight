@@ -95,6 +95,6 @@ void RicNewFaultDistanceResultFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewFaultDistanceResultFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Fault Distance Result" );
+    actionToSetup->setText( "New Fault Distance" );
     actionToSetup->setIcon( QIcon( ":/draw_style_faults_24x24.png" ) );
 }
