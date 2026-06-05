@@ -39,7 +39,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryPlotManagerFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryMultiPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSubPlotCtxFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotCtxFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicToggleYAxisLinkingFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicToggleXAxisLinkingFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenSummaryPlotEditorFromMdiAreaFeature.cpp

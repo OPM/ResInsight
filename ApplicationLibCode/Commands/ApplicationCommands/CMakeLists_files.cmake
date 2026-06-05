@@ -17,7 +17,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportObjectAndFieldKeywordsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveProjectNoGlobalPathsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowClassNamesFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotDataCtxFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenInTextEditorFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowMemoryReportFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSumoDataFeature.cpp
