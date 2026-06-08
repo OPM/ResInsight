@@ -108,8 +108,7 @@ void RimFaultDistanceCollection::onItemsChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultDistanceCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                                 std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimFaultDistanceCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateConnectedEditors();
 
