@@ -62,4 +62,6 @@ private:
     caf::PdmField<int>                       m_viewId;
     caf::PdmField<QString>                   m_exportFolder;
     caf::PdmField<PreferredOutputFormatEnum> m_plotOutputFormat;
+    caf::PdmField<int>                       m_width;
+    caf::PdmField<int>                       m_height;
 };

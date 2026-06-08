@@ -33,6 +33,8 @@ public:
     static void saveAllPlots();
 
     static void exportSnapshotOfPlotsIntoFolder( const QString& snapshotFolderName,
+                                                 int            width               = -1,
+                                                 int            height              = -1,
                                                  bool           activateWidget      = false,
                                                  const QString& prefix              = "",
                                                  int            viewId              = -1,
