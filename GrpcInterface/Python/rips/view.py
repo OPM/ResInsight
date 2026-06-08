@@ -261,6 +261,6 @@ def export_snapshot(self, prefix="", export_folder="", width=-1, height=-1):
             viewId=self.id,
             exportFolder=export_folder,
             width=width,
-            height=height
+            height=height,
         )
     )
