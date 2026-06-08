@@ -45,8 +45,7 @@ public:
 
     static void updateRegressionTest( const QString& testRootPath );
 
-    static void setDefaultSnapshotSizeFor3dViews();
-    static void setDefaultSnapshotSizeForPlotWindows();
+    static QSize regressionDefaultImageSize();
 
 private:
     RiaRegressionTestRunner();
@@ -64,7 +63,6 @@ private:
                                 const QDir&          testDir );
 
     static void    removeDirectoryWithContent( QDir& dirToDelete );
-    static QSize   regressionDefaultImageSize();
     static QString diff2htmlHeaderText( const QString& testRootPath );
     QFileInfoList  subDirectoriesForTestExecution( const QDir& directory );
 

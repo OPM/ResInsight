@@ -15,7 +15,7 @@ export_folder = tempfile.mkdtemp()
 print("Exporting to: " + export_folder)
 
 for plot in plots:
-    plot.export_snapshot(export_folder=export_folder)
+    plot.export_snapshot(export_folder=export_folder, width=1024, height=768)
     plot.export_snapshot(export_folder=export_folder, output_format="PDF")
     if isinstance(plot, rips.WellLogPlot):
         plot.export_data_as_las(export_folder=export_folder)

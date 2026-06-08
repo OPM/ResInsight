@@ -886,15 +886,9 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
                 mainPlotWnd->show();
                 mainPlotWnd->raise();
 
-                if ( snapshotHeight > -1 && snapshotWidth > -1 )
-                {
-                    // TODO - handle snapshot view sizes
-                    // RiuMainWindowTools::setWindowSizeOnWidgetsInViewWindows( mainPlotWnd, snapshotWidth, snapshotHeight );
-                }
-
                 processEvents();
 
-                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( snapshotFolder );
+                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( snapshotFolder, snapshotWidth, snapshotHeight );
             }
         }
 
@@ -904,15 +898,9 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
             mainWnd->show();
             mainWnd->raise();
 
-            if ( snapshotHeight > -1 && snapshotWidth > -1 )
-            {
-                // TODO - handle snapshot view sizes
-                // RiuMainWindowTools::setFixedWindowSizeFor3dViews( mainWnd, snapshotWidth, snapshotHeight );
-            }
-
             processEvents();
 
-            RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolder );
+            RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolder, snapshotWidth, snapshotHeight );
         }
 
         auto mainPlotWnd = mainPlotWindow();
