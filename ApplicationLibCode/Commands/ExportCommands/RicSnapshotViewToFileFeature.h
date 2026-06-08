@@ -32,7 +32,7 @@ class RicSnapshotViewToFileFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow );
+    static void saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow, int width = -1, int height = -1 );
     static void saveSnapshotAs( const QString& fileName, const QImage& image );
     static void savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plotWindow );
 

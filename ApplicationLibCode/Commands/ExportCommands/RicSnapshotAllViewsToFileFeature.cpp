@@ -70,11 +70,14 @@ void RicSnapshotAllViewsToFileFeature::saveAllViews()
 
 //--------------------------------------------------------------------------------------------------
 /// Export snapshots of a given view (or viewId == -1 for all views) for the given case (or caseId == -1 for all cases)
+/// -1 for width and height means to use the existing view size
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QString& snapshotFolderName,
-                                                                        const QString& prefix /*= ""*/,
-                                                                        int            caseId /*= -1*/,
-                                                                        int            viewId /*= -1*/ )
+                                                                        int            width,
+                                                                        int            height,
+                                                                        const QString& prefix,
+                                                                        int            caseId,
+                                                                        int            viewId )
 {
     RimProject* project = RimProject::current();
     if ( project == nullptr ) return;
@@ -136,7 +139,7 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
 
         QString absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName, ".png" );
 
-        RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, riv );
+        RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, riv, width, height );
 
         if ( RimGridView* rigv = dynamic_cast<RimGridView*>( riv ) )
         {

@@ -651,7 +651,7 @@ QImage RimMultiPlot::captureSnapshot( int width, int height )
 
     QSize orgViewSize = m_viewer->size();
 
-    image = captureImage( m_viewer->bookWidget(), width, height );
+    image = RimViewWindow::captureSnapshot( m_viewer->bookWidget(), width, height );
 
     m_viewer->resize( orgViewSize );
     doUpdateLayout();

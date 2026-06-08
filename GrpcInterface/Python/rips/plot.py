@@ -9,13 +9,15 @@ from .resinsight_classes import PlotWindow as PlotWindow, Plot as Plot
 
 
 @add_method(PlotWindow)
-def export_snapshot(self, export_folder="", file_prefix="", output_format="PNG"):
+def export_snapshot(self, export_folder="", file_prefix="", output_format="PNG", width=-1, height=-1):
     """Export snapshot for the current plot
 
     Arguments:
         export_folder(str): The path to export to. By default will use the global export folder
         prefix (str): Exported file name prefix
         output_format(str): Enum string. Can be 'PNG' or 'PDF'.
+        width (int): The width of the exported snapshot. By default will use the existing size.
+        height (int): The height of the exported snapshot. By default will use the existing size.
 
     """
     return self._execute_command(
@@ -25,5 +27,7 @@ def export_snapshot(self, export_folder="", file_prefix="", output_format="PNG")
             viewId=self.id,
             exportFolder=export_folder,
             plotOutputFormat=output_format,
+            width=width,
+            height=height,
         )
     )
