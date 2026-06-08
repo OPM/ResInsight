@@ -172,6 +172,9 @@ TEST( RimDataFilterCollection, addNewCombinedFilterReturnsEmpty )
     ASSERT_NE( nullptr, combined );
     EXPECT_EQ( size_t{ 1 }, coll.count() );
     EXPECT_TRUE( combined->filters().empty() );
+
+    // A combined filter must be deletable so the generic delete context-menu item is offered (#14148).
+    EXPECT_TRUE( combined->isDeletable() );
 }
 
 //--------------------------------------------------------------------------------------------------
