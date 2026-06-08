@@ -66,6 +66,10 @@ double RigCombMultResultAccessor::cellScalar( size_t gridLocalCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 double RigCombMultResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
+    // A non-directional face (e.g. NO_FACE from a plain cell pick) has no neighbor multiplier to combine.
+    // Return 1.0, consistent with the "no change in MULT factor" convention used in nativeMultScalar.
+    if ( faceId == cvf::StructGridInterface::NO_FACE ) return 1.0;
+
     size_t i, j, k, neighborGridCellIdx;
     m_grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
 
