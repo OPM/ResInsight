@@ -129,6 +129,8 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( c
 
     auto eclipseView = rimWell->firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 
+    if ( !eclipseView->eclipseCase() || !eclipseView->eclipseCase()->eclipseCaseData() ) return;
+
     RigEclipseCaseData* eclipseCaseData      = eclipseView->eclipseCase()->eclipseCaseData();
     bool                isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
 
