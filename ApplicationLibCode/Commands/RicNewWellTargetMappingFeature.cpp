@@ -18,6 +18,7 @@
 
 #include "RicNewWellTargetMappingFeature.h"
 
+#include "RimDataAnalyticsCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimReservoirGridEnsemble.h"
@@ -80,6 +81,18 @@ void RicNewWellTargetMappingFeature::onActionTriggered( bool isChecked )
     else if ( auto eclipseCases = caf::selectedObjectsByTypeStrict<RimEclipseCase*>(); !eclipseCases.empty() )
     {
         auto eclipseCase       = eclipseCases.front();
+        auto wellTargetMapping = new RimWellTargetMapping();
+        eclipseCase->addWellTargetMapping( wellTargetMapping );
+        wellTargetMapping->setDefaults();
+
+        eclipseCase->updateConnectedEditors();
+        RiuMainWindow::instance()->selectAsCurrentItem( wellTargetMapping );
+    }
+    else if ( auto collections = caf::selectedObjectsByTypeStrict<RimDataAnalyticsCollection*>(); !collections.empty() )
+    {
+        auto eclipseCase = collections.front()->firstAncestorOrThisOfType<RimEclipseCase>();
+        if ( !eclipseCase ) return;
+
         auto wellTargetMapping = new RimWellTargetMapping();
         eclipseCase->addWellTargetMapping( wellTargetMapping );
         wellTargetMapping->setDefaults();
