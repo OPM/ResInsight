@@ -18,6 +18,7 @@
 
 #include "RicNewFaultDistanceResultFeature.h"
 
+#include "RimDataAnalyticsCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultDistance.h"
@@ -48,6 +49,9 @@ RimEclipseView* findHostView()
 {
     const auto faultCollections = caf::SelectionManager::instance()->objectsByType<RimFaultInViewCollection>();
     if ( !faultCollections.empty() ) return faultCollections.front()->firstAncestorOrThisOfType<RimEclipseView>();
+
+    const auto analyticsCollections = caf::SelectionManager::instance()->objectsByType<RimDataAnalyticsCollection>();
+    if ( !analyticsCollections.empty() ) return firstViewOfCase( analyticsCollections.front() );
 
     const auto distanceCollections = caf::SelectionManager::instance()->objectsByType<RimFaultDistanceCollection>();
     if ( !distanceCollections.empty() ) return firstViewOfCase( distanceCollections.front() );

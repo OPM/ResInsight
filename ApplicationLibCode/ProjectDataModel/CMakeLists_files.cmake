@@ -5,6 +5,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimOilField.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimProject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDataAnalyticsCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimIdenticalGridCaseGroup.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputProperty.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputPropertyCollection.cpp

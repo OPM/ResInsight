@@ -50,6 +50,7 @@
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
+#include "RimDataAnalyticsCollection.h"
 #include "RimDataFilterCollection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputProperty.h"
@@ -132,10 +133,13 @@ RimEclipseCase::RimEclipseCase()
     m_dataFilterCollection = new RimDataFilterCollection;
     m_dataFilterCollection->setCase( this );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
+    CAF_PDM_InitFieldNoDefault( &m_dataAnalyticsCollection, "DataAnalyticsCollection", "Data Analytics" );
+    m_dataAnalyticsCollection = new RimDataAnalyticsCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_faultDistanceCollection, "FaultDistanceCollection", "Fault Distance" );
-    m_faultDistanceCollection = new RimFaultDistanceCollection;
+    // Obsolete: well target mappings used to be stored directly on the case. They are migrated into
+    // the Data Analytics collection in initAfterRead().
+    CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings_OBSOLETE, "WellTargetMappings", "Well Target Mappings" );
+    m_wellTargetMappings_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_resultAliasList, "ResultAliasNames", "Result Name Aliases" );
     m_resultAliasList.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -315,6 +319,14 @@ void RimEclipseCase::initAfterRead()
     }
 
     m_contourMapCollection_OBSOLETE->clearWithoutDelete();
+
+    // Move case-level well target mappings into the Data Analytics collection.
+    for ( RimWellTargetMapping* wellTargetMapping : m_wellTargetMappings_OBSOLETE.childrenByType() )
+    {
+        m_wellTargetMappings_OBSOLETE.removeChild( wellTargetMapping );
+        m_dataAnalyticsCollection->addWellTargetMapping( wellTargetMapping );
+    }
+    m_wellTargetMappings_OBSOLETE.clearWithoutDelete();
 
     m_dataFilterCollection()->setCase( this );
 }
@@ -671,24 +683,9 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     if ( uiConfigName == "MainWindow.ProjectTree" )
     {
-        const bool hasFaultDistance = m_faultDistanceCollection() && !m_faultDistanceCollection()->isEmpty();
-        const bool hasWellTargets   = !m_wellTargetMappings.empty();
-        if ( hasFaultDistance || hasWellTargets )
+        if ( m_dataAnalyticsCollection() && !m_dataAnalyticsCollection()->isEmpty() )
         {
-            auto* dataAnalytics = uiTreeOrdering.add( "Data Analytics", ":/Folder.png" );
-
-            if ( hasFaultDistance )
-            {
-                for ( auto* result : m_faultDistanceCollection()->items() )
-                {
-                    dataAnalytics->add( result );
-                }
-            }
-
-            for ( RimWellTargetMapping* wellTargetMapping : m_wellTargetMappings )
-            {
-                dataAnalytics->add( wellTargetMapping );
-            }
+            uiTreeOrdering.add( m_dataAnalyticsCollection() );
         }
 
         for ( auto view : m_viewCollection->views() )
@@ -1452,8 +1449,7 @@ std::vector<RimEclipseContourMapView*> RimEclipseCase::contourMapViews() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::addWellTargetMapping( RimWellTargetMapping* generator )
 {
-    m_wellTargetMappings.push_back( generator );
-    generator->updateResultDefinition();
+    m_dataAnalyticsCollection->addWellTargetMapping( generator );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1461,5 +1457,5 @@ void RimEclipseCase::addWellTargetMapping( RimWellTargetMapping* generator )
 //--------------------------------------------------------------------------------------------------
 RimFaultDistanceCollection* RimEclipseCase::faultDistanceCollection() const
 {
-    return m_faultDistanceCollection;
+    return m_dataAnalyticsCollection ? m_dataAnalyticsCollection->faultDistanceCollection() : nullptr;
 }

@@ -42,6 +42,7 @@ class QString;
 
 class RimWellTargetMapping;
 class RimFaultDistanceCollection;
+class RimDataAnalyticsCollection;
 class RigCaseCellResultsData;
 class RigEclipseCaseData;
 class RigFormationNames;
@@ -204,13 +205,12 @@ private:
     caf::PdmChildField<RimEclipseViewCollection*>       m_viewCollection;
     caf::PdmChildField<RimDataFilterCollection*>        m_dataFilterCollection;
 
-    caf::PdmChildArrayField<RimWellTargetMapping*> m_wellTargetMappings;
-
-    caf::PdmChildField<RimFaultDistanceCollection*> m_faultDistanceCollection;
+    caf::PdmChildField<RimDataAnalyticsCollection*> m_dataAnalyticsCollection;
 
     caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
 
     // Obsolete fields:
     caf::PdmChildArrayField<RimEclipseView*>                m_reservoirViews_OBSOLETE;
     caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection_OBSOLETE;
+    caf::PdmChildArrayField<RimWellTargetMapping*>          m_wellTargetMappings_OBSOLETE;
 };
