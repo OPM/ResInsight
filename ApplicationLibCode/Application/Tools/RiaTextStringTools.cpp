@@ -163,19 +163,43 @@ QStringList RiaTextStringTools::splitString( const QString& text, const QRegular
 //--------------------------------------------------------------------------------------------------
 QString RiaTextStringTools::replaceTemplateTextWithValues( const QString& templateText, const std::map<QString, QString>& valueMap )
 {
+    // Returns true if the character is part of a word (letter, digit or underscore), matching the default
+    // ASCII word-boundary semantics of QRegularExpression's \b.
+    auto isWordCharacter = []( QChar c ) -> bool
+    { return ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) || ( c >= '0' && c <= '9' ) || c == '_'; };
+
     QString resolvedText = templateText;
 
-    // Use a regular expression to find all occurrences of ${key} in the text and replace with the value
+    // Replace all occurrences of each key with its value. A replacement is only performed when the key is
+    // followed by a word boundary, so that e.g. "$WELL" is not replaced inside "$WELL_BRANCH".
+    //
+    // The value is inserted as literal text. Using QString::replace() with a QRegularExpression is avoided
+    // on purpose, as the value can contain data-derived characters (backslash, '$', etc.) that would be
+    // interpreted as backreferences by the replacement engine.
 
     for ( const auto& [key, value] : valueMap )
     {
-        QString regexString = key;
-        regexString.replace( "$", "\\$" );
-        regexString += "\\b";
+        if ( key.isEmpty() ) continue;
 
-        QRegularExpression rx( regexString );
+        int searchFrom = 0;
+        while ( true )
+        {
+            const int pos = resolvedText.indexOf( key, searchFrom );
+            if ( pos < 0 ) break;
 
-        resolvedText.replace( rx, value );
+            const int  nextCharPos    = pos + key.length();
+            const bool atWordBoundary = nextCharPos >= resolvedText.length() || !isWordCharacter( resolvedText.at( nextCharPos ) );
+
+            if ( atWordBoundary )
+            {
+                resolvedText.replace( pos, key.length(), value );
+                searchFrom = pos + value.length();
+            }
+            else
+            {
+                searchFrom = nextCharPos;
+            }
+        }
     }
 
     return resolvedText;
