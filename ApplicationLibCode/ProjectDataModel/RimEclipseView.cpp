@@ -1255,6 +1255,12 @@ void RimEclipseView::onLoadDataAndUpdate()
         }
     }
 
+    // The reservoir case may be null here, either because none was assigned or because opening the grid file above
+    // failed and cleared it. This method can be invoked again after such a failure (e.g. RicNewViewFeature calls
+    // loadDataAndUpdate once more after the view is added), and the code below dereferences eclipseCase() directly
+    // (e.g. dataFilterCollection()). Without a case there is nothing to load, so bail out.
+    if ( !eclipseCase() ) return;
+
     CVF_ASSERT( cellResult() != nullptr );
     cellResult()->loadResult();
 
