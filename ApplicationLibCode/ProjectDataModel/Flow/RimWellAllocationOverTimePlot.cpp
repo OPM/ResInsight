@@ -770,16 +770,18 @@ void RimWellAllocationOverTimePlot::setValidTimeStepRangeForCase()
         return;
     }
 
+    const std::vector<QDateTime> caseTimeStepDates = m_case->timeStepDates();
+
     auto isTimeStepInCase = [&]( const QDateTime timeStep ) -> bool
-    { return std::find( m_case->timeStepDates().cbegin(), m_case->timeStepDates().cend(), timeStep ) != m_case->timeStepDates().cend(); };
+    { return std::find( caseTimeStepDates.cbegin(), caseTimeStepDates.cend(), timeStep ) != caseTimeStepDates.cend(); };
     if ( m_selectedFromTimeStep().isValid() && isTimeStepInCase( m_selectedFromTimeStep() ) && m_selectedToTimeStep().isValid() &&
          isTimeStepInCase( m_selectedToTimeStep() ) )
     {
         return;
     }
 
-    m_selectedFromTimeStep = m_case->timeStepDates().front();
-    m_selectedToTimeStep   = m_case->timeStepDates().back();
+    m_selectedFromTimeStep = caseTimeStepDates.front();
+    m_selectedToTimeStep   = caseTimeStepDates.back();
 }
 
 //--------------------------------------------------------------------------------------------------
