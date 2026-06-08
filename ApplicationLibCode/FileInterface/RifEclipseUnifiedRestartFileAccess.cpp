@@ -240,7 +240,12 @@ bool RifEclipseUnifiedRestartFileAccess::results( const QString& resultName, siz
 
     for ( size_t i = 0; i < gridCount; i++ )
     {
-        ecl_file_select_block( m_ecl_file, INTEHEAD_KW, static_cast<int>( timeStep * ( gridCount + m_noDataGridCount ) + i ) );
+        // Skip the block when it cannot be selected (e.g. truncated/corrupt file or an unexpected grid/time step
+        // combination). Querying a stale active view could otherwise yield inconsistent keyword indices.
+        if ( !ecl_file_select_block( m_ecl_file, INTEHEAD_KW, static_cast<int>( timeStep * ( gridCount + m_noDataGridCount ) + i ) ) )
+        {
+            continue;
+        }
 
         int namedKeywordCount = ecl_file_get_num_named_kw( m_ecl_file, resultName.toLatin1().data() );
         for ( int iOcc = 0; iOcc < namedKeywordCount; iOcc++ )
