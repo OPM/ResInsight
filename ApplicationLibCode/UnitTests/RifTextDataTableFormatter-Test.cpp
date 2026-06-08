@@ -367,4 +367,36 @@ TEST( RifTextDataTableFormatter, ReplaceTokensInString )
 
         EXPECT_STREQ( resolvedText.toStdString().data(), "VALUE1, $KEY1_WITH_MORE_2" );
     }
+
+    {
+        // Values are inserted as literal text. Characters that have special meaning in a regular expression
+        // replacement (backslash followed by a digit, '$', etc.) must not be interpreted.
+        std::map<QString, QString> keyValues = {
+            { "$CASE", "C:\\data\\1stModel" },
+            { "$WELL", "Well $1 (B)" },
+        };
+
+        auto templateText = QString( "$CASE - $WELL" );
+        auto resolvedText = RiaTextStringTools::replaceTemplateTextWithValues( templateText, keyValues );
+
+        EXPECT_STREQ( resolvedText.toStdString().data(), "C:\\data\\1stModel - Well $1 (B)" );
+    }
+
+    {
+        // A value containing an invalid UTF-16 sequence (here a lone surrogate), inserted by one key, must
+        // not break replacement of a subsequent key. The previous regex based implementation fed such data
+        // through the regex engine and could crash or silently skip the replacement.
+        QString badValue;
+        badValue.append( QChar( 0xD83D ) ); // lone high surrogate (invalid UTF-16)
+
+        std::map<QString, QString> keyValues = {
+            { "$AIR_GAP", badValue },
+            { "$CASE", "MyCase" },
+        };
+
+        auto templateText = QString( "$AIR_GAP and $CASE" );
+        auto resolvedText = RiaTextStringTools::replaceTemplateTextWithValues( templateText, keyValues );
+
+        EXPECT_TRUE( resolvedText.endsWith( "MyCase" ) );
+    }
 }
