@@ -758,6 +758,11 @@ find_package(Clipper2 CONFIG REQUIRED)
 # THIRD_PARTY_LIBRARIES which is used for setting folder properties on targets
 # we build
 
+find_package(nanoflann CONFIG REQUIRED)
+
+# nanoflann::nanoflann is a header-only imported target, so like Clipper2 it is
+# not added to THIRD_PARTY_LIBRARIES
+
 # ##############################################################################
 # roffcpp
 # ##############################################################################

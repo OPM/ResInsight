@@ -23,9 +23,33 @@
 #include "RigFault.h"
 #include "RigMainGrid.h"
 
-#include "cvfBoundingBoxTree.h"
+#include <nanoflann.hpp>
 
+#include <cmath>
 #include <limits>
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Adaptor exposing the collected fault-face-center points to nanoflann without copying them.
+/// cvf::Vec3d stores its three doubles contiguously, so ptr()[dim] is a direct coordinate lookup.
+//--------------------------------------------------------------------------------------------------
+struct FaceCenterCloud
+{
+    const std::vector<cvf::Vec3d>& points;
+
+    inline size_t kdtree_get_point_count() const { return points.size(); }
+    inline double kdtree_get_pt( size_t idx, size_t dim ) const { return points[idx].ptr()[dim]; }
+
+    template <class BBOX>
+    bool kdtree_get_bbox( BBOX& ) const
+    {
+        return false;
+    }
+};
+
+using FaceCenterKdTree = nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<double, FaceCenterCloud>, FaceCenterCloud, 3>;
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -61,25 +85,12 @@ void RigFaultDistanceCalculator::computeFaultDistances( const RigMainGrid*      
 
     if ( faultFaceCenters.empty() ) return;
 
-    // Create bounding box tree for all face centers
-    cvf::BoundingBoxTree searchTree;
-    {
-        std::vector<size_t>           faceIndicesForBoundingBoxes;
-        std::vector<cvf::BoundingBox> faceBBs;
-
-        size_t faceCenterIndex = 0;
-        for ( const auto& faultFaceCenter : faultFaceCenters )
-        {
-            cvf::BoundingBox bb;
-            bb.add( faultFaceCenter );
-            faceBBs.push_back( bb );
-            faceIndicesForBoundingBoxes.push_back( faceCenterIndex++ );
-        }
-        searchTree.buildTreeFromBoundingBoxes( faceBBs, &faceIndicesForBoundingBoxes );
-    }
-
-    const auto nodes      = mainGrid->nodes();
-    const auto mainGridBB = mainGrid->boundingBox();
+    // Build a KD-tree over the fault face centers and query the nearest one for every active cell.
+    // This is an exact nearest-point search in O(log N) per cell, replacing the previous expanding
+    // bounding-box heuristic.
+    FaceCenterCloud  cloud{ faultFaceCenters };
+    FaceCenterKdTree kdTree( 3, cloud, nanoflann::KDTreeSingleIndexAdaptorParams( 10 /* max leaf size */ ) );
+    kdTree.buildIndex();
 
 #pragma omp parallel for
     for ( int activeIndex = 0; activeIndex < static_cast<int>( activeCells.size() ); activeIndex++ )
@@ -90,45 +101,15 @@ void RigFaultDistanceCalculator::computeFaultDistances( const RigMainGrid*      
         const RigCell& cell = mainGrid->cell( cellIdx.value() );
         if ( cell.isInvalid() ) continue;
 
-        std::vector<size_t> candidateFaceIndices;
-        {
-            cvf::BoundingBox bb;
-            const auto&      cellIndices = cell.cornerIndices();
-            for ( const auto& i : cellIndices )
-            {
-                bb.add( nodes[i] );
-            }
+        const cvf::Vec3d cellCenter   = cell.center();
+        const double     queryPoint[] = { cellCenter.x(), cellCenter.y(), cellCenter.z() };
 
-            searchTree.findIntersections( bb, &candidateFaceIndices );
+        size_t                          nearestIndex           = 0;
+        double                          nearestDistanceSquared = std::numeric_limits<double>::infinity();
+        nanoflann::KNNResultSet<double> resultSet( 1 );
+        resultSet.init( &nearestIndex, &nearestDistanceSquared );
+        kdTree.findNeighbors( resultSet, queryPoint );
 
-            bool bbIsBelowThreshold = true;
-            while ( candidateFaceIndices.empty() && bbIsBelowThreshold )
-            {
-                if ( bb.extent().x() > mainGridBB.extent().x() * 2 )
-                {
-                    bbIsBelowThreshold = false;
-                    break;
-                }
-                if ( bb.extent().y() > mainGridBB.extent().y() * 2 )
-                {
-                    bbIsBelowThreshold = false;
-                    break;
-                }
-
-                bb.expand( bb.extent().x() );
-                searchTree.findIntersections( bb, &candidateFaceIndices );
-            }
-        }
-
-        // Find closest fault face
-        double shortestDistance = std::numeric_limits<double>::infinity();
-
-        for ( const auto& faultFaceIndex : candidateFaceIndices )
-        {
-            const cvf::Vec3d& faultFaceCenter = faultFaceCenters[faultFaceIndex];
-            shortestDistance                  = std::min( cell.center().pointDistance( faultFaceCenter ), shortestDistance );
-        }
-
-        resultValues[activeIndex] = shortestDistance;
+        resultValues[activeIndex] = std::sqrt( nearestDistanceSquared );
     }
 }
