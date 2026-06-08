@@ -148,15 +148,13 @@ void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
     {
         CVF_ASSERT( contourMap );
 
-        if ( contourMap->cellResult()->resultType() == RiaDefines::ResultCatType::GENERATED )
-        {
-            // When a generated result is selected, the data might come from a calculation. Make sure that all
-            // computations are updated based on new data.
-            // See RimEclipseContourMapProjection::generateResults()
-            contourMap->contourMapProjection()->clearGeometry();
-            if ( auto projection = dynamic_cast<RimEclipseContourMapProjection*>( contourMap->contourMapProjection() ) )
-                projection->clearGridMappingAndRedraw();
-        }
+        // Reloading the grid file destroys and recreates RigEclipseCaseData, including the RigCaseCellResultsData
+        // that the contour map projection caches by raw pointer. The cached grid mapping and result data are only
+        // refreshed when the projection is rebuilt, so reset it here to avoid dereferencing the freed case data on
+        // the next redraw. See RimEclipseContourMapProjection::updateGridInformation() and generateResults().
+        contourMap->contourMapProjection()->clearGeometry();
+        if ( auto projection = dynamic_cast<RimEclipseContourMapProjection*>( contourMap->contourMapProjection() ) )
+            projection->clearGridMappingAndRedraw();
 
         contourMap->loadDataAndUpdate();
         contourMap->updateGridBoxData();
