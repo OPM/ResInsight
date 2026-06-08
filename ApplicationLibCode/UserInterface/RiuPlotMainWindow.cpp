@@ -394,7 +394,6 @@ QStringList RiuPlotMainWindow::toolbarCommandIds( const QString& toolbarName )
 
     if ( toolbarName.isEmpty() || toolbarName == "Standard" )
     {
-        commandIds << "RicImportGridModelFeature";
         commandIds << "RicImportSummaryCaseFeature";
         commandIds << "RicImportGridAndSummaryEnsembleFeature";
         commandIds << "RicImportEnsembleFeature";
