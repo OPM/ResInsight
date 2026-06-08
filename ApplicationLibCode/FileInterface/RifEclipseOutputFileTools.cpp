@@ -302,9 +302,16 @@ bool RifEclipseOutputFileTools::keywordData( const ecl_file_type* ecl_file,
 
 #pragma omp critical( critical_section_keywordData_double )
     {
-        ecl_kw_type* kwData = ecl_file_iget_named_kw( ecl_file,
-                                                      RiaStringEncodingTools::toNativeEncoded( keyword ).data(),
-                                                      static_cast<int>( fileKeywordOccurrence ) );
+        auto nativeKeyword = RiaStringEncodingTools::toNativeEncoded( keyword );
+
+        // Guard against out-of-range occurrence. ecl_file_iget_named_kw() performs an unchecked vector access and
+        // crashes (SIGSEGV) if the requested occurrence does not exist in the active file view.
+        ecl_kw_type* kwData = nullptr;
+        if ( static_cast<int>( fileKeywordOccurrence ) < ecl_file_get_num_named_kw( ecl_file, nativeKeyword.data() ) )
+        {
+            kwData = ecl_file_iget_named_kw( ecl_file, nativeKeyword.data(), static_cast<int>( fileKeywordOccurrence ) );
+        }
+
         if ( kwData )
         {
             size_t numValues = ecl_kw_get_size( kwData );
@@ -334,9 +341,16 @@ bool RifEclipseOutputFileTools::keywordData( const ecl_file_type* ecl_file,
 
 #pragma omp critical( critical_section_keywordData_int )
     {
-        ecl_kw_type* kwData = ecl_file_iget_named_kw( ecl_file,
-                                                      RiaStringEncodingTools::toNativeEncoded( keyword ).data(),
-                                                      static_cast<int>( fileKeywordOccurrence ) );
+        auto nativeKeyword = RiaStringEncodingTools::toNativeEncoded( keyword );
+
+        // Guard against out-of-range occurrence. ecl_file_iget_named_kw() performs an unchecked vector access and
+        // crashes (SIGSEGV) if the requested occurrence does not exist in the active file view.
+        ecl_kw_type* kwData = nullptr;
+        if ( static_cast<int>( fileKeywordOccurrence ) < ecl_file_get_num_named_kw( ecl_file, nativeKeyword.data() ) )
+        {
+            kwData = ecl_file_iget_named_kw( ecl_file, nativeKeyword.data(), static_cast<int>( fileKeywordOccurrence ) );
+        }
+
         if ( kwData )
         {
             size_t numValues = ecl_kw_get_size( kwData );
