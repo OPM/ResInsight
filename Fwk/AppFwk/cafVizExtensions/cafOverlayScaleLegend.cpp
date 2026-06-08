@@ -755,6 +755,11 @@ void OverlayScaleLegend::updateFromCamera( const Camera* camera )
         tickMaxCount             = windowSize.y() / ( 2 * textSize.x() );
     }
 
+    // Guard against degenerate viewport/domain sizes. A zero tick count or a zero domain range along the
+    // relevant axis would produce a non-finite step size, triggering an assert in TickMarkGenerator.
+    if ( tickMaxCount <= 0 ) return;
+    if ( windowMaxInDomainValue == windowOrigoInDomainValue ) return;
+
     m_currentScale =
         ( windowMaxPointValue - windowOrigoPointValue ) / ( windowMaxInDomainValue - windowOrigoInDomainValue );
     minStepSizeInDomain = ( windowMaxInDomainValue - windowOrigoInDomainValue ) / tickMaxCount;
