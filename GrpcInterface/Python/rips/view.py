@@ -245,7 +245,7 @@ def visible_cells(self, time_step=0):
 
 
 @add_method(ViewWindow)
-def export_snapshot(self, prefix="", export_folder=""):
+def export_snapshot(self, prefix="", export_folder="", width=-1, height=-1):
     """Export snapshot for the current view
 
     Arguments:
@@ -260,5 +260,7 @@ def export_snapshot(self, prefix="", export_folder=""):
             caseId=case_id,
             viewId=self.id,
             exportFolder=export_folder,
+            width=width,
+            height=height
         )
     )

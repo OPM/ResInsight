@@ -249,18 +249,20 @@ void RiaRegressionTestRunner::runRegressionTest()
                 QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath( generatedFolderName );
                 if ( regressionTestConfig.exportSnapshots3dViews )
                 {
-                    setDefaultSnapshotSizeFor3dViews();
-
-                    RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( fullPathGeneratedFolder );
+                    QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
+                    RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( fullPathGeneratedFolder,
+                                                                                       defaultSize.width(),
+                                                                                       defaultSize.height() );
 
                     QApplication::processEvents();
                 }
 
                 if ( regressionTestConfig.exportSnapshotsPlots )
                 {
-                    setDefaultSnapshotSizeForPlotWindows();
-
-                    RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( fullPathGeneratedFolder );
+                    QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
+                    RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( fullPathGeneratedFolder,
+                                                                                       defaultSize.width(),
+                                                                                       defaultSize.height() );
                 }
 
                 uint64_t usedMemoryBeforeClose = caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
@@ -544,32 +546,6 @@ QString RiaRegressionTestRunner::generateHtmlReport( const QFileInfoList& folder
 void RiaRegressionTestRunner::removeDirectoryWithContent( QDir& dirToDelete )
 {
     caf::Utils::removeDirectoryAndFilesRecursively( dirToDelete.absolutePath() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaRegressionTestRunner::setDefaultSnapshotSizeFor3dViews()
-{
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if ( !mainWnd ) return;
-
-    // TODO - fix snapshot view sizes
-    // QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
-    // RiuMainWindowTools::setFixedWindowSizeFor3dViews( mainWnd, defaultSize.width(), defaultSize.height() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaRegressionTestRunner::setDefaultSnapshotSizeForPlotWindows()
-{
-    RiuPlotMainWindow* plotMainWindow = RiaGuiApplication::instance()->mainPlotWindow();
-    if ( !plotMainWindow ) return;
-
-    // TODO - fix snapshot view sizes
-    // QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
-    // RiuMainWindowTools::setWindowSizeOnWidgetsInViewWindows( plotMainWindow, defaultSize.width(), defaultSize.height() );
 }
 
 //--------------------------------------------------------------------------------------------------
