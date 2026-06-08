@@ -56,8 +56,8 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
     // Save images in snapshot catalog relative to project directory
     QString snapshotFolderName = app->createAbsolutePathFromProjectRelativePath( "snapshots" );
 
-    bool activateWidget = true;
-    exportSnapshotOfPlotsIntoFolder( snapshotFolderName, activateWidget );
+    // save using existing plot sizes
+    exportSnapshotOfPlotsIntoFolder( snapshotFolderName, -1, -1, true /* activateWidget */ );
 
     QString text = QString( "Exported snapshots to folder : \n%1" ).arg( snapshotFolderName );
     RiaLogging::info( text.toStdString() );
@@ -67,6 +67,8 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 ///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QString& snapshotFolderName,
+                                                                        int            width,
+                                                                        int            height,
                                                                         bool           activateWidget,
                                                                         const QString& prefix,
                                                                         int            viewId,
@@ -106,7 +108,7 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QS
 
             QString absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName, preferredFileSuffix );
 
-            RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, viewWindow );
+            RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, viewWindow, width, height );
         }
     }
 }

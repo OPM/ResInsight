@@ -19,6 +19,8 @@
 
 #include "RicfSetMainWindowSize.h"
 
+#include "RiaLogging.h"
+
 #include "RiuMainWindow.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -39,6 +41,6 @@ RicfSetMainWindowSize::RicfSetMainWindowSize()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfSetMainWindowSize::execute()
 {
-    if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->resize( m_width, m_height );
+    RiaLogging::warning( "Method set_main_window_size has been obsoleted. Set size of image snapshots directly in the snapshot methods." );
     return caf::PdmScriptResponse();
 }

@@ -48,7 +48,7 @@ CAF_CMD_SOURCE_INIT( RicSnapshotViewToFileFeature, "RicSnapshotViewToFileFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow )
+void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow, int width, int height )
 {
     auto* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
     if ( plotWindow && fileName.endsWith( ".pdf" ) )
@@ -57,7 +57,7 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, RimV
     }
     else if ( viewWindow )
     {
-        QImage image = viewWindow->snapshotWindowContent();
+        QImage image = viewWindow->captureSnapshot( width, height );
         saveSnapshotAs( fileName, image );
     }
 }

@@ -69,6 +69,8 @@ RicfExportSnapshots::RicfExportSnapshots()
     CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View Id" );
     CAF_PDM_InitScriptableField( &m_exportFolder, "exportFolder", QString(), "Export Folder" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_plotOutputFormat, "plotOutputFormat", "Output Format" );
+    CAF_PDM_InitScriptableField( &m_width, "width", -1, "Width" );
+    CAF_PDM_InitScriptableField( &m_height, "height", -1, "Height" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,13 +85,16 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
+    int width  = m_width();
+    int height = m_height();
+
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     CVF_ASSERT( mainWnd );
 
-    QByteArray curState = mainWnd->dockManager()->saveState( 0 );
-    mainWnd->dockManager()->restoreState( RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
+    //    QByteArray curState = mainWnd->dockManager()->saveState( 0 );
+    //    mainWnd->dockManager()->restoreState( RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
 
-    QApplication::processEvents();
+    //    QApplication::processEvents();
 
     QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::SNAPSHOTS );
 
@@ -105,21 +110,26 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
     {
         if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
         {
-            RiaRegressionTestRunner::setDefaultSnapshotSizeFor3dViews();
-
-            QApplication::processEvents();
+            QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
+            width             = defaultSize.width();
+            height            = defaultSize.height();
         }
 
-        RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( absolutePathToSnapshotDir, m_prefix, m_caseId(), m_viewId() );
+        RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( absolutePathToSnapshotDir,
+                                                                           width,
+                                                                           height,
+                                                                           m_prefix,
+                                                                           m_caseId(),
+                                                                           m_viewId() );
     }
     if ( m_type == RicfExportSnapshots::SnapshotsType::PLOTS || m_type == RicfExportSnapshots::SnapshotsType::ALL )
     {
         bool activateWidget = false;
         if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
         {
-            RiaRegressionTestRunner::setDefaultSnapshotSizeForPlotWindows();
-
-            QApplication::processEvents();
+            QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
+            width             = defaultSize.width();
+            height            = defaultSize.height();
         }
         else
         {
@@ -128,12 +138,18 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
 
         QString fileSuffix = ".png";
         if ( m_plotOutputFormat == PlotOutputFormat::PDF ) fileSuffix = ".pdf";
-        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir, activateWidget, m_prefix, m_viewId(), fileSuffix );
+        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir,
+                                                                           width,
+                                                                           height,
+                                                                           activateWidget,
+                                                                           m_prefix,
+                                                                           m_viewId(),
+                                                                           fileSuffix );
     }
 
     QApplication::processEvents();
 
-    mainWnd->dockManager()->restoreState( curState );
+    //    mainWnd->dockManager()->restoreState( curState );
 
     return caf::PdmScriptResponse();
 }
