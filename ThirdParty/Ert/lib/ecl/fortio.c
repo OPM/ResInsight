@@ -523,8 +523,10 @@ bool fortio_complete_read(fortio_type *fortio , int record_size) {
    bytes read; the function will return -1 on failure.
 */
 
-static int fortio_fread_record(fortio_type *fortio , char *buffer) {
+static int fortio_fread_record(fortio_type *fortio , char *buffer , int max_record_size) {
   int record_size = fortio_init_read(fortio);
+  if (record_size > max_record_size)
+    return -1;  /* Corrupt/inconsistent record header: would overflow buffer */
   if (record_size >= 0) {
     size_t items_read = fread(buffer , 1 , record_size , fortio->stream);
     if (items_read == record_size) {
@@ -552,7 +554,7 @@ bool fortio_fread_buffer(fortio_type * fortio, char * buffer , int buffer_size) 
 
   while (true) {
     char * buffer_ptr = &buffer[total_bytes_read];
-    int bytes_read = fortio_fread_record(fortio , buffer_ptr);
+    int bytes_read = fortio_fread_record(fortio , buffer_ptr , buffer_size - total_bytes_read);
 
     if (bytes_read < 0)
       break;
