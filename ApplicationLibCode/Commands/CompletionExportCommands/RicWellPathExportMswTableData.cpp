@@ -708,7 +708,7 @@ std::vector<WellPathCellIntersectionInfo> RicWellPathExportMswTableData::generat
 
     const std::vector<cvf::Vec3d>& coords = wellPathGeometry->uniqueWellPathPoints();
     const std::vector<double>&     mds    = wellPathGeometry->uniqueMeasuredDepths();
-    CVF_ASSERT( !coords.empty() && !mds.empty() );
+    if ( coords.empty() || mds.empty() ) return {};
 
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
