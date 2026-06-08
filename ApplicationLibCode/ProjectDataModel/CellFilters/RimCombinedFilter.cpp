@@ -46,6 +46,7 @@ RimCombinedFilter::RimCombinedFilter()
     CAF_PDM_InitScriptableObject( "Combined Filter", ":/CellFilter.png" );
 
     setName( "Combined Filter" );
+    setDeletable( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_filters, "Filters", "Filters" );
     caf::PdmFieldReorderCapability::addToField( &m_filters );
