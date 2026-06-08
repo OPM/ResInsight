@@ -1006,7 +1006,8 @@ bool RimWellConnectivityTable::isTimeStepInCase( const QDateTime& timeStep ) con
 {
     if ( !m_case ) return false;
 
-    return std::find( m_case->timeStepDates().cbegin(), m_case->timeStepDates().cend(), timeStep ) != m_case->timeStepDates().cend();
+    const std::vector<QDateTime> caseTimeStepDates = m_case->timeStepDates();
+    return std::find( caseTimeStepDates.cbegin(), caseTimeStepDates.cend(), timeStep ) != caseTimeStepDates.cend();
 }
 
 //--------------------------------------------------------------------------------------------------
