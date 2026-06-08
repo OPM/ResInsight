@@ -43,6 +43,7 @@ class RimFaultDistance : public caf::PdmObject
 
 public:
     RimFaultDistance();
+    ~RimFaultDistance() override;
 
     QString resultName() const;
     void    setResultName( const QString& name );
