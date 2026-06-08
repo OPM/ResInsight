@@ -59,6 +59,17 @@ RimFaultDistance::RimFaultDistance()
 
     CAF_PDM_InitFieldNoDefault( &m_generateButton, "Generate", "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_generateButton );
+
+    setDeletable( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Remove the generated result from the case when the object is deleted. The object is still
+/// attached to the project tree while this destructor body runs, so the owner case is reachable.
+//--------------------------------------------------------------------------------------------------
+RimFaultDistance::~RimFaultDistance()
+{
+    removeGeneratedResult( m_resultName() );
 }
 
 //--------------------------------------------------------------------------------------------------
