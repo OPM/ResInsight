@@ -18,6 +18,7 @@
 
 #include "RimFaultDistanceCollection.h"
 
+#include "RimEclipseCase.h"
 #include "RimFaultDistance.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -92,4 +93,25 @@ void RimFaultDistanceCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& u
 void RimFaultDistanceCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewFaultDistanceResultFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The case-level "Data Analytics" folder is hidden from the tree while this collection is empty, so
+/// refresh the owner case to re-run its defineUiTreeOrdering and add/remove the folder when the first
+/// item appears or the last item is removed.
+//--------------------------------------------------------------------------------------------------
+void RimFaultDistanceCollection::onItemsChanged()
+{
+    if ( auto* eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>() ) eclipseCase->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultDistanceCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                 std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateConnectedEditors();
+
+    if ( auto* eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>() ) eclipseCase->updateConnectedEditors();
 }
