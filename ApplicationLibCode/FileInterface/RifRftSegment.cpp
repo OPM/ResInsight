@@ -217,6 +217,16 @@ void RifRftSegment::createDeviceBranch( int deviceBranchFirstSegmentNumber, int 
         auto branchNumber = segData.segBrno();
         if ( branchType( branchNumber ) != RiaDefines::RftBranchType::RFT_UNKNOWN ) return;
 
+        // Stop claiming device segments when the outflow connects to a different tubing branch. Relying on
+        // increasing measured depth alone is not sufficient: when a lower-numbered tubing branch is located at
+        // greater measured depth, its device segments would otherwise be absorbed into this branch.
+        auto outflowSegment = segmentData( segData.segNext() );
+        if ( outflowSegment )
+        {
+            auto outflowBranchIndex = oneBasedBranchIndexForBranchId( outflowSegment->segBrno() );
+            if ( outflowBranchIndex >= 0 && outflowBranchIndex != oneBasedBranchIndex ) return;
+        }
+
         auto segmentIndex = segmentIndexFromSegmentNumber( segData.segNo() );
         if ( segmentIndex < 0 ) continue;
 
