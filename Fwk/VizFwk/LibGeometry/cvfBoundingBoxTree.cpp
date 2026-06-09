@@ -793,15 +793,29 @@ cvf::AABBTreeNodeLeaf* AABBTree::createOrAssignLeaf(size_t leafIndex, const std:
 void AABBTree::deleteInternalNodesBottomUp(AABBTreeNode* node)
 {
     // All leaf nodes (AABBTreeNodeLeaf) are allocated in m_leafPool and does not require a delete
-    if (node->type() == AB_LEAF) return;
+    if (!node || node->type() == AB_LEAF) return;
 
-    auto internalNode = dynamic_cast<AABBTreeNodeInternal*>(node);
-    CVF_ASSERT(internalNode);
+    // Use an explicit stack instead of recursion. The tree can become very unbalanced (height
+    // proportional to the leaf count rather than log2 of it), and recursing once per level would
+    // overflow the call stack when the tree is destroyed. Deleting an internal node does not touch
+    // its children, so the children pointers are read before the node is deleted and the order in
+    // which the internal nodes are deleted does not matter.
+    std::vector<AABBTreeNodeInternal*> pendingNodes;
+    pendingNodes.push_back(static_cast<AABBTreeNodeInternal*>(node));
 
-    AABBTree::deleteInternalNodesBottomUp(internalNode->left());
-    AABBTree::deleteInternalNodesBottomUp(internalNode->right());
+    while (!pendingNodes.empty())
+    {
+        AABBTreeNodeInternal* internalNode = pendingNodes.back();
+        pendingNodes.pop_back();
 
-    delete internalNode;
+        AABBTreeNode* left  = internalNode->left();
+        AABBTreeNode* right = internalNode->right();
+
+        if (left && left->type() == AB_INTERNAL) pendingNodes.push_back(static_cast<AABBTreeNodeInternal*>(left));
+        if (right && right->type() == AB_INTERNAL) pendingNodes.push_back(static_cast<AABBTreeNodeInternal*>(right));
+
+        delete internalNode;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
