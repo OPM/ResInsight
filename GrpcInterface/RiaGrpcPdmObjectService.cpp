@@ -568,7 +568,16 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
             caf::PdmObjectMethodFactory::instance()->createMethod( matchingObject, methodKeyword );
         if ( method )
         {
-            copyPdmObjectFromRipsToCaf( &( request->params() ), method.get() );
+            if ( auto result = copyPdmObjectFromRipsToCaf( &( request->params() ), method.get() ); !result )
+            {
+                telemetryAttributes["pdm.status"] = "failed";
+                telemetryAttributes["pdm.error"]  = result.error().toStdString();
+                RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.pdm_method_call", telemetryAttributes );
+
+                RiaLogging::error(
+                    QString( "Method '%1' failed. Error: %2" ).arg( methodKeyword ).arg( result.error() ).toStdString() );
+                return grpc::Status( grpc::INVALID_ARGUMENT, result.error().toStdString() );
+            }
 
             // clang-tidy-19 has a bug that did the following:
             //   std::expected<caf::PdmObjectHandle, QString> result = method->execute();
