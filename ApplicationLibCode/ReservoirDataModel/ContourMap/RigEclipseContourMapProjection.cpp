@@ -71,6 +71,14 @@ void RigEclipseContourMapProjection::updateRealizationData( RigActiveCellInfo* a
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RigEclipseCaseData* RigEclipseContourMapProjection::eclipseCaseData() const
+{
+    return m_eclipseCaseData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigEclipseContourMapProjection::generateAndSaveResults( const RigEclipseResultAddress&                 resultAddress,
                                                              RigContourMapCalculator::ResultAggregationType resultAggregation,
                                                              int                                            timeStep,

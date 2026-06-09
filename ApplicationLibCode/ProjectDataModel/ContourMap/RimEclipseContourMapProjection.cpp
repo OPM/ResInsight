@@ -258,6 +258,23 @@ void RimEclipseContourMapProjection::updateGridInformation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseContourMapProjection::gridInformationIsStale() const
+{
+    auto* projection = dynamic_cast<const RigEclipseContourMapProjection*>( m_contourMapProjection.get() );
+    if ( !projection ) return false;
+
+    RimEclipseCase* eclipseCase = this->eclipseCase();
+    if ( !eclipseCase ) return false;
+
+    // Reloading the grid file frees and recreates RigEclipseCaseData. The projection caches raw pointers into the
+    // case data captured in updateGridInformation(), so a mismatch means those pointers are dangling and the
+    // projection must be rebuilt before they are dereferenced in generateResults().
+    return projection->eclipseCaseData() != eclipseCase->eclipseCaseData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimEclipseContourMapProjection::retrieveParameterWeights()
 {
     std::vector<double> weights;

@@ -57,6 +57,7 @@ public:
 
 protected:
     void                updateGridInformation() override;
+    bool                gridInformationIsStale() const override;
     std::vector<double> retrieveParameterWeights() override;
     std::vector<double> generateResults( int timeStep ) const override;
     void                generateAndSaveResults( int timeStep ) override;

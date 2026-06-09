@@ -68,6 +68,11 @@ public:
 
     void updateRealizationData( RigActiveCellInfo* activeCellInfo, RigCaseCellResultsData* resultData );
 
+    // The case data this projection cached its raw pointers from. Used to detect when the owning case has been
+    // reloaded (RigEclipseCaseData freed and recreated) so the projection can be rebuilt before the stale pointers
+    // are dereferenced.
+    const RigEclipseCaseData* eclipseCaseData() const;
+
     std::vector<bool> getMapCellVisibility( int viewStepIndex, RigContourMapCalculator::ResultAggregationType resultAggregation ) override;
     bool              isCellActive( size_t globalCellIdx ) const override;
 

@@ -135,7 +135,7 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
 {
     caf::ProgressInfo progress( 100, "Generate Results", true );
 
-    if ( !m_contourMapGrid || !m_contourMapProjection ) updateGridInformation();
+    if ( !m_contourMapGrid || !m_contourMapProjection || gridInformationIsStale() ) updateGridInformation();
 
     progress.setProgress( 10 );
 
@@ -408,6 +408,14 @@ bool RimContourMapProjection::gridMappingNeedsUpdating() const
         if ( ( *currentVisibility )[i] != ( *cellGridIdxVisibility )[i] ) return true;
     }
 
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::gridInformationIsStale() const
+{
     return false;
 }
 
