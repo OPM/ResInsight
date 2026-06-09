@@ -94,7 +94,7 @@ public:
     ads::CDockManager* dockManager() const;
 
     QString dockWidgetStateString() const;
-    void    restoreDockWidgetState( QString dockStateString );
+    bool    restoreDockWidgetState( QString dockStateString );
 
 protected:
     void createTreeViews( int numberOfTrees );

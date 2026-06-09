@@ -34,6 +34,7 @@
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeViewEditor.h"
 
+#include "DockManager.h"
 #include "DockWidget.h"
 
 #include <QDebug>
@@ -68,6 +69,7 @@ RimViewWindow::RimViewWindow()
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::~RimViewWindow()
 {
+    if ( m_windowController ) delete m_windowController;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,8 +160,12 @@ QString RimViewWindow::windowTitle()
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::deleteDockWidget()
 {
-    m_dockWidget->deleteDockWidget();
-    m_dockWidget = nullptr;
+    if ( m_dockWidget && m_dockWidget->dockManager() )
+    {
+        m_dockWidget->dockManager()->removeDockWidget( m_dockWidget );
+        m_dockWidget->deleteLater();
+        m_dockWidget = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
