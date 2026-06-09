@@ -60,7 +60,7 @@ private:
     void                           assignPdmFieldValue( caf::PdmValueField*                      pdmValueField,
                                                         const google::protobuf::Message&         params,
                                                         const google::protobuf::FieldDescriptor* paramDescriptor );
-    void                           assignPdmObjectValues( caf::PdmObjectHandle*                    pdmObject,
+    std::expected<void, QString>   assignPdmObjectValues( caf::PdmObjectHandle*                    pdmObject,
                                                           const google::protobuf::Message&         params,
                                                           const google::protobuf::FieldDescriptor* paramDescriptor );
 
