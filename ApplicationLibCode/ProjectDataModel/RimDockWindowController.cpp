@@ -62,7 +62,6 @@ void RimDockWindowController::handleViewerDeletion()
     viewPdmObject()->updateUiIconFromToggleField();
     uiCapability()->updateUiIconFromToggleField();
     removeWindowFromDock();
-
     updateConnectedEditors();
 }
 
@@ -72,7 +71,7 @@ void RimDockWindowController::handleViewerDeletion()
 void RimDockWindowController::removeWindowFromDock()
 {
     RiuMainWindowBase* mainWin = getMainWindow();
-    if ( mainWin && viewWidget() && viewPdmObject() )
+    if ( mainWin && viewPdmObject() )
     {
         viewPdmObject()->deleteDockWidget();
         viewPdmObject()->deleteViewWidget();
@@ -124,7 +123,7 @@ void RimDockWindowController::updateViewerWidget()
         if ( !viewWidget() )
         {
             ads::CDockWidget* dockWidget = viewPdmObject()->createDockWidget();
-            QWidget*          viewWidget = viewPdmObject()->createViewWidget( dockWidget );
+            QWidget*          viewWidget = viewPdmObject()->createViewWidget();
             dockWidget->setWidget( viewWidget );
             dockWidget->setObjectName( viewPdmObject()->dockWindowName() );
             viewWidget->setObjectName( viewPdmObject()->dockWindowName() );
@@ -140,9 +139,9 @@ void RimDockWindowController::updateViewerWidget()
     }
     else
     {
+        viewPdmObject()->deleteDockWidget();
         if ( viewWidget() )
         {
-            viewPdmObject()->deleteDockWidget();
             viewPdmObject()->deleteViewWidget();
             mainWindow->onViewerRemoved();
         }

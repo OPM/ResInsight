@@ -420,14 +420,29 @@ void RiaGuiApplication::storeDockState()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::restoreDockState()
 {
-    if ( m_mainWindow && !project()->mainWindowDockState().isEmpty() )
+    if ( m_mainWindow )
     {
-        m_mainWindow->restoreDockWidgetState( project()->mainWindowDockState );
+        bool useDefault = true;
+        if ( !project()->mainWindowDockState().isEmpty() )
+        {
+            useDefault = !m_mainWindow->restoreDockWidgetState( project()->mainWindowDockState );
+        }
+        if ( useDefault )
+        {
+            RiuDockWidgetTools::setDockLayout( m_mainWindow, RiuDockWidgetTools::dockState3DEclipseName() );
+        }
     }
-
-    if ( m_mainPlotWindow && !project()->plotWindowDockState().isEmpty() )
+    if ( m_mainPlotWindow )
     {
-        m_mainPlotWindow->restoreDockWidgetState( project()->plotWindowDockState );
+        bool useDefault = true;
+        if ( !project()->plotWindowDockState().isEmpty() )
+        {
+            useDefault = !m_mainPlotWindow->restoreDockWidgetState( project()->plotWindowDockState );
+        }
+        if ( useDefault )
+        {
+            RiuDockWidgetTools::setDockLayout( m_mainPlotWindow, RiuDockWidgetTools::dockStatePlotWindowName() );
+        }
     }
 }
 

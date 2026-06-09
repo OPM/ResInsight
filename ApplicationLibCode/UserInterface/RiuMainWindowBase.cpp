@@ -128,10 +128,10 @@ QString RiuMainWindowBase::dockWidgetStateString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::restoreDockWidgetState( QString dockStateString )
+bool RiuMainWindowBase::restoreDockWidgetState( QString dockStateString )
 {
     QByteArray dockState = QByteArray::fromBase64( dockStateString.toLatin1() );
-    m_dockManager->restoreState( dockState, DOCKSTATE_VERSION );
+    return m_dockManager->restoreState( dockState, DOCKSTATE_VERSION );
 }
 
 //--------------------------------------------------------------------------------------------------
