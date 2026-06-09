@@ -426,7 +426,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.addSeparator();
 
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
-            if ( eclipseView )
+            if ( eclipseView && eclipseView->mainGrid() )
             {
                 // fault commands
                 const RigFault* fault = eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace( m_currentCellIndex, m_currentFaceIndex );
