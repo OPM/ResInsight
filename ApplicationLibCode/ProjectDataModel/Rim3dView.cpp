@@ -206,6 +206,8 @@ Rim3dView::~Rim3dView()
         RiaApplication::instance()->setActiveReservoirView( nullptr );
     }
 
+    removeWindowFromDock();
+
     if ( m_viewer )
     {
         m_viewer->clearRimView();
@@ -213,8 +215,6 @@ Rim3dView::~Rim3dView()
 
     // Make sure the object is disconnected from other objects before delete
     prepareForDelete();
-
-    removeWindowFromDock();
 
     if ( m_viewer )
     {
@@ -463,9 +463,12 @@ void Rim3dView::deleteViewWidget()
     // Earlier implementations has used m_viewer->deleteLater(). This caused issues triggered by 3D editors and
     // interaction with the event processing. deleteLater() will not be handled by processEvents() if we are in the
     // state of processing UI events, ie in the process of handling a QAction
-
-    delete m_viewer;
-    m_viewer = nullptr;
+    if ( m_viewer )
+    {
+        m_viewer->setParent( nullptr );
+        delete m_viewer;
+        m_viewer = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -496,6 +499,8 @@ void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
     m_annotationStrategy.uiCapability()->setUiReadOnly( !m_useCustomAnnotationStrategy );
     m_annotationCountHint.uiCapability()->setUiReadOnly(
         !m_useCustomAnnotationStrategy || ( m_annotationStrategy() != RivAnnotationTools::LabelPositionStrategy::COUNT_HINT ) );
+
+    uiOrdering.add( &m_dockWindowId );
 
     uiOrdering.skipRemainingFields( true );
 }
