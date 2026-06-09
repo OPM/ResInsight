@@ -125,17 +125,19 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
         {
             if ( auto parentWellPath = wellPath->wellPathTieIn()->parentWell() )
             {
-                auto geo    = parentWellPath->wellPathGeometry();
-                auto points = geo->wellPathPoints();
-
-                for ( auto& p : points )
+                if ( auto geo = parentWellPath->wellPathGeometry() )
                 {
-                    p = dispXf->transformToDisplayCoord( p );
-                }
+                    auto points = geo->wellPathPoints();
 
-                // For the first target of a lateral, use the coordinates from the parent well as snap-to locations for
-                // the 3D manipulator sphere
-                m_manipulator->setPolyline( points );
+                    for ( auto& p : points )
+                    {
+                        p = dispXf->transformToDisplayCoord( p );
+                    }
+
+                    // For the first target of a lateral, use the coordinates from the parent well as snap-to locations
+                    // for the 3D manipulator sphere
+                    m_manipulator->setPolyline( points );
+                }
             }
         }
     }
