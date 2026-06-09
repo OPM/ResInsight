@@ -273,8 +273,14 @@ void RigMainGrid::computeCachedData( std::string* aabbTreeInfo )
     initAllSubGridsParentGridPointer();
     initAllSubCellsMainGridCellIndex();
 
-    m_cellSearchTree = nullptr;
-    doBuildCellSearchTree( aabbTreeInfo );
+    {
+        // Serialize (re)building of the cell search tree, as it may be accessed concurrently from
+        // multi-threaded queries (e.g. findIntersectingCells). Building without this guard can cause
+        // a use-after-free / data race on the lazily built tree.
+        std::scoped_lock<std::mutex> lock( m_cellSearchTreeMutex );
+        m_cellSearchTree = nullptr;
+        doBuildCellSearchTree( aabbTreeInfo );
+    }
 
     computeBoundingBox();
 }
@@ -839,15 +845,25 @@ std::tuple<QString, double, cvf::StructGridInterface::FaceType> RigMainGrid::min
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RigMainGrid::findIntersectingCells( const cvf::BoundingBox& inputBB ) const
 {
-    if ( m_cellSearchTree.isNull() )
+    cvf::ref<cvf::BoundingBoxTree> searchTree;
     {
-        doBuildCellSearchTree();
+        // Lazily build the cell search tree under a lock to avoid a use-after-free / data race when
+        // findIntersectingCells is called concurrently from multiple threads (e.g. OpenMP regions).
+        std::scoped_lock<std::mutex> lock( m_cellSearchTreeMutex );
+        if ( m_cellSearchTree.isNull() )
+        {
+            doBuildCellSearchTree();
+        }
+
+        // Keep a local reference so the tree stays alive if another thread rebuilds m_cellSearchTree
+        // while this thread performs the read-only intersection query below.
+        searchTree = m_cellSearchTree;
     }
 
     std::vector<size_t> cellIndices;
-    if ( m_cellSearchTree.notNull() )
+    if ( searchTree.notNull() )
     {
-        m_cellSearchTree->findIntersections( inputBB, &cellIndices );
+        searchTree->findIntersections( inputBB, &cellIndices );
     }
     return cellIndices;
 }
