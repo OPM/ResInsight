@@ -135,6 +135,11 @@ protected:
 
     virtual bool gridMappingNeedsUpdating() const;
 
+    // Returns true when the cached grid information (e.g. raw pointers into the owning case) is no longer valid and
+    // the projection must be rebuilt via updateGridInformation(). Default is false; overridden where the projection
+    // caches data that can be invalidated by a case reload.
+    virtual bool gridInformationIsStale() const;
+
 private:
     bool                                     resultsNeedsUpdating( int timeStep ) const;
     bool                                     geometryNeedsUpdating() const;
