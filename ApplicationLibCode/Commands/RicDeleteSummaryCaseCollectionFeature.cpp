@@ -122,12 +122,19 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
     {
         summaryCaseMainCollection->removeEnsemble( ensemble );
         ensemble->cleanupBeforeDelete();
+    }
+
+    // Rebuild the tree and connected editors while the detached ensembles are still alive, so no tree item
+    // editor ends up referencing freed objects during the update (see caf::CmdDeleteItemExec for the same
+    // ordering). Deleting the ensembles before the tree update caused a use-after-free crash.
+    summaryCaseMainCollection->updateConnectedEditors();
+
+    for ( RimSummaryEnsemble* ensemble : ensembles )
+    {
         delete ensemble;
     }
 
     RimWellPlotTools::loadDataAndUpdateDepthTrackPlots( depthTrackPlots );
-
-    summaryCaseMainCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
