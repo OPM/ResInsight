@@ -1118,13 +1118,13 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       m
         eclipseCase = dynamic_cast<RimEclipseCase*>( mainOrComparisonView->ownerCase() );
     }
 
-    if ( eclipseCase )
+    if ( eclipseCase && eclipseCase->mainGrid() )
     {
         const RigCell& cell = eclipseCase->mainGrid()->cell( globalCellIndex );
         *cellIndex          = cell.gridLocalCellIndex();
         *gridIndex          = cell.hostGrid()->gridIndex();
     }
-    else if ( geomechCase )
+    else if ( geomechCase && geomechCase->geoMechData() )
     {
         RigFemPartCollection* parts = geomechCase->geoMechData()->femParts();
         auto [partId, elementIdx]   = parts->partIdAndElementIndex( globalCellIndex );
@@ -1223,12 +1223,12 @@ void RiuViewerCommands::ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
     RimGeoMechView* geomView    = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
 
-    if ( eclipseView && eclipseView->eclipseCase() )
+    if ( eclipseView && eclipseView->eclipseCase() && eclipseView->eclipseCase()->eclipseCaseData() )
     {
         eclipseView->eclipseCase()->eclipseCaseData()->grid( gridIdx )->ijkFromCellIndex( cellIndex, i, j, k );
     }
 
-    if ( geomView && geomView->geoMechCase() )
+    if ( geomView && geomView->geoMechCase() && geomView->femParts() )
     {
         geomView->femParts()->part( gridIdx )->getOrCreateStructGrid()->ijkFromCellIndex( cellIndex, i, j, k );
     }
