@@ -858,8 +858,12 @@ std::vector<size_t> RigMainGrid::findIntersectingCells( const cvf::BoundingBox& 
 void RigMainGrid::doBuildCellSearchTree( std::string* aabbTreeInfo ) const
 {
     const double maxNumberOfLeafNodes = 4000000;
-    const double factor               = std::ceil( cellCount() / maxNumberOfLeafNodes );
-    const size_t cellsPerBoundingBox  = std::max( size_t( 1 ), static_cast<size_t>( factor ) );
+    // Use the total cell count (including LGR cells) when deciding the number of cells per bounding box.
+    // The non-optimized buildCellSearchTree() creates one leaf per cell across totalCellCount(), so basing
+    // the threshold on the main grid cell count only can route LGR-heavy grids into that path and exhaust
+    // memory while building the search tree.
+    const double factor              = std::ceil( totalCellCount() / maxNumberOfLeafNodes );
+    const size_t cellsPerBoundingBox = std::max( size_t( 1 ), static_cast<size_t>( factor ) );
 
     if ( cellsPerBoundingBox > 1 )
     {
