@@ -151,7 +151,14 @@ QWidget* PdmUiSliderEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiSliderEditor::slotSliderValueChanged( int position )
 {
-    m_spinBox->setValue( position );
+    if ( m_spinBox )
+    {
+        // Block signals to avoid re-entering slotSpinBoxValueChanged(), which would write to the
+        // field a second time and may tear down this editor's widgets while we are still executing.
+        bool wasBlocked = m_spinBox->blockSignals( true );
+        m_spinBox->setValue( position );
+        m_spinBox->blockSignals( wasBlocked );
+    }
 
     writeValueToField();
 }
@@ -171,6 +178,8 @@ void PdmUiSliderEditor::slotSpinBoxValueChanged( int spinBoxValue )
 //--------------------------------------------------------------------------------------------------
 void PdmUiSliderEditor::updateSliderPosition()
 {
+    if ( m_spinBox.isNull() || m_slider.isNull() ) return;
+
     QString textValue = m_spinBox->text();
 
     bool convertOk      = false;
@@ -178,7 +187,12 @@ void PdmUiSliderEditor::updateSliderPosition()
     if ( convertOk )
     {
         newSliderValue = qBound( m_attributes.m_minimum, newSliderValue, m_attributes.m_maximum );
+
+        // Block signals to avoid re-entering slotSliderValueChanged(), which would write to the
+        // field a second time and may tear down this editor's widgets while we are still executing.
+        bool wasBlocked = m_slider->blockSignals( true );
         m_slider->setValue( newSliderValue );
+        m_slider->blockSignals( wasBlocked );
     }
 }
 
@@ -187,6 +201,8 @@ void PdmUiSliderEditor::updateSliderPosition()
 //--------------------------------------------------------------------------------------------------
 void PdmUiSliderEditor::writeValueToField()
 {
+    if ( m_spinBox.isNull() ) return;
+
     QString  textValue = m_spinBox->text();
     QVariant v;
     v = textValue;
