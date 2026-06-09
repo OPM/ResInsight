@@ -108,9 +108,12 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
         }
         else
         {
-            view->cellVisibilityChanged.disconnect( it->second );
+            if ( view )
+            {
+                view->cellVisibilityChanged.disconnect( it->second );
+                view->cellVisibilityChanged.connect( it->second, &Rim2dIntersectionView::onCellVisibilityChanged );
+            }
             m_intersectionViews.push_back( it->second );
-            view->cellVisibilityChanged.connect( it->second, &Rim2dIntersectionView::onCellVisibilityChanged );
         }
     }
 
