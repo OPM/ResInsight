@@ -319,12 +319,6 @@ void RimFaultInViewCollection::synchronizeFaults()
         {
             rimFault             = new RimFaultInView();
             rimFault->faultColor = colorTable.cycledColor3f( fIdx );
-            QString faultName    = rigFaults[fIdx]->name();
-
-            if ( faultName.startsWith( RiaResultNames::undefinedGridFaultName(), Qt::CaseInsensitive ) && faultName.contains( "Inactive" ) )
-            {
-                rimFault->showFault = false; // Turn fault against inactive cells off by default
-            }
         }
 
         rimFault->setFaultGeometry( rigFaults[fIdx].p() );
