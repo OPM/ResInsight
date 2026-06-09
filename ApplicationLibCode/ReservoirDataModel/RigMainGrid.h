@@ -29,6 +29,7 @@
 
 #include <QString>
 
+#include <mutex>
 #include <vector>
 
 class RigActiveCellInfo;
@@ -169,4 +170,5 @@ private:
     mutable bool                           m_isFaceNormalsOutwards;
     mutable bool                           m_isFaceNormalsOutwardsComputed;
     mutable cvf::ref<cvf::BoundingBoxTree> m_cellSearchTree;
+    mutable std::mutex                     m_cellSearchTreeMutex;
 };
