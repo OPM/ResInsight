@@ -84,7 +84,15 @@ grpc::Status RiaGrpcCommandService::Execute( grpc::ServerContext* context, const
             }
             else
             {
-                assignPdmObjectValues( commandHandle, *request, grpcOneOfMessage );
+                auto result = assignPdmObjectValues( commandHandle, *request, grpcOneOfMessage );
+                if ( !result )
+                {
+                    telemetryAttributes["command.status"] = "error";
+                    telemetryAttributes["command.error"]  = result.error().toStdString();
+                    RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.command_execute", telemetryAttributes );
+
+                    return grpc::Status( grpc::INVALID_ARGUMENT, result.error().toStdString() );
+                }
                 telemetryAttributes["command.type"] = "standard";
             }
 
@@ -260,9 +268,10 @@ void RiaGrpcCommandService::assignPdmFieldValue( caf::PdmValueField*    pdmValue
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcCommandService::assignPdmObjectValues( caf::PdmObjectHandle*                    pdmObjectHandle,
-                                                   const google::protobuf::Message&         params,
-                                                   const google::protobuf::FieldDescriptor* paramDescriptor )
+std::expected<void, QString>
+    RiaGrpcCommandService::assignPdmObjectValues( caf::PdmObjectHandle*                    pdmObjectHandle,
+                                                  const google::protobuf::Message&         params,
+                                                  const google::protobuf::FieldDescriptor* paramDescriptor )
 {
     FieldDescriptor::Type fieldDataType = paramDescriptor->type();
     const Reflection*     reflection    = params.GetReflection();
@@ -274,8 +283,7 @@ void RiaGrpcCommandService::assignPdmObjectValues( caf::PdmObjectHandle*        
     const rips::PdmObject* ripsPdmObject = dynamic_cast<const rips::PdmObject*>( &subMessage );
     if ( ripsPdmObject )
     {
-        copyPdmObjectFromRipsToCaf( ripsPdmObject, pdmObjectHandle );
-        return;
+        return copyPdmObjectFromRipsToCaf( ripsPdmObject, pdmObjectHandle );
     }
 
     auto messageDescriptor = paramDescriptor->message_type();
@@ -306,7 +314,8 @@ void RiaGrpcCommandService::assignPdmObjectValues( caf::PdmObjectHandle*        
                 CAF_ASSERT( childObject );
                 if ( childObject )
                 {
-                    assignPdmObjectValues( childObject, subMessage, parameter );
+                    auto result = assignPdmObjectValues( childObject, subMessage, parameter );
+                    if ( !result ) return result;
                 }
             }
             else if ( pdmValueFieldHandle )
@@ -315,6 +324,8 @@ void RiaGrpcCommandService::assignPdmObjectValues( caf::PdmObjectHandle*        
             }
         }
     }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
