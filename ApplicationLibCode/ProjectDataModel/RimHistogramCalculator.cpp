@@ -252,7 +252,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
     {
         RigEclipseResultAddress eclResAddr  = eclResultDefinition->eclipseResultAddress();
         RigCaseCellResultsData* cellResults = eclResultDefinition->currentGridCellResults();
-        if ( cellResults && eclResAddr.isValid() )
+        if ( cellResults && eclResAddr.isValid() && cellResults->hasResultEntry( eclResAddr ) )
         {
             if ( timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
             {
