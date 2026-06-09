@@ -9,7 +9,9 @@ from .resinsight_classes import PlotWindow as PlotWindow, Plot as Plot
 
 
 @add_method(PlotWindow)
-def export_snapshot(self, export_folder="", file_prefix="", output_format="PNG", width=-1, height=-1):
+def export_snapshot(
+    self, export_folder="", file_prefix="", output_format="PNG", width=-1, height=-1
+):
     """Export snapshot for the current plot
 
     Arguments:
