@@ -26,6 +26,8 @@
 #include "Well/RigEclipseWellLogExtractor.h"
 #include "Well/RigWellPath.h"
 
+#include "cvfAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -75,6 +77,70 @@ TEST( RigEclipseWellLogExtractor, ShortWellPathInsideOneCell )
     auto intersections = e->cellIntersectionInfosAlongWellPath();
     EXPECT_FALSE( intersections.empty() );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// A degenerate well path geometry (empty or a single point) must not crash the extractor. The
+/// intersection calculation indexes the well path points and the measured depths in lockstep, so
+/// these cases must be handled gracefully and yield no intersections.
+//--------------------------------------------------------------------------------------------------
+TEST( RigEclipseWellLogExtractor, DegenerateWellPathDoesNotCrash )
+{
+    cvf::ref<RigEclipseCaseData> reservoir         = new RigEclipseCaseData( nullptr );
+    cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
+
+    mockFileInterface->setWorldCoordinates( cvf::Vec3d( 10, 10, 10 ), cvf::Vec3d( 20, 20, 20 ) );
+    mockFileInterface->setCellCounts( cvf::Vec3st( 5, 6, 7 ) );
+    mockFileInterface->enableWellData( false );
+    mockFileInterface->open( "", reservoir.p() );
+    reservoir->mainGrid()->computeCachedData();
+
+    const cvf::Vec3d center = reservoir->mainGrid()->cell( 0 ).center();
+
+    // Empty well path geometry.
+    {
+        cvf::ref<RigWellPath>                wellPathGeometry = new RigWellPath;
+        cvf::ref<RigEclipseWellLogExtractor> e = new RigEclipseWellLogExtractor( reservoir.p(), wellPathGeometry.p(), "empty" );
+        EXPECT_TRUE( e->cellIntersectionInfosAlongWellPath().empty() );
+    }
+
+    // Single point well path geometry.
+    {
+        cvf::ref<RigWellPath> wellPathGeometry = new RigWellPath;
+        wellPathGeometry->addWellPathPoint( center, 0.0 );
+        cvf::ref<RigEclipseWellLogExtractor> e = new RigEclipseWellLogExtractor( reservoir.p(), wellPathGeometry.p(), "single" );
+        EXPECT_TRUE( e->cellIntersectionInfosAlongWellPath().empty() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A well path geometry with a mismatch between the number of points and measured depths must not
+/// read out of bounds. This invalid state can only be constructed when asserts are disabled (the
+/// RigWellPath setter asserts on equal sizes), matching the release builds where the original crash
+/// in RigEclipseWellLogExtractor::calculateIntersection was observed.
+//--------------------------------------------------------------------------------------------------
+#if CVF_ENABLE_ASSERTS == 0
+TEST( RigEclipseWellLogExtractor, MismatchedPointAndMeasuredDepthCountDoesNotCrash )
+{
+    cvf::ref<RigEclipseCaseData> reservoir         = new RigEclipseCaseData( nullptr );
+    cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
+
+    mockFileInterface->setWorldCoordinates( cvf::Vec3d( 10, 10, 10 ), cvf::Vec3d( 20, 20, 20 ) );
+    mockFileInterface->setCellCounts( cvf::Vec3st( 5, 6, 7 ) );
+    mockFileInterface->enableWellData( false );
+    mockFileInterface->open( "", reservoir.p() );
+    reservoir->mainGrid()->computeCachedData();
+
+    const cvf::Vec3d center = reservoir->mainGrid()->cell( 0 ).center();
+
+    cvf::ref<RigWellPath>   wellPathGeometry = new RigWellPath;
+    std::vector<cvf::Vec3d> wellPathPoints   = { center, center + cvf::Vec3d( 0, 0, 1 ), center + cvf::Vec3d( 0, 0, 2 ) };
+    std::vector<double>     mdValues         = { 0.0, 1.0 }; // Deliberately one fewer than the number of points.
+    wellPathGeometry->setWellPathPoints( wellPathPoints, mdValues );
+
+    cvf::ref<RigEclipseWellLogExtractor> e = new RigEclipseWellLogExtractor( reservoir.p(), wellPathGeometry.p(), "mismatch" );
+    EXPECT_TRUE( e->cellIntersectionInfosAlongWellPath().empty() );
+}
+#endif
 
 //--------------------------------------------------------------------------------------------------
 /// Reproduces https://github.com/OPM/ResInsight/issues/13967

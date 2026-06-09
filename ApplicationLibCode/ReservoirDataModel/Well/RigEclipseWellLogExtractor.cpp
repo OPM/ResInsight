@@ -56,9 +56,20 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 {
     std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo> uniqueIntersections;
 
-    bool isCellFaceNormalsOut = m_caseData->mainGrid()->isFaceNormalsOutwards();
-
     if ( m_wellPathGeometry->wellPathPoints().empty() ) return;
+
+    // The intersection loop iterates over the well path points while indexing the measured depths in lockstep. A
+    // mismatch between the two arrays would read out of bounds, so guard against it instead of relying on the
+    // RigWellPath constructor assert, which is a no-op in release builds.
+    if ( m_wellPathGeometry->wellPathPoints().size() != m_wellPathGeometry->measuredDepths().size() )
+    {
+        RiaLogging::error( "Well path geometry has a mismatch between the number of points and measured depths. "
+                           "Skipping intersection calculation for " +
+                           m_wellCaseErrorMsgName );
+        return;
+    }
+
+    bool isCellFaceNormalsOut = m_caseData->mainGrid()->isFaceNormalsOutwards();
 
     double tolerance = computeLengthThreshold();
 
