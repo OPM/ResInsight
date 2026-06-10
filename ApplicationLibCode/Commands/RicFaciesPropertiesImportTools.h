@@ -19,6 +19,7 @@
 #pragma once
 
 #include <map>
+#include <vector>
 
 class RimColorLegend;
 class RimStimPlanModelTemplate;
@@ -41,6 +42,8 @@ public:
                                                 bool                      createColorLegend = false );
 
     static RimColorLegend* createColorLegendMatchDefaultRockColors( const std::map<int, QString>& codeNames );
+
+    static std::vector<cvf::Color3f> matchDefaultRockColors( const std::map<int, QString>& codeNames );
 
 private:
     static int  computeEditDistance( const QString& a, const QString& b );

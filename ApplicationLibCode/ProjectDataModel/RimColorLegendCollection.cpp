@@ -89,32 +89,6 @@ void RimColorLegendCollection::deleteCustomColorLegends()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimColorLegend* RimColorLegendCollection::createColorLegend( const QString& colorLegendName, const std::map<int, QString>& valuesAndNames )
-{
-    auto colors = RiaColorTables::categoryPaletteColors().color3ubArray();
-
-    auto colorLegend = new RimColorLegend();
-    colorLegend->setColorLegendName( colorLegendName );
-    int colorIndex = 0;
-    for ( const auto& [value, name] : valuesAndNames )
-    {
-        auto         item  = new RimColorLegendItem();
-        auto         color = colors[colorIndex++ % colors.size()];
-        cvf::Color3f color3f( color );
-
-        item->setValues( name, value, color3f );
-
-        colorLegend->appendColorLegendItem( item );
-    }
-
-    appendCustomColorLegend( colorLegend );
-
-    return colorLegend;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Update the custom color legend registered as default for the given result in place, so that
 /// objects referring to the legend keep their binding. Creates and registers a new custom legend
 /// if none exists or the registered legend is a standard legend. If colors is empty, palette
@@ -156,6 +130,26 @@ RimColorLegend* RimColorLegendCollection::updateColorLegend( const RimCase*     
     setDefaultColorLegendForResult( rimCase, resultName, legend );
 
     return legend;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Overload taking values and names as a map, with optional colors ordered by ascending value.
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimColorLegendCollection::updateColorLegend( const RimCase*                   rimCase,
+                                                             const QString&                   resultName,
+                                                             const QString&                   colorLegendName,
+                                                             const std::map<int, QString>&    valuesAndNames,
+                                                             const std::vector<cvf::Color3f>& colors )
+{
+    std::vector<int>     categoryValues;
+    std::vector<QString> categoryNames;
+    for ( const auto& [value, name] : valuesAndNames )
+    {
+        categoryValues.push_back( value );
+        categoryNames.push_back( name );
+    }
+
+    return updateColorLegend( rimCase, resultName, colorLegendName, categoryValues, categoryNames, colors );
 }
 
 //--------------------------------------------------------------------------------------------------
