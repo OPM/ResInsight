@@ -3,8 +3,9 @@ Category name/color binding for discrete (INTEGER) grid cell results.
 
 Provides a convenience API on Case for labeling integer result values with
 human-readable names and optional colors. Internally, this reuses the existing
-ColorLegend infrastructure: a new custom ColorLegend is created and registered
-as the default legend for the (case, resultName) pair. When the property is
+ColorLegend infrastructure: a custom ColorLegend is registered as the default
+legend for the (case, resultName) pair, and repeated calls update that legend
+in place so views referencing it keep their binding. When the property is
 shown in a 3D view, the legend's item names are used as the category labels.
 """
 
@@ -55,10 +56,14 @@ def set_discrete_property_category_names(
     data_type="INTEGER") or set_active_cell_property(..., data_type="INTEGER")
     to display text labels instead of raw integers in the 3D view legend.
 
+    Repeated calls for the same property update the existing color legend in
+    place, so views referencing the legend keep their binding.
+
     Arguments:
         property_name (str): Name of the discrete property result.
         value_names (Dict[int, str]): Mapping from integer value to label.
-            An empty dict removes any existing mapping for this property.
+            Labels must not contain commas. An empty dict removes any
+            existing mapping for this property.
         value_colors (Optional[Dict[int, str]]): Optional per-value colors as
             strings accepted by QColor (e.g. "red", "#ff8800"). Values without
             a color entry get an auto-assigned palette color.
@@ -66,7 +71,7 @@ def set_discrete_property_category_names(
             Defaults to the property name.
 
     Returns:
-        The created ColorLegend, or None if value_names was empty.
+        The created or updated ColorLegend, or None if value_names was empty.
     """
     project = self.ancestor(Project)
     if project is None:
@@ -76,34 +81,34 @@ def set_discrete_property_category_names(
     if collection is None:
         raise RuntimeError("Could not find ColorLegendCollection in project")
 
-    collection.delete_color_legend(case=self, result_name=property_name)
-
     if not value_names:
+        collection.delete_color_legend(case=self, result_name=property_name)
         return None
 
     name = legend_name if legend_name else property_name
-    legend = collection.create_color_legend(name=name)
 
+    category_values = []
+    category_names = []
+    category_colors = []
     colors = value_colors or {}
     palette_index = 0
-    for value, label in value_names.items():
+    for value, label in sorted(value_names.items()):
         color = colors.get(value)
         if color is None:
             color = _DEFAULT_PALETTE[palette_index % len(_DEFAULT_PALETTE)]
             palette_index += 1
-        legend.add_color_legend_item(
-            category_value=value,
-            category_name=label,
-            color=color,
-        )
+        category_values.append(value)
+        category_names.append(label)
+        category_colors.append(color)
 
-    collection.set_default_color_legend_for_result(
+    return collection.update_color_legend(
         case=self,
         result_name=property_name,
-        color_legend=legend,
+        legend_name=name,
+        category_values=category_values,
+        category_names=category_names,
+        colors=category_colors,
     )
-
-    return legend
 
 
 def _find_default_legend(case: Case, property_name: str) -> Optional[ColorLegend]:

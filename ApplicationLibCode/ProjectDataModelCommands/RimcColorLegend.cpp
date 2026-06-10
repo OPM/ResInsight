@@ -105,6 +105,54 @@ QString RimcColorLegend_addColorLegendItem::classKeywordReturnedType() const
     return RimColorLegendItem::classKeywordStatic();
 }
 
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimColorLegendCollection, RimcColorLegendCollection_updateColorLegend, "UpdateColorLegend" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcColorLegendCollection_updateColorLegend::RimcColorLegendCollection_updateColorLegend( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Update Color Legend", "", "", "Update the color legend bound to a (case, resultName) pair in place, creating it if needed" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "Case" );
+    CAF_PDM_InitScriptableField( &m_resultName, "ResultName", QString(), "Result Name" );
+    CAF_PDM_InitScriptableField( &m_legendName, "LegendName", QString(), "Legend Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_categoryValues, "CategoryValues", "Category Values" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_categoryNames, "CategoryNames", "Category Names" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_colors, "Colors", "Colors" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcColorLegendCollection_updateColorLegend::execute()
+{
+    auto collection = self<RimColorLegendCollection>();
+    if ( !collection ) return std::unexpected( "No color legend collection found" );
+
+    if ( !m_case() ) return std::unexpected( "No case provided" );
+
+    if ( m_categoryValues().size() != m_categoryNames().size() )
+        return std::unexpected( "CategoryValues and CategoryNames must have matching sizes" );
+
+    if ( !m_colors().empty() && m_colors().size() != m_categoryValues().size() )
+        return std::unexpected( "Colors must be empty or match the size of CategoryValues" );
+
+    auto legend = collection->updateColorLegend( m_case(), m_resultName(), m_legendName(), m_categoryValues(), m_categoryNames(), m_colors() );
+    collection->updateConnectedEditors();
+
+    return legend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcColorLegendCollection_updateColorLegend::classKeywordReturnedType() const
+{
+    return RimColorLegend::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimColorLegendCollection,
                                    RimcColorLegendCollection_setDefaultColorLegendForResult,
                                    "SetDefaultColorLegendForResult" );

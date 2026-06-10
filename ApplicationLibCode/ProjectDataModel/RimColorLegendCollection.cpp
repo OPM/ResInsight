@@ -115,6 +115,50 @@ RimColorLegend* RimColorLegendCollection::createColorLegend( const QString& colo
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Update the custom color legend registered as default for the given result in place, so that
+/// objects referring to the legend keep their binding. Creates and registers a new custom legend
+/// if none exists or the registered legend is a standard legend. If colors is empty, palette
+/// colors are assigned automatically.
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimColorLegendCollection::updateColorLegend( const RimCase*                   rimCase,
+                                                             const QString&                   resultName,
+                                                             const QString&                   colorLegendName,
+                                                             const std::vector<int>&          categoryValues,
+                                                             const std::vector<QString>&      categoryNames,
+                                                             const std::vector<cvf::Color3f>& colors )
+{
+    CAF_ASSERT( categoryValues.size() == categoryNames.size() );
+    CAF_ASSERT( colors.empty() || colors.size() == categoryValues.size() );
+
+    auto legend = findDefaultLegendForResult( rimCase, resultName );
+    if ( !legend || isStandardColorLegend( legend ) )
+    {
+        legend = new RimColorLegend();
+        appendCustomColorLegend( legend );
+    }
+
+    legend->setColorLegendName( colorLegendName );
+
+    auto paletteColors = RiaColorTables::categoryPaletteColors().color3ubArray();
+
+    std::vector<RimColorLegendItem*> items;
+    for ( size_t i = 0; i < categoryValues.size(); i++ )
+    {
+        cvf::Color3f color = colors.empty() ? cvf::Color3f( paletteColors[i % paletteColors.size()] ) : colors[i];
+
+        auto item = new RimColorLegendItem();
+        item->setValues( categoryNames[i], categoryValues[i], color );
+        items.push_back( item );
+    }
+
+    legend->setColorLegendItems( items );
+
+    setDefaultColorLegendForResult( rimCase, resultName, legend );
+
+    return legend;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::deleteColorLegend( const RimCase* rimCase, const QString& resultName )

@@ -130,3 +130,43 @@ def test_discrete_property_category_no_duplicate_legend(rips_instance, initializ
         1: "Shale",
         2: "Coal",
     }
+
+
+def test_discrete_property_category_update_preserves_legend_identity(
+    rips_instance, initialize_test
+):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+    assert case is not None
+
+    collection = rips_instance.project.color_legend_collection()
+
+    def legend_count():
+        return len(collection.descendants(rips.ColorLegend))
+
+    legend1 = case.set_discrete_property_category_names(
+        property_name="FACIES", value_names={0: "Sand", 1: "Shale"}
+    )
+    assert legend1 is not None
+    after_first = legend_count()
+
+    # A repeated call must update the existing legend object in place so that
+    # views referencing it keep their binding.
+    new_names = {0: "Sandstone", 1: "Shale", 2: "Coal"}
+    new_colors = {0: "#e6c878", 1: "#646464", 2: "#202020"}
+    legend2 = case.set_discrete_property_category_names(
+        property_name="FACIES", value_names=new_names, value_colors=new_colors
+    )
+    assert legend2.address() == legend1.address()
+    assert legend_count() == after_first
+
+    # The items are fully replaced, with no leftovers from the first call.
+    assert case.discrete_property_category_names("FACIES") == new_names
+    assert case.discrete_property_category_colors("FACIES") == new_colors
+
+    # The legend can be renamed in place as well.
+    legend3 = case.set_discrete_property_category_names(
+        property_name="FACIES", value_names=new_names, legend_name="My Facies"
+    )
+    assert legend3.address() == legend1.address()
+    assert legend3.color_legend_name == "My Facies"

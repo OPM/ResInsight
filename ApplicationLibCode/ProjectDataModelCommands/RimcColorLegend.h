@@ -70,6 +70,28 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
+class RimcColorLegendCollection_updateColorLegend : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcColorLegendCollection_updateColorLegend( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmPtrField<RimCase*>               m_case;
+    caf::PdmField<QString>                   m_resultName;
+    caf::PdmField<QString>                   m_legendName;
+    caf::PdmField<std::vector<int>>          m_categoryValues;
+    caf::PdmField<std::vector<QString>>      m_categoryNames;
+    caf::PdmField<std::vector<cvf::Color3f>> m_colors;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RimcColorLegendCollection_setDefaultColorLegendForResult : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
