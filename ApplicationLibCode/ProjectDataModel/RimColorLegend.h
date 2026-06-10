@@ -54,6 +54,7 @@ public:
     void addReorderCapability();
 
     void                             appendColorLegendItem( RimColorLegendItem* colorLegendItem );
+    void                             setColorLegendItems( const std::vector<RimColorLegendItem*>& colorLegendItems );
     std::vector<RimColorLegendItem*> colorLegendItems() const;
 
     cvf::Color3ubArray colorArray() const;

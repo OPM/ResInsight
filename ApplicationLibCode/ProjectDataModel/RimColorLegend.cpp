@@ -102,6 +102,21 @@ void RimColorLegend::appendColorLegendItem( RimColorLegendItem* colorLegendItem 
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Replace all color legend items. Takes ownership of the new items.
+//--------------------------------------------------------------------------------------------------
+void RimColorLegend::setColorLegendItems( const std::vector<RimColorLegendItem*>& colorLegendItems )
+{
+    m_colorLegendItems.deleteChildren();
+
+    for ( auto colorLegendItem : colorLegendItems )
+    {
+        m_colorLegendItems.push_back( colorLegendItem );
+    }
+
+    onColorLegendItemHasChanged();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimColorLegendItem*> RimColorLegend::colorLegendItems() const

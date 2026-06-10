@@ -22,6 +22,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "cvfColor3.h"
+
 class RimCase;
 class RimColorLegend;
 class RimColorLegendItem;
@@ -50,6 +52,12 @@ public:
     void deleteCustomColorLegends();
 
     RimColorLegend* createColorLegend( const QString& colorLegendName, const std::map<int, QString>& valuesAndNames );
+    RimColorLegend* updateColorLegend( const RimCase*                   rimCase,
+                                       const QString&                   resultName,
+                                       const QString&                   colorLegendName,
+                                       const std::vector<int>&          categoryValues,
+                                       const std::vector<QString>&      categoryNames,
+                                       const std::vector<cvf::Color3f>& colors );
     void            createColorLegendFromFormationNames( RimFormationNames* rimFormationNames );
     void            deleteColorLegend( const RimCase* rimCase, const QString& resultName );
     void            setDefaultColorLegendForResult( const RimCase* rimCase, const QString& resultName, RimColorLegend* colorLegend );
