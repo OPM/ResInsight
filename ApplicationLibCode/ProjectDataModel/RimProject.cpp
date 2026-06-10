@@ -632,6 +632,10 @@ std::vector<RimCase*> RimProject::allGridCases() const
 
             for ( RimEclipseCaseEnsemble* ensemble : analysisModels->caseEnsembles() )
             {
+                // The ensemble can be null if this function is called while the ensembles are being deleted,
+                // as PdmPointer entries in the child array field are nulled one by one during deletion.
+                if ( ensemble == nullptr ) continue;
+
                 for ( RimEclipseCase* acase : ensemble->cases() )
                 {
                     cases.push_back( acase );
