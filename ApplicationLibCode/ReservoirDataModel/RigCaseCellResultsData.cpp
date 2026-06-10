@@ -823,18 +823,27 @@ RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
         auto prefs = RiaPreferencesGrid::current();
         if ( prefs->loadAndShowSoil() && m_ownerCaseData )
         {
+            // Use the saturation result matching the available phases, but only if the result exists or can be
+            // computed, i.e. a result entry is present. See issue #10122.
             const auto phases = m_ownerCaseData->availablePhases();
-            if ( phases.contains( RiaDefines::PhaseType::OIL_PHASE ) )
+
+            const RigEclipseResultAddress soilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
+            if ( phases.contains( RiaDefines::PhaseType::OIL_PHASE ) && hasResultEntry( soilAddress ) )
             {
-                return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
+                return soilAddress;
             }
 
-            if ( phases.contains( RiaDefines::PhaseType::GAS_PHASE ) )
+            const RigEclipseResultAddress sgasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
+            if ( phases.contains( RiaDefines::PhaseType::GAS_PHASE ) && hasResultEntry( sgasAddress ) )
             {
-                return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
+                return sgasAddress;
             }
 
-            return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() );
+            const RigEclipseResultAddress swatAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() );
+            if ( hasResultEntry( swatAddress ) )
+            {
+                return swatAddress;
+            }
         }
 
         auto dynamicResult = std::find_if( allResults.begin(),
@@ -861,7 +870,8 @@ RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
 
     if ( staticResult != allResults.end() ) return *staticResult;
 
-    return {};
+    // No results available, use "None"
+    return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::undefinedResultName() );
 }
 
 //--------------------------------------------------------------------------------------------------
