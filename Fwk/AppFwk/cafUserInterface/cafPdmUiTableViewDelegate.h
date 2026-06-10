@@ -59,6 +59,8 @@ public:
 
     bool isEditorOpen() const;
 
+    void setOpenComboBoxPopupOnEdit( bool enable );
+
 protected slots:
     void slotEditorDestroyed( QObject* obj );
 
@@ -70,6 +72,9 @@ private:
 
     // Counter for active table cell editors
     mutable int m_activeEditorCount;
+
+    // Open combo box popups as soon as the cell editor is created
+    bool m_openComboBoxPopupOnEdit;
 };
 
 } // end namespace caf

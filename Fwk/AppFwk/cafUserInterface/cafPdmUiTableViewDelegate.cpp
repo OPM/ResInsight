@@ -39,6 +39,8 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiTableViewQModel.h"
 
+#include <QComboBox>
+
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
@@ -48,7 +50,8 @@ PdmUiTableViewDelegate::PdmUiTableViewDelegate( QObject* parent, PdmUiTableViewQ
     : QStyledItemDelegate( parent )
     , m_model( model )
 {
-    m_activeEditorCount = 0;
+    m_activeEditorCount       = 0;
+    m_openComboBoxPopupOnEdit = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,6 +87,15 @@ void PdmUiTableViewDelegate::setEditorData( QWidget* editor, const QModelIndex& 
     {
         fieldHandle->updateUi();
     }
+
+    if ( m_openComboBoxPopupOnEdit )
+    {
+        if ( auto* comboBox = qobject_cast<QComboBox*>( editor ) )
+        {
+            // Defer until the editor is shown and its geometry is set, otherwise the popup may be misplaced.
+            QMetaObject::invokeMethod( comboBox, "showPopup", Qt::QueuedConnection );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,6 +122,14 @@ void PdmUiTableViewDelegate::slotEditorDestroyed( QObject* obj )
 bool PdmUiTableViewDelegate::isEditorOpen() const
 {
     return m_activeEditorCount > 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTableViewDelegate::setOpenComboBoxPopupOnEdit( bool enable )
+{
+    m_openComboBoxPopupOnEdit = enable;
 }
 
 //--------------------------------------------------------------------------------------------------

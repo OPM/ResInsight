@@ -233,6 +233,11 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
                 editorAttrib.enableDropTarget = val.value();
             }
 
+            if ( auto val = uiItem->attribute<bool>( Keys::EDIT_ON_SINGLE_CLICK, uiConfigName ) )
+            {
+                editorAttrib.editOnSingleClick = val.value();
+            }
+
             if ( auto val = uiItem->attribute<QVariantList>( Keys::COLUMN_WIDTHS, uiConfigName ) )
             {
                 editorAttrib.columnWidths.clear();
@@ -282,6 +287,14 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_tableView->setAcceptDrops( editorAttrib.enableDropTarget );
         m_tableView->setDropIndicatorShown( editorAttrib.enableDropTarget );
         m_tableModelPdm->enableDropTarget( editorAttrib.enableDropTarget );
+
+        // Start editing on a single click and open combo box popups immediately, so the user does not have to
+        // click several times in a cell before being able to change the value.
+        if ( editorAttrib.editOnSingleClick )
+        {
+            m_tableView->setEditTriggers( QAbstractItemView::AllEditTriggers );
+        }
+        m_delegate->setOpenComboBoxPopupOnEdit( editorAttrib.editOnSingleClick );
     }
 
     m_tableModelPdm->setArrayFieldAndBuildEditors( childArrayFH, uiConfigName );
