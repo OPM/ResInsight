@@ -33,6 +33,27 @@
 
 CAF_PDM_SOURCE_INIT( RimCorrelationPlotCollection, "CorrelationPlotCollection" );
 
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void applyBestCorrelatedParameterToCrossPlot( RimParameterResultCrossPlot*                  crossPlot,
+                                              RimSummaryEnsemble*                           ensemble,
+                                              const std::vector<RiaSummaryCurveDefinition>& curveDefsTornadoAndCrossPlot,
+                                              std::time_t                                   timeStep )
+{
+    if ( curveDefsTornadoAndCrossPlot.empty() ) return;
+
+    auto correlationSortedEnsembleParameters =
+        ensemble->correlationSortedEnsembleParameters( curveDefsTornadoAndCrossPlot.front().summaryAddressY(), timeStep );
+    if ( correlationSortedEnsembleParameters.empty() ) return;
+
+    QString crossPlotEnsembleParameterName = correlationSortedEnsembleParameters.front().first.name;
+    crossPlot->setEnsembleParameter( crossPlotEnsembleParameterName );
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -417,24 +438,6 @@ void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToReport( RimCor
 
         applyBestCorrelatedParameterToCrossPlot( plot->crossPlot(), ensemble, curveDefsTornadoAndCrossPlot, timeStep );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCorrelationPlotCollection::applyBestCorrelatedParameterToCrossPlot( RimParameterResultCrossPlot* crossPlot,
-                                                                            RimSummaryEnsemble*          ensemble,
-                                                                            const std::vector<RiaSummaryCurveDefinition>& curveDefsTornadoAndCrossPlot,
-                                                                            std::time_t timeStep )
-{
-    if ( curveDefsTornadoAndCrossPlot.empty() ) return;
-
-    auto correlationSortedEnsembleParameters =
-        ensemble->correlationSortedEnsembleParameters( curveDefsTornadoAndCrossPlot.front().summaryAddressY(), timeStep );
-    if ( correlationSortedEnsembleParameters.empty() ) return;
-
-    QString crossPlotEnsembleParameterName = correlationSortedEnsembleParameters.front().first.name;
-    crossPlot->setEnsembleParameter( crossPlotEnsembleParameterName );
 }
 
 //--------------------------------------------------------------------------------------------------
