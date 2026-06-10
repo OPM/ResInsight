@@ -119,10 +119,11 @@ RimColorLegend* RimColorLegendCollection::createColorLegend( const QString& colo
 //--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::deleteColorLegend( const RimCase* rimCase, const QString& resultName )
 {
+    auto legend = findDefaultLegendForResult( rimCase, resultName );
+
     m_defaultColorLegendNameForResult.erase( createLookupKey( rimCase, resultName ) );
 
-    auto legend = findDefaultLegendForResult( rimCase, resultName );
-    if ( !legend ) return;
+    if ( !legend || isStandardColorLegend( legend ) ) return;
 
     m_customColorLegends.removeChild( legend );
     delete legend;

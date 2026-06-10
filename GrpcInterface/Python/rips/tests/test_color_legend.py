@@ -101,3 +101,32 @@ def test_discrete_property_category_round_trip(rips_instance, initialize_test):
     case.set_discrete_property_category_names(property_name="FACIES", value_names={})
     assert case.discrete_property_category_names("FACIES") == {}
     assert case.discrete_property_category_colors("FACIES") == {}
+
+
+def test_discrete_property_category_no_duplicate_legend(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+    assert case is not None
+
+    collection = rips_instance.project.color_legend_collection()
+
+    def legend_count():
+        return len(collection.descendants(rips.ColorLegend))
+
+    case.set_discrete_property_category_names(
+        property_name="FACIES", value_names={0: "Sand", 1: "Shale"}
+    )
+    after_first = legend_count()
+
+    # Calling again for the same property must replace, not accumulate.
+    case.set_discrete_property_category_names(
+        property_name="FACIES", value_names={0: "Sand", 1: "Shale", 2: "Coal"}
+    )
+    assert legend_count() == after_first
+
+    # The mapping still reflects the latest call.
+    assert case.discrete_property_category_names("FACIES") == {
+        0: "Sand",
+        1: "Shale",
+        2: "Coal",
+    }
