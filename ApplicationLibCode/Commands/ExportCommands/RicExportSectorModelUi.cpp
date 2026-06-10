@@ -399,6 +399,7 @@ void RicExportSectorModelUi::defineEditorAttribute( const caf::PdmFieldHandle* f
         {
             tvAttr->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
             tvAttr->alwaysEnforceResizePolicy = true;
+            tvAttr->editOnSingleClick         = true;
         }
     }
     else if ( ( field == &m_exportFolder ) || ( field == &m_simulationJobFolder ) )

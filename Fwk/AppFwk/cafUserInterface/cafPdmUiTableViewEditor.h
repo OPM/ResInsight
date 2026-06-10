@@ -107,6 +107,7 @@ public:
         , alwaysEnforceResizePolicy( false )
         , resizePolicy( NO_AUTOMATIC_RESIZE )
         , enableDropTarget( false )
+        , editOnSingleClick( false )
     {
     }
 
@@ -120,6 +121,7 @@ public:
     bool             alwaysEnforceResizePolicy;
     ResizePolicy     resizePolicy;
     bool             enableDropTarget;
+    bool             editOnSingleClick; ///< Start editing on a single click and open combo box popups immediately
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -148,6 +150,7 @@ public:
         static inline const QString COLUMN_WIDTHS                = QStringLiteral( "columnWidths" );
         static inline const QString BASE_COLOR                   = QStringLiteral( "baseColor" );
         static inline const QString ENABLE_DROP_TARGET           = QStringLiteral( "enableDropTarget" );
+        static inline const QString EDIT_ON_SINGLE_CLICK         = QStringLiteral( "editOnSingleClick" );
     };
 
     // Set of all supported attributes for validation
@@ -160,7 +163,8 @@ public:
                                                                    Keys::RESIZE_POLICY,
                                                                    Keys::COLUMN_WIDTHS,
                                                                    Keys::BASE_COLOR,
-                                                                   Keys::ENABLE_DROP_TARGET };
+                                                                   Keys::ENABLE_DROP_TARGET,
+                                                                   Keys::EDIT_ON_SINGLE_CLICK };
 
     void enableHeaderText( bool enable );
     void setTableSelectionLevel( int selectionLevel );
