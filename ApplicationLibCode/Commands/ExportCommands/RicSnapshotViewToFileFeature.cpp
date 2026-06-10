@@ -113,9 +113,16 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
         else
         {
             QRect pageRect = pdfPrinter.pageLayout().paintRectPixels( resolution );
-            viewWidget->resize( pageRect.size() );
+            viewWidget->setFixedSize( pageRect.size() );
             plot->renderWindowContent( &pdfPrinter );
+            viewWidget->setMinimumSize( 0, 0 );
+            viewWidget->setMaximumSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
             viewWidget->resize( widgetRect.size() );
+        }
+
+        if ( multiPlot )
+        {
+            multiPlot->updateLayout();
         }
     }
     else
