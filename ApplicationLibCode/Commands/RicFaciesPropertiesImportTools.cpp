@@ -87,17 +87,40 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
 //--------------------------------------------------------------------------------------------------
 RimColorLegend* RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRockColors( const std::map<int, QString>& codeNames )
 {
-    const caf::ColorTable&    colorTable            = RiaColorTables::contrastCategoryPaletteColors();
     RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
-    RimColorLegend*           rockTypeColorLegend   = colorLegendCollection->findByName( RiaDefines::rockTypeColorLegendName() );
+
+    const auto colors = matchDefaultRockColors( codeNames );
 
     auto colorLegend = new RimColorLegend;
     colorLegend->setColorLegendName( RiaDefines::faciesColorLegendName() );
 
+    size_t colorIndex = 0;
     for ( const auto& it : codeNames )
     {
         auto colorLegendItem = new RimColorLegendItem;
+        colorLegendItem->setValues( it.second, it.first, colors[colorIndex++] );
+        colorLegend->appendColorLegendItem( colorLegendItem );
+    }
 
+    colorLegendCollection->appendCustomColorLegend( colorLegend );
+    colorLegendCollection->updateConnectedEditors();
+
+    return colorLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find a color for each category name by fuzzy matching against the rock type color legend.
+/// Returns one color per entry in codeNames, ordered by ascending value.
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Color3f> RicFaciesPropertiesImportTools::matchDefaultRockColors( const std::map<int, QString>& codeNames )
+{
+    const caf::ColorTable&    colorTable            = RiaColorTables::contrastCategoryPaletteColors();
+    RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
+    RimColorLegend*           rockTypeColorLegend   = colorLegendCollection->findByName( RiaDefines::rockTypeColorLegendName() );
+
+    std::vector<cvf::Color3f> colors;
+    for ( const auto& it : codeNames )
+    {
         // Try to find a color from the rock type color legend by fuzzy matching names
         cvf::Color3f color;
         if ( rockTypeColorLegend && !predefinedColorMatch( it.second, rockTypeColorLegend, color ) &&
@@ -107,14 +130,10 @@ RimColorLegend* RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRoc
             color = colorTable.cycledColor3f( it.first );
         }
 
-        colorLegendItem->setValues( it.second, it.first, color );
-        colorLegend->appendColorLegendItem( colorLegendItem );
+        colors.push_back( color );
     }
 
-    colorLegendCollection->appendCustomColorLegend( colorLegend );
-    colorLegendCollection->updateConnectedEditors();
-
-    return colorLegend;
+    return colors;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -19,6 +19,7 @@
 #include "RifRoffFileTools.h"
 
 #include "RiaApplication.h"
+#include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 #include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
@@ -579,20 +580,17 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 
                     auto rimCase = eclipseCaseData->ownerCase();
 
-                    // Delete existing color legend, as new legend will be populated by values from file
-                    colorLegendCollection->deleteColorLegend( rimCase, newResultName );
-
-                    RimColorLegend* colorLegend = nullptr;
+                    // Update existing color legend in place, or create one, with values from file
                     if ( keywordUpperCase == RiaResultNames::facies() )
                     {
-                        colorLegend = RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRockColors( codeNames );
+                        const auto colors = RicFaciesPropertiesImportTools::matchDefaultRockColors( codeNames );
+                        colorLegendCollection->updateColorLegend( rimCase, newResultName, RiaDefines::faciesColorLegendName(), codeNames, colors );
                     }
                     else
                     {
-                        colorLegend = colorLegendCollection->createColorLegend( newResultName, codeNames );
+                        colorLegendCollection->updateColorLegend( rimCase, newResultName, newResultName, codeNames );
                     }
 
-                    colorLegendCollection->setDefaultColorLegendForResult( rimCase, newResultName, colorLegend );
                     colorLegendCollection->updateAllRequiredEditors();
                 }
 
@@ -831,9 +829,7 @@ bool RifRoffFileTools::appendZoneIndexPropertyFromSubgrids( RigEclipseCaseData* 
 
             auto rimCase = caseData->ownerCase();
 
-            colorLegendCollection->deleteColorLegend( rimCase, resultName );
-            RimColorLegend* colorLegend = colorLegendCollection->createColorLegend( resultName, codeNames );
-            colorLegendCollection->setDefaultColorLegendForResult( rimCase, resultName, colorLegend );
+            colorLegendCollection->updateColorLegend( rimCase, resultName, resultName, codeNames );
             colorLegendCollection->updateAllRequiredEditors();
         }
     }
