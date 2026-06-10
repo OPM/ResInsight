@@ -97,7 +97,10 @@ void RicNewFaultDistanceResultFeature::onActionTriggered( bool isChecked )
     }
     else if ( eclipseView->faultCollection() )
     {
-        newResult->setSelectedFaults( eclipseView->faultCollection()->faults() );
+        // Default to all faults, but leave the ResInsight-generated faults unticked.
+        std::vector<RimFaultInView*> defaultFaults = eclipseView->faultCollection()->faults();
+        std::erase_if( defaultFaults, []( RimFaultInView* fault ) { return fault && fault->isGeneratedFault(); } );
+        newResult->setSelectedFaults( defaultFaults );
     }
 
     eclipseView->updateConnectedEditors();

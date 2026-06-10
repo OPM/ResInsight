@@ -19,6 +19,8 @@
 
 #include "RimFaultInView.h"
 
+#include "RiaResultNames.h"
+
 #include "RigFault.h"
 
 #include "RimEclipseView.h"
@@ -119,6 +121,15 @@ void RimFaultInView::setFaultGeometry( const RigFault* faultGeometry )
 const RigFault* RimFaultInView::faultGeometry() const
 {
     return m_rigFault;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// True for the faults synthesized by ResInsight (undefined grid faults), as opposed to faults
+/// imported from the Eclipse model.
+//--------------------------------------------------------------------------------------------------
+bool RimFaultInView::isGeneratedFault() const
+{
+    return name() == RiaResultNames::undefinedGridFaultName() || name() == RiaResultNames::undefinedGridFaultWithInactiveName();
 }
 
 //--------------------------------------------------------------------------------------------------
