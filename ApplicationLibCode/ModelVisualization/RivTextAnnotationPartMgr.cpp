@@ -194,7 +194,7 @@ void RivTextAnnotationPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasi
 //--------------------------------------------------------------------------------------------------
 bool RivTextAnnotationPartMgr::validateAnnotation( const RimTextAnnotation* annotation ) const
 {
-    return rimAnnotation()->anchorPoint() != cvf::Vec3d::ZERO && !rimAnnotation()->text().isEmpty();
+    return !rimAnnotation()->anchorPoint().isUndefined() && !rimAnnotation()->text().isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------

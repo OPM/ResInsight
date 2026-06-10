@@ -161,7 +161,7 @@ void RivReachCircleAnnotationPartMgr::appendDynamicGeometryPartsToModel( cvf::Mo
 bool RivReachCircleAnnotationPartMgr::validateAnnotation( const RimReachCircleAnnotation* annotation ) const
 {
     auto a = m_rimAnnotationInView->sourceAnnotation();
-    return a->centerPoint() != cvf::Vec3d::ZERO && a->radius() > 0.0;
+    return !a->centerPoint().isUndefined() && a->radius() > 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------

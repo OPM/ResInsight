@@ -49,12 +49,12 @@ RimTextAnnotation::RimTextAnnotation()
     CAF_PDM_InitScriptableObject( "TextAnnotation", ":/TextAnnotation16x16.png" );
     setUi3dEditorTypeName( RicTextAnnotation3dEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point" );
+    CAF_PDM_InitField( &m_anchorPointXyd, "AnchorPointXyd", Vec3d::UNDEFINED, "Anchor Point" );
     m_anchorPointXyd.uiCapability()->setUiEditorTypeName( caf::PdmUiPickableLineEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_anchorPointPickEnabledButtonField, "AnchorPointPick", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_anchorPointPickEnabledButtonField );
 
-    CAF_PDM_InitField( &m_labelPointXyd, "LabelPointXyd", Vec3d::ZERO, "Label Point" );
+    CAF_PDM_InitField( &m_labelPointXyd, "LabelPointXyd", Vec3d::UNDEFINED, "Label Point" );
     m_labelPointXyd.uiCapability()->setUiEditorTypeName( caf::PdmUiPickableLineEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_labelPointPickEnabledButtonField, "LabelPointPick", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_labelPointPickEnabledButtonField );
@@ -166,7 +166,7 @@ void RimTextAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     if ( changedField == &m_anchorPointXyd )
     {
         m_anchorPointPickEnabledButtonField = false;
-        if ( m_labelPointXyd().isZero() )
+        if ( m_labelPointXyd().isUndefined() )
         {
             m_labelPointXyd = m_anchorPointXyd;
         }

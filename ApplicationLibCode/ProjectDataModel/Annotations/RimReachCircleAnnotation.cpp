@@ -46,7 +46,7 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
     nameField()->registerKeywordAlias( "Name" );
     setName( "Circle Annotation" );
 
-    CAF_PDM_InitField( &m_centerPointXyd, "CenterPointXyd", Vec3d::ZERO, "Center Point" );
+    CAF_PDM_InitField( &m_centerPointXyd, "CenterPointXyd", Vec3d::UNDEFINED, "Center Point" );
     m_centerPointXyd.uiCapability()->setUiEditorTypeName( caf::PdmUiPickableLineEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_centerPointPickEnabled, "AnchorPointPick", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_centerPointPickEnabled );
@@ -162,7 +162,7 @@ void RimReachCircleAnnotation::defineEditorAttribute( const caf::PdmFieldHandle*
         {
             attr->pickEventHandler = m_centerPointEventHandler;
             attr->enablePicking    = m_centerPointPickEnabled;
-            if ( m_centerPointXyd().isZero() )
+            if ( m_centerPointXyd().isUndefined() )
             {
                 attr->enablePicking = true;
             }

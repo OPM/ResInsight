@@ -74,7 +74,8 @@ void RicTextAnnotation3dEditor::configureAndUpdateUi( const QString& uiConfigNam
     RiuViewer*         ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
     Rim3dView*         view           = mainOrComparisonView();
 
-    if ( !textAnnot || !textAnnot->isActive() || !view )
+    if ( !textAnnot || !textAnnot->isActive() || !view || textAnnot->m_anchorPointXyd().isUndefined() ||
+         textAnnot->m_labelPointXyd().isUndefined() )
     {
         if ( m_cvfModel.notNull() ) m_cvfModel->removeAllParts();
 
