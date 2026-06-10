@@ -45,6 +45,9 @@
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTableRowEditor.h"
 
+#include <QCoreApplication>
+#include <QEvent>
+
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
@@ -541,6 +544,15 @@ QWidget* PdmUiTableViewQModel::getEditorWidgetAndTransferOwnership( QWidget* par
         // using QPointer
         editor->createWidgets( parent );
         QWidget* editorWidget = editor->editorWidget();
+        if ( !editorWidget ) return nullptr;
+
+        // The editor handle is shared by every row in a column. When the edit on one cell ends, the view
+        // schedules its editor widget for deletion via deleteLater(). Moving to another cell in the same
+        // column reuses that very widget before the deferred deletion has run, so without this the widget
+        // is destroyed moments after the new editor opens - silently cancelling the edit and forcing the
+        // user to click a second time. Cancel the pending deletion so the reused widget stays alive.
+        QCoreApplication::removePostedEvents( editorWidget, QEvent::DeferredDelete );
+
         editorWidget->setParent( parent );
 
         return editorWidget;
