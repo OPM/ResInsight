@@ -58,7 +58,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseView_addFaultDistance::
     if ( !m_resultName().isEmpty() ) newResult->setResultName( m_resultName() );
 
     std::vector<RimFaultInView*> selected = m_faults.ptrReferencedObjectsByType();
-    if ( selected.empty() && eclipseView->faultCollection() ) selected = eclipseView->faultCollection()->faults();
+    if ( selected.empty() && eclipseView->faultCollection() )
+    {
+        // Default to all faults, but leave the ResInsight-generated faults unticked.
+        selected = eclipseView->faultCollection()->faults();
+        std::erase_if( selected, []( RimFaultInView* fault ) { return fault && fault->isGeneratedFault(); } );
+    }
 
     newResult->setSelectedFaults( selected );
 

@@ -48,6 +48,8 @@ public:
     void            setFaultGeometry( const RigFault* faultGeometry );
     const RigFault* faultGeometry() const;
 
+    bool isGeneratedFault() const;
+
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
 
