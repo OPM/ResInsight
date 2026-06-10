@@ -235,7 +235,24 @@ void RimFaultDistance::removeGeneratedResult( const QString& name )
     RigCaseCellResultsData* resultsData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( !resultsData ) return;
 
-    resultsData->clearScalarResult( RiaDefines::ResultCatType::GENERATED, name );
+    RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, name );
+
+    // Select "None" result in any view currently displaying the result being removed.
+    for ( RimEclipseView* view : eclipseCase->reservoirViews() )
+    {
+        if ( !view ) continue;
+
+        RimEclipseCellColors* cellResult = view->cellResult();
+        if ( cellResult && cellResult->resultType() == RiaDefines::ResultCatType::GENERATED && cellResult->resultVariable() == name )
+        {
+            cellResult->setResultVariable( "None" );
+            cellResult->updateConnectedEditors();
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+
+    resultsData->clearScalarResult( resultAddress );
+    resultsData->setRemovedTagOnGeneratedResult( resultAddress );
 }
 
 //--------------------------------------------------------------------------------------------------
