@@ -91,11 +91,6 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     CVF_ASSERT( mainWnd );
 
-    //    QByteArray curState = mainWnd->dockManager()->saveState( 0 );
-    //    mainWnd->dockManager()->restoreState( RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
-
-    //    QApplication::processEvents();
-
     QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::SNAPSHOTS );
 
     if ( !m_exportFolder().isEmpty() )
@@ -146,10 +141,6 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
                                                                            m_viewId(),
                                                                            fileSuffix );
     }
-
-    QApplication::processEvents();
-
-    //    mainWnd->dockManager()->restoreState( curState );
 
     return caf::PdmScriptResponse();
 }
