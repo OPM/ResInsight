@@ -27,6 +27,7 @@
 #include <ctime>
 #include <vector>
 
+class RiaSummaryCurveDefinition;
 class RimCorrelationPlot;
 class RimCorrelationMatrixPlot;
 class RimCorrelationReportPlot;
@@ -94,6 +95,11 @@ private:
                                                 const std::vector<QString>& matrixQuantityNames,
                                                 const QString&              tornadoAndCrossPlotQuantityName,
                                                 std::time_t                 timeStep );
+
+    static void applyBestCorrelatedParameterToCrossPlot( RimParameterResultCrossPlot*                  crossPlot,
+                                                         RimSummaryEnsemble*                           ensemble,
+                                                         const std::vector<RiaSummaryCurveDefinition>& curveDefsTornadoAndCrossPlot,
+                                                         std::time_t                                   timeStep );
 
 private:
     caf::PdmChildArrayField<RimAbstractCorrelationPlot*>  m_correlationPlots;
