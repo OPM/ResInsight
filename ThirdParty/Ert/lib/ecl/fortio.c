@@ -550,6 +550,11 @@ static int fortio_fread_record(fortio_type *fortio , char *buffer , int max_reco
 */
 
 bool fortio_fread_buffer(fortio_type * fortio, char * buffer , int buffer_size) {
+  if (buffer == NULL && buffer_size != 0)
+    return false;
+  if (buffer_size < 0)
+    return false;
+
   int total_bytes_read = 0;
 
   while (true) {
