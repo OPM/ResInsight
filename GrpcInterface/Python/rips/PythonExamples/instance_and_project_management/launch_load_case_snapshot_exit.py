@@ -36,7 +36,7 @@ resinsight.set_export_folder(export_type="SNAPSHOTS", path="e:/temp")
 resinsight.set_export_folder(export_type="PROPERTIES", path="e:/temp")
 
 # Export all snapshots
-resinsight.project.export_snapshots()
+resinsight.project.export_snapshots(width=800, height=600)
 
 # Export properties in the view
 view1.export_property()

@@ -248,7 +248,7 @@ def test_exportSnapshots(rips_instance, initialize_test):
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
         print("Temporary folder: ", tmpdirname)
         rips_instance.set_export_folder(export_type="SNAPSHOTS", path=tmpdirname)
-        rips_instance.project.export_snapshots()
+        rips_instance.project.export_snapshots(width=640, height=480)
         print(os.listdir(tmpdirname))
         #        assert(len(os.listdir(tmpdirname)) > 0)
         for fileName in os.listdir(tmpdirname):
