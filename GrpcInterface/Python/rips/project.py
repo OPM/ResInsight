@@ -283,7 +283,9 @@ def export_multi_case_snapshots(self, grid_list_file):
 
 
 @add_method(Project)
-def export_snapshots(self, snapshot_type="ALL", prefix="", plot_format="PNG", width=-1, height=-1):
+def export_snapshots(
+    self, snapshot_type="ALL", prefix="", plot_format="PNG", width=-1, height=-1
+):
     """Export all snapshots of a given type
 
     Arguments:
@@ -299,7 +301,7 @@ def export_snapshots(self, snapshot_type="ALL", prefix="", plot_format="PNG", wi
             viewId=-1,
             plotOutputFormat=plot_format,
             width=width,
-            height=height
+            height=height,
         )
     )
 
