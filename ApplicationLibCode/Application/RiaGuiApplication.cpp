@@ -1802,6 +1802,9 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
         return QApplication::notify( receiver, event );
     }
 
+    // Prevent re-entrant event pumping from progress updates while dispatching events.
+    caf::ProgressInfoEventProcessingBlocker progressEventBlocker;
+
     bool done = false;
     try
     {
