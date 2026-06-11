@@ -32,6 +32,7 @@
 #include "ContourMap/RimStatisticsContourMap.h"
 #include "ContourMap/RimStatisticsContourMapView.h"
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
+#include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "Formations/RimFormationNames.h"
 #include "Formations/RimFormationNamesCollection.h"
 #include "RimCaseCollection.h"
@@ -630,6 +631,11 @@ RimFormationNames* RimReservoirGridEnsemble::activeFormationNames() const
 QList<caf::PdmOptionItemInfo> RimReservoirGridEnsemble::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_ensembleFileSet )
+    {
+        return RimEnsembleFileSetTools::ensembleFileSetOptions();
+    }
 
     if ( fieldNeedingOptions == &m_activeFormationNames )
     {
