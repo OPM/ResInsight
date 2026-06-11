@@ -63,6 +63,7 @@ void RicGeoMechPropertyFilterFeatureImpl::addPropertyFilter( RimGeoMechPropertyF
 
     propertyFilterCollection->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
+    Riu3DMainWindowTools::setExpanded( propertyFilter, true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,6 +80,7 @@ void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter( RimGeoMechProper
 
     propertyFilterCollection->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
+    Riu3DMainWindowTools::setExpanded( propertyFilter, true );
 }
 
 //--------------------------------------------------------------------------------------------------
