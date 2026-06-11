@@ -635,9 +635,14 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
 
-            menuBuilder << "RicCreateGridStatisticsPlotFeature";
-            menuBuilder << "RicShowGridStatisticsFeature";
-            menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
+            // Grid statistics commands operate on the result shown in the overlay info box, so only
+            // offer them when the context menu is invoked inside that box, not on the view geometry.
+            if ( m_viewer->isMousePosWithinInfoBox( event->x(), event->y() ) )
+            {
+                menuBuilder << "RicCreateGridStatisticsPlotFeature";
+                menuBuilder << "RicShowGridStatisticsFeature";
+                menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
+            }
             menuBuilder << "RicSelectColorResult";
             menuBuilder.addSeparator();
             menuBuilder << "RicHideGridGeometryFeature";

@@ -1283,6 +1283,18 @@ cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend( int winPosX, int winPosY
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns true if the given window position is inside the overlay info box (the result info and
+/// grid statistics histogram drawn in the upper left corner of the view).
+//--------------------------------------------------------------------------------------------------
+bool RiuViewer::isMousePosWithinInfoBox( int winPosX, int winPosY ) const
+{
+    if ( !m_infoPickArea.isNull() && m_infoPickArea.contains( winPosX, winPosY ) ) return true;
+    if ( !m_infoPickAreaCompView.isNull() && m_infoPickAreaCompView.contains( winPosX, winPosY ) ) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setCursorPosition( const cvf::Vec3d& domainCoord )
