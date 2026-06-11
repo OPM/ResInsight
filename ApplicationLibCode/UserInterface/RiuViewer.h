@@ -127,6 +127,8 @@ public:
 
     cvf::OverlayItem* pickFixedPositionedLegend( int winPosX, int winPosY );
 
+    bool isMousePosWithinInfoBox( int winPosX, int winPosY ) const;
+
     void setCursorPosition( const cvf::Vec3d& domainCoord );
 
     std::vector<cvf::ref<cvf::Part>> visibleParts();
