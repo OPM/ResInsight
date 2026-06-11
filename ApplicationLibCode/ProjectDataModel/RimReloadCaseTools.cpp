@@ -189,6 +189,8 @@ RimEclipseCase* RimReloadCaseTools::gridModelFromSummaryCase( const RimSummaryCa
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimReloadCaseTools::findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclipseResultCase )
 {
+    if ( !eclipseResultCase ) return nullptr;
+
     RimSummaryCaseMainCollection* sumCaseColl = RiaSummaryTools::summaryCaseMainCollection();
     if ( !sumCaseColl ) return nullptr;
 
