@@ -500,8 +500,6 @@ void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
     m_annotationCountHint.uiCapability()->setUiReadOnly(
         !m_useCustomAnnotationStrategy || ( m_annotationStrategy() != RivAnnotationTools::LabelPositionStrategy::COUNT_HINT ) );
 
-    uiOrdering.add( &m_dockWindowId );
-
     uiOrdering.skipRemainingFields( true );
 }
 

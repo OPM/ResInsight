@@ -330,14 +330,6 @@ QString RiuDockWidgetTools::dockStateHideAll3DWindowName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::viewWindowPrefix()
-{
-    return "DockViewWindow_";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 ads::CDockWidget* RiuDockWidgetTools::findDockWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName )
 {
     return dockManager->findDockWidget( dockWidgetName );

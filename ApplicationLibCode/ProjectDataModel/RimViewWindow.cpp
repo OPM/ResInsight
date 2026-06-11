@@ -69,7 +69,7 @@ RimViewWindow::RimViewWindow()
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::~RimViewWindow()
 {
-    if ( m_windowController ) delete m_windowController;
+    if ( m_windowController() ) delete m_windowController();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,13 +234,13 @@ QImage RimViewWindow::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 QImage RimViewWindow::captureSnapshot( int width, int height )
 {
-    return captureSnapshot( viewWidget(), width, height );
+    return internalCaptureSnapshot( viewWidget(), width, height );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimViewWindow::captureSnapshot( QWidget* widget, int width, int height )
+QImage RimViewWindow::internalCaptureSnapshot( QWidget* widget, int width, int height )
 {
     if ( !widget ) return QImage();
 
@@ -400,7 +400,7 @@ void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ads::CDockWidget* RimViewWindow::dockWidget()
+ads::CDockWidget* RimViewWindow::dockWidget() const
 {
     return m_dockWidget;
 }

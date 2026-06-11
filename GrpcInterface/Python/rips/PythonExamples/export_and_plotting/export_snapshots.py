@@ -9,9 +9,6 @@ import rips
 resinsight = rips.Instance.find()
 cases = resinsight.project.cases()
 
-# Set main window size
-# resinsight.set_main_window_size(width=1280, height=900)
-
 n = 5  # every n-th time_step for snapshot
 property_list = ["SOIL", "PRESSURE"]  # list of parameter for snapshot
 

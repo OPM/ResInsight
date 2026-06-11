@@ -196,8 +196,7 @@ void RimPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 {
     if ( plotWidget() )
     {
-        auto rect = plotWidget()->frameGeometry();
-        plotWidget()->renderTo( paintDevice, rect );
+        plotWidget()->renderTo( paintDevice, plotWidget()->frameGeometry() );
     }
 }
 
