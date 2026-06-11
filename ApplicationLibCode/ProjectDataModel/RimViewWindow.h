@@ -65,7 +65,7 @@ public:
 
     virtual QWidget* viewWidget() = 0;
 
-    ads::CDockWidget* dockWidget();
+    ads::CDockWidget* dockWidget() const;
     ads::CDockWidget* createDockWidget();
 
     virtual QImage captureSnapshot( int width, int height );
@@ -103,7 +103,7 @@ protected:
 
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    QImage captureSnapshot( QWidget* widget, int width, int height );
+    static QImage internalCaptureSnapshot( QWidget* widget, int width, int height );
 
 private:
     friend class RimProject;

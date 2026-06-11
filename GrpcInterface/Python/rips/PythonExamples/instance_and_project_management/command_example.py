@@ -1,5 +1,5 @@
 ###############################################################################
-# This example will show setting time step, window size and export snapshots and properties
+# This example will show setting time step and export snapshots and properties
 ###############################################################################
 import os
 import tempfile
@@ -7,11 +7,6 @@ import rips
 
 # Load instance
 resinsight = rips.Instance.find()
-
-# Set window sizes
-resinsight.set_main_window_size(width=800, height=500)
-resinsight.set_plot_window_size(width=1000, height=1000)
-
 
 # Retrieve first case
 case = resinsight.project.cases()[0]
@@ -30,7 +25,6 @@ view1.apply_cell_result(
     result_type=rips.PropertyType.DYNAMIC_NATIVE, result_variable="SOIL"
 )
 
-
 # Create a temporary directory which will disappear at the end of this script
 # If you want to keep the files, provide a good path name instead of tmpdirname
 with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
@@ -41,7 +35,7 @@ with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
     resinsight.set_export_folder(export_type="PROPERTIES", path=tmpdirname)
 
     # Export all snapshots
-    resinsight.project.export_snapshots()
+    resinsight.project.export_snapshots(width=1024, height=768)
 
     assert len(os.listdir(tmpdirname)) > 0
 
