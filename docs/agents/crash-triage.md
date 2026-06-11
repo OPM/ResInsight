@@ -3,7 +3,7 @@
 Investigate one crash signature from the `resinsight-system-doc` stacktrace
 registry and drive it to one of two outcomes:
 
-- **A verified fix** → file an OPM issue, push a fix branch to the `magnesj`
+- **A verified fix** → file an OPM issue, push a fix branch to your personal
   fork, open a PR, and record all three on the signature.
 - **No confident fix** → record a note explaining the findings and why a fix is
   uncertain. No issue or PR is filed.
@@ -31,7 +31,7 @@ signatures with **no linked issue** reach this stage.
 - **Never post to GitHub before the human gate.** Prepare everything (issue text,
   patch, PR text) and stop for explicit approval. Only after approval run the
   `gh`/`git push` commands.
-- Branches and PRs go to the **`magnesj`** fork remote, never `origin` (OPM upstream).
+- Branches and PRs go to your **personal fork** remote, never `origin` (OPM upstream).
 - Commit/PR messages start with `#<issue>`; no AI attribution; no `## Test plan` section.
 - One signature per run unless explicitly told to batch.
 
@@ -88,7 +88,7 @@ the user to approve, revise, or downgrade to a note.
 
 Create the issue (body = the raw stack in a code fence, matching #14193), with
 labels `BugInRelease` and `PendingRelease`. Branch on the fork
-(`fix-<issue>-<slug>`), commit `#<issue> <description>`, push to `magnesj`, and
+(`fix-<issue>-<slug>`), commit `#<issue> <description>`, push to your personal fork, and
 open the PR (title `#<issue> <description>`, body `Fixes #<issue>` + Problem/Fix
 sections, matching #14194). Then record the outcome:
 
