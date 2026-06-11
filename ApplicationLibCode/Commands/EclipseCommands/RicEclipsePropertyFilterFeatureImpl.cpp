@@ -82,9 +82,13 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyF
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
-
     propertyFilterCollection->notifyFiltersChanged();
+
+    // The filter is displayed in the tree under the RimFilterInViewCollection facade, which only
+    // rebuilds its tree ordering when notifyFiltersChanged() fires. Select and expand after that, so
+    // the new filter node exists in the tree.
+    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
+    Riu3DMainWindowTools::setExpanded( propertyFilter, true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,11 +112,14 @@ RimEclipsePropertyFilter* RicEclipsePropertyFilterFeatureImpl::addPropertyFilter
     }
 
     combined->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
 
     // setDefaults updates m_name via updateFilterName but doesn't fire a filterChanged signal.
     // Notify here so the combined parent can refresh its auto-derived display name.
     propertyFilter->triggerFilterChanged();
+
+    // Select and expand after the tree has been refreshed, so the new filter node exists in the tree.
+    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
+    Riu3DMainWindowTools::setExpanded( propertyFilter, true );
 
     return propertyFilter;
 }
@@ -132,9 +139,13 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter( RimEclipseProper
     propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
-
     propertyFilterCollection->notifyFiltersChanged();
+
+    // The filter is displayed in the tree under the RimFilterInViewCollection facade, which only
+    // rebuilds its tree ordering when notifyFiltersChanged() fires. Select and expand after that, so
+    // the new filter node exists in the tree.
+    Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
+    Riu3DMainWindowTools::setExpanded( propertyFilter, true );
 }
 
 //--------------------------------------------------------------------------------------------------
