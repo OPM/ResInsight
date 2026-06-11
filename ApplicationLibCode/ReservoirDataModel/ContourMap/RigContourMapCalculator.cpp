@@ -124,7 +124,12 @@ double RigContourMapCalculator::calculateMeanValue( const RigContourMapProjectio
     RiaWeightedMeanCalculator<double> calculator;
     for ( auto [cellIdx, weight] : matchingCells )
     {
-        double cellValue = gridCellValues[contourMapProjection.gridResultIndex( cellIdx )];
+        const auto valueIndex = contourMapProjection.gridResultIndex( cellIdx );
+
+        // Safety check, should not happen
+        if ( valueIndex >= gridCellValues.size() ) continue;
+
+        double cellValue = gridCellValues[valueIndex];
         if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
         {
             calculator.addValueAndWeight( cellValue, weight );
@@ -147,7 +152,12 @@ double RigContourMapCalculator::calculateGeometricMeanValue( const RigContourMap
     RiaWeightedGeometricMeanCalculator calculator;
     for ( auto [cellIdx, weight] : matchingCells )
     {
-        double cellValue = gridCellValues[contourMapProjection.gridResultIndex( cellIdx )];
+        const auto valueIndex = contourMapProjection.gridResultIndex( cellIdx );
+
+        // Safety check, should not happen
+        if ( valueIndex >= gridCellValues.size() ) continue;
+
+        double cellValue = gridCellValues[valueIndex];
         if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
         {
             if ( cellValue < 1.0e-8 )
@@ -174,7 +184,12 @@ double RigContourMapCalculator::calculateHarmonicMeanValue( const RigContourMapP
     RiaWeightedHarmonicMeanCalculator calculator;
     for ( auto [cellIdx, weight] : matchingCells )
     {
-        double cellValue = gridCellValues[contourMapProjection.gridResultIndex( cellIdx )];
+        const auto valueIndex = contourMapProjection.gridResultIndex( cellIdx );
+
+        // Safety check, should not happen
+        if ( valueIndex >= gridCellValues.size() ) continue;
+
+        double cellValue = gridCellValues[valueIndex];
         if ( std::fabs( cellValue ) < 1.0e-8 )
         {
             return 0.0;
@@ -201,7 +216,12 @@ double RigContourMapCalculator::calculateMaxValue( const RigContourMapProjection
     double maxValue = -std::numeric_limits<double>::infinity();
     for ( auto [cellIdx, weight] : matchingCells )
     {
-        double cellValue = gridCellValues[contourMapProjection.gridResultIndex( cellIdx )];
+        const auto valueIndex = contourMapProjection.gridResultIndex( cellIdx );
+
+        // Safety check, should not happen
+        if ( valueIndex >= gridCellValues.size() ) continue;
+
+        double cellValue = gridCellValues[valueIndex];
         if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
         {
             maxValue = std::max( maxValue, cellValue );
@@ -224,7 +244,12 @@ double RigContourMapCalculator::calculateMinValue( const RigContourMapProjection
     double minValue = std::numeric_limits<double>::infinity();
     for ( auto [cellIdx, weight] : matchingCells )
     {
-        double cellValue = gridCellValues[contourMapProjection.gridResultIndex( cellIdx )];
+        const auto valueIndex = contourMapProjection.gridResultIndex( cellIdx );
+
+        // Safety check, should not happen
+        if ( valueIndex >= gridCellValues.size() ) continue;
+
+        double cellValue = gridCellValues[valueIndex];
         minValue         = std::min( minValue, cellValue );
     }
     return minValue;
