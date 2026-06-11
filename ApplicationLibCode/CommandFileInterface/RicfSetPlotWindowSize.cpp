@@ -18,8 +18,7 @@
 
 #include "RicfSetPlotWindowSize.h"
 
-#include "RiaGuiApplication.h"
-#include "RiuPlotMainWindow.h"
+#include "RiaLogging.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -39,11 +38,7 @@ RicfSetPlotWindowSize::RicfSetPlotWindowSize()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfSetPlotWindowSize::execute()
 {
-    RiaGuiApplication* guiApp = RiaGuiApplication::instance();
-    if ( guiApp )
-    {
-        guiApp->getOrCreateAndShowMainPlotWindow()->resize( m_width, m_height );
-        return caf::PdmScriptResponse();
-    }
-    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, "Need GUI ResInsight to set plot window size" );
+    RiaLogging::warning( "Method set_plot_window_size has been obsoleted. Set image sizes directly in the snapshot methods." );
+    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_WARNING,
+                                   "Obsolete command. Set image sizes directly in the snapshot methods." );
 }

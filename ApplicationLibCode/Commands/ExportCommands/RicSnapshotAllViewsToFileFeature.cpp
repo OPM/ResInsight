@@ -70,7 +70,7 @@ void RicSnapshotAllViewsToFileFeature::saveAllViews()
 
 //--------------------------------------------------------------------------------------------------
 /// Export snapshots of a given view (or viewId == -1 for all views) for the given case (or caseId == -1 for all cases)
-/// -1 for width and height means to use the existing view size
+/// <= 0 for width and height means to use the existing view size
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QString& snapshotFolderName,
                                                                         int            width,

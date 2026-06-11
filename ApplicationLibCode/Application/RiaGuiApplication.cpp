@@ -1851,9 +1851,11 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
         {
             if ( activeWindow() != mainWindow() )
             {
-                QWheelEvent*   wheelEvent = static_cast<QWheelEvent*>( event );
-                RimPlotWindow* plot       = dynamic_cast<RimPlotWindow*>( activePlotWindow() );
-                if ( plot ) done = plot->handleGlobalWheelEvent( wheelEvent );
+                QWheelEvent* wheelEvent = static_cast<QWheelEvent*>( event );
+                if ( RimPlotWindow* plot = dynamic_cast<RimPlotWindow*>( activePlotWindow() ) )
+                {
+                    done = plot->handleGlobalWheelEvent( wheelEvent );
+                }
             }
         }
         if ( !done )

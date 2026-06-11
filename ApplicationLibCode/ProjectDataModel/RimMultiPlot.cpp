@@ -35,7 +35,6 @@
 #include "cafPdmUiToolButtonEditor.h"
 
 #include <QPaintDevice>
-#include <QPainter>
 #include <QRegularExpression>
 
 #include <cvfAssert.h>
@@ -651,7 +650,7 @@ QImage RimMultiPlot::captureSnapshot( int width, int height )
 
     QSize orgViewSize = m_viewer->size();
 
-    image = RimViewWindow::captureSnapshot( m_viewer->bookWidget(), width, height );
+    image = RimViewWindow::internalCaptureSnapshot( m_viewer->bookWidget(), width, height );
 
     m_viewer->resize( orgViewSize );
     doUpdateLayout();
