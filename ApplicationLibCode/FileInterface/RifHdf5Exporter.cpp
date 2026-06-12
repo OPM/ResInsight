@@ -110,7 +110,7 @@ H5::Group RifHdf5Exporter::createGroup( H5::Group* parentGroup, const std::strin
         {
         }
     }
-    else
+    else if ( m_hdfFile )
     {
         try
         {
