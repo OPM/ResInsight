@@ -37,4 +37,9 @@ nx = grid.dimensions.ncol
 ny = grid.dimensions.nrow
 nz = grid.dimensions.nlay
 
-project.create_corner_point_grid(name, nx, ny, nz, coord, zcorn, actnum)
+case = project.create_corner_point_grid(name, nx, ny, nz, coord, zcorn, actnum)
+
+# Geometry properties (DEPTH, DX, DY, DZ, TOPS, BOTTOM) are computed automatically
+print("Static properties: ", case.available_properties("STATIC_NATIVE"))
+depth = case.active_cell_property("STATIC_NATIVE", "DEPTH", 0)
+print("DEPTH min/max: ", min(depth), max(depth))

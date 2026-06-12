@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaQStringFormatter.h"
 
 #include "RifInputPropertyLoader.h"
@@ -108,6 +109,7 @@ std::expected<RimCornerPointCase*, QString> RimCornerPointCase::createFromCoordi
 
     buildGrid( *cornerPointCase->eclipseCaseData(), nx, ny, nz, coord, zcorn, actnum );
     cornerPointCase->computeCachedData();
+    computeDepthRelatedResults( *cornerPointCase );
 
     return cornerPointCase;
 }
@@ -142,6 +144,7 @@ std::expected<void, QString> RimCornerPointCase::replaceGridFromCoordinatesArray
 
     buildGrid( *cornerPointCase.eclipseCaseData(), nx, ny, nz, coord, zcorn, actnum );
     cornerPointCase.computeCachedData();
+    computeDepthRelatedResults( cornerPointCase );
 
     return {};
 }
@@ -367,6 +370,19 @@ void RimCornerPointCase::createActnumResult( RigEclipseCaseData& eclipseCaseData
     auto modifiableData = matrixResults->modifiableCellScalarResultTimesteps( resAddr );
     CVF_ASSERT( modifiableData && !modifiableData->empty() );
     std::fill( ( *modifiableData )[0].begin(), ( *modifiableData )[0].end(), 1.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Compute the depth related geometry properties (DEPTH, DX, DY, DZ, TOPS, BOTTOM), matching the
+/// behavior when a grid is imported from file.
+//--------------------------------------------------------------------------------------------------
+void RimCornerPointCase::computeDepthRelatedResults( RimCornerPointCase& cornerPointCase )
+{
+    if ( RiaPreferencesGrid::current()->autoComputeDepthRelatedProperties() )
+    {
+        cornerPointCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
+        cornerPointCase.results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

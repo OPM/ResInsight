@@ -2,8 +2,12 @@ import sys
 import os
 import math
 
+import pytest
+
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import dataroot
+
+GEOMETRY_PROPERTIES = ["DEPTH", "DX", "DY", "DZ", "TOPS", "BOTTOM"]
 
 
 def test_export_corner_point_grid_basic(rips_instance, initialize_test):
@@ -57,6 +61,10 @@ def test_export_corner_point_grid_basic(rips_instance, initialize_test):
     actnum_values = case.active_cell_property("STATIC_NATIVE", "ACTNUM", 0)
     assert len(actnum_values) == active_count
     assert all(v == 1.0 for v in actnum_values)
+
+    # Geometry properties should be computed automatically (issue #14223)
+    for prop in GEOMETRY_PROPERTIES:
+        assert prop in case.available_properties("STATIC_NATIVE")
 
     # Test our export function
     exported_zcorn, exported_coord, exported_actnum, export_nx, export_ny, export_nz = (
@@ -142,6 +150,58 @@ def test_create_corner_point_grid_with_inactive_cells(rips_instance, initialize_
     _, _, exported_actnum, _, _, _ = case.export_corner_point_grid()
     assert len(exported_actnum) == total_cells
     assert sum(1 for x in exported_actnum if x > 0) == expected_active
+
+
+def test_create_corner_point_grid_geometry_properties(rips_instance, initialize_test):
+    """Geometry properties (DEPTH, DX, DY, DZ, TOPS, BOTTOM) are computed automatically
+    when creating a grid from the python API, as when importing a grid from file (issue #14223)."""
+
+    # 2x2x2 grid of 100 m cubic cells in two layers: 1000-1100 and 1100-1200
+    nx, ny, nz = 2, 2, 2
+
+    coord = []
+    for j in range(ny + 1):
+        for i in range(nx + 1):
+            x = i * 100.0
+            y = j * 100.0
+            coord.extend([x, y, 1000.0])
+            coord.extend([x, y, 1200.0])
+
+    # ZCORN uses the Eclipse layout: for each layer, the 4*nx*ny top corner depths
+    # followed by the 4*nx*ny bottom corner depths.
+    zcorn = []
+    for k in range(nz):
+        top_depth = 1000.0 + k * 100.0
+        zcorn.extend([top_depth] * (4 * nx * ny))
+        zcorn.extend([top_depth + 100.0] * (4 * nx * ny))
+
+    actnum = [1] * (nx * ny * nz)
+
+    case = rips_instance.project.create_corner_point_grid(
+        "GeometryPropertiesGrid", nx, ny, nz, coord, zcorn, actnum
+    )
+
+    for prop in GEOMETRY_PROPERTIES:
+        assert prop in case.available_properties("STATIC_NATIVE")
+
+    active_count = case.cell_count().active_cell_count
+    values = {
+        prop: case.active_cell_property("STATIC_NATIVE", prop, 0)
+        for prop in GEOMETRY_PROPERTIES
+    }
+    for prop in GEOMETRY_PROPERTIES:
+        assert len(values[prop]) == active_count
+
+    # Active cell index order follows the cell index order (i fastest, k slowest),
+    # so the first 4 cells are in layer k=0 and the last 4 in layer k=1.
+    for active_index in range(active_count):
+        k = active_index // (nx * ny)
+        assert values["DX"][active_index] == pytest.approx(100.0)
+        assert values["DY"][active_index] == pytest.approx(100.0)
+        assert values["DZ"][active_index] == pytest.approx(100.0)
+        assert values["TOPS"][active_index] == pytest.approx(1000.0 + k * 100.0)
+        assert values["BOTTOM"][active_index] == pytest.approx(1100.0 + k * 100.0)
+        assert values["DEPTH"][active_index] == pytest.approx(1050.0 + k * 100.0)
 
 
 def test_export_corner_point_grid_return_types(rips_instance, initialize_test):
@@ -351,6 +411,12 @@ def test_replace_corner_point_grid_basic(rips_instance, initialize_test):
     new_cell_count = case.cell_count()
     assert new_cell_count.reservoir_cell_count == nx_new * ny_new * nz_new
     assert new_cell_count.reservoir_cell_count == 27  # 3x3x3
+
+    # Geometry properties should be re-computed for the replaced grid (issue #14223)
+    for prop in GEOMETRY_PROPERTIES:
+        assert prop in case.available_properties("STATIC_NATIVE")
+        prop_values = case.active_cell_property("STATIC_NATIVE", prop, 0)
+        assert len(prop_values) == new_cell_count.active_cell_count
 
     # ACTNUM should be re-created for the replaced grid (issue #14109)
     assert "ACTNUM" in case.available_properties("STATIC_NATIVE")
