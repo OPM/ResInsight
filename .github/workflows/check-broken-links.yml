@@ -4,6 +4,11 @@ on:
     branches:
       - gh-pages
   workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Base URL to check'
+        required: false
+        default: 'https://resinsight.org'
 
 jobs:
   broken_link_checker_job:
@@ -11,14 +16,146 @@ jobs:
     name: Check for broken links
     steps:
     - name: Check for broken links
-      id: link-report
-      uses: celinekurpershoek/link-checker@v1.0.3
-      with:
-        # Required:
-        url: 'https://resinsight.org/'
-        # optional:
-        honorRobotExclusions: false
-        ignorePatterns: ''
-        recursiveLinks: false # Check all URLs on all reachable pages (could take a while)
-    - name: Get the result
-      run: echo "${{steps.link-report.outputs.result}}"
+      shell: bash
+      env:
+        BASE_URL: ${{ github.event.inputs.base_url || 'https://resinsight.org' }}
+      run: |
+        #
+        # Crawls every page in the site's sitemap.xml and reports:
+        #   1. Pages that do not return HTTP 200
+        #   2. Internal links that do not resolve
+        #   3. External links that do not resolve (with retry to absorb rate-limits)
+        #   4. In-page #anchor links whose target heading id no longer exists
+        #
+        set -uo pipefail
+
+        BASE_URL="${BASE_URL%/}"                       # strip trailing slash
+        HOST="$(printf '%s' "$BASE_URL" | sed -E 's#^https?://([^/]+).*#\1#')"
+        UA="Mozilla/5.0 (compatible; broken-link-checker/1.0)"
+        TIMEOUT=25
+
+        WORK="$(mktemp -d)"
+        trap 'rm -rf "$WORK"' EXIT
+        pages_dir="$WORK/pages"
+        mkdir -p "$pages_dir"
+
+        status() { curl -s -o /dev/null -w "%{http_code}" -L --max-time "$TIMEOUT" -A "$UA" "$1"; }
+
+        broken_pages=0
+        broken_internal=0
+        broken_external=0
+        broken_anchors=0
+
+        echo "Broken-link check for $BASE_URL"
+        echo
+
+        # --- 1. Fetch sitemap and the list of page URLs ----------------------
+        echo "[1/5] Fetching sitemap.xml"
+        if [ "$(status "$BASE_URL/sitemap.xml")" != "200" ]; then
+          echo "  sitemap.xml not found at $BASE_URL/sitemap.xml - aborting." >&2
+          exit 1
+        fi
+        curl -s "$BASE_URL/sitemap.xml" -A "$UA" \
+          | grep -o '<loc>[^<]*</loc>' | sed 's#<loc>##; s#</loc>##' > "$WORK/urls.txt"
+        n_pages=$(wc -l < "$WORK/urls.txt")
+        echo "  $n_pages pages listed in sitemap."
+        echo
+
+        # --- 2. Download every page and check it returns 200 -----------------
+        echo "[2/5] Checking page status & downloading"
+        i=0
+        : > "$WORK/pagemap.txt"
+        while IFS= read -r u; do
+          i=$((i+1))
+          code=$(curl -s -w "%{http_code}" -A "$UA" --max-time "$TIMEOUT" -o "$pages_dir/page_$i.html" "$u")
+          printf '%s|%s\n' "$i" "$u" >> "$WORK/pagemap.txt"
+          if [ "$code" != "200" ]; then
+            echo "  $code  $u"
+            broken_pages=$((broken_pages+1))
+          fi
+        done < "$WORK/urls.txt"
+        [ "$broken_pages" -eq 0 ] && echo "  All $n_pages pages return 200."
+        echo
+
+        # --- Build path -> local-file map (for anchor validation) ------------
+        : > "$WORK/pathmap.txt"
+        while IFS='|' read -r idx url; do
+          path="${url#"$BASE_URL"}"
+          printf '%s|%s\n' "$path" "$pages_dir/page_$idx.html" >> "$WORK/pathmap.txt"
+        done < "$WORK/pagemap.txt"
+
+        # --- Extract all hrefs ----------------------------------------------
+        grep -roh -E 'href="[^"]*"' "$pages_dir" | sed 's/href="//; s/"$//' \
+          | sort -u > "$WORK/uniq_hrefs.txt"
+
+        # --- 3. Check internal links ----------------------------------------
+        echo "[3/5] Checking internal links"
+        grep -E '^/' "$WORK/uniq_hrefs.txt" | sed 's/#.*//' | grep -v '^$' \
+          | sed "s#^#$BASE_URL#" | sort -u > "$WORK/check_internal.txt"
+        while IFS= read -r u; do
+          code=$(status "$u")
+          case "$code" in
+            2*|3*) ;;                                   # 3xx = trailing-slash redirect, OK
+            *) echo "  $code  $u"; broken_internal=$((broken_internal+1)) ;;
+          esac
+        done < "$WORK/check_internal.txt"
+        [ "$broken_internal" -eq 0 ] && echo "  All $(wc -l < "$WORK/check_internal.txt") internal links OK."
+        echo
+
+        # --- 4. Check external links (retry once to absorb rate-limiting) ----
+        echo "[4/5] Checking external links"
+        grep -E '^https?://' "$WORK/uniq_hrefs.txt" | sed 's/#.*//' | grep -v '^$' \
+          | grep -v "^https\?://$HOST" | sort -u > "$WORK/check_external.txt"
+        while IFS= read -r u; do
+          code=$(status "$u")
+          if [ "$code" != "200" ]; then
+            sleep 2
+            code=$(status "$u")                         # one retry
+          fi
+          if [ "$code" != "200" ]; then
+            echo "  $code  $u"                          # 403/429 often = bot-block / rate-limit
+            broken_external=$((broken_external+1))
+          fi
+        done < "$WORK/check_external.txt"
+        [ "$broken_external" -eq 0 ] && echo "  All $(wc -l < "$WORK/check_external.txt") external links OK."
+        echo
+
+        # --- 5. Validate in-page anchors ------------------------------------
+        echo "[5/5] Validating in-page #anchors"
+        : > "$WORK/frag_checks.txt"
+        for f in "$pages_dir"/*.html; do
+          idx=$(basename "$f" .html | grep -o '[0-9]\+')  # basename only: $WORK may contain digits
+          src=$(grep "^$idx|" "$WORK/pagemap.txt" | cut -d'|' -f2)
+          grep -o 'href="/[^"]*#[^"]*"' "$f" | sed 's/href="//; s/"$//' \
+            | while IFS= read -r h; do printf '%s|%s\n' "$src" "$h"; done
+        done | sort -u > "$WORK/frag_checks.txt"
+
+        while IFS='|' read -r src href; do
+          target="${href%%#*}"
+          frag="${href#*#}"
+          case "$target" in */) target="${target}index.html";; esac
+          file=$(grep -F "$target|" "$WORK/pathmap.txt" | head -1 | cut -d'|' -f2)
+          if [ -z "$file" ]; then
+            echo "  NO TARGET PAGE  $href   (from $src)"
+            broken_anchors=$((broken_anchors+1)); continue
+          fi
+          if ! grep -q -E "id=\"$frag\"|name=\"$frag\"" "$file"; then
+            echo "  MISSING #$frag  ->  $target   (from $src)"
+            broken_anchors=$((broken_anchors+1))
+          fi
+        done < "$WORK/frag_checks.txt"
+        [ "$broken_anchors" -eq 0 ] && echo "  All $(wc -l < "$WORK/frag_checks.txt") anchors OK."
+        echo
+
+        # --- Summary --------------------------------------------------------
+        echo "Summary"
+        echo "  Broken pages          : $broken_pages"
+        echo "  Broken internal links : $broken_internal"
+        echo "  Broken external links : $broken_external"
+        echo "  Broken anchors        : $broken_anchors"
+        total=$((broken_pages + broken_internal + broken_external + broken_anchors))
+        if [ "$total" -eq 0 ]; then
+          echo "No broken links found."
+        else
+          echo "::warning::$total broken-link issue(s) found - see log for details."
+        fi
