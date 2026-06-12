@@ -226,7 +226,7 @@ bool RimWellPathCollection::loadDataAndUpdate()
         return false;
     };
 
-    auto countWellLogs = []( const std::vector<RimWellPath*>& wellPaths ) -> bool
+    auto countWellLogs = []( const std::vector<RimWellPath*>& wellPaths ) -> size_t
     {
         size_t count = 0;
         for ( RimWellPath* wellPath : wellPaths )
