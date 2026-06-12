@@ -71,6 +71,8 @@ protected:
 
     static void createActnumResult( RigEclipseCaseData& eclipseCaseData );
 
+    static void computeDepthRelatedResults( RimCornerPointCase& cornerPointCase );
+
     static std::array<cvf::Vec3d, 8> getCorners( const RigMainGrid&        grid,
                                                  const std::vector<float>& coord,
                                                  const std::vector<float>& zcorn,
