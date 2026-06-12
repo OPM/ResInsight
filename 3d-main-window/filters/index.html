@@ -1,69 +1,91 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
+<html id="R-html" lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.142.0">
-    <meta name="generator" content="Relearn 7.3.2+7b470298046df2c96c0da9da07a54572b7c4e1b0">
+    <meta name="generator" content="Relearn 9.0.3+36307e4ed23582638ab689240ac7b427217803ee">
     <meta name="description" content="Filters are used to control the visibility of cells in the 3D view. Two types of filters exist:
-Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts cells with a property value matching a value range NoteThe visibility of cells connected to wells, and fences can be controlled from Simulation Wells.
-(Not applicable for Geomechanical cases)">
+Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts cells with a property value matching a value range Both types are now collected in a single Filters folder in the Project Tree, located under each 3D view. All filters are created from the right-click menu of this folder.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Filters :: ResInsight">
     <meta name="twitter:description" content="Filters are used to control the visibility of cells in the 3D view. Two types of filters exist:
-Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts cells with a property value matching a value range NoteThe visibility of cells connected to wells, and fences can be controlled from Simulation Wells.
-(Not applicable for Geomechanical cases)">
+Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts cells with a property value matching a value range Both types are now collected in a single Filters folder in the Project Tree, located under each 3D view. All filters are created from the right-click menu of this folder.">
     <meta property="og:url" content="https://resinsight.org/3d-main-window/filters/index.html">
     <meta property="og:site_name" content="ResInsight">
     <meta property="og:title" content="Filters :: ResInsight">
     <meta property="og:description" content="Filters are used to control the visibility of cells in the 3D view. Two types of filters exist:
-Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts cells with a property value matching a value range NoteThe visibility of cells connected to wells, and fences can be controlled from Simulation Wells.
-(Not applicable for Geomechanical cases)">
+Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts cells with a property value matching a value range Both types are now collected in a single Filters folder in the Project Tree, located under each 3D view. All filters are created from the right-click menu of this folder.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="article">
     <meta property="article:section" content="3D Main Window">
     <meta itemprop="name" content="Filters :: ResInsight">
     <meta itemprop="description" content="Filters are used to control the visibility of cells in the 3D view. Two types of filters exist:
-Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts cells with a property value matching a value range NoteThe visibility of cells connected to wells, and fences can be controlled from Simulation Wells.
-(Not applicable for Geomechanical cases)">
-    <meta itemprop="wordCount" content="944">
+Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts cells with a property value matching a value range Both types are now collected in a single Filters folder in the Project Tree, located under each 3D view. All filters are created from the right-click menu of this folder.">
+    <meta itemprop="wordCount" content="1031">
     <title>Filters :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1772538547" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1772538547" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1772538547" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1772538547" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1772538547" rel="stylesheet">
-    <link href="/css/theme.min.css?1772538547" rel="stylesheet">
-    <link href="/css/format-html.min.css?1772538547" rel="stylesheet" id="R-format-style">
+    <link href="/images/favicon.png?1781260068" rel="icon" type="image/png">
+    <link href="/css/auto-complete/auto-complete.min.css?1781260068" rel="stylesheet">
+    <script src="/js/auto-complete/auto-complete.min.js?1781260068" defer></script>
+    <script src="/js/search-lunr.min.js?1781260068" defer></script>
+    <script src="/js/search.min.js?1781260068" defer></script>
     <script>
       window.relearn = window.relearn || {};
+      window.relearn.index_js_url="/searchindex.en.js?1781260068";
+    </script>
+    <script src="/js/lunr/lunr.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.stemmer.support.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.multi.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.en.min.js?1781260068" defer></script>
+    <script>
+      window.relearn = window.relearn || {};
+      window.relearn.contentLangs=['en'];
+    </script>
+    <link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1781260068" rel="stylesheet">
+    <link href="/css/theme.min.css?1781260068" rel="stylesheet">
+    <link href="/css/format-html.min.css?1781260068" rel="stylesheet" id="R-format-style">
+    <script>
+      window.relearn = window.relearn || {};
+      // configuration
+      window.relearn.min = `.min`;
+      window.relearn.path='\/3d-main-window\/filters\/index.html';
       window.relearn.relBasePath='..\/..';
       window.relearn.relBaseUri='..\/..';
       window.relearn.absBaseUri='https:\/\/resinsight.org';
-      window.relearn.min = `.min`;
-      window.relearn.disableAnchorCopy=false;
-      window.relearn.disableAnchorScrolling=false;
+      window.relearn.disableInlineCopyToClipboard=false;
+      window.relearn.enableBlockCodeWrap=true;
+      // translations
+      window.T_Copy_to_clipboard = `Copy text to clipboard`;
+      window.T_Copied_to_clipboard = `Text copied to clipboard!`;
+      window.T_Link_copied_to_clipboard = `Link copied to clipboard!`;
+      window.T_Reset_view = `Reset view`;
+      window.T_View_reset = `View reset!`;
+      window.T_No_results_found = `No results found for "{0}"`;
+      window.T_N_results_found = `{1} results found for "{0}"`;
+      window.T_Browser_unsupported_feature = `This browser doesn't support this feature`;
       // variant stuff
       window.relearn.themevariants = [ 'relearn' ];
-      window.relearn.customvariantname = "my-custom-variant";
+      window.relearn.customvariantprefix = "my-custom-";
       window.relearn.changeVariant = function(variant) {
         var oldVariant = document.documentElement.dataset.rThemeVariant;
         window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         document.documentElement.dataset.rThemeVariant = variant;
         if (oldVariant != variant) {
           document.dispatchEvent( new CustomEvent('themeVariantLoaded', { detail: { variant, oldVariant } }) );
+          window.relearn.markVariant();
         }
       }
       window.relearn.markVariant = function() {
         var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant");
-        var select = document.querySelector("#R-select-variant");
-        if (select) {
-          select.value = variant;
-        }
+        document.querySelectorAll(".R-variantswitcher select").forEach((select) => {select.value = variant;});
       }
       window.relearn.initVariant = function() {
         var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant") ?? "";
-        if( variant == window.relearn.customvariantname ){
-        }else if( !variant || !window.relearn.themevariants.includes(variant) ){
+        if( !variant ||
+            (!variant.startsWith(window.relearn.customvariantprefix) && !window.relearn.themevariants.includes(variant)) ||
+            (variant.startsWith(window.relearn.customvariantprefix) && !window.localStorage.getItem(window.relearn.absBaseUri + "/variantstylesheet-" + variant)) ){
           variant = window.relearn.themevariants[0];
           window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         }
@@ -71,16 +93,15 @@ Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts ce
       }
       window.relearn.initVariant();
       window.relearn.markVariant();
-      // translations
-      window.T_Copy_to_clipboard = `Copy to clipboard`;
-      window.T_Copied_to_clipboard = `Copied to clipboard!`;
-      window.T_Copy_link_to_clipboard = `Copy link to clipboard`;
-      window.T_Link_copied_to_clipboard = `Copied link to clipboard!`;
-      window.T_Reset_view = `Reset view`;
-      window.T_View_reset = `View reset!`;
-      window.T_No_results_found = `No results found for "{0}"`;
-      window.T_N_results_found = `{1} results found for "{0}"`;
     </script>
+<style type="text/css">
+     
+    mark {
+        border-radius: 0;
+        background-image: none;
+        background-color: color-mix(in srgb, var(--ACCENT-color) 35%, transparent);
+    }
+</style>
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   MathJax.Hub.Config({
@@ -113,16 +134,18 @@ Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts ce
 </script>
 
   </head>
-  <body class="mobile-support html" data-url="/3d-main-window/filters/index.html">
+  <body class="mobile-support html" data-origin="/3d-main-window/filters/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
-      <nav id="R-topbar">
-        <div class="topbar-wrapper">
-          <div class="topbar-sidebar-divider"></div>
+      <nav id="R-topbar" class="default-animation">
+        <div class="topbar-wrapper default-animation">
+          <div class="topbar-sidebar-divider default-animation"></div>
           <div class="topbar-area topbar-area-start" data-area="start">
-            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide"><button class="topbar-control" onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button>
+            <div class="topbar-button topbar-button-sidebar default-animation" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button></span>
             </div>
-            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button>
+            <div class="topbar-button topbar-button-toc default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-table-list"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
 <nav class="TableOfContents">
@@ -145,17 +168,17 @@ Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts ce
               </div>
             </div>
           </div>
-          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/index.html"><span itemprop="name">ResInsight</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/3d-main-window/index.html"><span itemprop="name">3D Main Window</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">Filters</span><meta itemprop="position" content="3"></li>
+          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/index.html"><span itemprop="name">ResInsight</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/3d-main-window/index.html"><span itemprop="name">3D Main Window</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Filters</span><meta itemprop="position" content="3"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/3d-main-window/resultinspection/index.html" title="Result Inspection (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            <div class="topbar-button topbar-button-prev default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><a href="/3d-main-window/resultinspection/index.html" title="Result Inspection (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/3d-main-window/quickaccess/index.html" title="Quick Access (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
+            <div class="topbar-button topbar-button-next default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><a href="/3d-main-window/quickaccess/index.html" title="Quick Access (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button>
+            <div class="topbar-button topbar-button-more default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
                   <div class="topbar-area topbar-area-more" data-area="more">
@@ -175,15 +198,18 @@ Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts ce
 
 <h1 id="filters">Filters</h1>
 
-<p><a href="#R-image-7ba25671be9d6d63f6a35b8998829060" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/FiltersOverview.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-7ba25671be9d6d63f6a35b8998829060"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/FiltersOverview.png"></a></p>
+<p><a href="#R-image-644353a7e014f6f1c04ad41ed3d661a0" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/FiltersOverview.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-644353a7e014f6f1c04ad41ed3d661a0"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/FiltersOverview.png"></a></p>
 <p>Filters are used to control the visibility of cells in the 3D view. Two types of filters exist:</p>
 <ul>
 <li><strong>Cell Filter</strong> &ndash; Extracts subset(s) of grid cells</li>
 <li><strong>Property Filter</strong> &ndash; Extracts cells with a property value matching a value range</li>
 </ul>
+<p>Both types are now collected in a single <strong>Filters</strong> folder in the <strong>Project Tree</strong>, located under each 3D view. All filters are created from the right-click menu of this folder.</p>
+<p><a href="#R-image-bcc649c8946cbcc5eae9ef4c5c0f2b63" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/FiltersFolderMenu.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-bcc649c8946cbcc5eae9ef4c5c0f2b63"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/FiltersFolderMenu.png"></a></p>
 
-<details open class=" box cstyle notices note">
+<details open class="box cstyle notices note">
   <summary class="box-label" tabindex="-1">
     <i class="fa-fw fas fa-exclamation-circle"></i> 
     Note
@@ -193,48 +219,46 @@ Cell Filter – Extracts subset(s) of grid cells Property Filter – Extracts ce
 <small><i>(Not applicable for Geomechanical cases)</i></small></p>
   </div>
 </details>
-<h2 id="filters-settings">Filters Settings</h2>
+<h2 id="filters-settings">Filters Settings<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p>Filters can be turned on and off using their check-boxes in <strong>Project Tree</strong> and controlled by their corresponding <strong>Property Editor</strong>. The sequence of the filters can be rearranged by clicking the arrow icons of selected filter.</p>
-<p><a href="#R-image-d0cd3d4dbc2fb16c83dcbd6f059f8ba3" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/FiltersInTreeView.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-d0cd3d4dbc2fb16c83dcbd6f059f8ba3"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/FiltersInTreeView.png"></a></p>
+<p><a href="#R-image-4251c28cd32607ca1f6f92ea70292212" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/FiltersInTreeView.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-4251c28cd32607ca1f6f92ea70292212"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/FiltersInTreeView.png"></a></p>
 <p>Cell Filters and Property filters can either be set to <strong>Include</strong> or <strong>Exclude</strong> the matching cells.
 The <em>Include</em> setting marks the cells as visible while the <em>Exclude</em> setting is used to remove cells from visualization regardless of other filters.
 The icon in front of each filter show a + or - sign to indicate <em>Include</em> or <em>Exclude</em> 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
 
 
 <img src="https://resinsight.org/images/3d-main-window/FilterIncEx.png" style="display:inline; vertical-align:middle; margin:0">
 .</p>
-<h2 id="cell-filters">Cell Filters</h2>
+<h2 id="cell-filters">Cell Filters<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p><strong>Cell Filters</strong> enables the user to define a set of visible regions in the 3D view.
 Each <em>Include</em> cell filter will add cells to the visualization and the resulting 3D view will show the union of all the <em>Include</em> cell filters.</p>
 <p>The logical operation combining multiple <strong>Cell Filters</strong> is defined by <em>&ldquo;Combine Polygon and Range Filters Using Operation&rdquo;</em></p>
-<p><a href="#R-image-7a826c53f922f3fca613eb1a57853834" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/cellfilters_combine.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-7a826c53f922f3fca613eb1a57853834"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/cellfilters_combine.png"></a></p>
-<p>A new cell filter can be added by invoking the right-click menu for the <strong>Cell Filters</strong> collection in <strong>Project Tree</strong>.</p>
-<p><a href="#R-image-275d8095b036078bf9b23ce4172f91ac" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/CellFilterTypes.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-275d8095b036078bf9b23ce4172f91ac"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/CellFilterTypes.png"></a></p>
+<p><a href="#R-image-157b87a1385ab34a604078328deacad4" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/cellfilters_combine.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-157b87a1385ab34a604078328deacad4"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/cellfilters_combine.png"></a></p>
+<p>A new cell filter can be added by invoking the right-click menu for the <strong>Filters</strong> folder in <strong>Project Tree</strong> (see the menu above).</p>
 <p>The available cell filters are:</p>
 <ul>
 <li>
-<p><strong>Polygon Filter</strong>: Defining a filter by marking target points of a polygon in 3D view to include or exclude matching cells. The polygon can be defined as part of the filter or referencing a polygon defined in the <a href="/3d-main-window/polygons/index.html">Polygons</a> collection.</p>
+<p><strong>User Defined Polygon Filter</strong>: Defining a filter by marking target points of a polygon in 3D view to include or exclude matching cells. The polygon can be defined as part of the filter or referencing a polygon defined in the <a href="/3d-main-window/polygons/index.html">Polygons</a> collection.</p>
 </li>
 <li>
-<p><strong>User Defined Filter</strong>: Defining a filter by specifying explicit cells to include or exclude by their IJK-index.</p>
+<p><strong>Range Filter</strong>: Defining a filter to include or exclude cells by specifying IJK-ranges. For radial models, IJ represents angle and radius. The submenu also offers slice filters that include or exclude a slice of cells in the I-, J-, or K-direction.</p>
 </li>
 <li>
-<p><strong>Range Filter</strong>: Defining a filter to include or exclude cells by specifying IJK-ranges. For radial models, IJ represents angle and radius.</p>
+<p><strong>User Defined IJK Filter</strong>: Defining a filter by specifying explicit cells to include or exclude by their IJK-index.</p>
 </li>
 <li>
-<p><strong>Slice Filter</strong>: Defining a filter to include or exclude a slice of cells in either I-, J-, or K-direction.</p>
+<p><strong>User Defined Index Filter</strong>: Defining a filter by specifying explicit cells to include or exclude by their cell index.</p>
 </li>
 </ul>
 <p>The following exemplifies the use of a <strong>Polygon Filter</strong> and target points. Target points are defined and manipulated in 3D view as described in <a href="/3d-main-window/polygons/index.html">Polygons</a>. Vertically, the filter can be set to use the XY target positions or IJK-index of targeted cells. The actual filtering can be specified to whole cells inside polygon, cell center inside polygon, or any cell corner inside polygon.</p>
-<p><a href="#R-image-69ece17c70144a414e1b21f2958bf72c" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/CellFilter_Polygon.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-69ece17c70144a414e1b21f2958bf72c"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/CellFilter_Polygon.png"></a></p>
+<p><a href="#R-image-fbb9d781faaca85686f527bdb90bc0a8" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/CellFilter_Polygon.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-fbb9d781faaca85686f527bdb90bc0a8"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/CellFilter_Polygon.png"></a></p>
 
-<details open class=" box cstyle notices note">
+<details open class="box cstyle notices note">
   <summary class="box-label" tabindex="-1">
     <i class="fa-fw fas fa-exclamation-circle"></i> 
     Note
@@ -244,8 +268,8 @@ Each <em>Include</em> cell filter will add cells to the visualization and the re
   </div>
 </details>
 <p>Below is a snapshot of the <strong>Property Editor</strong> for the <strong>Range Filter</strong> type of Cell Filter:</p>
-<p><a href="#R-image-601efea67f32115b044573deb191000b" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/RangeFilterProperties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-601efea67f32115b044573deb191000b"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/RangeFilterProperties.png"></a></p>
+<p><a href="#R-image-a196fb7b58c1efb304b5f605ddb6130a" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/RangeFilterProperties.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-a196fb7b58c1efb304b5f605ddb6130a"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/RangeFilterProperties.png"></a></p>
 <ul>
 <li><strong>Filter Type</strong> &ndash; The filter can either make the specified range visible ( <em>Include</em> ), or remove the range from the View ( <em>Exclude</em> ).</li>
 <li><strong>Grid</strong> &ndash;  This option selects which of the grids the range is addressing.</li>
@@ -254,12 +278,17 @@ Each <em>Include</em> cell filter will add cells to the visualization and the re
 <p>The <strong>Start</strong> and <strong>Width</strong> labels in front of the sliders features a number in parenthesis denoting maximum available value.
 The <strong>Start</strong> labels show the index of the start of the active cells.
 The <strong>Width</strong> labels show the number of active cells from the start of the active cells.</p>
-<h2 id="property-filters">Property Filters</h2>
+<h2 id="property-filters">Property Filters<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p><strong>Property Filters</strong> applies to the results of the <strong>Cell Filters</strong> and limits the visible cells to the ones approved by the filter. For a cell to be visible it must be accepted by all property filters.</p>
-<p>A new property filter is created by activating the right-click menu on <strong>Property Filters</strong> or by right-clicking inside a 3D view. The new property filter is based on the currently viewed cell result by default.</p>
+<p>A new property filter is created from the right-click menu of the <strong>Filters</strong> folder or by right-clicking inside a 3D view. The menu offers:</p>
+<ul>
+<li><strong>New Property Filter</strong>: a property filter based on the currently viewed cell result by default.</li>
+<li><strong>Add Property Filter Linked to Cell Result</strong>: a property filter that follows the current cell result.</li>
+<li><strong>New Combined Property Filter</strong>: a property filter combining several property conditions.</li>
+</ul>
 <p>The name of the property filter is automatically set to <em>&ldquo;propertyname (min .. max)&rdquo;</em> as you edit the property filter.</p>
 
-<details open class=" box cstyle notices note">
+<details open class="box cstyle notices note">
   <summary class="box-label" tabindex="-1">
     <i class="fa-fw fas fa-exclamation-circle"></i> 
     Note
@@ -269,17 +298,17 @@ The <strong>Width</strong> labels show the number of active cells from the start
   </div>
 </details>
 <p>Below is a snapshot of the <strong>Property Editor</strong> of the <strong>Property Filter</strong>.</p>
-<p><a href="#R-image-ae5fabeef97990f769135a83a3808c40" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/PropertyFilterProperties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-ae5fabeef97990f769135a83a3808c40"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/PropertyFilterProperties.png"></a></p>
-<h3 id="property-value-range">Property Value Range</h3>
+<p><a href="#R-image-dc8d3971b177b9abe0bc48aa1e40d3ec" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/PropertyFilterProperties.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-dc8d3971b177b9abe0bc48aa1e40d3ec"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/PropertyFilterProperties.png"></a></p>
+<h3 id="property-value-range">Property Value Range<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>The filter is based on a property value range (Min - Max). Cells in the range are either shown or hidden depending on the <strong>Filter Type</strong> (<em>Include</em>/<em>Exclude</em>). Exclude-filters removes the selected cells from the <strong>View</strong> even if some other filter includes them.</p>
-<h4 id="range-behavior-for-flow-diagnostic-results">Range Behavior for Flow Diagnostic Results</h4>
+<h4 id="range-behavior-for-flow-diagnostic-results">Range Behavior for Flow Diagnostic Results<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>Normally the available range in the sliders is the max and min of all the values in all the time steps. For Flow Diagnostics results, however, the available range is based on the current time step.</p>
 <p>We still need to keep the range somewhat fixed while moving from time step to time step, so in order to do so ResInsight tries to keep the intentions of your range settings, as the available range changes. If either the max or min value is set to the limit, ResInsight will keep that setting at the limit even when the limit changes. If you set a specific value for the max or the min, that setting will keep its value, even if it happens to end up outside the available range at a time step.</p>
-<h3 id="category-selection">Category Selection</h3>
+<h3 id="category-selection">Category Selection<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>If the property is representing integer values, well tracer names or <a href="/3d-main-window/formations/index.html"> formation names </a>, the property filter displays a list of available categories used to filter cells. The separate values can then be toggled on or off using the list in the Property Editor.</p>
-<p><a href="#R-image-2b8894447295b2b5d017c8f61c6944bd" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/PropertyFilterWithCategories.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-2b8894447295b2b5d017c8f61c6944bd"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/PropertyFilterWithCategories.png"></a></p>
+<p><a href="#R-image-c2e8fe3bcae48f7aa8848dd457ee7708" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/PropertyFilterWithCategories.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-c2e8fe3bcae48f7aa8848dd457ee7708"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/PropertyFilterWithCategories.png"></a></p>
 <p>If it is more convenient to filter the values using a value range, toggle the <strong>Category Selection</strong> option off.</p>
 
   <footer class="footline">
@@ -290,54 +319,46 @@ The <strong>Width</strong> labels show the number of active cells from the start
     </div>
     <aside id="R-sidebar" class="default-animation">
       <div id="R-header-topbar" class="default-animation"></div>
-      <div id="R-header-wrapper" class="default-animation">
-        <div id="R-header" class="default-animation">
-<a id="logo" href="https://resinsight.org/">
+      <div id="R-header-wrapper" class="default-animation"><a id="logo" href="https://resinsight.org/">
   <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png">
 </a>
 
-        </div>
-        <script>
-          window.index_js_url="/searchindex.en.js?1772538547";
-        </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
-            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-search"></i></button>
+            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-fw fa-search"></i></button>
             <label class="a11y-only" for="R-search-by">Search</label>
             <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
-            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-fw fa-times" title="Clear search"></i></button>
           </div>
         </form></search>
-        <script>
-          var contentLangs=['en'];
-        </script>
-        <script src="/js/auto-complete.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1772538547" defer></script>
-        <script src="/js/search.js?1772538547" defer></script>
-        <script>
-          (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const searchQuery = urlParams.get('q');
-            if (searchQuery) {
-              const newUrl = `/search/?search-by=${encodeURIComponent(searchQuery)}`;
-              window.location.replace(newUrl);
-            }
-          })();
-        </script>
       </div>
       <div id="R-homelinks" class="default-animation">
-        <hr class="padding">
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-homelinks default-animation">
+          <ul class="space collapsible-menu">
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-headercontrols default-animation">
+          <ul class="">
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
       </div>
       <div id="R-content-wrapper" class="highlightable">
-        <div id="R-shortcutmenu-home" class="R-sidebarmenu">
+        <div class="R-sidebarmenu R-shortcutmenu-main default-animation">
           <ul class="enlarge morespace collapsible-menu">
-            <li class="" data-nav-id="/releases/index.html"><input type="checkbox" id="R-section-a71c2f29677ba690c1b8bf454f228c9c" aria-controls="R-subsections-a71c2f29677ba690c1b8bf454f228c9c"><label for="R-section-a71c2f29677ba690c1b8bf454f228c9c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Releases</span></label><a class="padding" href="/releases/index.html">Releases</a><ul id="R-subsections-a71c2f29677ba690c1b8bf454f228c9c" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/index.html"><input type="checkbox" id="R-section-a71c2f29677ba690c1b8bf454f228c9c" aria-controls="R-subsections-a71c2f29677ba690c1b8bf454f228c9c"><label for="R-section-a71c2f29677ba690c1b8bf454f228c9c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Releases</span></label><a class="padding default-animation" href="/releases/index.html">Releases</a><ul id="R-subsections-a71c2f29677ba690c1b8bf454f228c9c" class="collapsible-menu">
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
-            <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding default-animation" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_06/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_06/index.html">What&#39;s New in 2026.06</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_02/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_02/index.html">What&#39;s New in 2026.02</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
@@ -353,16 +374,17 @@ The <strong>Width</strong> labels show the number of active cells from the start
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2023_01/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2023_01/index.html">What&#39;s New in 2023.01</a></li></ul></li>
             <li class="" data-nav-id="/releases/releasenotification/index.html"><a class="padding" href="/releases/releasenotification/index.html">Release Notification Subscription</a></li>
             <li class="" data-nav-id="/releases/windows-subsystem-for-linux/index.html"><a class="padding" href="/releases/windows-subsystem-for-linux/index.html">Windows Subsystem for Linux</a></li>
-            <li class="alwaysopen " data-nav-id="/releases/build-from-source/index.html"><input type="checkbox" id="R-section-1a74cec0b1c9533c1ed2228aad7b645f" aria-controls="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" checked><label for="R-section-1a74cec0b1c9533c1ed2228aad7b645f"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Build From Source</span></label><a class="padding" href="/releases/build-from-source/index.html">Build From Source</a><ul id="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/releases/build-from-source/index.html"><input type="checkbox" id="R-section-1a74cec0b1c9533c1ed2228aad7b645f" aria-controls="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" checked><label for="R-section-1a74cec0b1c9533c1ed2228aad7b645f"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Build From Source</span></label><a class="padding default-animation" href="/releases/build-from-source/index.html">Build From Source</a><ul id="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" class="collapsible-menu">
             <li class="" data-nav-id="/releases/build-from-source/build-instructions-ubuntu/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-ubuntu/index.html">Build Instructions Ubuntu</a></li>
             <li class="" data-nav-id="/releases/build-from-source/build-instructions-windows/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-windows/index.html">Build Instructions Windows</a></li>
+            <li class="" data-nav-id="/releases/build-from-source/build-instructions-mac/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-mac/index.html">Build Instructions Mac</a></li>
             <li class="" data-nav-id="/releases/build-from-source/cmake-configuration/index.html"><a class="padding" href="/releases/build-from-source/cmake-configuration/index.html">CMake Configuration</a></li></ul></li></ul></li>
-            <li class="" data-nav-id="/getting-started/index.html"><input type="checkbox" id="R-section-87c0363912f379e0725cbe1d504c985c" aria-controls="R-subsections-87c0363912f379e0725cbe1d504c985c"><label for="R-section-87c0363912f379e0725cbe1d504c985c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Getting Started</span></label><a class="padding" href="/getting-started/index.html">Getting Started</a><ul id="R-subsections-87c0363912f379e0725cbe1d504c985c" class="collapsible-menu">
+            <li class="" data-nav-id="/getting-started/index.html"><input type="checkbox" id="R-section-87c0363912f379e0725cbe1d504c985c" aria-controls="R-subsections-87c0363912f379e0725cbe1d504c985c"><label for="R-section-87c0363912f379e0725cbe1d504c985c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Getting Started</span></label><a class="padding default-animation" href="/getting-started/index.html">Getting Started</a><ul id="R-subsections-87c0363912f379e0725cbe1d504c985c" class="collapsible-menu">
             <li class="" data-nav-id="/getting-started/overview/index.html"><a class="padding" href="/getting-started/overview/index.html">Overview</a></li>
             <li class="" data-nav-id="/getting-started/projecttree/index.html"><a class="padding" href="/getting-started/projecttree/index.html">Project Tree</a></li>
             <li class="" data-nav-id="/getting-started/helpmenuanddocumentation/index.html"><a class="padding" href="/getting-started/helpmenuanddocumentation/index.html">Help Menu and Documentation</a></li>
             <li class="" data-nav-id="/getting-started/modelnavigation/index.html"><a class="padding" href="/getting-started/modelnavigation/index.html">Model Navigation</a></li></ul></li>
-            <li class="parent " data-nav-id="/3d-main-window/index.html"><input type="checkbox" id="R-section-122c1165ab4202e74b8e3c0619dc7420" aria-controls="R-subsections-122c1165ab4202e74b8e3c0619dc7420" checked><label for="R-section-122c1165ab4202e74b8e3c0619dc7420"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu 3D Main Window</span></label><a class="padding" href="/3d-main-window/index.html">3D Main Window</a><ul id="R-subsections-122c1165ab4202e74b8e3c0619dc7420" class="collapsible-menu">
+            <li class="parent " data-nav-id="/3d-main-window/index.html"><input type="checkbox" id="R-section-122c1165ab4202e74b8e3c0619dc7420" aria-controls="R-subsections-122c1165ab4202e74b8e3c0619dc7420" checked><label for="R-section-122c1165ab4202e74b8e3c0619dc7420"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu 3D Main Window</span></label><a class="padding default-animation" href="/3d-main-window/index.html">3D Main Window</a><ul id="R-subsections-122c1165ab4202e74b8e3c0619dc7420" class="collapsible-menu">
             <li class="" data-nav-id="/3d-main-window/3dviews/index.html"><a class="padding" href="/3d-main-window/3dviews/index.html">3D Views</a></li>
             <li class="" data-nav-id="/3d-main-window/cellresults/index.html"><a class="padding" href="/3d-main-window/cellresults/index.html">Cell Results</a></li>
             <li class="" data-nav-id="/3d-main-window/resultcolorlegend/index.html"><a class="padding" href="/3d-main-window/resultcolorlegend/index.html">Result Color Legend</a></li>
@@ -390,7 +412,7 @@ The <strong>Width</strong> labels show the number of active cells from the start
             <li class="" data-nav-id="/3d-main-window/annotations/index.html"><a class="padding" href="/3d-main-window/annotations/index.html">Annotations</a></li>
             <li class="" data-nav-id="/3d-main-window/tensors/index.html"><a class="padding" href="/3d-main-window/tensors/index.html">Tensor Results</a></li>
             <li class="" data-nav-id="/3d-main-window/gridstatisticsdialog/index.html"><a class="padding" href="/3d-main-window/gridstatisticsdialog/index.html">Grid Statistics Dialog</a></li></ul></li>
-            <li class="" data-nav-id="/plot-window/index.html"><input type="checkbox" id="R-section-6087943109d37785a7a7442a1415914b" aria-controls="R-subsections-6087943109d37785a7a7442a1415914b"><label for="R-section-6087943109d37785a7a7442a1415914b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Plot Main Window</span></label><a class="padding" href="/plot-window/index.html">Plot Main Window</a><ul id="R-subsections-6087943109d37785a7a7442a1415914b" class="collapsible-menu">
+            <li class="" data-nav-id="/plot-window/index.html"><input type="checkbox" id="R-section-6087943109d37785a7a7442a1415914b" aria-controls="R-subsections-6087943109d37785a7a7442a1415914b"><label for="R-section-6087943109d37785a7a7442a1415914b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Plot Main Window</span></label><a class="padding default-animation" href="/plot-window/index.html">Plot Main Window</a><ul id="R-subsections-6087943109d37785a7a7442a1415914b" class="collapsible-menu">
             <li class="" data-nav-id="/plot-window/summaryplots/index.html"><a class="padding" href="/plot-window/summaryplots/index.html">Summary Plots</a></li>
             <li class="" data-nav-id="/plot-window/summaryplotdatasources/index.html"><a class="padding" href="/plot-window/summaryplotdatasources/index.html">Data Sources</a></li>
             <li class="" data-nav-id="/plot-window/summaryplotmanager/index.html"><a class="padding" href="/plot-window/summaryplotmanager/index.html">Summary Plot Manager</a></li>
@@ -412,31 +434,34 @@ The <strong>Width</strong> labels show the number of active cells from the start
             <li class="" data-nav-id="/plot-window/rftplot/index.html"><a class="padding" href="/plot-window/rftplot/index.html">RFT Plot</a></li>
             <li class="" data-nav-id="/plot-window/rftsegmentplot/index.html"><a class="padding" href="/plot-window/rftsegmentplot/index.html">RFT Segment Plot</a></li>
             <li class="" data-nav-id="/plot-window/ensemblerftplot/index.html"><a class="padding" href="/plot-window/ensemblerftplot/index.html">Ensemble RFT Plot</a></li>
+            <li class="" data-nav-id="/plot-window/rftcorrelationplot/index.html"><a class="padding" href="/plot-window/rftcorrelationplot/index.html">RFT Correlation Plot</a></li>
             <li class="" data-nav-id="/plot-window/pltplot/index.html"><a class="padding" href="/plot-window/pltplot/index.html">PLT Plot</a></li>
             <li class="" data-nav-id="/plot-window/vfpplot/index.html"><a class="padding" href="/plot-window/vfpplot/index.html">VFP Plot</a></li>
-            <li class="alwaysopen " data-nav-id="/plot-window/flow-diagnostics-plots/index.html"><input type="checkbox" id="R-section-8a8fa224c78732c200cb0103e9448d6b" aria-controls="R-subsections-8a8fa224c78732c200cb0103e9448d6b" checked><label for="R-section-8a8fa224c78732c200cb0103e9448d6b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Flow Diagnostics Plots</span></label><a class="padding" href="/plot-window/flow-diagnostics-plots/index.html">Flow Diagnostics Plots</a><ul id="R-subsections-8a8fa224c78732c200cb0103e9448d6b" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/plot-window/flow-diagnostics-plots/index.html"><input type="checkbox" id="R-section-8a8fa224c78732c200cb0103e9448d6b" aria-controls="R-subsections-8a8fa224c78732c200cb0103e9448d6b" checked><label for="R-section-8a8fa224c78732c200cb0103e9448d6b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Flow Diagnostics Plots</span></label><a class="padding default-animation" href="/plot-window/flow-diagnostics-plots/index.html">Flow Diagnostics Plots</a><ul id="R-subsections-8a8fa224c78732c200cb0103e9448d6b" class="collapsible-menu">
             <li class="" data-nav-id="/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html"><a class="padding" href="/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html">Producer/Injector Connectivity Tables</a></li>
             <li class="" data-nav-id="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html"><a class="padding" href="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html">Well Allocation Over Time Plot</a></li></ul></li>
             <li class="" data-nav-id="/plot-window/gridcrossplots/index.html"><a class="padding" href="/plot-window/gridcrossplots/index.html">Grid Cross Plots</a></li>
             <li class="" data-nav-id="/plot-window/saturationpressureplots/index.html"><a class="padding" href="/plot-window/saturationpressureplots/index.html">Saturation Pressure Plots</a></li></ul></li>
-            <li class="" data-nav-id="/reference-manual/index.html"><input type="checkbox" id="R-section-cd49ee949da2ad410225a2e57dbddb2e" aria-controls="R-subsections-cd49ee949da2ad410225a2e57dbddb2e"><label for="R-section-cd49ee949da2ad410225a2e57dbddb2e"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Reference Manual</span></label><a class="padding" href="/reference-manual/index.html">Reference Manual</a><ul id="R-subsections-cd49ee949da2ad410225a2e57dbddb2e" class="collapsible-menu">
-            <li class="alwaysopen " data-nav-id="/reference-manual/surfaces/index.html"><input type="checkbox" id="R-section-e44d2ac58045f12532001b3c3a872ad6" aria-controls="R-subsections-e44d2ac58045f12532001b3c3a872ad6" checked><label for="R-section-e44d2ac58045f12532001b3c3a872ad6"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Surfaces</span></label><a class="padding" href="/reference-manual/surfaces/index.html">Surfaces</a><ul id="R-subsections-e44d2ac58045f12532001b3c3a872ad6" class="collapsible-menu">
+            <li class="" data-nav-id="/reference-manual/index.html"><input type="checkbox" id="R-section-cd49ee949da2ad410225a2e57dbddb2e" aria-controls="R-subsections-cd49ee949da2ad410225a2e57dbddb2e"><label for="R-section-cd49ee949da2ad410225a2e57dbddb2e"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Reference Manual</span></label><a class="padding default-animation" href="/reference-manual/index.html">Reference Manual</a><ul id="R-subsections-cd49ee949da2ad410225a2e57dbddb2e" class="collapsible-menu">
+            <li class="" data-nav-id="/reference-manual/vtkgeomechmodel/index.html"><a class="padding" href="/reference-manual/vtkgeomechmodel/index.html">VTK Geomechanical Model</a></li>
+            <li class="alwaysopen " data-nav-id="/reference-manual/surfaces/index.html"><input type="checkbox" id="R-section-e44d2ac58045f12532001b3c3a872ad6" aria-controls="R-subsections-e44d2ac58045f12532001b3c3a872ad6" checked><label for="R-section-e44d2ac58045f12532001b3c3a872ad6"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Surfaces</span></label><a class="padding default-animation" href="/reference-manual/surfaces/index.html">Surfaces</a><ul id="R-subsections-e44d2ac58045f12532001b3c3a872ad6" class="collapsible-menu">
             <li class="" data-nav-id="/reference-manual/surfaces/gocadsurface/index.html"><a class="padding" href="/reference-manual/surfaces/gocadsurface/index.html">GOCAD Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/openworkssurface/index.html"><a class="padding" href="/reference-manual/surfaces/openworkssurface/index.html">OpenWorks Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/ptlsurface/index.html"><a class="padding" href="/reference-manual/surfaces/ptlsurface/index.html">PTL Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/rmssurface/index.html"><a class="padding" href="/reference-manual/surfaces/rmssurface/index.html">RMS Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/vtksurface/index.html"><a class="padding" href="/reference-manual/surfaces/vtksurface/index.html">VTK Surface</a></li></ul></li></ul></li>
-            <li class="" data-nav-id="/calculated-data/index.html"><input type="checkbox" id="R-section-d7700e605b6718d9f0232aeb66e77ad1" aria-controls="R-subsections-d7700e605b6718d9f0232aeb66e77ad1"><label for="R-section-d7700e605b6718d9f0232aeb66e77ad1"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Calculated Data</span></label><a class="padding" href="/calculated-data/index.html">Calculated Data</a><ul id="R-subsections-d7700e605b6718d9f0232aeb66e77ad1" class="collapsible-menu">
+            <li class="" data-nav-id="/calculated-data/index.html"><input type="checkbox" id="R-section-d7700e605b6718d9f0232aeb66e77ad1" aria-controls="R-subsections-d7700e605b6718d9f0232aeb66e77ad1"><label for="R-section-d7700e605b6718d9f0232aeb66e77ad1"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Calculated Data</span></label><a class="padding default-animation" href="/calculated-data/index.html">Calculated Data</a><ul id="R-subsections-d7700e605b6718d9f0232aeb66e77ad1" class="collapsible-menu">
             <li class="" data-nav-id="/calculated-data/calculatorexpressions/index.html"><a class="padding" href="/calculated-data/calculatorexpressions/index.html">Calculator Expressions</a></li>
-            <li class="alwaysopen " data-nav-id="/calculated-data/grid-property-calculations/index.html"><input type="checkbox" id="R-section-58abb9faabca23d7498e2036b01e940d" aria-controls="R-subsections-58abb9faabca23d7498e2036b01e940d" checked><label for="R-section-58abb9faabca23d7498e2036b01e940d"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Grid Property Calculator</span></label><a class="padding" href="/calculated-data/grid-property-calculations/index.html">Grid Property Calculator</a><ul id="R-subsections-58abb9faabca23d7498e2036b01e940d" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/calculated-data/grid-property-calculations/index.html"><input type="checkbox" id="R-section-58abb9faabca23d7498e2036b01e940d" aria-controls="R-subsections-58abb9faabca23d7498e2036b01e940d" checked><label for="R-section-58abb9faabca23d7498e2036b01e940d"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Grid Property Calculator</span></label><a class="padding default-animation" href="/calculated-data/grid-property-calculations/index.html">Grid Property Calculator</a><ul id="R-subsections-58abb9faabca23d7498e2036b01e940d" class="collapsible-menu">
             <li class="" data-nav-id="/calculated-data/grid-property-calculations/gridpropertycalculator/index.html"><a class="padding" href="/calculated-data/grid-property-calculations/gridpropertycalculator/index.html">Grid Property Calculator</a></li>
             <li class="" data-nav-id="/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html"><a class="padding" href="/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html">Aggregation of Grid Cell Values</a></li></ul></li>
             <li class="" data-nav-id="/calculated-data/curvecalculator/index.html"><a class="padding" href="/calculated-data/curvecalculator/index.html">Curve Calculator</a></li>
             <li class="" data-nav-id="/calculated-data/derivedresults/index.html"><a class="padding" href="/calculated-data/derivedresults/index.html">Derived Results - Eclipse</a></li>
             <li class="" data-nav-id="/calculated-data/faultdistance/index.html"><a class="padding" href="/calculated-data/faultdistance/index.html">Fault Distance</a></li>
             <li class="" data-nav-id="/calculated-data/derivedresultsgeomech/index.html"><a class="padding" href="/calculated-data/derivedresultsgeomech/index.html">Derived Results - Geomechanical</a></li>
-            <li class="" data-nav-id="/calculated-data/casegroupsandstatistics/index.html"><a class="padding" href="/calculated-data/casegroupsandstatistics/index.html">Grid Case Groups and Statistics</a></li></ul></li>
-            <li class="" data-nav-id="/wells-and-completions/index.html"><input type="checkbox" id="R-section-6bd77eb465ff0d28f042f42913bdffda" aria-controls="R-subsections-6bd77eb465ff0d28f042f42913bdffda"><label for="R-section-6bd77eb465ff0d28f042f42913bdffda"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Wells and Completions</span></label><a class="padding" href="/wells-and-completions/index.html">Wells and Completions</a><ul id="R-subsections-6bd77eb465ff0d28f042f42913bdffda" class="collapsible-menu">
+            <li class="" data-nav-id="/calculated-data/casegroupsandstatistics/index.html"><a class="padding" href="/calculated-data/casegroupsandstatistics/index.html">Grid Case Groups and Statistics</a></li>
+            <li class="" data-nav-id="/calculated-data/gridensemble/index.html"><a class="padding" href="/calculated-data/gridensemble/index.html">Grid Ensemble</a></li></ul></li>
+            <li class="" data-nav-id="/wells-and-completions/index.html"><input type="checkbox" id="R-section-6bd77eb465ff0d28f042f42913bdffda" aria-controls="R-subsections-6bd77eb465ff0d28f042f42913bdffda"><label for="R-section-6bd77eb465ff0d28f042f42913bdffda"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Wells and Completions</span></label><a class="padding default-animation" href="/wells-and-completions/index.html">Wells and Completions</a><ul id="R-subsections-6bd77eb465ff0d28f042f42913bdffda" class="collapsible-menu">
             <li class="" data-nav-id="/wells-and-completions/simulationwells/index.html"><a class="padding" href="/wells-and-completions/simulationwells/index.html">Simulation Wells</a></li>
             <li class="" data-nav-id="/wells-and-completions/wellpaths/index.html"><a class="padding" href="/wells-and-completions/wellpaths/index.html">Well Paths</a></li>
             <li class="" data-nav-id="/wells-and-completions/createnewwellpaths/index.html"><a class="padding" href="/wells-and-completions/createnewwellpaths/index.html">Create Well Paths</a></li>
@@ -446,7 +471,8 @@ The <strong>Width</strong> labels show the number of active cells from the start
             <li class="" data-nav-id="/wells-and-completions/ensemblefracturestatistics/index.html"><a class="padding" href="/wells-and-completions/ensemblefracturestatistics/index.html">Ensemble Fracture Statistics</a></li>
             <li class="" data-nav-id="/wells-and-completions/completionslgr/index.html"><a class="padding" href="/wells-and-completions/completionslgr/index.html">Completions LGR</a></li>
             <li class="" data-nav-id="/wells-and-completions/wellmeasurements/index.html"><a class="padding" href="/wells-and-completions/wellmeasurements/index.html">Well Measurements</a></li></ul></li>
-            <li class="" data-nav-id="/import/index.html"><input type="checkbox" id="R-section-6394d937fb0ab7f32a2b2b5bee229032" aria-controls="R-subsections-6394d937fb0ab7f32a2b2b5bee229032"><label for="R-section-6394d937fb0ab7f32a2b2b5bee229032"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Import</span></label><a class="padding" href="/import/index.html">Import</a><ul id="R-subsections-6394d937fb0ab7f32a2b2b5bee229032" class="collapsible-menu">
+            <li class="" data-nav-id="/import/index.html"><input type="checkbox" id="R-section-6394d937fb0ab7f32a2b2b5bee229032" aria-controls="R-subsections-6394d937fb0ab7f32a2b2b5bee229032"><label for="R-section-6394d937fb0ab7f32a2b2b5bee229032"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Import</span></label><a class="padding default-animation" href="/import/index.html">Import</a><ul id="R-subsections-6394d937fb0ab7f32a2b2b5bee229032" class="collapsible-menu">
+            <li class="" data-nav-id="/import/importgridandsummaryensemble/index.html"><a class="padding" href="/import/importgridandsummaryensemble/index.html">Grid and Summary Ensemble</a></li>
             <li class="" data-nav-id="/import/cloudservices/index.html"><a class="padding" href="/import/cloudservices/index.html">Cloud Services</a></li>
             <li class="" data-nav-id="/import/cloudservicesauthorization/index.html"><a class="padding" href="/import/cloudservicesauthorization/index.html">Cloud Services - Authorization</a></li>
             <li class="" data-nav-id="/import/eclipsecases/index.html"><a class="padding" href="/import/eclipsecases/index.html">Eclipse Cases</a></li>
@@ -464,22 +490,22 @@ The <strong>Width</strong> labels show the number of active cells from the start
             <li class="" data-nav-id="/import/resultalias/index.html"><a class="padding" href="/import/resultalias/index.html">Result Aliases</a></li>
             <li class="" data-nav-id="/import/appendingadditionalproperties/index.html"><a class="padding" href="/import/appendingadditionalproperties/index.html">Appending Additional Properties</a></li>
             <li class="" data-nav-id="/import/pasteexceltimedata/index.html"><a class="padding" href="/import/pasteexceltimedata/index.html">Paste Excel Time History Data</a></li></ul></li>
-            <li class="" data-nav-id="/export/index.html"><input type="checkbox" id="R-section-5d95f477b90785732dc9d6d81acc75cc" aria-controls="R-subsections-5d95f477b90785732dc9d6d81acc75cc"><label for="R-section-5d95f477b90785732dc9d6d81acc75cc"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Export</span></label><a class="padding" href="/export/index.html">Export</a><ul id="R-subsections-5d95f477b90785732dc9d6d81acc75cc" class="collapsible-menu">
+            <li class="" data-nav-id="/export/index.html"><input type="checkbox" id="R-section-5d95f477b90785732dc9d6d81acc75cc" aria-controls="R-subsections-5d95f477b90785732dc9d6d81acc75cc"><label for="R-section-5d95f477b90785732dc9d6d81acc75cc"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Export</span></label><a class="padding default-animation" href="/export/index.html">Export</a><ul id="R-subsections-5d95f477b90785732dc9d6d81acc75cc" class="collapsible-menu">
             <li class="" data-nav-id="/export/snapshots/index.html"><a class="padding" href="/export/snapshots/index.html">Snapshots</a></li>
             <li class="" data-nav-id="/export/eclipseproperties/index.html"><a class="padding" href="/export/eclipseproperties/index.html">Eclipse Properties</a></li>
             <li class="" data-nav-id="/export/fluxnummultnum/index.html"><a class="padding" href="/export/fluxnummultnum/index.html">FLUXNUM/MULTNUM</a></li>
             <li class="" data-nav-id="/export/completionexport/index.html"><a class="padding" href="/export/completionexport/index.html">Completions</a></li>
             <li class="" data-nav-id="/export/exportwellpaths/index.html"><a class="padding" href="/export/exportwellpaths/index.html">Well Paths</a></li>
             <li class="" data-nav-id="/export/sectormodel/index.html"><a class="padding" href="/export/sectormodel/index.html">Sector Model</a></li>
-            <li class="" data-nav-id="/export/sectormodelbeta/index.html"><a class="padding" href="/export/sectormodelbeta/index.html">Sector Model Export [BETA]</a></li>
+            <li class="" data-nav-id="/export/sectormodelexport/index.html"><a class="padding" href="/export/sectormodelexport/index.html">Sector Model Export</a></li>
             <li class="" data-nav-id="/export/contourmapexport/index.html"><a class="padding" href="/export/contourmapexport/index.html">Contour Map Export</a></li></ul></li>
-            <li class="" data-nav-id="/scripting/index.html"><input type="checkbox" id="R-section-184799376902c8c3045f6aad007b8b97" aria-controls="R-subsections-184799376902c8c3045f6aad007b8b97"><label for="R-section-184799376902c8c3045f6aad007b8b97"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Scripting</span></label><a class="padding" href="/scripting/index.html">Scripting</a><ul id="R-subsections-184799376902c8c3045f6aad007b8b97" class="collapsible-menu">
+            <li class="" data-nav-id="/scripting/index.html"><input type="checkbox" id="R-section-184799376902c8c3045f6aad007b8b97" aria-controls="R-subsections-184799376902c8c3045f6aad007b8b97"><label for="R-section-184799376902c8c3045f6aad007b8b97"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Scripting</span></label><a class="padding default-animation" href="/scripting/index.html">Scripting</a><ul id="R-subsections-184799376902c8c3045f6aad007b8b97" class="collapsible-menu">
             <li class="" data-nav-id="/scripting/pythoninterface/index.html"><a class="padding" href="/scripting/pythoninterface/index.html">Python Interface</a></li>
             <li class="" data-nav-id="/scripting/commandlineinterface/index.html"><a class="padding" href="/scripting/commandlineinterface/index.html">Command Line Interface</a></li>
             <li class="" data-nav-id="/scripting/commandfile/index.html"><a class="padding" href="/scripting/commandfile/index.html">Command File</a></li>
             <li class="" data-nav-id="/scripting/octaveinterface/index.html"><a class="padding" href="/scripting/octaveinterface/index.html">Octave Interface</a></li>
             <li class="" data-nav-id="/scripting/octaveinterfacereference/index.html"><a class="padding" href="/scripting/octaveinterfacereference/index.html">Octave Interface Reference</a></li></ul></li>
-            <li class="" data-nav-id="/misc/index.html"><input type="checkbox" id="R-section-f243eab41fb28f51378992bf36c41035" aria-controls="R-subsections-f243eab41fb28f51378992bf36c41035"><label for="R-section-f243eab41fb28f51378992bf36c41035"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Miscellaneous</span></label><a class="padding" href="/misc/index.html">Miscellaneous</a><ul id="R-subsections-f243eab41fb28f51378992bf36c41035" class="collapsible-menu">
+            <li class="" data-nav-id="/misc/index.html"><input type="checkbox" id="R-section-f243eab41fb28f51378992bf36c41035" aria-controls="R-subsections-f243eab41fb28f51378992bf36c41035"><label for="R-section-f243eab41fb28f51378992bf36c41035"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Miscellaneous</span></label><a class="padding default-animation" href="/misc/index.html">Miscellaneous</a><ul id="R-subsections-f243eab41fb28f51378992bf36c41035" class="collapsible-menu">
             <li class="" data-nav-id="/misc/preferences/index.html"><a class="padding" href="/misc/preferences/index.html">Preferences</a></li>
             <li class="" data-nav-id="/misc/applicationlogging/index.html"><a class="padding" href="/misc/applicationlogging/index.html">Application Logging</a></li>
             <li class="" data-nav-id="/misc/projectfile/index.html"><a class="padding" href="/misc/projectfile/index.html">Project File and Caching</a></li>
@@ -490,23 +516,23 @@ The <strong>Width</strong> labels show the number of active cells from the start
             <li class="" data-nav-id="/misc/advancedtextinput/index.html"><a class="padding" href="/misc/advancedtextinput/index.html">Advanced Text Input</a></li>
             <li class="" data-nav-id="/misc/keyboardshortcuts/index.html"><a class="padding" href="/misc/keyboardshortcuts/index.html">Keyboard Shortcuts</a></li>
             <li class="" data-nav-id="/misc/regressiontestsystem/index.html"><a class="padding" href="/misc/regressiontestsystem/index.html">Regression Test System</a></li></ul></li>
-            <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
+            <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding default-animation" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
             <li class="" data-nav-id="/best-practices/performancehints/index.html"><a class="padding" href="/best-practices/performancehints/index.html">Performance Hints</a></li>
             <li class="" data-nav-id="/best-practices/summarydata/index.html"><a class="padding" href="/best-practices/summarydata/index.html">Summary Data Import</a></li></ul></li>
-            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
+            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding default-animation" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
             <li class="" data-nav-id="/opm-flow-integration/opmflowpreferences/index.html"><a class="padding" href="/opm-flow-integration/opmflowpreferences/index.html">Initial Configuration</a></li>
             <li class="" data-nav-id="/opm-flow-integration/createnewjob/index.html"><a class="padding" href="/opm-flow-integration/createnewjob/index.html">Create an OPM Flow Job</a></li>
             <li class="" data-nav-id="/opm-flow-integration/jobproperties/index.html"><a class="padding" href="/opm-flow-integration/jobproperties/index.html">OPM Flow Job Properties</a></li>
             <li class="" data-nav-id="/opm-flow-integration/addnewwell/index.html"><a class="padding" href="/opm-flow-integration/addnewwell/index.html">Add a New Well</a></li>
             <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li></ul></li>
-            <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
+            <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding default-animation" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
             <li class="" data-nav-id="/workflows/ensemblewelllog/index.html"><a class="padding" href="/workflows/ensemblewelllog/index.html">Ensemble Well Log</a></li>
             <li class="" data-nav-id="/workflows/welltargetmapping/index.html"><a class="padding" href="/workflows/welltargetmapping/index.html">Well Target Mapping</a></li></ul></li>
           </ul>
         </div>
-        <div id="R-shortcutmenu-shortcuts" class="R-sidebarmenu">
+        <div class="R-sidebarmenu R-shortcutmenu-shortcuts default-animation">
           <ul class="space collapsible-menu">
             <li class="" data-nav-id="/about"><a class="padding" href="/about"><i class='fas fa-info-circle'></i> About</a></li>
             <li class="" data-nav-id="/training"><a class="padding" href="/training"><i class='fa fa-university'></i> Training</a></li>
@@ -514,62 +540,24 @@ The <strong>Width</strong> labels show the number of active cells from the start
             <li class="" data-nav-id="/releases"><a class="padding" href="/releases"><i class='fas fa-download'></i> Download and Install</a></li>
           </ul>
         </div>
-        <div class="padding footermargin footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter"></div>
-        <div id="R-menu-footer">
-          <hr class="padding default-animation footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter">
-          <div id="R-prefooter" class="footerLangSwitch footerVariantSwitch footerVisitedLinks">
-            <ul>
-              <li id="R-select-language-container" class="footerLangSwitch">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-language"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <label class="a11y-only" for="R-select-language">Language</label>
-                    <select id="R-select-language" onchange="location = this.querySelector( this.value ).dataset.url;">
-                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/3d-main-window/filters/index.html" lang="en-us" selected></option>
-                    </select>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-              </li>
-              <li id="R-select-variant-container" class="footerVariantSwitch">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-paint-brush"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <label class="a11y-only" for="R-select-variant">Theme</label>
-                    <select id="R-select-variant" onchange="window.relearn.changeVariant( this.value );">
-                      <option id="R-select-variant-relearn" value="relearn" selected>Relearn</option>
-                    </select>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-                <script>window.relearn.markVariant();</script>
-              </li>
-              <li class="footerVisitedLinks">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-history"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <button onclick="clearHistory();">Clear History</button>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <div id="R-footer" class="footerFooter showFooter"><a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
+        <div id="R-footer-margin" class="default-animation"></div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-footercontrols default-animation">
+          <ul class="">
+          </ul>
+        </div>
+<div id="R-footer" class="default-animation"><a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
 
 ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetron Solutions</a>
 <p>in collaboration with</p>
 <a href="https://www.equinor.com">Equinor ASA</a>
-
-          </div>
-        </div>
+</div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1772538547" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1772538547" defer></script>
-    <script src="/js/theme.js?1772538547" defer></script>
+    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1781260068" defer></script>
+    <script src="/js/theme.min.js?1781260068" defer></script>
+    <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

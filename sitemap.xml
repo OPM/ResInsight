@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://resinsight.org/import/importgridandsummaryensemble/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/getting-started/overview/index.html</loc>
   </url>
   <url>
@@ -139,6 +142,9 @@
     <loc>https://resinsight.org/plot-window/summarysourcestepping/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/reference-manual/vtkgeomechmodel/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/wells-and-completions/wellpaths/index.html</loc>
   </url>
   <url>
@@ -212,6 +218,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/releases/build-from-source/build-instructions-windows/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/releases/build-from-source/build-instructions-mac/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/3d-main-window/colorlegends/index.html</loc>
@@ -322,7 +331,7 @@
     <loc>https://resinsight.org/export/sectormodel/index.html</loc>
   </url>
   <url>
-    <loc>https://resinsight.org/export/sectormodelbeta/index.html</loc>
+    <loc>https://resinsight.org/export/sectormodelexport/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/3d-main-window/filters/index.html</loc>
@@ -403,7 +412,13 @@
     <loc>https://resinsight.org/plot-window/ensemblerftplot/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/releases/release-notes/releasenotes_2026_06/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/workflows/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/plot-window/rftcorrelationplot/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/releases/release-notes/releasenotes_2026_02/index.html</loc>
@@ -482,6 +497,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/plot-window/gridcrossplots/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/calculated-data/gridensemble/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/3d-main-window/linkedviews/index.html</loc>

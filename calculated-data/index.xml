@@ -33,21 +33,21 @@
       <link>https://resinsight.org/calculated-data/derivedresults/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/calculated-data/derivedresults/index.html</guid>
-      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.&#xA;Derived Results for Reservoir Simulation Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.</description>
+      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.&#xA;Derived Results for Reservoir Simulation Cases&#xD;ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.</description>
     </item>
     <item>
       <title>Fault Distance</title>
       <link>https://resinsight.org/calculated-data/faultdistance/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/calculated-data/faultdistance/index.html</guid>
-      <description>Fault Distance When planning new well paths, it can be usedful to see the distance from the current cell to the closest fault. This result is available in Static-&gt;FAULTDIST&#xA;Calculation The distance is calculated based on the distance from each cell face center to the closest fault face center. One value is calculated per each cell. The calculation is started when the FAULTDIST result is selected.</description>
+      <description>When planning new well paths, it can be useful to see the distance from each cell to the closest fault. ResInsight offers two ways to access this information:&#xA;FAULTDIST – a predefined static result computing the distance to the closest of all faults in the grid. It is available in Cell Result -&gt; Static -&gt; FAULTDIST, and the calculation is started when the result is selected. Fault Distance Result – a configurable result computing the distance to a selected subset of the faults.</description>
     </item>
     <item>
       <title>Derived Results - Geomechanical</title>
       <link>https://resinsight.org/calculated-data/derivedresultsgeomech/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/calculated-data/derivedresultsgeomech/index.html</guid>
-      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.&#xA;Derived Geomechanical results ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.&#xA;Relative Results (Time Lapse Results) ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:&#xA;$Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
+      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.&#xA;Derived Geomechanical results&#xD;ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.&#xA;Relative Results (Time Lapse Results)&#xD;ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:</description>
     </item>
     <item>
       <title>Grid Case Groups and Statistics</title>
@@ -55,6 +55,13 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/calculated-data/casegroupsandstatistics/index.html</guid>
       <description>Grid Case Group’s are designed to make it easy to calculate statistics per cell and per time step of a large number of reservoir simulation cases with identical Grids (often labeled realizations).&#xA;If you have several reservoir simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.</description>
+    </item>
+    <item>
+      <title>Grid Ensemble</title>
+      <link>https://resinsight.org/calculated-data/gridensemble/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/calculated-data/gridensemble/index.html</guid>
+      <description>A Grid Ensemble groups several grid realizations under Grid Models in the Project Tree. Grid ensembles are imported with the Grid and Summary Ensemble dialog.&#xA;Each grid ensemble contains a Realizations folder with the individual grid cases and a Views folder with its 3D views. Depending on the grid geometry, a Derived Statistics folder may also be present.&#xA;Viewing Realizations&#xD;A single view can display any of the individual realizations in the ensemble. Use the realization dropdown list in the view to step between realizations without creating a separate view for each one.</description>
     </item>
   </channel>
 </rss>

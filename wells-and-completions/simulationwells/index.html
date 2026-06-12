@@ -1,81 +1,91 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
+<html id="R-html" lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.142.0">
-    <meta name="generator" content="Relearn 7.3.2+7b470298046df2c96c0da9da07a54572b7c4e1b0">
+    <meta name="generator" content="Relearn 9.0.3+36307e4ed23582638ab689240ac7b427217803ee">
     <meta name="description" content="This section describes how wells defined in the simulation are displayed, and how to control the different aspects of their visualization.
-Commands Several commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.
-New Well Log Extraction Curve – Creates a new Well Log curve based on the selected simulation well, the current time step and cell property. ( See Well Log Plots ) New Well Log RFT Curve – Creates a new RFT curve in a well log plot based on the selected simulation well. This option is only present if the current simulation well has RFT data. ( See Well Log Plots ) New RFT Plot – See [Well Log Plots](/plot-window/rftplot/. Plot Production Rates – Creates a summary plot of the selected wells production rates, along with the bottom hole pressure.
-( See Summary Plots ) Plot Well Allocation – Creates or modifies the default Well Allocation Plot to show the well. allocation for the selected well. If the case has no Fluxes the well flow rates are shown instead.
-( See Flow Diagnostics Plots ) Show Contributing Wells – This command sets up a 3D View by adding filters and modifying the Cell Result based on Flow Diagnostic Calculations to show which regions and wells that contribute to the selected well by doing: Add a property filter of Time Of Flight to/from the selected well to show only the cells that contribute to/are influenced by the well. Sets the Cell Result to show Tracer With Max Fraction based on All Injectors or All Producers (the opposite of the selected well) Toggles the visibility of the other Simulation wells to show only wells contributing to/influenced by the selected well. New Fracture – Creates a new fracture along the simulation well. (See Fracture instances) New Intersection – creates a new intersection based on the selected simulation well.
-( See Well Log Plots ) Overall Settings for Simulation Wells The Property Panel of the Simulation Wells item in the Project Tree contains options that are applied across all the wells, while the visualization of each single well can be controlled by the options in the property panel of that particular well, and will override the overall settings in the Simulation Wells item.">
+CommandsSeveral commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Simulation Wells :: ResInsight">
     <meta name="twitter:description" content="This section describes how wells defined in the simulation are displayed, and how to control the different aspects of their visualization.
-Commands Several commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.
-New Well Log Extraction Curve – Creates a new Well Log curve based on the selected simulation well, the current time step and cell property. ( See Well Log Plots ) New Well Log RFT Curve – Creates a new RFT curve in a well log plot based on the selected simulation well. This option is only present if the current simulation well has RFT data. ( See Well Log Plots ) New RFT Plot – See [Well Log Plots](/plot-window/rftplot/. Plot Production Rates – Creates a summary plot of the selected wells production rates, along with the bottom hole pressure.
-( See Summary Plots ) Plot Well Allocation – Creates or modifies the default Well Allocation Plot to show the well. allocation for the selected well. If the case has no Fluxes the well flow rates are shown instead.
-( See Flow Diagnostics Plots ) Show Contributing Wells – This command sets up a 3D View by adding filters and modifying the Cell Result based on Flow Diagnostic Calculations to show which regions and wells that contribute to the selected well by doing: Add a property filter of Time Of Flight to/from the selected well to show only the cells that contribute to/are influenced by the well. Sets the Cell Result to show Tracer With Max Fraction based on All Injectors or All Producers (the opposite of the selected well) Toggles the visibility of the other Simulation wells to show only wells contributing to/influenced by the selected well. New Fracture – Creates a new fracture along the simulation well. (See Fracture instances) New Intersection – creates a new intersection based on the selected simulation well.
-( See Well Log Plots ) Overall Settings for Simulation Wells The Property Panel of the Simulation Wells item in the Project Tree contains options that are applied across all the wells, while the visualization of each single well can be controlled by the options in the property panel of that particular well, and will override the overall settings in the Simulation Wells item.">
+CommandsSeveral commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.">
     <meta property="og:url" content="https://resinsight.org/wells-and-completions/simulationwells/index.html">
     <meta property="og:site_name" content="ResInsight">
     <meta property="og:title" content="Simulation Wells :: ResInsight">
     <meta property="og:description" content="This section describes how wells defined in the simulation are displayed, and how to control the different aspects of their visualization.
-Commands Several commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.
-New Well Log Extraction Curve – Creates a new Well Log curve based on the selected simulation well, the current time step and cell property. ( See Well Log Plots ) New Well Log RFT Curve – Creates a new RFT curve in a well log plot based on the selected simulation well. This option is only present if the current simulation well has RFT data. ( See Well Log Plots ) New RFT Plot – See [Well Log Plots](/plot-window/rftplot/. Plot Production Rates – Creates a summary plot of the selected wells production rates, along with the bottom hole pressure.
-( See Summary Plots ) Plot Well Allocation – Creates or modifies the default Well Allocation Plot to show the well. allocation for the selected well. If the case has no Fluxes the well flow rates are shown instead.
-( See Flow Diagnostics Plots ) Show Contributing Wells – This command sets up a 3D View by adding filters and modifying the Cell Result based on Flow Diagnostic Calculations to show which regions and wells that contribute to the selected well by doing: Add a property filter of Time Of Flight to/from the selected well to show only the cells that contribute to/are influenced by the well. Sets the Cell Result to show Tracer With Max Fraction based on All Injectors or All Producers (the opposite of the selected well) Toggles the visibility of the other Simulation wells to show only wells contributing to/influenced by the selected well. New Fracture – Creates a new fracture along the simulation well. (See Fracture instances) New Intersection – creates a new intersection based on the selected simulation well.
-( See Well Log Plots ) Overall Settings for Simulation Wells The Property Panel of the Simulation Wells item in the Project Tree contains options that are applied across all the wells, while the visualization of each single well can be controlled by the options in the property panel of that particular well, and will override the overall settings in the Simulation Wells item.">
+CommandsSeveral commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="article">
     <meta property="article:section" content="Wells and Completions">
     <meta itemprop="name" content="Simulation Wells :: ResInsight">
     <meta itemprop="description" content="This section describes how wells defined in the simulation are displayed, and how to control the different aspects of their visualization.
-Commands Several commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.
-New Well Log Extraction Curve – Creates a new Well Log curve based on the selected simulation well, the current time step and cell property. ( See Well Log Plots ) New Well Log RFT Curve – Creates a new RFT curve in a well log plot based on the selected simulation well. This option is only present if the current simulation well has RFT data. ( See Well Log Plots ) New RFT Plot – See [Well Log Plots](/plot-window/rftplot/. Plot Production Rates – Creates a summary plot of the selected wells production rates, along with the bottom hole pressure.
-( See Summary Plots ) Plot Well Allocation – Creates or modifies the default Well Allocation Plot to show the well. allocation for the selected well. If the case has no Fluxes the well flow rates are shown instead.
-( See Flow Diagnostics Plots ) Show Contributing Wells – This command sets up a 3D View by adding filters and modifying the Cell Result based on Flow Diagnostic Calculations to show which regions and wells that contribute to the selected well by doing: Add a property filter of Time Of Flight to/from the selected well to show only the cells that contribute to/are influenced by the well. Sets the Cell Result to show Tracer With Max Fraction based on All Injectors or All Producers (the opposite of the selected well) Toggles the visibility of the other Simulation wells to show only wells contributing to/influenced by the selected well. New Fracture – Creates a new fracture along the simulation well. (See Fracture instances) New Intersection – creates a new intersection based on the selected simulation well.
-( See Well Log Plots ) Overall Settings for Simulation Wells The Property Panel of the Simulation Wells item in the Project Tree contains options that are applied across all the wells, while the visualization of each single well can be controlled by the options in the property panel of that particular well, and will override the overall settings in the Simulation Wells item.">
+CommandsSeveral commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.">
     <meta itemprop="wordCount" content="1339">
     <title>Simulation Wells :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1772538547" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1772538547" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1772538547" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1772538547" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1772538547" rel="stylesheet">
-    <link href="/css/theme.min.css?1772538547" rel="stylesheet">
-    <link href="/css/format-html.min.css?1772538547" rel="stylesheet" id="R-format-style">
+    <link href="/images/favicon.png?1781260068" rel="icon" type="image/png">
+    <link href="/css/auto-complete/auto-complete.min.css?1781260068" rel="stylesheet">
+    <script src="/js/auto-complete/auto-complete.min.js?1781260068" defer></script>
+    <script src="/js/search-lunr.min.js?1781260068" defer></script>
+    <script src="/js/search.min.js?1781260068" defer></script>
     <script>
       window.relearn = window.relearn || {};
+      window.relearn.index_js_url="/searchindex.en.js?1781260068";
+    </script>
+    <script src="/js/lunr/lunr.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.stemmer.support.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.multi.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.en.min.js?1781260068" defer></script>
+    <script>
+      window.relearn = window.relearn || {};
+      window.relearn.contentLangs=['en'];
+    </script>
+    <link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1781260068" rel="stylesheet">
+    <link href="/css/theme.min.css?1781260068" rel="stylesheet">
+    <link href="/css/format-html.min.css?1781260068" rel="stylesheet" id="R-format-style">
+    <script>
+      window.relearn = window.relearn || {};
+      // configuration
+      window.relearn.min = `.min`;
+      window.relearn.path='\/wells-and-completions\/simulationwells\/index.html';
       window.relearn.relBasePath='..\/..';
       window.relearn.relBaseUri='..\/..';
       window.relearn.absBaseUri='https:\/\/resinsight.org';
-      window.relearn.min = `.min`;
-      window.relearn.disableAnchorCopy=false;
-      window.relearn.disableAnchorScrolling=false;
+      window.relearn.disableInlineCopyToClipboard=false;
+      window.relearn.enableBlockCodeWrap=true;
+      // translations
+      window.T_Copy_to_clipboard = `Copy text to clipboard`;
+      window.T_Copied_to_clipboard = `Text copied to clipboard!`;
+      window.T_Link_copied_to_clipboard = `Link copied to clipboard!`;
+      window.T_Reset_view = `Reset view`;
+      window.T_View_reset = `View reset!`;
+      window.T_No_results_found = `No results found for "{0}"`;
+      window.T_N_results_found = `{1} results found for "{0}"`;
+      window.T_Browser_unsupported_feature = `This browser doesn't support this feature`;
       // variant stuff
       window.relearn.themevariants = [ 'relearn' ];
-      window.relearn.customvariantname = "my-custom-variant";
+      window.relearn.customvariantprefix = "my-custom-";
       window.relearn.changeVariant = function(variant) {
         var oldVariant = document.documentElement.dataset.rThemeVariant;
         window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         document.documentElement.dataset.rThemeVariant = variant;
         if (oldVariant != variant) {
           document.dispatchEvent( new CustomEvent('themeVariantLoaded', { detail: { variant, oldVariant } }) );
+          window.relearn.markVariant();
         }
       }
       window.relearn.markVariant = function() {
         var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant");
-        var select = document.querySelector("#R-select-variant");
-        if (select) {
-          select.value = variant;
-        }
+        document.querySelectorAll(".R-variantswitcher select").forEach((select) => {select.value = variant;});
       }
       window.relearn.initVariant = function() {
         var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant") ?? "";
-        if( variant == window.relearn.customvariantname ){
-        }else if( !variant || !window.relearn.themevariants.includes(variant) ){
+        if( !variant ||
+            (!variant.startsWith(window.relearn.customvariantprefix) && !window.relearn.themevariants.includes(variant)) ||
+            (variant.startsWith(window.relearn.customvariantprefix) && !window.localStorage.getItem(window.relearn.absBaseUri + "/variantstylesheet-" + variant)) ){
           variant = window.relearn.themevariants[0];
           window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         }
@@ -83,16 +93,15 @@ New Well Log Extraction Curve – Creates a new Well Log curve based on the sele
       }
       window.relearn.initVariant();
       window.relearn.markVariant();
-      // translations
-      window.T_Copy_to_clipboard = `Copy to clipboard`;
-      window.T_Copied_to_clipboard = `Copied to clipboard!`;
-      window.T_Copy_link_to_clipboard = `Copy link to clipboard`;
-      window.T_Link_copied_to_clipboard = `Copied link to clipboard!`;
-      window.T_Reset_view = `Reset view`;
-      window.T_View_reset = `View reset!`;
-      window.T_No_results_found = `No results found for "{0}"`;
-      window.T_N_results_found = `{1} results found for "{0}"`;
     </script>
+<style type="text/css">
+     
+    mark {
+        border-radius: 0;
+        background-image: none;
+        background-color: color-mix(in srgb, var(--ACCENT-color) 35%, transparent);
+    }
+</style>
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   MathJax.Hub.Config({
@@ -125,16 +134,18 @@ New Well Log Extraction Curve – Creates a new Well Log curve based on the sele
 </script>
 
   </head>
-  <body class="mobile-support html" data-url="/wells-and-completions/simulationwells/index.html">
+  <body class="mobile-support html" data-origin="/wells-and-completions/simulationwells/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
-      <nav id="R-topbar">
-        <div class="topbar-wrapper">
-          <div class="topbar-sidebar-divider"></div>
+      <nav id="R-topbar" class="default-animation">
+        <div class="topbar-wrapper default-animation">
+          <div class="topbar-sidebar-divider default-animation"></div>
           <div class="topbar-area topbar-area-start" data-area="start">
-            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide"><button class="topbar-control" onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button>
+            <div class="topbar-button topbar-button-sidebar default-animation" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button></span>
             </div>
-            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button>
+            <div class="topbar-button topbar-button-toc default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-table-list"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
 <nav class="TableOfContents">
@@ -168,17 +179,17 @@ New Well Log Extraction Curve – Creates a new Well Log curve based on the sele
               </div>
             </div>
           </div>
-          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/index.html"><span itemprop="name">ResInsight</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/wells-and-completions/index.html"><span itemprop="name">Wells and Completions</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">Simulation Wells</span><meta itemprop="position" content="3"></li>
+          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/index.html"><span itemprop="name">ResInsight</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/wells-and-completions/index.html"><span itemprop="name">Wells and Completions</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Simulation Wells</span><meta itemprop="position" content="3"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/wells-and-completions/index.html" title="Wells and Completions (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            <div class="topbar-button topbar-button-prev default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><a href="/wells-and-completions/index.html" title="Wells and Completions (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/wells-and-completions/wellpaths/index.html" title="Well Paths (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
+            <div class="topbar-button topbar-button-next default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><a href="/wells-and-completions/wellpaths/index.html" title="Well Paths (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button>
+            <div class="topbar-button topbar-button-more default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
                   <div class="topbar-area topbar-area-more" data-area="more">
@@ -198,10 +209,10 @@ New Well Log Extraction Curve – Creates a new Well Log curve based on the sele
 
 <h1 id="simulation-wells">Simulation Wells</h1>
 
-<p><a href="#R-image-b184ee7da0a852a328881e402abb038f" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/SimulationWells.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-b184ee7da0a852a328881e402abb038f"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWells.png"></a></p>
+<p><a href="#R-image-8e1c754b14ca7381744532a8ddfe6ba6" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/SimulationWells.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-8e1c754b14ca7381744532a8ddfe6ba6"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWells.png"></a></p>
 <p>This section describes how wells defined in the simulation are displayed, and how to control the different aspects of their visualization.</p>
-<h2 id="commands">Commands</h2>
+<h2 id="commands">Commands<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p>Several commands are available as right-click commands on a simulation well. These commands are available either by right-clicking  the well in the <strong>3D View</strong> or in the <strong>Project Tree</strong>.</p>
 <ul>
 <li><strong>New Well Log Extraction Curve</strong> &ndash; Creates a new Well Log curve based on the selected simulation well, the current time step and cell property.  ( See <a href="/plot-window/welllogsandplots/index.html#well-log-extraction-curves">Well Log Plots</a> )</li>
@@ -223,13 +234,13 @@ allocation for the selected well. If the case has no Fluxes the well flow rates 
 <li><strong>New Intersection</strong> &ndash; creates a new intersection based on the selected simulation well.<br>
 ( See <a href="/3d-main-window/intersections/index.html">Well Log Plots</a> )</li>
 </ul>
-<h2 id="overall-settings-for-simulation-wells">Overall Settings for Simulation Wells</h2>
+<h2 id="overall-settings-for-simulation-wells">Overall Settings for Simulation Wells<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p>The Property Panel of the <strong>Simulation Wells</strong> item in the <strong>Project Tree</strong> contains options that are applied across all the wells, while the visualization of each single well can be controlled by the options in the property panel of that particular well, and will override the overall settings in the <strong>Simulation Wells</strong> item.</p>
 <p>If an option is overridden in any of the wells, this will be indicated in the corresponding top level toggle which will be partially checked. Toggling such a setting will overwrite the ones set on the individual level.</p>
 <p>In the following are the different parts of the <strong>Simulation Wells</strong> property panel explained.</p>
-<h3 id="visibility">Visibility</h3>
-<p><a href="#R-image-46a626f52a9afec5c772d2627f7d62ed" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsVisibilityProperties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-46a626f52a9afec5c772d2627f7d62ed"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsVisibilityProperties.png"></a></p>
+<h3 id="visibility">Visibility<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p><a href="#R-image-eada4c683b05def98c68e7dad54a0c34" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsVisibilityProperties.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-eada4c683b05def98c68e7dad54a0c34"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsVisibilityProperties.png"></a></p>
 <p>These options controls the visibility of different aspects of the simulation wells.</p>
 <ul>
 <li><strong>Wells Through Visible Cells Only</strong> &ndash; This option will only show wells with connections to cells deemed visible by the combined result of <strong>Range Filters</strong> and <strong>Property Filters</strong>.</li>
@@ -243,28 +254,28 @@ These arrows shows the communication between wells. Broader arrows indicate high
 These arrows are based on Flow Diagnostics calculations, and are only available if the eclipse results includes fluxes.
 Arrows representing communication in the opposite direction from what is expected (eg. producers supporting another well due to cross flow) are displayed in a layer &ldquo;under&rdquo; the other arrows, to make them easier to see.</li>
 </ul>
-<h3 id="well-cells-and-fence">Well Cells and Fence</h3>
-<p><a href="#R-image-0356abe3507854129c720398b3890a91" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsWellCellsProperties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-0356abe3507854129c720398b3890a91"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsWellCellsProperties.png"></a></p>
+<h3 id="well-cells-and-fence">Well Cells and Fence<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p><a href="#R-image-04c98c2a1ae998a4c293e6bd8e48732c" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsWellCellsProperties.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-04c98c2a1ae998a4c293e6bd8e48732c"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsWellCellsProperties.png"></a></p>
 <ul>
 <li><strong>Show Well Cells</strong> &ndash; This option toggles whether to add the well connection cells to the set of visible cells. If no cell filters are active, toggling this option will conveniently hide all other cells, displaying only the requested well cells.</li>
 <li><strong>Show Well Cell Fence</strong> &ndash; This options toggles whether to add all cells in a given direction ( I, J or K) to the set of visible cells, which has a connecting cell within its set.</li>
 <li><strong>Well Fence direction</strong> &ndash; Controls whether to add extensions of the well cells in the I, J or K direction to the set of visible cells</li>
 </ul>
-<h3 id="size-scaling">Size Scaling</h3>
-<p><a href="#R-image-e56af2c788e4e5ff4c5e71f9f109e002" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsScalingProperties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-e56af2c788e4e5ff4c5e71f9f109e002"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsScalingProperties.png"></a></p>
+<h3 id="size-scaling">Size Scaling<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p><a href="#R-image-704976734c302488072d823a028a1ea7" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsScalingProperties.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-704976734c302488072d823a028a1ea7"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsScalingProperties.png"></a></p>
 <ul>
 <li><strong>Well Head Scale</strong> &ndash; Scales the arrow displaying the production status of the well</li>
 <li><strong>Pipe Radius Scale</strong> &ndash; Scaling the pipe radius by the average i,j cell size.</li>
 <li><strong>Sphere Radius Scale</strong> &ndash; Scaling connection cell spheres radius by the average i,j cell size.</li>
 </ul>
 <p>Open Simulation Wells will be drawn with a slightly larger radius than closed wells. This makes open wells easier to see when they occupy the same cells as closed ones.</p>
-<h3 id="colors">Colors</h3>
-<p><a href="#R-image-822aac00ef5387ce98dc87386738c0a1" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsColorsProperties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-822aac00ef5387ce98dc87386738c0a1"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsColorsProperties.png"></a></p>
-<p><a href="#R-image-c47b174f1320981c8fc18d2638038df7" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsColorsProperties_Uniform.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-c47b174f1320981c8fc18d2638038df7"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsColorsProperties_Uniform.png"></a></p>
+<h3 id="colors">Colors<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p><a href="#R-image-13573914d845b1603a8ec9cf1bd148e7" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsColorsProperties.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-13573914d845b1603a8ec9cf1bd148e7"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsColorsProperties.png"></a></p>
+<p><a href="#R-image-246eff326adf2c324abbd2043e0d89f2" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsColorsProperties_Uniform.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-246eff326adf2c324abbd2043e0d89f2"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsColorsProperties_Uniform.png"></a></p>
 <ul>
 <li><strong>Color Pipe Connections</strong> &ndash; Applies a red, green, blue or gray color to the section of the pipe touching a connection cell indicating the production status of the connection. Gas injection, oil production, water injection or closed respectively.</li>
 <li><strong>Label Color</strong> &ndash; Sets the well label color in the 3D view.</li>
@@ -275,40 +286,40 @@ Arrows representing communication in the opposite direction from what is expecte
 <li><strong>Unique Colors</strong> &ndash; Selecting this will apply unique colors from a pre-defined color palette to all the wells, overwriting the colors they had.</li>
 <li><strong>Uniform Default Color</strong> &ndash; Selecting this will apply the same color (made available in the <strong>Uniform Well Color</strong> option to all simulation wells.</li>
 </ul>
-<h3 id="well-pipe-geometry">Well Pipe Geometry</h3>
-<p><a href="#R-image-4a1dcbe4e55c48fdbb5d0abd06666929" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsPipeGeometryProperties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-4a1dcbe4e55c48fdbb5d0abd06666929"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsPipeGeometryProperties.png"></a></p>
+<h3 id="well-pipe-geometry">Well Pipe Geometry<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p><a href="#R-image-654877f0a5128954f21f346f93d69cac" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsPipeGeometryProperties.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-654877f0a5128954f21f346f93d69cac"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsPipeGeometryProperties.png"></a></p>
 <ul>
 <li><strong>Type</strong> &ndash; Controls whether the pipe will go from cell center to cell center or in a smoother trajectory.</li>
 <li><strong>Branch Detection</strong> &ndash; Enables splitting of wells into branches based on the positions of the connection cells.  This option applies to ordinary wells only and has no effect on multi segment wells (MSW).</li>
 </ul>
-<h3 id="advanced">Advanced</h3>
-<p><a href="#R-image-0bcd43085a689f6fadee37ea1f54ba71" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsAdvancedProperties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-0bcd43085a689f6fadee37ea1f54ba71"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsAdvancedProperties.png"></a></p>
+<h3 id="advanced">Advanced<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p><a href="#R-image-9b9cdece040f2c682917982d93210ac6" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/SimulationWellsAdvancedProperties.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-9b9cdece040f2c682917982d93210ac6"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/SimulationWellsAdvancedProperties.png"></a></p>
 <ul>
 <li><strong>Well Cell Transparency</strong> &ndash; Controls the transparency level for the well cells.</li>
 <li><strong>Well Head Position</strong> &ndash; Controls the depth position of the wellhead. Either relative to the top of the active cells in the relevant IJ-column, or relative to the highest active cell overall.</li>
 </ul>
-<h3 id="disks">Disks</h3>
+<h3 id="disks">Disks<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>Disks may be used to visualize production and injection rates and cumulative production and injection with oil, gas, and water phases shown in green, red, and blue, respectively. Optionally, the quantity of production and injection can be displayed.</p>
 <p>Display of <strong>Disks</strong> are enabled from <strong>Simulations Wells</strong>, c.f. figure below. <em>Property Type</em> defaults to predefined production and injection properties but also allows for selection of a single property. When showing <em>Quantity Labels</em>, it is often useful to also activate <em>Show Label Background</em>.</p>
-<p><a href="#R-image-9f1c4ccafc108f3829425775b10e7b64" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/WellDisks.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-9f1c4ccafc108f3829425775b10e7b64"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/WellDisks.png"></a></p>
-<h2 id="individual-simulation-well-options">Individual Simulation Well options</h2>
-<p><a href="#R-image-75b94bcacac9e71f36f83cce1f470fb6" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/3d-main-window/WellProperties.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-75b94bcacac9e71f36f83cce1f470fb6"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/3d-main-window/WellProperties.png"></a></p>
+<p><a href="#R-image-ef84937091fe87314edea5873a5eca04" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/WellDisks.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-ef84937091fe87314edea5873a5eca04"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/WellDisks.png"></a></p>
+<h2 id="individual-simulation-well-options">Individual Simulation Well options<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p><a href="#R-image-d092762a6e527cd935a0639589788b45" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/WellProperties.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-d092762a6e527cd935a0639589788b45"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/WellProperties.png"></a></p>
 <p>Each of the wells has a set of individual settings which corresponds to the setting on the global level. See the documentation of <a href="/wells-and-completions/simulationwells/index.html#overall-settings-for-simulation-wells">Overall Settings for Simulation Wells</a>.</p>
 <p>Except for the <strong>Size Scaling</strong>, these options will override the corresponding setting on the global level,
 and will result in a partially checked state on the corresponding toggle in the <strong>Simulation Wells</strong> property panel.
 The <strong>Size Scaling</strong> options, however, works relative to the scaling level set on the top level.</p>
-<h2 id="well-pipes-of-multi-segment-wells">Well Pipes of Multi Segment Wells</h2>
-<p><a href="#R-image-32e5a1cc62d55785c1157be73fe83f00" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/getting-started/msw_with_valves.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-32e5a1cc62d55785c1157be73fe83f00"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/getting-started/msw_with_valves.png"></a></p>
+<h2 id="well-pipes-of-multi-segment-wells">Well Pipes of Multi Segment Wells<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p><a href="#R-image-d732e776a2105abff0d1b4a5c74b0104" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/getting-started/msw_with_valves.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-d732e776a2105abff0d1b4a5c74b0104"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/getting-started/msw_with_valves.png"></a></p>
 <p>ResInsight reads the MSW information in the result files and uses that to create a topologically correct visualization of the Multi Segment Well. Valves are visualized on the pipe geometry.</p>
 <p>Reading this information is somewhat time consuming, and can be turned off in <a href="/misc/preferences/index.html"> Preferences </a>.</p>
-<h3 id="geometry-approximation">Geometry Approximation</h3>
+<h3 id="geometry-approximation">Geometry Approximation<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>If the import of MSW data is disabled, or MSW data is not present, the topology of the well is estimated. This feature works in most cases, but can generate invalid well geometry in some cases.</p>
-<h3 id="picking-reveals-segmentbranch-info">Picking Reveals Segment/Branch Info</h3>
+<h3 id="picking-reveals-segmentbranch-info">Picking Reveals Segment/Branch Info<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>Branch and segment info of a MSW-connected-Cell is shown in the <strong>Result Info</strong> window when picking a cell in the 3D View. This can be handy when relating the visualization to the input files.</p>
 
   <footer class="footline">
@@ -319,54 +330,46 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
     </div>
     <aside id="R-sidebar" class="default-animation">
       <div id="R-header-topbar" class="default-animation"></div>
-      <div id="R-header-wrapper" class="default-animation">
-        <div id="R-header" class="default-animation">
-<a id="logo" href="https://resinsight.org/">
+      <div id="R-header-wrapper" class="default-animation"><a id="logo" href="https://resinsight.org/">
   <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png">
 </a>
 
-        </div>
-        <script>
-          window.index_js_url="/searchindex.en.js?1772538547";
-        </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
-            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-search"></i></button>
+            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-fw fa-search"></i></button>
             <label class="a11y-only" for="R-search-by">Search</label>
             <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
-            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-fw fa-times" title="Clear search"></i></button>
           </div>
         </form></search>
-        <script>
-          var contentLangs=['en'];
-        </script>
-        <script src="/js/auto-complete.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1772538547" defer></script>
-        <script src="/js/search.js?1772538547" defer></script>
-        <script>
-          (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const searchQuery = urlParams.get('q');
-            if (searchQuery) {
-              const newUrl = `/search/?search-by=${encodeURIComponent(searchQuery)}`;
-              window.location.replace(newUrl);
-            }
-          })();
-        </script>
       </div>
       <div id="R-homelinks" class="default-animation">
-        <hr class="padding">
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-homelinks default-animation">
+          <ul class="space collapsible-menu">
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-headercontrols default-animation">
+          <ul class="">
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
       </div>
       <div id="R-content-wrapper" class="highlightable">
-        <div id="R-shortcutmenu-home" class="R-sidebarmenu">
+        <div class="R-sidebarmenu R-shortcutmenu-main default-animation">
           <ul class="enlarge morespace collapsible-menu">
-            <li class="" data-nav-id="/releases/index.html"><input type="checkbox" id="R-section-a71c2f29677ba690c1b8bf454f228c9c" aria-controls="R-subsections-a71c2f29677ba690c1b8bf454f228c9c"><label for="R-section-a71c2f29677ba690c1b8bf454f228c9c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Releases</span></label><a class="padding" href="/releases/index.html">Releases</a><ul id="R-subsections-a71c2f29677ba690c1b8bf454f228c9c" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/index.html"><input type="checkbox" id="R-section-a71c2f29677ba690c1b8bf454f228c9c" aria-controls="R-subsections-a71c2f29677ba690c1b8bf454f228c9c"><label for="R-section-a71c2f29677ba690c1b8bf454f228c9c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Releases</span></label><a class="padding default-animation" href="/releases/index.html">Releases</a><ul id="R-subsections-a71c2f29677ba690c1b8bf454f228c9c" class="collapsible-menu">
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
-            <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding default-animation" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_06/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_06/index.html">What&#39;s New in 2026.06</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_02/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_02/index.html">What&#39;s New in 2026.02</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
@@ -382,16 +385,17 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2023_01/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2023_01/index.html">What&#39;s New in 2023.01</a></li></ul></li>
             <li class="" data-nav-id="/releases/releasenotification/index.html"><a class="padding" href="/releases/releasenotification/index.html">Release Notification Subscription</a></li>
             <li class="" data-nav-id="/releases/windows-subsystem-for-linux/index.html"><a class="padding" href="/releases/windows-subsystem-for-linux/index.html">Windows Subsystem for Linux</a></li>
-            <li class="alwaysopen " data-nav-id="/releases/build-from-source/index.html"><input type="checkbox" id="R-section-1a74cec0b1c9533c1ed2228aad7b645f" aria-controls="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" checked><label for="R-section-1a74cec0b1c9533c1ed2228aad7b645f"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Build From Source</span></label><a class="padding" href="/releases/build-from-source/index.html">Build From Source</a><ul id="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/releases/build-from-source/index.html"><input type="checkbox" id="R-section-1a74cec0b1c9533c1ed2228aad7b645f" aria-controls="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" checked><label for="R-section-1a74cec0b1c9533c1ed2228aad7b645f"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Build From Source</span></label><a class="padding default-animation" href="/releases/build-from-source/index.html">Build From Source</a><ul id="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" class="collapsible-menu">
             <li class="" data-nav-id="/releases/build-from-source/build-instructions-ubuntu/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-ubuntu/index.html">Build Instructions Ubuntu</a></li>
             <li class="" data-nav-id="/releases/build-from-source/build-instructions-windows/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-windows/index.html">Build Instructions Windows</a></li>
+            <li class="" data-nav-id="/releases/build-from-source/build-instructions-mac/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-mac/index.html">Build Instructions Mac</a></li>
             <li class="" data-nav-id="/releases/build-from-source/cmake-configuration/index.html"><a class="padding" href="/releases/build-from-source/cmake-configuration/index.html">CMake Configuration</a></li></ul></li></ul></li>
-            <li class="" data-nav-id="/getting-started/index.html"><input type="checkbox" id="R-section-87c0363912f379e0725cbe1d504c985c" aria-controls="R-subsections-87c0363912f379e0725cbe1d504c985c"><label for="R-section-87c0363912f379e0725cbe1d504c985c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Getting Started</span></label><a class="padding" href="/getting-started/index.html">Getting Started</a><ul id="R-subsections-87c0363912f379e0725cbe1d504c985c" class="collapsible-menu">
+            <li class="" data-nav-id="/getting-started/index.html"><input type="checkbox" id="R-section-87c0363912f379e0725cbe1d504c985c" aria-controls="R-subsections-87c0363912f379e0725cbe1d504c985c"><label for="R-section-87c0363912f379e0725cbe1d504c985c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Getting Started</span></label><a class="padding default-animation" href="/getting-started/index.html">Getting Started</a><ul id="R-subsections-87c0363912f379e0725cbe1d504c985c" class="collapsible-menu">
             <li class="" data-nav-id="/getting-started/overview/index.html"><a class="padding" href="/getting-started/overview/index.html">Overview</a></li>
             <li class="" data-nav-id="/getting-started/projecttree/index.html"><a class="padding" href="/getting-started/projecttree/index.html">Project Tree</a></li>
             <li class="" data-nav-id="/getting-started/helpmenuanddocumentation/index.html"><a class="padding" href="/getting-started/helpmenuanddocumentation/index.html">Help Menu and Documentation</a></li>
             <li class="" data-nav-id="/getting-started/modelnavigation/index.html"><a class="padding" href="/getting-started/modelnavigation/index.html">Model Navigation</a></li></ul></li>
-            <li class="" data-nav-id="/3d-main-window/index.html"><input type="checkbox" id="R-section-122c1165ab4202e74b8e3c0619dc7420" aria-controls="R-subsections-122c1165ab4202e74b8e3c0619dc7420"><label for="R-section-122c1165ab4202e74b8e3c0619dc7420"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu 3D Main Window</span></label><a class="padding" href="/3d-main-window/index.html">3D Main Window</a><ul id="R-subsections-122c1165ab4202e74b8e3c0619dc7420" class="collapsible-menu">
+            <li class="" data-nav-id="/3d-main-window/index.html"><input type="checkbox" id="R-section-122c1165ab4202e74b8e3c0619dc7420" aria-controls="R-subsections-122c1165ab4202e74b8e3c0619dc7420"><label for="R-section-122c1165ab4202e74b8e3c0619dc7420"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu 3D Main Window</span></label><a class="padding default-animation" href="/3d-main-window/index.html">3D Main Window</a><ul id="R-subsections-122c1165ab4202e74b8e3c0619dc7420" class="collapsible-menu">
             <li class="" data-nav-id="/3d-main-window/3dviews/index.html"><a class="padding" href="/3d-main-window/3dviews/index.html">3D Views</a></li>
             <li class="" data-nav-id="/3d-main-window/cellresults/index.html"><a class="padding" href="/3d-main-window/cellresults/index.html">Cell Results</a></li>
             <li class="" data-nav-id="/3d-main-window/resultcolorlegend/index.html"><a class="padding" href="/3d-main-window/resultcolorlegend/index.html">Result Color Legend</a></li>
@@ -419,7 +423,7 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
             <li class="" data-nav-id="/3d-main-window/annotations/index.html"><a class="padding" href="/3d-main-window/annotations/index.html">Annotations</a></li>
             <li class="" data-nav-id="/3d-main-window/tensors/index.html"><a class="padding" href="/3d-main-window/tensors/index.html">Tensor Results</a></li>
             <li class="" data-nav-id="/3d-main-window/gridstatisticsdialog/index.html"><a class="padding" href="/3d-main-window/gridstatisticsdialog/index.html">Grid Statistics Dialog</a></li></ul></li>
-            <li class="" data-nav-id="/plot-window/index.html"><input type="checkbox" id="R-section-6087943109d37785a7a7442a1415914b" aria-controls="R-subsections-6087943109d37785a7a7442a1415914b"><label for="R-section-6087943109d37785a7a7442a1415914b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Plot Main Window</span></label><a class="padding" href="/plot-window/index.html">Plot Main Window</a><ul id="R-subsections-6087943109d37785a7a7442a1415914b" class="collapsible-menu">
+            <li class="" data-nav-id="/plot-window/index.html"><input type="checkbox" id="R-section-6087943109d37785a7a7442a1415914b" aria-controls="R-subsections-6087943109d37785a7a7442a1415914b"><label for="R-section-6087943109d37785a7a7442a1415914b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Plot Main Window</span></label><a class="padding default-animation" href="/plot-window/index.html">Plot Main Window</a><ul id="R-subsections-6087943109d37785a7a7442a1415914b" class="collapsible-menu">
             <li class="" data-nav-id="/plot-window/summaryplots/index.html"><a class="padding" href="/plot-window/summaryplots/index.html">Summary Plots</a></li>
             <li class="" data-nav-id="/plot-window/summaryplotdatasources/index.html"><a class="padding" href="/plot-window/summaryplotdatasources/index.html">Data Sources</a></li>
             <li class="" data-nav-id="/plot-window/summaryplotmanager/index.html"><a class="padding" href="/plot-window/summaryplotmanager/index.html">Summary Plot Manager</a></li>
@@ -441,31 +445,34 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
             <li class="" data-nav-id="/plot-window/rftplot/index.html"><a class="padding" href="/plot-window/rftplot/index.html">RFT Plot</a></li>
             <li class="" data-nav-id="/plot-window/rftsegmentplot/index.html"><a class="padding" href="/plot-window/rftsegmentplot/index.html">RFT Segment Plot</a></li>
             <li class="" data-nav-id="/plot-window/ensemblerftplot/index.html"><a class="padding" href="/plot-window/ensemblerftplot/index.html">Ensemble RFT Plot</a></li>
+            <li class="" data-nav-id="/plot-window/rftcorrelationplot/index.html"><a class="padding" href="/plot-window/rftcorrelationplot/index.html">RFT Correlation Plot</a></li>
             <li class="" data-nav-id="/plot-window/pltplot/index.html"><a class="padding" href="/plot-window/pltplot/index.html">PLT Plot</a></li>
             <li class="" data-nav-id="/plot-window/vfpplot/index.html"><a class="padding" href="/plot-window/vfpplot/index.html">VFP Plot</a></li>
-            <li class="alwaysopen " data-nav-id="/plot-window/flow-diagnostics-plots/index.html"><input type="checkbox" id="R-section-8a8fa224c78732c200cb0103e9448d6b" aria-controls="R-subsections-8a8fa224c78732c200cb0103e9448d6b" checked><label for="R-section-8a8fa224c78732c200cb0103e9448d6b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Flow Diagnostics Plots</span></label><a class="padding" href="/plot-window/flow-diagnostics-plots/index.html">Flow Diagnostics Plots</a><ul id="R-subsections-8a8fa224c78732c200cb0103e9448d6b" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/plot-window/flow-diagnostics-plots/index.html"><input type="checkbox" id="R-section-8a8fa224c78732c200cb0103e9448d6b" aria-controls="R-subsections-8a8fa224c78732c200cb0103e9448d6b" checked><label for="R-section-8a8fa224c78732c200cb0103e9448d6b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Flow Diagnostics Plots</span></label><a class="padding default-animation" href="/plot-window/flow-diagnostics-plots/index.html">Flow Diagnostics Plots</a><ul id="R-subsections-8a8fa224c78732c200cb0103e9448d6b" class="collapsible-menu">
             <li class="" data-nav-id="/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html"><a class="padding" href="/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html">Producer/Injector Connectivity Tables</a></li>
             <li class="" data-nav-id="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html"><a class="padding" href="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html">Well Allocation Over Time Plot</a></li></ul></li>
             <li class="" data-nav-id="/plot-window/gridcrossplots/index.html"><a class="padding" href="/plot-window/gridcrossplots/index.html">Grid Cross Plots</a></li>
             <li class="" data-nav-id="/plot-window/saturationpressureplots/index.html"><a class="padding" href="/plot-window/saturationpressureplots/index.html">Saturation Pressure Plots</a></li></ul></li>
-            <li class="" data-nav-id="/reference-manual/index.html"><input type="checkbox" id="R-section-cd49ee949da2ad410225a2e57dbddb2e" aria-controls="R-subsections-cd49ee949da2ad410225a2e57dbddb2e"><label for="R-section-cd49ee949da2ad410225a2e57dbddb2e"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Reference Manual</span></label><a class="padding" href="/reference-manual/index.html">Reference Manual</a><ul id="R-subsections-cd49ee949da2ad410225a2e57dbddb2e" class="collapsible-menu">
-            <li class="alwaysopen " data-nav-id="/reference-manual/surfaces/index.html"><input type="checkbox" id="R-section-e44d2ac58045f12532001b3c3a872ad6" aria-controls="R-subsections-e44d2ac58045f12532001b3c3a872ad6" checked><label for="R-section-e44d2ac58045f12532001b3c3a872ad6"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Surfaces</span></label><a class="padding" href="/reference-manual/surfaces/index.html">Surfaces</a><ul id="R-subsections-e44d2ac58045f12532001b3c3a872ad6" class="collapsible-menu">
+            <li class="" data-nav-id="/reference-manual/index.html"><input type="checkbox" id="R-section-cd49ee949da2ad410225a2e57dbddb2e" aria-controls="R-subsections-cd49ee949da2ad410225a2e57dbddb2e"><label for="R-section-cd49ee949da2ad410225a2e57dbddb2e"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Reference Manual</span></label><a class="padding default-animation" href="/reference-manual/index.html">Reference Manual</a><ul id="R-subsections-cd49ee949da2ad410225a2e57dbddb2e" class="collapsible-menu">
+            <li class="" data-nav-id="/reference-manual/vtkgeomechmodel/index.html"><a class="padding" href="/reference-manual/vtkgeomechmodel/index.html">VTK Geomechanical Model</a></li>
+            <li class="alwaysopen " data-nav-id="/reference-manual/surfaces/index.html"><input type="checkbox" id="R-section-e44d2ac58045f12532001b3c3a872ad6" aria-controls="R-subsections-e44d2ac58045f12532001b3c3a872ad6" checked><label for="R-section-e44d2ac58045f12532001b3c3a872ad6"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Surfaces</span></label><a class="padding default-animation" href="/reference-manual/surfaces/index.html">Surfaces</a><ul id="R-subsections-e44d2ac58045f12532001b3c3a872ad6" class="collapsible-menu">
             <li class="" data-nav-id="/reference-manual/surfaces/gocadsurface/index.html"><a class="padding" href="/reference-manual/surfaces/gocadsurface/index.html">GOCAD Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/openworkssurface/index.html"><a class="padding" href="/reference-manual/surfaces/openworkssurface/index.html">OpenWorks Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/ptlsurface/index.html"><a class="padding" href="/reference-manual/surfaces/ptlsurface/index.html">PTL Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/rmssurface/index.html"><a class="padding" href="/reference-manual/surfaces/rmssurface/index.html">RMS Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/vtksurface/index.html"><a class="padding" href="/reference-manual/surfaces/vtksurface/index.html">VTK Surface</a></li></ul></li></ul></li>
-            <li class="" data-nav-id="/calculated-data/index.html"><input type="checkbox" id="R-section-d7700e605b6718d9f0232aeb66e77ad1" aria-controls="R-subsections-d7700e605b6718d9f0232aeb66e77ad1"><label for="R-section-d7700e605b6718d9f0232aeb66e77ad1"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Calculated Data</span></label><a class="padding" href="/calculated-data/index.html">Calculated Data</a><ul id="R-subsections-d7700e605b6718d9f0232aeb66e77ad1" class="collapsible-menu">
+            <li class="" data-nav-id="/calculated-data/index.html"><input type="checkbox" id="R-section-d7700e605b6718d9f0232aeb66e77ad1" aria-controls="R-subsections-d7700e605b6718d9f0232aeb66e77ad1"><label for="R-section-d7700e605b6718d9f0232aeb66e77ad1"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Calculated Data</span></label><a class="padding default-animation" href="/calculated-data/index.html">Calculated Data</a><ul id="R-subsections-d7700e605b6718d9f0232aeb66e77ad1" class="collapsible-menu">
             <li class="" data-nav-id="/calculated-data/calculatorexpressions/index.html"><a class="padding" href="/calculated-data/calculatorexpressions/index.html">Calculator Expressions</a></li>
-            <li class="alwaysopen " data-nav-id="/calculated-data/grid-property-calculations/index.html"><input type="checkbox" id="R-section-58abb9faabca23d7498e2036b01e940d" aria-controls="R-subsections-58abb9faabca23d7498e2036b01e940d" checked><label for="R-section-58abb9faabca23d7498e2036b01e940d"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Grid Property Calculator</span></label><a class="padding" href="/calculated-data/grid-property-calculations/index.html">Grid Property Calculator</a><ul id="R-subsections-58abb9faabca23d7498e2036b01e940d" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/calculated-data/grid-property-calculations/index.html"><input type="checkbox" id="R-section-58abb9faabca23d7498e2036b01e940d" aria-controls="R-subsections-58abb9faabca23d7498e2036b01e940d" checked><label for="R-section-58abb9faabca23d7498e2036b01e940d"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Grid Property Calculator</span></label><a class="padding default-animation" href="/calculated-data/grid-property-calculations/index.html">Grid Property Calculator</a><ul id="R-subsections-58abb9faabca23d7498e2036b01e940d" class="collapsible-menu">
             <li class="" data-nav-id="/calculated-data/grid-property-calculations/gridpropertycalculator/index.html"><a class="padding" href="/calculated-data/grid-property-calculations/gridpropertycalculator/index.html">Grid Property Calculator</a></li>
             <li class="" data-nav-id="/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html"><a class="padding" href="/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html">Aggregation of Grid Cell Values</a></li></ul></li>
             <li class="" data-nav-id="/calculated-data/curvecalculator/index.html"><a class="padding" href="/calculated-data/curvecalculator/index.html">Curve Calculator</a></li>
             <li class="" data-nav-id="/calculated-data/derivedresults/index.html"><a class="padding" href="/calculated-data/derivedresults/index.html">Derived Results - Eclipse</a></li>
             <li class="" data-nav-id="/calculated-data/faultdistance/index.html"><a class="padding" href="/calculated-data/faultdistance/index.html">Fault Distance</a></li>
             <li class="" data-nav-id="/calculated-data/derivedresultsgeomech/index.html"><a class="padding" href="/calculated-data/derivedresultsgeomech/index.html">Derived Results - Geomechanical</a></li>
-            <li class="" data-nav-id="/calculated-data/casegroupsandstatistics/index.html"><a class="padding" href="/calculated-data/casegroupsandstatistics/index.html">Grid Case Groups and Statistics</a></li></ul></li>
-            <li class="parent " data-nav-id="/wells-and-completions/index.html"><input type="checkbox" id="R-section-6bd77eb465ff0d28f042f42913bdffda" aria-controls="R-subsections-6bd77eb465ff0d28f042f42913bdffda" checked><label for="R-section-6bd77eb465ff0d28f042f42913bdffda"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Wells and Completions</span></label><a class="padding" href="/wells-and-completions/index.html">Wells and Completions</a><ul id="R-subsections-6bd77eb465ff0d28f042f42913bdffda" class="collapsible-menu">
+            <li class="" data-nav-id="/calculated-data/casegroupsandstatistics/index.html"><a class="padding" href="/calculated-data/casegroupsandstatistics/index.html">Grid Case Groups and Statistics</a></li>
+            <li class="" data-nav-id="/calculated-data/gridensemble/index.html"><a class="padding" href="/calculated-data/gridensemble/index.html">Grid Ensemble</a></li></ul></li>
+            <li class="parent " data-nav-id="/wells-and-completions/index.html"><input type="checkbox" id="R-section-6bd77eb465ff0d28f042f42913bdffda" aria-controls="R-subsections-6bd77eb465ff0d28f042f42913bdffda" checked><label for="R-section-6bd77eb465ff0d28f042f42913bdffda"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Wells and Completions</span></label><a class="padding default-animation" href="/wells-and-completions/index.html">Wells and Completions</a><ul id="R-subsections-6bd77eb465ff0d28f042f42913bdffda" class="collapsible-menu">
             <li class="active " data-nav-id="/wells-and-completions/simulationwells/index.html"><a class="padding" href="/wells-and-completions/simulationwells/index.html">Simulation Wells</a></li>
             <li class="" data-nav-id="/wells-and-completions/wellpaths/index.html"><a class="padding" href="/wells-and-completions/wellpaths/index.html">Well Paths</a></li>
             <li class="" data-nav-id="/wells-and-completions/createnewwellpaths/index.html"><a class="padding" href="/wells-and-completions/createnewwellpaths/index.html">Create Well Paths</a></li>
@@ -475,7 +482,8 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
             <li class="" data-nav-id="/wells-and-completions/ensemblefracturestatistics/index.html"><a class="padding" href="/wells-and-completions/ensemblefracturestatistics/index.html">Ensemble Fracture Statistics</a></li>
             <li class="" data-nav-id="/wells-and-completions/completionslgr/index.html"><a class="padding" href="/wells-and-completions/completionslgr/index.html">Completions LGR</a></li>
             <li class="" data-nav-id="/wells-and-completions/wellmeasurements/index.html"><a class="padding" href="/wells-and-completions/wellmeasurements/index.html">Well Measurements</a></li></ul></li>
-            <li class="" data-nav-id="/import/index.html"><input type="checkbox" id="R-section-6394d937fb0ab7f32a2b2b5bee229032" aria-controls="R-subsections-6394d937fb0ab7f32a2b2b5bee229032"><label for="R-section-6394d937fb0ab7f32a2b2b5bee229032"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Import</span></label><a class="padding" href="/import/index.html">Import</a><ul id="R-subsections-6394d937fb0ab7f32a2b2b5bee229032" class="collapsible-menu">
+            <li class="" data-nav-id="/import/index.html"><input type="checkbox" id="R-section-6394d937fb0ab7f32a2b2b5bee229032" aria-controls="R-subsections-6394d937fb0ab7f32a2b2b5bee229032"><label for="R-section-6394d937fb0ab7f32a2b2b5bee229032"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Import</span></label><a class="padding default-animation" href="/import/index.html">Import</a><ul id="R-subsections-6394d937fb0ab7f32a2b2b5bee229032" class="collapsible-menu">
+            <li class="" data-nav-id="/import/importgridandsummaryensemble/index.html"><a class="padding" href="/import/importgridandsummaryensemble/index.html">Grid and Summary Ensemble</a></li>
             <li class="" data-nav-id="/import/cloudservices/index.html"><a class="padding" href="/import/cloudservices/index.html">Cloud Services</a></li>
             <li class="" data-nav-id="/import/cloudservicesauthorization/index.html"><a class="padding" href="/import/cloudservicesauthorization/index.html">Cloud Services - Authorization</a></li>
             <li class="" data-nav-id="/import/eclipsecases/index.html"><a class="padding" href="/import/eclipsecases/index.html">Eclipse Cases</a></li>
@@ -493,22 +501,22 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
             <li class="" data-nav-id="/import/resultalias/index.html"><a class="padding" href="/import/resultalias/index.html">Result Aliases</a></li>
             <li class="" data-nav-id="/import/appendingadditionalproperties/index.html"><a class="padding" href="/import/appendingadditionalproperties/index.html">Appending Additional Properties</a></li>
             <li class="" data-nav-id="/import/pasteexceltimedata/index.html"><a class="padding" href="/import/pasteexceltimedata/index.html">Paste Excel Time History Data</a></li></ul></li>
-            <li class="" data-nav-id="/export/index.html"><input type="checkbox" id="R-section-5d95f477b90785732dc9d6d81acc75cc" aria-controls="R-subsections-5d95f477b90785732dc9d6d81acc75cc"><label for="R-section-5d95f477b90785732dc9d6d81acc75cc"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Export</span></label><a class="padding" href="/export/index.html">Export</a><ul id="R-subsections-5d95f477b90785732dc9d6d81acc75cc" class="collapsible-menu">
+            <li class="" data-nav-id="/export/index.html"><input type="checkbox" id="R-section-5d95f477b90785732dc9d6d81acc75cc" aria-controls="R-subsections-5d95f477b90785732dc9d6d81acc75cc"><label for="R-section-5d95f477b90785732dc9d6d81acc75cc"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Export</span></label><a class="padding default-animation" href="/export/index.html">Export</a><ul id="R-subsections-5d95f477b90785732dc9d6d81acc75cc" class="collapsible-menu">
             <li class="" data-nav-id="/export/snapshots/index.html"><a class="padding" href="/export/snapshots/index.html">Snapshots</a></li>
             <li class="" data-nav-id="/export/eclipseproperties/index.html"><a class="padding" href="/export/eclipseproperties/index.html">Eclipse Properties</a></li>
             <li class="" data-nav-id="/export/fluxnummultnum/index.html"><a class="padding" href="/export/fluxnummultnum/index.html">FLUXNUM/MULTNUM</a></li>
             <li class="" data-nav-id="/export/completionexport/index.html"><a class="padding" href="/export/completionexport/index.html">Completions</a></li>
             <li class="" data-nav-id="/export/exportwellpaths/index.html"><a class="padding" href="/export/exportwellpaths/index.html">Well Paths</a></li>
             <li class="" data-nav-id="/export/sectormodel/index.html"><a class="padding" href="/export/sectormodel/index.html">Sector Model</a></li>
-            <li class="" data-nav-id="/export/sectormodelbeta/index.html"><a class="padding" href="/export/sectormodelbeta/index.html">Sector Model Export [BETA]</a></li>
+            <li class="" data-nav-id="/export/sectormodelexport/index.html"><a class="padding" href="/export/sectormodelexport/index.html">Sector Model Export</a></li>
             <li class="" data-nav-id="/export/contourmapexport/index.html"><a class="padding" href="/export/contourmapexport/index.html">Contour Map Export</a></li></ul></li>
-            <li class="" data-nav-id="/scripting/index.html"><input type="checkbox" id="R-section-184799376902c8c3045f6aad007b8b97" aria-controls="R-subsections-184799376902c8c3045f6aad007b8b97"><label for="R-section-184799376902c8c3045f6aad007b8b97"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Scripting</span></label><a class="padding" href="/scripting/index.html">Scripting</a><ul id="R-subsections-184799376902c8c3045f6aad007b8b97" class="collapsible-menu">
+            <li class="" data-nav-id="/scripting/index.html"><input type="checkbox" id="R-section-184799376902c8c3045f6aad007b8b97" aria-controls="R-subsections-184799376902c8c3045f6aad007b8b97"><label for="R-section-184799376902c8c3045f6aad007b8b97"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Scripting</span></label><a class="padding default-animation" href="/scripting/index.html">Scripting</a><ul id="R-subsections-184799376902c8c3045f6aad007b8b97" class="collapsible-menu">
             <li class="" data-nav-id="/scripting/pythoninterface/index.html"><a class="padding" href="/scripting/pythoninterface/index.html">Python Interface</a></li>
             <li class="" data-nav-id="/scripting/commandlineinterface/index.html"><a class="padding" href="/scripting/commandlineinterface/index.html">Command Line Interface</a></li>
             <li class="" data-nav-id="/scripting/commandfile/index.html"><a class="padding" href="/scripting/commandfile/index.html">Command File</a></li>
             <li class="" data-nav-id="/scripting/octaveinterface/index.html"><a class="padding" href="/scripting/octaveinterface/index.html">Octave Interface</a></li>
             <li class="" data-nav-id="/scripting/octaveinterfacereference/index.html"><a class="padding" href="/scripting/octaveinterfacereference/index.html">Octave Interface Reference</a></li></ul></li>
-            <li class="" data-nav-id="/misc/index.html"><input type="checkbox" id="R-section-f243eab41fb28f51378992bf36c41035" aria-controls="R-subsections-f243eab41fb28f51378992bf36c41035"><label for="R-section-f243eab41fb28f51378992bf36c41035"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Miscellaneous</span></label><a class="padding" href="/misc/index.html">Miscellaneous</a><ul id="R-subsections-f243eab41fb28f51378992bf36c41035" class="collapsible-menu">
+            <li class="" data-nav-id="/misc/index.html"><input type="checkbox" id="R-section-f243eab41fb28f51378992bf36c41035" aria-controls="R-subsections-f243eab41fb28f51378992bf36c41035"><label for="R-section-f243eab41fb28f51378992bf36c41035"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Miscellaneous</span></label><a class="padding default-animation" href="/misc/index.html">Miscellaneous</a><ul id="R-subsections-f243eab41fb28f51378992bf36c41035" class="collapsible-menu">
             <li class="" data-nav-id="/misc/preferences/index.html"><a class="padding" href="/misc/preferences/index.html">Preferences</a></li>
             <li class="" data-nav-id="/misc/applicationlogging/index.html"><a class="padding" href="/misc/applicationlogging/index.html">Application Logging</a></li>
             <li class="" data-nav-id="/misc/projectfile/index.html"><a class="padding" href="/misc/projectfile/index.html">Project File and Caching</a></li>
@@ -519,23 +527,23 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
             <li class="" data-nav-id="/misc/advancedtextinput/index.html"><a class="padding" href="/misc/advancedtextinput/index.html">Advanced Text Input</a></li>
             <li class="" data-nav-id="/misc/keyboardshortcuts/index.html"><a class="padding" href="/misc/keyboardshortcuts/index.html">Keyboard Shortcuts</a></li>
             <li class="" data-nav-id="/misc/regressiontestsystem/index.html"><a class="padding" href="/misc/regressiontestsystem/index.html">Regression Test System</a></li></ul></li>
-            <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
+            <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding default-animation" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
             <li class="" data-nav-id="/best-practices/performancehints/index.html"><a class="padding" href="/best-practices/performancehints/index.html">Performance Hints</a></li>
             <li class="" data-nav-id="/best-practices/summarydata/index.html"><a class="padding" href="/best-practices/summarydata/index.html">Summary Data Import</a></li></ul></li>
-            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
+            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding default-animation" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
             <li class="" data-nav-id="/opm-flow-integration/opmflowpreferences/index.html"><a class="padding" href="/opm-flow-integration/opmflowpreferences/index.html">Initial Configuration</a></li>
             <li class="" data-nav-id="/opm-flow-integration/createnewjob/index.html"><a class="padding" href="/opm-flow-integration/createnewjob/index.html">Create an OPM Flow Job</a></li>
             <li class="" data-nav-id="/opm-flow-integration/jobproperties/index.html"><a class="padding" href="/opm-flow-integration/jobproperties/index.html">OPM Flow Job Properties</a></li>
             <li class="" data-nav-id="/opm-flow-integration/addnewwell/index.html"><a class="padding" href="/opm-flow-integration/addnewwell/index.html">Add a New Well</a></li>
             <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li></ul></li>
-            <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
+            <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding default-animation" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
             <li class="" data-nav-id="/workflows/ensemblewelllog/index.html"><a class="padding" href="/workflows/ensemblewelllog/index.html">Ensemble Well Log</a></li>
             <li class="" data-nav-id="/workflows/welltargetmapping/index.html"><a class="padding" href="/workflows/welltargetmapping/index.html">Well Target Mapping</a></li></ul></li>
           </ul>
         </div>
-        <div id="R-shortcutmenu-shortcuts" class="R-sidebarmenu">
+        <div class="R-sidebarmenu R-shortcutmenu-shortcuts default-animation">
           <ul class="space collapsible-menu">
             <li class="" data-nav-id="/about"><a class="padding" href="/about"><i class='fas fa-info-circle'></i> About</a></li>
             <li class="" data-nav-id="/training"><a class="padding" href="/training"><i class='fa fa-university'></i> Training</a></li>
@@ -543,62 +551,24 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
             <li class="" data-nav-id="/releases"><a class="padding" href="/releases"><i class='fas fa-download'></i> Download and Install</a></li>
           </ul>
         </div>
-        <div class="padding footermargin footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter"></div>
-        <div id="R-menu-footer">
-          <hr class="padding default-animation footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter">
-          <div id="R-prefooter" class="footerLangSwitch footerVariantSwitch footerVisitedLinks">
-            <ul>
-              <li id="R-select-language-container" class="footerLangSwitch">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-language"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <label class="a11y-only" for="R-select-language">Language</label>
-                    <select id="R-select-language" onchange="location = this.querySelector( this.value ).dataset.url;">
-                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/wells-and-completions/simulationwells/index.html" lang="en-us" selected></option>
-                    </select>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-              </li>
-              <li id="R-select-variant-container" class="footerVariantSwitch">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-paint-brush"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <label class="a11y-only" for="R-select-variant">Theme</label>
-                    <select id="R-select-variant" onchange="window.relearn.changeVariant( this.value );">
-                      <option id="R-select-variant-relearn" value="relearn" selected>Relearn</option>
-                    </select>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-                <script>window.relearn.markVariant();</script>
-              </li>
-              <li class="footerVisitedLinks">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-history"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <button onclick="clearHistory();">Clear History</button>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <div id="R-footer" class="footerFooter showFooter"><a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
+        <div id="R-footer-margin" class="default-animation"></div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-footercontrols default-animation">
+          <ul class="">
+          </ul>
+        </div>
+<div id="R-footer" class="default-animation"><a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
 
 ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetron Solutions</a>
 <p>in collaboration with</p>
 <a href="https://www.equinor.com">Equinor ASA</a>
-
-          </div>
-        </div>
+</div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1772538547" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1772538547" defer></script>
-    <script src="/js/theme.js?1772538547" defer></script>
+    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1781260068" defer></script>
+    <script src="/js/theme.min.js?1781260068" defer></script>
+    <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

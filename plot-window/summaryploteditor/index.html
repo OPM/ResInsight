@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
+<html id="R-html" lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.142.0">
-    <meta name="generator" content="Relearn 7.3.2+7b470298046df2c96c0da9da07a54572b7c4e1b0">
+    <meta name="generator" content="Relearn 9.0.3+36307e4ed23582638ab689240ac7b427217803ee">
     <meta name="description" content="The plot editor is a separate ResInsight dialog window where the user can select which vectors to display in a summary plot. It is also possible to edit an existing plot in this editor.
 The upper part of the editor contains editors for selecting which vectors/summaries to display in the plot. The number of fields vary from 3 to 6 depending on the Summary Type currently highlighted.">
     <meta name="author" content="">
@@ -25,41 +25,67 @@ The upper part of the editor contains editors for selecting which vectors/summar
 The upper part of the editor contains editors for selecting which vectors/summaries to display in the plot. The number of fields vary from 3 to 6 depending on the Summary Type currently highlighted.">
     <meta itemprop="wordCount" content="807">
     <title>Summary Plot Editor :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1772538547" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1772538547" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1772538547" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1772538547" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1772538547" rel="stylesheet">
-    <link href="/css/theme.min.css?1772538547" rel="stylesheet">
-    <link href="/css/format-html.min.css?1772538547" rel="stylesheet" id="R-format-style">
+    <link href="/images/favicon.png?1781260068" rel="icon" type="image/png">
+    <link href="/css/auto-complete/auto-complete.min.css?1781260068" rel="stylesheet">
+    <script src="/js/auto-complete/auto-complete.min.js?1781260068" defer></script>
+    <script src="/js/search-lunr.min.js?1781260068" defer></script>
+    <script src="/js/search.min.js?1781260068" defer></script>
     <script>
       window.relearn = window.relearn || {};
+      window.relearn.index_js_url="/searchindex.en.js?1781260068";
+    </script>
+    <script src="/js/lunr/lunr.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.stemmer.support.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.multi.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.en.min.js?1781260068" defer></script>
+    <script>
+      window.relearn = window.relearn || {};
+      window.relearn.contentLangs=['en'];
+    </script>
+    <link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1781260068" rel="stylesheet">
+    <link href="/css/theme.min.css?1781260068" rel="stylesheet">
+    <link href="/css/format-html.min.css?1781260068" rel="stylesheet" id="R-format-style">
+    <script>
+      window.relearn = window.relearn || {};
+      // configuration
+      window.relearn.min = `.min`;
+      window.relearn.path='\/plot-window\/summaryploteditor\/index.html';
       window.relearn.relBasePath='..\/..';
       window.relearn.relBaseUri='..\/..';
       window.relearn.absBaseUri='https:\/\/resinsight.org';
-      window.relearn.min = `.min`;
-      window.relearn.disableAnchorCopy=false;
-      window.relearn.disableAnchorScrolling=false;
+      window.relearn.disableInlineCopyToClipboard=false;
+      window.relearn.enableBlockCodeWrap=true;
+      // translations
+      window.T_Copy_to_clipboard = `Copy text to clipboard`;
+      window.T_Copied_to_clipboard = `Text copied to clipboard!`;
+      window.T_Link_copied_to_clipboard = `Link copied to clipboard!`;
+      window.T_Reset_view = `Reset view`;
+      window.T_View_reset = `View reset!`;
+      window.T_No_results_found = `No results found for "{0}"`;
+      window.T_N_results_found = `{1} results found for "{0}"`;
+      window.T_Browser_unsupported_feature = `This browser doesn't support this feature`;
       // variant stuff
       window.relearn.themevariants = [ 'relearn' ];
-      window.relearn.customvariantname = "my-custom-variant";
+      window.relearn.customvariantprefix = "my-custom-";
       window.relearn.changeVariant = function(variant) {
         var oldVariant = document.documentElement.dataset.rThemeVariant;
         window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         document.documentElement.dataset.rThemeVariant = variant;
         if (oldVariant != variant) {
           document.dispatchEvent( new CustomEvent('themeVariantLoaded', { detail: { variant, oldVariant } }) );
+          window.relearn.markVariant();
         }
       }
       window.relearn.markVariant = function() {
         var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant");
-        var select = document.querySelector("#R-select-variant");
-        if (select) {
-          select.value = variant;
-        }
+        document.querySelectorAll(".R-variantswitcher select").forEach((select) => {select.value = variant;});
       }
       window.relearn.initVariant = function() {
         var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant") ?? "";
-        if( variant == window.relearn.customvariantname ){
-        }else if( !variant || !window.relearn.themevariants.includes(variant) ){
+        if( !variant ||
+            (!variant.startsWith(window.relearn.customvariantprefix) && !window.relearn.themevariants.includes(variant)) ||
+            (variant.startsWith(window.relearn.customvariantprefix) && !window.localStorage.getItem(window.relearn.absBaseUri + "/variantstylesheet-" + variant)) ){
           variant = window.relearn.themevariants[0];
           window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         }
@@ -67,16 +93,15 @@ The upper part of the editor contains editors for selecting which vectors/summar
       }
       window.relearn.initVariant();
       window.relearn.markVariant();
-      // translations
-      window.T_Copy_to_clipboard = `Copy to clipboard`;
-      window.T_Copied_to_clipboard = `Copied to clipboard!`;
-      window.T_Copy_link_to_clipboard = `Copy link to clipboard`;
-      window.T_Link_copied_to_clipboard = `Copied link to clipboard!`;
-      window.T_Reset_view = `Reset view`;
-      window.T_View_reset = `View reset!`;
-      window.T_No_results_found = `No results found for "{0}"`;
-      window.T_N_results_found = `{1} results found for "{0}"`;
     </script>
+<style type="text/css">
+     
+    mark {
+        border-radius: 0;
+        background-image: none;
+        background-color: color-mix(in srgb, var(--ACCENT-color) 35%, transparent);
+    }
+</style>
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   MathJax.Hub.Config({
@@ -109,16 +134,18 @@ The upper part of the editor contains editors for selecting which vectors/summar
 </script>
 
   </head>
-  <body class="mobile-support html" data-url="/plot-window/summaryploteditor/index.html">
+  <body class="mobile-support html" data-origin="/plot-window/summaryploteditor/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
-      <nav id="R-topbar">
-        <div class="topbar-wrapper">
-          <div class="topbar-sidebar-divider"></div>
+      <nav id="R-topbar" class="default-animation">
+        <div class="topbar-wrapper default-animation">
+          <div class="topbar-sidebar-divider default-animation"></div>
           <div class="topbar-area topbar-area-start" data-area="start">
-            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide"><button class="topbar-control" onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button>
+            <div class="topbar-button topbar-button-sidebar default-animation" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button></span>
             </div>
-            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button>
+            <div class="topbar-button topbar-button-toc default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-table-list"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
 <nav class="TableOfContents">
@@ -148,17 +175,17 @@ The upper part of the editor contains editors for selecting which vectors/summar
               </div>
             </div>
           </div>
-          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/index.html"><span itemprop="name">ResInsight</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/plot-window/index.html"><span itemprop="name">Plot Main Window</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">Summary Plot Editor</span><meta itemprop="position" content="3"></li>
+          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/index.html"><span itemprop="name">ResInsight</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/plot-window/index.html"><span itemprop="name">Plot Main Window</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Summary Plot Editor</span><meta itemprop="position" content="3"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/plot-window/summarysourcestepping/index.html" title="Summary Plot Source Stepping (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            <div class="topbar-button topbar-button-prev default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><a href="/plot-window/summarysourcestepping/index.html" title="Summary Plot Source Stepping (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/plot-window/summarycrossplots/index.html" title="Summary Cross Plot (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
+            <div class="topbar-button topbar-button-next default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><a href="/plot-window/summarycrossplots/index.html" title="Summary Cross Plot (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button>
+            <div class="topbar-button topbar-button-more default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
                   <div class="topbar-area topbar-area-more" data-area="more">
@@ -178,12 +205,12 @@ The upper part of the editor contains editors for selecting which vectors/summar
 
 <h1 id="summary-plot-editor">Summary Plot Editor</h1>
 
-<p><a href="#R-image-88d3972a6473950d64b0aced9c6b5db3" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/SummaryPlotEditor.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-88d3972a6473950d64b0aced9c6b5db3"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotEditor.png"></a></p>
+<p><a href="#R-image-9414b09606a08ec5ec66086fa40a410f" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryPlotEditor.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-9414b09606a08ec5ec66086fa40a410f"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPlotEditor.png"></a></p>
 <p>The plot editor is a separate ResInsight dialog window where the user can select which vectors to display in a summary plot. It is also possible to edit an existing plot in this editor.</p>
 <p>The upper part of the editor contains editors for selecting which vectors/summaries to display in the plot. The number of fields vary from 3 to 6 depending on the <strong>Summary Type</strong> currently highlighted.</p>
 
-<details open class=" box cstyle notices note">
+<details open class="box cstyle notices note">
   <summary class="box-label" tabindex="-1">
     <i class="fa-fw fas fa-exclamation-circle"></i> 
     Note
@@ -192,11 +219,11 @@ The upper part of the editor contains editors for selecting which vectors/summar
 <p>Here <b>highlighted</b> means marked item with different background color, while <b>selected</b> means item(s) having  a ticked check box.</p>
   </div>
 </details>
-<h2 id="selection-fields">Selection Fields</h2>
+<h2 id="selection-fields">Selection Fields<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p>This section describes the different selection fields in the selection part of the plot editor. A complete/valid vector selection consists of a selected source, a selected summary category, a selected item in each dynamic field (if any) and a selected vector among the Summaries.</p>
-<h3 id="sources">Sources</h3>
+<h3 id="sources">Sources<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>This field contains all imported cases and ensembles. Select the case(s) and/or ensemble(s) to display in the plot.</p>
-<h3 id="summary-types-and-item-selection-fields">Summary Types and Item Selection Fields</h3>
+<h3 id="summary-types-and-item-selection-fields">Summary Types and Item Selection Fields<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>In the mid-section of the dialog, the Summary Type and the corresponding Items can be selected.</p>
 <ul>
 <li><strong>Field</strong> &ndash; Select Field related vectors only</li>
@@ -216,25 +243,25 @@ The upper part of the editor contains editors for selecting which vectors/summar
 <li><strong>Calculated</strong> &ndash; Select calculated vectors created by the <a href="/calculated-data/curvecalculator/index.html">curve calculator</a>.</li>
 <li><strong>Imported</strong> &ndash; Select observed data vectors <a href="/import/observeddata/index.html">imported from file</a> (e.g. CSV, RSM files)</li>
 </ul>
-<h3 id="summaries">Summaries</h3>
+<h3 id="summaries">Summaries<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>This field contains the summaries/vectors for the highlighted summary category.</p>
-<h2 id="preview-plot">Preview Plot</h2>
+<h2 id="preview-plot">Preview Plot<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p>When a complete/valid vector exists, one or more curves will appear in the preview plot. Each curve will also have a corresponding item in the curves field in the lower left corner. Visibility for the curves may be controlled by the checkboxes. Each curve is automatically assigned a name and appearance. However the user may modify these settings in the <em>Curve Name Configuration</em> and <em>Curve Appearance Assignment</em> fields.</p>
-<h3 id="plot-and-curve-name-configuration">Plot and Curve Name Configuration</h3>
-<p><a href="#R-image-86367eac54604f802b452534bfbc4846" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/CurveNameConfig.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-86367eac54604f802b452534bfbc4846"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/CurveNameConfig.png"></a></p>
+<h3 id="plot-and-curve-name-configuration">Plot and Curve Name Configuration<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p><a href="#R-image-3fbf5adc420b0c491a94084b8505d07b" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/CurveNameConfig.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-3fbf5adc420b0c491a94084b8505d07b"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/CurveNameConfig.png"></a></p>
 <p>The checkboxes in this field control which information elements to include in the curve name. Toggling some of the checkboxes will have no effect on some curves depending on which information elements are relevant for each curve.</p>
-<h3 id="curve-appearance-assignment">Curve Appearance Assignment</h3>
+<h3 id="curve-appearance-assignment">Curve Appearance Assignment<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>Curves created are assigned individual visual properties like colors and symbols in a systematic manner to make the plots easy to read. Different aspects of the vectors are assigned to different curve appearances. E.g. using symbols to distinguish cases, while using colors to distinguish quantity.</p>
 <p>These assignments can be controlled using the options in the <strong>Curve Appearance Assignment</strong> group.</p>
-<p><a href="#R-image-fb1593da4a4845c31b34ebf40307b5d2" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/CurveAppearanceAssignment.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-fb1593da4a4845c31b34ebf40307b5d2"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/CurveAppearanceAssignment.png"></a></p>
+<p><a href="#R-image-705633882a72fc42eebf59215ac7f1f0" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/CurveAppearanceAssignment.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-705633882a72fc42eebf59215ac7f1f0"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/CurveAppearanceAssignment.png"></a></p>
 <p>When set to <strong>Auto</strong>, ResInsight assigns visual properties based on the present vector categories and the number of different values in each category.</p>
 <p>When disabling the <strong>Auto</strong> option, you can select which of the visual curve properties to use for which summary category. The summary category that currently can be used is Case, Vector, Well, Group and Region. The visual properties supported types are Color, Symbols, Line Style, Gradient and Line Thickness.</p>
 <p>The <strong>Apply</strong> button must be clicked to apply the new settings to all curves.</p>
 <p>The curve appearance settings apply to single summary curves only and do not affect ensemble curve sets. Curve sets receive their appearance automatically from a set of color ranges.</p>
 
-<details open class=" box cstyle notices note">
+<details open class="box cstyle notices note">
   <summary class="box-label" tabindex="-1">
     <i class="fa-fw fas fa-exclamation-circle"></i> 
     Note
@@ -244,16 +271,16 @@ The upper part of the editor contains editors for selecting which vectors/summar
 Press the <b>Apply</b> button to apply consistent appearance settings according to the current curve selection.</p>
   </div>
 </details>
-<h3 id="curves">Curves</h3>
-<p><a href="#R-image-03e702c3e90a74c9d8dd1d3d89651b4a" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/SummaryPreviewCurves.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-03e702c3e90a74c9d8dd1d3d89651b4a"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/SummaryPreviewCurves.png"></a></p>
+<h3 id="curves">Curves<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p><a href="#R-image-4e8c58b00171cf197ec3ac14a05996d7" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/SummaryPreviewCurves.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-4e8c58b00171cf197ec3ac14a05996d7"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/SummaryPreviewCurves.png"></a></p>
 <p>The curves field displays all summary curves and ensemble curve sets matching the settings in the selection fields. Those are separated in two groups, <strong>Summary Curves</strong> and <strong>Ensemble Curve Sets</strong>. The check box at each item controls which items are displayed in the preview plot.</p>
 <p>If the user make a selection that will result in a huge number of ensemble curves, ResInsight will display a drawing performance warning, and the newly created curve set(s) are toggled off by default.</p>
-<h3 id="target-plot">Target Plot</h3>
-<p><a href="#R-image-010200367cee162847994cac3b11af25" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/TargetPlot_new.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-010200367cee162847994cac3b11af25"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/TargetPlot_new.png"></a>
-<a href="#R-image-d8abf46308028e6e0c109aad3ab2d985" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/plot-window/TargetPlot_1.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-d8abf46308028e6e0c109aad3ab2d985"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/plot-window/TargetPlot_1.png"></a></p>
+<h3 id="target-plot">Target Plot<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p><a href="#R-image-085c28eda5571a06586d0883a87dc55a" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/TargetPlot_new.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-085c28eda5571a06586d0883a87dc55a"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/TargetPlot_new.png"></a>
+<a href="#R-image-3bbb1638274e7246e3a314a1bfd32baf" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/plot-window/TargetPlot_1.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-3bbb1638274e7246e3a314a1bfd32baf"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/plot-window/TargetPlot_1.png"></a></p>
 <p>In the bottom of the dialog window <strong>Target Plot</strong> may be specified. The target plot is the summary plot that will receive the selected curves when the <strong>OK</strong> or <strong>Apply</strong> button is clicked.</p>
 <p>By default the target plot is set to <strong>(new plot)</strong> or to the plot selected for editing when invoking the command.</p>
 <p>Setting the target plot to a different plot will add the selected curves to that plot when pressing the the <strong>OK</strong> or <strong>Apply</strong> button.</p>
@@ -266,54 +293,46 @@ Press the <b>Apply</b> button to apply consistent appearance settings according 
     </div>
     <aside id="R-sidebar" class="default-animation">
       <div id="R-header-topbar" class="default-animation"></div>
-      <div id="R-header-wrapper" class="default-animation">
-        <div id="R-header" class="default-animation">
-<a id="logo" href="https://resinsight.org/">
+      <div id="R-header-wrapper" class="default-animation"><a id="logo" href="https://resinsight.org/">
   <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png">
 </a>
 
-        </div>
-        <script>
-          window.index_js_url="/searchindex.en.js?1772538547";
-        </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
-            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-search"></i></button>
+            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-fw fa-search"></i></button>
             <label class="a11y-only" for="R-search-by">Search</label>
             <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
-            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-fw fa-times" title="Clear search"></i></button>
           </div>
         </form></search>
-        <script>
-          var contentLangs=['en'];
-        </script>
-        <script src="/js/auto-complete.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1772538547" defer></script>
-        <script src="/js/search.js?1772538547" defer></script>
-        <script>
-          (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const searchQuery = urlParams.get('q');
-            if (searchQuery) {
-              const newUrl = `/search/?search-by=${encodeURIComponent(searchQuery)}`;
-              window.location.replace(newUrl);
-            }
-          })();
-        </script>
       </div>
       <div id="R-homelinks" class="default-animation">
-        <hr class="padding">
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-homelinks default-animation">
+          <ul class="space collapsible-menu">
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-headercontrols default-animation">
+          <ul class="">
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
       </div>
       <div id="R-content-wrapper" class="highlightable">
-        <div id="R-shortcutmenu-home" class="R-sidebarmenu">
+        <div class="R-sidebarmenu R-shortcutmenu-main default-animation">
           <ul class="enlarge morespace collapsible-menu">
-            <li class="" data-nav-id="/releases/index.html"><input type="checkbox" id="R-section-a71c2f29677ba690c1b8bf454f228c9c" aria-controls="R-subsections-a71c2f29677ba690c1b8bf454f228c9c"><label for="R-section-a71c2f29677ba690c1b8bf454f228c9c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Releases</span></label><a class="padding" href="/releases/index.html">Releases</a><ul id="R-subsections-a71c2f29677ba690c1b8bf454f228c9c" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/index.html"><input type="checkbox" id="R-section-a71c2f29677ba690c1b8bf454f228c9c" aria-controls="R-subsections-a71c2f29677ba690c1b8bf454f228c9c"><label for="R-section-a71c2f29677ba690c1b8bf454f228c9c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Releases</span></label><a class="padding default-animation" href="/releases/index.html">Releases</a><ul id="R-subsections-a71c2f29677ba690c1b8bf454f228c9c" class="collapsible-menu">
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
-            <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding default-animation" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_06/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_06/index.html">What&#39;s New in 2026.06</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_02/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_02/index.html">What&#39;s New in 2026.02</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
@@ -329,16 +348,17 @@ Press the <b>Apply</b> button to apply consistent appearance settings according 
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2023_01/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2023_01/index.html">What&#39;s New in 2023.01</a></li></ul></li>
             <li class="" data-nav-id="/releases/releasenotification/index.html"><a class="padding" href="/releases/releasenotification/index.html">Release Notification Subscription</a></li>
             <li class="" data-nav-id="/releases/windows-subsystem-for-linux/index.html"><a class="padding" href="/releases/windows-subsystem-for-linux/index.html">Windows Subsystem for Linux</a></li>
-            <li class="alwaysopen " data-nav-id="/releases/build-from-source/index.html"><input type="checkbox" id="R-section-1a74cec0b1c9533c1ed2228aad7b645f" aria-controls="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" checked><label for="R-section-1a74cec0b1c9533c1ed2228aad7b645f"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Build From Source</span></label><a class="padding" href="/releases/build-from-source/index.html">Build From Source</a><ul id="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/releases/build-from-source/index.html"><input type="checkbox" id="R-section-1a74cec0b1c9533c1ed2228aad7b645f" aria-controls="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" checked><label for="R-section-1a74cec0b1c9533c1ed2228aad7b645f"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Build From Source</span></label><a class="padding default-animation" href="/releases/build-from-source/index.html">Build From Source</a><ul id="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" class="collapsible-menu">
             <li class="" data-nav-id="/releases/build-from-source/build-instructions-ubuntu/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-ubuntu/index.html">Build Instructions Ubuntu</a></li>
             <li class="" data-nav-id="/releases/build-from-source/build-instructions-windows/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-windows/index.html">Build Instructions Windows</a></li>
+            <li class="" data-nav-id="/releases/build-from-source/build-instructions-mac/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-mac/index.html">Build Instructions Mac</a></li>
             <li class="" data-nav-id="/releases/build-from-source/cmake-configuration/index.html"><a class="padding" href="/releases/build-from-source/cmake-configuration/index.html">CMake Configuration</a></li></ul></li></ul></li>
-            <li class="" data-nav-id="/getting-started/index.html"><input type="checkbox" id="R-section-87c0363912f379e0725cbe1d504c985c" aria-controls="R-subsections-87c0363912f379e0725cbe1d504c985c"><label for="R-section-87c0363912f379e0725cbe1d504c985c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Getting Started</span></label><a class="padding" href="/getting-started/index.html">Getting Started</a><ul id="R-subsections-87c0363912f379e0725cbe1d504c985c" class="collapsible-menu">
+            <li class="" data-nav-id="/getting-started/index.html"><input type="checkbox" id="R-section-87c0363912f379e0725cbe1d504c985c" aria-controls="R-subsections-87c0363912f379e0725cbe1d504c985c"><label for="R-section-87c0363912f379e0725cbe1d504c985c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Getting Started</span></label><a class="padding default-animation" href="/getting-started/index.html">Getting Started</a><ul id="R-subsections-87c0363912f379e0725cbe1d504c985c" class="collapsible-menu">
             <li class="" data-nav-id="/getting-started/overview/index.html"><a class="padding" href="/getting-started/overview/index.html">Overview</a></li>
             <li class="" data-nav-id="/getting-started/projecttree/index.html"><a class="padding" href="/getting-started/projecttree/index.html">Project Tree</a></li>
             <li class="" data-nav-id="/getting-started/helpmenuanddocumentation/index.html"><a class="padding" href="/getting-started/helpmenuanddocumentation/index.html">Help Menu and Documentation</a></li>
             <li class="" data-nav-id="/getting-started/modelnavigation/index.html"><a class="padding" href="/getting-started/modelnavigation/index.html">Model Navigation</a></li></ul></li>
-            <li class="" data-nav-id="/3d-main-window/index.html"><input type="checkbox" id="R-section-122c1165ab4202e74b8e3c0619dc7420" aria-controls="R-subsections-122c1165ab4202e74b8e3c0619dc7420"><label for="R-section-122c1165ab4202e74b8e3c0619dc7420"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu 3D Main Window</span></label><a class="padding" href="/3d-main-window/index.html">3D Main Window</a><ul id="R-subsections-122c1165ab4202e74b8e3c0619dc7420" class="collapsible-menu">
+            <li class="" data-nav-id="/3d-main-window/index.html"><input type="checkbox" id="R-section-122c1165ab4202e74b8e3c0619dc7420" aria-controls="R-subsections-122c1165ab4202e74b8e3c0619dc7420"><label for="R-section-122c1165ab4202e74b8e3c0619dc7420"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu 3D Main Window</span></label><a class="padding default-animation" href="/3d-main-window/index.html">3D Main Window</a><ul id="R-subsections-122c1165ab4202e74b8e3c0619dc7420" class="collapsible-menu">
             <li class="" data-nav-id="/3d-main-window/3dviews/index.html"><a class="padding" href="/3d-main-window/3dviews/index.html">3D Views</a></li>
             <li class="" data-nav-id="/3d-main-window/cellresults/index.html"><a class="padding" href="/3d-main-window/cellresults/index.html">Cell Results</a></li>
             <li class="" data-nav-id="/3d-main-window/resultcolorlegend/index.html"><a class="padding" href="/3d-main-window/resultcolorlegend/index.html">Result Color Legend</a></li>
@@ -366,7 +386,7 @@ Press the <b>Apply</b> button to apply consistent appearance settings according 
             <li class="" data-nav-id="/3d-main-window/annotations/index.html"><a class="padding" href="/3d-main-window/annotations/index.html">Annotations</a></li>
             <li class="" data-nav-id="/3d-main-window/tensors/index.html"><a class="padding" href="/3d-main-window/tensors/index.html">Tensor Results</a></li>
             <li class="" data-nav-id="/3d-main-window/gridstatisticsdialog/index.html"><a class="padding" href="/3d-main-window/gridstatisticsdialog/index.html">Grid Statistics Dialog</a></li></ul></li>
-            <li class="parent " data-nav-id="/plot-window/index.html"><input type="checkbox" id="R-section-6087943109d37785a7a7442a1415914b" aria-controls="R-subsections-6087943109d37785a7a7442a1415914b" checked><label for="R-section-6087943109d37785a7a7442a1415914b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Plot Main Window</span></label><a class="padding" href="/plot-window/index.html">Plot Main Window</a><ul id="R-subsections-6087943109d37785a7a7442a1415914b" class="collapsible-menu">
+            <li class="parent " data-nav-id="/plot-window/index.html"><input type="checkbox" id="R-section-6087943109d37785a7a7442a1415914b" aria-controls="R-subsections-6087943109d37785a7a7442a1415914b" checked><label for="R-section-6087943109d37785a7a7442a1415914b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Plot Main Window</span></label><a class="padding default-animation" href="/plot-window/index.html">Plot Main Window</a><ul id="R-subsections-6087943109d37785a7a7442a1415914b" class="collapsible-menu">
             <li class="" data-nav-id="/plot-window/summaryplots/index.html"><a class="padding" href="/plot-window/summaryplots/index.html">Summary Plots</a></li>
             <li class="" data-nav-id="/plot-window/summaryplotdatasources/index.html"><a class="padding" href="/plot-window/summaryplotdatasources/index.html">Data Sources</a></li>
             <li class="" data-nav-id="/plot-window/summaryplotmanager/index.html"><a class="padding" href="/plot-window/summaryplotmanager/index.html">Summary Plot Manager</a></li>
@@ -388,31 +408,34 @@ Press the <b>Apply</b> button to apply consistent appearance settings according 
             <li class="" data-nav-id="/plot-window/rftplot/index.html"><a class="padding" href="/plot-window/rftplot/index.html">RFT Plot</a></li>
             <li class="" data-nav-id="/plot-window/rftsegmentplot/index.html"><a class="padding" href="/plot-window/rftsegmentplot/index.html">RFT Segment Plot</a></li>
             <li class="" data-nav-id="/plot-window/ensemblerftplot/index.html"><a class="padding" href="/plot-window/ensemblerftplot/index.html">Ensemble RFT Plot</a></li>
+            <li class="" data-nav-id="/plot-window/rftcorrelationplot/index.html"><a class="padding" href="/plot-window/rftcorrelationplot/index.html">RFT Correlation Plot</a></li>
             <li class="" data-nav-id="/plot-window/pltplot/index.html"><a class="padding" href="/plot-window/pltplot/index.html">PLT Plot</a></li>
             <li class="" data-nav-id="/plot-window/vfpplot/index.html"><a class="padding" href="/plot-window/vfpplot/index.html">VFP Plot</a></li>
-            <li class="alwaysopen " data-nav-id="/plot-window/flow-diagnostics-plots/index.html"><input type="checkbox" id="R-section-8a8fa224c78732c200cb0103e9448d6b" aria-controls="R-subsections-8a8fa224c78732c200cb0103e9448d6b" checked><label for="R-section-8a8fa224c78732c200cb0103e9448d6b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Flow Diagnostics Plots</span></label><a class="padding" href="/plot-window/flow-diagnostics-plots/index.html">Flow Diagnostics Plots</a><ul id="R-subsections-8a8fa224c78732c200cb0103e9448d6b" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/plot-window/flow-diagnostics-plots/index.html"><input type="checkbox" id="R-section-8a8fa224c78732c200cb0103e9448d6b" aria-controls="R-subsections-8a8fa224c78732c200cb0103e9448d6b" checked><label for="R-section-8a8fa224c78732c200cb0103e9448d6b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Flow Diagnostics Plots</span></label><a class="padding default-animation" href="/plot-window/flow-diagnostics-plots/index.html">Flow Diagnostics Plots</a><ul id="R-subsections-8a8fa224c78732c200cb0103e9448d6b" class="collapsible-menu">
             <li class="" data-nav-id="/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html"><a class="padding" href="/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html">Producer/Injector Connectivity Tables</a></li>
             <li class="" data-nav-id="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html"><a class="padding" href="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html">Well Allocation Over Time Plot</a></li></ul></li>
             <li class="" data-nav-id="/plot-window/gridcrossplots/index.html"><a class="padding" href="/plot-window/gridcrossplots/index.html">Grid Cross Plots</a></li>
             <li class="" data-nav-id="/plot-window/saturationpressureplots/index.html"><a class="padding" href="/plot-window/saturationpressureplots/index.html">Saturation Pressure Plots</a></li></ul></li>
-            <li class="" data-nav-id="/reference-manual/index.html"><input type="checkbox" id="R-section-cd49ee949da2ad410225a2e57dbddb2e" aria-controls="R-subsections-cd49ee949da2ad410225a2e57dbddb2e"><label for="R-section-cd49ee949da2ad410225a2e57dbddb2e"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Reference Manual</span></label><a class="padding" href="/reference-manual/index.html">Reference Manual</a><ul id="R-subsections-cd49ee949da2ad410225a2e57dbddb2e" class="collapsible-menu">
-            <li class="alwaysopen " data-nav-id="/reference-manual/surfaces/index.html"><input type="checkbox" id="R-section-e44d2ac58045f12532001b3c3a872ad6" aria-controls="R-subsections-e44d2ac58045f12532001b3c3a872ad6" checked><label for="R-section-e44d2ac58045f12532001b3c3a872ad6"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Surfaces</span></label><a class="padding" href="/reference-manual/surfaces/index.html">Surfaces</a><ul id="R-subsections-e44d2ac58045f12532001b3c3a872ad6" class="collapsible-menu">
+            <li class="" data-nav-id="/reference-manual/index.html"><input type="checkbox" id="R-section-cd49ee949da2ad410225a2e57dbddb2e" aria-controls="R-subsections-cd49ee949da2ad410225a2e57dbddb2e"><label for="R-section-cd49ee949da2ad410225a2e57dbddb2e"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Reference Manual</span></label><a class="padding default-animation" href="/reference-manual/index.html">Reference Manual</a><ul id="R-subsections-cd49ee949da2ad410225a2e57dbddb2e" class="collapsible-menu">
+            <li class="" data-nav-id="/reference-manual/vtkgeomechmodel/index.html"><a class="padding" href="/reference-manual/vtkgeomechmodel/index.html">VTK Geomechanical Model</a></li>
+            <li class="alwaysopen " data-nav-id="/reference-manual/surfaces/index.html"><input type="checkbox" id="R-section-e44d2ac58045f12532001b3c3a872ad6" aria-controls="R-subsections-e44d2ac58045f12532001b3c3a872ad6" checked><label for="R-section-e44d2ac58045f12532001b3c3a872ad6"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Surfaces</span></label><a class="padding default-animation" href="/reference-manual/surfaces/index.html">Surfaces</a><ul id="R-subsections-e44d2ac58045f12532001b3c3a872ad6" class="collapsible-menu">
             <li class="" data-nav-id="/reference-manual/surfaces/gocadsurface/index.html"><a class="padding" href="/reference-manual/surfaces/gocadsurface/index.html">GOCAD Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/openworkssurface/index.html"><a class="padding" href="/reference-manual/surfaces/openworkssurface/index.html">OpenWorks Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/ptlsurface/index.html"><a class="padding" href="/reference-manual/surfaces/ptlsurface/index.html">PTL Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/rmssurface/index.html"><a class="padding" href="/reference-manual/surfaces/rmssurface/index.html">RMS Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/vtksurface/index.html"><a class="padding" href="/reference-manual/surfaces/vtksurface/index.html">VTK Surface</a></li></ul></li></ul></li>
-            <li class="" data-nav-id="/calculated-data/index.html"><input type="checkbox" id="R-section-d7700e605b6718d9f0232aeb66e77ad1" aria-controls="R-subsections-d7700e605b6718d9f0232aeb66e77ad1"><label for="R-section-d7700e605b6718d9f0232aeb66e77ad1"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Calculated Data</span></label><a class="padding" href="/calculated-data/index.html">Calculated Data</a><ul id="R-subsections-d7700e605b6718d9f0232aeb66e77ad1" class="collapsible-menu">
+            <li class="" data-nav-id="/calculated-data/index.html"><input type="checkbox" id="R-section-d7700e605b6718d9f0232aeb66e77ad1" aria-controls="R-subsections-d7700e605b6718d9f0232aeb66e77ad1"><label for="R-section-d7700e605b6718d9f0232aeb66e77ad1"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Calculated Data</span></label><a class="padding default-animation" href="/calculated-data/index.html">Calculated Data</a><ul id="R-subsections-d7700e605b6718d9f0232aeb66e77ad1" class="collapsible-menu">
             <li class="" data-nav-id="/calculated-data/calculatorexpressions/index.html"><a class="padding" href="/calculated-data/calculatorexpressions/index.html">Calculator Expressions</a></li>
-            <li class="alwaysopen " data-nav-id="/calculated-data/grid-property-calculations/index.html"><input type="checkbox" id="R-section-58abb9faabca23d7498e2036b01e940d" aria-controls="R-subsections-58abb9faabca23d7498e2036b01e940d" checked><label for="R-section-58abb9faabca23d7498e2036b01e940d"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Grid Property Calculator</span></label><a class="padding" href="/calculated-data/grid-property-calculations/index.html">Grid Property Calculator</a><ul id="R-subsections-58abb9faabca23d7498e2036b01e940d" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/calculated-data/grid-property-calculations/index.html"><input type="checkbox" id="R-section-58abb9faabca23d7498e2036b01e940d" aria-controls="R-subsections-58abb9faabca23d7498e2036b01e940d" checked><label for="R-section-58abb9faabca23d7498e2036b01e940d"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Grid Property Calculator</span></label><a class="padding default-animation" href="/calculated-data/grid-property-calculations/index.html">Grid Property Calculator</a><ul id="R-subsections-58abb9faabca23d7498e2036b01e940d" class="collapsible-menu">
             <li class="" data-nav-id="/calculated-data/grid-property-calculations/gridpropertycalculator/index.html"><a class="padding" href="/calculated-data/grid-property-calculations/gridpropertycalculator/index.html">Grid Property Calculator</a></li>
             <li class="" data-nav-id="/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html"><a class="padding" href="/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html">Aggregation of Grid Cell Values</a></li></ul></li>
             <li class="" data-nav-id="/calculated-data/curvecalculator/index.html"><a class="padding" href="/calculated-data/curvecalculator/index.html">Curve Calculator</a></li>
             <li class="" data-nav-id="/calculated-data/derivedresults/index.html"><a class="padding" href="/calculated-data/derivedresults/index.html">Derived Results - Eclipse</a></li>
             <li class="" data-nav-id="/calculated-data/faultdistance/index.html"><a class="padding" href="/calculated-data/faultdistance/index.html">Fault Distance</a></li>
             <li class="" data-nav-id="/calculated-data/derivedresultsgeomech/index.html"><a class="padding" href="/calculated-data/derivedresultsgeomech/index.html">Derived Results - Geomechanical</a></li>
-            <li class="" data-nav-id="/calculated-data/casegroupsandstatistics/index.html"><a class="padding" href="/calculated-data/casegroupsandstatistics/index.html">Grid Case Groups and Statistics</a></li></ul></li>
-            <li class="" data-nav-id="/wells-and-completions/index.html"><input type="checkbox" id="R-section-6bd77eb465ff0d28f042f42913bdffda" aria-controls="R-subsections-6bd77eb465ff0d28f042f42913bdffda"><label for="R-section-6bd77eb465ff0d28f042f42913bdffda"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Wells and Completions</span></label><a class="padding" href="/wells-and-completions/index.html">Wells and Completions</a><ul id="R-subsections-6bd77eb465ff0d28f042f42913bdffda" class="collapsible-menu">
+            <li class="" data-nav-id="/calculated-data/casegroupsandstatistics/index.html"><a class="padding" href="/calculated-data/casegroupsandstatistics/index.html">Grid Case Groups and Statistics</a></li>
+            <li class="" data-nav-id="/calculated-data/gridensemble/index.html"><a class="padding" href="/calculated-data/gridensemble/index.html">Grid Ensemble</a></li></ul></li>
+            <li class="" data-nav-id="/wells-and-completions/index.html"><input type="checkbox" id="R-section-6bd77eb465ff0d28f042f42913bdffda" aria-controls="R-subsections-6bd77eb465ff0d28f042f42913bdffda"><label for="R-section-6bd77eb465ff0d28f042f42913bdffda"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Wells and Completions</span></label><a class="padding default-animation" href="/wells-and-completions/index.html">Wells and Completions</a><ul id="R-subsections-6bd77eb465ff0d28f042f42913bdffda" class="collapsible-menu">
             <li class="" data-nav-id="/wells-and-completions/simulationwells/index.html"><a class="padding" href="/wells-and-completions/simulationwells/index.html">Simulation Wells</a></li>
             <li class="" data-nav-id="/wells-and-completions/wellpaths/index.html"><a class="padding" href="/wells-and-completions/wellpaths/index.html">Well Paths</a></li>
             <li class="" data-nav-id="/wells-and-completions/createnewwellpaths/index.html"><a class="padding" href="/wells-and-completions/createnewwellpaths/index.html">Create Well Paths</a></li>
@@ -422,7 +445,8 @@ Press the <b>Apply</b> button to apply consistent appearance settings according 
             <li class="" data-nav-id="/wells-and-completions/ensemblefracturestatistics/index.html"><a class="padding" href="/wells-and-completions/ensemblefracturestatistics/index.html">Ensemble Fracture Statistics</a></li>
             <li class="" data-nav-id="/wells-and-completions/completionslgr/index.html"><a class="padding" href="/wells-and-completions/completionslgr/index.html">Completions LGR</a></li>
             <li class="" data-nav-id="/wells-and-completions/wellmeasurements/index.html"><a class="padding" href="/wells-and-completions/wellmeasurements/index.html">Well Measurements</a></li></ul></li>
-            <li class="" data-nav-id="/import/index.html"><input type="checkbox" id="R-section-6394d937fb0ab7f32a2b2b5bee229032" aria-controls="R-subsections-6394d937fb0ab7f32a2b2b5bee229032"><label for="R-section-6394d937fb0ab7f32a2b2b5bee229032"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Import</span></label><a class="padding" href="/import/index.html">Import</a><ul id="R-subsections-6394d937fb0ab7f32a2b2b5bee229032" class="collapsible-menu">
+            <li class="" data-nav-id="/import/index.html"><input type="checkbox" id="R-section-6394d937fb0ab7f32a2b2b5bee229032" aria-controls="R-subsections-6394d937fb0ab7f32a2b2b5bee229032"><label for="R-section-6394d937fb0ab7f32a2b2b5bee229032"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Import</span></label><a class="padding default-animation" href="/import/index.html">Import</a><ul id="R-subsections-6394d937fb0ab7f32a2b2b5bee229032" class="collapsible-menu">
+            <li class="" data-nav-id="/import/importgridandsummaryensemble/index.html"><a class="padding" href="/import/importgridandsummaryensemble/index.html">Grid and Summary Ensemble</a></li>
             <li class="" data-nav-id="/import/cloudservices/index.html"><a class="padding" href="/import/cloudservices/index.html">Cloud Services</a></li>
             <li class="" data-nav-id="/import/cloudservicesauthorization/index.html"><a class="padding" href="/import/cloudservicesauthorization/index.html">Cloud Services - Authorization</a></li>
             <li class="" data-nav-id="/import/eclipsecases/index.html"><a class="padding" href="/import/eclipsecases/index.html">Eclipse Cases</a></li>
@@ -440,22 +464,22 @@ Press the <b>Apply</b> button to apply consistent appearance settings according 
             <li class="" data-nav-id="/import/resultalias/index.html"><a class="padding" href="/import/resultalias/index.html">Result Aliases</a></li>
             <li class="" data-nav-id="/import/appendingadditionalproperties/index.html"><a class="padding" href="/import/appendingadditionalproperties/index.html">Appending Additional Properties</a></li>
             <li class="" data-nav-id="/import/pasteexceltimedata/index.html"><a class="padding" href="/import/pasteexceltimedata/index.html">Paste Excel Time History Data</a></li></ul></li>
-            <li class="" data-nav-id="/export/index.html"><input type="checkbox" id="R-section-5d95f477b90785732dc9d6d81acc75cc" aria-controls="R-subsections-5d95f477b90785732dc9d6d81acc75cc"><label for="R-section-5d95f477b90785732dc9d6d81acc75cc"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Export</span></label><a class="padding" href="/export/index.html">Export</a><ul id="R-subsections-5d95f477b90785732dc9d6d81acc75cc" class="collapsible-menu">
+            <li class="" data-nav-id="/export/index.html"><input type="checkbox" id="R-section-5d95f477b90785732dc9d6d81acc75cc" aria-controls="R-subsections-5d95f477b90785732dc9d6d81acc75cc"><label for="R-section-5d95f477b90785732dc9d6d81acc75cc"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Export</span></label><a class="padding default-animation" href="/export/index.html">Export</a><ul id="R-subsections-5d95f477b90785732dc9d6d81acc75cc" class="collapsible-menu">
             <li class="" data-nav-id="/export/snapshots/index.html"><a class="padding" href="/export/snapshots/index.html">Snapshots</a></li>
             <li class="" data-nav-id="/export/eclipseproperties/index.html"><a class="padding" href="/export/eclipseproperties/index.html">Eclipse Properties</a></li>
             <li class="" data-nav-id="/export/fluxnummultnum/index.html"><a class="padding" href="/export/fluxnummultnum/index.html">FLUXNUM/MULTNUM</a></li>
             <li class="" data-nav-id="/export/completionexport/index.html"><a class="padding" href="/export/completionexport/index.html">Completions</a></li>
             <li class="" data-nav-id="/export/exportwellpaths/index.html"><a class="padding" href="/export/exportwellpaths/index.html">Well Paths</a></li>
             <li class="" data-nav-id="/export/sectormodel/index.html"><a class="padding" href="/export/sectormodel/index.html">Sector Model</a></li>
-            <li class="" data-nav-id="/export/sectormodelbeta/index.html"><a class="padding" href="/export/sectormodelbeta/index.html">Sector Model Export [BETA]</a></li>
+            <li class="" data-nav-id="/export/sectormodelexport/index.html"><a class="padding" href="/export/sectormodelexport/index.html">Sector Model Export</a></li>
             <li class="" data-nav-id="/export/contourmapexport/index.html"><a class="padding" href="/export/contourmapexport/index.html">Contour Map Export</a></li></ul></li>
-            <li class="" data-nav-id="/scripting/index.html"><input type="checkbox" id="R-section-184799376902c8c3045f6aad007b8b97" aria-controls="R-subsections-184799376902c8c3045f6aad007b8b97"><label for="R-section-184799376902c8c3045f6aad007b8b97"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Scripting</span></label><a class="padding" href="/scripting/index.html">Scripting</a><ul id="R-subsections-184799376902c8c3045f6aad007b8b97" class="collapsible-menu">
+            <li class="" data-nav-id="/scripting/index.html"><input type="checkbox" id="R-section-184799376902c8c3045f6aad007b8b97" aria-controls="R-subsections-184799376902c8c3045f6aad007b8b97"><label for="R-section-184799376902c8c3045f6aad007b8b97"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Scripting</span></label><a class="padding default-animation" href="/scripting/index.html">Scripting</a><ul id="R-subsections-184799376902c8c3045f6aad007b8b97" class="collapsible-menu">
             <li class="" data-nav-id="/scripting/pythoninterface/index.html"><a class="padding" href="/scripting/pythoninterface/index.html">Python Interface</a></li>
             <li class="" data-nav-id="/scripting/commandlineinterface/index.html"><a class="padding" href="/scripting/commandlineinterface/index.html">Command Line Interface</a></li>
             <li class="" data-nav-id="/scripting/commandfile/index.html"><a class="padding" href="/scripting/commandfile/index.html">Command File</a></li>
             <li class="" data-nav-id="/scripting/octaveinterface/index.html"><a class="padding" href="/scripting/octaveinterface/index.html">Octave Interface</a></li>
             <li class="" data-nav-id="/scripting/octaveinterfacereference/index.html"><a class="padding" href="/scripting/octaveinterfacereference/index.html">Octave Interface Reference</a></li></ul></li>
-            <li class="" data-nav-id="/misc/index.html"><input type="checkbox" id="R-section-f243eab41fb28f51378992bf36c41035" aria-controls="R-subsections-f243eab41fb28f51378992bf36c41035"><label for="R-section-f243eab41fb28f51378992bf36c41035"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Miscellaneous</span></label><a class="padding" href="/misc/index.html">Miscellaneous</a><ul id="R-subsections-f243eab41fb28f51378992bf36c41035" class="collapsible-menu">
+            <li class="" data-nav-id="/misc/index.html"><input type="checkbox" id="R-section-f243eab41fb28f51378992bf36c41035" aria-controls="R-subsections-f243eab41fb28f51378992bf36c41035"><label for="R-section-f243eab41fb28f51378992bf36c41035"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Miscellaneous</span></label><a class="padding default-animation" href="/misc/index.html">Miscellaneous</a><ul id="R-subsections-f243eab41fb28f51378992bf36c41035" class="collapsible-menu">
             <li class="" data-nav-id="/misc/preferences/index.html"><a class="padding" href="/misc/preferences/index.html">Preferences</a></li>
             <li class="" data-nav-id="/misc/applicationlogging/index.html"><a class="padding" href="/misc/applicationlogging/index.html">Application Logging</a></li>
             <li class="" data-nav-id="/misc/projectfile/index.html"><a class="padding" href="/misc/projectfile/index.html">Project File and Caching</a></li>
@@ -466,23 +490,23 @@ Press the <b>Apply</b> button to apply consistent appearance settings according 
             <li class="" data-nav-id="/misc/advancedtextinput/index.html"><a class="padding" href="/misc/advancedtextinput/index.html">Advanced Text Input</a></li>
             <li class="" data-nav-id="/misc/keyboardshortcuts/index.html"><a class="padding" href="/misc/keyboardshortcuts/index.html">Keyboard Shortcuts</a></li>
             <li class="" data-nav-id="/misc/regressiontestsystem/index.html"><a class="padding" href="/misc/regressiontestsystem/index.html">Regression Test System</a></li></ul></li>
-            <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
+            <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding default-animation" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
             <li class="" data-nav-id="/best-practices/performancehints/index.html"><a class="padding" href="/best-practices/performancehints/index.html">Performance Hints</a></li>
             <li class="" data-nav-id="/best-practices/summarydata/index.html"><a class="padding" href="/best-practices/summarydata/index.html">Summary Data Import</a></li></ul></li>
-            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
+            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding default-animation" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
             <li class="" data-nav-id="/opm-flow-integration/opmflowpreferences/index.html"><a class="padding" href="/opm-flow-integration/opmflowpreferences/index.html">Initial Configuration</a></li>
             <li class="" data-nav-id="/opm-flow-integration/createnewjob/index.html"><a class="padding" href="/opm-flow-integration/createnewjob/index.html">Create an OPM Flow Job</a></li>
             <li class="" data-nav-id="/opm-flow-integration/jobproperties/index.html"><a class="padding" href="/opm-flow-integration/jobproperties/index.html">OPM Flow Job Properties</a></li>
             <li class="" data-nav-id="/opm-flow-integration/addnewwell/index.html"><a class="padding" href="/opm-flow-integration/addnewwell/index.html">Add a New Well</a></li>
             <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li></ul></li>
-            <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
+            <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding default-animation" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
             <li class="" data-nav-id="/workflows/ensemblewelllog/index.html"><a class="padding" href="/workflows/ensemblewelllog/index.html">Ensemble Well Log</a></li>
             <li class="" data-nav-id="/workflows/welltargetmapping/index.html"><a class="padding" href="/workflows/welltargetmapping/index.html">Well Target Mapping</a></li></ul></li>
           </ul>
         </div>
-        <div id="R-shortcutmenu-shortcuts" class="R-sidebarmenu">
+        <div class="R-sidebarmenu R-shortcutmenu-shortcuts default-animation">
           <ul class="space collapsible-menu">
             <li class="" data-nav-id="/about"><a class="padding" href="/about"><i class='fas fa-info-circle'></i> About</a></li>
             <li class="" data-nav-id="/training"><a class="padding" href="/training"><i class='fa fa-university'></i> Training</a></li>
@@ -490,62 +514,24 @@ Press the <b>Apply</b> button to apply consistent appearance settings according 
             <li class="" data-nav-id="/releases"><a class="padding" href="/releases"><i class='fas fa-download'></i> Download and Install</a></li>
           </ul>
         </div>
-        <div class="padding footermargin footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter"></div>
-        <div id="R-menu-footer">
-          <hr class="padding default-animation footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter">
-          <div id="R-prefooter" class="footerLangSwitch footerVariantSwitch footerVisitedLinks">
-            <ul>
-              <li id="R-select-language-container" class="footerLangSwitch">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-language"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <label class="a11y-only" for="R-select-language">Language</label>
-                    <select id="R-select-language" onchange="location = this.querySelector( this.value ).dataset.url;">
-                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/plot-window/summaryploteditor/index.html" lang="en-us" selected></option>
-                    </select>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-              </li>
-              <li id="R-select-variant-container" class="footerVariantSwitch">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-paint-brush"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <label class="a11y-only" for="R-select-variant">Theme</label>
-                    <select id="R-select-variant" onchange="window.relearn.changeVariant( this.value );">
-                      <option id="R-select-variant-relearn" value="relearn" selected>Relearn</option>
-                    </select>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-                <script>window.relearn.markVariant();</script>
-              </li>
-              <li class="footerVisitedLinks">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-history"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <button onclick="clearHistory();">Clear History</button>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <div id="R-footer" class="footerFooter showFooter"><a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
+        <div id="R-footer-margin" class="default-animation"></div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-footercontrols default-animation">
+          <ul class="">
+          </ul>
+        </div>
+<div id="R-footer" class="default-animation"><a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
 
 ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetron Solutions</a>
 <p>in collaboration with</p>
 <a href="https://www.equinor.com">Equinor ASA</a>
-
-          </div>
-        </div>
+</div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1772538547" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1772538547" defer></script>
-    <script src="/js/theme.js?1772538547" defer></script>
+    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1781260068" defer></script>
+    <script src="/js/theme.min.js?1781260068" defer></script>
+    <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

@@ -12,28 +12,28 @@
       <link>https://resinsight.org/workflows/biotcoefficient/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/workflows/biotcoefficient/index.html</guid>
-      <description>Background&#xA;The Biot porelastic coefficient defines the compressibility of sand grains, and will influence some of the calculations in ResInsight.&#xA;Description The Biot coefficient can be defined in three ways:&#xA;Default (Constant value of 1.0) User defined constant for all element One value for each element based on imported values from an element property table These settings are controlled from the Property Editor when a Geomechanical Case is selected. To use Biot coefficients for each element, perform the following steps:</description>
+      <description>Background&#xA;The Biot porelastic coefficient defines the compressibility of sand grains, and will influence some of the calculations in ResInsight.&#xA;Description&#xD;The Biot coefficient can be defined in three ways:&#xA;Default (Constant value of 1.0) User defined constant for all element One value for each element based on imported values from an element property table These settings are controlled from the Property Editor when a Geomechanical Case is selected. To use Biot coefficients for each element, perform the following steps:</description>
     </item>
     <item>
       <title>Ensemble Surface</title>
       <link>https://resinsight.org/workflows/ensemblesurface/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/workflows/ensemblesurface/index.html</guid>
-      <description>Introduction To study the structural uncertainty, ResInsight enables the user to create and import an ensemble of surfaces and compute the statistical surfaces based on this ensemble. This page describes the interactive workflow, but in many cases it can be useful to create scripts related to management of Ensemble Surfaces. See Python Examples for more details.&#xA;Create Ensemble Surface From the right-click menu of surfaces, select Import Ensemble Surface</description>
+      <description>Introduction&#xD;To study the structural uncertainty, ResInsight enables the user to create and import an ensemble of surfaces and compute the statistical surfaces based on this ensemble. This page describes the interactive workflow, but in many cases it can be useful to create scripts related to management of Ensemble Surfaces. See Python Examples for more details.</description>
     </item>
     <item>
       <title>Ensemble Well Log</title>
       <link>https://resinsight.org/workflows/ensemblewelllog/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/workflows/ensemblewelllog/index.html</guid>
-      <description>Introduction To study the uncertainty for well log extraction curves, ResInsight enables the user to import an ensemble of well logs and compute the statistical distribution in this ensemble.&#xA;Workflow From the right-click menu of Wells, select Create Ensemble Well Log In the ensemble import dialog, select the files for import into ensembles</description>
+      <description>Introduction&#xD;To study the uncertainty for well log extraction curves, ResInsight enables the user to import an ensemble of well logs and compute the statistical distribution in this ensemble.&#xA;Workflow&#xD;From the right-click menu of Wells, select Create Ensemble Well Log</description>
     </item>
     <item>
       <title>Well Target Mapping</title>
       <link>https://resinsight.org/workflows/welltargetmapping/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/workflows/welltargetmapping/index.html</guid>
-      <description>Automatically identify new well target candidates by identifying connected cluster of cells based on user defined threshold values.&#xA;Video Tutorial: Well Target Mapping&#xA;Configuration Import a grid model, and from the right-click menu of a grid model select “New Well Target Mapping”. A Well Target Mapping object is displayed with the following options:</description>
+      <description>Automatically identify new well target candidates by identifying connected cluster of cells based on user defined threshold values.&#xA;Video Tutorial: Well Target Mapping&#xA;Configuration&#xD;Import a grid model, and from the right-click menu of a grid model select “New Well Target Mapping”. A Well Target Mapping object is displayed with the following options:</description>
     </item>
   </channel>
 </rss>

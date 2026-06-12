@@ -12,70 +12,70 @@
       <link>https://resinsight.org/misc/preferences/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/misc/preferences/index.html</guid>
-      <description>In this section the different settings that controls the default behavior of ResInsight is described. These settings can be controlled using the Preferences dialog available from the Edit -&gt; Preferences menu. Preferences are not stored in project files, but in a platform specific way for each user. Essential preferences are listed below.&#xA;General When changing the preferences, any default color, font or Z-scale Factor that has not been changed by the user in the various views, will be applied immediately. If the user has changed font sizes in specific plots or annotations from the default value, ResInsight will ask if the user wants the new defaults applied to all existing views and plots even where custom settings have been set.</description>
+      <description>In this section the different settings that controls the default behavior of ResInsight is described. These settings can be controlled using the Preferences dialog available from the Edit -&gt; Preferences menu. Preferences are not stored in project files, but in a platform specific way for each user. Essential preferences are listed below.&#xA;General</description>
     </item>
     <item>
       <title>Application Logging</title>
       <link>https://resinsight.org/misc/applicationlogging/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/misc/applicationlogging/index.html</guid>
-      <description>Application Logging Application operations are written to log file by default stored in home_folder/.resinsight/logs If an error situation or crash happens, information related to the crash situation is written to this log file. If you experience crash, please include the log file to help the developers to fix the crash.&#xA;Example of log messages [2025-07-24 07:39:52.648] [rotating_logger] [info] Completed C:/gitroot/ResInsight-regression-test/ModelData/2021.10.3dev_drogonsmry/realization-96/iter-3/eclipse/model/DROGON-96.SMSPEC&#xD;[2025-07-24 07:39:52.648] [rotating_logger] [info] Completed C:/gitroot/ResInsight-regression-test/ModelData/2021.10.3dev_drogonsmry/realization-97/iter-3/eclipse/model/DROGON-97.SMSPEC&#xD;[2025-07-24 07:39:52.648] [rotating_logger] [info] Completed C:/gitroot/ResInsight-regression-test/ModelData/2021.10.3dev_drogonsmry/realization-98/iter-3/eclipse/model/DROGON-98.SMSPEC&#xD;[2025-07-24 07:39:52.648] [rotating_logger] [info] Completed C:/gitroot/ResInsight-regression-test/ModelData/2021.10.3dev_drogonsmry/realization-99/iter-3/eclipse/model/DROGON-99.SMSPEC&#xD;[2025-07-24 07:39:53.552] [rotating_logger] [info] Completed C:/gitroot/ResInsight-regression-test/ModelData/2021.10.3dev_drogonsmry/realization-93/iter-3/eclipse/model/DROGON-93.SMSPEC&#xD;[2025-07-24 07:39:53.553] [rotating_logger] [info] ERROR : Optimized Summary Reader error : neigther unified or non-unified result files found</description>
+      <description>Application Logging&#xD;Application operations are written to log file by default stored in home_folder/.resinsight/logs If an error situation or crash happens, information related to the crash situation is written to this log file. If you experience crash, please include the log file to help the developers to fix the crash.&#xA;Example of log messages&#xD;[2025-07-24 07:39:52.648] [rotating_logger] [info] Completed C:/gitroot/ResInsight-regression-test/ModelData/2021.10.3dev_drogonsmry/realization-96/iter-3/eclipse/model/DROGON-96.SMSPEC&#xD;[2025-07-24 07:39:52.648] [rotating_logger] [info] Completed C:/gitroot/ResInsight-regression-test/ModelData/2021.10.3dev_drogonsmry/realization-97/iter-3/eclipse/model/DROGON-97.SMSPEC&#xD;[2025-07-24 07:39:52.648] [rotating_logger] [info] Completed C:/gitroot/ResInsight-regression-test/ModelData/2021.10.3dev_drogonsmry/realization-98/iter-3/eclipse/model/DROGON-98.SMSPEC&#xD;[2025-07-24 07:39:52.648] [rotating_logger] [info] Completed C:/gitroot/ResInsight-regression-test/ModelData/2021.10.3dev_drogonsmry/realization-99/iter-3/eclipse/model/DROGON-99.SMSPEC&#xD;[2025-07-24 07:39:53.552] [rotating_logger] [info] Completed C:/gitroot/ResInsight-regression-test/ModelData/2021.10.3dev_drogonsmry/realization-93/iter-3/eclipse/model/DROGON-93.SMSPEC&#xD;[2025-07-24 07:39:53.553] [rotating_logger] [info] ERROR : Optimized Summary Reader error : neigther unified or non-unified result files found</description>
     </item>
     <item>
       <title>Project File and Caching</title>
       <link>https://resinsight.org/misc/projectfile/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/misc/projectfile/index.html</guid>
-      <description>The Project File ResInsight stores all views and settings in a Project File with the extension *.rsp to easily continue work in a subsequent session. This file only contains references to the real data files, and does not in any way copy the data itself. Data files generated by ResInsight are also referenced by the Project File.&#xA;Note&#xD;The *.rsp file is an XML file, and can be edited by any text editor.</description>
+      <description>The Project File&#xD;ResInsight stores all views and settings in a Project File with the extension *.rsp to easily continue work in a subsequent session. This file only contains references to the real data files, and does not in any way copy the data itself. Data files generated by ResInsight are also referenced by the Project File.</description>
     </item>
     <item>
       <title>Project File Revisions</title>
       <link>https://resinsight.org/misc/projectfilerevisions/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/misc/projectfilerevisions/index.html</guid>
-      <description>Revision History A backup of a project file is added to a project file database when the project file is saved. The backup file is named with the extension *.rspdb and is stored in the same directory as the project file. The backup file is created with the same content as the project file at the time of the save operation.&#xA;Restore Revision from Backup All revisions in the project database can be restored using the tool restore-projectfile-versions. Specify the project file database and the output directory where the revisions should be restored. The tool will create a copy of the project file for each revision in the output directory.</description>
+      <description>Revision History&#xD;A backup of a project file is added to a project file database when the project file is saved. The backup file is named with the extension *.rspdb and is stored in the same directory as the project file. The backup file is created with the same content as the project file at the time of the save operation.</description>
     </item>
     <item>
       <title>Window Management</title>
       <link>https://resinsight.org/misc/windowmanagement/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/misc/windowmanagement/index.html</guid>
-      <description>Window Tiling Tiling of windows can be accessed from the tool bar. The default tiling will organize the windows in a grid pattern. It is also possible perform tiling of the windows horizontally or vertically. This feature is available from the Windows menu at the main menbu bar.&#xA;Default Horizontally Vertically Window Management The window management system was updated in release 2022.06.1. ResInsight stores application window visibility and location between sessions. It is also possible to store the window configuration to a file for later reuse.</description>
+      <description>Window Tiling&#xD;Tiling of windows can be accessed from the tool bar. The default tiling will organize the windows in a grid pattern. It is also possible perform tiling of the windows horizontally or vertically. This feature is available from the Windows menu at the main menbu bar.&#xA;Default Horizontally Vertically</description>
     </item>
     <item>
       <title>Linux User Interface</title>
       <link>https://resinsight.org/misc/linuxui/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/misc/linuxui/index.html</guid>
-      <description>Open/Save File window when using GNOME Default behaviour for the file open/save window (and other popup windows) in some GNOME environments is to move the underlying main window when you move the file window. This makes it impossible to move the file window to check something that is currently hidden behind it.&#xA;This behaviour can be changed, either by using the gnome-tweaks utility or by issuing a command on the command line</description>
+      <description>Open/Save File window when using GNOME&#xD;Default behaviour for the file open/save window (and other popup windows) in some GNOME environments is to move the underlying main window when you move the file window. This makes it impossible to move the file window to check something that is currently hidden behind it.&#xA;This behaviour can be changed, either by using the gnome-tweaks utility or by issuing a command on the command line</description>
     </item>
     <item>
       <title>Memory Management</title>
       <link>https://resinsight.org/misc/memorymanagement/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/misc/memorymanagement/index.html</guid>
-      <description>ResInsight can require a considerable amount of memory to hold all the grids and necessary result variables. If the requirements starts approaching the available physical memory on the workstation, ResInsight may become unstable and crash, as the operating system starts freeing memory to avoid system failure. To help alleviate this, ResInsight has some built-in memory management tools.</description>
+      <description>ResInsight can require a considerable amount of memory to hold all the grids and necessary result variables. If the requirements starts approaching the available physical memory on the workstation, ResInsight may become unstable and crash, as the operating system starts freeing memory to avoid system failure. To help alleviate this, ResInsight has some built-in memory management tools.&#xA;Memory Indicator&#xD;The tools are available from the memory indicator in the bottom right corner of the main 3D window.</description>
     </item>
     <item>
       <title>Advanced Text Input</title>
       <link>https://resinsight.org/misc/advancedtextinput/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/misc/advancedtextinput/index.html</guid>
-      <description>When the user is requested to specify a list of integer values, it can be useful to input the list using a text string. This can be a selection of K slices, a selection of realisations or a selection of integer values in a integer cell result.&#xA;Supported text format 5,10-13,20-26:2&#xD;This text will produce an integer array with values&#xA;[5, 10, 11, 12, 13, 20, 22, 24, 26]&#xD;Using the syntax “20-26:2” will produce integer values in the range at a step of 2, resulting in [20, 22, 24, 26]</description>
+      <description>When the user is requested to specify a list of integer values, it can be useful to input the list using a text string. This can be a selection of K slices, a selection of realisations or a selection of integer values in a integer cell result.&#xA;Supported text format&#xD;5,10-13,20-26:2&#xD;This text will produce an integer array with values</description>
     </item>
     <item>
       <title>Keyboard Shortcuts</title>
       <link>https://resinsight.org/misc/keyboardshortcuts/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/misc/keyboardshortcuts/index.html</guid>
-      <description>ResInsight supports a selection of Keyboard Shortcuts for convenience. These include Delete for removing deletable items from the project tree, Ctrl-Alt-A for Zoom All and Ctrl-Alt-S/N/W/E/B/T for changing the camera view to South, North, West, East, Bottom and Top respectively.&#xA;Ctrl-Alt-U will apply a User Defined View.</description>
+      <description>ResInsight supports a selection of Keyboard Shortcuts for convenience. These include Delete for removing deletable items from the project tree, Ctrl-Alt-A for Zoom All and Ctrl-Alt-S/N/W/E/B/T for changing the camera view to South, North, West, East, Bottom and Top respectively.&#xA;Ctrl-Alt-U will apply a User Defined View.&#xA;Other available keyboard shortcuts are</description>
     </item>
     <item>
       <title>Regression Test System</title>
       <link>https://resinsight.org/misc/regressiontestsystem/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/misc/regressiontestsystem/index.html</guid>
-      <description>A regression tool for QA is build into ResInsight. This tool will do the following:&#xA;Scan a directory for sub directories containing a RegressionTest.rsp files. Each found project file will be opened, and all views in this project will be exported as snapshot images to file. When snapshot images from all projects are completed, difference images based on generated and QA-approved images are computed. Based on these three sets of images, an HTML report is created and automatically displayed. How to Run Regression Tests To be able to run regression tests you need the compare tool from the ImageMagic suite.</description>
+      <description>A regression tool for QA is build into ResInsight. This tool will do the following:&#xA;Scan a directory for sub directories containing a RegressionTest.rsp files. Each found project file will be opened, and all views in this project will be exported as snapshot images to file. When snapshot images from all projects are completed, difference images based on generated and QA-approved images are computed. Based on these three sets of images, an HTML report is created and automatically displayed. How to Run Regression Tests&#xD;To be able to run regression tests you need the compare tool from the ImageMagic suite.</description>
     </item>
   </channel>
 </rss>

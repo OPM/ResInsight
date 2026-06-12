@@ -1,61 +1,91 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
+<html id="R-html" lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.142.0">
-    <meta name="generator" content="Relearn 7.3.2+7b470298046df2c96c0da9da07a54572b7c4e1b0">
-    <meta name="description" content="The completions defined in ResInsight can be exported for use in new simulation runs. The commands Export Completion Data For Visible Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths in the Project Tree. The first command is available from the File-&gt;Import menu as well.">
+    <meta name="generator" content="Relearn 9.0.3+36307e4ed23582638ab689240ac7b427217803ee">
+    <meta name="description" content="The completions defined in ResInsight can be exported for use in new simulation runs. The commands Export Completion Data For Visible Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths in the Project Tree. The first command is available from the File-&gt;Import menu as well.
+Export Settings Calculated Transmissibilities – The transmissibilities calculated based on the case and completion data are exported directly Default Connection Factors and WPIMULT – The information about the connections for the simulator to be able to make the transmissibility calculation is exported for the COMPDAT/COMPDATL keywords. In addition, the same transmissibility calculation is performed by ResInsight, and the factor between the actual transmissibility for the connection and the simulator calculation is exported in the WPIMULT keyword. Case to Apply – Select which case to use for the export. Matrix transmissibilities will be read from this case. Use NTG Horizontally – Toggles whether NTG in I and J directions is included in the calculation Include Multi Segment Well Model – Toggles whether to also export the completions as Multi Segment Wells. File Settings File Split – Controls how ResInsight splits the export in different files Unified File – One file with all the completions. Split on Well – One file for each well [Deprecated] Split on Well and Completion Type – One file for each well and completion type (Perforation Interval, Fishbone, …) [Deprecated] Export Completion Types – Control how several completions of different type in the same cell are handled Individually – Completions of each type are exported to separate sections in the file and not combined in any way. Combined – Connection factors from different completion types are added together producing one number for each cell. Export Folder – Folder for the exported COMPDAT file(s). The folder will be created when performing the export and the names of the exported file(s) will be auto generated.~~ Completions Export Selection Perforations – Option to include or exclude perforation intervals in the export. Time step – Which timestep to export. This option is included since perforation intervals have a start time, and thus not all perforations need be present at all time steps. Fractures – Option to include or exclude fracture completions from the export. Pressure Differential Depletion Scaling – Options to scale transmissibilities based on the well drawdown. This allows the simulation to more accurately model cases with high differential depletion. Fishbones – Option to include or exclude fishbone completions from the export. The direction reported in the COMPDAT/COMPDATL keywords is computed based on the orientation of the main bore cell the fishbone is connected to. Exclude Main Bore Transmissibility – If this options is checked on, only the transmissibilities for the fishbone laterals will be included in the export, and transmissibility along the main bore will not contribute. Transmissibility CalculationsThe transmissibility calculation is performed for each direction, X, Y and Z, in an orthogonal coordinate system local to the cell.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Completions :: ResInsight">
-    <meta name="twitter:description" content="The completions defined in ResInsight can be exported for use in new simulation runs. The commands Export Completion Data For Visible Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths in the Project Tree. The first command is available from the File-&gt;Import menu as well.">
+    <meta name="twitter:description" content="The completions defined in ResInsight can be exported for use in new simulation runs. The commands Export Completion Data For Visible Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths in the Project Tree. The first command is available from the File-&gt;Import menu as well.
+Export Settings Calculated Transmissibilities – The transmissibilities calculated based on the case and completion data are exported directly Default Connection Factors and WPIMULT – The information about the connections for the simulator to be able to make the transmissibility calculation is exported for the COMPDAT/COMPDATL keywords. In addition, the same transmissibility calculation is performed by ResInsight, and the factor between the actual transmissibility for the connection and the simulator calculation is exported in the WPIMULT keyword. Case to Apply – Select which case to use for the export. Matrix transmissibilities will be read from this case. Use NTG Horizontally – Toggles whether NTG in I and J directions is included in the calculation Include Multi Segment Well Model – Toggles whether to also export the completions as Multi Segment Wells. File Settings File Split – Controls how ResInsight splits the export in different files Unified File – One file with all the completions. Split on Well – One file for each well [Deprecated] Split on Well and Completion Type – One file for each well and completion type (Perforation Interval, Fishbone, …) [Deprecated] Export Completion Types – Control how several completions of different type in the same cell are handled Individually – Completions of each type are exported to separate sections in the file and not combined in any way. Combined – Connection factors from different completion types are added together producing one number for each cell. Export Folder – Folder for the exported COMPDAT file(s). The folder will be created when performing the export and the names of the exported file(s) will be auto generated.~~ Completions Export Selection Perforations – Option to include or exclude perforation intervals in the export. Time step – Which timestep to export. This option is included since perforation intervals have a start time, and thus not all perforations need be present at all time steps. Fractures – Option to include or exclude fracture completions from the export. Pressure Differential Depletion Scaling – Options to scale transmissibilities based on the well drawdown. This allows the simulation to more accurately model cases with high differential depletion. Fishbones – Option to include or exclude fishbone completions from the export. The direction reported in the COMPDAT/COMPDATL keywords is computed based on the orientation of the main bore cell the fishbone is connected to. Exclude Main Bore Transmissibility – If this options is checked on, only the transmissibilities for the fishbone laterals will be included in the export, and transmissibility along the main bore will not contribute. Transmissibility CalculationsThe transmissibility calculation is performed for each direction, X, Y and Z, in an orthogonal coordinate system local to the cell.">
     <meta property="og:url" content="https://resinsight.org/export/completionexport/index.html">
     <meta property="og:site_name" content="ResInsight">
     <meta property="og:title" content="Completions :: ResInsight">
-    <meta property="og:description" content="The completions defined in ResInsight can be exported for use in new simulation runs. The commands Export Completion Data For Visible Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths in the Project Tree. The first command is available from the File-&gt;Import menu as well.">
+    <meta property="og:description" content="The completions defined in ResInsight can be exported for use in new simulation runs. The commands Export Completion Data For Visible Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths in the Project Tree. The first command is available from the File-&gt;Import menu as well.
+Export Settings Calculated Transmissibilities – The transmissibilities calculated based on the case and completion data are exported directly Default Connection Factors and WPIMULT – The information about the connections for the simulator to be able to make the transmissibility calculation is exported for the COMPDAT/COMPDATL keywords. In addition, the same transmissibility calculation is performed by ResInsight, and the factor between the actual transmissibility for the connection and the simulator calculation is exported in the WPIMULT keyword. Case to Apply – Select which case to use for the export. Matrix transmissibilities will be read from this case. Use NTG Horizontally – Toggles whether NTG in I and J directions is included in the calculation Include Multi Segment Well Model – Toggles whether to also export the completions as Multi Segment Wells. File Settings File Split – Controls how ResInsight splits the export in different files Unified File – One file with all the completions. Split on Well – One file for each well [Deprecated] Split on Well and Completion Type – One file for each well and completion type (Perforation Interval, Fishbone, …) [Deprecated] Export Completion Types – Control how several completions of different type in the same cell are handled Individually – Completions of each type are exported to separate sections in the file and not combined in any way. Combined – Connection factors from different completion types are added together producing one number for each cell. Export Folder – Folder for the exported COMPDAT file(s). The folder will be created when performing the export and the names of the exported file(s) will be auto generated.~~ Completions Export Selection Perforations – Option to include or exclude perforation intervals in the export. Time step – Which timestep to export. This option is included since perforation intervals have a start time, and thus not all perforations need be present at all time steps. Fractures – Option to include or exclude fracture completions from the export. Pressure Differential Depletion Scaling – Options to scale transmissibilities based on the well drawdown. This allows the simulation to more accurately model cases with high differential depletion. Fishbones – Option to include or exclude fishbone completions from the export. The direction reported in the COMPDAT/COMPDATL keywords is computed based on the orientation of the main bore cell the fishbone is connected to. Exclude Main Bore Transmissibility – If this options is checked on, only the transmissibilities for the fishbone laterals will be included in the export, and transmissibility along the main bore will not contribute. Transmissibility CalculationsThe transmissibility calculation is performed for each direction, X, Y and Z, in an orthogonal coordinate system local to the cell.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="article">
     <meta property="article:section" content="Export">
     <meta itemprop="name" content="Completions :: ResInsight">
-    <meta itemprop="description" content="The completions defined in ResInsight can be exported for use in new simulation runs. The commands Export Completion Data For Visible Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths in the Project Tree. The first command is available from the File-&gt;Import menu as well.">
+    <meta itemprop="description" content="The completions defined in ResInsight can be exported for use in new simulation runs. The commands Export Completion Data For Visible Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths in the Project Tree. The first command is available from the File-&gt;Import menu as well.
+Export Settings Calculated Transmissibilities – The transmissibilities calculated based on the case and completion data are exported directly Default Connection Factors and WPIMULT – The information about the connections for the simulator to be able to make the transmissibility calculation is exported for the COMPDAT/COMPDATL keywords. In addition, the same transmissibility calculation is performed by ResInsight, and the factor between the actual transmissibility for the connection and the simulator calculation is exported in the WPIMULT keyword. Case to Apply – Select which case to use for the export. Matrix transmissibilities will be read from this case. Use NTG Horizontally – Toggles whether NTG in I and J directions is included in the calculation Include Multi Segment Well Model – Toggles whether to also export the completions as Multi Segment Wells. File Settings File Split – Controls how ResInsight splits the export in different files Unified File – One file with all the completions. Split on Well – One file for each well [Deprecated] Split on Well and Completion Type – One file for each well and completion type (Perforation Interval, Fishbone, …) [Deprecated] Export Completion Types – Control how several completions of different type in the same cell are handled Individually – Completions of each type are exported to separate sections in the file and not combined in any way. Combined – Connection factors from different completion types are added together producing one number for each cell. Export Folder – Folder for the exported COMPDAT file(s). The folder will be created when performing the export and the names of the exported file(s) will be auto generated.~~ Completions Export Selection Perforations – Option to include or exclude perforation intervals in the export. Time step – Which timestep to export. This option is included since perforation intervals have a start time, and thus not all perforations need be present at all time steps. Fractures – Option to include or exclude fracture completions from the export. Pressure Differential Depletion Scaling – Options to scale transmissibilities based on the well drawdown. This allows the simulation to more accurately model cases with high differential depletion. Fishbones – Option to include or exclude fishbone completions from the export. The direction reported in the COMPDAT/COMPDATL keywords is computed based on the orientation of the main bore cell the fishbone is connected to. Exclude Main Bore Transmissibility – If this options is checked on, only the transmissibilities for the fishbone laterals will be included in the export, and transmissibility along the main bore will not contribute. Transmissibility CalculationsThe transmissibility calculation is performed for each direction, X, Y and Z, in an orthogonal coordinate system local to the cell.">
     <meta itemprop="wordCount" content="3150">
     <title>Completions :: ResInsight</title>
-    <link href="/css/fontawesome-all.min.css?1772538547" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/fontawesome-all.min.css?1772538547" rel="stylesheet"></noscript>
-    <link href="/css/auto-complete.css?1772538547" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/css/auto-complete.css?1772538547" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar.min.css?1772538547" rel="stylesheet">
-    <link href="/css/theme.min.css?1772538547" rel="stylesheet">
-    <link href="/css/format-html.min.css?1772538547" rel="stylesheet" id="R-format-style">
+    <link href="/images/favicon.png?1781260068" rel="icon" type="image/png">
+    <link href="/css/auto-complete/auto-complete.min.css?1781260068" rel="stylesheet">
+    <script src="/js/auto-complete/auto-complete.min.js?1781260068" defer></script>
+    <script src="/js/search-lunr.min.js?1781260068" defer></script>
+    <script src="/js/search.min.js?1781260068" defer></script>
     <script>
       window.relearn = window.relearn || {};
+      window.relearn.index_js_url="/searchindex.en.js?1781260068";
+    </script>
+    <script src="/js/lunr/lunr.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.stemmer.support.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.multi.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.en.min.js?1781260068" defer></script>
+    <script>
+      window.relearn = window.relearn || {};
+      window.relearn.contentLangs=['en'];
+    </script>
+    <link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1781260068" rel="stylesheet">
+    <link href="/css/theme.min.css?1781260068" rel="stylesheet">
+    <link href="/css/format-html.min.css?1781260068" rel="stylesheet" id="R-format-style">
+    <script>
+      window.relearn = window.relearn || {};
+      // configuration
+      window.relearn.min = `.min`;
+      window.relearn.path='\/export\/completionexport\/index.html';
       window.relearn.relBasePath='..\/..';
       window.relearn.relBaseUri='..\/..';
       window.relearn.absBaseUri='https:\/\/resinsight.org';
-      window.relearn.min = `.min`;
-      window.relearn.disableAnchorCopy=false;
-      window.relearn.disableAnchorScrolling=false;
+      window.relearn.disableInlineCopyToClipboard=false;
+      window.relearn.enableBlockCodeWrap=true;
+      // translations
+      window.T_Copy_to_clipboard = `Copy text to clipboard`;
+      window.T_Copied_to_clipboard = `Text copied to clipboard!`;
+      window.T_Link_copied_to_clipboard = `Link copied to clipboard!`;
+      window.T_Reset_view = `Reset view`;
+      window.T_View_reset = `View reset!`;
+      window.T_No_results_found = `No results found for "{0}"`;
+      window.T_N_results_found = `{1} results found for "{0}"`;
+      window.T_Browser_unsupported_feature = `This browser doesn't support this feature`;
       // variant stuff
       window.relearn.themevariants = [ 'relearn' ];
-      window.relearn.customvariantname = "my-custom-variant";
+      window.relearn.customvariantprefix = "my-custom-";
       window.relearn.changeVariant = function(variant) {
         var oldVariant = document.documentElement.dataset.rThemeVariant;
         window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         document.documentElement.dataset.rThemeVariant = variant;
         if (oldVariant != variant) {
           document.dispatchEvent( new CustomEvent('themeVariantLoaded', { detail: { variant, oldVariant } }) );
+          window.relearn.markVariant();
         }
       }
       window.relearn.markVariant = function() {
         var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant");
-        var select = document.querySelector("#R-select-variant");
-        if (select) {
-          select.value = variant;
-        }
+        document.querySelectorAll(".R-variantswitcher select").forEach((select) => {select.value = variant;});
       }
       window.relearn.initVariant = function() {
         var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant") ?? "";
-        if( variant == window.relearn.customvariantname ){
-        }else if( !variant || !window.relearn.themevariants.includes(variant) ){
+        if( !variant ||
+            (!variant.startsWith(window.relearn.customvariantprefix) && !window.relearn.themevariants.includes(variant)) ||
+            (variant.startsWith(window.relearn.customvariantprefix) && !window.localStorage.getItem(window.relearn.absBaseUri + "/variantstylesheet-" + variant)) ){
           variant = window.relearn.themevariants[0];
           window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         }
@@ -63,16 +93,15 @@
       }
       window.relearn.initVariant();
       window.relearn.markVariant();
-      // translations
-      window.T_Copy_to_clipboard = `Copy to clipboard`;
-      window.T_Copied_to_clipboard = `Copied to clipboard!`;
-      window.T_Copy_link_to_clipboard = `Copy link to clipboard`;
-      window.T_Link_copied_to_clipboard = `Copied link to clipboard!`;
-      window.T_Reset_view = `Reset view`;
-      window.T_View_reset = `View reset!`;
-      window.T_No_results_found = `No results found for "{0}"`;
-      window.T_N_results_found = `{1} results found for "{0}"`;
     </script>
+<style type="text/css">
+     
+    mark {
+        border-radius: 0;
+        background-image: none;
+        background-color: color-mix(in srgb, var(--ACCENT-color) 35%, transparent);
+    }
+</style>
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   MathJax.Hub.Config({
@@ -105,16 +134,18 @@
 </script>
 
   </head>
-  <body class="mobile-support html" data-url="/export/completionexport/index.html">
+  <body class="mobile-support html" data-origin="/export/completionexport/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
-      <nav id="R-topbar">
-        <div class="topbar-wrapper">
-          <div class="topbar-sidebar-divider"></div>
+      <nav id="R-topbar" class="default-animation">
+        <div class="topbar-wrapper default-animation">
+          <div class="topbar-sidebar-divider default-animation"></div>
           <div class="topbar-area topbar-area-start" data-area="start">
-            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide"><button class="topbar-control" onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button>
+            <div class="topbar-button topbar-button-sidebar default-animation" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button></span>
             </div>
-            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button>
+            <div class="topbar-button topbar-button-toc default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-table-list"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
 <nav class="TableOfContents">
@@ -144,17 +175,17 @@
               </div>
             </div>
           </div>
-          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/index.html"><span itemprop="name">ResInsight</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/export/index.html"><span itemprop="name">Export</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">Completions</span><meta itemprop="position" content="3"></li>
+          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/index.html"><span itemprop="name">ResInsight</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/export/index.html"><span itemprop="name">Export</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Completions</span><meta itemprop="position" content="3"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/export/fluxnummultnum/index.html" title="FLUXNUM/MULTNUM (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            <div class="topbar-button topbar-button-prev default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><a href="/export/fluxnummultnum/index.html" title="FLUXNUM/MULTNUM (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/export/exportwellpaths/index.html" title="Well Paths (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
+            <div class="topbar-button topbar-button-next default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><a href="/export/exportwellpaths/index.html" title="Well Paths (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button>
+            <div class="topbar-button topbar-button-more default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
                   <div class="topbar-area topbar-area-more" data-area="more">
@@ -175,8 +206,8 @@
 <h1 id="completions">Completions</h1>
 
 <p>The completions defined in ResInsight can be exported for use in new simulation runs. The commands <strong>Export Completion Data For Visible Wells</strong> and <strong>Export Completion Data For Selected Wells</strong> can be used to invoke the export. The commands are available by right clicking Well Paths in the <strong>Project Tree</strong>. The first command is available from the <strong>File-&gt;Import</strong> menu as well.</p>
-<p><a href="#R-image-d4b69a262e61824ab68be878e8a8f2a6" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-d4b69a262e61824ab68be878e8a8f2a6"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png"></a></p>
+<p><a href="#R-image-ed52dba02a7322c5db2486dff9f2e7c2" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-ed52dba02a7322c5db2486dff9f2e7c2"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png"></a></p>
 <ul>
 <li><strong>Export Settings</strong>
 <ul>
@@ -225,38 +256,38 @@
 </ul>
 </li>
 </ul>
-<h3 id="transmissibility-calculations">Transmissibility Calculations</h3>
+<h3 id="transmissibility-calculations">Transmissibility Calculations<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>The transmissibility calculation is performed for each direction, X, Y and Z, in an orthogonal coordinate system local to the cell.</p>
 <p>Taking the X direction as an example, we first calculate the relevant permeability <em>K</em> from the reservoir simulation properties <em>PERMY</em> (K<sub>y</sub>) and PERMZ (K<sub>z</sub>):</p>
-<p><a href="#R-image-481904343695de3a36058bd55ee9ba27" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-481904343695de3a36058bd55ee9ba27"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png"></a></p>
+<p><a href="#R-image-39e2cd456453fda881b0059e5e644fd0" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-39e2cd456453fda881b0059e5e644fd0"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png"></a></p>
 <p>The Peacman radius (pressure equivalent radius) for the cell is then calculated, using permeabilities and cell sizes (D<sub>y</sub> and D<sub>z</sub>):</p>
-<p><a href="#R-image-cc6d565a49e3c9bc5d3c526ba06dba56" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-cc6d565a49e3c9bc5d3c526ba06dba56"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png"></a></p>
+<p><a href="#R-image-46d694928a5dee854ef280597f15d5c1" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-46d694928a5dee854ef280597f15d5c1"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png"></a></p>
 <p>The x-component of the transmissibility vector is calculated, using the length of the perforation in the x direction (l<sub>x</sub>), the well radius (r<sub>w</sub>) and skin factor (S):</p>
-<p><a href="#R-image-8bc6f9560177869b971f66f9593f2a9a" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-8bc6f9560177869b971f66f9593f2a9a"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png"></a></p>
+<p><a href="#R-image-a8c9c1daed0bc9e12cf41e4eeb1e02cf" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-a8c9c1daed0bc9e12cf41e4eeb1e02cf"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png"></a></p>
 <p>The y and z component of the transmissibility are calculated in the same manner, and the total transmissibility is then calculated as:</p>
-<p><a href="#R-image-5b9da6d4eb6674255ff0c93ea72e4c57" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-5b9da6d4eb6674255ff0c93ea72e4c57"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png"></a></p>
+<p><a href="#R-image-6aab5803225e80caacc09a56edf014c9" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-6aab5803225e80caacc09a56edf014c9"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png"></a></p>
 <p>If the <em>Export Calculated Transmissibilities</em> is chosen in the export setting, this value is exported in the COMPDAT/COMPDATL keywords directly. If the <em>Export Default Connection Factors and WPIMULT</em> the transmissibility is chosen, the transmissibility is calculated as above, and in addition the transmissibility is calculated as the simulator would compute it using values other than transmissibility in the COMPDAT/COMPDATL keywords (perforation length, well radius etc). The ratio between these transmissibilities is then exported as the WPIMULT value.</p>
 <p>For an example of <em>COMPDAT</em> files exported with calculated transmissibilities and with defaults and WPIMULT values, see export of Fishbones® completion data below.</p>
-<h3 id="fracture-export">Fracture Export</h3>
-<h4 id="pressure-differential-depletion-scaling">Pressure Differential Depletion Scaling</h4>
+<h3 id="fracture-export">Fracture Export<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<h4 id="pressure-differential-depletion-scaling">Pressure Differential Depletion Scaling<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>For cases with high differential depletion, it is possible to scale the transmissibilities from the grid cells into the well (via the fracture) by the well drawdown. This enables the simulation to take into account that the flow will take different paths into the well as the pressure differential between the surrounding grid cells increases. If enabled, a time step for the grid pressures have to be selected. The list of time steps will also show the time step in which the wells first show a <strong>Well Bore Hole Pressure</strong> (<strong>WBHP</strong>) larger than zero in the Summary Case information.</p>
-<p><a href="#R-image-74bfcd1b4df8f5a82471e66414698701" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-74bfcd1b4df8f5a82471e66414698701"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png"></a></p>
+<p><a href="#R-image-3e871191e837eddd5de2b31120352b2d" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-3e871191e837eddd5de2b31120352b2d"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png"></a></p>
 <p>Having chosen a time step for differential depletion scaling a source for the well pressures can be chosen. If <strong>WBHP From Summary Case</strong> is picked, the <strong>WBHP</strong> value in the summary case for the chosen time step is used. However, if the chosen time step precedes the production start of a well, the value set in <strong>WBHP Before Production Start</strong> is used.</p>
-<p><a href="#R-image-b1eb41e6a3dc7c32406bf7ff50af4a7d" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-b1eb41e6a3dc7c32406bf7ff50af4a7d"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png"></a></p>
+<p><a href="#R-image-96840e181765e3e991820454d47a0c60" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-96840e181765e3e991820454d47a0c60"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png"></a></p>
 <p>If, however, a <strong>Fixed User Defined WBHP</strong> is chosen, the provided <strong>WBHP</strong> value is used for all wells.</p>
-<p><a href="#R-image-59f7d568d37ecfabe2d0040f5c5957d6" class="lightbox-link"><img class="noborder lazy lightbox noshadow figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png" style=" height: auto; width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-59f7d568d37ecfabe2d0040f5c5957d6"><img class="noborder lazy lightbox noshadow lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png"></a></p>
-<h4 id="fracture-report-header">Fracture Report Header</h4>
+<p><a href="#R-image-64fb454045f3004238b6b5374ea52a4c" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-64fb454045f3004238b6b5374ea52a4c"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png"></a></p>
+<h4 id="fracture-report-header">Fracture Report Header<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>At the top of the exported transmissibilities for fractures, a fracture report summary is displayed. This section displays the different properties for the fractures used to compute the transmissibility values.</p>
-<h5 id="description-of-derived-data">Description of Derived Data</h5>
+<h5 id="description-of-derived-data">Description of Derived Data<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h5>
 <p>One of the tables displays derived data, see the example here:</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>               Tr   #con       Fcd       Area     KfWf         Kf      Wf       Xf        H       Km
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>               Tr   #con       Fcd       Area     KfWf         Kf      Wf       Xf        H       Km
 </span></span><span style="display:flex;"><span>[cP.rm3/day/bars]               []       [m2]    [mDm]       [mD]     [m]      [m]      [m]     [mD]
 </span></span><span style="display:flex;"><span>----------------------------------------------------------------------------------------------------
 </span></span><span style="display:flex;"><span>         110.834     24   276.168   9315.748   54.889   3805.029   0.014   61.628   75.580   13.778</span></span></code></pre></div>
@@ -272,9 +303,9 @@
 <li><strong>H</strong> &ndash; Longest continuous distance with fracture cells open for flow along a fracture grid column</li>
 <li><strong>Km</strong> &ndash; Area weighted average of matrix transmissibility (using Area defined above)</li>
 </ul>
-<h4 id="differential-depletion-fracture-output">Differential Depletion Fracture Output</h4>
+<h4 id="differential-depletion-fracture-output">Differential Depletion Fracture Output<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>In addition to scaling the transmissibilities in the fracture output, using pressure differential depletion scaling will also provide a table with information regarding the scaling performed for each well. This table will show the well name, fracture name and the source of the Well Bore Hole Pressure (<strong>WBHP From Summary Case</strong> or <strong>Fixed User Defined WBHP</strong>). For <strong>WBHP From Summary Case</strong> the <strong>User WBHP</strong> column will describe the well pressure used for all time steps before the production starts according to the summary case information and the <strong>Actual WBHP</strong> will describe the well pressure used in the scaling, which will be different from the <strong>User WBHP</strong> if the scaling is performed for a time step following the well productions start. Finally the columns <strong>Min Pressure Drop</strong> and <strong>Max Pressure Drop</strong> describes the minimum and maximum well drawdown for this particular fracture.</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>--
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>--
 </span></span><span style="display:flex;"><span>-- Pressure Depletion Time step: 01.Feb 2001
 </span></span><span style="display:flex;"><span>-- WBHP Source: WBHP From Summary Case
 </span></span><span style="display:flex;"><span>-- User Defined WBHP: 200
@@ -284,10 +315,10 @@
 </span></span><span style="display:flex;"><span>-- B-1H    Fracture_02   221.68147     0.00624             36.02608            
 </span></span><span style="display:flex;"><span>-- B-4DH   Fracture_07   200.00000     28.21733            97.34970            
 </span></span><span style="display:flex;"><span>-- </span></span></code></pre></div>
-<h3 id="export-of-fishbone-completion-data">Export of Fishbone Completion Data</h3>
+<h3 id="export-of-fishbone-completion-data">Export of Fishbone Completion Data<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>The transmissibility calculation for the fishbones is done following the above description except that when calculating the transmissibility for the laterals, the full cell volume is split among the laterals for calculation of the transmissibility. This is done by finding the direction of the main bore, and then dividing the cell size in this direction by the number of laterals in the cell when calculating the Peaceman radius.</p>
 <p>An example of the exported COMPDAT file is shown below. The calculated transmissibility contribution to the cell connection factor from each lateral or main bore part is included as a comment.</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSPECS
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSPECS
 </span></span><span style="display:flex;"><span>-- Well          Grp   I   J    RefDepth   WellType   
 </span></span><span style="display:flex;"><span>   Well Path B   GR    26  45   1230       Oil        \
 </span></span><span style="display:flex;"><span>\
@@ -305,7 +336,7 @@
 </span></span><span style="display:flex;"><span>/</span></span></code></pre></div>
 <p>For export with WPIMULT factors, the main bore diameter and direction are given in the export for cells which have both main bore and lateral contributions, while diameter and main direction of the first lateral is used for cells with no main bore contribution. Other parameters exported as part of COMPDAT are set to default.</p>
 <p>The <em>WPIMULT</em> parameters are calculated, as for the perforation intervals, by ResInsight calculating both the transmissibility of the completion as described above, and in addition calculating the transmissibility based on the information exported in the COMPDAT keyword. The ratio between these two numbers is then exported as the <em>WPIMUT</em> keyword.</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSPEC
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSPEC
 </span></span><span style="display:flex;"><span>-- Well          Grp   I   J    RefDepth   WellType   
 </span></span><span style="display:flex;"><span>   Well Path B   GR    26  45   1230       Oil        \
 </span></span><span style="display:flex;"><span>\
@@ -326,9 +357,9 @@
 </span></span><span style="display:flex;"><span>   Well Path B     0.70133      25     45     29      /
 </span></span><span style="display:flex;"><span>   Well Path B     25.11396     27     41     15      /
 </span></span><span style="display:flex;"><span>/</span></span></code></pre></div>
-<h3 id="completions-for-lgr-welspecl-and-compdatl">Completions for LGR (WELSPECL and COMPDATL)</h3>
+<h3 id="completions-for-lgr-welspecl-and-compdatl">Completions for LGR (WELSPECL and COMPDATL)<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>Completion data for LGR grids are exported to a separate file having the same name as the main grid completions file postfixed by &ldquo;_LGR&rdquo;. Instead of using the WELSPECS and COMPDAT keywords, the WELSPECL and COMPDATL keywords are used. Those tables are similar to the WELSPECS and COMPDAT tables, except from including the columns <strong>LGR</strong> and <strong>LgrName</strong>, respectively. The extra columns contains the name of the LGR grid.</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSPECL
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSPECL
 </span></span><span style="display:flex;"><span>-- Well      Grp   LGR      I   J   RefDepth   WellType   
 </span></span><span style="display:flex;"><span>   UWell-1   1*    WELLI1   2   9   1*         OIL         /
 </span></span><span style="display:flex;"><span>   /
@@ -339,7 +370,7 @@
 </span></span><span style="display:flex;"><span>   UWell-1   WELLI1    2   9   6    6    OPEN     1*    6.106763E+00   0.21600   1*   0.00000   1*   &#39;Y&#39;    /
 </span></span><span style="display:flex;"><span>-- Perforation Completion : MD In: 67.0264 - MD Out: 70.402 Transmissibility: 6.10679
 </span></span><span style="display:flex;"><span>   UWell-1   WELLI1    2   8   6    6    OPEN     1*    6.106791E+00   0.21600   1*   0.00000   1*   &#39;Y&#39;    /</span></span></code></pre></div>
-<h3 id="lgr-for-completions-temporary-lgrs">LGR for completions (Temporary LGRs)</h3>
+<h3 id="lgr-for-completions-temporary-lgrs">LGR for completions (Temporary LGRs)<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>The previous section describes the export of COMPDATL for completions intersecting existing LGRs, loaded from file. This section will describe how to have ResInsight create temporary LGRs around completions, and then export COMPDATL for those LGRs.
 To accomplish this, do the following:</p>
 <ul>
@@ -347,7 +378,7 @@ To accomplish this, do the following:</p>
 <li>Export completions the usual way. See <a href="/export/completionexport/index.html">Completion Export</a></li>
 </ul>
 
-<details open class=" box cstyle notices info">
+<details open class="box cstyle notices info">
   <summary class="box-label" tabindex="-1">
     <i class="fa-fw fas fa-info-circle"></i> 
     Info
@@ -356,14 +387,14 @@ To accomplish this, do the following:</p>
 <p>In addition to the completion data, the geometrical definition of all temporary LGRs is also exported into &ldquo;*.dat&rdquo; files.</p>
   </div>
 </details>
-<h2 id="multi-segment-well-model">Multi Segment Well Model</h2>
+<h2 id="multi-segment-well-model">Multi Segment Well Model<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p>It is possible to export all the completions to a text file containing the reservoir simulation input data
 keywords needed to represent the completions as a Multi Segment Well. This is done by checking the <strong>Include Multi Segment Well Model</strong>. All completions are supported and are exported in somewhat different ways.</p>
-<h3 id="exported-msw-data">Exported MSW Data</h3>
+<h3 id="exported-msw-data">Exported MSW Data<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>In the output file there are data for three simulator keywords specified.</p>
-<h5 id="welsegs">WELSEGS</h5>
+<h5 id="welsegs">WELSEGS<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h5>
 <p>WELSEGS defines multi-segment wells. The list of entries contains information on the main stem, the ICDs at the fishbone subs and the fishbone laterals. A comment above each entry details which element (main bore / ICD / lateral) the entry is for.  Example:</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSEGS
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSEGS
 </span></span><span style="display:flex;"><span>-- Name            Dep 1          Tlen 1       Vol 1     Len&amp;Dep     PresDrop     
 </span></span><span style="display:flex;"><span>   Well Path A     4137.09154     87.00000     1*        ABS         H--           /
 </span></span><span style="display:flex;"><span>-- First Seg     Last Seg     Branch Num     Outlet Seg     Length        Depth Change     Diam        Rough       
@@ -403,9 +434,9 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
 </ul>
 </li>
 </ul>
-<h5 id="compsegs">COMPSEGS</h5>
+<h5 id="compsegs">COMPSEGS<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h5>
 <p>An example of the COMPSEGS keyword as exported is shown below.</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>COMPSEGS
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>COMPSEGS
 </span></span><span style="display:flex;"><span>-- Name            
 </span></span><span style="display:flex;"><span>   Well Path A      /
 </span></span><span style="display:flex;"><span>-- I      J      K      Branch no     Start Length     End Length     Dir Pen     End Range     Connection Depth     
@@ -419,9 +450,9 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
 <li><strong>Branch no</strong> &ndash; Branch number for the segment</li>
 <li><strong>Start Length</strong>, <strong>End Length</strong> &ndash; Start and end length along the well for the relevant segment.</li>
 </ul>
-<h5 id="wsegvalv">WSEGVALV</h5>
+<h5 id="wsegvalv">WSEGVALV<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h5>
 <p>An example of the WSEGVALV keyword as exported is shown below.</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WSEGVALV
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WSEGVALV
 </span></span><span style="display:flex;"><span>-- Well Name       Seg No     Cv          Ac          
 </span></span><span style="display:flex;"><span>   Well Path A     3          1.50000     0.00008      /
 </span></span><span style="display:flex;"><span>   Well Path A     5          1.50000     0.00008      /
@@ -434,9 +465,9 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
 <li><strong>Cv</strong> &ndash; The ICD Flow Coefficient, as entered by the user.</li>
 <li><strong>Ac</strong> &ndash; the total ICD area per sub, calculated as the area per ICD (given by the orifice radius) multiplied with the number of icd per Sub.</li>
 </ul>
-<h3 id="export-of-fractures-and-perforations-as-multi-segment-wells">Export of Fractures and Perforations as Multi-Segment Wells</h3>
+<h3 id="export-of-fractures-and-perforations-as-multi-segment-wells">Export of Fractures and Perforations as Multi-Segment Wells<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>Fractures and Perforations may also be exported as Multi-Segment Wells. In the case of Fractures, ResInsight will create one segment for the entire fracture, with a number of COMPSEGS-entries corresponding to the cells intersecting the fracture. In this case, the <strong>Diam</strong> and <strong>Rough</strong> parameters are not used for anything and the length of the fracture segment is nominal. An example of a Fracture entry is shown below.</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSEGS
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSEGS
 </span></span><span style="display:flex;"><span>-- Name      Dep 1          Tlen 1         Vol 1     Len&amp;Dep     PresDrop     
 </span></span><span style="display:flex;"><span>   C-1 H     2575.39553     2919.53029     1*        INC         H--           /
 </span></span><span style="display:flex;"><span>-- First Seg     Last Seg     Branch Num     Outlet Seg     Length       Depth Change     Diam        Rough       
@@ -454,7 +485,7 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
 </span></span><span style="display:flex;"><span>   27     43     1      2             11.27214         11.28214        /
 </span></span><span style="display:flex;"><span>   26     44     1      2             11.27214         11.28214        /</span></span></code></pre></div>
 <p>The entries for Perforations are simpler. No additional branches are created as the perforation intervals are all on the main bore and all perforated cells are listed as COMPSEG entries very similar to normal COMPDAT export of perforation intervals.</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSEGS
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>WELSEGS
 </span></span><span style="display:flex;"><span>-- Name       Dep 1          Tlen 1         Vol 1     Len&amp;Dep     PresDrop     
 </span></span><span style="display:flex;"><span>   B-1 AH     2530.38706     3137.28258     1*        INC         H--           /
 </span></span><span style="display:flex;"><span>-- First Seg     Last Seg     Branch Num     Outlet Seg     Length       Depth Change     Diam        Rough       
@@ -487,54 +518,46 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
     </div>
     <aside id="R-sidebar" class="default-animation">
       <div id="R-header-topbar" class="default-animation"></div>
-      <div id="R-header-wrapper" class="default-animation">
-        <div id="R-header" class="default-animation">
-<a id="logo" href="https://resinsight.org/">
+      <div id="R-header-wrapper" class="default-animation"><a id="logo" href="https://resinsight.org/">
   <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png">
 </a>
 
-        </div>
-        <script>
-          window.index_js_url="/searchindex.en.js?1772538547";
-        </script>
         <search><form action="/search/index.html" method="get">
           <div class="searchbox default-animation">
-            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-search"></i></button>
+            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-fw fa-search"></i></button>
             <label class="a11y-only" for="R-search-by">Search</label>
             <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
-            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-fw fa-times" title="Clear search"></i></button>
           </div>
         </form></search>
-        <script>
-          var contentLangs=['en'];
-        </script>
-        <script src="/js/auto-complete.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.stemmer.support.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.multi.min.js?1772538547" defer></script>
-        <script src="/js/lunr/lunr.en.min.js?1772538547" defer></script>
-        <script src="/js/search.js?1772538547" defer></script>
-        <script>
-          (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const searchQuery = urlParams.get('q');
-            if (searchQuery) {
-              const newUrl = `/search/?search-by=${encodeURIComponent(searchQuery)}`;
-              window.location.replace(newUrl);
-            }
-          })();
-        </script>
       </div>
       <div id="R-homelinks" class="default-animation">
-        <hr class="padding">
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-homelinks default-animation">
+          <ul class="space collapsible-menu">
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-headercontrols default-animation">
+          <ul class="">
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
       </div>
       <div id="R-content-wrapper" class="highlightable">
-        <div id="R-shortcutmenu-home" class="R-sidebarmenu">
+        <div class="R-sidebarmenu R-shortcutmenu-main default-animation">
           <ul class="enlarge morespace collapsible-menu">
-            <li class="" data-nav-id="/releases/index.html"><input type="checkbox" id="R-section-a71c2f29677ba690c1b8bf454f228c9c" aria-controls="R-subsections-a71c2f29677ba690c1b8bf454f228c9c"><label for="R-section-a71c2f29677ba690c1b8bf454f228c9c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Releases</span></label><a class="padding" href="/releases/index.html">Releases</a><ul id="R-subsections-a71c2f29677ba690c1b8bf454f228c9c" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/index.html"><input type="checkbox" id="R-section-a71c2f29677ba690c1b8bf454f228c9c" aria-controls="R-subsections-a71c2f29677ba690c1b8bf454f228c9c"><label for="R-section-a71c2f29677ba690c1b8bf454f228c9c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Releases</span></label><a class="padding default-animation" href="/releases/index.html">Releases</a><ul id="R-subsections-a71c2f29677ba690c1b8bf454f228c9c" class="collapsible-menu">
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
-            <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding default-animation" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_06/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_06/index.html">What&#39;s New in 2026.06</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_02/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_02/index.html">What&#39;s New in 2026.02</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_09/index.html">What&#39;s New in 2025.09</a></li>
@@ -550,16 +573,17 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2023_01/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2023_01/index.html">What&#39;s New in 2023.01</a></li></ul></li>
             <li class="" data-nav-id="/releases/releasenotification/index.html"><a class="padding" href="/releases/releasenotification/index.html">Release Notification Subscription</a></li>
             <li class="" data-nav-id="/releases/windows-subsystem-for-linux/index.html"><a class="padding" href="/releases/windows-subsystem-for-linux/index.html">Windows Subsystem for Linux</a></li>
-            <li class="alwaysopen " data-nav-id="/releases/build-from-source/index.html"><input type="checkbox" id="R-section-1a74cec0b1c9533c1ed2228aad7b645f" aria-controls="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" checked><label for="R-section-1a74cec0b1c9533c1ed2228aad7b645f"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Build From Source</span></label><a class="padding" href="/releases/build-from-source/index.html">Build From Source</a><ul id="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/releases/build-from-source/index.html"><input type="checkbox" id="R-section-1a74cec0b1c9533c1ed2228aad7b645f" aria-controls="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" checked><label for="R-section-1a74cec0b1c9533c1ed2228aad7b645f"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Build From Source</span></label><a class="padding default-animation" href="/releases/build-from-source/index.html">Build From Source</a><ul id="R-subsections-1a74cec0b1c9533c1ed2228aad7b645f" class="collapsible-menu">
             <li class="" data-nav-id="/releases/build-from-source/build-instructions-ubuntu/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-ubuntu/index.html">Build Instructions Ubuntu</a></li>
             <li class="" data-nav-id="/releases/build-from-source/build-instructions-windows/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-windows/index.html">Build Instructions Windows</a></li>
+            <li class="" data-nav-id="/releases/build-from-source/build-instructions-mac/index.html"><a class="padding" href="/releases/build-from-source/build-instructions-mac/index.html">Build Instructions Mac</a></li>
             <li class="" data-nav-id="/releases/build-from-source/cmake-configuration/index.html"><a class="padding" href="/releases/build-from-source/cmake-configuration/index.html">CMake Configuration</a></li></ul></li></ul></li>
-            <li class="" data-nav-id="/getting-started/index.html"><input type="checkbox" id="R-section-87c0363912f379e0725cbe1d504c985c" aria-controls="R-subsections-87c0363912f379e0725cbe1d504c985c"><label for="R-section-87c0363912f379e0725cbe1d504c985c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Getting Started</span></label><a class="padding" href="/getting-started/index.html">Getting Started</a><ul id="R-subsections-87c0363912f379e0725cbe1d504c985c" class="collapsible-menu">
+            <li class="" data-nav-id="/getting-started/index.html"><input type="checkbox" id="R-section-87c0363912f379e0725cbe1d504c985c" aria-controls="R-subsections-87c0363912f379e0725cbe1d504c985c"><label for="R-section-87c0363912f379e0725cbe1d504c985c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Getting Started</span></label><a class="padding default-animation" href="/getting-started/index.html">Getting Started</a><ul id="R-subsections-87c0363912f379e0725cbe1d504c985c" class="collapsible-menu">
             <li class="" data-nav-id="/getting-started/overview/index.html"><a class="padding" href="/getting-started/overview/index.html">Overview</a></li>
             <li class="" data-nav-id="/getting-started/projecttree/index.html"><a class="padding" href="/getting-started/projecttree/index.html">Project Tree</a></li>
             <li class="" data-nav-id="/getting-started/helpmenuanddocumentation/index.html"><a class="padding" href="/getting-started/helpmenuanddocumentation/index.html">Help Menu and Documentation</a></li>
             <li class="" data-nav-id="/getting-started/modelnavigation/index.html"><a class="padding" href="/getting-started/modelnavigation/index.html">Model Navigation</a></li></ul></li>
-            <li class="" data-nav-id="/3d-main-window/index.html"><input type="checkbox" id="R-section-122c1165ab4202e74b8e3c0619dc7420" aria-controls="R-subsections-122c1165ab4202e74b8e3c0619dc7420"><label for="R-section-122c1165ab4202e74b8e3c0619dc7420"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu 3D Main Window</span></label><a class="padding" href="/3d-main-window/index.html">3D Main Window</a><ul id="R-subsections-122c1165ab4202e74b8e3c0619dc7420" class="collapsible-menu">
+            <li class="" data-nav-id="/3d-main-window/index.html"><input type="checkbox" id="R-section-122c1165ab4202e74b8e3c0619dc7420" aria-controls="R-subsections-122c1165ab4202e74b8e3c0619dc7420"><label for="R-section-122c1165ab4202e74b8e3c0619dc7420"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu 3D Main Window</span></label><a class="padding default-animation" href="/3d-main-window/index.html">3D Main Window</a><ul id="R-subsections-122c1165ab4202e74b8e3c0619dc7420" class="collapsible-menu">
             <li class="" data-nav-id="/3d-main-window/3dviews/index.html"><a class="padding" href="/3d-main-window/3dviews/index.html">3D Views</a></li>
             <li class="" data-nav-id="/3d-main-window/cellresults/index.html"><a class="padding" href="/3d-main-window/cellresults/index.html">Cell Results</a></li>
             <li class="" data-nav-id="/3d-main-window/resultcolorlegend/index.html"><a class="padding" href="/3d-main-window/resultcolorlegend/index.html">Result Color Legend</a></li>
@@ -587,7 +611,7 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
             <li class="" data-nav-id="/3d-main-window/annotations/index.html"><a class="padding" href="/3d-main-window/annotations/index.html">Annotations</a></li>
             <li class="" data-nav-id="/3d-main-window/tensors/index.html"><a class="padding" href="/3d-main-window/tensors/index.html">Tensor Results</a></li>
             <li class="" data-nav-id="/3d-main-window/gridstatisticsdialog/index.html"><a class="padding" href="/3d-main-window/gridstatisticsdialog/index.html">Grid Statistics Dialog</a></li></ul></li>
-            <li class="" data-nav-id="/plot-window/index.html"><input type="checkbox" id="R-section-6087943109d37785a7a7442a1415914b" aria-controls="R-subsections-6087943109d37785a7a7442a1415914b"><label for="R-section-6087943109d37785a7a7442a1415914b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Plot Main Window</span></label><a class="padding" href="/plot-window/index.html">Plot Main Window</a><ul id="R-subsections-6087943109d37785a7a7442a1415914b" class="collapsible-menu">
+            <li class="" data-nav-id="/plot-window/index.html"><input type="checkbox" id="R-section-6087943109d37785a7a7442a1415914b" aria-controls="R-subsections-6087943109d37785a7a7442a1415914b"><label for="R-section-6087943109d37785a7a7442a1415914b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Plot Main Window</span></label><a class="padding default-animation" href="/plot-window/index.html">Plot Main Window</a><ul id="R-subsections-6087943109d37785a7a7442a1415914b" class="collapsible-menu">
             <li class="" data-nav-id="/plot-window/summaryplots/index.html"><a class="padding" href="/plot-window/summaryplots/index.html">Summary Plots</a></li>
             <li class="" data-nav-id="/plot-window/summaryplotdatasources/index.html"><a class="padding" href="/plot-window/summaryplotdatasources/index.html">Data Sources</a></li>
             <li class="" data-nav-id="/plot-window/summaryplotmanager/index.html"><a class="padding" href="/plot-window/summaryplotmanager/index.html">Summary Plot Manager</a></li>
@@ -609,31 +633,34 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
             <li class="" data-nav-id="/plot-window/rftplot/index.html"><a class="padding" href="/plot-window/rftplot/index.html">RFT Plot</a></li>
             <li class="" data-nav-id="/plot-window/rftsegmentplot/index.html"><a class="padding" href="/plot-window/rftsegmentplot/index.html">RFT Segment Plot</a></li>
             <li class="" data-nav-id="/plot-window/ensemblerftplot/index.html"><a class="padding" href="/plot-window/ensemblerftplot/index.html">Ensemble RFT Plot</a></li>
+            <li class="" data-nav-id="/plot-window/rftcorrelationplot/index.html"><a class="padding" href="/plot-window/rftcorrelationplot/index.html">RFT Correlation Plot</a></li>
             <li class="" data-nav-id="/plot-window/pltplot/index.html"><a class="padding" href="/plot-window/pltplot/index.html">PLT Plot</a></li>
             <li class="" data-nav-id="/plot-window/vfpplot/index.html"><a class="padding" href="/plot-window/vfpplot/index.html">VFP Plot</a></li>
-            <li class="alwaysopen " data-nav-id="/plot-window/flow-diagnostics-plots/index.html"><input type="checkbox" id="R-section-8a8fa224c78732c200cb0103e9448d6b" aria-controls="R-subsections-8a8fa224c78732c200cb0103e9448d6b" checked><label for="R-section-8a8fa224c78732c200cb0103e9448d6b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Flow Diagnostics Plots</span></label><a class="padding" href="/plot-window/flow-diagnostics-plots/index.html">Flow Diagnostics Plots</a><ul id="R-subsections-8a8fa224c78732c200cb0103e9448d6b" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/plot-window/flow-diagnostics-plots/index.html"><input type="checkbox" id="R-section-8a8fa224c78732c200cb0103e9448d6b" aria-controls="R-subsections-8a8fa224c78732c200cb0103e9448d6b" checked><label for="R-section-8a8fa224c78732c200cb0103e9448d6b"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Flow Diagnostics Plots</span></label><a class="padding default-animation" href="/plot-window/flow-diagnostics-plots/index.html">Flow Diagnostics Plots</a><ul id="R-subsections-8a8fa224c78732c200cb0103e9448d6b" class="collapsible-menu">
             <li class="" data-nav-id="/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html"><a class="padding" href="/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/index.html">Producer/Injector Connectivity Tables</a></li>
             <li class="" data-nav-id="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html"><a class="padding" href="/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/index.html">Well Allocation Over Time Plot</a></li></ul></li>
             <li class="" data-nav-id="/plot-window/gridcrossplots/index.html"><a class="padding" href="/plot-window/gridcrossplots/index.html">Grid Cross Plots</a></li>
             <li class="" data-nav-id="/plot-window/saturationpressureplots/index.html"><a class="padding" href="/plot-window/saturationpressureplots/index.html">Saturation Pressure Plots</a></li></ul></li>
-            <li class="" data-nav-id="/reference-manual/index.html"><input type="checkbox" id="R-section-cd49ee949da2ad410225a2e57dbddb2e" aria-controls="R-subsections-cd49ee949da2ad410225a2e57dbddb2e"><label for="R-section-cd49ee949da2ad410225a2e57dbddb2e"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Reference Manual</span></label><a class="padding" href="/reference-manual/index.html">Reference Manual</a><ul id="R-subsections-cd49ee949da2ad410225a2e57dbddb2e" class="collapsible-menu">
-            <li class="alwaysopen " data-nav-id="/reference-manual/surfaces/index.html"><input type="checkbox" id="R-section-e44d2ac58045f12532001b3c3a872ad6" aria-controls="R-subsections-e44d2ac58045f12532001b3c3a872ad6" checked><label for="R-section-e44d2ac58045f12532001b3c3a872ad6"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Surfaces</span></label><a class="padding" href="/reference-manual/surfaces/index.html">Surfaces</a><ul id="R-subsections-e44d2ac58045f12532001b3c3a872ad6" class="collapsible-menu">
+            <li class="" data-nav-id="/reference-manual/index.html"><input type="checkbox" id="R-section-cd49ee949da2ad410225a2e57dbddb2e" aria-controls="R-subsections-cd49ee949da2ad410225a2e57dbddb2e"><label for="R-section-cd49ee949da2ad410225a2e57dbddb2e"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Reference Manual</span></label><a class="padding default-animation" href="/reference-manual/index.html">Reference Manual</a><ul id="R-subsections-cd49ee949da2ad410225a2e57dbddb2e" class="collapsible-menu">
+            <li class="" data-nav-id="/reference-manual/vtkgeomechmodel/index.html"><a class="padding" href="/reference-manual/vtkgeomechmodel/index.html">VTK Geomechanical Model</a></li>
+            <li class="alwaysopen " data-nav-id="/reference-manual/surfaces/index.html"><input type="checkbox" id="R-section-e44d2ac58045f12532001b3c3a872ad6" aria-controls="R-subsections-e44d2ac58045f12532001b3c3a872ad6" checked><label for="R-section-e44d2ac58045f12532001b3c3a872ad6"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Surfaces</span></label><a class="padding default-animation" href="/reference-manual/surfaces/index.html">Surfaces</a><ul id="R-subsections-e44d2ac58045f12532001b3c3a872ad6" class="collapsible-menu">
             <li class="" data-nav-id="/reference-manual/surfaces/gocadsurface/index.html"><a class="padding" href="/reference-manual/surfaces/gocadsurface/index.html">GOCAD Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/openworkssurface/index.html"><a class="padding" href="/reference-manual/surfaces/openworkssurface/index.html">OpenWorks Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/ptlsurface/index.html"><a class="padding" href="/reference-manual/surfaces/ptlsurface/index.html">PTL Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/rmssurface/index.html"><a class="padding" href="/reference-manual/surfaces/rmssurface/index.html">RMS Surface</a></li>
             <li class="" data-nav-id="/reference-manual/surfaces/vtksurface/index.html"><a class="padding" href="/reference-manual/surfaces/vtksurface/index.html">VTK Surface</a></li></ul></li></ul></li>
-            <li class="" data-nav-id="/calculated-data/index.html"><input type="checkbox" id="R-section-d7700e605b6718d9f0232aeb66e77ad1" aria-controls="R-subsections-d7700e605b6718d9f0232aeb66e77ad1"><label for="R-section-d7700e605b6718d9f0232aeb66e77ad1"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Calculated Data</span></label><a class="padding" href="/calculated-data/index.html">Calculated Data</a><ul id="R-subsections-d7700e605b6718d9f0232aeb66e77ad1" class="collapsible-menu">
+            <li class="" data-nav-id="/calculated-data/index.html"><input type="checkbox" id="R-section-d7700e605b6718d9f0232aeb66e77ad1" aria-controls="R-subsections-d7700e605b6718d9f0232aeb66e77ad1"><label for="R-section-d7700e605b6718d9f0232aeb66e77ad1"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Calculated Data</span></label><a class="padding default-animation" href="/calculated-data/index.html">Calculated Data</a><ul id="R-subsections-d7700e605b6718d9f0232aeb66e77ad1" class="collapsible-menu">
             <li class="" data-nav-id="/calculated-data/calculatorexpressions/index.html"><a class="padding" href="/calculated-data/calculatorexpressions/index.html">Calculator Expressions</a></li>
-            <li class="alwaysopen " data-nav-id="/calculated-data/grid-property-calculations/index.html"><input type="checkbox" id="R-section-58abb9faabca23d7498e2036b01e940d" aria-controls="R-subsections-58abb9faabca23d7498e2036b01e940d" checked><label for="R-section-58abb9faabca23d7498e2036b01e940d"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Grid Property Calculator</span></label><a class="padding" href="/calculated-data/grid-property-calculations/index.html">Grid Property Calculator</a><ul id="R-subsections-58abb9faabca23d7498e2036b01e940d" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/calculated-data/grid-property-calculations/index.html"><input type="checkbox" id="R-section-58abb9faabca23d7498e2036b01e940d" aria-controls="R-subsections-58abb9faabca23d7498e2036b01e940d" checked><label for="R-section-58abb9faabca23d7498e2036b01e940d"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Grid Property Calculator</span></label><a class="padding default-animation" href="/calculated-data/grid-property-calculations/index.html">Grid Property Calculator</a><ul id="R-subsections-58abb9faabca23d7498e2036b01e940d" class="collapsible-menu">
             <li class="" data-nav-id="/calculated-data/grid-property-calculations/gridpropertycalculator/index.html"><a class="padding" href="/calculated-data/grid-property-calculations/gridpropertycalculator/index.html">Grid Property Calculator</a></li>
             <li class="" data-nav-id="/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html"><a class="padding" href="/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html">Aggregation of Grid Cell Values</a></li></ul></li>
             <li class="" data-nav-id="/calculated-data/curvecalculator/index.html"><a class="padding" href="/calculated-data/curvecalculator/index.html">Curve Calculator</a></li>
             <li class="" data-nav-id="/calculated-data/derivedresults/index.html"><a class="padding" href="/calculated-data/derivedresults/index.html">Derived Results - Eclipse</a></li>
             <li class="" data-nav-id="/calculated-data/faultdistance/index.html"><a class="padding" href="/calculated-data/faultdistance/index.html">Fault Distance</a></li>
             <li class="" data-nav-id="/calculated-data/derivedresultsgeomech/index.html"><a class="padding" href="/calculated-data/derivedresultsgeomech/index.html">Derived Results - Geomechanical</a></li>
-            <li class="" data-nav-id="/calculated-data/casegroupsandstatistics/index.html"><a class="padding" href="/calculated-data/casegroupsandstatistics/index.html">Grid Case Groups and Statistics</a></li></ul></li>
-            <li class="" data-nav-id="/wells-and-completions/index.html"><input type="checkbox" id="R-section-6bd77eb465ff0d28f042f42913bdffda" aria-controls="R-subsections-6bd77eb465ff0d28f042f42913bdffda"><label for="R-section-6bd77eb465ff0d28f042f42913bdffda"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Wells and Completions</span></label><a class="padding" href="/wells-and-completions/index.html">Wells and Completions</a><ul id="R-subsections-6bd77eb465ff0d28f042f42913bdffda" class="collapsible-menu">
+            <li class="" data-nav-id="/calculated-data/casegroupsandstatistics/index.html"><a class="padding" href="/calculated-data/casegroupsandstatistics/index.html">Grid Case Groups and Statistics</a></li>
+            <li class="" data-nav-id="/calculated-data/gridensemble/index.html"><a class="padding" href="/calculated-data/gridensemble/index.html">Grid Ensemble</a></li></ul></li>
+            <li class="" data-nav-id="/wells-and-completions/index.html"><input type="checkbox" id="R-section-6bd77eb465ff0d28f042f42913bdffda" aria-controls="R-subsections-6bd77eb465ff0d28f042f42913bdffda"><label for="R-section-6bd77eb465ff0d28f042f42913bdffda"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Wells and Completions</span></label><a class="padding default-animation" href="/wells-and-completions/index.html">Wells and Completions</a><ul id="R-subsections-6bd77eb465ff0d28f042f42913bdffda" class="collapsible-menu">
             <li class="" data-nav-id="/wells-and-completions/simulationwells/index.html"><a class="padding" href="/wells-and-completions/simulationwells/index.html">Simulation Wells</a></li>
             <li class="" data-nav-id="/wells-and-completions/wellpaths/index.html"><a class="padding" href="/wells-and-completions/wellpaths/index.html">Well Paths</a></li>
             <li class="" data-nav-id="/wells-and-completions/createnewwellpaths/index.html"><a class="padding" href="/wells-and-completions/createnewwellpaths/index.html">Create Well Paths</a></li>
@@ -643,7 +670,8 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
             <li class="" data-nav-id="/wells-and-completions/ensemblefracturestatistics/index.html"><a class="padding" href="/wells-and-completions/ensemblefracturestatistics/index.html">Ensemble Fracture Statistics</a></li>
             <li class="" data-nav-id="/wells-and-completions/completionslgr/index.html"><a class="padding" href="/wells-and-completions/completionslgr/index.html">Completions LGR</a></li>
             <li class="" data-nav-id="/wells-and-completions/wellmeasurements/index.html"><a class="padding" href="/wells-and-completions/wellmeasurements/index.html">Well Measurements</a></li></ul></li>
-            <li class="" data-nav-id="/import/index.html"><input type="checkbox" id="R-section-6394d937fb0ab7f32a2b2b5bee229032" aria-controls="R-subsections-6394d937fb0ab7f32a2b2b5bee229032"><label for="R-section-6394d937fb0ab7f32a2b2b5bee229032"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Import</span></label><a class="padding" href="/import/index.html">Import</a><ul id="R-subsections-6394d937fb0ab7f32a2b2b5bee229032" class="collapsible-menu">
+            <li class="" data-nav-id="/import/index.html"><input type="checkbox" id="R-section-6394d937fb0ab7f32a2b2b5bee229032" aria-controls="R-subsections-6394d937fb0ab7f32a2b2b5bee229032"><label for="R-section-6394d937fb0ab7f32a2b2b5bee229032"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Import</span></label><a class="padding default-animation" href="/import/index.html">Import</a><ul id="R-subsections-6394d937fb0ab7f32a2b2b5bee229032" class="collapsible-menu">
+            <li class="" data-nav-id="/import/importgridandsummaryensemble/index.html"><a class="padding" href="/import/importgridandsummaryensemble/index.html">Grid and Summary Ensemble</a></li>
             <li class="" data-nav-id="/import/cloudservices/index.html"><a class="padding" href="/import/cloudservices/index.html">Cloud Services</a></li>
             <li class="" data-nav-id="/import/cloudservicesauthorization/index.html"><a class="padding" href="/import/cloudservicesauthorization/index.html">Cloud Services - Authorization</a></li>
             <li class="" data-nav-id="/import/eclipsecases/index.html"><a class="padding" href="/import/eclipsecases/index.html">Eclipse Cases</a></li>
@@ -661,22 +689,22 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
             <li class="" data-nav-id="/import/resultalias/index.html"><a class="padding" href="/import/resultalias/index.html">Result Aliases</a></li>
             <li class="" data-nav-id="/import/appendingadditionalproperties/index.html"><a class="padding" href="/import/appendingadditionalproperties/index.html">Appending Additional Properties</a></li>
             <li class="" data-nav-id="/import/pasteexceltimedata/index.html"><a class="padding" href="/import/pasteexceltimedata/index.html">Paste Excel Time History Data</a></li></ul></li>
-            <li class="parent " data-nav-id="/export/index.html"><input type="checkbox" id="R-section-5d95f477b90785732dc9d6d81acc75cc" aria-controls="R-subsections-5d95f477b90785732dc9d6d81acc75cc" checked><label for="R-section-5d95f477b90785732dc9d6d81acc75cc"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Export</span></label><a class="padding" href="/export/index.html">Export</a><ul id="R-subsections-5d95f477b90785732dc9d6d81acc75cc" class="collapsible-menu">
+            <li class="parent " data-nav-id="/export/index.html"><input type="checkbox" id="R-section-5d95f477b90785732dc9d6d81acc75cc" aria-controls="R-subsections-5d95f477b90785732dc9d6d81acc75cc" checked><label for="R-section-5d95f477b90785732dc9d6d81acc75cc"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Export</span></label><a class="padding default-animation" href="/export/index.html">Export</a><ul id="R-subsections-5d95f477b90785732dc9d6d81acc75cc" class="collapsible-menu">
             <li class="" data-nav-id="/export/snapshots/index.html"><a class="padding" href="/export/snapshots/index.html">Snapshots</a></li>
             <li class="" data-nav-id="/export/eclipseproperties/index.html"><a class="padding" href="/export/eclipseproperties/index.html">Eclipse Properties</a></li>
             <li class="" data-nav-id="/export/fluxnummultnum/index.html"><a class="padding" href="/export/fluxnummultnum/index.html">FLUXNUM/MULTNUM</a></li>
             <li class="active " data-nav-id="/export/completionexport/index.html"><a class="padding" href="/export/completionexport/index.html">Completions</a></li>
             <li class="" data-nav-id="/export/exportwellpaths/index.html"><a class="padding" href="/export/exportwellpaths/index.html">Well Paths</a></li>
             <li class="" data-nav-id="/export/sectormodel/index.html"><a class="padding" href="/export/sectormodel/index.html">Sector Model</a></li>
-            <li class="" data-nav-id="/export/sectormodelbeta/index.html"><a class="padding" href="/export/sectormodelbeta/index.html">Sector Model Export [BETA]</a></li>
+            <li class="" data-nav-id="/export/sectormodelexport/index.html"><a class="padding" href="/export/sectormodelexport/index.html">Sector Model Export</a></li>
             <li class="" data-nav-id="/export/contourmapexport/index.html"><a class="padding" href="/export/contourmapexport/index.html">Contour Map Export</a></li></ul></li>
-            <li class="" data-nav-id="/scripting/index.html"><input type="checkbox" id="R-section-184799376902c8c3045f6aad007b8b97" aria-controls="R-subsections-184799376902c8c3045f6aad007b8b97"><label for="R-section-184799376902c8c3045f6aad007b8b97"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Scripting</span></label><a class="padding" href="/scripting/index.html">Scripting</a><ul id="R-subsections-184799376902c8c3045f6aad007b8b97" class="collapsible-menu">
+            <li class="" data-nav-id="/scripting/index.html"><input type="checkbox" id="R-section-184799376902c8c3045f6aad007b8b97" aria-controls="R-subsections-184799376902c8c3045f6aad007b8b97"><label for="R-section-184799376902c8c3045f6aad007b8b97"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Scripting</span></label><a class="padding default-animation" href="/scripting/index.html">Scripting</a><ul id="R-subsections-184799376902c8c3045f6aad007b8b97" class="collapsible-menu">
             <li class="" data-nav-id="/scripting/pythoninterface/index.html"><a class="padding" href="/scripting/pythoninterface/index.html">Python Interface</a></li>
             <li class="" data-nav-id="/scripting/commandlineinterface/index.html"><a class="padding" href="/scripting/commandlineinterface/index.html">Command Line Interface</a></li>
             <li class="" data-nav-id="/scripting/commandfile/index.html"><a class="padding" href="/scripting/commandfile/index.html">Command File</a></li>
             <li class="" data-nav-id="/scripting/octaveinterface/index.html"><a class="padding" href="/scripting/octaveinterface/index.html">Octave Interface</a></li>
             <li class="" data-nav-id="/scripting/octaveinterfacereference/index.html"><a class="padding" href="/scripting/octaveinterfacereference/index.html">Octave Interface Reference</a></li></ul></li>
-            <li class="" data-nav-id="/misc/index.html"><input type="checkbox" id="R-section-f243eab41fb28f51378992bf36c41035" aria-controls="R-subsections-f243eab41fb28f51378992bf36c41035"><label for="R-section-f243eab41fb28f51378992bf36c41035"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Miscellaneous</span></label><a class="padding" href="/misc/index.html">Miscellaneous</a><ul id="R-subsections-f243eab41fb28f51378992bf36c41035" class="collapsible-menu">
+            <li class="" data-nav-id="/misc/index.html"><input type="checkbox" id="R-section-f243eab41fb28f51378992bf36c41035" aria-controls="R-subsections-f243eab41fb28f51378992bf36c41035"><label for="R-section-f243eab41fb28f51378992bf36c41035"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Miscellaneous</span></label><a class="padding default-animation" href="/misc/index.html">Miscellaneous</a><ul id="R-subsections-f243eab41fb28f51378992bf36c41035" class="collapsible-menu">
             <li class="" data-nav-id="/misc/preferences/index.html"><a class="padding" href="/misc/preferences/index.html">Preferences</a></li>
             <li class="" data-nav-id="/misc/applicationlogging/index.html"><a class="padding" href="/misc/applicationlogging/index.html">Application Logging</a></li>
             <li class="" data-nav-id="/misc/projectfile/index.html"><a class="padding" href="/misc/projectfile/index.html">Project File and Caching</a></li>
@@ -687,23 +715,23 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
             <li class="" data-nav-id="/misc/advancedtextinput/index.html"><a class="padding" href="/misc/advancedtextinput/index.html">Advanced Text Input</a></li>
             <li class="" data-nav-id="/misc/keyboardshortcuts/index.html"><a class="padding" href="/misc/keyboardshortcuts/index.html">Keyboard Shortcuts</a></li>
             <li class="" data-nav-id="/misc/regressiontestsystem/index.html"><a class="padding" href="/misc/regressiontestsystem/index.html">Regression Test System</a></li></ul></li>
-            <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
+            <li class="" data-nav-id="/best-practices/index.html"><input type="checkbox" id="R-section-4f78aa4e6926d1389cf4d79364e23592" aria-controls="R-subsections-4f78aa4e6926d1389cf4d79364e23592"><label for="R-section-4f78aa4e6926d1389cf4d79364e23592"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Best Practices</span></label><a class="padding default-animation" href="/best-practices/index.html">Best Practices</a><ul id="R-subsections-4f78aa4e6926d1389cf4d79364e23592" class="collapsible-menu">
             <li class="" data-nav-id="/best-practices/performancehints/index.html"><a class="padding" href="/best-practices/performancehints/index.html">Performance Hints</a></li>
             <li class="" data-nav-id="/best-practices/summarydata/index.html"><a class="padding" href="/best-practices/summarydata/index.html">Summary Data Import</a></li></ul></li>
-            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
+            <li class="" data-nav-id="/opm-flow-integration/index.html"><input type="checkbox" id="R-section-163e561e589087b2f1fdab530cea4daa" aria-controls="R-subsections-163e561e589087b2f1fdab530cea4daa"><label for="R-section-163e561e589087b2f1fdab530cea4daa"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu OPM Flow Integration</span></label><a class="padding default-animation" href="/opm-flow-integration/index.html">OPM Flow Integration</a><ul id="R-subsections-163e561e589087b2f1fdab530cea4daa" class="collapsible-menu">
             <li class="" data-nav-id="/opm-flow-integration/opmflowpreferences/index.html"><a class="padding" href="/opm-flow-integration/opmflowpreferences/index.html">Initial Configuration</a></li>
             <li class="" data-nav-id="/opm-flow-integration/createnewjob/index.html"><a class="padding" href="/opm-flow-integration/createnewjob/index.html">Create an OPM Flow Job</a></li>
             <li class="" data-nav-id="/opm-flow-integration/jobproperties/index.html"><a class="padding" href="/opm-flow-integration/jobproperties/index.html">OPM Flow Job Properties</a></li>
             <li class="" data-nav-id="/opm-flow-integration/addnewwell/index.html"><a class="padding" href="/opm-flow-integration/addnewwell/index.html">Add a New Well</a></li>
             <li class="" data-nav-id="/opm-flow-integration/runningopmflowjobs/index.html"><a class="padding" href="/opm-flow-integration/runningopmflowjobs/index.html">Running an OPM Flow Job</a></li></ul></li>
-            <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
+            <li class="" data-nav-id="/workflows/index.html"><input type="checkbox" id="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4" aria-controls="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4"><label for="R-section-87fd3d7b9e4d48a0ba290b60ba4064f4"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Workflows</span></label><a class="padding default-animation" href="/workflows/index.html">Workflows</a><ul id="R-subsections-87fd3d7b9e4d48a0ba290b60ba4064f4" class="collapsible-menu">
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
             <li class="" data-nav-id="/workflows/ensemblewelllog/index.html"><a class="padding" href="/workflows/ensemblewelllog/index.html">Ensemble Well Log</a></li>
             <li class="" data-nav-id="/workflows/welltargetmapping/index.html"><a class="padding" href="/workflows/welltargetmapping/index.html">Well Target Mapping</a></li></ul></li>
           </ul>
         </div>
-        <div id="R-shortcutmenu-shortcuts" class="R-sidebarmenu">
+        <div class="R-sidebarmenu R-shortcutmenu-shortcuts default-animation">
           <ul class="space collapsible-menu">
             <li class="" data-nav-id="/about"><a class="padding" href="/about"><i class='fas fa-info-circle'></i> About</a></li>
             <li class="" data-nav-id="/training"><a class="padding" href="/training"><i class='fa fa-university'></i> Training</a></li>
@@ -711,62 +739,24 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
             <li class="" data-nav-id="/releases"><a class="padding" href="/releases"><i class='fas fa-download'></i> Download and Install</a></li>
           </ul>
         </div>
-        <div class="padding footermargin footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter"></div>
-        <div id="R-menu-footer">
-          <hr class="padding default-animation footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter">
-          <div id="R-prefooter" class="footerLangSwitch footerVariantSwitch footerVisitedLinks">
-            <ul>
-              <li id="R-select-language-container" class="footerLangSwitch">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-language"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <label class="a11y-only" for="R-select-language">Language</label>
-                    <select id="R-select-language" onchange="location = this.querySelector( this.value ).dataset.url;">
-                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/export/completionexport/index.html" lang="en-us" selected></option>
-                    </select>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-              </li>
-              <li id="R-select-variant-container" class="footerVariantSwitch">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-paint-brush"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <label class="a11y-only" for="R-select-variant">Theme</label>
-                    <select id="R-select-variant" onchange="window.relearn.changeVariant( this.value );">
-                      <option id="R-select-variant-relearn" value="relearn" selected>Relearn</option>
-                    </select>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-                <script>window.relearn.markVariant();</script>
-              </li>
-              <li class="footerVisitedLinks">
-                <div class="padding menu-control">
-                  <i class="fa-fw fas fa-history"></i>
-                  <span>&nbsp;</span>
-                  <div class="control-style">
-                    <button onclick="clearHistory();">Clear History</button>
-                  </div>
-                  <div class="clear"></div>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <div id="R-footer" class="footerFooter showFooter"><a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
+        <div id="R-footer-margin" class="default-animation"></div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding default-animation">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-footercontrols default-animation">
+          <ul class="">
+          </ul>
+        </div>
+<div id="R-footer" class="default-animation"><a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
 
 ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetron Solutions</a>
 <p>in collaboration with</p>
 <a href="https://www.equinor.com">Equinor ASA</a>
-
-          </div>
-        </div>
+</div>
       </div>
     </aside>
-    <script src="/js/clipboard.min.js?1772538547" defer></script>
-    <script src="/js/perfect-scrollbar.min.js?1772538547" defer></script>
-    <script src="/js/theme.js?1772538547" defer></script>
+    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1781260068" defer></script>
+    <script src="/js/theme.min.js?1781260068" defer></script>
+    <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>
