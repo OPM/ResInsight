@@ -1,0 +1,31 @@
+name: Remove label 'PendingRelease' from all issues
+on:
+  workflow_dispatch:
+jobs:
+  remove_label:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const label = "PendingRelease";
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "all",
+              labels: label,
+              per_page: 100
+            });
+            core.info(`Found ${issues.length} issue(s) with label '${label}'`);
+            for (const issue of issues) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                name: label
+              });
+              core.info(`Removed '${label}' from #${issue.number}`);
+            }
+            core.info(`Done. Removed '${label}' from ${issues.length} issue(s).`);
