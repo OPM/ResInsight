@@ -397,6 +397,7 @@ void RiuMainWindowBase::slotDockViewerVisibilityChanged( bool visible )
             if ( view->dockWidget() == dockWidget )
             {
                 view->setAsActiveViewer();
+                selectAsCurrentItem( view );
                 break;
             }
         }
