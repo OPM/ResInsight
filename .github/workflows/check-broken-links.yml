@@ -16,7 +16,9 @@ jobs:
     name: Check for broken links
     steps:
     - name: Check for broken links
-      shell: bash
+      # Drop the default '-e' so a single curl timeout/failure does not abort the whole crawl;
+      # link failures are tallied and reported by the script itself.
+      shell: bash --noprofile --norc -o pipefail {0}
       env:
         BASE_URL: ${{ github.event.inputs.base_url || 'https://resinsight.org' }}
       run: |
