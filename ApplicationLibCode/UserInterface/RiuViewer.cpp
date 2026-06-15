@@ -35,6 +35,7 @@
 #include "RivTernarySaturationOverlayItem.h"
 #include "WindowEdgeAxesOverlayItem/RivWindowEdgeAxesOverlayItem.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuCadNavigation.h"
 #include "RiuComparisonViewMover.h"
 #include "RiuGeoQuestNavigation.h"
@@ -724,7 +725,11 @@ void RiuViewer::mousePressEvent( QMouseEvent* mouseEvent )
     {
         m_lastMousePressPosition = mouseEvent->pos();
 
-        if ( auto ownView = ownerViewWindow() ) ownView->setAsActiveViewer();
+        if ( auto ownView = ownerViewWindow() )
+        {
+            ownView->setAsActiveViewer();
+            Riu3DMainWindowTools::selectAsCurrentItem( ownView );
+        }
     }
 }
 
