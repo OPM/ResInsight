@@ -25,27 +25,27 @@ Import an ensemble of grid models with identical IJK into a Grid Case Group. Cre
 Import an ensemble of grid models with identical IJK into a Grid Case Group. Create a view on one of the source grid models, and create a cell filter for the region of interest. Create an expression for mobile oil MOBILE_OIL := if(((SOIL-SOWCR) &lt; 0.00), 0.00, PORV*(SOIL-SOWCR)) Select a subset of time steps. This will significantly affect performance for for large grids with many time steps. Create an expression to aggregate values for all visible cells SUM_MOBILE_OIL := sum(MOBILE_OIL) Use the result from the previous calculation as input to the variable, use MOBILE_OIL from the Generated category. Make sure Apply to All Cases is checked. The individual values for each realization and time step is displayed as text in Messages. The statistics for each time step is displayed at the bottom.">
     <meta itemprop="wordCount" content="150">
     <title>Aggregation of Grid Cell Values :: ResInsight</title>
-    <link href="/images/favicon.png?1781260068" rel="icon" type="image/png">
-    <link href="/css/auto-complete/auto-complete.min.css?1781260068" rel="stylesheet">
-    <script src="/js/auto-complete/auto-complete.min.js?1781260068" defer></script>
-    <script src="/js/search-lunr.min.js?1781260068" defer></script>
-    <script src="/js/search.min.js?1781260068" defer></script>
+    <link href="/images/favicon.png?1781533153" rel="icon" type="image/png">
+    <link href="/css/auto-complete/auto-complete.min.css?1781533153" rel="stylesheet">
+    <script src="/js/auto-complete/auto-complete.min.js?1781533153" defer></script>
+    <script src="/js/search-lunr.min.js?1781533153" defer></script>
+    <script src="/js/search.min.js?1781533153" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/searchindex.en.js?1781260068";
+      window.relearn.index_js_url="/searchindex.en.js?1781533153";
     </script>
-    <script src="/js/lunr/lunr.min.js?1781260068" defer></script>
-    <script src="/js/lunr/lunr.stemmer.support.min.js?1781260068" defer></script>
-    <script src="/js/lunr/lunr.multi.min.js?1781260068" defer></script>
-    <script src="/js/lunr/lunr.en.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.min.js?1781533153" defer></script>
+    <script src="/js/lunr/lunr.stemmer.support.min.js?1781533153" defer></script>
+    <script src="/js/lunr/lunr.multi.min.js?1781533153" defer></script>
+    <script src="/js/lunr/lunr.en.min.js?1781533153" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1781260068" rel="stylesheet">
-    <link href="/css/theme.min.css?1781260068" rel="stylesheet">
-    <link href="/css/format-html.min.css?1781260068" rel="stylesheet" id="R-format-style">
+    <link href="/fonts/fontawesome/css/all.min.css?1781533153" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1781533153" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1781533153" rel="stylesheet">
+    <link href="/css/theme.min.css?1781533153" rel="stylesheet">
+    <link href="/css/format-html.min.css?1781533153" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -206,8 +206,8 @@ Import an ensemble of grid models with identical IJK into a Grid Case Group. Cre
 <li>Make sure <strong>Apply to All Cases</strong> is checked.</li>
 <li>The individual values for each realization and time step is displayed as text in <strong>Messages</strong>. The statistics for each time step is displayed at the bottom.</li>
 </ul>
-<p><a href="#R-image-f28b56a84cfe4c7e922bc8390d8506c4" class="lightbox-link"><img alt="image" class="lazy lightbox figure-image" loading="lazy" src="https://github.com/OPM/ResInsight/assets/1793152/bf53a448-94ce-4fbb-850e-b912c060a6d4" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-f28b56a84cfe4c7e922bc8390d8506c4"><img alt="image" class="lazy lightbox lightbox-image" loading="lazy" src="https://github.com/OPM/ResInsight/assets/1793152/bf53a448-94ce-4fbb-850e-b912c060a6d4"></a></p>
+<p><a href="#R-image-6332df334287d358460f8be230f793a7" class="lightbox-link"><img alt="image" class="lazy lightbox figure-image" loading="lazy" src="https://github.com/OPM/ResInsight/assets/1793152/bf53a448-94ce-4fbb-850e-b912c060a6d4" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-6332df334287d358460f8be230f793a7"><img alt="image" class="lazy lightbox lightbox-image" loading="lazy" src="https://github.com/OPM/ResInsight/assets/1793152/bf53a448-94ce-4fbb-850e-b912c060a6d4"></a></p>
 <p>See draft workflow with screenshots here:
 <a href="https://github.com/OPM/ResInsight/discussions/10913" rel="external">https://github.com/OPM/ResInsight/discussions/10913</a></p>
 
@@ -219,8 +219,8 @@ Import an ensemble of grid models with identical IJK into a Grid Case Group. Cre
     </div>
     <aside id="R-sidebar" class="default-animation">
       <div id="R-header-topbar" class="default-animation"></div>
-      <div id="R-header-wrapper" class="default-animation"><a id="logo" href="https://resinsight.org/">
-  <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png">
+      <div id="R-header-wrapper" class="default-animation"><a id="logo" href="https://resinsight.org/" style="display: block;">
+  <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png" style="display: block; width: 100%; height: auto;">
 </a>
 
         <search><form action="/search/index.html" method="get">
@@ -456,8 +456,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 </div>
       </div>
     </aside>
-    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1781260068" defer></script>
-    <script src="/js/theme.min.js?1781260068" defer></script>
+    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1781533153" defer></script>
+    <script src="/js/theme.min.js?1781533153" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

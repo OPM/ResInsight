@@ -25,27 +25,27 @@ If you have several reservoir simulations with different input parameters availa
 If you have several reservoir simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.">
     <meta itemprop="wordCount" content="784">
     <title>Grid Case Groups and Statistics :: ResInsight</title>
-    <link href="/images/favicon.png?1781260068" rel="icon" type="image/png">
-    <link href="/css/auto-complete/auto-complete.min.css?1781260068" rel="stylesheet">
-    <script src="/js/auto-complete/auto-complete.min.js?1781260068" defer></script>
-    <script src="/js/search-lunr.min.js?1781260068" defer></script>
-    <script src="/js/search.min.js?1781260068" defer></script>
+    <link href="/images/favicon.png?1781533153" rel="icon" type="image/png">
+    <link href="/css/auto-complete/auto-complete.min.css?1781533153" rel="stylesheet">
+    <script src="/js/auto-complete/auto-complete.min.js?1781533153" defer></script>
+    <script src="/js/search-lunr.min.js?1781533153" defer></script>
+    <script src="/js/search.min.js?1781533153" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/searchindex.en.js?1781260068";
+      window.relearn.index_js_url="/searchindex.en.js?1781533153";
     </script>
-    <script src="/js/lunr/lunr.min.js?1781260068" defer></script>
-    <script src="/js/lunr/lunr.stemmer.support.min.js?1781260068" defer></script>
-    <script src="/js/lunr/lunr.multi.min.js?1781260068" defer></script>
-    <script src="/js/lunr/lunr.en.min.js?1781260068" defer></script>
+    <script src="/js/lunr/lunr.min.js?1781533153" defer></script>
+    <script src="/js/lunr/lunr.stemmer.support.min.js?1781533153" defer></script>
+    <script src="/js/lunr/lunr.multi.min.js?1781533153" defer></script>
+    <script src="/js/lunr/lunr.en.min.js?1781533153" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1781260068" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1781260068" rel="stylesheet">
-    <link href="/css/theme.min.css?1781260068" rel="stylesheet">
-    <link href="/css/format-html.min.css?1781260068" rel="stylesheet" id="R-format-style">
+    <link href="/fonts/fontawesome/css/all.min.css?1781533153" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1781533153" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1781533153" rel="stylesheet">
+    <link href="/css/theme.min.css?1781533153" rel="stylesheet">
+    <link href="/css/format-html.min.css?1781533153" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -204,15 +204,15 @@ If you have several reservoir simulations with different input parameters availa
 
 <h1 id="grid-case-groups-and-statistics">Grid Case Groups and Statistics</h1>
 
-<p><a href="#R-image-1e3fe0225bc5b19c8779ea0a3118a10d" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/GridCaseGroupTree.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-1e3fe0225bc5b19c8779ea0a3118a10d"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/GridCaseGroupTree.png"></a></p>
+<p><a href="#R-image-e7ec34618b047455d2006d3e7ff34711" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/3d-main-window/GridCaseGroupTree.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-e7ec34618b047455d2006d3e7ff34711"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/3d-main-window/GridCaseGroupTree.png"></a></p>
 <p><strong>Grid Case Group</strong>&rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of reservoir simulation cases with identical Grids (often labeled <em>realizations</em>).</p>
 <p>If you have several reservoir simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step. Grid calculations can optionally be used as a data source for computations.</p>
 <h2 id="creating-grid-case-groups">Creating Grid Case Groups<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <h3 id="from-files">From Files<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>The easiest way to create a <strong>Grid Case Group</strong> is to use the Import command:
 <strong>File-&gt;Import-&gt;Eclipse Cases-&gt;Create Grid Case Group</strong></p>
-<p>This command will display the recursive file import dialog described on the <a href="/import/eclipsesummarydata/index.html#ensemble-file-import">Summary Plots page</a>.</p>
+<p>This command will display the recursive file import dialog described on the <a href="/import/ensemblefiledialog/index.html#ensemble-file-import">Summary Plots page</a>.</p>
 <p>ResInsight then creates a <strong>Grid Case Group</strong> for you, and populates its <strong>Source Cases</strong> with the Cases you selected. Then the first of those Cases are read completely, while the others are just scanned to verify that the Grids match and to detect changes in the Active Cells layout. This makes it quite fast to load even a quite large number of realizations.</p>
 <h3 id="manually">Manually<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>A Grid Case Group can be created from the right-click menu of a Result Case, Input Case or a different Grid Case Group. <strong>Source Cases</strong> can then be added by using the mouse to <em>drag and drop</em> cases with equal grids into the <strong>Grid Case Group</strong>&rsquo;s <strong>Source Case</strong> folder.
@@ -235,8 +235,8 @@ To reduce memory usage, project loading time etc. remember to delete the 3D View
 <p>After creating a grid case group, an empty <strong>Statistics Case</strong> is created for you in the <strong>Derived Statistics</strong> folder of the <strong>Grid Case Group</strong>.</p>
 <h3 id="setting-up-and-calculate">Setting Up and Calculate<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p><strong>Settings for grid case property statistics</strong></p>
-<p><a href="#R-image-bb99f2dd3d05bb11c0d5597d9797061c" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseProperties.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-bb99f2dd3d05bb11c0d5597d9797061c"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseProperties.png"></a></p>
+<p><a href="#R-image-ea044a1e801bbed13a5dc6b1dad1f6c9" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseProperties.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-ea044a1e801bbed13a5dc6b1dad1f6c9"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseProperties.png"></a></p>
 <ul>
 <li><strong>Compute</strong> &ndash;  Starts to calculate requested statistical Properties.</li>
 <li><strong>Edit</strong> &ndash; Deletes the calculated results, and makes the controls to edit the setup available.</li>
@@ -246,8 +246,8 @@ To reduce memory usage, project loading time etc. remember to delete the 3D View
 <li><strong>Well Data Source Case</strong> &ndash; This option selects which set of <strong>Simulation Wells</strong> to be shown along with the statistical results. You can select one of the <strong>Source Cases</strong>.</li>
 </ul>
 <p><strong>Settings for grid cell calculations</strong></p>
-<p><a href="#R-image-99fa84dcbac739cec2228f8ad0f9d3c2" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridCalculation.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-99fa84dcbac739cec2228f8ad0f9d3c2"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridCalculation.png"></a></p>
+<p><a href="#R-image-3126b1893cd0f06ab0b6fc32eee64173" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridCalculation.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-3126b1893cd0f06ab0b6fc32eee64173"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridCalculation.png"></a></p>
 <ul>
 <li><strong>Data Source</strong> &ndash;  Defines either a cell property or a grid calculation expression to be used as data source for the statistical calculations.</li>
 <li><strong>Grid Calculation</strong> &ndash; List of all defined calculations in the project.</li>
@@ -255,8 +255,8 @@ To reduce memory usage, project loading time etc. remember to delete the 3D View
 </ul>
 <p>Cell values in a selection of cells can be aggregated as described in <a href="/calculated-data/grid-property-calculations/aggregationofgridcellvalues/index.html">Aggregation of Grid Cell Values</a></p>
 <p><strong>Settings for when statistics has been computed</strong></p>
-<p><a href="#R-image-6f83698e3177d5c77a2c95ed733f642d" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridAfterComputations.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-6f83698e3177d5c77a2c95ed733f642d"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridAfterComputations.png"></a></p>
+<p><a href="#R-image-a89ac92e4ca745adf3b66f9d68ff161a" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridAfterComputations.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-a89ac92e4ca745adf3b66f9d68ff161a"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/calculated-data/StatisticsCaseGridAfterComputations.png"></a></p>
 <h4 id="percentile-methods">Percentile Methods<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>Three Percentile methods are implemented:</p>
 <ul>
@@ -280,8 +280,8 @@ A histogram is created and the percentile is calculated based on the histogram. 
     </div>
     <aside id="R-sidebar" class="default-animation">
       <div id="R-header-topbar" class="default-animation"></div>
-      <div id="R-header-wrapper" class="default-animation"><a id="logo" href="https://resinsight.org/">
-  <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png">
+      <div id="R-header-wrapper" class="default-animation"><a id="logo" href="https://resinsight.org/" style="display: block;">
+  <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png" style="display: block; width: 100%; height: auto;">
 </a>
 
         <search><form action="/search/index.html" method="get">
@@ -517,8 +517,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 </div>
       </div>
     </aside>
-    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1781260068" defer></script>
-    <script src="/js/theme.min.js?1781260068" defer></script>
+    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1781533153" defer></script>
+    <script src="/js/theme.min.js?1781533153" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>
