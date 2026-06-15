@@ -97,6 +97,7 @@ protected:
 private:
     void setPdmRoot( caf::PdmObject* pdmRoot );
 
+    void createActions();
     void createMenus();
     void createToolBars();
     void createDockPanels();
@@ -111,6 +112,7 @@ private slots:
     void slotToggleSelectionLink();
     void slotToggleAutoUpdate();
     void slotReloadSelectedCases();
+    void slotViewFullScreen( bool );
 
     void slotBuildWindowActions();
 
@@ -139,4 +141,5 @@ private:
     bool     m_autoUpdateEnabled;
     int      m_autoUpdateTimerId;
     QAction* m_reloadSelectedCasesAction;
+    QAction* m_viewFullScreenAction;
 };
