@@ -89,8 +89,10 @@
 
 #include "cvfTimer.h"
 
+#include "DockAreaTitleBar.h"
 #include "DockAreaWidget.h"
 #include "DockManager.h"
+#include "DockWidget.h"
 
 #include <QAction>
 #include <QActionGroup>
@@ -100,6 +102,7 @@
 #include <QDir>
 #include <QLabel>
 #include <QLayout>
+#include <QMap>
 #include <QMenuBar>
 #include <QMimeData>
 #include <QSpinBox>
@@ -112,6 +115,7 @@
 #include <QTreeView>
 #include <QUndoStack>
 #include <QUndoView>
+#include <Quuid>
 
 #include <QDebug>
 
@@ -424,6 +428,11 @@ void RiuMainWindow::createActions()
     connect( m_viewFromBelow, SIGNAL( triggered() ), SLOT( slotViewFromBelow() ) );
     connect( m_viewFullScreen, SIGNAL( toggled( bool ) ), SLOT( slotViewFullScreen( bool ) ) );
 
+    m_hideTabsAction = new QAction( QIcon( ":/HideTabs.svg" ), "Show/Hide Tabs", this );
+    m_hideTabsAction->setToolTip( "Show/Hide Tabs in Main Views" );
+    m_hideTabsAction->setCheckable( true );
+    connect( m_hideTabsAction, SIGNAL( toggled( bool ) ), SLOT( slotHideTabs( bool ) ) );
+
     // Debug actions
     m_newPropertyView = new QAction( "New Project and Property View", this );
     connect( m_newPropertyView, SIGNAL( triggered() ), SLOT( slotNewObjectPropertyView() ) );
@@ -528,6 +537,7 @@ void RiuMainWindow::createMenus()
     QMenu* viewMenu = RiuMenuBarBuildTools::createDefaultViewMenu( menuBar() );
     viewMenu->addSeparator();
     viewMenu->addAction( m_viewFullScreen );
+    viewMenu->addAction( m_hideTabsAction );
     viewMenu->addSeparator();
     viewMenu->addAction( m_viewFromSouth );
     viewMenu->addAction( m_viewFromNorth );
@@ -642,6 +652,7 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( cmdFeatureMgr->action( "RicTogglePerspectiveViewFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicViewZoomAllFeature" ) );
         toolbar->addAction( m_viewFullScreen );
+        toolbar->addAction( m_hideTabsAction );
         toolbar->addAction( m_viewFromNorth );
         toolbar->addAction( m_viewFromSouth );
         toolbar->addAction( m_viewFromEast );
@@ -2081,4 +2092,18 @@ void RiuMainWindow::dropEvent( QDropEvent* event )
     }
 
     event->acceptProposedAction();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotHideTabs( bool hideTabs )
+{
+    // TODO - go through all 3d view dock widgets and collect the unique dock areas that only contains 3d viewsand hide those.
+    auto central = dockManager()->centralWidget()->dockAreaWidget()->titleBar();
+
+    if ( hideTabs )
+        central->hide();
+    else
+        central->show();
 }

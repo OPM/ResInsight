@@ -96,26 +96,10 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     , m_autoUpdateEnabled( false )
     , m_autoUpdateTimerId( -1 )
 {
-    m_toggleSelectionLinkAction = new QAction( QIcon( ":/Link3DandPlots.png" ), tr( "Link With Selection in 3D" ), this );
-    m_toggleSelectionLinkAction->setToolTip( "Update wells used in plots from well selections in 3D view." );
-    m_toggleSelectionLinkAction->setCheckable( true );
-    m_toggleSelectionLinkAction->setChecked( m_selection3DLinkEnabled );
-    connect( m_toggleSelectionLinkAction, SIGNAL( triggered() ), SLOT( slotToggleSelectionLink() ) );
-
-    m_toggleAutoUpdateAction = new QAction( QIcon( ":/TimedRefresh.png" ), tr( "Auto-update plots." ), this );
-    m_toggleAutoUpdateAction->setToolTip( "Reload cases at interval specified in Automation Settings." );
-    m_toggleAutoUpdateAction->setCheckable( true );
-    m_toggleAutoUpdateAction->setChecked( m_autoUpdateEnabled );
-    connect( m_toggleAutoUpdateAction, SIGNAL( triggered() ), SLOT( slotToggleAutoUpdate() ) );
-
-    m_reloadSelectedCasesAction = new QAction( QIcon( ":/Refresh.svg" ), tr( "Reload Selected Cases" ), this );
-    m_reloadSelectedCasesAction->setToolTip( "Reload selected summary and/or ensemble cases." );
-    m_reloadSelectedCasesAction->setCheckable( false );
-    connect( m_reloadSelectedCasesAction, SIGNAL( triggered() ), SLOT( slotReloadSelectedCases() ) );
-
     setAttribute( Qt::WA_DeleteOnClose );
 
     setUpCentralDockWidget();
+    createActions();
     createMenus();
     createToolBars();
     createDockPanels();
@@ -311,6 +295,35 @@ void RiuPlotMainWindow::keyPressEvent( QKeyEvent* keyEvent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::createActions()
+{
+    m_toggleSelectionLinkAction = new QAction( QIcon( ":/Link3DandPlots.png" ), tr( "Link With Selection in 3D" ), this );
+    m_toggleSelectionLinkAction->setToolTip( "Update wells used in plots from well selections in 3D view." );
+    m_toggleSelectionLinkAction->setCheckable( true );
+    m_toggleSelectionLinkAction->setChecked( m_selection3DLinkEnabled );
+    connect( m_toggleSelectionLinkAction, SIGNAL( triggered() ), SLOT( slotToggleSelectionLink() ) );
+
+    m_toggleAutoUpdateAction = new QAction( QIcon( ":/TimedRefresh.png" ), tr( "Auto-update plots." ), this );
+    m_toggleAutoUpdateAction->setToolTip( "Reload cases at interval specified in Automation Settings." );
+    m_toggleAutoUpdateAction->setCheckable( true );
+    m_toggleAutoUpdateAction->setChecked( m_autoUpdateEnabled );
+    connect( m_toggleAutoUpdateAction, SIGNAL( triggered() ), SLOT( slotToggleAutoUpdate() ) );
+
+    m_reloadSelectedCasesAction = new QAction( QIcon( ":/Refresh.svg" ), tr( "Reload Selected Cases" ), this );
+    m_reloadSelectedCasesAction->setToolTip( "Reload selected summary and/or ensemble cases." );
+    m_reloadSelectedCasesAction->setCheckable( false );
+    connect( m_reloadSelectedCasesAction, SIGNAL( triggered() ), SLOT( slotReloadSelectedCases() ) );
+
+    m_viewFullScreenAction = new QAction( QIcon( ":/Fullscreen.png" ), "Full Screen", this );
+    m_viewFullScreenAction->setToolTip( "Full Screen (Ctrl+Alt+F)" );
+    m_viewFullScreenAction->setCheckable( true );
+    caf::CmdFeature::applyShortcutWithHintToAction( m_viewFullScreenAction, QKeySequence( tr( "Ctrl+Alt+F" ) ) );
+    connect( m_viewFullScreenAction, SIGNAL( toggled( bool ) ), SLOT( slotViewFullScreen( bool ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::createMenus()
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
@@ -355,7 +368,9 @@ void RiuPlotMainWindow::createMenus()
     connect( editMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshUndoRedoActions() ) );
 
     // View menu
-    RiuMenuBarBuildTools::createDefaultViewMenu( menuBar() );
+    QMenu* viewMenu = RiuMenuBarBuildTools::createDefaultViewMenu( menuBar() );
+    viewMenu->addSeparator();
+    viewMenu->addAction( m_viewFullScreenAction );
 
     // Windows menu
     m_windowMenu = menuBar()->addMenu( "&Windows" );
@@ -435,6 +450,7 @@ void RiuPlotMainWindow::createToolBars()
         }
         if ( toolbarName == "View" )
         {
+            toolbar->addAction( m_viewFullScreenAction );
             toolbar->addAction( m_toggleSelectionLinkAction );
             toolbar->addAction( m_reloadSelectedCasesAction );
             toolbar->addAction( m_toggleAutoUpdateAction );
@@ -1041,5 +1057,50 @@ void RiuPlotMainWindow::timerEvent( QTimerEvent* event )
     if ( event->timerId() == m_autoUpdateTimerId )
     {
         RicReloadSummaryCaseFeature::reloadTaggedSummaryCasesAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::slotViewFullScreen( bool showFullScreen )
+{
+    if ( showFullScreen )
+    {
+        m_lastDockState = dockManager()->saveState( DOCKSTATE_VERSION );
+
+        QString activeViewerName;
+        if ( auto activeViewer = RiaGuiApplication::instance()->activePlotWindow() )
+        {
+            activeViewerName = activeViewer->dockWindowName();
+        }
+
+        dockManager()->restoreState( RiuDockWidgetTools::hideAllDockingPlotState(), DOCKSTATE_VERSION );
+
+        if ( !activeViewerName.isEmpty() )
+        {
+            if ( auto dw = dockManager()->findDockWidget( activeViewerName ) )
+            {
+                dockManager()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, dw, dockManager()->centralWidget()->dockAreaWidget() );
+            }
+        }
+    }
+    else
+    {
+        QString activeViewerName;
+        if ( auto activeViewer = RiaGuiApplication::instance()->activePlotWindow() )
+        {
+            activeViewerName = activeViewer->dockWindowName();
+        }
+
+        dockManager()->restoreState( m_lastDockState, DOCKSTATE_VERSION );
+
+        if ( !activeViewerName.isEmpty() )
+        {
+            if ( auto dw = dockManager()->findDockWidget( activeViewerName ) )
+            {
+                dw->setAsCurrentTab();
+            }
+        }
     }
 }
