@@ -181,31 +181,38 @@ void RimDockWindowController::setAsActiveViewer()
 
     if ( auto pdmView = viewPdmObject() )
     {
-        for ( auto viewWin : getMainWindow()->viewWindows() )
+        auto view3d   = dynamic_cast<Rim3dView*>( pdmView );
+        auto viewPlot = dynamic_cast<RimPlotWindow*>( pdmView );
+
+        RiuMainWindowBase* mainWindow = RiaGuiApplication::instance()->mainWindow();
+        if ( viewPlot ) mainWindow = RiaGuiApplication::instance()->mainPlotWindow();
+        if ( !mainWindow ) return;
+
+        for ( auto view : mainWindow->viewWindows() )
         {
-            if ( viewWin->isActive() )
+            if ( view->isActive() )
             {
-                viewWin->setActive( false );
-                viewWin->updateWindowTitle();
+                view->setActive( false );
+                view->updateWindowTitle();
             }
         }
 
         pdmView->setActive( true );
         pdmView->updateWindowTitle();
 
-        if ( auto resView = dynamic_cast<Rim3dView*>( pdmView ) )
+        if ( view3d )
         {
-            RiaApplication::instance()->setActiveReservoirView( resView );
-            if ( auto mainWin = dynamic_cast<RiuMainWindow*>( getMainWindow() ) )
+            RiaApplication::instance()->setActiveReservoirView( view3d );
+            if ( auto mainWin = dynamic_cast<RiuMainWindow*>( mainWindow ) )
             {
                 mainWin->refreshViewActions();
                 mainWin->refreshAnimationActions();
                 mainWin->refreshDrawStyleActions();
             }
         }
-        else if ( auto plotView = dynamic_cast<RimPlotWindow*>( pdmView ) )
+        else if ( viewPlot )
         {
-            RiuPlotMainWindowTools::selectAsCurrentItem( plotView );
+            RiuPlotMainWindowTools::selectAsCurrentItem( viewPlot );
             RiuPlotMainWindowTools::refreshToolbars();
         }
     }
