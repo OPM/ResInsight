@@ -2087,3 +2087,11 @@ void RiuMainWindow::dropEvent( QDropEvent* event )
 
     event->acceptProposedAction();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuMainWindow::activeViewer()
+{
+    return RiaApplication::instance()->activeReservoirView();
+}
