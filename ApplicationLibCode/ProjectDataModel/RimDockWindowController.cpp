@@ -27,6 +27,7 @@
 #include "RiuDockWidgetTools.h"
 #include "RiuMainWindow.h"
 #include "RiuMainWindowBase.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuViewer.h"
 
