@@ -119,6 +119,7 @@ protected slots:
     void slotDockViewerVisibilityChanged( bool visible );
     void slotDockViewerClosed();
     void slotRefreshHelpActions();
+    void slotHideTabs( bool hideTabs );
 
     void slotRedo();
     void slotUndo();
@@ -134,6 +135,7 @@ protected:
     bool m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control
                                                // whether to select the corresponding active view or not
 
+    QAction*   m_hideTabsAction;
     QAction*   m_undoAction;
     QAction*   m_redoAction;
     QUndoView* m_undoView;

@@ -115,7 +115,6 @@
 #include <QTreeView>
 #include <QUndoStack>
 #include <QUndoView>
-#include <Quuid>
 
 #include <QDebug>
 
@@ -427,11 +426,6 @@ void RiuMainWindow::createActions()
     connect( m_viewFromAbove, SIGNAL( triggered() ), SLOT( slotViewFromAbove() ) );
     connect( m_viewFromBelow, SIGNAL( triggered() ), SLOT( slotViewFromBelow() ) );
     connect( m_viewFullScreen, SIGNAL( toggled( bool ) ), SLOT( slotViewFullScreen( bool ) ) );
-
-    m_hideTabsAction = new QAction( QIcon( ":/HideTabs.svg" ), "Show/Hide Tabs", this );
-    m_hideTabsAction->setToolTip( "Show/Hide Tabs in Main Views" );
-    m_hideTabsAction->setCheckable( true );
-    connect( m_hideTabsAction, SIGNAL( toggled( bool ) ), SLOT( slotHideTabs( bool ) ) );
 
     // Debug actions
     m_newPropertyView = new QAction( "New Project and Property View", this );
@@ -2092,18 +2086,4 @@ void RiuMainWindow::dropEvent( QDropEvent* event )
     }
 
     event->acceptProposedAction();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotHideTabs( bool hideTabs )
-{
-    // TODO - go through all 3d view dock widgets and collect the unique dock areas that only contains 3d viewsand hide those.
-    auto central = dockManager()->centralWidget()->dockAreaWidget()->titleBar();
-
-    if ( hideTabs )
-        central->hide();
-    else
-        central->show();
 }

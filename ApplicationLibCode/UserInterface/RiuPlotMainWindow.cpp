@@ -371,6 +371,7 @@ void RiuPlotMainWindow::createMenus()
     QMenu* viewMenu = RiuMenuBarBuildTools::createDefaultViewMenu( menuBar() );
     viewMenu->addSeparator();
     viewMenu->addAction( m_viewFullScreenAction );
+    viewMenu->addAction( m_hideTabsAction );
 
     // Windows menu
     m_windowMenu = menuBar()->addMenu( "&Windows" );
@@ -451,6 +452,7 @@ void RiuPlotMainWindow::createToolBars()
         if ( toolbarName == "View" )
         {
             toolbar->addAction( m_viewFullScreenAction );
+            toolbar->addAction( m_hideTabsAction );
             toolbar->addAction( m_toggleSelectionLinkAction );
             toolbar->addAction( m_reloadSelectedCasesAction );
             toolbar->addAction( m_toggleAutoUpdateAction );

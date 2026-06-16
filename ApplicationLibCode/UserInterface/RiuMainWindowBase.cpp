@@ -40,6 +40,8 @@
 #include "cafPdmUiTreeView.h"
 #include "cafQTreeViewStateSerializer.h"
 
+#include "DockAreaTitleBar.h"
+#include "DockAreaWidget.h"
 #include "DockManager.h"
 #include "DockWidget.h"
 
@@ -55,6 +57,7 @@
 #include <QTreeView>
 #include <QUndoStack>
 #include <QUndoView>
+#include <QUuid>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -86,6 +89,11 @@ RiuMainWindowBase::RiuMainWindowBase()
     m_redoAction = new QAction( QIcon( ":/redo.png" ), tr( "Redo" ), this );
     m_redoAction->setShortcut( QKeySequence::Redo );
     connect( m_redoAction, SIGNAL( triggered() ), SLOT( slotRedo() ) );
+
+    m_hideTabsAction = new QAction( QIcon( ":/HideTabs.svg" ), "Show/Hide Tabs", this );
+    m_hideTabsAction->setToolTip( "Show/Hide Tabs in Main Views" );
+    m_hideTabsAction->setCheckable( true );
+    connect( m_hideTabsAction, SIGNAL( toggled( bool ) ), SLOT( slotHideTabs( bool ) ) );
 
 #ifdef Q_OS_WIN
     if ( RiaPreferences::current()->guiTheme() == RiaDefines::ThemeEnum::DARK )
@@ -753,4 +761,52 @@ void RiuMainWindowBase::showEvent( QShowEvent* event )
     m_hasBeenVisible = true;
 
     QMainWindow::showEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::slotHideTabs( bool hideTabs )
+{
+    std::set<ads::CDockAreaWidget*> areasToToggle;
+    std::set<ads::CDockAreaWidget*> areasToNotToggle;
+
+    for ( auto [name, widget] : dockManager()->dockWidgetsMap().asKeyValueRange() )
+    {
+        // ignore the dummy central widget
+        if ( name == RiuDockWidgetTools::centralScreenName() ) continue;
+
+        // is the name a valid uuid, if so, it is a regular viewer
+        QUuid dockId = QUuid( name );
+        if ( dockId.isNull() )
+        {
+            // should not toggle tabs for other docked windows
+            areasToNotToggle.insert( widget->dockAreaWidget() );
+            if ( areasToToggle.contains( widget->dockAreaWidget() ) )
+            {
+                areasToToggle.erase( widget->dockAreaWidget() );
+            }
+        }
+        else
+        {
+            if ( !areasToNotToggle.contains( widget->dockAreaWidget() ) )
+            {
+                areasToToggle.insert( widget->dockAreaWidget() );
+            }
+        }
+    }
+
+    // toggle visibility for tab widgets in viewer-only areas
+    for ( auto area : areasToToggle )
+    {
+        if ( !area || !area->titleBar() ) continue;
+        if ( hideTabs )
+        {
+            area->titleBar()->hide();
+        }
+        else
+        {
+            area->titleBar()->show();
+        }
+    }
 }
