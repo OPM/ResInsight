@@ -63,6 +63,8 @@
 #include "cafPdmFieldScriptingCapabilityCvfColor3.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
@@ -1958,4 +1960,20 @@ void Rim3dView::dockInPlotWindow()
     updateDockWindowVisibility();
     setAsActiveViewer();
     scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    RimViewWindow::defineObjectEditorAttribute( uiConfigName, attribute );
+
+    caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
+    if ( treeItemAttribute && isDockedInPlotView() )
+    {
+        auto iconTag  = caf::PdmUiTreeViewItemAttribute::createTag();
+        iconTag->icon = caf::IconProvider( ":/PlotWindow.svg" );
+        treeItemAttribute->tags.push_back( std::move( iconTag ) );
+    }
 }
