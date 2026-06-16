@@ -154,7 +154,6 @@ private:
     QAction* m_viewFromAbove;
     QAction* m_viewFromBelow;
     QAction* m_viewFullScreen;
-    QAction* m_hideTabsAction;
 
     // Mock actions
     QAction* m_mockModelAction;
@@ -224,8 +223,6 @@ private slots:
 
     void slotAnimationSliderMoved( int newValue );
     void slotAnimationControlFrameChanged( int newValue );
-
-    void slotHideTabs( bool hideTabs );
 
     // Debug slots
     void slotSnapshotAllViewsToFile();
