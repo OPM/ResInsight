@@ -487,7 +487,7 @@ RimViewWindow* RiaGuiApplication::activePlotWindow() const
 
     if ( m_mainPlotWindow )
     {
-        return m_mainPlotWindow->activePlotView();
+        return m_mainPlotWindow->activeViewer();
     }
 
     return viewWindow;
@@ -1174,7 +1174,7 @@ RimViewWindow* RiaGuiApplication::activeViewWindow()
     }
     else if ( auto mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( mainWindowWidget ) )
     {
-        viewWindow = mainPlotWindow->activePlotView();
+        viewWindow = mainPlotWindow->activeViewer();
     }
 
     return viewWindow;
@@ -1844,8 +1844,10 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
                     QMouseEvent* mouseEvent = static_cast<QMouseEvent*>( event );
                     for ( auto view : plotMain->viewWindows() )
                     {
-                        RimPlotWindow* plot = dynamic_cast<RimPlotWindow*>( view );
-                        if ( plot ) done = plot->handleGlobalMousePressEvent( mouseEvent );
+                        if ( auto plot = dynamic_cast<RimPlotWindow*>( view ) )
+                        {
+                            done = done || plot->handleGlobalMousePressEvent( mouseEvent );
+                        }
                     }
                 }
             }

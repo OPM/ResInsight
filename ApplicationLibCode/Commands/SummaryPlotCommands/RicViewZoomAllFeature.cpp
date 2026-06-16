@@ -49,7 +49,7 @@ void RicViewZoomAllFeature::onActionTriggered( bool isChecked )
     }
     else if ( auto plotMainWin = dynamic_cast<RiuPlotMainWindow*>( topLevelWidget ) )
     {
-        if ( auto activePlotView = plotMainWin->activePlotView() )
+        if ( auto activePlotView = plotMainWin->activeViewer() )
         {
             activePlotView->zoomAll();
         }

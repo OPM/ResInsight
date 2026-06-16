@@ -92,8 +92,9 @@ public:
     void cleanupGuiCaseClose();
     void cleanupGuiBeforeProjectClose();
 
-    void onViewerRemoved() override;
-    void initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
+    void           onViewerRemoved() override;
+    void           initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
+    RimViewWindow* activeViewer() override;
 
     std::vector<RimViewWindow*> viewWindows() override;
 

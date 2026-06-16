@@ -357,7 +357,7 @@ void RiuDockWidgetTools::setDockLayout( RiuMainWindowBase* mainWindow, const QSt
     if ( mainWindow == nullptr ) return;
 
     QString activeViewerName;
-    if ( auto activeViewer = RiaGuiApplication::instance()->activeReservoirView() )
+    if ( auto activeViewer = mainWindow->activeViewer() )
     {
         activeViewerName = activeViewer->dockWindowName();
     }

@@ -67,7 +67,7 @@ public:
     void                        onViewerRemoved() override;
     void                        initializeViewer( ads::CDockWidget* dockWidget, QWidget* viewer ) override;
     std::vector<RimViewWindow*> viewWindows() override;
-    RimViewWindow*              activePlotView();
+    RimViewWindow*              activeViewer() override;
 
     void setDefaultWindowSize();
     void enable3DSelectionLink( bool enable );

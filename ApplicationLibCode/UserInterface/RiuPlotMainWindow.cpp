@@ -808,7 +808,7 @@ std::vector<RimViewWindow*> RiuPlotMainWindow::viewWindows()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewWindow* RiuPlotMainWindow::activePlotView()
+RimViewWindow* RiuPlotMainWindow::activeViewer()
 {
     for ( auto view : viewWindows() )
     {
