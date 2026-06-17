@@ -30,13 +30,17 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifReaderEclipseOutput.h"
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
+#include "RigMainGrid.h"
 #include "RimEclipseResultCase.h"
 
 #include <QDebug>
 #include <QDir>
 
+#include <limits>
 #include <memory>
 
 using namespace RiaDefines;
@@ -92,6 +96,86 @@ TEST( RigReservoirTest, BasicTest10k )
 
         int numTimeSteps = static_cast<int>( cellData->maxTimeStepCount() );
         EXPECT_EQ( 9, numTimeSteps );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Regression guard for issue #14227. The depth-related geometry results
+/// (DEPTH/DX/DY/DZ/TOPS/BOTTOM) are computed independently for the matrix and fracture porosity
+/// models. They are derived purely from the shared grid geometry, so for a dual-porosity model a
+/// cell that is active in both models must receive identical values in each model.
+//--------------------------------------------------------------------------------------------------
+TEST( RigReservoirTest, DualPorosityDepthResults )
+{
+    QDir baseFolder( TEST_MODEL_DIR );
+    bool subFolderExists = baseFolder.cd( "dualporo-testcase" );
+    EXPECT_TRUE( subFolderExists );
+    QString filename( "DUALPORO-WELL-COMPLETION-DEFAULT.EGRID" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    EXPECT_TRUE( QFile::exists( filePath ) );
+
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          reservoir = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
+    bool                             result             = readerInterfaceEcl->open( filePath, reservoir.p() );
+    EXPECT_TRUE( result );
+
+    RigCaseCellResultsData* matrixResults   = reservoir->results( PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* fractureResults = reservoir->results( PorosityModelType::FRACTURE_MODEL );
+    ASSERT_TRUE( matrixResults != nullptr );
+    ASSERT_TRUE( fractureResults != nullptr );
+
+    RigActiveCellInfo* matrixActiveInfo   = reservoir->activeCellInfo( PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* fractureActiveInfo = reservoir->activeCellInfo( PorosityModelType::FRACTURE_MODEL );
+    ASSERT_TRUE( matrixActiveInfo != nullptr );
+    ASSERT_TRUE( fractureActiveInfo != nullptr );
+
+    // This model must actually exercise both porosity models, otherwise the test is meaningless.
+    EXPECT_GT( matrixActiveInfo->reservoirActiveCellCount(), size_t( 0 ) );
+    EXPECT_GT( fractureActiveInfo->reservoirActiveCellCount(), size_t( 0 ) );
+
+    // Compute depth-related geometry results for both porosity models.
+    matrixResults->computeDepthRelatedResults();
+    fractureResults->computeDepthRelatedResults();
+
+    const QStringList propertyNames = { "DEPTH", "DX", "DY", "DZ", "TOPS", "BOTTOM" };
+
+    const double undefinedValue = std::numeric_limits<double>::max();
+    const size_t totalCellCount = reservoir->mainGrid()->totalCellCount();
+
+    for ( const QString& propertyName : propertyNames )
+    {
+        RigEclipseResultAddress resAddr( ResultCatType::STATIC_NATIVE, propertyName );
+
+        EXPECT_TRUE( matrixResults->hasResultEntry( resAddr ) );
+        EXPECT_TRUE( fractureResults->hasResultEntry( resAddr ) );
+
+        const std::vector<double>& matrixValues   = matrixResults->cellScalarResults( resAddr, 0 );
+        const std::vector<double>& fractureValues = fractureResults->cellScalarResults( resAddr, 0 );
+
+        EXPECT_EQ( matrixValues.size(), matrixActiveInfo->reservoirActiveCellCount() );
+        EXPECT_EQ( fractureValues.size(), fractureActiveInfo->reservoirActiveCellCount() );
+
+        // For every reservoir cell active in both models, the geometry-derived value must match.
+        size_t comparedCellCount = 0;
+        for ( size_t cellIdx = 0; cellIdx < totalCellCount; cellIdx++ )
+        {
+            size_t matrixResultIdx   = matrixActiveInfo->cellResultIndex( ReservoirCellIndex( cellIdx ) ).value();
+            size_t fractureResultIdx = fractureActiveInfo->cellResultIndex( ReservoirCellIndex( cellIdx ) ).value();
+            if ( matrixResultIdx == cvf::UNDEFINED_SIZE_T || fractureResultIdx == cvf::UNDEFINED_SIZE_T ) continue;
+            if ( matrixResultIdx >= matrixValues.size() || fractureResultIdx >= fractureValues.size() ) continue;
+
+            const double matrixValue   = matrixValues[matrixResultIdx];
+            const double fractureValue = fractureValues[fractureResultIdx];
+
+            EXPECT_NE( matrixValue, undefinedValue );
+            EXPECT_NE( fractureValue, undefinedValue );
+            EXPECT_DOUBLE_EQ( matrixValue, fractureValue );
+            comparedCellCount++;
+        }
+
+        EXPECT_GT( comparedCellCount, size_t( 0 ) );
     }
 }
 
