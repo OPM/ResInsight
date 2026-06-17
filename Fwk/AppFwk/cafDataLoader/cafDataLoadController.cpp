@@ -141,7 +141,16 @@ void DataLoadController::blockUntilDone( const QString& dataType )
 //--------------------------------------------------------------------------------------------------
 void DataLoadController::onTaskFinished( const caf::SignalEmitter* emitter, QString dataType, int taskId )
 {
-    QMutexLocker locker( &m_mutex );
-    m_pendingTasksByType[dataType]--;
-    if ( m_progressInfos.find( dataType ) != m_progressInfos.end() ) m_progressInfos[dataType]->incrementProgress();
+    ProgressInfo* progressInfo = nullptr;
+    {
+        QMutexLocker locker( &m_mutex );
+        m_pendingTasksByType[dataType]--;
+        auto it = m_progressInfos.find( dataType );
+        if ( it != m_progressInfos.end() ) progressInfo = it->second;
+    }
+
+    // Update progress after releasing the lock. incrementProgress() calls QApplication::processEvents(),
+    // which can re-enter this slot for another finished task. Holding the non-recursive m_mutex across that
+    // re-entrant call would deadlock the GUI thread (#14230).
+    if ( progressInfo ) progressInfo->incrementProgress();
 }
