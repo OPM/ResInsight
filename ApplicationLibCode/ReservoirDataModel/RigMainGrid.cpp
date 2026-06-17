@@ -201,7 +201,9 @@ size_t RigMainGrid::gridCountOnFile() const
 
     for ( const auto& grid : m_localGrids )
     {
-        if ( !grid->isTempGrid() )
+        // Skip grids that are not present in the result file (temporary LGRs and reconstructed
+        // nested-hybrid LGRs), so the result reader reads the correct number of grids.
+        if ( !grid->isTempGrid() && !grid->isReconstructedGrid() )
         {
             gridCount++;
         }
@@ -386,6 +388,22 @@ size_t RigMainGrid::totalTemporaryGridCellCount() const
     }
 
     return cellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::setNestedHybridLgrSourceCells( const std::map<size_t, size_t>& lgrToFlatCell )
+{
+    m_nestedHybridLgrSourceCells = lgrToFlatCell;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::map<size_t, size_t>& RigMainGrid::nestedHybridLgrSourceCells() const
+{
+    return m_nestedHybridLgrSourceCells;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -30,8 +30,10 @@
 
 #include "RicfCommandObject.h"
 
+#include "RifEclipseKeywordContent.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartDataAccess.h"
+#include "RifEclipseTextFileReader.h"
 #include "RifInputPropertyLoader.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderMockModel.h"
@@ -43,6 +45,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
+#include "RigNestedHybridGridReconstructor.h"
 #include "RigReservoirGridTools.h"
 
 #include "Formations/RimFormationNames.h"
@@ -295,6 +298,14 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         computeCachedData();
         loadAndSynchronizeInputProperties( false );
 
+        // Nested hybrid grid: auto-detect and load the NEST_ID sidecar property next to the grid file
+        importNestIdSidecarIfPresent();
+
+        // Nested hybrid grid: if a HOSTNUM parent-mapping sidecar is present, rebuild the refined
+        // region(s) as a true LGR hierarchy. Done after input properties are loaded so their
+        // full-length arrays can be extended to cover the new LGR cells.
+        reconstructNestedHybridGridIfPresent();
+
         m_gridAndWellDataIsReadFromFile = true;
         m_activeCellInfoIsReadFromFile  = true;
 
@@ -340,6 +351,113 @@ bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNa
                                                                importFaults );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Nested hybrid grid: the grid is a single flat EGRID, and the per-cell nesting level is provided
+/// in a sidecar GRDECL file named "<grid-basename>_NEST_ID.grdecl" next to the grid file.
+/// Returns the path to that sidecar if it exists, otherwise an empty string.
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseResultCase::nestIdSidecarFilePath() const
+{
+    QFileInfo gridFileInfo( gridFileName() );
+    if ( !gridFileInfo.exists() ) return {};
+
+    QDir          dir      = gridFileInfo.absoluteDir();
+    const QString baseName = gridFileInfo.completeBaseName();
+
+    // Filename convention, e.g. DROGON_HIST_NESTED.EGRID -> DROGON_HIST_NESTED_NEST_ID.grdecl
+    const QString     suffix     = "_" + RiaResultNames::nestId();
+    const QStringList candidates = { baseName + suffix + ".grdecl", baseName + suffix + ".GRDECL" };
+    for ( const QString& candidate : candidates )
+    {
+        QString path = dir.absoluteFilePath( candidate );
+        if ( QFile::exists( path ) ) return path;
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::importNestIdSidecarIfPresent()
+{
+    // Skip if the NEST_ID property is already loaded (e.g. restored from a saved project file)
+    for ( const RimEclipseInputProperty* prop : inputPropertyCollection()->items() )
+    {
+        if ( prop->resultName() == RiaResultNames::nestId() ) return;
+    }
+
+    const QString sidecarPath = nestIdSidecarFilePath();
+    if ( sidecarPath.isEmpty() ) return;
+
+    RiaLogging::info( QString( "Nested hybrid grid: loading NEST_ID property from %1" ).arg( sidecarPath ).toStdString() );
+
+    RifInputPropertyLoader::loadAndSynchronizeInputProperties( inputPropertyCollection(),
+                                                               eclipseCaseData(),
+                                                               std::vector<QString>{ sidecarPath },
+                                                               false );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Nested hybrid grid: the explicit parent mapping is provided in a sidecar GRDECL file named
+/// "<grid-basename>_HOSTNUM.grdecl" next to the grid file. Returns its path if it exists.
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseResultCase::hostNumSidecarFilePath() const
+{
+    QFileInfo gridFileInfo( gridFileName() );
+    if ( !gridFileInfo.exists() ) return {};
+
+    QDir          dir      = gridFileInfo.absoluteDir();
+    const QString baseName = gridFileInfo.completeBaseName();
+
+    const QStringList candidates = { baseName + "_HOSTNUM.grdecl", baseName + "_HOSTNUM.GRDECL" };
+    for ( const QString& candidate : candidates )
+    {
+        QString path = dir.absoluteFilePath( candidate );
+        if ( QFile::exists( path ) ) return path;
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::reconstructNestedHybridGridIfPresent()
+{
+    if ( !eclipseCaseData() || !eclipseCaseData()->mainGrid() ) return;
+
+    const QString hostNumPath = hostNumSidecarFilePath();
+    if ( hostNumPath.isEmpty() ) return;
+
+    auto keywordContent = RifEclipseTextFileReader::readKeywordAndValues( hostNumPath.toStdString() );
+
+    std::vector<int> hostNum;
+    for ( const auto& kw : keywordContent )
+    {
+        if ( QString::fromStdString( kw.keyword ).compare( "HOSTNUM", Qt::CaseInsensitive ) == 0 )
+        {
+            hostNum.reserve( kw.values.size() );
+            for ( float v : kw.values )
+                hostNum.push_back( static_cast<int>( std::lround( v ) ) );
+            break;
+        }
+    }
+
+    if ( hostNum.empty() )
+    {
+        RiaLogging::warning( QString( "Nested hybrid grid: no HOSTNUM keyword found in %1" ).arg( hostNumPath ).toStdString() );
+        return;
+    }
+
+    QString errorMessage;
+    if ( RigNestedHybridGridReconstructor::reconstruct( eclipseCaseData(), hostNum, &errorMessage ) )
+    {
+        // Rebuild grid caches over the new cell set (LGR cells were appended).
+        computeCachedData();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

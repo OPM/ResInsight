@@ -75,6 +75,10 @@ public:
 
     bool isUsingGlobalActiveIndex( const RigEclipseResultAddress& resVarAddr ) const;
 
+    // Nested hybrid grid: fill LGR cells of already-loaded active-cell-indexed results from their
+    // source flat cells (results loaded later are handled during loading).
+    void extendNestedHybridLgrResults();
+
     static const std::vector<double>* getResultIndexableStaticResult( RigActiveCellInfo*      actCellInfo,
                                                                       RigCaseCellResultsData* gridCellResults,
                                                                       QString                 porvResultName,
@@ -245,6 +249,10 @@ private:
     size_t allocatedValueCount( size_t scalarResultIndex ) const;
 
     void assignValuesToTemporaryLgrs( const QString& resultName, std::vector<double>& values );
+
+    // Nested hybrid grid: copy result values onto the reconstructed LGR cells from the source flat
+    // refined cells they were built from. Resizes the array to cover the LGR active cells.
+    void assignValuesToNestedHybridLgrs( std::vector<double>& values );
 
     RigStatisticsDataCache* statistics( const RigEclipseResultAddress& resVarAddr );
 

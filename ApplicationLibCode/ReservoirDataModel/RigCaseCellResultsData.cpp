@@ -1580,14 +1580,16 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
                 {
                     values.clear();
                 }
-                else if ( tempGridCellCount > 0 )
+                else
                 {
-                    if ( !values.empty() )
+                    if ( tempGridCellCount > 0 && !values.empty() )
                     {
                         values.resize( values.size() + tempGridCellCount, std::numeric_limits<double>::infinity() );
 
                         assignValuesToTemporaryLgrs( resultName, values );
                     }
+
+                    assignValuesToNestedHybridLgrs( values );
                 }
             }
         }
@@ -1600,14 +1602,16 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
             {
                 values.clear();
             }
-            else if ( tempGridCellCount > 0 )
+            else
             {
-                if ( !values.empty() )
+                if ( tempGridCellCount > 0 && !values.empty() )
                 {
                     values.resize( values.size() + tempGridCellCount, std::numeric_limits<double>::infinity() );
 
                     assignValuesToTemporaryLgrs( resultName, values );
                 }
+
+                assignValuesToNestedHybridLgrs( values );
             }
         }
     }
@@ -1764,6 +1768,10 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
                 {
                     resultLoadingSuccess = false;
                 }
+                else
+                {
+                    assignValuesToNestedHybridLgrs( values );
+                }
             }
         }
         else if ( type == RiaDefines::ResultCatType::STATIC_NATIVE )
@@ -1776,6 +1784,10 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
                 if ( !m_readerInterface->staticResult( resultName, m_porosityModel, &values ) )
                 {
                     resultLoadingSuccess = false;
+                }
+                else
+                {
+                    assignValuesToNestedHybridLgrs( values );
                 }
             }
         }
@@ -3194,6 +3206,61 @@ void RigCaseCellResultsData::assignValuesToTemporaryLgrs( const QString& resultN
     if ( invalidCellsDetected )
     {
         RiaLogging::warning( "Detected invalid/undefined cells when assigning result values to temporary LGRs" );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::extendNestedHybridLgrResults()
+{
+    if ( !m_ownerMainGrid || !m_activeCellInfo || m_ownerMainGrid->nestedHybridLgrSourceCells().empty() ) return;
+
+    const size_t activeCellCount = m_activeCellInfo->reservoirActiveCellCount();
+
+    for ( const RigEclipseResultAddress& addr : existingResults() )
+    {
+        std::vector<std::vector<double>>* timesteps = modifiableCellScalarResultTimesteps( addr );
+        if ( !timesteps ) continue;
+
+        for ( std::vector<double>& values : *timesteps )
+        {
+            // Only active-cell-indexed arrays (length below the active-cell count). Full-length
+            // (all-cells) arrays are handled separately by the reconstructor.
+            if ( !values.empty() && values.size() < activeCellCount )
+            {
+                assignValuesToNestedHybridLgrs( values );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::assignValuesToNestedHybridLgrs( std::vector<double>& values )
+{
+    if ( !m_ownerMainGrid || !m_activeCellInfo ) return;
+
+    const std::map<size_t, size_t>& sourceCells = m_ownerMainGrid->nestedHybridLgrSourceCells();
+    if ( sourceCells.empty() || values.empty() ) return;
+
+    const size_t activeCellCount = m_activeCellInfo->reservoirActiveCellCount();
+    if ( values.size() < activeCellCount )
+    {
+        values.resize( activeCellCount, std::numeric_limits<double>::infinity() );
+    }
+
+    for ( const auto& [lgrReservoirCellIndex, flatReservoirCellIndex] : sourceCells )
+    {
+        size_t lgrResultIndex  = m_activeCellInfo->cellResultIndex( ReservoirCellIndex( lgrReservoirCellIndex ) ).value();
+        size_t flatResultIndex = m_activeCellInfo->cellResultIndex( ReservoirCellIndex( flatReservoirCellIndex ) ).value();
+
+        if ( lgrResultIndex != cvf::UNDEFINED_SIZE_T && flatResultIndex != cvf::UNDEFINED_SIZE_T && lgrResultIndex < values.size() &&
+             flatResultIndex < values.size() )
+        {
+            values[lgrResultIndex] = values[flatResultIndex];
+        }
     }
 }
 

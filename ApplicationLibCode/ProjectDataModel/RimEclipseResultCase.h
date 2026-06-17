@@ -93,6 +93,12 @@ private:
     void ensureRftDataIsImported();
     bool showTimeStepFilterGUI();
 
+    QString nestIdSidecarFilePath() const;
+    void    importNestIdSidecarIfPresent();
+
+    QString hostNumSidecarFilePath() const;
+    void    reconstructNestedHybridGridIfPresent();
+
     QString phasesAsString() const;
 
     cvf::ref<RifReaderInterface> createMockModel( QString modelName );

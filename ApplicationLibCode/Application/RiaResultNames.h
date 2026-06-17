@@ -83,6 +83,9 @@ RigEclipseResultAddress staticIntegerAddress( const QString& resultName );
 QString faultDistanceName();
 QString facies();
 
+// Nested hybrid grid: per-cell nesting level (0 = base resolution, 1 = first refinement level, ...)
+QString nestId();
+
 QString porv();
 QString rockv();
 QString soil();

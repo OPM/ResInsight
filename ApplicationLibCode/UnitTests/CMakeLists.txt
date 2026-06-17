@@ -24,6 +24,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigResdataGridConverter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridExportAdapter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigNonUniformRefinement-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigNestedHybridGridReconstructor-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigStatisticsMath-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPathIntersectionTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurveImpl-Test.cpp

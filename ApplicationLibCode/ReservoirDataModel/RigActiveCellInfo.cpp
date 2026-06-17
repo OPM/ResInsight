@@ -111,6 +111,7 @@ void RigActiveCellInfo::setGridActiveCellCounts( size_t gridIndex, size_t active
 void RigActiveCellInfo::computeDerivedData()
 {
     m_reservoirActiveCellCount = 0;
+    m_activeReservoirCells.clear(); // make idempotent: callers may recompute after the cell set changes
 
     for ( size_t i = 0; i < m_perGridActiveCellInfo.size(); i++ )
     {
