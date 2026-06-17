@@ -102,12 +102,14 @@ void RimOsduWellPathDataLoader::cancel()
 //--------------------------------------------------------------------------------------------------
 void RimOsduWellPathDataLoader::parquetDownloadComplete( const QByteArray& contents, const QString& url, const QString& id )
 {
-    QMutexLocker lock( &m_mutex );
-
-    if ( m_wellPaths.find( id ) != m_wellPaths.end() && m_taskIds.find( id ) != m_taskIds.end() )
+    int taskId = -1;
     {
+        QMutexLocker lock( &m_mutex );
+
+        if ( m_wellPaths.find( id ) == m_wellPaths.end() || m_taskIds.find( id ) == m_taskIds.end() ) return;
+
         RiaLogging::info( std::format( "Parquet download complete. Id: {} Size: {}", id, contents.size() ) );
-        int taskId = m_taskIds[id];
+        taskId = m_taskIds[id];
 
         if ( !contents.isEmpty() )
         {
@@ -122,7 +124,10 @@ void RimOsduWellPathDataLoader::parquetDownloadComplete( const QByteArray& conte
                 RiaLogging::warning( errorMessage.toStdString() );
             }
         }
-
-        taskDone.send( m_dataType, taskId );
     }
+
+    // The lock is released above before emitting taskDone. The signal is delivered synchronously and triggers
+    // progress updates that call QApplication::processEvents(), which can re-enter this slot for another
+    // well. Holding the non-recursive m_mutex across send() would then deadlock the GUI thread (#14230).
+    taskDone.send( m_dataType, taskId );
 }
