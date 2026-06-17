@@ -197,15 +197,11 @@ void RigReservoirGridTools::computeCachedData( RimEclipseCase* eclipseCase )
         eclipseCase->computeActiveCellsBoundingBox();
     }
 
+    RigCaseCellResultsData::computeDepthRelatedResults( cellResultsDataMatrix, cellResultsDataFracture );
+
     if ( cellResultsDataMatrix )
     {
-        cellResultsDataMatrix->computeDepthRelatedResults();
         cellResultsDataMatrix->computeCellVolumes();
-    }
-
-    if ( cellResultsDataFracture )
-    {
-        cellResultsDataFracture->computeDepthRelatedResults();
     }
 }
 

@@ -136,8 +136,7 @@ TEST( RigReservoirTest, DualPorosityDepthResults )
     EXPECT_GT( fractureActiveInfo->reservoirActiveCellCount(), size_t( 0 ) );
 
     // Compute depth-related geometry results for both porosity models.
-    matrixResults->computeDepthRelatedResults();
-    fractureResults->computeDepthRelatedResults();
+    reservoir->computeDepthRelatedResults();
 
     const QStringList propertyNames = { "DEPTH", "DX", "DY", "DZ", "TOPS", "BOTTOM" };
 

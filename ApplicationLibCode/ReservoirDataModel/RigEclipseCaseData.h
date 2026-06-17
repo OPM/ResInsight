@@ -104,6 +104,8 @@ public:
 
     void computeActiveCellBoundingBoxes( bool useOptimizedVersion );
 
+    void computeDepthRelatedResults();
+
     RiaDefines::EclipseUnitSystem unitsType() const { return m_unitsType; }
     void                          setUnitsType( RiaDefines::EclipseUnitSystem unitsType ) { m_unitsType = unitsType; }
 

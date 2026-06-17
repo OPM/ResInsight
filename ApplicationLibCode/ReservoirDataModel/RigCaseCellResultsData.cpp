@@ -65,6 +65,7 @@
 #include <QDateTime>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -1898,10 +1899,16 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep( size_t timeStepIndex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::computeDepthRelatedResults()
+RigCaseCellResultsData::DepthResultBuffers RigCaseCellResultsData::prepareDepthRelatedResultArrays()
 {
-    size_t actCellCount = activeCellInfo()->reservoirActiveCellCount();
-    if ( actCellCount == 0 ) return;
+    DepthResultBuffers buffers;
+    buffers.activeCellInfo = activeCellInfo();
+    buffers.actCellCount   = activeCellInfo()->reservoirActiveCellCount();
+
+    // A porosity model with no active cells is left disabled.
+    if ( buffers.actCellCount == 0 ) return buffers;
+
+    const size_t actCellCount = buffers.actCellCount;
 
     size_t depthResultIndex  = findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DEPTH" ) );
     size_t dxResultIndex     = findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DX" ) );
@@ -1910,47 +1917,40 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
     size_t topsResultIndex   = findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TOPS" ) );
     size_t bottomResultIndex = findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "BOTTOM" ) );
 
-    bool computeDepth  = false;
-    bool computeDx     = false;
-    bool computeDy     = false;
-    bool computeDz     = false;
-    bool computeTops   = false;
-    bool computeBottom = false;
-
     if ( depthResultIndex == cvf::UNDEFINED_SIZE_T )
     {
-        depthResultIndex = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "DEPTH", false, actCellCount );
-        computeDepth     = true;
+        depthResultIndex     = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "DEPTH", false, actCellCount );
+        buffers.computeDepth = true;
     }
 
     if ( dxResultIndex == cvf::UNDEFINED_SIZE_T )
     {
-        dxResultIndex = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "DX", false, actCellCount );
-        computeDx     = true;
+        dxResultIndex     = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "DX", false, actCellCount );
+        buffers.computeDx = true;
     }
 
     if ( dyResultIndex == cvf::UNDEFINED_SIZE_T )
     {
-        dyResultIndex = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "DY", false, actCellCount );
-        computeDy     = true;
+        dyResultIndex     = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "DY", false, actCellCount );
+        buffers.computeDy = true;
     }
 
     if ( dzResultIndex == cvf::UNDEFINED_SIZE_T )
     {
-        dzResultIndex = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ", false, actCellCount );
-        computeDz     = true;
+        dzResultIndex     = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ", false, actCellCount );
+        buffers.computeDz = true;
     }
 
     if ( topsResultIndex == cvf::UNDEFINED_SIZE_T )
     {
-        topsResultIndex = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "TOPS", false, actCellCount );
-        computeTops     = true;
+        topsResultIndex     = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "TOPS", false, actCellCount );
+        buffers.computeTops = true;
     }
 
     if ( bottomResultIndex == cvf::UNDEFINED_SIZE_T )
     {
-        bottomResultIndex = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "BOTTOM", false, actCellCount );
-        computeBottom     = true;
+        bottomResultIndex     = addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "BOTTOM", false, actCellCount );
+        buffers.computeBottom = true;
     }
 
     std::vector<std::vector<double>>& depth  = m_cellScalarResults[depthResultIndex];
@@ -1965,83 +1965,144 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
         if ( depth[0].size() < actCellCount )
         {
             depth[0].resize( actCellCount, std::numeric_limits<double>::max() );
-            computeDepth = true;
+            buffers.computeDepth = true;
         }
 
         if ( dx[0].size() < actCellCount )
         {
             dx[0].resize( actCellCount, std::numeric_limits<double>::max() );
-            computeDx = true;
+            buffers.computeDx = true;
         }
 
         if ( dy[0].size() < actCellCount )
         {
             dy[0].resize( actCellCount, std::numeric_limits<double>::max() );
-            computeDy = true;
+            buffers.computeDy = true;
         }
 
         if ( dz[0].size() < actCellCount )
         {
             dz[0].resize( actCellCount, std::numeric_limits<double>::max() );
-            computeDz = true;
+            buffers.computeDz = true;
         }
 
         if ( tops[0].size() < actCellCount )
         {
             tops[0].resize( actCellCount, std::numeric_limits<double>::max() );
-            computeTops = true;
+            buffers.computeTops = true;
         }
 
         if ( bottom[0].size() < actCellCount )
         {
             bottom[0].resize( actCellCount, std::numeric_limits<double>::max() );
-            computeBottom = true;
+            buffers.computeBottom = true;
         }
     }
 
-#pragma omp parallel for
-    for ( long cellIdx = 0; cellIdx < static_cast<long>( m_ownerMainGrid->totalCellCount() ); cellIdx++ )
+    buffers.depth  = &depth[0];
+    buffers.dx     = &dx[0];
+    buffers.dy     = &dy[0];
+    buffers.dz     = &dz[0];
+    buffers.tops   = &tops[0];
+    buffers.bottom = &bottom[0];
+
+    return buffers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeDepthRelatedResults( RigCaseCellResultsData* matrixResults, RigCaseCellResultsData* fractureResults )
+{
+    RigMainGrid* mainGrid = nullptr;
+    if ( matrixResults ) mainGrid = matrixResults->m_ownerMainGrid;
+    if ( !mainGrid && fractureResults ) mainGrid = fractureResults->m_ownerMainGrid;
+    if ( !mainGrid ) return;
+
+    // Collect the enabled (non-empty) porosity models. Both share the same main grid, so the
+    // geometry of each cell only needs to be computed once and is written to every model in which
+    // the cell is active.
+    std::vector<DepthResultBuffers> buffers;
+    for ( RigCaseCellResultsData* results : { matrixResults, fractureResults } )
     {
-        const RigCell& cell = m_ownerMainGrid->cell( cellIdx );
+        if ( !results ) continue;
+        DepthResultBuffers b = results->prepareDepthRelatedResultArrays();
+        if ( b.actCellCount == 0 ) continue;
+        buffers.push_back( b );
+    }
+
+    if ( buffers.empty() ) return;
+
+#pragma omp parallel for
+    for ( long cellIdx = 0; cellIdx < static_cast<long>( mainGrid->totalCellCount() ); cellIdx++ )
+    {
+        const RigCell& cell = mainGrid->cell( cellIdx );
         if ( cell.isInvalid() ) continue;
 
-        size_t resultIndex = activeCellInfo()->cellResultIndex( ReservoirCellIndex( cellIdx ) ).value();
-        if ( resultIndex == cvf::UNDEFINED_SIZE_T ) continue;
-        if ( resultIndex >= actCellCount ) continue;
+        const bool isTemporaryGrid = cell.hostGrid()->isTempGrid();
 
-        bool isTemporaryGrid = cell.hostGrid()->isTempGrid();
-
-        if ( computeDepth || isTemporaryGrid )
+        // Resolve this cell's result index in each enabled model, and gather which properties any
+        // active model still needs (temporary grids are always recomputed). Skip the cell entirely
+        // if it is inactive in every model. At most two porosity models (matrix and fracture) are
+        // present.
+        std::array<size_t, 2> resultIndices;
+        bool                  anyActive  = false;
+        bool                  needDepth  = isTemporaryGrid;
+        bool                  needDx     = isTemporaryGrid;
+        bool                  needDy     = isTemporaryGrid;
+        bool                  needDz     = isTemporaryGrid;
+        bool                  needTops   = isTemporaryGrid;
+        bool                  needBottom = isTemporaryGrid;
+        for ( size_t i = 0; i < buffers.size(); i++ )
         {
-            depth[0][resultIndex] = -cell.center().z();
+            size_t resultIndex = buffers[i].activeCellInfo->cellResultIndex( ReservoirCellIndex( cellIdx ) ).value();
+            if ( resultIndex == cvf::UNDEFINED_SIZE_T || resultIndex >= buffers[i].actCellCount )
+            {
+                resultIndices[i] = cvf::UNDEFINED_SIZE_T;
+                continue;
+            }
+
+            resultIndices[i] = resultIndex;
+            anyActive        = true;
+            needDepth        = needDepth || buffers[i].computeDepth;
+            needDx           = needDx || buffers[i].computeDx;
+            needDy           = needDy || buffers[i].computeDy;
+            needDz           = needDz || buffers[i].computeDz;
+            needTops         = needTops || buffers[i].computeTops;
+            needBottom       = needBottom || buffers[i].computeBottom;
         }
+        if ( !anyActive ) continue;
 
-        if ( computeDx || isTemporaryGrid )
-        {
-            cvf::Vec3d cellWidth = cell.faceCenter( cvf::StructGridInterface::NEG_I ) - cell.faceCenter( cvf::StructGridInterface::POS_I );
-            dx[0][resultIndex]   = cellWidth.length();
-        }
+        // The geometry is shared between the porosity models, so each value is computed at most once
+        // (only if some active model needs it) and then written to every active model that needs it.
+        double depthValue = needDepth ? -cell.center().z() : 0.0;
+        double dxValue =
+            needDx ? ( cell.faceCenter( cvf::StructGridInterface::NEG_I ) - cell.faceCenter( cvf::StructGridInterface::POS_I ) ).length() : 0.0;
+        double dyValue =
+            needDy ? ( cell.faceCenter( cvf::StructGridInterface::NEG_J ) - cell.faceCenter( cvf::StructGridInterface::POS_J ) ).length() : 0.0;
+        double dzValue =
+            needDz ? ( cell.faceCenter( cvf::StructGridInterface::NEG_K ) - cell.faceCenter( cvf::StructGridInterface::POS_K ) ).length() : 0.0;
+        double topsValue   = needTops ? -cell.faceCenter( cvf::StructGridInterface::NEG_K ).z() : 0.0;
+        double bottomValue = needBottom ? -cell.faceCenter( cvf::StructGridInterface::POS_K ).z() : 0.0;
 
-        if ( computeDy || isTemporaryGrid )
+        // Write a value into one model's result row, honoring its per-property compute flag.
+        auto assign = [&]( std::vector<double>* row, bool compute, size_t resultIndex, double value )
         {
-            cvf::Vec3d cellWidth = cell.faceCenter( cvf::StructGridInterface::NEG_J ) - cell.faceCenter( cvf::StructGridInterface::POS_J );
-            dy[0][resultIndex]   = cellWidth.length();
-        }
+            if ( resultIndex != cvf::UNDEFINED_SIZE_T && ( compute || isTemporaryGrid ) )
+            {
+                ( *row )[resultIndex] = value;
+            }
+        };
 
-        if ( computeDz || isTemporaryGrid )
+        for ( size_t i = 0; i < buffers.size(); i++ )
         {
-            cvf::Vec3d cellWidth = cell.faceCenter( cvf::StructGridInterface::NEG_K ) - cell.faceCenter( cvf::StructGridInterface::POS_K );
-            dz[0][resultIndex]   = cellWidth.length();
-        }
-
-        if ( computeTops || isTemporaryGrid )
-        {
-            tops[0][resultIndex] = -cell.faceCenter( cvf::StructGridInterface::NEG_K ).z();
-        }
-
-        if ( computeBottom || isTemporaryGrid )
-        {
-            bottom[0][resultIndex] = -cell.faceCenter( cvf::StructGridInterface::POS_K ).z();
+            const DepthResultBuffers& b = buffers[i];
+            assign( b.depth, b.computeDepth, resultIndices[i], depthValue );
+            assign( b.dx, b.computeDx, resultIndices[i], dxValue );
+            assign( b.dy, b.computeDy, resultIndices[i], dyValue );
+            assign( b.dz, b.computeDz, resultIndices[i], dzValue );
+            assign( b.tops, b.computeTops, resultIndices[i], topsValue );
+            assign( b.bottom, b.computeBottom, resultIndices[i], bottomValue );
         }
     }
 }
