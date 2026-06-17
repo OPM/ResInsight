@@ -380,8 +380,7 @@ void RimCornerPointCase::computeDepthRelatedResults( RimCornerPointCase& cornerP
 {
     if ( RiaPreferencesGrid::current()->autoComputeDepthRelatedProperties() )
     {
-        cornerPointCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
-        cornerPointCase.results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();
+        cornerPointCase.eclipseCaseData()->computeDepthRelatedResults();
     }
 }
 

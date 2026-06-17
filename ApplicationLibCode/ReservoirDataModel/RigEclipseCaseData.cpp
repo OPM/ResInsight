@@ -470,6 +470,14 @@ void RigEclipseCaseData::computeActiveCellBoundingBoxes( bool useOptimizedVersio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigEclipseCaseData::computeDepthRelatedResults()
+{
+    RigCaseCellResultsData::computeDepthRelatedResults( m_matrixModelResults.p(), m_fractureModelResults.p() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<QString> RigEclipseCaseData::simulationWellNames() const
 {
     std::vector<QString> wellNames;

@@ -313,8 +313,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
         if ( RiaPreferencesGrid::current()->autoComputeDepthRelatedProperties() )
         {
-            results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
-            results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();
+            eclipseCaseData()->computeDepthRelatedResults();
         }
 
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();

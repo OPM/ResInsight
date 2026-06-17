@@ -142,7 +142,12 @@ public:
     void createResultEntry( const RigEclipseResultAddress& resultAddress, bool needsToBeStored );
     bool updateResultDataType( const RigEclipseResultAddress& resultAddress, RiaDefines::ResultDataType dataType );
     void createPlaceholderResultEntries();
-    void computeDepthRelatedResults();
+
+    // Compute depth-related geometry results (DEPTH/DX/DY/DZ/TOPS/BOTTOM) for both porosity models
+    // in a single traversal of the shared grid. The values are derived purely from the grid
+    // geometry, so a cell active in both models is computed only once and written to both.
+    static void computeDepthRelatedResults( RigCaseCellResultsData* matrixResults, RigCaseCellResultsData* fractureResults );
+
     void computeCellVolumes();
     bool hasFlowDiagUsableFluxes() const;
 
@@ -160,6 +165,28 @@ public:
     void clearAllResultAliases();
 
 private:
+    // Per-model buffers used by computeDepthRelatedResults(). Holds pointers to the result rows
+    // and per-property flags telling whether the row still needs to be computed. A buffer with
+    // actCellCount == 0 is disabled (the porosity model has no active cells).
+    struct DepthResultBuffers
+    {
+        RigActiveCellInfo*   activeCellInfo = nullptr;
+        size_t               actCellCount   = 0;
+        std::vector<double>* depth          = nullptr;
+        std::vector<double>* dx             = nullptr;
+        std::vector<double>* dy             = nullptr;
+        std::vector<double>* dz             = nullptr;
+        std::vector<double>* tops           = nullptr;
+        std::vector<double>* bottom         = nullptr;
+        bool                 computeDepth   = false;
+        bool                 computeDx      = false;
+        bool                 computeDy      = false;
+        bool                 computeDz      = false;
+        bool                 computeTops    = false;
+        bool                 computeBottom  = false;
+    };
+    DepthResultBuffers prepareDepthRelatedResultArrays();
+
     size_t findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddr );
     size_t findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress&                resVarAddr,
                                                          const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder );
