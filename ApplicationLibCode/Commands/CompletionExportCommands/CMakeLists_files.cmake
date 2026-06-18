@@ -9,13 +9,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCaseAndFileExportSettingsUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportFractureCompletionsImpl.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleWellPathsFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswBranch.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswCompletions.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswExportInfo.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswItem.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswSegment.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswSegmentCellIntersection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswValveAccumulators.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureTextReportFeatureImpl.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureReportItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForTemporaryLgrsFeature.cpp

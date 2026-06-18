@@ -211,12 +211,6 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", false, "Enable Undo/Redo for Property Editor changes" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useUndoRedo );
 
-    CAF_PDM_InitField( &m_useImprovedMswDataStructures,
-                       "useImprovedMswDataStructures",
-                       false,
-                       "Use Improved MSW Data Structures" + RiaDefines::betaFeaturePostfix() );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useImprovedMswDataStructures );
-
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)" );
     m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_maxPlotTemplateFoldersDepth, "MaxPlotTemplateFoldersDepth", 2, "Maximum Plot Template Folder Search Depth" );
@@ -397,7 +391,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         otherGroup->setCollapsedByDefault();
         otherGroup->add( &holoLensDisableCertificateVerification );
         otherGroup->add( &m_useUndoRedo );
-        otherGroup->add( &m_useImprovedMswDataStructures );
 
         caf::PdmUiGroup* importExportGroup = uiOrdering.addNewGroup( "Import and Export" );
         importExportGroup->setCollapsedByDefault();
@@ -735,14 +728,6 @@ QStringList RiaPreferences::tabNames()
 bool RiaPreferences::useUndoRedo() const
 {
     return m_useUndoRedo();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::useImprovedMswDataStructures() const
-{
-    return m_useImprovedMswDataStructures();
 }
 
 //--------------------------------------------------------------------------------------------------
