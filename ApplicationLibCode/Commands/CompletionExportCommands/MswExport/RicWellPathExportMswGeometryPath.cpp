@@ -155,24 +155,24 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
 
     const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    auto lateralBranch = RicMswBranchBuilder::buildMainBoreBranchFromGeometry( wellPath,
-                                                                               filteredIntersections,
-                                                                               mainGrid,
-                                                                               eclipseCase,
-                                                                               perforationIntervals,
-                                                                               valvedIntervals,
-                                                                               infoType,
-                                                                               tieInMD,
-                                                                               tieInTVD,
-                                                                               lateralBranchNum,
-                                                                               segmentNumber,
-                                                                               childOutletSeg,
-                                                                               mswParameters->maxSegmentLength(),
-                                                                               {},
-                                                                               exportDate,
-                                                                               unitSystem,
-                                                                               &childCellSegMap,
-                                                                               activeCellInfo );
+    auto lateralBranch = RicMswBranchBuilder::buildMainBoreBranch( wellPath,
+                                                                   filteredIntersections,
+                                                                   mainGrid,
+                                                                   eclipseCase,
+                                                                   perforationIntervals,
+                                                                   valvedIntervals,
+                                                                   infoType,
+                                                                   tieInMD,
+                                                                   tieInTVD,
+                                                                   lateralBranchNum,
+                                                                   segmentNumber,
+                                                                   childOutletSeg,
+                                                                   mswParameters->maxSegmentLength(),
+                                                                   {},
+                                                                   exportDate,
+                                                                   unitSystem,
+                                                                   &childCellSegMap,
+                                                                   activeCellInfo );
     if ( tieInValve && !lateralBranch.segments.empty() ) lateralBranch.segments.front().description.clear();
     lateralBranch.tieInValve = std::move( tieInValve );
 
@@ -201,46 +201,41 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
 
     result.push_back( std::move( lateralBranch ) );
 
-    auto valveBranches = RicMswBranchBuilder::buildValveBranchesFromGeometry( wellPath,
-                                                                              filteredIntersections,
-                                                                              mainGrid,
-                                                                              eclipseCase,
-                                                                              perforationIntervals,
-                                                                              childCellSegMap,
-                                                                              infoType,
-                                                                              wellNameForExport,
-                                                                              segmentNumber,
-                                                                              branchNumber,
-                                                                              mswParameters->maxSegmentLength(),
-                                                                              {},
-                                                                              exportDate,
-                                                                              unitSystem );
+    auto valveBranches = RicMswBranchBuilder::buildValveBranches( wellPath,
+                                                                  filteredIntersections,
+                                                                  mainGrid,
+                                                                  eclipseCase,
+                                                                  perforationIntervals,
+                                                                  childCellSegMap,
+                                                                  infoType,
+                                                                  wellNameForExport,
+                                                                  segmentNumber,
+                                                                  branchNumber,
+                                                                  mswParameters->maxSegmentLength(),
+                                                                  {},
+                                                                  exportDate,
+                                                                  unitSystem );
     result.insert( result.end(), std::make_move_iterator( valveBranches.begin() ), std::make_move_iterator( valveBranches.end() ) );
 
     if ( ( completionType & CompletionType::FRACTURES ) == CompletionType::FRACTURES )
     {
-        auto fracBranches = RicMswBranchBuilder::buildFractureBranchesFromGeometry( eclipseCase,
-                                                                                    wellPath,
-                                                                                    mainGrid,
-                                                                                    childCellSegMap,
-                                                                                    infoType,
-                                                                                    segmentNumber,
-                                                                                    branchNumber );
+        auto fracBranches =
+            RicMswBranchBuilder::buildFractureBranches( eclipseCase, wellPath, mainGrid, childCellSegMap, infoType, segmentNumber, branchNumber );
         result.insert( result.end(), std::make_move_iterator( fracBranches.begin() ), std::make_move_iterator( fracBranches.end() ) );
     }
 
     if ( ( completionType & CompletionType::FISHBONES ) == CompletionType::FISHBONES )
     {
-        auto fishBranches = RicMswBranchBuilder::buildFishbonesBranchesFromGeometry( eclipseCase,
-                                                                                     wellPath,
-                                                                                     mainGrid,
-                                                                                     filteredIntersections,
-                                                                                     childCellSegMap,
-                                                                                     infoType,
-                                                                                     wellNameForExport,
-                                                                                     segmentNumber,
-                                                                                     branchNumber,
-                                                                                     unitSystem );
+        auto fishBranches = RicMswBranchBuilder::buildFishbonesBranches( eclipseCase,
+                                                                         wellPath,
+                                                                         mainGrid,
+                                                                         filteredIntersections,
+                                                                         childCellSegMap,
+                                                                         infoType,
+                                                                         wellNameForExport,
+                                                                         segmentNumber,
+                                                                         branchNumber,
+                                                                         unitSystem );
         result.insert( result.end(), std::make_move_iterator( fishBranches.begin() ), std::make_move_iterator( fishBranches.end() ) );
     }
 
@@ -321,24 +316,24 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
 
     const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    auto mainBoreBranch = RicMswBranchBuilder::buildMainBoreBranchFromGeometry( wellPath,
-                                                                                filteredIntersections,
-                                                                                mainGrid,
-                                                                                eclipseCase,
-                                                                                perforationIntervals,
-                                                                                valvedIntervals,
-                                                                                infoType,
-                                                                                initialMD,
-                                                                                initialTVD,
-                                                                                branchNumber,
-                                                                                segmentNumber,
-                                                                                1, // outlet = heel (segment 1)
-                                                                                maxSegmentLength,
-                                                                                customSegmentIntervals,
-                                                                                exportDate,
-                                                                                unitSystem,
-                                                                                &cellSegMap,
-                                                                                activeCellInfo );
+    auto mainBoreBranch = RicMswBranchBuilder::buildMainBoreBranch( wellPath,
+                                                                    filteredIntersections,
+                                                                    mainGrid,
+                                                                    eclipseCase,
+                                                                    perforationIntervals,
+                                                                    valvedIntervals,
+                                                                    infoType,
+                                                                    initialMD,
+                                                                    initialTVD,
+                                                                    branchNumber,
+                                                                    segmentNumber,
+                                                                    1, // outlet = heel (segment 1)
+                                                                    maxSegmentLength,
+                                                                    customSegmentIntervals,
+                                                                    exportDate,
+                                                                    unitSystem,
+                                                                    &cellSegMap,
+                                                                    activeCellInfo );
 
     const std::string wellNameForExport = wellPath->completionSettings()->wellNameForExport().toStdString();
 
@@ -365,43 +360,43 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
         }
     }
 
-    auto valveBranches = RicMswBranchBuilder::buildValveBranchesFromGeometry( wellPath,
-                                                                              filteredIntersections,
-                                                                              mainGrid,
-                                                                              eclipseCase,
-                                                                              perforationIntervals,
-                                                                              cellSegMap,
-                                                                              infoType,
-                                                                              wellNameForExport,
-                                                                              segmentNumber,
-                                                                              branchNumber,
-                                                                              maxSegmentLength,
-                                                                              customSegmentIntervals,
-                                                                              exportDate,
-                                                                              unitSystem );
+    auto valveBranches = RicMswBranchBuilder::buildValveBranches( wellPath,
+                                                                  filteredIntersections,
+                                                                  mainGrid,
+                                                                  eclipseCase,
+                                                                  perforationIntervals,
+                                                                  cellSegMap,
+                                                                  infoType,
+                                                                  wellNameForExport,
+                                                                  segmentNumber,
+                                                                  branchNumber,
+                                                                  maxSegmentLength,
+                                                                  customSegmentIntervals,
+                                                                  exportDate,
+                                                                  unitSystem );
 
     const bool                includeFractures = ( completionType & CompletionType::FRACTURES ) == CompletionType::FRACTURES;
     std::vector<RigMswBranch> fractureBranches;
     if ( includeFractures )
     {
         fractureBranches =
-            RicMswBranchBuilder::buildFractureBranchesFromGeometry( eclipseCase, wellPath, mainGrid, cellSegMap, infoType, segmentNumber, branchNumber );
+            RicMswBranchBuilder::buildFractureBranches( eclipseCase, wellPath, mainGrid, cellSegMap, infoType, segmentNumber, branchNumber );
     }
 
     const bool                includeFishbones = ( completionType & CompletionType::FISHBONES ) == CompletionType::FISHBONES;
     std::vector<RigMswBranch> fishbonesBranches;
     if ( includeFishbones )
     {
-        fishbonesBranches = RicMswBranchBuilder::buildFishbonesBranchesFromGeometry( eclipseCase,
-                                                                                     wellPath,
-                                                                                     mainGrid,
-                                                                                     filteredIntersections,
-                                                                                     cellSegMap,
-                                                                                     infoType,
-                                                                                     wellNameForExport,
-                                                                                     segmentNumber,
-                                                                                     branchNumber,
-                                                                                     unitSystem );
+        fishbonesBranches = RicMswBranchBuilder::buildFishbonesBranches( eclipseCase,
+                                                                         wellPath,
+                                                                         mainGrid,
+                                                                         filteredIntersections,
+                                                                         cellSegMap,
+                                                                         infoType,
+                                                                         wellNameForExport,
+                                                                         segmentNumber,
+                                                                         branchNumber,
+                                                                         unitSystem );
     }
 
     // Tie-in child laterals (recursive)
