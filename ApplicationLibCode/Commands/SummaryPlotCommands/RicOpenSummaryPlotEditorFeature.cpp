@@ -77,14 +77,14 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled() const
 
     if ( ensembleFilter || ensembleFilterColl || legendConfig || customObjFuncCollection || sumPlot ) return false;
 
-     multiPlot = RiaSummaryTools::parentSummaryMultiPlot( selObj );
-     if ( multiPlot ) return true;
+    multiPlot = RiaSummaryTools::parentSummaryMultiPlot( selObj );
+    if ( multiPlot ) return true;
 
-     auto summaryCase     = dynamic_cast<RimSummaryCase*>( selObj );
-     auto summaryCaseColl = dynamic_cast<RimSummaryEnsemble*>( selObj );
-     auto obsColl         = dynamic_cast<RimObservedDataCollection*>( selObj );
+    auto summaryCase     = dynamic_cast<RimSummaryCase*>( selObj );
+    auto summaryCaseColl = dynamic_cast<RimSummaryEnsemble*>( selObj );
+    auto obsColl         = dynamic_cast<RimObservedDataCollection*>( selObj );
 
-     return summaryCase || summaryCaseColl || obsColl;
+    return summaryCase || summaryCaseColl || obsColl;
 }
 
 //--------------------------------------------------------------------------------------------------
