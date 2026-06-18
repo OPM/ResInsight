@@ -34,7 +34,6 @@
 #include <optional>
 #include <vector>
 
-class RicMswCompletion;
 class RigCell;
 class RigEclipseCaseData;
 class RigMainGrid;
