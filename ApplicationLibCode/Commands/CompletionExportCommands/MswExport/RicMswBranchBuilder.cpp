@@ -134,24 +134,24 @@ int findOutletSegmentForMD( const std::vector<CellSegmentEntry>& cellSegMap, dou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigMswBranch buildMainBoreBranchFromGeometry( const RimWellPath*                                wellPath,
-                                              const std::vector<WellPathCellIntersectionInfo>&  filteredIntersections,
-                                              const RigMainGrid*                                mainGrid,
-                                              const RimEclipseCase*                             eclipseCase,
-                                              const std::vector<const RimPerforationInterval*>& perforationIntervals,
-                                              const std::set<const RimPerforationInterval*>&    valvedIntervals,
-                                              const std::string&                                infoType,
-                                              double                                            heelMD,
-                                              double                                            heelTVD,
-                                              int                                               branchNumber,
-                                              int&                                              segmentNumber,
-                                              int                                               outletSegmentNumber,
-                                              double                                            maxSegmentLength,
-                                              const std::vector<std::pair<double, double>>&     customSegmentIntervals,
-                                              const std::optional<QDateTime>&                   exportDate,
-                                              RiaDefines::EclipseUnitSystem                     unitSystem,
-                                              std::vector<CellSegmentEntry>*                    cellSegMap,
-                                              const RigActiveCellInfo*                          activeCellInfo )
+RigMswBranch buildMainBoreBranch( const RimWellPath*                                wellPath,
+                                  const std::vector<WellPathCellIntersectionInfo>&  filteredIntersections,
+                                  const RigMainGrid*                                mainGrid,
+                                  const RimEclipseCase*                             eclipseCase,
+                                  const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                  const std::set<const RimPerforationInterval*>&    valvedIntervals,
+                                  const std::string&                                infoType,
+                                  double                                            heelMD,
+                                  double                                            heelTVD,
+                                  int                                               branchNumber,
+                                  int&                                              segmentNumber,
+                                  int                                               outletSegmentNumber,
+                                  double                                            maxSegmentLength,
+                                  const std::vector<std::pair<double, double>>&     customSegmentIntervals,
+                                  const std::optional<QDateTime>&                   exportDate,
+                                  RiaDefines::EclipseUnitSystem                     unitSystem,
+                                  std::vector<CellSegmentEntry>*                    cellSegMap,
+                                  const RigActiveCellInfo*                          activeCellInfo )
 {
     std::vector<RigMswSegment> result;
 
@@ -297,20 +297,20 @@ RigMswBranch buildMainBoreBranchFromGeometry( const RimWellPath*                
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigMswBranch> buildValveBranchesFromGeometry( const RimWellPath*                                wellPath,
-                                                          const std::vector<WellPathCellIntersectionInfo>&  filteredIntersections,
-                                                          const RigMainGrid*                                mainGrid,
-                                                          const RimEclipseCase*                             eclipseCase,
-                                                          const std::vector<const RimPerforationInterval*>& perforationIntervals,
-                                                          const std::vector<CellSegmentEntry>&              cellSegMap,
-                                                          const std::string&                                infoType,
-                                                          const std::string&                                wellNameForExport,
-                                                          int&                                              segmentNumber,
-                                                          int&                                              branchNumber,
-                                                          double                                            maxSegmentLength,
-                                                          const std::vector<std::pair<double, double>>&     customSegmentIntervals,
-                                                          const std::optional<QDateTime>&                   exportDate,
-                                                          RiaDefines::EclipseUnitSystem                     unitSystem )
+std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                                wellPath,
+                                              const std::vector<WellPathCellIntersectionInfo>&  filteredIntersections,
+                                              const RigMainGrid*                                mainGrid,
+                                              const RimEclipseCase*                             eclipseCase,
+                                              const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                              const std::vector<CellSegmentEntry>&              cellSegMap,
+                                              const std::string&                                infoType,
+                                              const std::string&                                wellNameForExport,
+                                              int&                                              segmentNumber,
+                                              int&                                              branchNumber,
+                                              double                                            maxSegmentLength,
+                                              const std::vector<std::pair<double, double>>&     customSegmentIntervals,
+                                              const std::optional<QDateTime>&                   exportDate,
+                                              RiaDefines::EclipseUnitSystem                     unitSystem )
 {
     std::vector<RigMswBranch> result;
 
@@ -588,13 +588,13 @@ std::vector<RigMswBranch> buildValveBranchesFromGeometry( const RimWellPath*    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigMswBranch> buildFractureBranchesFromGeometry( RimEclipseCase*                      eclipseCase,
-                                                             const RimWellPath*                   wellPath,
-                                                             const RigMainGrid*                   mainGrid,
-                                                             const std::vector<CellSegmentEntry>& cellSegMap,
-                                                             const std::string&                   infoType,
-                                                             int&                                 segmentNumber,
-                                                             int&                                 branchNumber )
+std::vector<RigMswBranch> buildFractureBranches( RimEclipseCase*                      eclipseCase,
+                                                 const RimWellPath*                   wellPath,
+                                                 const RigMainGrid*                   mainGrid,
+                                                 const std::vector<CellSegmentEntry>& cellSegMap,
+                                                 const std::string&                   infoType,
+                                                 int&                                 segmentNumber,
+                                                 int&                                 branchNumber )
 {
     std::vector<RigMswBranch> result;
 
@@ -685,16 +685,16 @@ std::vector<RigMswBranch> buildFractureBranchesFromGeometry( RimEclipseCase*    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigMswBranch> buildFishbonesBranchesFromGeometry( const RimEclipseCase*                            eclipseCase,
-                                                              const RimWellPath*                               wellPath,
-                                                              const RigMainGrid*                               mainGrid,
-                                                              const std::vector<WellPathCellIntersectionInfo>& filteredIntersections,
-                                                              const std::vector<CellSegmentEntry>&             cellSegMap,
-                                                              const std::string&                               infoType,
-                                                              const std::string&                               wellNameForExport,
-                                                              int&                                             segmentNumber,
-                                                              int&                                             branchNumber,
-                                                              RiaDefines::EclipseUnitSystem                    unitSystem )
+std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*                            eclipseCase,
+                                                  const RimWellPath*                               wellPath,
+                                                  const RigMainGrid*                               mainGrid,
+                                                  const std::vector<WellPathCellIntersectionInfo>& filteredIntersections,
+                                                  const std::vector<CellSegmentEntry>&             cellSegMap,
+                                                  const std::string&                               infoType,
+                                                  const std::string&                               wellNameForExport,
+                                                  int&                                             segmentNumber,
+                                                  int&                                             branchNumber,
+                                                  RiaDefines::EclipseUnitSystem                    unitSystem )
 {
     std::vector<RigMswBranch> result;
 

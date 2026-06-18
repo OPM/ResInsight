@@ -12,16 +12,16 @@ flowchart TD
 
     FI --> HEADER["Build WelsegsHeader<br/>(well name, topLength, topDepth,<br/>infoType, pressureComponents)"]
 
-    FI --> MB["buildMainBoreBranchFromGeometry<br/>-> RigMswBranch (branch 1)"]
+    FI --> MB["buildMainBoreBranch<br/>-> RigMswBranch (branch 1)"]
     MB --> CSMAP["fills CellSegmentEntry map<br/>(MD range -> segment number)"]
 
     CSMAP --> SVALVE["standalone valves from<br/>RimWellPathValve (valveCollection)<br/>-> embed WsegvalvRow on segment"]
 
-    CSMAP --> VB["buildValveBranchesFromGeometry<br/>(ICD/ICV/AICD/SICD inside perforations)<br/>-> vector~RigMswBranch~"]
+    CSMAP --> VB["buildValveBranches<br/>(ICD/ICV/AICD/SICD inside perforations)<br/>-> vector~RigMswBranch~"]
 
-    CSMAP --> FRB["buildFractureBranchesFromGeometry<br/>(if FRACTURES flag set)<br/>-> vector~RigMswBranch~"]
+    CSMAP --> FRB["buildFractureBranches<br/>(if FRACTURES flag set)<br/>-> vector~RigMswBranch~"]
 
-    CSMAP --> FBB["buildFishbonesBranchesFromGeometry<br/>(if FISHBONES flag set)<br/>-> vector~RigMswBranch~"]
+    CSMAP --> FBB["buildFishbonesBranches<br/>(if FISHBONES flag set)<br/>-> vector~RigMswBranch~"]
 
     CSMAP --> LAT["buildLateralBranches (recursive)<br/>for each child RimWellPath with tie-in<br/>-> vector~RigMswBranch~"]
 
@@ -42,13 +42,13 @@ flowchart TD
 
     TIEINSEG & SKIP --> GCS2["generateCellSegments<br/>filterIntersections"]
 
-    GCS2 --> MB2["buildMainBoreBranchFromGeometry<br/>-> RigMswBranch (lateral)"]
+    GCS2 --> MB2["buildMainBoreBranch<br/>-> RigMswBranch (lateral)"]
     MB2 --> SVALVE2["standalone valves<br/>(valveCollection)"]
     MB2 --> CSMAP2["CellSegmentEntry map"]
 
-    CSMAP2 --> VB2["buildValveBranchesFromGeometry"]
-    CSMAP2 --> FRB2["buildFractureBranchesFromGeometry"]
-    CSMAP2 --> FBB2["buildFishbonesBranchesFromGeometry"]
+    CSMAP2 --> VB2["buildValveBranches"]
+    CSMAP2 --> FRB2["buildFractureBranches"]
+    CSMAP2 --> FBB2["buildFishbonesBranches"]
 
     CSMAP2 --> GRANDCHILD["for each grandchild wellPath<br/>buildLateralBranches (recurse)"]
 

@@ -18,10 +18,10 @@ flowchart TD
     end
 
     subgraph BUILD["RicWellPathExportMswGeometryPath<br/>buildMswWellExportData"]
-        MB["buildMainBoreBranchFromGeometry<br/>RicMswBranchBuilder"]
-        VB["buildValveBranchesFromGeometry<br/>RicMswBranchBuilder"]
-        FRB["buildFractureBranchesFromGeometry<br/>RicMswBranchBuilder"]
-        FBB["buildFishbonesBranchesFromGeometry<br/>RicMswBranchBuilder"]
+        MB["buildMainBoreBranch<br/>RicMswBranchBuilder"]
+        VB["buildValveBranches<br/>RicMswBranchBuilder"]
+        FRB["buildFractureBranches<br/>RicMswBranchBuilder"]
+        FBB["buildFishbonesBranches<br/>RicMswBranchBuilder"]
         LAT["buildLateralBranches<br/>recursive"]
     end
 
