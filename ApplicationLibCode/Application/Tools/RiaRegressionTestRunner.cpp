@@ -262,7 +262,8 @@ void RiaRegressionTestRunner::runRegressionTest()
                     QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
                     RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( fullPathGeneratedFolder,
                                                                                        defaultSize.width(),
-                                                                                       defaultSize.height() );
+                                                                                       defaultSize.height(),
+                                                                                       true /*activate widget*/ );
                 }
 
                 uint64_t usedMemoryBeforeClose = caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
