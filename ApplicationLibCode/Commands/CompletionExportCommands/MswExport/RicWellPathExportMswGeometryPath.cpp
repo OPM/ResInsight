@@ -260,8 +260,8 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
 //--------------------------------------------------------------------------------------------------
 /// Build MSW export data directly from well-path geometry and Rim completion objects.
 ///
-/// Currently implemented: main-bore WELSEGS segments + perforation COMPSEGS entries.
-/// TODO: valve completions (ICD/AICD/SICD/ICV), fishbones laterals, fractures, tie-in wells.
+/// Handles main-bore segments, perforation and valve completions (ICD/AICD/SICD/ICV),
+/// fractures, fishbones laterals, and tie-in child laterals.
 //--------------------------------------------------------------------------------------------------
 RigMswWellExportData buildMswWellExportData( RimEclipseCase*                               eclipseCase,
                                              const RimWellPath*                            wellPath,
