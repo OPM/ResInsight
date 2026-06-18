@@ -130,8 +130,11 @@ void RimDockWindowController::updateViewerWidget()
             viewWidget->setObjectName( viewPdmObject()->dockWindowName() );
             mainWindow->initializeViewer( dockWidget, viewWidget );
 
-            mainWindow->connect( dockWidget, SIGNAL( closed() ), mainWindow, SLOT( slotDockViewerClosed() ) );
-            mainWindow->connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), mainWindow, SLOT( slotDockViewerVisibilityChanged( bool ) ) );
+            RiuMainWindowBase::connect( dockWidget, SIGNAL( closed() ), mainWindow, SLOT( slotDockViewerClosed() ) );
+            RiuMainWindowBase::connect( dockWidget,
+                                        SIGNAL( visibilityChanged( bool ) ),
+                                        mainWindow,
+                                        SLOT( slotDockViewerVisibilityChanged( bool ) ) );
 
             viewPdmObject()->updateViewWidgetAfterCreation();
         }
