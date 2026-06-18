@@ -115,12 +115,15 @@ protected:
 
     void showEvent( QShowEvent* event ) override;
 
+    virtual void onCentralWidgetContextMenu( QMenu& menu ) {};
+
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void slotDockViewerVisibilityChanged( bool visible );
     void slotDockViewerClosed();
     void slotRefreshHelpActions();
     void slotHideTabs( bool hideTabs );
+    void slotCentralWidgetContextMenu( const QPoint& pos );
 
     void slotRedo();
     void slotUndo();

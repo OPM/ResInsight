@@ -971,7 +971,12 @@ void RiuPlotMainWindow::dragEnterEvent( QDragEnterEvent* event )
     if ( m_centralDockWidget != nullptr )
     {
         QPoint curpos = m_centralDockWidget->mapFromGlobal( QCursor::pos() );
-        if ( m_centralDockWidget->rect().contains( curpos ) ) event->acceptProposedAction();
+        auto   rect   = m_centralDockWidget->widget()->rect();
+        rect.adjust( -10, -10, 10, 10 ); // allow some tolerance outside the widget
+        if ( rect.contains( curpos ) )
+        {
+            event->acceptProposedAction();
+        }
     }
 }
 
@@ -1105,4 +1110,15 @@ void RiuPlotMainWindow::slotViewFullScreen( bool showFullScreen )
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::onCentralWidgetContextMenu( QMenu& menu )
+{
+    QStringList commandIds;
+    commandIds << "RicNewEmptySummaryMultiPlotFeature";
+    commandIds << "RicOpenSummaryPlotEditorFromDockAreaFeature";
+    caf::CmdFeatureMenuBuilder::appendToMenu( &menu, commandIds );
 }

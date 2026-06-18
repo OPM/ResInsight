@@ -1,5 +1,6 @@
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenSummaryPlotEditorFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicOpenSummaryPlotEditorFromDockAreaFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewDefaultSummaryPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCurveFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotFeatureImpl.cpp

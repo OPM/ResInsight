@@ -394,6 +394,20 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 ///
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::slotCentralWidgetContextMenu( const QPoint& pos )
+{
+    QMenu menu( this );
+    onCentralWidgetContextMenu( menu );
+    if ( !menu.isEmpty() && m_centralDockWidget->widget() != nullptr )
+    {
+        menu.exec( m_centralDockWidget->widget()->mapToGlobal( pos ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::slotDockViewerVisibilityChanged( bool visible )
 {
     if ( !visible ) return;
@@ -506,6 +520,8 @@ void RiuMainWindowBase::setUpCentralDockWidget()
     QLabel* label       = new QLabel();
     label->setAutoFillBackground( true );
     label->setStyleSheet( "QLabel { background-color: darkgrey; }" );
+    label->setContextMenuPolicy( Qt::CustomContextMenu );
+    connect( label, SIGNAL( customContextMenuRequested( const QPoint& ) ), SLOT( slotCentralWidgetContextMenu( const QPoint& ) ) );
     m_centralDockWidget->setWidget( label );
     m_centralDockWidget->setFeature( ads::CDockWidget::NoTab, true );
     dockManager()->setCentralWidget( m_centralDockWidget );
