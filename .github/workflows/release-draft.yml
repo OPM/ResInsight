@@ -6,39 +6,55 @@ on:
       - '*'
 
 permissions:
-  contents: write # required to create a GitHub Release
+  contents: write # create the GitHub Release
+  actions: read   # read other workflow runs and download their artifacts
 
 jobs:
   draft-release:
     name: Create draft release with binaries
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
     steps:
-      - name: Download Windows/Linux artifacts (wait for build to finish)
-        # Pinned for supply-chain hardening (v11)
-        uses: dawidd6/action-download-artifact@ac66b43f0e6a346234dd65d4d0c8fbb31cb316e5
-        with:
-          # Wait for the build triggered by this same tag push (matched by commit)
-          # to complete, then download its application artifacts (Windows,
-          # Ubuntu-gcc and Ubuntu-clang-19). The "ResInsight-" regexp matches
-          # those three but not the "python-distribution" artifact.
-          workflow: ResInsightWithCache.yml
-          commit: ${{ github.sha }}
-          wait_for_completion: true
-          name: ResInsight-
-          name_is_regexp: true
-          path: artifacts
+      - name: Wait for builds and download artifacts
+        run: |
+          set -uo pipefail
+          sha='${{ github.sha }}'
 
-      - name: Download macOS artifact (wait for build to finish)
-        # Pinned for supply-chain hardening (v11)
-        uses: dawidd6/action-download-artifact@ac66b43f0e6a346234dd65d4d0c8fbb31cb316e5
-        with:
-          # The macOS build runs in a separate workflow, also triggered by the
-          # tag push; wait for it and pull its single artifact.
-          workflow: ResInsightMac.yml
-          commit: ${{ github.sha }}
-          wait_for_completion: true
-          name: ResInsight-macOS
-          path: artifacts
+          # The Windows/Linux build (ResInsightWithCache.yml) and the macOS
+          # build (ResInsightMac.yml) are triggered by this same tag push.
+          # Poll until each run for this commit has completed, echoing its
+          # run id on success. Note: a build may conclude as 'failure' yet
+          # still have usable artifacts (e.g. the macOS unit tests, uploaded
+          # with if: always(); or the pypi-publish job failing on a fork), so
+          # we wait on completion regardless of conclusion.
+          wait_run() {
+            wf="$1"
+            echo "Waiting for $wf @ $sha" >&2
+            for i in $(seq 1 240); do  # up to ~2h (240 * 30s)
+              row=$(gh run list --workflow "$wf" \
+                      --json headSha,status,databaseId --limit 50 \
+                    | jq -r --arg sha "$sha" \
+                      'map(select(.headSha==$sha)) | .[0]
+                       | "\(.status // "none") \(.databaseId // "none")"')
+              st=${row%% *}; id=${row##* }
+              echo "  $wf [$i]: status=$st id=$id" >&2
+              if [ "$st" = "completed" ]; then echo "$id"; return 0; fi
+              sleep 30
+            done
+            echo "Timed out waiting for $wf" >&2
+            return 1
+          }
+
+          cache_id=$(wait_run ResInsightWithCache.yml)
+          mac_id=$(wait_run ResInsightMac.yml)
+
+          mkdir -p artifacts
+          # Windows, Ubuntu-gcc and Ubuntu-clang-19 (excludes python-distribution).
+          gh run download "$cache_id" --pattern 'ResInsight-*' --dir artifacts
+          gh run download "$mac_id" --name 'ResInsight-macOS' --dir artifacts
+          ls -R artifacts
 
       - name: Package each platform into a zip
         run: |
@@ -46,18 +62,23 @@ jobs:
           cd artifacts
           for d in ResInsight-*/; do
             name="${d%/}"
-            # Spaces in artifact names (e.g. "Ubuntu 24.04 gcc") make awkward
-            # asset filenames, so collapse them to underscores.
+            # Spaces in artifact names (e.g. "ResInsight-Ubuntu 24.04 gcc")
+            # make awkward asset filenames, so collapse them to underscores.
             safe="${name// /_}"
             zip -r "../release-assets/${safe}-${{ github.ref_name }}.zip" "$name"
           done
           ls -l ../release-assets
 
-      - name: Create draft release and upload assets
-        # Pinned for supply-chain hardening (v2.6.2)
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
-        with:
-          draft: true
-          tag_name: ${{ github.ref_name }}
-          name: ResInsight ${{ github.ref_name }}
-          files: release-assets/*.zip
+      - name: Create or update draft release
+        run: |
+          tag='${{ github.ref_name }}'
+          if gh release view "$tag" >/dev/null 2>&1; then
+            # Re-run: refresh the assets on the existing (draft) release.
+            gh release upload "$tag" release-assets/*.zip --clobber
+          else
+            gh release create "$tag" \
+              --draft \
+              --title "ResInsight $tag" \
+              --notes "Automated draft release. Binaries are attached below." \
+              release-assets/*.zip
+          fi
