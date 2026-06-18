@@ -1,0 +1,63 @@
+name: Create Draft Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write # required to create a GitHub Release
+
+jobs:
+  draft-release:
+    name: Create draft release with binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows/Linux artifacts (wait for build to finish)
+        # Pinned for supply-chain hardening (v11)
+        uses: dawidd6/action-download-artifact@ac66b43f0e6a346234dd65d4d0c8fbb31cb316e5
+        with:
+          # Wait for the build triggered by this same tag push (matched by commit)
+          # to complete, then download its application artifacts (Windows,
+          # Ubuntu-gcc and Ubuntu-clang-19). The "ResInsight-" regexp matches
+          # those three but not the "python-distribution" artifact.
+          workflow: ResInsightWithCache.yml
+          commit: ${{ github.sha }}
+          wait_for_completion: true
+          name: ResInsight-
+          name_is_regexp: true
+          path: artifacts
+
+      - name: Download macOS artifact (wait for build to finish)
+        # Pinned for supply-chain hardening (v11)
+        uses: dawidd6/action-download-artifact@ac66b43f0e6a346234dd65d4d0c8fbb31cb316e5
+        with:
+          # The macOS build runs in a separate workflow, also triggered by the
+          # tag push; wait for it and pull its single artifact.
+          workflow: ResInsightMac.yml
+          commit: ${{ github.sha }}
+          wait_for_completion: true
+          name: ResInsight-macOS
+          path: artifacts
+
+      - name: Package each platform into a zip
+        run: |
+          mkdir -p release-assets
+          cd artifacts
+          for d in ResInsight-*/; do
+            name="${d%/}"
+            # Spaces in artifact names (e.g. "Ubuntu 24.04 gcc") make awkward
+            # asset filenames, so collapse them to underscores.
+            safe="${name// /_}"
+            zip -r "../release-assets/${safe}-${{ github.ref_name }}.zip" "$name"
+          done
+          ls -l ../release-assets
+
+      - name: Create draft release and upload assets
+        # Pinned for supply-chain hardening (v2.6.2)
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
+        with:
+          draft: true
+          tag_name: ${{ github.ref_name }}
+          name: ResInsight ${{ github.ref_name }}
+          files: release-assets/*.zip
