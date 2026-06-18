@@ -37,7 +37,7 @@ class RimPerforationInterval;
 
 //--------------------------------------------------------------------------------------------------
 /// Free functions that build RigMswSegment lists directly from well-path geometry and Rim
-/// completion objects — without creating the intermediate RicMswBranch / RicMswItem tree.
+/// completion objects.
 ///
 /// Extracted from the former `internal` anonymous namespace in RicWellPathExportMswGeometryPath.cpp
 /// so that they can be called from other translation units and unit-tested in isolation.

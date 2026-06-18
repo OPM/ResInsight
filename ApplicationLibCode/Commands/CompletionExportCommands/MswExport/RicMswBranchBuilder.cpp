@@ -670,8 +670,8 @@ std::vector<RigMswBranch> buildFractureBranchesFromGeometry( RimEclipseCase*    
         seg.outletSegmentNumber = outletSeg;
         seg.length              = length;
         seg.depth               = depth;
-        seg.diameter            = 0.15; // RicMswSegment default (tree approach uses same value)
-        seg.roughness           = 5.0e-5; // RicMswSegment default (tree approach uses same value)
+        seg.diameter            = 0.15; // default segment diameter
+        seg.roughness           = 5.0e-5; // default segment roughness
         seg.sourceWellName      = wellPath->name().toStdString();
         seg.description         = fracture->name().toStdString();
         seg.intersections       = std::move( compsegs );
