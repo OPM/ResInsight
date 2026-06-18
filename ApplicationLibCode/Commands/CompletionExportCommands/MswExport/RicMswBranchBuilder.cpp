@@ -594,7 +594,10 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                 valveSeg.sourceWellName      = wellPath->name().toStdString();
                 valveSeg.description         = QString( "%1 #%2" ).arg( valve->name() ).arg( vi + 1 ).toStdString();
 
-                // COMPSEGS: cells that overlap this valve's coverage range (valveSegStart..valveSegEnd)
+                // COMPSEGS: cells that overlap this valve's coverage range (valveSegStart..valveSegEnd).
+                // The perforation intersections are redirected onto the ICV segment, so their COMPSEGS
+                // Start/End Length reflect the valve segment MD range (valveMD..valveEndMD) rather than
+                // the individual cell overlaps, matching the legacy tree-based export.
                 for ( const auto& cellInfo : filteredIntersections )
                 {
                     const double overlapStart = std::max( valveSegStart, cellInfo.startMD );
@@ -602,7 +605,7 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
                     if ( overlapEnd > overlapStart )
                     {
                         if ( !filterEval.includesGlobalCell( cellInfo.globCellIndex ) ) continue;
-                        if ( auto ci = toMswCellIntersection( cellInfo, mainGrid, overlapStart, overlapEnd ) )
+                        if ( auto ci = toMswCellIntersection( cellInfo, mainGrid, valveMD, valveEndMD ) )
                             valveSeg.intersections.push_back( *ci );
                     }
                 }
