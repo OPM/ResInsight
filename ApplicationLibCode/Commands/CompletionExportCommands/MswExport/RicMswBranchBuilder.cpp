@@ -46,8 +46,12 @@
 #include "RiaLogging.h"
 #include "RiaQStringFormatter.h"
 
+#include "Well/RigWellPath.h"
+
 #include <algorithm>
 #include <limits>
+#include <map>
+#include <set>
 
 namespace RicMswBranchBuilder
 {
@@ -174,6 +178,39 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
         emittedCountPerInterval[perf] = 0;
     }
 
+    // For each perforation interval, determine the set of grid cells the perforation actually
+    // connects to. This mirrors the standard COMPDAT export (generatePerforationsCompdatValues):
+    // the well path is clipped to the perforation MD range and re-intersected with the grid.
+    // COMPSEGS rows are then emitted only for cells in this set.
+    //
+    // This matters for dual-porosity models, where the whole-well geometric intersection
+    // (filteredIntersections) may split a perforation across several matrix cells at cell
+    // boundaries, while the clipped perforation intersection collapses it to the cells that
+    // carry the connection. Restricting to the latter keeps the MSW COMPSEGS consistent with
+    // the COMPDAT connections. For single-porosity models the two sets are identical, so this
+    // is a no-op.
+    std::map<const RimPerforationInterval*, std::set<size_t>> perforationCompletionCells;
+    if ( const auto* wellPathGeometry = wellPath->wellPathGeometry() )
+    {
+        for ( const auto* perf : perforationIntervals )
+        {
+            const auto [clipCoords, clipMds] = wellPathGeometry->clippedPointSubset( perf->startMD(), perf->endMD() );
+
+            const auto perfCells = RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCase->eclipseCaseData(),
+                                                                                                     wellPath->name(),
+                                                                                                     clipCoords,
+                                                                                                     clipMds );
+
+            std::set<size_t>& cellSet = perforationCompletionCells[perf];
+            for ( const auto& perfCell : perfCells )
+            {
+                const bool cellIsActive = !activeCellInfo || perfCell.globCellIndex >= mainGrid->totalCellCount() ||
+                                          activeCellInfo->isActive( ReservoirCellIndex( perfCell.globCellIndex ) );
+                if ( cellIsActive ) cellSet.insert( perfCell.globCellIndex );
+            }
+        }
+    }
+
     for ( const auto& cellInfo : filteredIntersections )
     {
         const double cellLength = std::fabs( cellInfo.endMD - cellInfo.startMD );
@@ -198,6 +235,11 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
                 if ( activeCellInfo && cellInfo.globCellIndex < mainGrid->totalCellCount() &&
                      !activeCellInfo->isActive( ReservoirCellIndex( cellInfo.globCellIndex ) ) )
                     continue;
+
+                // Skip cells the perforation does not actually connect to (see perforationCompletionCells above).
+                const auto& completionCells = perforationCompletionCells[perf];
+                if ( !completionCells.empty() && !completionCells.count( cellInfo.globCellIndex ) ) continue;
+
                 overlapCountPerInterval[perf]++;
                 auto& filterEval = filterEvaluators.at( perf );
                 if ( !filterEval.includesGlobalCell( cellInfo.globCellIndex ) ) continue;
