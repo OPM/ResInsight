@@ -1208,9 +1208,9 @@ std::vector<RimViewWindow*> RiuMainWindow::viewWindows()
 {
     std::vector<RimViewWindow*> views;
 
-    for ( auto v : RimProject::current()->allViews() )
+    for ( auto v : RimProject::current()->descendantsOfType<Rim3dView>() )
     {
-        views.push_back( v );
+        if ( v->dockWidget() ) views.push_back( v );
     }
 
     return views;
