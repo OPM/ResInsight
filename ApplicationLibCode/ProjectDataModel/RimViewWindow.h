@@ -25,8 +25,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include <QImage>
-
+class QImage;
 class RimDockWindowController;
 
 namespace ads
@@ -103,7 +102,7 @@ protected:
 
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    static QImage internalCaptureSnapshot( QWidget* widget, int width, int height );
+    static QImage internalCaptureSnapshot( ads::CDockWidget* dockWidget, QWidget* widget, int width, int height );
 
 private:
     friend class RimProject;
