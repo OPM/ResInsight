@@ -92,6 +92,8 @@ protected:
     void dropEvent( QDropEvent* event ) override;
     void timerEvent( QTimerEvent* event ) override;
 
+    void onCentralWidgetContextMenu( QMenu& menu ) override;
+
     QStringList defaultDockStateNames() override;
 
 private:
