@@ -1208,9 +1208,13 @@ std::vector<RimViewWindow*> RiuMainWindow::viewWindows()
 {
     std::vector<RimViewWindow*> views;
 
-    for ( auto v : RimProject::current()->descendantsOfType<Rim3dView>() )
+    // Project can be null while it is being torn down.
+    if ( auto project = RimProject::current() )
     {
-        if ( v->dockWidget() ) views.push_back( v );
+        for ( auto v : project->descendantsOfType<Rim3dView>() )
+        {
+            if ( v->dockWidget() ) views.push_back( v );
+        }
     }
 
     return views;

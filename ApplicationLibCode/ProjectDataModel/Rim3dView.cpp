@@ -604,15 +604,20 @@ std::vector<Rim3dView*> Rim3dView::validComparisonViews() const
     auto isIntersectionView = []( const Rim3dView* view ) { return dynamic_cast<const Rim2dIntersectionView*>( view ) != nullptr; };
 
     std::vector<Rim3dView*> validComparisonViews;
-    for ( auto view : RimProject::current()->allViews() )
+
+    // Project can be null while it is being torn down.
+    if ( auto project = RimProject::current() )
     {
-        if ( dynamic_cast<RimSeismicView*>( view ) ) continue;
-
-        bool isSameViewType = isIntersectionView( this ) == isIntersectionView( view );
-
-        if ( view != this && isSameViewType )
+        for ( auto view : project->allViews() )
         {
-            validComparisonViews.push_back( view );
+            if ( dynamic_cast<RimSeismicView*>( view ) ) continue;
+
+            bool isSameViewType = isIntersectionView( this ) == isIntersectionView( view );
+
+            if ( view != this && isSameViewType )
+            {
+                validComparisonViews.push_back( view );
+            }
         }
     }
 
