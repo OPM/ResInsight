@@ -20,24 +20,21 @@
 
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
-#include "RiaFieldHandleTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferencesSystem.h"
 
 #include "RicfCommandObject.h"
 
 #include "RimDockWindowController.h"
-#include "RimProject.h"
 
 #include "RiuDockWidgetTools.h"
 
 #include "cafPdmUiTreeAttributes.h"
-#include "cafPdmUiTreeViewEditor.h"
 
 #include "DockManager.h"
 #include "DockWidget.h"
 
-#include <QDebug>
+#include <QApplication>
 #include <QImage>
 #include <QPainter>
 #include <QPixmap>
@@ -234,15 +231,22 @@ QImage RimViewWindow::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 QImage RimViewWindow::captureSnapshot( int width, int height )
 {
-    return internalCaptureSnapshot( viewWidget(), width, height );
+    return internalCaptureSnapshot( m_dockWidget, viewWidget(), width, height );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimViewWindow::internalCaptureSnapshot( QWidget* widget, int width, int height )
+QImage RimViewWindow::internalCaptureSnapshot( ads::CDockWidget* dockWidget, QWidget* widget, int width, int height )
 {
     if ( !widget ) return QImage();
+
+    if ( dockWidget && !dockWidget->isCurrentTab() )
+    {
+        // Move the dock widget that is stacked behind others in the same dock area to the top to make sure the snapshot is rendered
+        dockWidget->setAsCurrentTab();
+        QApplication::processEvents();
+    }
 
     bool shouldResize = width > 0 && height > 0 && ( widget->width() != width || widget->height() != height );
 
@@ -250,6 +254,10 @@ QImage RimViewWindow::internalCaptureSnapshot( QWidget* widget, int width, int h
     if ( shouldResize )
     {
         widget->setFixedSize( width, height );
+
+        // setFixedSize() only posts a deferred resize. If the pending resize is delivered from inside QWidget::render() below, a child
+        // QScrollArea may move its viewport mid-render and crash in Qt's backing-store blit (QWidgetRepaintManager::bltRect).
+        QApplication::processEvents();
     }
     else
     {
