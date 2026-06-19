@@ -3,19 +3,19 @@
      aria-label="Hide tabs icon">
   <path
     d="M5 7.5C5 6.67 5.67 6 6.5 6H9.2L10.6 4.5H17.5C18.33 4.5 19 5.17 19 6V15.5C19 16.33 18.33 17 17.5 17H6.5C5.67 17 5 16.33 5 15.5V7.5Z"
-    stroke="#4A4A4A"
+    stroke="#808080"
     stroke-width="1.7"
     stroke-linejoin="round" />
 
   <path
     d="M7 9H17"
-    stroke="#4A4A4A"
+    stroke="#808080"
     stroke-width="1.7"
     stroke-linecap="round" />
 
   <path
     d="M3.5 20.5L20.5 3.5"
-    stroke="#4A4A4A"
+    stroke="#808080"
     stroke-width="2"
     stroke-linecap="round" />
 </svg>
