@@ -381,8 +381,8 @@ void RimViewWindow::dockInWindow( int mainWindowID )
     if ( m_windowController == nullptr )
     {
         m_windowController = new RimDockWindowController();
-        m_windowController->setViewToControl( this );
     }
+    m_windowController->setViewToControl( this );
     m_windowController->setMainWindowId( mainWindowID );
 }
 

@@ -51,6 +51,7 @@ RimDockWindowController::RimDockWindowController()
 //--------------------------------------------------------------------------------------------------
 RimDockWindowController::~RimDockWindowController()
 {
+    m_viewToControl = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,6 +149,7 @@ void RimDockWindowController::updateViewerWidget()
         {
             viewPdmObject()->deleteViewWidget();
             mainWindow->onViewerRemoved();
+            setViewToControl( nullptr );
         }
     }
 }
