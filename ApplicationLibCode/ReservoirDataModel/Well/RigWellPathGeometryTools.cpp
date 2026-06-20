@@ -474,7 +474,7 @@ std::vector<double> interpolateMdFromTvd( const std::vector<double>& originalMdV
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> calculateAzimuthAndInclinationAtMd( double measuredDepth, gsl::not_null<const RigWellPath*> wellPathGeometry )
+std::pair<double, double> calculateAzimuthAndInclinationAtMd( double measuredDepth, const RigWellPath* wellPathGeometry )
 {
     int  mdIndex = -1;
     auto mdList  = wellPathGeometry->measuredDepths();

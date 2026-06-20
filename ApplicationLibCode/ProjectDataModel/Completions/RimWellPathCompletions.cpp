@@ -348,7 +348,7 @@ void RimWellPathCompletions::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletions::applyToSettings( gsl::not_null<RimWellPathCompletionSettings*> settings )
+void RimWellPathCompletions::applyToSettings( RimWellPathCompletionSettings* settings )
 {
     settings->m_wellNameForExport     = m_wellNameForExport_OBSOLETE;
     settings->m_preferredFluidPhase   = m_preferredFluidPhase_OBSOLETE;

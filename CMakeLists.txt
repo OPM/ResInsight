@@ -123,11 +123,6 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 elseif(MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
   set(_HAS_STD_BYTE 0)
-
-  # C4875: non-string-literal argument to [[gsl::suppress]] is deprecated.
-  # Emitted by the bundled ThirdParty/gsl headers on MSVC 14.51+. The upstream
-  # fix (microsoft/GSL PR #1213) is not yet in a tagged release.
-  add_compile_options(/wd4875)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

@@ -27,9 +27,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifThermalFractureTemplateSurfaceExporter::writeToFile( gsl::not_null<RimThermalFractureTemplate*> thermalFractureTemplate,
-                                                             int                                        timeStepIndex,
-                                                             const QString&                             filePath )
+bool RifThermalFractureTemplateSurfaceExporter::writeToFile( RimThermalFractureTemplate* thermalFractureTemplate,
+                                                             int                         timeStepIndex,
+                                                             const QString&              filePath )
 {
     auto fractureData = thermalFractureTemplate->fractureDefinition();
     CAF_ASSERT( fractureData );

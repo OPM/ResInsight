@@ -47,13 +47,13 @@ Riv3dWellLogCurveGeometryGenerator::Riv3dWellLogCurveGeometryGenerator( RimWellP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables( gsl::not_null<const caf::DisplayCoordTransform*> displayCoordTransform,
-                                                               const cvf::BoundingBox&                          wellPathClipBoundingBox,
-                                                               gsl::not_null<const Rim3dWellLogCurve*>          wellLogCurve,
-                                                               double                         planeOffsetFromWellPathCenter,
-                                                               double                         planeWidth,
-                                                               const std::vector<cvf::Vec3d>& drawSurfaceVertices,
-                                                               int                            currentTimeStep )
+void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables( const caf::DisplayCoordTransform* displayCoordTransform,
+                                                               const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                                               const Rim3dWellLogCurve*          wellLogCurve,
+                                                               double                            planeOffsetFromWellPathCenter,
+                                                               double                            planeWidth,
+                                                               const std::vector<cvf::Vec3d>&    drawSurfaceVertices,
+                                                               int                               currentTimeStep )
 {
     // Make sure all drawables are cleared in case we return early to avoid a
     // previous drawable being "stuck" when changing result type.

@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <gsl/gsl>
-
 #include <vector>
 
 class RimWellPath;
@@ -31,13 +29,13 @@ class RigWellPath;
 class RigWellPathGeometryExporter
 {
 public:
-    static void computeWellPathDataForExport( gsl::not_null<const RimWellPath*> wellPath,
-                                              double                            mdStepSize,
-                                              std::vector<double>&              xValues,
-                                              std::vector<double>&              yValues,
-                                              std::vector<double>&              tvdValues,
-                                              std::vector<double>&              mdValues,
-                                              bool&                             showTextMdRkb );
+    static void computeWellPathDataForExport( const RimWellPath*   wellPath,
+                                              double               mdStepSize,
+                                              std::vector<double>& xValues,
+                                              std::vector<double>& yValues,
+                                              std::vector<double>& tvdValues,
+                                              std::vector<double>& mdValues,
+                                              bool&                showTextMdRkb );
 
     static void computeWellPathDataForExport( const RigWellPath&   wellPath,
                                               double               mdStepSize,

@@ -58,10 +58,10 @@ const double RigGeoMechWellLogExtractor::GRAVITY_ACCEL           = 9.81; // m / 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor( gsl::not_null<RigGeoMechCaseData*> aCase,
-                                                        int                                partId,
-                                                        gsl::not_null<const RigWellPath*>  wellpath,
-                                                        const std::string&                 wellCaseErrorMsgName )
+RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor( RigGeoMechCaseData* aCase,
+                                                        int                 partId,
+                                                        const RigWellPath*  wellpath,
+                                                        const std::string&  wellCaseErrorMsgName )
     : RigWellLogExtractor( wellpath, wellCaseErrorMsgName )
     , m_caseData( aCase )
     , m_partId( partId )

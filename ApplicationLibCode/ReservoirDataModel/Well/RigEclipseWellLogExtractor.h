@@ -36,9 +36,7 @@ class BoundingBox;
 class RigEclipseWellLogExtractor : public RigWellLogExtractor
 {
 public:
-    RigEclipseWellLogExtractor( gsl::not_null<const RigEclipseCaseData*> aCase,
-                                gsl::not_null<const RigWellPath*>        wellpath,
-                                const std::string&                       wellCaseErrorMsgName );
+    RigEclipseWellLogExtractor( const RigEclipseCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName );
 
     void                      curveData( const RigResultAccessor* resultAccessor, std::vector<double>* values );
     const RigEclipseCaseData* caseData() { return m_caseData.p(); }

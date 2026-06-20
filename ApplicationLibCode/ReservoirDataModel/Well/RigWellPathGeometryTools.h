@@ -22,7 +22,6 @@
 
 #include <QPolygon>
 
-#include <gsl/gsl>
 #include <vector>
 
 class RigWellPath;
@@ -43,7 +42,7 @@ std::vector<double>     interpolateMdFromTvd( const std::vector<double>& origina
                                               const std::vector<double>& originalTvdValues,
                                               const std::vector<double>& tvdValuesToInterpolateFrom );
 
-std::pair<double, double> calculateAzimuthAndInclinationAtMd( double measuredDepth, gsl::not_null<const RigWellPath*> wellPathGeometry );
+std::pair<double, double> calculateAzimuthAndInclinationAtMd( double measuredDepth, const RigWellPath* wellPathGeometry );
 
 std::vector<double> calculateMeasuredDepth( const std::vector<cvf::Vec3d>& wellPathPoints, double startMd = 0.0 );
 } // namespace RigWellPathGeometryTools

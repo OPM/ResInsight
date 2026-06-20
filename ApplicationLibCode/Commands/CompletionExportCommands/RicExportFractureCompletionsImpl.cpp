@@ -536,13 +536,13 @@ void RicExportFractureCompletionsImpl::calculateInternalFractureTransmissibiliti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities( gsl::not_null<const RimFractureTemplate*> fracTemplate,
-                                                                                  gsl::not_null<const RigFractureGrid*>     fractureGrid,
-                                                                                  gsl::not_null<const RimFracture*>         fracture,
-                                                                                  double                            cDarcyInCorrectUnit,
-                                                                                  gsl::not_null<const RigWellPath*> wellPathGeometry,
-                                                                                  RigTransmissibilityCondenser&     transCondenser,
-                                                                                  bool                              useInfiniteWellPI )
+void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities( const RimFractureTemplate*    fracTemplate,
+                                                                                  const RigFractureGrid*        fractureGrid,
+                                                                                  const RimFracture*            fracture,
+                                                                                  double                        cDarcyInCorrectUnit,
+                                                                                  const RigWellPath*            wellPathGeometry,
+                                                                                  RigTransmissibilityCondenser& transCondenser,
+                                                                                  bool                          useInfiniteWellPI )
 {
     // If fracture has orientation Azimuth (without user-defined perforation length) or Transverse,
     // assume only radial inflow
@@ -635,8 +635,8 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RicExportFractureCompletionsImpl::computeWellPointsInFracturePlane( gsl::not_null<const RimFracture*> fracture,
-                                                                                            gsl::not_null<const RigWellPath*> wellPathGeometry )
+std::vector<cvf::Vec3d> RicExportFractureCompletionsImpl::computeWellPointsInFracturePlane( const RimFracture* fracture,
+                                                                                            const RigWellPath* wellPathGeometry )
 
 {
     std::vector<cvf::Vec3d> wellPathPoints = wellPathGeometry->wellPathPointsIncludingInterpolatedIntersectionPoint( fracture->fractureMD() );

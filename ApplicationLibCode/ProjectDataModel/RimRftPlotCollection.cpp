@@ -48,10 +48,10 @@ RimRftPlotCollection::RimRftPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RimRftPlotCollection::findOrCreateSimWellExtractor( const QString&                    simWellName,
-                                                                                const QString&                    caseUserDescription,
-                                                                                gsl::not_null<const RigWellPath*> wellPathGeom,
-                                                                                gsl::not_null<const RigEclipseCaseData*> eclCaseData )
+RigEclipseWellLogExtractor* RimRftPlotCollection::findOrCreateSimWellExtractor( const QString&            simWellName,
+                                                                                const QString&            caseUserDescription,
+                                                                                const RigWellPath*        wellPathGeom,
+                                                                                const RigEclipseCaseData* eclCaseData )
 {
     if ( !( wellPathGeom && eclCaseData ) )
     {
@@ -76,8 +76,7 @@ RigEclipseWellLogExtractor* RimRftPlotCollection::findOrCreateSimWellExtractor( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RimRftPlotCollection::findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
-                                                                         gsl::not_null<RimEclipseCase*> eclCase )
+RigEclipseWellLogExtractor* RimRftPlotCollection::findOrCreateExtractor( RimWellPath* wellPath, RimEclipseCase* eclCase )
 {
     if ( !( wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->eclipseCaseData() ) )
     {
@@ -104,8 +103,7 @@ RigEclipseWellLogExtractor* RimRftPlotCollection::findOrCreateExtractor( gsl::no
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor*
-    RimRftPlotCollection::findOrCreateExtractor( gsl::not_null<RimWellPath*> wellPath, gsl::not_null<RimGeoMechCase*> geomCase, int partId )
+RigGeoMechWellLogExtractor* RimRftPlotCollection::findOrCreateExtractor( RimWellPath* wellPath, RimGeoMechCase* geomCase, int partId )
 {
     if ( !( wellPath && geomCase && wellPath->wellPathGeometry() && geomCase->geoMechData() ) )
     {
@@ -245,7 +243,7 @@ void RimRftPlotCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle* chi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftPlotCollection::addPlot( gsl::not_null<RimWellLogPlot*> newPlot )
+void RimRftPlotCollection::addPlot( RimWellLogPlot* newPlot )
 {
     m_rftPlots.push_back( newPlot );
 }
@@ -253,7 +251,7 @@ void RimRftPlotCollection::addPlot( gsl::not_null<RimWellLogPlot*> newPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftPlotCollection::removePlot( gsl::not_null<RimWellLogPlot*> plot )
+void RimRftPlotCollection::removePlot( RimWellLogPlot* plot )
 {
     m_rftPlots.removeChild( plot );
     updateAllRequiredEditors();

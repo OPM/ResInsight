@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogExtractor::RigWellLogExtractor( gsl::not_null<const RigWellPath*> wellpath, const std::string& wellCaseErrorMsgName )
+RigWellLogExtractor::RigWellLogExtractor( const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName )
     : m_wellPathGeometry( wellpath )
     , m_wellCaseErrorMsgName( wellCaseErrorMsgName )
 {
@@ -431,9 +431,7 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellLogExtractor::appendIntersectionToArrays( double                      measuredDepth,
-                                                      const HexIntersectionInfo&  intersection,
-                                                      gsl::not_null<QStringList*> errorMessages )
+void RigWellLogExtractor::appendIntersectionToArrays( double measuredDepth, const HexIntersectionInfo& intersection, QStringList* errorMessages )
 {
     QString errorMessage; // This error message is currently not displayed anywhere, as the output caused noise in
                           // several situations https://github.com/OPM/ResInsight/issues/7126

@@ -152,7 +152,7 @@ std::vector<RimWellLogPlot*> RimWellLogPlotCollection::wellLogPlots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCollection::addWellLogPlot( gsl::not_null<RimWellLogPlot*> wellLogPlot )
+void RimWellLogPlotCollection::addWellLogPlot( RimWellLogPlot* wellLogPlot )
 {
     m_wellLogPlots.push_back( wellLogPlot );
 }
@@ -168,7 +168,7 @@ void RimWellLogPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCollection::removePlot( gsl::not_null<RimWellLogPlot*> plot )
+void RimWellLogPlotCollection::removePlot( RimWellLogPlot* plot )
 {
     m_wellLogPlots.removeChild( plot );
     updateAllRequiredEditors();

@@ -135,7 +135,7 @@ std::vector<std::pair<double, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswTableDataTools::tvdFromMeasuredDepth( gsl::not_null<const RimWellPath*> wellPath, double measuredDepth )
+double RicMswTableDataTools::tvdFromMeasuredDepth( const RimWellPath* wellPath, double measuredDepth )
 {
     auto wellPathGeometry = wellPath->wellPathGeometry();
     CVF_ASSERT( wellPathGeometry );
