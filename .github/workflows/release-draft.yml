@@ -53,7 +53,11 @@ jobs:
           mkdir -p artifacts
           # Windows, Ubuntu-gcc and Ubuntu-clang-19 (excludes python-distribution).
           gh run download "$cache_id" --pattern 'ResInsight-*' --dir artifacts
-          gh run download "$mac_id" --name 'ResInsight-macOS' --dir artifacts
+          # Use --pattern (not --name) so the artifact is placed in its own
+          # ResInsight-macOS/ subdirectory, matching the cache download above.
+          # With --name the contents are extracted flat into artifacts/, which
+          # the 'for d in ResInsight-*/' packaging loop would then skip.
+          gh run download "$mac_id" --pattern 'ResInsight-macOS' --dir artifacts
           ls -R artifacts
 
       - name: Package each platform into a zip
