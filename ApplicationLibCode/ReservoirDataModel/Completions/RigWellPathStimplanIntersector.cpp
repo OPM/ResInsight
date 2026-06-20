@@ -34,8 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellPathStimplanIntersector::RigWellPathStimplanIntersector( const std::vector<cvf::Vec3d>&    wellPathPoints,
-                                                                gsl::not_null<const RimFracture*> rimFracture )
+RigWellPathStimplanIntersector::RigWellPathStimplanIntersector( const std::vector<cvf::Vec3d>& wellPathPoints, const RimFracture* rimFracture )
 {
     cvf::Mat4d fractureXf = rimFracture->transformMatrix();
     double     wellRadius = rimFracture->wellRadius();

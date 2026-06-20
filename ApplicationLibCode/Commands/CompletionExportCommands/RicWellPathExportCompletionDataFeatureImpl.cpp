@@ -1140,7 +1140,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData>
-    RicWellPathExportCompletionDataFeatureImpl::generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*> wellPath,
+    RicWellPathExportCompletionDataFeatureImpl::generatePerforationsCompdatValues( const RimWellPath* wellPath,
                                                                                    const std::vector<const RimPerforationInterval*>& intervals,
                                                                                    const RicExportCompletionDataSettingsUi& settings,
                                                                                    const std::optional<QDateTime>&          exportDate )
@@ -1301,10 +1301,9 @@ void RicWellPathExportCompletionDataFeatureImpl::appendCompletionData( std::map<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec2i>
-    RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( gsl::not_null<const RimEclipseCase*> gridCase,
-                                                                                 gsl::not_null<const RimWellPath*>    wellPath,
-                                                                                 const QString&                       gridName )
+std::pair<double, cvf::Vec2i> RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( const RimEclipseCase* gridCase,
+                                                                                                           const RimWellPath*    wellPath,
+                                                                                                           const QString&        gridName )
 {
     const RigEclipseCaseData* caseData       = gridCase->eclipseCaseData();
     const RigMainGrid*        mainGrid       = caseData->mainGrid();

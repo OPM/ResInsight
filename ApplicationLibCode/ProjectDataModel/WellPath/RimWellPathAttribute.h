@@ -25,8 +25,6 @@
 
 #include <QString>
 
-#include <gsl/gsl>
-
 class RimWellPath;
 
 class RimWellPathAttribute : public caf::PdmObject, public RimWellPathComponentInterface
@@ -44,7 +42,7 @@ public:
     double  diameterInInches() const;
     QString diameterLabel() const;
     bool    operator<( const RimWellPathAttribute& rhs ) const;
-    void    setDepthsFromWellPath( gsl::not_null<const RimWellPath*> wellPath );
+    void    setDepthsFromWellPath( const RimWellPath* wellPath );
 
     // Overrides from RimWellPathCompletionInterface
     bool                              isEnabled() const override;

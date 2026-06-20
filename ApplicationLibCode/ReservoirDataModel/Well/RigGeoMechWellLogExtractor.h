@@ -55,10 +55,7 @@ public:
     using WbsParameterSourceEnum = RigWbsParameter::SourceEnum;
 
 public:
-    RigGeoMechWellLogExtractor( gsl::not_null<RigGeoMechCaseData*> aCase,
-                                int                                partId,
-                                gsl::not_null<const RigWellPath*>  wellpath,
-                                const std::string&                 wellCaseErrorMsgName );
+    RigGeoMechWellLogExtractor( RigGeoMechCaseData* aCase, int partId, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName );
 
     void performCurveDataSmoothing( int                  timeStepIndex,
                                     int                  frameIndex,

@@ -193,8 +193,8 @@ double RicWellPathExportMswTableData::computeIntitialMeasuredDepth( const RimEcl
 std::vector<WellPathCellIntersectionInfo>
     RicWellPathExportMswTableData::filterIntersections( const std::vector<WellPathCellIntersectionInfo>& intersections,
                                                         double                                           initialMD,
-                                                        gsl::not_null<const RigWellPath*>                wellPathGeometry,
-                                                        gsl::not_null<const RimEclipseCase*>             eclipseCase )
+                                                        const RigWellPath*                               wellPathGeometry,
+                                                        const RimEclipseCase*                            eclipseCase )
 {
     std::vector<WellPathCellIntersectionInfo> filteredIntersections;
 

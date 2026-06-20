@@ -20,7 +20,6 @@
 
 #include "cafCmdFeature.h"
 
-#include <gsl/gsl>
 #include <vector>
 
 class RimWellPathFractureCollection;
@@ -35,7 +34,7 @@ class RicNewWellPathFractureFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static RimWellPathFracture* addFracture( gsl::not_null<RimWellPath*> wellPath, double measuredDepth );
+    static RimWellPathFracture* addFracture( RimWellPath* wellPath, double measuredDepth );
 
 protected:
     void onActionTriggered( bool isChecked ) override;

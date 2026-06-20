@@ -384,7 +384,7 @@ std::expected<std::vector<RimFileWellPath*>, QString> RimWellPathCollection::add
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath )
+void RimWellPathCollection::addWellPath( RimWellPath* wellPath )
 {
     m_wellPaths.push_back( wellPath );
 
@@ -929,9 +929,9 @@ void RimWellPathCollection::reloadAllWellPathFormations()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::removeWellPath( gsl::not_null<RimWellPath*> wellToRemove )
+void RimWellPathCollection::removeWellPath( RimWellPath* wellToRemove )
 {
-    auto* fileWellToRemove = dynamic_cast<RimFileWellPath*>( wellToRemove.get() );
+    auto* fileWellToRemove = dynamic_cast<RimFileWellPath*>( wellToRemove );
     if ( fileWellToRemove )
     {
         bool isFilePathUsed = false;

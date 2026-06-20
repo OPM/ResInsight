@@ -26,8 +26,6 @@
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"
 
-#include <gsl/gsl>
-
 #include <map>
 #include <optional>
 #include <vector>
@@ -59,7 +57,7 @@ class RigWellPath;
 class RigWellLogExtractor : public cvf::Object
 {
 public:
-    RigWellLogExtractor( gsl::not_null<const RigWellPath*> wellpath, const std::string& wellCaseErrorMsgName );
+    RigWellLogExtractor( const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName );
     ~RigWellLogExtractor() override;
 
     const std::vector<double>&                             cellIntersectionMDs() const;
@@ -86,7 +84,7 @@ protected:
                                           std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>* uniqueIntersections );
 
     void populateReturnArrays( std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>& uniqueIntersections );
-    void appendIntersectionToArrays( double measuredDepth, const HexIntersectionInfo& intersection, gsl::not_null<QStringList*> errorMessages );
+    void appendIntersectionToArrays( double measuredDepth, const HexIntersectionInfo& intersection, QStringList* errorMessages );
 
     virtual cvf::Vec3d calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const = 0;
 

@@ -979,7 +979,7 @@ bool RiaApplication::loadProject( const QString& projectFileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::saveProject( gsl::not_null<QString*> errorMessage )
+bool RiaApplication::saveProject( QString* errorMessage )
 {
     CAF_ASSERT( m_project );
 
@@ -997,7 +997,7 @@ bool RiaApplication::saveProject( gsl::not_null<QString*> errorMessage )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::saveProjectAs( const QString& fileName, gsl::not_null<QString*> errorMessage )
+bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessage )
 {
     CAF_ASSERT( m_project );
     // Make sure we always store path with forward slash to avoid issues when opening the project file on Linux
@@ -1118,7 +1118,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
         m_project->activeOilField()->geoMechModels = std::make_unique<RimGeoMechModels>();
     }
 
-    gsl::not_null<RimGeoMechModels*> geoMechModelCollection = m_project->activeOilField()->geoMechModels();
+    RimGeoMechModels* geoMechModelCollection = m_project->activeOilField()->geoMechModels();
 
     // Check if the file is already open, the odb reader does not support opening the same file twice very well
     for ( auto gmcase : geoMechModelCollection->cases() )
@@ -1161,7 +1161,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths, gsl::not_null<QStringList*> errorMessages )
+std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths, QStringList* errorMessages )
 {
     if ( m_project == nullptr || m_project->oilFields.empty() ) return {};
 
@@ -1215,8 +1215,7 @@ void RiaApplication::addWellPathFormationsToModel( QList<QString> wellPathFormat
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well log file paths (LAS files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogLasFile*> RiaApplication::addWellLogsToModel( const QList<QString>&       wellLogFilePaths,
-                                                                    gsl::not_null<QStringList*> errorMessages )
+std::vector<RimWellLogLasFile*> RiaApplication::addWellLogsToModel( const QList<QString>& wellLogFilePaths, QStringList* errorMessages )
 {
     if ( m_project == nullptr || m_project->oilFields.empty() ) return {};
 
@@ -1734,7 +1733,7 @@ void RiaApplication::resetProject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::generateCode( const QString& fileName, gsl::not_null<QString*> errMsg )
+bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 {
     std::string fileExt = QFileInfo( fileName ).suffix().toStdString();
 

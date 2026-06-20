@@ -28,8 +28,6 @@
 #include <QDateTime>
 #include <QFile>
 
-#include <gsl/gsl>
-
 #include <memory>
 #include <optional>
 #include <vector>
@@ -69,14 +67,13 @@ public:
     static std::vector<RigCompletionData>
         completionDataForWellPath( RimWellPath* wellPath, RimEclipseCase* eCase, const std::optional<QDateTime>& exportDate = std::nullopt );
 
-    static std::pair<double, cvf::Vec2i> wellPathUpperGridIntersectionIJ( gsl::not_null<const RimEclipseCase*> gridCase,
-                                                                          gsl::not_null<const RimWellPath*>    wellPath,
-                                                                          const QString&                       gridName = "" );
+    static std::pair<double, cvf::Vec2i>
+        wellPathUpperGridIntersectionIJ( const RimEclipseCase* gridCase, const RimWellPath* wellPath, const QString& gridName = "" );
 
     static std::optional<QDateTime> exportDateForTimeStep( const RimEclipseCase* eclipseCase, size_t timeStepIndex );
 
 private:
-    static std::vector<RigCompletionData> generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*>                 wellPath,
+    static std::vector<RigCompletionData> generatePerforationsCompdatValues( const RimWellPath*                                wellPath,
                                                                              const std::vector<const RimPerforationInterval*>& intervals,
                                                                              const RicExportCompletionDataSettingsUi&          settings,
                                                                              const std::optional<QDateTime>& exportDate = std::nullopt );

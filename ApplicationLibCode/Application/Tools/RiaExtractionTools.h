@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <gsl/gsl>
-
 class RigEclipseWellLogExtractor;
 class RigGeoMechWellLogExtractor;
 class RigWellPath;

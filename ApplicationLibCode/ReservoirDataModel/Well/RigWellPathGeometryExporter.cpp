@@ -28,13 +28,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathGeometryExporter::computeWellPathDataForExport( gsl::not_null<const RimWellPath*> wellPath,
-                                                                double                            mdStepSize,
-                                                                std::vector<double>&              xValues,
-                                                                std::vector<double>&              yValues,
-                                                                std::vector<double>&              tvdValues,
-                                                                std::vector<double>&              mdValues,
-                                                                bool&                             showTextMdRkb )
+void RigWellPathGeometryExporter::computeWellPathDataForExport( const RimWellPath*   wellPath,
+                                                                double               mdStepSize,
+                                                                std::vector<double>& xValues,
+                                                                std::vector<double>& yValues,
+                                                                std::vector<double>& tvdValues,
+                                                                std::vector<double>& mdValues,
+                                                                bool&                showTextMdRkb )
 {
     auto wellPathGeom = wellPath->wellPathGeometry();
     if ( !wellPathGeom ) return;
@@ -43,7 +43,7 @@ void RigWellPathGeometryExporter::computeWellPathDataForExport( gsl::not_null<co
     double rkbOffset = 0.0;
 
     {
-        auto topLevelWellPath = wellPath.get()->topLevelWellPath();
+        auto topLevelWellPath = wellPath->topLevelWellPath();
 
         // Always use top level modeled well path for definitions MD at first coordinate
 

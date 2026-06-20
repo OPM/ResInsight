@@ -20,8 +20,6 @@
 
 #include "Tools/enum_bitmask.hpp"
 
-#include <gsl/gsl>
-
 #include <expected>
 #include <optional>
 #include <vector>
@@ -72,8 +70,8 @@ public:
 
     static std::vector<WellPathCellIntersectionInfo> filterIntersections( const std::vector<WellPathCellIntersectionInfo>& intersections,
                                                                           double                                           initialMD,
-                                                                          gsl::not_null<const RigWellPath*>                wellPathGeometry,
-                                                                          gsl::not_null<const RimEclipseCase*>             eclipseCase );
+                                                                          const RigWellPath*                               wellPathGeometry,
+                                                                          const RimEclipseCase*                            eclipseCase );
 
     static std::vector<RimWellPath*> wellPathsWithTieIn( const RimWellPath* wellPath );
 

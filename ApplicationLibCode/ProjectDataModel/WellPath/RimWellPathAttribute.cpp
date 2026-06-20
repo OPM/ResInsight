@@ -85,7 +85,7 @@ bool RimWellPathAttribute::operator<( const RimWellPathAttribute& rhs ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttribute::setDepthsFromWellPath( gsl::not_null<const RimWellPath*> wellPath )
+void RimWellPathAttribute::setDepthsFromWellPath( const RimWellPath* wellPath )
 {
     m_startMD = wellPath->uniqueStartMD();
     m_endMD   = wellPath->uniqueEndMD();

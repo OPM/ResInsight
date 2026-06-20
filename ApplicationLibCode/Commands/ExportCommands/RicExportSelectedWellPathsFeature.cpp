@@ -50,10 +50,7 @@ CAF_CMD_SOURCE_INIT( RicExportSelectedWellPathsFeature, "RicExportSelectedWellPa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportSelectedWellPathsFeature::exportWellPath( gsl::not_null<const RimWellPath*> wellPath,
-                                                        double                            mdStepSize,
-                                                        const QString&                    folder,
-                                                        bool                              writeProjectInfo )
+void RicExportSelectedWellPathsFeature::exportWellPath( const RimWellPath* wellPath, double mdStepSize, const QString& folder, bool writeProjectInfo )
 {
     auto fileName = caf::Utils::makeValidFileBasename( wellPath->name() );
     fileName += ".dev";

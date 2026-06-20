@@ -129,7 +129,7 @@ void RiaConsoleApplication::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::not_null<cvf::ProgramOptions*> progOpt )
+RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::ProgramOptions* progOpt )
 {
     // Handling of the actual command line options
     // --------------------------------------------------------

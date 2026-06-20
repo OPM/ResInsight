@@ -24,8 +24,6 @@
 
 #include "cafPdmPointer.h"
 
-#include <gsl/gsl>
-
 #include <vector>
 
 namespace caf
@@ -48,13 +46,13 @@ public:
     using PointValuePair = std::pair<cvf::Vec3d, double>;
     Riv3dWellLogCurveGeometryGenerator( RimWellPath* wellPath );
 
-    void createCurveDrawables( gsl::not_null<const caf::DisplayCoordTransform*> displayCoordTransform,
-                               const cvf::BoundingBox&                          wellPathClipBoundingBox,
-                               gsl::not_null<const Rim3dWellLogCurve*>          wellLogCurve,
-                               double                                           planeOffsetFromWellPathCenter,
-                               double                                           planeWidth,
-                               const std::vector<cvf::Vec3d>&                   drawSurfaceVertices,
-                               int                                              currentTimeStep );
+    void createCurveDrawables( const caf::DisplayCoordTransform* displayCoordTransform,
+                               const cvf::BoundingBox&           wellPathClipBoundingBox,
+                               const Rim3dWellLogCurve*          wellLogCurve,
+                               double                            planeOffsetFromWellPathCenter,
+                               double                            planeWidth,
+                               const std::vector<cvf::Vec3d>&    drawSurfaceVertices,
+                               int                               currentTimeStep );
 
     void clearCurvePointsAndGeometry();
 

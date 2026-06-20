@@ -35,8 +35,6 @@
 
 #include "cvfObject.h"
 
-#include <gsl/gsl>
-
 #include <expected>
 #include <memory>
 
@@ -113,7 +111,7 @@ public:
     bool                      loadDataAndUpdate();
     std::vector<RimWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
     std::vector<RimWellPath*> allWellPaths() const;
-    void                      removeWellPath( gsl::not_null<RimWellPath*> wellPath );
+    void                      removeWellPath( RimWellPath* wellPath );
 
     void deleteAllWellPaths();
     void deleteWell( RimWellPath* wellPath );
@@ -133,7 +131,7 @@ public:
     RimWellPath* wellPathByName( const QString& wellPathName ) const;
     RimWellPath* tryFindMatchingWellPath( const QString& wellName ) const;
     void         addWellPaths( const std::vector<RimWellPath*> incomingWellPaths );
-    void         addWellPath( gsl::not_null<RimWellPath*> wellPath );
+    void         addWellPath( RimWellPath* wellPath );
 
     std::vector<RimWellLogLasFile*> addWellLogs( const QStringList& filePaths, QStringList* errorMessages );
     void                            addWellPathFormations( const QStringList& filePaths );

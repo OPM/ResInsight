@@ -26,8 +26,6 @@
 #include "cafPdmObject.h"
 #include "cvfCollection.h"
 
-#include <gsl/gsl>
-
 class RimWellLogPlot;
 class RigEclipseWellLogExtractor;
 class RigGeoMechWellLogExtractor;
@@ -60,8 +58,8 @@ public:
 
     std::vector<RimWellLogPlot*> wellLogPlots() const;
 
-    void   addWellLogPlot( gsl::not_null<RimWellLogPlot*> wellLogPlot );
-    void   removePlot( gsl::not_null<RimWellLogPlot*> plot );
+    void   addWellLogPlot( RimWellLogPlot* wellLogPlot );
+    void   removePlot( RimWellLogPlot* plot );
     void   deleteAllPlots() override;
     void   loadDataAndUpdateAllPlots() override;
     size_t plotCount() const override;

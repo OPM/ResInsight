@@ -26,8 +26,6 @@
 #include <utility>
 #include <vector>
 
-#include <gsl/gsl>
-
 class RimSummaryCase;
 class RimSummaryEnsemble;
 class RiaSummaryCurveAddress;

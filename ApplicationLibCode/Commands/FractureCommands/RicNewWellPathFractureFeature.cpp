@@ -52,7 +52,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathFractureFeature, "RicNewWellPathFractureFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathFracture* RicNewWellPathFractureFeature::addFracture( gsl::not_null<RimWellPath*> wellPath, double measuredDepth )
+RimWellPathFracture* RicNewWellPathFractureFeature::addFracture( RimWellPath* wellPath, double measuredDepth )
 {
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return nullptr;
 

@@ -24,8 +24,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "gsl/gsl"
-
 class RimFishbonesCollection;
 class RimMswSegmentCollection;
 class RimPerforationCollection;
@@ -69,7 +67,7 @@ protected:
     void initAfterRead() override;
 
 private:
-    void applyToSettings( gsl::not_null<RimWellPathCompletionSettings*> settings );
+    void applyToSettings( RimWellPathCompletionSettings* settings );
 
 private:
     caf::PdmChildField<RimFishbonesCollection*>        m_fishbonesCollection;

@@ -48,7 +48,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicCreateWellTargetsPickEventHandler::RicCreateWellTargetsPickEventHandler( gsl::not_null<RimWellPathGeometryDef*> wellGeometryDef )
+RicCreateWellTargetsPickEventHandler::RicCreateWellTargetsPickEventHandler( RimWellPathGeometryDef* wellGeometryDef )
     : m_geometryToAddTargetsTo( wellGeometryDef )
 {
 }
@@ -202,10 +202,10 @@ bool RicCreateWellTargetsPickEventHandler::isGridSourceObject( const cvf::Object
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl::not_null<Rim3dView*> view,
-                                                                             const RiuPickItemInfo&    pickItem,
-                                                                             const cvf::Vec3d&         domainRayOrigin,
-                                                                             const cvf::Vec3d&         domainRayEnd )
+cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( Rim3dView*             view,
+                                                                             const RiuPickItemInfo& pickItem,
+                                                                             const cvf::Vec3d&      domainRayOrigin,
+                                                                             const cvf::Vec3d&      domainRayEnd )
 {
     auto sourceInfo    = dynamic_cast<const RivSourceInfo*>( pickItem.sourceInfo() );
     auto femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>( pickItem.sourceInfo() );
@@ -219,7 +219,7 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl
         {
             cellIndex = sourceInfo->m_cellFaceFromTriangleMapper->cellIndex( pickItem.faceIdx() );
 
-            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( view.get() );
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( view );
             if ( eclipseView && eclipseView->mainGrid() )
             {
                 RigGridBase* hitGrid = eclipseView->mainGrid()->gridByIndex( gridIndex );
@@ -234,7 +234,7 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl
         {
             size_t elementIndex = femSourceInfo->triangleToElmMapper()->elementIndex( pickItem.faceIdx() );
 
-            RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( view.get() );
+            RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( view );
             if ( geoMechView && geoMechView->femParts() )
             {
                 RigFemPart*    femPart = geoMechView->femParts()->part( femPartIndex );

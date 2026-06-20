@@ -40,9 +40,9 @@
 ///
 //==================================================================================================
 
-RigEclipseWellLogExtractor::RigEclipseWellLogExtractor( gsl::not_null<const RigEclipseCaseData*> aCase,
-                                                        gsl::not_null<const RigWellPath*>        wellpath,
-                                                        const std::string&                       wellCaseErrorMsgName )
+RigEclipseWellLogExtractor::RigEclipseWellLogExtractor( const RigEclipseCaseData* aCase,
+                                                        const RigWellPath*        wellpath,
+                                                        const std::string&        wellCaseErrorMsgName )
     : RigWellLogExtractor( wellpath, wellCaseErrorMsgName )
     , m_caseData( aCase )
 {
