@@ -1,0 +1,88 @@
+name: Create Draft Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write # create the GitHub Release
+  actions: read   # read other workflow runs and download their artifacts
+
+jobs:
+  draft-release:
+    name: Create draft release with binaries
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Wait for builds and download artifacts
+        run: |
+          set -uo pipefail
+          sha='${{ github.sha }}'
+
+          # The Windows/Linux build (ResInsightWithCache.yml) and the macOS
+          # build (ResInsightMac.yml) are triggered by this same tag push.
+          # Poll until each run for this commit has completed, echoing its
+          # run id on success. Note: a build may conclude as 'failure' yet
+          # still have usable artifacts (e.g. the macOS unit tests, uploaded
+          # with if: always(); or the pypi-publish job failing on a fork), so
+          # we wait on completion regardless of conclusion.
+          wait_run() {
+            wf="$1"
+            echo "Waiting for $wf @ $sha" >&2
+            for i in $(seq 1 240); do  # up to ~2h (240 * 30s)
+              row=$(gh run list --workflow "$wf" \
+                      --json headSha,status,databaseId --limit 50 \
+                    | jq -r --arg sha "$sha" \
+                      'map(select(.headSha==$sha)) | .[0]
+                       | "\(.status // "none") \(.databaseId // "none")"')
+              st=${row%% *}; id=${row##* }
+              echo "  $wf [$i]: status=$st id=$id" >&2
+              if [ "$st" = "completed" ]; then echo "$id"; return 0; fi
+              sleep 30
+            done
+            echo "Timed out waiting for $wf" >&2
+            return 1
+          }
+
+          cache_id=$(wait_run ResInsightWithCache.yml)
+          mac_id=$(wait_run ResInsightMac.yml)
+
+          mkdir -p artifacts
+          # Windows, Ubuntu-gcc and Ubuntu-clang-19 (excludes python-distribution).
+          gh run download "$cache_id" --pattern 'ResInsight-*' --dir artifacts
+          # Use --pattern (not --name) so the artifact is placed in its own
+          # ResInsight-macOS/ subdirectory, matching the cache download above.
+          # With --name the contents are extracted flat into artifacts/, which
+          # the 'for d in ResInsight-*/' packaging loop would then skip.
+          gh run download "$mac_id" --pattern 'ResInsight-macOS' --dir artifacts
+          ls -R artifacts
+
+      - name: Package each platform into a zip
+        run: |
+          mkdir -p release-assets
+          cd artifacts
+          for d in ResInsight-*/; do
+            name="${d%/}"
+            # Spaces in artifact names (e.g. "ResInsight-Ubuntu 24.04 gcc")
+            # make awkward asset filenames, so collapse them to underscores.
+            safe="${name// /_}"
+            zip -r "../release-assets/${safe}-${{ github.ref_name }}.zip" "$name"
+          done
+          ls -l ../release-assets
+
+      - name: Create or update draft release
+        run: |
+          tag='${{ github.ref_name }}'
+          if gh release view "$tag" >/dev/null 2>&1; then
+            # Re-run: refresh the assets on the existing (draft) release.
+            gh release upload "$tag" release-assets/*.zip --clobber
+          else
+            gh release create "$tag" \
+              --draft \
+              --title "ResInsight $tag" \
+              --notes "Automated draft release. Binaries are attached below." \
+              release-assets/*.zip
+          fi
