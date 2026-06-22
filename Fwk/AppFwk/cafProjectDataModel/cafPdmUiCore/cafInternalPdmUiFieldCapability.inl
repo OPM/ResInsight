@@ -27,13 +27,19 @@ void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue, bo
         if ( uiValue.metaType().id() == QMetaType::UInt )
         {
             uint optionIndex = uiValue.toUInt();
-            CAF_ASSERT( optionIndex < static_cast<unsigned int>( m_optionEntryCache.size() ) );
 
-            QVariant optionVariantValue = m_optionEntryCache[optionIndex].value();
+            // The editor may hold a stale index if the option cache was rebuilt (e.g. options removed) after the
+            // editor was populated but before the user activated an item. Ignore out-of-range selections instead of
+            // asserting, mirroring the multi-value branch below.
+            if ( optionIndex < static_cast<unsigned int>( m_optionEntryCache.size() ) )
+            {
+                QVariant optionVariantValue = m_optionEntryCache[optionIndex].value();
 
-            typename FieldType::FieldDataType fieldValue;
-            PdmUiFieldSpecialization<typename FieldType::FieldDataType>::setFromVariant( optionVariantValue, fieldValue );
-            m_field->setValue( fieldValue );
+                typename FieldType::FieldDataType fieldValue;
+                PdmUiFieldSpecialization<typename FieldType::FieldDataType>::setFromVariant( optionVariantValue,
+                                                                                             fieldValue );
+                m_field->setValue( fieldValue );
+            }
         }
         else if ( uiValue.metaType().id() == QMetaType::QVariantList )
         {
