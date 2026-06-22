@@ -898,7 +898,7 @@ void RimReservoirGridEnsemble::defineObjectEditorAttribute( QString uiConfigName
         if ( gridMode() == GridModeType::INDIVIDUAL_GRIDS )
         {
             auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-            tag->icon = caf::IconProvider( ":/info.png" );
+            tag->icon = caf::IconProvider( ":/info16x16.png" );
             treeItemAttribute->tags.push_back( std::move( tag ) );
         }
     }
