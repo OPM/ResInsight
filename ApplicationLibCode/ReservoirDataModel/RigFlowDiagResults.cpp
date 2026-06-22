@@ -32,6 +32,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
 
+#include <algorithm>
 #include <cmath> // Needed for HUGE_VAL on Linux
 
 namespace caf
@@ -373,7 +374,10 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult( c
 
             if ( !fr ) continue;
 
-            for ( size_t acIdx = 0; acIdx < activeCellCount; ++acIdx )
+            // Guard against a tracer result shorter than the active cell count to avoid out-of-range access.
+            const size_t cellCount = std::min( activeCellCount, fr->size() );
+
+            for ( size_t acIdx = 0; acIdx < cellCount; ++acIdx )
             {
                 if ( ( *fr )[acIdx] == HUGE_VAL ) continue;
 
