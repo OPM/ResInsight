@@ -620,6 +620,15 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         else
         {
             menuBuilder.addSeparator();
+            menuBuilder << "RicCreateGridStatisticsPlotFeature";
+            menuBuilder << "RicShowGridStatisticsFeature";
+            // Grid statistics commands operate on the result shown in the overlay info box, so only
+            // offer them when the context menu is invoked inside that box, not on the view geometry.
+            if ( m_viewer->isMousePosWithinInfoBox( event->x(), event->y() ) )
+            {
+                menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
+            }
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewGridTimeHistoryCurveFeature";
             menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
             if ( dynamic_cast<RimEclipseView*>( gridView ) )
@@ -635,14 +644,6 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
 
-            // Grid statistics commands operate on the result shown in the overlay info box, so only
-            // offer them when the context menu is invoked inside that box, not on the view geometry.
-            if ( m_viewer->isMousePosWithinInfoBox( event->x(), event->y() ) )
-            {
-                menuBuilder << "RicCreateGridStatisticsPlotFeature";
-                menuBuilder << "RicShowGridStatisticsFeature";
-                menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
-            }
             menuBuilder << "RicSelectColorResult";
             menuBuilder.addSeparator();
             menuBuilder << "RicHideGridGeometryFeature";
