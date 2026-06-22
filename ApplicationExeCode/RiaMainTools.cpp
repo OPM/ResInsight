@@ -32,8 +32,11 @@
 
 #include <QDir>
 
+#include <csignal>
+#include <exception>
 #include <map>
 #include <sstream>
+#include <typeinfo>
 #include <version>
 
 // std::stacktrace is C++23; libc++ in Homebrew llvm@19 (and older) does not
@@ -200,6 +203,42 @@ static void performCrashLogging( int signalCode, const std::map<std::string, std
         otelManager.reportCrash( signalCode, st, extraAttrs );
 #endif
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Terminate handler for uncaught C++ exceptions. Unlike the signal handler, this runs BEFORE the
+/// stack is unwound: when no handler is found, libstdc++ calls std::terminate from the throw site,
+/// so the stack trace captured here points at where the exception was originally thrown rather than
+/// at the crash-logging plumbing. Also recovers the exception type and message, which a bare SIGABRT
+/// trace cannot provide. Runs outside any signal handler, so logging here is safe (no async-signal
+/// constraints, unlike performCrashLogging when reached via the signal path).
+//--------------------------------------------------------------------------------------------------
+void manageTerminate()
+{
+    std::map<std::string, std::string> extraAttrs;
+
+    if ( auto ex = std::current_exception() )
+    {
+        try
+        {
+            std::rethrow_exception( ex );
+        }
+        catch ( const std::exception& e )
+        {
+            extraAttrs["crash.exception_type"] = typeid( e ).name();
+            extraAttrs["crash.exception_what"] = e.what();
+        }
+        catch ( ... )
+        {
+            extraAttrs["crash.exception_type"] = "non-std exception";
+        }
+    }
+
+    // performCrashLogging captures std::stacktrace::current() itself; called here (no signal, no
+    // prior unwind) that trace still includes the original throw site.
+    performCrashLogging( SIGABRT, extraAttrs );
+
+    std::abort(); // preserve default terminate behavior (core dump, exit status)
 }
 
 //--------------------------------------------------------------------------------------------------
