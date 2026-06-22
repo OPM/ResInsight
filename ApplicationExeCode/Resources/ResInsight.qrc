@@ -275,7 +275,8 @@
         <file>AppendPrevCurve.png</file>
         <file>CheckOverlay16x16.png</file>
         <file>Link3DandPlots.png</file>
-        <file>info.png</file>
+        <file>info16x16.png</file>
+		<file>info.png</file>
         <file>DataVector.svg</file>
         <file>DataVectorCalculated.svg</file>
         <file>open-text-editor.svg</file>
