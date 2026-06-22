@@ -816,7 +816,7 @@ RimViewWindow* RiuPlotMainWindow::activeViewer()
 {
     for ( auto view : viewWindows() )
     {
-        if ( view->isActive() )
+        if ( view->isActiveViewer() )
         {
             return view;
         }

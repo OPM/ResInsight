@@ -727,8 +727,11 @@ void RiuViewer::mousePressEvent( QMouseEvent* mouseEvent )
 
         if ( auto ownView = ownerViewWindow() )
         {
-            ownView->setAsActiveViewer();
-            Riu3DMainWindowTools::selectAsCurrentItem( ownView );
+            if ( !ownView->isActiveViewer() )
+            {
+                ownView->setAsActiveViewer();
+                Riu3DMainWindowTools::selectAsCurrentItem( ownView );
+            }
         }
     }
 }

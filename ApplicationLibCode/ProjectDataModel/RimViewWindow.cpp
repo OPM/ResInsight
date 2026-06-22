@@ -342,7 +342,7 @@ void RimViewWindow::updateWindowTitle()
         viewWidget()->setWindowTitle( windowTitle() );
         dockWidget()->setWindowTitle( windowTitle() );
 
-        if ( isActive() )
+        if ( isActiveViewer() )
         {
             dockWidget()->setIcon( QIcon( ":/ActiveWindow.svg" ) );
         }
@@ -436,7 +436,7 @@ void RimViewWindow::setActive( bool active )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimViewWindow::isActive() const
+bool RimViewWindow::isActiveViewer() const
 {
     return m_isActiveViewer;
 }
