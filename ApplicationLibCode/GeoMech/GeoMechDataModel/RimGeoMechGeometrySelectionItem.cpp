@@ -57,7 +57,11 @@ RimGeoMechGeometrySelectionItem::~RimGeoMechGeometrySelectionItem()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechGeometrySelectionItem::setFromSelectionItem( const RiuGeoMechSelectionItem* selectionItem )
 {
-    m_geoMechCase = selectionItem->m_resultDefinition->geoMechCase();
+    // The result definition is a guarded pointer that is null if the result definition has been deleted.
+    if ( selectionItem->m_resultDefinition )
+    {
+        m_geoMechCase = selectionItem->m_resultDefinition->geoMechCase();
+    }
 
     m_gridIndex               = selectionItem->m_gridIndex;
     m_cellIndex               = selectionItem->m_cellIndex;
