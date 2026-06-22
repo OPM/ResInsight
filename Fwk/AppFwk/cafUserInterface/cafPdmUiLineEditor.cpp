@@ -350,6 +350,11 @@ QMargins PdmUiLineEditor::calculateLabelContentMargins() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiLineEditor::slotEditingFinished()
 {
+    // The field may have been destroyed (e.g. its owning object was deleted) while the editor still
+    // had focus. Hiding the editor during teardown emits editingFinished, so guard against the now
+    // null field before committing. PdmUiItem::~PdmUiItem() clears the editor's item pointer.
+    if ( !uiField() ) return;
+
     QVariant v;
 
     uiField()->enableAutoValue( false );
