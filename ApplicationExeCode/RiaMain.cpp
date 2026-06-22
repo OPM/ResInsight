@@ -47,7 +47,10 @@
 
 #include <signal.h>
 
+#include <exception>
+
 void manageSegFailure( int signalCode );
+void manageTerminate();
 #ifndef WIN32
 void manageSegFailureSA( int signalCode, siginfo_t* info, void* ucontext );
 #endif
@@ -193,6 +196,11 @@ int main( int argc, char* argv[] )
     signal( SIGABRT, manageSegFailure );
 #endif
 
+    // Capture uncaught C++ exceptions at the throw site (before the stack unwinds) with full type,
+    // message and stack trace. The SIGABRT signal handler above remains a fallback for direct
+    // abort()/assert() failures that do not go through std::terminate.
+    std::set_terminate( manageTerminate );
+
     // Handle the command line arguments.
     // Todo: Move to a one-shot timer, delaying the execution until we are inside the event loop.
     // The complete handling of the resulting ApplicationStatus must be moved along.
@@ -221,7 +229,8 @@ int main( int argc, char* argv[] )
     else if ( status == RiaApplication::ApplicationStatus::KEEP_GOING )
     {
         int exitCode = 0;
-        try
+        // No try/catch around the event loop: an uncaught exception must reach std::set_terminate
+        // (manageTerminate) with the stack still intact so the crash report captures the throw site.
         {
 #ifdef ENABLE_GRPC
             auto grpcInterface = dynamic_cast<RiaGrpcApplicationInterface*>( app.get() );
@@ -256,17 +265,6 @@ int main( int argc, char* argv[] )
             app->setThreadCount();
 
             exitCode = QCoreApplication::instance()->exec();
-        }
-        catch ( std::exception& exep )
-        {
-            std::cout << "A standard c++ exception that terminated ResInsight caught in RiaMain.cpp: " << exep.what()
-                      << std::endl;
-            throw;
-        }
-        catch ( ... )
-        {
-            std::cout << "An unknown exception that terminated ResInsight caught in RiaMain.cpp.  " << std::endl;
-            throw;
         }
 
         app.reset();
