@@ -1154,13 +1154,14 @@ void RiuMultiPlotPage::alignAxis( QwtAxisId axis, int targetRowOrColumn, std::fu
 
             if ( riuQwtPlotWidget )
             {
-                QwtPlot* p = riuQwtPlotWidget->qwtPlot();
-                if ( p )
+                if ( QwtPlot* p = riuQwtPlotWidget->qwtPlot() )
                 {
-                    QwtScaleWidget* scaleWidget = p->axisWidget( axis );
-                    QwtScaleDraw*   sd          = scaleWidget->scaleDraw();
-                    sd->setMinimumExtent( 0.0 );
-                    maxExtent = std::max( sd->extent( scaleWidget->font() ), maxExtent );
+                    if ( QwtScaleWidget* scaleWidget = p->axisWidget( axis ) )
+                    {
+                        QwtScaleDraw* sd = scaleWidget->scaleDraw();
+                        sd->setMinimumExtent( 0.0 );
+                        maxExtent = std::max( sd->extent( scaleWidget->font() ), maxExtent );
+                    }
                 }
             }
         }
@@ -1179,11 +1180,12 @@ void RiuMultiPlotPage::alignAxis( QwtAxisId axis, int targetRowOrColumn, std::fu
             RiuQwtPlotWidget* riuQwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
             if ( riuQwtPlotWidget )
             {
-                QwtPlot* p = riuQwtPlotWidget->qwtPlot();
-                if ( p )
+                if ( QwtPlot* p = riuQwtPlotWidget->qwtPlot() )
                 {
-                    QwtScaleWidget* scaleWidget = p->axisWidget( axis );
-                    scaleWidget->scaleDraw()->setMinimumExtent( maxExtent );
+                    if ( QwtScaleWidget* scaleWidget = p->axisWidget( axis ) )
+                    {
+                        scaleWidget->scaleDraw()->setMinimumExtent( maxExtent );
+                    }
                 }
             }
         }
