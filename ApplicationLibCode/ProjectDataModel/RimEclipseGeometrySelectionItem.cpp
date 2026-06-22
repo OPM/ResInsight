@@ -64,7 +64,11 @@ void RimEclipseGeometrySelectionItem::setFromSelectionItem( const RiuEclipseSele
     m_gridIndex = selectionItem->m_gridIndex;
     m_cellIndex = selectionItem->m_gridLocalCellIndex;
 
-    m_eclipseCase = selectionItem->m_resultDefinition->eclipseCase();
+    // The result definition is a guarded pointer that is null if the result definition has been deleted.
+    if ( selectionItem->m_resultDefinition )
+    {
+        m_eclipseCase = selectionItem->m_resultDefinition->eclipseCase();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
