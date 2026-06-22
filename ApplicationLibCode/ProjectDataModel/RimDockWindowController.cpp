@@ -196,7 +196,7 @@ void RimDockWindowController::setAsActiveViewer()
 
         for ( auto view : mainWindow->viewWindows() )
         {
-            if ( view->isActive() )
+            if ( view->isActiveViewer() )
             {
                 view->setActive( false );
                 view->updateWindowTitle();

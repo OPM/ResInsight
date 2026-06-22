@@ -47,7 +47,7 @@ public:
     void setShowWindow( bool showWindow );
 
     void setAsActiveViewer();
-    bool isActive() const;
+    bool isActiveViewer() const;
 
     bool isMainDockedWindow() const;
 
