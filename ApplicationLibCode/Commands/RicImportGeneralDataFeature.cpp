@@ -318,8 +318,10 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectory( defaultDirectoryLabel( fileType ) );
 
+    QString dialogTitle = ( fileType == ImportFileType::ECLIPSE_SUMMARY_FILE ) ? "Import Summary Case" : "Import Grid Model";
+
     // Use nullptr as parent to this dialog, as this function is called from both plot window and main window
-    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( nullptr, "Import Grid Model", defaultDir, fullPattern );
+    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( nullptr, dialogTitle, defaultDir, fullPattern );
 
     return fileNames;
 }
