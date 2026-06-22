@@ -22,55 +22,95 @@
 
 #include <QString>
 
+#include <map>
 #include <vector>
 
 class RigEclipseCaseData;
 class RigMainGrid;
+class RigGridBase;
 class RigLocalGrid;
 
 //==================================================================================================
 /// Reconstructs a true LGR (RigLocalGrid) hierarchy for an Eclipse "nested hybrid grid".
 ///
-/// A nested hybrid grid is a single flat EGRID where refined cells are appended to the end of the
-/// I (or J) axis and are connected to the coarse grid via NNCs. The refined cells are scattered in
-/// the flat cell array, so they cannot directly back a RigLocalGrid (which requires a contiguous
-/// cell block). This class rebuilds the refined region(s) as contiguous RigLocalGrid blocks
-/// appended to the end of the global cell/node arrays, copying the real refined geometry, linking
-/// each refined cell to its parent coarse cell, and hiding the original scattered cells.
+/// A nested hybrid grid is a single flat EGRID where the refined cells of each coarse cell are
+/// appended to the end of the I axis (in per-level I bands) at higher resolution, and connected to
+/// the coarse grid via NNCs. The refined cells are scattered in the flat cell array, so they cannot
+/// directly back a RigLocalGrid (which requires a contiguous cell block). This class rebuilds each
+/// refined region as a contiguous RigLocalGrid appended to the end of the global cell/node arrays,
+/// copying the real refined geometry, linking each region to its parent (coarse) cell, and hiding
+/// the original scattered cells.
 ///
-/// The parent of each refined cell is provided explicitly by a per-cell HOSTNUM property (the
-/// 1-based natural index of the parent coarse cell, 0 for non-refined cells), because the parent
-/// coarse cells are collapsed to zero volume and cannot be found geometrically.
+/// The parent of each refined cell is provided explicitly by sidecar properties (no HOSTNUM):
+///   - REFINE                 : per-cell nesting level (1 = unrefined base, 2/3/4 = refined levels)
+///   - OLDI/OLDJ/OLDK         : the cell's parent COARSE cell IJK (1-based)
+///   - TMPI/TMPJ/TMPK         : the cell's local position in refined coordinate space
+///
+/// The coarse host cell is the collapsed flat cell at (OLDI-1, OLDJ-1, (OLDK-1)*KF), where the K
+/// refinement factor KF = NZ / coarseNZ. Refinement is per-level and non-uniform, footprints may be
+/// non-rectangular (holes), and level-(n+1) regions nest inside a single level-n cell.
 //==================================================================================================
 class RigNestedHybridGridReconstructor
 {
 public:
-    // hostNum: one value per main-grid cell. For refined cells, the 1-based natural index of the
-    // parent coarse cell (i + j*nx + k*nx*ny + 1). For non-refined cells, 0.
-    // Returns true if at least one refined region was reconstructed.
-    static bool reconstruct( RigEclipseCaseData* caseData, const std::vector<int>& hostNum, QString* errorMessage = nullptr );
-
-private:
-    struct RegionInfo
+    // Per flat cell sidecar arrays (each of length == main grid cell count). refine may be empty.
+    struct NestedHybridInput
     {
-        cvf::Vec3st blockOrigin; // index origin of the refined block in the flat grid
-        cvf::Vec3st blockDims; // refined block dimensions (= LGR cell counts)
-        cvf::Vec3st parentOrigin; // index origin of the parent coarse region
-        cvf::Vec3st refinement; // per-axis refinement factor (blockDims / parentDims)
+        std::vector<int> refine; // 1 = base, 2.. = refinement level
+        std::vector<int> oldI; // 1-based coarse parent I
+        std::vector<int> oldJ; // 1-based coarse parent J
+        std::vector<int> oldK; // 1-based coarse parent K
+        std::vector<int> tmpI; // local refined I
+        std::vector<int> tmpJ; // local refined J
+        std::vector<int> tmpK; // local refined K
     };
 
-    static bool detectSingleRegion( const std::vector<int>& hostNum, const RigMainGrid* grid, RegionInfo* region, QString* errorMessage );
+    // Returns true if at least one refined region was reconstructed.
+    static bool reconstruct( RigEclipseCaseData* caseData, const NestedHybridInput& input, QString* errorMessage = nullptr );
 
-    static RigLocalGrid*
-        buildLocalGrid( RigEclipseCaseData* caseData, const RegionInfo& region, int gridId, std::vector<size_t>& lgrToFlatCell );
+private:
+    // The cells of a single refined region (one coarse cell refined to a given level).
+    struct Region
+    {
+        int                 oi = 0, oj = 0, ok = 0; // 1-based coarse parent IJK
+        int                 level = 0;
+        std::vector<size_t> flatCells; // source flat cell indices
+    };
 
-    static void updateActiveCellInfo( RigEclipseCaseData* caseData, const RigLocalGrid* localGrid, const std::vector<size_t>& lgrToFlatCell );
+    // Build one RigLocalGrid of the given IJK dimensions. boxToFlat maps each local cell to its
+    // source flat cell (UNDEFINED for holes); boxToParent maps each local cell to the parent (coarse)
+    // cell index it subdivides in parentGrid. The LGR may span many parent cells (a CARFIN-style
+    // refinement of a coarse block); each parent that owns a real cell gets its subGrid set. Appends
+    // cells and nodes to the global arrays and records source cells. Returns the created grid.
+    static RigLocalGrid* buildLocalGrid( RigEclipseCaseData*        caseData,
+                                         RigGridBase*               parentGrid,
+                                         int                        gridId,
+                                         const QString&             gridName,
+                                         const cvf::Vec3st&         dims,
+                                         const std::vector<size_t>& boxToFlat,
+                                         const std::vector<size_t>& boxToParent,
+                                         std::map<size_t, size_t>&  sourceCells,
+                                         bool                       synthesizeHoleParentGeometry = false );
 
-    // Extend full-length (all-cells) result arrays so the new LGR cells get values copied from
-    // their source flat cell. Active-cell-indexed results need no change (handled via result index).
-    static void extendFullLengthResults( RigEclipseCaseData* caseData, size_t lgrCellStart, const std::vector<size_t>& lgrToFlatCell );
+    // Build the nested LGR(s) for a level that refines another (parent) level rather than the coarse
+    // grid (e.g. level 4 inside level 3). One compact LGR is created per coarse parent, placed inside
+    // parentGrid. Returns the number of cells that could not be nested (left as flat cells).
+    static size_t buildNestedLevel( RigEclipseCaseData*        caseData,
+                                    const std::vector<size_t>& cells,
+                                    const NestedHybridInput&   input,
+                                    RigLocalGrid*              parentGrid,
+                                    const cvf::Vec3st&         parentTmpOrigin,
+                                    const cvf::Vec3st&         parentDims,
+                                    int&                       nextGridId,
+                                    std::map<size_t, size_t>&  sourceCells );
+
+    static void updateActiveCellInfo( RigEclipseCaseData* caseData, const std::map<size_t, size_t>& sourceCells );
+
+    // Extend full-length (all-cells) result arrays so the new LGR cells get values copied from their
+    // source flat cell. origCellCount is the cell count before any LGR cells were appended.
+    static void extendFullLengthResults( RigEclipseCaseData* caseData, size_t origCellCount, const std::map<size_t, size_t>& sourceCells );
 
     // Re-point existing (file) NNC connections that referenced the original scattered refined cells
     // to the new LGR cells, preserving transmissibilities (connection results are indexed by position).
-    static void repointNncConnections( RigEclipseCaseData* caseData, size_t lgrCellStart, const std::vector<size_t>& lgrToFlatCell );
+    static void repointNncConnections( RigEclipseCaseData* caseData, size_t origCellCount, const std::map<size_t, size_t>& sourceCells );
 };

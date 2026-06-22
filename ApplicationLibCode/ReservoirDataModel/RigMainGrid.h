@@ -75,6 +75,11 @@ public:
     void                            setNestedHybridLgrSourceCells( const std::map<size_t, size_t>& lgrToFlatCell );
     const std::map<size_t, size_t>& nestedHybridLgrSourceCells() const;
 
+    // Nested hybrid grid: maps a flat cell (global reservoir index) to the natural index of its
+    // parent COARSE cell. Used for the volume-weighted QC aggregate onto coarse parents.
+    void                            setNestedHybridCoarseParents( const std::map<size_t, size_t>& cellToCoarseParent );
+    const std::map<size_t, size_t>& nestedHybridCoarseParents() const;
+
     RigNNCData* nncData();
 
     void                             setFaults( const cvf::Collection<RigFault>& faults );
@@ -160,6 +165,7 @@ private:
     std::vector<size_t>           m_gridIdToIndexMapping; ///< Mapping from LGR Id to index.
 
     std::map<size_t, size_t> m_nestedHybridLgrSourceCells; ///< LGR cell global index -> source flat cell global index
+    std::map<size_t, size_t> m_nestedHybridCoarseParents; ///< flat cell global index -> parent coarse cell natural index
 
     cvf::Collection<RigFault>            m_faults;
     cvf::ref<RigNNCData>                 m_nncData;

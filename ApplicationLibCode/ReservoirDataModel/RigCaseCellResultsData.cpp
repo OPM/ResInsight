@@ -3236,6 +3236,105 @@ void RigCaseCellResultsData::extendNestedHybridLgrResults()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Compute a volume-weighted average of a source result onto each refined cell's parent COARSE cell,
+/// then broadcast that average back onto every (active) cell of the parent - both the original flat
+/// refined cells and the reconstructed LGR cells. Unrefined cells keep their own value. The result
+/// is stored as a GENERATED result named "<sourceName>_COARSE" for all time steps.
+//--------------------------------------------------------------------------------------------------
+RigEclipseResultAddress RigCaseCellResultsData::computeNestedHybridCoarseAggregate( const RigEclipseResultAddress& sourceAddress )
+{
+    RigEclipseResultAddress invalid;
+    if ( !m_ownerMainGrid || !m_activeCellInfo ) return invalid;
+
+    const std::map<size_t, size_t>& coarseParents = m_ownerMainGrid->nestedHybridCoarseParents();
+    const std::map<size_t, size_t>& sourceCells   = m_ownerMainGrid->nestedHybridLgrSourceCells();
+    if ( coarseParents.empty() ) return invalid;
+
+    if ( !ensureKnownResultLoaded( sourceAddress ) ) return invalid;
+
+    // Cell volumes (active-cell indexed) for the weighting.
+    computeCellVolumes();
+    RigEclipseResultAddress volAddr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riCellVolumeResultName() );
+    if ( !ensureKnownResultLoaded( volAddr ) ) return invalid;
+    const std::vector<double>& volumes = cellScalarResults( volAddr, 0 );
+
+    const size_t activeCellCount = m_activeCellInfo->reservoirActiveCellCount();
+
+    const std::vector<std::vector<double>>& sourceTs = cellScalarResults( sourceAddress );
+    const size_t                            tsCount  = sourceTs.size();
+    if ( tsCount == 0 ) return invalid;
+
+    // Create the output result (GENERATED so the file reader never tries to read it).
+    const QString           outName = sourceAddress.resultName() + "_COARSE";
+    RigEclipseResultAddress outAddr( RiaDefines::ResultCatType::GENERATED, outName );
+    if ( !hasResultEntry( outAddr ) ) createResultEntry( outAddr, true );
+    std::vector<std::vector<double>>* outTs = modifiableCellScalarResultTimesteps( outAddr );
+    if ( !outTs ) return invalid;
+    outTs->resize( tsCount );
+
+    auto activeIndex = [&]( size_t reservoirCell )
+    { return m_activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCell ) ).value(); };
+
+    // The original flat refined cells of an L2/L3 region are hidden (zero volume) once moved into an
+    // LGR, so the real geometry/value lives on the LGR cell. Map each flat cell to the cell that
+    // carries its geometry: its LGR copy if it has one, otherwise the flat cell itself (e.g. cells
+    // that were left un-nested).
+    std::map<size_t, size_t> flatToGeometryCell;
+    for ( const auto& [lgrCell, flatCell] : sourceCells )
+        flatToGeometryCell[flatCell] = lgrCell;
+    auto geometryCell = [&]( size_t flatCell )
+    {
+        auto it = flatToGeometryCell.find( flatCell );
+        return it != flatToGeometryCell.end() ? it->second : flatCell;
+    };
+
+    for ( size_t ts = 0; ts < tsCount; ts++ )
+    {
+        const std::vector<double>& src = sourceTs[ts];
+        std::vector<double>&       out = ( *outTs )[ts];
+        out                            = src; // unrefined cells keep their own value
+        if ( out.size() < activeCellCount ) out.resize( activeCellCount, HUGE_VAL );
+
+        // Accumulate the volume-weighted sum per coarse parent, using the geometry-bearing cell.
+        std::map<size_t, std::pair<double, double>> acc; // parent -> (sum value*vol, sum vol)
+        for ( const auto& [flatCell, parent] : coarseParents )
+        {
+            size_t ri = activeIndex( geometryCell( flatCell ) );
+            if ( ri == cvf::UNDEFINED_SIZE_T || ri >= src.size() || ri >= volumes.size() ) continue;
+            double v = src[ri];
+            double w = volumes[ri];
+            if ( w <= 0.0 || v == HUGE_VAL ) continue;
+            acc[parent].first += v * w;
+            acc[parent].second += w;
+        }
+
+        auto average = [&]( size_t parent, double fallback )
+        {
+            auto it = acc.find( parent );
+            if ( it != acc.end() && it->second.second > 0.0 ) return it->second.first / it->second.second;
+            return fallback;
+        };
+
+        // Broadcast the parent average onto every (active) cell of the parent - both the flat refined
+        // cell and its LGR copy - so the aggregate reads correctly on either representation.
+        for ( const auto& [flatCell, parent] : coarseParents )
+        {
+            const size_t gi       = activeIndex( geometryCell( flatCell ) );
+            const double fallback = ( gi != cvf::UNDEFINED_SIZE_T && gi < src.size() ) ? src[gi] : HUGE_VAL;
+            const double avg      = average( parent, fallback );
+
+            for ( size_t cell : { flatCell, geometryCell( flatCell ) } )
+            {
+                size_t ri = activeIndex( cell );
+                if ( ri != cvf::UNDEFINED_SIZE_T && ri < out.size() ) out[ri] = avg;
+            }
+        }
+    }
+
+    return outAddr;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::assignValuesToNestedHybridLgrs( std::vector<double>& values )

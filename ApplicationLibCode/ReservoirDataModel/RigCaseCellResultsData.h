@@ -79,6 +79,12 @@ public:
     // source flat cells (results loaded later are handled during loading).
     void extendNestedHybridLgrResults();
 
+    // Nested hybrid grid: compute a volume-weighted average of a source result onto each refined
+    // cell's parent COARSE cell, broadcast back onto every cell of that parent (and unrefined cells
+    // keep their own value). Stores the result under "<sourceName>_COARSE" for all time steps and
+    // returns its address. Returns an invalid address if there is no nested-hybrid parent mapping.
+    RigEclipseResultAddress computeNestedHybridCoarseAggregate( const RigEclipseResultAddress& sourceAddress );
+
     static const std::vector<double>* getResultIndexableStaticResult( RigActiveCellInfo*      actCellInfo,
                                                                       RigCaseCellResultsData* gridCellResults,
                                                                       QString                 porvResultName,

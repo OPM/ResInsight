@@ -409,6 +409,22 @@ const std::map<size_t, size_t>& RigMainGrid::nestedHybridLgrSourceCells() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigMainGrid::setNestedHybridCoarseParents( const std::map<size_t, size_t>& cellToCoarseParent )
+{
+    m_nestedHybridCoarseParents = cellToCoarseParent;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::map<size_t, size_t>& RigMainGrid::nestedHybridCoarseParents() const
+{
+    return m_nestedHybridCoarseParents;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigNNCData* RigMainGrid::nncData()
 {
     if ( m_nncData.isNull() )

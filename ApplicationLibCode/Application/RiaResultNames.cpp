@@ -113,7 +113,7 @@ bool RiaResultNames::isCategoryResult( const QString& resultName )
     if ( resultName.startsWith( "FIP", Qt::CaseInsensitive ) ) return true;
 
     // Nested hybrid grid nesting level is a discrete category result
-    if ( resultName.compare( RiaResultNames::nestId(), Qt::CaseInsensitive ) == 0 ) return true;
+    if ( resultName.compare( RiaResultNames::refine(), Qt::CaseInsensitive ) == 0 ) return true;
 
     return false;
 }
@@ -443,9 +443,9 @@ QString RiaResultNames::facies()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaResultNames::nestId()
+QString RiaResultNames::refine()
 {
-    return "NEST_ID";
+    return "REFINE";
 }
 
 //--------------------------------------------------------------------------------------------------
