@@ -30,7 +30,7 @@ jobs:
     # works for both agent and workflow_dispatch runs.
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: true
 
