@@ -513,10 +513,14 @@ int RifEclipseOutputFileTools::readUnitsType( const ecl_file_type* ecl_file )
 
     if ( ecl_file )
     {
-        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, 0 );
-        if ( kwINTEHEAD )
+        // ecl_file_iget_named_kw() does an unchecked vector access; guard against a missing keyword.
+        if ( ecl_file_get_num_named_kw( ecl_file, INTEHEAD_KW ) > 0 )
         {
-            unitsType = ecl_kw_iget_int( kwINTEHEAD, INTEHEAD_UNIT_INDEX );
+            ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, 0 );
+            if ( kwINTEHEAD )
+            {
+                unitsType = ecl_kw_iget_int( kwINTEHEAD, INTEHEAD_UNIT_INDEX );
+            }
         }
     }
 
@@ -582,11 +586,15 @@ std::set<RiaDefines::PhaseType> RifEclipseOutputFileTools::findAvailablePhases( 
 {
     if ( ecl_file )
     {
-        const ecl_kw_type* intehead = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, 0 );
-        if ( intehead )
+        // ecl_file_iget_named_kw() does an unchecked vector access; guard against a missing keyword.
+        if ( ecl_file_get_num_named_kw( ecl_file, INTEHEAD_KW ) > 0 )
         {
-            int phases = ecl_kw_iget_int( intehead, INTEHEAD_PHASE_INDEX );
-            return RiaOpmParserTools::phasesFromInteheadValue( phases );
+            const ecl_kw_type* intehead = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, 0 );
+            if ( intehead )
+            {
+                int phases = ecl_kw_iget_int( intehead, INTEHEAD_PHASE_INDEX );
+                return RiaOpmParserTools::phasesFromInteheadValue( phases );
+            }
         }
     }
 
@@ -641,6 +649,9 @@ void RifEclipseOutputFileTools::transferNncFluxData( const ecl_grid_type*      g
 bool RifEclipseOutputFileTools::isExportedFromIntersect( const ecl_file_type* ecl_file )
 {
     // This code is taken from ecl_file_get_ecl_version() in ecl_file.cpp
+
+    // ecl_file_iget_named_kw() does an unchecked vector access; guard against a missing keyword.
+    if ( ecl_file_get_num_named_kw( ecl_file, INTEHEAD_KW ) == 0 ) return false;
 
     ecl_kw_type* intehead_kw = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, 0 );
     if ( !intehead_kw ) return false;
