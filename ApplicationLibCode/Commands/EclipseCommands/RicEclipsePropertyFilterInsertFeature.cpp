@@ -23,6 +23,7 @@
 #include "RicEclipsePropertyFilterInsertExec.h"
 
 #include "RimEclipsePropertyFilter.h"
+#include "RimEclipsePropertyFilterCollection.h"
 
 #include "cafCmdExecCommandManager.h"
 
@@ -38,12 +39,21 @@ CAF_CMD_SOURCE_INIT( RicEclipsePropertyFilterInsertFeature, "RicEclipsePropertyF
 bool RicEclipsePropertyFilterInsertFeature::isCommandEnabled() const
 {
     std::vector<RimEclipsePropertyFilter*> propertyFilters = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilters();
-    if ( propertyFilters.size() == 1 )
+    if ( propertyFilters.size() != 1 ) return false;
+
+    RimEclipsePropertyFilter* propertyFilter = propertyFilters[0];
+
+    // Insert places a sibling next to the selected filter in its property-filter collection. This is
+    // only possible when the filter is a direct child of the collection - not when it is nested in a
+    // combined filter, or hosted at case level with no property-filter collection ancestor.
+    auto* propertyFilterCollection = propertyFilter->firstAncestorOrThisOfType<RimEclipsePropertyFilterCollection>();
+    if ( !propertyFilterCollection ) return false;
+    if ( propertyFilterCollection->propertyFiltersField().indexOf( propertyFilter ) >= propertyFilterCollection->propertyFiltersField().size() )
     {
-        return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( propertyFilters[0] );
+        return false;
     }
 
-    return false;
+    return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( propertyFilter );
 }
 
 //--------------------------------------------------------------------------------------------------
