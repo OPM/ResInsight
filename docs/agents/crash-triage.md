@@ -86,11 +86,13 @@ the user to approve, revise, or downgrade to a note.
 
 ### 6a. On approval — file issue, branch, PR
 
+Use short titles for issues and PRs.
+
 Create the issue (body = the raw stack in a code fence, matching #14193), with
-labels `BugInRelease` and `PendingRelease`. Branch on the fork
-(`fix-<issue>-<slug>`), commit `#<issue> <description>`, push to your personal fork, and
-open the PR (title `#<issue> <description>`, body `Fixes #<issue>` + Problem/Fix
-sections, matching #14194). Then record the outcome:
+labels `BugInRelease`. Branch on the fork (`fix-<issue>-<slug>`), commit
+`#<issue> <description>`, push to your personal fork, and open the PR (title
+`#<issue> <description>`, body `Fixes #<issue>` + Problem/Fix sections,
+matching #14194). Then record the outcome:
 
 ```
 python registry.py set --id <sid> --issue <issue> --state OPEN \
