@@ -34,6 +34,7 @@ signatures with **no linked issue** reach this stage.
 - Branches and PRs go to your **personal fork** remote, never `origin` (OPM upstream).
 - Commit/PR messages start with `#<issue>`; no AI attribution; no `## Test plan` section.
 - One signature per run unless explicitly told to batch.
+- Keep all comments and descriptions (issues, PRs, notes, code) short and concise.
 
 ## Procedure
 
