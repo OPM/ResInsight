@@ -373,7 +373,13 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
     {
         Vec3d proj;
         GeometryUtils::project(modelViewProjectionMatrix, matrixState.viewportPosition(), matrixState.viewportSize(), Vec3d(m_positions[pos]), &proj);
-        CVF_ASSERT(!proj.isUndefined());
+
+        // Skip labels that project to an undefined (non-finite) position instead of asserting.
+        if (proj.isUndefined())
+        {
+            continue;
+        }
+
         if (!m_checkPosVisible || labelAnchorVisible(oglContext, proj, m_positions[pos], shaderProgram == NULL))
         {
             // Note: Need to adjust for the current viewport, as the coords returned from project are in global windows coordinates
