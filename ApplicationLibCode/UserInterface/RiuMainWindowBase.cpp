@@ -153,8 +153,15 @@ void RiuMainWindowBase::setActiveViewer( QString viewerName )
         auto dockName = view->dockWidget()->objectName();
         if ( view->dockWidget() && view->dockWidget()->objectName() == viewerName )
         {
-            view->setAsActiveViewer();
-            view->dockWidget()->setAsCurrentTab();
+            if ( !view->isActiveViewer() )
+            {
+                view->setAsActiveViewer( !isBlockingViewSelectionOnSubWindowActivated());
+            }
+            if ( !view->dockWidget()->isCurrentTab() )
+            {
+                view->dockWidget()->setAsCurrentTab();
+            }
+
             break;
         }
     }
@@ -420,7 +427,11 @@ void RiuMainWindowBase::slotDockViewerVisibilityChanged( bool visible )
             if ( view->dockWidget() == dockWidget )
             {
                 view->setAsActiveViewer();
-                selectAsCurrentItem( view );
+                if ( !isBlockingViewSelectionOnSubWindowActivated() )
+                {
+                    // TODO: do not always do this, in case this is triggered by a selection
+                    selectAsCurrentItem( view );
+                }
                 break;
             }
         }

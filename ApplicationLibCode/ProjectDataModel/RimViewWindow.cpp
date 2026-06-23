@@ -88,9 +88,9 @@ void RimViewWindow::setShowWindow( bool showWindow )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::setAsActiveViewer()
+void RimViewWindow::setAsActiveViewer(bool allowSelectionChange)
 {
-    if ( m_windowController ) m_windowController->setAsActiveViewer();
+    if ( m_windowController ) m_windowController->setAsActiveViewer(allowSelectionChange);
 }
 
 //--------------------------------------------------------------------------------------------------
