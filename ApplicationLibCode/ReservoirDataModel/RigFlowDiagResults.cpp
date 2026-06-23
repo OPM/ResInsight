@@ -143,7 +143,7 @@ std::vector<double>* RigFlowDiagResults::findScalarResultFrame( const RigFlowDia
 {
     RigFlowDiagResultFrames* resFrames = findScalarResult( resVarAddr );
 
-    if ( resFrames )
+    if ( resFrames && timeStepIndex < resFrames->frameCount() )
     {
         std::vector<double>& frame = resFrames->frameData( timeStepIndex );
         if ( !frame.empty() ) return ( &frame );
