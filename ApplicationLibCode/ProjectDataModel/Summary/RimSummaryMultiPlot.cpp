@@ -826,7 +826,7 @@ void RimSummaryMultiPlot::updateTimeAxisRangesFromFirstTimePlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
+RimSummaryDataSourceStepping::SourceSteppingDimension RimSummaryMultiPlot::calculateStepDimensionFromCurves()
 {
     RiaSummaryAddressAnalyzer analyzer;
 
@@ -879,7 +879,15 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK;
     }
 
-    m_sourceStepping->setStepDimension( stepDimension );
+    return stepDimension;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
+{
+    m_sourceStepping->setStepDimension( calculateStepDimensionFromCurves() );
 
     // Previously, when the stepping dimension was set to 'well' for range aggregation, it was based on all wells. If one of the wells
     // had extreme values and was not visible, it would set the y-range to match the extreme value, making some curves invisible. We
@@ -1831,6 +1839,20 @@ void RimSummaryMultiPlot::storeStepDimensionFromToolbar()
 void RimSummaryMultiPlot::updateStepDimensionFromDefault()
 {
     m_sourceStepping->setStepDimension( m_defaultStepDimension() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Recompute the source stepping dimension when a summary vector is selected by manipulation of a curve,
+/// so the toolbar 'Step By' field stays consistent with what the curves actually display.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateStepDimensionFromCurves()
+{
+    auto stepDimension = calculateStepDimensionFromCurves();
+
+    m_sourceStepping->setStepDimension( stepDimension );
+    m_defaultStepDimension = stepDimension;
+
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------

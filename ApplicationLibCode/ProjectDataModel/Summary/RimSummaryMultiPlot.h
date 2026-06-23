@@ -106,6 +106,7 @@ public:
 
     void storeStepDimensionFromToolbar();
     void updateStepDimensionFromDefault();
+    void updateStepDimensionFromCurves();
 
     void selectWell( QString wellName );
 
@@ -134,6 +135,8 @@ private:
 
     void computeAggregatedAxisRange();
     void updateSourceStepper();
+
+    RimSummaryDataSourceStepping::SourceSteppingDimension calculateStepDimensionFromCurves();
 
     void        updatePlotVisibility();
     void        setAutoValueStates();

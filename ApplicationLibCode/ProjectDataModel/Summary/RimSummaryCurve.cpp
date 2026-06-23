@@ -1096,6 +1096,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         m_yValuesSummaryAddress->setAddress( m_yValuesSummaryAddressUiField() );
 
         calculateCurveInterpolationFromAddress();
+        updateSourceSteppingAfterAddressChange();
 
         loadAndUpdate = true;
     }
@@ -1104,6 +1105,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         m_xValuesSummaryAddress->setAddress( m_xValuesSummaryAddressUiField() );
 
         calculateCurveInterpolationFromAddress();
+        updateSourceSteppingAfterAddressChange();
 
         loadAndUpdate = true;
     }
@@ -1205,6 +1207,8 @@ void RimSummaryCurve::selectYSummaryAddress()
             m_yValuesSummaryCase = curveSelection[0].summaryCaseY();
             m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
 
+            updateSourceSteppingAfterAddressChange();
+
             checkForMatchingCrossPlotTimeSteps();
             loadAndUpdateDataAndPlot();
         }
@@ -1240,6 +1244,8 @@ void RimSummaryCurve::selectXSummaryAddress()
         {
             m_xValuesSummaryCase = curveSelection[0].summaryCaseY();
             m_xValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
+
+            updateSourceSteppingAfterAddressChange();
 
             checkForMatchingCrossPlotTimeSteps();
             loadAndUpdateDataAndPlot();
@@ -1322,6 +1328,18 @@ void RimSummaryCurve::loadAndUpdateDataAndPlot()
     mainPlotWindow->updateMultiPlotToolBar();
 
     dataChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// When the summary vector of this curve is changed, make sure the toolbar 'Step By' field stays
+/// consistent with the selected vector.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::updateSourceSteppingAfterAddressChange()
+{
+    if ( auto summaryMultiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>() )
+    {
+        summaryMultiPlot->updateStepDimensionFromCurves();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

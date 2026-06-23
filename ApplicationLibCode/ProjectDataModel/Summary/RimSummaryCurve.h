@@ -146,6 +146,8 @@ private:
     void calculateCurveInterpolationFromAddress();
     void calculateCurveTypeFromAddress();
 
+    void updateSourceSteppingAfterAddressChange();
+
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryCase* summaryCase );
 
 private:
