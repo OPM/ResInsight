@@ -155,7 +155,7 @@ void RiuMainWindowBase::setActiveViewer( QString viewerName )
         {
             if ( !view->isActiveViewer() )
             {
-                view->setAsActiveViewer( !isBlockingViewSelectionOnSubWindowActivated());
+                view->setAsActiveViewer( !isBlockingViewSelectionOnSubWindowActivated() );
             }
             if ( !view->dockWidget()->isCurrentTab() )
             {
