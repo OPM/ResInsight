@@ -18,6 +18,7 @@
 
 #include "RigContourMapGrid.h"
 
+#include <algorithm>
 #include <cmath>
 
 using namespace cvf;
@@ -279,6 +280,12 @@ cvf::Vec2ui RigContourMapGrid::calculateMapSize( const cvf::Vec3d& gridExtent, d
 {
     uint projectionSizeX = static_cast<uint>( std::ceil( gridExtent.x() / sampleSpacing ) );
     uint projectionSizeY = static_cast<uint>( std::ceil( gridExtent.y() / sampleSpacing ) );
+
+    // A contour map must have at least one cell (two vertices) in each direction to be tesselated.
+    // A degenerate bounding box with zero extent in a direction would otherwise produce a zero-sized
+    // map and trigger an assert when generating the triangle patch.
+    projectionSizeX = std::max( projectionSizeX, 1u );
+    projectionSizeY = std::max( projectionSizeY, 1u );
 
     return cvf::Vec2ui( projectionSizeX, projectionSizeY );
 }
