@@ -1035,9 +1035,13 @@ QString RimEclipseResultDefinition::additionalResultText() const
         const RigCaseCellResultsData* gridCellResults = currentGridCellResults();
         if ( gridCellResults )
         {
-            stepDates = gridCellResults->timeStepDates();
-            resultText += QString( "<b>Base Time Step</b>: %1" )
-                              .arg( stepDates[m_timeLapseBaseTimestep()].toString( RiaQDateTimeTools::dateFormatString() ) );
+            stepDates        = gridCellResults->timeStepDates();
+            int baseTimeStep = m_timeLapseBaseTimestep();
+            if ( baseTimeStep >= 0 && baseTimeStep < static_cast<int>( stepDates.size() ) )
+            {
+                resultText +=
+                    QString( "<b>Base Time Step</b>: %1" ).arg( stepDates[baseTimeStep].toString( RiaQDateTimeTools::dateFormatString() ) );
+            }
         }
     }
     if ( isDeltaCaseActive() )
