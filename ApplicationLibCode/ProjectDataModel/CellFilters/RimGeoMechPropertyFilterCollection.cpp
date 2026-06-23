@@ -57,6 +57,7 @@ void RimGeoMechPropertyFilterCollection::loadAndInitializePropertyFilters()
     for ( size_t i = 0; i < propertyFilters.size(); i++ )
     {
         RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
+        propertyFilter->setParentContainer( this );
         propertyFilter->resultDefinition()->setGeoMechCase( reservoirView()->geoMechCase() );
         propertyFilter->resultDefinition()->loadResult();
         propertyFilter->computeResultValueRange();
