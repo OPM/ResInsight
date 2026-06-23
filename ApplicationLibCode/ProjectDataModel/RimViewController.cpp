@@ -1119,7 +1119,13 @@ bool RimViewController::askUserToRestoreOriginalCellFilterCollection( const QStr
 {
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
 
-    QMessageBox msgBox( activeView->viewer()->layoutWidget() );
+    QWidget* parentWidget = nullptr;
+    if ( activeView && activeView->viewer() )
+    {
+        parentWidget = activeView->viewer()->layoutWidget();
+    }
+
+    QMessageBox msgBox( parentWidget );
     msgBox.setIcon( QMessageBox::Question );
 
     QString questionText;
