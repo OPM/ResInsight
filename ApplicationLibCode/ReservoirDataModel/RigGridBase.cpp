@@ -21,11 +21,14 @@
 #include "RigGridBase.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
+#include "RigLocalGrid.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
 
 #include "cvfAssert.h"
 
+#include <algorithm>
+#include <array>
 #include <cstdlib>
 
 RigGridBase::RigGridBase( RigMainGrid* mainGrid )
@@ -570,6 +573,39 @@ std::vector<size_t> RigGridBase::neighborCells( size_t cellIndex, bool ignoreInv
     return neighbors;
 }
 
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// True if cell's \a face geometrically coincides with the opposite face of \a neighbor (the four
+/// corner positions match within a size-relative tolerance), i.e. they really share that face.
+//--------------------------------------------------------------------------------------------------
+bool cellFacesAreConforming( const RigCell& cell, const RigCell& neighbor, cvf::StructGridInterface::FaceType face )
+{
+    std::array<cvf::Vec3d, 4> a = cell.faceCorners( face );
+    std::array<cvf::Vec3d, 4> b = neighbor.faceCorners( cvf::StructGridInterface::oppositeFace( face ) );
+
+    double maxEdge = 0.0;
+    for ( int i = 0; i < 4; i++ )
+        maxEdge = std::max( maxEdge, ( a[( i + 1 ) % 4] - a[i] ).length() );
+    const double tol = std::max( 1e-6, maxEdge * 1e-4 );
+
+    for ( const cvf::Vec3d& pa : a )
+    {
+        bool matched = false;
+        for ( const cvf::Vec3d& pb : b )
+        {
+            if ( ( pa - pb ).length() <= tol )
+            {
+                matched = true;
+                break;
+            }
+        }
+        if ( !matched ) return false;
+    }
+    return true;
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -616,6 +652,16 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                     
     // Do show the faces in the border between this grid and a possible LGR. Some of the LGR cells
     // might not be visible.
     if ( m_grid->mainGrid()->gridCount() > 1 && m_grid->cell( neighborCellIndex ).subGrid() )
+    {
+        return true;
+    }
+
+    // Reconstructed (nested hybrid) LGRs are laid out on a regular IJK box, but their refinement can be
+    // non-conforming: two visible cells may be IJK neighbours without geometrically sharing the face.
+    // Only hide the face if the cells actually share it; otherwise draw it (prevents missing cell walls).
+    if ( const auto* localGrid = dynamic_cast<const RigLocalGrid*>( m_grid );
+         localGrid && localGrid->isReconstructedGrid() &&
+         !cellFacesAreConforming( m_grid->cell( cellIndex ), m_grid->cell( neighborCellIndex ), face ) )
     {
         return true;
     }
