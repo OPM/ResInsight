@@ -23,6 +23,7 @@
 #include "RiaStdStringTools.h"
 
 #include "RifEclEclipseSummary.h"
+#include "RifEclipseSummaryTools.h"
 #include "RifOpmCommonSummary.h"
 
 #ifdef USE_HDF5
@@ -89,6 +90,27 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
     // For all import modes, use resdata to read data if no data is imported with ESMRY or h5
 
     RiaPreferencesSummary* prefSummary = RiaPreferencesSummary::current();
+
+    // A realization that is still being simulated may have written only the SMSPEC header, without any
+    // summary data file. Some file readers (opm-common) throw when no data file is present. In this case,
+    // do not attempt to create a real file reader. Allow this reader to be created as a valid, but empty,
+    // summary reader. The query methods report empty data when no underlying reader has been created.
+    {
+        QFileInfo fi( headerFileName );
+        QString   basenameNoExtension = fi.absolutePath() + "/" + fi.baseName();
+
+        bool hasEnhancedSummaryFile = QFile::exists( basenameNoExtension + ".ESMRY" );
+        bool hasHdf5File            = QFile::exists( basenameNoExtension + ".h5" );
+        bool hasUnsmryDataFile      = RifEclipseSummaryTools::hasSummaryDataFiles( headerFileName );
+
+        if ( !hasEnhancedSummaryFile && !hasHdf5File && !hasUnsmryDataFile )
+        {
+            QString txt = "No summary data file found for " + headerFileName + ". Creating an empty summary reader.";
+            if ( threadSafeLogger ) threadSafeLogger->info( txt );
+
+            return true;
+        }
+    }
 
     if ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON ||
          prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )

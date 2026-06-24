@@ -178,6 +178,11 @@ bool RifOpmSummaryTools::isEsmryConversionRequired( const QString& fileName )
     auto candidateEsmryFileName = enhancedSummaryFilename( fileName );
     auto smspecFileName         = smspecSummaryFilename( fileName );
 
+    // Conversion reads the SMSPEC/UNSMRY pair. Without the UNSMRY data file there is nothing to convert.
+    QString unsmryFileName( smspecFileName );
+    unsmryFileName.replace( ".SMSPEC", ".UNSMRY" );
+    if ( !QFile::exists( unsmryFileName ) ) return false;
+
     if ( !QFile::exists( candidateEsmryFileName ) && QFile::exists( smspecFileName ) )
     {
         return true;

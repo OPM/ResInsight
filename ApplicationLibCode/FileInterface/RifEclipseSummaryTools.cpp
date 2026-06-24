@@ -495,6 +495,18 @@ RiaDefines::EclipseUnitSystem RifEclipseSummaryTools::readUnitSystem( ecl_sum_ty
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryTools::hasSummaryDataFiles( const QString& headerFileName )
+{
+    QString     foundHeaderFile;
+    QStringList dataFileNames;
+    findSummaryFiles( QDir::toNativeSeparators( headerFileName ), &foundHeaderFile, &dataFileNames );
+
+    return !dataFileNames.isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 ecl_sum_type* RifEclipseSummaryTools::openEclSum( const QString& inHeaderFileName, bool includeRestartFiles )
 {
     QString     headerFileName;
