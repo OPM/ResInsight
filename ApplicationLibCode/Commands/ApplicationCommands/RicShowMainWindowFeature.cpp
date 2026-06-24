@@ -70,6 +70,10 @@ void RicShowMainWindowFeature::showMainWindow()
                 }
             }
         }
+        if ( mainWnd = RiuMainWindow::instance() )
+        {
+            mainWnd->restoreDockWidgetState( RimProject::current()->mainWindowDockState );
+        }
     }
 }
 

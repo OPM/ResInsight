@@ -1120,6 +1120,13 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
         createMainPlotWindow();
         m_mainPlotWindow->initializeGuiNewProjectLoaded();
         loadAndUpdatePlotData();
+        if ( m_project )
+        {
+            if ( !m_mainPlotWindow->restoreDockWidgetState( m_project->plotWindowDockState ) )
+            {
+                RiuDockWidgetTools::setDockLayout( m_mainPlotWindow, RiuDockWidgetTools::dockStatePlotWindowName() );
+            }
+        }
     }
 
     if ( m_mainPlotWindow->isMinimized() )

@@ -138,8 +138,18 @@ QString RiuMainWindowBase::dockWidgetStateString() const
 //--------------------------------------------------------------------------------------------------
 bool RiuMainWindowBase::restoreDockWidgetState( QString dockStateString )
 {
+    if ( dockStateString.isEmpty() ) return false;
     QByteArray dockState = QByteArray::fromBase64( dockStateString.toLatin1() );
     return m_dockManager->restoreState( dockState, DOCKSTATE_VERSION );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuMainWindowBase::restoreLastDockWidgetState()
+{
+    if ( m_lastDockState.isEmpty() ) return false;
+    return m_dockManager->restoreState( m_lastDockState, DOCKSTATE_VERSION );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,8 +217,6 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
             m_dockManager->restoreState( RiuDockWidgetTools::defaultDockState( defaultDockStateNames()[0] ), DOCKSTATE_VERSION );
         }
     }
-
-    m_lastDockState = m_dockManager->saveState( DOCKSTATE_VERSION );
 
     settings.beginGroup( registryFolderName() );
     m_dockManager->loadPerspectives( settings );
@@ -357,17 +365,6 @@ void RiuMainWindowBase::setBlockViewSelectionOnSubWindowActivated( bool block )
 bool RiuMainWindowBase::isBlockingViewSelectionOnSubWindowActivated() const
 {
     return m_blockSubWindowProjectTreeSelection;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::removeViewerFromDockArea( QWidget* viewer )
-{
-    if ( auto dw = m_dockManager->findDockWidget( viewer->objectName() ) )
-    {
-        dw->close();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -789,6 +786,21 @@ void RiuMainWindowBase::showEvent( QShowEvent* event )
     m_hasBeenVisible = true;
 
     QMainWindow::showEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::closeEvent( QCloseEvent* event )
+{
+    saveWinGeoAndDockToolBarLayout();
+
+    for ( auto view : viewWindows() )
+    {
+        view->removeWindowFromDock();
+    }
+
+    QMainWindow::closeEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------

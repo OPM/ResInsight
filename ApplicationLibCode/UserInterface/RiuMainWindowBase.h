@@ -96,12 +96,11 @@ public:
 
     QString dockWidgetStateString() const;
     bool    restoreDockWidgetState( QString dockStateString );
+    bool    restoreLastDockWidgetState();
 
 protected:
     void createTreeViews( int numberOfTrees );
     void setUpCentralDockWidget();
-
-    void removeViewerFromDockArea( QWidget* viewer );
 
     void restoreTreeViewStates( QString treeStateString, QString treeIndexString );
 
@@ -114,6 +113,7 @@ protected:
     virtual QStringList defaultDockStateNames() = 0;
 
     void showEvent( QShowEvent* event ) override;
+    void closeEvent( QCloseEvent* event ) override;
 
     virtual void onCentralWidgetContextMenu( QMenu& menu ) {};
 
