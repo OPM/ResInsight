@@ -321,7 +321,7 @@ void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     bool enableEdit = true;
     if ( m_polygon() && m_polygon->isReadOnly() ) enableEdit = false;
 
-    uiOrdering.add( m_polygon );
+    uiOrdering.add( &m_polygon );
 
     if ( enableEdit )
     {
