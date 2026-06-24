@@ -26,6 +26,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigHexIntersectionTools.h"
+#include "RigLocalGrid.h"
 #include "RigNNCData.h"
 
 #include "cvfAssert.h"
@@ -573,6 +574,14 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
                                         RigFaultsPrCellAccumulator*       faultsPrCellAcc ) const
 {
     if ( cell( gcIdx ).isInvalid() )
+    {
+        return;
+    }
+
+    // Reconstructed (nested hybrid) LGRs are laid out on a regular IJK box and can be non-conforming;
+    // their refinement boundaries are not geological faults. Skip them so they are not flagged as
+    // (geometric) faults - which would otherwise hide those cell faces during rendering.
+    if ( const auto* localGrid = dynamic_cast<const RigLocalGrid*>( cell( gcIdx ).hostGrid() ); localGrid && localGrid->isReconstructedGrid() )
     {
         return;
     }

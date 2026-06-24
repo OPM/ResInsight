@@ -296,18 +296,27 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
         progInfo.setProgressDescription( "Computing Case Cache" );
         eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
-        computeCachedData();
-        loadAndSynchronizeInputProperties( false );
 
-        // Nested hybrid grid: auto-detect and load the REFINE and OLDIJK sidecar properties next to
-        // the grid file
-        importRefineSidecarIfPresent();
-        importOldIjkSidecarIfPresent();
-
-        // Nested hybrid grid: if the REFINE + OLDIJK parent-mapping sidecars are present, rebuild the
-        // refined region(s) as a true LGR hierarchy. Done after input properties are loaded so their
-        // full-length arrays can be extended to cover the new LGR cells.
-        reconstructNestedHybridGridIfPresent();
+        const bool hasNestedHybridSidecars = !refineSidecarFilePath().isEmpty() && !oldIjkSidecarFilePath().isEmpty();
+        if ( hasNestedHybridSidecars )
+        {
+            // The flat nested hybrid grid piles the refined and collapsed coarse cells into the same
+            // physical space, which makes the geometric fault/NNC computation in computeCachedData()
+            // pathologically slow. Reconstruct the LGR hierarchy first (it invalidates the scattered
+            // flat cells), so the search tree, faults and NNCs are computed once, on the clean grid.
+            // Input properties are loaded before the reconstruction so their full-length arrays are
+            // extended to cover the new LGR cells.
+            loadAndSynchronizeInputProperties( false );
+            importRefineSidecarIfPresent();
+            importOldIjkSidecarIfPresent();
+            reconstructNestedHybridGridIfPresent();
+            computeCachedData();
+        }
+        else
+        {
+            computeCachedData();
+            loadAndSynchronizeInputProperties( false );
+        }
 
         m_gridAndWellDataIsReadFromFile = true;
         m_activeCellInfoIsReadFromFile  = true;
@@ -494,11 +503,10 @@ void RimEclipseResultCase::reconstructNestedHybridGridIfPresent()
     input.tmpK   = readIntKeyword( oldIjkContent, "TMPK" );
 
     QString errorMessage;
-    if ( RigNestedHybridGridReconstructor::reconstruct( eclipseCaseData(), input, &errorMessage ) )
-    {
-        // Rebuild grid caches over the new cell set (LGR cells were appended).
-        computeCachedData();
-    }
+    RigNestedHybridGridReconstructor::reconstruct( eclipseCaseData(), input, &errorMessage );
+
+    // The caller computes grid caches (search tree, faults, NNCs) once, after this reconstruction, so
+    // that the expensive geometric passes run on the clean grid rather than the flat overlapping one.
 }
 
 //--------------------------------------------------------------------------------------------------
