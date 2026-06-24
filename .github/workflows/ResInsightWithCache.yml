@@ -197,11 +197,22 @@ jobs:
         shell: bash
         run: echo "sha=$(git rev-parse HEAD:ThirdParty/vcpkg)" >> $GITHUB_OUTPUT
 
+      - name: Get MSVC toolset version (Windows)
+        # vcpkg keys its binary ABI hash on the MSVC toolset version, which is
+        # not reflected by the vcpkg submodule SHA. Without it in the cache key,
+        # a runner-image MSVC bump makes the restored binaries ABI-incompatible
+        # and vcpkg rebuilds everything. VCToolsVersion is exported to the
+        # environment by the "Use MSVC (Windows)" step above.
+        id: msvc-version
+        if: contains(matrix.config.os, 'windows')
+        shell: bash
+        run: echo "version=${VCToolsVersion}" >> $GITHUB_OUTPUT
+
       - name: Restore vcpkg cache
         id: vcpkg-cache
         uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
         with:
-          cache-key: ${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+          cache-key: ${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.msvc-version.outputs.version }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
           prefix: vcpkg-${{ matrix.config.cxx}}/
           
       - name: Print CMake version
