@@ -526,6 +526,7 @@ void RimEclipseResultCase::computeNestedHybridCoarseAggregatesIfPresent()
         if ( matrixResults->hasResultEntry( sourceAddr ) )
         {
             matrixResults->computeNestedHybridCoarseAggregate( sourceAddr );
+            matrixResults->computeNestedHybridPerLevelAggregate( sourceAddr );
         }
     }
 }

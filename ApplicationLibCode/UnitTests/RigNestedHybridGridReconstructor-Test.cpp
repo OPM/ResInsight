@@ -467,3 +467,118 @@ TEST( RigNestedHybridGridReconstructorTest, CoarseVolumeWeightedAggregate )
     }
     EXPECT_GE( verified, 1 );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// QC per refinement level: <RESULT>_COARSE_L4 holds, on each level-4 cell, the volume-weighted
+/// average over the level-4 cells of its immediate (level-3) parent.
+//--------------------------------------------------------------------------------------------------
+TEST( RigNestedHybridGridReconstructorTest, PerLevelVolumeWeightedAggregate )
+{
+    using namespace RiaDefines;
+
+    QString dir      = nestedHybridModelDir();
+    QString gridFile = dir + "/DROGON_NESTED.EGRID";
+    ASSERT_TRUE( QFile::exists( gridFile ) );
+
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          reservoir = new RigEclipseCaseData( resultCase.get() );
+    cvf::ref<RifReaderEclipseOutput>      reader    = new RifReaderEclipseOutput;
+    ASSERT_TRUE( reader->open( gridFile, reservoir.p() ) );
+    RigMainGrid* grid = reservoir->mainGrid();
+    grid->computeCachedData();
+
+    RigCaseCellResultsData* res = reservoir->results( PorosityModelType::MATRIX_MODEL );
+    res->setReaderInterface( reader.p() );
+    res->createPlaceholderResultEntries();
+
+    // Load REFINE before reconstruction so it is extended onto the LGR cells and can be used to keep
+    // different refinement levels apart in the aggregate.
+    RifEclipseInputPropertyLoader::readProperties( dir + "/DROGON_NESTED_REFINE.grdecl", reservoir.p() );
+
+    auto input = buildInput( dir );
+    ASSERT_TRUE( RigNestedHybridGridReconstructor::reconstruct( reservoir.p(), input ) );
+    grid->computeCachedData();
+
+    RigActiveCellInfo* ai = reservoir->activeCellInfo( PorosityModelType::MATRIX_MODEL );
+
+    QStringList staticResultNames = res->resultNames( ResultCatType::STATIC_NATIVE );
+    ASSERT_FALSE( staticResultNames.empty() );
+    RigEclipseResultAddress sourceAddr( ResultCatType::STATIC_NATIVE, staticResultNames.front() );
+    ASSERT_TRUE( res->ensureKnownResultLoaded( sourceAddr ) );
+
+    // Sanity: REFINE is loaded full-length (per the request, it drives the level separation).
+    RigEclipseResultAddress refineAddr( ResultCatType::INPUT_PROPERTY, ResultDataType::INTEGER, RiaResultNames::refine() );
+    ASSERT_TRUE( res->cellScalarResults( refineAddr ).size() > 0 && res->cellScalarResults( refineAddr )[0].size() == grid->totalCellCount() );
+
+    std::vector<RigEclipseResultAddress> created = res->computeNestedHybridPerLevelAggregate( sourceAddr );
+    ASSERT_FALSE( created.empty() );
+
+    RigEclipseResultAddress l4Addr( ResultCatType::GENERATED, staticResultNames.front() + "_COARSE_L4" );
+    ASSERT_TRUE( res->hasResultEntry( l4Addr ) );
+
+    const std::vector<double>& src = res->cellScalarResults( sourceAddr, 0 );
+    const std::vector<double>& agg = res->cellScalarResults( l4Addr, 0 );
+    RigEclipseResultAddress    volAddr( ResultCatType::STATIC_NATIVE, RiaResultNames::riCellVolumeResultName() );
+    ASSERT_TRUE( res->ensureKnownResultLoaded( volAddr ) );
+    const std::vector<double>& vol = res->cellScalarResults( volAddr, 0 );
+
+    // Blank-elsewhere: the _COARSE_L4 result is defined only on active level-4 cells.
+    size_t activeLevel4 = 0;
+    for ( size_t i = 1; i < grid->gridCount(); i++ )
+    {
+        RigLocalGrid* lgr = dynamic_cast<RigLocalGrid*>( grid->gridByIndex( i ) );
+        if ( !lgr || !QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4_" ) ) continue;
+        for ( size_t c = 0; c < lgr->cellCount(); c++ )
+            if ( ai->isActive( ReservoirCellIndex( lgr->reservoirCellIndex( c ) ) ) ) activeLevel4++;
+    }
+    size_t definedCount = 0;
+    for ( double x : agg )
+        if ( x != HUGE_VAL ) definedCount++;
+    EXPECT_GT( activeLevel4, 0u );
+    EXPECT_EQ( definedCount, activeLevel4 );
+
+    // Find a level-4 LGR and group its cells by their (level-3) parent cell.
+    RigLocalGrid* lgr4 = nullptr;
+    for ( size_t i = 1; i < grid->gridCount(); i++ )
+    {
+        RigLocalGrid* lgr = dynamic_cast<RigLocalGrid*>( grid->gridByIndex( i ) );
+        if ( lgr && QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4_" ) )
+        {
+            lgr4 = lgr;
+            break;
+        }
+    }
+    ASSERT_TRUE( lgr4 != nullptr );
+
+    std::map<size_t, std::vector<size_t>> byParent; // parent local cell -> level-4 global cells
+    for ( size_t c = 0; c < lgr4->cellCount(); c++ )
+    {
+        size_t global = lgr4->reservoirCellIndex( c );
+        if ( ai->isActive( ReservoirCellIndex( global ) ) ) byParent[lgr4->cell( c ).parentCellIndex()].push_back( global );
+    }
+
+    int verified = 0;
+    for ( const auto& [parent, cells] : byParent )
+    {
+        if ( cells.size() < 2 ) continue;
+
+        double sumVW = 0.0, sumV = 0.0;
+        for ( size_t cell : cells )
+        {
+            size_t ri = ai->cellResultIndex( ReservoirCellIndex( cell ) ).value();
+            sumVW += src[ri] * vol[ri];
+            sumV += vol[ri];
+        }
+        ASSERT_GT( sumV, 0.0 );
+        double expected = sumVW / sumV;
+
+        for ( size_t cell : cells )
+        {
+            size_t ri = ai->cellResultIndex( ReservoirCellIndex( cell ) ).value();
+            EXPECT_NEAR( agg[ri], expected, std::max( 1e-6, std::abs( expected ) * 1e-9 ) );
+        }
+
+        if ( ++verified >= 20 ) break;
+    }
+    EXPECT_GE( verified, 1 );
+}

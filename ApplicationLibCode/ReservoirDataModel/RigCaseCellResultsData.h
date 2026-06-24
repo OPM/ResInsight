@@ -85,6 +85,12 @@ public:
     // returns its address. Returns an invalid address if there is no nested-hybrid parent mapping.
     RigEclipseResultAddress computeNestedHybridCoarseAggregate( const RigEclipseResultAddress& sourceAddress );
 
+    // Nested hybrid grid: per refinement level, the volume-weighted average of a source result over the
+    // cells of each immediate parent, broadcast back onto that level's cells; all other cells are left
+    // undefined so each level's result shows only that level. Stores one result
+    // "<sourceName>_COARSE_L<level>" per level present and returns their addresses.
+    std::vector<RigEclipseResultAddress> computeNestedHybridPerLevelAggregate( const RigEclipseResultAddress& sourceAddress );
+
     static const std::vector<double>* getResultIndexableStaticResult( RigActiveCellInfo*      actCellInfo,
                                                                       RigCaseCellResultsData* gridCellResults,
                                                                       QString                 porvResultName,
