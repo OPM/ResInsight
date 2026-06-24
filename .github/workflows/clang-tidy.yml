@@ -65,8 +65,10 @@ jobs:
         continue-on-error: true
         run: |
           cd build
-          run-clang-tidy-19 -config-file ../ApplicationLibCode/.clang-tidy -fix files ApplicationLibCode
-          run-clang-tidy-19 -config-file ../GrpcInterface/.clang-tidy -fix files GrpcInterface
+          # The path regex excludes generated files (moc/qrc) under build/, which are listed in
+          # compile_commands.json but not produced when the project is only configured, not built.
+          run-clang-tidy-19 -config-file ../ApplicationLibCode/.clang-tidy -fix '^(?!.*/build/).*(files|ApplicationLibCode)'
+          run-clang-tidy-19 -config-file ../GrpcInterface/.clang-tidy -fix '^(?!.*/build/).*(files|GrpcInterface)'
       - name: Run clang-format after clang-tidy
         continue-on-error: true
         run: |
