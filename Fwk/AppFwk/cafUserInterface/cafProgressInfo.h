@@ -110,6 +110,7 @@ public:
 
 private:
     static bool isUpdatePossible();
+    static void processEventsIfPossible();
 
 private:
     friend class ProgressInfoBlocker;
@@ -117,9 +118,12 @@ private:
 
     static std::atomic<bool> s_running;
 
+    // The following flags are only ever accessed on the GUI thread (callers marshal via
+    // isOnGuiThread()), so plain types are sufficient.
     static bool s_disabled;
     static bool s_isButtonConnected;
-    static bool s_shouldProcessEvents;
+    static int  s_eventProcessingBlockDepth;
+    static bool s_isProcessingEvents;
 };
 
 } // namespace caf
