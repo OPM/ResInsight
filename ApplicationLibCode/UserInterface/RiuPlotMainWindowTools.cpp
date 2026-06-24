@@ -22,6 +22,7 @@
 
 #include "RimViewWindow.h"
 
+#include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
 #include "cafPdmObject.h"
@@ -168,19 +169,16 @@ void RiuPlotMainWindowTools::remove3dViewsFromDocking()
 {
     if ( !RiaGuiApplication::isRunning() ) return;
 
-    if ( auto plotWnd = RiaGuiApplication::instance()->mainPlotWindow() )
+    if ( auto mainWnd = RiaGuiApplication::instance()->mainWindow() )
     {
-        if ( auto mainWnd = RiaGuiApplication::instance()->mainWindow() )
+        for ( auto view : mainWnd->viewWindows() )
         {
-            for ( auto view : mainWnd->viewWindows() )
+            if ( view->isDockedInPlotView() )
             {
-                if ( view->isDockedInPlotView() )
-                {
-                    view->setShowWindow( false );
-                    view->removeWindowFromDock();
-                    view->dockAs3DViewWindow();
-                    view->updateConnectedEditors();
-                }
+                view->setShowWindow( false );
+                view->removeWindowFromDock();
+                view->dockAs3DViewWindow();
+                view->updateConnectedEditors();
             }
         }
     }

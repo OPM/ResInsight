@@ -426,7 +426,6 @@ void RiuMainWindowBase::slotDockViewerVisibilityChanged( bool visible )
                 view->setAsActiveViewer();
                 if ( !isBlockingViewSelectionOnSubWindowActivated() )
                 {
-                    // TODO: do not always do this, in case this is triggered by a selection
                     selectAsCurrentItem( view );
                 }
                 break;
