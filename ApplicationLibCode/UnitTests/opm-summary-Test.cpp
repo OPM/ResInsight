@@ -418,8 +418,9 @@ TEST( OpmSummaryTests, ReadSmspecWithoutUnsmryEmptyReader )
 
     RifReaderEclipseSummary reader;
 
-    // No summary data file is present, so opening fails, but it must not crash or throw.
-    EXPECT_FALSE( reader.open( filePath, nullptr ) );
+    // No summary data file is present, but opening must succeed and create a valid, but empty, reader.
+    // This ensures the case is opened once and not re-read on every request.
+    EXPECT_TRUE( reader.open( filePath, nullptr ) );
 
     reader.createAndSetAddresses();
 

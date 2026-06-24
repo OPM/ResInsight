@@ -72,6 +72,8 @@ public:
 
     static RifRestartFileInfo getFileInfoAndTimeSteps( const QString& headerFileName );
 
+    static bool hasSummaryDataFiles( const QString& headerFileName );
+
     static void                          closeEclSum( ecl_sum_type* ecl_sum );
     static ecl_sum_type*                 openEclSum( const QString& inHeaderFileName, bool includeRestartFiles );
     static RiaDefines::EclipseUnitSystem readUnitSystem( ecl_sum_type* ecl_sum );
