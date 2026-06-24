@@ -466,9 +466,10 @@ ProgressInfoBlocker::~ProgressInfoBlocker()
 
 std::atomic<bool> ProgressInfoStatic::s_running = false;
 
-bool ProgressInfoStatic::s_disabled            = false;
-bool ProgressInfoStatic::s_isButtonConnected   = false;
-bool ProgressInfoStatic::s_shouldProcessEvents = true;
+bool ProgressInfoStatic::s_disabled                  = false;
+bool ProgressInfoStatic::s_isButtonConnected         = false;
+int  ProgressInfoStatic::s_eventProcessingBlockDepth = 0;
+bool ProgressInfoStatic::s_isProcessingEvents        = false;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -545,7 +546,7 @@ void ProgressInfoStatic::start( ProgressInfo&  progressInfo,
         dialog->setLabelText( currentComposedLabel() );
     }
 
-    if ( s_shouldProcessEvents ) QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+    processEventsIfPossible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -572,7 +573,7 @@ void ProgressInfoStatic::setProgressDescription( const QString& description )
         dialog->setLabelText( currentComposedLabel() );
     }
 
-    if ( s_shouldProcessEvents ) QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+    processEventsIfPossible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -627,7 +628,7 @@ void ProgressInfoStatic::setProgress( size_t progressValue )
         dialog->setValue( (int)( 100.0 * value ) );
     }
 
-    if ( s_shouldProcessEvents ) QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+    processEventsIfPossible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -767,11 +768,36 @@ bool ProgressInfoStatic::isUpdatePossible()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Pump the event loop so the progress dialog can repaint during long running operations.
+///
+/// processEvents() dispatches queued events, which may trigger further progress updates that call
+/// this method again. A re-entrancy guard makes sure only the outermost call pumps events: nested
+/// calls return immediately, preventing the unbounded recursion (and stack overflow) that would
+/// otherwise occur. Explicit ProgressInfoEventProcessingBlocker scopes suppress pumping entirely.
+//--------------------------------------------------------------------------------------------------
+void ProgressInfoStatic::processEventsIfPossible()
+{
+    if ( s_eventProcessingBlockDepth != 0 ) return;
+
+    if ( s_isProcessingEvents ) return;
+    s_isProcessingEvents = true;
+
+    // Reset the guard even if a dispatched event handler throws, otherwise event processing would
+    // be permanently disabled for the rest of the session.
+    struct GuardReset
+    {
+        ~GuardReset() { s_isProcessingEvents = false; }
+    } guardReset;
+
+    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 ProgressInfoEventProcessingBlocker::ProgressInfoEventProcessingBlocker()
 {
-    ProgressInfoStatic::s_shouldProcessEvents = false;
+    ProgressInfoStatic::s_eventProcessingBlockDepth++;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -779,7 +805,8 @@ ProgressInfoEventProcessingBlocker::ProgressInfoEventProcessingBlocker()
 //--------------------------------------------------------------------------------------------------
 ProgressInfoEventProcessingBlocker::~ProgressInfoEventProcessingBlocker()
 {
-    ProgressInfoStatic::s_shouldProcessEvents = true;
+    CAF_ASSERT( ProgressInfoStatic::s_eventProcessingBlockDepth > 0 );
+    ProgressInfoStatic::s_eventProcessingBlockDepth--;
 }
 
 } // namespace caf
