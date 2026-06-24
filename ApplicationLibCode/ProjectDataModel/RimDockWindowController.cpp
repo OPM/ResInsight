@@ -181,7 +181,7 @@ int RimDockWindowController::mainWindowId() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDockWindowController::setAsActiveViewer()
+void RimDockWindowController::setAsActiveViewer( bool allowSelectionChange )
 {
     if ( getMainWindow() == nullptr ) return;
 
@@ -218,7 +218,7 @@ void RimDockWindowController::setAsActiveViewer()
         }
         else if ( viewPlot )
         {
-            RiuPlotMainWindowTools::selectAsCurrentItem( viewPlot );
+            if ( allowSelectionChange ) RiuPlotMainWindowTools::selectAsCurrentItem( viewPlot );
             RiuPlotMainWindowTools::refreshToolbars();
         }
     }

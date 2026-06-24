@@ -17,7 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuPlotMainWindowTools.h"
+
 #include "RiaGuiApplication.h"
+
+#include "RimViewWindow.h"
+
+#include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
 #include "cafPdmObject.h"
@@ -155,4 +160,26 @@ void RiuPlotMainWindowTools::onObjectAppended( const caf::PdmObject* objectToSel
     if ( objectToSelect ) RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
 
     RiuPlotMainWindowTools::refreshToolbars();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindowTools::remove3dViewsFromDocking()
+{
+    if ( !RiaGuiApplication::isRunning() ) return;
+
+    if ( auto mainWnd = RiaGuiApplication::instance()->mainWindow() )
+    {
+        for ( auto view : mainWnd->viewWindows() )
+        {
+            if ( view->isDockedInPlotView() )
+            {
+                view->setShowWindow( false );
+                view->removeWindowFromDock();
+                view->dockAs3DViewWindow();
+                view->updateConnectedEditors();
+            }
+        }
+    }
 }

@@ -49,7 +49,7 @@ public:
     void setViewToControl( RimViewWindow* view );
     int  mainWindowId() const;
 
-    void setAsActiveViewer();
+    void setAsActiveViewer( bool allowSelectionChange );
 
     void updateViewerWidget();
     void handleViewerDeletion();

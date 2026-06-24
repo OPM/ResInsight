@@ -57,6 +57,7 @@
 #include "RiuMessagePanel.h"
 #include "RiuMultiPlotBook.h"
 #include "RiuMultiPlotPage.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTools.h"
 #include "RiuTreeViewEventFilter.h"
@@ -275,8 +276,15 @@ void RiuPlotMainWindow::closeEvent( QCloseEvent* event )
             return;
         }
     }
-    saveWinGeoAndDockToolBarLayout();
-    QMainWindow::closeEvent( event );
+
+    RiuPlotMainWindowTools::remove3dViewsFromDocking();
+
+    if ( auto proj = RimProject::current() )
+    {
+        proj->plotWindowDockState = dockWidgetStateString();
+    }
+
+    RiuMainWindowBase::closeEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------

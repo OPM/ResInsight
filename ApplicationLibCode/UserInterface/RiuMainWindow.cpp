@@ -351,8 +351,13 @@ void RiuMainWindow::closeEvent( QCloseEvent* event )
             return;
         }
     }
-    saveWinGeoAndDockToolBarLayout();
-    QMainWindow::closeEvent( event );
+
+    if ( auto proj = RimProject::current() )
+    {
+        proj->mainWindowDockState = dockWidgetStateString();
+    }
+
+    RiuMainWindowBase::closeEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------

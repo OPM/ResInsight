@@ -35,6 +35,7 @@ public:
     static void selectAsCurrentItem( const caf::PdmObject* object );
     static void selectOrToggleObject( const caf::PdmObject* object, bool toggle );
     static void refreshToolbars();
+    static void remove3dViewsFromDocking();
 
     // Returns the first visible ancestor of the object, or the object itself if it is visible.
     static const caf::PdmObject* firstVisibleAncestorOrThis( const caf::PdmObject* object );
