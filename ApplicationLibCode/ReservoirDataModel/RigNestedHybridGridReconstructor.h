@@ -69,14 +69,6 @@ public:
     static bool reconstruct( RigEclipseCaseData* caseData, const NestedHybridInput& input, QString* errorMessage = nullptr );
 
 private:
-    // The cells of a single refined region (one coarse cell refined to a given level).
-    struct Region
-    {
-        int                 oi = 0, oj = 0, ok = 0; // 1-based coarse parent IJK
-        int                 level = 0;
-        std::vector<size_t> flatCells; // source flat cell indices
-    };
-
     // Build one RigLocalGrid of the given IJK dimensions. boxToFlat maps each local cell to its
     // source flat cell (UNDEFINED for holes); boxToParent maps each local cell to the parent (coarse)
     // cell index it subdivides in parentGrid. The LGR may span many parent cells (a CARFIN-style
@@ -93,16 +85,16 @@ private:
                                          bool                       synthesizeHoleParentGeometry = false );
 
     // Build the nested LGR(s) for a level that refines another (parent) level rather than the coarse
-    // grid (e.g. level 4 inside level 3). One compact LGR is created per coarse parent, placed inside
-    // parentGrid. Returns the number of cells that could not be nested (left as flat cells).
-    static size_t buildNestedLevel( RigEclipseCaseData*        caseData,
-                                    const std::vector<size_t>& cells,
-                                    const NestedHybridInput&   input,
-                                    RigLocalGrid*              parentGrid,
-                                    const cvf::Vec3st&         parentTmpOrigin,
-                                    const cvf::Vec3st&         parentDims,
-                                    int&                       nextGridId,
-                                    std::map<size_t, size_t>&  sourceCells );
+    // grid (e.g. level 4 inside level 3). cellToParent maps each resolved cell (flat index) to its
+    // immediate parent cell (parent grid + parent-grid-local cell index). Cells are grouped by parent
+    // grid and merged into connected regions; one LGR is created per region, placed inside its parent
+    // grid (true LGR-in-LGR, any depth).
+    static void buildNestedLevel( RigEclipseCaseData*                                      caseData,
+                                  const std::vector<size_t>&                               cells,
+                                  const NestedHybridInput&                                 input,
+                                  const std::map<size_t, std::pair<RigGridBase*, size_t>>& cellToParent,
+                                  int&                                                     nextGridId,
+                                  std::map<size_t, size_t>&                                sourceCells );
 
     static void updateActiveCellInfo( RigEclipseCaseData* caseData, const std::map<size_t, size_t>& sourceCells );
 

@@ -48,13 +48,14 @@ size_t naturalIndex( size_t i, size_t j, size_t k, size_t nx, size_t ny )
     return i + j * nx + k * nx * ny;
 }
 
-// A reconstructed refinement level that was built as a RigLocalGrid, with its global TMP origin and
-// IJK dimensions, so that a deeper (nested) level can be placed relative to it.
-struct LevelInfo
+// A reconstructed cell, recorded so that a deeper (nested) refinement level can find it as a parent.
+// Keyed by the cell's TMP: a nested cell carries its immediate parent's TMP, so a child looks up its
+// own TMP among the cells one level shallower.
+struct BuiltRef
 {
-    RigLocalGrid* grid = nullptr;
-    cvf::Vec3st   tmpOrigin; // global TMP coordinate of local cell (0,0,0)
-    cvf::Vec3st   dims; // IJK cell counts
+    RigGridBase* grid      = nullptr;
+    size_t       localCell = 0;
+    int          level     = 0;
 };
 } // namespace
 
@@ -130,20 +131,75 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
     int                      nextGridId = (int)grid->gridCount(); // main grid is 0
     size_t                   deferred   = 0;
 
-    std::map<int, LevelInfo> builtLevels; // level -> the LGR built for it (for nesting deeper levels)
-    std::vector<int>         nestedLevels; // levels that refine another level (handled in a 2nd pass)
+    // Index every reconstructed cell by its TMP, so a deeper level can find its immediate parent.
+    int tmpMax[3] = { 0, 0, 0 };
+    for ( const auto& [level, cells] : cellsByLevel )
+        for ( size_t f : cells )
+        {
+            tmpMax[0] = std::max( tmpMax[0], input.tmpI[f] );
+            tmpMax[1] = std::max( tmpMax[1], input.tmpJ[f] );
+            tmpMax[2] = std::max( tmpMax[2], input.tmpK[f] );
+        }
+    const size_t tmpDimX = (size_t)tmpMax[0] + 1;
+    const size_t tmpDimY = (size_t)tmpMax[1] + 1;
+    auto         tmpKey  = [&]( size_t f ) { return naturalIndex( input.tmpI[f], input.tmpJ[f], input.tmpK[f], tmpDimX, tmpDimY ); };
 
-    // Each refinement level that is a direct, uniform refinement of the coarse grid becomes ONE LGR
-    // (a CARFIN-style refinement of a coarse block). The level's cells live in a single global TMP
-    // coordinate space; the LGR box is the coarse block times the per-axis refinement factor, and
-    // cells missing inside the box become inactive holes. Levels that do not map uniformly onto the
-    // coarse grid (i.e. nested inside another refined level, e.g. level 4 inside level 3) are left as
-    // plain flat cells here - still covered by the parent mapping and the QC aggregate.
+    std::map<size_t, std::vector<BuiltRef>> tmpToBuilt;
+
+    // Record the cells appended since beforeTotal (the just-built level), keyed by their TMP.
+    auto recordBuilt = [&]( size_t beforeTotal, int level )
+    {
+        for ( size_t gc = beforeTotal; gc < grid->totalCellCount(); gc++ )
+        {
+            auto it = sourceCells.find( gc );
+            if ( it == sourceCells.end() ) continue; // hole
+            size_t       localCell = 0;
+            RigGridBase* cellGrid  = grid->gridAndGridLocalIdxFromGlobalCellIdx( gc, &localCell );
+            tmpToBuilt[tmpKey( it->second )].push_back( { cellGrid, localCell, level } );
+        }
+    };
+
+    // Build refinement levels from shallow to deep. For each level, first try to resolve every cell's
+    // immediate parent among the already-built cells one level shallower (true nesting, any depth);
+    // otherwise treat the level as a direct, uniform refinement of the coarse grid. Cells whose parent
+    // cannot be resolved unambiguously are deferred (left as flat cells) rather than mis-nested.
     for ( const auto& [level, cells] : cellsByLevel )
     {
-        // Global TMP bounding box and coarse-cell (OLD) bounding box for this level.
-        int t0[3] = { INT_MAX, INT_MAX, INT_MAX }, t1[3] = { 0, 0, 0 };
+        // Try to resolve each cell's immediate parent (a unique built cell one level shallower whose
+        // TMP equals this cell's TMP).
+        std::map<size_t, std::pair<RigGridBase*, size_t>> cellToParent; // flat cell -> (parent grid, parent local cell)
+        for ( size_t f : cells )
+        {
+            auto it = tmpToBuilt.find( tmpKey( f ) );
+            if ( it == tmpToBuilt.end() ) continue;
+            const BuiltRef* unique = nullptr;
+            for ( const BuiltRef& b : it->second )
+            {
+                if ( b.level != level - 1 ) continue;
+                if ( unique ) // more than one candidate -> ambiguous
+                {
+                    unique = nullptr;
+                    break;
+                }
+                unique = &b;
+            }
+            if ( unique ) cellToParent[f] = { unique->grid, unique->localCell };
+        }
+
+        const size_t beforeTotal = grid->totalCellCount();
+
+        if ( cellToParent.size() >= cells.size() * 95 / 100 && !cellToParent.empty() )
+        {
+            // Nested level: build LGR(s) inside the resolved parent grid(s).
+            deferred += cells.size() - cellToParent.size(); // unresolved cells are left as flat cells
+            buildNestedLevel( caseData, cells, input, cellToParent, nextGridId, sourceCells );
+            recordBuilt( beforeTotal, level );
+            continue;
+        }
+
+        // Primary level: a direct, uniform refinement of the coarse grid.
         int c0[3] = { INT_MAX, INT_MAX, INT_MAX }, c1[3] = { 0, 0, 0 };
+        int t0[3] = { INT_MAX, INT_MAX, INT_MAX }, t1[3] = { 0, 0, 0 };
         for ( size_t f : cells )
         {
             const int t[3] = { input.tmpI[f], input.tmpJ[f], input.tmpK[f] };
@@ -164,9 +220,9 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
         for ( int a = 0; a < 3; a++ )
             factor[a] = std::max( 1, (int)std::lround( (double)tmpDim[a] / (double)coarseDim[a] ) );
 
-        // Verify this level is a uniform refinement of the coarse grid: the coarse cell implied by
-        // each cell's TMP (via the factor) must equal its OLD index. Levels that fail (i.e. are
-        // nested inside another refined level) are deferred and left as flat cells.
+        // Verify the level is a uniform refinement of the coarse grid: the coarse cell implied by each
+        // cell's TMP (via the factor) must equal its OLD index. If not, the level cannot be placed and
+        // is deferred (left as flat cells).
         size_t matched = 0;
         for ( size_t f : cells )
         {
@@ -177,7 +233,7 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
         }
         if ( matched < cells.size() * 95 / 100 )
         {
-            nestedLevels.push_back( level ); // refines another level, not the coarse grid - handle below
+            deferred += cells.size();
             continue;
         }
 
@@ -209,24 +265,18 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
 
         const QString gridName  = QString( "LGR_NHG_L%1" ).arg( level );
         RigLocalGrid* levelGrid = buildLocalGrid( caseData, grid, nextGridId++, gridName, dims, boxToFlat, boxToParent, sourceCells );
-        builtLevels[level]      = { levelGrid, cvf::Vec3st( t0[0], t0[1], t0[2] ), dims };
-    }
 
-    // Second pass: nested levels (e.g. level 4) refine cells of a shallower level's LGR (level 3),
-    // not the coarse grid. Their TMP lies in the parent level's TMP space, so the parent cell is
-    // (TMP - parentTmpOrigin). Build one compact nested LGR per coarse parent (the nested cells of a
-    // coarse cell cluster together), placed inside the parent level's LGR (true LGR-in-LGR).
-    for ( int level : nestedLevels )
-    {
-        auto pit = builtLevels.find( level - 1 );
-        if ( pit == builtLevels.end() )
-        {
-            deferred += cellsByLevel[level].size();
-            continue;
-        }
-        const LevelInfo& parent = pit->second;
-        deferred +=
-            buildNestedLevel( caseData, cellsByLevel[level], input, parent.grid, parent.tmpOrigin, parent.dims, nextGridId, sourceCells );
+        // Record EVERY cell of this primary level (including holes), keyed by its TMP slot, so a deeper
+        // level can resolve its parent here - the parent is often a hole cell (one that was further
+        // refined and so has no geometry of its own until a child supplies it).
+        for ( size_t lk = 0; lk < dims.z(); lk++ )
+            for ( size_t lj = 0; lj < dims.y(); lj++ )
+                for ( size_t li = 0; li < dims.x(); li++ )
+                {
+                    size_t local = naturalIndex( li, lj, lk, dims.x(), dims.y() );
+                    size_t ti = (size_t)t0[0] + li, tj = (size_t)t0[1] + lj, tk = (size_t)t0[2] + lk;
+                    tmpToBuilt[naturalIndex( ti, tj, tk, tmpDimX, tmpDimY )].push_back( { levelGrid, local, level } );
+                }
     }
 
     if ( sourceCells.empty() ) return setError( "No refined regions could be reconstructed." );
@@ -401,156 +451,156 @@ RigLocalGrid* RigNestedHybridGridReconstructor::buildLocalGrid( RigEclipseCaseDa
 /// compact LGR is built per connected region, placed inside parentGrid. Returns the number of cells
 /// that could not be nested.
 //--------------------------------------------------------------------------------------------------
-size_t RigNestedHybridGridReconstructor::buildNestedLevel( RigEclipseCaseData*        caseData,
-                                                           const std::vector<size_t>& cells,
-                                                           const NestedHybridInput&   input,
-                                                           RigLocalGrid*              parentGrid,
-                                                           const cvf::Vec3st&         parentTmpOrigin,
-                                                           const cvf::Vec3st&         parentDims,
-                                                           int&                       nextGridId,
-                                                           std::map<size_t, size_t>&  sourceCells )
+void RigNestedHybridGridReconstructor::buildNestedLevel( RigEclipseCaseData*                                      caseData,
+                                                         const std::vector<size_t>&                               cells,
+                                                         const NestedHybridInput&                                 input,
+                                                         const std::map<size_t, std::pair<RigGridBase*, size_t>>& cellToParent,
+                                                         int&                                                     nextGridId,
+                                                         std::map<size_t, size_t>&                                sourceCells )
 {
-    if ( cells.empty() ) return 0;
+    if ( cells.empty() || cellToParent.empty() ) return;
 
     RigMainGrid* grid  = caseData->mainGrid();
     const size_t nx    = grid->cellCountI();
     const size_t ny    = grid->cellCountJ();
-    const int    t0[3] = { (int)parentTmpOrigin.x(), (int)parentTmpOrigin.y(), (int)parentTmpOrigin.z() };
+    const int    level = input.refine[cells.front()];
 
-    // Parent-LGR-local IJK of a cell's parent cell, derived from its TMP. Returns false if outside.
-    auto parentIjk = [&]( size_t f, int ijk[3] )
-    {
-        ijk[0] = input.tmpI[f] - t0[0];
-        ijk[1] = input.tmpJ[f] - t0[1];
-        ijk[2] = input.tmpK[f] - t0[2];
-        return ijk[0] >= 0 && ijk[1] >= 0 && ijk[2] >= 0 && (size_t)ijk[0] < parentDims.x() && (size_t)ijk[1] < parentDims.y() &&
-               (size_t)ijk[2] < parentDims.z();
-    };
-
-    // If the cells do not map into the parent LGR, we cannot nest them.
+    // Group the resolved cells by their parent grid (a nested level may refine cells in several parent
+    // LGRs); each LGR can only refine cells of a single parent grid.
+    std::map<RigGridBase*, std::vector<size_t>> byParentGrid;
     for ( size_t f : cells )
     {
-        int ijk[3];
-        if ( !parentIjk( f, ijk ) ) return cells.size();
+        auto it = cellToParent.find( f );
+        if ( it != cellToParent.end() ) byParentGrid[it->second.first].push_back( f );
     }
 
-    const int level = input.refine[cells.front()];
-
-    // Per parent cell, the min flat-IJK of its children, and the global per-axis sub-refinement factor
-    // (nested cells per parent cell).
-    std::map<size_t, std::array<size_t, 3>> flatOrigin;
-    std::map<size_t, std::array<size_t, 3>> flatExtent;
-    for ( size_t f : cells )
+    int component = 0;
+    for ( const auto& [parentGrid, gcells] : byParentGrid )
     {
-        int ijk[3];
-        parentIjk( f, ijk );
-        size_t                plocal = naturalIndex( ijk[0], ijk[1], ijk[2], parentDims.x(), parentDims.y() );
-        std::array<size_t, 3> fxyz   = { f % nx, ( f / nx ) % ny, f / ( nx * ny ) };
-        auto                  oit    = flatOrigin.find( plocal );
-        if ( oit == flatOrigin.end() )
+        const size_t pDimX = parentGrid->cellCountI();
+        const size_t pDimY = parentGrid->cellCountJ();
+
+        // Parent-grid-local IJK of a cell's parent cell.
+        auto parentIjk = [&]( size_t f, size_t ijk[3] )
         {
-            flatOrigin[plocal] = fxyz;
-            flatExtent[plocal] = fxyz;
-        }
-        else
+            size_t pl = cellToParent.at( f ).second;
+            ijk[0]    = pl % pDimX;
+            ijk[1]    = ( pl / pDimX ) % pDimY;
+            ijk[2]    = pl / ( pDimX * pDimY );
+        };
+
+        // Per parent cell, the min flat-IJK of its children, and the per-axis sub-refinement factor.
+        std::map<size_t, std::array<size_t, 3>> flatOrigin;
+        std::map<size_t, std::array<size_t, 3>> flatExtent;
+        for ( size_t f : gcells )
         {
-            for ( int a = 0; a < 3; a++ )
+            size_t ijk[3];
+            parentIjk( f, ijk );
+            size_t                plocal = naturalIndex( ijk[0], ijk[1], ijk[2], pDimX, pDimY );
+            std::array<size_t, 3> fxyz   = { f % nx, ( f / nx ) % ny, f / ( nx * ny ) };
+            auto                  oit    = flatOrigin.find( plocal );
+            if ( oit == flatOrigin.end() )
             {
-                oit->second[a]        = std::min( oit->second[a], fxyz[a] );
-                flatExtent[plocal][a] = std::max( flatExtent[plocal][a], fxyz[a] );
+                flatOrigin[plocal] = fxyz;
+                flatExtent[plocal] = fxyz;
             }
-        }
-    }
-
-    size_t sub[3] = { 1, 1, 1 };
-    for ( const auto& [plocal, mn] : flatOrigin )
-        for ( int a = 0; a < 3; a++ )
-            sub[a] = std::max( sub[a], flatExtent[plocal][a] - mn[a] + 1 );
-
-    // Position of each nested cell in the refined parent coordinate space:
-    //   q = parentLocalIjk * sub + subPos   (subPos = flat IJK - the parent cell's flat-IJK origin)
-    const size_t                       qDimX = parentDims.x() * sub[0];
-    const size_t                       qDimY = parentDims.y() * sub[1];
-    std::vector<std::array<size_t, 3>> qOfCell( cells.size() );
-    std::map<size_t, size_t>           qToCell; // q linear index -> index into cells
-    for ( size_t idx = 0; idx < cells.size(); idx++ )
-    {
-        size_t f = cells[idx];
-        int    ijk[3];
-        parentIjk( f, ijk );
-        size_t                       plocal                     = naturalIndex( ijk[0], ijk[1], ijk[2], parentDims.x(), parentDims.y() );
-        const std::array<size_t, 3>& fo                         = flatOrigin[plocal];
-        std::array<size_t, 3>        q                          = { (size_t)ijk[0] * sub[0] + ( f % nx ) - fo[0],
-                                                                    (size_t)ijk[1] * sub[1] + ( ( f / nx ) % ny ) - fo[1],
-                                                                    (size_t)ijk[2] * sub[2] + ( f / ( nx * ny ) ) - fo[2] };
-        qOfCell[idx]                                            = q;
-        qToCell[naturalIndex( q[0], q[1], q[2], qDimX, qDimY )] = idx;
-    }
-
-    // Merge cells into connected regions (6-connectivity in q space) - one LGR per region.
-    std::vector<bool> visited( cells.size(), false );
-    int               component = 0;
-    for ( size_t seed = 0; seed < cells.size(); seed++ )
-    {
-        if ( visited[seed] ) continue;
-
-        std::vector<size_t> regionCells;
-        std::vector<size_t> stack = { seed };
-        visited[seed]             = true;
-        while ( !stack.empty() )
-        {
-            size_t cur = stack.back();
-            stack.pop_back();
-            regionCells.push_back( cur );
-
-            const std::array<size_t, 3>& q         = qOfCell[cur];
-            const int                    nbr[6][3] = { { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1 }, { 0, 0, -1 } };
-            for ( const auto& d : nbr )
+            else
             {
-                long ni = (long)q[0] + d[0], nj = (long)q[1] + d[1], nk = (long)q[2] + d[2];
-                if ( ni < 0 || nj < 0 || nk < 0 ) continue;
-                auto it = qToCell.find( naturalIndex( (size_t)ni, (size_t)nj, (size_t)nk, qDimX, qDimY ) );
-                if ( it != qToCell.end() && !visited[it->second] )
+                for ( int a = 0; a < 3; a++ )
                 {
-                    visited[it->second] = true;
-                    stack.push_back( it->second );
+                    oit->second[a]        = std::min( oit->second[a], fxyz[a] );
+                    flatExtent[plocal][a] = std::max( flatExtent[plocal][a], fxyz[a] );
                 }
             }
         }
 
-        // Bounding box of the region in q space.
-        size_t qmin[3] = { SIZE_MAX, SIZE_MAX, SIZE_MAX }, qmax[3] = { 0, 0, 0 };
-        for ( size_t idx : regionCells )
+        size_t sub[3] = { 1, 1, 1 };
+        for ( const auto& [plocal, mn] : flatOrigin )
             for ( int a = 0; a < 3; a++ )
-            {
-                qmin[a] = std::min( qmin[a], qOfCell[idx][a] );
-                qmax[a] = std::max( qmax[a], qOfCell[idx][a] );
-            }
-        const cvf::Vec3st dims( qmax[0] - qmin[0] + 1, qmax[1] - qmin[1] + 1, qmax[2] - qmin[2] + 1 );
+                sub[a] = std::max( sub[a], flatExtent[plocal][a] - mn[a] + 1 );
 
-        std::vector<size_t> boxToParent( dims.x() * dims.y() * dims.z(), cvf::UNDEFINED_SIZE_T );
-        for ( size_t lk = 0; lk < dims.z(); lk++ )
-            for ( size_t lj = 0; lj < dims.y(); lj++ )
-                for ( size_t li = 0; li < dims.x(); li++ )
-                {
-                    size_t local = naturalIndex( li, lj, lk, dims.x(), dims.y() );
-                    size_t qi = qmin[0] + li, qj = qmin[1] + lj, qk = qmin[2] + lk;
-                    boxToParent[local] = naturalIndex( qi / sub[0], qj / sub[1], qk / sub[2], parentDims.x(), parentDims.y() );
-                }
-
-        std::vector<size_t> boxToFlat( dims.x() * dims.y() * dims.z(), cvf::UNDEFINED_SIZE_T );
-        for ( size_t idx : regionCells )
+        // Position of each nested cell in the refined parent coordinate space:
+        //   q = parentLocalIjk * sub + subPos   (subPos = flat IJK - the parent cell's flat-IJK origin)
+        const size_t                       qDimX = pDimX * sub[0];
+        const size_t                       qDimY = pDimY * sub[1];
+        std::vector<std::array<size_t, 3>> qOfCell( gcells.size() );
+        std::map<size_t, size_t>           qToCell; // q linear index -> index into gcells
+        for ( size_t idx = 0; idx < gcells.size(); idx++ )
         {
-            const std::array<size_t, 3>& q     = qOfCell[idx];
-            size_t                       local = naturalIndex( q[0] - qmin[0], q[1] - qmin[1], q[2] - qmin[2], dims.x(), dims.y() );
-            boxToFlat[local]                   = cells[idx];
+            size_t f = gcells[idx];
+            size_t ijk[3];
+            parentIjk( f, ijk );
+            size_t                       plocal                     = naturalIndex( ijk[0], ijk[1], ijk[2], pDimX, pDimY );
+            const std::array<size_t, 3>& flatMin                    = flatOrigin[plocal];
+            std::array<size_t, 3>        q                          = { ijk[0] * sub[0] + ( f % nx ) - flatMin[0],
+                                                                        ijk[1] * sub[1] + ( ( f / nx ) % ny ) - flatMin[1],
+                                                                        ijk[2] * sub[2] + ( f / ( nx * ny ) ) - flatMin[2] };
+            qOfCell[idx]                                            = q;
+            qToCell[naturalIndex( q[0], q[1], q[2], qDimX, qDimY )] = idx;
         }
 
-        const QString gridName = QString( "LGR_NHG_L%1_%2" ).arg( level ).arg( component++ );
-        buildLocalGrid( caseData, parentGrid, nextGridId++, gridName, dims, boxToFlat, boxToParent, sourceCells, true );
-    }
+        // Merge cells into connected regions (6-connectivity in q space) - one LGR per region.
+        std::vector<bool> visited( gcells.size(), false );
+        for ( size_t seed = 0; seed < gcells.size(); seed++ )
+        {
+            if ( visited[seed] ) continue;
 
-    return 0;
+            std::vector<size_t> regionCells;
+            std::vector<size_t> stack = { seed };
+            visited[seed]             = true;
+            while ( !stack.empty() )
+            {
+                size_t cur = stack.back();
+                stack.pop_back();
+                regionCells.push_back( cur );
+
+                const std::array<size_t, 3>& q = qOfCell[cur];
+                const int nbr[6][3]            = { { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1 }, { 0, 0, -1 } };
+                for ( const auto& d : nbr )
+                {
+                    long ni = (long)q[0] + d[0], nj = (long)q[1] + d[1], nk = (long)q[2] + d[2];
+                    if ( ni < 0 || nj < 0 || nk < 0 ) continue;
+                    auto it = qToCell.find( naturalIndex( (size_t)ni, (size_t)nj, (size_t)nk, qDimX, qDimY ) );
+                    if ( it != qToCell.end() && !visited[it->second] )
+                    {
+                        visited[it->second] = true;
+                        stack.push_back( it->second );
+                    }
+                }
+            }
+
+            // Bounding box of the region in q space.
+            size_t qmin[3] = { SIZE_MAX, SIZE_MAX, SIZE_MAX }, qmax[3] = { 0, 0, 0 };
+            for ( size_t idx : regionCells )
+                for ( int a = 0; a < 3; a++ )
+                {
+                    qmin[a] = std::min( qmin[a], qOfCell[idx][a] );
+                    qmax[a] = std::max( qmax[a], qOfCell[idx][a] );
+                }
+            const cvf::Vec3st dims( qmax[0] - qmin[0] + 1, qmax[1] - qmin[1] + 1, qmax[2] - qmin[2] + 1 );
+
+            std::vector<size_t> boxToParent( dims.x() * dims.y() * dims.z(), cvf::UNDEFINED_SIZE_T );
+            for ( size_t lk = 0; lk < dims.z(); lk++ )
+                for ( size_t lj = 0; lj < dims.y(); lj++ )
+                    for ( size_t li = 0; li < dims.x(); li++ )
+                    {
+                        size_t local = naturalIndex( li, lj, lk, dims.x(), dims.y() );
+                        size_t qi = qmin[0] + li, qj = qmin[1] + lj, qk = qmin[2] + lk;
+                        boxToParent[local] = naturalIndex( qi / sub[0], qj / sub[1], qk / sub[2], pDimX, pDimY );
+                    }
+
+            std::vector<size_t> boxToFlat( dims.x() * dims.y() * dims.z(), cvf::UNDEFINED_SIZE_T );
+            for ( size_t idx : regionCells )
+            {
+                const std::array<size_t, 3>& q     = qOfCell[idx];
+                size_t                       local = naturalIndex( q[0] - qmin[0], q[1] - qmin[1], q[2] - qmin[2], dims.x(), dims.y() );
+                boxToFlat[local]                   = gcells[idx];
+            }
+
+            const QString gridName = QString( "LGR_NHG_L%1_%2" ).arg( level ).arg( component++ );
+            buildLocalGrid( caseData, parentGrid, nextGridId++, gridName, dims, boxToFlat, boxToParent, sourceCells, true );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
