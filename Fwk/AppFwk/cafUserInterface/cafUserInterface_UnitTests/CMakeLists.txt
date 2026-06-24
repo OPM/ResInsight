@@ -21,6 +21,7 @@ set(PROJECT_FILES
     cafPdmUiCheckBoxAndTextEditorTest.cpp
     cafPdmUiPropertyViewDialogTest.cpp
     cafIconProviderTest.cpp
+    cafProgressInfoTest.cpp
     gtest/gtest-all.cpp
 )
 
