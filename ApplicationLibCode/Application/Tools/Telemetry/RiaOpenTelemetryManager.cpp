@@ -404,6 +404,11 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
     // Wait for the pending network reply to complete before the process exits.
     // flushPendingEvents() initiates an async HTTP POST; without pumping the event loop here
     // the reply never gets a chance to finish and the crash is silently dropped.
+    //
+    // This runs from within the crash/signal handler, so exclude user input events while pumping:
+    // dispatching buffered mouse/keyboard events here would re-enter arbitrary UI code mid-crash and
+    // can re-trigger the faulting path (a double-fault inside the handler). Socket and timer events
+    // still flow, so the HTTP reply completes.
     if ( m_pendingReplies.load() > 0 )
     {
         auto* prefs          = RiaPreferencesOpenTelemetry::current();
@@ -414,7 +419,7 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
         {
             QEventLoop loop;
             QTimer::singleShot( pollIntervalMs, &loop, &QEventLoop::quit );
-            loop.exec();
+            loop.exec( QEventLoop::ExcludeUserInputEvents );
             elapsedMs += pollIntervalMs;
         }
     }
