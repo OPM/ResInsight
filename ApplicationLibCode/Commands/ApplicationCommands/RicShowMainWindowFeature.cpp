@@ -37,7 +37,7 @@ void RicShowMainWindowFeature::showMainWindow()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
-    if ( mainWnd )
+    if ( mainWnd != nullptr )
     {
         if ( mainWnd->isMinimized() )
         {
@@ -54,7 +54,7 @@ void RicShowMainWindowFeature::showMainWindow()
     else
     {
         RiaGuiApplication* app = RiaGuiApplication::instance();
-        app->getOrCreateAndShowMainWindow();
+        mainWnd                = app->getOrCreateAndShowMainWindow();
 
         // When the main window is created, make sure all the views are loaded and displayed
 
@@ -70,7 +70,7 @@ void RicShowMainWindowFeature::showMainWindow()
                 }
             }
         }
-        if ( mainWnd = RiuMainWindow::instance() )
+        if ( mainWnd )
         {
             mainWnd->restoreDockWidgetState( RimProject::current()->mainWindowDockState );
         }
