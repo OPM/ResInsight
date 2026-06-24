@@ -4,8 +4,10 @@
 #include "RiaRftDefines.h"
 #include "RiaTestDataDirectory.h"
 
+#include "RifEclipseSummaryAddress.h"
 #include "RifEclipseSummaryTools.h"
 #include "RifOpmCommonSummary.h"
+#include "RifReaderEclipseSummary.h"
 #include "RifReaderOpmRft.h"
 
 #ifdef _MSC_VER
@@ -351,6 +353,81 @@ TEST( OpmSummaryTests, OpenEmptySummaryFile )
     // eSmry.make_esmry_file() will fail if the summary file is empty
 
     EXPECT_TRUE( eSmry.numberOfTimeSteps() == 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The low-level opm-common reader requires a data file. When the SMSPEC has no UNSMRY (or
+/// non-unified) data file, the ESmry constructor throws. RifReaderEclipseSummary guards against this,
+/// see ReadSmspecWithoutUnsmryEmptyReader.
+//--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, ReadSmspecWithoutUnsmry )
+{
+    QString SUMMARY_TEST_DATA_DIRECTORY = QString( "%1/SummaryData/smspec-only/" ).arg( TEST_DATA_DIR );
+    QString filePath                    = SUMMARY_TEST_DATA_DIRECTORY + "3_R001_REEK-1.SMSPEC";
+
+    ASSERT_TRUE( QFile::exists( filePath ) );
+
+    // No UNSMRY data file is expected to be present for this case.
+    QString unsmryFilePath( filePath );
+    unsmryFilePath.replace( ".SMSPEC", ".UNSMRY" );
+    EXPECT_FALSE( QFile::exists( unsmryFilePath ) );
+
+    // The opm-common reader cannot open a SMSPEC without a data file, and throws.
+    EXPECT_ANY_THROW( Opm::EclIO::ESmry eSmry( filePath.toStdString() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Open the same SMSPEC (no UNSMRY data file) using the resdata reader for comparison.
+/// resdata requires a data file, so openEclSum() returns a null reader, but must not throw.
+//--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, ReadSmspecWithoutUnsmryResdata )
+{
+    QString SUMMARY_TEST_DATA_DIRECTORY = QString( "%1/SummaryData/smspec-only/" ).arg( TEST_DATA_DIR );
+    QString filePath                    = SUMMARY_TEST_DATA_DIRECTORY + "3_R001_REEK-1.SMSPEC";
+
+    ASSERT_TRUE( QFile::exists( filePath ) );
+
+    // No UNSMRY data file is expected to be present for this case.
+    QString unsmryFilePath( filePath );
+    unsmryFilePath.replace( ".SMSPEC", ".UNSMRY" );
+    EXPECT_FALSE( QFile::exists( unsmryFilePath ) );
+
+    ecl_sum_type* eclSum = RifEclipseSummaryTools::openEclSum( filePath, false );
+
+    // resdata needs a data file alongside the SMSPEC; without UNSMRY no reader is created.
+    EXPECT_EQ( eclSum, nullptr );
+
+    if ( eclSum )
+    {
+        auto timeSteps = RifEclipseSummaryTools::getTimeSteps( eclSum );
+        std::cout << "Number of time steps: " << timeSteps.size() << "\n";
+        RifEclipseSummaryTools::closeEclSum( eclSum );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Open the SMSPEC (no UNSMRY data file) through RifReaderEclipseSummary. The reader must not crash
+/// and must report empty data.
+//--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, ReadSmspecWithoutUnsmryEmptyReader )
+{
+    QString SUMMARY_TEST_DATA_DIRECTORY = QString( "%1/SummaryData/smspec-only/" ).arg( TEST_DATA_DIR );
+    QString filePath                    = SUMMARY_TEST_DATA_DIRECTORY + "3_R001_REEK-1.SMSPEC";
+
+    ASSERT_TRUE( QFile::exists( filePath ) );
+
+    RifReaderEclipseSummary reader;
+
+    // No summary data file is present, so opening fails, but it must not crash or throw.
+    EXPECT_FALSE( reader.open( filePath, nullptr ) );
+
+    reader.createAndSetAddresses();
+
+    // No data is available, so the reader reports empty content.
+    EXPECT_TRUE( reader.allResultAddresses().empty() );
+
+    auto [ok, values] = reader.values( RifEclipseSummaryAddress::fieldAddress( "FOPT" ) );
+    EXPECT_TRUE( values.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
