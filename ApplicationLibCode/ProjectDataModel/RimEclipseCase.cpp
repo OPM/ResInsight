@@ -1468,3 +1468,11 @@ RimFaultDistanceCollection* RimEclipseCase::faultDistanceCollection() const
 {
     return m_dataAnalyticsCollection ? m_dataAnalyticsCollection->faultDistanceCollection() : nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimReservoirGridEnsemble* RimEclipseCase::ensemble() const
+{
+    return firstAncestorOrThisOfType<RimReservoirGridEnsemble>();
+}

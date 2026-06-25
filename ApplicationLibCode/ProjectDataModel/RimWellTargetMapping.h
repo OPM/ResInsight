@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimNamedObject.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -34,7 +36,7 @@ class RimEclipseView;
 ///
 ///
 //==================================================================================================
-class RimWellTargetMapping : public caf::PdmObject
+class RimWellTargetMapping : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
