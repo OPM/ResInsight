@@ -73,6 +73,7 @@
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimReservoirGridEnsembleBase.h"
 #include "RimResultNameAlias.h"
 #include "RimStimPlanColors.h"
@@ -1457,4 +1458,12 @@ void RimEclipseCase::addWellTargetMapping( RimWellTargetMapping* generator )
 RimFaultDistanceCollection* RimEclipseCase::faultDistanceCollection() const
 {
     return m_dataAnalyticsCollection ? m_dataAnalyticsCollection->faultDistanceCollection() : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimReservoirGridEnsemble* RimEclipseCase::ensemble() const
+{
+    return firstAncestorOrThisOfType<RimReservoirGridEnsemble>();
 }

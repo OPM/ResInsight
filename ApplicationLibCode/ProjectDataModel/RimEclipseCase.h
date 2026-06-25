@@ -60,6 +60,7 @@ class RimReservoirCellResultsStorage;
 class RimEclipseResultAddressCollection;
 class RimEclipseViewCollection;
 class RimResultNameAlias;
+class RimReservoirGridEnsemble;
 
 namespace caf
 {
@@ -154,6 +155,8 @@ public:
     void clearResultAliases();
 
     void updateFormationNamesData() override;
+
+    RimReservoirGridEnsemble* ensemble() const;
 
 protected:
     void initAfterRead() override;

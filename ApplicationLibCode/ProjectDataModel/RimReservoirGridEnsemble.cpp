@@ -561,6 +561,7 @@ std::set<RimEclipseCase*> RimReservoirGridEnsemble::casesInViews() const
 void RimReservoirGridEnsemble::addWellTargetMapping( RimWellTargetMapping* wellTargetMapping )
 {
     m_wellTargetMappings.push_back( wellTargetMapping );
+    wellTargetMapping->setName( QString( "Well Target Mapping #%1" ).arg( m_wellTargetMappings.size() ) );
     wellTargetMapping->updateResultDefinition();
 }
 
