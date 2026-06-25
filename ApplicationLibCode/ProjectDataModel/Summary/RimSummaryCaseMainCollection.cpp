@@ -21,6 +21,7 @@
 #include "RiaEclipseFileNameTools.h"
 #include "RiaEnsembleNameTools.h"
 #include "RiaLogging.h"
+#include "RiaOpenMPTools.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaQStringFormatter.h"
@@ -59,6 +60,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <atomic>
 #include <memory>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );
@@ -583,6 +585,8 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( const std::vector<Ri
         [[maybe_unused]] bool canUseMultipleThreads =
             ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
 
+        std::atomic<int> completedCount = 0;
+
 #pragma omp parallel for schedule( dynamic ) if ( canUseMultipleThreads )
         for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
         {
@@ -611,7 +615,14 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( const std::vector<Ri
                 }
             }
 
-            progInfo.setProgress( cIdx );
+            int completed = ++completedCount;
+
+            // Only update progress from the GUI thread; worker-thread updates are marshaled via a
+            // queued connection and may be delivered after this ProgressInfo scope has ended.
+            if ( RiaOpenMPTools::currentThreadIndex() == 0 )
+            {
+                progInfo.setProgress( completed );
+            }
         }
         for ( const auto& txt : threadSafeLogger.messages() )
         {
