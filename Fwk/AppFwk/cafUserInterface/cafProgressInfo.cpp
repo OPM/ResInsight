@@ -565,6 +565,9 @@ void ProgressInfoStatic::setProgressDescription( const QString& description )
 
     if ( !isUpdatePossible() ) return;
 
+    // Ignore stale updates delivered after the owning ProgressInfo scope has ended.
+    if ( descriptionStack().empty() ) return;
+
     descriptionStack().back() = description;
 
     QProgressDialog* dialog = progressDialog();
@@ -591,6 +594,9 @@ void ProgressInfoStatic::setProgress( size_t progressValue )
     }
 
     if ( !isUpdatePossible() ) return;
+
+    // Ignore stale updates delivered after the owning ProgressInfo scope has ended.
+    if ( progressStack().empty() ) return;
 
     std::vector<size_t>& progressStack_v     = progressStack();
     std::vector<size_t>& progressSpanStack_v = progressSpanStack();
@@ -644,10 +650,12 @@ void ProgressInfoStatic::incrementProgress()
 
     if ( !isUpdatePossible() ) return;
 
+    // Ignore stale updates delivered after the owning ProgressInfo scope has ended.
+    if ( progressStack().empty() ) return;
+
     std::vector<size_t>& progressStack_v     = progressStack();
     std::vector<size_t>& progressSpanStack_v = progressSpanStack();
 
-    CAF_ASSERT( progressStack_v.size() );
     ProgressInfoStatic::setProgress( progressStack_v.back() + progressSpanStack_v.back() );
 }
 
@@ -667,7 +675,9 @@ void ProgressInfoStatic::setNextProgressIncrement( size_t nextStepSize )
 
     if ( !isUpdatePossible() ) return;
 
-    CAF_ASSERT( progressSpanStack().size() );
+    // Ignore stale updates delivered after the owning ProgressInfo scope has ended.
+    if ( progressSpanStack().empty() ) return;
+
     std::vector<size_t>& maxProgressStack_v = maxProgressStack();
     std::vector<size_t>& progressStack_v    = progressStack();
 
