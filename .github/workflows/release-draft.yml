@@ -49,6 +49,7 @@ jobs:
 
           cache_id=$(wait_run ResInsightWithCache.yml)
           mac_id=$(wait_run ResInsightMac.yml)
+          rhel8_id=$(wait_run rhel8-package.yml)
 
           mkdir -p artifacts
           # Windows, Ubuntu-gcc and Ubuntu-clang-19 (excludes python-distribution).
@@ -59,6 +60,12 @@ jobs:
           # the 'for d in ResInsight-*/' packaging loop would then skip.
           gh run download "$mac_id" --pattern 'ResInsight-macOS' --dir artifacts
           ls -R artifacts
+
+          # The RHEL8 artifact is already a CPack *.tar.gz, so keep it out of
+          # the 'artifacts/' zip loop below and attach it to the release as-is.
+          mkdir -p rhel8-package
+          gh run download "$rhel8_id" --pattern 'ResInsight-RHEL8' --dir rhel8-package
+          ls -R rhel8-package
 
       - name: Package each platform into a zip
         run: |
@@ -71,18 +78,21 @@ jobs:
             safe="${name// /_}"
             zip -r "../release-assets/${safe}-${{ github.ref_name }}.zip" "$name"
           done
-          ls -l ../release-assets
+          cd ..
+          # The RHEL8 CPack package is already compressed; attach it directly.
+          find rhel8-package -name '*.tar.gz' -exec cp {} release-assets/ \;
+          ls -l release-assets
 
       - name: Create or update draft release
         run: |
           tag='${{ github.ref_name }}'
           if gh release view "$tag" >/dev/null 2>&1; then
             # Re-run: refresh the assets on the existing (draft) release.
-            gh release upload "$tag" release-assets/*.zip --clobber
+            gh release upload "$tag" release-assets/* --clobber
           else
             gh release create "$tag" \
               --draft \
               --title "ResInsight $tag" \
               --notes "Automated draft release. Binaries are attached below." \
-              release-assets/*.zip
+              release-assets/*
           fi
