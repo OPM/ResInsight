@@ -28,11 +28,14 @@ Docs:
 
 from __future__ import annotations
 
+import asyncio
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
 from .utils.exception_handlers import add_exception_handlers
+from .utils.parent_watchdog import watch_parent
 from .routers.health.router import router as health_router
 from .routers.explore.router import router as explore_router
 from .routers.polygons.router import router as polygons_router
@@ -44,7 +47,17 @@ logger = logging.getLogger("ri_cloud_api")
 logging.basicConfig(level=logging.INFO)
 
 
-app = FastAPI(title="ResInsight Cloud API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start the parent-PID watchdog so the service self-terminates if ResInsight crashes.
+    watchdog_task = asyncio.create_task(watch_parent())
+    try:
+        yield
+    finally:
+        watchdog_task.cancel()
+
+
+app = FastAPI(title="ResInsight Cloud API", lifespan=lifespan)
 
 add_exception_handlers(app)
 

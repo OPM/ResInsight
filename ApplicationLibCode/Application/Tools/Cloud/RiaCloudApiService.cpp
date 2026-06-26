@@ -326,6 +326,10 @@ QProcessEnvironment RiaCloudApiService::buildProcessEnvironment( const QString& 
     // README.md for details.
     QProcessEnvironment environment = RiaApplication::instance()->pythonProcessEnvironment();
 
+    // Pass ResInsight's process id to the service so its parent watchdog can self-terminate if
+    // ResInsight crashes or is force-killed without running the normal shutdown path (stop()).
+    environment.insert( "RESINSIGHT_PARENT_PID", QString::number( QCoreApplication::applicationPid() ) );
+
     QStringList pythonPaths;
 
     QDir                  libsDir( workingDirectory + "/ri_cloud_api/libs" );
