@@ -76,8 +76,19 @@ void RigMobilePoreVolumeResultCalculator::calculate( const RigEclipseResultAddre
 
     swcrResults =
         RigCaseCellResultsData::getResultIndexableStaticResult( m_resultsData->activeCellInfo(), m_resultsData, "SWCR", swcrDataTemp );
+    if ( swcrResults && swcrResults->size() != porvResults->size() )
+    {
+        RiaLogging::warning( "SWCR size mismatch with PORV. Ignoring SWCR in mobile pore volume calculation." );
+        swcrResults = nullptr;
+    }
+
     multpvResults =
         RigCaseCellResultsData::getResultIndexableStaticResult( m_resultsData->activeCellInfo(), m_resultsData, "MULTPV", multpvDataTemp );
+    if ( multpvResults && multpvResults->size() != porvResults->size() )
+    {
+        RiaLogging::warning( "MULTPV size mismatch with PORV. Ignoring MULTPV in mobile pore volume calculation." );
+        multpvResults = nullptr;
+    }
 
     size_t mobPVIdx = m_resultsData->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                              RiaResultNames::mobilePoreVolumeName() ),
