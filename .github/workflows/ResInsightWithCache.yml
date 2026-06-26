@@ -197,22 +197,32 @@ jobs:
         shell: bash
         run: echo "sha=$(git rev-parse HEAD:ThirdParty/vcpkg)" >> $GITHUB_OUTPUT
 
-      - name: Get MSVC toolset version (Windows)
-        # vcpkg keys its binary ABI hash on the MSVC toolset version, which is
-        # not reflected by the vcpkg submodule SHA. Without it in the cache key,
-        # a runner-image MSVC bump makes the restored binaries ABI-incompatible
-        # and vcpkg rebuilds everything. VCToolsVersion is exported to the
-        # environment by the "Use MSVC (Windows)" step above.
-        id: msvc-version
+      - name: Get MSVC compiler hash (Windows)
+        # vcpkg keys each binary's ABI on a SHA-1 of the actual cl.exe binary
+        # content (see ThirdParty/vcpkg/scripts/detect_compiler/CMakeLists.txt),
+        # not on the VCToolsVersion folder name. GitHub ships rebuilt cl.exe
+        # binaries under the same VCToolsVersion across runner image releases, so
+        # vcpkg's ABI hash changes while VCToolsVersion stays fixed; the restored
+        # binaries are then rejected and vcpkg rebuilds everything. Because the
+        # cache key did not change, the action skips saving the freshly built
+        # binaries, so the stale entry never refreshes and the rebuild loop
+        # persists across runs. Hash cl.exe directly so the cache key tracks
+        # exactly what vcpkg tracks: a cl.exe change yields a new key, one cold
+        # rebuild, then a successful save under the new key. cl.exe is on PATH
+        # via the "Use MSVC (Windows)" step above.
+        id: compiler-hash
         if: contains(matrix.config.os, 'windows')
         shell: bash
-        run: echo "version=${VCToolsVersion}" >> $GITHUB_OUTPUT
+        run: |
+          cl_path=$(cygpath -u "$(where.exe cl.exe | head -n 1 | tr -d '\r')")
+          echo "Using compiler: $cl_path"
+          echo "hash=$(sha1sum "$cl_path" | cut -d' ' -f1)" >> $GITHUB_OUTPUT
 
       - name: Restore vcpkg cache
         id: vcpkg-cache
         uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
         with:
-          cache-key: ${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.msvc-version.outputs.version }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+          cache-key: ${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.compiler-hash.outputs.hash }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
           prefix: vcpkg-${{ matrix.config.cxx}}/
           
       - name: Print CMake version
