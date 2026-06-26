@@ -30,10 +30,8 @@
 
 #include "RicfCommandObject.h"
 
-#include "RifEclipseKeywordContent.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartDataAccess.h"
-#include "RifEclipseTextFileReader.h"
 #include "RifInputPropertyLoader.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderMockModel.h"
@@ -46,7 +44,7 @@
 #include "RigEclipseResultAddress.h"
 #include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
-#include "RigNestedHybridGridReconstructor.h"
+#include "RigNestedHybridGridResultTools.h"
 #include "RigReservoirGridTools.h"
 
 #include "Formations/RimFormationNames.h"
@@ -54,7 +52,6 @@
 #include "RimDialogData.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
@@ -73,8 +70,6 @@
 #include "cafUtils.h"
 
 #include <QApplication>
-#include <QDir>
-#include <QFile>
 #include <QFileInfo>
 
 #include <fstream>
@@ -297,7 +292,8 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         progInfo.setProgressDescription( "Computing Case Cache" );
         eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
 
-        const bool hasNestedHybridSidecars = !refineSidecarFilePath().isEmpty() && !oldIjkSidecarFilePath().isEmpty();
+        const bool hasNestedHybridSidecars = !RigNestedHybridGridResultTools::refineSidecarFilePath( gridFileName() ).isEmpty() &&
+                                             !RigNestedHybridGridResultTools::oldIjkSidecarFilePath( gridFileName() ).isEmpty();
         if ( hasNestedHybridSidecars )
         {
             // The flat nested hybrid grid piles the refined and collapsed coarse cells into the same
@@ -307,9 +303,9 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             // Input properties are loaded before the reconstruction so their full-length arrays are
             // extended to cover the new LGR cells.
             loadAndSynchronizeInputProperties( false );
-            importRefineSidecarIfPresent();
-            importOldIjkSidecarIfPresent();
-            reconstructNestedHybridGridIfPresent();
+            RigNestedHybridGridResultTools::importRefineSidecarIfPresent( gridFileName(), inputPropertyCollection(), eclipseCaseData() );
+            RigNestedHybridGridResultTools::importOldIjkSidecarIfPresent( gridFileName(), inputPropertyCollection(), eclipseCaseData() );
+            RigNestedHybridGridResultTools::reconstructNestedHybridGridIfPresent( gridFileName(), eclipseCaseData() );
             computeCachedData();
         }
         else
@@ -369,147 +365,6 @@ bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Nested hybrid grid: the grid is a single flat EGRID, and the per-cell nesting level is provided
-/// in a sidecar GRDECL file named "<grid-basename>_REFINE.grdecl" next to the grid file.
-/// Returns the path to that sidecar if it exists, otherwise an empty string.
-//--------------------------------------------------------------------------------------------------
-QString RimEclipseResultCase::refineSidecarFilePath() const
-{
-    QFileInfo gridFileInfo( gridFileName() );
-    if ( !gridFileInfo.exists() ) return {};
-
-    QDir          dir      = gridFileInfo.absoluteDir();
-    const QString baseName = gridFileInfo.completeBaseName();
-
-    // Filename convention, e.g. DROGON_NESTED.EGRID -> DROGON_NESTED_REFINE.grdecl
-    const QString     suffix     = "_" + RiaResultNames::refine();
-    const QStringList candidates = { baseName + suffix + ".grdecl", baseName + suffix + ".GRDECL" };
-    for ( const QString& candidate : candidates )
-    {
-        QString path = dir.absoluteFilePath( candidate );
-        if ( QFile::exists( path ) ) return path;
-    }
-
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::importRefineSidecarIfPresent()
-{
-    // Skip if the REFINE property is already loaded (e.g. restored from a saved project file)
-    for ( const RimEclipseInputProperty* prop : inputPropertyCollection()->items() )
-    {
-        if ( prop->resultName() == RiaResultNames::refine() ) return;
-    }
-
-    const QString sidecarPath = refineSidecarFilePath();
-    if ( sidecarPath.isEmpty() ) return;
-
-    RiaLogging::info( QString( "Nested hybrid grid: loading REFINE property from %1" ).arg( sidecarPath ).toStdString() );
-
-    RifInputPropertyLoader::loadAndSynchronizeInputProperties( inputPropertyCollection(),
-                                                               eclipseCaseData(),
-                                                               std::vector<QString>{ sidecarPath },
-                                                               false );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Nested hybrid grid: the parent mapping is provided in a sidecar GRDECL file named
-/// "<grid-basename>_OLDIJK.grdecl" next to the grid file. It holds, per flat cell, the original
-/// coarse cell IJK (OLDI/OLDJ/OLDK) and the local refined coordinates (TMPI/TMPJ/TMPK).
-/// Returns its path if it exists.
-//--------------------------------------------------------------------------------------------------
-QString RimEclipseResultCase::oldIjkSidecarFilePath() const
-{
-    QFileInfo gridFileInfo( gridFileName() );
-    if ( !gridFileInfo.exists() ) return {};
-
-    QDir          dir      = gridFileInfo.absoluteDir();
-    const QString baseName = gridFileInfo.completeBaseName();
-
-    const QStringList candidates = { baseName + "_OLDIJK.grdecl", baseName + "_OLDIJK.GRDECL" };
-    for ( const QString& candidate : candidates )
-    {
-        QString path = dir.absoluteFilePath( candidate );
-        if ( QFile::exists( path ) ) return path;
-    }
-
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Load the OLDIJK sidecar (OLDI/OLDJ/OLDK/TMPI/TMPJ/TMPK) as input properties so the parent-cell
-/// mapping is visible and scriptable, mirroring the REFINE property.
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::importOldIjkSidecarIfPresent()
-{
-    // Skip if the OLDIJK properties are already loaded (e.g. restored from a saved project file)
-    for ( const RimEclipseInputProperty* prop : inputPropertyCollection()->items() )
-    {
-        if ( prop->resultName().compare( "OLDI", Qt::CaseInsensitive ) == 0 ) return;
-    }
-
-    const QString sidecarPath = oldIjkSidecarFilePath();
-    if ( sidecarPath.isEmpty() ) return;
-
-    RiaLogging::info( QString( "Nested hybrid grid: loading OLDIJK properties from %1" ).arg( sidecarPath ).toStdString() );
-
-    RifInputPropertyLoader::loadAndSynchronizeInputProperties( inputPropertyCollection(),
-                                                               eclipseCaseData(),
-                                                               std::vector<QString>{ sidecarPath },
-                                                               false );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::reconstructNestedHybridGridIfPresent()
-{
-    if ( !eclipseCaseData() || !eclipseCaseData()->mainGrid() ) return;
-
-    const QString refinePath = refineSidecarFilePath();
-    const QString oldIjkPath = oldIjkSidecarFilePath();
-    if ( refinePath.isEmpty() || oldIjkPath.isEmpty() ) return;
-
-    // Read a single named integer keyword (rounded from the file's float values) from parsed content.
-    auto readIntKeyword = []( const std::vector<RifEclipseKeywordContent>& content, const QString& keyword )
-    {
-        std::vector<int> result;
-        for ( const auto& kw : content )
-        {
-            if ( QString::fromStdString( kw.keyword ).compare( keyword, Qt::CaseInsensitive ) == 0 )
-            {
-                result.reserve( kw.values.size() );
-                for ( float v : kw.values )
-                    result.push_back( static_cast<int>( std::lround( v ) ) );
-                break;
-            }
-        }
-        return result;
-    };
-
-    auto refineContent = RifEclipseTextFileReader::readKeywordAndValues( refinePath.toStdString() );
-    auto oldIjkContent = RifEclipseTextFileReader::readKeywordAndValues( oldIjkPath.toStdString() );
-
-    RigNestedHybridGridReconstructor::NestedHybridInput input;
-    input.refine = readIntKeyword( refineContent, RiaResultNames::refine() );
-    input.oldI   = readIntKeyword( oldIjkContent, "OLDI" );
-    input.oldJ   = readIntKeyword( oldIjkContent, "OLDJ" );
-    input.oldK   = readIntKeyword( oldIjkContent, "OLDK" );
-    input.tmpI   = readIntKeyword( oldIjkContent, "TMPI" );
-    input.tmpJ   = readIntKeyword( oldIjkContent, "TMPJ" );
-    input.tmpK   = readIntKeyword( oldIjkContent, "TMPK" );
-
-    QString errorMessage;
-    RigNestedHybridGridReconstructor::reconstruct( eclipseCaseData(), input, &errorMessage );
-
-    // The caller computes grid caches (search tree, faults, NNCs) once, after this reconstruction, so
-    // that the expensive geometric passes run on the clean grid rather than the flat overlapping one.
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Nested hybrid grid: pre-compute the volume-weighted coarse aggregate (<RESULT>_COARSE) for the
 /// common QC results (pressure and saturations), so they are available right after a reconstructed
 /// nested hybrid grid is loaded.
@@ -533,8 +388,8 @@ void RimEclipseResultCase::computeNestedHybridCoarseAggregatesIfPresent()
         RigEclipseResultAddress sourceAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, name );
         if ( matrixResults->hasResultEntry( sourceAddr ) )
         {
-            matrixResults->computeNestedHybridCoarseAggregate( sourceAddr );
-            matrixResults->computeNestedHybridPerLevelAggregate( sourceAddr );
+            RigNestedHybridGridResultTools::computeCoarseAggregate( matrixResults, sourceAddr );
+            RigNestedHybridGridResultTools::computePerLevelAggregate( matrixResults, sourceAddr );
         }
     }
 }

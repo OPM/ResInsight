@@ -35,6 +35,7 @@
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 #include "RigNestedHybridGridReconstructor.h"
+#include "RigNestedHybridGridResultTools.h"
 #include "RigNncConnection.h"
 
 #include "RimEclipseResultCase.h"
@@ -419,7 +420,7 @@ TEST( RigNestedHybridGridReconstructorTest, CoarseVolumeWeightedAggregate )
     RigEclipseResultAddress sourceAddr( ResultCatType::STATIC_NATIVE, staticResultNames.front() );
     ASSERT_TRUE( res->ensureKnownResultLoaded( sourceAddr ) );
 
-    RigEclipseResultAddress aggAddr = res->computeNestedHybridCoarseAggregate( sourceAddr );
+    RigEclipseResultAddress aggAddr = RigNestedHybridGridResultTools::computeCoarseAggregate( res, sourceAddr );
     ASSERT_TRUE( aggAddr.isValid() );
 
     const std::vector<double>& src = res->cellScalarResults( sourceAddr, 0 );
@@ -510,7 +511,7 @@ TEST( RigNestedHybridGridReconstructorTest, PerLevelVolumeWeightedAggregate )
     RigEclipseResultAddress refineAddr( ResultCatType::INPUT_PROPERTY, ResultDataType::INTEGER, RiaResultNames::refine() );
     ASSERT_TRUE( res->cellScalarResults( refineAddr ).size() > 0 && res->cellScalarResults( refineAddr )[0].size() == grid->totalCellCount() );
 
-    std::vector<RigEclipseResultAddress> created = res->computeNestedHybridPerLevelAggregate( sourceAddr );
+    std::vector<RigEclipseResultAddress> created = RigNestedHybridGridResultTools::computePerLevelAggregate( res, sourceAddr );
     ASSERT_FALSE( created.empty() );
 
     RigEclipseResultAddress l4Addr( ResultCatType::GENERATED, staticResultNames.front() + "_COARSE_L4" );

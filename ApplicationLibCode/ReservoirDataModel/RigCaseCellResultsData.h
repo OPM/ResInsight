@@ -62,6 +62,7 @@ public:
     RigAllanDiagramData*      allanDiagramData();
 
     void                     setMainGrid( RigMainGrid* ownerGrid );
+    RigMainGrid*             mainGrid();
     void                     setActiveCellInfo( RigActiveCellInfo* activeCellInfo );
     RigActiveCellInfo*       activeCellInfo();
     const RigActiveCellInfo* activeCellInfo() const;
@@ -74,22 +75,6 @@ public:
     std::vector<double>*                    modifiableCellScalarResult( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
 
     bool isUsingGlobalActiveIndex( const RigEclipseResultAddress& resVarAddr ) const;
-
-    // Nested hybrid grid: fill LGR cells of already-loaded active-cell-indexed results from their
-    // source flat cells (results loaded later are handled during loading).
-    void extendNestedHybridLgrResults();
-
-    // Nested hybrid grid: compute a volume-weighted average of a source result onto each refined
-    // cell's parent COARSE cell, broadcast back onto every cell of that parent (and unrefined cells
-    // keep their own value). Stores the result under "<sourceName>_COARSE" for all time steps and
-    // returns its address. Returns an invalid address if there is no nested-hybrid parent mapping.
-    RigEclipseResultAddress computeNestedHybridCoarseAggregate( const RigEclipseResultAddress& sourceAddress );
-
-    // Nested hybrid grid: per refinement level, the volume-weighted average of a source result over the
-    // cells of each immediate parent, broadcast back onto that level's cells; all other cells are left
-    // undefined so each level's result shows only that level. Stores one result
-    // "<sourceName>_COARSE_L<level>" per level present and returns their addresses.
-    std::vector<RigEclipseResultAddress> computeNestedHybridPerLevelAggregate( const RigEclipseResultAddress& sourceAddress );
 
     static const std::vector<double>* getResultIndexableStaticResult( RigActiveCellInfo*      actCellInfo,
                                                                       RigCaseCellResultsData* gridCellResults,
@@ -261,10 +246,6 @@ private:
     size_t allocatedValueCount( size_t scalarResultIndex ) const;
 
     void assignValuesToTemporaryLgrs( const QString& resultName, std::vector<double>& values );
-
-    // Nested hybrid grid: copy result values onto the reconstructed LGR cells from the source flat
-    // refined cells they were built from. Resizes the array to cover the LGR active cells.
-    void assignValuesToNestedHybridLgrs( std::vector<double>& values );
 
     RigStatisticsDataCache* statistics( const RigEclipseResultAddress& resVarAddr );
 

@@ -93,13 +93,7 @@ private:
     void ensureRftDataIsImported();
     bool showTimeStepFilterGUI();
 
-    QString refineSidecarFilePath() const;
-    void    importRefineSidecarIfPresent();
-
-    QString oldIjkSidecarFilePath() const;
-    void    importOldIjkSidecarIfPresent();
-    void    reconstructNestedHybridGridIfPresent();
-    void    computeNestedHybridCoarseAggregatesIfPresent();
+    void computeNestedHybridCoarseAggregatesIfPresent();
 
     QString phasesAsString() const;
 

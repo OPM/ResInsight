@@ -46,6 +46,7 @@
 #include "RigLocalGrid.h"
 #include "RigMainGrid.h"
 #include "RigMobilePoreVolumeResultCalculator.h"
+#include "RigNestedHybridGridResultTools.h"
 #include "RigOilVolumeResultCalculator.h"
 #include "RigPorvSoilSgasResultCalculator.h"
 #include "RigSoilResultCalculator.h"
@@ -92,6 +93,14 @@ RigCaseCellResultsData::RigCaseCellResultsData( RigEclipseCaseData* ownerCaseDat
 void RigCaseCellResultsData::setMainGrid( RigMainGrid* ownerGrid )
 {
     m_ownerMainGrid = ownerGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigMainGrid* RigCaseCellResultsData::mainGrid()
+{
+    return m_ownerMainGrid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1591,7 +1600,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
                         assignValuesToTemporaryLgrs( resultName, values );
                     }
 
-                    assignValuesToNestedHybridLgrs( values );
+                    RigNestedHybridGridResultTools::assignValuesToLgrs( this, values );
                 }
             }
         }
@@ -1613,7 +1622,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
                     assignValuesToTemporaryLgrs( resultName, values );
                 }
 
-                assignValuesToNestedHybridLgrs( values );
+                RigNestedHybridGridResultTools::assignValuesToLgrs( this, values );
             }
         }
     }
@@ -1772,7 +1781,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
                 }
                 else
                 {
-                    assignValuesToNestedHybridLgrs( values );
+                    RigNestedHybridGridResultTools::assignValuesToLgrs( this, values );
                 }
             }
         }
@@ -1789,7 +1798,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
                 }
                 else
                 {
-                    assignValuesToNestedHybridLgrs( values );
+                    RigNestedHybridGridResultTools::assignValuesToLgrs( this, values );
                 }
             }
         }
@@ -3208,309 +3217,6 @@ void RigCaseCellResultsData::assignValuesToTemporaryLgrs( const QString& resultN
     if ( invalidCellsDetected )
     {
         RiaLogging::warning( "Detected invalid/undefined cells when assigning result values to temporary LGRs" );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::extendNestedHybridLgrResults()
-{
-    if ( !m_ownerMainGrid || !m_activeCellInfo || m_ownerMainGrid->nestedHybridLgrSourceCells().empty() ) return;
-
-    const size_t activeCellCount = m_activeCellInfo->reservoirActiveCellCount();
-
-    for ( const RigEclipseResultAddress& addr : existingResults() )
-    {
-        std::vector<std::vector<double>>* timesteps = modifiableCellScalarResultTimesteps( addr );
-        if ( !timesteps ) continue;
-
-        for ( std::vector<double>& values : *timesteps )
-        {
-            // Only active-cell-indexed arrays (length below the active-cell count). Full-length
-            // (all-cells) arrays are handled separately by the reconstructor.
-            if ( !values.empty() && values.size() < activeCellCount )
-            {
-                assignValuesToNestedHybridLgrs( values );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Compute a volume-weighted average of a source result onto each refined cell's parent COARSE cell,
-/// then broadcast that average back onto every (active) cell of the parent - both the original flat
-/// refined cells and the reconstructed LGR cells. Unrefined cells keep their own value. The result
-/// is stored as a GENERATED result named "<sourceName>_COARSE" for all time steps.
-//--------------------------------------------------------------------------------------------------
-RigEclipseResultAddress RigCaseCellResultsData::computeNestedHybridCoarseAggregate( const RigEclipseResultAddress& sourceAddress )
-{
-    RigEclipseResultAddress invalid;
-    if ( !m_ownerMainGrid || !m_activeCellInfo ) return invalid;
-
-    const std::map<size_t, size_t>& coarseParents = m_ownerMainGrid->nestedHybridCoarseParents();
-    const std::map<size_t, size_t>& sourceCells   = m_ownerMainGrid->nestedHybridLgrSourceCells();
-    if ( coarseParents.empty() ) return invalid;
-
-    if ( !ensureKnownResultLoaded( sourceAddress ) ) return invalid;
-
-    // Cell volumes (active-cell indexed) for the weighting.
-    computeCellVolumes();
-    RigEclipseResultAddress volAddr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riCellVolumeResultName() );
-    if ( !ensureKnownResultLoaded( volAddr ) ) return invalid;
-
-    const size_t activeCellCount = m_activeCellInfo->reservoirActiveCellCount();
-
-    const size_t tsCount = cellScalarResults( sourceAddress ).size();
-    if ( tsCount == 0 ) return invalid;
-
-    // Create the output result (GENERATED so the file reader never tries to read it). createResultEntry()
-    // pushes onto m_cellScalarResults and may reallocate it, invalidating any reference/pointer into the
-    // backing storage; bind volumes/sourceTs only afterwards.
-    const QString           outName = sourceAddress.resultName() + "_COARSE";
-    RigEclipseResultAddress outAddr( RiaDefines::ResultCatType::GENERATED, outName );
-    if ( !hasResultEntry( outAddr ) ) createResultEntry( outAddr, true );
-    std::vector<std::vector<double>>* outTs = modifiableCellScalarResultTimesteps( outAddr );
-    if ( !outTs ) return invalid;
-    outTs->resize( tsCount );
-
-    const std::vector<double>&              volumes  = cellScalarResults( volAddr, 0 );
-    const std::vector<std::vector<double>>& sourceTs = cellScalarResults( sourceAddress );
-
-    auto activeIndex = [&]( size_t reservoirCell )
-    { return m_activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCell ) ).value(); };
-
-    // The original flat refined cells of an L2/L3 region are hidden (zero volume) once moved into an
-    // LGR, so the real geometry/value lives on the LGR cell. Map each flat cell to the cell that
-    // carries its geometry: its LGR copy if it has one, otherwise the flat cell itself (e.g. cells
-    // that were left un-nested).
-    std::map<size_t, size_t> flatToGeometryCell;
-    for ( const auto& [lgrCell, flatCell] : sourceCells )
-        flatToGeometryCell[flatCell] = lgrCell;
-    auto geometryCell = [&]( size_t flatCell )
-    {
-        auto it = flatToGeometryCell.find( flatCell );
-        return it != flatToGeometryCell.end() ? it->second : flatCell;
-    };
-
-    for ( size_t ts = 0; ts < tsCount; ts++ )
-    {
-        const std::vector<double>& src = sourceTs[ts];
-        std::vector<double>&       out = ( *outTs )[ts];
-        out                            = src; // unrefined cells keep their own value
-        if ( out.size() < activeCellCount ) out.resize( activeCellCount, HUGE_VAL );
-
-        // Accumulate the volume-weighted sum per coarse parent, using the geometry-bearing cell.
-        std::map<size_t, std::pair<double, double>> acc; // parent -> (sum value*vol, sum vol)
-        for ( const auto& [flatCell, parent] : coarseParents )
-        {
-            size_t ri = activeIndex( geometryCell( flatCell ) );
-            if ( ri == cvf::UNDEFINED_SIZE_T || ri >= src.size() || ri >= volumes.size() ) continue;
-            double v = src[ri];
-            double w = volumes[ri];
-            if ( w <= 0.0 || v == HUGE_VAL ) continue;
-            acc[parent].first += v * w;
-            acc[parent].second += w;
-        }
-
-        auto average = [&]( size_t parent, double fallback )
-        {
-            auto it = acc.find( parent );
-            if ( it != acc.end() && it->second.second > 0.0 ) return it->second.first / it->second.second;
-            return fallback;
-        };
-
-        // Broadcast the parent average onto every (active) cell of the parent - both the flat refined
-        // cell and its LGR copy - so the aggregate reads correctly on either representation.
-        for ( const auto& [flatCell, parent] : coarseParents )
-        {
-            const size_t gi       = activeIndex( geometryCell( flatCell ) );
-            const double fallback = ( gi != cvf::UNDEFINED_SIZE_T && gi < src.size() ) ? src[gi] : HUGE_VAL;
-            const double avg      = average( parent, fallback );
-
-            for ( size_t cell : { flatCell, geometryCell( flatCell ) } )
-            {
-                size_t ri = activeIndex( cell );
-                if ( ri != cvf::UNDEFINED_SIZE_T && ri < out.size() ) out[ri] = avg;
-            }
-        }
-    }
-
-    return outAddr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Per refinement level, compute the volume-weighted average of a source result over the cells of each
-/// immediate parent and broadcast it back onto that level's cells. All other cells are left undefined
-/// (blank) so each level's result shows only that level. One result "<sourceName>_COARSE_L<level>" is
-/// created per level present (stored on the active refined cells; the parent cells are inactive).
-//--------------------------------------------------------------------------------------------------
-std::vector<RigEclipseResultAddress> RigCaseCellResultsData::computeNestedHybridPerLevelAggregate( const RigEclipseResultAddress& sourceAddress )
-{
-    std::vector<RigEclipseResultAddress> created;
-    if ( !m_ownerMainGrid || !m_activeCellInfo ) return created;
-    if ( m_ownerMainGrid->nestedHybridLgrSourceCells().empty() ) return created; // not a reconstructed nested hybrid grid
-
-    if ( !ensureKnownResultLoaded( sourceAddress ) ) return created;
-
-    computeCellVolumes();
-    RigEclipseResultAddress volAddr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riCellVolumeResultName() );
-    if ( !ensureKnownResultLoaded( volAddr ) ) return created;
-
-    const size_t activeCellCount = m_activeCellInfo->reservoirActiveCellCount();
-    const size_t totalCellCount  = m_ownerMainGrid->totalCellCount();
-
-    // Each cell's refinement level. Prefer the REFINE result (authoritative, full-length per cell) so
-    // cells of different levels are never combined; fall back to the LGR name only if REFINE is absent.
-    RigEclipseResultAddress    refineAddr( RiaDefines::ResultCatType::INPUT_PROPERTY,
-                                        RiaDefines::ResultDataType::INTEGER,
-                                        RiaResultNames::refine() );
-    const std::vector<double>* refine = nullptr;
-    if ( ensureKnownResultLoaded( refineAddr ) )
-    {
-        const std::vector<std::vector<double>>& ts = cellScalarResults( refineAddr );
-        if ( !ts.empty() && ts[0].size() == totalCellCount ) refine = &ts[0];
-    }
-
-    auto levelFromName = []( const std::string& name )
-    {
-        const std::string prefix = "LGR_NHG_L";
-        if ( name.rfind( prefix, 0 ) != 0 ) return -1;
-        int  value = 0;
-        bool any   = false;
-        for ( size_t i = prefix.size(); i < name.size() && name[i] >= '0' && name[i] <= '9'; i++ )
-        {
-            value = value * 10 + ( name[i] - '0' );
-            any   = true;
-        }
-        return any ? value : -1;
-    };
-
-    auto activeIndex = [&]( size_t reservoirCell )
-    { return m_activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCell ) ).value(); };
-
-    // Collect every active reconstructed-LGR cell with its refinement level (from REFINE) and its
-    // immediate parent cell (from the LGR hierarchy).
-    struct CellRef
-    {
-        size_t resultIndex;
-        int    level;
-        size_t parentGlobal;
-    };
-    std::vector<CellRef> cellRefs;
-    for ( size_t gi = 1; gi < m_ownerMainGrid->gridCount(); gi++ )
-    {
-        RigGridBase* g   = m_ownerMainGrid->gridByIndex( gi );
-        auto*        lgr = dynamic_cast<RigLocalGrid*>( g );
-        if ( !lgr || !lgr->isReconstructedGrid() ) continue;
-        const int    nameLevel  = levelFromName( g->gridName() );
-        RigGridBase* parentGrid = lgr->parentGrid();
-        for ( size_t c = 0; c < g->cellCount(); c++ )
-        {
-            size_t global = g->reservoirCellIndex( c );
-            size_t ri     = activeIndex( global );
-            if ( ri == cvf::UNDEFINED_SIZE_T ) continue;
-            int level = refine ? (int)std::lround( ( *refine )[global] ) : nameLevel;
-            if ( level <= 1 ) continue;
-            size_t parentGlobal = parentGrid->reservoirCellIndex( g->cell( c ).parentCellIndex() );
-            cellRefs.push_back( { ri, level, parentGlobal } );
-        }
-    }
-    if ( cellRefs.empty() ) return created;
-
-    const size_t tsCount = cellScalarResults( sourceAddress ).size();
-    if ( tsCount == 0 ) return created;
-
-    // One output result per distinct level. Create every entry first: createResultEntry() pushes onto
-    // m_cellScalarResults and may reallocate it, which would invalidate any reference/pointer into the
-    // backing storage (sourceTs, volumes, previously fetched outTs). Only after all entries exist do we
-    // resolve the pointers and source references below.
-    std::map<int, RigEclipseResultAddress> outAddrByLevel;
-    for ( const CellRef& cr : cellRefs )
-    {
-        if ( outAddrByLevel.count( cr.level ) ) continue;
-        RigEclipseResultAddress outAddr( RiaDefines::ResultCatType::GENERATED,
-                                         sourceAddress.resultName() + QString( "_COARSE_L%1" ).arg( cr.level ) );
-        if ( !hasResultEntry( outAddr ) ) createResultEntry( outAddr, true );
-        outAddrByLevel.emplace( cr.level, outAddr );
-    }
-
-    std::map<int, std::vector<std::vector<double>>*> outByLevel;
-    for ( const auto& [level, outAddr] : outAddrByLevel )
-    {
-        std::vector<std::vector<double>>* outTs = modifiableCellScalarResultTimesteps( outAddr );
-        if ( !outTs ) continue;
-        outTs->resize( tsCount );
-        outByLevel[level] = outTs;
-        created.push_back( outAddr );
-    }
-
-    // Safe to bind now that no further entries will be created.
-    const std::vector<std::vector<double>>& sourceTs = cellScalarResults( sourceAddress );
-    const std::vector<double>&              volumes  = cellScalarResults( volAddr, 0 );
-
-    for ( size_t ts = 0; ts < tsCount; ts++ )
-    {
-        const std::vector<double>& src = sourceTs[ts];
-
-        // Volume-weighted sums keyed by (level, immediate parent) - cells of different levels are
-        // never accumulated together.
-        std::map<int, std::map<size_t, std::pair<double, double>>> acc;
-        for ( const CellRef& cr : cellRefs )
-        {
-            if ( cr.resultIndex >= src.size() || cr.resultIndex >= volumes.size() ) continue;
-            double v = src[cr.resultIndex];
-            double w = volumes[cr.resultIndex];
-            if ( w <= 0.0 || v == HUGE_VAL ) continue;
-            auto& a = acc[cr.level][cr.parentGlobal];
-            a.first += v * w;
-            a.second += w;
-        }
-
-        for ( const auto& [level, outTs] : outByLevel )
-        {
-            std::vector<double>& out = ( *outTs )[ts];
-            out.assign( activeCellCount, HUGE_VAL ); // blank everywhere except this level's own cells
-
-            const std::map<size_t, std::pair<double, double>>& accLevel = acc[level];
-            for ( const CellRef& cr : cellRefs )
-            {
-                if ( cr.level != level || cr.resultIndex >= out.size() ) continue;
-                auto it = accLevel.find( cr.parentGlobal );
-                if ( it != accLevel.end() && it->second.second > 0.0 ) out[cr.resultIndex] = it->second.first / it->second.second;
-            }
-        }
-    }
-
-    return created;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::assignValuesToNestedHybridLgrs( std::vector<double>& values )
-{
-    if ( !m_ownerMainGrid || !m_activeCellInfo ) return;
-
-    const std::map<size_t, size_t>& sourceCells = m_ownerMainGrid->nestedHybridLgrSourceCells();
-    if ( sourceCells.empty() || values.empty() ) return;
-
-    const size_t activeCellCount = m_activeCellInfo->reservoirActiveCellCount();
-    if ( values.size() < activeCellCount )
-    {
-        values.resize( activeCellCount, std::numeric_limits<double>::infinity() );
-    }
-
-    for ( const auto& [lgrReservoirCellIndex, flatReservoirCellIndex] : sourceCells )
-    {
-        size_t lgrResultIndex  = m_activeCellInfo->cellResultIndex( ReservoirCellIndex( lgrReservoirCellIndex ) ).value();
-        size_t flatResultIndex = m_activeCellInfo->cellResultIndex( ReservoirCellIndex( flatReservoirCellIndex ) ).value();
-
-        if ( lgrResultIndex != cvf::UNDEFINED_SIZE_T && flatResultIndex != cvf::UNDEFINED_SIZE_T && lgrResultIndex < values.size() &&
-             flatResultIndex < values.size() )
-        {
-            values[lgrResultIndex] = values[flatResultIndex];
-        }
     }
 }
 

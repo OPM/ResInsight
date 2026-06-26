@@ -29,6 +29,7 @@
 #include "RigLocalGrid.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
+#include "RigNestedHybridGridResultTools.h"
 #include "RigNncConnection.h"
 
 #include "RiaDefines.h"
@@ -291,7 +292,7 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
     // Fill LGR cells of any already-loaded active-cell-indexed results from their source flat cells.
     for ( auto model : { RiaDefines::PorosityModelType::MATRIX_MODEL, RiaDefines::PorosityModelType::FRACTURE_MODEL } )
     {
-        if ( RigCaseCellResultsData* results = caseData->results( model ) ) results->extendNestedHybridLgrResults();
+        if ( RigCaseCellResultsData* results = caseData->results( model ) ) RigNestedHybridGridResultTools::extendLgrResults( results );
     }
 
     // The grid count changed - invalidate per-grid caches that were sized for the flat grid.
