@@ -75,6 +75,7 @@ void RimDockWindowController::removeWindowFromDock()
     RiuMainWindowBase* mainWin = getMainWindow();
     if ( mainWin && viewPdmObject() )
     {
+        viewPdmObject()->setActive( false );
         viewPdmObject()->deleteDockWidget();
         viewPdmObject()->deleteViewWidget();
 
