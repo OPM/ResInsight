@@ -3258,21 +3258,24 @@ RigEclipseResultAddress RigCaseCellResultsData::computeNestedHybridCoarseAggrega
     computeCellVolumes();
     RigEclipseResultAddress volAddr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riCellVolumeResultName() );
     if ( !ensureKnownResultLoaded( volAddr ) ) return invalid;
-    const std::vector<double>& volumes = cellScalarResults( volAddr, 0 );
 
     const size_t activeCellCount = m_activeCellInfo->reservoirActiveCellCount();
 
-    const std::vector<std::vector<double>>& sourceTs = cellScalarResults( sourceAddress );
-    const size_t                            tsCount  = sourceTs.size();
+    const size_t tsCount = cellScalarResults( sourceAddress ).size();
     if ( tsCount == 0 ) return invalid;
 
-    // Create the output result (GENERATED so the file reader never tries to read it).
+    // Create the output result (GENERATED so the file reader never tries to read it). createResultEntry()
+    // pushes onto m_cellScalarResults and may reallocate it, invalidating any reference/pointer into the
+    // backing storage; bind volumes/sourceTs only afterwards.
     const QString           outName = sourceAddress.resultName() + "_COARSE";
     RigEclipseResultAddress outAddr( RiaDefines::ResultCatType::GENERATED, outName );
     if ( !hasResultEntry( outAddr ) ) createResultEntry( outAddr, true );
     std::vector<std::vector<double>>* outTs = modifiableCellScalarResultTimesteps( outAddr );
     if ( !outTs ) return invalid;
     outTs->resize( tsCount );
+
+    const std::vector<double>&              volumes  = cellScalarResults( volAddr, 0 );
+    const std::vector<std::vector<double>>& sourceTs = cellScalarResults( sourceAddress );
 
     auto activeIndex = [&]( size_t reservoirCell )
     { return m_activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCell ) ).value(); };
@@ -3353,7 +3356,6 @@ std::vector<RigEclipseResultAddress> RigCaseCellResultsData::computeNestedHybrid
     computeCellVolumes();
     RigEclipseResultAddress volAddr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riCellVolumeResultName() );
     if ( !ensureKnownResultLoaded( volAddr ) ) return created;
-    const std::vector<double>& volumes = cellScalarResults( volAddr, 0 );
 
     const size_t activeCellCount = m_activeCellInfo->reservoirActiveCellCount();
     const size_t totalCellCount  = m_ownerMainGrid->totalCellCount();
@@ -3416,24 +3418,36 @@ std::vector<RigEclipseResultAddress> RigCaseCellResultsData::computeNestedHybrid
     }
     if ( cellRefs.empty() ) return created;
 
-    const std::vector<std::vector<double>>& sourceTs = cellScalarResults( sourceAddress );
-    const size_t                            tsCount  = sourceTs.size();
+    const size_t tsCount = cellScalarResults( sourceAddress ).size();
     if ( tsCount == 0 ) return created;
 
-    // One output result per distinct level.
-    std::map<int, std::vector<std::vector<double>>*> outByLevel;
+    // One output result per distinct level. Create every entry first: createResultEntry() pushes onto
+    // m_cellScalarResults and may reallocate it, which would invalidate any reference/pointer into the
+    // backing storage (sourceTs, volumes, previously fetched outTs). Only after all entries exist do we
+    // resolve the pointers and source references below.
+    std::map<int, RigEclipseResultAddress> outAddrByLevel;
     for ( const CellRef& cr : cellRefs )
     {
-        if ( outByLevel.count( cr.level ) ) continue;
+        if ( outAddrByLevel.count( cr.level ) ) continue;
         RigEclipseResultAddress outAddr( RiaDefines::ResultCatType::GENERATED,
                                          sourceAddress.resultName() + QString( "_COARSE_L%1" ).arg( cr.level ) );
         if ( !hasResultEntry( outAddr ) ) createResultEntry( outAddr, true );
+        outAddrByLevel.emplace( cr.level, outAddr );
+    }
+
+    std::map<int, std::vector<std::vector<double>>*> outByLevel;
+    for ( const auto& [level, outAddr] : outAddrByLevel )
+    {
         std::vector<std::vector<double>>* outTs = modifiableCellScalarResultTimesteps( outAddr );
         if ( !outTs ) continue;
         outTs->resize( tsCount );
-        outByLevel[cr.level] = outTs;
+        outByLevel[level] = outTs;
         created.push_back( outAddr );
     }
+
+    // Safe to bind now that no further entries will be created.
+    const std::vector<std::vector<double>>& sourceTs = cellScalarResults( sourceAddress );
+    const std::vector<double>&              volumes  = cellScalarResults( volAddr, 0 );
 
     for ( size_t ts = 0; ts < tsCount; ts++ )
     {
