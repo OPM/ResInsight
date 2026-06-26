@@ -90,6 +90,7 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimIjkIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
@@ -769,6 +770,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicAppendIntersectionFeature";
             menuBuilder << "RicAppendIntersectionBoxFeature";
+            menuBuilder << "RicAppendIjkIntersectionFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
         }
@@ -781,6 +783,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicAppendIntersectionFeature";
             menuBuilder << "RicAppendIntersectionBoxFeature";
+            menuBuilder << "RicAppendIjkIntersectionFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicSeismicSectionFromIntersectionFeature";
             menuBuilder.addSeparator();
@@ -794,6 +797,17 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicAppendIntersectionFeature";
             menuBuilder << "RicAppendIntersectionBoxFeature";
+            menuBuilder << "RicAppendIjkIntersectionFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
+        }
+        else if ( dynamic_cast<RimIjkIntersection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicPasteIntersectionsFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicAppendIntersectionFeature";
+            menuBuilder << "RicAppendIntersectionBoxFeature";
+            menuBuilder << "RicAppendIjkIntersectionFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
         }

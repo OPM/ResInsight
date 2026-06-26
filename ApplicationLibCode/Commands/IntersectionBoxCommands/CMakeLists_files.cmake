@@ -2,6 +2,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionFeatureImpl.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicBoxManipulatorEventHandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendIntersectionBoxFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicAppendIjkIntersectionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxXSliceFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxYSliceFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxZSliceFeature.cpp

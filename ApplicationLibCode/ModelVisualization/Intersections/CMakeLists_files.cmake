@@ -6,6 +6,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivBoxIntersectionGeometryGenerator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivBoxIntersectionPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivBoxIntersectionSourceInfo.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RivIjkIntersectionGeometryGenerator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RivIjkIntersectionPartMgr.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RivIjkIntersectionSourceInfo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivSectionFlattener.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivEclipseIntersectionGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivFemIntersectionGrid.cpp

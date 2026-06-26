@@ -5,6 +5,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimIjkIntersection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionEnums.cpp
 )
 
