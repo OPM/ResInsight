@@ -230,12 +230,15 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 
     m_correlationMatrixPlot = new RimCorrelationMatrixPlot;
     m_correlationMatrixPlot->setLegendsVisible( false );
+    m_correlationMatrixPlot->setReportSubPlot( true );
 
     m_correlationPlot = new RimCorrelationPlot;
     m_correlationPlot->setLegendsVisible( false );
+    m_correlationPlot->setReportSubPlot( true );
 
     m_parameterResultCrossPlot = new RimParameterResultCrossPlot;
     m_parameterResultCrossPlot->setLegendsVisible( true );
+    m_parameterResultCrossPlot->setReportSubPlot( true );
 
     m_summaryPlot = new RimSummaryPlot();
     m_summaryPlot->setLegendsVisible( false );
@@ -622,6 +625,11 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::initAfterRead()
 {
+    // The report sub-plot flag is not serialized, so re-establish it on the deserialized child plots.
+    m_correlationMatrixPlot->setReportSubPlot( true );
+    m_correlationPlot->setReportSubPlot( true );
+    m_parameterResultCrossPlot->setReportSubPlot( true );
+
     updateSummaryPlotTimeAnnotation();
 }
 
@@ -725,6 +733,10 @@ void RimCorrelationReportPlot::childFieldChangedByUi( const caf::PdmFieldHandle*
     else if ( m_summaryDockWidget && changedChildField == &m_summaryPlot )
         m_summaryDockWidget->toggleView( m_summaryPlot->showWindow() );
 
+    // Re-showing a dock widget creates a new dock area whose title bar defaults to visible, so re-apply
+    // the configured title bar visibility.
+    updateDockTitleBarsVisibility();
+
     // onLoadDataAndUpdate treats the matrix plot as the source of truth and copies its shared
     // properties to the others. When the change originated on the correlation or cross plot,
     // first mirror it back to the matrix plot so the subsequent propagation reflects the change.
@@ -797,7 +809,9 @@ void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*       
 
     updateSummaryPlotTimeAnnotation();
 
-    updateConnectedEditors();
+    // updateAllRequiredEditors (not just updateConnectedEditors) so the project tree refreshes the
+    // displayed text of the contained plot items when their data source changes.
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -815,6 +829,10 @@ void RimCorrelationReportPlot::onSummaryPlotMousePressed( double xPlotCoordinate
 
     m_correlationMatrixPlot->setTimeStep( *it );
     loadDataAndUpdate();
+
+    // The time step is part of the auto-generated titles, so refresh all editors to update the project
+    // tree text and the time step field in the property panel.
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

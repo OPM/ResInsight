@@ -124,6 +124,7 @@ private:
     void onLoadDataAndUpdate() override;
 
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void onDataSourceChanged() override;
 
     void updateAxes() override;
 
@@ -133,6 +134,7 @@ private:
     void updateLegend() override;
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
     void applySelectedParameterHighlight();
+    void selectFirstItem();
 
 private:
     caf::PdmField<bool>                 m_showAbsoluteValues;

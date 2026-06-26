@@ -170,7 +170,7 @@ void RimParameterResultCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* c
     if ( changedField == &m_ensembleParameter )
     {
         loadDataAndUpdate();
-        updateConnectedEditors();
+        updateAllRequiredEditors();
     }
 }
 
@@ -179,13 +179,18 @@ void RimParameterResultCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    appendDataSourceFields( uiConfigName, uiOrdering );
+    // When used as a sub-plot of a correlation report, the data source, cross plot parameter and filter are
+    // controlled from the report plot, so only the plot settings are exposed here.
+    if ( !isContainedInReportPlot() )
+    {
+        appendDataSourceFields( uiConfigName, uiOrdering );
 
-    caf::PdmUiGroup* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameters" );
-    crossPlotGroup->add( &m_ensembleParameter );
+        caf::PdmUiGroup* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameters" );
+        crossPlotGroup->add( &m_ensembleParameter );
 
-    auto filterGroup = uiOrdering.addNewGroup( "Filter" );
-    appendFilterFields( *filterGroup );
+        auto filterGroup = uiOrdering.addNewGroup( "Filter" );
+        appendFilterFields( *filterGroup );
+    }
 
     caf::PdmUiGroup* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->setCollapsedByDefault();
