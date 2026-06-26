@@ -301,18 +301,35 @@ void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
         }
         updateLegend();
         loadDataAndUpdate();
-        updateConnectedEditors();
+        updateAllRequiredEditors();
 
-        auto curves     = curveDefinitions();
-        auto parameters = m_selectedParametersList();
-        if ( !curves.empty() && !parameters.empty() )
-        {
-            auto firstCurve     = curves.front();
-            auto firstParameter = parameters.front();
-
-            matrixCellSelected.send( { firstParameter, firstCurve } );
-        }
+        selectFirstItem();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Select the first matrix cell (first parameter / first summary vector) and notify listeners. In a
+/// correlation report this propagates the current data source to the tornado, cross and summary plots.
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationMatrixPlot::selectFirstItem()
+{
+    auto curves     = curveDefinitions();
+    auto parameters = m_selectedParametersList();
+    if ( !curves.empty() && !parameters.empty() )
+    {
+        matrixCellSelected.send( { parameters.front(), curves.front() } );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// When the selected summary vectors change, re-select the first cell so the dependent plots in a
+/// correlation report are updated with the new data source.
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationMatrixPlot::onDataSourceChanged()
+{
+    if ( m_selectedParametersList().empty() ) selectAllParameters();
+
+    selectFirstItem();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,27 +337,35 @@ void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Settings" );
-    correlationGroup->add( &m_excludeParametersWithoutVariation );
-    correlationGroup->add( &m_selectedParametersList );
-    correlationGroup->add( &m_showAbsoluteValues );
-    correlationGroup->add( &m_sortByValues );
-    if ( !m_showAbsoluteValues() && m_sortByValues() != Sorting::NO_SORTING )
+    bool embeddedInReportPanel = ( uiConfigName == "report" );
+
+    // When selected individually inside a correlation report, the data source and correlation settings are
+    // controlled from the report plot, so only the plot settings are exposed here. Outside a report, or when
+    // the fields are embedded in the report's own panel, the full set is shown.
+    if ( embeddedInReportPanel || !isContainedInReportPlot() )
     {
-        correlationGroup->add( &m_sortByAbsoluteValues );
-    }
-    if ( m_sortByValues() != Sorting::NO_SORTING )
-    {
-        correlationGroup->add( &m_showOnlyTopNCorrelations );
-        if ( m_showOnlyTopNCorrelations() )
+        caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Settings" );
+        correlationGroup->add( &m_excludeParametersWithoutVariation );
+        correlationGroup->add( &m_selectedParametersList );
+        correlationGroup->add( &m_showAbsoluteValues );
+        correlationGroup->add( &m_sortByValues );
+        if ( !m_showAbsoluteValues() && m_sortByValues() != Sorting::NO_SORTING )
         {
-            correlationGroup->add( &m_topNFilterCount );
+            correlationGroup->add( &m_sortByAbsoluteValues );
         }
+        if ( m_sortByValues() != Sorting::NO_SORTING )
+        {
+            correlationGroup->add( &m_showOnlyTopNCorrelations );
+            if ( m_showOnlyTopNCorrelations() )
+            {
+                correlationGroup->add( &m_topNFilterCount );
+            }
+        }
+
+        appendDataSourceFields( uiConfigName, uiOrdering );
     }
 
-    appendDataSourceFields( uiConfigName, uiOrdering );
-
-    if ( uiConfigName != "report" )
+    if ( !embeddedInReportPanel )
     {
         caf::PdmUiGroup* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
         plotGroup->add( &m_showPlotTitle );

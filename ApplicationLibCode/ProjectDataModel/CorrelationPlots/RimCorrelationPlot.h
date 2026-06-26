@@ -67,6 +67,7 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void    onLoadDataAndUpdate() override;
+    void    onDataSourceChanged() override;
     void    updateAxes() override;
     QString asciiDataForPlotExport() const override;
 

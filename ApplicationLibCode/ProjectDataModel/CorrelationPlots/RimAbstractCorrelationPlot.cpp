@@ -138,7 +138,7 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
     if ( changedField == &m_timeStep )
     {
         loadDataAndUpdate();
-        updateConnectedEditors();
+        updateAllRequiredEditors();
     }
     else if ( changedField == &m_showPlotTitle || changedField == &m_useAutoPlotTitle || changedField == &m_description )
     {
@@ -169,7 +169,7 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
             }
         }
 
-        updateConnectedEditors();
+        updateAllRequiredEditors();
     }
     else if ( changedField == &m_curveSetForFiltering )
     {
@@ -730,6 +730,22 @@ void RimAbstractCorrelationPlot::appendDataSourceFields( QString uiConfigName, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimAbstractCorrelationPlot::isContainedInReportPlot() const
+{
+    return m_isReportSubPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::setReportSubPlot( bool enable )
+{
+    m_isReportSubPlot = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase )
 {
     loadDataAndUpdate();
@@ -799,7 +815,15 @@ void RimAbstractCorrelationPlot::onSelectVariablesButtonClicked()
             }
             connectAllCaseSignals();
             loadDataAndUpdate();
-            updateConnectedEditors();
+            updateAllRequiredEditors();
+            onDataSourceChanged();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::onDataSourceChanged()
+{
 }

@@ -108,7 +108,7 @@ void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
             selectAllParameters();
         }
         loadDataAndUpdate();
-        updateConnectedEditors();
+        updateAllRequiredEditors();
     }
 }
 
@@ -117,23 +117,28 @@ void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Settings" );
-    correlationGroup->add( &m_excludeParametersWithoutVariation );
-    correlationGroup->add( &m_selectedParametersList );
-
-    correlationGroup->add( &m_showAbsoluteValues );
-    if ( !m_showAbsoluteValues() )
+    // When used as a sub-plot of a correlation report, the data source and correlation settings are controlled
+    // from the report plot, so only the plot settings are exposed here.
+    if ( !isContainedInReportPlot() )
     {
-        correlationGroup->add( &m_sortByAbsoluteValues );
-    }
+        caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Settings" );
+        correlationGroup->add( &m_excludeParametersWithoutVariation );
+        correlationGroup->add( &m_selectedParametersList );
 
-    correlationGroup->add( &m_showOnlyTopNCorrelations );
-    if ( m_showOnlyTopNCorrelations() )
-    {
-        correlationGroup->add( &m_topNFilterCount );
-    }
+        correlationGroup->add( &m_showAbsoluteValues );
+        if ( !m_showAbsoluteValues() )
+        {
+            correlationGroup->add( &m_sortByAbsoluteValues );
+        }
 
-    appendDataSourceFields( uiConfigName, uiOrdering );
+        correlationGroup->add( &m_showOnlyTopNCorrelations );
+        if ( m_showOnlyTopNCorrelations() )
+        {
+            correlationGroup->add( &m_topNFilterCount );
+        }
+
+        appendDataSourceFields( uiConfigName, uiOrdering );
+    }
 
     caf::PdmUiGroup* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->add( &m_showPlotTitle );
@@ -206,6 +211,23 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
         updatePlotTitle();
         m_plotWidget->scheduleReplot();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// When the selected summary vector changes, notify listeners so the sibling plots in a correlation
+/// report are updated with the new data source.
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::onDataSourceChanged()
+{
+    auto curves = curveDefinitions();
+    if ( curves.empty() ) return;
+
+    if ( m_selectedParametersList().empty() ) selectAllParameters();
+
+    auto parameters = m_selectedParametersList();
+    if ( parameters.empty() ) return;
+
+    tornadoItemSelected.send( { parameters.front(), curves.front() } );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -64,6 +64,8 @@ public:
     void                         setExcludedSummaryCases( const std::vector<RimSummaryCase*>& summaryCases );
     std::vector<RimSummaryCase*> excludedSummaryCases() const;
 
+    void setReportSubPlot( bool enable );
+
     RiuQwtPlotWidget* viewer();
     RiuPlotWidget*    plotWidget() override;
     void              detachAllCurves() override;
@@ -125,6 +127,16 @@ protected:
 
     void appendDataSourceFields( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
+    // True when this plot is a sub-plot of a correlation report. The report controls the data source and
+    // correlation settings, so individually only the plot settings are exposed in the property editor. The
+    // flag is set by the owning report (see setReportSubPlot) rather than derived by walking ancestors.
+    bool isContainedInReportPlot() const;
+
+    // Called after the selected summary vectors (data source) have been changed through the selection dialog.
+    // Subclasses may override to propagate the change to dependent plots. The matrix plot uses this to select its
+    // first cell, which in turn updates the sibling plots in a correlation report.
+    virtual void onDataSourceChanged();
+
 private:
     void onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase );
     void connectAllCaseSignals();
@@ -158,4 +170,7 @@ private:
     caf::PdmField<bool>                                m_editCaseFilter;
 
     std::vector<RimSummaryCase*> m_excludedCases;
+
+    // Set by the owning correlation report; not serialized, re-established by the report on construction and read.
+    bool m_isReportSubPlot = false;
 };
