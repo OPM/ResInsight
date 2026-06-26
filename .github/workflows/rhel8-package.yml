@@ -1,0 +1,131 @@
+name: RHEL8 Package
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+concurrency:
+  group: rhel8-package-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Resolves the prebuilt CI image name so it works in forks and upstream alike
+  # (GHCR requires a lowercase repository path).
+  resolve-image:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - name: Compute image name
+        id: meta
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY,,}/ci-rhel8:latest" >> "$GITHUB_OUTPUT"
+
+  rhel8-package:
+    needs: resolve-image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    container:
+      # Prebuilt image with toolchain, baked vcpkg binary cache, and a warm
+      # ResInsight buildcache at /opt/buildcache.
+      # See .github/workflows/build-rhel8-image.yml
+      image: ${{ needs.resolve-image.outputs.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # Source must live at /src to match the path the image's warmup compiled
+    # at; buildcache hashes the absolute source path so any drift collapses
+    # the hit rate. The clone step overrides this default since /src does not
+    # exist yet at that point.
+    defaults:
+      run:
+        working-directory: /src
+
+    steps:
+      - name: Clone source into /src
+        working-directory: /
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # actions/checkout writes inside GITHUB_WORKSPACE (e.g.
+        # /__w/ResInsight/ResInsight) which would not match the image's baked
+        # cache path. Clone manually into /src instead. GITHUB_SHA is fetched
+        # directly (GitHub allows any-SHA fetches on the workflow's own repo).
+        #
+        # The insteadOf rewrite is unset after the clone so the token is not
+        # left in /etc/gitconfig where a later `git config --list` for
+        # diagnostics could echo it into the log.
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
+          git clone --no-checkout "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" /src
+          cd /src
+          git fetch --no-tags --depth 1 origin "${GITHUB_SHA}"
+          git checkout FETCH_HEAD
+          git submodule update --init --recursive --depth 1
+          git config --global --unset url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf
+
+      # /src was just freshly cloned, so the ThirdParty/vcpkg/vcpkg binary
+      # produced by bootstrap-vcpkg.sh is not present. The image's baked
+      # /opt/vcpkg-cache supplies prebuilt dependencies; the binary itself
+      # still has to exist locally for `vcpkg install` to run.
+      - name: Bootstrap vcpkg
+        run: |
+          source /opt/rh/gcc-toolset-14/enable
+          cd ThirdParty/vcpkg
+          ./bootstrap-vcpkg.sh
+
+      - name: Use RHEL8 vcpkg configuration
+        run: cp vcpkg-configuration-rhel8.json vcpkg-configuration.json
+
+      - name: Configure CMake
+        env:
+          CC: /opt/rh/gcc-toolset-14/root/usr/bin/gcc
+          CXX: /opt/rh/gcc-toolset-14/root/usr/bin/g++
+          VCPKG_FEATURE_FLAGS: "binarycaching"
+          # Read vcpkg dependencies from the binary cache baked into the image.
+          # buildcache is auto-discovered on PATH by CMakeLists.txt's
+          # find_program() and wired as CMAKE_CXX_COMPILER_LAUNCHER -- no
+          # explicit setup step is needed. BUILDCACHE_DIR etc. are baked in
+          # the image ENV. Unity build must be OFF to match the warmup build
+          # (mismatched flag would collapse the cache hit rate).
+          VCPKG_BINARY_SOURCES: "clear;files,/opt/vcpkg-cache,read"
+        run: |
+          source /opt/rh/gcc-toolset-14/enable
+          cmake -S /src -B /src/cmakebuild -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/src/cmakebuild/install \
+            -DRESINSIGHT_ENABLE_UNITY_BUILD=false \
+            -DRESINSIGHT_ENABLE_HDF5=false \
+            -DRESINSIGHT_ENABLE_GRPC=false \
+            -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
+            -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+      - name: Build install target
+        run: |
+          source /opt/rh/gcc-toolset-14/enable
+          cmake --build /src/cmakebuild --target install -- -j$(nproc)
+
+      - name: Buildcache stats
+        if: always()
+        run: buildcache -s
+
+      # CPack writes the *.tar.gz (TGZ generator on Linux) into
+      # cmakebuild/packages, named e.g. ResInsight-<version>_el8.tar.gz.
+      - name: Create package
+        run: |
+          source /opt/rh/gcc-toolset-14/enable
+          cmake --build /src/cmakebuild --target package
+
+      - name: List package output
+        run: ls -l /src/cmakebuild/packages
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ResInsight-RHEL8
+          path: /src/cmakebuild/packages/*.tar.gz
+          retention-days: 5
