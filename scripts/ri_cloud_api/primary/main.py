@@ -34,14 +34,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from .utils.exception_handlers import add_exception_handlers
 from .utils.parent_watchdog import watch_parent
 from .routers.health.router import router as health_router
-from .routers.explore.router import router as explore_router
-from .routers.polygons.router import router as polygons_router
-from .routers.surfaces.router import router as surfaces_router
-from .routers.timeseries.router import router as timeseries_router
-from .routers.grids.router import router as grids_router
 
 logger = logging.getLogger("ri_cloud_api")
 logging.basicConfig(level=logging.INFO)
@@ -59,12 +53,4 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="ResInsight Cloud API", lifespan=lifespan)
 
-add_exception_handlers(app)
-
 app.include_router(health_router)
-
-app.include_router(explore_router)
-app.include_router(timeseries_router)
-app.include_router(polygons_router)
-app.include_router(surfaces_router)
-app.include_router(grids_router)
