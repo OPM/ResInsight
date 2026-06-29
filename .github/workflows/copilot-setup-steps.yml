@@ -110,7 +110,7 @@ jobs:
         run: echo "formattedTime=$(date -u +%Y-%m-%d)" >> $GITHUB_OUTPUT
 
       - name: Restore buildcache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           # Inline literals (not ${{ env.X }}) so this works under the Copilot
           # agent, whose per-step runner doesn't expose job-level env to

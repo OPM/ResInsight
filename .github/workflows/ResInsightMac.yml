@@ -59,7 +59,7 @@ jobs:
           pip install -e GrpcInterface/Python[dev]
 
       - name: Restore buildcache tool binary
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/buildcache-tool
           key: ${{ runner.os }}-buildcache-tool-v0.33.0
@@ -94,7 +94,7 @@ jobs:
 
       - name: Cache buildcache contents
         id: cache-buildcache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ env.BUILDCACHE_DIR }}
           key: ${{ runner.os }}-appleclang-6.7.0-buildcache-v01-${{ steps.current-time.outputs.formattedTime }}
