@@ -370,16 +370,12 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( const std:
 
     caf::ProgressInfo progInfo( cases.size() * 2, "Generating ensemble statistics" );
 
+    cvf::BoundingBox boundingBox;
     for ( auto eclipseCase : cases )
     {
         auto task = progInfo.task( "Generating realization statistics.", 1 );
 
         generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, floodingSettings, limits, false );
-    }
-
-    cvf::BoundingBox boundingBox;
-    for ( auto eclipseCase : cases )
-    {
         cvf::BoundingBox bb =
             RigWellTargetMappingTools::computeBoundingBoxForResult( *eclipseCase, RigWellTargetMapping::wellTargetResultName(), timeStepIdx );
         boundingBox.add( bb );

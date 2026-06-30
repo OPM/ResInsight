@@ -47,6 +47,7 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiSliderTools.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include <cmath>
 #include <limits>
@@ -414,14 +415,15 @@ void RimWellTargetMapping::generateEnsembleStatistics()
     eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
     eclipseView->cellResult()->setResultVariable( "TOTAL_PORV_SOIL_P10" );
 
+    eclipseView->loadDataAndUpdate();
+
+    updateConnectedEditors();
+    m_ensembleStatisticsCase->updateConnectedEditors();
+
     if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
     {
         RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
     }
-
-    eclipseView->loadDataAndUpdate();
-
-    m_ensembleStatisticsCase->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -494,6 +496,19 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     {
         updateAllBoundaries();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellTargetMapping::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    if ( ensembleStatisticsCase() )
+    {
+        uiTreeOrdering.add( &m_ensembleStatisticsCase );
+    }
+
+    uiTreeOrdering.skipRemainingChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
