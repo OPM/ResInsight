@@ -108,6 +108,9 @@ RimReservoirGridEnsemble::RimReservoirGridEnsemble()
     m_statisticsCaseCollection->uiCapability()->setUiName( "Derived Statistics" );
     m_statisticsCaseCollection->uiCapability()->setUiIconFromResourceString( ":/Histograms16x16.png" );
 
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCase, "EnsembleCase", "Ensemble Grid" );
+    m_ensembleCase = nullptr;
+
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
     m_viewCollection->setEclipseCaseProvider( [this]() { return this->cases(); } );
