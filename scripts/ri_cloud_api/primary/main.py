@@ -32,7 +32,6 @@ import logging
 
 from fastapi import FastAPI
 
-from .utils.exception_handlers import add_exception_handlers
 from .routers.health.router import router as health_router
 
 logger = logging.getLogger("ri_cloud_api")
@@ -40,7 +39,5 @@ logging.basicConfig(level=logging.INFO)
 
 
 app = FastAPI(title="ResInsight Cloud API")
-
-add_exception_handlers(app)
 
 app.include_router(health_router)
