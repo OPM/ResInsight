@@ -105,9 +105,8 @@ double RigStimPlanModelTools::calculateAngleFromVertical( const cvf::Vec3d& dire
 //--------------------------------------------------------------------------------------------------
 double RigStimPlanModelTools::calculateFormationDipFromHorizontal( const cvf::Vec3d& direction )
 {
-    // Convert from angle-with-vertical to angle-from-horizontal, and take abs since
-    // direction sign depends on fracture normal orientation.
-    return std::abs( calculateAngleFromVertical( direction ) - 90.0 );
+    // Convert from angle-with-vertical to angle-from-horizontal
+    return calculateAngleFromVertical( direction ) - 90.0;
 }
 
 //--------------------------------------------------------------------------------------------------
