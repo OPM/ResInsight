@@ -354,6 +354,28 @@ bool RifOpmFlowDeckFile::saveDeckInline( std::string folder, std::string filenam
 //--------------------------------------------------------------------------------------------------
 ///  Returns updated position due to new inserts if successful, < 0 if failure
 //--------------------------------------------------------------------------------------------------
+int RifOpmFlowDeckFile::addKeywordAtPosition( int position, const Opm::DeckKeyword& keyword )
+{
+    if ( m_fileDeck.get() == nullptr ) return -1;
+
+    // locate position
+    auto insertIdx = internal::positionToIndex( position, m_fileDeck );
+    if ( !insertIdx.has_value() )
+    {
+        return -1;
+    }
+
+    // insert a new keyword
+    m_fileDeck->insert( insertIdx.value(), keyword );
+    // update position to keep keyword order
+    position++;
+
+    return position;
+}
+
+//--------------------------------------------------------------------------------------------------
+///  Returns updated position due to new inserts if successful, < 0 if failure
+//--------------------------------------------------------------------------------------------------
 int RifOpmFlowDeckFile::mergeKeywordAtPosition( int position, const Opm::DeckKeyword& keyword )
 {
     if ( m_fileDeck.get() == nullptr ) return -1;
@@ -392,6 +414,40 @@ int RifOpmFlowDeckFile::mergeKeywordAtPosition( int position, const Opm::DeckKey
     }
 
     return position;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmFlowDeckFile::addKeywordAtTimeStep( int timeStep, const Opm::DeckKeyword& keyword, std::string insertAfterKeyword )
+{
+    if ( m_fileDeck.get() == nullptr ) return false;
+
+    auto dateIdx = internal::locateTimeStep( m_fileDeck, timeStep );
+    if ( dateIdx.has_value() )
+    {
+        auto insertIdx  = dateIdx.value();
+        bool insertedOk = false;
+        if ( !insertAfterKeyword.empty() )
+        {
+            auto insertAfterKw = internal::locateKeywordAtTimeStep( m_fileDeck, timeStep, insertAfterKeyword );
+            if ( insertAfterKw.has_value() )
+            {
+                auto afterIdx = insertAfterKw.value();
+                afterIdx++;
+                m_fileDeck->insert( afterIdx, keyword );
+                insertedOk = true;
+            }
+        }
+        if ( !insertedOk )
+        {
+            // insert after keyword not found, insert at date position
+            m_fileDeck->insert( insertIdx, keyword );
+        }
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

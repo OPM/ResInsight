@@ -51,6 +51,9 @@ public:
     bool                             saveDeck( std::string folder, std::string filename );
     bool                             saveDeckInline( std::string folder, std::string filename );
 
+    int  addKeywordAtPosition( int deckPosition, const Opm::DeckKeyword& keyword );
+    bool addKeywordAtTimeStep( int timeStep, const Opm::DeckKeyword& keyword, std::string insertAfterKeyword = "" );
+
     int  mergeKeywordAtPosition( int deckPosition, const Opm::DeckKeyword& keyword );
     bool mergeKeywordAtTimeStep( int timeStep, const Opm::DeckKeyword& keyword, std::string insertAfterKeyword = "" );
 
