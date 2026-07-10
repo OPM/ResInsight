@@ -137,7 +137,7 @@ bool RigResdataGridConverter::exportGrid( const QString&         resultFileName,
             actnumArrayDouble.push_back( v );
         }
 
-        int valuesPerRow = 10;
+        int valuesPerRow = 6;
         RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, writeEchoKeywordsInExporterObject, keyword, actnumArrayDouble, valuesPerRow );
     }
 
