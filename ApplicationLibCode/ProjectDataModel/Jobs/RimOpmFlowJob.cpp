@@ -1131,8 +1131,8 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
     if ( m_wellOpenType == WellOpenType::OPEN_AT_DATE )
     {
         // make sure we insert after COMPDAT kw
-        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), welsegsKw, "COMPDAT" ) ) return failure;
-        if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), compsegsKw, welsegsKw.name() ) ) return failure;
+        if ( !m_deckFile->addKeywordAtTimeStep( m_openTimeStep(), welsegsKw, "COMPDAT" ) ) return failure;
+        if ( !m_deckFile->addKeywordAtTimeStep( m_openTimeStep(), compsegsKw, welsegsKw.name() ) ) return failure;
         if ( !wsegvalvKw.empty() )
         {
             if ( !m_deckFile->mergeKeywordAtTimeStep( m_openTimeStep(), wsegvalvKw, compsegsKw.name() ) ) return failure;
@@ -1150,10 +1150,10 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
     }
     else
     {
-        mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, welsegsKw );
+        mergePosition = m_deckFile->addKeywordAtPosition( mergePosition, welsegsKw );
         if ( mergePosition < 0 ) return failure;
         mergePosition++;
-        mergePosition = m_deckFile->mergeKeywordAtPosition( mergePosition, compsegsKw );
+        mergePosition = m_deckFile->addKeywordAtPosition( mergePosition, compsegsKw );
         if ( mergePosition < 0 ) return failure;
         mergePosition++;
         if ( !wsegvalvKw.empty() )

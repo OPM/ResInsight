@@ -45,7 +45,7 @@ RiaPreferencesOpm::RiaPreferencesOpm()
     CAF_PDM_InitField( &m_useWsl, "useWsl", false, "Use WSL to run OPM Flow" );
     CAF_PDM_InitField( &m_useMpi, "useMpi", false, "Enable MPI" );
 
-    CAF_PDM_InitField( &m_mpirunCommand, "mpirunCommand", QString( "/usr/bin/mpirun" ), "Path to mpirun executable" );
+    CAF_PDM_InitField( &m_mpirunCommand, "mpirunCommand", QString( "/usr/bin/mpirun" ), "Path to mpirun or mpiexec executable" );
     m_mpirunCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_wslDistribution, "wslDistribution", "WSL Distribution to use:" );
