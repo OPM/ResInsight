@@ -55,15 +55,15 @@ RimIjkIntersection::RimIjkIntersection()
     CAF_PDM_InitFieldNoDefault( &m_axis, "Axis", "Axis" );
     CAF_PDM_InitField( &m_useNegativeFace, "UseNegativeFace", false, "Use Back Pillar Face" );
 
-    CAF_PDM_InitField( &m_fixedIndex, "FixedIndex", 0, "Index" );
+    CAF_PDM_InitField( &m_fixedIndex, "FixedIndex", 1, "Index" );
     m_fixedIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_iMin, "IMin", 0, "Min" );
-    CAF_PDM_InitField( &m_iMax, "IMax", 0, "Max" );
-    CAF_PDM_InitField( &m_jMin, "JMin", 0, "Min" );
-    CAF_PDM_InitField( &m_jMax, "JMax", 0, "Max" );
-    CAF_PDM_InitField( &m_kMin, "KMin", 0, "Min" );
-    CAF_PDM_InitField( &m_kMax, "KMax", 0, "Max" );
+    CAF_PDM_InitField( &m_iMin, "IMin", 1, "Min" );
+    CAF_PDM_InitField( &m_iMax, "IMax", 1, "Max" );
+    CAF_PDM_InitField( &m_jMin, "JMin", 1, "Min" );
+    CAF_PDM_InitField( &m_jMax, "JMax", 1, "Max" );
+    CAF_PDM_InitField( &m_kMin, "KMin", 1, "Min" );
+    CAF_PDM_InitField( &m_kMax, "KMax", 1, "Max" );
 
     for ( caf::PdmField<int>* field : { &m_iMin, &m_iMax, &m_jMin, &m_jMax, &m_kMin, &m_kMax } )
     {
@@ -125,7 +125,7 @@ bool RimIjkIntersection::useNegativeFace() const
 //--------------------------------------------------------------------------------------------------
 int RimIjkIntersection::fixedIndex() const
 {
-    return m_fixedIndex();
+    return m_fixedIndex() - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,12 +133,12 @@ int RimIjkIntersection::fixedIndex() const
 //--------------------------------------------------------------------------------------------------
 void RimIjkIntersection::ijkRange( int& iMin, int& iMax, int& jMin, int& jMax, int& kMin, int& kMax ) const
 {
-    iMin = m_iMin();
-    iMax = m_iMax();
-    jMin = m_jMin();
-    jMax = m_jMax();
-    kMin = m_kMin();
-    kMax = m_kMax();
+    iMin = m_iMin() - 1;
+    iMax = m_iMax() - 1;
+    jMin = m_jMin() - 1;
+    jMax = m_jMax() - 1;
+    kMin = m_kMin() - 1;
+    kMax = m_kMax() - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,7 +162,7 @@ void RimIjkIntersection::setUseNegativeFace( bool useNegativeFace )
 //--------------------------------------------------------------------------------------------------
 void RimIjkIntersection::setFixedIndex( int fixedIndex )
 {
-    m_fixedIndex = fixedIndex;
+    m_fixedIndex = fixedIndex + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,12 +170,12 @@ void RimIjkIntersection::setFixedIndex( int fixedIndex )
 //--------------------------------------------------------------------------------------------------
 void RimIjkIntersection::setIjkRange( int iMin, int iMax, int jMin, int jMax, int kMin, int kMax )
 {
-    m_iMin = iMin;
-    m_iMax = iMax;
-    m_jMin = jMin;
-    m_jMax = jMax;
-    m_kMin = kMin;
-    m_kMax = kMax;
+    m_iMin = iMin + 1;
+    m_iMax = iMax + 1;
+    m_jMin = jMin + 1;
+    m_jMax = jMax + 1;
+    m_kMin = kMin + 1;
+    m_kMax = kMax + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,13 +191,13 @@ void RimIjkIntersection::setToDefaultValues()
     int nk = static_cast<int>( grid->cellCountK() );
 
     m_axis       = GridAxis::AXIS_K;
-    m_iMin       = 0;
-    m_iMax       = ni - 1;
-    m_jMin       = 0;
-    m_jMax       = nj - 1;
-    m_kMin       = 0;
-    m_kMax       = nk - 1;
-    m_fixedIndex = nk / 2;
+    m_iMin       = 1;
+    m_iMax       = ni;
+    m_jMin       = 1;
+    m_jMax       = nj;
+    m_kMin       = 1;
+    m_kMax       = nk;
+    m_fixedIndex = nk / 2 + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,23 +277,23 @@ void RimIjkIntersection::defineEditorAttribute( const caf::PdmFieldHandle* field
 
     if ( field == &m_fixedIndex )
     {
-        sliderAttr->m_minimum = 0;
-        sliderAttr->m_maximum = std::max( 0, axisCellCount() - 1 );
+        sliderAttr->m_minimum = 1;
+        sliderAttr->m_maximum = std::max( 1, axisCellCount() );
     }
     else if ( field == &m_iMin || field == &m_iMax )
     {
-        sliderAttr->m_minimum = 0;
-        sliderAttr->m_maximum = std::max( 0, ni - 1 );
+        sliderAttr->m_minimum = 1;
+        sliderAttr->m_maximum = std::max( 1, ni );
     }
     else if ( field == &m_jMin || field == &m_jMax )
     {
-        sliderAttr->m_minimum = 0;
-        sliderAttr->m_maximum = std::max( 0, nj - 1 );
+        sliderAttr->m_minimum = 1;
+        sliderAttr->m_maximum = std::max( 1, nj );
     }
     else if ( field == &m_kMin || field == &m_kMax )
     {
-        sliderAttr->m_minimum = 0;
-        sliderAttr->m_maximum = std::max( 0, nk - 1 );
+        sliderAttr->m_minimum = 1;
+        sliderAttr->m_maximum = std::max( 1, nk );
     }
 }
 
@@ -322,21 +322,21 @@ void RimIjkIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
     if ( m_axis() != GridAxis::AXIS_I )
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup( QString( "I Range [0  %1]" ).arg( std::max( 0, ni - 1 ) ) );
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( QString( "I Range [1 .. %1]" ).arg( std::max( 1, ni ) ) );
         group->add( &m_iMin );
         group->add( &m_iMax );
     }
 
     if ( m_axis() != GridAxis::AXIS_J )
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup( QString( "J Range [0  %1]" ).arg( std::max( 0, nj - 1 ) ) );
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( QString( "J Range [1 .. %1]" ).arg( std::max( 1, nj ) ) );
         group->add( &m_jMin );
         group->add( &m_jMax );
     }
 
     if ( m_axis() != GridAxis::AXIS_K )
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup( QString( "K Range [0  %1]" ).arg( std::max( 0, nk - 1 ) ) );
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( QString( "K Range [1 .. %1]" ).arg( std::max( 1, nk ) ) );
         group->add( &m_kMin );
         group->add( &m_kMax );
     }
@@ -358,15 +358,15 @@ void RimIjkIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         int nj = static_cast<int>( grid->cellCountJ() );
         int nk = static_cast<int>( grid->cellCountK() );
 
-        auto clamp = []( caf::PdmField<int>& f, int hi ) { f = std::max( 0, std::min( f(), hi ) ); };
+        auto clamp = []( caf::PdmField<int>& f, int hi ) { f = std::max( 1, std::min( f(), hi ) ); };
 
-        clamp( m_iMin, ni - 1 );
-        clamp( m_iMax, ni - 1 );
-        clamp( m_jMin, nj - 1 );
-        clamp( m_jMax, nj - 1 );
-        clamp( m_kMin, nk - 1 );
-        clamp( m_kMax, nk - 1 );
-        clamp( m_fixedIndex, std::max( 0, axisCellCount() - 1 ) );
+        clamp( m_iMin, ni );
+        clamp( m_iMax, ni );
+        clamp( m_jMin, nj );
+        clamp( m_jMax, nj );
+        clamp( m_kMin, nk );
+        clamp( m_kMax, nk );
+        clamp( m_fixedIndex, std::max( 1, axisCellCount() ) );
 
         if ( changedField == &m_axis )
         {

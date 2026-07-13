@@ -53,8 +53,10 @@ public:
 
     GridAxis axis() const;
     bool     useNegativeFace() const;
-    int      fixedIndex() const;
-    void     ijkRange( int& iMin, int& iMax, int& jMin, int& jMax, int& kMin, int& kMax ) const;
+
+    // Index accessors and setters use 0-based grid indices; the PDM fields and UI are 1-based
+    int  fixedIndex() const;
+    void ijkRange( int& iMin, int& iMax, int& jMin, int& jMax, int& kMin, int& kMax ) const;
 
     void setAxis( GridAxis axis );
     void setUseNegativeFace( bool useNegativeFace );
