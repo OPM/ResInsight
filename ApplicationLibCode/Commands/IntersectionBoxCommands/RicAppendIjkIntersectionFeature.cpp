@@ -54,15 +54,16 @@ void RicAppendIjkIntersectionFeature::onActionTriggered( bool isChecked )
         RimIjkIntersection* intersection = new RimIjkIntersection();
         intersection->setName( "Intersection I/J/K" );
 
-        coll->appendIjkIntersectionAndUpdate( intersection );
-
+        // The default values are computed from the grid, which is resolved through the parent
+        // view, so the intersection must be added to the collection first
+        coll->appendIjkIntersectionNoUpdate( intersection );
         intersection->setToDefaultValues();
-        intersection->updateConnectedEditors();
 
         coll->updateConnectedEditors();
         Riu3DMainWindowTools::selectAsCurrentItem( intersection );
 
         RimGridView* rimView = coll->firstAncestorOrThisOfTypeAsserted<RimGridView>();
+        rimView->scheduleCreateDisplayModelAndRedraw();
         rimView->showGridCells( false );
     }
 }
