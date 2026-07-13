@@ -29,6 +29,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
+#include "RimIjkIntersection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimSurfaceInView.h"
 
@@ -39,6 +40,7 @@
 #include "RivExtrudedCurveIntersectionSourceInfo.h"
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
+#include "RivIjkIntersectionSourceInfo.h"
 #include "RivReservoirSurfaceIntersectionSourceInfo.h"
 #include "RivSourceInfo.h"
 
@@ -192,6 +194,19 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
         intersectionHit         = true;
         intersectionTriangleHit = intersectionBoxSourceInfo->triangle( firstPartTriangleIndex );
         sepInterResDef          = intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition();
+    }
+    else if ( const RivIjkIntersectionSourceInfo* ijkIntersectionSourceInfo =
+                  dynamic_cast<const RivIjkIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
+    {
+        RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
+                                                 ijkIntersectionSourceInfo->intersection()->activeSeparateResultDefinition(),
+                                                 ijkIntersectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
+                                                 &gridLocalCellIndex,
+                                                 &gridIndex );
+
+        intersectionHit         = true;
+        intersectionTriangleHit = ijkIntersectionSourceInfo->triangle( firstPartTriangleIndex );
+        sepInterResDef          = ijkIntersectionSourceInfo->intersection()->activeSeparateResultDefinition();
     }
 
     if ( sepInterResDef )
