@@ -101,7 +101,8 @@ public:
     void   setTilt( double tilt );
     double tilt() const;
 
-    void setAzimuth( double azimuth );
+    void   setAzimuth( double azimuth );
+    double azimuth() const;
 
     void                 setFractureTemplateNoUpdate( RimFractureTemplate* fractureTemplate );
     void                 setFractureTemplate( RimFractureTemplate* fractureTemplate );

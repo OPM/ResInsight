@@ -107,7 +107,8 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addFracture::execute(
             cvf::Vec3d formationDirection = RimStimPlanModel::projectVectorIntoFracturePlane( position, fractureDirectionNormal, direction );
             if ( !formationDirection.isUndefined() )
             {
-                double formationDip = RigStimPlanModelTools::calculateFormationDipFromHorizontal( formationDirection );
+                double formationDip =
+                    RigStimPlanModelTools::calculateFormationDipAlignedToAzimuth( formationDirection, wellPathFracture->azimuth() );
                 RiaLogging::info( std::format( "Computed formation dip: {}", formationDip ) );
 
                 wellPathFracture->setDip( formationDip );

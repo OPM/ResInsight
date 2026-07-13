@@ -542,6 +542,14 @@ void RimFracture::setAzimuth( double azimuth )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimFracture::azimuth() const
+{
+    return m_azimuth();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFracture::setFractureTemplateNoUpdate( RimFractureTemplate* fractureTemplate )
 {
     if ( fractureTemplate && fractureTemplate->fractureTemplateUnit() != fractureUnit() )
