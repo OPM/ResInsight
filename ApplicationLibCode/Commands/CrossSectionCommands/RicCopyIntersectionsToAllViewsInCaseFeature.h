@@ -26,6 +26,7 @@
 class RimCase;
 class RimExtrudedCurveIntersection;
 class RimBoxIntersection;
+class RimIjkIntersection;
 class RimIntersectionCollection;
 
 //==================================================================================================
@@ -42,4 +43,5 @@ protected:
 
     void copyIntersectionsToOtherViews( RimCase& gridCase, std::vector<RimExtrudedCurveIntersection*> intersections );
     void copyIntersectionBoxesToOtherViews( RimCase& gridCase, std::vector<RimBoxIntersection*> intersectionBoxes );
+    void copyIjkIntersectionsToOtherViews( RimCase& gridCase, std::vector<RimIjkIntersection*> ijkIntersections );
 };
