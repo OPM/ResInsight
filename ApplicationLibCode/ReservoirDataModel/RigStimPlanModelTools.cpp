@@ -36,6 +36,8 @@
 
 #include <QString>
 
+#include <cmath>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -105,8 +107,28 @@ double RigStimPlanModelTools::calculateAngleFromVertical( const cvf::Vec3d& dire
 //--------------------------------------------------------------------------------------------------
 double RigStimPlanModelTools::calculateFormationDipFromHorizontal( const cvf::Vec3d& direction )
 {
-    // Convert from angle-with-vertical to angle-from-horizontal
-    return calculateAngleFromVertical( direction ) - 90.0;
+    // Convert from angle-with-vertical to angle-from-horizontal, and take abs since
+    // direction sign depends on fracture normal orientation.
+    return std::abs( calculateAngleFromVertical( direction ) - 90.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigStimPlanModelTools::calculateFormationDipAlignedToAzimuth( const cvf::Vec3d& formationDirection, double azimuthDegrees )
+{
+    // The orientation of the formation direction vector depends on the fracture normal, which can
+    // point either way along the well. Canonicalize it to point along the fracture azimuth direction
+    // before computing the dip: a positive result then means the formation descends toward the
+    // azimuth direction, matching the sign convention of the fracture dip rotation in
+    // RimFracture::transformMatrix().
+    double     azimuthRadians = cvf::Math::toRadians( azimuthDegrees );
+    cvf::Vec3d azimuthDirection( std::sin( azimuthRadians ), std::cos( azimuthRadians ), 0.0 );
+
+    cvf::Vec3d direction = formationDirection;
+    if ( direction * azimuthDirection < 0.0 ) direction = -direction;
+
+    return 90.0 - calculateAngleFromVertical( direction );
 }
 
 //--------------------------------------------------------------------------------------------------

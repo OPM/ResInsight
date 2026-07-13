@@ -52,6 +52,7 @@ public:
 
     static double calculateAngleFromVertical( const cvf::Vec3d& direction );
     static double calculateFormationDipFromHorizontal( const cvf::Vec3d& direction );
+    static double calculateFormationDipAlignedToAzimuth( const cvf::Vec3d& formationDirection, double azimuthDegrees );
 
     static QString vecToString( const cvf::Vec3d& vec );
 
