@@ -368,13 +368,7 @@ void RimIjkIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         clamp( m_kMax, nk );
         clamp( m_fixedIndex, std::max( 1, axisCellCount() ) );
 
-        if ( changedField == &m_axis )
-        {
-            // Re-center the fixed index for the newly selected axis
-            m_fixedIndex = std::min( m_fixedIndex(), std::max( 0, axisCellCount() - 1 ) );
-        }
-
-        // Keep each min/max pair ordered, adjusting the field that did not change
+        // Keep each min/max pair ordered by limiting the changed field to the other one
         if ( changedField == &m_iMin ) m_iMin = std::min( m_iMin(), m_iMax() );
         if ( changedField == &m_iMax ) m_iMax = std::max( m_iMin(), m_iMax() );
         if ( changedField == &m_jMin ) m_jMin = std::min( m_jMin(), m_jMax() );
