@@ -79,7 +79,7 @@ void PdmUiTableRowEditor::configureAndUpdateUi( const QString& uiConfigName )
     if ( m_model )
     {
         QModelIndex miStart = m_model->index( m_row, 0 );
-        QModelIndex miEnd   = m_model->index( m_row, m_model->columnCount() );
+        QModelIndex miEnd   = m_model->index( m_row, m_model->columnCount() - 1 );
 
         m_model->notifyDataChanged( miStart, miEnd );
     }

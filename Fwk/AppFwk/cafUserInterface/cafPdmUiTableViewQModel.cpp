@@ -739,7 +739,7 @@ QItemSelection PdmUiTableViewQModel::modelIndexFromPdmObject( PdmObjectHandle* p
         if ( obj == pdmObject )
         {
             // Select whole row
-            itemSelection.select( this->createIndex( i, 0 ), this->createIndex( i, this->columnCount() ) );
+            itemSelection.select( this->createIndex( i, 0 ), this->createIndex( i, this->columnCount() - 1 ) );
         }
     }
 
