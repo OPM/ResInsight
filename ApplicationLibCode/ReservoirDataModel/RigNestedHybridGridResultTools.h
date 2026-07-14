@@ -62,27 +62,29 @@ public:
     // How refined-cell values are aggregated onto their parent cell.
     enum class AggregationMode
     {
-        VOLUME_WEIGHTED_AVERAGE, // intensive quantities (pressure, saturations)
+        PORE_VOLUME_WEIGHTED_AVERAGE, // intensive quantities (pressure, saturations); falls back to
+                                      // the bulk cell volume as weight if PORV is not available
         SUM // extensive quantities (fluid in place)
     };
 
-    // Aggregate a source result onto each refined cell's parent COARSE cell (volume-weighted average
-    // or sum), broadcast back onto every cell of that parent (and unrefined cells keep their own
-    // value). Stores the result under "<sourceName>_COARSE" for all time steps and returns its
+    // Aggregate a source result onto each refined cell's parent COARSE cell (pore-volume-weighted
+    // average or sum), broadcast back onto every cell of that parent (and unrefined cells keep their
+    // own value). Stores the result under "<sourceName>_COARSE" for all time steps and returns its
     // address. Returns an invalid address if there is no nested-hybrid parent mapping.
     static RigEclipseResultAddress computeCoarseAggregate( RigCaseCellResultsData*        cellResults,
                                                            const RigEclipseResultAddress& sourceAddress,
-                                                           AggregationMode                mode = AggregationMode::VOLUME_WEIGHTED_AVERAGE );
+                                                           AggregationMode mode = AggregationMode::PORE_VOLUME_WEIGHTED_AVERAGE );
 
-    // Per refinement level, the aggregate (volume-weighted average or sum) of a source result over
-    // the cells of each immediate parent, broadcast back onto that level's cells; all other cells are
-    // left undefined so each level's result shows only that level. Stores one result
+    // Per refinement level, the aggregate (pore-volume-weighted average or sum) of a source result
+    // over the cells of each immediate parent, broadcast back onto that level's cells; all other
+    // cells are left undefined so each level's result shows only that level. Stores one result
     // "<sourceName>_COARSE_L<level>" per level present and returns their addresses.
     static std::vector<RigEclipseResultAddress> computePerLevelAggregate( RigCaseCellResultsData*        cellResults,
                                                                           const RigEclipseResultAddress& sourceAddress,
-                                                                          AggregationMode mode = AggregationMode::VOLUME_WEIGHTED_AVERAGE );
+                                                                          AggregationMode mode = AggregationMode::PORE_VOLUME_WEIGHTED_AVERAGE );
 
     // Copy result values onto the reconstructed LGR cells from the source flat refined cells they were
-    // built from. Resizes the array to cover the LGR active cells.
+    // built from. Handles both active-cell-indexed and full-length (all-cells) arrays, resizing the
+    // array to cover the LGR cells.
     static void assignValuesToLgrs( RigCaseCellResultsData* cellResults, std::vector<double>& values );
 };

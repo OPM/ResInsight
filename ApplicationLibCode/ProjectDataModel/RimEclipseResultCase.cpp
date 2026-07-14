@@ -337,7 +337,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
 
-        // Nested hybrid grid: pre-compute the volume-weighted coarse aggregate of the key QC results.
+        // Nested hybrid grid: pre-compute the coarse aggregate of the key QC results.
         computeNestedHybridCoarseAggregatesIfPresent();
     }
 
@@ -365,7 +365,7 @@ bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Nested hybrid grid: pre-compute the volume-weighted coarse aggregate (<RESULT>_COARSE) for the
+/// Nested hybrid grid: pre-compute the coarse aggregate (<RESULT>_COARSE) for the
 /// common QC results (pressure and saturations), so they are available right after a reconstructed
 /// nested hybrid grid is loaded.
 //--------------------------------------------------------------------------------------------------
@@ -384,8 +384,8 @@ void RimEclipseResultCase::computeNestedHybridCoarseAggregatesIfPresent()
 
     using AggregationMode = RigNestedHybridGridResultTools::AggregationMode;
 
-    // Intensive quantities are volume-weighted averaged onto the parent; extensive fluid-in-place
-    // quantities are summed.
+    // Intensive quantities are pore-volume-weighted averaged onto the parent; extensive
+    // fluid-in-place quantities are summed.
     const QStringList qcResults  = { "PRESSURE", RiaResultNames::swat(), RiaResultNames::sgas(), RiaResultNames::soil() };
     const QStringList fipResults = { "FIPOIL", "FIPGAS", "FIPWAT", "RFIPOIL", "RFIPGAS", "RFIPWAT", "SFIPOIL", "SFIPGAS", "SFIPWAT" };
 
@@ -401,7 +401,7 @@ void RimEclipseResultCase::computeNestedHybridCoarseAggregatesIfPresent()
             }
         }
     };
-    computeAggregates( qcResults, AggregationMode::VOLUME_WEIGHTED_AVERAGE );
+    computeAggregates( qcResults, AggregationMode::PORE_VOLUME_WEIGHTED_AVERAGE );
     computeAggregates( fipResults, AggregationMode::SUM );
 }
 

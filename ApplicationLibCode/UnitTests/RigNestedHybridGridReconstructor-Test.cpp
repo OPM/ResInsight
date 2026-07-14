@@ -386,10 +386,10 @@ TEST( RigNestedHybridGridReconstructorTest, DynamicAndComputedResultsOnLgr )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// QC: the volume-weighted aggregate onto each coarse parent must equal the hand-computed weighted
-/// average and be identical for every refined cell of the same parent.
+/// QC: the pore-volume-weighted aggregate onto each coarse parent must equal the hand-computed
+/// weighted average and be identical for every refined cell of the same parent.
 //--------------------------------------------------------------------------------------------------
-TEST( RigNestedHybridGridReconstructorTest, CoarseVolumeWeightedAggregate )
+TEST( RigNestedHybridGridReconstructorTest, CoarsePoreVolumeWeightedAggregate )
 {
     using namespace RiaDefines;
 
@@ -429,6 +429,11 @@ TEST( RigNestedHybridGridReconstructorTest, CoarseVolumeWeightedAggregate )
     ASSERT_TRUE( res->ensureKnownResultLoaded( volAddr ) );
     const std::vector<double>& vol = res->cellScalarResults( volAddr, 0 );
 
+    // Pore volume is the weight (active-cell indexed via the shared helper).
+    std::vector<double>        porvTemp;
+    const std::vector<double>* porv = RigCaseCellResultsData::getResultIndexableStaticResult( ai, res, RiaResultNames::porv(), porvTemp );
+    ASSERT_TRUE( porv != nullptr );
+
     // The flat refined cells are hidden (zero volume) once moved into an LGR; their geometry/value
     // lives on the LGR copy. Map each flat cell to its geometry-bearing cell, and group by parent.
     std::map<size_t, size_t> flatToGeom;
@@ -442,7 +447,8 @@ TEST( RigNestedHybridGridReconstructorTest, CoarseVolumeWeightedAggregate )
         if ( ai->isActive( ReservoirCellIndex( geom ) ) ) byParent[parent].push_back( geom );
     }
 
-    // Find a parent with at least two active refined cells and verify its aggregate.
+    // Find a parent with at least two active refined cells and verify its aggregate. Only cells with
+    // a positive bulk volume contribute, weighted by their pore volume (mirrors the implementation).
     int verified = 0;
     for ( const auto& [parent, cells] : byParent )
     {
@@ -452,10 +458,13 @@ TEST( RigNestedHybridGridReconstructorTest, CoarseVolumeWeightedAggregate )
         for ( size_t cell : cells )
         {
             size_t ri = ai->cellResultIndex( ReservoirCellIndex( cell ) ).value();
-            sumVW += src[ri] * vol[ri];
-            sumV += vol[ri];
+            if ( vol[ri] <= 0.0 ) continue;
+            double w = ( *porv )[ri];
+            if ( w <= 0.0 || w == HUGE_VAL ) continue;
+            sumVW += src[ri] * w;
+            sumV += w;
         }
-        ASSERT_GT( sumV, 0.0 );
+        if ( sumV <= 0.0 ) continue;
         double expected = sumVW / sumV;
 
         for ( size_t cell : cells )
@@ -470,10 +479,10 @@ TEST( RigNestedHybridGridReconstructorTest, CoarseVolumeWeightedAggregate )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// QC per refinement level: <RESULT>_COARSE_L4 holds, on each level-4 cell, the volume-weighted
+/// QC per refinement level: <RESULT>_COARSE_L4 holds, on each level-4 cell, the pore-volume-weighted
 /// average over the level-4 cells of its immediate (level-3) parent.
 //--------------------------------------------------------------------------------------------------
-TEST( RigNestedHybridGridReconstructorTest, PerLevelVolumeWeightedAggregate )
+TEST( RigNestedHybridGridReconstructorTest, PerLevelPoreVolumeWeightedAggregate )
 {
     using namespace RiaDefines;
 
@@ -523,6 +532,11 @@ TEST( RigNestedHybridGridReconstructorTest, PerLevelVolumeWeightedAggregate )
     ASSERT_TRUE( res->ensureKnownResultLoaded( volAddr ) );
     const std::vector<double>& vol = res->cellScalarResults( volAddr, 0 );
 
+    // Pore volume is the weight (active-cell indexed via the shared helper).
+    std::vector<double>        porvTemp;
+    const std::vector<double>* porv = RigCaseCellResultsData::getResultIndexableStaticResult( ai, res, RiaResultNames::porv(), porvTemp );
+    ASSERT_TRUE( porv != nullptr );
+
     // Blank-elsewhere: the _COARSE_L4 result is defined only on active level-4 cells.
     size_t activeLevel4 = 0;
     for ( size_t i = 1; i < grid->gridCount(); i++ )
@@ -567,10 +581,13 @@ TEST( RigNestedHybridGridReconstructorTest, PerLevelVolumeWeightedAggregate )
         for ( size_t cell : cells )
         {
             size_t ri = ai->cellResultIndex( ReservoirCellIndex( cell ) ).value();
-            sumVW += src[ri] * vol[ri];
-            sumV += vol[ri];
+            if ( vol[ri] <= 0.0 ) continue;
+            double w = ( *porv )[ri];
+            if ( w <= 0.0 || w == HUGE_VAL ) continue;
+            sumVW += src[ri] * w;
+            sumV += w;
         }
-        ASSERT_GT( sumV, 0.0 );
+        if ( sumV <= 0.0 ) continue;
         double expected = sumVW / sumV;
 
         for ( size_t cell : cells )

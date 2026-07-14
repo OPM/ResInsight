@@ -223,10 +223,11 @@ void RigNestedHybridGridResultTools::extendLgrResults( RigCaseCellResultsData* c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Aggregate a source result onto each refined cell's parent COARSE cell - the volume-weighted
-/// average for intensive quantities, or the sum for extensive quantities (e.g. FIP) - then broadcast
-/// that aggregate back onto every (active) cell of the parent - both the original flat refined cells
-/// and the reconstructed LGR cells. Unrefined cells keep their own value. The result is stored as a
+/// Aggregate a source result onto each refined cell's parent COARSE cell - the pore-volume-weighted
+/// average for intensive quantities (falling back to the bulk cell volume as weight if PORV is not
+/// available), or the sum for extensive quantities (e.g. FIP) - then broadcast that aggregate back
+/// onto every (active) cell of the parent - both the original flat refined cells and the
+/// reconstructed LGR cells. Unrefined cells keep their own value. The result is stored as a
 /// GENERATED result named "<sourceName>_COARSE" for all time steps.
 //--------------------------------------------------------------------------------------------------
 RigEclipseResultAddress RigNestedHybridGridResultTools::computeCoarseAggregate( RigCaseCellResultsData*        cellResults,
@@ -246,7 +247,8 @@ RigEclipseResultAddress RigNestedHybridGridResultTools::computeCoarseAggregate( 
 
     if ( !cellResults->ensureKnownResultLoaded( sourceAddress ) ) return invalid;
 
-    // Cell volumes (active-cell indexed) for the weighting.
+    // Cell volumes (active-cell indexed): the zero-volume mask that excludes the hidden flat
+    // duplicates, and the fallback weight if PORV is not available.
     cellResults->computeCellVolumes();
     RigEclipseResultAddress volAddr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riCellVolumeResultName() );
     if ( !cellResults->ensureKnownResultLoaded( volAddr ) ) return invalid;
@@ -258,7 +260,7 @@ RigEclipseResultAddress RigNestedHybridGridResultTools::computeCoarseAggregate( 
 
     // Create the output result (GENERATED so the file reader never tries to read it). createResultEntry()
     // pushes onto the backing storage and may reallocate it, invalidating any reference/pointer into the
-    // backing storage; bind volumes/sourceTs only afterwards.
+    // backing storage; bind volumes/sourceTs/porv only afterwards.
     const QString           outName = sourceAddress.resultName() + "_COARSE";
     RigEclipseResultAddress outAddr( RiaDefines::ResultCatType::GENERATED, outName );
     if ( !cellResults->hasResultEntry( outAddr ) ) cellResults->createResultEntry( outAddr, true );
@@ -268,6 +270,14 @@ RigEclipseResultAddress RigNestedHybridGridResultTools::computeCoarseAggregate( 
 
     const std::vector<double>&              volumes  = cellResults->cellScalarResults( volAddr, 0 );
     const std::vector<std::vector<double>>& sourceTs = cellResults->cellScalarResults( sourceAddress );
+
+    // Pore volume (active-cell indexed) is the weight for the average; null if PORV is unavailable.
+    std::vector<double>        porvTemp;
+    const std::vector<double>* porv = nullptr;
+    if ( mode == AggregationMode::PORE_VOLUME_WEIGHTED_AVERAGE )
+    {
+        porv = RigCaseCellResultsData::getResultIndexableStaticResult( activeCellInfo, cellResults, RiaResultNames::porv(), porvTemp );
+    }
 
     auto activeIndex = [&]( size_t reservoirCell ) { return activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCell ) ).value(); };
 
@@ -291,19 +301,30 @@ RigEclipseResultAddress RigNestedHybridGridResultTools::computeCoarseAggregate( 
         out                            = src; // unrefined cells keep their own value
         if ( out.size() < activeCellCount ) out.resize( activeCellCount, HUGE_VAL );
 
-        // Accumulate per coarse parent, using the geometry-bearing cell. The zero-volume filter also
-        // excludes the hidden flat duplicates in SUM mode, so no cell is counted twice.
-        std::map<size_t, std::pair<double, double>> acc; // parent -> (sum value[*vol], sum vol / count)
+        // Accumulate per coarse parent, using the geometry-bearing cell. The zero-bulk-volume filter
+        // excludes the hidden flat duplicates in both modes (their PORV is a duplicate too), so no
+        // cell is counted twice.
+        std::map<size_t, std::pair<double, double>> acc; // parent -> (sum value[*weight], sum weight / count)
         for ( const auto& [flatCell, parent] : coarseParents )
         {
             size_t ri = activeIndex( geometryCell( flatCell ) );
             if ( ri == cvf::UNDEFINED_SIZE_T || ri >= src.size() || ri >= volumes.size() ) continue;
             double v = src[ri];
-            double w = volumes[ri];
-            if ( w <= 0.0 || v == HUGE_VAL ) continue;
-            auto& a = acc[parent];
-            a.first += ( mode == AggregationMode::SUM ) ? v : v * w;
-            a.second += ( mode == AggregationMode::SUM ) ? 1.0 : w;
+            if ( volumes[ri] <= 0.0 || v == HUGE_VAL ) continue;
+            if ( mode == AggregationMode::SUM )
+            {
+                auto& a = acc[parent];
+                a.first += v;
+                a.second += 1.0;
+            }
+            else
+            {
+                double w = ( porv && ri < porv->size() ) ? ( *porv )[ri] : volumes[ri];
+                if ( w <= 0.0 || w == HUGE_VAL ) continue;
+                auto& a = acc[parent];
+                a.first += v * w;
+                a.second += w;
+            }
         }
 
         auto aggregate = [&]( size_t parent, double fallback )
@@ -334,9 +355,9 @@ RigEclipseResultAddress RigNestedHybridGridResultTools::computeCoarseAggregate( 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Per refinement level, compute the aggregate (volume-weighted average or sum) of a source result
-/// over the cells of each immediate parent and broadcast it back onto that level's cells. All other
-/// cells are left undefined (blank) so each level's result shows only that level. One result
+/// Per refinement level, compute the aggregate (pore-volume-weighted average or sum) of a source
+/// result over the cells of each immediate parent and broadcast it back onto that level's cells. All
+/// other cells are left undefined (blank) so each level's result shows only that level. One result
 /// "<sourceName>_COARSE_L<level>" is created per level present (stored on the active refined cells;
 /// the parent cells are inactive).
 //--------------------------------------------------------------------------------------------------
@@ -449,22 +470,40 @@ std::vector<RigEclipseResultAddress> RigNestedHybridGridResultTools::computePerL
     const std::vector<std::vector<double>>& sourceTs = cellResults->cellScalarResults( sourceAddress );
     const std::vector<double>&              volumes  = cellResults->cellScalarResults( volAddr, 0 );
 
+    // Pore volume (active-cell indexed) is the weight for the average; null if PORV is unavailable.
+    std::vector<double>        porvTemp;
+    const std::vector<double>* porv = nullptr;
+    if ( mode == AggregationMode::PORE_VOLUME_WEIGHTED_AVERAGE )
+    {
+        porv = RigCaseCellResultsData::getResultIndexableStaticResult( activeCellInfo, cellResults, RiaResultNames::porv(), porvTemp );
+    }
+
     for ( size_t ts = 0; ts < tsCount; ts++ )
     {
         const std::vector<double>& src = sourceTs[ts];
 
         // Accumulation keyed by (level, immediate parent) - cells of different levels are never
-        // accumulated together. The zero-volume filter also excludes hidden duplicates in SUM mode.
+        // accumulated together. The zero-bulk-volume filter excludes hidden duplicates in both modes.
         std::map<int, std::map<size_t, std::pair<double, double>>> acc;
         for ( const CellRef& cr : cellRefs )
         {
             if ( cr.resultIndex >= src.size() || cr.resultIndex >= volumes.size() ) continue;
             double v = src[cr.resultIndex];
-            double w = volumes[cr.resultIndex];
-            if ( w <= 0.0 || v == HUGE_VAL ) continue;
-            auto& a = acc[cr.level][cr.parentGlobal];
-            a.first += ( mode == AggregationMode::SUM ) ? v : v * w;
-            a.second += ( mode == AggregationMode::SUM ) ? 1.0 : w;
+            if ( volumes[cr.resultIndex] <= 0.0 || v == HUGE_VAL ) continue;
+            if ( mode == AggregationMode::SUM )
+            {
+                auto& a = acc[cr.level][cr.parentGlobal];
+                a.first += v;
+                a.second += 1.0;
+            }
+            else
+            {
+                double w = ( porv && cr.resultIndex < porv->size() ) ? ( *porv )[cr.resultIndex] : volumes[cr.resultIndex];
+                if ( w <= 0.0 || w == HUGE_VAL ) continue;
+                auto& a = acc[cr.level][cr.parentGlobal];
+                a.first += v * w;
+                a.second += w;
+            }
         }
 
         for ( const auto& [level, outTs] : outByLevel )
@@ -501,6 +540,26 @@ void RigNestedHybridGridResultTools::assignValuesToLgrs( RigCaseCellResultsData*
 
     const std::map<size_t, size_t>& sourceCells = mainGrid->nestedHybridLgrSourceCells();
     if ( sourceCells.empty() || values.empty() ) return;
+
+    const size_t totalCellCount = mainGrid->totalCellCount();
+    if ( values.size() >= totalCellCount ) return; // full-length array already covering the LGR cells
+
+    // Full-length (all-cells) array loaded after the reconstruction: the file array covers only the
+    // original flat cells (the LGR cells are appended at the end of the grid), so it is indexed by
+    // global reservoir cell index, not by active-cell result index. Extend it the same way
+    // RigNestedHybridGridReconstructor::extendFullLengthResults() extends the already-loaded ones.
+    // The original flat cell count is the main grid's own cell count (the LGR cells all live in the
+    // appended local grids, including filler cells without a source mapping).
+    const size_t origCellCount = mainGrid->cellCount();
+    if ( values.size() == origCellCount )
+    {
+        values.resize( totalCellCount, std::numeric_limits<double>::infinity() );
+        for ( const auto& [lgrReservoirCellIndex, flatReservoirCellIndex] : sourceCells )
+        {
+            values[lgrReservoirCellIndex] = values[flatReservoirCellIndex];
+        }
+        return;
+    }
 
     const size_t activeCellCount = activeCellInfo->reservoirActiveCellCount();
     if ( values.size() < activeCellCount )
