@@ -19,8 +19,10 @@
 #include "RivIjkIntersectionPartMgr.h"
 
 #include "Rim3dView.h"
+#include "RimEclipseView.h"
 #include "RimIjkIntersection.h"
 
+#include "RivEclipseIntersectionGrid.h"
 #include "RivIjkIntersectionSourceInfo.h"
 #include "RivIntersectionGeometryGeneratorInterface.h"
 #include "RivIntersectionHexGridInterface.h"
@@ -46,7 +48,19 @@ RivIjkIntersectionPartMgr::RivIjkIntersectionPartMgr( RimIjkIntersection* inters
 
     m_intersectionFacesTextureCoords = new cvf::Vec2fArray;
 
-    cvf::ref<RivIntersectionHexGridInterface> hexGrid = intersection->createHexGridInterface();
+    // The IJK indices refer to the view's main grid, so the hex grid must be built from the same grid as mainGrid().
+    // RimIntersection::createHexGridInterface() is not used here, as it returns the grid of a different case when a
+    // separate result definition is active.
+    cvf::ref<RivIntersectionHexGridInterface> hexGrid;
+
+    auto eclipseView = intersection->firstAncestorOrThisOfType<RimEclipseView>();
+    if ( eclipseView && eclipseView->mainGrid() )
+    {
+        hexGrid = new RivEclipseIntersectionGrid( eclipseView->mainGrid(),
+                                                  eclipseView->currentActiveCellInfo(),
+                                                  intersection->isInactiveCellsVisible() );
+    }
+
     m_intersectionGenerator = new RivIjkIntersectionGeometryGenerator( m_rimIntersection, hexGrid.p(), intersection->mainGrid() );
 }
 

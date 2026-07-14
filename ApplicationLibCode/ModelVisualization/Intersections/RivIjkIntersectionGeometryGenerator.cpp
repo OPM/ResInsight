@@ -136,7 +136,7 @@ RimIjkIntersection* RivIjkIntersectionGeometryGenerator::intersection() const
 void RivIjkIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visibleCells )
 {
     if ( m_triangleVxes->size() ) return;
-    if ( m_mainGrid.isNull() ) return;
+    if ( m_mainGrid.isNull() || m_hexGrid.isNull() ) return;
 
     using FaceType = cvf::StructGridInterface::FaceType;
 
