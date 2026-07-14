@@ -18,10 +18,13 @@
 
 #pragma once
 
+#include "RigBoundingBoxIjk.h"
+
 #include "RimIntersection.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
+#include "cafVecIjk.h"
 
 class RigMainGrid;
 class RivIjkIntersectionPartMgr;
@@ -55,13 +58,13 @@ public:
     bool     useNegativeFace() const;
 
     // Index accessors and setters use 0-based grid indices; the PDM fields and UI are 1-based
-    int  fixedIndex() const;
-    void ijkRange( int& iMin, int& iMax, int& jMin, int& jMax, int& kMin, int& kMax ) const;
+    int                             fixedIndex() const;
+    RigBoundingBoxIjk<caf::VecIjk0> ijkRange() const;
 
     void setAxis( GridAxis axis );
     void setUseNegativeFace( bool useNegativeFace );
     void setFixedIndex( int fixedIndex );
-    void setIjkRange( int iMin, int iMax, int jMin, int jMax, int kMin, int kMax );
+    void setIjkRange( const RigBoundingBoxIjk<caf::VecIjk0>& range );
 
     void setToDefaultValues();
 

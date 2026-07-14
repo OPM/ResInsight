@@ -131,14 +131,15 @@ int RimIjkIntersection::fixedIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIjkIntersection::ijkRange( int& iMin, int& iMax, int& jMin, int& jMax, int& kMin, int& kMax ) const
+RigBoundingBoxIjk<caf::VecIjk0> RimIjkIntersection::ijkRange() const
 {
-    iMin = m_iMin() - 1;
-    iMax = m_iMax() - 1;
-    jMin = m_jMin() - 1;
-    jMax = m_jMax() - 1;
-    kMin = m_kMin() - 1;
-    kMax = m_kMax() - 1;
+    // Guard against non-positive values from hand-edited project files before converting to unsigned
+    auto zeroBased = []( int oneBasedValue ) { return static_cast<size_t>( std::max( 1, oneBasedValue ) - 1 ); };
+
+    caf::VecIjk0 min( zeroBased( m_iMin() ), zeroBased( m_jMin() ), zeroBased( m_kMin() ) );
+    caf::VecIjk0 max( zeroBased( m_iMax() ), zeroBased( m_jMax() ), zeroBased( m_kMax() ) );
+
+    return RigBoundingBoxIjk<caf::VecIjk0>( min, max );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,14 +169,14 @@ void RimIjkIntersection::setFixedIndex( int fixedIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIjkIntersection::setIjkRange( int iMin, int iMax, int jMin, int jMax, int kMin, int kMax )
+void RimIjkIntersection::setIjkRange( const RigBoundingBoxIjk<caf::VecIjk0>& range )
 {
-    m_iMin = iMin + 1;
-    m_iMax = iMax + 1;
-    m_jMin = jMin + 1;
-    m_jMax = jMax + 1;
-    m_kMin = kMin + 1;
-    m_kMax = kMax + 1;
+    m_iMin = static_cast<int>( range.min().i() ) + 1;
+    m_iMax = static_cast<int>( range.max().i() ) + 1;
+    m_jMin = static_cast<int>( range.min().j() ) + 1;
+    m_jMax = static_cast<int>( range.max().j() ) + 1;
+    m_kMin = static_cast<int>( range.min().k() ) + 1;
+    m_kMax = static_cast<int>( range.max().k() ) + 1;
 }
 
 //--------------------------------------------------------------------------------------------------

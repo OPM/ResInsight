@@ -20,9 +20,12 @@
 
 #include "RivIntersectionHexGridInterface.h"
 
+#include "RigBoundingBoxIjk.h"
 #include "RigMainGrid.h"
 
 #include "RimIjkIntersection.h"
+
+#include "cafVecIjk.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSetDirect.h"
@@ -140,50 +143,48 @@ void RivIjkIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visi
 
     using FaceType = cvf::StructGridInterface::FaceType;
 
-    const int ni = static_cast<int>( m_mainGrid->cellCountI() );
-    const int nj = static_cast<int>( m_mainGrid->cellCountJ() );
-    const int nk = static_cast<int>( m_mainGrid->cellCountK() );
+    const size_t ni = m_mainGrid->cellCountI();
+    const size_t nj = m_mainGrid->cellCountJ();
+    const size_t nk = m_mainGrid->cellCountK();
     if ( ni == 0 || nj == 0 || nk == 0 ) return;
 
     // Determine which cell face the surface follows and the i/j/k loop bounds
     RimIjkIntersection::GridAxis axis = m_intersectionDefinition->axis();
     bool                         neg  = m_intersectionDefinition->useNegativeFace();
 
-    int iMin, iMax, jMin, jMax, kMin, kMax;
-    m_intersectionDefinition->ijkRange( iMin, iMax, jMin, jMax, kMin, kMax );
-    int fixed = m_intersectionDefinition->fixedIndex();
+    const RigBoundingBoxIjk<caf::VecIjk0> range = m_intersectionDefinition->ijkRange();
 
-    FaceType face = FaceType::POS_K;
-    switch ( axis )
+    // Snap the fixed index into the grid so a stale project file still renders the border slice
+    const size_t fixed = static_cast<size_t>( std::max( 0, m_intersectionDefinition->fixedIndex() ) );
+
+    // Pick the cell face the surface follows and collapse the fixed axis of the range to the fixed index.
+    // The i()/j()/k() accessors are read-only, so the assignments must use x()/y()/z()
+    auto computeFaceAndRange = [&]() -> std::pair<FaceType, RigBoundingBoxIjk<caf::VecIjk0>>
     {
-        case RimIjkIntersection::GridAxis::AXIS_I:
-            face  = neg ? FaceType::NEG_I : FaceType::POS_I;
-            fixed = std::clamp( fixed, 0, ni - 1 );
-            iMin = iMax = fixed;
-            jMin        = std::clamp( jMin, 0, nj - 1 );
-            jMax        = std::clamp( jMax, 0, nj - 1 );
-            kMin        = std::clamp( kMin, 0, nk - 1 );
-            kMax        = std::clamp( kMax, 0, nk - 1 );
-            break;
-        case RimIjkIntersection::GridAxis::AXIS_J:
-            face  = neg ? FaceType::NEG_J : FaceType::POS_J;
-            fixed = std::clamp( fixed, 0, nj - 1 );
-            jMin = jMax = fixed;
-            iMin        = std::clamp( iMin, 0, ni - 1 );
-            iMax        = std::clamp( iMax, 0, ni - 1 );
-            kMin        = std::clamp( kMin, 0, nk - 1 );
-            kMax        = std::clamp( kMax, 0, nk - 1 );
-            break;
-        case RimIjkIntersection::GridAxis::AXIS_K:
-            face  = neg ? FaceType::NEG_K : FaceType::POS_K;
-            fixed = std::clamp( fixed, 0, nk - 1 );
-            kMin = kMax = fixed;
-            iMin        = std::clamp( iMin, 0, ni - 1 );
-            iMax        = std::clamp( iMax, 0, ni - 1 );
-            jMin        = std::clamp( jMin, 0, nj - 1 );
-            jMax        = std::clamp( jMax, 0, nj - 1 );
-            break;
-    }
+        caf::VecIjk0 min = range.min();
+        caf::VecIjk0 max = range.max();
+
+        switch ( axis )
+        {
+            case RimIjkIntersection::GridAxis::AXIS_I:
+                min.x() = max.x() = std::min( fixed, ni - 1 );
+                return { neg ? FaceType::NEG_I : FaceType::POS_I, { min, max } };
+            case RimIjkIntersection::GridAxis::AXIS_J:
+                min.y() = max.y() = std::min( fixed, nj - 1 );
+                return { neg ? FaceType::NEG_J : FaceType::POS_J, { min, max } };
+            case RimIjkIntersection::GridAxis::AXIS_K:
+            default:
+                min.z() = max.z() = std::min( fixed, nk - 1 );
+                return { neg ? FaceType::NEG_K : FaceType::POS_K, { min, max } };
+        }
+    };
+
+    const auto [face, requestedRange] = computeFaceAndRange();
+
+    const RigBoundingBoxIjk<caf::VecIjk0> gridBounds( caf::VecIjk0::ZERO, caf::VecIjk0( ni - 1, nj - 1, nk - 1 ) );
+
+    const auto visibleRange = requestedRange.clamp( gridBounds );
+    if ( !visibleRange ) return;
 
     cvf::ubyte faceVtxIdx[4];
     cvf::StructGridInterface::cellFaceVertexIndices( face, faceVtxIdx );
@@ -193,11 +194,11 @@ void RivIjkIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visi
     std::vector<cvf::Vec3f> triangleVertices;
     std::vector<cvf::Vec3f> cellBorderLineVxes;
 
-    for ( int k = kMin; k <= kMax; ++k )
+    for ( size_t k = visibleRange->min().k(); k <= visibleRange->max().k(); ++k )
     {
-        for ( int j = jMin; j <= jMax; ++j )
+        for ( size_t j = visibleRange->min().j(); j <= visibleRange->max().j(); ++j )
         {
-            for ( int i = iMin; i <= iMax; ++i )
+            for ( size_t i = visibleRange->min().i(); i <= visibleRange->max().i(); ++i )
             {
                 size_t globalCellIdx = m_mainGrid->cellIndexFromIJK( i, j, k );
 

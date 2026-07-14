@@ -69,7 +69,7 @@ TEST( RivIjkIntersectionGeometryGeneratorTest, FullRangeKSliceTriangleCount )
     RimIjkIntersection def;
     def.setAxis( RimIjkIntersection::GridAxis::AXIS_K );
     def.setFixedIndex( 2 );
-    def.setIjkRange( 0, ni - 1, 0, nj - 1, 0, nk - 1 );
+    def.setIjkRange( { caf::VecIjk0( 0, 0, 0 ), caf::VecIjk0( ni - 1, nj - 1, nk - 1 ) } );
 
     cvf::ref<RivIjkIntersectionGeometryGenerator> generator = new RivIjkIntersectionGeometryGenerator( &def, hexGrid.p(), mainGrid );
     generator->generateSurface( nullptr );
@@ -99,7 +99,7 @@ TEST( RivIjkIntersectionGeometryGeneratorTest, KSliceVerticesAreCoplanar )
     RimIjkIntersection def;
     def.setAxis( RimIjkIntersection::GridAxis::AXIS_K );
     def.setFixedIndex( 1 );
-    def.setIjkRange( 0, ni - 1, 0, nj - 1, 0, nk - 1 );
+    def.setIjkRange( { caf::VecIjk0( 0, 0, 0 ), caf::VecIjk0( ni - 1, nj - 1, nk - 1 ) } );
 
     cvf::ref<RivIjkIntersectionGeometryGenerator> generator = new RivIjkIntersectionGeometryGenerator( &def, hexGrid.p(), mainGrid );
     generator->generateSurface( nullptr );
@@ -132,7 +132,7 @@ TEST( RivIjkIntersectionGeometryGeneratorTest, NarrowedRangeISlice )
     RimIjkIntersection def;
     def.setAxis( RimIjkIntersection::GridAxis::AXIS_I );
     def.setFixedIndex( 2 );
-    def.setIjkRange( 0, ni - 1, 1, 1, 0, 2 );
+    def.setIjkRange( { caf::VecIjk0( 0, 1, 0 ), caf::VecIjk0( ni - 1, 1, 2 ) } );
 
     cvf::ref<RivIjkIntersectionGeometryGenerator> generator = new RivIjkIntersectionGeometryGenerator( &def, hexGrid.p(), mainGrid );
     generator->generateSurface( nullptr );
