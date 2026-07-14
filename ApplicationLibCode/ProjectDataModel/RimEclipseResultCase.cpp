@@ -382,16 +382,27 @@ void RimEclipseResultCase::computeNestedHybridCoarseAggregatesIfPresent()
     // Ensure computed entries (e.g. SOIL) exist before aggregating them.
     matrixResults->createPlaceholderResultEntries();
 
-    const QStringList qcResults = { "PRESSURE", RiaResultNames::swat(), RiaResultNames::sgas(), RiaResultNames::soil() };
-    for ( const QString& name : qcResults )
+    using AggregationMode = RigNestedHybridGridResultTools::AggregationMode;
+
+    // Intensive quantities are volume-weighted averaged onto the parent; extensive fluid-in-place
+    // quantities are summed.
+    const QStringList qcResults  = { "PRESSURE", RiaResultNames::swat(), RiaResultNames::sgas(), RiaResultNames::soil() };
+    const QStringList fipResults = { "FIPOIL", "FIPGAS", "FIPWAT", "RFIPOIL", "RFIPGAS", "RFIPWAT", "SFIPOIL", "SFIPGAS", "SFIPWAT" };
+
+    auto computeAggregates = [matrixResults]( const QStringList& names, AggregationMode mode )
     {
-        RigEclipseResultAddress sourceAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, name );
-        if ( matrixResults->hasResultEntry( sourceAddr ) )
+        for ( const QString& name : names )
         {
-            RigNestedHybridGridResultTools::computeCoarseAggregate( matrixResults, sourceAddr );
-            RigNestedHybridGridResultTools::computePerLevelAggregate( matrixResults, sourceAddr );
+            RigEclipseResultAddress sourceAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, name );
+            if ( matrixResults->hasResultEntry( sourceAddr ) )
+            {
+                RigNestedHybridGridResultTools::computeCoarseAggregate( matrixResults, sourceAddr, mode );
+                RigNestedHybridGridResultTools::computePerLevelAggregate( matrixResults, sourceAddr, mode );
+            }
         }
-    }
+    };
+    computeAggregates( qcResults, AggregationMode::VOLUME_WEIGHTED_AVERAGE );
+    computeAggregates( fipResults, AggregationMode::SUM );
 }
 
 //--------------------------------------------------------------------------------------------------

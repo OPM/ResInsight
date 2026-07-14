@@ -223,13 +223,15 @@ void RigNestedHybridGridResultTools::extendLgrResults( RigCaseCellResultsData* c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Compute a volume-weighted average of a source result onto each refined cell's parent COARSE cell,
-/// then broadcast that average back onto every (active) cell of the parent - both the original flat
-/// refined cells and the reconstructed LGR cells. Unrefined cells keep their own value. The result
-/// is stored as a GENERATED result named "<sourceName>_COARSE" for all time steps.
+/// Aggregate a source result onto each refined cell's parent COARSE cell - the volume-weighted
+/// average for intensive quantities, or the sum for extensive quantities (e.g. FIP) - then broadcast
+/// that aggregate back onto every (active) cell of the parent - both the original flat refined cells
+/// and the reconstructed LGR cells. Unrefined cells keep their own value. The result is stored as a
+/// GENERATED result named "<sourceName>_COARSE" for all time steps.
 //--------------------------------------------------------------------------------------------------
 RigEclipseResultAddress RigNestedHybridGridResultTools::computeCoarseAggregate( RigCaseCellResultsData*        cellResults,
-                                                                                const RigEclipseResultAddress& sourceAddress )
+                                                                                const RigEclipseResultAddress& sourceAddress,
+                                                                                AggregationMode                mode )
 {
     RigEclipseResultAddress invalid;
     if ( !cellResults ) return invalid;
@@ -289,8 +291,9 @@ RigEclipseResultAddress RigNestedHybridGridResultTools::computeCoarseAggregate( 
         out                            = src; // unrefined cells keep their own value
         if ( out.size() < activeCellCount ) out.resize( activeCellCount, HUGE_VAL );
 
-        // Accumulate the volume-weighted sum per coarse parent, using the geometry-bearing cell.
-        std::map<size_t, std::pair<double, double>> acc; // parent -> (sum value*vol, sum vol)
+        // Accumulate per coarse parent, using the geometry-bearing cell. The zero-volume filter also
+        // excludes the hidden flat duplicates in SUM mode, so no cell is counted twice.
+        std::map<size_t, std::pair<double, double>> acc; // parent -> (sum value[*vol], sum vol / count)
         for ( const auto& [flatCell, parent] : coarseParents )
         {
             size_t ri = activeIndex( geometryCell( flatCell ) );
@@ -298,29 +301,31 @@ RigEclipseResultAddress RigNestedHybridGridResultTools::computeCoarseAggregate( 
             double v = src[ri];
             double w = volumes[ri];
             if ( w <= 0.0 || v == HUGE_VAL ) continue;
-            acc[parent].first += v * w;
-            acc[parent].second += w;
+            auto& a = acc[parent];
+            a.first += ( mode == AggregationMode::SUM ) ? v : v * w;
+            a.second += ( mode == AggregationMode::SUM ) ? 1.0 : w;
         }
 
-        auto average = [&]( size_t parent, double fallback )
+        auto aggregate = [&]( size_t parent, double fallback )
         {
             auto it = acc.find( parent );
-            if ( it != acc.end() && it->second.second > 0.0 ) return it->second.first / it->second.second;
+            if ( it != acc.end() && it->second.second > 0.0 )
+                return ( mode == AggregationMode::SUM ) ? it->second.first : it->second.first / it->second.second;
             return fallback;
         };
 
-        // Broadcast the parent average onto every (active) cell of the parent - both the flat refined
-        // cell and its LGR copy - so the aggregate reads correctly on either representation.
+        // Broadcast the parent aggregate onto every (active) cell of the parent - both the flat
+        // refined cell and its LGR copy - so the aggregate reads correctly on either representation.
         for ( const auto& [flatCell, parent] : coarseParents )
         {
             const size_t gi       = activeIndex( geometryCell( flatCell ) );
             const double fallback = ( gi != cvf::UNDEFINED_SIZE_T && gi < src.size() ) ? src[gi] : HUGE_VAL;
-            const double avg      = average( parent, fallback );
+            const double value    = aggregate( parent, fallback );
 
             for ( size_t cell : { flatCell, geometryCell( flatCell ) } )
             {
                 size_t ri = activeIndex( cell );
-                if ( ri != cvf::UNDEFINED_SIZE_T && ri < out.size() ) out[ri] = avg;
+                if ( ri != cvf::UNDEFINED_SIZE_T && ri < out.size() ) out[ri] = value;
             }
         }
     }
@@ -329,13 +334,15 @@ RigEclipseResultAddress RigNestedHybridGridResultTools::computeCoarseAggregate( 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Per refinement level, compute the volume-weighted average of a source result over the cells of each
-/// immediate parent and broadcast it back onto that level's cells. All other cells are left undefined
-/// (blank) so each level's result shows only that level. One result "<sourceName>_COARSE_L<level>" is
-/// created per level present (stored on the active refined cells; the parent cells are inactive).
+/// Per refinement level, compute the aggregate (volume-weighted average or sum) of a source result
+/// over the cells of each immediate parent and broadcast it back onto that level's cells. All other
+/// cells are left undefined (blank) so each level's result shows only that level. One result
+/// "<sourceName>_COARSE_L<level>" is created per level present (stored on the active refined cells;
+/// the parent cells are inactive).
 //--------------------------------------------------------------------------------------------------
-std::vector<RigEclipseResultAddress> RigNestedHybridGridResultTools::computePerLevelAggregate( RigCaseCellResultsData* cellResults,
-                                                                                               const RigEclipseResultAddress& sourceAddress )
+std::vector<RigEclipseResultAddress> RigNestedHybridGridResultTools::computePerLevelAggregate( RigCaseCellResultsData*        cellResults,
+                                                                                               const RigEclipseResultAddress& sourceAddress,
+                                                                                               AggregationMode                mode )
 {
     std::vector<RigEclipseResultAddress> created;
     if ( !cellResults ) return created;
@@ -446,8 +453,8 @@ std::vector<RigEclipseResultAddress> RigNestedHybridGridResultTools::computePerL
     {
         const std::vector<double>& src = sourceTs[ts];
 
-        // Volume-weighted sums keyed by (level, immediate parent) - cells of different levels are
-        // never accumulated together.
+        // Accumulation keyed by (level, immediate parent) - cells of different levels are never
+        // accumulated together. The zero-volume filter also excludes hidden duplicates in SUM mode.
         std::map<int, std::map<size_t, std::pair<double, double>>> acc;
         for ( const CellRef& cr : cellRefs )
         {
@@ -456,8 +463,8 @@ std::vector<RigEclipseResultAddress> RigNestedHybridGridResultTools::computePerL
             double w = volumes[cr.resultIndex];
             if ( w <= 0.0 || v == HUGE_VAL ) continue;
             auto& a = acc[cr.level][cr.parentGlobal];
-            a.first += v * w;
-            a.second += w;
+            a.first += ( mode == AggregationMode::SUM ) ? v : v * w;
+            a.second += ( mode == AggregationMode::SUM ) ? 1.0 : w;
         }
 
         for ( const auto& [level, outTs] : outByLevel )
@@ -470,7 +477,10 @@ std::vector<RigEclipseResultAddress> RigNestedHybridGridResultTools::computePerL
             {
                 if ( cr.level != level || cr.resultIndex >= out.size() ) continue;
                 auto it = accLevel.find( cr.parentGlobal );
-                if ( it != accLevel.end() && it->second.second > 0.0 ) out[cr.resultIndex] = it->second.first / it->second.second;
+                if ( it != accLevel.end() && it->second.second > 0.0 )
+                {
+                    out[cr.resultIndex] = ( mode == AggregationMode::SUM ) ? it->second.first : it->second.first / it->second.second;
+                }
             }
         }
     }
