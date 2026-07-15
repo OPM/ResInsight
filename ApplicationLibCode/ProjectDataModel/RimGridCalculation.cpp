@@ -35,6 +35,7 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigStatisticsMath.h"
+#include "RigStatisticsTools.h"
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
@@ -705,6 +706,27 @@ void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double          
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Replace undefined values (infinity and NaN) with the given default value. Returns the number of
+/// replaced values.
+//--------------------------------------------------------------------------------------------------
+size_t RimGridCalculation::replaceInvalidValuesWithDefaultValue( double defaultValue, std::vector<double>& values )
+{
+    size_t replacedCount = 0;
+
+#pragma omp parallel for reduction( + : replacedCount )
+    for ( int i = 0; i < static_cast<int>( values.size() ); i++ )
+    {
+        if ( RigStatisticsTools::isInvalidNumber( values[i] ) )
+        {
+            values[i] = defaultValue;
+            replacedCount++;
+        }
+    }
+
+    return replacedCount;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimGridCalculation::filterResults( RimGridView*                            cellFilterView,
@@ -898,6 +920,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
         scalarResultFrames->resize( timeStepCount );
 
         std::vector<double> aggregatedValuesOneTimeStep;
+        std::vector<size_t> invalidValueCountPerVariable( m_variables.size(), 0 );
 
         for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
         {
@@ -919,11 +942,19 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 {
                     RiaLogging::error( std::format( "  No data found for variable '{}'.", v->name() ) );
                 }
-                else if ( inputValueVisibilityFilter && hasAggregationExpression )
+                else if ( hasAggregationExpression )
                 {
-                    const double defaultValue   = 0.0;
-                    auto         activeCellInfo = calculationCase->eclipseCaseData()->activeCellInfo( porosityModel );
-                    replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, dataForVariable, activeCellInfo );
+                    const double defaultValue = 0.0;
+                    if ( inputValueVisibilityFilter )
+                    {
+                        auto activeCellInfo = calculationCase->eclipseCaseData()->activeCellInfo( porosityModel );
+                        replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, dataForVariable, activeCellInfo );
+                    }
+
+                    // Aggregation functions include all values in the vector. Replace undefined values with the
+                    // default value to avoid contaminating aggregated values like sum() with infinity. Undefined
+                    // values are ignored by other statistics computations, like the histogram in the 3d view.
+                    invalidValueCountPerVariable[i] += replaceInvalidValuesWithDefaultValue( defaultValue, dataForVariable );
                 }
 
                 dataForAllVariables.push_back( dataForVariable );
@@ -993,6 +1024,18 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             }
 
             calculationCase->updateResultAddressCollection();
+        }
+
+        for ( size_t i = 0; i < m_variables.size(); i++ )
+        {
+            if ( invalidValueCountPerVariable[i] > 0 )
+            {
+                RiaLogging::warning( std::format( "  Variable '{}': {} undefined input values were replaced with 0.0 for case '{}'. The "
+                                                  "input result may be missing data for some cells or time steps.",
+                                                  m_variables[i]->name().toStdString(),
+                                                  invalidValueCountPerVariable[i],
+                                                  calculationCase->caseUserDescription().toStdString() ) );
+            }
         }
 
         if ( hasAggregationExpression )

@@ -86,6 +86,8 @@ public:
 
     RimGridCalculationVariable* createVariable() override;
 
+    static size_t replaceInvalidValuesWithDefaultValue( double defaultValue, std::vector<double>& values );
+
 protected:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
