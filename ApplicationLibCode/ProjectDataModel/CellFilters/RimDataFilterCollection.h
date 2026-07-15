@@ -72,6 +72,7 @@ protected:
 private:
     void connectChildSignal( RimCellFilter* child );
     void onChildFilterChanged( const caf::SignalEmitter* emitter );
+    void updateOwnerEditors();
 
     caf::PdmPtrField<RimCase*> m_srcCase;
 };
