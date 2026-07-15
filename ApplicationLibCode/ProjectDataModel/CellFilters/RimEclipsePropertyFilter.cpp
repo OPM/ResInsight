@@ -724,21 +724,36 @@ void RimEclipsePropertyFilter::initAfterRead()
 /// uniformly; the body is extracted from the former inline loop in
 /// RivReservoirViewPartMgr::computePropertyVisibility.
 //--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex )
+void RimEclipsePropertyFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility,
+                                                      const RigGridBase* grid,
+                                                      size_t             timeStepIndex,
+                                                      RimEclipseCase*    sourceCaseOverride )
 {
     if ( cellVisibility == nullptr || grid == nullptr ) return;
     if ( !isActive() || !resultDefinition()->hasResult() ) return;
 
-    resultDefinition()->loadResult();
-
-    // The result definition carries its own eclipse case binding (set via setEclipseCase). Prefer
-    // that, since case-level data filters have no view-side property-filter-collection ancestor.
-    RimEclipseCase* ec = resultDefinition()->eclipseCase();
-    if ( !ec )
+    RimEclipseCase* ec = sourceCaseOverride;
+    if ( ec )
     {
-        auto* container = parentContainer();
-        auto* view      = container ? container->reservoirView() : nullptr;
-        ec              = view ? view->eclipseCase() : nullptr;
+        // Evaluate against the override case's results. Make sure the result is loaded for that case.
+        if ( auto cellResultsData = ec->results( resultDefinition()->porosityModel() ) )
+        {
+            cellResultsData->ensureKnownResultLoaded( resultDefinition()->eclipseResultAddress() );
+        }
+    }
+    else
+    {
+        resultDefinition()->loadResult();
+
+        // The result definition carries its own eclipse case binding (set via setEclipseCase). Prefer
+        // that, since case-level data filters have no view-side property-filter-collection ancestor.
+        ec = resultDefinition()->eclipseCase();
+        if ( !ec )
+        {
+            auto* container = parentContainer();
+            auto* view      = container ? container->reservoirView() : nullptr;
+            ec              = view ? view->eclipseCase() : nullptr;
+        }
     }
     if ( !ec ) return;
     RigEclipseCaseData* eclipseCase = ec->eclipseCaseData();
