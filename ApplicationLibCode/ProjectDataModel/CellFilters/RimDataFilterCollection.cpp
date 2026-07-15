@@ -18,11 +18,15 @@
 
 #include "RimDataFilterCollection.h"
 
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonCollection.h"
+
 #include "RimCase.h"
 #include "RimCellRangeFilter.h"
 #include "RimCombinedFilter.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -192,6 +196,21 @@ void RimDataFilterCollection::initAfterRead()
 void RimDataFilterCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicEclipsePropertyFilterNewFeature";
+    menuBuilder << "Separator";
+
+    menuBuilder.subMenuStart( "Polygon Filter", QIcon( ":/CellFilter_Polygon.png" ) );
+    {
+        auto polygonCollection = RimTools::polygonCollection();
+        for ( auto p : polygonCollection->allPolygons() )
+        {
+            if ( !p ) continue;
+
+            menuBuilder.addCmdFeatureWithUserData( "RicNewPolygonFilterFeature", p->name(), QVariant::fromValue( static_cast<void*>( p ) ) );
+        }
+    }
+    menuBuilder.subMenuEnd();
+
+    menuBuilder << "RicNewPolygonFilterFeature";
     menuBuilder << "Separator";
     menuBuilder.subMenuStart( "Range Filter" );
     menuBuilder << "RicNewRangeFilterSliceIFeature";
