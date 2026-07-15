@@ -243,10 +243,23 @@ bool RimGridCalculation::calculate()
         }
     }
 
-    cvf::UByteArray* inputValueVisibilityFilter = nullptr;
+    cvf::ref<cvf::UByteArray> inputValueVisibilityFilter;
     if ( m_cellFilterView() )
     {
-        inputValueVisibilityFilter = m_cellFilterView()->currentTotalCellVisibility().p();
+        if ( auto eclipseView = dynamic_cast<RimEclipseView*>( m_cellFilterView() ) )
+        {
+            // Use the cell filter geometry, independent of the active cells in the view's case. Cells inside the
+            // filters that are inactive in the view's case can be active in other calculation cases, and must be
+            // included when the calculation is applied to additional cases.
+            inputValueVisibilityFilter = new cvf::UByteArray;
+            eclipseView->calculateCellVisibility( inputValueVisibilityFilter.p(),
+                                                  { RANGE_FILTERED, RANGE_FILTERED_INACTIVE },
+                                                  eclipseView->currentTimeStep() );
+        }
+        else
+        {
+            inputValueVisibilityFilter = m_cellFilterView()->currentTotalCellVisibility();
+        }
     }
 
     std::optional<std::vector<size_t>> timeSteps = std::nullopt;
@@ -263,7 +276,7 @@ bool RimGridCalculation::calculate()
     }
 
     bool evaluateDependentCalculations = true;
-    return calculateForCases( outputEclipseCases(), inputValueVisibilityFilter, timeSteps, evaluateDependentCalculations );
+    return calculateForCases( outputEclipseCases(), inputValueVisibilityFilter.p(), timeSteps, evaluateDependentCalculations );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -735,7 +748,7 @@ size_t RimGridCalculation::replaceInvalidValuesWithDefaultValue( double defaultV
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::filterResults( RimGridView*                            cellFilterView,
+void RimGridCalculation::filterResults( cvf::UByteArray*                        visibility,
                                         const std::vector<std::vector<double>>& values,
                                         size_t                                  timeStep,
                                         RimGridCalculation::DefaultValueType    defaultValueType,
@@ -745,8 +758,6 @@ void RimGridCalculation::filterResults( RimGridView*                            
                                         RimEclipseCase*                         outputEclipseCase ) const
 
 {
-    auto visibility = cellFilterView->currentTotalCellVisibility();
-
     auto activeCellInfo = outputEclipseCase->eclipseCaseData()->activeCellInfo( porosityModel );
 
     if ( defaultValueType == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
@@ -1017,9 +1028,9 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                     }
                 }
 
-                if ( m_cellFilterView() && !resultValues.empty() )
+                if ( inputValueVisibilityFilter && !resultValues.empty() )
                 {
-                    filterResults( m_cellFilterView(),
+                    filterResults( inputValueVisibilityFilter,
                                    dataForAllVariables,
                                    tsId,
                                    m_defaultValueType(),
