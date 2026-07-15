@@ -1,6 +1,7 @@
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCellFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCombinedFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterCollection.cpp

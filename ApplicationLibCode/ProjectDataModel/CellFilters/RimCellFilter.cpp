@@ -202,6 +202,14 @@ caf::AppEnum<RimCellFilter::FilterModeType> RimCellFilter::filterMode() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCellFilter::setFilterMode( FilterModeType filterMode )
+{
+    m_filterMode = filterMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellFilter::setGridIndex( int gridIndex )
 {
     m_gridIndex = gridIndex;
@@ -322,7 +330,10 @@ QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellFilter::applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t /*timeStepIndex*/ )
+void RimCellFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility,
+                                           const RigGridBase* grid,
+                                           size_t /*timeStepIndex*/,
+                                           RimEclipseCase* /*sourceCaseOverride*/ )
 {
     if ( cellVisibility == nullptr || grid == nullptr ) return;
 
