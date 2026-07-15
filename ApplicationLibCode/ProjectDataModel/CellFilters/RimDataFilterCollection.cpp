@@ -84,6 +84,7 @@ void RimDataFilterCollection::removeFilter( RimCellFilter* f )
     if ( !f ) return;
     deleteItem( f );
     filtersChanged.send();
+    updateOwnerEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,9 +162,9 @@ void RimDataFilterCollection::onItemsChanged()
     }
     filtersChanged.send();
 
-    // The collection node is hidden from the case tree while empty, so refresh the owner case to
+    // The collection node is hidden from the owner's tree while empty, so refresh the owner to
     // re-run its defineUiTreeOrdering and add the node once the first filter appears.
-    if ( auto* c = ownerCase() ) c->updateConnectedEditors();
+    updateOwnerEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,8 +176,22 @@ void RimDataFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* chi
     updateConnectedEditors();
     filtersChanged.send();
 
-    // Refresh the owner case so its defineUiTreeOrdering re-runs and drops the node once empty.
-    if ( auto* c = ownerCase() ) c->updateConnectedEditors();
+    // Refresh the owner so its defineUiTreeOrdering re-runs and drops the node once empty.
+    updateOwnerEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Refresh the object owning this collection in the project tree. Note that the owner is not
+/// necessarily the source case: for a collection in a grid ensemble, the source case is the main
+/// case of the ensemble, while the tree node is owned by the ensemble.
+//--------------------------------------------------------------------------------------------------
+void RimDataFilterCollection::updateOwnerEditors()
+{
+    caf::PdmObjectHandle* owner = parentField() ? parentField()->ownerObject() : nullptr;
+    if ( owner && owner->uiCapability() )
+    {
+        owner->uiCapability()->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
