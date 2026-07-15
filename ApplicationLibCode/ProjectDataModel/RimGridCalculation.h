@@ -30,6 +30,7 @@
 
 #include <optional>
 
+class RimCellFilter;
 class RimEclipseCase;
 class RimGridView;
 class RigEclipseResultAddress;
@@ -59,6 +60,13 @@ public:
         GRID_CASE_GROUP,
         ENSEMBLE,
         ALL_CASES
+    };
+
+    enum class FilterType
+    {
+        NO_FILTER,
+        CELL_FILTER_VIEW,
+        DATA_FILTER
     };
 
     RimGridCalculation();
@@ -133,6 +141,7 @@ protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     void onVariableUpdated( const SignalEmitter* emitter );
@@ -142,7 +151,9 @@ private:
     static std::pair<bool, QStringList> createStatisticsText( const std::vector<std::vector<double>>& values );
 
 private:
+    caf::PdmField<caf::AppEnum<FilterType>>       m_filterType;
     caf::PdmPtrField<RimGridView*>                m_cellFilterView;
+    caf::PdmPtrField<RimCellFilter*>              m_dataFilter;
     caf::PdmField<caf::AppEnum<DefaultValueType>> m_defaultValueType;
     caf::PdmField<double>                         m_defaultValue;
     caf::PdmPtrField<RimEclipseCase*>             m_destinationCase;
