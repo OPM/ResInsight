@@ -681,12 +681,13 @@ void RimGridCalculation::replaceFilteredValuesWithVector( const std::vector<doub
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Replace values for non-visible cells with the given default value. Returns the number of replaced
+/// values.
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double                    defaultValue,
-                                                                cvf::ref<cvf::UByteArray> visibility,
-                                                                std::vector<double>&      resultValues,
-                                                                RigActiveCellInfo*        activeCellInfo )
+size_t RimGridCalculation::replaceFilteredValuesWithDefaultValue( double                    defaultValue,
+                                                                  cvf::ref<cvf::UByteArray> visibility,
+                                                                  std::vector<double>&      resultValues,
+                                                                  RigActiveCellInfo*        activeCellInfo )
 
 {
     auto activeReservoirCellIndices = activeCellInfo->activeReservoirCellIndices();
@@ -694,15 +695,20 @@ void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double          
 
     CAF_ASSERT( numActiveCells == (int)resultValues.size() );
 
-#pragma omp parallel for
+    size_t replacedCount = 0;
+
+#pragma omp parallel for reduction( + : replacedCount )
     for ( int i = 0; i < numActiveCells; i++ )
     {
         const auto reservoirCellIndex = activeReservoirCellIndices[i];
         if ( !visibility->val( reservoirCellIndex.value() ) )
         {
             resultValues[i] = defaultValue;
+            replacedCount++;
         }
     }
+
+    return replacedCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -944,17 +950,30 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 }
                 else if ( hasAggregationExpression )
                 {
-                    const double defaultValue = 0.0;
+                    const double defaultValue    = 0.0;
+                    size_t       nonVisibleCount = 0;
                     if ( inputValueVisibilityFilter )
                     {
                         auto activeCellInfo = calculationCase->eclipseCaseData()->activeCellInfo( porosityModel );
-                        replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, dataForVariable, activeCellInfo );
+                        nonVisibleCount =
+                            replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, dataForVariable, activeCellInfo );
                     }
 
                     // Aggregation functions include all values in the vector. Replace undefined values with the
                     // default value to avoid contaminating aggregated values like sum() with infinity. Undefined
                     // values are ignored by other statistics computations, like the histogram in the 3d view.
-                    invalidValueCountPerVariable[i] += replaceInvalidValuesWithDefaultValue( defaultValue, dataForVariable );
+                    const size_t invalidCount = replaceInvalidValuesWithDefaultValue( defaultValue, dataForVariable );
+                    invalidValueCountPerVariable[i] += invalidCount;
+
+                    RiaLogging::debug( std::format( "  Case '{}', time step {}: variable '{}': {} of {} values used in aggregation "
+                                                    "({} non-visible and {} undefined values replaced with 0.0)",
+                                                    calculationCase->caseUserDescription().toStdString(),
+                                                    tsId,
+                                                    v->name().toStdString(),
+                                                    dataForVariable.size() - nonVisibleCount - invalidCount,
+                                                    dataForVariable.size(),
+                                                    nonVisibleCount,
+                                                    invalidCount ) );
                 }
 
                 dataForAllVariables.push_back( dataForVariable );

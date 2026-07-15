@@ -19,6 +19,7 @@
 
 #include "RigEclipseNativeVisibleCellsStatCalc.h"
 
+#include "RiaLogging.h"
 #include "RiaResultNames.h"
 
 #include "RigActiveCellInfo.h"
@@ -27,6 +28,7 @@
 #include "RigWeightedMeanCalc.h"
 
 #include <cmath>
+#include <format>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -104,6 +106,12 @@ void RigEclipseNativeVisibleCellsStatCalc::valueSumAndSampleCount( size_t timeSt
     traverseCells( acc, timeStepIndex );
     valueSum    = acc.valueSum;
     sampleCount = acc.sampleCount;
+
+    RiaLogging::debug( std::format( "Visible cells statistics for '{}', time step {}: sum = {}, number of values used = {}",
+                                    m_resultAddress.resultName().toStdString(),
+                                    timeStepIndex,
+                                    valueSum,
+                                    sampleCount ) );
 }
 
 //--------------------------------------------------------------------------------------------------
