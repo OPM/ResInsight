@@ -104,8 +104,9 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    // If a case-level Data Filter Collection is selected, add polygon filters there.
-    auto* dataCollection = caf::SelectionManager::instance()->selectedItemOfType<RimDataFilterCollection>();
+    // If a case or ensemble level Data Filter Collection is selected (or its owner node), add
+    // polygon filters there.
+    auto* dataCollection = RicCellFilterFeatureTools::selectedDataFilterCollection();
     if ( dataCollection )
     {
         if ( polygons.empty() ) polygons.push_back( nullptr );

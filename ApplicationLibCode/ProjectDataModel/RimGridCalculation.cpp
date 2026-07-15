@@ -55,6 +55,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimResultSelectionUi.h"
 #include "RimTools.h"
 
@@ -454,12 +455,31 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
     {
         options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-        if ( m_destinationCase() && m_destinationCase()->dataFilterCollection() )
+        if ( m_destinationCase() )
         {
-            for ( RimCellFilter* filter : m_destinationCase()->dataFilterCollection()->filters() )
+            if ( auto dataFilterCollection = m_destinationCase()->dataFilterCollection() )
             {
-                if ( !filter ) continue;
-                options.push_back( caf::PdmOptionItemInfo( filter->fullName(), filter, false, filter->uiIconProvider() ) );
+                for ( RimCellFilter* filter : dataFilterCollection->filters() )
+                {
+                    if ( !filter ) continue;
+                    options.push_back( caf::PdmOptionItemInfo( filter->fullName(), filter, false, filter->uiIconProvider() ) );
+                }
+            }
+
+            // Also offer the data filters of the grid ensemble the destination case belongs to, if any
+            if ( auto gridEnsemble = m_destinationCase()->firstAncestorOfType<RimReservoirGridEnsemble>() )
+            {
+                if ( auto dataFilterCollection = gridEnsemble->dataFilterCollection() )
+                {
+                    for ( RimCellFilter* filter : dataFilterCollection->filters() )
+                    {
+                        if ( !filter ) continue;
+                        options.push_back( caf::PdmOptionItemInfo( QString( "%1 : %2" ).arg( gridEnsemble->name(), filter->fullName() ),
+                                                                   filter,
+                                                                   false,
+                                                                   filter->uiIconProvider() ) );
+                    }
+                }
             }
         }
     }
