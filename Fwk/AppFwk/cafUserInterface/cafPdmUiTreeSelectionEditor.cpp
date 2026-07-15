@@ -157,6 +157,12 @@ PdmUiTreeSelectionEditor::PdmUiTreeSelectionEditor()
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeSelectionEditor::~PdmUiTreeSelectionEditor()
 {
+    // The tree view is deleted using deleteLater() in ~PdmUiFieldEditorHandle, while m_model and m_proxyModel are
+    // children of this editor and are deleted immediately. Detach the view from the models, otherwise pending events
+    // in the view (e.g. deferred QHeaderView::reset) may operate on a selection model whose model has been destroyed,
+    // causing "QItemSelectionModel: Selecting when no model has been set will result in a no-op."
+    // https://github.com/OPM/ResInsight/issues/10988
+    if ( m_treeView ) m_treeView->setModel( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
