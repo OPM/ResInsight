@@ -266,23 +266,13 @@ bool RimGridCalculation::calculate()
         }
     }
 
+    // The visible cells of the view, including the effect of property filters evaluated on the view's
+    // case. Cells inside the filters that are inactive in the view's case are not part of the mask; use
+    // the data filter type to evaluate filters per calculation case.
     cvf::ref<cvf::UByteArray> inputValueVisibilityFilter;
     if ( useCellFilterView )
     {
-        if ( auto eclipseView = dynamic_cast<RimEclipseView*>( m_cellFilterView() ) )
-        {
-            // Use the cell filter geometry, independent of the active cells in the view's case. Cells inside the
-            // filters that are inactive in the view's case can be active in other calculation cases, and must be
-            // included when the calculation is applied to additional cases.
-            inputValueVisibilityFilter = new cvf::UByteArray;
-            eclipseView->calculateCellVisibility( inputValueVisibilityFilter.p(),
-                                                  { RANGE_FILTERED, RANGE_FILTERED_INACTIVE },
-                                                  eclipseView->currentTimeStep() );
-        }
-        else
-        {
-            inputValueVisibilityFilter = m_cellFilterView()->currentTotalCellVisibility();
-        }
+        inputValueVisibilityFilter = m_cellFilterView()->currentTotalCellVisibility();
     }
 
     std::optional<std::vector<size_t>> timeSteps = std::nullopt;
