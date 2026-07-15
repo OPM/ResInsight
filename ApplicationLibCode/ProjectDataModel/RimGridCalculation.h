@@ -106,7 +106,7 @@ protected:
                                              RimEclipseCase*                 sourceCase,
                                              RimEclipseCase*                 destinationCase ) const;
 
-    void filterResults( RimGridView*                            cellFilterView,
+    void filterResults( cvf::UByteArray*                        visibility,
                         const std::vector<std::vector<double>>& values,
                         size_t                                  timeStep,
                         RimGridCalculation::DefaultValueType    defaultValueType,
