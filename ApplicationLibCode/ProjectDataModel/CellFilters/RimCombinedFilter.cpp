@@ -104,7 +104,10 @@ void RimCombinedFilter::onGridChanged()
 /// INCLUDE/EXCLUDE mode inside applyToCellVisibility), AND/OR combine the masks, then apply this
 /// combined filter's INCLUDE/EXCLUDE mode onto the incoming cellVisibility.
 //--------------------------------------------------------------------------------------------------
-void RimCombinedFilter::applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex )
+void RimCombinedFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility,
+                                               const RigGridBase* grid,
+                                               size_t             timeStepIndex,
+                                               RimEclipseCase*    sourceCaseOverride )
 {
     if ( cellVisibility == nullptr || grid == nullptr ) return;
 
@@ -125,7 +128,7 @@ void RimCombinedFilter::applyToCellVisibility( cvf::UByteArray* cellVisibility, 
     {
         cvf::UByteArray childMask( n );
         childMask.setAll( 1 );
-        child->applyToCellVisibility( &childMask, grid, timeStepIndex );
+        child->applyToCellVisibility( &childMask, grid, timeStepIndex, sourceCaseOverride );
 
         if ( m_combineMode() == CombineMode::AND )
         {
