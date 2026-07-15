@@ -1762,6 +1762,17 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
     if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T ) return cvf::UNDEFINED_SIZE_T;
     if ( type == RiaDefines::ResultCatType::GENERATED ) return scalarResultIndex;
 
+    // Results computed by ResInsight (e.g. riOILVOLUME) can not be read from file for a single time step.
+    // Delegate to findOrLoadKnownScalarResult(), which computes all time steps using the result
+    // calculators. Data already present is not computed again.
+    const bool isComputedResult = mustBeCalculated( scalarResultIndex ) || resultName == RiaResultNames::riCellVolumeResultName() ||
+                                  resultName == RiaResultNames::riOilVolumeResultName() || resultName == RiaResultNames::riPorvSoil() ||
+                                  resultName == RiaResultNames::riPorvSgas() || resultName == RiaResultNames::riPorvSoilSgas();
+    if ( isComputedResult )
+    {
+        return findOrLoadKnownScalarResult( resVarAddr );
+    }
+
     if ( m_readerInterface.notNull() )
     {
         size_t timeStepCount = infoForEachResultIndex()[scalarResultIndex].timeStepInfos().size();
