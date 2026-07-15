@@ -50,6 +50,8 @@ public:
 
     void updateCurveOrder();
 
+    void deleteCurve( RimHistogramCurve* curve );
+
 private:
     void setParentPlotAndReplot( RiuPlotWidget* plot );
     void setParentPlotNoReplot( RiuPlotWidget* plot );
@@ -58,7 +60,6 @@ private:
 
     void addCurve( RimHistogramCurve* curve );
     void insertCurve( RimHistogramCurve* curve, size_t index );
-    void deleteCurve( RimHistogramCurve* curve );
     void removeCurve( RimHistogramCurve* curve );
 
     void deleteAllCurves();

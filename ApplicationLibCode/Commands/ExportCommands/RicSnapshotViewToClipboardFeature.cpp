@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicSnapshotViewToClipboardFeature.h"
-#include "RicGridStatisticsDialog.h"
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"

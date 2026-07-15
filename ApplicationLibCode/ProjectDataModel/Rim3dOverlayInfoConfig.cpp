@@ -20,13 +20,10 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiuMessageDialog.h"
-
-#include "RicGridStatisticsDialog.h"
 
 #include "ContourMap/RigContourMapProjection.h"
 #include "RigActiveCellInfo.h"
@@ -234,31 +231,6 @@ QString Rim3dOverlayInfoConfig::sampleCountText( const std::vector<size_t>& hist
     QString text = localeWithSpaceAsGroupSeparator.toString( (qulonglong)sampleCount );
 
     return QString( "<br><b>Sample Count:</b> %1" ).arg( text );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicGridStatisticsDialog* Rim3dOverlayInfoConfig::getOrCreateGridStatisticsDialog()
-{
-    if ( !m_gridStatisticsDialog )
-    {
-        m_gridStatisticsDialog = new RicGridStatisticsDialog( RiaGuiApplication::widgetToUseAsParent() );
-    }
-    CVF_ASSERT( m_gridStatisticsDialog );
-    return m_gridStatisticsDialog;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QImage Rim3dOverlayInfoConfig::statisticsDialogScreenShotImage()
-{
-    if ( getOrCreateGridStatisticsDialog()->isVisible() )
-    {
-        return getOrCreateGridStatisticsDialog()->screenShotImage();
-    }
-    return QImage();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -743,29 +715,6 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dOverlayInfoConfig::showStatisticsInfoDialog( bool raise )
-{
-    auto gridView = dynamic_cast<RimGridView*>( m_viewDef.p() );
-    if ( gridView )
-    {
-        RicGridStatisticsDialog* dialog = getOrCreateGridStatisticsDialog();
-        // Show dialog before setting data due to text edit auto height setting
-        dialog->resize( 600, 800 );
-        dialog->show();
-
-        dialog->setLabel( "Grid statistics" );
-        dialog->updateFromRimView( gridView );
-
-        if ( raise )
-        {
-            dialog->raise();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::update3DInfo()
 {
     updateUiIconFromToggleField();
@@ -806,9 +755,6 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             m_showVolumeWeightedMean = false;
         }
         updateEclipse3DInfo( reservoirView );
-
-        // Update statistics dialog
-        getOrCreateGridStatisticsDialog()->updateFromRimView( reservoirView );
     }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( m_viewDef.p() );
@@ -817,9 +763,6 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         m_showVolumeWeightedMean = false;
 
         updateGeoMech3DInfo( geoMechView );
-
-        // Update statistics dialog
-        getOrCreateGridStatisticsDialog()->updateFromRimView( geoMechView );
     }
 
     RimSeismicView* seisView = dynamic_cast<RimSeismicView*>( m_viewDef.p() );

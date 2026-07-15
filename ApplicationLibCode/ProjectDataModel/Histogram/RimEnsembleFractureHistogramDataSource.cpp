@@ -111,8 +111,9 @@ std::string RimEnsembleFractureHistogramDataSource::unitNameX() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistogramDataSource::HistogramResult RimEnsembleFractureHistogramDataSource::compute( RimHistogramPlot::GraphType graphType,
-                                                                                         RimHistogramPlot::FrequencyType frequencyType ) const
+RimHistogramDataSource::HistogramResult RimEnsembleFractureHistogramDataSource::compute( RimHistogramPlot::GraphType     graphType,
+                                                                                         RimHistogramPlot::FrequencyType frequencyType,
+                                                                                         bool                            cumulative ) const
 {
     RimHistogramDataSource::HistogramResult result;
 
@@ -126,8 +127,8 @@ RimHistogramDataSource::HistogramResult RimEnsembleFractureHistogramDataSource::
     double min = histogramData.min;
     double max = histogramData.max;
 
-    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType );
-    result.valuesY = computeHistogramFrequencies( histogramData.histogram, graphType, frequencyType );
+    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative );
+    result.valuesY = computeHistogramFrequencies( histogramData.histogram, graphType, frequencyType, cumulative );
 
     result.p10  = histogramData.p10;
     result.mean = histogramData.mean;

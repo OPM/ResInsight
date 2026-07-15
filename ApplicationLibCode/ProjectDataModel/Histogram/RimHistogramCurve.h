@@ -58,7 +58,11 @@ public:
     void updateLegendEntryVisibilityNoPlotUpdate() override;
 
     void setDataSource( RimHistogramDataSource* dataSource );
+    void setDataSourceReference( RimHistogramDataSource* dataSource );
     void setAppearanceFromGraphType( RimHistogramPlot::GraphType graphType );
+
+    void setCumulative( bool cumulative );
+    bool isCumulative() const;
 
     RimHistogramDataSource* dataSource() const;
 
@@ -83,6 +87,10 @@ protected:
     void hideXAxisGroup();
 
     void onDataSourceChanged( const caf::SignalEmitter* emitter );
+    void onCumulativeChanged( const caf::SignalEmitter* emitter );
+
+    void updateCumulativeCurve();
+    void connectReferencedDataSourceSignals();
 
     void initAfterRead() override;
 
@@ -91,6 +99,9 @@ private:
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_xPlotAxisProperties;
 
     caf::PdmChildField<RimHistogramDataSource*> m_dataSource;
+    caf::PdmPtrField<RimHistogramDataSource*>   m_dataSourceReference;
+
+    caf::PdmField<bool> m_isCumulative;
 
     caf::PdmField<bool> m_showP10Curve;
     caf::PdmField<bool> m_showP90Curve;

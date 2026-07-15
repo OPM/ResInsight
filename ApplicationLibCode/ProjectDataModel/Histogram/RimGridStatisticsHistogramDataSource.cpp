@@ -51,6 +51,15 @@ RimGridStatisticsHistogramDataSource::RimGridStatisticsHistogramDataSource()
     m_property->setTernaryEnabled( false );
 
     CAF_PDM_InitField( &m_numBins, "NumBins", 15, "Number of Bins" );
+    CAF_PDM_InitField( &m_cumulative, "Cumulative", false, "Show Cumulative Curve" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridStatisticsHistogramDataSource::showCumulativeCurve() const
+{
+    return m_cumulative();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,6 +116,7 @@ void RimGridStatisticsHistogramDataSource ::defineUiOrdering( QString uiConfigNa
     {
         uiOrdering.add( &m_timeStep );
         uiOrdering.add( &m_cellFilterView );
+        uiOrdering.add( &m_cumulative );
         caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup( "Property" );
         m_property->uiOrdering( uiConfigName, *propertyGroup );
     }
@@ -131,6 +141,13 @@ void RimGridStatisticsHistogramDataSource::fieldChangedByUi( const caf::PdmField
             m_property->updateConnectedEditors();
             dataSourceChanged.send();
         }
+    }
+    else if ( changedField == &m_cumulative )
+    {
+        // Handled by the owning curve, which creates or deletes the cumulative companion curve.
+        // Not sent as dataSourceChanged: the companion curve observes that signal, and must not be
+        // deleted while it is being emitted.
+        cumulativeChanged.send();
     }
     else
     {
@@ -158,7 +175,8 @@ std::string RimGridStatisticsHistogramDataSource::unitNameX() const
 ///
 //--------------------------------------------------------------------------------------------------
 RimHistogramDataSource::HistogramResult RimGridStatisticsHistogramDataSource::compute( RimHistogramPlot::GraphType     graphType,
-                                                                                       RimHistogramPlot::FrequencyType frequencyType ) const
+                                                                                       RimHistogramPlot::FrequencyType frequencyType,
+                                                                                       bool                            cumulative ) const
 {
     RimHistogramDataSource::HistogramResult result;
 
@@ -168,8 +186,8 @@ RimHistogramDataSource::HistogramResult RimGridStatisticsHistogramDataSource::co
     double min = histogramData.min;
     double max = histogramData.max;
 
-    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType );
-    result.valuesY = computeHistogramFrequencies( histogramData.histogram, graphType, frequencyType );
+    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative );
+    result.valuesY = computeHistogramFrequencies( histogramData.histogram, graphType, frequencyType, cumulative );
 
     result.p10  = histogramData.p10;
     result.mean = histogramData.mean;

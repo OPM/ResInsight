@@ -262,6 +262,17 @@ void RimHistogramCurveCollection::onCurvesReordered( const SignalEmitter* emitte
 void RimHistogramCurveCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
+    // Delete cumulative curves when the curve owning their referenced data source is deleted
+    std::vector<RimHistogramCurve*> orphanedCurves;
+    for ( RimHistogramCurve* curve : curves() )
+    {
+        if ( curve->isCumulative() && !curve->dataSource() ) orphanedCurves.push_back( curve );
+    }
+    for ( RimHistogramCurve* curve : orphanedCurves )
+    {
+        deleteCurve( curve );
+    }
+
     curvesChanged.send();
 }
 
