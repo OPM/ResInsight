@@ -1504,7 +1504,15 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
 
     if ( isDataPresent( scalarResultIndex ) )
     {
-        return scalarResultIndex;
+        // Data for some time steps can have been released to reduce memory usage, see
+        // RimGridCalculation::getActiveCellValues(). Results computed by ResInsight can not be reloaded from
+        // file, so continue to recompute them if data is missing for any time step.
+        const bool mustRecompute = isResultComputedByResInsight( resultName, scalarResultIndex ) &&
+                                   hasEmptyDataForAnyTimeStep( scalarResultIndex );
+        if ( !mustRecompute )
+        {
+            return scalarResultIndex;
+        }
     }
 
     if ( resultName == RiaResultNames::soil() )
@@ -1764,12 +1772,16 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
 
     // Results computed by ResInsight (e.g. riOILVOLUME) can not be read from file for a single time step.
     // Delegate to findOrLoadKnownScalarResult(), which computes all time steps using the result
-    // calculators. Data already present is not computed again.
-    const bool isComputedResult = mustBeCalculated( scalarResultIndex ) || resultName == RiaResultNames::riCellVolumeResultName() ||
-                                  resultName == RiaResultNames::riOilVolumeResultName() || resultName == RiaResultNames::riPorvSoil() ||
-                                  resultName == RiaResultNames::riPorvSgas() || resultName == RiaResultNames::riPorvSoilSgas();
-    if ( isComputedResult )
+    // calculators. Skip the delegation if data is already present for the requested time step, to avoid
+    // repeated recomputation when data for other time steps is released during a calculation.
+    if ( isResultComputedByResInsight( resultName, scalarResultIndex ) )
     {
+        const auto& valuesAllTimeSteps = m_cellScalarResults[scalarResultIndex];
+        if ( timeStepIndex < valuesAllTimeSteps.size() && !valuesAllTimeSteps[timeStepIndex].empty() )
+        {
+            return scalarResultIndex;
+        }
+
         return findOrLoadKnownScalarResult( resVarAddr );
     }
 
@@ -3152,6 +3164,28 @@ RigAllanDiagramData* RigCaseCellResultsData::allanDiagramData()
 bool RigCaseCellResultsData::isDataPresent( size_t scalarResultIndex ) const
 {
     return allocatedValueCount( scalarResultIndex ) > 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns true for results that are computed by ResInsight and can not be read from file
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::isResultComputedByResInsight( const QString& resultName, size_t scalarResultIndex ) const
+{
+    return mustBeCalculated( scalarResultIndex ) || resultName == RiaResultNames::riCellVolumeResultName() ||
+           resultName == RiaResultNames::riOilVolumeResultName() || resultName == RiaResultNames::riPorvSoil() ||
+           resultName == RiaResultNames::riPorvSgas() || resultName == RiaResultNames::riPorvSoilSgas();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::hasEmptyDataForAnyTimeStep( size_t scalarResultIndex ) const
+{
+    if ( scalarResultIndex >= resultCount() ) return false;
+
+    const std::vector<std::vector<double>>& valuesAllTimeSteps = m_cellScalarResults[scalarResultIndex];
+
+    return std::any_of( valuesAllTimeSteps.begin(), valuesAllTimeSteps.end(), []( const auto& values ) { return values.empty(); } );
 }
 
 //--------------------------------------------------------------------------------------------------

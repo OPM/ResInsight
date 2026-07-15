@@ -215,6 +215,9 @@ private:
     bool mustBeCalculated( size_t scalarResultIndex ) const;
     void setMustBeCalculated( size_t scalarResultIndex );
 
+    bool isResultComputedByResInsight( const QString& resultName, size_t scalarResultIndex ) const;
+    bool hasEmptyDataForAnyTimeStep( size_t scalarResultIndex ) const;
+
     void computeSOILForTimeStep( size_t timeStepIndex );
     void testAndComputeSgasForTimeStep( size_t timeStepIndex );
 
