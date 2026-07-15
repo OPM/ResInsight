@@ -30,9 +30,11 @@
 
 #include "RimCellFilterTools.h"
 #include "RimCellRangeFilter.h"
+#include "RimDataFilterCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimReservoirGridEnsemble.h"
 
 #include "cafPdmField.h"
 
@@ -102,6 +104,48 @@ TEST( RimCellFilterToolsTest, RangeFilterVisibility )
     }
 
     EXPECT_EQ( visibility->size() - visibleCount, excludeVisibleCount );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Data filters in a grid ensemble collection are bound to the main case of the ensemble, and can
+/// be evaluated per case without any view
+//--------------------------------------------------------------------------------------------------
+TEST( RimCellFilterToolsTest, GridEnsembleDataFilterCollection )
+{
+    auto eclipseCase = openBruggeCase( "Real0", "BRUGGE_0000.EGRID" );
+    ASSERT_TRUE( eclipseCase != nullptr );
+
+    auto ensemble = std::make_unique<RimReservoirGridEnsemble>();
+
+    // The ensemble takes ownership of the case
+    RimEclipseResultCase* mainCase = eclipseCase.release();
+    ensemble->addCase( mainCase );
+
+    ASSERT_TRUE( ensemble->dataFilterCollection() != nullptr );
+
+    // New filters in the ensemble collection are bound to the main case of the ensemble
+    auto* propertyFilter = ensemble->dataFilterCollection()->addNewPropertyFilter();
+    ASSERT_TRUE( propertyFilter != nullptr );
+    EXPECT_EQ( mainCase, propertyFilter->resultDefinition()->eclipseCase() );
+
+    auto* rangeFilter = ensemble->dataFilterCollection()->addNewRangeFilter();
+    ASSERT_TRUE( rangeFilter != nullptr );
+    rangeFilter->startIndexI = 1;
+    rangeFilter->startIndexJ = 1;
+    rangeFilter->startIndexK = 1;
+    rangeFilter->cellCountI  = 10;
+    rangeFilter->cellCountJ  = 10;
+    rangeFilter->cellCountK  = 1;
+
+    auto visibility = RimCellFilterTools::computeReservoirCellVisibility( rangeFilter, mainCase, 0 );
+    ASSERT_TRUE( visibility.notNull() );
+
+    size_t visibleCount = 0;
+    for ( size_t i = 0; i < visibility->size(); i++ )
+    {
+        if ( visibility->val( i ) ) visibleCount++;
+    }
+    EXPECT_EQ( size_t( 10 * 10 * 1 ), visibleCount );
 }
 
 //--------------------------------------------------------------------------------------------------
