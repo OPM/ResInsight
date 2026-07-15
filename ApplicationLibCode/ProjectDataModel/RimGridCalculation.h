@@ -120,10 +120,10 @@ protected:
                                                  std::vector<double>&       resultValues,
                                                  RigActiveCellInfo*         activeCellInfo );
 
-    static void replaceFilteredValuesWithDefaultValue( double                    defaultValue,
-                                                       cvf::ref<cvf::UByteArray> visibility,
-                                                       std::vector<double>&      resultValues,
-                                                       RigActiveCellInfo*        activeCellInfo );
+    static size_t replaceFilteredValuesWithDefaultValue( double                    defaultValue,
+                                                         cvf::ref<cvf::UByteArray> visibility,
+                                                         std::vector<double>&      resultValues,
+                                                         RigActiveCellInfo*        activeCellInfo );
 
     using DefaultValueConfig = std::pair<RimGridCalculation::DefaultValueType, double>;
     DefaultValueConfig defaultValueConfiguration() const;
