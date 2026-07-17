@@ -22,7 +22,8 @@ File format grammar, version 2.0 (EBNF-ish)::
 
     document        = header , { statement } ;
     header          = "ORIONEVENTS" , "2.0" ;           (* first meaningful line *)
-    statement       = unit_directive | declaration | well_block_open | event_line ;
+    statement       = unit_directive | declaration | well_block_open
+                    | schedule_block_open | event_line ;
     unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
 
     declaration     = date_decl | duration_decl | well_decl ;
@@ -30,14 +31,17 @@ File format grammar, version 2.0 (EBNF-ish)::
     duration_decl   = "DURATION" , ident , "=" , duration_expr ; (* DURATION RAMP = 5 DAYS *)
     well_decl       = "WELL" , ident , "=" , quoted_string ;     (* WELL A1 = "55_33-A-1" *)
 
-    well_block_open = "WELL" , ( quoted_string | ident ) ;       (* no "=" present *)
+    well_block_open     = "WELL" , ( quoted_string | ident ) ;   (* no "=" present *)
+    schedule_block_open = "SCHEDULE" ;                  (* well-less keyword events *)
     event_line      = "@" , date_expr , event_type , { attribute } ;
 
-    date_expr       = ( iso_date | date_ident ) , { sign , term } ;
+    date_expr       = ( iso_date | iso_datetime | date_ident ) , { sign , term } ;
     duration_expr   = ( integer | dur_ident ) , { sign , term } , [ "DAYS" | "days" ] ;
     term            = integer | dur_ident ;             (* whole days *)
     sign            = "+" | "-" ;
     iso_date        = 4digit , "-" , 2digit , "-" , 2digit ;
+    iso_datetime    = iso_date , "T" , 2digit , ":" , 2digit , ":" , 2digit ,
+                      [ "." , digits ] ;                (* 2024-05-15T14:45:30.500 *)
     ident           = letter_or_underscore , { word_char } ;
     attribute       = ident , "=" , ( quoted_string | bareword ) ;
     comment         = "#" , rest-of-line ;              (* line or trailing *)
@@ -45,9 +49,9 @@ File format grammar, version 2.0 (EBNF-ish)::
 Notes on the grammar:
 
 * The format is line-oriented; every non-blank line is dispatched on its first
-  token: ``ORIONEVENTS`` (once), ``UNIT``, ``DATE``, ``DURATION``, ``WELL`` or
-  ``@``. Anything else is an error. Keywords are uppercase and case-sensitive
-  (the ``DAYS`` suffix is also accepted as ``days``).
+  token: ``ORIONEVENTS`` (once), ``UNIT``, ``DATE``, ``DURATION``, ``WELL``,
+  ``SCHEDULE`` or ``@``. Anything else is an error. Keywords are uppercase and
+  case-sensitive (the ``DAYS`` suffix is also accepted as ``days``).
 * Comments start with ``#`` (outside of double quotes) and run to end of line.
 * Variables are **typed**: ``DATE``, ``DURATION`` (whole days) and ``WELL``
   (well-name alias) declarations share one namespace and must precede use.
@@ -56,16 +60,26 @@ Notes on the grammar:
   last value wins; redeclaring with a different type is an error.
 * Date arithmetic is a chain of signed whole-day terms, each an integer or a
   ``DURATION`` variable: ``@START + RAMP - 2``. Whitespace around ``+``/``-``
-  is optional but conventional.
+  is optional but conventional. An event date may carry a time-of-day
+  (``@2024-05-15T14:45:30.500``), which the schedule generator preserves as
+  the optional TIME field of the DATES keyword.
 * ``WELL <ident>`` opens an event block for a declared ``WELL`` alias;
   ``WELL "<name>"`` opens a block for the literal well name and never consults
-  variables. A ``WELL`` line containing ``=`` is always a declaration. Empty
-  well blocks are legal.
+  variables. A ``WELL`` line containing ``=`` is always a declaration. A bare
+  ``SCHEDULE`` line opens a block of schedule-level keyword events not tied to
+  any well (RPTRST, GRUPTREE, TUNING, ...). Empty blocks are legal.
 * Double quotes are used everywhere: well names and attribute values, e.g.
   ``FILTER="SOIL(0) > 0.8 AND PERMX > 200"``.
-* Every attribute is ``KEY=VALUE``; bare positional tokens are rejected. Any
-  key parses; keys the applier does not support yet (``FILTER``, ``PERFID``,
-  ``DSHIFT``) are ignored with a warning when the document is applied.
+* Every attribute is ``KEY=VALUE``; bare positional tokens are rejected.
+* Event types inside a WELL block are either the built-in completion events
+  ``PERFORATION``, ``TUBING``, ``VALVE`` and ``STATE``, or any Eclipse well
+  keyword (``WCONHIST``, ``WELTARG``, ``WRFTPLT``, ``WCONPROD``, ...), which
+  is passed through generically with the well name injected as WELL. Event
+  types inside a SCHEDULE block are Eclipse schedule keywords passed through
+  as-is. An event type that closely resembles a built-in is treated as a typo
+  per the ``on_unknown_event`` policy instead of being passed through.
+* Any attribute key parses; keys the applier does not support yet (``FILTER``,
+  ``PERFID``, ``DSHIFT``) are ignored with a warning when applied.
 * The parser recovers per line and reports **all** errors in one pass: the
   raised :class:`OrionParseError` carries one :class:`ParseIssue` per problem.
   Unknown names come with "did you mean" suggestions where possible.
@@ -80,7 +94,7 @@ import difflib
 import os
 import re
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 from .exception import RipsError
 
@@ -143,10 +157,14 @@ class ParseWarning:
 
 @dataclass(frozen=True)
 class OrionValue:
-    """A typed variable: kind is ``DATE``, ``DURATION`` or ``WELL``."""
+    """A typed variable: kind is ``DATE``, ``DURATION`` or ``WELL``.
+
+    A ``DATE`` value is a :class:`datetime.date`, or a :class:`datetime.datetime`
+    when declared with a time-of-day.
+    """
 
     kind: str
-    value: Union[datetime.date, int, str]
+    value: Union[datetime.date, datetime.datetime, int, str]
     loc: SourceLoc
 
 
@@ -161,10 +179,10 @@ class AttrValue:
 
 @dataclass
 class OrionEvent:
-    """One event line: a dated action on the enclosing well."""
+    """One event line: a dated action on the enclosing WELL or SCHEDULE block."""
 
     event_type: str
-    event_date: datetime.date
+    event_date: Union[datetime.date, datetime.datetime]
     attributes: Dict[str, AttrValue]
     loc: SourceLoc
 
@@ -186,6 +204,7 @@ class OrionDocument:
     unit_system: str = "METRIC"
     variables: Dict[str, OrionValue] = field(default_factory=dict)
     wells: List[WellBlock] = field(default_factory=list)
+    schedule_events: List[OrionEvent] = field(default_factory=list)
     warnings: List[ParseWarning] = field(default_factory=list)
 
 
@@ -193,10 +212,11 @@ class OrionDocument:
 # Layer A: pure parser
 # ---------------------------------------------------------------------------
 
-_KEYWORDS = ("ORIONEVENTS", "UNIT", "DATE", "DURATION", "WELL")
+_KEYWORDS = ("ORIONEVENTS", "UNIT", "DATE", "DURATION", "WELL", "SCHEDULE")
 
 _IDENT = r"[A-Za-z_]\w*"
-_DATE_BASE = rf"(?P<base>\d{{4}}-\d{{2}}-\d{{2}}|{_IDENT})"
+_ISO_DATE = r"\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?)?"
+_DATE_BASE = rf"(?P<base>{_ISO_DATE}|{_IDENT})"
 _TERMS = rf"(?P<terms>(?:\s*[-+]\s*(?:\d+|{_IDENT}))*)"
 
 _HEADER_RE = re.compile(r"^ORIONEVENTS\s+(?P<version>\d+\.\d+)$")
@@ -230,9 +250,12 @@ def parse_orion_events(text: str) -> OrionDocument:
     unit_holder = ["METRIC"]  # mutable so _parse_line can update it
     variables: Dict[str, OrionValue] = {}
     wells: List[WellBlock] = []
+    schedule_events: List[OrionEvent] = []
     warnings: List[ParseWarning] = []
     errors: List[ParseIssue] = []
-    current_well: Optional[WellBlock] = None
+    # Event lines append to the current sink: a WellBlock's event list or the
+    # document-level schedule_events list.
+    current_events: Optional[List[OrionEvent]] = None
 
     for lineno, raw_line in enumerate(text.splitlines(), start=1):
         loc = SourceLoc(line=lineno, text=raw_line)
@@ -253,17 +276,24 @@ def parse_orion_events(text: str) -> OrionDocument:
             continue
 
         try:
-            current_well = _parse_line(
-                line, loc, variables, wells, warnings, current_well, unit_holder
+            current_events = _parse_line(
+                line,
+                loc,
+                variables,
+                wells,
+                schedule_events,
+                warnings,
+                current_events,
+                unit_holder,
             )
         except OrionParseError as exc:
             errors.extend(exc.errors)
-            if line.split(None, 1)[0] == "WELL" or (
-                line.startswith("@") and current_well is None
+            if line.split(None, 1)[0] in ("WELL", "SCHEDULE") or (
+                line.startswith("@") and current_events is None
             ):
                 # Suppress cascading errors from lines belonging to a broken
-                # (or missing) block: swallow them into a discarded block.
-                current_well = WellBlock(well_name="", loc=loc)
+                # (or missing) block: swallow them into a discarded list.
+                current_events = []
 
     if version is None:
         raise OrionParseError("Empty file: missing 'ORIONEVENTS' header")
@@ -276,6 +306,7 @@ def parse_orion_events(text: str) -> OrionDocument:
         unit_system=unit_holder[0],
         variables=variables,
         wells=wells,
+        schedule_events=schedule_events,
         warnings=warnings,
     )
 
@@ -302,16 +333,19 @@ def _parse_line(
     loc: SourceLoc,
     variables: Dict[str, OrionValue],
     wells: List[WellBlock],
+    schedule_events: List[OrionEvent],
     warnings: List[ParseWarning],
-    current_well: Optional[WellBlock],
+    current_events: Optional[List[OrionEvent]],
     unit_holder: List[str],
-) -> Optional[WellBlock]:
-    """Dispatch one non-header line; returns the (possibly new) current well."""
+) -> Optional[List[OrionEvent]]:
+    """Dispatch one non-header line; returns the current event sink."""
     if line.startswith("@"):
-        if current_well is None:
-            raise OrionParseError("Event line found before any WELL block", loc)
-        current_well.events.append(_parse_event_line(line, variables, loc))
-        return current_well
+        if current_events is None:
+            raise OrionParseError(
+                "Event line found before any WELL or SCHEDULE block", loc
+            )
+        current_events.append(_parse_event_line(line, variables, loc))
+        return current_events
 
     first = line.split(None, 1)[0]
 
@@ -322,7 +356,14 @@ def _parse_line(
                 f"Malformed UNIT line: {line!r} (expected UNIT METRIC|FIELD|LAB)", loc
             )
         unit_holder[0] = match.group("unit")
-        return current_well
+        return current_events
+
+    if first == "SCHEDULE":
+        if line != "SCHEDULE":
+            raise OrionParseError(
+                f"Malformed SCHEDULE line: {line!r} (SCHEDULE takes no arguments)", loc
+            )
+        return schedule_events
 
     if first == "DATE":
         match = _DATE_DECL_RE.match(line)
@@ -342,7 +383,7 @@ def _parse_line(
             warnings,
             loc,
         )
-        return current_well
+        return current_events
 
     if first == "DURATION":
         match = _DURATION_DECL_RE.match(line)
@@ -362,7 +403,7 @@ def _parse_line(
             warnings,
             loc,
         )
-        return current_well
+        return current_events
 
     if first == "WELL":
         decl_match = _WELL_DECL_RE.match(line)
@@ -374,7 +415,7 @@ def _parse_line(
                 warnings,
                 loc,
             )
-            return current_well
+            return current_events
         block_match = _WELL_BLOCK_RE.match(line)
         if block_match is None:
             raise OrionParseError(
@@ -389,7 +430,7 @@ def _parse_line(
             )
         new_well = WellBlock(well_name=name, loc=loc)
         wells.append(new_well)
-        return new_well
+        return new_well.events
 
     raise OrionParseError(_unrecognized_line_message(line, first), loc)
 
@@ -474,11 +515,15 @@ def _eval_terms(terms: str, variables: Dict[str, OrionValue], loc: SourceLoc) ->
 
 def _eval_date_expr(
     base: str, terms: str, variables: Dict[str, OrionValue], loc: SourceLoc
-) -> datetime.date:
-    """Evaluate an ISO date or DATE variable plus optional signed day terms."""
+) -> Union[datetime.date, datetime.datetime]:
+    """Evaluate an ISO date(time) or DATE variable plus optional signed day terms."""
+    result: Union[datetime.date, datetime.datetime]
     if base[0].isdigit():
         try:
-            result = datetime.date.fromisoformat(base)
+            if "T" in base:
+                result = datetime.datetime.fromisoformat(base)
+            else:
+                result = datetime.date.fromisoformat(base)
         except ValueError as exc:
             raise OrionParseError(f"Invalid date '{base}': {exc}", loc)
     else:
@@ -594,14 +639,37 @@ _POLICIES = ("warn", "error", "skip")
 # Attributes accepted on a keyword event but intentionally not emitted.
 _IGNORED_KEYWORD_ATTRS = {"DSHIFT", "FILTER", "PERFID"}
 
-# PERFORATION attribute handling.
+# Completion event attribute handling: (required, known-optional) per type.
+# FILTER/PERFID are accepted on any completion event but ignored with a warning.
 _PERF_REQUIRED = ("MDSTART", "MDEND")
 _PERF_KNOWN = {"MDSTART", "MDEND", "RADIUS", "SKIN", "COMPLETION_NUMBER"}
-_PERF_IGNORED = {"FILTER", "PERFID"}
+_TUBING_REQUIRED = ("MDSTART", "MDEND")
+_TUBING_KNOWN = {"MDSTART", "MDEND", "INNER_DIAMETER", "ROUGHNESS"}
+_VALVE_REQUIRED = ("MD", "TYPE")
+_VALVE_KNOWN = {"MD", "TYPE", "STATE", "CV", "AREA"} | {
+    "AICD_STRENGTH",
+    "AICD_DENSITY_CALIB_FLUID",
+    "AICD_VISCOSITY_CALIB_FLUID",
+    "AICD_VOL_FLOW_EXP",
+    "AICD_VISC_FUNC_EXP",
+}
+_STATE_REQUIRED = ("STATE",)
+_STATE_KNOWN = {"STATE"}
+_COMPLETION_IGNORED = {"FILTER", "PERFID"}
+_PERF_IGNORED = _COMPLETION_IGNORED  # backwards-compatible alias
 
 # ORIONEVENTS -> Eclipse item-name translations per keyword.
 _WCONHIST_FIELD_MAP = {"VFP": "VFP_TABLE"}
 _WELTARG_FIELD_MAP = {"VALUE": "NEW_VALUE"}
+
+
+def _iso_event_date(event_date: Union[datetime.date, datetime.datetime]) -> str:
+    """Format an event date for the timeline API, keeping ms time-of-day."""
+    if isinstance(event_date, datetime.datetime):
+        if event_date.microsecond:
+            return event_date.isoformat(timespec="milliseconds")
+        return event_date.isoformat()
+    return event_date.isoformat()
 
 
 def apply_orion_events_file(
@@ -631,7 +699,9 @@ def apply_orion_document(
         project: A ``rips.Project`` used to resolve well names to well paths.
         on_unknown_well: ``"warn"`` (default), ``"error"`` or ``"skip"`` -
             behavior when a well name has no matching well path.
-        on_unknown_event: same policy values, for unknown event types.
+        on_unknown_event: same policy values, for event types that closely
+            resemble a misspelled built-in event type. Other unrecognized
+            event types are passed through as generic Eclipse keywords.
 
     Returns:
         ApplyReport: counts plus collected warnings/errors.
@@ -652,25 +722,65 @@ def apply_orion_document(
             continue
 
         for event in well.events:
-            dispatch = _EVENT_DISPATCH.get(event.event_type.upper())
+            event_type = event.event_type.upper()
+            dispatch = _EVENT_DISPATCH.get(event_type)
             if dispatch is None:
-                message = (
-                    f"Unknown event type '{event.event_type}' (line {event.loc.line})"
-                )
-                close = difflib.get_close_matches(
-                    event.event_type.upper(), _EVENT_DISPATCH, n=1, cutoff=0.6
-                )
-                if close:
-                    message += f"; did you mean '{close[0]}'?"
-                if on_unknown_event == "error":
-                    raise RipsError(message)
-                if on_unknown_event == "warn":
-                    report.warnings.append(message)
-                report.events_skipped += 1
-                continue
+                typo_of = _suspected_typo(event_type)
+                if typo_of is not None:
+                    message = (
+                        f"Unknown event type '{event.event_type}' "
+                        f"(line {event.loc.line}); did you mean '{typo_of}'?"
+                    )
+                    if on_unknown_event == "error":
+                        raise RipsError(message)
+                    if on_unknown_event == "warn":
+                        report.warnings.append(message)
+                    report.events_skipped += 1
+                    continue
+                dispatch = _apply_generic_well_keyword
             dispatch(event, well_path, timeline, report)
 
+    for event in document.schedule_events:
+        _apply_schedule_event(event, timeline, report)
+
     return report
+
+
+def _suspected_typo(event_type: str) -> Optional[str]:
+    """Return the built-in event type this one looks like a misspelling of."""
+    close = difflib.get_close_matches(event_type, _EVENT_DISPATCH, n=1, cutoff=0.8)
+    return close[0] if close else None
+
+
+def _apply_schedule_event(
+    event: OrionEvent, timeline: Any, report: ApplyReport
+) -> None:
+    """Apply one SCHEDULE-block event as a schedule-level Eclipse keyword."""
+    event_type = event.event_type.upper()
+    if event_type in _COMPLETION_EVENT_TYPES:
+        report.errors.append(
+            f"Line {event.loc.line}: {event_type} is a completion event and "
+            "needs a WELL block, not SCHEDULE"
+        )
+        report.events_skipped += 1
+        return
+
+    keyword_data: Dict[str, Any] = {}
+    for key, attr in event.attributes.items():
+        if key in _IGNORED_KEYWORD_ATTRS:
+            report.warnings.append(
+                f"Line {event.loc.line}: attribute '{key}' on {event_type} "
+                "is ignored (not yet supported)"
+            )
+            continue
+        keyword_data[key] = attr.value
+
+    timeline.add_keyword_event(
+        event_date=_iso_event_date(event.event_date),
+        keyword_name=event_type,
+        keyword_data=keyword_data,
+    )
+    report.events_applied += 1
 
 
 def _validate_policy(value: str, name: str) -> None:
@@ -678,37 +788,53 @@ def _validate_policy(value: str, name: str) -> None:
         raise ValueError(f"{name} must be one of {_POLICIES}, got {value!r}")
 
 
-def _apply_perforation(
-    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
-) -> None:
+def _check_completion_attrs(
+    event: OrionEvent,
+    type_name: str,
+    known: Set[str],
+    required: Tuple[str, ...],
+    report: ApplyReport,
+) -> bool:
+    """Validate a completion event's attributes; False means skip the event."""
     attrs = event.attributes
-    unknown = set(attrs) - _PERF_KNOWN - _PERF_IGNORED
+    unknown = set(attrs) - known - _COMPLETION_IGNORED
     if unknown:
         report.errors.append(
-            f"Line {event.loc.line}: unknown PERFORATION attribute(s): "
+            f"Line {event.loc.line}: unknown {type_name} attribute(s): "
             f"{', '.join(sorted(unknown))}"
         )
         report.events_skipped += 1
-        return
+        return False
 
-    for key in sorted(_PERF_IGNORED & set(attrs)):
+    for key in sorted(_COMPLETION_IGNORED & set(attrs)):
         report.warnings.append(
-            f"Line {event.loc.line}: attribute '{key}' on PERFORATION "
+            f"Line {event.loc.line}: attribute '{key}' on {type_name} "
             "is ignored (not yet supported)"
         )
 
-    missing = [name for name in _PERF_REQUIRED if name not in attrs]
+    missing = [name for name in required if name not in attrs]
     if missing:
         report.errors.append(
-            f"Line {event.loc.line}: PERFORATION missing required "
+            f"Line {event.loc.line}: {type_name} missing required "
             f"attribute(s): {', '.join(missing)}"
         )
         report.events_skipped += 1
+        return False
+    return True
+
+
+def _apply_perforation(
+    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+) -> None:
+    if not _check_completion_attrs(
+        event, "PERFORATION", _PERF_KNOWN, _PERF_REQUIRED, report
+    ):
         return
 
+    attrs = event.attributes
     try:
         kwargs: Dict[str, Any] = {
-            "event_date": event.event_date.isoformat(),
+            "event_date": _iso_event_date(event.event_date),
             "well_path": well_path,
             "start_md": float(_as_number(attrs["MDSTART"], event.loc)),
             "end_md": float(_as_number(attrs["MDEND"], event.loc)),
@@ -731,6 +857,95 @@ def _apply_perforation(
     report.events_applied += 1
 
 
+def _apply_tubing(
+    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+) -> None:
+    if not _check_completion_attrs(
+        event, "TUBING", _TUBING_KNOWN, _TUBING_REQUIRED, report
+    ):
+        return
+
+    attrs = event.attributes
+    try:
+        kwargs: Dict[str, Any] = {
+            "event_date": _iso_event_date(event.event_date),
+            "well_path": well_path,
+            "start_md": float(_as_number(attrs["MDSTART"], event.loc)),
+            "end_md": float(_as_number(attrs["MDEND"], event.loc)),
+        }
+        if "INNER_DIAMETER" in attrs:
+            kwargs["inner_diameter"] = float(
+                _as_number(attrs["INNER_DIAMETER"], event.loc)
+            )
+        if "ROUGHNESS" in attrs:
+            kwargs["roughness"] = float(_as_number(attrs["ROUGHNESS"], event.loc))
+    except OrionParseError as exc:
+        report.errors.append(str(exc))
+        report.events_skipped += 1
+        return
+
+    timeline.add_tubing_event(**kwargs)
+    report.events_applied += 1
+
+
+# VALVE attribute -> add_valve_event keyword-argument name (numeric values).
+_VALVE_NUMERIC_KWARGS = {
+    "CV": "flow_coefficient",
+    "AREA": "area",
+    "AICD_STRENGTH": "aicd_strength",
+    "AICD_DENSITY_CALIB_FLUID": "aicd_density_calib_fluid",
+    "AICD_VISCOSITY_CALIB_FLUID": "aicd_viscosity_calib_fluid",
+    "AICD_VOL_FLOW_EXP": "aicd_vol_flow_exp",
+    "AICD_VISC_FUNC_EXP": "aicd_visc_func_exp",
+}
+
+
+def _apply_valve(
+    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+) -> None:
+    if not _check_completion_attrs(
+        event, "VALVE", _VALVE_KNOWN, _VALVE_REQUIRED, report
+    ):
+        return
+
+    attrs = event.attributes
+    try:
+        kwargs: Dict[str, Any] = {
+            "event_date": _iso_event_date(event.event_date),
+            "well_path": well_path,
+            "measured_depth": float(_as_number(attrs["MD"], event.loc)),
+            "valve_type": str(attrs["TYPE"].value),
+        }
+        if "STATE" in attrs:
+            kwargs["state"] = str(attrs["STATE"].value)
+        for attr_name, kwarg_name in _VALVE_NUMERIC_KWARGS.items():
+            if attr_name in attrs:
+                kwargs[kwarg_name] = float(_as_number(attrs[attr_name], event.loc))
+    except OrionParseError as exc:
+        report.errors.append(str(exc))
+        report.events_skipped += 1
+        return
+
+    timeline.add_valve_event(**kwargs)
+    report.events_applied += 1
+
+
+def _apply_state(
+    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+) -> None:
+    if not _check_completion_attrs(
+        event, "STATE", _STATE_KNOWN, _STATE_REQUIRED, report
+    ):
+        return
+
+    timeline.add_state_event(
+        event_date=_iso_event_date(event.event_date),
+        well_path=well_path,
+        well_state=str(event.attributes["STATE"].value),
+    )
+    report.events_applied += 1
+
+
 def _apply_keyword(
     event: OrionEvent,
     well_path: Any,
@@ -750,7 +965,7 @@ def _apply_keyword(
         keyword_data[field_map.get(key, key)] = attr.value
 
     timeline.add_well_keyword_event(
-        event_date=event.event_date.isoformat(),
+        event_date=_iso_event_date(event.event_date),
         well_path=well_path,
         keyword_name=keyword_name,
         keyword_data=keyword_data,
@@ -776,13 +991,29 @@ def _as_number(attr: AttrValue, loc: SourceLoc) -> Union[int, float]:
     return attr.value
 
 
+def _apply_generic_well_keyword(
+    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+) -> None:
+    _apply_keyword(event, well_path, timeline, report, event.event_type.upper(), {})
+
+
 _EventDispatch = Callable[[OrionEvent, Any, Any, ApplyReport], None]
 
+# Built-in event types. Any other event type inside a WELL block is passed
+# through as a generic Eclipse well keyword (unless it looks like a typo of a
+# built-in, which is governed by the on_unknown_event policy).
 _EVENT_DISPATCH: Dict[str, _EventDispatch] = {
     "PERFORATION": _apply_perforation,
+    "TUBING": _apply_tubing,
+    "VALVE": _apply_valve,
+    "STATE": _apply_state,
     "WCONHIST": _apply_wconhist,
     "WELTARG": _apply_weltarg,
 }
+
+# Completion event types that require a well and cannot appear in a SCHEDULE
+# block or be emitted as Eclipse keywords.
+_COMPLETION_EVENT_TYPES = ("PERFORATION", "TUBING", "VALVE", "STATE")
 
 
 # ---------------------------------------------------------------------------
@@ -821,7 +1052,8 @@ def _cli(argv: Optional[List[str]] = None) -> int:
     )
     print(
         f"  {len(document.variables)} variable(s), {len(document.wells)} "
-        f"well block(s), {event_count} event(s)"
+        f"well block(s), {event_count} well event(s), "
+        f"{len(document.schedule_events)} schedule event(s)"
     )
     for warning in document.warnings:
         print(f"  Warning line {warning.loc.line}: {warning.message}")
