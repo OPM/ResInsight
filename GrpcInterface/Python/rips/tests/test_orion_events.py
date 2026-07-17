@@ -23,25 +23,29 @@ import dataroot  # noqa: E402
 from rips.orion_events import (  # noqa: E402
     ApplyReport,
     OrionParseError,
+    _cli,
     apply_orion_document,
     parse_orion_events,
 )
 
 SAMPLE = """\
 # A comment line
-ORIONEVENTS 1.0
+ORIONEVENTS 2.0
 UNIT METRIC
 
-SET A1_STARTUP = 2018-01-01
-SET A2_STARTUP = 2018-03-01 + 9
+DATE     A1_STARTUP = 2018-01-01
+DATE     A2_STARTUP = 2018-03-01 + 9
+DURATION RAMP       = 5 DAYS
 
-'55_33-A-1'
-  @A1_STARTUP      PERFORATION  MDSTART=1644.49  MDEND=1664.28  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=1
-  @A1_STARTUP + 5  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1
-  @A1_STARTUP + 5  WELTARG      CMODE=BHP  VALUE=50
+WELL A1 = "55_33-A-1"
 
-'55_33-A-2'
-  @A2_STARTUP      PERFORATION  MDSTART=1692.79  MDEND=1706  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=1
+WELL A1
+  @A1_STARTUP         PERFORATION  MDSTART=1644.49  MDEND=1664.28  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=1
+  @A1_STARTUP + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1
+  @A1_STARTUP + RAMP  WELTARG      CMODE=BHP  VALUE=50
+
+WELL "55_33-A-2"
+  @A2_STARTUP  PERFORATION  MDSTART=1692.79  MDEND=1706  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=1
 """
 
 
@@ -85,14 +89,22 @@ class FakeTimeline:
 class TestParsing:
     def test_header_and_unit(self):
         doc = parse_orion_events(SAMPLE)
-        assert doc.version == "1.0"
+        assert doc.version == "2.0"
         assert doc.unit_system == "METRIC"
 
-    def test_set_variables_with_day_offset(self):
+    def test_date_declarations_with_day_offset(self):
         doc = parse_orion_events(SAMPLE)
-        assert doc.variables["A1_STARTUP"] == datetime.date(2018, 1, 1)
+        assert doc.variables["A1_STARTUP"].kind == "DATE"
+        assert doc.variables["A1_STARTUP"].value == datetime.date(2018, 1, 1)
         # 2018-03-01 + 9 days
-        assert doc.variables["A2_STARTUP"] == datetime.date(2018, 3, 10)
+        assert doc.variables["A2_STARTUP"].value == datetime.date(2018, 3, 10)
+
+    def test_duration_and_well_declarations(self):
+        doc = parse_orion_events(SAMPLE)
+        assert doc.variables["RAMP"].kind == "DURATION"
+        assert doc.variables["RAMP"].value == 5
+        assert doc.variables["A1"].kind == "WELL"
+        assert doc.variables["A1"].value == "55_33-A-1"
 
     def test_well_blocks_and_event_dates(self):
         doc = parse_orion_events(SAMPLE)
@@ -103,7 +115,7 @@ class TestParsing:
             "WCONHIST",
             "WELTARG",
         ]
-        # @A1_STARTUP + 5 -> 2018-01-06
+        # @A1_STARTUP + RAMP -> 2018-01-06
         assert well1.events[1].event_date == datetime.date(2018, 1, 6)
 
     def test_value_type_inference(self):
@@ -116,21 +128,24 @@ class TestParsing:
         assert wconhist.attributes["STATUS"].value == "OPEN"  # string
 
     def test_quoted_filter_value_is_single_attribute(self):
-        # FILTER itself is unsupported, but the quote-aware tokenizer must treat
-        # the whole quoted expression as one attribute. Use an allowed key here.
         text = (
-            "ORIONEVENTS 1.0\n'W'\n"
-            '  @2018-01-01 WCONHIST NOTE="SOIL(0) > 0.8 AND PERMX > 200" CMODE=ORAT\n'
+            'ORIONEVENTS 2.0\nWELL "W"\n'
+            '  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER="SOIL(0) > 0.8 AND PERMX > 200"\n'
         )
         doc = parse_orion_events(text)
-        note = doc.wells[0].events[0].attributes["NOTE"]
-        assert note.value == "SOIL(0) > 0.8 AND PERMX > 200"
-        assert note.quoted is True
-        assert doc.wells[0].events[0].attributes["CMODE"].value == "ORAT"
+        filter_attr = doc.wells[0].events[0].attributes["FILTER"]
+        assert filter_attr.value == "SOIL(0) > 0.8 AND PERMX > 200"
+        assert filter_attr.quoted is True
+        assert doc.wells[0].events[0].attributes["MDEND"].value == 2
+
+    def test_perfid_attribute_parses(self):
+        text = 'ORIONEVENTS 2.0\nWELL "W"\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 PERFID=Valysar\n'
+        doc = parse_orion_events(text)
+        assert doc.wells[0].events[0].attributes["PERFID"].value == "Valysar"
 
     def test_trailing_comment_ignored_but_not_inside_quotes(self):
         text = (
-            "ORIONEVENTS 1.0\n'W'\n"
+            'ORIONEVENTS 2.0\nWELL "W"\n'
             '  @2018-01-01 WCONHIST NOTE="a # b" CMODE=ORAT  # trailing comment\n'
         )
         doc = parse_orion_events(text)
@@ -139,51 +154,212 @@ class TestParsing:
         assert "CMODE" in attrs
 
     def test_iso_date_literal_event(self):
-        text = "ORIONEVENTS 1.0\n'W'\n  @2020-12-31 PERFORATION MDSTART=1 MDEND=2\n"
+        text = (
+            'ORIONEVENTS 2.0\nWELL "W"\n  @2020-12-31 PERFORATION MDSTART=1 MDEND=2\n'
+        )
         doc = parse_orion_events(text)
         assert doc.wells[0].events[0].event_date == datetime.date(2020, 12, 31)
 
+    def test_negative_offset(self):
+        text = (
+            "ORIONEVENTS 2.0\nDATE START = 2018-01-10\n"
+            'WELL "W"\n  @START - 5 PERFORATION MDSTART=1 MDEND=2\n'
+        )
+        doc = parse_orion_events(text)
+        assert doc.wells[0].events[0].event_date == datetime.date(2018, 1, 5)
+
+    def test_minus_after_iso_date(self):
+        text = 'ORIONEVENTS 2.0\nWELL "W"\n  @2018-01-01 - 5 PERFORATION MDSTART=1 MDEND=2\n'
+        doc = parse_orion_events(text)
+        assert doc.wells[0].events[0].event_date == datetime.date(2017, 12, 27)
+
+    def test_offset_chain_with_duration_variable(self):
+        text = (
+            "ORIONEVENTS 2.0\nDATE START = 2018-01-01\nDURATION RAMP = 5\n"
+            'WELL "W"\n  @START + RAMP - 2 PERFORATION MDSTART=1 MDEND=2\n'
+        )
+        doc = parse_orion_events(text)
+        assert doc.wells[0].events[0].event_date == datetime.date(2018, 1, 4)
+
+    def test_duration_declaration_days_suffix_optional(self):
+        for suffix in ("", " DAYS", " days"):
+            doc = parse_orion_events(f"ORIONEVENTS 2.0\nDURATION X = 5{suffix}\n")
+            assert doc.variables["X"].value == 5
+
+    def test_duration_arithmetic_in_declaration(self):
+        text = "ORIONEVENTS 2.0\nDURATION RAMP = 5\nDURATION X = RAMP + 2 DAYS\n"
+        doc = parse_orion_events(text)
+        assert doc.variables["X"].value == 7
+
+    def test_well_alias_resolution(self):
+        doc = parse_orion_events(SAMPLE)
+        # 'WELL A1' block resolves to the declared alias target.
+        assert doc.wells[0].well_name == "55_33-A-1"
+
+    def test_quoted_well_block_ignores_alias(self):
+        text = 'ORIONEVENTS 2.0\nWELL A1 = "55_33-A-1"\nWELL "A1"\n'
+        doc = parse_orion_events(text)
+        assert doc.wells[0].well_name == "A1"
+
+    def test_unknown_well_alias_raises(self):
+        with pytest.raises(OrionParseError, match="Unknown variable 'NOPE'"):
+            parse_orion_events("ORIONEVENTS 2.0\nWELL NOPE\n")
+
+    def test_empty_well_block_ok(self):
+        doc = parse_orion_events('ORIONEVENTS 2.0\nWELL "W"\n')
+        assert doc.wells[0].well_name == "W"
+        assert doc.wells[0].events == []
+
+    def test_v1_file_rejected_with_clear_message(self):
+        with pytest.raises(OrionParseError, match="no longer supported"):
+            parse_orion_events("ORIONEVENTS 1.0\nUNIT METRIC\n")
+
+    def test_unsupported_version_rejected(self):
+        with pytest.raises(OrionParseError, match="Unsupported ORIONEVENTS version"):
+            parse_orion_events("ORIONEVENTS 3.0\n")
+
     def test_missing_header_raises(self):
         with pytest.raises(OrionParseError):
-            parse_orion_events("UNIT METRIC\n'W'\n")
+            parse_orion_events('UNIT METRIC\nWELL "W"\n')
 
     def test_event_before_well_block_raises(self):
-        with pytest.raises(OrionParseError):
+        with pytest.raises(OrionParseError, match="before any WELL block"):
             parse_orion_events(
-                "ORIONEVENTS 1.0\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
+                "ORIONEVENTS 2.0\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
             )
 
     def test_unknown_variable_raises(self):
-        with pytest.raises(OrionParseError):
+        with pytest.raises(OrionParseError, match="Unknown variable 'NOPE'"):
             parse_orion_events(
-                "ORIONEVENTS 1.0\n'W'\n  @NOPE PERFORATION MDSTART=1 MDEND=2\n"
+                'ORIONEVENTS 2.0\nWELL "W"\n  @NOPE PERFORATION MDSTART=1 MDEND=2\n'
             )
 
-    def test_filter_attribute_is_unsupported(self):
+    def test_duration_where_date_expected_raises(self):
         text = (
-            "ORIONEVENTS 1.0\n'W'\n"
-            '  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER="SOIL(0) > 0.8"\n'
+            "ORIONEVENTS 2.0\nDURATION RAMP = 5\n"
+            'WELL "W"\n  @RAMP WCONHIST STATUS=OPEN\n'
         )
-        with pytest.raises(OrionParseError, match="FILTER"):
+        with pytest.raises(
+            OrionParseError, match=r"is a DURATION \(declared line 2\) but a DATE"
+        ):
             parse_orion_events(text)
 
-    def test_perfid_attribute_is_unsupported(self):
-        text = "ORIONEVENTS 1.0\n'W'\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 PERFID=Valysar\n"
-        with pytest.raises(OrionParseError, match="PERFID"):
+    def test_date_where_duration_expected_raises(self):
+        text = (
+            "ORIONEVENTS 2.0\nDATE START = 2018-01-01\nDATE OTHER = 2018-02-01\n"
+            'WELL "W"\n  @START + OTHER WCONHIST STATUS=OPEN\n'
+        )
+        with pytest.raises(OrionParseError, match="is a DATE .* but a DURATION"):
+            parse_orion_events(text)
+
+    def test_well_variable_in_date_context_raises(self):
+        text = 'ORIONEVENTS 2.0\nWELL A1 = "X"\nWELL A1\n  @A1 WCONHIST STATUS=OPEN\n'
+        with pytest.raises(OrionParseError, match="is a WELL .* but a DATE"):
+            parse_orion_events(text)
+
+    def test_cross_type_redefinition_raises(self):
+        text = "ORIONEVENTS 2.0\nDATE X = 2018-01-01\nDURATION X = 5\n"
+        with pytest.raises(
+            OrionParseError, match="already declared as DATE .* redeclare as DURATION"
+        ):
+            parse_orion_events(text)
+
+    def test_forward_reference_raises(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "W"\n  @START PERFORATION MDSTART=1 MDEND=2\n'
+            "DATE START = 2018-01-01\n"
+        )
+        with pytest.raises(OrionParseError, match="Unknown variable 'START'"):
+            parse_orion_events(text)
+
+    def test_single_quoted_well_name_rejected(self):
+        text = "ORIONEVENTS 2.0\n'W'\n"
+        with pytest.raises(OrionParseError, match="1.x syntax"):
+            parse_orion_events(text)
+
+    def test_set_line_rejected_with_hint(self):
+        text = "ORIONEVENTS 2.0\nSET X = 2018-01-01\n"
+        with pytest.raises(OrionParseError, match="SET is ORIONEVENTS 1.x syntax"):
             parse_orion_events(text)
 
     def test_malformed_attribute_raises(self):
-        text = (
-            "ORIONEVENTS 1.0\n'W'\n  @2018-01-01 PERFORATION MDSTART=1 bogus MDEND=2\n"
-        )
-        with pytest.raises(OrionParseError):
+        text = 'ORIONEVENTS 2.0\nWELL "W"\n  @2018-01-01 PERFORATION MDSTART=1 bogus MDEND=2\n'
+        with pytest.raises(OrionParseError, match="Malformed attribute"):
             parse_orion_events(text)
 
-    def test_duplicate_set_warns(self):
-        text = "ORIONEVENTS 1.0\nSET X = 2018-01-01\nSET X = 2019-01-01\n'W'\n"
+    def test_duplicate_date_declaration_warns(self):
+        text = 'ORIONEVENTS 2.0\nDATE X = 2018-01-01\nDATE X = 2019-01-01\nWELL "W"\n'
         doc = parse_orion_events(text)
         assert any("Duplicate" in w.message for w in doc.warnings)
-        assert doc.variables["X"] == datetime.date(2019, 1, 1)
+        assert doc.variables["X"].value == datetime.date(2019, 1, 1)
+
+
+class TestDiagnostics:
+    def test_all_errors_reported_in_one_pass(self):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            "DATE A1_STARTUP = 2018-01-01\n"
+            "SET X = 2018-01-01\n"  # line 3
+            'WELL "W"\n'
+            "  @A1_STRTUP PERFORATION MDSTART=1 MDEND=2\n"  # line 5
+            "  @A1_STARTUP + NOPE WCONHIST STATUS=OPEN\n"  # line 6
+        )
+        with pytest.raises(OrionParseError) as excinfo:
+            parse_orion_events(text)
+        assert [issue.loc.line for issue in excinfo.value.errors] == [3, 5, 6]
+
+    def test_malformed_well_block_suppresses_cascading_errors(self):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            "WELL 55_33-A-2\n"  # malformed: unquoted special characters
+            "  @2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
+            "  @2018-01-01 WCONHIST STATUS=OPEN\n"
+        )
+        with pytest.raises(OrionParseError) as excinfo:
+            parse_orion_events(text)
+        assert len(excinfo.value.errors) == 1
+        assert "Malformed WELL line" in excinfo.value.errors[0].message
+
+    def test_unknown_variable_hint(self):
+        text = (
+            "ORIONEVENTS 2.0\nDATE A1_STARTUP = 2018-01-01\n"
+            'WELL "W"\n  @A1_STRTUP PERFORATION MDSTART=1 MDEND=2\n'
+        )
+        with pytest.raises(OrionParseError, match="did you mean 'A1_STARTUP'"):
+            parse_orion_events(text)
+
+    def test_misspelled_keyword_hint(self):
+        with pytest.raises(OrionParseError, match="did you mean 'DURATION'"):
+            parse_orion_events("ORIONEVENTS 2.0\nDURATON X = 5\n")
+
+
+class TestValidatorCli:
+    def _write(self, tmp_path, text):
+        path = tmp_path / "events.orion"
+        path.write_text(text)
+        return str(path)
+
+    def test_valid_file_exits_zero_with_summary(self, tmp_path, capsys):
+        path = self._write(tmp_path, SAMPLE)
+        assert _cli([path]) == 0
+        out = capsys.readouterr().out
+        assert "OK" in out
+        assert "4 variable(s), 2 well block(s), 4 event(s)" in out
+
+    def test_invalid_file_exits_nonzero_with_errors(self, tmp_path, capsys):
+        path = self._write(
+            tmp_path,
+            'ORIONEVENTS 2.0\nSET X = 2018-01-01\nWELL "W"\n  @NOPE WCONHIST A=1\n',
+        )
+        assert _cli([path]) == 1
+        out = capsys.readouterr().out
+        assert "Line 2" in out
+        assert "Line 4" in out
+        assert "2 error(s) found" in out
+
+    def test_missing_file_exits_nonzero(self, tmp_path, capsys):
+        assert _cli([str(tmp_path / "nope.orion")]) == 1
+        assert "Error" in capsys.readouterr().out
 
 
 # ---------------------------------------------------------------------------
@@ -234,7 +410,7 @@ class TestApplying:
 
     def test_dshift_is_ignored_with_warning(self):
         text = (
-            "ORIONEVENTS 1.0\n'55_33-A-1'\n"
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
             "  @2018-01-01 WCONHIST STATUS=OPEN CMODE=ORAT DSHIFT=10\n"
         )
         timeline, report = self._apply(text)
@@ -243,6 +419,36 @@ class TestApplying:
         # Event date is NOT shifted.
         assert timeline.keyword_calls[0]["event_date"] == "2018-01-01"
         assert any("DSHIFT" in w for w in report.warnings)
+
+    def test_filter_on_perforation_warns_and_applies(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
+            '  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER="SOIL(0) > 0.8"\n'
+        )
+        timeline, report = self._apply(text)
+        assert report.events_applied == 1
+        assert report.events_skipped == 0
+        assert any("FILTER" in w for w in report.warnings)
+        assert len(timeline.perf_calls) == 1
+
+    def test_perfid_on_perforation_warns_and_applies(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
+            "  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 PERFID=Valysar\n"
+        )
+        timeline, report = self._apply(text)
+        assert report.events_applied == 1
+        assert any("PERFID" in w for w in report.warnings)
+
+    def test_filter_on_keyword_event_warns_and_applies(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
+            '  @2018-01-01 WCONHIST STATUS=OPEN FILTER="PERMX > 200"\n'
+        )
+        timeline, report = self._apply(text)
+        assert report.events_applied == 1
+        assert "FILTER" not in timeline.keyword_calls[0]["keyword_data"]
+        assert any("FILTER" in w for w in report.warnings)
 
     def test_unknown_well_warns_and_skips(self):
         timeline, report = self._apply(SAMPLE, names=("55_33-A-1",))
@@ -256,20 +462,24 @@ class TestApplying:
         with pytest.raises(RipsError):
             self._apply(SAMPLE, names=("55_33-A-1",), on_unknown_well="error")
 
-    def test_unknown_event_type_warns(self):
-        text = "ORIONEVENTS 1.0\n'55_33-A-1'\n  @2018-01-01 FOObar X=1\n"
+    def test_unknown_event_type_warns_with_hint(self):
+        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 WCONHST STATUS=OPEN\n'
         _, report = self._apply(text)
         assert report.events_skipped == 1
-        assert any("FOObar" in w for w in report.warnings)
+        assert any(
+            "WCONHST" in w and "did you mean 'WCONHIST'" in w for w in report.warnings
+        )
 
     def test_perforation_missing_required_attr_is_error(self):
-        text = "ORIONEVENTS 1.0\n'55_33-A-1'\n  @2018-01-01 PERFORATION MDSTART=1\n"
+        text = (
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 PERFORATION MDSTART=1\n'
+        )
         _, report = self._apply(text)
         assert report.events_skipped == 1
         assert any("MDEND" in e for e in report.errors)
 
     def test_perforation_unknown_attr_is_error(self):
-        text = "ORIONEVENTS 1.0\n'55_33-A-1'\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 ZZZ=3\n"
+        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 ZZZ=3\n'
         _, report = self._apply(text)
         assert report.events_skipped == 1
         assert any("ZZZ" in e for e in report.errors)
@@ -316,13 +526,14 @@ class TestOrionEventsIntegration:
 
         # Reference the real well name; MD range is valid for well path A.
         text = (
-            "ORIONEVENTS 1.0\n"
+            "ORIONEVENTS 2.0\n"
             "UNIT METRIC\n"
-            "SET START = 2024-01-01\n"
-            f"'{well.name}'\n"
-            "  @START      PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1\n"
-            "  @START + 5  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1\n"
-            "  @START + 5  WELTARG      CMODE=BHP  VALUE=50\n"
+            "DATE START = 2024-01-01\n"
+            "DURATION RAMP = 5 DAYS\n"
+            f'WELL "{well.name}"\n'
+            "  @START         PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1\n"
+            "  @START + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1\n"
+            "  @START + RAMP  WELTARG      CMODE=BHP  VALUE=50\n"
         )
         document = parse_orion_events(text)
         report = apply_orion_document(document, timeline, project)
@@ -351,7 +562,7 @@ class TestOrionEventsIntegration:
     ):
         project, _case, timeline = project_with_case_and_wells
         text = (
-            "ORIONEVENTS 1.0\n'NO_SUCH_WELL'\n"
+            'ORIONEVENTS 2.0\nWELL "NO_SUCH_WELL"\n'
             "  @2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
         )
         document = parse_orion_events(text)

@@ -12,7 +12,7 @@ The ORIONEVENTS format is a compact, human-authored description of dated well
 events. See rips/orion_events.py for the grammar. A sample input file ships at
 rips/example_input_files/well_events.orion.
 
-The well names in the file ('55_33-A-1', ...) must match well paths that exist
+The well names in the file ("55_33-A-1", ...) must match well paths that exist
 in the open project, so this example assumes a project with matching wells and
 an Eclipse case is already loaded.
 """
@@ -37,7 +37,9 @@ def main():
     document = rips.orion_events.parse_orion_events_file(orion_file)
     print(f"   Version: {document.version}, units: {document.unit_system}")
     print(f"   Wells: {[w.well_name for w in document.wells]}")
-    print(f"   Variables: { {k: str(v) for k, v in document.variables.items()} }")
+    print(
+        f"   Variables: { {k: f'{v.kind} {v.value}' for k, v in document.variables.items()} }"
+    )
 
     # Apply the parsed document to the shared well event timeline.
     print("\n2. Applying events to the timeline...")
