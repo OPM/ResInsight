@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from types import ModuleType
 from typing import List
 
 # Configure null handler to prevent "No handler found" warnings
@@ -28,8 +29,19 @@ from .simulation_well import SimulationWell as SimulationWell  # noqa: E402
 from .exception import RipsError as RipsError  # noqa: E402
 from .surface import RegularSurface as RegularSurface  # noqa: E402
 from . import well_events as well_events  # noqa: F401, E402
-from . import orion_events as orion_events  # noqa: F401, E402
 from . import category_mapping as category_mapping  # noqa: F401, E402
+
+
+def __getattr__(name: str) -> ModuleType:
+    # Lazy import (PEP 562) so `python -m rips.orion_events` does not trigger
+    # runpy's "found in sys.modules after import of package" warning while
+    # `rips.orion_events` still resolves after a plain `import rips`.
+    if name == "orion_events":
+        import importlib
+
+        return importlib.import_module(".orion_events", __name__)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __all__: List[str] = []
 for key in class_dict():  # noqa: F405
