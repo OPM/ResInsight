@@ -54,11 +54,13 @@ jobs:
           mkdir -p artifacts
           # Windows, Ubuntu-gcc and Ubuntu-clang-19 (excludes python-distribution).
           gh run download "$cache_id" --pattern 'ResInsight-*' --dir artifacts
-          # Use --pattern (not --name) so the artifact is placed in its own
-          # ResInsight-macOS/ subdirectory, matching the cache download above.
+          # Use --pattern (not --name) so each artifact is placed in its own
+          # ResInsight-macOS-*/ subdirectory, matching the cache download above.
           # With --name the contents are extracted flat into artifacts/, which
           # the 'for d in ResInsight-*/' packaging loop would then skip.
-          gh run download "$mac_id" --pattern 'ResInsight-macOS' --dir artifacts
+          # The glob matches both macOS architectures (arm64 and x64), each
+          # uploaded as a separate artifact by ResInsightMac.yml (issue #1009).
+          gh run download "$mac_id" --pattern 'ResInsight-macOS-*' --dir artifacts
           ls -R artifacts
 
           # The RHEL8 artifact is already a CPack *.tar.gz, so keep it out of

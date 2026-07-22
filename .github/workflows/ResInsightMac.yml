@@ -15,17 +15,44 @@ permissions:
 
 # Cancel a still-running build when a new push lands on the same ref --
 # otherwise two simultaneous Mac runs race on the same daily cache keys
-# (vcpkg-clang/macOS-..., macOS-appleclang-...-buildcache-v01-<date>,
-# macOS-buildcache-tool-v0.33.0) and one reports
+# (vcpkg-clang/macOS-<arch>-..., macOS-<arch>-appleclang-...-buildcache-v01-<date>,
+# macOS-<arch>-buildcache-tool-v0.33.0) and one reports
 # "Failed to save: Unable to reserve cache with key ..., another job may
 # be creating this cache."  Mirrors the pattern in ResInsightWithCache.yml.
+# The two matrix legs (arm64, x64) use arch-qualified keys, so they cache
+# independently and do not race against each other within a single run.
 concurrency:
   group: mac-build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      # Build every architecture even if one leg fails, so a broken x86_64
+      # build does not withhold the (previously working) arm64 artifact.
+      fail-fast: false
+      matrix:
+        include:
+          # Apple Silicon, built natively on the arm64 runner.
+          - runner: macos-15
+            arch: arm64
+            deployment_target: "15.0"
+          # Intel, built natively on GitHub's Intel macOS runner so
+          # ResInsight also runs on x86_64 Macs (issue #1009).  The older
+          # macos-13 Intel image was retired on 2025-12-04; macos-15-intel
+          # is its replacement.  A lower deployment target widens the range
+          # of supported Intel machines and stays at/below the runner SDK.
+          # 13.3 is the floor: Apple's libc++ only ships the <format> /
+          # std::to_chars(float) runtime symbols from macOS 13.3, and the
+          # code (e.g. custom-surfio) uses std::format on floating-point
+          # values; a lower target fails to compile with "'to_chars' is
+          # unavailable".  (Apple/GitHub plan to end Intel macOS runners
+          # after macOS 15 in Fall 2027, at which point this leg needs a
+          # universal build or a self-hosted Intel runner.)
+          - runner: macos-15-intel
+            arch: x64
+            deployment_target: "13.3"
     env:
       BUILD_TYPE: Release
       VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
@@ -62,7 +89,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/buildcache-tool
-          key: ${{ runner.os }}-buildcache-tool-v0.33.0
+          key: ${{ runner.os }}-${{ matrix.arch }}-buildcache-tool-v0.33.0
 
       - name: Build buildcache from source if needed
         # CeetronSolutions/setup-buildcache-action has no macOS support, so
@@ -97,9 +124,9 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ env.BUILDCACHE_DIR }}
-          key: ${{ runner.os }}-appleclang-6.7.0-buildcache-v01-${{ steps.current-time.outputs.formattedTime }}
+          key: ${{ runner.os }}-${{ matrix.arch }}-appleclang-6.7.0-buildcache-v01-${{ steps.current-time.outputs.formattedTime }}
           restore-keys: |
-            ${{ runner.os }}-appleclang-6.7.0-buildcache-v01-
+            ${{ runner.os }}-${{ matrix.arch }}-appleclang-6.7.0-buildcache-v01-
 
       - name: Create folder for buildcache
         run: mkdir -p "${{ env.BUILDCACHE_DIR }}"
@@ -139,7 +166,7 @@ jobs:
         id: vcpkg-cache
         uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
         with:
-          cache-key: ${{ runner.os }}-clang-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+          cache-key: ${{ runner.os }}-${{ matrix.arch }}-clang-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
           prefix: vcpkg-clang/
 
       - name: Configure
@@ -152,7 +179,7 @@ jobs:
           -DVCPKG_BUILD_TYPE=release
           -DCMAKE_INSTALL_PREFIX=cmakebuild/install
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
-          -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.deployment_target }}
           -DCMAKE_POLICY_VERSION_MINIMUM=3.5
           -DCMAKE_C_COMPILER_LAUNCHER=buildcache
           -DCMAKE_CXX_COMPILER_LAUNCHER=buildcache
@@ -200,6 +227,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: ResInsight-macOS
+          name: ResInsight-macOS-${{ matrix.arch }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
           retention-days: 5
