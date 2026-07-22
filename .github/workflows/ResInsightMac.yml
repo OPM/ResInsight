@@ -37,6 +37,7 @@ jobs:
           # Apple Silicon, built natively on the arm64 runner.
           - runner: macos-15
             arch: arm64
+            arch_label: "Apple Silicon (arm64)"
             deployment_target: "15.0"
           # Intel, built natively on GitHub's Intel macOS runner so
           # ResInsight also runs on x86_64 Macs (issue #1009).  The older
@@ -52,6 +53,7 @@ jobs:
           # universal build or a self-hosted Intel runner.)
           - runner: macos-15-intel
             arch: x64
+            arch_label: "Intel (x86_64)"
             deployment_target: "13.3"
     env:
       BUILD_TYPE: Release
@@ -209,8 +211,19 @@ jobs:
       - name: Write macOS launch instructions
         run: |
           cat > cmakebuild/install/README-macOS.txt <<'EOF'
-          ResInsight macOS build
-          ======================
+          ResInsight macOS build - ${{ matrix.arch_label }}
+          ======================================================
+
+          This is the ${{ matrix.arch_label }} build of ResInsight. It runs
+          on ${{ matrix.arch_label }} Macs with macOS ${{ matrix.deployment_target }}
+          or newer.
+
+          Pick the download that matches your Mac:
+            - Apple Silicon (M1/M2/M3/...): ResInsight-macOS-arm64
+            - Intel (x86_64):               ResInsight-macOS-x64
+          To check, see  Apple menu > About This Mac.  The two builds are
+          not interchangeable: an arm64 build will not launch on an Intel
+          Mac (and vice versa).
 
           This build is unsigned and unnotarised. macOS Gatekeeper will
           quarantine ResInsight.app when the artifact is downloaded and
