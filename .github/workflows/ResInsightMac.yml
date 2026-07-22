@@ -231,7 +231,7 @@ jobs:
 
           Remove the quarantine attribute before first launch:
 
-              sudo xattr -r -d com.apple.quarantine ResInsight.app
+              xattr -r -d com.apple.quarantine ResInsight.app
 
           Then start the app normally (double-click or `open ResInsight.app`).
           EOF
