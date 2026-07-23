@@ -751,6 +751,14 @@ bool RiaRegressionTestRunner::isRunningRegressionTests() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Used by test executables to enable the regression-test code paths that suppress modal dialogs.
+//--------------------------------------------------------------------------------------------------
+void RiaRegressionTestRunner::setRunningRegressionTests( bool enabled )
+{
+    m_runningRegressionTests = enabled;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RiaRegressionTestRunner::useOpenMPForGeometryCreation() const
