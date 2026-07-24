@@ -16,6 +16,7 @@ set(SOURCE_FEATURETEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicFeatureExecutionSweep-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCloseCaseFeature-Test.cpp
 )
 
 # googletest is fetched by the ApplicationLibCode/UnitTests subdirectory, which is added before this

@@ -21,20 +21,20 @@
 #include "RiaFeatureTestModelBuilder.h"
 
 #include "RimEclipseCase.h"
-#include "RimEclipseView.h"
+#include "RimProject.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
 
 //--------------------------------------------------------------------------------------------------
-/// Executes RicNewViewFeature against a selected Eclipse case and asserts that a new reservoir view
-/// is added to the case.
+/// Executes RicCloseCaseFeature against a selected Eclipse case and asserts the case is removed from
+/// the project.
 ///
 /// This is a curated deep test: it drives a feature end-to-end through the selection system with a
 /// valid selection context and asserts the resulting model change.
 //--------------------------------------------------------------------------------------------------
-class RicNewViewFeatureTest : public ::testing::Test
+class RicCloseCaseFeatureTest : public ::testing::Test
 {
 protected:
     void TearDown() override
@@ -44,40 +44,20 @@ protected:
     }
 };
 
-TEST_F( RicNewViewFeatureTest, NewViewFromSelectedEclipseCaseAddsAView )
+TEST_F( RicCloseCaseFeatureTest, CloseSelectedEclipseCaseRemovesItFromProject )
 {
     FeatureTestModel model = RiaFeatureTestModelBuilder::eclipseCaseWithResults();
     ASSERT_TRUE( model.eclipseCase != nullptr );
-
-    const size_t viewCountBefore = model.eclipseCase->reservoirViews().size();
+    ASSERT_EQ( 1u, RimProject::current()->eclipseCases().size() );
 
     caf::SelectionManager::instance()->setSelectedItem( model.eclipseCase );
 
-    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicNewViewFeature" );
+    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicCloseCaseFeature" );
     ASSERT_TRUE( feature != nullptr );
     ASSERT_TRUE( feature->canFeatureBeExecuted() );
 
     feature->actionTriggered( false );
 
-    EXPECT_EQ( viewCountBefore + 1, model.eclipseCase->reservoirViews().size() );
-}
-
-TEST_F( RicNewViewFeatureTest, NewViewFromSelectedViewAddsAViewToSameCase )
-{
-    FeatureTestModel model = RiaFeatureTestModelBuilder::eclipseCaseWithResults();
-    ASSERT_TRUE( model.eclipseCase != nullptr );
-    ASSERT_TRUE( model.eclipseView != nullptr );
-
-    const size_t viewCountBefore = model.eclipseCase->reservoirViews().size();
-
-    // Selecting a view (rather than the case) must also create a new view in the view's own case.
-    caf::SelectionManager::instance()->setSelectedItem( model.eclipseView );
-
-    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicNewViewFeature" );
-    ASSERT_TRUE( feature != nullptr );
-    ASSERT_TRUE( feature->canFeatureBeExecuted() );
-
-    feature->actionTriggered( false );
-
-    EXPECT_EQ( viewCountBefore + 1, model.eclipseCase->reservoirViews().size() );
+    // The case (and its views) are deleted, so model.eclipseCase is now dangling; query the project.
+    EXPECT_TRUE( RimProject::current()->eclipseCases().empty() );
 }

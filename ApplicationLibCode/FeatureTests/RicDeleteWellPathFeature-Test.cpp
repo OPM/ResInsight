@@ -20,8 +20,10 @@
 
 #include "RiaFeatureTestModelBuilder.h"
 
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -62,4 +64,45 @@ TEST_F( RicDeleteWellPathFeatureTest, DeleteSelectedWellPathRemovesItFromProject
 
     // The deleted object must no longer be part of the selection (dangling-pointer cleanup).
     EXPECT_TRUE( caf::SelectionManager::instance()->selectedItems().empty() );
+}
+
+TEST_F( RicDeleteWellPathFeatureTest, DeleteSelectedWellPathKeepsOtherWellPaths )
+{
+    FeatureTestModel model = RiaFeatureTestModelBuilder::wellPath();
+    ASSERT_TRUE( model.wellPath != nullptr );
+
+    // Add a second well path so the feature must delete only the selected one.
+    RimOilField* oilField = RimProject::current()->activeOilField();
+    ASSERT_TRUE( oilField != nullptr && oilField->wellPathCollection() != nullptr );
+
+    auto* otherWellPath = new RimWellPath;
+    otherWellPath->setName( "OtherWellPath" );
+    oilField->wellPathCollection()->addWellPath( otherWellPath );
+
+    ASSERT_EQ( 2u, RimProject::current()->allWellPaths().size() );
+
+    caf::SelectionManager::instance()->setSelectedItem( model.wellPath );
+
+    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicDeleteWellPathFeature" );
+    ASSERT_TRUE( feature != nullptr );
+    ASSERT_TRUE( feature->canFeatureBeExecuted() );
+
+    feature->actionTriggered( false );
+
+    const std::vector<RimWellPath*> remaining = RimProject::current()->allWellPaths();
+    ASSERT_EQ( 1u, remaining.size() );
+    EXPECT_EQ( otherWellPath, remaining.front() );
+}
+
+TEST_F( RicDeleteWellPathFeatureTest, EmptySelectionIsNotExecutable )
+{
+    RiaFeatureTestModelBuilder::wellPath();
+    caf::SelectionManager::instance()->clearAll();
+
+    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicDeleteWellPathFeature" );
+    ASSERT_TRUE( feature != nullptr );
+
+    // With nothing selected the feature must report itself disabled and leave the project untouched.
+    EXPECT_FALSE( feature->canFeatureBeExecuted() );
+    EXPECT_EQ( 1u, RimProject::current()->allWellPaths().size() );
 }
