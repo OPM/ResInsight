@@ -23,6 +23,8 @@ set(SOURCE_FEATURETEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewIntersectionFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipsePropertyFilterFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCellFilterFeature-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathLateralFeature-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewPerforationIntervalFeature-Test.cpp
 )
 
 # googletest is fetched by the ApplicationLibCode/UnitTests subdirectory, which is added before this

@@ -29,6 +29,41 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "Well/RigWellPath.h"
+
+#include "cvfVector3.h"
+
+#include <QString>
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Create a named well path with a simple vertical geometry and add it to the active oil field's
+/// well path collection. The geometry has more than two measured depths so features that require a
+/// real trajectory (laterals, targets, completions) have something to work with.
+//--------------------------------------------------------------------------------------------------
+RimWellPath* addWellPathWithGeometry( const QString& name )
+{
+    RimOilField* oilField = RimProject::current()->activeOilField();
+    if ( !oilField || !oilField->wellPathCollection() ) return nullptr;
+
+    auto* wellPath = new RimWellPath;
+    wellPath->setName( name );
+
+    // Set a unit system so features that would otherwise prompt for one (e.g. completion features via
+    // RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem) run without a modal dialog.
+    wellPath->setUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+
+    cvf::ref<RigWellPath> geometry =
+        new RigWellPath( { cvf::Vec3d( 0, 0, 0 ), cvf::Vec3d( 0, 0, -500 ), cvf::Vec3d( 0, 0, -1000 ) }, { 0.0, 500.0, 1000.0 } );
+    wellPath->setWellPathGeometry( geometry.p() );
+
+    oilField->wellPathCollection()->addWellPath( wellPath );
+
+    return wellPath;
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -80,15 +115,7 @@ FeatureTestModel RiaFeatureTestModelBuilder::wellPath()
 
     FeatureTestModel model;
 
-    RimOilField* oilField = RimProject::current()->activeOilField();
-    if ( oilField && oilField->wellPathCollection() )
-    {
-        auto* wellPath = new RimWellPath;
-        wellPath->setName( "TestWellPath" );
-        oilField->wellPathCollection()->addWellPath( wellPath );
-
-        model.wellPath = wellPath;
-    }
+    model.wellPath = addWellPathWithGeometry( "TestWellPath" );
 
     return model;
 }
@@ -100,15 +127,7 @@ FeatureTestModel RiaFeatureTestModelBuilder::combinedModel()
 {
     FeatureTestModel model = eclipseCaseWithResults();
 
-    RimOilField* oilField = RimProject::current()->activeOilField();
-    if ( oilField && oilField->wellPathCollection() )
-    {
-        auto* wellPath = new RimWellPath;
-        wellPath->setName( "TestWellPath" );
-        oilField->wellPathCollection()->addWellPath( wellPath );
-
-        model.wellPath = wellPath;
-    }
+    model.wellPath = addWellPathWithGeometry( "TestWellPath" );
 
     return model;
 }
