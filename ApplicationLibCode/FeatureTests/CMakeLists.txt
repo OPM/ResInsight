@@ -1,7 +1,8 @@
 # ResInsight command-feature tests
 #
-# Separate executable from ResInsight-tests: the feature sweep executes Ric*Feature commands that
-# require a RiaGuiApplication, so this target boots a full GUI application (offscreen on CI).
+# Separate executable from ResInsight-tests: the feature sweep executes
+# Ric*Feature commands that require a RiaGuiApplication, so this target boots a
+# full GUI application (offscreen on CI).
 
 if(MSVC)
   # TARGET_RUNTIME_DLLS requires 3.21
@@ -30,8 +31,9 @@ set(SOURCE_FEATURETEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreatePolygonFeature-Test.cpp
 )
 
-# googletest is fetched by the ApplicationLibCode/UnitTests subdirectory, which is added before this
-# one. Only fetch it here if that has not happened (e.g. this subdirectory is used standalone).
+# googletest is fetched by the ApplicationLibCode/UnitTests subdirectory, which
+# is added before this one. Only fetch it here if that has not happened (e.g.
+# this subdirectory is used standalone).
 if(NOT TARGET GTest::gtest)
   include(FetchContent)
   FetchContent_Declare(
@@ -140,9 +142,10 @@ if(MSVC)
   )
 endif(MSVC)
 
-# The test executable boots with the "offscreen" QPA platform plugin (see main.cpp and the ctest
-# ENVIRONMENT below). windeployqt only deploys the "windows" plugin, so copy the offscreen plugin
-# next to the executable so it can be loaded at runtime on developer machines and CI.
+# The test executable boots with the "offscreen" QPA platform plugin (see
+# main.cpp and the ctest ENVIRONMENT below). windeployqt only deploys the
+# "windows" plugin, so copy the offscreen plugin next to the executable so it
+# can be loaded at runtime on developer machines and CI.
 if(TARGET Qt6::QOffscreenIntegrationPlugin)
   add_custom_command(
     TARGET ResInsight-featuretests
@@ -153,7 +156,8 @@ if(TARGET Qt6::QOffscreenIntegrationPlugin)
       ${CMAKE_COMMAND} -E copy_if_different
       $<TARGET_FILE:Qt6::QOffscreenIntegrationPlugin>
       $<TARGET_FILE_DIR:ResInsight-featuretests>/platforms/
-    COMMENT "Deploying the Qt offscreen platform plugin for ResInsight-featuretests"
+    COMMENT
+      "Deploying the Qt offscreen platform plugin for ResInsight-featuretests"
   )
 endif()
 
