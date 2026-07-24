@@ -59,6 +59,12 @@ FeatureTestModel RiaFeatureTestModelBuilder::eclipseCaseWithResults()
         if ( !views.empty() )
         {
             model.eclipseView = views.front();
+
+            // Many features do not read the selection but the active view (activeReservoirView() /
+            // activeGridView()). Set it here so those features have a valid context. The active-view
+            // pointer is a dangling-safe caf::PdmPointer, so it is cleared automatically when the
+            // project (and thus the view) is closed in closeProject().
+            RiaApplication::instance()->setActiveReservoirView( model.eclipseView );
         }
     }
 
