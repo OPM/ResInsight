@@ -12,7 +12,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install ruff
-        run: pip install ruff
+        run: pip install "ruff==0.15.*"
 
       # Always run strict lint check (catches all errors including unfixable ones)
       - name: (Python) Check with ruff
