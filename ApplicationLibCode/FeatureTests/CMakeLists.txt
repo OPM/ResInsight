@@ -27,6 +27,7 @@ set(SOURCE_FEATURETEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPerforationIntervalFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewDefaultSummaryPlotFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotFeature-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreatePolygonFeature-Test.cpp
 )
 
 # googletest is fetched by the ApplicationLibCode/UnitTests subdirectory, which is added before this
