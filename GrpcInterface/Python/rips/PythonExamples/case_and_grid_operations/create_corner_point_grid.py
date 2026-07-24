@@ -2,10 +2,10 @@
 # This script creates a corner point grid from a Eclipse coord, zcorn
 # and actnum configuration.
 ######################################################################
+import numpy as np
 import rips
 from xtgeo.grid3d._egrid import EGrid
 from xtgeo.io._file import FileFormat
-import numpy as np
 
 grid_filepath = "/home/resinsight/testdata/01_drogon_ahm/realization-0/iter-0/eclipse/model/DROGON-0.EGRID"
 

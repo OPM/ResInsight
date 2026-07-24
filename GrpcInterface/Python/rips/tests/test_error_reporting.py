@@ -1,14 +1,13 @@
-import sys
 import os
+import sys
 
 import grpc
 import pytest
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips  # noqa: E402
-from rips.exception import RipsError  # noqa: E402
-
-import dataroot  # noqa: E402
+import dataroot
+import rips
+from rips.exception import RipsError
 
 
 class _FakeRpcError(grpc.RpcError):

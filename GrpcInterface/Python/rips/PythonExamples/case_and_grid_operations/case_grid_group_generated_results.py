@@ -1,4 +1,5 @@
 import os
+
 import rips
 
 resinsight = rips.Instance.find()
@@ -26,7 +27,7 @@ for case in cases:
     time_step_info = case.time_steps()
     porv_results = case.active_cell_property(rips.PropertyType.STATIC_NATIVE, "PORV", 0)
 
-    for time_step_index in range(0, len(time_step_info)):
+    for time_step_index in range(len(time_step_info)):
         pressure_results = case.active_cell_property(
             rips.PropertyType.DYNAMIC_NATIVE, "PRESSURE", time_step_index
         )

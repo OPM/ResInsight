@@ -1,10 +1,9 @@
-import sys
 import os
+import sys
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
-
 import dataroot
+import rips
 
 
 def _create_summary_multi_plot(rips_instance):

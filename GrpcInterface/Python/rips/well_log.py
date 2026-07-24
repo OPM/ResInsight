@@ -1,5 +1,4 @@
 import uuid
-from typing import Dict, List, Optional
 
 from .exception import RipsError
 from .pdmobject import add_method
@@ -7,7 +6,7 @@ from .project import Project
 from .resinsight_classes import WellLog
 
 
-def _try_read_key(project: Project, key: str) -> Optional[List[float]]:
+def _try_read_key(project: Project, key: str) -> list[float] | None:
     try:
         return project.key_values(key)
     except RipsError:
@@ -15,7 +14,7 @@ def _try_read_key(project: Project, key: str) -> Optional[List[float]]:
 
 
 @add_method(WellLog)
-def channel_names(self: WellLog) -> List[str]:
+def channel_names(self: WellLog) -> list[str]:
     """Get the list of channel names for this well log.
 
     Returns:
@@ -25,7 +24,7 @@ def channel_names(self: WellLog) -> List[str]:
 
 
 @add_method(WellLog)
-def well_log_data(self: WellLog) -> Dict[str, List[float]]:
+def well_log_data(self: WellLog) -> dict[str, list[float]]:
     """Read all well log data (measured depth, optional TVD arrays, and channel values).
 
     Returns:
@@ -56,7 +55,7 @@ def well_log_data(self: WellLog) -> Dict[str, List[float]]:
             channel_keys_csv=channel_keys_csv,
         )
 
-        result: Dict[str, List[float]] = {
+        result: dict[str, list[float]] = {
             "measured_depth": project.key_values(md_key),
         }
 

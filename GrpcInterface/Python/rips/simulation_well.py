@@ -2,20 +2,16 @@
 ResInsight SimulationWell
 """
 
-import grpc
 
+import grpc
+import PdmObject_pb2
 import SimulationWell_pb2
 import SimulationWell_pb2_grpc
 
-import PdmObject_pb2
-
-from .resinsight_classes import SimulationWell
-
 from .case import Case
-from .view import View
 from .pdmobject import add_method
-
-from typing import List, Optional
+from .resinsight_classes import SimulationWell
+from .view import View
 
 
 @add_method(SimulationWell)
@@ -28,7 +24,7 @@ def __custom_init__(
 @add_method(SimulationWell)
 def status(
     self: SimulationWell, timestep: int
-) -> List[SimulationWell_pb2.SimulationWellStatus]:
+) -> list[SimulationWell_pb2.SimulationWellStatus]:
     """Get simulation well status
 
      **SimulationWellStatus class description**::
@@ -51,7 +47,7 @@ def status(
 @add_method(SimulationWell)
 def cells(
     self: SimulationWell, timestep: int
-) -> List[SimulationWell_pb2.SimulationWellCellInfo]:
+) -> list[SimulationWell_pb2.SimulationWellCellInfo]:
     """Get reservoir cells the simulation well is defined for
 
      **SimulationWellCellInfo class description**::
@@ -95,7 +91,7 @@ def accumulated_perforation_length(self: SimulationWell, timestep: int) -> float
 
 
 @add_method(SimulationWell)
-def case(self: SimulationWell) -> Optional[Case]:
+def case(self: SimulationWell) -> Case | None:
     view = self.ancestor(View)
     if view:
         return view.case()

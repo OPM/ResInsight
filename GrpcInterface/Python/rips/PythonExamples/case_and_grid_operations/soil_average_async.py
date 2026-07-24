@@ -2,8 +2,9 @@
 # This example will asynchronously calculate the average value for SOIL for all time steps
 ###########################################################################################
 
-import rips
 import time
+
+import rips
 
 resinsight = rips.Instance.find()
 
@@ -16,7 +17,7 @@ case = resinsight.project.case(case_id=0)
 timeSteps = case.time_steps()
 
 averages = []
-for i in range(0, len(timeSteps)):
+for i in range(len(timeSteps)):
     # Get the results from time step i asynchronously
     # It actually returns a generator object almost immediately
     result_chunks = case.active_cell_property_async(

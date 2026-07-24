@@ -2,9 +2,8 @@ import os
 import sys
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
-
 import dataroot
+import rips
 
 
 def test_color_legend_collection_accessor(rips_instance, initialize_test):

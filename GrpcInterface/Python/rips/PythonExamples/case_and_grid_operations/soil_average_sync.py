@@ -5,8 +5,9 @@
 # a plain string ("DYNAMIC_NATIVE"). This example uses the string form; see
 # soil_average_async.py for the typed-enum form.
 ###########################################################################################
-import rips
 import time
+
+import rips
 
 resinsight = rips.Instance.find()
 
@@ -19,7 +20,7 @@ case = resinsight.project.case(case_id=0)
 time_steps = case.time_steps()
 
 averages = []
-for i in range(0, len(time_steps)):
+for i in range(len(time_steps)):
     # Get a list of all the results for time step i
     results = case.active_cell_property("DYNAMIC_NATIVE", "SOIL", i)
     mysum = sum(results)

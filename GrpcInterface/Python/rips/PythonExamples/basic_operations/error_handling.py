@@ -3,8 +3,9 @@
 # for proper error handling
 ###################################################################
 
-import rips
 import tempfile
+
+import rips
 
 resinsight = rips.Instance.find()
 

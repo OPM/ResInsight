@@ -9,16 +9,14 @@ in place so views referencing it keep their binding. When the property is
 shown in a 3D view, the legend's item names are used as the category labels.
 """
 
-from typing import Dict, List, Optional
 
 from .pdmobject import add_method
 from .project import Project
 from .resinsight_classes import Case, ColorLegend, ColorLegendItem
 
-
 # Palette of distinct colors used when the caller does not supply colors.
 # Mirrors RiaColorTables::categoryColors() in the C++ code.
-_DEFAULT_PALETTE: List[str] = [
+_DEFAULT_PALETTE: list[str] = [
     "#803e75",
     "#d41c84",
     "#f6768e",
@@ -46,10 +44,10 @@ _DEFAULT_PALETTE: List[str] = [
 def set_discrete_property_category_names(
     self: Case,
     property_name: str,
-    value_names: Dict[int, str],
-    value_colors: Optional[Dict[int, str]] = None,
-    legend_name: Optional[str] = None,
-) -> Optional[ColorLegend]:
+    value_names: dict[int, str],
+    value_colors: dict[int, str] | None = None,
+    legend_name: str | None = None,
+) -> ColorLegend | None:
     """Bind integer values of a discrete grid property to text labels.
 
     Use this after uploading a discrete property via set_grid_property(...,
@@ -111,7 +109,7 @@ def set_discrete_property_category_names(
     )
 
 
-def _find_default_legend(case: Case, property_name: str) -> Optional[ColorLegend]:
+def _find_default_legend(case: Case, property_name: str) -> ColorLegend | None:
     """Look up the color legend bound to (case, property_name).
 
     Returns None when no mapping has been registered.
@@ -134,7 +132,7 @@ def _find_default_legend(case: Case, property_name: str) -> Optional[ColorLegend
 def discrete_property_category_names(
     self: Case,
     property_name: str,
-) -> Dict[int, str]:
+) -> dict[int, str]:
     """Return the integer-value to label mapping for a discrete property.
 
     Inverse of set_discrete_property_category_names. Returns an empty
@@ -160,7 +158,7 @@ def discrete_property_category_names(
 def discrete_property_category_colors(
     self: Case,
     property_name: str,
-) -> Dict[int, str]:
+) -> dict[int, str]:
     """Return the integer-value to color mapping for a discrete property.
 
     Inverse of the value_colors argument to

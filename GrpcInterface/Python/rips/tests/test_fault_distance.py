@@ -7,7 +7,6 @@ sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import dataroot
 import rips
 
-
 GRID_PATH = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
 
 

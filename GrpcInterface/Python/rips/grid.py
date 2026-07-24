@@ -5,12 +5,11 @@ Module containing the Grid class, containing information
 about Case grids.
 """
 
+
 import Case_pb2
+import Definitions_pb2
 import Grid_pb2
 import Grid_pb2_grpc
-import Definitions_pb2
-
-from typing import Optional, List
 from grpc import Channel
 
 from .case import Case
@@ -30,7 +29,7 @@ class Grid:
         self.index: int = index
         self.cached_dimensions = None
 
-    def dimensions(self) -> Optional[Definitions_pb2.Vec3i]:
+    def dimensions(self) -> Definitions_pb2.Vec3i | None:
         """The dimensions in i, j, k direction
 
         Returns:
@@ -58,7 +57,7 @@ class Grid:
         for chunk in chunks:
             yield chunk
 
-    def cell_centers(self) -> List[Definitions_pb2.Vec3d]:
+    def cell_centers(self) -> list[Definitions_pb2.Vec3d]:
         """The cell center for all cells in given grid
 
         Returns:

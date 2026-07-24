@@ -1,5 +1,6 @@
-import rips
 import time
+
+import rips
 
 resinsight = rips.Instance.find()
 

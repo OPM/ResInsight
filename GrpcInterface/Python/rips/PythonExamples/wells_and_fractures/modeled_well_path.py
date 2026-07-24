@@ -52,9 +52,7 @@ perforation_coll = well_path.completions().perforations()
 perforation = perforation_coll.perforations()[0]
 new_skin_factor = 0.9
 print(
-    "Changing perforation skin factor from {} to {}.".format(
-        perforation.skin_factor, new_skin_factor
-    )
+    f"Changing perforation skin factor from {perforation.skin_factor} to {new_skin_factor}."
 )
 perforation.skin_factor = new_skin_factor
 perforation.update()

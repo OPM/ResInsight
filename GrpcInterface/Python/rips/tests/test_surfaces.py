@@ -1,13 +1,13 @@
-import sys
 import os
+import sys
 import tempfile
-import pytest
 from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
+import pytest
 
+sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import dataroot
+import rips
 
 
 def test_create_and_export_surface(rips_instance, initialize_test):

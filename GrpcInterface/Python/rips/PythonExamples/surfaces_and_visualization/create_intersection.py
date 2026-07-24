@@ -59,12 +59,7 @@ geometry.update()
 # Read out estimated dogleg and azimuth/inclination for well targets
 for w in geometry.well_path_targets():
     print(
-        "DL1:{}   DL2:{}   Azi: {}   Incl: {}".format(
-            w.estimated_dogleg1,
-            w.estimated_dogleg2,
-            w.estimated_azimuth,
-            w.estimated_inclination,
-        )
+        f"DL1:{w.estimated_dogleg1}   DL2:{w.estimated_dogleg2}   Azi: {w.estimated_azimuth}   Incl: {w.estimated_inclination}"
     )
 
 # Add a curve intersection based on the modeled well path

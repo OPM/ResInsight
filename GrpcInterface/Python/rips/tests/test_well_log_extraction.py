@@ -1,11 +1,10 @@
-import sys
 import os
+import sys
 import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
-
 import dataroot
+import rips
 
 
 def test_10k_well_log_extraction(rips_instance, initialize_test):

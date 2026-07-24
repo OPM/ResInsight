@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))

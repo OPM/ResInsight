@@ -2,8 +2,9 @@
 # This example generates a derived property in an asynchronous manner
 # Meaning it does not wait for all the data for each stage to be read before proceeding
 ########################################################################################
-import rips
 import time
+
+import rips
 
 
 # Internal function for creating a result from a small chunk of poro and permx results

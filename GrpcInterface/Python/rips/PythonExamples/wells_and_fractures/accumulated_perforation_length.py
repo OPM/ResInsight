@@ -6,8 +6,9 @@
 ###################################################################################
 
 # Import the ResInsight Processing Server Module
-import rips
 import sys
+
+import rips
 
 # Connect to ResInsight
 resinsight = rips.Instance.find()

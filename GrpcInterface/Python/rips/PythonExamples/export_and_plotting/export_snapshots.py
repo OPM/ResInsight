@@ -3,6 +3,7 @@
 # And put them in a snapshots folder in the same folder as the case grid
 ############################################################################
 import os
+
 import rips
 
 # Load instance

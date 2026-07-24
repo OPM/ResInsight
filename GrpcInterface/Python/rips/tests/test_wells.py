@@ -1,12 +1,10 @@
-import sys
 import os
+import sys
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
-
 import dataroot
-
 import pytest
+import rips
 
 
 def test_10k(rips_instance, initialize_test):

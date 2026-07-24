@@ -1,8 +1,9 @@
 # Load ResInsight Processing Server Client Library
-import rips
 import tempfile
 from os.path import expanduser
 from pathlib import Path
+
+import rips
 
 # Connect to ResInsight instance
 resinsight = rips.Instance.find()
@@ -66,12 +67,10 @@ pressure_table.add_pressure(depth=3000.0, initial_pressure=270.0, pressure=273.0
 pressure_table.add_pressure(depth=3400.0, initial_pressure=274.0, pressure=276.0)
 pressure_table.add_pressure(depth=3800.0, initial_pressure=276.0, pressure=280.0)
 
-print("Pressure table ({} items)".format(len(pressure_table.items())))
+print(f"Pressure table ({len(pressure_table.items())} items)")
 for item in pressure_table.items():
     print(
-        "TDVMSL [m]: {} Initial Pressure: {} Pressure: {}".format(
-            item.depth, item.initial_pressure, item.pressure
-        )
+        f"TDVMSL [m]: {item.depth} Initial Pressure: {item.initial_pressure} Pressure: {item.pressure}"
     )
 
 # Add some scaling factors
@@ -106,9 +105,7 @@ for measured_depth in measured_depths:
 
     # Make the well name safer to use as a directory path
     well_name_part = well_name.replace(" ", "_")
-    directory_path = Path(export_folder) / "{}_{}".format(
-        well_name_part, int(measured_depth)
-    )
+    directory_path = Path(export_folder) / f"{well_name_part}_{int(measured_depth)}"
 
     # Create the folder
     directory_path.mkdir(parents=True, exist_ok=True)

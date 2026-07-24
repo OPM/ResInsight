@@ -1,7 +1,7 @@
-import sys
-import os
-import time
 import multiprocessing
+import os
+import sys
+import time
 
 import pytest
 

@@ -6,12 +6,13 @@ These tests verify the well event timeline and event management functionality.
 
 import os
 import sys
+
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import rips
 import dataroot
+import rips
 
 
 @pytest.fixture

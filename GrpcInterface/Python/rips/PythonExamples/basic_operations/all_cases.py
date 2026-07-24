@@ -33,7 +33,5 @@ for case in cases:
 
         for c in coarsening_info:
             print(
-                "[{}, {}, {}] - [{}, {}, {}]".format(
-                    c.min.x, c.min.y, c.min.z, c.max.x, c.max.y, c.max.z
-                )
+                f"[{c.min.x}, {c.min.y}, {c.min.z}] - [{c.max.x}, {c.max.y}, {c.max.z}]"
             )

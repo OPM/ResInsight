@@ -1,10 +1,9 @@
-import sys
 import os
+import sys
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
-
 import dataroot
+import rips
 
 
 def test_append_lateral_from_measured_depth(rips_instance, initialize_test):
