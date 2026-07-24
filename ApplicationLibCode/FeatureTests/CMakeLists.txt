@@ -25,6 +25,8 @@ set(SOURCE_FEATURETEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCellFilterFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathLateralFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPerforationIntervalFeature-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewDefaultSummaryPlotFeature-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotFeature-Test.cpp
 )
 
 # googletest is fetched by the ApplicationLibCode/UnitTests subdirectory, which is added before this
@@ -84,6 +86,7 @@ target_include_directories(
          ${RI_PRIVATE_INCLUDES}
          ${PROJECT_SOURCE_DIR}/Commands
          ${PROJECT_SOURCE_DIR}/Commands/CompletionExportCommands
+         ${CMAKE_CURRENT_LIST_DIR}/../TestModels
 )
 
 target_compile_features(ResInsight-featuretests PRIVATE cxx_std_20)

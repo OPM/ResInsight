@@ -24,10 +24,14 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimMockSummaryCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+
+#include "RifEclipseSummaryAddress.h"
 
 #include "Well/RigWellPath.h"
 
@@ -128,6 +132,34 @@ FeatureTestModel RiaFeatureTestModelBuilder::combinedModel()
     FeatureTestModel model = eclipseCaseWithResults();
 
     model.wellPath = addWellPathWithGeometry( "TestWellPath" );
+
+    return model;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+FeatureTestModel RiaFeatureTestModelBuilder::summaryCase()
+{
+    closeProject();
+
+    FeatureTestModel model;
+
+    RimOilField* oilField = RimProject::current()->activeOilField();
+    if ( oilField && oilField->summaryCaseMainCollection() )
+    {
+        auto* mockCase = new RimMockSummaryCase;
+        mockCase->setName( "TestSummaryCase" );
+
+        // A single field vector with a few time steps, enough for plot/curve features to have data.
+        const std::vector<time_t> timeSteps = { 0, 86400, 172800 };
+        const std::vector<double> values    = { 1.0, 2.0, 3.0 };
+        mockCase->addVector( RifEclipseSummaryAddress::fieldAddress( "FOPT" ), timeSteps, values );
+
+        oilField->summaryCaseMainCollection()->addCase( mockCase );
+
+        model.summaryCase = mockCase;
+    }
 
     return model;
 }

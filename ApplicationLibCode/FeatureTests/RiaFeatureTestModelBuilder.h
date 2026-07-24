@@ -20,6 +20,7 @@
 
 class RimEclipseCase;
 class RimGridView;
+class RimSummaryCase;
 class RimWellPath;
 
 //==================================================================================================
@@ -34,6 +35,7 @@ struct FeatureTestModel
     RimEclipseCase* eclipseCase = nullptr;
     RimGridView*    eclipseView = nullptr;
     RimWellPath*    wellPath    = nullptr;
+    RimSummaryCase* summaryCase = nullptr;
 };
 
 class RiaFeatureTestModelBuilder
@@ -51,4 +53,8 @@ public:
     // A single project containing both a mock Eclipse case (with a 3D view) and a well path, so the
     // sweep can select different object types without rebuilding the (expensive) Eclipse model.
     static FeatureTestModel combinedModel();
+
+    // An in-memory summary case (RimMockSummaryCase) with a single field vector, added to the active
+    // oil field's summary case main collection. No .SMSPEC file is read.
+    static FeatureTestModel summaryCase();
 };
