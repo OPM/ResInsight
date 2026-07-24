@@ -11,12 +11,15 @@ endif(MSVC)
 set(SOURCE_FEATURETEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureTestModelBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureTestModelBuilder.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureTestTreeView.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureTestTreeView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicFeatureSweepDenylist.h
     ${CMAKE_CURRENT_LIST_DIR}/RicFeatureSweep-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicFeatureExecutionSweep-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseCaseFeature-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicToggleItemsFeature-Test.cpp
 )
 
 # googletest is fetched by the ApplicationLibCode/UnitTests subdirectory, which is added before this
