@@ -52,6 +52,7 @@ public:
 
 private slots:
     void onHealthCheck();
+    void onReadyReadStandardOutput();
 
 private:
     static int                 findAvailablePortNumber();

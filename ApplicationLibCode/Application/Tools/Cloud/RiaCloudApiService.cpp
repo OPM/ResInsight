@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -105,6 +106,9 @@ void RiaCloudApiService::start()
 {
     if ( isRunning() ) return;
 
+     // Clean up any stale QProcess instance (e.g. after an unexpected exit) before re-starting.
+    if ( m_process ) stop();
+
     const QString pythonExecutable = RiaApplication::instance()->pythonPath();
     if ( pythonExecutable.isEmpty() )
     {
@@ -142,38 +146,30 @@ void RiaCloudApiService::start()
 
     // Forward the server's stdout/stderr to the ResInsight log so boot failures (e.g. a missing
     // 'uvicorn' or import errors in the service) are visible.
-    connect( m_process,
-             &QProcess::readyReadStandardOutput,
-             this,
-             [this]()
-             {
-                 const QString output = QString::fromLocal8Bit( m_process->readAllStandardOutput() );
-                 for ( const QString& line : output.split( '\n', Qt::SkipEmptyParts ) )
-                 {
-                     RiaLogging::info( QString( "Cloud API service: %1" ).arg( line.trimmed() ).toStdString() );
-                 }
-             } );
+    connect( m_process, &QProcess::readyReadStandardOutput, this, &RiaCloudApiService::onReadyReadStandardOutput );
 
     connect( m_process,
              &QProcess::errorOccurred,
              this,
              [this]( QProcess::ProcessError )
-             { RiaLogging::error( QString( "Cloud API service: process error: %1" ).arg( m_process->errorString() ).toStdString() ); } );
+             {
+                 RiaLogging::error(std::format( "Cloud API service: process error: {}", m_process->errorString() ) );
+             } );
 
     connect( m_process,
              &QProcess::finished,
              this,
              []( int exitCode, QProcess::ExitStatus )
-             { RiaLogging::info( QString( "Cloud API service: process finished (exit code %1)." ).arg( exitCode ).toStdString() ); } );
+             { RiaLogging::info( std::format( "Cloud API service: process finished (exit code {}).", exitCode ) ); } );
 
     m_consecutiveFailures = 0;
 
     RiaLogging::info(
-        QString( "Cloud API service: launching '%1 %2' (working directory '%3')." ).arg( pythonExecutable ).arg( arguments.join( ' ' ) ).arg( workingDirectory ).toStdString() );
+        std::format( "Cloud API service: launching '{} {}' (working directory '{}').", pythonExecutable, arguments.join( ' ' ), workingDirectory ) );
 
     m_process->start( pythonExecutable, arguments );
 
-    RiaLogging::info( QString( "Cloud API service: starting on http://127.0.0.1:%1." ).arg( m_port ).toStdString() );
+    RiaLogging::info( std::format( "Cloud API service: starting on http://127.0.0.1:{}.", m_port ) );
 
     // Delay the first health check by the startup grace period to allow the server to boot.
     m_startupTimer.start();
@@ -211,6 +207,18 @@ void RiaCloudApiService::restart()
     RiaLogging::warning( "Cloud API service: not responding, restarting." );
     stop();
     start();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaCloudApiService::onReadyReadStandardOutput()
+{
+    const QString output = QString::fromLocal8Bit( m_process->readAllStandardOutput() );
+    for ( const QString& line : output.split( '\n', Qt::SkipEmptyParts ) )
+    {
+        RiaLogging::info( std::format( "Cloud API service: {}", line.trimmed() ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -304,7 +312,7 @@ QString RiaCloudApiService::serviceWorkingDirectory()
         }
     }
 
-    RiaLogging::error( QString( "Cloud API service: 'ri_cloud_api' not found in any of: %1" ).arg( candidates.join( ", " ) ).toStdString() );
+    RiaLogging::error( std::format( "Cloud API service: 'ri_cloud_api' not found in any of: {}", candidates.join( ", " ) ) );
 
     return {};
 }
