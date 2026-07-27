@@ -1946,10 +1946,7 @@ RiaCloudApiService* RiaApplication::cloudApiService()
         m_cloudApiService = std::make_unique<RiaCloudApiService>();
 
         // Ensure the service process is killed while the event loop is still alive at shutdown.
-        QObject::connect( QCoreApplication::instance(),
-                          &QCoreApplication::aboutToQuit,
-                          m_cloudApiService.get(),
-                          &RiaCloudApiService::stop );
+        QObject::connect( QCoreApplication::instance(), &QCoreApplication::aboutToQuit, m_cloudApiService.get(), &RiaCloudApiService::stop );
     }
 
     return m_cloudApiService.get();

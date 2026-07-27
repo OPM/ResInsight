@@ -18,10 +18,10 @@
 
 #include "RimCloudDataSourceCollection.h"
 
+#include "Cloud/RiaCloudApiService.h"
 #include "RiaApplication.h"
 #include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
-#include "Cloud/RiaCloudApiService.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -246,9 +246,8 @@ void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::
     m_authenticate.uiCapability()->setUiName( text );
     m_authenticate.uiCapability()->setUiReadOnly( isGranted );
 
-    
     // Cloud server group
-    auto serverGroup = uiOrdering.addNewGroup( QString("Cloud API Server %1").arg(RiaDefines::betaFeaturePostfix()));
+    auto serverGroup = uiOrdering.addNewGroup( QString( "Cloud API Server %1" ).arg( RiaDefines::betaFeaturePostfix() ) );
 
     auto*   cloudApiService = RiaApplication::instance()->cloudApiService();
     bool    isServerRunning = cloudApiService && cloudApiService->isRunning();
