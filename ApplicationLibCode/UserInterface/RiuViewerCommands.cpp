@@ -436,6 +436,28 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                 menuBuilder << "RicIntersectionBoxXSliceFeature";
                 menuBuilder << "RicIntersectionBoxYSliceFeature";
                 menuBuilder << "RicIntersectionBoxZSliceFeature";
+
+                if ( auto eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView ) )
+                {
+                    // I/J/K intersections follow the main grid, so map the picked cell to the main grid
+                    const RigGridBase* grid = eclipseView->eclipseCase()->eclipseCaseData()->grid( m_currentGridIdx );
+                    if ( grid && m_currentCellIndex < grid->cellCount() )
+                    {
+                        size_t mainGridCellIndex = grid->cell( m_currentCellIndex ).mainGridCellIndex();
+
+                        size_t i, j, k;
+                        if ( eclipseView->mainGrid()->ijkFromCellIndex( mainGridCellIndex, &i, &j, &k ) )
+                        {
+                            QVariantList iIntersectionList = { 0, static_cast<int>( i ) };
+                            QVariantList jIntersectionList = { 1, static_cast<int>( j ) };
+                            QVariantList kIntersectionList = { 2, static_cast<int>( k ) };
+
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewIjkIntersection3dviewFeature", "I Intersection", iIntersectionList );
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewIjkIntersection3dviewFeature", "J Intersection", jIntersectionList );
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewIjkIntersection3dviewFeature", "K Intersection", kIntersectionList );
+                        }
+                    }
+                }
             }
 
             menuBuilder.subMenuEnd();
