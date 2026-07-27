@@ -53,7 +53,6 @@ and not next to the package.
       primary/
         main.py                     FastAPI application, router registration
         routers/health/router.py    `/alive` health endpoint
-        utils/router_headers.py     shared router header helpers
 
 ## Running manually (for debugging)
 
