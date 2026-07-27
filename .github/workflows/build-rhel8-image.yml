@@ -12,6 +12,7 @@ on:
     paths:
       - ".github/docker/Dockerfile.rhel8"
       - ".github/workflows/build-rhel8-image.yml"
+      - ".dockerignore"
       - "vcpkg.json"
       - "vcpkg-configuration-rhel8.json"
       - ".gitmodules"
@@ -102,5 +103,10 @@ jobs:
           tags: |
             ${{ steps.meta.outputs.image }}:latest
             ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.date }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Layer cache lives in GHCR instead of the GitHub Actions cache: the
+          # Actions cache has a 10 GB per-repo limit shared with all other
+          # workflows, so the multi-GB mode=max export was evicted immediately
+          # (0% hit rate) and the export itself started failing with
+          # "not_found" once the repo hit the cap.
+          cache-from: type=registry,ref=${{ steps.meta.outputs.image }}:buildcache
+          cache-to: type=registry,ref=${{ steps.meta.outputs.image }}:buildcache,mode=max,image-manifest=true

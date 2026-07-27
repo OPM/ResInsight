@@ -104,41 +104,39 @@ FROM base AS vcpkg-builder
 
 ENV VCPKG_DEFAULT_BINARY_CACHE=/opt/vcpkg-cache
 
-COPY . /src
+# Copy only the inputs that determine the dependency set instead of the whole
+# source tree. This keys the expensive vcpkg compile below on just these
+# paths, so the layer stays valid in the BuildKit registry cache across
+# ordinary source commits -- nightly rebuilds reuse the previously compiled
+# vcpkg binaries instead of recompiling every port.
+COPY ThirdParty/vcpkg /src/ThirdParty/vcpkg
+COPY vcpkg.json /src/vcpkg.json
+COPY vcpkg-configuration-rhel8.json /src/vcpkg-configuration.json
 
-# Running the ResInsight CMake configure triggers a vcpkg manifest install,
-# which compiles every dependency into VCPKG_DEFAULT_BINARY_CACHE. The same
-# toolchain is used here and in the final image, so the vcpkg ABI hashes match
-# and the cache is reused by CI builds. Later configure steps may fail inside
-# the build container; that is tolerated as the dependencies are already built
-# by then.
+# A direct manifest install compiles every dependency into
+# VCPKG_DEFAULT_BINARY_CACHE. The dependency set has no manifest features or
+# overlay ports, and CC/CXX below match the ResInsight configure in the
+# warmup stage and in CI, so the vcpkg ABI hashes match and the cache is
+# reused there. x64-linux is the triplet the vcpkg CMake toolchain defaults
+# to on Linux.
 #
-# After configure, verify the cache contains a plausible number of entries.
+# After the install, verify the cache contains a plausible number of entries.
 # vcpkg's `files` binary provider stores one .zip per package under
 # <cache>/<2-hex>/<full-hash>.zip. ResInsight depends on ~30+ packages, so a
-# threshold of 20 catches the failure mode where the configure dies early
+# threshold of 20 catches the failure mode where the install dies early
 # (e.g. after building only a handful of leaf deps) while staying robust to
 # small manifest churn.
 RUN git config --global --add safe.directory '*' \
- && cp /src/vcpkg-configuration-rhel8.json /src/vcpkg-configuration.json \
  && mkdir -p "${VCPKG_DEFAULT_BINARY_CACHE}" \
  && source /opt/rh/gcc-toolset-14/enable \
  && ( cd /src/ThirdParty/vcpkg && ./bootstrap-vcpkg.sh ) \
  && export CC=/opt/rh/gcc-toolset-14/root/usr/bin/gcc \
  && export CXX=/opt/rh/gcc-toolset-14/root/usr/bin/g++ \
- && { cmake -S /src -B /tmp/cfg -G Ninja \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true \
-        -DRESINSIGHT_ENABLE_UNITY_BUILD=true \
-        -DRESINSIGHT_ENABLE_HDF5=false \
-        -DRESINSIGHT_ENABLE_GRPC=false \
-        -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
-        -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
-      || true; } \
+ && ( cd /src && ./ThirdParty/vcpkg/vcpkg install --triplet x64-linux ) \
  && vcpkg_zip_count=$(find "${VCPKG_DEFAULT_BINARY_CACHE}" -type f -name '*.zip' | wc -l) \
  && echo "vcpkg binary cache entries: ${vcpkg_zip_count}" \
  && test "${vcpkg_zip_count}" -ge 20 \
- && rm -rf /tmp/cfg /src
+ && rm -rf /src
 
 # -----------------------------------------------------------------------------
 # Stage 3: warm the ResInsight buildcache by performing a full compile at

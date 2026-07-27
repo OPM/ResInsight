@@ -3,6 +3,14 @@
 # Docker contexts -- this file is the canonical list of paths excluded from
 # `COPY . /src` (used by .github/docker/Dockerfile.rhel8).
 
+# Git metadata. The in-image build does not need it (the CMake submodule init
+# is guarded by EXISTS .git, and the submodule working trees are already in
+# the context), and its internals (index, packfiles, reflogs) differ between
+# checkouts of the same commit, which would invalidate the BuildKit layer
+# cache for `COPY . /src` on every nightly image build.
+.git
+**/.git
+
 # Local CMake build outputs (host-side; can be tens of GB).
 build/
 build_*/
