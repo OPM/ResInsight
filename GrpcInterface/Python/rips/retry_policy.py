@@ -1,7 +1,6 @@
 import abc
-
-import time
 import random
+import time
 
 
 class RetryPolicy(abc.ABC):
@@ -18,14 +17,12 @@ class RetryPolicy(abc.ABC):
         """
         Generate a error message for user on time out.
         """
-        pass
 
     @abc.abstractmethod
     def num_retries(self) -> int:
         """
         Max number retries.
         """
-        pass
 
 
 class FixedRetryPolicy(RetryPolicy):
@@ -42,9 +39,7 @@ class FixedRetryPolicy(RetryPolicy):
         time.sleep(self.sleep_time / 1000)
 
     def time_out_message(self) -> str:
-        return "Tried {} times with {} milliseconds apart.".format(
-            self.max_num_retries, self.sleep_time
-        )
+        return f"Tried {self.max_num_retries} times with {self.sleep_time} milliseconds apart."
 
     def num_retries(self) -> int:
         return self.max_num_retries
@@ -79,9 +74,7 @@ class ExponentialBackoffRetryPolicy(RetryPolicy):
 
     def time_out_message(self) -> str:
         return (
-            "Tried {} times with increasing delay (from {} to {} milliseconds).".format(
-                self.max_num_retries, self.min_backoff, self.max_backoff
-            )
+            f"Tried {self.max_num_retries} times with increasing delay (from {self.min_backoff} to {self.max_backoff} milliseconds)."
         )
 
     def num_retries(self) -> int:

@@ -1,8 +1,9 @@
 # Load ResInsight Processing Server Client Library
-import rips
 import tempfile
 from os.path import expanduser
 from pathlib import Path
+
+import rips
 
 # Connect to ResInsight instance
 resinsight = rips.Instance.find()
@@ -21,8 +22,8 @@ num_realizations = 9
 num_iterations = 4
 
 
-for realization in range(0, num_realizations):
-    for iteration in range(0, num_iterations):
+for realization in range(num_realizations):
+    for iteration in range(num_iterations):
         realization_dir = "realization-" + str(realization)
         iteration_dir = "iter-" + str(iteration)
         egrid_name = "eclipse/model/5_R001_REEK-" + str(realization) + ".EGRID"

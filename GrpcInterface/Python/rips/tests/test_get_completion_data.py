@@ -1,13 +1,12 @@
-import sys
-import os
-import json
 import hashlib
+import json
+import os
+import sys
 from pathlib import Path
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
-
 import dataroot
+import rips
 
 
 def test_get_completion_data_basic(rips_instance, initialize_test):

@@ -4,8 +4,9 @@ Test file for issue #12940: Python GRPC interface validates field values
 This test verifies that validation prevents invalid values from being set.
 """
 
-import sys
 import os
+import sys
+
 import pytest
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))

@@ -1,13 +1,12 @@
-import sys
 import os
-import pytest
+import sys
 
-import rips.generated.NNCProperties_pb2 as NNCProperties_pb2
+import pytest
+from rips.generated import NNCProperties_pb2
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
-
 import dataroot
+import rips
 
 
 def test_10kSync(rips_instance, initialize_test):
@@ -47,17 +46,17 @@ def test_10kSync(rips_instance, initialize_test):
     case.set_nnc_connections_values(new_data, property_name, 0)
     new_prop_vals = case.nnc_connections_generated_values(property_name, 0)
     assert len(new_prop_vals) == len(new_data)
-    for i in range(0, len(new_data)):
+    for i in range(len(new_data)):
         assert new_data[i] == new_prop_vals[i]
 
     # Set some other data for second time step
-    for i in range(0, len(new_data)):
+    for i in range(len(new_data)):
         new_data[i] = new_data[i] * 2.0
 
     case.set_nnc_connections_values(new_data, property_name, 1)
     new_prop_vals = case.nnc_connections_generated_values(property_name, 1)
     assert len(new_prop_vals) == len(nnc_connections)
-    for i in range(0, len(new_data)):
+    for i in range(len(new_data)):
         assert new_data[i] == new_prop_vals[i]
 
 

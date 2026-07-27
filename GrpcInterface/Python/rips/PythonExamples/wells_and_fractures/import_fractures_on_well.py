@@ -1,7 +1,8 @@
 # Load ResInsight Processing Server Client Library
-import rips
 from os.path import expanduser
 from pathlib import Path
+
+import rips
 
 # Connect to ResInsight instance
 resinsight = rips.Instance.find()
@@ -31,7 +32,7 @@ print("well path:", well_path.name)
 # Place fracture at given depths
 measured_depths = [3200.0, 3400.0, 3600.0]
 for measured_depth in measured_depths:
-    print("Placing fracture at {} depth (MD)".format(measured_depth))
+    print(f"Placing fracture at {measured_depth} depth (MD)")
     # Create stim plan  at a give measured depth
     fracture = well_path.add_fracture(
         measured_depth=measured_depth,
@@ -70,11 +71,5 @@ fracture_template.set_scale_factors(
 fmt_collection = project.descendants(rips.FractureTemplate)
 for fracture_template in fmt_collection:
     print(
-        "Fracture: '{}' Scale factors: Height={} Half Length={} D Factor={} Conductivity={}".format(
-            fracture_template.user_description,
-            fracture_template.height_scale_factor,
-            fracture_template.width_scale_factor,
-            fracture_template.d_factor_scale_factor,
-            fracture_template.conductivity_factor,
-        )
+        f"Fracture: '{fracture_template.user_description}' Scale factors: Height={fracture_template.height_scale_factor} Half Length={fracture_template.width_scale_factor} D Factor={fracture_template.d_factor_scale_factor} Conductivity={fracture_template.conductivity_factor}"
     )

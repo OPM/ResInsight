@@ -5,8 +5,8 @@ ResInsight 3d contour map module
 import Commands_pb2
 
 from .pdmobject import add_method
-from .view import View as View
 from .resinsight_classes import EclipseContourMap, GeoMechContourMap
+from .view import View as View
 
 
 @add_method(EclipseContourMap)

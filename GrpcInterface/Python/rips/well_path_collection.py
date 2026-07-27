@@ -1,15 +1,14 @@
 import uuid
-import grpc
-from typing import List, Optional, Union, cast
+from typing import cast
 
+import grpc
+import PdmObject_pb2
 import SimulatorTables_pb2
 import SimulatorTables_pb2_grpc
 
-import PdmObject_pb2
-
 from .pdmobject import add_method
-from .resinsight_classes import WellPathCollection, WellPath
 from .project import Project
+from .resinsight_classes import WellPath, WellPathCollection
 
 
 @add_method(WellPathCollection)
@@ -21,7 +20,7 @@ def __custom_init__(
 
 @add_method(WellPathCollection)
 def import_well_path_from_points(
-    self: WellPathCollection, name: str, coordinates: List[List[float]]
+    self: WellPathCollection, name: str, coordinates: list[list[float]]
 ) -> object:
     """Create a well path from a list of XYZ coordinates.
 
@@ -100,8 +99,8 @@ def import_well_path_from_points(
 @add_method(WellPathCollection)
 def completion_data_unified(
     self: WellPathCollection,
-    wells: Optional[Union[List[WellPath], List[str]]] = None,
-    case_id: Optional[int] = None,
+    wells: list[WellPath] | list[str] | None = None,
+    case_id: int | None = None,
 ) -> SimulatorTables_pb2.SimulatorTableData:
     """Get unified completion data for multiple wells.
 
@@ -137,7 +136,7 @@ def completion_data_unified(
         well_names = [wp.name for wp in self.well_paths()]
     elif all(isinstance(w, str) for w in wells):
         # List of well names
-        well_names = cast(List[str], wells)
+        well_names = cast(list[str], wells)
     elif all(hasattr(w, "name") for w in wells):
         # List of WellPath objects
         well_names = [w.name for w in wells if hasattr(w, "name")]

@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-# coding: utf-8
 
-import rips
 import tempfile
 from os.path import expanduser
 from pathlib import Path
+
 import numpy as np
 import pyvista as pv
+import rips
 
 
 def generate_surface_from_file(path):
@@ -57,20 +57,20 @@ TFACE
 
     i = 1
     num_rows, num_props = point_cloud.shape
-    for row in range(0, num_rows):
+    for row in range(num_rows):
         x = point_cloud[row, 0]
         y = point_cloud[row, 1]
         z = point_cloud[row, 2]
-        txt = "PVRTX {} {:.3f} {:.3f} {:.3f} ".format(i, x, y, z)
-        for property_index in range(0, num_props):
-            txt += "{:.3f} ".format(point_cloud[row, property_index])
+        txt = f"PVRTX {i} {x:.3f} {y:.3f} {z:.3f} "
+        for property_index in range(num_props):
+            txt += f"{point_cloud[row, property_index]:.3f} "
         txt += "\n"
         text_file.write(txt)
         i += 1
 
     mysurface = surf.faces.reshape(-1, 4)
     for p in mysurface:
-        txt = "TRGL {} {} {}\n".format(p[1] + 1, p[2] + 1, p[3] + 1)
+        txt = f"TRGL {p[1] + 1} {p[2] + 1} {p[3] + 1}\n"
         text_file.write(txt)
 
     text_file.write("END")
@@ -96,7 +96,7 @@ for fracture in fractures:
 
     # Create the output directory
     output_directory = (
-        Path(home_dir) / "thermal_fracture_surfaces" / "{}".format(fracture_name)
+        Path(home_dir) / "thermal_fracture_surfaces" / f"{fracture_name}"
     )
 
     output_directory.mkdir(parents=True, exist_ok=True)
@@ -105,9 +105,7 @@ for fracture in fractures:
     time_steps = fracture.time_steps().values
     for time_step_index, time_step in enumerate(time_steps):
         print(
-            "Generating surface for time step #{}: {}".format(
-                time_step_index, time_step
-            )
+            f"Generating surface for time step #{time_step_index}: {time_step}"
         )
         temp_file_path = Path(temp_folder) / "output.xyz"
         fracture.export_to_file(
@@ -120,14 +118,10 @@ for fracture in fractures:
         )
 
         # Export surface ts file from the surface data
-        output_file_path = output_directory / "time_step_{:03d}.ts".format(
-            time_step_index
-        )
+        output_file_path = output_directory / f"time_step_{time_step_index:03d}.ts"
         export_surface_as_ts_file(
             surface, point_cloud, properties, output_file_path.as_posix()
         )
         print(
-            "Wrote surface for time step #{} to {}".format(
-                time_step, output_file_path.as_posix()
-            )
+            f"Wrote surface for time step #{time_step} to {output_file_path.as_posix()}"
         )

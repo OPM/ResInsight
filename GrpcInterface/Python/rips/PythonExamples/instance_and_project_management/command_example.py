@@ -3,6 +3,7 @@
 ###############################################################################
 import os
 import tempfile
+
 import rips
 
 # Load instance
@@ -43,7 +44,7 @@ with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
     view1.export_property()
 
     # Check that the exported file exists
-    expected_file_name = case.name + "-" + str("3D_View") + "-" + "T2" + "-SOIL"
+    expected_file_name = case.name + "-" + "3D_View" + "-" + "T2" + "-SOIL"
     full_path = tmpdirname + "/" + expected_file_name
 
     # Print contents of temporary folder

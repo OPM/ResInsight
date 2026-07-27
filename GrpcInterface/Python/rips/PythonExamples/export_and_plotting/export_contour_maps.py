@@ -1,7 +1,8 @@
 # Load ResInsight Processing Server Client Library
-import rips
-import tempfile
 import pathlib
+import tempfile
+
+import rips
 
 # Connect to ResInsight instance
 resInsight = rips.Instance.find()

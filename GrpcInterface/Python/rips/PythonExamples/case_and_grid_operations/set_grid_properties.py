@@ -13,7 +13,7 @@ grid_cell_count = grid.cell_count()
 print("total cell count : " + str(grid_cell_count))
 
 values = []
-for i in range(0, grid_cell_count):
+for i in range(grid_cell_count):
     values.append(i % 2 * 0.75)
 
 # Assign value to IJK grid cell at (31, 53, 21)
@@ -33,7 +33,7 @@ grid_cell_count = grid.cell_count()
 print("lgr cell count : " + str(grid_cell_count))
 
 values = []
-for i in range(0, grid_cell_count):
+for i in range(grid_cell_count):
     values.append(i % 3 * 0.75)
 
 print("Applying values to LGR grid")

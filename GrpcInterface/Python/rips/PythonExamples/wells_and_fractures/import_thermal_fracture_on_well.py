@@ -1,7 +1,8 @@
 # Load ResInsight Processing Server Client Library
-import rips
 from os.path import expanduser
 from pathlib import Path
+
+import rips
 
 # Connect to ResInsight instance
 resinsight = rips.Instance.find()
@@ -37,7 +38,7 @@ fracture = well_path.add_thermal_fracture(
 
 time_steps = fracture_template.time_steps().values
 for time_step_index, time_stamp in enumerate(time_steps):
-    print("Time step #{}: {}".format(time_step_index, time_stamp))
+    print(f"Time step #{time_step_index}: {time_stamp}")
     fracture_template.active_time_step_index = time_step_index
     fracture_template.conductivity_result_name = "Conductivity"
     fracture_template.update()

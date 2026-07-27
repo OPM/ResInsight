@@ -8,9 +8,10 @@
 # example uses the string form; see input_prop_test_async.py for the typed-enum
 # form.
 ########################################################################################
-import rips
 import time
+
 import grpc
+import rips
 
 resinsight = rips.Instance.find()
 start = time.time()

@@ -19,7 +19,7 @@ print("total cell count : " + str(grid_cell_count))
 
 # Assign a simple region id based on IJK index.
 values = []
-for i in range(0, grid_cell_count):
+for i in range(grid_cell_count):
     values.append(i % 4)
 
 print("Applying discrete values to main grid")

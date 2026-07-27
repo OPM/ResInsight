@@ -3,21 +3,21 @@
 ResInsight caf::PdmObject connection module
 """
 
+import inspect
+import re
+from collections.abc import Callable
 from enum import Enum
 from functools import wraps
-import grpc
-import re
-import inspect
+from typing import Any, TypeVar, Union
 
-import PdmObject_pb2
-import PdmObject_pb2_grpc
 import Commands_pb2
 import Commands_pb2_grpc
+import grpc
+import PdmObject_pb2
+import PdmObject_pb2_grpc
+from typing_extensions import ParamSpec
 
 from .exception import RipsError
-
-from typing import Any, Callable, TypeVar, Union, List, Optional, Type
-from typing_extensions import ParamSpec
 
 # TypeVar for generic return types in PdmObjectBase methods
 # Using string bound for forward reference since PdmObjectBase is defined later
@@ -113,8 +113,8 @@ class PdmObjectBase:
 
     def __init__(
         self,
-        pb2_object: Optional[PdmObject_pb2.PdmObject],
-        channel: Optional[grpc.Channel],
+        pb2_object: PdmObject_pb2.PdmObject | None,
+        channel: grpc.Channel | None,
     ) -> None:
         self.__warnings = []
         self.__chunk_size = 8160
@@ -154,7 +154,7 @@ class PdmObjectBase:
             self.__custom_init__(self._pb2_object, self._channel)
         self.update()
 
-    def warnings(self) -> List[str]:
+    def warnings(self) -> list[str]:
         return self.__warnings
 
     def has_warnings(self) -> bool:
@@ -215,7 +215,7 @@ class PdmObjectBase:
                 print("   " + snake_kw)
 
     Value = Union[bool, str, float, int, "ValueArray"]
-    ValueArray = List[Value]
+    ValueArray = list[Value]
 
     def __convert_from_grpc_value(self, value: str) -> Value:
         if value.lower() == "false":
@@ -375,9 +375,9 @@ class PdmObjectBase:
 
     def __from_pb2_to_resinsight_classes(
         self,
-        pb2_object_list: List[PdmObject_pb2.PdmObject],
-        super_class_definition: Type[PdmObjectT],
-    ) -> List[PdmObjectT]:
+        pb2_object_list: list[PdmObject_pb2.PdmObject],
+        super_class_definition: type[PdmObjectT],
+    ) -> list[PdmObjectT]:
         pdm_object_list = []
         from .generated.generated_classes import class_from_keyword
 
@@ -394,7 +394,7 @@ class PdmObjectBase:
             pdm_object_list.append(pdm_object)
         return pdm_object_list
 
-    def descendants(self, class_definition: Type[PdmObjectT]) -> List[PdmObjectT]:
+    def descendants(self, class_definition: type[PdmObjectT]) -> list[PdmObjectT]:
         """Get a list of all project tree descendants matching the class keyword
         Arguments:
             class_definition[class]: A class definition matching the type of class wanted
@@ -417,8 +417,8 @@ class PdmObjectBase:
             raise e
 
     def children(
-        self, child_field: str, class_definition: Type[PdmObjectT]
-    ) -> List[PdmObjectT]:
+        self, child_field: str, class_definition: type[PdmObjectT]
+    ) -> list[PdmObjectT]:
         """Get a list of all direct project tree children inside the provided child_field
         Arguments:
             child_field[str]: A field name
@@ -437,8 +437,8 @@ class PdmObjectBase:
             raise e
 
     def add_new_object(
-        self, class_definition: Type[PdmObjectT], child_field: str = ""
-    ) -> Optional[PdmObjectT]:
+        self, class_definition: type[PdmObjectT], child_field: str = ""
+    ) -> PdmObjectT | None:
         """Create and add an object to the specified child field
         Arguments:
             class_definition[class]: Class definition of the object to create
@@ -473,7 +473,7 @@ class PdmObjectBase:
                 return None
             raise e
 
-    def ancestor(self, class_definition: Type[PdmObjectT]) -> Optional[PdmObjectT]:
+    def ancestor(self, class_definition: type[PdmObjectT]) -> PdmObjectT | None:
         """Find the first ancestor that matches the provided class_keyword
         Arguments:
             class_definition[class]: A class definition matching the type of class wanted
@@ -590,7 +590,7 @@ class PdmObjectBase:
             raise
 
     def _call_pdm_method_return_value(
-        self, method_name: str, class_definition: Type[PdmObjectT], **kwargs: Any
+        self, method_name: str, class_definition: type[PdmObjectT], **kwargs: Any
     ) -> PdmObjectT:
         pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
         for key, value in kwargs.items():
@@ -627,8 +627,8 @@ class PdmObjectBase:
             raise
 
     def _call_pdm_method_return_optional_value(
-        self, method_name: str, class_definition: Type[PdmObjectT], **kwargs: Any
-    ) -> Optional[PdmObjectT]:
+        self, method_name: str, class_definition: type[PdmObjectT], **kwargs: Any
+    ) -> PdmObjectT | None:
         pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
         for key, value in kwargs.items():
             pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(

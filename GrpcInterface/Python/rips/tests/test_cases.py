@@ -1,13 +1,13 @@
-import sys
-import os
 import math
-import pytest
+import os
+import sys
 import tempfile
 
-sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
+import pytest
 
+sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import dataroot
+import rips
 
 
 def test_Launch(rips_instance, initialize_test):

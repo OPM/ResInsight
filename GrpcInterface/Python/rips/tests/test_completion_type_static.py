@@ -1,11 +1,10 @@
-import sys
-import os
 import math
+import os
+import sys
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
-
 import dataroot
+import rips
 
 
 def test_static_completion_type_on_roff_grid(rips_instance, initialize_test):

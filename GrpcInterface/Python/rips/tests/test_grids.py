@@ -1,12 +1,11 @@
-import sys
-import os
-from typing import TypedDict
 import math
+import os
+import sys
+from typing import TypedDict
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
-
 import dataroot
+import rips
 
 
 class NameAndPath(TypedDict):

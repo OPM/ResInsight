@@ -2,12 +2,11 @@
 ResInsight Well Log Plot plot module
 """
 
+
 import Commands_pb2
 
 from .pdmobject import add_method
 from .resinsight_classes import WellLogPlot
-
-from typing import List
 
 
 @add_method(WellLogPlot)
@@ -19,7 +18,7 @@ def export_data_as_las(
     capitalize_file_names: bool = False,
     resample_interval: float = 0.0,
     convert_to_standard_units: bool = False,
-) -> List[str]:
+) -> list[str]:
     """Export LAS file(s) for the current plot
 
     Arguments:
@@ -53,7 +52,7 @@ def export_data_as_ascii(
     export_folder: str,
     file_prefix: str = "",
     capitalize_file_names: bool = False,
-) -> List[str]:
+) -> list[str]:
     """Export LAS file(s) for the current plot
 
     Arguments:

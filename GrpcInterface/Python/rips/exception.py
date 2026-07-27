@@ -1,4 +1,3 @@
-from typing import Optional
 
 
 class RipsError(Exception):
@@ -13,9 +12,9 @@ class RipsError(Exception):
         self,
         message: object,
         *,
-        code: Optional[object] = None,
-        details: Optional[str] = None,
-        location: Optional[str] = None,
+        code: object | None = None,
+        details: str | None = None,
+        location: str | None = None,
     ) -> None:
         super().__init__(message)
         self.code = code
@@ -24,7 +23,7 @@ class RipsError(Exception):
 
     @classmethod
     def from_rpc_error(
-        cls, rpc_error: Exception, location: Optional[str] = None
+        cls, rpc_error: Exception, location: str | None = None
     ) -> "RipsError":
         """Build a RipsError from a grpc.RpcError-like object."""
         code_fn = getattr(rpc_error, "code", None)

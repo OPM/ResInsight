@@ -1,11 +1,10 @@
-import sys
-import os
 import math
+import os
+import sys
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
-
 import dataroot
+import rips
 
 
 def test_create_polygon(rips_instance, initialize_test):
@@ -24,7 +23,7 @@ def test_create_polygon(rips_instance, initialize_test):
     coordinates.append([bbox.max_x, bbox.max_y, -1500.0])
     coordinates.append([bbox.min_x, bbox.max_y, -1500.0])
 
-    name = "{} bounding box".format(c.name)
+    name = f"{c.name} bounding box"
     p = polygon_collection.create_polygon(name=name, coordinates=coordinates)
     assert p.name == name
     assert len(coordinates) == len(p.coordinates)

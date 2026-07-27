@@ -2,8 +2,9 @@
 # This example will create a derived result for each time step synchronously
 ##############################################################################
 
-import rips
 import time
+
+import rips
 
 resinsight = rips.Instance.find()
 start = time.time()
@@ -13,7 +14,7 @@ case = resinsight.project.cases()[0]
 porv_results = case.active_cell_property(rips.PropertyType.STATIC_NATIVE, "PORV", 0)
 time_step_info = case.time_steps()
 
-for i in range(0, len(time_step_info)):
+for i in range(len(time_step_info)):
     # Read the full SOIl result for time step i
     soil_results = case.active_cell_property(
         rips.PropertyType.DYNAMIC_NATIVE, "SOIL", i

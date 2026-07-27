@@ -1,16 +1,13 @@
 import uuid
-import grpc
 
+import grpc
+import PdmObject_pb2
 import SimulatorTables_pb2
 import SimulatorTables_pb2_grpc
-
-import PdmObject_pb2
 
 from .pdmobject import add_method
 from .project import Project
 from .resinsight_classes import WellPath
-
-from typing import Dict, List, Optional
 
 
 @add_method(WellPath)
@@ -24,7 +21,7 @@ def __custom_init__(
 def trajectory_properties(
     self: WellPath,
     resampling_interval: float,
-) -> Dict[str, List[float]]:
+) -> dict[str, list[float]]:
     """Extracts properties from a well path trajectory.
 
     Arguments:
@@ -79,10 +76,10 @@ def trajectory_properties(
 def add_well_log(
     self: WellPath,
     name: str,
-    measured_depth: List[float],
-    channel_data: Dict[str, List[float]],
-    tvd_msl: Optional[List[float]] = None,
-    tvd_rkb: Optional[List[float]] = None,
+    measured_depth: list[float],
+    channel_data: dict[str, list[float]],
+    tvd_msl: list[float] | None = None,
+    tvd_rkb: list[float] | None = None,
 ) -> object:
     """Add imported well log data to well path.
 

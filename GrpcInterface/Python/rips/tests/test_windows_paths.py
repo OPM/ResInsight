@@ -1,11 +1,10 @@
-import sys
 import os
 import platform
+import sys
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 
 import dataroot
-
 import pytest
 
 pytestmark = pytest.mark.skipif(

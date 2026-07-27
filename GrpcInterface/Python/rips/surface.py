@@ -4,11 +4,10 @@ from .exception import RipsError
 from .pdmobject import add_method
 from .project import Project
 from .resinsight_classes import RegularSurface
-from typing import List
 
 
 @add_method(RegularSurface)
-def set_property(self: RegularSurface, name: str, values: List[float]) -> None:
+def set_property(self: RegularSurface, name: str, values: list[float]) -> None:
     """Sets a property on a regular surface.
 
     Arguments:
@@ -26,7 +25,7 @@ def set_property(self: RegularSurface, name: str, values: List[float]) -> None:
 
 
 @add_method(RegularSurface)
-def available_properties(self: RegularSurface) -> List[str]:
+def available_properties(self: RegularSurface) -> list[str]:
     """Gets the list of available property names on a regular surface.
 
     Returns:
@@ -37,7 +36,7 @@ def available_properties(self: RegularSurface) -> List[str]:
 
 
 @add_method(RegularSurface)
-def get_property(self: RegularSurface, name: str) -> List[float]:
+def get_property(self: RegularSurface, name: str) -> list[float]:
     """Gets a property from a regular surface.
 
     Arguments:

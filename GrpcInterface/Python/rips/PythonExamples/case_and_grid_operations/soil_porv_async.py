@@ -2,8 +2,9 @@
 # This example will create a derived result for each time step asynchronously
 ##############################################################################
 
-import rips
 import time
+
+import rips
 
 
 # Internal function for creating a result from a small chunk of soil and porv results
@@ -34,7 +35,7 @@ porv_array = []
 for porv_chunk in porv_chunks:
     porv_array.append(porv_chunk)
 
-for i in range(0, len(timeStepInfo)):
+for i in range(len(timeStepInfo)):
     # Get a generator object for the SOIL property for time step i
     soil_chunks = case.active_cell_property_async(
         rips.PropertyType.DYNAMIC_NATIVE, "SOIL", i

@@ -6,35 +6,33 @@ creating connections to ResInsight
 """
 
 from __future__ import annotations
-import os
-import socket
-import logging
-import time
-import tempfile
-import signal
-import sys
-import json
-import subprocess
-import threading
 
-import grpc
+import json
+import logging
+import os
+import signal
+import socket
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+from collections.abc import Callable
+from pathlib import Path
 
 import App_pb2
 import App_pb2_grpc
 import Commands_pb2
 import Commands_pb2_grpc
+import grpc
+import RiaVersionInfo
 from Definitions_pb2 import Empty
 
-import RiaVersionInfo
-
+from .exception import RipsError
+from .generated.generated_classes import CommandRouter
+from .grpc_retry_interceptor import RetryOnRpcErrorClientInterceptor
 from .project import Project
 from .retry_policy import ExponentialBackoffRetryPolicy
-from .grpc_retry_interceptor import RetryOnRpcErrorClientInterceptor
-from .generated.generated_classes import CommandRouter
-from .exception import RipsError
-
-from typing import Callable, List, Optional, Tuple
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +49,10 @@ class Instance:
             Set when creating an instance and updated when opening/closing projects.
     """
 
-    _last_version_check_error: Optional[grpc.RpcError]
+    _last_version_check_error: grpc.RpcError | None
     _connection_lost: bool
-    _heartbeat_thread: Optional[threading.Thread]
-    _heartbeat_stop: Optional[threading.Event]
+    _heartbeat_thread: threading.Thread | None
+    _heartbeat_stop: threading.Event | None
 
     @staticmethod
     def __is_port_in_use(port: int) -> bool:
@@ -114,7 +112,7 @@ class Instance:
         console: bool = False,
         launch_port: int = 0,
         init_timeout: int = 300,
-        command_line_parameters: List[str] = [],
+        command_line_parameters: list[str] = [],
         enable_heartbeat: bool = True,
     ) -> Instance:
         """Launch a new Instance of ResInsight. This requires the environment variable
@@ -176,7 +174,7 @@ class Instance:
         logger.info("Trying to launch %s", resinsight_executable)
         with tempfile.TemporaryDirectory() as tmp_dir_path:
             port_number_file = tmp_dir_path + "/portnumber.txt"
-            parameters: List[str] = [
+            parameters: list[str] = [
                 resinsight_executable,
                 "--server",
                 str(requested_port),
@@ -188,7 +186,7 @@ class Instance:
                 parameters.append("--console")
 
             # Stringify all parameters
-            for i in range(0, len(parameters)):
+            for i in range(len(parameters)):
                 parameters[i] = str(parameters[i])
 
             process = subprocess.Popen(parameters)
@@ -243,7 +241,7 @@ class Instance:
     def __execute_command(self, **command_params):
         return self.commands.Execute(Commands_pb2.CommandParams(**command_params))
 
-    def __check_version(self) -> Tuple[bool, bool]:
+    def __check_version(self) -> tuple[bool, bool]:
         try:
             major_version_ok = self.major_version() == int(
                 RiaVersionInfo.RESINSIGHT_MAJOR_VERSION
@@ -329,7 +327,7 @@ class Instance:
 
         retry_policy = ExponentialBackoffRetryPolicy()
         if self.launched:
-            for num_tries in range(0, retry_policy.num_retries()):
+            for num_tries in range(retry_policy.num_retries()):
                 connection_ok, version_ok = self.__check_version()
                 if connection_ok:
                     break
@@ -382,7 +380,7 @@ class Instance:
         interval_sec: float = 5.0,
         deadline_sec: float = 5.0,
         failure_threshold: int = 3,
-        on_failure: Optional[Callable[["RipsError"], None]] = None,
+        on_failure: Callable[[RipsError], None] | None = None,
     ) -> None:
         """Start a background thread that periodically pings ResInsight.
 

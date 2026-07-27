@@ -2,14 +2,12 @@
 Grid Case Group statistics module
 """
 
-from .pdmobject import add_method
-from .view import View as View
-from .case import Case as Case
-
 import Commands_pb2
-from .resinsight_classes import GridCaseGroup
-from .resinsight_classes import EclipseView
-from .resinsight_classes import RimStatisticalCalculation
+
+from .case import Case as Case
+from .pdmobject import add_method
+from .resinsight_classes import EclipseView, GridCaseGroup, RimStatisticalCalculation
+from .view import View as View
 
 
 @add_method(GridCaseGroup)

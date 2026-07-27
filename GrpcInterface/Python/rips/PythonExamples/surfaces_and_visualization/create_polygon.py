@@ -28,9 +28,9 @@ for c in cases:
 
     polygon_collection = resinsight.project.descendants(rips.PolygonCollection)[0]
     p = polygon_collection.create_polygon(
-        name="{} bounding box".format(c.name), coordinates=coordinates
+        name=f"{c.name} bounding box", coordinates=coordinates
     )
-    print("Coordinates for {}:".format(p.name))
+    print(f"Coordinates for {p.name}:")
     for coord in p.coordinates:
         print(coord)
 
@@ -43,7 +43,5 @@ for c in cases:
         appearance.sphere_color = "#0000ff"
         appearance.update()
         print(
-            "Appearance updated: line_color={}, line_thickness={}".format(
-                appearance.line_color, appearance.line_thickness
-            )
+            f"Appearance updated: line_color={appearance.line_color}, line_thickness={appearance.line_thickness}"
         )

@@ -1,12 +1,12 @@
-import sys
 import os
-import pytest
+import sys
 import tempfile
 
-sys.path.insert(1, os.path.join(sys.path[0], "../../"))
-import rips
+import pytest
 
+sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import dataroot
+import rips
 
 
 def test_10kAsync(rips_instance, initialize_test):
@@ -253,6 +253,6 @@ def test_exportPropertyInView(rips_instance, initialize_test):
         case = rips_instance.project.cases()[0]
         view = case.views()[0]
         view.export_property()
-        expected_file_name = case.name + "-" + str("3D_View") + "-" + "T0" + "-SOIL"
+        expected_file_name = case.name + "-" + "3D_View" + "-" + "T0" + "-SOIL"
         full_path = tmpdirname + "/" + expected_file_name
         assert os.path.exists(full_path)
