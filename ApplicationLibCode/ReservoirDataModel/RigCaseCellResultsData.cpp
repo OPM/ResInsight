@@ -32,6 +32,7 @@
 #include "RigAllanDiagramData.h"
 #include "RigAllanUtil.h"
 #include "RigCaseCellResultCalculator.h"
+#include "RigCell.h"
 #include "RigCellVolumeResultCalculator.h"
 #include "RigCellsWithNncsCalculator.h"
 #include "RigEclipseAllanFaultsStatCalc.h"
@@ -42,8 +43,10 @@
 #include "RigFaultDistanceResultCalculator.h"
 #include "RigFormationNames.h"
 #include "RigIndexIjkResultCalculator.h"
+#include "RigLocalGrid.h"
 #include "RigMainGrid.h"
 #include "RigMobilePoreVolumeResultCalculator.h"
+#include "RigNestedHybridGridResultTools.h"
 #include "RigOilVolumeResultCalculator.h"
 #include "RigPorvSoilSgasResultCalculator.h"
 #include "RigSoilResultCalculator.h"
@@ -90,6 +93,14 @@ RigCaseCellResultsData::RigCaseCellResultsData( RigEclipseCaseData* ownerCaseDat
 void RigCaseCellResultsData::setMainGrid( RigMainGrid* ownerGrid )
 {
     m_ownerMainGrid = ownerGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigMainGrid* RigCaseCellResultsData::mainGrid()
+{
+    return m_ownerMainGrid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1580,14 +1591,16 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
                 {
                     values.clear();
                 }
-                else if ( tempGridCellCount > 0 )
+                else
                 {
-                    if ( !values.empty() )
+                    if ( tempGridCellCount > 0 && !values.empty() )
                     {
                         values.resize( values.size() + tempGridCellCount, std::numeric_limits<double>::infinity() );
 
                         assignValuesToTemporaryLgrs( resultName, values );
                     }
+
+                    RigNestedHybridGridResultTools::assignValuesToLgrs( this, values );
                 }
             }
         }
@@ -1600,14 +1613,16 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
             {
                 values.clear();
             }
-            else if ( tempGridCellCount > 0 )
+            else
             {
-                if ( !values.empty() )
+                if ( tempGridCellCount > 0 && !values.empty() )
                 {
                     values.resize( values.size() + tempGridCellCount, std::numeric_limits<double>::infinity() );
 
                     assignValuesToTemporaryLgrs( resultName, values );
                 }
+
+                RigNestedHybridGridResultTools::assignValuesToLgrs( this, values );
             }
         }
     }
@@ -1764,6 +1779,10 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
                 {
                     resultLoadingSuccess = false;
                 }
+                else
+                {
+                    RigNestedHybridGridResultTools::assignValuesToLgrs( this, values );
+                }
             }
         }
         else if ( type == RiaDefines::ResultCatType::STATIC_NATIVE )
@@ -1776,6 +1795,10 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
                 if ( !m_readerInterface->staticResult( resultName, m_porosityModel, &values ) )
                 {
                     resultLoadingSuccess = false;
+                }
+                else
+                {
+                    RigNestedHybridGridResultTools::assignValuesToLgrs( this, values );
                 }
             }
         }

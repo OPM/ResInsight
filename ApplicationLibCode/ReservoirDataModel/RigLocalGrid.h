@@ -31,11 +31,18 @@ public:
     void setAsTempGrid( bool isTemp );
     bool isTempGrid() const override;
 
+    // A reconstructed grid is synthesized in memory (e.g. a nested hybrid grid LGR) and is NOT
+    // present in the result file. It must be excluded from the on-file grid count so the result
+    // reader does not try to read data for it.
+    void setAsReconstructedGrid( bool isReconstructed );
+    bool isReconstructedGrid() const;
+
     void               setAssociatedWellPathName( const std::string& wellPathName );
     const std::string& associatedWellPathName() const override;
 
 private:
     RigGridBase* m_parentGrid;
     bool         m_isTempGrid;
+    bool         m_isReconstructedGrid;
     std::string  m_associatedWellPathName;
 };

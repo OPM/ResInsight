@@ -298,9 +298,18 @@ std::vector<size_t> RimGridCollection::indicesToVisibleGrids() const
 
     if ( !isActive() ) return gridIndices;
 
+    // Guard against stale grid infos restored from a project file whose grid set no longer matches
+    // the current grid (e.g. regenerated nested-hybrid LGRs): skip indices outside the current range.
+    const RigMainGrid* rigMainGrid = mainEclipseGrid();
+    const size_t       gridCount   = rigMainGrid ? rigMainGrid->gridCount() : 0;
+    auto               addIfValid  = [&]( size_t gridIndex )
+    {
+        if ( gridIndex < gridCount ) gridIndices.push_back( gridIndex );
+    };
+
     if ( m_mainGrid()->isActive() )
     {
-        gridIndices.push_back( m_mainGrid->eclipseGridIndex() );
+        addIfValid( m_mainGrid->eclipseGridIndex() );
     }
 
     if ( m_persistentLgrs()->isActive() )
@@ -309,7 +318,7 @@ std::vector<size_t> RimGridCollection::indicesToVisibleGrids() const
         {
             if ( gridInfo->isActive() )
             {
-                gridIndices.push_back( gridInfo->eclipseGridIndex() );
+                addIfValid( gridInfo->eclipseGridIndex() );
             }
         }
     }
@@ -320,7 +329,7 @@ std::vector<size_t> RimGridCollection::indicesToVisibleGrids() const
         {
             if ( gridInfo->isActive() )
             {
-                gridIndices.push_back( gridInfo->eclipseGridIndex() );
+                addIfValid( gridInfo->eclipseGridIndex() );
             }
         }
     }

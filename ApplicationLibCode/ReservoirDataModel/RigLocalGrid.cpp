@@ -22,6 +22,7 @@ RigLocalGrid::RigLocalGrid( RigMainGrid* mainGrid )
     : RigGridBase( mainGrid )
     , m_parentGrid( nullptr )
     , m_isTempGrid( false )
+    , m_isReconstructedGrid( false )
     , m_associatedWellPathName( "" )
 {
 }
@@ -60,6 +61,22 @@ void RigLocalGrid::setAsTempGrid( bool isTemp )
 bool RigLocalGrid::isTempGrid() const
 {
     return m_isTempGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigLocalGrid::setAsReconstructedGrid( bool isReconstructed )
+{
+    m_isReconstructedGrid = isReconstructed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigLocalGrid::isReconstructedGrid() const
+{
+    return m_isReconstructedGrid;
 }
 
 //--------------------------------------------------------------------------------------------------

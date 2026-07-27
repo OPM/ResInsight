@@ -26,6 +26,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigHexIntersectionTools.h"
+#include "RigLocalGrid.h"
 #include "RigNNCData.h"
 
 #include "cvfAssert.h"
@@ -201,7 +202,9 @@ size_t RigMainGrid::gridCountOnFile() const
 
     for ( const auto& grid : m_localGrids )
     {
-        if ( !grid->isTempGrid() )
+        // Skip grids that are not present in the result file (temporary LGRs and reconstructed
+        // nested-hybrid LGRs), so the result reader reads the correct number of grids.
+        if ( !grid->isTempGrid() && !grid->isReconstructedGrid() )
         {
             gridCount++;
         }
@@ -391,6 +394,38 @@ size_t RigMainGrid::totalTemporaryGridCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigMainGrid::setNestedHybridLgrSourceCells( const std::map<size_t, size_t>& lgrToFlatCell )
+{
+    m_nestedHybridLgrSourceCells = lgrToFlatCell;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::map<size_t, size_t>& RigMainGrid::nestedHybridLgrSourceCells() const
+{
+    return m_nestedHybridLgrSourceCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::setNestedHybridCoarseParents( const std::map<size_t, size_t>& cellToCoarseParent )
+{
+    m_nestedHybridCoarseParents = cellToCoarseParent;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::map<size_t, size_t>& RigMainGrid::nestedHybridCoarseParents() const
+{
+    return m_nestedHybridCoarseParents;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigNNCData* RigMainGrid::nncData()
 {
     if ( m_nncData.isNull() )
@@ -539,6 +574,14 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
                                         RigFaultsPrCellAccumulator*       faultsPrCellAcc ) const
 {
     if ( cell( gcIdx ).isInvalid() )
+    {
+        return;
+    }
+
+    // Reconstructed (nested hybrid) LGRs are laid out on a regular IJK box and can be non-conforming;
+    // their refinement boundaries are not geological faults. Skip them so they are not flagged as
+    // (geometric) faults - which would otherwise hide those cell faces during rendering.
+    if ( const auto* localGrid = dynamic_cast<const RigLocalGrid*>( cell( gcIdx ).hostGrid() ); localGrid && localGrid->isReconstructedGrid() )
     {
         return;
     }

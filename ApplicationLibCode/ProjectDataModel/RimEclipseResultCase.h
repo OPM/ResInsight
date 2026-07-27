@@ -93,6 +93,8 @@ private:
     void ensureRftDataIsImported();
     bool showTimeStepFilterGUI();
 
+    void computeNestedHybridCoarseAggregatesIfPresent();
+
     QString phasesAsString() const;
 
     cvf::ref<RifReaderInterface> createMockModel( QString modelName );

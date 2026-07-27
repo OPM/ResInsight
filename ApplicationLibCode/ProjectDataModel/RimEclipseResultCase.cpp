@@ -41,8 +41,10 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
+#include "RigNestedHybridGridResultTools.h"
 #include "RigReservoirGridTools.h"
 
 #include "Formations/RimFormationNames.h"
@@ -50,7 +52,6 @@
 #include "RimDialogData.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
@@ -69,8 +70,6 @@
 #include "cafUtils.h"
 
 #include <QApplication>
-#include <QDir>
-#include <QFile>
 #include <QFileInfo>
 
 #include <fstream>
@@ -292,8 +291,28 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
         progInfo.setProgressDescription( "Computing Case Cache" );
         eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
-        computeCachedData();
-        loadAndSynchronizeInputProperties( false );
+
+        const bool hasNestedHybridSidecars = !RigNestedHybridGridResultTools::refineSidecarFilePath( gridFileName() ).isEmpty() &&
+                                             !RigNestedHybridGridResultTools::oldIjkSidecarFilePath( gridFileName() ).isEmpty();
+        if ( hasNestedHybridSidecars )
+        {
+            // The flat nested hybrid grid piles the refined and collapsed coarse cells into the same
+            // physical space, which makes the geometric fault/NNC computation in computeCachedData()
+            // pathologically slow. Reconstruct the LGR hierarchy first (it invalidates the scattered
+            // flat cells), so the search tree, faults and NNCs are computed once, on the clean grid.
+            // Input properties are loaded before the reconstruction so their full-length arrays are
+            // extended to cover the new LGR cells.
+            loadAndSynchronizeInputProperties( false );
+            RigNestedHybridGridResultTools::importRefineSidecarIfPresent( gridFileName(), inputPropertyCollection(), eclipseCaseData() );
+            RigNestedHybridGridResultTools::importOldIjkSidecarIfPresent( gridFileName(), inputPropertyCollection(), eclipseCaseData() );
+            RigNestedHybridGridResultTools::reconstructNestedHybridGridIfPresent( gridFileName(), eclipseCaseData() );
+            computeCachedData();
+        }
+        else
+        {
+            computeCachedData();
+            loadAndSynchronizeInputProperties( false );
+        }
 
         m_gridAndWellDataIsReadFromFile = true;
         m_activeCellInfoIsReadFromFile  = true;
@@ -317,6 +336,9 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         }
 
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
+
+        // Nested hybrid grid: pre-compute the coarse aggregate of the key QC results.
+        computeNestedHybridCoarseAggregatesIfPresent();
     }
 
     if ( mainGrid() && mainGrid()->isRadial() )
@@ -340,6 +362,47 @@ bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNa
                                                                importFaults );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Nested hybrid grid: pre-compute the coarse aggregate (<RESULT>_COARSE) for the
+/// common QC results (pressure and saturations), so they are available right after a reconstructed
+/// nested hybrid grid is loaded.
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::computeNestedHybridCoarseAggregatesIfPresent()
+{
+    if ( !eclipseCaseData() || !eclipseCaseData()->mainGrid() ) return;
+
+    // Only relevant for reconstructed nested hybrid grids (the parent mapping is populated then).
+    if ( eclipseCaseData()->mainGrid()->nestedHybridCoarseParents().empty() ) return;
+
+    RigCaseCellResultsData* matrixResults = results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !matrixResults ) return;
+
+    // Ensure computed entries (e.g. SOIL) exist before aggregating them.
+    matrixResults->createPlaceholderResultEntries();
+
+    using AggregationMode = RigNestedHybridGridResultTools::AggregationMode;
+
+    // Intensive quantities are pore-volume-weighted averaged onto the parent; extensive
+    // fluid-in-place quantities are summed.
+    const QStringList qcResults  = { "PRESSURE", RiaResultNames::swat(), RiaResultNames::sgas(), RiaResultNames::soil() };
+    const QStringList fipResults = { "FIPOIL", "FIPGAS", "FIPWAT", "RFIPOIL", "RFIPGAS", "RFIPWAT", "SFIPOIL", "SFIPGAS", "SFIPWAT" };
+
+    auto computeAggregates = [matrixResults]( const QStringList& names, AggregationMode mode )
+    {
+        for ( const QString& name : names )
+        {
+            RigEclipseResultAddress sourceAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, name );
+            if ( matrixResults->hasResultEntry( sourceAddr ) )
+            {
+                RigNestedHybridGridResultTools::computeCoarseAggregate( matrixResults, sourceAddr, mode );
+                RigNestedHybridGridResultTools::computePerLevelAggregate( matrixResults, sourceAddr, mode );
+            }
+        }
+    };
+    computeAggregates( qcResults, AggregationMode::PORE_VOLUME_WEIGHTED_AVERAGE );
+    computeAggregates( fipResults, AggregationMode::SUM );
 }
 
 //--------------------------------------------------------------------------------------------------

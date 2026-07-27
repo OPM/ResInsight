@@ -62,6 +62,7 @@ public:
     RigAllanDiagramData*      allanDiagramData();
 
     void                     setMainGrid( RigMainGrid* ownerGrid );
+    RigMainGrid*             mainGrid();
     void                     setActiveCellInfo( RigActiveCellInfo* activeCellInfo );
     RigActiveCellInfo*       activeCellInfo();
     const RigActiveCellInfo* activeCellInfo() const;
