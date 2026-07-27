@@ -62,6 +62,7 @@ public:
         compute( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType, bool cumulative = false ) const = 0;
 
     virtual bool showCumulativeCurve() const;
+    virtual void setShowCumulativeCurve( bool showCumulativeCurve );
 
     virtual void setDefaults() = 0;
 

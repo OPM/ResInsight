@@ -19,6 +19,7 @@
 #include "RimHistogramCurveCollection.h"
 
 #include "RimHistogramCurve.h"
+#include "RimHistogramDataSource.h"
 #include "RimHistogramPlot.h"
 
 #include "cafPdmFieldReorderCapability.h"
@@ -271,6 +272,27 @@ void RimHistogramCurveCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*
     for ( RimHistogramCurve* curve : orphanedCurves )
     {
         deleteCurve( curve );
+    }
+
+    // Uncheck "Show Cumulative Curve" on data sources whose cumulative curve was deleted
+    for ( RimHistogramCurve* curve : curves() )
+    {
+        if ( curve->isCumulative() ) continue;
+
+        RimHistogramDataSource* dataSource = curve->dataSource();
+        if ( !dataSource || !dataSource->showCumulativeCurve() ) continue;
+
+        bool hasCumulativeCurve = false;
+        for ( RimHistogramCurve* other : curves() )
+        {
+            if ( other->isCumulative() && other->dataSource() == dataSource )
+            {
+                hasCumulativeCurve = true;
+                break;
+            }
+        }
+
+        if ( !hasCumulativeCurve ) dataSource->setShowCumulativeCurve( false );
     }
 
     curvesChanged.send();

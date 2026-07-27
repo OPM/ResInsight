@@ -50,6 +50,7 @@ public:
                              bool                            cumulative = false ) const override;
 
     bool showCumulativeCurve() const override;
+    void setShowCumulativeCurve( bool showCumulativeCurve ) override;
 
     std::string name() const override;
 

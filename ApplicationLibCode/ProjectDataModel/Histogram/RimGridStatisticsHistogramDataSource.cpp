@@ -65,6 +65,15 @@ bool RimGridStatisticsHistogramDataSource::showCumulativeCurve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridStatisticsHistogramDataSource::setShowCumulativeCurve( bool showCumulativeCurve )
+{
+    m_cumulative = showCumulativeCurve;
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimGridStatisticsHistogramDataSource::~RimGridStatisticsHistogramDataSource()
 {
 }

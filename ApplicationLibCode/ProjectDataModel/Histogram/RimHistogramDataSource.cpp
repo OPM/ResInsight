@@ -48,6 +48,13 @@ bool RimHistogramDataSource::showCumulativeCurve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimHistogramDataSource::setShowCumulativeCurve( bool showCumulativeCurve )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double>
     RimHistogramDataSource::computeHistogramBins( double min, double max, int numBins, RimHistogramPlot::GraphType graphType, bool cumulative )
 {
