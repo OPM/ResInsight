@@ -22,6 +22,7 @@
 
 #include "RimBoxIntersection.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimIjkIntersection.h"
 #include "RimIntersectionCollection.h"
 
 #include "RiuMainWindow.h"
@@ -47,7 +48,10 @@ bool RicPasteIntersectionsFeature::isCommandEnabled() const
     std::vector<caf::PdmPointer<RimBoxIntersection>> intersectionBoxObjects;
     objectGroup.objectsByType( &intersectionBoxObjects );
 
-    if ( intersectionObjects.empty() && intersectionBoxObjects.empty() )
+    std::vector<caf::PdmPointer<RimIjkIntersection>> ijkIntersectionObjects;
+    objectGroup.objectsByType( &ijkIntersectionObjects );
+
+    if ( intersectionObjects.empty() && intersectionBoxObjects.empty() && ijkIntersectionObjects.empty() )
     {
         return false;
     }
@@ -110,6 +114,25 @@ void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
             intersectionCollection->appendIntersectionBoxNoUpdate( intersectionBox );
         }
     }
+
+    std::vector<caf::PdmPointer<RimIjkIntersection>> ijkIntersectionObjects;
+    objectGroup.objectsByType( &ijkIntersectionObjects );
+
+    for ( size_t i = 0; i < ijkIntersectionObjects.size(); i++ )
+    {
+        RimIjkIntersection* ijkIntersection = ijkIntersectionObjects[i]->copyObject<RimIjkIntersection>();
+        QString             nameOfCopy      = QString( "Copy of " ) + ijkIntersection->name();
+        ijkIntersection->setName( nameOfCopy );
+
+        if ( i == ijkIntersectionObjects.size() - 1 )
+        {
+            intersectionCollection->appendIjkIntersectionAndUpdate( ijkIntersection );
+        }
+        else
+        {
+            intersectionCollection->appendIjkIntersectionNoUpdate( ijkIntersection );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,6 +166,12 @@ RimIntersectionCollection* RicPasteIntersectionsFeature::findIntersectionCollect
     if ( intersectionBox )
     {
         return intersectionBox->firstAncestorOrThisOfType<RimIntersectionCollection>();
+    }
+
+    RimIjkIntersection* ijkIntersection = dynamic_cast<RimIjkIntersection*>( objectHandle );
+    if ( ijkIntersection )
+    {
+        return ijkIntersection->firstAncestorOrThisOfType<RimIntersectionCollection>();
     }
 
     return nullptr;

@@ -29,6 +29,7 @@
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
+#include "RimIjkIntersection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimProject.h"
@@ -38,6 +39,7 @@
 
 #include "RivBoxIntersectionPartMgr.h"
 #include "RivExtrudedCurveIntersectionPartMgr.h"
+#include "RivIjkIntersectionPartMgr.h"
 
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
@@ -58,6 +60,8 @@ RimIntersectionCollection::RimIntersectionCollection()
     CAF_PDM_InitFieldNoDefault( &m_intersections, "CrossSections", "Intersections" );
 
     CAF_PDM_InitFieldNoDefault( &m_intersectionBoxes, "IntersectionBoxes", "IntersectionBoxes" );
+
+    CAF_PDM_InitFieldNoDefault( &m_ijkIntersections, "IjkIntersections", "IjkIntersections" );
 
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
@@ -139,6 +143,14 @@ void RimIntersectionCollection::applySingleColorEffect()
             cs->intersectionBoxPartMgr()->applySingleColorEffect();
         }
     }
+
+    for ( RimIjkIntersection* cs : m_ijkIntersections )
+    {
+        if ( cs->isActive() )
+        {
+            cs->intersectionPartMgr()->applySingleColorEffect();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,6 +192,22 @@ void RimIntersectionCollection::updateCellResultColor( bool hasGeneralCellResult
             }
         }
     }
+
+    for ( RimIjkIntersection* cs : m_ijkIntersections )
+    {
+        if ( cs->isActive() )
+        {
+            bool hasSeparateInterResult = cs->activeSeparateResultDefinition() && cs->activeSeparateResultDefinition()->hasResult();
+            if ( hasSeparateInterResult || hasGeneralCellResult )
+            {
+                cs->intersectionPartMgr()->updateCellResultColor( timeStepIndex );
+            }
+            else
+            {
+                cs->intersectionPartMgr()->applySingleColorEffect();
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,6 +226,14 @@ bool RimIntersectionCollection::hasAnyActiveSeparateResults()
     }
 
     for ( RimBoxIntersection* cs : m_intersectionBoxes )
+    {
+        if ( cs->isActive() && cs->activeSeparateResultDefinition() && cs->activeSeparateResultDefinition()->hasResult() )
+        {
+            return true;
+        }
+    }
+
+    for ( RimIjkIntersection* cs : m_ijkIntersections )
     {
         if ( cs->isActive() && cs->activeSeparateResultDefinition() && cs->activeSeparateResultDefinition()->hasResult() )
         {
@@ -260,6 +296,16 @@ void RimIntersectionCollection::appendDynamicPartsToModel( cvf::ModelBasicList* 
             cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
         }
     }
+
+    for ( RimIjkIntersection* cs : m_ijkIntersections )
+    {
+        if ( cs->isActive() )
+        {
+            cs->intersectionPartMgr()->generatePartGeometry( visibleCells );
+            cs->intersectionPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
+            cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,6 +321,11 @@ void RimIntersectionCollection::clearGeometry()
     for ( RimBoxIntersection* intersectionBox : m_intersectionBoxes )
     {
         intersectionBox->clearGeometry();
+    }
+
+    for ( RimIjkIntersection* ijkIntersection : m_ijkIntersections )
+    {
+        ijkIntersection->clearGeometry();
     }
 }
 
@@ -292,6 +343,14 @@ std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersecti
 std::vector<RimBoxIntersection*> RimIntersectionCollection::intersectionBoxes() const
 {
     return m_intersectionBoxes.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimIjkIntersection*> RimIntersectionCollection::ijkIntersections() const
+{
+    return m_ijkIntersections.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -364,6 +423,27 @@ void RimIntersectionCollection::appendIntersectionBoxAndUpdate( RimBoxIntersecti
 void RimIntersectionCollection::appendIntersectionBoxNoUpdate( RimBoxIntersection* intersectionBox )
 {
     m_intersectionBoxes.push_back( intersectionBox );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::appendIjkIntersectionAndUpdate( RimIjkIntersection* intersection )
+{
+    m_ijkIntersections.push_back( intersection );
+
+    updateConnectedEditors();
+    Riu3DMainWindowTools::selectAsCurrentItem( intersection, false );
+
+    rebuild3dView();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::appendIjkIntersectionNoUpdate( RimIjkIntersection* intersection )
+{
+    m_ijkIntersections.push_back( intersection );
 }
 
 //--------------------------------------------------------------------------------------------------

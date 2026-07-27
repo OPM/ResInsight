@@ -31,6 +31,7 @@ class Rim3dView;
 class RimEclipseView;
 class RimExtrudedCurveIntersection;
 class RimBoxIntersection;
+class RimIjkIntersection;
 class RimEclipseCellColors;
 class RimSimWellInView;
 class RivTernaryScalarMapper;
@@ -60,6 +61,9 @@ public:
     void appendIntersectionBoxAndUpdate( RimBoxIntersection* intersectionBox );
     void appendIntersectionBoxNoUpdate( RimBoxIntersection* intersectionBox );
 
+    void appendIjkIntersectionAndUpdate( RimIjkIntersection* intersection );
+    void appendIjkIntersectionNoUpdate( RimIjkIntersection* intersection );
+
     bool hasActiveIntersectionForSimulationWell( const RimSimWellInView* simWell ) const;
     bool hasAnyActiveSeparateResults();
 
@@ -83,6 +87,7 @@ public:
 
     std::vector<RimExtrudedCurveIntersection*> intersections() const;
     std::vector<RimBoxIntersection*>           intersectionBoxes() const;
+    std::vector<RimIjkIntersection*>           ijkIntersections() const;
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
@@ -108,6 +113,7 @@ private:
 
     caf::PdmChildArrayField<RimExtrudedCurveIntersection*> m_intersections;
     caf::PdmChildArrayField<RimBoxIntersection*>           m_intersectionBoxes;
+    caf::PdmChildArrayField<RimIjkIntersection*>           m_ijkIntersections;
 
     caf::PdmField<bool>                                    m_depthThresholdOverridden;
     caf::PdmField<double>                                  m_depthUpperThreshold;

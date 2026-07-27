@@ -59,6 +59,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechView.h"
+#include "RimIjkIntersection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimLegendConfig.h"
 #include "RimPerforationInterval.h"
@@ -85,6 +86,7 @@
 #include "RivExtrudedCurveIntersectionSourceInfo.h"
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
+#include "RivIjkIntersectionSourceInfo.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivReservoirSurfaceIntersectionSourceInfo.h"
@@ -284,8 +286,10 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         const auto* surfIntersectSourceInfo = dynamic_cast<const RivReservoirSurfaceIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
         const auto* crossSectionSourceInfo  = dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
         const auto* intersectionBoxSourceInfo = dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
+        const auto* ijkIntersectionSourceInfo = dynamic_cast<const RivIjkIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
 
-        if ( rivSourceInfo || femSourceInfo || crossSectionSourceInfo || intersectionBoxSourceInfo || surfIntersectSourceInfo )
+        if ( rivSourceInfo || femSourceInfo || crossSectionSourceInfo || intersectionBoxSourceInfo || ijkIntersectionSourceInfo ||
+             surfIntersectSourceInfo )
         {
             if ( rivSourceInfo )
             {
@@ -356,6 +360,19 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                 menuBuilder << "RicHideIntersectionBoxFeature";
                 menuBuilder.addSeparator();
             }
+            else if ( ijkIntersectionSourceInfo )
+            {
+                findCellAndGridIndex( mainOrComparisonView,
+                                      ijkIntersectionSourceInfo->intersection()->activeSeparateResultDefinition(),
+                                      ijkIntersectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
+                                      &m_currentCellIndex,
+                                      &m_currentGridIdx );
+
+                m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
+
+                RiuSelectionItem* selItem = new RiuGeneralSelectionItem( ijkIntersectionSourceInfo->intersection() );
+                Riu3dSelectionManager::instance()->setSelectedItem( selItem, Riu3dSelectionManager::RUI_TEMPORARY );
+            }
 
             if ( gridView )
             {
@@ -419,6 +436,28 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                 menuBuilder << "RicIntersectionBoxXSliceFeature";
                 menuBuilder << "RicIntersectionBoxYSliceFeature";
                 menuBuilder << "RicIntersectionBoxZSliceFeature";
+
+                if ( auto eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView ) )
+                {
+                    // I/J/K intersections follow the main grid, so map the picked cell to the main grid
+                    const RigGridBase* grid = eclipseView->eclipseCase()->eclipseCaseData()->grid( m_currentGridIdx );
+                    if ( grid && m_currentCellIndex < grid->cellCount() )
+                    {
+                        size_t mainGridCellIndex = grid->cell( m_currentCellIndex ).mainGridCellIndex();
+
+                        size_t i, j, k;
+                        if ( eclipseView->mainGrid()->ijkFromCellIndex( mainGridCellIndex, &i, &j, &k ) )
+                        {
+                            QVariantList iIntersectionList = { 0, static_cast<int>( i ) };
+                            QVariantList jIntersectionList = { 1, static_cast<int>( j ) };
+                            QVariantList kIntersectionList = { 2, static_cast<int>( k ) };
+
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewIjkIntersection3dviewFeature", "I Intersection", iIntersectionList );
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewIjkIntersection3dviewFeature", "J Intersection", jIntersectionList );
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewIjkIntersection3dviewFeature", "K Intersection", kIntersectionList );
+                        }
+                    }
+                }
             }
 
             menuBuilder.subMenuEnd();
@@ -884,6 +923,10 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
             else if ( const auto* intersectionBoxSourceInfo = dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
             {
                 RiuMainWindow::instance()->selectAsCurrentItem( intersectionBoxSourceInfo->intersectionBox() );
+            }
+            else if ( const auto* ijkIntersectionSourceInfo = dynamic_cast<const RivIjkIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
+            {
+                RiuMainWindow::instance()->selectAsCurrentItem( ijkIntersectionSourceInfo->intersection() );
             }
             else if ( eclipseWellSourceInfo )
             {

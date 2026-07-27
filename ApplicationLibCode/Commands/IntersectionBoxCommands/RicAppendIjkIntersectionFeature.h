@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2026-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,20 +18,14 @@
 
 #pragma once
 
-#include "cafCmdExecuteCommand.h"
 #include "cafCmdFeature.h"
-#include "cafPdmPointer.h"
 
-class RimCase;
-class RimExtrudedCurveIntersection;
-class RimBoxIntersection;
-class RimIjkIntersection;
 class RimIntersectionCollection;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicCopyIntersectionsToAllViewsInCaseFeature : public caf::CmdFeature
+class RicAppendIjkIntersectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -41,7 +34,6 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    void copyIntersectionsToOtherViews( RimCase& gridCase, std::vector<RimExtrudedCurveIntersection*> intersections );
-    void copyIntersectionBoxesToOtherViews( RimCase& gridCase, std::vector<RimBoxIntersection*> intersectionBoxes );
-    void copyIjkIntersectionsToOtherViews( RimCase& gridCase, std::vector<RimIjkIntersection*> ijkIntersections );
+private:
+    static RimIntersectionCollection* intersectionCollection();
 };
