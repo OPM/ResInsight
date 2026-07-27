@@ -222,13 +222,14 @@ QString RimHistogramPlot::asciiDataForPlotExport() const
         if ( !curve->isChecked() || !curve->dataSource() ) continue;
 
         // Compute as line graph to get one value per bin, independent of how the curve is rendered
-        auto result = curve->dataSource()->compute( GraphType::LINE_GRAPH, frequencyType() );
+        auto result = curve->dataSource()->compute( GraphType::LINE_GRAPH, frequencyType(), curve->isCumulative() );
         if ( result.valuesX.empty() || result.valuesX.size() != result.valuesY.size() ) continue;
 
         QString headerX = "Bin Center";
         if ( !curve->unitNameX().empty() ) headerX += QString( " [%1]" ).arg( QString::fromStdString( curve->unitNameX() ) );
 
         QString headerY = caf::AppEnum<FrequencyType>::uiText( frequencyType() );
+        if ( curve->isCumulative() ) headerY = "Cumulative " + headerY;
         if ( !curve->unitNameY().empty() ) headerY += QString( " [%1]" ).arg( QString::fromStdString( curve->unitNameY() ) );
 
         QString     tableText;
