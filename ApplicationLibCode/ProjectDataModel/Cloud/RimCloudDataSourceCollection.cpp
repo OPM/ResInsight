@@ -248,7 +248,7 @@ void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::
 
     
     // Cloud server group
-    auto serverGroup = uiOrdering.addNewGroup( "Cloud API Server" );
+    auto serverGroup = uiOrdering.addNewGroup( QString("Cloud API Server %1").arg(RiaDefines::betaFeaturePostfix()));
 
     auto*   cloudApiService = RiaApplication::instance()->cloudApiService();
     bool    isServerRunning = cloudApiService && cloudApiService->isRunning();
