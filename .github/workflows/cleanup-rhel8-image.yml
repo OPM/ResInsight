@@ -4,7 +4,8 @@ name: Cleanup RHEL8 CI Image Versions
 #
 # Retention rules:
 #   * Versions tagged "latest" are always kept (the consumer workflow pulls
-#     `:latest`, so deleting it would break CI).
+#     `:latest`, so deleting it would break CI). Versions tagged "buildcache"
+#     are always kept too (BuildKit layer cache used by the image build).
 #   * The most recent MIN_KEEP versions by updated_at are kept regardless of
 #     age. This is a safety floor: if the last few nightly builds break, we
 #     can still roll back to a working older image.
@@ -95,14 +96,14 @@ jobs:
           echo "Cutoff (UTC)   : $(date -u -d @"$cutoff_epoch" -Iseconds)"
 
           # jq pipeline:
-          #   1. drop versions whose tags include "latest"
+          #   1. drop versions whose tags include "latest" or "buildcache"
           #   2. sort newest-first
           #   3. skip the first MIN_KEEP (safety floor)
           #   4. keep only those older than the cutoff
           to_delete=$(jq -c \
             --argjson keep "$MIN_KEEP" \
             --argjson cutoff "$cutoff_epoch" '
-              [ .[] | select((.metadata.container.tags // []) | index("latest") | not) ]
+              [ .[] | select((.metadata.container.tags // []) | (index("latest") or index("buildcache")) | not) ]
               | sort_by(.updated_at) | reverse
               | .[$keep:]
               | [ .[] | select((.updated_at | fromdateiso8601) < $cutoff) ]
