@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
 
 #include "RimPlot.h"
@@ -104,7 +103,6 @@ public:
     QWidget* viewWidget() override;
 
     QString asciiDataForPlotExport() const override;
-    QString asciiDataForHistogramPlotExport( RiaDefines::DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const;
 
     FrequencyType frequencyType() const;
     GraphType     graphType() const;

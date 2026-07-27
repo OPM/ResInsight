@@ -24,10 +24,13 @@
 
 #include "RicHistogramPlotTools.h"
 
+#include "RifCsvDataTableFormatter.h"
+
 #include "Histogram/RimEnsembleParameterHistogramDataSource.h"
 #include "Histogram/RimEnsembleSummaryVectorHistogramDataSource.h"
 #include "RimHistogramCurve.h"
 #include "RimHistogramCurveCollection.h"
+#include "RimHistogramDataSource.h"
 #include "RimMultiPlot.h"
 #include "RimPlotAxisLogRangeCalculator.h"
 #include "Summary/Ensemble/RimSummaryEnsembleParameter.h"
@@ -35,6 +38,7 @@
 #include "Summary/RimSummaryAddress.h"
 #include "Tools/RimPlotAxisTools.h"
 
+#include "RiuContextMenuLauncher.h"
 #include "RiuPlotAxis.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -211,16 +215,44 @@ RiuPlotWidget* RimHistogramPlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 QString RimHistogramPlot::asciiDataForPlotExport() const
 {
-    return asciiDataForHistogramPlotExport( RiaDefines::DateTimePeriod::YEAR, false );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimHistogramPlot::asciiDataForHistogramPlotExport( RiaDefines::DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const
-{
-    // TODO: add implementation
     QString text;
+
+    for ( RimHistogramCurve* curve : histogramCurves() )
+    {
+        if ( !curve->isChecked() || !curve->dataSource() ) continue;
+
+        // Compute as line graph to get one value per bin, independent of how the curve is rendered
+        auto result = curve->dataSource()->compute( GraphType::LINE_GRAPH, frequencyType() );
+        if ( result.valuesX.empty() || result.valuesX.size() != result.valuesY.size() ) continue;
+
+        QString headerX = "Bin Center";
+        if ( !curve->unitNameX().empty() ) headerX += QString( " [%1]" ).arg( QString::fromStdString( curve->unitNameX() ) );
+
+        QString headerY = caf::AppEnum<FrequencyType>::uiText( frequencyType() );
+        if ( !curve->unitNameY().empty() ) headerY += QString( " [%1]" ).arg( QString::fromStdString( curve->unitNameY() ) );
+
+        QString     tableText;
+        QTextStream stringStream( &tableText );
+
+        // Use tab as field separator to make the text paste into separate columns in Excel
+        RifCsvDataTableFormatter formatter( stringStream, "\t" );
+        formatter.setUseQuotes( false );
+
+        formatter.header( { RifTextDataTableColumn( headerX ), RifTextDataTableColumn( headerY ) } );
+
+        for ( size_t i = 0; i < result.valuesX.size(); i++ )
+        {
+            formatter.add( result.valuesX[i] );
+            formatter.add( result.valuesY[i] );
+            formatter.rowCompleted();
+        }
+        formatter.tableCompleted();
+
+        if ( !text.isEmpty() ) text += "\n";
+        text += curve->curveName() + "\n";
+        text += tableText;
+    }
+
     return text;
 }
 
@@ -1025,6 +1057,8 @@ RiuPlotWidget* RimHistogramPlot::doCreatePlotViewWidget( QWidget* mainWindowPare
     if ( !plotWidget() )
     {
         m_histogramPlot = new RiuQwtPlotWidget( this, mainWindowParent );
+
+        new RiuContextMenuLauncher( m_histogramPlot, { "RicShowPlotDataFeature" } );
 
         QObject::connect( plotWidget(), SIGNAL( curveOrderNeedsUpdate() ), this, SLOT( onUpdateCurveOrder() ) );
 
