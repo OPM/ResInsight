@@ -147,8 +147,9 @@ std::string RimEnsembleParameterHistogramDataSource::unitNameX() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistogramDataSource::HistogramResult RimEnsembleParameterHistogramDataSource::compute( RimHistogramPlot::GraphType graphType,
-                                                                                          RimHistogramPlot::FrequencyType frequencyType ) const
+RimHistogramDataSource::HistogramResult RimEnsembleParameterHistogramDataSource::compute( RimHistogramPlot::GraphType     graphType,
+                                                                                          RimHistogramPlot::FrequencyType frequencyType,
+                                                                                          bool                            cumulative ) const
 {
     RimHistogramDataSource::HistogramResult result;
 
@@ -159,7 +160,7 @@ RimHistogramDataSource::HistogramResult RimEnsembleParameterHistogramDataSource:
 
     double min     = parameter.minValue;
     double max     = parameter.maxValue;
-    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType );
+    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative );
 
     std::vector<double> values;
     for ( const QVariant& v : parameter.values )
@@ -171,7 +172,7 @@ RimHistogramDataSource::HistogramResult RimEnsembleParameterHistogramDataSource:
     RigHistogramCalculator histCalc( min, max, m_numBins, &histogram );
     histCalc.addData( values );
 
-    result.valuesY = computeHistogramFrequencies( histogram, graphType, frequencyType );
+    result.valuesY = computeHistogramFrequencies( histogram, graphType, frequencyType, cumulative );
 
     double p10, p50, p90, mean;
     RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );

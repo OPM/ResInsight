@@ -24,9 +24,8 @@
 #include "RiaQStringFormatter.h"
 #include "RiaViewRedrawScheduler.h"
 
-#include "Rim3dOverlayInfoConfig.h"
+#include "Rim3dView.h"
 #include "RimCase.h"
-#include "RimGridView.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
@@ -140,13 +139,6 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
         QString absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName, ".png" );
 
         RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, riv, width, height );
-
-        if ( RimGridView* rigv = dynamic_cast<RimGridView*>( riv ) )
-        {
-            QImage img       = rigv->overlayInfoConfig()->statisticsDialogScreenShotImage();
-            absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName + "_Statistics", ".png" );
-            RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, img );
-        }
     }
 }
 

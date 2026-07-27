@@ -25,6 +25,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimHistogramDataSource, "HistogramDataSource" 
 //--------------------------------------------------------------------------------------------------
 RimHistogramDataSource::RimHistogramDataSource()
     : dataSourceChanged( this )
+    , cumulativeChanged( this )
 {
     CAF_PDM_InitObject( "Histogram Data Source", );
 }
@@ -39,7 +40,23 @@ RimHistogramDataSource::~RimHistogramDataSource()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimHistogramDataSource::computeHistogramBins( double min, double max, int numBins, RimHistogramPlot::GraphType graphType )
+bool RimHistogramDataSource::showCumulativeCurve() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramDataSource::setShowCumulativeCurve( bool showCumulativeCurve )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double>
+    RimHistogramDataSource::computeHistogramBins( double min, double max, int numBins, RimHistogramPlot::GraphType graphType, bool cumulative )
 {
     const double binSize = ( max - min ) / numBins;
 
@@ -57,8 +74,9 @@ std::vector<double> RimHistogramDataSource::computeHistogramBins( double min, do
             values.push_back( binMin );
             values.push_back( binMax );
 
-            // Close last bar on right side
-            if ( i == numBins - 1 ) values.push_back( binMax );
+            // Close last bar on right side. A cumulative curve is not closed: it should end at its
+            // maximum instead of dropping back to zero.
+            if ( i == numBins - 1 && !cumulative ) values.push_back( binMax );
         }
         else if ( graphType == RimHistogramPlot::GraphType::LINE_GRAPH )
         {
@@ -74,10 +92,11 @@ std::vector<double> RimHistogramDataSource::computeHistogramBins( double min, do
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimHistogramDataSource::computeHistogramFrequencies( const std::vector<size_t>&      values,
                                                                          RimHistogramPlot::GraphType     graphType,
-                                                                         RimHistogramPlot::FrequencyType frequencyType )
+                                                                         RimHistogramPlot::FrequencyType frequencyType,
+                                                                         bool                            cumulative )
 {
     std::vector<double> valuesAsDouble( values.begin(), values.end() );
-    return computeHistogramFrequencies( valuesAsDouble, graphType, frequencyType );
+    return computeHistogramFrequencies( valuesAsDouble, graphType, frequencyType, cumulative );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,11 +104,14 @@ std::vector<double> RimHistogramDataSource::computeHistogramFrequencies( const s
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimHistogramDataSource::computeHistogramFrequencies( const std::vector<double>&      values,
                                                                          RimHistogramPlot::GraphType     graphType,
-                                                                         RimHistogramPlot::FrequencyType frequencyType )
+                                                                         RimHistogramPlot::FrequencyType frequencyType,
+                                                                         bool                            cumulative )
 {
     double sumElements = 0.0;
     for ( double value : values )
         sumElements += value;
+
+    double runningSum = 0.0;
 
     std::vector<double> frequencies;
     for ( size_t i = 0; i < values.size(); i++ )
@@ -97,6 +119,12 @@ std::vector<double> RimHistogramDataSource::computeHistogramFrequencies( const s
         double value = values[i];
         if ( frequencyType == RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY ) value /= sumElements;
         if ( frequencyType == RimHistogramPlot::FrequencyType::RELATIVE_FREQUENCY_PERCENT ) value = value / sumElements * 100.0;
+
+        if ( cumulative )
+        {
+            runningSum += value;
+            value = runningSum;
+        }
 
         if ( graphType == RimHistogramPlot::GraphType::BAR_GRAPH )
         {
@@ -106,8 +134,9 @@ std::vector<double> RimHistogramDataSource::computeHistogramFrequencies( const s
             frequencies.push_back( value );
             frequencies.push_back( value );
 
-            // Close last bar on right side
-            if ( i == values.size() - 1 ) frequencies.push_back( 0.0 );
+            // Close last bar on right side. A cumulative curve is not closed: it should end at its
+            // maximum instead of dropping back to zero.
+            if ( i == values.size() - 1 && !cumulative ) frequencies.push_back( 0.0 );
         }
         else if ( graphType == RimHistogramPlot::GraphType::LINE_GRAPH )
         {

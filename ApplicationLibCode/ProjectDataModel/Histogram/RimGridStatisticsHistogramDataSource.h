@@ -45,7 +45,12 @@ public:
     std::string unitNameX() const override;
     std::string unitNameY() const override;
 
-    HistogramResult compute( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const override;
+    HistogramResult compute( RimHistogramPlot::GraphType     graphType,
+                             RimHistogramPlot::FrequencyType frequencyType,
+                             bool                            cumulative = false ) const override;
+
+    bool showCumulativeCurve() const override;
+    void setShowCumulativeCurve( bool showCumulativeCurve ) override;
 
     std::string name() const override;
 
@@ -70,4 +75,5 @@ protected:
     caf::PdmPtrField<RimGridView*>                  m_cellFilterView;
     caf::PdmChildField<RimEclipseResultDefinition*> m_property;
     caf::PdmField<int>                              m_numBins;
+    caf::PdmField<bool>                             m_cumulative;
 };

@@ -29,8 +29,6 @@
 
 #include "cvfVector2.h"
 
-#include <QPointer>
-
 #include <cmath>
 #include <memory>
 
@@ -39,7 +37,6 @@ class RimEclipseContourMapView;
 class RimEclipseView;
 class RimGeoMechView;
 class Rim3dView;
-class RicGridStatisticsDialog;
 class RimSeismicView;
 
 //==================================================================================================
@@ -64,10 +61,6 @@ public:
     QString          timeStepText();
     QString          caseInfoText();
     QString          resultInfoText( const RigHistogramData& histData );
-
-    RicGridStatisticsDialog* getOrCreateGridStatisticsDialog();
-    void                     showStatisticsInfoDialog( bool raise = true );
-    QImage                   statisticsDialogScreenShotImage();
 
     bool showAnimProgress() const;
     bool showCaseInfo() const;
@@ -113,6 +106,4 @@ private:
     cvf::Vec2ui                m_position;
 
     std::unique_ptr<RimHistogramCalculator> m_histogramCalculator;
-
-    QPointer<RicGridStatisticsDialog> m_gridStatisticsDialog;
 };

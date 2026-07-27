@@ -45,7 +45,9 @@ public:
     std::string unitNameX() const override;
     std::string unitNameY() const override;
 
-    HistogramResult compute( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const override;
+    HistogramResult compute( RimHistogramPlot::GraphType     graphType,
+                             RimHistogramPlot::FrequencyType frequencyType,
+                             bool                            cumulative = false ) const override;
 
     void setDefaults() override;
 

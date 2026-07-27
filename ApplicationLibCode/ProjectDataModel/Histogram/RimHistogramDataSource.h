@@ -53,21 +53,29 @@ public:
     ~RimHistogramDataSource() override;
 
     caf::Signal<> dataSourceChanged;
+    caf::Signal<> cumulativeChanged;
 
     virtual std::string unitNameX() const = 0;
     virtual std::string unitNameY() const = 0;
 
-    virtual HistogramResult compute( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType ) const = 0;
+    virtual HistogramResult
+        compute( RimHistogramPlot::GraphType graphType, RimHistogramPlot::FrequencyType frequencyType, bool cumulative = false ) const = 0;
+
+    virtual bool showCumulativeCurve() const;
+    virtual void setShowCumulativeCurve( bool showCumulativeCurve );
 
     virtual void setDefaults() = 0;
 
     virtual std::string name() const = 0;
 
-    static std::vector<double> computeHistogramBins( double min, double max, int numBins, RimHistogramPlot::GraphType graphType );
+    static std::vector<double>
+        computeHistogramBins( double min, double max, int numBins, RimHistogramPlot::GraphType graphType, bool cumulative = false );
     static std::vector<double> computeHistogramFrequencies( const std::vector<size_t>&      values,
                                                             RimHistogramPlot::GraphType     graphType,
-                                                            RimHistogramPlot::FrequencyType frequencyType );
+                                                            RimHistogramPlot::FrequencyType frequencyType,
+                                                            bool                            cumulative = false );
     static std::vector<double> computeHistogramFrequencies( const std::vector<double>&      values,
                                                             RimHistogramPlot::GraphType     graphType,
-                                                            RimHistogramPlot::FrequencyType frequencyType );
+                                                            RimHistogramPlot::FrequencyType frequencyType,
+                                                            bool                            cumulative = false );
 };

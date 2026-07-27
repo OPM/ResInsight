@@ -19,6 +19,7 @@
 #include "RimHistogramCurveCollection.h"
 
 #include "RimHistogramCurve.h"
+#include "RimHistogramDataSource.h"
 #include "RimHistogramPlot.h"
 
 #include "cafPdmFieldReorderCapability.h"
@@ -262,6 +263,38 @@ void RimHistogramCurveCollection::onCurvesReordered( const SignalEmitter* emitte
 void RimHistogramCurveCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
+    // Delete cumulative curves when the curve owning their referenced data source is deleted
+    std::vector<RimHistogramCurve*> orphanedCurves;
+    for ( RimHistogramCurve* curve : curves() )
+    {
+        if ( curve->isCumulative() && !curve->dataSource() ) orphanedCurves.push_back( curve );
+    }
+    for ( RimHistogramCurve* curve : orphanedCurves )
+    {
+        deleteCurve( curve );
+    }
+
+    // Uncheck "Show Cumulative Curve" on data sources whose cumulative curve was deleted
+    for ( RimHistogramCurve* curve : curves() )
+    {
+        if ( curve->isCumulative() ) continue;
+
+        RimHistogramDataSource* dataSource = curve->dataSource();
+        if ( !dataSource || !dataSource->showCumulativeCurve() ) continue;
+
+        bool hasCumulativeCurve = false;
+        for ( RimHistogramCurve* other : curves() )
+        {
+            if ( other->isCumulative() && other->dataSource() == dataSource )
+            {
+                hasCumulativeCurve = true;
+                break;
+            }
+        }
+
+        if ( !hasCumulativeCurve ) dataSource->setShowCumulativeCurve( false );
+    }
+
     curvesChanged.send();
 }
 

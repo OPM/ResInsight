@@ -229,8 +229,9 @@ std::vector<double> RimEnsembleSummaryVectorHistogramDataSource::extractValuesFr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistogramDataSource::HistogramResult RimEnsembleSummaryVectorHistogramDataSource::compute( RimHistogramPlot::GraphType graphType,
-                                                                                              RimHistogramPlot::FrequencyType frequencyType ) const
+RimHistogramDataSource::HistogramResult RimEnsembleSummaryVectorHistogramDataSource::compute( RimHistogramPlot::GraphType     graphType,
+                                                                                              RimHistogramPlot::FrequencyType frequencyType,
+                                                                                              bool cumulative ) const
 {
     RimHistogramDataSource::HistogramResult result;
 
@@ -241,13 +242,13 @@ RimHistogramDataSource::HistogramResult RimEnsembleSummaryVectorHistogramDataSou
 
     double min     = *min_it;
     double max     = *max_it;
-    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType );
+    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative );
 
     std::vector<size_t>    histogram;
     RigHistogramCalculator histCalc( min, max, m_numBins, &histogram );
     histCalc.addData( values );
 
-    result.valuesY = computeHistogramFrequencies( histogram, graphType, frequencyType );
+    result.valuesY = computeHistogramFrequencies( histogram, graphType, frequencyType, cumulative );
 
     double p10, p50, p90, mean;
     RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );

@@ -881,7 +881,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<Rim3dOverlayInfoConfig*>( firstUiItem ) )
         {
             menuBuilder << "RicCreateGridStatisticsPlotFeature";
-            menuBuilder << "RicShowGridStatisticsFeature";
         }
         else if ( dynamic_cast<RimValveTemplateCollection*>( firstUiItem ) )
         {

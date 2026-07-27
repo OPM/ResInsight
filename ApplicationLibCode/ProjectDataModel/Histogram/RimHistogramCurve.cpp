@@ -54,6 +54,12 @@ RimHistogramCurve::RimHistogramCurve()
     CAF_PDM_InitFieldNoDefault( &m_dataSource, "DataSource", "Data Source" );
     m_dataSource.uiCapability()->setUiTreeHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_dataSourceReference, "DataSourceReference", "Data Source Reference" );
+    m_dataSourceReference.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_isCumulative, "IsCumulative", false, "Cumulative" );
+    m_isCumulative.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P10" );
     CAF_PDM_InitField( &m_showP90Curve, "ShowP90Curve", true, "P90" );
     CAF_PDM_InitField( &m_showMeanCurve, "ShowMeanCurve", true, "Mean" );
@@ -83,6 +89,9 @@ RimHistogramCurve::~RimHistogramCurve()
 void RimHistogramCurve::initAfterRead()
 {
     setDataSource( m_dataSource );
+
+    // NB: m_dataSourceReference is not resolved yet. The signal connection for referenced data
+    // sources is established in onLoadDataAndUpdate().
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,7 +116,54 @@ void RimHistogramCurve::setDataSource( RimHistogramDataSource* dataSource )
     {
         m_dataSource->uiCapability()->setUiTreeHidden( true );
         m_dataSource->dataSourceChanged.connect( this, &RimHistogramCurve::onDataSourceChanged );
+        m_dataSource->cumulativeChanged.connect( this, &RimHistogramCurve::onCumulativeChanged );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Use the data source owned by another curve. Used by cumulative curves, which share the data
+/// source of their non-cumulative counterpart.
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::setDataSourceReference( RimHistogramDataSource* dataSource )
+{
+    m_dataSourceReference = dataSource;
+    connectReferencedDataSourceSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::connectReferencedDataSourceSignals()
+{
+    if ( m_dataSourceReference() )
+    {
+        // Connecting an already connected observer is a no-op
+        m_dataSourceReference()->dataSourceChanged.connect( this, &RimHistogramCurve::onDataSourceChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::setCumulative( bool cumulative )
+{
+    m_isCumulative = cumulative;
+
+    if ( cumulative )
+    {
+        // The percentile annotations are shown by the non-cumulative counterpart curve
+        m_showP10Curve  = false;
+        m_showP90Curve  = false;
+        m_showMeanCurve = false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimHistogramCurve::isCumulative() const
+{
+    return m_isCumulative();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,7 +171,9 @@ void RimHistogramCurve::setDataSource( RimHistogramDataSource* dataSource )
 //--------------------------------------------------------------------------------------------------
 RimHistogramDataSource* RimHistogramCurve::dataSource() const
 {
-    return m_dataSource;
+    if ( m_dataSource() ) return m_dataSource();
+
+    return m_dataSourceReference();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,8 +192,8 @@ RiuPlotAxis RimHistogramCurve::axisX() const
 //--------------------------------------------------------------------------------------------------
 std::string RimHistogramCurve::unitNameY() const
 {
-    if ( m_dataSource )
-        return m_dataSource()->unitNameY();
+    if ( dataSource() )
+        return dataSource()->unitNameY();
     else
         return "";
 }
@@ -145,8 +203,8 @@ std::string RimHistogramCurve::unitNameY() const
 //--------------------------------------------------------------------------------------------------
 std::string RimHistogramCurve::unitNameX() const
 {
-    if ( m_dataSource )
-        return m_dataSource()->unitNameX();
+    if ( dataSource() )
+        return dataSource()->unitNameX();
     else
         return "";
 }
@@ -156,10 +214,10 @@ std::string RimHistogramCurve::unitNameX() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimHistogramCurve::valuesY() const
 {
-    if ( m_dataSource )
+    if ( dataSource() )
     {
         RimHistogramPlot* plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
-        return m_dataSource()->compute( plot->graphType(), plot->frequencyType() ).valuesY;
+        return dataSource()->compute( plot->graphType(), plot->frequencyType(), m_isCumulative() ).valuesY;
     }
     else
         return {};
@@ -170,10 +228,10 @@ std::vector<double> RimHistogramCurve::valuesY() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimHistogramCurve::valuesX() const
 {
-    if ( m_dataSource )
+    if ( dataSource() )
     {
         RimHistogramPlot* plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
-        return m_dataSource()->compute( plot->graphType(), plot->frequencyType() ).valuesX;
+        return dataSource()->compute( plot->graphType(), plot->frequencyType(), m_isCumulative() ).valuesX;
     }
     else
         return {};
@@ -237,9 +295,10 @@ QList<caf::PdmOptionItemInfo> RimHistogramCurve::calculateValueOptions( const ca
 QString RimHistogramCurve::createCurveAutoName()
 {
     QString curveName = "";
-    if ( m_dataSource )
+    if ( dataSource() )
     {
-        curveName = QString::fromStdString( m_dataSource->name() );
+        curveName = QString::fromStdString( dataSource()->name() );
+        if ( m_isCumulative() ) curveName += ", Cumulative";
     }
 
     if ( curveName.isEmpty() )
@@ -271,11 +330,13 @@ void RimHistogramCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     m_annotationTool->detachAllAnnotations();
 
-    if ( isChecked() && m_dataSource() )
+    connectReferencedDataSourceSignals();
+
+    if ( isChecked() && dataSource() )
     {
         RimHistogramPlot* plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
 
-        auto result = m_dataSource->compute( plot->graphType(), plot->frequencyType() );
+        auto result = dataSource()->compute( plot->graphType(), plot->frequencyType(), m_isCumulative() );
 
         bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( axisY() );
 
@@ -489,8 +550,81 @@ void RimHistogramCurve::onDataSourceChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::onCumulativeChanged( const caf::SignalEmitter* emitter )
+{
+    updateCumulativeCurve();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Create or delete the cumulative companion curve to match the data source setting. The companion
+/// curve shares this curve's data source and is shown on the right axis.
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::updateCumulativeCurve()
+{
+    if ( m_isCumulative() || !m_dataSource() ) return;
+
+    auto plot = firstAncestorOrThisOfType<RimHistogramPlot>();
+    if ( !plot ) return;
+
+    RimHistogramCurve* cumulativeCurve = nullptr;
+    for ( RimHistogramCurve* curve : plot->histogramCurves() )
+    {
+        if ( curve != this && curve->isCumulative() && curve->dataSource() == m_dataSource() )
+        {
+            cumulativeCurve = curve;
+            break;
+        }
+    }
+
+    bool showCumulativeCurve = m_dataSource->showCumulativeCurve();
+    if ( showCumulativeCurve && !cumulativeCurve )
+    {
+        auto newCurve = new RimHistogramCurve();
+        newCurve->setCumulative( true );
+        newCurve->setDataSourceReference( m_dataSource() );
+        newCurve->setColor( color() );
+        newCurve->setFillStyle( Qt::NoBrush );
+
+        plot->addCurveNoUpdate( newCurve, false );
+
+        if ( !plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultRight() ) )
+        {
+            plot->addNewAxisProperties( RiuPlotAxis::defaultRight(), "Right" );
+        }
+        if ( plot->plotWidget() ) plot->plotWidget()->ensureAxisIsCreated( RiuPlotAxis::defaultRight() );
+        newCurve->setLeftOrRightAxisY( RiuPlotAxis::defaultRight() );
+        newCurve->setTopOrBottomAxisX( RiuPlotAxis::defaultBottom() );
+
+        newCurve->loadDataAndUpdate( true );
+        plot->updateAxes();
+        plot->updateConnectedEditors();
+    }
+    else if ( !showCumulativeCurve && cumulativeCurve )
+    {
+        auto curveCollection = cumulativeCurve->firstAncestorOrThisOfType<RimHistogramCurveCollection>();
+        if ( curveCollection )
+        {
+            curveCollection->deleteCurve( cumulativeCurve );
+            plot->updateAxes();
+            plot->updateConnectedEditors();
+            plot->scheduleReplotIfVisible();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimHistogramCurve::setAppearanceFromGraphType( RimHistogramPlot::GraphType graphType )
 {
+    if ( m_isCumulative() )
+    {
+        // Cumulative curves are always drawn as lines, also when the histogram is a bar graph
+        setFillStyle( Qt::NoBrush );
+        setFillColorOpacity( 1.0 );
+        return;
+    }
+
     auto fillType = graphType == RimHistogramPlot::GraphType::BAR_GRAPH ? Qt::SolidPattern : Qt::NoBrush;
     setFillStyle( fillType );
     float opacity = graphType == RimHistogramPlot::GraphType::BAR_GRAPH ? 0.2 : 1.0;
