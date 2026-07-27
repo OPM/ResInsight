@@ -1331,11 +1331,13 @@ if(RESINSIGHT_BUILD_DOCUMENTATION)
   # the project then leave out the 'ALL' keyword from the above command.
 endif(RESINSIGHT_BUILD_DOCUMENTATION)
 
-
 # ##############################################################################
 # Installation packaging Cloud Service API
 # ##############################################################################
-set(CLOUD_SERVICE_API_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts/ri_cloud_api")
+set(CLOUD_SERVICE_API_PYTHON_SOURCE_PATH
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/ri_cloud_api"
+)
 
 install(DIRECTORY ${CLOUD_SERVICE_API_PYTHON_SOURCE_PATH}/
-        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/CloudServiceApi/ri_cloud_api)
+        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/CloudServiceApi/ri_cloud_api
+)
