@@ -463,6 +463,35 @@ TEST( RifOpmFlowDeckFileTest, BcpropKeyword )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Saving to a folder that cannot be created must fail gracefully instead of crashing.
+/// Opm::FileDeck::dump() throws std::filesystem::filesystem_error when the output folder cannot
+/// be created. Here a regular file is used as a parent path component to trigger the exception.
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmFlowDeckFileTest, SaveDeckToInvalidFolder )
+{
+    static const QString testDataFolder = QString( "%1/RifOpmFlowDeckFile/" ).arg( TEST_DATA_DIR );
+    QString              fileName       = testDataFolder + "SIMPLE_NO_REGDIMS.DATA";
+
+    RifOpmFlowDeckFile deckFile;
+    bool               loadSuccess = deckFile.loadDeck( fileName.toStdString() ).has_value();
+    ASSERT_TRUE( loadSuccess ) << "Failed to load test deck file";
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString blockerFilePath = tempDir.filePath( "blocker" );
+    QFile   blockerFile( blockerFilePath );
+    ASSERT_TRUE( blockerFile.open( QIODevice::WriteOnly ) );
+    blockerFile.close();
+
+    std::string invalidFolder = ( blockerFilePath + "/subfolder" ).toStdString();
+
+    EXPECT_FALSE( deckFile.saveDeck( invalidFolder, "test.DATA" ) ) << "saveDeck should return false for an invalid output folder";
+    EXPECT_FALSE( deckFile.saveDeckInline( invalidFolder, "test.DATA" ) )
+        << "saveDeckInline should return false for an invalid output folder";
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Verify that a keyword is inserted as the first entry inside the requested section.
 //--------------------------------------------------------------------------------------------------
 TEST( RifOpmFlowDeckFileTest, InsertKeywordAtSectionStart )

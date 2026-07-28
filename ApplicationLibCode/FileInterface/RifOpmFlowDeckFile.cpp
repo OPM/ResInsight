@@ -18,6 +18,8 @@
 
 #include "RifOpmFlowDeckFile.h"
 
+#include "RiaLogging.h"
+
 #include "RifOpmDeckTools.h"
 
 #include "opm/common/utility/TimeService.hpp"
@@ -332,8 +334,15 @@ bool RifOpmFlowDeckFile::saveDeck( std::string folder, std::string filename )
 {
     if ( m_fileDeck.get() != nullptr )
     {
-        m_fileDeck->dump( folder, filename, Opm::FileDeck::OutputMode::COPY );
-        return true;
+        try
+        {
+            m_fileDeck->dump( folder, filename, Opm::FileDeck::OutputMode::COPY );
+            return true;
+        }
+        catch ( const std::exception& e )
+        {
+            RiaLogging::error( QString( "Failed to save deck: %1" ).arg( e.what() ).toStdString() );
+        }
     }
     return false;
 }
@@ -345,8 +354,15 @@ bool RifOpmFlowDeckFile::saveDeckInline( std::string folder, std::string filenam
 {
     if ( m_fileDeck.get() != nullptr )
     {
-        m_fileDeck->dump( folder, filename, Opm::FileDeck::OutputMode::INLINE );
-        return true;
+        try
+        {
+            m_fileDeck->dump( folder, filename, Opm::FileDeck::OutputMode::INLINE );
+            return true;
+        }
+        catch ( const std::exception& e )
+        {
+            RiaLogging::error( QString( "Failed to save deck: %1" ).arg( e.what() ).toStdString() );
+        }
     }
     return false;
 }
