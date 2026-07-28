@@ -68,6 +68,13 @@ code style and preferring a guard pattern that already exists in the same file.
 A fix is only "verified" when (a) the root cause is sound and the patch provably
 prevents the unsafe operation on the reported path, **and** (b) it builds.
 
+If the root cause is a fragile call pattern rather than a one-off mistake, grep
+the codebase for other occurrences of the same pattern and list them in the PR
+with a suggested fix for all locations (example: the manual
+`resolveReferencesRecursively()` + `initAfterReadRecursively()` pair combined
+into `initAfterInsert()`, https://github.com/OPM/ResInsight/issues/14372).
+Still patch only the crashing site unless told otherwise.
+
 ### 4. Build-verify
 
 Build the affected target with CMake (never call ninja directly):
