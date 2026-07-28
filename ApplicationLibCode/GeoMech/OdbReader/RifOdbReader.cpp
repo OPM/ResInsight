@@ -119,11 +119,25 @@ RifOdbReader::RifOdbReader()
 //--------------------------------------------------------------------------------------------------
 RifOdbReader::~RifOdbReader()
 {
-    close();
+    // The ODB API can throw from close() and odb_finalizeAPI(). An exception escaping the
+    // destructor calls std::terminate, taking down the application during project close.
+    try
+    {
+        close();
+    }
+    catch ( ... )
+    {
+    }
 
     if ( --sm_instanceCount == 0 )
     {
-        odb_finalizeAPI();
+        try
+        {
+            odb_finalizeAPI();
+        }
+        catch ( ... )
+        {
+        }
     }
 }
 
