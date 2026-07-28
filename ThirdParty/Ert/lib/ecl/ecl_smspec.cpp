@@ -1106,17 +1106,36 @@ static bool ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * h
     ecl_kw_type *numly       = NULL;
     ecl_kw_type *numlz       = NULL;
 
+    /*
+      The keywords are present in the file index, but loading the keyword data
+      can fail if the file is truncated or corrupt; ecl_file_iget_named_kw()
+      then returns NULL. Fail gracefully instead of dereferencing NULL.
+    */
+    if (!wells || !keywords || !startdat || !units || !dimens) {
+      ecl_file_close( header );
+      return false;
+    }
+
     int params_index;
     ecl_smspec->num_regions     = 0;
     ecl_smspec->params_size     = ecl_kw_get_size(keywords);
     if (startdat == NULL)
       util_abort("%s: could not locate STARTDAT keyword in header - aborting \n",__func__);
 
-    if (ecl_file_has_kw(header , NUMS_KW))
+    if (ecl_file_has_kw(header , NUMS_KW)) {
       nums = ecl_file_iget_named_kw(header , NUMS_KW , 0);
+      if (!nums) {
+        ecl_file_close( header );
+        return false;
+      }
+    }
 
     if (ecl_file_has_kw(header, INTEHEAD_KW)) {
       const ecl_kw_type * intehead = ecl_file_iget_named_kw(header, INTEHEAD_KW, 0);
+      if (!intehead) {
+        ecl_file_close( header );
+        return false;
+      }
       ecl_smspec->unit_system = (ert_ecl_unit_enum)ecl_kw_iget_int(intehead, INTEHEAD_SMSPEC_UNIT_INDEX);
       /*
         The second item in the INTEHEAD vector is an integer designating which
@@ -1130,6 +1149,10 @@ static bool ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * h
       numlx = ecl_file_iget_named_kw( header , NUMLX_KW , 0 );
       numly = ecl_file_iget_named_kw( header , NUMLY_KW , 0 );
       numlz = ecl_file_iget_named_kw( header , NUMLZ_KW , 0 );
+      if (!lgrs || !numlx || !numly || !numlz) {
+        ecl_file_close( header );
+        return false;
+      }
       ecl_smspec->has_lgr = true;
     } else
       ecl_smspec->has_lgr = false;
