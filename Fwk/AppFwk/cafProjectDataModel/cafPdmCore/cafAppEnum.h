@@ -42,7 +42,9 @@
 #include <QString>
 #include <QStringList>
 
+#include <atomic>
 #include <map>
+#include <mutex>
 #include <optional>
 #include <type_traits>
 #include <vector>
@@ -270,19 +272,27 @@ private:
     // Per-T storage for the mapper. The base class methods are non-template so they're compiled
     // once total; only this accessor and the trivial static_cast shims above are instantiated per T.
     //
-    // The explicit isInitialized flag (rather than e.g. std::call_once or a magic-static lambda) is
-    // deliberate: setUp() invokes addItem(), which calls mapper() recursively. Setting the flag
-    // before invoking setUp() lets the re-entrant calls return the storedInstance instead of
-    // deadlocking. First-access must therefore happen single-threaded; see
+    // A recursive mutex (rather than e.g. std::call_once or a magic-static lambda) is deliberate:
+    // setUp() invokes addItem(), which calls mapper() recursively, and the same-thread re-entrant
+    // calls must return the storedInstance instead of deadlocking. The setUpStarted flag is only
+    // read/written under the mutex, while isInitialized publishes the fully populated mapping to
+    // other threads so first-access is safe from concurrent threads (e.g. OpenMP loops); see
     // CreateObjectInMultipleThreads in cafPdmBasicTest.cpp.
     static AppEnumMapperBase& mapper()
     {
-        static AppEnumMapperBase storedInstance;
-        static bool              isInitialized = false;
-        if ( !isInitialized )
+        static AppEnumMapperBase    storedInstance;
+        static std::recursive_mutex initMutex;
+        static std::atomic<bool>    isInitialized = false;
+        if ( !isInitialized.load( std::memory_order_acquire ) )
         {
-            isInitialized = true;
-            AppEnum<T>::setUp();
+            std::lock_guard<std::recursive_mutex> lock( initMutex );
+            static bool                           setUpStarted = false;
+            if ( !setUpStarted )
+            {
+                setUpStarted = true;
+                AppEnum<T>::setUp();
+                isInitialized.store( true, std::memory_order_release );
+            }
         }
         return storedInstance;
     }
