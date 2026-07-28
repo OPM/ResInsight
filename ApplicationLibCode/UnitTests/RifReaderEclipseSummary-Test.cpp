@@ -18,6 +18,7 @@
 
 #include "gtest/gtest.h"
 
+#include "RiaStringEncodingTools.h"
 #include "RiaTestDataDirectory.h"
 
 #include "RifEclEclipseSummary.h"
@@ -25,12 +26,19 @@
 #include "RifReaderEclipseSummary.h"
 #include "RifSummaryReaderAggregator.h"
 
+#include <ert/ecl/ecl_endian_flip.h>
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_kw_magic.h>
+#include <ert/ecl/fortio.h>
+
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QTemporaryDir>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -76,6 +84,107 @@ TEST( RifEclipseSummaryToolsTest, FindSummaryFilesWithDirectoryNamedAsCase )
     }
 
     EXPECT_TRUE( RifEclipseSummaryTools::hasSummaryDataFiles( dir.filePath( "CASE.SMSPEC" ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static void writeIntKeyword( fortio_type* fortio, const char* header, const std::vector<int>& values )
+{
+    ecl_kw_type* kw = ecl_kw_alloc( header, (int)values.size(), ECL_INT );
+    for ( int i = 0; i < (int)values.size(); i++ )
+        ecl_kw_iset_int( kw, i, values[i] );
+    ecl_kw_fwrite( kw, fortio );
+    ecl_kw_free( kw );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static void writeFloatKeyword( fortio_type* fortio, const char* header, const std::vector<float>& values )
+{
+    ecl_kw_type* kw = ecl_kw_alloc( header, (int)values.size(), ECL_FLOAT );
+    for ( int i = 0; i < (int)values.size(); i++ )
+        ecl_kw_iset_float( kw, i, values[i] );
+    ecl_kw_fwrite( kw, fortio );
+    ecl_kw_free( kw );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static void writeCharKeyword( fortio_type* fortio, const char* header, const std::vector<std::string>& values )
+{
+    ecl_kw_type* kw = ecl_kw_alloc( header, (int)values.size(), ECL_CHAR );
+    for ( int i = 0; i < (int)values.size(); i++ )
+        ecl_kw_iset_string8( kw, i, values[i].c_str() );
+    ecl_kw_fwrite( kw, fortio );
+    ecl_kw_free( kw );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseSummaryToolsTest, OpenCorruptSmspecFile )
+{
+    // Reproduces https://github.com/OPM/ResInsight/issues/14381: when a SMSPEC file is corrupt or
+    // partially written, a keyword can be present in the file index while reading its data fails.
+    // The lazy keyword loader then returns NULL, and ecl_smspec_fread_header dereferenced the NULL
+    // keyword. The import must fail gracefully instead.
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+    QDir dir( tempDir.path() );
+
+    QString smspecFileName = dir.filePath( "CASE.SMSPEC" );
+    {
+        fortio_type* fortio = fortio_open_writer( RiaStringEncodingTools::toNativeEncoded( smspecFileName ).data(), false, ECL_ENDIAN_FLIP );
+        ASSERT_TRUE( fortio != nullptr );
+
+        writeIntKeyword( fortio, DIMENS_KW, { 2, 1, 1, 1, 0, 0 } );
+        writeCharKeyword( fortio, KEYWORDS_KW, { "TIME", "FOPT" } );
+        writeCharKeyword( fortio, WGNAMES_KW, { ":+:+:+:+", ":+:+:+:+" } );
+        writeCharKeyword( fortio, UNITS_KW, { "DAYS", "SM3" } );
+        writeIntKeyword( fortio, STARTDAT_KW, { 1, 1, 2020 } );
+
+        // INTEHEAD is written last, and the data record of this keyword is corrupted below
+        writeIntKeyword( fortio, INTEHEAD_KW, { 1, 100 } );
+
+        fortio_fclose( fortio );
+    }
+
+    QString unsmryFileName = dir.filePath( "CASE.UNSMRY" );
+    {
+        fortio_type* fortio = fortio_open_writer( RiaStringEncodingTools::toNativeEncoded( unsmryFileName ).data(), false, ECL_ENDIAN_FLIP );
+        ASSERT_TRUE( fortio != nullptr );
+
+        writeIntKeyword( fortio, SEQHDR_KW, { 0 } );
+        writeIntKeyword( fortio, MINISTEP_KW, { 0 } );
+        writeFloatKeyword( fortio, PARAMS_KW, { 0.0f, 0.0f } );
+
+        fortio_fclose( fortio );
+    }
+
+    // Sanity check: the intact file pair must open successfully
+    {
+        ecl_sum_type* eclSum = RifEclipseSummaryTools::openEclSum( smspecFileName, false );
+        ASSERT_TRUE( eclSum != nullptr );
+        RifEclipseSummaryTools::closeEclSum( eclSum );
+    }
+
+    // Corrupt the length marker of the INTEHEAD data record, located 16 bytes before the end of the
+    // file (4 byte marker + 8 bytes data + 4 byte trailing marker). The file scan only reads keyword
+    // headers and skips over data, so the keyword is still present in the file index, while reading
+    // the keyword data fails and returns NULL.
+    {
+        QFile file( smspecFileName );
+        ASSERT_TRUE( file.open( QIODevice::ReadWrite ) );
+        ASSERT_TRUE( file.seek( file.size() - 16 ) );
+        const char corruptMarker[4] = { 0x7f, 0x7f, 0x7f, 0x7f };
+        ASSERT_EQ( 4, file.write( corruptMarker, 4 ) );
+    }
+
+    ecl_sum_type* eclSum = RifEclipseSummaryTools::openEclSum( smspecFileName, false );
+    EXPECT_TRUE( eclSum == nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
