@@ -1119,8 +1119,6 @@ static bool ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * h
     int params_index;
     ecl_smspec->num_regions     = 0;
     ecl_smspec->params_size     = ecl_kw_get_size(keywords);
-    if (startdat == NULL)
-      util_abort("%s: could not locate STARTDAT keyword in header - aborting \n",__func__);
 
     if (ecl_file_has_kw(header , NUMS_KW)) {
       nums = ecl_file_iget_named_kw(header , NUMS_KW , 0);
@@ -1229,8 +1227,11 @@ static bool ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * h
     ecl_file_close( header );
 
     return true;
-  } else
+  } else {
+    if (header)
+      ecl_file_close( header );
     return false;
+  }
 }
 
 

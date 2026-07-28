@@ -26,9 +26,9 @@
 #include "RifReaderEclipseSummary.h"
 #include "RifSummaryReaderAggregator.h"
 
-#include "ert/ecl/ecl_kw_magic.h"
 #include <ert/ecl/ecl_endian_flip.h>
 #include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl/fortio.h>
 
 #include <QDateTime>
