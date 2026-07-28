@@ -544,6 +544,9 @@ int ecl_util_fname_report_cmp(const void *f1, const void *f2) {
 */
 
 static bool numeric_extension_predicate(const char * filename, const char * base, const char leading_char) {
+  if (!filename || !base)
+    return false;
+
   if (strncmp(filename, base, strlen(base)) != 0)
     return false;
 
@@ -604,6 +607,21 @@ static int ecl_util_select_predicate_filelist(const char * path, const char * ba
   {
     char * tmp = util_alloc_filename(path, base, NULL);
     util_alloc_file_components(tmp, &full_path, &pure_base, NULL);
+    if (!pure_base) {
+      /* If an existing directory has the same name as the full case path,
+         util_alloc_file_components() treats the whole string as a path and
+         returns NULL for the basename. Split on the last path separator
+         instead to recover the intended base. */
+      const char * last_sep = strrchr(tmp, UTIL_PATH_SEP_CHAR);
+      free(full_path);
+      if (last_sep) {
+        full_path = util_alloc_substring_copy(tmp, 0, last_sep - tmp);
+        pure_base = util_alloc_string_copy(last_sep + 1);
+      } else {
+        full_path = NULL;
+        pure_base = util_alloc_string_copy(tmp);
+      }
+    }
     free(tmp);
   }
 
