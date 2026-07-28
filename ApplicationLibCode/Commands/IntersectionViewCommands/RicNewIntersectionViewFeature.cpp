@@ -73,6 +73,12 @@ void RicNewIntersectionViewFeature::onActionTriggered( bool isChecked )
             }
 
             Rim2dIntersectionView* intersectionView = intersection->correspondingIntersectionView();
+            if ( !intersectionView )
+            {
+                RiaLogging::error( QString( "No intersection view found for intersection '%1'." ).arg( intersection->name() ).toStdString() );
+                continue;
+            }
+
             intersectionView->setVisible( true );
             intersectionView->loadDataAndUpdate();
 
