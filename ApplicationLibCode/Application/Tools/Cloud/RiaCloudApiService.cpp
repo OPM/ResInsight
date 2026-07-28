@@ -106,7 +106,7 @@ void RiaCloudApiService::start()
 {
     if ( isRunning() ) return;
 
-     // Clean up any stale QProcess instance (e.g. after an unexpected exit) before re-starting.
+    // Clean up any stale QProcess instance (e.g. after an unexpected exit) before re-starting.
     if ( m_process ) stop();
 
     const QString pythonExecutable = RiaApplication::instance()->pythonPath();
@@ -152,9 +152,7 @@ void RiaCloudApiService::start()
              &QProcess::errorOccurred,
              this,
              [this]( QProcess::ProcessError )
-             {
-                 RiaLogging::error(std::format( "Cloud API service: process error: {}", m_process->errorString() ) );
-             } );
+             { RiaLogging::error( std::format( "Cloud API service: process error: {}", m_process->errorString() ) ); } );
 
     connect( m_process,
              &QProcess::finished,
@@ -164,8 +162,10 @@ void RiaCloudApiService::start()
 
     m_consecutiveFailures = 0;
 
-    RiaLogging::info(
-        std::format( "Cloud API service: launching '{} {}' (working directory '{}').", pythonExecutable, arguments.join( ' ' ), workingDirectory ) );
+    RiaLogging::info( std::format( "Cloud API service: launching '{} {}' (working directory '{}').",
+                                   pythonExecutable,
+                                   arguments.join( ' ' ),
+                                   workingDirectory ) );
 
     m_process->start( pythonExecutable, arguments );
 
@@ -336,7 +336,7 @@ QProcessEnvironment RiaCloudApiService::buildProcessEnvironment( const QString& 
 
     QStringList pythonPaths;
 
-    QDir                  libsDir( workingDirectory + "/ri_cloud_api/libs" );
+    QDir                libsDir( workingDirectory + "/ri_cloud_api/libs" );
     const QFileInfoList libEntries = libsDir.entryInfoList( QDir::Dirs | QDir::NoDotAndDotDot );
     for ( const QFileInfo& libEntry : libEntries )
     {
