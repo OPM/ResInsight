@@ -27,6 +27,8 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QFileInfo>
+#include <QTemporaryDir>
 
 #include <memory>
 
@@ -50,6 +52,30 @@ TEST( RifEclEclipseSummary, TestConversionFromNativeCompletionSyntax )
         std::string result = RifEclEclipseSummary::normalizeCompletionAddress( native );
         EXPECT_EQ( result, expected ) << "Expected: " << expected << " but got: " << result;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseSummaryToolsTest, FindSummaryFilesWithDirectoryNamedAsCase )
+{
+    // Reproduces https://github.com/OPM/ResInsight/issues/14370: finding the CASE.Snnnn summary data
+    // files crashed when a non-empty directory with the same name as the case exists next to the files.
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QDir dir( tempDir.path() );
+    ASSERT_TRUE( dir.mkpath( "CASE" ) );
+
+    for ( const QString& fileName :
+          { QString( "CASE.SMSPEC" ), QString( "CASE.S0001" ), QString( "CASE.S0002" ), QString( "CASE/ANYFILE.txt" ) } )
+    {
+        QFile file( dir.filePath( fileName ) );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly ) );
+        file.write( "dummy" );
+    }
+
+    EXPECT_TRUE( RifEclipseSummaryTools::hasSummaryDataFiles( dir.filePath( "CASE.SMSPEC" ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
