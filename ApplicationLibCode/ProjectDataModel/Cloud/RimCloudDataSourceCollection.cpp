@@ -18,6 +18,7 @@
 
 #include "RimCloudDataSourceCollection.h"
 
+#include "Cloud/RiaCloudApiService.h"
 #include "RiaApplication.h"
 #include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
@@ -58,6 +59,15 @@ RimCloudDataSourceCollection::RimCloudDataSourceCollection()
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_addEnsembles );
 
     CAF_PDM_InitFieldNoDefault( &m_sumoDataSources, "SumoDataSources", "Sumo Data Sources" );
+
+    CAF_PDM_InitFieldNoDefault( &m_startServer, "StartCloudApiServer", "" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_startServer );
+
+    CAF_PDM_InitFieldNoDefault( &m_stopServer, "StopCloudApiServer", "" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_stopServer );
+
+    CAF_PDM_InitFieldNoDefault( &m_restartServer, "RestartCloudApiServer", "" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_restartServer );
 
     m_sumoConnector = RiaApplication::instance()->makeSumoConnector();
 }
@@ -106,6 +116,33 @@ void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const
 //--------------------------------------------------------------------------------------------------
 void RimCloudDataSourceCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    // The Cloud API server controls are independent of the Sumo connection, so handle them before the
+    // Sumo connector guard below. This allows force-starting the server even when authentication failed.
+    if ( changedField == &m_startServer )
+    {
+        RiaApplication::instance()->cloudApiService()->start();
+
+        m_startServer = false;
+        updateConnectedEditors();
+        return;
+    }
+    else if ( changedField == &m_stopServer )
+    {
+        RiaApplication::instance()->cloudApiService()->stop();
+
+        m_stopServer = false;
+        updateConnectedEditors();
+        return;
+    }
+    else if ( changedField == &m_restartServer )
+    {
+        RiaApplication::instance()->cloudApiService()->restart();
+
+        m_restartServer = false;
+        updateConnectedEditors();
+        return;
+    }
+
     if ( !m_sumoConnector ) return;
 
     if ( changedField == &m_authenticate )
@@ -198,6 +235,7 @@ QList<caf::PdmOptionItemInfo> RimCloudDataSourceCollection::calculateValueOption
 //--------------------------------------------------------------------------------------------------
 void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    // Authentication group
     auto authGroup = uiOrdering.addNewGroup( "Authentication" );
     authGroup->add( &m_authenticate );
 
@@ -208,6 +246,32 @@ void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::
     m_authenticate.uiCapability()->setUiName( text );
     m_authenticate.uiCapability()->setUiReadOnly( isGranted );
 
+    // Cloud server group
+    auto serverGroup = uiOrdering.addNewGroup( QString( "Cloud API Server %1" ).arg( RiaDefines::betaFeaturePostfix() ) );
+
+    auto*   cloudApiService = RiaApplication::instance()->cloudApiService();
+    bool    isServerRunning = cloudApiService && cloudApiService->isRunning();
+    QString serverStatus    = "Server Status: ";
+    if ( isServerRunning )
+    {
+        serverStatus += QString( "<font color='#228B22'>✔ Running (port %1)</font>" ).arg( cloudApiService->port() );
+    }
+    else
+    {
+        serverStatus += "<font color='#FFA500'>❌ Stopped</font>";
+    }
+
+    // The status text is shown as the left label of the Start button, mirroring the Authentication status above.
+    m_startServer.uiCapability()->setUiName( serverStatus );
+    m_startServer.uiCapability()->setUiReadOnly( isServerRunning );
+    m_stopServer.uiCapability()->setUiReadOnly( !isServerRunning );
+    m_restartServer.uiCapability()->setUiReadOnly( !isServerRunning );
+
+    serverGroup->add( &m_startServer );
+    serverGroup->add( &m_stopServer );
+    serverGroup->add( &m_restartServer );
+
+    // Cloud selector
     if ( isGranted )
     {
         caf::PdmUiOrdering::LayoutOptions layout = { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 };
@@ -218,6 +282,7 @@ void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::
         uiOrdering.add( &m_addDataSources, layout );
         uiOrdering.add( &m_addEnsembles, layout );
     }
+
     uiOrdering.skipRemainingFields();
 }
 
@@ -247,6 +312,27 @@ void RimCloudDataSourceCollection::defineEditorAttribute( const caf::PdmFieldHan
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
             attrib->m_buttonText = "Add Ensemble(s)";
+        }
+    }
+    else if ( field == &m_startServer )
+    {
+        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            attrib->m_buttonText = "Start";
+        }
+    }
+    else if ( field == &m_stopServer )
+    {
+        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            attrib->m_buttonText = "Stop";
+        }
+    }
+    else if ( field == &m_restartServer )
+    {
+        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            attrib->m_buttonText = "Restart";
         }
     }
 }

@@ -67,6 +67,7 @@ class RiuMainWindowBase;
 class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
 class RiaArgumentParser;
+class RiaCloudApiService;
 class RiaOsduConnector;
 class RiaSumoConnector;
 
@@ -202,6 +203,8 @@ public:
     RiaOsduConnector* makeOsduConnector();
     RiaSumoConnector* makeSumoConnector();
 
+    RiaCloudApiService* cloudApiService();
+
     RiaKeyValueStore<char>* keyValueStore() const;
 
 protected:
@@ -270,4 +273,6 @@ private:
     static RiaApplication*     s_riaApplication;
     QPointer<RiaOsduConnector> m_osduConnector;
     QPointer<RiaSumoConnector> m_sumoConnector;
+
+    std::unique_ptr<RiaCloudApiService> m_cloudApiService;
 };

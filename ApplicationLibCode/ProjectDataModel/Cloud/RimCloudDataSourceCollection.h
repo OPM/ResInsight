@@ -66,5 +66,9 @@ private:
     caf::PdmField<bool>                                m_addEnsembles;
     caf::PdmChildArrayField<RimSummarySumoDataSource*> m_sumoDataSources;
 
+    caf::PdmField<bool> m_startServer;
+    caf::PdmField<bool> m_stopServer;
+    caf::PdmField<bool> m_restartServer;
+
     QPointer<RiaSumoConnector> m_sumoConnector;
 };

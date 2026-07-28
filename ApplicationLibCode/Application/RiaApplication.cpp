@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaApplication.h"
 
+#include "Cloud/RiaCloudApiService.h"
 #include "Cloud/RiaConnectorTools.h"
 #include "Cloud/RiaOsduConnector.h"
 #include "Cloud/RiaSumoConnector.h"
@@ -199,6 +200,11 @@ RiaApplication::RiaApplication()
 //--------------------------------------------------------------------------------------------------
 RiaApplication::~RiaApplication()
 {
+    if ( m_cloudApiService )
+    {
+        m_cloudApiService->stop();
+    }
+
     RiaFontCache::clear();
 
     // Shutdown CAF logging bridge
@@ -1919,9 +1925,31 @@ RiaSumoConnector* RiaApplication::makeSumoConnector()
         m_sumoConnector = new RiaSumoConnector( RiuMainWindow::instance(), server, authority, scopes, clientId, port );
         m_sumoConnector->setTokenDataFilePath( RiaSumoDefines::tokenPath() );
         m_sumoConnector->importTokenFromFile();
+
+        // Start the local ri_cloud_api service once Sumo authentication has been performed.
+        QObject::connect( m_sumoConnector,
+                          &RiaSumoConnector::tokenReady,
+                          cloudApiService(),
+                          [this]( const QString& ) { cloudApiService()->start(); } );
     }
 
     return m_sumoConnector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaCloudApiService* RiaApplication::cloudApiService()
+{
+    if ( !m_cloudApiService )
+    {
+        m_cloudApiService = std::make_unique<RiaCloudApiService>();
+
+        // Ensure the service process is killed while the event loop is still alive at shutdown.
+        QObject::connect( QCoreApplication::instance(), &QCoreApplication::aboutToQuit, m_cloudApiService.get(), &RiaCloudApiService::stop );
+    }
+
+    return m_cloudApiService.get();
 }
 
 //--------------------------------------------------------------------------------------------------
