@@ -75,7 +75,7 @@ std::pair<std::vector<RigPressureDepthData>, QString> RifPressureDepthTextFileRe
         }
         else if ( isDateLine( line ) )
         {
-            if ( std::optional<QDateTime> date = parseDateLine( line ) )
+            if ( std::optional<QDateTime> date = parseDateLine( line ); date && !items.empty() )
             {
                 items.back().setTimeStep( date.value() );
             }
@@ -84,7 +84,7 @@ std::pair<std::vector<RigPressureDepthData>, QString> RifPressureDepthTextFileRe
         {
             // Ignored.
         }
-        else if ( std::optional<std::pair<double, double>> p = parseDataLine( line ) )
+        else if ( std::optional<std::pair<double, double>> p = parseDataLine( line ); p && !items.empty() )
         {
             auto [pressure, depth] = p.value();
             items.back().addPressureAtDepth( pressure, depth );

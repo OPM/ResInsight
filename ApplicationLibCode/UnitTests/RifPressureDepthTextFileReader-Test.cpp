@@ -96,6 +96,28 @@ PSIA FEET
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RifPressureDepthTextFileReaderTest, DataBeforeWellNameHeader )
+{
+    auto content = R"(12008.00  22640.66
+DATE 18-NOV-2018
+12020.40  22674.44
+WELLNAME 'A1'
+DATE 18-NOV-2018
+12008.00  22640.66
+\n)";
+
+    auto [items, errorMessage] = RifPressureDepthTextFileReader::parse( content );
+
+    EXPECT_TRUE( errorMessage.isEmpty() );
+    ASSERT_EQ( 1u, items.size() );
+
+    EXPECT_EQ( "A1", items[0].wellName().toStdString() );
+    EXPECT_EQ( 1u, items[0].getPressureDepthValues().size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RifPressureDepthTextFileReaderTest, LoadFileWithTabs )
 {
     QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_04 + "example_file_tabs.txt";
