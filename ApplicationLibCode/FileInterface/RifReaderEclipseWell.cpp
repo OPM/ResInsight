@@ -19,6 +19,7 @@
 #include "RifReaderEclipseWell.h"
 
 #include "RiaEclipseUnitTools.h"
+#include "RiaLogging.h"
 
 #include "RifEclipseRestartDataAccess.h"
 
@@ -461,7 +462,16 @@ void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDa
     well_info_type* ert_well_info = well_info_alloc( gridNames );
     if ( !ert_well_info ) return;
 
-    restartDataAccess->readWellData( ert_well_info, importCompleteMswData );
+    try
+    {
+        restartDataAccess->readWellData( ert_well_info, importCompleteMswData );
+    }
+    catch ( const std::exception& e )
+    {
+        RiaLogging::error( QString( "Failed to read simulation well data: %1" ).arg( e.what() ).toStdString() );
+        well_info_free( ert_well_info );
+        return;
+    }
 
     std::vector<double>    daysSinceSimulationStart;
     std::vector<QDateTime> timeSteps;
