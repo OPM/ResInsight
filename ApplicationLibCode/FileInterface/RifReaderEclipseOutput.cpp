@@ -1162,7 +1162,17 @@ bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual( const QDateTime&
 //--------------------------------------------------------------------------------------------------
 ecl_grid_type* RifReaderEclipseOutput::loadAllGrids() const
 {
-    ecl_grid_type* mainEclGrid = ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded( m_fileName ).data() );
+    ecl_grid_type* mainEclGrid = nullptr;
+    try
+    {
+        mainEclGrid = ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded( m_fileName ).data() );
+    }
+    catch ( const std::exception& e )
+    {
+        // A malformed grid file, e.g. a GRID file without the DIMENS keyword, makes the resdata keyword lookup throw
+        RiaLogging::error( std::format( "Failed to load grid file {} : {}", m_fileName.toStdString(), e.what() ) );
+        return nullptr;
+    }
 
     if ( mainEclGrid && m_ecl_init_file )
     {

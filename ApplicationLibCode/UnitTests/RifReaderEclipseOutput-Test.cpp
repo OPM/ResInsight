@@ -24,6 +24,7 @@
 
 #include "ert/ecl/ecl_kw_magic.h"
 #include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_kw.h>
 
 #include "RiaStringEncodingTools.h"
 #include "RiaTestDataDirectory.h"
@@ -39,9 +40,11 @@
 
 #include <QDebug>
 #include <QDir>
+#include <QTemporaryDir>
 
 #include <limits>
 #include <memory>
+#include <vector>
 
 using namespace RiaDefines;
 
@@ -176,6 +179,32 @@ TEST( RigReservoirTest, DualPorosityDepthResults )
 
         EXPECT_GT( comparedCellCount, size_t( 0 ) );
     }
+}
+
+TEST( RigReservoirTest, OpenGridFileWithoutDimensKeyword )
+{
+    // Importing a GRID file without the DIMENS keyword threw an uncaught std::out_of_range from the
+    // resdata keyword lookup and terminated the application. The import must fail gracefully instead.
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString gridFileName = QDir( tempDir.path() ).filePath( "TEST.GRID" );
+    {
+        std::vector<int> data( 10, 0 );
+        ecl_kw_fwrite_param( RiaStringEncodingTools::toNativeEncoded( gridFileName ).data(),
+                             false,
+                             "INTEHEAD",
+                             ECL_INT,
+                             (int)data.size(),
+                             data.data() );
+    }
+    ASSERT_TRUE( QFile::exists( gridFileName ) );
+
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          reservoir = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
+    EXPECT_FALSE( readerInterfaceEcl->open( gridFileName, reservoir.p() ) );
 }
 
 TEST( RigReservoirTest, BasicTest10kRestart )
