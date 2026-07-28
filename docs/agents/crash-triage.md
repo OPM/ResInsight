@@ -66,7 +66,8 @@ model investigation is PR #14194 / issue #14193: the trace blamed
 Write the **minimal** patch that removes the fault, matching the surrounding
 code style and preferring a guard pattern that already exists in the same file.
 A fix is only "verified" when (a) the root cause is sound and the patch provably
-prevents the unsafe operation on the reported path, **and** (b) it builds.
+prevents the unsafe operation on the reported path, (b) it builds, **and**
+(c) the reproducing test from step 4 passes.
 
 If the root cause is a fragile call pattern rather than a one-off mistake, grep
 the codebase for other occurrences of the same pattern and list them in the PR
@@ -75,7 +76,17 @@ with a suggested fix for all locations (example: the manual
 into `initAfterInsert()`, https://github.com/OPM/ResInsight/issues/14372).
 Still patch only the crashing site unless told otherwise.
 
-### 4. Build-verify
+### 4. Create a test reproducing the issue
+
+Write a unit test that reproduces the crash path: drive the crashing function
+with the state that triggers the fault (null pointer, empty collection, missing
+result, ...). Place it alongside the existing tests for the affected code (see
+[build.md](build.md) for test locations and commands). Confirm the test fails
+or crashes **without** the patch, then passes **with** it. If the crash path
+cannot be reached from a test (e.g. it requires GUI state or external data),
+say so at the human gate and fall back to reasoning + build verification.
+
+### 5. Build-verify
 
 Build the affected target with CMake (never call ninja directly):
 
@@ -83,16 +94,17 @@ Build the affected target with CMake (never call ninja directly):
 cmake --build build --target <target owning the file>
 ```
 
-If it does not compile, fix and rebuild. No runtime reproduction is required
-(crashes here have no repro); sound reasoning + a clean build is the bar.
+If it does not compile, fix and rebuild. The bar for a verified fix is sound
+root-cause reasoning, a clean build, and the reproducing test from step 4
+passing (or a stated reason why no test is feasible).
 
-### 5. Human gate
+### 6. Human gate
 
-Present, in one message: the root cause, the patch diff, the build result, a
-confidence rating, and the drafts for the issue and PR. Then **stop** and ask
-the user to approve, revise, or downgrade to a note.
+Present, in one message: the root cause, the patch diff, the test and build
+results, a confidence rating, and the drafts for the issue and PR. Then
+**stop** and ask the user to approve, revise, or downgrade to a note.
 
-### 6a. On approval — file issue, branch, PR
+### 7a. On approval — file issue, branch, PR
 
 Use short titles for issues and PRs.
 
@@ -108,14 +120,14 @@ python registry.py set --id <sid> --issue <issue> --state OPEN \
 python registry.py render --date <latest-week>
 ```
 
-### 6b. On uncertainty — record a note, file nothing
+### 7b. On uncertainty — record a note, file nothing
 
 ```
 python registry.py set --id <sid> --status no-fix-found \
   --note "Crash at <site>. Findings: <ruled in/out>. Uncertain because <reason>."
 ```
 
-### 7. Commit the registry change
+### 8. Commit the registry change
 
 In the system-doc repo, commit `registry.json` (and any re-rendered report) on a
 branch and push to the user's fork.
