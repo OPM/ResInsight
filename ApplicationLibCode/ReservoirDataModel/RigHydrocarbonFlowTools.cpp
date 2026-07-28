@@ -40,13 +40,19 @@ std::vector<double> RigHydrocarbonFlowTools::residualOilData( RigCaseCellResults
     {
         if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
         {
-            residualOil =
-                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() ), 0 );
+            RigEclipseResultAddress address( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sogcr() );
+            if ( resultData.ensureKnownResultLoaded( address ) )
+            {
+                residualOil = resultData.cellScalarResults( address, 0 );
+            }
         }
         else if ( floodingSettings.oilFlooding() == RigFloodingSettings::FloodingType::WATER_FLOODING )
         {
-            residualOil =
-                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() ), 0 );
+            RigEclipseResultAddress address( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sowcr() );
+            if ( resultData.ensureKnownResultLoaded( address ) )
+            {
+                residualOil = resultData.cellScalarResults( address, 0 );
+            }
         }
         else
         {
@@ -73,8 +79,11 @@ std::vector<double> RigHydrocarbonFlowTools::residualGasData( RigCaseCellResults
     {
         if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::GAS_FLOODING )
         {
-            residualGas =
-                resultData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sgcr() ), 0 );
+            RigEclipseResultAddress address( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::sgcr() );
+            if ( resultData.ensureKnownResultLoaded( address ) )
+            {
+                residualGas = resultData.cellScalarResults( address, 0 );
+            }
         }
         else if ( floodingSettings.gasFlooding() == RigFloodingSettings::FloodingType::USER_DEFINED )
         {
