@@ -33,9 +33,7 @@
 
 #include "cafAppEnum.h"
 
-#include <QApplication>
 #include <QCheckBox>
-#include <QClipboard>
 #include <QCollator>
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -849,11 +847,6 @@ void RicImportGridAndSummaryEnsembleDialog::slotFileListCustomMenuRequested( con
     QMenu    menu;
     QAction* action;
 
-    action = new QAction( QIcon( ":/Copy.svg" ), "&Copy", this );
-    connect( action, SIGNAL( triggered() ), SLOT( slotCopyFileItemText() ) );
-    menu.addAction( action );
-    menu.addSeparator();
-
     action = new QAction( "On", this );
     connect( action, SIGNAL( triggered() ), SLOT( slotTurnOnFileListItems() ) );
     menu.addAction( action );
@@ -868,22 +861,6 @@ void RicImportGridAndSummaryEnsembleDialog::slotFileListCustomMenuRequested( con
 
     QPoint globalPoint = m_fileTreeView->mapToGlobal( point );
     menu.exec( globalPoint );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicImportGridAndSummaryEnsembleDialog::slotCopyFileItemText()
-{
-    auto index = m_fileTreeView->currentIndex();
-    if ( index.isValid() )
-    {
-        auto item = m_filePathModel.itemFromIndex( index );
-        if ( item )
-        {
-            QApplication::clipboard()->setText( item->text() );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

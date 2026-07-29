@@ -84,7 +84,6 @@ private slots:
     void slotSearchClicked();
     void slotFilterTreeViewClicked();
     void slotFileListCustomMenuRequested( const QPoint& point );
-    void slotCopyFileItemText();
     void slotTurnOnFileListItems();
     void slotTurnOffFileListItems();
     void slotToggleFileListItems();
