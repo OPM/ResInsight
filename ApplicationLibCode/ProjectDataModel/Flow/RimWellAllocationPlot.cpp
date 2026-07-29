@@ -440,10 +440,10 @@ void RimWellAllocationPlot::updateFromWell()
 
     QString flowTypeText = m_flowDiagSolution() ? "Well Allocation" : "Well Flow";
 
-    // The stored time step can be out of range if the case has been replaced by a case with fewer time steps
-    const QStringList timeStepNames = m_case->timeStepStrings();
-    QString           timeStepText;
-    if ( m_timeStep() >= 0 && m_timeStep() < timeStepNames.size() ) timeStepText = timeStepNames[m_timeStep];
+    // timeStepName() is bounds checked: the stored time step can be out of range if the case has been replaced by a
+    // case with fewer time steps
+    QString timeStepText;
+    if ( m_timeStep() >= 0 ) timeStepText = m_case->timeStepName( m_timeStep );
 
     setDescription( flowTypeText + ": " + m_wellName + " " + wellStatusText + ", " + timeStepText + " (" + m_case->caseUserDescription() + ")" );
 
