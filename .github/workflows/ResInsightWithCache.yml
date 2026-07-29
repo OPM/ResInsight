@@ -272,10 +272,10 @@ jobs:
         run: buildcache -s
 
       - name: Save Buildcache
-        # Always save the cache with the current date, even if a build step
-        # failed, unless a cache for the current date was already restored
-        # (cache keys are immutable and cannot be overwritten)
-        if: always() && steps.cache-buildcache.outputs.cache-hit != 'true'
+        # Save the cache with the current date, unless a cache for the current
+        # date was already restored (cache keys are immutable and cannot be
+        # overwritten)
+        if: steps.cache-buildcache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
           path: ${{ env.BUILDCACHE_DIR }}
