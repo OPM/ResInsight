@@ -60,12 +60,15 @@ void RifEnsembleImportConfig::computePatternsFromSummaryFilePaths( const QString
 
     auto restartFileNames1 = RifEclipseSummaryTools::getRestartFileNames( filePath1, warnings );
     auto paramFilePath1    = RifCaseRealizationParametersFileLocator::locate( filePath1 );
+    auto rmsSeedFilePath1  = RifRmsSeedFileReader::locate( filePath1 );
 
     auto restartFileNames2 = RifEclipseSummaryTools::getRestartFileNames( filePath2, warnings );
     auto paramFilePath2    = RifCaseRealizationParametersFileLocator::locate( filePath2 );
+    auto rmsSeedFilePath2  = RifRmsSeedFileReader::locate( filePath2 );
 
     computeRestartPatternsFromTwoRealizations( restartFileNames1, restartFileNames2 );
     computeParameterFilePathPattern( { paramFilePath1, paramFilePath2 } );
+    computeRmsSeedFilePathPattern( { rmsSeedFilePath1, rmsSeedFilePath2 } );
 
     m_useConfigValues = true;
 }
@@ -136,6 +139,40 @@ void RifEnsembleImportConfig::computeParameterFilePathPattern( const std::vector
     const auto [pattern, range] = RiaEnsembleImportTools::findPathPattern( filePathsList, RifEnsembleImportConfig::placeholderText() );
 
     m_parameterFilePathPattern = pattern;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifEnsembleImportConfig::pathToRmsSeedFile( int realizationNumber ) const
+{
+    QString numberString = QString::number( realizationNumber );
+
+    auto rmsSeedFilePath = m_rmsSeedFilePathPattern;
+    rmsSeedFilePath.replace( placeholderText(), numberString );
+    return rmsSeedFilePath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEnsembleImportConfig::computeRmsSeedFilePathPattern( const std::vector<QString>& filePaths )
+{
+    m_rmsSeedFilePathPattern.clear();
+
+    // The RMS seed file is optional, keep the pattern empty without reporting errors if it is not found
+    QStringList filePathsList;
+    for ( const auto& filePath : filePaths )
+    {
+        if ( filePath.isEmpty() ) return;
+        filePathsList.push_back( filePath );
+    }
+
+    if ( filePathsList.size() < 2 ) return;
+
+    const auto [pattern, range] = RiaEnsembleImportTools::findPathPattern( filePathsList, RifEnsembleImportConfig::placeholderText() );
+
+    m_rmsSeedFilePathPattern = pattern;
 }
 
 //--------------------------------------------------------------------------------------------------
