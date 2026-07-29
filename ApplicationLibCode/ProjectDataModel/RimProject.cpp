@@ -892,6 +892,16 @@ std::vector<Rim3dView*> RimProject::allViews() const
                     views.push_back( view );
                 }
             }
+
+            for ( auto gridEnsemble : oilField->analysisModels()->reservoirGridEnsembles.childrenByType() )
+            {
+                if ( !gridEnsemble ) continue;
+
+                for ( auto view : gridEnsemble->allViews() )
+                {
+                    views.push_back( view );
+                }
+            }
         }
     }
 
