@@ -253,7 +253,10 @@ std::string RimGridStatisticsHistogramDataSource::name() const
         if ( m_case() && m_property->hasDynamicResult() )
         {
             if ( m_timeStep == -1 ) return "All Time Steps";
-            return m_case->timeStepStrings()[m_timeStep];
+
+            // The stored time step can be out of range if the case has been replaced by a case with fewer time steps
+            const QStringList timeStepNames = m_case->timeStepStrings();
+            if ( m_timeStep() >= 0 && m_timeStep() < timeStepNames.size() ) return timeStepNames[m_timeStep];
         }
 
         return "";
