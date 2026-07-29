@@ -44,6 +44,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
@@ -248,6 +249,10 @@ RicImportGridAndSummaryEnsembleDialog::RicImportGridAndSummaryEnsembleDialog( QW
     connect( m_createGridEnsembleCheckBox, &QCheckBox::toggled, this, updateOkFromCheckboxes );
     connect( m_createSummaryEnsembleCheckBox, &QCheckBox::toggled, this, updateOkFromCheckboxes );
     connect( m_treeFilterButton, SIGNAL( clicked() ), this, SLOT( slotFilterTreeViewClicked() ) );
+    connect( m_fileTreeView,
+             SIGNAL( customContextMenuRequested( const QPoint& ) ),
+             this,
+             SLOT( slotFileListCustomMenuRequested( const QPoint& ) ) );
     connect( m_treeFilterLineEdit, &QLineEdit::returnPressed, m_treeFilterButton, &QPushButton::click );
     connect( m_treeFilterLineEdit, &QLineEdit::textEdited, m_treeFilterButton, &QPushButton::click );
 
@@ -829,6 +834,90 @@ void RicImportGridAndSummaryEnsembleDialog::slotFilterTreeViewClicked()
                 {
                     matchedItem->setCheckState( Qt::Checked );
                 }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportGridAndSummaryEnsembleDialog::slotFileListCustomMenuRequested( const QPoint& point )
+{
+    QMenu    menu;
+    QAction* action;
+
+    action = new QAction( "On", this );
+    connect( action, SIGNAL( triggered() ), SLOT( slotTurnOnFileListItems() ) );
+    menu.addAction( action );
+
+    action = new QAction( "Off", this );
+    connect( action, SIGNAL( triggered() ), SLOT( slotTurnOffFileListItems() ) );
+    menu.addAction( action );
+
+    action = new QAction( "Toggle", this );
+    connect( action, SIGNAL( triggered() ), SLOT( slotToggleFileListItems() ) );
+    menu.addAction( action );
+
+    QPoint globalPoint = m_fileTreeView->mapToGlobal( point );
+    menu.exec( globalPoint );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportGridAndSummaryEnsembleDialog::slotTurnOnFileListItems()
+{
+    auto selectionModel = m_fileTreeView->selectionModel();
+    auto indices        = selectionModel->selectedIndexes();
+    for ( auto& index : indices )
+    {
+        if ( index.isValid() )
+        {
+            auto item = m_filePathModel.itemFromIndex( index );
+            if ( item && item->isCheckable() )
+            {
+                item->setCheckState( Qt::Checked );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportGridAndSummaryEnsembleDialog::slotTurnOffFileListItems()
+{
+    auto selectionModel = m_fileTreeView->selectionModel();
+    auto indices        = selectionModel->selectedIndexes();
+    for ( auto& index : indices )
+    {
+        if ( index.isValid() )
+        {
+            auto item = m_filePathModel.itemFromIndex( index );
+            if ( item && item->isCheckable() )
+            {
+                item->setCheckState( Qt::Unchecked );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportGridAndSummaryEnsembleDialog::slotToggleFileListItems()
+{
+    auto selectionModel = m_fileTreeView->selectionModel();
+    auto indices        = selectionModel->selectedIndexes();
+    for ( auto& index : indices )
+    {
+        if ( index.isValid() )
+        {
+            auto item = m_filePathModel.itemFromIndex( index );
+            if ( item && item->isCheckable() )
+            {
+                item->setCheckState( item->checkState() == Qt::Checked ? Qt::Unchecked : Qt::Checked );
             }
         }
     }

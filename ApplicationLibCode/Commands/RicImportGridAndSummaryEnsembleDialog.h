@@ -83,6 +83,10 @@ private slots:
     void slotUseRealizationStarClicked();
     void slotSearchClicked();
     void slotFilterTreeViewClicked();
+    void slotFileListCustomMenuRequested( const QPoint& point );
+    void slotTurnOnFileListItems();
+    void slotTurnOffFileListItems();
+    void slotToggleFileListItems();
     void slotOkClicked();
     void slotCancelClicked();
     void showEvent( QShowEvent* event ) override;
