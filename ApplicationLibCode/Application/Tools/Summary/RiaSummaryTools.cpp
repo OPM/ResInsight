@@ -252,6 +252,9 @@ std::pair<std::vector<time_t>, std::vector<double>>
                                                const std::vector<double>&                 values,
                                                RiaDefines::DateTimePeriod                 period )
 {
+    // The resampler requires a valid period and non-empty data, return input data unchanged
+    if ( period == RiaDefines::DateTimePeriod::NONE || timeSteps.empty() || values.empty() ) return { timeSteps, values };
+
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( values, timeSteps );
 
