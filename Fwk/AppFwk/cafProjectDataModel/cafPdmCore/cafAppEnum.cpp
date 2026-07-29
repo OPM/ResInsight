@@ -43,6 +43,8 @@
 
 #include "cafAssert.h"
 
+#include <algorithm>
+
 namespace caf
 {
 
@@ -57,11 +59,25 @@ bool AppEnumMapperBase::EnumData::isMatching( const QString& text ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+namespace
+{
+    bool containsWhitespace( const QString& text )
+    {
+        return std::any_of( text.begin(), text.end(), []( const QChar& c ) { return c.isSpace(); } );
+    }
+} // namespace
+
 void AppEnumMapperBase::addItem( int enumVal, const QString& text, QString uiText, const QStringList& aliases )
 {
+    // The serialization text is read back from XML one whitespace-delimited token at a time, so texts and
+    // aliases with embedded whitespace would silently be replaced by the default enum value on import
+    // https://github.com/OPM/ResInsight/issues/14404
+    CAF_ASSERT( !containsWhitespace( text.trimmed() ) );
+
     // Make sure the alias text is unique for enum
     for ( const auto& alias : aliases )
     {
+        CAF_ASSERT( !containsWhitespace( alias ) );
         for ( const auto& enumData : m_mapping )
         {
             CAF_ASSERT( !enumData.isMatching( alias ) );

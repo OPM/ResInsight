@@ -46,13 +46,13 @@ namespace caf
 template <>
 void cvf::StructGridInterface::FaceEnum::setUp()
 {
-    addItem( cvf::StructGridInterface::POS_I, "POS I", "" );
-    addItem( cvf::StructGridInterface::NEG_I, "NEG I", "" );
-    addItem( cvf::StructGridInterface::POS_J, "POS J", "" );
-    addItem( cvf::StructGridInterface::NEG_J, "NEG J", "" );
-    addItem( cvf::StructGridInterface::POS_K, "POS K", "" );
-    addItem( cvf::StructGridInterface::NEG_K, "NEG K", "" );
-    addItem( cvf::StructGridInterface::NO_FACE, "UnDef", "" );
+    addItem( cvf::StructGridInterface::POS_I, "POS_I", "POS I" );
+    addItem( cvf::StructGridInterface::NEG_I, "NEG_I", "NEG I" );
+    addItem( cvf::StructGridInterface::POS_J, "POS_J", "POS J" );
+    addItem( cvf::StructGridInterface::NEG_J, "NEG_J", "NEG J" );
+    addItem( cvf::StructGridInterface::POS_K, "POS_K", "POS K" );
+    addItem( cvf::StructGridInterface::NEG_K, "NEG_K", "NEG K" );
+    addItem( cvf::StructGridInterface::NO_FACE, "UnDef", "UnDef" );
 }
 } // namespace caf
 
