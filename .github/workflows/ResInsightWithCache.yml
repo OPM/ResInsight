@@ -66,8 +66,8 @@ jobs:
       BUILD_TYPE: Release
       BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
       BUILDCACHE_ACCURACY: SLOPPY
-      # 300 MB, in bytes
-      BUILDCACHE_MAX_CACHE_SIZE: 314572800
+      # 500 MB, in bytes
+      BUILDCACHE_MAX_CACHE_SIZE: 524288000
       VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
       # Supply-chain hardening: never install Python packages published within
       # the last week, to avoid pulling freshly published (potentially
