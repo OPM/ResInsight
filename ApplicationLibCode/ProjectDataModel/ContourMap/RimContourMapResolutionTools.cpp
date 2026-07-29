@@ -25,11 +25,13 @@ namespace caf
 template <>
 void caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>::setUp()
 {
-    addItem( RimContourMapResolutionTools::SamplingResolution::EXTRA_FINE, "Extra Fine", "Extra Fine" );
+    // The serialization text must not contain spaces, as the XML import reads one whitespace-delimited
+    // token and a partial match falls back to the default enum value
+    addItem( RimContourMapResolutionTools::SamplingResolution::EXTRA_FINE, "EXTRA_FINE", "Extra Fine" );
     addItem( RimContourMapResolutionTools::SamplingResolution::FINE, "Fine", "Fine" );
     addItem( RimContourMapResolutionTools::SamplingResolution::NORMAL, "Normal", "Normal" );
     addItem( RimContourMapResolutionTools::SamplingResolution::COARSE, "Coarse", "Coarse" );
-    addItem( RimContourMapResolutionTools::SamplingResolution::EXTRA_COARSE, "Extra Coarse", "Extra Coarse" );
+    addItem( RimContourMapResolutionTools::SamplingResolution::EXTRA_COARSE, "EXTRA_COARSE", "Extra Coarse" );
     setDefault( RimContourMapResolutionTools::SamplingResolution::NORMAL );
 }
 }; // namespace caf
