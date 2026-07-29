@@ -225,9 +225,7 @@ RimEclipseContourMapView*
     contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
     eclipseCase->contourMapCollection()->addView( contourMap );
 
-    // Resolve references after contour map has been inserted into Rim structures
-    contourMap->resolveReferencesRecursively();
-    contourMap->initAfterReadRecursively();
+    contourMap->initAfterInsert();
 
     return contourMap;
 }
@@ -269,9 +267,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
 
     contourMap->synchronizeLocalAnnotationsFromGlobal();
 
-    // Resolve references after contour map has been inserted into Rim structures
-    contourMap->resolveReferencesRecursively();
-    contourMap->initAfterReadRecursively();
+    contourMap->initAfterInsert();
 
     eclipseCase->contourMapCollection()->updateConnectedEditors();
 
@@ -330,9 +326,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
-    // Resolve references after contour map has been inserted into Rim structures
-    contourMap->resolveReferencesRecursively();
-    contourMap->initAfterReadRecursively();
+    contourMap->initAfterInsert();
 
     return contourMap;
 }
@@ -358,9 +352,7 @@ RimGeoMechContourMapView*
     contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
     geoMechCase->contourMapCollection()->addView( contourMap );
 
-    // Resolve references after contour map has been inserted into Rim structures
-    contourMap->resolveReferencesRecursively();
-    contourMap->initAfterReadRecursively();
+    contourMap->initAfterInsert();
 
     return contourMap;
 }
@@ -390,9 +382,7 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFr
 
     geoMechCase->contourMapCollection()->addView( contourMap );
 
-    // Resolve references after contour map has been inserted into Rim structures
-    contourMap->resolveReferencesRecursively();
-    contourMap->initAfterReadRecursively();
+    contourMap->initAfterInsert();
 
     return contourMap;
 }
@@ -415,9 +405,7 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMap( 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
-    // Resolve references after contour map has been inserted into Rim structures
-    contourMap->resolveReferencesRecursively();
-    contourMap->initAfterReadRecursively();
+    contourMap->initAfterInsert();
 
     return contourMap;
 }

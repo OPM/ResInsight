@@ -78,9 +78,7 @@ void RicPasteWellLogPlotFeature::onActionTriggered( bool isChecked )
             newObject->resetDockWindowId();
             wellLogPlotCollection->addWellLogPlot( newObject );
 
-            // Resolve references after object has been inserted into the project data model
-            newObject->resolveReferencesRecursively();
-            newObject->initAfterReadRecursively();
+            newObject->initAfterInsert();
 
             QString customName = "Copy of " + newObject->nameConfig()->customName();
             newObject->nameConfig()->setCustomName( customName );

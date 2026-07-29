@@ -110,9 +110,7 @@ void RicPasteWellLogCurveFeature::onActionTriggered( bool isChecked )
 
             wellLogTrack->addCurve( newObject );
 
-            // Resolve references after object has been inserted into the project data model
-            newObject->resolveReferencesRecursively();
-            newObject->initAfterReadRecursively();
+            newObject->initAfterInsert();
 
             newObject->loadDataAndUpdate( true );
 

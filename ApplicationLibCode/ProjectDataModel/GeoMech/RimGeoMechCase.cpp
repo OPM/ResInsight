@@ -251,9 +251,7 @@ RimGeoMechView* RimGeoMechCase::createCopyAndAddView( const RimGeoMechView* sour
 
     geoMechViews.push_back( rimGeoMechView );
 
-    // Resolve references after reservoir view has been inserted into Rim structures
-    rimGeoMechView->resolveReferencesRecursively();
-    rimGeoMechView->initAfterReadRecursively();
+    rimGeoMechView->initAfterInsert();
 
     return rimGeoMechView;
 }

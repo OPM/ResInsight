@@ -88,8 +88,7 @@ void RicDeleteItemExec::undo()
 
         listField->insertAt( m_commandData.m_indexToObject, obj );
 
-        obj->xmlCapability()->initAfterReadRecursively();
-        obj->xmlCapability()->resolveReferencesRecursively();
+        obj->xmlCapability()->initAfterInsert();
 
         listField->uiCapability()->updateConnectedEditors();
         listField->ownerObject()->uiCapability()->updateConnectedEditors();

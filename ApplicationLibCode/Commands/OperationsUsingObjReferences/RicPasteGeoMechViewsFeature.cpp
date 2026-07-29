@@ -88,10 +88,8 @@ void RicPasteGeoMechViewsFeature::onActionTriggered( bool isChecked )
 
         rimReservoirView->setGeoMechCase( geomCase );
 
-        // Resolve references after reservoir view has been inserted into Rim structures
-        // Intersections referencing a well path requires this
-        rimReservoirView->resolveReferencesRecursively();
-        rimReservoirView->initAfterReadRecursively();
+        // Intersections referencing a well path requires resolving after insert
+        rimReservoirView->initAfterInsert();
 
         caf::PdmDocument::updateUiIconStateRecursively( rimReservoirView );
 

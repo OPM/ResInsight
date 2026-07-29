@@ -165,9 +165,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
 
                 copyOfGeoMechView->setGeoMechCase( geomCase );
 
-                // Resolve references after reservoir view has been inserted into Rim structures
-                copyOfGeoMechView->resolveReferencesRecursively();
-                copyOfGeoMechView->initAfterReadRecursively();
+                copyOfGeoMechView->initAfterInsert();
 
                 copyOfGeoMechView->loadDataAndUpdate();
 

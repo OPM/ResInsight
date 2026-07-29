@@ -410,9 +410,7 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView( const RimEclipseView* sour
 
     viewColl->addView( rimEclipseView );
 
-    // Resolve references after reservoir view has been inserted into Rim structures
-    rimEclipseView->resolveReferencesRecursively();
-    rimEclipseView->initAfterReadRecursively();
+    rimEclipseView->initAfterInsert();
 
     return rimEclipseView;
 }

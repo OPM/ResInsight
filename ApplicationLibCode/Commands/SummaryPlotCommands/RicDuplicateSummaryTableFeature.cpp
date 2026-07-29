@@ -69,9 +69,7 @@ void RicDuplicateSummaryTableFeature::copyTableAndAddToCollection( RimSummaryTab
     // Add table to collection
     summaryTableColl->addTable( newSummaryTable );
 
-    // Resolve references after object has been inserted into the data model
-    newSummaryTable->resolveReferencesRecursively();
-    newSummaryTable->initAfterReadRecursively();
+    newSummaryTable->initAfterInsert();
 
     // Update name
     QString nameOfCopy = QString( "Copy of " ) + sourceTable->description();
