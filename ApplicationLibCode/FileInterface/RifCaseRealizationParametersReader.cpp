@@ -26,6 +26,8 @@
 #include "RifOpmSummaryTools.h"
 
 #include <QDir>
+#include <QFileInfo>
+#include <QRegularExpression>
 #include <QString>
 #include <QStringList>
 
@@ -279,6 +281,75 @@ QString RifCaseRealizationParametersFileLocator::locate( const QString& modelPat
     } while ( dirLevel++ < MAX_LEVELS_UP );
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifRmsSeedFileReader::fileName()
+{
+    return "RMS_SEED_USED";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Locate the RMS seed file "rms/model/RMS_SEED_USED" relative to one of the parent directories of
+/// the given model file or folder, i.e. "<ensemble>/realization-N/iter-M/rms/model/RMS_SEED_USED"
+//--------------------------------------------------------------------------------------------------
+QString RifRmsSeedFileReader::locate( const QString& modelPath )
+{
+    int MAX_LEVELS_UP = 5;
+    int dirLevel      = 0;
+
+    QDir qdir( modelPath );
+
+    const QFileInfo dir( modelPath );
+    if ( dir.isFile() )
+        qdir.cdUp();
+    else if ( !dir.isDir() )
+        return "";
+
+    do
+    {
+        QString candidate = qdir.absoluteFilePath( "rms/model/" + fileName() );
+        if ( QFileInfo::exists( candidate ) ) return candidate;
+
+        qdir.cdUp();
+
+    } while ( dirLevel++ < MAX_LEVELS_UP );
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Read the RMS seed value from the last token of the last non-empty line, allowing the value to be
+/// preceded by a timestamp or other text: "25-07-2025 10:33:06 ... 81472369"
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RifRmsSeedFileReader::readSeedValue( const QString& filePath )
+{
+    QFile file( filePath );
+    if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) return std::nullopt;
+
+    QTextStream dataStream( &file );
+
+    QString lastNonEmptyLine;
+    while ( !dataStream.atEnd() )
+    {
+        QString line = dataStream.readLine().trimmed();
+        if ( !line.isEmpty() ) lastNonEmptyLine = line;
+    }
+
+    if ( lastNonEmptyLine.isEmpty() ) return std::nullopt;
+
+    const QStringList tokens = RiaTextStringTools::splitSkipEmptyParts( lastNonEmptyLine, QRegularExpression( "\\s+" ) );
+    if ( tokens.isEmpty() ) return std::nullopt;
+
+    const auto valueText = tokens.back().toStdString();
+    if ( !RiaStdStringTools::isNumber( valueText, RiaStdStringTools::decimalPoint() ) ) return std::nullopt;
+
+    double value = 0.0;
+    if ( !RiaStdStringTools::toDouble( valueText, value ) ) return std::nullopt;
+
+    return value;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -28,6 +28,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -94,4 +95,16 @@ class RifCaseRealizationParametersFileLocator
 public:
     static QString locate( const QString& modelPath );
     static int     realizationNumber( const QString& modelPath );
+};
+
+//==================================================================================================
+//
+//
+//==================================================================================================
+class RifRmsSeedFileReader
+{
+public:
+    static QString               fileName();
+    static QString               locate( const QString& modelPath );
+    static std::optional<double> readSeedValue( const QString& filePath );
 };

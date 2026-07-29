@@ -90,7 +90,8 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
             }
         }
     }
-    else
+
+    if ( !parameters )
     {
         parameters = std::make_shared<RigCaseRealizationParameters>();
     }
@@ -100,6 +101,17 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
         int realizationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( modelFolderOrFile );
         parameters->setRealizationNumber( realizationNumber );
         parameters->addParameter( RiaDefines::summaryRealizationNumber(), realizationNumber );
+
+        // If present, expose the RMS seed value from "rms/model/RMS_SEED_USED" as a realization parameter. Ignore missing
+        // or malformed files silently.
+        QString rmsSeedFile = RifRmsSeedFileReader::locate( modelFolderOrFile );
+        if ( !rmsSeedFile.isEmpty() )
+        {
+            if ( auto seedValue = RifRmsSeedFileReader::readSeedValue( rmsSeedFile ) )
+            {
+                parameters->addParameter( RiaDefines::summaryRmsSeed(), seedValue.value() );
+            }
+        }
 
         sumCase.setCaseRealizationParameters( parameters );
     }
