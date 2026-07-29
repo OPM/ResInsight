@@ -110,6 +110,9 @@ public:
         return m_doubleMember;
     }
     double m_doubleMember;
+
+    void initAfterRead() override { m_initAfterReadCount++; }
+    int  m_initAfterReadCount = 0;
 };
 
 CAF_PDM_XML_SOURCE_INIT( DemoPdmObjectA, "DemoPdmObjectA" );
@@ -267,4 +270,39 @@ TEST( AdvancedObjectTest, CopyOfObjects )
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// initAfterInsert() resolves references and re-runs initAfterRead() after the object has been
+/// inserted into the document tree
+//--------------------------------------------------------------------------------------------------
+TEST( AdvancedObjectTest, InitAfterInsert )
+{
+    ContainerPdmObject* root      = new ContainerPdmObject;
+    ContainerPdmObject* container = new ContainerPdmObject;
+    ContainerPdmObject* sibling   = new ContainerPdmObject;
+    root->m_containers.push_back( container );
+    root->m_containers.push_back( sibling );
+
+    ItemPdmObject* item = new ItemPdmObject();
+    item->m_name        = "Obj A";
+    container->m_items.push_back( item );
+
+    DemoPdmObjectA* a = new DemoPdmObjectA;
+    sibling->m_demoObjs.push_back( a );
+    a->m_pointerToItem = item;
+
+    auto* objCopy = dynamic_cast<DemoPdmObjectA*>(
+        a->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    ASSERT_TRUE( objCopy != nullptr );
+
+    // The pointer field is not resolvable until the copy is inserted into the document tree
+    objCopy->m_pointerToItem = nullptr;
+    sibling->m_demoObjs.push_back( objCopy );
+
+    const int initCountBeforeInsert = objCopy->m_initAfterReadCount;
+    objCopy->xmlCapability()->initAfterInsert();
+
+    ASSERT_TRUE( objCopy->m_pointerToItem() == item );
+    ASSERT_EQ( initCountBeforeInsert + 1, objCopy->m_initAfterReadCount );
 }

@@ -61,8 +61,7 @@ void RicPasteGridCrossPlotDataSetFeature::onActionTriggered( bool isChecked )
             {
                 auto newDataSet = dataSet->copyObject<RimGridCrossPlotDataSet>();
                 crossPlot->addDataSet( newDataSet );
-                newDataSet->resolveReferencesRecursively();
-                newDataSet->initAfterReadRecursively();
+                newDataSet->initAfterInsert();
 
                 objectToSelect = newDataSet;
             }

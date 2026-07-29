@@ -62,6 +62,11 @@ public:
     // resolving might fail. The object needs to be fully inserted into the document before resolving references.
     void resolveReferencesRecursively( std::vector<PdmFieldHandle*>* fieldWithFailingResolve = nullptr );
 
+    // Call after the object has been inserted into the document tree, typically after a copy by XML serialization.
+    // Resolves pointer references (which requires the object to be reachable from the document root) and then
+    // re-runs initAfterRead() so overrides can use the resolved pointers.
+    void initAfterInsert();
+
     bool inheritsClassWithKeyword( const QString& testClassKeyword ) const;
 
     const std::list<QString>& classInheritanceStack() const;

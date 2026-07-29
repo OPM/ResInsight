@@ -502,6 +502,20 @@ void PdmXmlObjectHandle::resolveReferencesRecursively(
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Call after the object has been inserted into the document tree, typically after a copy by XML
+/// serialization. Resolves pointer references (which requires the object to be reachable from the
+/// document root) and then re-runs initAfterRead() so overrides can use the resolved pointers.
+//--------------------------------------------------------------------------------------------------
+void PdmXmlObjectHandle::initAfterInsert()
+{
+    // The object must be inserted into the document tree before references can be resolved
+    CAF_ASSERT( m_owner && m_owner->parentField() );
+
+    resolveReferencesRecursively();
+    initAfterReadRecursively();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void PdmXmlObjectHandle::setupBeforeSaveRecursively( PdmObjectHandle* object )

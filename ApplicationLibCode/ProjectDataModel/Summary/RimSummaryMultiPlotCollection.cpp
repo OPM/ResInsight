@@ -210,8 +210,7 @@ RimSummaryMultiPlot* RimSummaryMultiPlotCollection::duplicatePlot( RimSummaryMul
     plotCopy->resetDockWindowId();
     addSummaryMultiPlot( plotCopy );
 
-    plotCopy->resolveReferencesRecursively();
-    plotCopy->initAfterReadRecursively();
+    plotCopy->initAfterInsert();
     plotCopy->updateAllRequiredEditors();
     plotCopy->loadDataAndUpdate();
 

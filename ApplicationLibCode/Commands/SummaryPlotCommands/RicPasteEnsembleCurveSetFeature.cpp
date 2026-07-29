@@ -50,9 +50,7 @@ RimEnsembleCurveSet* RicPasteEnsembleCurveSetFeature::copyCurveSetAndAddToCollec
 
     curveSetCollection->addCurveSet( newCurveSet );
 
-    // Resolve references after object has been inserted into the project data model
-    newCurveSet->resolveReferencesRecursively();
-    newCurveSet->initAfterReadRecursively();
+    newCurveSet->initAfterInsert();
     newCurveSet->loadDataAndUpdate( false );
     newCurveSet->updateConnectedEditors();
 
