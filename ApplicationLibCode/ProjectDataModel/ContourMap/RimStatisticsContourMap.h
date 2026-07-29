@@ -35,11 +35,6 @@
 #include <utility>
 #include <vector>
 
-namespace caf
-{
-class ProgressInfo;
-}
-
 class RigContourMapGrid;
 class RimEclipseCase;
 class RimEclipseResultDefinition;
@@ -92,6 +87,8 @@ public:
 
     void ensureResultsComputed();
 
+    static void computeStatisticsForMaps( const std::vector<RimStatisticsContourMap*>& maps );
+
     QString resultAggregationText() const;
     QString resultVariable() const;
     double  sampleSpacingFactor() const;
@@ -118,8 +115,6 @@ private:
     using TimestepResultsMap = std::map<size_t, std::vector<std::vector<double>>>;
 
     void computeStatistics();
-    void computeStatisticsSharedGrid( RigContourMapGrid* contourMapGrid, TimestepResultsMap& timestepResults, caf::ProgressInfo& progInfo );
-    void computeStatisticsIndividualGrids( RigContourMapGrid* contourMapGrid, TimestepResultsMap& timestepResults, caf::ProgressInfo& progInfo );
     void onComputeStatisticsClicked();
     void doStatisticsCalculation( TimestepResultsMap& timestep_results );
 

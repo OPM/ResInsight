@@ -72,7 +72,8 @@ public:
     void                               addWellTargetMapping( RimWellTargetMapping* wellTargetMapping );
     std::vector<RimWellTargetMapping*> wellTargetMappings() const;
 
-    void addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap ) override;
+    void                                  addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap ) override;
+    std::vector<RimStatisticsContourMap*> statisticsContourMaps() const override;
 
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
