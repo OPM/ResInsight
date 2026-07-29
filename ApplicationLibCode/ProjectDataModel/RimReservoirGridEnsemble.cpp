@@ -503,20 +503,30 @@ std::vector<RimEclipseView*> RimReservoirGridEnsemble::allViews() const
 {
     std::vector<RimEclipseView*> views;
 
-    for ( auto view : m_viewCollection->views() )
-    {
-        views.push_back( view );
-    }
+    // Use childrenByType() and null checks here, as this function can be called while child objects
+    // are being deleted during project close. PdmPointer entries in the child array fields are
+    // nulled one by one as the objects are destroyed.
 
-    for ( auto statCase : m_statisticsCaseCollection->reservoirs() )
+    if ( m_viewCollection )
     {
-        for ( auto view : statCase->reservoirViews() )
+        for ( auto view : m_viewCollection->views() )
         {
             views.push_back( view );
         }
     }
 
-    for ( auto cmap : m_statisticsContourMaps )
+    if ( m_statisticsCaseCollection )
+    {
+        for ( auto statCase : m_statisticsCaseCollection->reservoirs.childrenByType() )
+        {
+            for ( auto view : statCase->reservoirViews() )
+            {
+                views.push_back( view );
+            }
+        }
+    }
+
+    for ( auto cmap : m_statisticsContourMaps.childrenByType() )
     {
         for ( auto view : cmap->views() )
         {
