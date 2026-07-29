@@ -439,8 +439,13 @@ void RimWellAllocationPlot::updateFromWell()
     QString wellStatusText = QString( "(%1)" ).arg( RimWellAllocationPlot::wellStatusTextForTimeStep( m_wellName, m_case, m_timeStep ) );
 
     QString flowTypeText = m_flowDiagSolution() ? "Well Allocation" : "Well Flow";
-    setDescription( flowTypeText + ": " + m_wellName + " " + wellStatusText + ", " + m_case->timeStepStrings()[m_timeStep] + " (" +
-                    m_case->caseUserDescription() + ")" );
+
+    // The stored time step can be out of range if the case has been replaced by a case with fewer time steps
+    const QStringList timeStepNames = m_case->timeStepStrings();
+    QString           timeStepText;
+    if ( m_timeStep() >= 0 && m_timeStep() < timeStepNames.size() ) timeStepText = timeStepNames[m_timeStep];
+
+    setDescription( flowTypeText + ": " + m_wellName + " " + wellStatusText + ", " + timeStepText + " (" + m_case->caseUserDescription() + ")" );
 
     /// Pie chart
 
