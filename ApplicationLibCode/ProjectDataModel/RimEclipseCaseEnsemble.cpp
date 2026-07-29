@@ -269,6 +269,14 @@ void RimEclipseCaseEnsemble::addStatisticsContourMap( RimStatisticsContourMap* s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimStatisticsContourMap*> RimEclipseCaseEnsemble::statisticsContourMaps() const
+{
+    return m_statisticsContourMaps.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseCaseEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( nameField() );

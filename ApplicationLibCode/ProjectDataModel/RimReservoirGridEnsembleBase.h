@@ -49,12 +49,13 @@ public:
     virtual std::vector<RimEclipseCase*> sourceCases() const  = 0;
     virtual RimEclipseCase*              mainCase()           = 0;
 
-    virtual RigMainGrid*              mainGrid();
-    virtual RigActiveCellInfo*        unionOfActiveCells( RiaDefines::PorosityModelType porosityType );
-    virtual void                      computeUnionOfActiveCells();
-    virtual std::set<RimEclipseCase*> casesInViews() const;
-    virtual RimCaseCollection*        statisticsCaseCollection() const;
-    virtual RimFormationNames*        activeFormationNames() const;
-    virtual void                      addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap ) {}
-    virtual RimEclipseStatisticsCase* createAndAppendStatisticsCase();
+    virtual RigMainGrid*                          mainGrid();
+    virtual RigActiveCellInfo*                    unionOfActiveCells( RiaDefines::PorosityModelType porosityType );
+    virtual void                                  computeUnionOfActiveCells();
+    virtual std::set<RimEclipseCase*>             casesInViews() const;
+    virtual RimCaseCollection*                    statisticsCaseCollection() const;
+    virtual RimFormationNames*                    activeFormationNames() const;
+    virtual void                                  addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap ) {}
+    virtual std::vector<RimStatisticsContourMap*> statisticsContourMaps() const { return {}; }
+    virtual RimEclipseStatisticsCase*             createAndAppendStatisticsCase();
 };

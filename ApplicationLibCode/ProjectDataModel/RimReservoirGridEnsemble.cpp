@@ -584,6 +584,14 @@ void RimReservoirGridEnsemble::addStatisticsContourMap( RimStatisticsContourMap*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimStatisticsContourMap*> RimReservoirGridEnsemble::statisticsContourMaps() const
+{
+    return m_statisticsContourMaps.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimReservoirGridEnsemble::loadDataAndUpdate()
 {
     if ( !isGridDataLoaded() )

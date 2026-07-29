@@ -60,6 +60,7 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafProgressInfo.h"
 
+#include <algorithm>
 #include <limits>
 #include <optional>
 #include <set>
@@ -582,166 +583,191 @@ void RimStatisticsContourMap::onComputeStatisticsClicked()
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::computeStatistics()
 {
-    RiaLogging::info( "Computing statistics" );
-    auto cases = ensembleCases();
-    if ( cases.empty() ) return;
-    if ( eclipseCase() == nullptr ) return;
+    computeStatisticsForMaps( { this } );
+}
 
-    cvf::BoundingBox gridBoundingBox = eclipseCase()->activeCellsBoundingBox();
-    gridBoundingBox.expandPercent( m_boundingBoxExpPercent() );
+//--------------------------------------------------------------------------------------------------
+/// Compute statistics for several contour maps in one sweep over the ensemble realizations, so that
+/// each realization is opened once instead of once per contour map. All maps must belong to the
+/// same ensemble.
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimStatisticsContourMap*>& maps )
+{
+    struct MapContext
+    {
+        explicit MapContext( RimStatisticsContourMap* m )
+            : map( m )
+            , floodSettings( m->m_oilFloodingType(), m->m_userDefinedFloodingOil(), m->m_gasFloodingType(), m->m_userDefinedFloodingGas() )
+            , resultAggregation( m->m_resultAggregation() )
+        {
+        }
 
-    double sampleSpacing = 1.0;
-    if ( auto mainGrid = eclipseCase()->mainGrid() ) sampleSpacing = sampleSpacingFactor() * mainGrid->characteristicIJCellSize();
+        RimStatisticsContourMap*                        map;
+        RigFloodingSettings                             floodSettings;
+        RigContourMapCalculator::ResultAggregationType  resultAggregation;
+        std::unique_ptr<RigContourMapGrid>              contourMapGrid;
+        TimestepResultsMap                              timestepResults;
+        bool                                            useSharedGrid = false;
+        std::unique_ptr<RigEclipseContourMapProjection> sharedProjection;
+        std::set<int>                                   kLayers;
+        bool                                            active = false;
+    };
 
-    auto contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
-
-    TimestepResultsMap timestepResults;
-    caf::ProgressInfo  progInfo( cases.size(), QString( "Reading Eclipse Ensemble" ) );
+    auto readerSettings                = RiaPreferencesGrid::gridOnlyReaderSettings();
+    readerSettings.onlyLoadActiveCells = true;
 
     auto oldReaderType = RiaPreferencesGrid::current()->gridModelReaderOverride();
     RiaPreferencesGrid::current()->setGridModelReaderOverride( RiaDefines::GridModelReader::OPM_COMMON );
 
-    auto gridEnsemble  = firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>();
-    bool useSharedGrid = gridEnsemble && gridEnsemble->gridMode() == RimReservoirGridEnsembleBase::GridModeType::SHARED_GRID &&
-                         m_gridImportMode() == GridImportMode::SHARED_GRID;
+    std::map<RimEclipseCase*, RifReaderSettings> primaryOldSettings;
 
-    if ( useSharedGrid )
-        computeStatisticsSharedGrid( contourMapGrid.get(), timestepResults, progInfo );
-    else
-        computeStatisticsIndividualGrids( contourMapGrid.get(), timestepResults, progInfo );
+    std::vector<MapContext>            contexts;
+    std::set<RimStatisticsContourMap*> uniqueMaps;
+
+    for ( RimStatisticsContourMap* map : maps )
+    {
+        if ( map == nullptr || !uniqueMaps.insert( map ).second ) continue;
+        if ( map->ensembleCases().empty() ) continue;
+
+        RimEclipseCase* primaryCase = map->eclipseCase();
+        if ( primaryCase == nullptr ) continue;
+
+        if ( !primaryOldSettings.contains( primaryCase ) )
+        {
+            primaryOldSettings[primaryCase] = primaryCase->readerSettings();
+            primaryCase->setReaderSettings( readerSettings );
+        }
+
+        MapContext ctx( map );
+
+        cvf::BoundingBox gridBoundingBox = primaryCase->activeCellsBoundingBox();
+        gridBoundingBox.expandPercent( map->m_boundingBoxExpPercent() );
+
+        double sampleSpacing = 1.0;
+        if ( auto mainGrid = primaryCase->mainGrid() ) sampleSpacing = map->sampleSpacingFactor() * mainGrid->characteristicIJCellSize();
+
+        ctx.contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
+
+        auto gridEnsemble = map->firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>();
+        ctx.useSharedGrid = gridEnsemble && gridEnsemble->gridMode() == RimReservoirGridEnsembleBase::GridModeType::SHARED_GRID &&
+                            map->m_gridImportMode() == GridImportMode::SHARED_GRID;
+
+        if ( primaryCase->ensureReservoirCaseIsOpen() )
+        {
+            ctx.active = true;
+
+            if ( ctx.useSharedGrid )
+            {
+                if ( auto kLayers = findKLayersForFormations( primaryCase, map->selectedFormations(), map->activeFormationNames() ) )
+                {
+                    ctx.kLayers = *kLayers;
+
+                    auto primaryCaseData   = primaryCase->eclipseCaseData();
+                    auto primaryResultData = primaryCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+                    ctx.sharedProjection =
+                        std::make_unique<RigEclipseContourMapProjection>( ctx.contourMapGrid.get(), primaryCaseData, primaryResultData );
+                    ctx.sharedProjection->generateGridMapping( ctx.resultAggregation, {}, ctx.kLayers, map->selectedPolygons() );
+                }
+                else
+                {
+                    RiaLogging::warning( "Formation names are missing for primary case, skipping statistics computation." );
+                    ctx.active = false;
+                }
+            }
+        }
+
+        contexts.push_back( std::move( ctx ) );
+    }
+
+    const bool anyActive = std::any_of( contexts.begin(), contexts.end(), []( const MapContext& ctx ) { return ctx.active; } );
+
+    if ( anyActive )
+    {
+        RiaLogging::info( std::format( "Computing statistics for {} ensemble contour map(s)", contexts.size() ) );
+
+        // All maps belong to the same ensemble, so the realization cases are shared
+        auto cases        = contexts.front().map->ensembleCases();
+        auto casesInViews = contexts.front().map->ensembleCasesInViews();
+
+        std::set<RimEclipseCase*> primaryCases;
+        for ( const auto& ctx : contexts )
+            primaryCases.insert( ctx.map->eclipseCase() );
+
+        const size_t      nCases = cases.size();
+        caf::ProgressInfo progInfo( nCases, QString( "Reading Eclipse Ensemble" ) );
+        int               i = 1;
+
+        for ( RimEclipseCase* eCase : cases )
+        {
+            auto task = progInfo.task( QString( "Processing Case %1 of %2" ).arg( i++ ).arg( nCases ) );
+
+            RifReaderSettings oldSettings = eCase->readerSettings();
+            eCase->setReaderSettings( readerSettings );
+
+            if ( eCase->ensureReservoirCaseIsOpen() )
+            {
+                RiaLogging::info( std::format( "Processing Grid: {}", eCase->caseUserDescription() ) );
+
+                auto eclipseCaseData = eCase->eclipseCaseData();
+                auto activeCellInfo  = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+                auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+                for ( auto& ctx : contexts )
+                {
+                    if ( !ctx.active ) continue;
+
+                    RimStatisticsContourMap* map                    = ctx.map;
+                    auto                     localToGlobalTimeSteps = map->mapLocalToGlobalTimeSteps( eCase->timeStepDates() );
+
+                    if ( ctx.useSharedGrid )
+                    {
+                        ctx.sharedProjection->updateRealizationData( activeCellInfo, resultData );
+                        extractCaseResults( *ctx.sharedProjection,
+                                            map->m_resultDefinition()->eclipseResultAddress(),
+                                            map->m_resultDefinition()->hasDynamicResult(),
+                                            ctx.resultAggregation,
+                                            ctx.floodSettings,
+                                            localToGlobalTimeSteps,
+                                            ctx.timestepResults );
+                    }
+                    else
+                    {
+                        if ( auto kLayers = findKLayersForFormations( eCase, map->selectedFormations(), map->activeFormationNames() ) )
+                        {
+                            RigEclipseContourMapProjection contourMapProjection( ctx.contourMapGrid.get(), eclipseCaseData, resultData );
+                            contourMapProjection.generateGridMapping( ctx.resultAggregation, {}, *kLayers, map->selectedPolygons() );
+                            extractCaseResults( contourMapProjection,
+                                                map->m_resultDefinition()->eclipseResultAddress(),
+                                                map->m_resultDefinition()->hasDynamicResult(),
+                                                ctx.resultAggregation,
+                                                ctx.floodSettings,
+                                                localToGlobalTimeSteps,
+                                                ctx.timestepResults );
+                        }
+                        else
+                        {
+                            RiaLogging::warning(
+                                std::format( "Formation names are missing for case {}, skipping case.", eCase->caseUserDescription() ) );
+                        }
+                    }
+                }
+            }
+
+            eCase->setReaderSettings( oldSettings );
+            if ( eCase->views().empty() && !primaryCases.contains( eCase ) && !casesInViews.contains( eCase ) ) eCase->closeReservoirCase();
+        }
+    }
+
+    for ( auto& [primaryCase, settings] : primaryOldSettings )
+        primaryCase->setReaderSettings( settings );
 
     RiaPreferencesGrid::current()->setGridModelReaderOverride( oldReaderType );
 
-    m_contourMapGrid = std::move( contourMapGrid );
-    doStatisticsCalculation( timestepResults );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimStatisticsContourMap::computeStatisticsSharedGrid( RigContourMapGrid*  contourMapGrid,
-                                                           TimestepResultsMap& timestepResults,
-                                                           caf::ProgressInfo&  progInfo )
-{
-    auto readerSettings                = RiaPreferencesGrid::gridOnlyReaderSettings();
-    readerSettings.onlyLoadActiveCells = true;
-
-    RifReaderSettings primaryOldSettings = eclipseCase()->readerSettings();
-    eclipseCase()->setReaderSettings( readerSettings );
-
-    if ( !eclipseCase()->ensureReservoirCaseIsOpen() )
+    for ( auto& ctx : contexts )
     {
-        eclipseCase()->setReaderSettings( primaryOldSettings );
-        return;
-    }
-
-    auto primaryCaseData   = eclipseCase()->eclipseCaseData();
-    auto primaryResultData = primaryCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-    RigEclipseContourMapProjection sharedProjection( contourMapGrid, primaryCaseData, primaryResultData );
-
-    auto kLayers = findKLayersForFormations( eclipseCase(), selectedFormations(), activeFormationNames() );
-    if ( !kLayers )
-    {
-        RiaLogging::warning( "Formation names are missing for primary case, skipping statistics computation." );
-        eclipseCase()->setReaderSettings( primaryOldSettings );
-        return;
-    }
-
-    RigFloodingSettings floodSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
-    RigContourMapCalculator::ResultAggregationType resultAggregation = m_resultAggregation();
-
-    sharedProjection.generateGridMapping( resultAggregation, {}, *kLayers, selectedPolygons() );
-
-    auto         cases        = ensembleCases();
-    auto         casesInViews = ensembleCasesInViews();
-    const size_t nCases       = cases.size();
-    int          i            = 1;
-
-    for ( RimEclipseCase* eCase : cases )
-    {
-        auto task = progInfo.task( QString( "Processing Case %1 of %2" ).arg( i++ ).arg( nCases ) );
-
-        RifReaderSettings oldSettings = eCase->readerSettings();
-        eCase->setReaderSettings( readerSettings );
-
-        if ( eCase->ensureReservoirCaseIsOpen() )
-        {
-            RiaLogging::info( std::format( "Processing Grid: {}", eCase->caseUserDescription() ) );
-
-            auto eclipseCaseData = eCase->eclipseCaseData();
-            sharedProjection.updateRealizationData( eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                                    eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
-            extractCaseResults( sharedProjection,
-                                m_resultDefinition()->eclipseResultAddress(),
-                                m_resultDefinition()->hasDynamicResult(),
-                                resultAggregation,
-                                floodSettings,
-                                mapLocalToGlobalTimeSteps( eCase->timeStepDates() ),
-                                timestepResults );
-        }
-
-        eCase->setReaderSettings( oldSettings );
-        if ( eCase->views().empty() && eCase != eclipseCase() && !casesInViews.contains( eCase ) ) eCase->closeReservoirCase();
-    }
-
-    eclipseCase()->setReaderSettings( primaryOldSettings );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimStatisticsContourMap::computeStatisticsIndividualGrids( RigContourMapGrid*  contourMapGrid,
-                                                                TimestepResultsMap& timestepResults,
-                                                                caf::ProgressInfo&  progInfo )
-{
-    auto readerSettings                = RiaPreferencesGrid::gridOnlyReaderSettings();
-    readerSettings.onlyLoadActiveCells = true;
-    auto casesInViews                  = ensembleCasesInViews();
-
-    RigFloodingSettings floodSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
-    RigContourMapCalculator::ResultAggregationType resultAggregation = m_resultAggregation();
-
-    auto         cases  = ensembleCases();
-    const size_t nCases = cases.size();
-    int          i      = 1;
-
-    for ( RimEclipseCase* eCase : cases )
-    {
-        auto task = progInfo.task( QString( "Processing Case %1 of %2" ).arg( i++ ).arg( nCases ) );
-
-        RifReaderSettings oldSettings = eCase->readerSettings();
-        eCase->setReaderSettings( readerSettings );
-
-        if ( eCase->ensureReservoirCaseIsOpen() )
-        {
-            RiaLogging::info( std::format( "Processing Grid: {}", eCase->caseUserDescription() ) );
-
-            auto eclipseCaseData = eCase->eclipseCaseData();
-            auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-            RigEclipseContourMapProjection contourMapProjection( contourMapGrid, eclipseCaseData, resultData );
-
-            auto kLayers = findKLayersForFormations( eCase, selectedFormations(), activeFormationNames() );
-            if ( kLayers )
-            {
-                contourMapProjection.generateGridMapping( resultAggregation, {}, *kLayers, selectedPolygons() );
-                extractCaseResults( contourMapProjection,
-                                    m_resultDefinition()->eclipseResultAddress(),
-                                    m_resultDefinition()->hasDynamicResult(),
-                                    resultAggregation,
-                                    floodSettings,
-                                    mapLocalToGlobalTimeSteps( eCase->timeStepDates() ),
-                                    timestepResults );
-            }
-            else
-            {
-                RiaLogging::warning( std::format( "Formation names are missing for case {}, skipping case.", eCase->caseUserDescription() ) );
-            }
-        }
-
-        eCase->setReaderSettings( oldSettings );
-        if ( eCase->views().empty() && eCase != eclipseCase() && !casesInViews.contains( eCase ) ) eCase->closeReservoirCase();
+        ctx.map->m_contourMapGrid = std::move( ctx.contourMapGrid );
+        ctx.map->doStatisticsCalculation( ctx.timestepResults );
     }
 }
 
@@ -890,7 +916,20 @@ QString RimStatisticsContourMap::timeStepName( int timeStep ) const
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::ensureResultsComputed()
 {
-    if ( !m_contourMapGrid ) computeStatistics();
+    if ( m_contourMapGrid ) return;
+
+    // Compute all pending sibling contour maps in the same sweep over the ensemble realizations, so
+    // that each realization is opened once instead of once per contour map
+    std::vector<RimStatisticsContourMap*> maps = { this };
+    if ( auto ensemble = firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>() )
+    {
+        for ( auto sibling : ensemble->statisticsContourMaps() )
+        {
+            if ( sibling != this && !sibling->m_contourMapGrid && !sibling->views().empty() ) maps.push_back( sibling );
+        }
+    }
+
+    computeStatisticsForMaps( maps );
 }
 
 //--------------------------------------------------------------------------------------------------
