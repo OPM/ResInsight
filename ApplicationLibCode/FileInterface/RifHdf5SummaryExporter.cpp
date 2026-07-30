@@ -130,16 +130,33 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
             // performance penalty
             sourceSummaryData.loadData();
 
+            std::string exportErrorText;
+
 #pragma omp critical( critical_section_HDF5_export )
             {
                 // HDF5 file access is not thread-safe, always make sure we use the HDF5 library from a single thread
 
-                RifHdf5Exporter exporter( h5FileName );
+                // NB! An exception must never escape an OpenMP structured block, as this will terminate the application
+                try
+                {
+                    RifHdf5Exporter exporter( h5FileName );
 
-                writeGeneralSection( exporter, sourceSummaryData );
-                writeSummaryVectors( exporter, sourceSummaryData );
+                    writeGeneralSection( exporter, sourceSummaryData );
+                    writeSummaryVectors( exporter, sourceSummaryData );
 
-                hdfFilesCreatedCount++;
+                    hdfFilesCreatedCount++;
+                }
+                catch ( std::exception& e )
+                {
+                    exportErrorText = e.what();
+                }
+            }
+
+            if ( !exportErrorText.empty() )
+            {
+                RiaLogging::error( std::format( "HDF export to file {} failed : {}", smspecFileName, exportErrorText ) );
+
+                return false;
             }
         }
         catch ( std::exception& e )
@@ -158,8 +175,6 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
 //--------------------------------------------------------------------------------------------------
 bool RifHdf5SummaryExporter::writeGeneralSection( RifHdf5Exporter& exporter, Opm::EclIO::ESmry& sourceSummaryData )
 {
-    auto timesteps = sourceSummaryData.dates();
-
     auto group = exporter.createGroup( nullptr, "general" );
 
     {

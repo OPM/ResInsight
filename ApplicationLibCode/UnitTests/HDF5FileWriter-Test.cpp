@@ -24,7 +24,50 @@
 #include "opm/io/eclipse/ESmry.hpp"
 #include <numeric>
 
+#include <QByteArray>
+#include <QFile>
+#include <QTemporaryDir>
+
 static const QString H5_TEST_DATA_DIRECTORY_2 = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
+
+//--------------------------------------------------------------------------------------------------
+/// A summary file without a TIME vector must be reported as a failed export, not terminate the
+/// application. Opm::EclIO::ESmry::dates() throws when the TIME vector is missing.
+//--------------------------------------------------------------------------------------------------
+TEST( HDFTests, ExportSummaryFileWithoutTimeKeyword )
+{
+    const QString sourceFolder = QString( "%1/SummaryData/Reek/" ).arg( TEST_DATA_DIR );
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    ASSERT_TRUE( QFile::copy( sourceFolder + "3_R001_REEK-1.UNSMRY", tempDir.filePath( "3_R001_REEK-1.UNSMRY" ) ) );
+
+    // Copy the SMSPEC file and rename the TIME keyword, making ESmry load without a TIME vector
+    const QString smspecFileName = tempDir.filePath( "3_R001_REEK-1.SMSPEC" );
+    {
+        QFile sourceFile( sourceFolder + "3_R001_REEK-1.SMSPEC" );
+        ASSERT_TRUE( sourceFile.open( QIODevice::ReadOnly ) );
+
+        QByteArray content = sourceFile.readAll();
+
+        const QByteArray timeKeyword( "TIME    " );
+        ASSERT_EQ( 1, content.count( timeKeyword ) );
+        content.replace( timeKeyword, QByteArray( "TIMX    " ) );
+
+        QFile destinationFile( smspecFileName );
+        ASSERT_TRUE( destinationFile.open( QIODevice::WriteOnly ) );
+        ASSERT_EQ( content.size(), destinationFile.write( content ) );
+    }
+
+    const std::string h5FileName = tempDir.filePath( "3_R001_REEK-1.h5" ).toStdString();
+
+    size_t hdfFilesCreatedCount = 0;
+    EXPECT_TRUE( RifHdf5SummaryExporter::ensureHdf5FileIsCreated( smspecFileName.toStdString(), h5FileName, true, hdfFilesCreatedCount ) );
+
+    EXPECT_EQ( size_t( 1 ), hdfFilesCreatedCount );
+    EXPECT_TRUE( QFile::exists( QString::fromStdString( h5FileName ) ) );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
