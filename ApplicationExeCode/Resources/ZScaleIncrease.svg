@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="2" y="1" width="12" height="1.2" style="fill: rgb(128, 128, 128);"/>
-  <rect x="2" y="13.8" width="12" height="1.2" style="fill: rgb(128, 128, 128);"/>
-  <path d="M 8 2.6 L 10.5 5.6 L 8.7 5.6 L 8.7 10.4 L 10.5 10.4 L 8 13.4 L 5.5 10.4 L 7.3 10.4 L 7.3 5.6 L 5.5 5.6 Z" style="fill: rgb(251, 176, 0);"/>
+  <path d="M 8 0.5 L 12.5 5.5 L 9.2 5.5 L 9.2 10.5 L 12.5 10.5 L 8 15.5 L 3.5 10.5 L 6.8 10.5 L 6.8 5.5 L 3.5 5.5 Z" style="fill: rgb(251, 176, 0);"/>
 </svg>
