@@ -638,8 +638,19 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
             primaryCase->setReaderSettings( readerSettings );
         }
 
+        // A sibling map can be computed before its own initAfterRead() has run, and then the result
+        // definition has no case to resolve the result address against, producing empty results
+        if ( map->m_resultDefinition->eclipseCase() == nullptr ) map->m_resultDefinition->setEclipseCase( primaryCase );
+
         MapContext ctx( map );
 
+        auto gridEnsemble = map->firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>();
+        ctx.useSharedGrid = gridEnsemble && gridEnsemble->gridMode() == RimReservoirGridEnsembleBase::GridModeType::SHARED_GRID &&
+                            map->m_gridImportMode() == GridImportMode::SHARED_GRID;
+
+        ctx.active = primaryCase->ensureReservoirCaseIsOpen();
+
+        // The bounding box is empty unless the primary case is open with active cell info
         cvf::BoundingBox gridBoundingBox = primaryCase->activeCellsBoundingBox();
         gridBoundingBox.expandPercent( map->m_boundingBoxExpPercent() );
 
@@ -648,14 +659,8 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
 
         ctx.contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
 
-        auto gridEnsemble = map->firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>();
-        ctx.useSharedGrid = gridEnsemble && gridEnsemble->gridMode() == RimReservoirGridEnsembleBase::GridModeType::SHARED_GRID &&
-                            map->m_gridImportMode() == GridImportMode::SHARED_GRID;
-
-        if ( primaryCase->ensureReservoirCaseIsOpen() )
+        if ( ctx.active )
         {
-            ctx.active = true;
-
             if ( ctx.useSharedGrid )
             {
                 if ( auto kLayers = findKLayersForFormations( primaryCase, map->selectedFormations(), map->activeFormationNames() ) )
