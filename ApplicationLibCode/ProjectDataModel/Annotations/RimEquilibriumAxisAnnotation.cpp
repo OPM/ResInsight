@@ -33,7 +33,9 @@ namespace caf
 template <>
 void RimEquilibriumAxisAnnotation::ExportKeywordEnum::setUp()
 {
-    addItem( RimEquilibriumAxisAnnotation::PlotAxisAnnotationType::PL_USER_DEFINED, "User Defined", "User Defined" );
+    // The alias is the serialization text used by previous versions, as read back from XML, and maps
+    // old project files to the correct enum value
+    addItem( RimEquilibriumAxisAnnotation::PlotAxisAnnotationType::PL_USER_DEFINED, "USER_DEFINED", "User Defined", { "User" } );
     addItem( RimEquilibriumAxisAnnotation::PlotAxisAnnotationType::PL_EQUIL_WATER_OIL_CONTACT,
              "PL_EQUIL_WATER_OIL_CONTACT",
              "PL_EQUIL_WATER_OIL_CONTACT" );

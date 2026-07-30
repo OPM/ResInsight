@@ -244,7 +244,7 @@ void RiuSelectionChangedHandler::addResultCurveFromSelectionItem( const RiuGeoMe
         {
             if ( geomSelectionItem->m_elementFace >= 0 )
             {
-                curveName.append( ", " + caf::AppEnum<cvf::StructGridInterface::FaceType>::textFromIndex( geomSelectionItem->m_elementFace ) );
+                curveName.append( ", " + caf::AppEnum<cvf::StructGridInterface::FaceType>::uiTextFromIndex( geomSelectionItem->m_elementFace ) );
             }
             else
             {

@@ -229,7 +229,7 @@ QString RiuResultTextBuilder::geometrySelectionText( const QString& itemSeparato
                     {
                         cvf::StructGridInterface::FaceEnum faceEnum( m_face );
 
-                        QString faceText = faceEnum.text();
+                        QString faceText = faceEnum.uiText();
 
                         text += QString( "Face: %1" ).arg( faceText ) + itemSeparator;
                     }
@@ -417,7 +417,7 @@ QString RiuResultTextBuilder::faultResultDetails()
             text += QString( "Name: %1\n" ).arg( fault->name() );
 
             cvf::StructGridInterface::FaceEnum faceHelper( m_face );
-            text += "Face: " + faceHelper.text() + "\n";
+            text += "Face: " + faceHelper.uiText() + "\n";
 
             if ( m_eclipseView && m_eclipseView->faultResultSettings()->hasValidCustomResult() )
             {
@@ -937,7 +937,7 @@ QString RiuResultTextBuilder::nncDetails()
 
                             QString gridName = QString::fromStdString( hostGrid->gridName() );
                             text.append(
-                                QString( "NNC 1: cell [%1, %2, %3] face %4 (%5)\n" ).arg( i ).arg( j ).arg( k ).arg( face.text() ).arg( gridName ) );
+                                QString( "NNC 1: cell [%1, %2, %3] face %4 (%5)\n" ).arg( i ).arg( j ).arg( k ).arg( face.uiText() ).arg( gridName ) );
                         }
                     }
 
@@ -959,7 +959,7 @@ QString RiuResultTextBuilder::nncDetails()
 
                             QString                            gridName = QString::fromStdString( hostGrid->gridName() );
                             cvf::StructGridInterface::FaceEnum oppositeFaceEnum( cvf::StructGridInterface::oppositeFace( face ) );
-                            QString                            faceText = oppositeFaceEnum.text();
+                            QString                            faceText = oppositeFaceEnum.uiText();
 
                             text.append(
                                 QString( "NNC 2: cell [%1, %2, %3] face %4 (%5)\n" ).arg( i ).arg( j ).arg( k ).arg( faceText ).arg( gridName ) );

@@ -436,7 +436,7 @@ QString RiuFemResultTextBuilder::closestNodeResultText( RimGeoMechResultDefiniti
             {
                 text.append( QString( "Closest result: N[%1], on face: %2, %3\n" )
                                  .arg( closestNodeId )
-                                 .arg( caf::AppEnum<cvf::StructGridInterface::FaceType>::textFromIndex( m_face ) )
+                                 .arg( caf::AppEnum<cvf::StructGridInterface::FaceType>::uiTextFromIndex( m_face ) )
                                  .arg( scalarValue ) );
             }
             else if ( m_isIntersectionTriangleSet && activeResultPosition == RIG_ELEMENT_NODAL_FACE )
