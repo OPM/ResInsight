@@ -29,6 +29,9 @@
 #include "RigFlowDiagResults.h"
 #include "RigFlowDiagVisibleCellsStatCalc.h"
 #include "RigGeoMechCaseData.h"
+#include "RigStatisticsMath.h"
+
+#include <limits>
 
 #include "ContourMap/RimEclipseContourMapProjection.h"
 #include "ContourMap/RimEclipseContourMapView.h"
@@ -98,14 +101,21 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseContourMapView
 
     if ( contourMap && contourMap->contourMapProjection() && contourMap->contourMapProjection()->mapProjection() )
     {
-        bool isResultsInfoRelevant = contourMap->contourMapProjection()->mapProjection()->numberOfValidCells() > 0u;
+        auto mapProjection         = contourMap->contourMapProjection()->mapProjection();
+        bool isResultsInfoRelevant = mapProjection->numberOfValidCells() > 0u;
 
         if ( isResultsInfoRelevant )
         {
-            histData.min  = contourMap->contourMapProjection()->mapProjection()->minValue();
-            histData.max  = contourMap->contourMapProjection()->mapProjection()->maxValue();
-            histData.mean = contourMap->contourMapProjection()->mapProjection()->meanValue();
-            histData.sum  = contourMap->contourMapProjection()->mapProjection()->sumAllValues();
+            histData.min  = mapProjection->minValue();
+            histData.max  = mapProjection->maxValue();
+            histData.mean = mapProjection->meanValue();
+            histData.sum  = mapProjection->sumAllValues();
+
+            RigHistogramCalculator histCalc( histData.min, histData.max, m_numBins, &histData.histogram );
+            for ( double value : mapProjection->aggregatedResults() )
+            {
+                if ( value != std::numeric_limits<double>::infinity() ) histCalc.addValue( value );
+            }
         }
     }
     return histData;
@@ -120,14 +130,21 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechContourMapView
 
     if ( contourMap && contourMap->contourMapProjection() && contourMap->contourMapProjection()->mapProjection() )
     {
-        bool isResultsInfoRelevant = contourMap->contourMapProjection()->mapProjection()->numberOfValidCells() > 0u;
+        auto mapProjection         = contourMap->contourMapProjection()->mapProjection();
+        bool isResultsInfoRelevant = mapProjection->numberOfValidCells() > 0u;
 
         if ( isResultsInfoRelevant )
         {
-            histData.min  = contourMap->contourMapProjection()->mapProjection()->minValue();
-            histData.max  = contourMap->contourMapProjection()->mapProjection()->maxValue();
-            histData.mean = contourMap->contourMapProjection()->mapProjection()->meanValue();
-            histData.sum  = contourMap->contourMapProjection()->mapProjection()->sumAllValues();
+            histData.min  = mapProjection->minValue();
+            histData.max  = mapProjection->maxValue();
+            histData.mean = mapProjection->meanValue();
+            histData.sum  = mapProjection->sumAllValues();
+
+            RigHistogramCalculator histCalc( histData.min, histData.max, m_numBins, &histData.histogram );
+            for ( double value : mapProjection->aggregatedResults() )
+            {
+                if ( value != std::numeric_limits<double>::infinity() ) histCalc.addValue( value );
+            }
         }
     }
     return histData;
