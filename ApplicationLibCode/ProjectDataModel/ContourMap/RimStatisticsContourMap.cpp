@@ -26,6 +26,9 @@
 #include "RicNewStatisticsContourMapViewFeature.h"
 
 #include "RifReaderSettings.h"
+#include "RifRoffWriter.h"
+
+#include "roffcpp/src/Reader.hpp"
 
 #include "ContourMap/RigContourMapCalculator.h"
 #include "ContourMap/RigContourMapGrid.h"
@@ -60,7 +63,13 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafProgressInfo.h"
 
+#include <QCryptographicHash>
+#include <QDir>
+#include <QFileInfo>
+#include <QUuid>
+
 #include <algorithm>
+#include <fstream>
 #include <limits>
 #include <optional>
 #include <set>
@@ -191,6 +200,12 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     CAF_PDM_InitFieldNoDefault( &m_selectedPolygons, "Polygons", "Select Polygons" );
     m_selectedPolygons.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedPolygons.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
+
+    CAF_PDM_InitField( &m_cacheFileName, "CacheFileName", QString(), "Cache File Name" );
+    m_cacheFileName.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_cacheValidityKey, "CacheValidityKey", QString(), "Cache Validity Key" );
+    m_cacheValidityKey.uiCapability()->setUiHidden( true );
 
     setDeletable( true );
 }
@@ -773,6 +788,7 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
     {
         ctx.map->m_contourMapGrid = std::move( ctx.contourMapGrid );
         ctx.map->doStatisticsCalculation( ctx.timestepResults );
+        ctx.map->m_computedValidityKey = ctx.active ? ctx.map->computeCacheValidityKey() : QString();
     }
 }
 
@@ -885,11 +901,11 @@ std::vector<QString> RimStatisticsContourMap::selectedFormations() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>> RimStatisticsContourMap::selectedPolygons()
+std::vector<std::vector<cvf::Vec3d>> RimStatisticsContourMap::selectedPolygons() const
 {
     std::vector<std::vector<cvf::Vec3d>> allLines;
 
-    for ( auto p : m_selectedPolygons() )
+    for ( auto p : m_selectedPolygons.ptrReferencedObjectsByType() )
     {
         auto pData = p->polyLinesData();
         if ( pData.isNull() ) continue;
@@ -923,6 +939,8 @@ void RimStatisticsContourMap::ensureResultsComputed()
 {
     if ( m_contourMapGrid ) return;
 
+    if ( loadCachedResults() ) return;
+
     // Compute all pending sibling contour maps in the same sweep over the ensemble realizations, so
     // that each realization is opened once instead of once per contour map
     std::vector<RimStatisticsContourMap*> maps = { this };
@@ -930,11 +948,264 @@ void RimStatisticsContourMap::ensureResultsComputed()
     {
         for ( auto sibling : ensemble->statisticsContourMaps() )
         {
-            if ( sibling != this && !sibling->m_contourMapGrid && !sibling->views().empty() ) maps.push_back( sibling );
+            if ( sibling != this && !sibling->m_contourMapGrid && !sibling->views().empty() && !sibling->loadCachedResults() )
+                maps.push_back( sibling );
         }
     }
 
     computeStatisticsForMaps( maps );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Hash of all settings that affect the computed statistics. Cached results are only reused when
+/// the stored key matches the key computed from the current settings.
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsContourMap::computeCacheValidityKey() const
+{
+    QStringList parts;
+
+    parts << m_resultAggregation().text();
+    parts << m_resolution().text();
+    parts << m_gridImportMode().text();
+    parts << QString::number( m_boundingBoxExpPercent(), 'g', 12 );
+
+    parts << m_oilFloodingType().text() << QString::number( m_userDefinedFloodingOil(), 'g', 12 );
+    parts << m_gasFloodingType().text() << QString::number( m_userDefinedFloodingGas(), 'g', 12 );
+
+    if ( m_resultDefinition() != nullptr )
+    {
+        parts << caf::AppEnum<RiaDefines::ResultCatType>::text( m_resultDefinition->resultType() );
+        parts << m_resultDefinition->resultVariable();
+        parts << caf::AppEnum<RiaDefines::PorosityModelType>::text( m_resultDefinition->porosityModel() );
+    }
+
+    for ( int timeStep : selectedTimeSteps() )
+        parts << QString::number( timeStep );
+
+    parts << ( m_enableFormationFilter() ? "formationFilter" : "noFormationFilter" );
+    for ( const QString& formation : m_selectedFormations() )
+        parts << formation;
+
+    for ( const auto& polygonLine : selectedPolygons() )
+    {
+        for ( const auto& point : polygonLine )
+            parts << QString( "%1,%2,%3" ).arg( point.x(), 0, 'f', 3 ).arg( point.y(), 0, 'f', 3 ).arg( point.z(), 0, 'f', 3 );
+    }
+
+    if ( auto primaryCase = eclipseCase() ) parts << primaryCase->gridFileName();
+
+    for ( RimEclipseCase* eCase : ensembleCases() )
+        parts << eCase->gridFileName();
+
+    const QByteArray hash = QCryptographicHash::hash( parts.join( ";" ).toUtf8(), QCryptographicHash::Md5 );
+    return QString::fromLatin1( hash.toHex() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Restore the contour map grid and statistics results from the project-adjacent cache file.
+/// Returns false when no valid cache exists, and computation is needed.
+//--------------------------------------------------------------------------------------------------
+bool RimStatisticsContourMap::loadCachedResults()
+{
+    if ( m_cacheFileName().isEmpty() ) return false;
+
+    const QString fileName = getCacheDirectoryPath() + "/" + m_cacheFileName();
+    if ( !QFile::exists( fileName ) ) return false;
+
+    const QString expectedKey = computeCacheValidityKey();
+    if ( m_cacheValidityKey().isEmpty() || m_cacheValidityKey() != expectedKey ) return false;
+
+    try
+    {
+        std::ifstream stream( fileName.toStdString(), std::ios::binary );
+        if ( !stream.good() ) return false;
+
+        roff::Reader reader( stream );
+        reader.parse();
+
+        auto scalarValues = reader.scalarNamedValues();
+
+        auto findString = [&scalarValues]( const std::string& keyword ) -> std::optional<std::string>
+        {
+            for ( const auto& [key, value] : scalarValues )
+            {
+                if ( key == keyword ) return std::get<std::string>( value );
+            }
+            return std::nullopt;
+        };
+
+        auto storedKey = findString( "cacheInfo.key" );
+        if ( !storedKey || QString::fromStdString( *storedKey ) != expectedKey ) return false;
+
+        auto readBoundingBox = [&reader]( const std::string& keyword ) -> std::optional<cvf::BoundingBox>
+        {
+            std::vector<double> c = reader.getDoubleArray( keyword );
+            if ( c.size() != 6 ) return std::nullopt;
+            return cvf::BoundingBox( cvf::Vec3d( c[0], c[1], c[2] ), cvf::Vec3d( c[3], c[4], c[5] ) );
+        };
+
+        auto                originalBoundingBox = readBoundingBox( "grid.originalBoundingBox" );
+        auto                expandedBoundingBox = readBoundingBox( "grid.expandedBoundingBox" );
+        std::vector<double> sampleSpacing       = reader.getDoubleArray( "grid.sampleSpacing" );
+        if ( !originalBoundingBox || !expandedBoundingBox || sampleSpacing.size() != 1 ) return false;
+
+        auto contourMapGrid = std::make_unique<RigContourMapGrid>( *originalBoundingBox, *expandedBoundingBox, sampleSpacing.front() );
+
+        const size_t cellCount = contourMapGrid->numberOfCells();
+
+        std::map<size_t, std::map<StatisticsType, std::vector<double>>> timeResults;
+        for ( int timeStep : reader.getIntArray( "timesteps.indices" ) )
+        {
+            for ( size_t statisticsTypeIndex = 0; statisticsTypeIndex < caf::AppEnum<StatisticsType>::size(); ++statisticsTypeIndex )
+            {
+                const StatisticsType statisticsType = caf::AppEnum<StatisticsType>::fromIndex( statisticsTypeIndex );
+                const QString parameterName = QString( "%1_%2" ).arg( caf::AppEnum<StatisticsType>::text( statisticsType ) ).arg( timeStep );
+
+                std::vector<double> values = reader.getDoubleArray( parameterName.toStdString() );
+                if ( values.size() != cellCount ) return false;
+
+                timeResults[timeStep][statisticsType] = std::move( values );
+            }
+        }
+
+        if ( timeResults.empty() ) return false;
+
+        m_contourMapGrid      = std::move( contourMapGrid );
+        m_timeResults         = std::move( timeResults );
+        m_computedValidityKey = expectedKey;
+
+        RiaLogging::info( std::format( "Loaded ensemble contour map statistics from cache: {}", fileName ) );
+        return true;
+    }
+    catch ( ... )
+    {
+        RiaLogging::warning( std::format( "Failed to read ensemble contour map statistics cache, recomputing: {}", fileName ) );
+        m_contourMapGrid.reset();
+        m_timeResults.clear();
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStatisticsContourMap::writeCachedResults( const QString& fileName, const QString& validityKey ) const
+{
+    if ( !m_contourMapGrid || m_timeResults.empty() ) return false;
+
+    std::ofstream stream( fileName.toStdString(), std::ios::binary );
+    if ( !stream.good() ) return false;
+
+    RifRoffWriter writer( stream );
+    writer.writeFileType();
+    writer.writeFileDataTag( "statisticsContourMap" );
+    writer.writeVersionTag();
+
+    writer.startTag( "cacheInfo" );
+    writer.writeString( "key", validityKey.toStdString() );
+    writer.endTag();
+
+    const cvf::Vec2ui& mapSize = m_contourMapGrid->mapSize();
+    writer.startTag( "dimensions" );
+    writer.writeInt( "nX", static_cast<int>( mapSize.x() ) );
+    writer.writeInt( "nY", static_cast<int>( mapSize.y() ) );
+    writer.writeInt( "nZ", 1 );
+    writer.endTag();
+
+    auto boundingBoxCoords = []( const cvf::BoundingBox& boundingBox ) -> std::vector<double>
+    {
+        const cvf::Vec3d& min = boundingBox.min();
+        const cvf::Vec3d& max = boundingBox.max();
+        return { min.x(), min.y(), min.z(), max.x(), max.y(), max.z() };
+    };
+
+    writer.startTag( "grid" );
+    writer.writeDoubleArray( "sampleSpacing", { m_contourMapGrid->sampleSpacing() } );
+    writer.writeDoubleArray( "originalBoundingBox", boundingBoxCoords( m_contourMapGrid->originalBoundingBox() ) );
+    writer.writeDoubleArray( "expandedBoundingBox", boundingBoxCoords( m_contourMapGrid->expandedBoundingBox() ) );
+    writer.endTag();
+
+    std::vector<int> timeStepIndices;
+    for ( const auto& [timeStep, statisticsResults] : m_timeResults )
+        timeStepIndices.push_back( static_cast<int>( timeStep ) );
+
+    writer.startTag( "timesteps" );
+    writer.writeIntArray( "indices", timeStepIndices );
+    writer.endTag();
+
+    for ( const auto& [timeStep, statisticsResults] : m_timeResults )
+    {
+        for ( const auto& [statisticsType, values] : statisticsResults )
+        {
+            const QString parameterName = QString( "%1_%2" ).arg( caf::AppEnum<StatisticsType>::text( statisticsType ) ).arg( timeStep );
+
+            writer.startTag( "parameter" );
+            writer.writeString( "name", parameterName.toStdString() );
+            writer.writeDoubleArray( "data", values );
+            writer.endTag();
+        }
+    }
+
+    writer.writeEofTag();
+    return stream.good();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Write the computed statistics to a cache file next to the project file, so that the ensemble
+/// sweep can be skipped when the project is loaded again with unchanged settings
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMap::setupBeforeSave()
+{
+    // Delete any existing cache file, it is rewritten below if valid results exist
+    if ( !m_cacheFileName().isEmpty() )
+    {
+        const QString previousFileName = getCacheDirectoryPath() + "/" + m_cacheFileName();
+        if ( QFile::exists( previousFileName ) ) QFile::remove( previousFileName );
+    }
+
+    // Only write results computed from (or previously cached for) the current settings
+    if ( !m_contourMapGrid || m_timeResults.empty() || m_computedValidityKey.isEmpty() )
+    {
+        m_cacheFileName    = QString();
+        m_cacheValidityKey = QString();
+        return;
+    }
+
+    QDir::root().mkpath( getCacheDirectoryPath() );
+
+    const QString fileName = getValidCacheFileName();
+    if ( writeCachedResults( getCacheDirectoryPath() + "/" + fileName, m_computedValidityKey ) )
+    {
+        m_cacheFileName    = fileName;
+        m_cacheValidityKey = m_computedValidityKey;
+    }
+    else
+    {
+        RiaLogging::warning( std::format( "Failed to write ensemble contour map statistics cache: {}", fileName ) );
+        m_cacheFileName    = QString();
+        m_cacheValidityKey = QString();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// File name of the cache file within the cache directory
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsContourMap::getValidCacheFileName() const
+{
+    if ( m_cacheFileName().isEmpty() )
+    {
+        return QUuid::createUuid().toString( QUuid::WithoutBraces ) + ".roffbin";
+    }
+
+    return m_cacheFileName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsContourMap::getCacheDirectoryPath()
+{
+    return RimTools::getCacheRootDirectoryPathFromProject() + "_cache";
 }
 
 //--------------------------------------------------------------------------------------------------
