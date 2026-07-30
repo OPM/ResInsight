@@ -119,11 +119,16 @@ private:
     void onComputeStatisticsClicked();
     void doStatisticsCalculation( TimestepResultsMap& timestep_results );
 
-    // Project-adjacent statistics cache, keyed by a hash of all settings affecting the results
+    // Project-adjacent statistics cache, keyed by a hash of all settings affecting the results.
+    // The results are stored as one GRI surface file per statistics type per time step, so that
+    // the cached maps can also be imported as regular surfaces.
     QString        computeCacheValidityKey() const;
     bool           loadCachedResults();
-    bool           writeCachedResults( const QString& fileName, const QString& validityKey ) const;
-    QString        getValidCacheFileName() const;
+    bool           writeCachedResults( const QString& baseName ) const;
+    QString        cacheFileName( const QString& baseName, StatisticsType statisticsType, size_t timeStep ) const;
+    QString        getValidCacheFileBaseName() const;
+    void           deleteCacheFiles() const;
+    void           clearCacheFields();
     static QString getCacheDirectoryPath();
 
     RimFormationNames*           activeFormationNames() const;
@@ -150,10 +155,16 @@ private:
     caf::PdmField<double>                                          m_userDefinedFloodingGas;
     caf::PdmField<double>                                          m_userDefinedFloodingOil;
 
-    // File name of the cache file within the project cache directory. Stored as a plain file name
-    // to stay relocatable with the project and out of reach of the global path list macros
-    caf::PdmField<QString> m_cacheFileName;
-    caf::PdmField<QString> m_cacheValidityKey;
+    // Base file name of the cache files within the project cache directory. Stored as a plain file
+    // name to stay relocatable with the project and out of reach of the global path list macros.
+    // The contour map grid definition is stored in fields, since the GRI files only hold the 2D
+    // sample grid and values.
+    caf::PdmField<QString>             m_cacheFileBaseName;
+    caf::PdmField<QString>             m_cacheValidityKey;
+    caf::PdmField<std::vector<int>>    m_cacheTimeSteps;
+    caf::PdmField<double>              m_cacheSampleSpacing;
+    caf::PdmField<std::vector<double>> m_cacheOriginalBoundingBox;
+    caf::PdmField<std::vector<double>> m_cacheExpandedBoundingBox;
 
     std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;
