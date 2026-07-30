@@ -100,8 +100,10 @@
 #include <QComboBox>
 #include <QDateTime>
 #include <QDir>
+#include <QDoubleValidator>
 #include <QLabel>
 #include <QLayout>
+#include <QLineEdit>
 #include <QMap>
 #include <QMenuBar>
 #include <QMimeData>
@@ -547,6 +549,9 @@ void RiuMainWindow::createMenus()
     viewMenu->addSeparator();
     viewMenu->addAction( cmdFeatureMgr->action( "RicApplyUserDefinedCameraFeature" ) );
     viewMenu->addAction( cmdFeatureMgr->action( "RicStoreUserDefinedCameraFeature" ) );
+    viewMenu->addSeparator();
+    viewMenu->addAction( cmdFeatureMgr->action( "RicIncreaseZScaleFeature" ) );
+    viewMenu->addAction( cmdFeatureMgr->action( "RicDecreaseZScaleFeature" ) );
 
     connect( viewMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshViewActions() ) );
 
@@ -670,8 +675,40 @@ void RiuMainWindow::createToolBars()
         {
             m_scaleFactor->addItem( QString::number( d ), QVariant( d ) );
         }
+
+        // Allow arbitrary scale values to be entered as text, see https://github.com/OPM/ResInsight/issues/14362
+        m_scaleFactor->setEditable( true );
+        m_scaleFactor->setInsertPolicy( QComboBox::NoInsert );
+
+        // Use C locale to match the text produced by QString::number()
+        auto validator = new QDoubleValidator( m_scaleFactor );
+        validator->setLocale( QLocale::c() );
+        validator->setBottom( 0.0 );
+        m_scaleFactor->setValidator( validator );
+
         toolbar->addWidget( m_scaleFactor );
         connect( m_scaleFactor, SIGNAL( currentIndexChanged( int ) ), SLOT( slotScaleChanged( int ) ) );
+
+        connect( m_scaleFactor->lineEdit(),
+                 &QLineEdit::editingFinished,
+                 this,
+                 [this]()
+                 {
+                     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+                     if ( !view ) return;
+
+                     bool   isValidNumber = false;
+                     double scaleValue    = m_scaleFactor->lineEdit()->text().toDouble( &isValidNumber );
+                     if ( isValidNumber && scaleValue > 0.0 )
+                     {
+                         view->setScaleZAndUpdate( scaleValue );
+                     }
+                     else
+                     {
+                         // Restore the text in the combo box from the current view scale
+                         updateScaleValue();
+                     }
+                 } );
     }
 
     {
@@ -994,7 +1031,8 @@ void RiuMainWindow::slotRefreshViewActions()
     {
         QStringList commandIds;
         commandIds << "RicLinkVisibleViewsFeature" << "RicTogglePerspectiveViewFeature"
-                   << "RicViewZoomAllFeature" << "RicApplyUserDefinedCameraFeature" << "RicStoreUserDefinedCameraFeature";
+                   << "RicViewZoomAllFeature" << "RicApplyUserDefinedCameraFeature" << "RicStoreUserDefinedCameraFeature"
+                   << "RicIncreaseZScaleFeature" << "RicDecreaseZScaleFeature";
 
         caf::CmdFeatureManager::instance()->refreshEnabledState( commandIds );
     }

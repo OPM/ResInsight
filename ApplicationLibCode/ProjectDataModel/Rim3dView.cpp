@@ -73,6 +73,7 @@
 #include "cvfTransform.h"
 #include "cvfViewport.h"
 
+#include <algorithm>
 #include <climits>
 
 namespace caf
@@ -1007,6 +1008,14 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
     }
     else if ( changedField == &m_scaleZ )
     {
+        // Invalid text entered in the combo box is converted to 0.0, and a negative scale is not supported
+        if ( m_scaleZ() <= 0.0 )
+        {
+            double fallbackValue = oldValue.toDouble() > 0.0 ? oldValue.toDouble() : 1.0;
+            m_scaleZ.setValueWithFieldChanged( fallbackValue );
+            return;
+        }
+
         updateScaling();
 
         RiuMainWindow::instance()->updateScaleValue();
@@ -1602,7 +1611,15 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
     }
     else if ( fieldNeedingOptions == &m_scaleZ )
     {
-        for ( auto scale : RiaDefines::viewScaleOptions() )
+        // Include the current scale value in the options, as any value can be entered as text in the combo box
+        auto scaleOptions = RiaDefines::viewScaleOptions();
+        if ( std::find( scaleOptions.begin(), scaleOptions.end(), m_scaleZ() ) == scaleOptions.end() )
+        {
+            scaleOptions.push_back( m_scaleZ() );
+            std::sort( scaleOptions.begin(), scaleOptions.end() );
+        }
+
+        for ( auto scale : scaleOptions )
         {
             options.push_back( caf::PdmOptionItemInfo( QString::number( scale ), scale ) );
         }
@@ -1980,5 +1997,20 @@ void Rim3dView::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEdi
         auto iconTag  = caf::PdmUiTreeViewItemAttribute::createTag();
         iconTag->icon = caf::IconProvider( ":/PlotWindow.svg" );
         treeItemAttribute->tags.push_back( std::move( iconTag ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_scaleZ )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute ) )
+        {
+            attr->enableEditableContent = true;
+            attr->enableAutoComplete    = false;
+        }
     }
 }
