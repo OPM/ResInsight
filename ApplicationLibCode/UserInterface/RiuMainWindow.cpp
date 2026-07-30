@@ -1922,9 +1922,8 @@ void RiuMainWindow::slotScaleChanged( int index )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::updateScaleValue()
 {
-    Rim3dView* view                   = RiaApplication::instance()->activeReservoirView();
-    bool       isRegularReservoirView = view && dynamic_cast<RimEclipseContourMapView*>( view ) == nullptr;
-    if ( isRegularReservoirView && view->isScaleZEditable() )
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+    if ( view && view->isScaleZEditable() )
     {
         m_scaleFactor->setEnabled( true );
         m_scaleFactor->blockSignals( true );

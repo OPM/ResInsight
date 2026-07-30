@@ -578,7 +578,7 @@ void Rim3dView::scheduleCreateDisplayModelAndRedraw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<Rim3dView*> Rim3dView::viewsUsingThisAsComparisonView()
+std::set<Rim3dView*> Rim3dView::viewsUsingThisAsComparisonView() const
 {
     std::set<Rim3dView*>              containingViews;
     std::vector<caf::PdmFieldHandle*> fieldsReferringToMe = referringPtrFields();
@@ -628,7 +628,7 @@ std::vector<Rim3dView*> Rim3dView::validComparisonViews() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim3dView::isScaleZEditable()
+bool Rim3dView::isScaleZEditable() const
 {
     return ( this->viewsUsingThisAsComparisonView().empty() || ( this->viewController() && this->viewController()->isCameraLinked() ) );
 }

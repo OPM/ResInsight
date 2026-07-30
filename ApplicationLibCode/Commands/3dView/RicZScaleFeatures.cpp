@@ -21,7 +21,6 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 
-#include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 
 #include <QAction>
@@ -36,8 +35,7 @@ namespace
 Rim3dView* activeViewWithEditableZScale()
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
-    if ( !view || dynamic_cast<RimEclipseContourMapView*>( view ) != nullptr ) return nullptr;
-    if ( !view->isScaleZEditable() ) return nullptr;
+    if ( !view || !view->isScaleZEditable() ) return nullptr;
 
     return view;
 }
