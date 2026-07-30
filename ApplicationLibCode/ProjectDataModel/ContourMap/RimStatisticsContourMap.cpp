@@ -25,7 +25,6 @@
 
 #include "RicNewStatisticsContourMapViewFeature.h"
 
-#include "RifGriMetadataFooter.h"
 #include "RifReaderSettings.h"
 #include "RifSurfio.h"
 
@@ -202,6 +201,21 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 
     CAF_PDM_InitField( &m_cacheFileBaseName, "CacheFileBaseName", QString(), "Cache File Base Name" );
     m_cacheFileBaseName.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_cacheValidityKey, "CacheValidityKey", QString(), "Cache Validity Key" );
+    m_cacheValidityKey.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_cacheTimeSteps, "CacheTimeSteps", "Cache Time Steps" );
+    m_cacheTimeSteps.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_cacheSampleSpacing, "CacheSampleSpacing", 0.0, "Cache Sample Spacing" );
+    m_cacheSampleSpacing.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_cacheOriginalBoundingBox, "CacheOriginalBoundingBox", "Cache Original Bounding Box" );
+    m_cacheOriginalBoundingBox.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_cacheExpandedBoundingBox, "CacheExpandedBoundingBox", "Cache Expanded Bounding Box" );
+    m_cacheExpandedBoundingBox.uiCapability()->setUiHidden( true );
 
     setDeletable( true );
 }
@@ -997,103 +1011,36 @@ QString RimStatisticsContourMap::computeCacheValidityKey() const
     return QString::fromLatin1( hash.toHex() );
 }
 
-namespace
-{
-QString formatDoubles( const std::vector<double>& values )
-{
-    QStringList parts;
-    for ( double value : values )
-        parts << QString::number( value, 'g', 17 );
-    return parts.join( "," );
-}
-
-std::vector<double> parseDoubles( const QString& text )
-{
-    std::vector<double> values;
-    for ( const QString& part : text.split( ',', Qt::SkipEmptyParts ) )
-    {
-        bool         ok    = false;
-        const double value = part.toDouble( &ok );
-        if ( !ok ) return {};
-        values.push_back( value );
-    }
-    return values;
-}
-
-std::vector<int> parseInts( const QString& text )
-{
-    std::vector<int> values;
-    for ( const QString& part : text.split( ',', Qt::SkipEmptyParts ) )
-    {
-        bool      ok    = false;
-        const int value = part.toInt( &ok );
-        if ( !ok ) return {};
-        values.push_back( value );
-    }
-    return values;
-}
-
-QString footerValue( const std::map<QString, QString>& footer, const QString& key )
-{
-    auto it = footer.find( key );
-    return it != footer.end() ? it->second : QString();
-}
-} // namespace
-
 //--------------------------------------------------------------------------------------------------
-/// Restore the contour map grid and statistics results from the project-adjacent cache files. All
-/// cache metadata is read from the metadata footer inside the GRI files. Returns false when no
-/// valid cache exists, and computation is needed.
+/// Restore the contour map grid and statistics results from the project-adjacent cache files.
+/// Returns false when no valid cache exists, and computation is needed.
 //--------------------------------------------------------------------------------------------------
 bool RimStatisticsContourMap::loadCachedResults()
 {
-    if ( m_cacheFileBaseName().isEmpty() ) return false;
-
-    // Bootstrap from the footer of any existing cache file for this contour map
-    const QDir        cacheDir( getCacheDirectoryPath() );
-    const QStringList existingFiles = cacheDir.entryList( { m_cacheFileBaseName() + "_*.gri" }, QDir::Files );
-    if ( existingFiles.empty() ) return false;
-
-    const auto footer = RifGriMetadataFooter::readFooter( cacheDir.absoluteFilePath( existingFiles.front() ) );
-    if ( !footer ) return false;
+    if ( m_cacheFileBaseName().isEmpty() || m_cacheTimeSteps().empty() ) return false;
+    if ( m_cacheSampleSpacing() <= 0.0 || m_cacheOriginalBoundingBox().size() != 6 || m_cacheExpandedBoundingBox().size() != 6 )
+        return false;
 
     const QString expectedKey = computeCacheValidityKey();
-    if ( expectedKey.isEmpty() || footerValue( *footer, "validityKey" ) != expectedKey ) return false;
-
-    const std::vector<int>    timeSteps           = parseInts( footerValue( *footer, "timeSteps" ) );
-    const std::vector<double> sampleSpacing       = parseDoubles( footerValue( *footer, "sampleSpacing" ) );
-    const std::vector<double> originalBoundingBox = parseDoubles( footerValue( *footer, "originalBoundingBox" ) );
-    const std::vector<double> expandedBoundingBox = parseDoubles( footerValue( *footer, "expandedBoundingBox" ) );
-
-    if ( timeSteps.empty() || sampleSpacing.size() != 1 || sampleSpacing.front() <= 0.0 || originalBoundingBox.size() != 6 ||
-         expandedBoundingBox.size() != 6 )
-        return false;
+    if ( m_cacheValidityKey().isEmpty() || m_cacheValidityKey() != expectedKey ) return false;
 
     auto toBoundingBox = []( const std::vector<double>& c )
     { return cvf::BoundingBox( cvf::Vec3d( c[0], c[1], c[2] ), cvf::Vec3d( c[3], c[4], c[5] ) ); };
 
-    auto contourMapGrid = std::make_unique<RigContourMapGrid>( toBoundingBox( originalBoundingBox ),
-                                                               toBoundingBox( expandedBoundingBox ),
-                                                               sampleSpacing.front() );
+    auto contourMapGrid = std::make_unique<RigContourMapGrid>( toBoundingBox( m_cacheOriginalBoundingBox() ),
+                                                               toBoundingBox( m_cacheExpandedBoundingBox() ),
+                                                               m_cacheSampleSpacing() );
 
     const cvf::Vec2ui& mapSize = contourMapGrid->mapSize();
 
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> timeResults;
-    for ( int timeStep : timeSteps )
+    for ( int timeStep : m_cacheTimeSteps() )
     {
         for ( size_t statisticsTypeIndex = 0; statisticsTypeIndex < caf::AppEnum<StatisticsType>::size(); ++statisticsTypeIndex )
         {
             const StatisticsType statisticsType = caf::AppEnum<StatisticsType>::fromIndex( statisticsTypeIndex );
 
             const QString fileName = cacheFileName( m_cacheFileBaseName(), statisticsType, timeStep );
-
-            // Every cache file must carry a footer with a matching validity key
-            const auto fileFooter = RifGriMetadataFooter::readFooter( fileName );
-            if ( !fileFooter || footerValue( *fileFooter, "validityKey" ) != expectedKey )
-            {
-                RiaLogging::warning( std::format( "Ensemble contour map statistics cache is inconsistent, recomputing: {}", fileName ) );
-                return false;
-            }
 
             // The surface reader throws on malformed files, fall back to recomputation
             std::expected<std::pair<RigRegularSurfaceData, std::vector<float>>, std::string> surfaceData;
@@ -1145,8 +1092,7 @@ bool RimStatisticsContourMap::loadCachedResults()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Write one GRI surface file per statistics type per time step, each with a metadata footer
-/// holding the validity key, grid definition and time step list. The surface nodes are placed at
+/// Write one GRI surface file per statistics type per time step. The surface nodes are placed at
 /// the cell centers of the contour map sample grid, so the files can be imported as regular
 /// surfaces in ResInsight or other tools.
 //--------------------------------------------------------------------------------------------------
@@ -1166,17 +1112,6 @@ bool RimStatisticsContourMap::writeCachedResults( const QString& baseName ) cons
     surfaceData.incrementY = sampleSpacing;
     surfaceData.rotation   = 0.0;
 
-    auto boundingBoxCoords = []( const cvf::BoundingBox& boundingBox ) -> std::vector<double>
-    {
-        const cvf::Vec3d& min = boundingBox.min();
-        const cvf::Vec3d& max = boundingBox.max();
-        return { min.x(), min.y(), min.z(), max.x(), max.y(), max.z() };
-    };
-
-    QStringList timeStepList;
-    for ( const auto& [timeStep, statisticsResults] : m_timeResults )
-        timeStepList << QString::number( timeStep );
-
     for ( const auto& [timeStep, statisticsResults] : m_timeResults )
     {
         for ( const auto& [statisticsType, values] : statisticsResults )
@@ -1193,18 +1128,6 @@ bool RimStatisticsContourMap::writeCachedResults( const QString& baseName ) cons
 
             const QString fileName = cacheFileName( baseName, statisticsType, timeStep );
             if ( !RifSurfio::exportToGri( fileName.toStdString(), surfaceData, floatValues ) ) return false;
-
-            const std::vector<std::pair<QString, QString>> footer = {
-                { "validityKey", m_computedValidityKey },
-                { "statisticsType", caf::AppEnum<StatisticsType>::text( statisticsType ) },
-                { "timeStep", QString::number( timeStep ) },
-                { "timeSteps", timeStepList.join( "," ) },
-                { "sampleSpacing", formatDoubles( { sampleSpacing } ) },
-                { "originalBoundingBox", formatDoubles( boundingBoxCoords( m_contourMapGrid->originalBoundingBox() ) ) },
-                { "expandedBoundingBox", formatDoubles( boundingBoxCoords( m_contourMapGrid->expandedBoundingBox() ) ) },
-            };
-
-            if ( !RifGriMetadataFooter::appendFooter( fileName, footer ) ) return false;
         }
     }
 
@@ -1232,7 +1155,23 @@ void RimStatisticsContourMap::setupBeforeSave()
     const QString baseName = getValidCacheFileBaseName();
     if ( writeCachedResults( baseName ) )
     {
-        m_cacheFileBaseName = baseName;
+        auto boundingBoxCoords = []( const cvf::BoundingBox& boundingBox ) -> std::vector<double>
+        {
+            const cvf::Vec3d& min = boundingBox.min();
+            const cvf::Vec3d& max = boundingBox.max();
+            return { min.x(), min.y(), min.z(), max.x(), max.y(), max.z() };
+        };
+
+        std::vector<int> timeStepIndices;
+        for ( const auto& [timeStep, statisticsResults] : m_timeResults )
+            timeStepIndices.push_back( static_cast<int>( timeStep ) );
+
+        m_cacheFileBaseName        = baseName;
+        m_cacheValidityKey         = m_computedValidityKey;
+        m_cacheTimeSteps           = timeStepIndices;
+        m_cacheSampleSpacing       = m_contourMapGrid->sampleSpacing();
+        m_cacheOriginalBoundingBox = boundingBoxCoords( m_contourMapGrid->originalBoundingBox() );
+        m_cacheExpandedBoundingBox = boundingBoxCoords( m_contourMapGrid->expandedBoundingBox() );
     }
     else
     {
@@ -1285,7 +1224,12 @@ void RimStatisticsContourMap::deleteCacheFiles() const
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::clearCacheFields()
 {
-    m_cacheFileBaseName = QString();
+    m_cacheFileBaseName        = QString();
+    m_cacheValidityKey         = QString();
+    m_cacheTimeSteps           = std::vector<int>();
+    m_cacheSampleSpacing       = 0.0;
+    m_cacheOriginalBoundingBox = std::vector<double>();
+    m_cacheExpandedBoundingBox = std::vector<double>();
 }
 
 //--------------------------------------------------------------------------------------------------

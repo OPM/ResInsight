@@ -157,9 +157,14 @@ private:
 
     // Base file name of the cache files within the project cache directory. Stored as a plain file
     // name to stay relocatable with the project and out of reach of the global path list macros.
-    // All other cache metadata (validity key, grid definition, time steps) is stored in a metadata
-    // footer inside each GRI cache file.
-    caf::PdmField<QString> m_cacheFileBaseName;
+    // The contour map grid definition is stored in fields, since the GRI files only hold the 2D
+    // sample grid and values.
+    caf::PdmField<QString>             m_cacheFileBaseName;
+    caf::PdmField<QString>             m_cacheValidityKey;
+    caf::PdmField<std::vector<int>>    m_cacheTimeSteps;
+    caf::PdmField<double>              m_cacheSampleSpacing;
+    caf::PdmField<std::vector<double>> m_cacheOriginalBoundingBox;
+    caf::PdmField<std::vector<double>> m_cacheExpandedBoundingBox;
 
     std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;

@@ -47,7 +47,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifInputPropertyLoader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifGriMetadataFooter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffWriter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesReader.cpp
