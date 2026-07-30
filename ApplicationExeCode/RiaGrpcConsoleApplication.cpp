@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcConsoleApplication.h"
 
+#include "RiaMainTools.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -30,6 +32,11 @@ QProcessEnvironment RiaGrpcConsoleApplication::pythonProcessEnvironment() const
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcConsoleApplication::doIdleProcessing()
 {
+    // The crash handler pumps the event loop while flushing telemetry, so this timer slot can fire
+    // mid-crash. Processing requests or closing the project would then destroy objects the crashed
+    // code still uses, causing a nested crash.
+    if ( RiaMainTools::isCrashHandlingInProgress() ) return;
+
     int processCount = processRequests();
     if ( processCount == -1 )
     {

@@ -32,6 +32,7 @@
 
 #include <QDir>
 
+#include <atomic>
 #include <csignal>
 #include <exception>
 #include <map>
@@ -156,6 +157,8 @@ static std::string signalCodeDescription( int signo, int siCode )
 #endif
 } // namespace internal
 
+static std::atomic<bool> s_crashHandlingInProgress( false );
+
 //--------------------------------------------------------------------------------------------------
 /// Shared crash logging: writes to file logger and OpenTelemetry.
 /// extraAttrs may include platform-specific context like fault address and signal code description.
@@ -166,6 +169,11 @@ static std::string signalCodeDescription( int signo, int siCode )
 //--------------------------------------------------------------------------------------------------
 static void performCrashLogging( int signalCode, const std::map<std::string, std::string>& extraAttrs )
 {
+    // Block timer-driven application logic (e.g. gRPC idle processing) for the rest of the process
+    // lifetime: the telemetry flush below pumps the event loop, and a timer slot firing there could
+    // close the project and destroy objects the crashed code still uses, causing a nested crash.
+    s_crashHandlingInProgress = true;
+
 #if RIA_HAS_STD_STACKTRACE
     auto st = std::stacktrace::current();
 #endif
@@ -306,6 +314,14 @@ void manageSegFailureSA( int signalCode, siginfo_t* info, void* ucontext )
 
 namespace RiaMainTools
 {
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool isCrashHandlingInProgress()
+{
+    return s_crashHandlingInProgress;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

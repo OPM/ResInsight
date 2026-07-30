@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcGuiApplication.h"
 
+#include "RiaMainTools.h"
 #include "RiaPreferences.h"
 
 #include "cafProgressInfo.h"
@@ -55,6 +56,11 @@ QProcessEnvironment RiaGrpcGuiApplication::pythonProcessEnvironment() const
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcGuiApplication::doIdleProcessing()
 {
+    // The crash handler pumps the event loop while flushing telemetry, so this timer slot can fire
+    // mid-crash. Processing requests or closing the project would then destroy objects the crashed
+    // code still uses, causing a nested crash.
+    if ( RiaMainTools::isCrashHandlingInProgress() ) return;
+
     if ( !caf::ProgressInfoStatic::isRunning() )
     {
         int processCount = processRequests();

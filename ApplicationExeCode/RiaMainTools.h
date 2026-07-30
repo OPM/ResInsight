@@ -22,4 +22,9 @@ namespace RiaMainTools
 void initializeSingletons();
 void releaseSingletonAndFactoryObjects();
 void deleteStaleSettingsLockFiles();
+
+// True once crash logging has started. The crash handler pumps the Qt event loop while flushing
+// telemetry, so timer-driven application logic must check this flag and stay idle to avoid
+// re-entering or tearing down objects the crashed code still uses.
+bool isCrashHandlingInProgress();
 }; // namespace RiaMainTools
