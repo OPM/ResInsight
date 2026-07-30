@@ -1052,8 +1052,19 @@ bool RimStatisticsContourMap::loadCachedResults()
         {
             const StatisticsType statisticsType = caf::AppEnum<StatisticsType>::fromIndex( statisticsTypeIndex );
 
-            const QString fileName    = cacheFileName( m_cacheFileBaseName(), statisticsType, timeStep );
-            auto          surfaceData = RifSurfio::importSurfaceData( fileName.toStdString() );
+            const QString fileName = cacheFileName( m_cacheFileBaseName(), statisticsType, timeStep );
+
+            // The surface reader throws on malformed files, fall back to recomputation
+            std::expected<std::pair<RigRegularSurfaceData, std::vector<float>>, std::string> surfaceData;
+            try
+            {
+                surfaceData = RifSurfio::importSurfaceData( fileName.toStdString() );
+            }
+            catch ( ... )
+            {
+                surfaceData = std::unexpected( "Unexpected file content" );
+            }
+
             if ( !surfaceData.has_value() )
             {
                 RiaLogging::warning( std::format( "Failed to read ensemble contour map statistics cache, recomputing: {}", fileName ) );
@@ -1061,7 +1072,8 @@ bool RimStatisticsContourMap::loadCachedResults()
             }
 
             const auto& [regularSurface, values] = surfaceData.value();
-            if ( regularSurface.nx != static_cast<int>( mapSize.x() ) || regularSurface.ny != static_cast<int>( mapSize.y() ) )
+            if ( regularSurface.nx != static_cast<int>( mapSize.x() ) || regularSurface.ny != static_cast<int>( mapSize.y() ) ||
+                 values.size() != static_cast<size_t>( mapSize.x() ) * static_cast<size_t>( mapSize.y() ) )
             {
                 RiaLogging::warning(
                     std::format( "Ensemble contour map statistics cache does not match the sample grid, recomputing: {}", fileName ) );
