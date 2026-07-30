@@ -99,13 +99,14 @@ public:
     QString                timeStepName( int timeStep ) const;
 
     std::vector<QString>                 selectedFormations() const;
-    std::vector<std::vector<cvf::Vec3d>> selectedPolygons();
+    std::vector<std::vector<cvf::Vec3d>> selectedPolygons() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void initAfterRead() override;
+    void setupBeforeSave() override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
@@ -117,6 +118,13 @@ private:
     void computeStatistics();
     void onComputeStatisticsClicked();
     void doStatisticsCalculation( TimestepResultsMap& timestep_results );
+
+    // Project-adjacent statistics cache, keyed by a hash of all settings affecting the results
+    QString        computeCacheValidityKey() const;
+    bool           loadCachedResults();
+    bool           writeCachedResults( const QString& fileName, const QString& validityKey ) const;
+    QString        getValidCacheFileName() const;
+    static QString getCacheDirectoryPath();
 
     RimFormationNames*           activeFormationNames() const;
     std::vector<RimEclipseCase*> ensembleCases() const;
@@ -142,10 +150,19 @@ private:
     caf::PdmField<double>                                          m_userDefinedFloodingGas;
     caf::PdmField<double>                                          m_userDefinedFloodingOil;
 
+    // File name of the cache file within the project cache directory. Stored as a plain file name
+    // to stay relocatable with the project and out of reach of the global path list macros
+    caf::PdmField<QString> m_cacheFileName;
+    caf::PdmField<QString> m_cacheValidityKey;
+
     std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;
 
     caf::PdmChildArrayField<RimStatisticsContourMapView*> m_views;
 
     RimEclipseCase* m_openEclipseCase;
+
+    // Validity key captured when the results were computed or loaded from cache, so that results
+    // from outdated settings are never written to the cache
+    QString m_computedValidityKey;
 };
