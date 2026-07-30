@@ -26,7 +26,8 @@ template <>
 void caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>::setUp()
 {
     // The alias is the serialization text used by previous versions, as read back from XML, and maps
-    // old project files to the correct enum value
+    // old project files to the correct enum value. EXTRA_FINE and EXTRA_COARSE have no alias, as their
+    // legacy texts contained whitespace and were never read back correctly from XML
     addItem( RimContourMapResolutionTools::SamplingResolution::EXTRA_FINE, "EXTRA_FINE", "Extra Fine" );
     addItem( RimContourMapResolutionTools::SamplingResolution::FINE, "FINE", "Fine", { "Fine" } );
     addItem( RimContourMapResolutionTools::SamplingResolution::NORMAL, "NORMAL", "Normal", { "Normal" } );
