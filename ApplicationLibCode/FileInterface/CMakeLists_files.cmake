@@ -48,6 +48,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifInputPropertyLoader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifRoffWriter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelExporter.cpp
