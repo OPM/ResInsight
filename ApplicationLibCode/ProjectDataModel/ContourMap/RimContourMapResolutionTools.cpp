@@ -28,9 +28,9 @@ void caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>::setUp()
     // The serialization text must not contain spaces, as the XML import reads one whitespace-delimited
     // token and a partial match falls back to the default enum value
     addItem( RimContourMapResolutionTools::SamplingResolution::EXTRA_FINE, "EXTRA_FINE", "Extra Fine" );
-    addItem( RimContourMapResolutionTools::SamplingResolution::FINE, "Fine", "Fine" );
-    addItem( RimContourMapResolutionTools::SamplingResolution::NORMAL, "Normal", "Normal" );
-    addItem( RimContourMapResolutionTools::SamplingResolution::COARSE, "Coarse", "Coarse" );
+    addItem( RimContourMapResolutionTools::SamplingResolution::FINE, "FINE", "Fine", { "Fine" } );
+    addItem( RimContourMapResolutionTools::SamplingResolution::NORMAL, "NORMAL", "Normal", { "Normal" } );
+    addItem( RimContourMapResolutionTools::SamplingResolution::COARSE, "COARSE", "Coarse", { "Coarse" } );
     addItem( RimContourMapResolutionTools::SamplingResolution::EXTRA_COARSE, "EXTRA_COARSE", "Extra Coarse" );
     setDefault( RimContourMapResolutionTools::SamplingResolution::NORMAL );
 }
