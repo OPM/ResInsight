@@ -33,6 +33,8 @@ namespace caf
 template <>
 void RimEquilibriumAxisAnnotation::ExportKeywordEnum::setUp()
 {
+    // The legacy serialization text "User Defined" is read back from XML as the single token "User", so
+    // use this token as alias to map old project files to PL_USER_DEFINED
     addItem( RimEquilibriumAxisAnnotation::PlotAxisAnnotationType::PL_USER_DEFINED, "USER_DEFINED", "User Defined", { "User" } );
     addItem( RimEquilibriumAxisAnnotation::PlotAxisAnnotationType::PL_EQUIL_WATER_OIL_CONTACT,
              "PL_EQUIL_WATER_OIL_CONTACT",
