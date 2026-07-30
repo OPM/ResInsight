@@ -186,6 +186,8 @@
         <file>WestView.svg</file>
         <file>Window16x16.png</file>
         <file>ZoomAll.svg</file>
+        <file>ZScaleDecrease.svg</file>
+        <file>ZScaleIncrease.svg</file>
         <file>Calculator.svg</file>
         <file>chain.png</file>
         <file>clipboard.png</file>

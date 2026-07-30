@@ -74,6 +74,7 @@ void RicIncreaseZScaleFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Increase Z Scale" );
     actionToSetup->setToolTip( "Increase Z Scale (Ctrl+Shift+Up)" );
+    actionToSetup->setIcon( QIcon( ":/ZScaleIncrease.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+Shift+Up" ) ) );
 }
 
@@ -108,5 +109,6 @@ void RicDecreaseZScaleFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Decrease Z Scale" );
     actionToSetup->setToolTip( "Decrease Z Scale (Ctrl+Shift+Down)" );
+    actionToSetup->setIcon( QIcon( ":/ZScaleDecrease.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+Shift+Down" ) ) );
 }
