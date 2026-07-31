@@ -38,8 +38,6 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
-#include <limits>
-
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimIntersection, "RimIntersectionHandle" );
 
 //--------------------------------------------------------------------------------------------------
@@ -245,7 +243,7 @@ bool RimIntersection::supportsSurfaceIntersectionCurves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimIntersection::surfaceCurtainFootprint() const
+RimIntersectionCurtain RimIntersection::surfaceCurtain() const
 {
     return {};
 }
@@ -253,9 +251,26 @@ std::vector<cvf::Vec3d> RimIntersection::surfaceCurtainFootprint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimIntersection::surfaceCurtainZRange() const
+double RimIntersection::defaultCurtainExtent()
 {
-    return { -std::numeric_limits<double>::max(), std::numeric_limits<double>::max() };
+    return 10000.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionCurtain RimIntersection::verticalCurtain( const std::vector<cvf::Vec3d>& trace, double topZ, double bottomZ )
+{
+    RimIntersectionCurtain curtain;
+    curtain.trace = trace;
+    curtain.pillars.reserve( trace.size() );
+
+    for ( const auto& point : trace )
+    {
+        curtain.pillars.emplace_back( cvf::Vec3d( point.x(), point.y(), topZ ), cvf::Vec3d( point.x(), point.y(), bottomZ ) );
+    }
+
+    return curtain;
 }
 
 //--------------------------------------------------------------------------------------------------

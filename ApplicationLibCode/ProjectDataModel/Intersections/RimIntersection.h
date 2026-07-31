@@ -41,6 +41,24 @@ namespace caf
 class PdmUiTreeOrdering;
 }
 
+//==================================================================================================
+/// The curtain of an intersection, described at a set of positions along it
+//==================================================================================================
+class RimIntersectionCurtain
+{
+public:
+    /// The polyline the curve is resampled along, in 3D. Kept apart from the pillars so the samples
+    /// are distributed along the intersection itself, also where the pillars are long.
+    std::vector<cvf::Vec3d> trace;
+
+    /// For each point of the trace, the segment the surface is looked up along, from the top to the
+    /// bottom of the curtain. Tilted for an intersection that follows the grid pillars, which is
+    /// what puts the curve on the curtain instead of on a vertical plane through it.
+    std::vector<std::pair<cvf::Vec3d, cvf::Vec3d>> pillars;
+
+    bool isValid() const { return trace.size() == pillars.size() && trace.size() > 1; }
+};
+
 class RimIntersection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -70,11 +88,7 @@ public:
     /// curves and bands. Horizontal sections would require contouring instead of a vertical ray cast.
     virtual bool supportsSurfaceIntersectionCurves() const;
 
-    /// The trace of the intersection in the XY plane, used to look up the surface below each point
-    virtual std::vector<cvf::Vec3d> surfaceCurtainFootprint() const;
-
-    /// The depth extent of the intersection, used to clip the surface intersection curves
-    virtual std::pair<double, double> surfaceCurtainZRange() const;
+    virtual RimIntersectionCurtain surfaceCurtain() const;
 
     virtual void rebuildGeometryAndScheduleCreateDisplayModel();
 
@@ -88,6 +102,12 @@ protected:
     void updateDefaultSeparateDataSource();
 
     void appendSurfaceIntersectionsToTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering );
+
+    /// A curtain that is a vertical extrusion of the trace, spanning [bottomZ, topZ]
+    static RimIntersectionCurtain verticalCurtain( const std::vector<cvf::Vec3d>& trace, double topZ, double bottomZ );
+
+    /// Reaches past any reservoir depth, used when the curtain has no defined vertical extent
+    static double defaultCurtainExtent();
 
     caf::PdmField<bool>                                m_isActive;
     caf::PdmField<bool>                                m_showInactiveCells;

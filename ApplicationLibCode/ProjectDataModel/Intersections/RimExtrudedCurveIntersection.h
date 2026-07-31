@@ -129,8 +129,8 @@ public:
     double     extentLength();
     bool       hasDefiningPoints() const;
 
-    bool                    supportsSurfaceIntersectionCurves() const override;
-    std::vector<cvf::Vec3d> surfaceCurtainFootprint() const override;
+    bool                   supportsSurfaceIntersectionCurves() const override;
+    RimIntersectionCurtain surfaceCurtain() const override;
 
     bool showIntersectionGeometry() const;
 

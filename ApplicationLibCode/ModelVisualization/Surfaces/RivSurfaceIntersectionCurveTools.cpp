@@ -44,14 +44,32 @@
 #include "cvfTransform.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace
 {
 // Distance between the points the footprint is resampled to before the surface is looked up
 const double maxLineSegmentLength = 1.0;
 
-// The vertical ray used to find the surface is made long enough to cover any reservoir depth
-const double verticalRayExtent = 10000.0;
+//--------------------------------------------------------------------------------------------------
+/// Move a point onto the pillar at the depth of the point, and report whether the depth is within the
+/// pillar at all. The surface lookup falls back to a search in the XY plane when the pillar misses the
+/// surface triangles, and that fallback keeps the XY of the top of the pillar and ignores the extent
+/// of the pillar. Without this the point ends up beside a tilted pillar, or outside a pillar that is
+/// bounded by the extent of the intersection.
+//--------------------------------------------------------------------------------------------------
+bool projectOntoPillar( const cvf::Vec3d& pillarTop, const cvf::Vec3d& pillarBottom, cvf::Vec3d& point )
+{
+    const double pillarHeight = pillarTop.z() - pillarBottom.z();
+    if ( std::fabs( pillarHeight ) < 1.0e-9 ) return true;
+
+    const double t = ( pillarTop.z() - point.z() ) / pillarHeight;
+    if ( t < 0.0 || t > 1.0 ) return false;
+
+    point = pillarTop + t * ( pillarBottom - pillarTop );
+
+    return true;
+}
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -120,17 +138,42 @@ std::vector<RimSurface*> RivSurfaceIntersectionCurveTools::referencedSurfaces( c
 //--------------------------------------------------------------------------------------------------
 std::map<RimSurface*, RivSurfaceCurtainPolyline>
     RivSurfaceIntersectionCurveTools::computeSurfaceCurtainPolylines( const std::vector<RimSurface*>& surfaces,
-                                                                      const std::vector<cvf::Vec3d>&  footprintPolyline,
-                                                                      double                          minZ,
-                                                                      double                          maxZ,
+                                                                      const RimIntersectionCurtain&   curtain,
                                                                       const std::function<cvf::Vec3d( const cvf::Vec3d&, size_t )>& pointTransform )
 {
     std::map<RimSurface*, RivSurfaceCurtainPolyline> surfacePolylines;
 
-    if ( footprintPolyline.size() < 2 ) return surfacePolylines;
+    if ( !curtain.isValid() ) return surfacePolylines;
 
-    const auto resampledPolyline = RigSurfaceResampler::computeResampledPolylineWithSegmentInfo( footprintPolyline, maxLineSegmentLength );
-    if ( resampledPolyline.empty() ) return surfacePolylines;
+    const auto resampledTrace = RigSurfaceResampler::computeResampledPolylineWithSegmentInfo( curtain.trace, maxLineSegmentLength );
+    if ( resampledTrace.empty() ) return surfacePolylines;
+
+    // Both ends of a pillar are interpolated using the position of the resampled point within its trace
+    // segment, so a resampled pillar stays on the curtain
+    std::vector<std::pair<cvf::Vec3d, cvf::Vec3d>> resampledPillars;
+    std::vector<size_t>                            segmentIndices;
+    resampledPillars.reserve( resampledTrace.size() );
+    segmentIndices.reserve( resampledTrace.size() );
+
+    for ( const auto& [point, segmentIndex] : resampledTrace )
+    {
+        if ( segmentIndex + 1 >= curtain.pillars.size() ) continue;
+
+        const auto& traceStart = curtain.trace[segmentIndex];
+        const auto& traceEnd   = curtain.trace[segmentIndex + 1];
+
+        const double segmentLength = ( traceEnd - traceStart ).length();
+        const double t             = segmentLength > 0.0 ? std::clamp( ( point - traceStart ).length() / segmentLength, 0.0, 1.0 ) : 0.0;
+
+        const auto& pillarStart = curtain.pillars[segmentIndex];
+        const auto& pillarEnd   = curtain.pillars[segmentIndex + 1];
+
+        const cvf::Vec3d top    = pillarStart.first + t * ( pillarEnd.first - pillarStart.first );
+        const cvf::Vec3d bottom = pillarStart.second + t * ( pillarEnd.second - pillarStart.second );
+
+        resampledPillars.emplace_back( top, bottom );
+        segmentIndices.push_back( segmentIndex );
+    }
 
     for ( auto rimSurface : surfaces )
     {
@@ -141,23 +184,22 @@ std::map<RimSurface*, RivSurfaceCurtainPolyline>
         if ( !surface ) continue;
 
         RivSurfaceCurtainPolyline curtainPolyline;
-        curtainPolyline.points.reserve( resampledPolyline.size() );
-        curtainPolyline.valid.reserve( resampledPolyline.size() );
+        curtainPolyline.points.reserve( resampledPillars.size() );
+        curtainPolyline.valid.reserve( resampledPillars.size() );
 
         bool anyValidPoint = false;
 
-        for ( const auto& [point, segmentIndex] : resampledPolyline )
+        for ( size_t i = 0; i < resampledPillars.size(); i++ )
         {
-            cvf::Vec3d pointAbove = cvf::Vec3d( point.x(), point.y(), verticalRayExtent );
-            cvf::Vec3d pointBelow = cvf::Vec3d( point.x(), point.y(), -verticalRayExtent );
+            const auto& [pillarTop, pillarBottom] = resampledPillars[i];
 
             cvf::Vec3d intersectionPoint;
-            bool       foundMatch = RigSurfaceResampler::findClosestPointOnSurface( surface, pointAbove, pointBelow, intersectionPoint );
+            bool       isValid = RigSurfaceResampler::findClosestPointOnSurface( surface, pillarTop, pillarBottom, intersectionPoint );
 
-            bool isValid = foundMatch && intersectionPoint.z() >= minZ && intersectionPoint.z() <= maxZ;
+            if ( isValid ) isValid = projectOntoPillar( pillarTop, pillarBottom, intersectionPoint );
 
             // A point is always appended, also when the surface was not hit, to keep the two curves of a band index aligned
-            curtainPolyline.points.push_back( pointTransform( intersectionPoint, segmentIndex ) );
+            curtainPolyline.points.push_back( pointTransform( intersectionPoint, segmentIndices[i] ) );
             curtainPolyline.valid.push_back( isValid );
 
             anyValidPoint = anyValidPoint || isValid;
@@ -248,8 +290,8 @@ cvf::Collection<cvf::Part> RivSurfaceIntersectionCurveTools::createAnnotationPar
     const auto surfaces = referencedSurfaces( intersection->surfaceIntersectionCollection() );
     if ( surfaces.empty() ) return {};
 
-    const auto footprint = intersection->surfaceCurtainFootprint();
-    if ( footprint.size() < 2 ) return {};
+    const auto curtain = intersection->surfaceCurtain();
+    if ( !curtain.isValid() ) return {};
 
     // The visualization parts are built in display coordinates
     cvf::Vec3d displayOffset( 0.0, 0.0, 0.0 );
@@ -258,11 +300,9 @@ cvf::Collection<cvf::Part> RivSurfaceIntersectionCurveTools::createAnnotationPar
         if ( gridView && gridView->ownerCase() ) displayOffset = gridView->ownerCase()->displayModelOffset();
     }
 
-    const auto [minZ, maxZ] = intersection->surfaceCurtainZRange();
-
     auto pointTransform = [displayOffset]( const cvf::Vec3d& point, size_t segmentIndex ) { return point - displayOffset; };
 
-    const auto surfacePolylines = computeSurfaceCurtainPolylines( surfaces, footprint, minZ, maxZ, pointTransform );
+    const auto surfacePolylines = computeSurfaceCurtainPolylines( surfaces, curtain, pointTransform );
 
     return createAnnotationParts( intersection->surfaceIntersectionCollection(), surfacePolylines, scaleTransform );
 }

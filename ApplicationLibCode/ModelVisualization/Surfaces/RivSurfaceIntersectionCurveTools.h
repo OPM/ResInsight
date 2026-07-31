@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimIntersection.h"
+
 #include "cvfCollection.h"
 #include "cvfColor3.h"
 #include "cvfObject.h"
@@ -29,7 +31,6 @@
 #include <map>
 #include <vector>
 
-class RimIntersection;
 class RimSurface;
 class RimSurfaceIntersectionCollection;
 
@@ -40,10 +41,10 @@ class Transform;
 } // namespace cvf
 
 //==================================================================================================
-/// The curve created when a surface is projected onto a vertical intersection. One entry per
-/// resampled footprint point, where valid[i] is false if the vertical ray missed the surface or the
-/// hit fell outside the depth extent of the intersection. Invalid points are kept in the array
-/// instead of being removed, so the two curves of a band stay index aligned.
+/// The curve created when a surface is projected onto an intersection. One entry per resampled
+/// position along the intersection, where valid[i] is false if the pillar at that position missed
+/// the surface. Invalid points are kept in the array instead of being removed, so the two curves of
+/// a band stay index aligned.
 //==================================================================================================
 class RivSurfaceCurtainPolyline
 {
@@ -57,30 +58,32 @@ public:
 
 //==================================================================================================
 /// Creation of surface intersection curves and bands. Shared by all intersection types that produce
-/// a vertical curtain, and that therefore can find the curve by shooting a vertical ray at the
-/// surface for each point along the footprint of the intersection.
+/// a curtain, and that therefore can find the curve by looking the surface up along the pillar the
+/// curtain is spanned between at each position along the intersection.
 //==================================================================================================
 class RivSurfaceIntersectionCurveTools
 {
 public:
     static std::vector<RimSurface*> referencedSurfaces( const RimSurfaceIntersectionCollection* surfaceIntersections );
 
-    /// pointTransform maps (worldPoint, footprintSegmentIndex) to the output coordinate system. Use
-    /// the identity for intersections drawn in 3D only, or the flattening transform when the curve
-    /// is also displayed in a 2D intersection view.
+    /// The surface is looked up along the pillars of the curtain, so the curve follows a tilted
+    /// curtain instead of a vertical plane through it. The curtain is resampled along its trace to
+    /// the resolution the curve is drawn at, and the pillars are interpolated to match.
+    ///
+    /// pointTransform maps (worldPoint, traceSegmentIndex) to the output coordinate system. Use the
+    /// identity for intersections drawn in 3D only, or the flattening transform when the curve is
+    /// also displayed in a 2D intersection view.
     static std::map<RimSurface*, RivSurfaceCurtainPolyline>
         computeSurfaceCurtainPolylines( const std::vector<RimSurface*>&                               surfaces,
-                                        const std::vector<cvf::Vec3d>&                                footprintPolyline,
-                                        double                                                        minZ,
-                                        double                                                        maxZ,
+                                        const RimIntersectionCurtain&                                 curtain,
                                         const std::function<cvf::Vec3d( const cvf::Vec3d&, size_t )>& pointTransform );
 
     static cvf::Collection<cvf::Part> createAnnotationParts( const RimSurfaceIntersectionCollection*                 surfaceIntersections,
                                                              const std::map<RimSurface*, RivSurfaceCurtainPolyline>& surfacePolylines,
                                                              cvf::Transform*                                         scaleTransform );
 
-    /// Curves and bands for an intersection that is drawn in 3D only, computed from the footprint and
-    /// the depth extent reported by the intersection itself
+    /// Curves and bands for an intersection that is drawn in 3D only, computed from the pillars
+    /// reported by the intersection itself
     static cvf::Collection<cvf::Part> createAnnotationParts( const RimIntersection* intersection, cvf::Transform* scaleTransform );
 
 private:

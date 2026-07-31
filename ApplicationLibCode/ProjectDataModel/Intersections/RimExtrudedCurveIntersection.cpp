@@ -1294,14 +1294,17 @@ bool RimExtrudedCurveIntersection::supportsSurfaceIntersectionCurves() const
 
 //--------------------------------------------------------------------------------------------------
 /// The first polyline is used, as the surface intersection curve follows the same line as the
-/// intersection geometry itself
+/// intersection geometry itself. The curtain is treated as a vertical extrusion, also when the
+/// intersection has a tilted extrusion direction.
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimExtrudedCurveIntersection::surfaceCurtainFootprint() const
+RimIntersectionCurtain RimExtrudedCurveIntersection::surfaceCurtain() const
 {
     auto lines = polyLines();
     if ( lines.empty() ) return {};
 
-    return lines.front();
+    const double extent = defaultCurtainExtent();
+
+    return verticalCurtain( lines.front(), extent, -extent );
 }
 
 //--------------------------------------------------------------------------------------------------

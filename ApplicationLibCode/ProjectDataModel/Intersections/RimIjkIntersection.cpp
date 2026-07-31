@@ -212,10 +212,11 @@ bool RimIjkIntersection::supportsSurfaceIntersectionCurves() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Walk the cells of the index plane along the varying axis and pick the cell face corners, so the
-/// footprint follows the pillars and steps with the faults instead of being a straight line
+/// Walk the cells of the index plane along the varying axis and pick the cell face corners. Each
+/// pillar runs from the top of the first k layer to the bottom of the last k layer, so a tilted
+/// pillar gives a curve that lies on the curtain rather than on a vertical plane through it.
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimIjkIntersection::surfaceCurtainFootprint() const
+RimIntersectionCurtain RimIjkIntersection::surfaceCurtain() const
 {
     if ( !supportsSurfaceIntersectionCurves() ) return {};
 
@@ -228,7 +229,10 @@ std::vector<cvf::Vec3d> RimIjkIntersection::surfaceCurtainFootprint() const
     const bool alongJ = m_axis() == GridAxis::AXIS_I;
 
     // Corner indices of the cell face, see the hex vertex numbering in StructGridInterface::cellFaceVertexIndices().
-    // The first corner is at the start of the varying axis, the second at the end of the same axis.
+    // The first corner is at the start of the varying axis, the second at the end of the same axis. Corners 0-3 are
+    // the low k side of the cell, and adding 4 gives the corner on the same pillar at the high k side.
+    const int cornersPerKSide = 4;
+
     int startCorner = 0;
     int endCorner   = 0;
     if ( alongJ )
@@ -245,69 +249,43 @@ std::vector<cvf::Vec3d> RimIjkIntersection::surfaceCurtainFootprint() const
     // The fixed axis is collapsed to a single index by clampedCellRange()
     const size_t fixedI = cellRange->min().i();
     const size_t fixedJ = cellRange->min().j();
-    const size_t k      = cellRange->min().k();
+
+    const size_t firstK = cellRange->min().k();
+    const size_t lastK  = cellRange->max().k();
 
     const size_t varyingMin = alongJ ? cellRange->min().j() : cellRange->min().i();
     const size_t varyingMax = alongJ ? cellRange->max().j() : cellRange->max().i();
 
-    std::vector<cvf::Vec3d> footprint;
+    RimIntersectionCurtain curtain;
+
+    // The pillar at one position is spanned between the first and the last cell of the k range. The
+    // top of the pillar is used as the trace, so the curve is resampled along the top of the curtain.
+    auto appendPillar = [&]( size_t i, size_t j, int corner )
+    {
+        const size_t topCellIndex    = grid->cellIndexFromIJK( i, j, firstK );
+        const size_t bottomCellIndex = grid->cellIndexFromIJK( i, j, lastK );
+
+        if ( topCellIndex == cvf::UNDEFINED_SIZE_T || bottomCellIndex == cvf::UNDEFINED_SIZE_T ) return;
+        if ( grid->cell( topCellIndex ).isInvalid() || grid->cell( bottomCellIndex ).isInvalid() ) return;
+
+        const auto topCorners    = grid->cellCornerVertices( topCellIndex );
+        const auto bottomCorners = grid->cellCornerVertices( bottomCellIndex );
+
+        curtain.trace.push_back( topCorners[corner] );
+        curtain.pillars.emplace_back( topCorners[corner], bottomCorners[corner + cornersPerKSide] );
+    };
 
     for ( size_t varying = varyingMin; varying <= varyingMax; ++varying )
     {
         const size_t i = alongJ ? fixedI : varying;
         const size_t j = alongJ ? varying : fixedJ;
 
-        const size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
-        if ( cellIndex == cvf::UNDEFINED_SIZE_T ) continue;
-        if ( grid->cell( cellIndex ).isInvalid() ) continue;
+        appendPillar( i, j, startCorner );
 
-        const auto corners = grid->cellCornerVertices( cellIndex );
-
-        footprint.push_back( corners[startCorner] );
-
-        if ( varying == varyingMax ) footprint.push_back( corners[endCorner] );
+        if ( varying == varyingMax ) appendPillar( i, j, endCorner );
     }
 
-    return footprint;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// The extent is found from the first and the last layer of the index range only, as the pillars are
-/// monotonous in the k direction
-//--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimIjkIntersection::surfaceCurtainZRange() const
-{
-    RigMainGrid* grid = mainGrid();
-    if ( !grid ) return RimIntersection::surfaceCurtainZRange();
-
-    const auto cellRange = clampedCellRange( grid );
-    if ( !cellRange ) return RimIntersection::surfaceCurtainZRange();
-
-    double minZ = std::numeric_limits<double>::max();
-    double maxZ = -std::numeric_limits<double>::max();
-
-    for ( size_t k : { cellRange->min().k(), cellRange->max().k() } )
-    {
-        for ( size_t j = cellRange->min().j(); j <= cellRange->max().j(); ++j )
-        {
-            for ( size_t i = cellRange->min().i(); i <= cellRange->max().i(); ++i )
-            {
-                const size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
-                if ( cellIndex == cvf::UNDEFINED_SIZE_T ) continue;
-                if ( grid->cell( cellIndex ).isInvalid() ) continue;
-
-                for ( const auto& corner : grid->cellCornerVertices( cellIndex ) )
-                {
-                    minZ = std::min( minZ, corner.z() );
-                    maxZ = std::max( maxZ, corner.z() );
-                }
-            }
-        }
-    }
-
-    if ( minZ > maxZ ) return RimIntersection::surfaceCurtainZRange();
-
-    return { minZ, maxZ };
+    return curtain;
 }
 
 //--------------------------------------------------------------------------------------------------

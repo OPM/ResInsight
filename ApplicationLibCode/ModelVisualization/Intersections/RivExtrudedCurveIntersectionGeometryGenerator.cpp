@@ -165,8 +165,9 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
     const auto surfaces = RivSurfaceIntersectionCurveTools::referencedSurfaces( m_intersection->surfaceIntersectionCollection() );
     if ( surfaces.empty() ) return;
 
-    // The curve is drawn along the whole intersection, so no depth clipping is applied here
-    const auto [minZ, maxZ] = m_intersection->surfaceCurtainZRange();
+    // Vertical pillars along the same polyline as the one used to build the geometry
+    const auto curtain = m_intersection->surfaceCurtain();
+    if ( !curtain.isValid() ) return;
 
     // The polyline is flattened when the curve is displayed in a 2D intersection view
     auto pointTransform = [this]( const cvf::Vec3d& point, size_t segmentIndex )
@@ -176,7 +177,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
     };
 
     m_transformedSurfaceIntersectionPolylines =
-        RivSurfaceIntersectionCurveTools::computeSurfaceCurtainPolylines( surfaces, m_polylines.front(), minZ, maxZ, pointTransform );
+        RivSurfaceIntersectionCurveTools::computeSurfaceCurtainPolylines( surfaces, curtain, pointTransform );
 }
 
 class MeshLinesAccumulator

@@ -199,29 +199,23 @@ bool RimBoxIntersection::supportsSurfaceIntersectionCurves() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The pillars span the depth range of the box, so the curve is clipped to the box face. The depth
+/// fields are positive downwards, while z is positive upwards.
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimBoxIntersection::surfaceCurtainFootprint() const
+RimIntersectionCurtain RimBoxIntersection::surfaceCurtain() const
 {
+    std::vector<cvf::Vec3d> trace;
+
     if ( m_singlePlaneState() == PLANE_STATE_X )
     {
-        return { cvf::Vec3d( m_minXCoord, m_minYCoord, 0.0 ), cvf::Vec3d( m_minXCoord, m_maxYCoord, 0.0 ) };
+        trace = { cvf::Vec3d( m_minXCoord, m_minYCoord, 0.0 ), cvf::Vec3d( m_minXCoord, m_maxYCoord, 0.0 ) };
     }
-
-    if ( m_singlePlaneState() == PLANE_STATE_Y )
+    else if ( m_singlePlaneState() == PLANE_STATE_Y )
     {
-        return { cvf::Vec3d( m_minXCoord, m_minYCoord, 0.0 ), cvf::Vec3d( m_maxXCoord, m_minYCoord, 0.0 ) };
+        trace = { cvf::Vec3d( m_minXCoord, m_minYCoord, 0.0 ), cvf::Vec3d( m_maxXCoord, m_minYCoord, 0.0 ) };
     }
 
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-/// The depth fields are positive downwards, while z is positive upwards
-//--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimBoxIntersection::surfaceCurtainZRange() const
-{
-    return { -m_maxDepth(), -m_minDepth() };
+    return verticalCurtain( trace, -m_minDepth(), -m_maxDepth() );
 }
 
 //--------------------------------------------------------------------------------------------------
