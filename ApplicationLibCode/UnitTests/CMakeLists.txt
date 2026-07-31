@@ -19,6 +19,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellInfo-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseDataTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMobilePoreVolumeResultCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoir-Test.cpp

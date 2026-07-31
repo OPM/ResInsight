@@ -18,6 +18,7 @@
 
 #include "RigEclipseCrossPlotDataExtractor.h"
 
+#include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RimEclipseResultDefinition.h"
@@ -94,12 +95,23 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseC
             timeStepsToInclude.insert( static_cast<size_t>( resultTimeStep ) );
         }
 
+        const size_t reservoirCellCount = xResultData->activeCellInfo()->reservoirCellCount();
+
         for ( int timeStep : timeStepsToInclude )
         {
             const cvf::UByteArray* cellVisibility = nullptr;
             if ( timeStepCellVisibilityMap.count( timeStep ) )
             {
-                cellVisibility = &timeStepCellVisibilityMap[timeStep];
+                const cvf::UByteArray& visibilityForTimeStep = timeStepCellVisibilityMap[timeStep];
+                if ( visibilityForTimeStep.size() == reservoirCellCount )
+                {
+                    cellVisibility = &visibilityForTimeStep;
+                }
+                else
+                {
+                    RiaLogging::warning(
+                        "Cell visibility size mismatch with reservoir cell count. Ignoring cell filter in grid cross plot." );
+                }
             }
 
             int xIndex = timeStep >= (int)xValuesForAllSteps.size() ? 0 : timeStep;
@@ -118,7 +130,7 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseC
                                                                               groupResultData->activeCellInfo() );
             }
 
-            for ( size_t globalCellIdx = 0; globalCellIdx < xResultData->activeCellInfo()->reservoirCellCount(); ++globalCellIdx )
+            for ( size_t globalCellIdx = 0; globalCellIdx < reservoirCellCount; ++globalCellIdx )
             {
                 if ( cellVisibility && !( *cellVisibility )[globalCellIdx] ) continue;
 
