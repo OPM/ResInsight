@@ -40,8 +40,30 @@
 
 #include <QAction>
 #include <cmath>
+#include <set>
 
 CAF_CMD_SOURCE_INIT( RicExportSurfaceToGriFeature, "RicExportSurfaceToGriFeature" );
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Returns the surface if it is a regular surface with a grid matching gridParams exactly, nullptr otherwise
+//--------------------------------------------------------------------------------------------------
+RimRegularSurface* regularSurfaceWithMatchingGrid( RimSurface* surf, const RigRegularSurfaceData& gridParams )
+{
+    auto* reg = dynamic_cast<RimRegularSurface*>( surf );
+    if ( !reg ) return nullptr;
+
+    if ( reg->nx() == gridParams.nx && reg->ny() == gridParams.ny && reg->originX() == gridParams.originX &&
+         reg->originY() == gridParams.originY && reg->incrementX() == gridParams.incrementX && reg->incrementY() == gridParams.incrementY &&
+         reg->rotation() == gridParams.rotation )
+    {
+        return reg;
+    }
+
+    return nullptr;
+}
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 /// For a RimRegularSurface whose stored grid matches gridParams exactly, depth values are returned
@@ -50,14 +72,9 @@ CAF_CMD_SOURCE_INIT( RicExportSurfaceToGriFeature, "RicExportSurfaceToGriFeature
 std::vector<float> RicExportSurfaceToGriFeature::resampleToGrid( RimSurface* surf, const RigRegularSurfaceData& gridParams )
 {
     // Regular surface with matching grid: use stored depth values directly (lossless)
-    if ( auto* reg = dynamic_cast<RimRegularSurface*>( surf ) )
+    if ( auto* reg = regularSurfaceWithMatchingGrid( surf, gridParams ) )
     {
-        if ( reg->nx() == gridParams.nx && reg->ny() == gridParams.ny && reg->originX() == gridParams.originX &&
-             reg->originY() == gridParams.originY && reg->incrementX() == gridParams.incrementX &&
-             reg->incrementY() == gridParams.incrementY && reg->rotation() == gridParams.rotation )
-        {
-            return reg->depthValues();
-        }
+        return reg->depthValues();
     }
 
     // Resample the surface onto the requested grid
@@ -83,6 +100,23 @@ std::vector<float> RicExportSurfaceToGriFeature::resampleToGrid( RimSurface* sur
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<float>
+    RicExportSurfaceToGriFeature::propertyValuesOnGrid( RimSurface* surf, const QString& propertyName, const RigRegularSurfaceData& gridParams )
+{
+    auto* reg = dynamic_cast<RimRegularSurface*>( surf );
+    if ( !reg ) return {};
+
+    // Property values are stored per node on the surface grid and are exported as they are. The export grid must
+    // therefore have the same number of nodes as the surface.
+    auto values = reg->getProperty( propertyName );
+    if ( values.size() != static_cast<size_t>( gridParams.nx * gridParams.ny ) ) return {};
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicExportSurfaceToGriFeature::exportSurfaces( const std::vector<RimSurface*>& surfaces )
 {
     if ( surfaces.empty() ) return;
@@ -96,6 +130,18 @@ void RicExportSurfaceToGriFeature::exportSurfaces( const std::vector<RimSurface*
 
     RimRegularSurface* regularSurface = ( surfaces.size() == 1 ) ? dynamic_cast<RimRegularSurface*>( surfaces[0] ) : nullptr;
 
+    // Collect the properties available for export from all selected surfaces
+    std::set<QString> availableProperties;
+    for ( RimSurface* surf : surfaces )
+    {
+        if ( RigSurface* rig = surf->surfaceData() )
+        {
+            for ( const auto& name : rig->propertyNames() )
+                availableProperties.insert( name );
+        }
+    }
+    ui.setAvailableProperties( { availableProperties.begin(), availableProperties.end() } );
+
     if ( regularSurface )
     {
         ui.setGridDefaults( regularSurface->nx(),
@@ -103,7 +149,8 @@ void RicExportSurfaceToGriFeature::exportSurfaces( const std::vector<RimSurface*
                             regularSurface->originX(),
                             regularSurface->originY(),
                             regularSurface->incrementX(),
-                            regularSurface->incrementY() );
+                            regularSurface->incrementY(),
+                            regularSurface->rotation() );
     }
     else
     {
@@ -124,11 +171,12 @@ void RicExportSurfaceToGriFeature::exportSurfaces( const std::vector<RimSurface*
         const double spacing    = ( areaApprox > 0.0 ) ? std::sqrt( areaApprox / static_cast<double>( totalVertexCount ) ) : 1.0;
         const int    nx         = std::max( 2, static_cast<int>( std::ceil( bb.extent().x() / spacing ) ) + 1 );
         const int    ny         = std::max( 2, static_cast<int>( std::ceil( bb.extent().y() / spacing ) ) + 1 );
-        ui.setGridDefaults( nx, ny, bb.min().x(), bb.min().y(), spacing, spacing );
+        // The estimated grid is a starting point for the user, so round the values to something readable
+        ui.setGridDefaults( nx, ny, std::round( bb.min().x() ), std::round( bb.min().y() ), std::round( spacing ), std::round( spacing ), 0.0 );
     }
 
     caf::PdmUiPropertyViewDialog dialog( nullptr, &ui, "Export Surface to IRAP/GRI", "" );
-    dialog.resize( QSize( 400, 300 ) );
+    dialog.resize( QSize( 400, 450 ) );
     if ( dialog.exec() != QDialog::Accepted ) return;
 
     const QString exportDir = ui.exportFolder();
@@ -140,21 +188,54 @@ void RicExportSurfaceToGriFeature::exportSurfaces( const std::vector<RimSurface*
     const bool                  binary     = ( ui.exportFormat() == RicExportSurfaceToGriUi::ExportFormat::GRI );
     const QString               extension  = binary ? ".gri" : ".irap";
 
+    const auto selectedProperties = ui.selectedProperties();
+    if ( selectedProperties.empty() )
+    {
+        RiaLogging::error( "No values selected for export." );
+        return;
+    }
+
+    // IRAP/GRI files contain a single value per node, so each exported value is written to a separate file. When only
+    // depth values are exported, the file name is the surface name without any suffix.
+    const bool useValueNameSuffix = ( selectedProperties.size() > 1 ) ||
+                                    ( selectedProperties[0] != RicExportSurfaceToGriUi::depthEntryName() );
+
     for ( RimSurface* surf : surfaces )
     {
-        const QString fileName =
-            caf::Utils::constructFullFileName( exportDir, caf::Utils::makeValidFileBasename( surf->fullName() ), extension );
+        for ( const QString& valueName : selectedProperties )
+        {
+            const bool isDepth = ( valueName == RicExportSurfaceToGriUi::depthEntryName() );
+            const auto values  = isDepth ? resampleToGrid( surf, gridParams ) : propertyValuesOnGrid( surf, valueName, gridParams );
 
-        const auto depthValues = resampleToGrid( surf, gridParams );
-        if ( depthValues.empty() ) continue;
+            if ( values.empty() )
+            {
+                if ( isDepth )
+                {
+                    RiaLogging::warning( std::format( "No depth values found for surface '{}', skipping export.", surf->fullName() ) );
+                }
+                else
+                {
+                    RiaLogging::warning( std::format( "Skipping export of '{}' for surface '{}'. Properties can only be exported for a "
+                                                      "regular surface, and Nx and Ny must match the surface.",
+                                                      valueName,
+                                                      surf->fullName() ) );
+                }
+                continue;
+            }
 
-        bool ok = binary ? RifSurfio::exportToGri( fileName.toStdString(), gridParams, depthValues )
-                         : RifSurfio::exportToIrap( fileName.toStdString(), gridParams, depthValues );
+            QString baseName = caf::Utils::makeValidFileBasename( surf->fullName() );
+            if ( useValueNameSuffix ) baseName += "--" + caf::Utils::makeValidFileBasename( valueName );
 
-        if ( ok )
-            RiaLogging::info( std::format( "Exported surface to: {}", fileName ) );
-        else
-            RiaLogging::error( std::format( "Failed to export surface to: {}", fileName ) );
+            const QString fileName = caf::Utils::constructFullFileName( exportDir, baseName, extension );
+
+            bool ok = binary ? RifSurfio::exportToGri( fileName.toStdString(), gridParams, values )
+                             : RifSurfio::exportToIrap( fileName.toStdString(), gridParams, values );
+
+            if ( ok )
+                RiaLogging::info( std::format( "Exported surface to: {}", fileName ) );
+            else
+                RiaLogging::error( std::format( "Failed to export surface to: {}", fileName ) );
+        }
     }
 }
 

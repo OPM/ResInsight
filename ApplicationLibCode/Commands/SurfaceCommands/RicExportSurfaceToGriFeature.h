@@ -41,6 +41,11 @@ public:
     // in row-major order (index = j * nx + i). Returns an empty vector on failure.
     static std::vector<float> resampleToGrid( RimSurface* surf, const RigRegularSurfaceData& gridParams );
 
+    // Returns the values of the named property in row-major order (index = j * nx + i). Property values are exported
+    // without resampling, so an empty vector is returned unless the surface is a regular surface with the same number
+    // of nodes as gridParams.
+    static std::vector<float> propertyValuesOnGrid( RimSurface* surf, const QString& propertyName, const RigRegularSurfaceData& gridParams );
+
     // Shows the export dialog, resamples and writes each surface. Format is chosen in the dialog.
     static void exportSurfaces( const std::vector<RimSurface*>& surfaces );
 
