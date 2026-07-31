@@ -19,8 +19,7 @@
 #include "RicExportSurfaceToGriUi.h"
 
 #include "cafPdmUiFilePathEditor.h"
-
-#include <cmath>
+#include "cafPdmUiTreeSelectionEditor.h"
 
 namespace caf
 {
@@ -47,12 +46,25 @@ RicExportSurfaceToGriUi::RicExportSurfaceToGriUi()
     CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder" );
     m_exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitFieldNoDefault( &m_selectedProperties, "SelectedProperties", "Export Values" );
+    m_selectedProperties.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedProperties = std::vector<QString>{ depthEntryName() };
+
     CAF_PDM_InitField( &m_nx, "Nx", 10, "Nx (columns)" );
     CAF_PDM_InitField( &m_ny, "Ny", 10, "Ny (rows)" );
     CAF_PDM_InitField( &m_originX, "OriginX", 0.0, "Origin X" );
     CAF_PDM_InitField( &m_originY, "OriginY", 0.0, "Origin Y" );
     CAF_PDM_InitField( &m_incrementX, "IncrementX", 1.0, "Increment X" );
     CAF_PDM_InitField( &m_incrementY, "IncrementY", 1.0, "Increment Y" );
+    CAF_PDM_InitField( &m_rotation, "Rotation", 0.0, "Rotation" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicExportSurfaceToGriUi::depthEntryName()
+{
+    return "Depth";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,14 +78,23 @@ void RicExportSurfaceToGriUi::setExportFolder( const QString& exportFolder )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportSurfaceToGriUi::setGridDefaults( int nx, int ny, double originX, double originY, double incrementX, double incrementY )
+void RicExportSurfaceToGriUi::setGridDefaults( int nx, int ny, double originX, double originY, double incrementX, double incrementY, double rotation )
 {
     m_nx         = nx;
     m_ny         = ny;
-    m_originX    = std::round( originX );
-    m_originY    = std::round( originY );
-    m_incrementX = std::round( incrementX );
-    m_incrementY = std::round( incrementY );
+    m_originX    = originX;
+    m_originY    = originY;
+    m_incrementX = incrementX;
+    m_incrementY = incrementY;
+    m_rotation   = rotation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportSurfaceToGriUi::setAvailableProperties( const std::vector<QString>& propertyNames )
+{
+    m_availableProperties = propertyNames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,8 +109,16 @@ RigRegularSurfaceData RicExportSurfaceToGriUi::gridParams() const
     p.originY    = m_originY;
     p.incrementX = m_incrementX;
     p.incrementY = m_incrementY;
-    p.rotation   = 0.0;
+    p.rotation   = m_rotation;
     return p;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RicExportSurfaceToGriUi::selectedProperties() const
+{
+    return m_selectedProperties();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,4 +149,27 @@ void RicExportSurfaceToGriUi::defineEditorAttribute( const caf::PdmFieldHandle* 
             attr->m_selectDirectory = true;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RicExportSurfaceToGriUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_selectedProperties )
+    {
+        options.push_back( caf::PdmOptionItemInfo( depthEntryName(), depthEntryName() ) );
+
+        for ( const auto& name : m_availableProperties )
+        {
+            // A property with the same name as the depth entry is already represented in the list
+            if ( name == depthEntryName() ) continue;
+
+            options.push_back( caf::PdmOptionItemInfo( name, name ) );
+        }
+    }
+
+    return options;
 }

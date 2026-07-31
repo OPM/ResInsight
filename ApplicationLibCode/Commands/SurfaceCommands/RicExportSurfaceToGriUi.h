@@ -24,6 +24,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <vector>
+
 //==================================================================================================
 /// PdmObject holding the parameters for resampling a surface onto a regular grid before export.
 //==================================================================================================
@@ -40,23 +42,33 @@ public:
 
     RicExportSurfaceToGriUi();
 
+    // Name of the entry representing the surface depth values in the list of exported values
+    static QString depthEntryName();
+
     void setExportFolder( const QString& exportFolder );
-    void setGridDefaults( int nx, int ny, double originX, double originY, double incrementX, double incrementY );
+    void setGridDefaults( int nx, int ny, double originX, double originY, double incrementX, double incrementY, double rotation );
+    void setAvailableProperties( const std::vector<QString>& propertyNames );
 
     RigRegularSurfaceData gridParams() const;
     QString               exportFolder() const;
     ExportFormat          exportFormat() const;
+    std::vector<QString>  selectedProperties() const;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     caf::PdmField<caf::AppEnum<ExportFormat>> m_exportFormat;
     caf::PdmField<QString>                    m_exportFolder;
+    caf::PdmField<std::vector<QString>>       m_selectedProperties;
     caf::PdmField<int>                        m_nx;
     caf::PdmField<int>                        m_ny;
     caf::PdmField<double>                     m_originX;
     caf::PdmField<double>                     m_originY;
     caf::PdmField<double>                     m_incrementX;
     caf::PdmField<double>                     m_incrementY;
+    caf::PdmField<double>                     m_rotation;
+
+    std::vector<QString> m_availableProperties;
 };
