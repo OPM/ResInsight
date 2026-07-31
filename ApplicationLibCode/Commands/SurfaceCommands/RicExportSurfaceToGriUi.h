@@ -40,7 +40,8 @@ public:
 
     RicExportSurfaceToGriUi();
 
-    void setDefaults( const QString& exportFolder, int nx, int ny, double originX, double originY, double incrementX, double incrementY );
+    void setExportFolder( const QString& exportFolder );
+    void setGridDefaults( int nx, int ny, double originX, double originY, double incrementX, double incrementY );
 
     RigRegularSurfaceData gridParams() const;
     QString               exportFolder() const;

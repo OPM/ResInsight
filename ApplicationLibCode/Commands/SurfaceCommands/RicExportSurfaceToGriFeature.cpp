@@ -92,13 +92,18 @@ void RicExportSurfaceToGriFeature::exportSurfaces( const std::vector<RimSurface*
 
     // Build default grid params
     RicExportSurfaceToGriUi ui;
+    ui.setExportFolder( defaultDir );
 
-    if ( surfaces.size() == 1 )
+    RimRegularSurface* regularSurface = ( surfaces.size() == 1 ) ? dynamic_cast<RimRegularSurface*>( surfaces[0] ) : nullptr;
+
+    if ( regularSurface )
     {
-        if ( auto* reg = dynamic_cast<RimRegularSurface*>( surfaces[0] ) )
-        {
-            ui.setDefaults( defaultDir, reg->nx(), reg->ny(), reg->originX(), reg->originY(), reg->incrementX(), reg->incrementY() );
-        }
+        ui.setGridDefaults( regularSurface->nx(),
+                            regularSurface->ny(),
+                            regularSurface->originX(),
+                            regularSurface->originY(),
+                            regularSurface->incrementX(),
+                            regularSurface->incrementY() );
     }
     else
     {
@@ -119,7 +124,7 @@ void RicExportSurfaceToGriFeature::exportSurfaces( const std::vector<RimSurface*
         const double spacing    = ( areaApprox > 0.0 ) ? std::sqrt( areaApprox / static_cast<double>( totalVertexCount ) ) : 1.0;
         const int    nx         = std::max( 2, static_cast<int>( std::ceil( bb.extent().x() / spacing ) ) + 1 );
         const int    ny         = std::max( 2, static_cast<int>( std::ceil( bb.extent().y() / spacing ) ) + 1 );
-        ui.setDefaults( defaultDir, nx, ny, bb.min().x(), bb.min().y(), spacing, spacing );
+        ui.setGridDefaults( nx, ny, bb.min().x(), bb.min().y(), spacing, spacing );
     }
 
     caf::PdmUiPropertyViewDialog dialog( nullptr, &ui, "Export Surface to IRAP/GRI", "" );
