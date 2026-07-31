@@ -16,8 +16,8 @@ import rips
 
 
 @pytest.fixture
-def project(rips_instance):
-    """Get the current project."""
+def project(rips_instance, initialize_test):
+    """Get the current project, reset between tests so each gets a clean polygon collection."""
     return rips_instance.project
 
 
