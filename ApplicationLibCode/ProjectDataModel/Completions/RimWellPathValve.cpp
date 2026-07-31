@@ -549,8 +549,11 @@ void RimWellPathValve::templateUpdated()
 {
     applyValveLabelAndIcon();
 
-    auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
-    perforationInterval->updateAllReferringTracks();
+    // A valve can also be a stand-alone valve or a tie-in outlet valve, and then has no perforation interval
+    if ( auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>() )
+    {
+        perforationInterval->updateAllReferringTracks();
+    }
 
     RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
