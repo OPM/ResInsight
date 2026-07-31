@@ -18,6 +18,9 @@
 
 #include "RimcNestedCollectionBase.h"
 
+#include "RiaNameUniquenessTools.h"
+
+#include "cafPdmChildArrayField.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmNestedCollectionBase.h"
 
@@ -32,6 +35,13 @@ RimcNestedCollectionBase::RimcNestedCollectionBase( caf::PdmObjectHandle* self )
     CAF_PDM_InitObject( "Add Folder", "", "", "Add a new folder" );
 
     CAF_PDM_InitScriptableField( &m_folderName, "FolderName", QString( "Folder" ), "", "", "", "New folder name" );
+    CAF_PDM_InitScriptableField( &m_onNameConflict,
+                                 "OnNameConflict",
+                                 caf::AppEnum<RiaDefines::NameConflictPolicy>( RiaDefines::NameConflictPolicy::FAIL ),
+                                 "",
+                                 "",
+                                 "",
+                                 "How to handle a folder name already used in this folder" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,6 +55,20 @@ std::expected<caf::PdmObjectHandle*, QString> RimcNestedCollectionBase::execute(
         return std::unexpected( "Cannot add subfolder" );
     }
 
+    auto* subCollections = coll->subCollectionsField();
+    auto  resolution     = RiaNameUniquenessTools::applyConflictPolicy( subCollections, m_folderName(), m_onNameConflict().value() );
+    if ( !resolution.errorMessage.isEmpty() ) return std::unexpected( resolution.errorMessage );
+
+    if ( resolution.objectToReplace && subCollections )
+    {
+        size_t index = subCollections->indexOf( resolution.objectToReplace );
+        if ( index < subCollections->size() )
+        {
+            subCollections->erase( index );
+            delete resolution.objectToReplace;
+        }
+    }
+
     caf::PdmObject* added = coll->addNewSubCollection();
     if ( !added )
     {
@@ -53,7 +77,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcNestedCollectionBase::execute(
 
     if ( auto* asNested = dynamic_cast<caf::PdmNestedCollectionBase*>( added ) )
     {
-        asNested->setCollectionName( m_folderName() );
+        asNested->setCollectionName( resolution.nameToUse );
     }
     coll->uiCapability()->updateConnectedEditors();
     return added;

@@ -19,6 +19,8 @@
 
 #include "SurfaceCommands/RicImportSurfacesFeature.h"
 
+#include "RiaNameUniquenessTools.h"
+
 #include "RimCase.h"
 #include "RimFileSurface.h"
 #include "RimGridCaseSurface.h"
@@ -29,6 +31,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
+#include <QFileInfo>
 #include <QStringList>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_importSurface, "ImportSurface" );
@@ -45,6 +48,13 @@ RimcSurfaceCollection_importSurface::RimcSurfaceCollection_importSurface( caf::P
     CAF_PDM_InitObject( "Import Surface", "", "", "Import a new surface from file" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "Filename to import surface from" );
+    CAF_PDM_InitScriptableField( &m_onNameConflict,
+                                 "OnNameConflict",
+                                 caf::AppEnum<RiaDefines::NameConflictPolicy>( RiaDefines::NameConflictPolicy::FAIL ),
+                                 "",
+                                 "",
+                                 "",
+                                 "How to handle a surface name already used in this folder" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,13 +63,22 @@ RimcSurfaceCollection_importSurface::RimcSurfaceCollection_importSurface( caf::P
 std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_importSurface::execute()
 {
     RimSurfaceCollection* coll = self<RimSurfaceCollection>();
-    if ( coll )
+    if ( !coll ) return nullptr;
+
+    // Imported surfaces are named after the file, see RimSurfaceCollection::importSurfacesFromFiles
+    const QString surfaceName = QFileInfo( m_fileName() ).fileName();
+
+    auto resolution = RiaNameUniquenessTools::applyConflictPolicy( &coll->itemsField(), surfaceName, m_onNameConflict().value() );
+    if ( !resolution.errorMessage.isEmpty() ) return std::unexpected( resolution.errorMessage );
+
+    if ( auto* existingSurface = dynamic_cast<RimSurface*>( resolution.objectToReplace ) )
     {
-        QStringList filelist;
-        filelist << m_fileName();
-        return coll->importSurfacesFromFiles( filelist );
+        coll->deleteItem( existingSurface );
     }
-    return nullptr;
+
+    QStringList filelist;
+    filelist << m_fileName();
+    return coll->importSurfacesFromFiles( filelist );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,6 +132,13 @@ RimcSurfaceCollection_newRegularSurface::RimcSurfaceCollection_newRegularSurface
     CAF_PDM_InitObject( "New Regular Surface", "", "", "Create a new regular surface" );
 
     CAF_PDM_InitScriptableField( &m_name, "Name", QString( "" ), "Name" );
+    CAF_PDM_InitScriptableField( &m_onNameConflict,
+                                 "OnNameConflict",
+                                 caf::AppEnum<RiaDefines::NameConflictPolicy>( RiaDefines::NameConflictPolicy::FAIL ),
+                                 "",
+                                 "",
+                                 "",
+                                 "How to handle a surface name already used in this folder" );
 
     CAF_PDM_InitScriptableField( &m_originX, "OriginX", 0.0, "Origin X" );
     CAF_PDM_InitScriptableField( &m_originY, "OriginY", 0.0, "Origin Y" );
@@ -140,8 +166,16 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newRegularSu
     if ( m_incrementY() <= 0.0 ) return std::unexpected( "Invalid increment Y. Must be positive." );
     if ( m_rotation() < 0.0 || m_rotation() > 360.0 ) return std::unexpected( "Invalid rotation. Valid range: [0.0-360.0]" );
 
+    auto resolution = RiaNameUniquenessTools::applyConflictPolicy( &coll->itemsField(), m_name(), m_onNameConflict().value() );
+    if ( !resolution.errorMessage.isEmpty() ) return std::unexpected( resolution.errorMessage );
+
+    if ( auto* existingSurface = dynamic_cast<RimSurface*>( resolution.objectToReplace ) )
+    {
+        coll->deleteItem( existingSurface );
+    }
+
     RimRegularSurface* surface = new RimRegularSurface;
-    surface->setUserDescription( m_name() );
+    surface->setUserDescription( resolution.nameToUse );
 
     surface->setNx( m_nx() );
     surface->setNy( m_ny() );

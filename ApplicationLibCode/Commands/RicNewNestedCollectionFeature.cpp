@@ -18,6 +18,8 @@
 
 #include "RicNewNestedCollectionFeature.h"
 
+#include "RiaNameUniquenessTools.h"
+
 #include "Riu3DMainWindowTools.h"
 
 #include "cafPdmNestedCollectionBase.h"
@@ -63,6 +65,8 @@ void RicNewNestedCollectionFeature::onActionTriggered( bool isChecked )
 
     caf::PdmObject* added = parent->addNewSubCollection();
     if ( !added ) return;
+
+    RiaNameUniquenessTools::ensureUniqueAmongSiblings( added );
 
     Riu3DMainWindowTools::selectAsCurrentItem( added );
 }

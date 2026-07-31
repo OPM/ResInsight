@@ -20,6 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
+#include "RiaNameUniquenessTools.h"
 
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
@@ -36,6 +37,8 @@
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
 #include "RimSurfaceResultDefinition.h"
+
+#include "RiuNameConflictTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldReorderCapability.h"
@@ -92,6 +95,32 @@ RimSurfaceCollection* RimSurfaceCollection::createTopmost()
 void RimSurfaceCollection::addSurface( RimSurface* surface )
 {
     m_items.push_back( surface );
+    ensureUniqueSurfaceName( surface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::ensureUniqueSurfaceName( RimSurface* surface )
+{
+    if ( !surface ) return;
+
+    RiaNameUniquenessTools::ensureUniqueAmongSiblings( surface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_collectionName )
+    {
+        // Keep the name unique among the folders in the same parent folder
+        auto resolvedName = RiuNameConflictTools::resolveRenameConflict( this, newValue.toString() );
+        m_collectionName  = resolvedName.value_or( oldValue.toString() );
+    }
+
+    caf::PdmNestedCollection<RimSurfaceCollection, RimSurface>::fieldChangedByUi( changedField, oldValue, newValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,6 +263,7 @@ RimSurface* RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surface
     for ( RimSurface* surface : newsurfaces )
     {
         m_items.push_back( surface );
+        ensureUniqueSurfaceName( surface );
         retsurf = surface;
     }
 
@@ -259,6 +289,7 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int o
     }
 
     m_items.push_back( s );
+    ensureUniqueSurfaceName( s );
 
     updateConnectedEditors();
 
@@ -479,6 +510,12 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
         {
             m_items.push_back( surf );
         }
+    }
+
+    // Surfaces moved in from another folder may collide with the names already present here
+    for ( auto surf : surfaces )
+    {
+        ensureUniqueSurfaceName( surf );
     }
 
     // make sure the views are in sync with the collection order

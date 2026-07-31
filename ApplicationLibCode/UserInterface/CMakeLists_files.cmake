@@ -15,6 +15,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuNameConflictTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuProcessMonitor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.cpp

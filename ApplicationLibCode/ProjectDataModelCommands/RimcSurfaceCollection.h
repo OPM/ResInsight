@@ -20,6 +20,9 @@
 
 #include "RimSurfaceCollection.h"
 
+#include "RiaDefines.h"
+
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -47,7 +50,8 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<QString> m_fileName;
+    caf::PdmField<QString>                                      m_fileName;
+    caf::PdmField<caf::AppEnum<RiaDefines::NameConflictPolicy>> m_onNameConflict;
 };
 
 //==================================================================================================
@@ -82,13 +86,14 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<QString> m_name;
-    caf::PdmField<int>     m_nx;
-    caf::PdmField<int>     m_ny;
-    caf::PdmField<double>  m_originX;
-    caf::PdmField<double>  m_originY;
-    caf::PdmField<double>  m_depth;
-    caf::PdmField<double>  m_incrementX;
-    caf::PdmField<double>  m_incrementY;
-    caf::PdmField<double>  m_rotation;
+    caf::PdmField<QString>                                      m_name;
+    caf::PdmField<caf::AppEnum<RiaDefines::NameConflictPolicy>> m_onNameConflict;
+    caf::PdmField<int>                                          m_nx;
+    caf::PdmField<int>                                          m_ny;
+    caf::PdmField<double>                                       m_originX;
+    caf::PdmField<double>                                       m_originY;
+    caf::PdmField<double>                                       m_depth;
+    caf::PdmField<double>                                       m_incrementX;
+    caf::PdmField<double>                                       m_incrementY;
+    caf::PdmField<double>                                       m_rotation;
 };

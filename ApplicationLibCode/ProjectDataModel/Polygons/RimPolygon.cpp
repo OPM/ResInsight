@@ -29,6 +29,7 @@
 #include "RimPolygonTools.h"
 
 #include "RiuGuiTheme.h"
+#include "RiuNameConflictTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -222,6 +223,12 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     if ( changedField == &m_pointsInDomainCoords || changedField == &m_pointsInDomainCoordsForUi )
     {
         coordinatesChanged.send();
+    }
+    else if ( changedField == nameField() )
+    {
+        // Keep the name unique among the polygons in the same folder
+        auto resolvedName = RiuNameConflictTools::resolveRenameConflict( this, newValue.toString() );
+        setName( resolvedName.value_or( oldValue.toString() ) );
     }
 
     objectChanged.send();

@@ -25,6 +25,8 @@
 #include "RimRegularLegendConfig.h"
 #include "RimSurfaceCollection.h"
 
+#include "RiuNameConflictTools.h"
+
 #include "RigStatisticsMath.h"
 #include "Surface/RigSurface.h"
 
@@ -252,6 +254,10 @@ void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     }
     else if ( changedField == &m_userDescription )
     {
+        // Keep the name unique among the surfaces in the same folder
+        auto resolvedName = RiuNameConflictTools::resolveRenameConflict( this, newValue.toString() );
+        m_userDescription = resolvedName.value_or( oldValue.toString() );
+
         updateConnectedEditors();
     }
     else if ( changedField == &m_depthOffset )

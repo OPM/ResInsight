@@ -211,6 +211,15 @@ enum class WellProductionType : short
 
 bool isInjector( WellProductionType wellProductionType );
 
+// How to handle a new item colliding with the name of an existing item in the same folder.
+// Used by the Python/gRPC API, where no user is present to resolve the conflict interactively.
+enum class NameConflictPolicy
+{
+    FAIL, // Abort the operation and report an error
+    AUTO_RENAME, // Append a numeric suffix to make the name unique
+    OVERWRITE // Delete the existing item carrying the name
+};
+
 QString stringListSeparator();
 
 enum class ColumnCount

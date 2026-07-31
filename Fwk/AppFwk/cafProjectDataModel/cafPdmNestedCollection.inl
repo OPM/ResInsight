@@ -201,6 +201,15 @@ PdmObject* PdmNestedCollection<SelfT, ItemT>::addNewSubCollection()
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename SelfT, typename ItemT>
+PdmChildArrayFieldHandle* PdmNestedCollection<SelfT, ItemT>::subCollectionsField()
+{
+    return &m_subCollections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename SelfT, typename ItemT>
 SelfT* PdmNestedCollection<SelfT, ItemT>::findSubCollectionByName( const QString& name ) const
 {
     for ( auto coll : m_subCollections )

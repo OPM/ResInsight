@@ -18,8 +18,12 @@
 
 #include "RimPolygonContainer.h"
 
+#include "RiaNameUniquenessTools.h"
+
 #include "RimPolygon.h"
 #include "RimPolygonCollection.h"
+
+#include "RiuNameConflictTools.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPolygonContainer, "RimPolygonContainer" ); // Abstract class
 
@@ -47,10 +51,35 @@ RimPolygonContainer* RimPolygonContainer::addNewSubCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonContainer::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_collectionName )
+    {
+        // Keep the name unique among the folders in the same parent folder
+        auto resolvedName = RiuNameConflictTools::resolveRenameConflict( this, newValue.toString() );
+        m_collectionName  = resolvedName.value_or( oldValue.toString() );
+    }
+
+    caf::PdmNestedCollection<RimPolygonContainer, RimPolygon>::fieldChangedByUi( changedField, oldValue, newValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonContainer::loadData()
 {
     for ( auto* sub : subCollections() )
     {
         if ( sub ) sub->loadData();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonContainer::ensureUniquePolygonName( RimPolygon* polygon )
+{
+    if ( !polygon ) return;
+
+    RiaNameUniquenessTools::ensureUniqueAmongSiblings( polygon );
 }

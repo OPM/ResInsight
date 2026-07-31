@@ -98,6 +98,12 @@ void RimPolygonFile::loadData()
         m_items.deleteChildren();
 
         m_items.setValue( polygonsFromFile );
+
+        // A file may contain several polygons sharing the same id, and thus the same generated name
+        for ( auto* polygon : polygonsFromFile )
+        {
+            ensureUniquePolygonName( polygon );
+        }
     }
 
     if ( polygonsFromFile.empty() )
@@ -178,6 +184,8 @@ void RimPolygonFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
         m_items.deleteChildren();
         loadData();
     }
+
+    RimPolygonContainer::fieldChangedByUi( changedField, oldValue, newValue );
 
     objectChanged.send();
 }

@@ -179,6 +179,15 @@ void caf::AppEnum<RiaDefines::RowCount>::setUp()
     setDefault( RiaDefines::RowCount::ROWS_2 );
 }
 
+template <>
+void caf::AppEnum<RiaDefines::NameConflictPolicy>::setUp()
+{
+    addItem( RiaDefines::NameConflictPolicy::FAIL, "FAIL", "Fail" );
+    addItem( RiaDefines::NameConflictPolicy::AUTO_RENAME, "AUTO_RENAME", "Auto Rename" );
+    addItem( RiaDefines::NameConflictPolicy::OVERWRITE, "OVERWRITE", "Overwrite" );
+    setDefault( RiaDefines::NameConflictPolicy::FAIL );
+}
+
 } // namespace caf
 
 namespace
@@ -192,6 +201,7 @@ struct RegisterScriptEnumNames
     {
         caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::ResultCatType>( "PropertyType" );
         caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::PorosityModelType>( "PorosityModelType" );
+        caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::NameConflictPolicy>( "NameConflictPolicy" );
     }
 };
 const RegisterScriptEnumNames s_registerScriptEnumNames;
