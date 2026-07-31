@@ -292,7 +292,13 @@ void RimHistogramCurveCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*
             }
         }
 
-        if ( !hasCumulativeCurve ) dataSource->setShowCumulativeCurve( false );
+        if ( !hasCumulativeCurve )
+        {
+            dataSource->setShowCumulativeCurve( false );
+
+            // Remove the statistics annotations drawn on behalf of the deleted cumulative curve
+            if ( !curve->isChecked() ) curve->loadDataAndUpdate( false );
+        }
     }
 
     curvesChanged.send();

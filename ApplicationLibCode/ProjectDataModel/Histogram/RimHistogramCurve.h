@@ -84,13 +84,13 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void hideXAxisGroup();
-
     void onDataSourceChanged( const caf::SignalEmitter* emitter );
     void onCumulativeChanged( const caf::SignalEmitter* emitter );
 
-    void updateCumulativeCurve();
-    void connectReferencedDataSourceSignals();
+    void               updateCumulativeCurve();
+    void               connectReferencedDataSourceSignals();
+    RimHistogramCurve* counterpartCurve() const;
+    bool               isStatisticsVisible() const;
 
     void initAfterRead() override;
 

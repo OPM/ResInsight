@@ -148,14 +148,6 @@ void RimHistogramCurve::connectReferencedDataSourceSignals()
 void RimHistogramCurve::setCumulative( bool cumulative )
 {
     m_isCumulative = cumulative;
-
-    if ( cumulative )
-    {
-        // The percentile annotations are shown by the non-cumulative counterpart curve
-        m_showP10Curve  = false;
-        m_showP90Curve  = false;
-        m_showMeanCurve = false;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,6 +156,37 @@ void RimHistogramCurve::setCumulative( bool cumulative )
 bool RimHistogramCurve::isCumulative() const
 {
     return m_isCumulative();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The curve sharing this curve's data source, but with the opposite cumulative setting. A histogram
+/// curve and its cumulative companion curve are counterparts.
+//--------------------------------------------------------------------------------------------------
+RimHistogramCurve* RimHistogramCurve::counterpartCurve() const
+{
+    auto plot = firstAncestorOrThisOfType<RimHistogramPlot>();
+    if ( !plot || !dataSource() ) return nullptr;
+
+    for ( RimHistogramCurve* curve : plot->histogramCurves() )
+    {
+        if ( curve != this && curve->isCumulative() != m_isCumulative() && curve->dataSource() == dataSource() ) return curve;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The percentile annotations are always drawn by the non-cumulative curve, also when only the
+/// cumulative counterpart is visible.
+//--------------------------------------------------------------------------------------------------
+bool RimHistogramCurve::isStatisticsVisible() const
+{
+    if ( m_isCumulative() ) return false;
+
+    if ( isChecked() ) return true;
+
+    auto cumulativeCurve = counterpartCurve();
+    return cumulativeCurve && cumulativeCurve->isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,7 +355,9 @@ void RimHistogramCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     connectReferencedDataSourceSignals();
 
-    if ( isChecked() && dataSource() )
+    const bool showStatistics = isStatisticsVisible();
+
+    if ( ( isChecked() || showStatistics ) && dataSource() )
     {
         RimHistogramPlot* plot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
 
@@ -341,12 +366,19 @@ void RimHistogramCurve::onLoadDataAndUpdate( bool updateParentPlot )
         bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( axisY() );
 
         QColor color = RiaColorTools::toQColor( m_curveAppearance->color() );
-        if ( plot->plotWidget() )
+        if ( showStatistics && plot->plotWidget() )
         {
             QwtPlot* qwtPlot = dynamic_cast<RiuQwtPlotWidget*>( plot->plotWidget() )->qwtPlot();
 
-            auto makeCurveName = []( const QString& pType, const QString& valueName, double value, bool showValue ) -> QString
+            auto makeCurveName = []( const QString& pType, RimHistogramDataSource* dataSource, double value, bool showValue ) -> QString
             {
+                QString valueName;
+
+                if ( dataSource )
+                {
+                    valueName = QString::fromStdString( dataSource->name() );
+                }
+
                 QString prefix = "  ";
                 QString str    = QString( "%1%2: %3" ).arg( prefix ).arg( pType ).arg( valueName );
                 if ( showValue )
@@ -355,11 +387,10 @@ void RimHistogramCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     return str;
             };
 
-            QString                   autoName = createCurveAutoName();
             std::map<QString, double> percentiles;
-            if ( m_showP10Curve ) percentiles[makeCurveName( "P10", autoName, result.p10, m_showValue() )] = result.p10;
-            if ( m_showP90Curve ) percentiles[makeCurveName( "P90", autoName, result.p90, m_showValue() )] = result.p90;
-            if ( m_showMeanCurve ) percentiles[makeCurveName( "Mean", autoName, result.mean, m_showValue() )] = result.mean;
+            if ( m_showP10Curve ) percentiles[makeCurveName( "P10", dataSource(), result.p10, m_showValue() )] = result.p10;
+            if ( m_showP90Curve ) percentiles[makeCurveName( "P90", dataSource(), result.p90, m_showValue() )] = result.p90;
+            if ( m_showMeanCurve ) percentiles[makeCurveName( "Mean", dataSource(), result.mean, m_showValue() )] = result.mean;
 
             for ( const auto& [name, value] : percentiles )
             {
@@ -378,7 +409,7 @@ void RimHistogramCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
         }
 
-        setSamplesFromXYValues( result.valuesX, result.valuesY, useLogarithmicScale );
+        if ( isChecked() ) setSamplesFromXYValues( result.valuesX, result.valuesY, useLogarithmicScale );
     }
 
     if ( updateParentPlot && hasParentPlot() )
@@ -435,12 +466,17 @@ void RimHistogramCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
 
-    auto statisticsGroup = uiOrdering.addNewGroup( "Statistics" );
-    auto curvesGroup     = statisticsGroup->addNewGroup( "Curves" );
-    curvesGroup->add( &m_showP90Curve );
-    curvesGroup->add( &m_showMeanCurve );
-    curvesGroup->add( &m_showP10Curve );
-    statisticsGroup->add( &m_showValue );
+    if ( !m_isCumulative() )
+    {
+        // The statistics settings are shared with the cumulative counterpart curve, and are only
+        // presented by the non-cumulative curve
+        auto statisticsGroup = uiOrdering.addNewGroup( "Statistics" );
+        auto curvesGroup     = statisticsGroup->addNewGroup( "Curves" );
+        curvesGroup->add( &m_showP90Curve );
+        curvesGroup->add( &m_showMeanCurve );
+        curvesGroup->add( &m_showP10Curve );
+        statisticsGroup->add( &m_showValue );
+    }
 
     uiOrdering.skipRemainingFields();
 }
@@ -466,8 +502,21 @@ void RimHistogramCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     bool loadAndUpdate = false;
     if ( &m_showCurve == changedField )
     {
+        // The statistics annotations are drawn by the non-cumulative curve as long as any of the two
+        // counterpart curves are visible, and must be updated when either curve is shown or hidden
+        if ( m_isCumulative() )
+        {
+            if ( auto histogramCurve = counterpartCurve() ) histogramCurve->loadDataAndUpdate( false );
+        }
+        else if ( !isChecked() )
+        {
+            // RimPlotCurve::fieldChangedByUi() only reloads a curve when it is made visible
+            loadDataAndUpdate( false );
+        }
+
         plot->updateAxes();
         plot->updatePlotTitle();
+        plot->scheduleReplotIfVisible();
     }
     else if ( changedField == &m_yPlotAxisProperties )
     {
@@ -566,15 +615,7 @@ void RimHistogramCurve::updateCumulativeCurve()
     auto plot = firstAncestorOrThisOfType<RimHistogramPlot>();
     if ( !plot ) return;
 
-    RimHistogramCurve* cumulativeCurve = nullptr;
-    for ( RimHistogramCurve* curve : plot->histogramCurves() )
-    {
-        if ( curve != this && curve->isCumulative() && curve->dataSource() == m_dataSource() )
-        {
-            cumulativeCurve = curve;
-            break;
-        }
-    }
+    RimHistogramCurve* cumulativeCurve = counterpartCurve();
 
     bool showCumulativeCurve = m_dataSource->showCumulativeCurve();
     if ( showCumulativeCurve && !cumulativeCurve )
@@ -596,6 +637,10 @@ void RimHistogramCurve::updateCumulativeCurve()
         newCurve->setTopOrBottomAxisX( RiuPlotAxis::defaultBottom() );
 
         newCurve->loadDataAndUpdate( true );
+
+        // The statistics annotations are drawn by this curve also when only the cumulative curve is visible
+        if ( !isChecked() ) loadDataAndUpdate( false );
+
         plot->updateAxes();
         plot->updateConnectedEditors();
     }
@@ -605,6 +650,9 @@ void RimHistogramCurve::updateCumulativeCurve()
         if ( curveCollection )
         {
             curveCollection->deleteCurve( cumulativeCurve );
+
+            if ( !isChecked() ) loadDataAndUpdate( false );
+
             plot->updateAxes();
             plot->updateConnectedEditors();
             plot->scheduleReplotIfVisible();
