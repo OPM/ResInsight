@@ -836,6 +836,11 @@ std::vector<RifEclipseKeywordValueCount>
         return {};
     }
 
+    if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL && ( matrixActiveCellInfo->reservoirActiveCellCount() == 0 ) )
+    {
+        return {};
+    }
+
     std::vector<RifEclipseKeywordValueCount> keywordsWithCorrectNumberOfDataItems;
 
     for ( const auto& keywordValueCount : keywordItemCounts )
@@ -848,15 +853,18 @@ std::vector<RifEclipseKeywordValueCount>
         auto matrixActiveCellCount   = matrixActiveCellInfo->reservoirActiveCellCount();
         auto fractureActiveCellCount = fractureActiveCellInfo->reservoirActiveCellCount();
 
-        size_t timeStepsAllCellsRest = valueCount % matrixActiveCellCount;
-        if ( timeStepsAllCellsRest == 0 && valueCount <= timeStepCount * matrixActiveCellCount )
+        if ( matrixActiveCellCount > 0 && ( valueCount % matrixActiveCellCount ) == 0 && valueCount <= timeStepCount * matrixActiveCellCount )
         {
             // Found result for all cells for N time steps, usually a static dataset for one time step
             validKeyword = true;
         }
         else
         {
-            size_t timeStepsMatrixRest = valueCount % matrixActiveCellCount;
+            size_t timeStepsMatrixRest = 0;
+            if ( matrixActiveCellCount > 0 )
+            {
+                timeStepsMatrixRest = valueCount % matrixActiveCellCount;
+            }
 
             size_t timeStepsFractureRest = 0;
             if ( fractureActiveCellCount > 0 )
@@ -895,7 +903,7 @@ std::vector<RifEclipseKeywordValueCount>
         if ( !validKeyword )
         {
             if ( valueCount > 0 && ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
-                 ( valueCount % matrixActiveCellInfo->reservoirCellCount() == 0 ) )
+                 matrixActiveCellInfo->reservoirCellCount() > 0 && ( valueCount % matrixActiveCellInfo->reservoirCellCount() == 0 ) )
             {
                 validKeyword = true;
             }
