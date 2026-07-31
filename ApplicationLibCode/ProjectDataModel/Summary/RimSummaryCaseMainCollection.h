@@ -60,6 +60,7 @@ public:
     void addCases( const std::vector<RimSummaryCase*> cases );
     void addCase( RimSummaryCase* summaryCase );
     void removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
+    // Cases deleted as a side effect of the removal are erased from the input vector
     void removeCases( std::vector<RimSummaryCase*>& cases );
     void moveCase( RimSummaryCase* summaryCase, int destinationIndex );
 

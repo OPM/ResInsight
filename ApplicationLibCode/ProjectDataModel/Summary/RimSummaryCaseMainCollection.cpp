@@ -56,6 +56,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldReorderCapability.h"
+#include "cafPdmPointer.h"
 #include "cafProgressInfo.h"
 
 #include <QCoreApplication>
@@ -228,14 +229,25 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase, bool
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& cases )
 {
-    for ( auto sumCase : cases )
+    // Removing one case can delete other cases in the list. A delta ensemble recreates its derived cases when a source
+    // case is removed, and deletes the derived cases no longer in use. Use guarded pointers to avoid touching deleted
+    // cases, and return only the cases that are still alive.
+    std::vector<caf::PdmPointer<RimSummaryCase>> guardedCases( cases.begin(), cases.end() );
+
+    for ( const auto& sumCase : guardedCases )
     {
-        removeCase( sumCase, false );
+        if ( sumCase.notNull() ) removeCase( sumCase, false );
     }
 
     for ( RimSummaryEnsemble* ensemble : m_ensembles )
     {
         ensemble->updateReferringCurveSetsZoomAll();
+    }
+
+    cases.clear();
+    for ( const auto& sumCase : guardedCases )
+    {
+        if ( sumCase.notNull() ) cases.push_back( sumCase );
     }
 
     dataSourceHasChanged.send();
