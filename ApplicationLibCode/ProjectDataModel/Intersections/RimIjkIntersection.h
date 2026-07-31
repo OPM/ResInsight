@@ -75,16 +75,18 @@ public:
 
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const override;
 
+    void rebuildGeometryAndScheduleCreateDisplayModel() override;
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() final;
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
-    int  axisCellCount() const;
-    void rebuildGeometryAndScheduleCreateDisplayModel();
+    int axisCellCount() const;
 
 private:
     caf::PdmField<QString>                m_name;

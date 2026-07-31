@@ -32,6 +32,7 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 namespace caf
 {
@@ -502,6 +503,16 @@ void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     uiOrdering.add( &m_show3DManipulator );
 
     defineSeparateDataSourceUi( uiConfigName, uiOrdering );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimBoxIntersection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    appendSurfaceIntersectionsToTreeOrdering( uiTreeOrdering );
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------

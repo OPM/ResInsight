@@ -253,10 +253,6 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_inputTwoAzimuthPointsFromViewerEnabled );
     m_inputTwoAzimuthPointsFromViewerEnabled = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections" );
-    m_surfaceIntersections = new RimSurfaceIntersectionCollection;
-    m_surfaceIntersections->objectChanged.connect( this, &RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged );
-
     CAF_PDM_InitField( &m_depthUpperThreshold, "UpperThreshold", -300000.0, "Upper Threshold" );
     m_depthUpperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
@@ -736,14 +732,7 @@ QList<caf::PdmOptionItemInfo> RimExtrudedCurveIntersection::calculateValueOption
 //--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    for ( auto c : m_surfaceIntersections->surfaceIntersectionCurves() )
-    {
-        uiTreeOrdering.add( c );
-    }
-    for ( auto c : m_surfaceIntersections->surfaceIntersectionBands() )
-    {
-        uiTreeOrdering.add( c );
-    }
+    appendSurfaceIntersectionsToTreeOrdering( uiTreeOrdering );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }
@@ -1298,33 +1287,21 @@ bool RimExtrudedCurveIntersection::showIntersectionGeometry() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSurfaceIntersectionCurve*> RimExtrudedCurveIntersection::surfaceIntersectionCurves() const
+bool RimExtrudedCurveIntersection::supportsSurfaceIntersectionCurves() const
 {
-    return m_surfaceIntersections->surfaceIntersectionCurves();
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The first polyline is used, as the surface intersection curve follows the same line as the
+/// intersection geometry itself
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSurfaceIntersectionBand*> RimExtrudedCurveIntersection::surfaceIntersectionBands() const
+std::vector<cvf::Vec3d> RimExtrudedCurveIntersection::surfaceCurtainFootprint() const
 {
-    return m_surfaceIntersections->surfaceIntersectionBands();
-}
+    auto lines = polyLines();
+    if ( lines.empty() ) return {};
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSurfaceIntersectionCurve* RimExtrudedCurveIntersection::addIntersectionCurve()
-{
-    return m_surfaceIntersections->addIntersectionCurve();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSurfaceIntersectionBand* RimExtrudedCurveIntersection::addIntersectionBand()
-{
-    return m_surfaceIntersections->addIntersectionBand();
+    return lines.front();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1386,15 +1363,6 @@ void RimExtrudedCurveIntersection::appendOptionItemsForSources( int             
     {
         appendOptionItemsForSources( currentLevel, subColl, options );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged( const caf::SignalEmitter* emitter )
-{
-    updateAllRequiredEditors();
-    rebuildGeometryAndScheduleCreateDisplayModel();
 }
 
 //--------------------------------------------------------------------------------------------------

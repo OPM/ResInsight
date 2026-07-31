@@ -26,6 +26,7 @@
 #include "RivIjkIntersectionPartMgr.h"
 
 #include "cafPdmUiSliderEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include <algorithm>
 
@@ -345,6 +346,16 @@ void RimIjkIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIjkIntersection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    appendSurfaceIntersectionsToTreeOrdering( uiTreeOrdering );
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------

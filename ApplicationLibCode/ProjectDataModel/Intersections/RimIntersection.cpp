@@ -28,11 +28,17 @@
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
+#include "RimSurfaceIntersectionBand.h"
+#include "RimSurfaceIntersectionCollection.h"
+#include "RimSurfaceIntersectionCurve.h"
 
 #include "RivEclipseIntersectionGrid.h"
 #include "RivFemIntersectionGrid.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiTreeOrdering.h"
+
+#include <limits>
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimIntersection, "RimIntersectionHandle" );
 
@@ -49,6 +55,10 @@ RimIntersection::RimIntersection()
 
     CAF_PDM_InitField( &m_useSeparateDataSource, "UseSeparateIntersectionDataSource", true, "Enable" );
     CAF_PDM_InitFieldNoDefault( &m_separateDataSource, "SeparateIntersectionDataSource", "Source" );
+
+    CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections" );
+    m_surfaceIntersections = new RimSurfaceIntersectionCollection;
+    m_surfaceIntersections->objectChanged.connect( this, &RimIntersection::onSurfaceIntersectionsChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,6 +192,101 @@ void RimIntersection::updateDefaultSeparateDataSource()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceIntersectionCollection* RimIntersection::surfaceIntersectionCollection() const
+{
+    return m_surfaceIntersections();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSurfaceIntersectionCurve*> RimIntersection::surfaceIntersectionCurves() const
+{
+    return m_surfaceIntersections->surfaceIntersectionCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSurfaceIntersectionBand*> RimIntersection::surfaceIntersectionBands() const
+{
+    return m_surfaceIntersections->surfaceIntersectionBands();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceIntersectionCurve* RimIntersection::addIntersectionCurve()
+{
+    return m_surfaceIntersections->addIntersectionCurve();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceIntersectionBand* RimIntersection::addIntersectionBand()
+{
+    return m_surfaceIntersections->addIntersectionBand();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersection::supportsSurfaceIntersectionCurves() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimIntersection::surfaceCurtainFootprint() const
+{
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimIntersection::surfaceCurtainZRange() const
+{
+    return { -std::numeric_limits<double>::max(), std::numeric_limits<double>::max() };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Overridden by the intersection types that build their geometry from a part manager
+//--------------------------------------------------------------------------------------------------
+void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersection::appendSurfaceIntersectionsToTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering )
+{
+    for ( auto c : m_surfaceIntersections->surfaceIntersectionCurves() )
+    {
+        uiTreeOrdering.add( c );
+    }
+    for ( auto c : m_surfaceIntersections->surfaceIntersectionBands() )
+    {
+        uiTreeOrdering.add( c );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersection::onSurfaceIntersectionsChanged( const caf::SignalEmitter* emitter )
+{
+    updateAllRequiredEditors();
+    rebuildGeometryAndScheduleCreateDisplayModel();
 }
 
 //--------------------------------------------------------------------------------------------------
