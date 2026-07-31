@@ -253,6 +253,10 @@ void RimSurfaceInView::loadDataAndUpdate( int timeStep )
         {
             m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( false );
             m_resultDefinition->setCheckState( true );
+
+            // Properties can be added after the surface was inserted into the view, as is the case when a regular
+            // surface is created and populated from Python. Select the first property when nothing is selected yet.
+            if ( m_resultDefinition->propertyName().isEmpty() ) m_resultDefinition->assignDefaultProperty();
         }
 
         m_resultDefinition->updateMinMaxValues( timeStep );
