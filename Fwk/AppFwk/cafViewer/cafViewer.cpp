@@ -606,7 +606,18 @@ bool caf::Viewer::calculateNearFarPlanes( const cvf::Rendering* rendering,
         }
     }
 
-    if ( ( *farPlaneDist ) <= ( *nearPlaneDist ) ) ( *farPlaneDist ) = ( *nearPlaneDist ) + 1.0;
+    // The distances above are derived from scene geometry and camera coordinates. If either
+    // contains non-finite values, the guards above let them through, as any comparison involving
+    // NaN is false. cvf::Camera::setProjectionAsPerspective asserts on nearPlane > 0 and
+    // farPlane > nearPlane, and the assert handler aborts also in release builds.
+    const double maxPerspectiveNearPlaneDistance = 1.0e15;
+    if ( rendering->camera()->projection() == cvf::Camera::PERSPECTIVE &&
+         !( ( *nearPlaneDist ) > 0.0 && ( *nearPlaneDist ) < maxPerspectiveNearPlaneDistance ) )
+    {
+        ( *nearPlaneDist ) = m_defaultPerspectiveNearPlaneDistance;
+    }
+
+    if ( !( ( *farPlaneDist ) > ( *nearPlaneDist ) ) ) ( *farPlaneDist ) = ( *nearPlaneDist ) + 1.0;
 
     // Enforce a maximum far/near ratio to preserve depth buffer precision.
     // A 24-bit depth buffer has ~16 M discrete depth values; a far/near ratio of N
