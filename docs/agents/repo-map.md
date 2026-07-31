@@ -35,7 +35,6 @@ ResInsight/
 │   └── class-diagrams/     # PlantUML class diagrams
 ├── scripts/                # Build and utility scripts
 ├── tooling/                # Development tools
-├── patches/                # Patches for dependencies
 ├── CMakeLists.txt         # Main CMake configuration
 ├── CMakePresets.json      # CMake build presets
 ├── ResInsightVersion.cmake # Version information
