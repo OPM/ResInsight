@@ -203,6 +203,152 @@ void RimIjkIntersection::setToDefaultValues()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The I and J axes give a vertical curtain. A K slice is horizontal, and would require the surface
+/// to be contoured instead of projected along a vertical ray.
+//--------------------------------------------------------------------------------------------------
+bool RimIjkIntersection::supportsSurfaceIntersectionCurves() const
+{
+    return m_axis() != GridAxis::AXIS_K;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Walk the cells of the index plane along the varying axis and pick the cell face corners, so the
+/// footprint follows the pillars and steps with the faults instead of being a straight line
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimIjkIntersection::surfaceCurtainFootprint() const
+{
+    if ( !supportsSurfaceIntersectionCurves() ) return {};
+
+    RigMainGrid* grid = mainGrid();
+    if ( !grid ) return {};
+
+    const auto cellRange = clampedCellRange();
+    if ( !cellRange ) return {};
+
+    const bool alongJ = m_axis() == GridAxis::AXIS_I;
+
+    // Corner indices of the cell face, see the hex vertex numbering in StructGridInterface::cellFaceVertexIndices().
+    // The first corner is at the start of the varying axis, the second at the end of the same axis.
+    int startCorner = 0;
+    int endCorner   = 0;
+    if ( alongJ )
+    {
+        startCorner = m_useNegativeFace() ? 0 : 1;
+        endCorner   = m_useNegativeFace() ? 3 : 2;
+    }
+    else
+    {
+        startCorner = m_useNegativeFace() ? 0 : 3;
+        endCorner   = m_useNegativeFace() ? 1 : 2;
+    }
+
+    // The fixed axis is collapsed to a single index by clampedCellRange()
+    const size_t fixedI = cellRange->min().i();
+    const size_t fixedJ = cellRange->min().j();
+    const size_t k      = cellRange->min().k();
+
+    const size_t varyingMin = alongJ ? cellRange->min().j() : cellRange->min().i();
+    const size_t varyingMax = alongJ ? cellRange->max().j() : cellRange->max().i();
+
+    std::vector<cvf::Vec3d> footprint;
+
+    for ( size_t varying = varyingMin; varying <= varyingMax; ++varying )
+    {
+        const size_t i = alongJ ? fixedI : varying;
+        const size_t j = alongJ ? varying : fixedJ;
+
+        const size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
+        if ( cellIndex == cvf::UNDEFINED_SIZE_T ) continue;
+        if ( grid->cell( cellIndex ).isInvalid() ) continue;
+
+        const auto corners = grid->cellCornerVertices( cellIndex );
+
+        footprint.push_back( corners[startCorner] );
+
+        if ( varying == varyingMax ) footprint.push_back( corners[endCorner] );
+    }
+
+    return footprint;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The extent is found from the first and the last layer of the index range only, as the pillars are
+/// monotonous in the k direction
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimIjkIntersection::surfaceCurtainZRange() const
+{
+    RigMainGrid* grid = mainGrid();
+    if ( !grid ) return RimIntersection::surfaceCurtainZRange();
+
+    const auto cellRange = clampedCellRange();
+    if ( !cellRange ) return RimIntersection::surfaceCurtainZRange();
+
+    double minZ = std::numeric_limits<double>::max();
+    double maxZ = -std::numeric_limits<double>::max();
+
+    for ( size_t k : { cellRange->min().k(), cellRange->max().k() } )
+    {
+        for ( size_t j = cellRange->min().j(); j <= cellRange->max().j(); ++j )
+        {
+            for ( size_t i = cellRange->min().i(); i <= cellRange->max().i(); ++i )
+            {
+                const size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
+                if ( cellIndex == cvf::UNDEFINED_SIZE_T ) continue;
+                if ( grid->cell( cellIndex ).isInvalid() ) continue;
+
+                for ( const auto& corner : grid->cellCornerVertices( cellIndex ) )
+                {
+                    minZ = std::min( minZ, corner.z() );
+                    maxZ = std::max( maxZ, corner.z() );
+                }
+            }
+        }
+    }
+
+    if ( minZ > maxZ ) return RimIntersection::surfaceCurtainZRange();
+
+    return { minZ, maxZ };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The index range of the visible cells, with the fixed axis collapsed to the fixed index
+//--------------------------------------------------------------------------------------------------
+std::optional<RigBoundingBoxIjk<caf::VecIjk0>> RimIjkIntersection::clampedCellRange() const
+{
+    RigMainGrid* grid = mainGrid();
+    if ( !grid ) return {};
+
+    const size_t ni = grid->cellCountI();
+    const size_t nj = grid->cellCountJ();
+    const size_t nk = grid->cellCountK();
+    if ( ni == 0 || nj == 0 || nk == 0 ) return {};
+
+    const auto range = ijkRange();
+
+    caf::VecIjk0 min   = range.min();
+    caf::VecIjk0 max   = range.max();
+    const size_t fixed = static_cast<size_t>( std::max( 0, fixedIndex() ) );
+
+    switch ( m_axis() )
+    {
+        case GridAxis::AXIS_I:
+            min.x() = max.x() = std::min( fixed, ni - 1 );
+            break;
+        case GridAxis::AXIS_J:
+            min.y() = max.y() = std::min( fixed, nj - 1 );
+            break;
+        case GridAxis::AXIS_K:
+        default:
+            min.z() = max.z() = std::min( fixed, nk - 1 );
+            break;
+    }
+
+    const RigBoundingBoxIjk<caf::VecIjk0> gridBounds( caf::VecIjk0::ZERO, caf::VecIjk0( ni - 1, nj - 1, nk - 1 ) );
+
+    return RigBoundingBoxIjk<caf::VecIjk0>( min, max ).clamp( gridBounds );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RivIjkIntersectionPartMgr* RimIjkIntersection::intersectionPartMgr()

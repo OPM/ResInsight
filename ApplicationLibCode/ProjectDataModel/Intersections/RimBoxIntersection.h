@@ -80,6 +80,10 @@ public:
 
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const override;
 
+    bool                      supportsSurfaceIntersectionCurves() const override;
+    std::vector<cvf::Vec3d>   surfaceCurtainFootprint() const override;
+    std::pair<double, double> surfaceCurtainZRange() const override;
+
     void rebuildGeometryAndScheduleCreateDisplayModel() override;
 
 protected:

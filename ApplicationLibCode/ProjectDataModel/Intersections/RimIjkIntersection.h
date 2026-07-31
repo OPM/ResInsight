@@ -26,6 +26,8 @@
 #include "cafPdmField.h"
 #include "cafVecIjk.h"
 
+#include <optional>
+
 class RigMainGrid;
 class RivIjkIntersectionPartMgr;
 
@@ -75,7 +77,14 @@ public:
 
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const override;
 
+    bool                      supportsSurfaceIntersectionCurves() const override;
+    std::vector<cvf::Vec3d>   surfaceCurtainFootprint() const override;
+    std::pair<double, double> surfaceCurtainZRange() const override;
+
     void rebuildGeometryAndScheduleCreateDisplayModel() override;
+
+    /// The index range of the visible cells, with the fixed axis collapsed to the fixed index
+    std::optional<RigBoundingBoxIjk<caf::VecIjk0>> clampedCellRange() const;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() final;
