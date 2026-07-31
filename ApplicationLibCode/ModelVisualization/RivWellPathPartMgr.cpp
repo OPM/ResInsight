@@ -928,14 +928,16 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
         {
             auto geoDef = modeledWellPath->geometryDefinition();
 
+            // A lateral gets its well path geometry from the parent well, and can have no active well targets
+            auto wellTargets = geoDef->activeWellTargets();
+            if ( wellTargets.empty() ) return;
+
             auto   sphereColor        = geoDef->sphereColor();
             double sphereRadiusFactor = geoDef->sphereRadiusFactor();
 
             cvf::ref<cvf::Vec3fArray>   vertices = new cvf::Vec3fArray;
             cvf::ref<cvf::Vec3fArray>   vecRes   = new cvf::Vec3fArray;
             cvf::ref<cvf::Color3fArray> colors   = new cvf::Color3fArray;
-
-            auto wellTargets = geoDef->activeWellTargets();
 
             size_t pointCount = wellTargets.size();
             vertices->reserve( pointCount );
