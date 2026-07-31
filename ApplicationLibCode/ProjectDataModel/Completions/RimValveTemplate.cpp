@@ -365,8 +365,11 @@ void RimValveTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         std::vector<caf::PdmFieldHandle*> referringFields = referringPtrFields();
         for ( caf::PdmFieldHandle* field : referringFields )
         {
-            RimWellPathValve* valve = dynamic_cast<RimWellPathValve*>( field->ownerObject() );
-            valve->templateUpdated();
+            // Other object types can also refer to a valve template, RimWellEventValve being one of them
+            if ( auto valve = dynamic_cast<RimWellPathValve*>( field->ownerObject() ) )
+            {
+                valve->templateUpdated();
+            }
         }
     }
 }
