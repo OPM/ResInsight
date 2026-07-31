@@ -58,15 +58,22 @@ RicExportSurfaceToGriUi::RicExportSurfaceToGriUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportSurfaceToGriUi::setDefaults( const QString& exportFolder, int nx, int ny, double originX, double originY, double incrementX, double incrementY )
+void RicExportSurfaceToGriUi::setExportFolder( const QString& exportFolder )
 {
     m_exportFolder = exportFolder;
-    m_nx           = nx;
-    m_ny           = ny;
-    m_originX      = std::round( originX );
-    m_originY      = std::round( originY );
-    m_incrementX   = std::round( incrementX );
-    m_incrementY   = std::round( incrementY );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportSurfaceToGriUi::setGridDefaults( int nx, int ny, double originX, double originY, double incrementX, double incrementY )
+{
+    m_nx         = nx;
+    m_ny         = ny;
+    m_originX    = std::round( originX );
+    m_originY    = std::round( originY );
+    m_incrementX = std::round( incrementX );
+    m_incrementY = std::round( incrementY );
 }
 
 //--------------------------------------------------------------------------------------------------
