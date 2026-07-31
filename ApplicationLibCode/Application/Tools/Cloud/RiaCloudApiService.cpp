@@ -39,8 +39,9 @@
 namespace
 {
 // Grace period after starting the process before the first health check, to allow for the
-// initial uvicorn boot and module imports.
-constexpr int startupGraceMs = 10 * 1000;
+// initial uvicorn boot and module imports. Kept short so that the reported status settles quickly;
+// a service that needs longer is covered by the health check retries rather than by waiting here.
+constexpr int startupGraceMs = 4 * 1000;
 
 // Poll the /alive endpoint at this interval.
 constexpr int healthCheckIntervalMs = 10 * 1000;
@@ -65,6 +66,7 @@ RiaCloudApiService::RiaCloudApiService( QObject* parent )
     , m_networkAccessManager( new QNetworkAccessManager( this ) )
     , m_port( -1 )
     , m_consecutiveFailures( 0 )
+    , m_isResponding( false )
 {
     m_healthTimer.setInterval( healthCheckIntervalMs );
     connect( &m_healthTimer, &QTimer::timeout, this, &RiaCloudApiService::onHealthCheck );
@@ -72,7 +74,16 @@ RiaCloudApiService::RiaCloudApiService( QObject* parent )
     // After the startup grace period has elapsed, begin periodic health checks.
     m_startupTimer.setSingleShot( true );
     m_startupTimer.setInterval( startupGraceMs );
-    connect( &m_startupTimer, &QTimer::timeout, this, [this]() { m_healthTimer.start(); } );
+    connect( &m_startupTimer,
+             &QTimer::timeout,
+             this,
+             [this]()
+             {
+                 // A QTimer does not fire on start, so check once here instead of waiting a full
+                 // interval. Start the timer first, since the check may restart the service.
+                 m_healthTimer.start();
+                 onHealthCheck();
+             } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +100,14 @@ RiaCloudApiService::~RiaCloudApiService()
 bool RiaCloudApiService::isRunning() const
 {
     return m_process && m_process->state() != QProcess::NotRunning;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaCloudApiService::isResponding() const
+{
+    return isRunning() && m_isResponding;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,10 +176,27 @@ void RiaCloudApiService::start()
     connect( m_process,
              &QProcess::finished,
              this,
-             []( int exitCode, QProcess::ExitStatus )
-             { RiaLogging::info( std::format( "Cloud API service: process finished (exit code {}).", exitCode ) ); } );
+             [this]( int exitCode, QProcess::ExitStatus exitStatus )
+             {
+                 const std::string message = std::format( "Cloud API service: process finished (exit code {}).", exitCode );
+
+                 // A non-zero exit means the service never came up, or died. Anything else is an
+                 // ordinary shutdown.
+                 if ( exitCode != 0 || exitStatus != QProcess::NormalExit )
+                 {
+                     RiaLogging::error( message );
+                 }
+                 else
+                 {
+                     RiaLogging::info( message );
+                 }
+
+                 m_isResponding = false;
+                 emit statusChanged();
+             } );
 
     m_consecutiveFailures = 0;
+    m_isResponding        = false;
 
     RiaLogging::info( std::format( "Cloud API service: launching '{} {}' (working directory '{}').",
                                    pythonExecutable,
@@ -170,6 +206,8 @@ void RiaCloudApiService::start()
     m_process->start( pythonExecutable, arguments );
 
     RiaLogging::info( std::format( "Cloud API service: starting on http://127.0.0.1:{}.", m_port ) );
+
+    emit statusChanged();
 
     // Delay the first health check by the startup grace period to allow the server to boot.
     m_startupTimer.start();
@@ -196,7 +234,10 @@ void RiaCloudApiService::stop()
         m_process = nullptr;
     }
 
-    m_port = -1;
+    m_port         = -1;
+    m_isResponding = false;
+
+    emit statusChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,18 +284,26 @@ void RiaCloudApiService::onHealthCheck()
              {
                  reply->deleteLater();
 
+                 const bool wasResponding = m_isResponding;
+
                  const int statusCode = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
                  if ( reply->error() == QNetworkReply::NoError && statusCode == 200 )
                  {
                      m_consecutiveFailures = 0;
+                     m_isResponding        = true;
                  }
                  else
                  {
+                     m_isResponding = false;
                      m_consecutiveFailures++;
-                     if ( m_consecutiveFailures >= maxConsecutiveFailures )
-                     {
-                         restart();
-                     }
+                 }
+
+                 // Notify before a possible restart, so the transition out of "responding" is seen.
+                 if ( m_isResponding != wasResponding ) emit statusChanged();
+
+                 if ( !m_isResponding && m_consecutiveFailures >= maxConsecutiveFailures )
+                 {
+                     restart();
                  }
              } );
 }
@@ -283,32 +332,41 @@ int RiaCloudApiService::findAvailablePortNumber()
 //--------------------------------------------------------------------------------------------------
 QString RiaCloudApiService::serviceWorkingDirectory()
 {
-    // The 'ri_cloud_api' package lives under the Python examples folder. Probe a set of candidate
-    // locations and return the first one that actually contains the package. The configured shared
-    // script folder(s) are probed first, since in a development build the executable lives in the
-    // build tree and not next to the Python examples.
+    // Probe a set of candidate locations and return the first one that actually contains the
+    // 'ri_cloud_api' package.
     const QString appDir = QCoreApplication::applicationDirPath();
 
     QStringList candidates;
 
-    // Configured "Shared Script Folder(s)" (semicolon-separated, defaults to the Python examples folder).
+    // Location relative to the executable, used for an installed ResInsight. Probed first so that
+    // an installed build always uses the copy it shipped with. The preferences are shared by every
+    // ResInsight on the machine, so "Shared Script Folder(s)" may well point at a source checkout
+    // set up for a development build, and would otherwise shadow the installed copy.
+    candidates << appDir + "/CloudServiceApi/";
+
+    // Configured "Shared Script Folder(s)" (semicolon-separated, defaults to the Python examples
+    // folder). This is what a development build relies on, since its executable lives in the build
+    // tree and not next to the Python examples.
     const QStringList scriptDirectories = RiaApplication::instance()->scriptDirectories().split( ';', Qt::SkipEmptyParts );
     for ( const QString& scriptDir : scriptDirectories )
     {
         candidates << scriptDir.trimmed();
     }
 
-    // Locations relative to the executable, used for an installed ResInsight.
-    candidates << appDir + "/CloudServiceApi/";
-
     for ( const QString& candidate : candidates )
     {
         if ( candidate.isEmpty() ) continue;
 
-        QDir dir( candidate );
-        if ( dir.exists( "ri_cloud_api" ) )
+        // Probe the candidate itself and a nested 'ri-cloud-api' repository folder, so a shared
+        // script folder can point either at the repository or at the folder containing it.
+        const QStringList probePaths = {candidate, candidate + "/ri-cloud-api"};
+        for ( const QString& path : probePaths )
         {
-            return dir.absolutePath();
+            QDir dir( path );
+            if ( dir.exists( "ri_cloud_api" ) )
+            {
+                return dir.absolutePath();
+            }
         }
     }
 
@@ -324,7 +382,7 @@ QProcessEnvironment RiaCloudApiService::buildProcessEnvironment( const QString& 
 {
     // The service runs in the configured Python interpreter (typically a virtual environment), so
     // uvicorn/fastapi are resolved from that environment. The 'ri_cloud_api' package additionally
-    // depends on local workspace libraries laid out as 'ri_cloud_api/libs/<lib>/src'. Add the
+    // depends on local workspace libraries laid out as 'libs/<lib>/src', beside the package. Add the
     // discovered 'src' folders to PYTHONPATH so the service can be imported without a separate
     // install step.
     //
@@ -336,7 +394,7 @@ QProcessEnvironment RiaCloudApiService::buildProcessEnvironment( const QString& 
 
     QStringList pythonPaths;
 
-    QDir                libsDir( workingDirectory + "/ri_cloud_api/libs" );
+    QDir                libsDir( workingDirectory + "/libs" );
     const QFileInfoList libEntries = libsDir.entryInfoList( QDir::Dirs | QDir::NoDotAndDotDot );
     for ( const QFileInfo& libEntry : libEntries )
     {

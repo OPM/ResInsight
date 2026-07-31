@@ -46,6 +46,13 @@ git submodule update --init
 ThirdParty\vcpkg\bootstrap-vcpkg.bat
 ```
 
+### Cloud Service API
+
+The local Cloud Service API (`scripts/ri-cloud-api`, a git submodule) runs in the Python
+interpreter configured under *Preferences -> Scripting -> Python Executable Location*, the same one
+used for `rips`. ResInsight does not install its dependencies, so they have to be installed into
+that environment up front. See [cloud-service-api.md](../cloud-service-api.md).
+
 ## Build Commands
 
 ### Linux

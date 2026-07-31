@@ -55,6 +55,7 @@
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
 
+#include "Cloud/RimCloudDataSourceCollection.h"
 #include "Formations/RimFormationNamesCollection.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Polygons/RimPolygonCollection.h"
@@ -1951,6 +1952,23 @@ RiaCloudApiService* RiaApplication::cloudApiService()
 
         // Ensure the service process is killed while the event loop is still alive at shutdown.
         QObject::connect( QCoreApplication::instance(), &QCoreApplication::aboutToQuit, m_cloudApiService.get(), &RiaCloudApiService::stop );
+
+        // The server status is shown in the property editor for RimCloudDataSourceCollection, and
+        // changes without any user interaction: the health check confirms the service is up, and the
+        // process can exit on its own. Refresh the editors so the displayed status keeps up.
+        QObject::connect( m_cloudApiService.get(),
+                          &RiaCloudApiService::statusChanged,
+                          m_cloudApiService.get(),
+                          []()
+                          {
+                              auto* project = RimProject::current();
+                              if ( !project || !project->activeOilField() ) return;
+
+                              if ( auto* collection = RimCloudDataSourceCollection::instance() )
+                              {
+                                  collection->updateConnectedEditors();
+                              }
+                          } );
     }
 
     return m_cloudApiService.get();
