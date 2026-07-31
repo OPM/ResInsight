@@ -85,6 +85,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellRftPlot-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressAnalyzer-Test.cpp
