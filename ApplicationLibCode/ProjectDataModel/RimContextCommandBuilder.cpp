@@ -793,6 +793,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimBoxIntersection*>( firstUiItem ) )
         {
+            menuBuilder << "RicCreateSurfaceIntersectionBandFeature";
+            menuBuilder << "RicCreateSurfaceIntersectionCurveFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicPasteIntersectionsFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicAppendIntersectionFeature";
@@ -803,6 +806,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimIjkIntersection*>( firstUiItem ) )
         {
+            menuBuilder << "RicCreateSurfaceIntersectionBandFeature";
+            menuBuilder << "RicCreateSurfaceIntersectionCurveFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicPasteIntersectionsFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicAppendIntersectionFeature";

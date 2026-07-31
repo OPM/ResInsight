@@ -18,7 +18,7 @@
 
 #include "RicCreateSurfaceIntersectionCurveFeature.h"
 
-#include "RimExtrudedCurveIntersection.h"
+#include "RimIntersection.h"
 #include "RimSurfaceIntersectionCurve.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -32,10 +32,20 @@ CAF_CMD_SOURCE_INIT( RicCreateSurfaceIntersectionCurveFeature, "RicCreateSurface
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RicCreateSurfaceIntersectionCurveFeature::isCommandEnabled() const
+{
+    auto* intersection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimIntersection>();
+
+    return intersection && intersection->supportsSurfaceIntersectionCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicCreateSurfaceIntersectionCurveFeature::onActionTriggered( bool isChecked )
 {
-    auto* intersection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimExtrudedCurveIntersection>();
-    if ( intersection )
+    auto* intersection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimIntersection>();
+    if ( intersection && intersection->supportsSurfaceIntersectionCurves() )
     {
         auto curve = intersection->addIntersectionCurve();
         intersection->updateAllRequiredEditors();
