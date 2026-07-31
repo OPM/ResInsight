@@ -19,9 +19,6 @@
 #include "gtest/gtest.h"
 
 #include "RiaDefines.h"
-#include "RiaTestDataDirectory.h"
-
-#include "RifReaderEclipseOutput.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
@@ -31,41 +28,41 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseCrossPlotDataExtractor.h"
 #include "RigEclipseResultAddress.h"
+#include "RigMainGrid.h"
+#include "RigReservoirBuilder.h"
 
-#include <QDir>
-#include <QFile>
+#include "cvfVector3.h"
 
 #include <map>
 #include <memory>
 
 namespace
 {
-struct LoadedCase
+struct MockCase
 {
     std::unique_ptr<RimEclipseResultCase> resultCase;
     cvf::ref<RigEclipseCaseData>          eclipseCase;
 };
 
-LoadedCase loadBruggeCase()
+//--------------------------------------------------------------------------------------------------
+/// Build a regular ni x nj x nk box grid in memory (no file, no view)
+//--------------------------------------------------------------------------------------------------
+MockCase buildBoxGridCase( int ni, int nj, int nk )
 {
-    QDir baseFolder( TEST_MODEL_DIR );
-    bool subFolderExists = baseFolder.cd( "Case_with_10_timesteps/Real0" );
-    EXPECT_TRUE( subFolderExists ) << "Could not find test model directory";
+    RigReservoirBuilder builder;
+    builder.setIJKCount( cvf::Vec3st( ni, nj, nk ) );
+    builder.setWorldCoordinates( cvf::Vec3d( 0.0, 0.0, 0.0 ), cvf::Vec3d( ni, nj, -nk ) );
 
-    QString filePath = baseFolder.absoluteFilePath( "BRUGGE_0000.EGRID" );
-    EXPECT_TRUE( QFile::exists( filePath ) ) << "BRUGGE test model file does not exist: " << filePath.toStdString();
+    MockCase mockCase;
+    mockCase.resultCase.reset( new RimEclipseResultCase );
+    mockCase.eclipseCase = new RigEclipseCaseData( mockCase.resultCase.get() );
 
-    LoadedCase loaded;
-    loaded.resultCase.reset( new RimEclipseResultCase );
-    loaded.eclipseCase = new RigEclipseCaseData( loaded.resultCase.get() );
+    builder.createGridsAndCells( mockCase.eclipseCase.p() );
+    mockCase.eclipseCase->mainGrid()->computeCachedData();
 
-    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
-    bool                             success            = readerInterfaceEcl->open( filePath, loaded.eclipseCase.p() );
-    EXPECT_TRUE( success ) << "Could not load BRUGGE test model";
+    mockCase.resultCase->setReservoirData( mockCase.eclipseCase.p() );
 
-    loaded.resultCase->setReservoirData( loaded.eclipseCase.p() );
-
-    return loaded;
+    return mockCase;
 }
 
 void fillStaticResult( RigCaseCellResultsData* resultsData, const QString& resultName, size_t valueCount, double value )
@@ -97,14 +94,14 @@ void setupResultDefinition( RimEclipseResultDefinition* resultDefinition, RimEcl
 //--------------------------------------------------------------------------------------------------
 TEST( RigEclipseCrossPlotDataExtractorTest, ExtractIgnoresEmptyCellVisibility )
 {
-    LoadedCase caseData = loadBruggeCase();
+    MockCase mockCase = buildBoxGridCase( 10, 10, 5 );
 
-    RigCaseCellResultsData* resultsData = caseData.eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* resultsData = mockCase.eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     ASSERT_NE( resultsData, nullptr );
     ASSERT_NE( resultsData->activeCellInfo(), nullptr );
 
     const size_t activeCellCount = resultsData->activeCellInfo()->reservoirActiveCellCount();
-    ASSERT_GT( activeCellCount, 10u );
+    ASSERT_EQ( activeCellCount, 500u );
 
     fillStaticResult( resultsData, "XVALUES", activeCellCount, 1.0 );
     fillStaticResult( resultsData, "YVALUES", activeCellCount, 2.0 );
@@ -112,14 +109,14 @@ TEST( RigEclipseCrossPlotDataExtractorTest, ExtractIgnoresEmptyCellVisibility )
     RimEclipseResultDefinition xAddress;
     RimEclipseResultDefinition yAddress;
     RimEclipseResultDefinition groupAddress;
-    setupResultDefinition( &xAddress, caseData.resultCase.get(), "XVALUES" );
-    setupResultDefinition( &yAddress, caseData.resultCase.get(), "YVALUES" );
+    setupResultDefinition( &xAddress, mockCase.resultCase.get(), "XVALUES" );
+    setupResultDefinition( &yAddress, mockCase.resultCase.get(), "YVALUES" );
 
     // An empty visibility array is what a view without a main grid leaves behind.
     std::map<int, cvf::UByteArray> timeStepCellVisibilityMap;
     timeStepCellVisibilityMap[0] = cvf::UByteArray();
 
-    RigEclipseCrossPlotResult result = RigEclipseCrossPlotDataExtractor::extract( caseData.eclipseCase.p(),
+    RigEclipseCrossPlotResult result = RigEclipseCrossPlotDataExtractor::extract( mockCase.eclipseCase.p(),
                                                                                   0,
                                                                                   xAddress,
                                                                                   yAddress,
@@ -137,15 +134,15 @@ TEST( RigEclipseCrossPlotDataExtractorTest, ExtractIgnoresEmptyCellVisibility )
 //--------------------------------------------------------------------------------------------------
 TEST( RigEclipseCrossPlotDataExtractorTest, ExtractIgnoresTooShortCellVisibility )
 {
-    LoadedCase caseData = loadBruggeCase();
+    MockCase mockCase = buildBoxGridCase( 10, 10, 5 );
 
-    RigCaseCellResultsData* resultsData = caseData.eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* resultsData = mockCase.eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     ASSERT_NE( resultsData, nullptr );
     ASSERT_NE( resultsData->activeCellInfo(), nullptr );
 
     const size_t activeCellCount    = resultsData->activeCellInfo()->reservoirActiveCellCount();
     const size_t reservoirCellCount = resultsData->activeCellInfo()->reservoirCellCount();
-    ASSERT_GT( activeCellCount, 10u );
+    ASSERT_EQ( activeCellCount, 500u );
 
     fillStaticResult( resultsData, "XVALUES", activeCellCount, 3.0 );
     fillStaticResult( resultsData, "YVALUES", activeCellCount, 4.0 );
@@ -153,8 +150,8 @@ TEST( RigEclipseCrossPlotDataExtractorTest, ExtractIgnoresTooShortCellVisibility
     RimEclipseResultDefinition xAddress;
     RimEclipseResultDefinition yAddress;
     RimEclipseResultDefinition groupAddress;
-    setupResultDefinition( &xAddress, caseData.resultCase.get(), "XVALUES" );
-    setupResultDefinition( &yAddress, caseData.resultCase.get(), "YVALUES" );
+    setupResultDefinition( &xAddress, mockCase.resultCase.get(), "XVALUES" );
+    setupResultDefinition( &yAddress, mockCase.resultCase.get(), "YVALUES" );
 
     // Visibility computed for a smaller grid, as when the cell filter view refers to another case.
     std::map<int, cvf::UByteArray> timeStepCellVisibilityMap;
@@ -162,7 +159,7 @@ TEST( RigEclipseCrossPlotDataExtractorTest, ExtractIgnoresTooShortCellVisibility
     cellVisibility.resize( reservoirCellCount / 2 );
     cellVisibility.setAll( 1 );
 
-    RigEclipseCrossPlotResult result = RigEclipseCrossPlotDataExtractor::extract( caseData.eclipseCase.p(),
+    RigEclipseCrossPlotResult result = RigEclipseCrossPlotDataExtractor::extract( mockCase.eclipseCase.p(),
                                                                                   0,
                                                                                   xAddress,
                                                                                   yAddress,
