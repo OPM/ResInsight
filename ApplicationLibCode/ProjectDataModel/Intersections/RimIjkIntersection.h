@@ -83,8 +83,9 @@ public:
 
     void rebuildGeometryAndScheduleCreateDisplayModel() override;
 
-    /// The index range of the visible cells, with the fixed axis collapsed to the fixed index
-    std::optional<RigBoundingBoxIjk<caf::VecIjk0>> clampedCellRange() const;
+    /// The index range of the visible cells, with the fixed axis collapsed to the fixed index. The
+    /// grid is passed in, as the intersection is not always reachable from a view.
+    std::optional<RigBoundingBoxIjk<caf::VecIjk0>> clampedCellRange( const RigMainGrid* grid ) const;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() final;

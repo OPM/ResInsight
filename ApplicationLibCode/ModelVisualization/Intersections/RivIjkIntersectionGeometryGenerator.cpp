@@ -168,7 +168,7 @@ void RivIjkIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visi
 
     const FaceType face = computeFace();
 
-    const auto visibleRange = m_intersectionDefinition->clampedCellRange();
+    const auto visibleRange = m_intersectionDefinition->clampedCellRange( m_mainGrid.p() );
     if ( !visibleRange ) return;
 
     cvf::ubyte faceVtxIdx[4];

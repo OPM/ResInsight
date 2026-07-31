@@ -222,7 +222,7 @@ std::vector<cvf::Vec3d> RimIjkIntersection::surfaceCurtainFootprint() const
     RigMainGrid* grid = mainGrid();
     if ( !grid ) return {};
 
-    const auto cellRange = clampedCellRange();
+    const auto cellRange = clampedCellRange( grid );
     if ( !cellRange ) return {};
 
     const bool alongJ = m_axis() == GridAxis::AXIS_I;
@@ -280,7 +280,7 @@ std::pair<double, double> RimIjkIntersection::surfaceCurtainZRange() const
     RigMainGrid* grid = mainGrid();
     if ( !grid ) return RimIntersection::surfaceCurtainZRange();
 
-    const auto cellRange = clampedCellRange();
+    const auto cellRange = clampedCellRange( grid );
     if ( !cellRange ) return RimIntersection::surfaceCurtainZRange();
 
     double minZ = std::numeric_limits<double>::max();
@@ -313,9 +313,8 @@ std::pair<double, double> RimIjkIntersection::surfaceCurtainZRange() const
 //--------------------------------------------------------------------------------------------------
 /// The index range of the visible cells, with the fixed axis collapsed to the fixed index
 //--------------------------------------------------------------------------------------------------
-std::optional<RigBoundingBoxIjk<caf::VecIjk0>> RimIjkIntersection::clampedCellRange() const
+std::optional<RigBoundingBoxIjk<caf::VecIjk0>> RimIjkIntersection::clampedCellRange( const RigMainGrid* grid ) const
 {
-    RigMainGrid* grid = mainGrid();
     if ( !grid ) return {};
 
     const size_t ni = grid->cellCountI();
