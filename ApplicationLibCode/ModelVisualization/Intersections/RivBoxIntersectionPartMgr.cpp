@@ -42,6 +42,7 @@
 #include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
+#include "RivSurfaceIntersectionCurveTools.h"
 #include "RivTernaryScalarMapper.h"
 #include "RivTernaryTextureCoordsCreator.h"
 
@@ -96,7 +97,7 @@ void RivBoxIntersectionPartMgr::updateCellResultColor( int timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivBoxIntersectionPartMgr::generatePartGeometry( cvf::UByteArray* visibleCells )
+void RivBoxIntersectionPartMgr::generatePartGeometry( cvf::UByteArray* visibleCells, cvf::Transform* scaleTransform )
 {
     bool useBufferObjects = true;
     // Surface geometry
@@ -151,6 +152,8 @@ void RivBoxIntersectionPartMgr::generatePartGeometry( cvf::UByteArray* visibleCe
         }
     }
 
+    m_annotationParts = RivSurfaceIntersectionCurveTools::createAnnotationParts( m_rimIntersectionBox, scaleTransform );
+
     updatePartEffect();
 }
 
@@ -203,6 +206,18 @@ void RivBoxIntersectionPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList*
     {
         m_intersectionBoxGridLines->setTransform( scaleTransform );
         model->addPart( m_intersectionBoxGridLines.p() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivBoxIntersectionPartMgr::appendAnnotationPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+{
+    for ( size_t i = 0; i < m_annotationParts.size(); i++ )
+    {
+        m_annotationParts[i]->setTransform( scaleTransform );
+        model->addPart( m_annotationParts.at( i ) );
     }
 }
 

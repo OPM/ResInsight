@@ -20,6 +20,7 @@
 
 #include "RivBoxIntersectionGeometryGenerator.h"
 
+#include "cvfCollection.h"
 #include "cvfObject.h"
 
 namespace cvf
@@ -60,10 +61,11 @@ public:
 
     void appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
+    void appendAnnotationPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const;
 
-    void generatePartGeometry( cvf::UByteArray* visibleCells );
+    void generatePartGeometry( cvf::UByteArray* visibleCells, cvf::Transform* scaleTransform );
 
 private:
     void updatePartEffect();
@@ -73,9 +75,10 @@ private:
 
     cvf::Color3f m_defaultColor;
 
-    cvf::ref<cvf::Part>       m_intersectionBoxFaces;
-    cvf::ref<cvf::Part>       m_intersectionBoxGridLines;
-    cvf::ref<cvf::Vec2fArray> m_intersectionBoxFacesTextureCoords;
+    cvf::ref<cvf::Part>        m_intersectionBoxFaces;
+    cvf::ref<cvf::Part>        m_intersectionBoxGridLines;
+    cvf::Collection<cvf::Part> m_annotationParts;
+    cvf::ref<cvf::Vec2fArray>  m_intersectionBoxFacesTextureCoords;
 
     cvf::ref<RivBoxIntersectionGeometryGenerator> m_intersectionBoxGenerator;
 };

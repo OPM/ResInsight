@@ -23,6 +23,9 @@
 
 #include "Rim3dView.h"
 #include "RimAnnotationLineAppearance.h"
+#include "RimCase.h"
+#include "RimGridView.h"
+#include "RimIntersection.h"
 #include "RimSurface.h"
 #include "RimSurfaceIntersectionBand.h"
 #include "RimSurfaceIntersectionCollection.h"
@@ -232,6 +235,36 @@ cvf::Collection<cvf::Part>
     }
 
     return parts;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Collection<cvf::Part> RivSurfaceIntersectionCurveTools::createAnnotationParts( const RimIntersection* intersection,
+                                                                                    cvf::Transform*        scaleTransform )
+{
+    if ( !intersection || !intersection->supportsSurfaceIntersectionCurves() ) return {};
+
+    const auto surfaces = referencedSurfaces( intersection->surfaceIntersectionCollection() );
+    if ( surfaces.empty() ) return {};
+
+    const auto footprint = intersection->surfaceCurtainFootprint();
+    if ( footprint.size() < 2 ) return {};
+
+    // The visualization parts are built in display coordinates
+    cvf::Vec3d displayOffset( 0.0, 0.0, 0.0 );
+    {
+        auto gridView = intersection->firstAncestorOrThisOfType<RimGridView>();
+        if ( gridView && gridView->ownerCase() ) displayOffset = gridView->ownerCase()->displayModelOffset();
+    }
+
+    const auto [minZ, maxZ] = intersection->surfaceCurtainZRange();
+
+    auto pointTransform = [displayOffset]( const cvf::Vec3d& point, size_t segmentIndex ) { return point - displayOffset; };
+
+    const auto surfacePolylines = computeSurfaceCurtainPolylines( surfaces, footprint, minZ, maxZ, pointTransform );
+
+    return createAnnotationParts( intersection->surfaceIntersectionCollection(), surfacePolylines, scaleTransform );
 }
 
 //--------------------------------------------------------------------------------------------------

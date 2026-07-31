@@ -291,9 +291,10 @@ void RimIntersectionCollection::appendDynamicPartsToModel( cvf::ModelBasicList* 
     {
         if ( cs->isActive() )
         {
-            cs->intersectionBoxPartMgr()->generatePartGeometry( visibleCells );
+            cs->intersectionBoxPartMgr()->generatePartGeometry( visibleCells, scaleTransform );
             cs->intersectionBoxPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
+            cs->intersectionBoxPartMgr()->appendAnnotationPartsToModel( model, scaleTransform );
         }
     }
 
@@ -301,9 +302,10 @@ void RimIntersectionCollection::appendDynamicPartsToModel( cvf::ModelBasicList* 
     {
         if ( cs->isActive() )
         {
-            cs->intersectionPartMgr()->generatePartGeometry( visibleCells );
+            cs->intersectionPartMgr()->generatePartGeometry( visibleCells, scaleTransform );
             cs->intersectionPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
+            cs->intersectionPartMgr()->appendAnnotationPartsToModel( model, scaleTransform );
         }
     }
 }

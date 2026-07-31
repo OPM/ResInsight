@@ -29,6 +29,7 @@
 #include <map>
 #include <vector>
 
+class RimIntersection;
 class RimSurface;
 class RimSurfaceIntersectionCollection;
 
@@ -77,6 +78,10 @@ public:
     static cvf::Collection<cvf::Part> createAnnotationParts( const RimSurfaceIntersectionCollection*                 surfaceIntersections,
                                                              const std::map<RimSurface*, RivSurfaceCurtainPolyline>& surfacePolylines,
                                                              cvf::Transform*                                         scaleTransform );
+
+    /// Curves and bands for an intersection that is drawn in 3D only, computed from the footprint and
+    /// the depth extent reported by the intersection itself
+    static cvf::Collection<cvf::Part> createAnnotationParts( const RimIntersection* intersection, cvf::Transform* scaleTransform );
 
 private:
     static cvf::Collection<cvf::Part> createCurveParts( const RivSurfaceCurtainPolyline& polyline,
