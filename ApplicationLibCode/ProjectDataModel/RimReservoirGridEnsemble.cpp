@@ -35,6 +35,7 @@
 #include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "Formations/RimFormationNames.h"
 #include "Formations/RimFormationNamesCollection.h"
+#include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -51,6 +52,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeAttributes.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
 #include "RigCaseCellResultsData.h"
@@ -697,6 +699,35 @@ void RimReservoirGridEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmU
     }
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The 2D intersection views are owned by the case, but the views of an ensemble are located in the ensemble.
+/// Show the 2D intersection views next to the views they are created from.
+//--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    if ( uiConfigName != "MainWindow.ProjectTree" ) return;
+
+    uiTreeOrdering.add( &m_caseCollection );
+    uiTreeOrdering.add( &m_statisticsCaseCollection );
+    uiTreeOrdering.add( &m_viewCollection );
+
+    for ( auto eclipseCase : cases() )
+    {
+        if ( !eclipseCase ) continue;
+
+        auto intersectionViewCollection = eclipseCase->intersectionViewCollection();
+        if ( intersectionViewCollection && !intersectionViewCollection->views().empty() )
+        {
+            uiTreeOrdering.add( intersectionViewCollection );
+        }
+    }
+
+    uiTreeOrdering.add( &m_wellTargetMappings );
+    uiTreeOrdering.add( &m_statisticsContourMaps );
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------

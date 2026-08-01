@@ -22,8 +22,36 @@
 #include "RimCase.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
+#include "RimIntersectionCollection.h"
+#include "RimReservoirGridEnsemble.h"
+
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( Rim2dIntersectionViewCollection, "Intersection2dViewCollection" );
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Views displaying a case are not necessarily children of the case. Views can be located in the project level
+/// view collection or in the view collection of a grid ensemble. Collect all grid views displaying the case.
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGridView*> gridViewsForCase( RimCase* rimCase )
+{
+    std::vector<RimGridView*> gridViews = rimCase->gridViews();
+
+    // Views in a view collection are not children of the case, and are not reported by gridViews(). These views refer to
+    // the case using a ptr field, and can be found by inspecting the objects referring to the case.
+    for ( auto view : rimCase->objectsWithReferringPtrFieldsOfType<RimGridView>() )
+    {
+        if ( !view || view->ownerCase() != rimCase ) continue;
+        if ( std::find( gridViews.begin(), gridViews.end(), view ) != gridViews.end() ) continue;
+
+        gridViews.push_back( view );
+    }
+
+    return gridViews;
+}
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -57,8 +85,16 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
 {
     auto parentCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
-    std::vector<RimExtrudedCurveIntersection*> allOrderedIntersectionsInCase =
-        parentCase->descendantsIncludingThisOfType<RimExtrudedCurveIntersection>();
+    std::vector<RimExtrudedCurveIntersection*> allOrderedIntersectionsInCase;
+    for ( auto gridView : gridViewsForCase( parentCase ) )
+    {
+        if ( !gridView || !gridView->intersectionCollection() ) continue;
+
+        for ( auto intersection : gridView->intersectionCollection()->intersections() )
+        {
+            if ( intersection ) allOrderedIntersectionsInCase.push_back( intersection );
+        }
+    }
 
     // Delete views without a valid intersection
 
@@ -119,7 +155,11 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
 
     if ( doUpdate ) updateConnectedEditors();
 
-    auto rimCase = firstAncestorOrThisOfType<RimCase>();
+    parentCase->updateConnectedEditors();
 
-    if ( rimCase ) rimCase->updateConnectedEditors();
+    // For a case in a grid ensemble, this collection is displayed as a child of the ensemble
+    if ( auto ensemble = parentCase->firstAncestorOfType<RimReservoirGridEnsemble>() )
+    {
+        ensemble->updateConnectedEditors();
+    }
 }

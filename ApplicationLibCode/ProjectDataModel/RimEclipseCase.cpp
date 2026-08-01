@@ -73,6 +73,7 @@
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimReservoirGridEnsembleBase.h"
 #include "RimResultNameAlias.h"
 #include "RimStimPlanColors.h"
@@ -692,7 +693,9 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
             uiTreeOrdering.add( view );
         }
 
-        if ( !m_2dIntersectionViewCollection->views().empty() )
+        // For a case in a grid ensemble, the 2D intersection views are displayed as a child of the ensemble, as the
+        // 3D views are located in the ensemble and not in the case
+        if ( !m_2dIntersectionViewCollection->views().empty() && !firstAncestorOfType<RimReservoirGridEnsemble>() )
         {
             uiTreeOrdering.add( &m_2dIntersectionViewCollection );
         }
