@@ -45,30 +45,78 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
+#include <utility>
 
 namespace
 {
 // Distance between the points the footprint is resampled to before the surface is looked up
 const double maxLineSegmentLength = 1.0;
 
+// Added to the extent a pillar is continued to, to keep a surface touching the end inside the search
+const double pillarExtensionMargin = 1.0;
+
 //--------------------------------------------------------------------------------------------------
-/// Move a point onto the pillar at the depth of the point, and report whether the depth is within the
-/// pillar at all. The surface lookup falls back to a search in the XY plane when the pillar misses the
-/// surface triangles, and that fallback keeps the XY of the top of the pillar and ignores the extent
-/// of the pillar. Without this the point ends up beside a tilted pillar, or outside a pillar that is
-/// bounded by the extent of the intersection.
+/// Move a point onto the line through the pillar, at the depth of the point. The point is allowed to
+/// fall outside the pillar itself, so a surface above or below the intersection is placed along the
+/// continuation of the pillar rather than beside it.
 //--------------------------------------------------------------------------------------------------
-bool projectOntoPillar( const cvf::Vec3d& pillarTop, const cvf::Vec3d& pillarBottom, cvf::Vec3d& point )
+cvf::Vec3d projectOntoPillarLine( const cvf::Vec3d& pillarTop, const cvf::Vec3d& pillarBottom, const cvf::Vec3d& point )
 {
     const double pillarHeight = pillarTop.z() - pillarBottom.z();
-    if ( std::fabs( pillarHeight ) < 1.0e-9 ) return true;
+    if ( std::fabs( pillarHeight ) < 1.0e-9 ) return point;
 
     const double t = ( pillarTop.z() - point.z() ) / pillarHeight;
-    if ( t < 0.0 || t > 1.0 ) return false;
 
-    point = pillarTop + t * ( pillarBottom - pillarTop );
+    return pillarTop + t * ( pillarBottom - pillarTop );
+}
 
-    return true;
+//--------------------------------------------------------------------------------------------------
+/// The depth range covered by a surface, used to decide how far a pillar has to be continued
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> surfaceZRange( RigSurface* surface )
+{
+    double lowZ  = std::numeric_limits<double>::max();
+    double highZ = -std::numeric_limits<double>::max();
+
+    for ( const auto& vertex : surface->vertices() )
+    {
+        lowZ  = std::min( lowZ, vertex.z() );
+        highZ = std::max( highZ, vertex.z() );
+    }
+
+    return { lowZ, highZ };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find where the surface crosses the pillar. A surface that does not cross the curtain is estimated
+/// by continuing the pillar in both directions, keeping the tilt of the pillar, so the curve carries
+/// on past the extent of the intersection instead of stopping. The pillar is continued only as far as
+/// the surface reaches, to keep the search for candidate triangles small.
+//--------------------------------------------------------------------------------------------------
+bool findSurfacePointOnPillar( RigSurface*       surface,
+                               const cvf::Vec3d& pillarTop,
+                               const cvf::Vec3d& pillarBottom,
+                               double            surfaceLowZ,
+                               double            surfaceHighZ,
+                               cvf::Vec3d&       point )
+{
+    if ( RigSurfaceResampler::computeIntersectionWithLine( surface, pillarTop, pillarBottom, point ) ) return true;
+
+    if ( std::fabs( pillarTop.z() - pillarBottom.z() ) > 1.0e-9 )
+    {
+        const double searchHighZ = std::max( std::max( pillarTop.z(), pillarBottom.z() ), surfaceHighZ + pillarExtensionMargin );
+        const double searchLowZ  = std::min( std::min( pillarTop.z(), pillarBottom.z() ), surfaceLowZ - pillarExtensionMargin );
+
+        const cvf::Vec3d extendedTop    = projectOntoPillarLine( pillarTop, pillarBottom, cvf::Vec3d( 0.0, 0.0, searchHighZ ) );
+        const cvf::Vec3d extendedBottom = projectOntoPillarLine( pillarTop, pillarBottom, cvf::Vec3d( 0.0, 0.0, searchLowZ ) );
+
+        if ( RigSurfaceResampler::computeIntersectionWithLine( surface, extendedTop, extendedBottom, point ) ) return true;
+    }
+
+    // The surface may not cover this position at all. Search in the XY plane around the pillar itself, as
+    // a continued pillar would move the search away from the intersection.
+    return RigSurfaceResampler::findClosestPointOnSurface( surface, pillarTop, pillarBottom, point );
 }
 } // namespace
 
@@ -187,6 +235,8 @@ std::map<RimSurface*, RivSurfaceCurtainPolyline>
         curtainPolyline.points.reserve( resampledPillars.size() );
         curtainPolyline.valid.reserve( resampledPillars.size() );
 
+        const auto [surfaceLowZ, surfaceHighZ] = surfaceZRange( surface );
+
         bool anyValidPoint = false;
 
         for ( size_t i = 0; i < resampledPillars.size(); i++ )
@@ -194,9 +244,9 @@ std::map<RimSurface*, RivSurfaceCurtainPolyline>
             const auto& [pillarTop, pillarBottom] = resampledPillars[i];
 
             cvf::Vec3d intersectionPoint;
-            bool       isValid = RigSurfaceResampler::findClosestPointOnSurface( surface, pillarTop, pillarBottom, intersectionPoint );
+            bool       isValid = findSurfacePointOnPillar( surface, pillarTop, pillarBottom, surfaceLowZ, surfaceHighZ, intersectionPoint );
 
-            if ( isValid ) isValid = projectOntoPillar( pillarTop, pillarBottom, intersectionPoint );
+            if ( isValid ) intersectionPoint = projectOntoPillarLine( pillarTop, pillarBottom, intersectionPoint );
 
             // A point is always appended, also when the surface was not hit, to keep the two curves of a band index aligned
             curtainPolyline.points.push_back( pointTransform( intersectionPoint, segmentIndices[i] ) );
