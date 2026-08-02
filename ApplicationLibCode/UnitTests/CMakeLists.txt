@@ -33,6 +33,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPathIntersectionTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimHistogramDataSource-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurveImpl-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivPipeGeometryGenerator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivIjkIntersectionGeometryGenerator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivTernaryScalarMapper-Test.cpp

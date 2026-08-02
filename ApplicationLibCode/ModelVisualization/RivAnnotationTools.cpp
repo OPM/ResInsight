@@ -105,6 +105,9 @@ cvf::ref<cvf::Part> RivAnnotationTools::createPartFromPolyline( const cvf::Color
     return part;
 }
 
+namespace
+{
+
 struct LabelTextAndPosition
 {
     std::string label;
@@ -139,12 +142,48 @@ auto computeScalingFactorFromZoom = []( const cvf::Camera* camera ) -> double
 };
 
 //--------------------------------------------------------------------------------------------------
+/// cvf::Camera::project() divides by the homogeneous w-coordinate, and coordinates behind the camera are mirrored into the viewport. Reject
+/// these coordinates before screen space coordinates are compared.
+//--------------------------------------------------------------------------------------------------
+auto isInFrontOfNearPlane = []( const cvf::Camera* camera, const cvf::Vec3d& displayCoord ) -> bool
+{
+    const double distanceAlongViewDir = ( displayCoord - camera->position() ) * camera->direction();
+
+    return distanceAlongViewDir > camera->nearPlane();
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Move the label towards the camera to make sure the label is drawn in front of other geometry. The scaling factor is derived from the
+/// zoom level, and is not related to the distance between the camera and the anchor point. If the label is moved past the near plane, the
+/// label is silently discarded by the text renderer. Limit the offset to keep the label inside the view frustum.
+//--------------------------------------------------------------------------------------------------
+auto computeLabelPosition = []( const cvf::Camera* camera, const cvf::Vec3d& anchorPosition, const double anchorLineScalingFactor ) -> cvf::Vec3d
+{
+    const double distanceAlongViewDir = ( anchorPosition - camera->position() ) * camera->direction();
+
+    // Move the label at most half the way towards the camera. The label parts are part of the scene, and are used to compute the near and
+    // far clipping planes. Deriving the limit from the anchor point and not from the near plane avoids a feedback loop between the label
+    // positions and the clipping planes.
+    const double maxOffsetFromAnchorPoint = 0.5 * distanceAlongViewDir;
+
+    // If the near plane is close to the anchor point, the limit above is not sufficient to keep the label inside the frustum
+    const double maxOffsetFromNearPlane = distanceAlongViewDir - 1.1 * camera->nearPlane();
+
+    const double offset = std::max( 0.0, std::min( { anchorLineScalingFactor, maxOffsetFromAnchorPoint, maxOffsetFromNearPlane } ) );
+
+    const cvf::Vec3d directionPointToCam = ( camera->position() - anchorPosition ).getNormalized();
+
+    return anchorPosition + directionPointToCam * offset;
+};
+
+//--------------------------------------------------------------------------------------------------
 /// Project candidate coordinates to screen space, and compare with the normalized viewport position. Create a label item for the closest
 /// coordinate.
 //--------------------------------------------------------------------------------------------------
 auto createLabelForClosestCoordinate = []( const cvf::Camera*             camera,
                                            const RivAnnotationSourceInfo* annotationObject,
                                            const double                   viewportWidth,
+                                           const double                   viewportHeight,
                                            const double                   normalizedXPosition,
                                            const double                   anchorLineScalingFactor ) -> std::optional<LabelTextAndPosition>
 {
@@ -152,10 +191,18 @@ auto createLabelForClosestCoordinate = []( const cvf::Camera*             camera
 
     cvf::Vec3d anchorPosition;
     double     smallestDistance = std::numeric_limits<double>::max();
+
+    // Prefer coordinates inside the viewport, as a label attached to a coordinate outside the viewport can be positioned outside the
+    // visible area
+    cvf::Vec3d anchorPositionInViewport;
+    double     smallestDistanceInViewport = std::numeric_limits<double>::max();
+
     for ( const auto& displayCoord : annotationObject->anchorPointsInDisplayCoords() )
     {
+        if ( !isInFrontOfNearPlane( camera, displayCoord ) ) continue;
+
         cvf::Vec3d screenCoord;
-        camera->project( displayCoord, &screenCoord );
+        if ( !camera->project( displayCoord, &screenCoord ) ) continue;
 
         double horizontalDistance = std::fabs( normalizedXPosition * viewportWidth - screenCoord.x() );
 
@@ -164,13 +211,23 @@ auto createLabelForClosestCoordinate = []( const cvf::Camera*             camera
             smallestDistance = horizontalDistance;
             anchorPosition   = displayCoord;
         }
+
+        if ( screenCoord.y() > 0 && screenCoord.y() < viewportHeight && horizontalDistance < smallestDistanceInViewport )
+        {
+            smallestDistanceInViewport = horizontalDistance;
+            anchorPositionInViewport   = displayCoord;
+        }
+    }
+
+    if ( smallestDistanceInViewport != std::numeric_limits<double>::max() )
+    {
+        smallestDistance = smallestDistanceInViewport;
+        anchorPosition   = anchorPositionInViewport;
     }
 
     if ( smallestDistance == std::numeric_limits<double>::max() ) return std::nullopt;
 
-    const cvf::Vec3d directionPointToCam = ( camera->position() - anchorPosition ).getNormalized();
-
-    cvf::Vec3d labelPosition = anchorPosition + directionPointToCam * anchorLineScalingFactor;
+    cvf::Vec3d labelPosition = computeLabelPosition( camera, anchorPosition, anchorLineScalingFactor );
 
     const double maxScreenSpaceAdjustment = viewportWidth * 0.05;
     if ( smallestDistance < maxScreenSpaceAdjustment )
@@ -178,10 +235,11 @@ auto createLabelForClosestCoordinate = []( const cvf::Camera*             camera
         // Establish a fixed horizontal anchor point for the label in screen coordinates. Achieved through conversion to screen coordinates,
         // adjusting the x-coordinate, and then reverting to display coordinates.
         cvf::Vec3d screenCoord;
-        camera->project( labelPosition, &screenCoord );
-
-        screenCoord.x() = normalizedXPosition * viewportWidth;
-        camera->unproject( screenCoord, &labelPosition );
+        if ( camera->project( labelPosition, &screenCoord ) )
+        {
+            screenCoord.x() = normalizedXPosition * viewportWidth;
+            camera->unproject( screenCoord, &labelPosition );
+        }
     }
 
     LabelTextAndPosition info = { annotationObject->text(), anchorPosition, labelPosition };
@@ -213,8 +271,10 @@ auto createMultipleLabels = []( const cvf::Camera*             camera,
         {
             const auto& displayCoord = candidateCoords[i];
 
+            if ( !isInFrontOfNearPlane( camera, displayCoord ) ) continue;
+
             cvf::Vec3d screenCoord;
-            camera->project( displayCoord, &screenCoord );
+            if ( !camera->project( displayCoord, &screenCoord ) ) continue;
 
             if ( screenCoord.x() > 0 && screenCoord.x() < viewportWidth && screenCoord.y() > 0 && screenCoord.y() < viewportHeight )
             {
@@ -226,9 +286,8 @@ auto createMultipleLabels = []( const cvf::Camera*             camera,
 
         for ( size_t i = 0; i < labelCoords.size(); i++ )
         {
-            const cvf::Vec3d lineAnchorPosition  = labelCoords[i];
-            const cvf::Vec3d directionPointToCam = ( camera->position() - lineAnchorPosition ).getNormalized();
-            const cvf::Vec3d labelPosition       = lineAnchorPosition + directionPointToCam * anchorLineScalingFactor;
+            const cvf::Vec3d lineAnchorPosition = labelCoords[i];
+            const cvf::Vec3d labelPosition      = computeLabelPosition( camera, lineAnchorPosition, anchorLineScalingFactor );
 
             labelInfo.push_back( { labelTexts[i], lineAnchorPosition, labelPosition } );
         }
@@ -236,6 +295,8 @@ auto createMultipleLabels = []( const cvf::Camera*             camera,
 
     return labelInfo;
 };
+
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -278,8 +339,12 @@ void RivAnnotationTools::addAnnotationLabels( const cvf::Collection<cvf::Part>& 
                     // Close to the right edge of the visible screen area
                     const auto normalizedXPosition = 0.9;
 
-                    auto labelCandidate =
-                        createLabelForClosestCoordinate( camera, annotationObject, viewportWidth, normalizedXPosition, anchorLineScalingFactor );
+                    auto labelCandidate = createLabelForClosestCoordinate( camera,
+                                                                           annotationObject,
+                                                                           viewportWidth,
+                                                                           viewportHeight,
+                                                                           normalizedXPosition,
+                                                                           anchorLineScalingFactor );
                     if ( labelCandidate.has_value() ) labels.push_back( labelCandidate.value() );
                 }
 
@@ -288,8 +353,12 @@ void RivAnnotationTools::addAnnotationLabels( const cvf::Collection<cvf::Part>& 
                     // Close to the left edge of the visible screen area
                     const auto normalizedXPosition = 0.1;
 
-                    auto labelCandidate =
-                        createLabelForClosestCoordinate( camera, annotationObject, viewportWidth, normalizedXPosition, anchorLineScalingFactor );
+                    auto labelCandidate = createLabelForClosestCoordinate( camera,
+                                                                           annotationObject,
+                                                                           viewportWidth,
+                                                                           viewportHeight,
+                                                                           normalizedXPosition,
+                                                                           anchorLineScalingFactor );
                     if ( labelCandidate.has_value() ) labels.push_back( labelCandidate.value() );
                 }
 
@@ -298,8 +367,10 @@ void RivAnnotationTools::addAnnotationLabels( const cvf::Collection<cvf::Part>& 
                     std::vector<cvf::Vec3d> visibleCoords;
                     for ( const auto& v : annotationObject->anchorPointsInDisplayCoords() )
                     {
+                        if ( !isInFrontOfNearPlane( camera, v ) ) continue;
+
                         cvf::Vec3d screenCoord;
-                        camera->project( v, &screenCoord );
+                        if ( !camera->project( v, &screenCoord ) ) continue;
 
                         if ( screenCoord.x() > 0 && screenCoord.x() < viewportWidth && screenCoord.y() > 0 && screenCoord.y() < viewportHeight )
                             visibleCoords.push_back( v );
@@ -315,9 +386,8 @@ void RivAnnotationTools::addAnnotationLabels( const cvf::Collection<cvf::Part>& 
                     {
                         size_t adjustedIndex = std::min( i, visibleCoords.size() - 1 );
 
-                        const cvf::Vec3d lineAnchorPosition  = visibleCoords[adjustedIndex];
-                        const cvf::Vec3d directionPointToCam = ( camera->position() - lineAnchorPosition ).getNormalized();
-                        const cvf::Vec3d labelPosition       = lineAnchorPosition + directionPointToCam * anchorLineScalingFactor;
+                        const cvf::Vec3d lineAnchorPosition = visibleCoords[adjustedIndex];
+                        const cvf::Vec3d labelPosition      = computeLabelPosition( camera, lineAnchorPosition, anchorLineScalingFactor );
 
                         labels.push_back( { annotationObject->text(), lineAnchorPosition, labelPosition } );
                     }
