@@ -68,6 +68,7 @@ QString summaryLgrBlock();
 QString summaryCalculated();
 
 QString summaryRealizationNumber();
+QString summaryRmsSeed();
 
 QString key1VariableName();
 QString key2VariableName();

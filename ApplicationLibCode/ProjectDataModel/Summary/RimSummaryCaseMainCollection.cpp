@@ -62,13 +62,18 @@
 #include <QDir>
 #include <atomic>
 #include <memory>
+#include <optional>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );
 
 //--------------------------------------------------------------------------------------------------
-/// Internal function
+/// Internal function. An empty rmsSeedFileCandidate means the RMS seed file is known to be absent, while std::nullopt
+/// means the file system must be searched for the file.
 //--------------------------------------------------------------------------------------------------
-void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString modelFolderOrFile, const QString& filePathCandidate )
+void addCaseRealizationParametersIfFound( RimSummaryCase&               sumCase,
+                                          const QString                 modelFolderOrFile,
+                                          const QString&                filePathCandidate,
+                                          const std::optional<QString>& rmsSeedFileCandidate )
 {
     std::shared_ptr<RigCaseRealizationParameters> parameters;
 
@@ -90,7 +95,8 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
             }
         }
     }
-    else
+
+    if ( !parameters )
     {
         parameters = std::make_shared<RigCaseRealizationParameters>();
     }
@@ -100,6 +106,18 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
         int realizationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( modelFolderOrFile );
         parameters->setRealizationNumber( realizationNumber );
         parameters->addParameter( RiaDefines::summaryRealizationNumber(), realizationNumber );
+
+        // If present, expose the RMS seed value from "rms/model/RMS_SEED_USED" as a realization parameter. Ignore missing
+        // or malformed files silently.
+        QString rmsSeedFile = rmsSeedFileCandidate.has_value() ? rmsSeedFileCandidate.value()
+                                                               : RifRmsSeedFileReader::locate( modelFolderOrFile );
+        if ( !rmsSeedFile.isEmpty() )
+        {
+            if ( auto seedValue = RifRmsSeedFileReader::readSeedValue( rmsSeedFile ) )
+            {
+                parameters->addParameter( RiaDefines::summaryRmsSeed(), seedValue.value() );
+            }
+        }
 
         sumCase.setCaseRealizationParameters( parameters );
     }
@@ -495,7 +513,7 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( const std::vector<RimSum
             {
                 sumCase->createSummaryReaderInterface();
                 sumCase->createRftReaderInterface();
-                addCaseRealizationParametersIfFound( *sumCase, sumCase->summaryHeaderFilename(), {} );
+                addCaseRealizationParametersIfFound( *sumCase, sumCase->summaryHeaderFilename(), {}, std::nullopt );
             }
 
             {
@@ -595,18 +613,20 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( const std::vector<Ri
             {
                 fileSummaryCase->createSummaryReaderInterfaceThreadSafe( importState, &threadSafeLogger );
 
-                QString parameterFilePath;
+                QString                parameterFilePath;
+                std::optional<QString> rmsSeedFilePath;
                 if ( importState.useConfigValues() )
                 {
                     auto realizationNumber = RifOpmSummaryTools::extractRealizationNumber( fileSummaryCase->summaryHeaderFilename() );
                     if ( realizationNumber.has_value() )
                     {
                         parameterFilePath = importState.pathToParameterFile( realizationNumber.value() );
+                        rmsSeedFilePath   = importState.pathToRmsSeedFile( realizationNumber.value() );
                     }
                 }
 
                 auto startTime = RiaLogging::currentTime();
-                addCaseRealizationParametersIfFound( *fileSummaryCase, fileSummaryCase->summaryHeaderFilename(), parameterFilePath );
+                addCaseRealizationParametersIfFound( *fileSummaryCase, fileSummaryCase->summaryHeaderFilename(), parameterFilePath, rmsSeedFilePath );
                 bool isLoggingEnabled = RiaPreferencesSystem::current()->isLoggingActivatedForKeyword( "OpmSummaryImport" );
                 if ( isLoggingEnabled )
                 {

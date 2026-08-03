@@ -29,6 +29,7 @@ public:
 
     std::vector<QString> restartFilesForRealization( int realizationNumber ) const;
     QString              pathToParameterFile( int realizationNumber ) const;
+    QString              pathToRmsSeedFile( int realizationNumber ) const;
     bool                 useConfigValues() const;
 
 private:
@@ -36,6 +37,7 @@ private:
                                                     const std::vector<QString>& restartFilesSecondCase );
 
     void computeParameterFilePathPattern( const std::vector<QString>& filePaths );
+    void computeRmsSeedFilePathPattern( const std::vector<QString>& filePaths );
 
     static QString placeholderText();
 
@@ -43,4 +45,5 @@ private:
     bool                 m_useConfigValues = false;
     std::vector<QString> m_restartFileNamePatterns;
     QString              m_parameterFilePathPattern;
+    QString              m_rmsSeedFilePathPattern;
 };

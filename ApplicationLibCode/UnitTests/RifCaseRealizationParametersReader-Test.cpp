@@ -98,6 +98,58 @@ TEST( RifCaseRealizationParametersReaderTest, SuccessfulParsing )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RifRmsSeedFileReaderTest, LocatorTestSuccess )
+{
+    QString modelDir = CASE_REAL_TEST_DATA_DIRECTORY_01 + "rms_seed/realization-1/iter-0/eclipse/model";
+
+    QString file     = RifRmsSeedFileReader::locate( modelDir );
+    QString expected = CASE_REAL_TEST_DATA_DIRECTORY_01 + "rms_seed/realization-1/iter-0/rms/model/RMS_SEED_USED";
+    EXPECT_EQ( expected.toStdString(), file.toStdString() );
+
+    auto seedValue = RifRmsSeedFileReader::readSeedValue( file );
+    EXPECT_TRUE( seedValue.has_value() );
+    EXPECT_EQ( 81472369.0, seedValue.value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifRmsSeedFileReaderTest, LocatorTestFailure )
+{
+    QString file = RifRmsSeedFileReader::locate( CASE_REAL_TEST_DATA_DIRECTORY_01 + "4/3/2" );
+    EXPECT_TRUE( file.isEmpty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifRmsSeedFileReaderTest, ReadSeedValue )
+{
+    {
+        auto seedValue =
+            RifRmsSeedFileReader::readSeedValue( CASE_REAL_TEST_DATA_DIRECTORY_01 + "rms_seed_files/RMS_SEED_USED_single_value" );
+        EXPECT_TRUE( seedValue.has_value() );
+        EXPECT_EQ( 81472369.0, seedValue.value() );
+    }
+    {
+        // Use the seed value from the last non-empty line
+        auto seedValue = RifRmsSeedFileReader::readSeedValue( CASE_REAL_TEST_DATA_DIRECTORY_01 + "rms_seed_files/RMS_SEED_USED_multiline" );
+        EXPECT_TRUE( seedValue.has_value() );
+        EXPECT_EQ( 81472369.0, seedValue.value() );
+    }
+    {
+        auto seedValue = RifRmsSeedFileReader::readSeedValue( CASE_REAL_TEST_DATA_DIRECTORY_01 + "rms_seed_files/RMS_SEED_USED_invalid" );
+        EXPECT_FALSE( seedValue.has_value() );
+    }
+    {
+        auto seedValue = RifRmsSeedFileReader::readSeedValue( CASE_REAL_TEST_DATA_DIRECTORY_01 + "rms_seed_files/does_not_exist" );
+        EXPECT_FALSE( seedValue.has_value() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RifCaseRealizationParametersReaderTest, FindRealizationNumber )
 {
     {
