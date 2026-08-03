@@ -223,11 +223,25 @@ jobs:
           echo "Using compiler: $cl_path"
           echo "hash=$(sha1sum "$cl_path" | cut -d' ' -f1)" >> $GITHUB_OUTPUT
 
+      - name: Get runner image version
+        # vcpkg's ABI hash covers more of the runner image than cl.exe alone: on
+        # Windows every port's ABI includes the PowerShell version, and other
+        # image-provided tools feed it as well. A PowerShell 7.6.3 -> 7.6.4 bump
+        # in image 20260728 changed all 102 ABIs while cl.exe, the vcpkg
+        # submodule and vcpkg.json stayed fixed, so the cache restored but vcpkg
+        # rejected every archive ("Restored 0 package(s)"). Since the key was
+        # unchanged the action then skipped saving, leaving the stale entry in
+        # place for good. Track the image version so any image bump gives one
+        # cold rebuild followed by a save under the new key.
+        id: image-version
+        shell: bash
+        run: echo "version=${ImageVersion:-unknown}" >> $GITHUB_OUTPUT
+
       - name: Restore vcpkg cache
         id: vcpkg-cache
         uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
         with:
-          cache-key: ${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.compiler-hash.outputs.hash }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+          cache-key: ${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.image-version.outputs.version }}-${{ steps.compiler-hash.outputs.hash }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
           prefix: vcpkg-${{ matrix.config.cxx}}/
           
       - name: Print CMake version
