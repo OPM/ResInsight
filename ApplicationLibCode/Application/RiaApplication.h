@@ -233,6 +233,10 @@ protected:
     static std::vector<caf::PdmDeprecation> defaultDeprecations();
 
 protected:
+    // Create the logger instances required to report messages during application startup. Called from initialize()
+    // before any startup configuration is read, to make sure messages from the startup sequence are logged.
+    virtual void initializeLoggers() {}
+
     void initializeDataLoadController();
     void parseLogLevelFromQtArguments();
 

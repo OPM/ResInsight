@@ -551,14 +551,21 @@ void RiaGuiApplication::initialize()
         RiaLogging::appendLoggerInstance( std::move( logger ) );
     }
 
-    {
-        auto logFolder  = QDir::homePath() + "/.resinsight/logs";
-        auto fileLogger = std::make_unique<RiaFileLogger>( logFolder.toStdString() );
-        fileLogger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
-
-        RiaLogging::appendLoggerInstance( std::move( fileLogger ) );
-    }
     m_socketServer = new RiaSocketServer( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::initializeLoggers()
+{
+    // The message panel logger requires the main windows, and is created in initialize(). The file logger has no
+    // such dependency, and is created here to capture messages from the early startup sequence.
+    auto logFolder  = QDir::homePath() + "/.resinsight/logs";
+    auto fileLogger = std::make_unique<RiaFileLogger>( logFolder.toStdString() );
+    fileLogger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+
+    RiaLogging::appendLoggerInstance( std::move( fileLogger ) );
 }
 
 //--------------------------------------------------------------------------------------------------

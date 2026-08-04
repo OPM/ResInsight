@@ -109,6 +109,14 @@ void RiaConsoleApplication::initialize()
 
     RiaApplication::initialize();
 
+    m_socketServer = new RiaSocketServer( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaConsoleApplication::initializeLoggers()
+{
     auto logger = std::make_unique<RiaStdOutLogger>();
 
     // Use command line log level if provided, otherwise use preference-based level
@@ -122,8 +130,6 @@ void RiaConsoleApplication::initialize()
     }
 
     RiaLogging::appendLoggerInstance( std::move( logger ) );
-
-    m_socketServer = new RiaSocketServer( this );
 }
 
 //--------------------------------------------------------------------------------------------------

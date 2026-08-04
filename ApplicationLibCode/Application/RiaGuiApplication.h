@@ -126,6 +126,8 @@ public:
     void              showFormattedTextInMessageBoxOrConsole( const QString& errMsg ) override;
 
 protected:
+    void initializeLoggers() override;
+
     bool notify( QObject* receiver, QEvent* event ) override;
 
     // use the checkWithUserBeforeClose function, to get all checks in one go

@@ -1697,6 +1697,13 @@ void RiaApplication::initialize()
     m_preferences->initAfterReadRecursively();
     applyPreferences();
 
+    // Parse log level early so it's available when the loggers are created
+    parseLogLevelFromQtArguments();
+
+    // Create loggers before reading the cloud configuration, to make sure the messages from the config file search
+    // are reported
+    initializeLoggers();
+
     RiaConnectorTools::configureCloudServices();
 
     // Start with a project
@@ -1710,9 +1717,6 @@ void RiaApplication::initialize()
     RiaCafLoggingManager::initializeCafLogging();
 
     initializeDataLoadController();
-
-    // Parse log level early so it's available before logger is created in subclass initialize()
-    parseLogLevelFromQtArguments();
 }
 
 //--------------------------------------------------------------------------------------------------
