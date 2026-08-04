@@ -703,6 +703,8 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
         caf::ProgressInfo progInfo( nCases, QString( "Reading Eclipse Ensemble" ) );
         int               i = 1;
 
+        // The key point of this loop is that each realization is opened once, contributes to all pending contour maps,
+        // and is then closed again to release memory.
         for ( RimEclipseCase* eCase : cases )
         {
             auto task = progInfo.task( QString( "Processing Case %1 of %2" ).arg( i++ ).arg( nCases ) );
@@ -760,7 +762,14 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
             }
 
             eCase->setReaderSettings( oldSettings );
-            if ( eCase->views().empty() && !primaryCases.contains( eCase ) && !casesInViews.contains( eCase ) ) eCase->closeReservoirCase();
+
+            // Release the grid data for cases that were opened only to compute statistics. A case is kept open if it has
+            // its own views, if it is the primary case of one of the contour maps, or if it is displayed in one of the
+            // ensemble views.
+            if ( eCase->views().empty() && !primaryCases.contains( eCase ) && !casesInViews.contains( eCase ) )
+            {
+                eCase->closeReservoirCase();
+            }
         }
     }
 
@@ -921,6 +930,9 @@ QString RimStatisticsContourMap::timeStepName( int timeStep ) const
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::ensureResultsComputed()
 {
+    // The contour map grid is not stored in the project file, and is used as the flag telling if statistics have been
+    // computed in this session. It is created by computeStatisticsForMaps(), and is never cleared.
+    // Use the Compute button to force a recomputation after changing settings.
     if ( m_contourMapGrid ) return;
 
     // Compute all pending sibling contour maps in the same sweep over the ensemble realizations, so
