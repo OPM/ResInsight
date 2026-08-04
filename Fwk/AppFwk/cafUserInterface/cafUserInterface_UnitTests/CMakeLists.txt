@@ -17,6 +17,7 @@ set(PROJECT_FILES
     cafUserInterface_UnitTests.cpp
     cafPdmUiTreeViewModelTest.cpp
     cafPdmUiTreeSelectionQModelTest.cpp
+    cafPdmUiTableViewQModelTest.cpp
     cafPdmUiNumberFormatTest.cpp
     cafPdmUiCheckBoxAndTextEditorTest.cpp
     cafPdmUiPropertyViewDialogTest.cpp
