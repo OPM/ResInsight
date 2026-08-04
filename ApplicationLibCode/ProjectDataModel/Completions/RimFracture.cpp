@@ -363,7 +363,7 @@ cvf::Color3f RimFracture::defaultComponentColor() const
 //--------------------------------------------------------------------------------------------------
 double RimFracture::startMD() const
 {
-    if ( fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
+    if ( fractureTemplate() && fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
     {
         return fractureMD() - 0.5 * perforationLength();
     }
@@ -378,6 +378,8 @@ double RimFracture::startMD() const
 //--------------------------------------------------------------------------------------------------
 double RimFracture::endMD() const
 {
+    if ( !fractureTemplate() ) return startMD();
+
     if ( fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
     {
         return startMD() + perforationLength();

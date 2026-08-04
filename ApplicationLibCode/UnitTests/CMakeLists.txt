@@ -74,6 +74,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Intersect-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifPerforationIntervalReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellRftPlot-Test.cpp
