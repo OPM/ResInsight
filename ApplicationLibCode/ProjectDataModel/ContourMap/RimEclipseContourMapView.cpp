@@ -662,6 +662,15 @@ void RimEclipseContourMapView::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseContourMapView::isScaleZEditable() const
+{
+    // A contour map is a flat view, scaling in Z direction is not applicable
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseContourMapView::isFaultLinesVisible() const
 {
     return meshMode() == RiaDefines::MeshModeType::FAULTS_MESH;

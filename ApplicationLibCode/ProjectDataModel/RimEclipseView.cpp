@@ -2206,6 +2206,8 @@ QList<caf::PdmOptionItemInfo> RimEclipseView::calculateValueOptions( const caf::
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
+    RimGridView::defineEditorAttribute( field, uiConfigName, attribute );
+
     if ( field == &m_eclipseCase )
     {
         RiuTools::enableUpDownArrowsForComboBox( attribute );

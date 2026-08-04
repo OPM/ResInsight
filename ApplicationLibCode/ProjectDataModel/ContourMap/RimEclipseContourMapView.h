@@ -46,6 +46,7 @@ public:
 
     RimSurfaceInViewCollection* surfaceInViewCollection() const override;
     void                        zoomAll() override;
+    bool                        isScaleZEditable() const override;
 
     void setCompatibleDrawStyle();
 

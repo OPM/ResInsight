@@ -180,12 +180,12 @@ public:
     virtual void             updateGridBoxData();
     virtual cvf::BoundingBox domainBoundingBox();
 
-    void   setScaleZ( double scaleZ );
-    void   setScaleZAndUpdate( double scaleZ );
-    void   updateScaling();
-    void   updateZScaleLabel();
-    bool   isScaleZEditable();
-    double scaleZ() const;
+    void         setScaleZ( double scaleZ );
+    void         setScaleZAndUpdate( double scaleZ );
+    void         updateScaling();
+    void         updateZScaleLabel();
+    virtual bool isScaleZEditable() const;
+    double       scaleZ() const;
 
     virtual QString activeFiltersDisplayText() const;
     void            updateFilterLabel();
@@ -193,7 +193,7 @@ public:
     bool                    isMasterView() const;
     Rim3dView*              activeComparisonView() const;
     void                    setComparisonView( Rim3dView* compView );
-    std::set<Rim3dView*>    viewsUsingThisAsComparisonView();
+    std::set<Rim3dView*>    viewsUsingThisAsComparisonView() const;
     void                    updateWindowTitle() override;
     std::vector<Rim3dView*> validComparisonViews() const;
 
@@ -273,6 +273,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void setupBeforeSave() override;
 
