@@ -88,7 +88,8 @@ public:
 
     int branchIndex() const;
 
-    std::variant<RimSummaryCase*, RimSummaryEnsemble*> dataSource() const;
+    // The monostate is used to indicate that no data source is selected
+    std::variant<std::monostate, RimSummaryCase*, RimSummaryEnsemble*> dataSource() const;
 
     static const char* plotNameFormatString();
 
