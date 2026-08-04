@@ -1897,7 +1897,7 @@ void RimWellRftPlot::initializeDataSources( RimWellRftPlot* source )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::variant<RimSummaryCase*, RimSummaryEnsemble*> RimWellRftPlot::dataSource() const
+std::variant<std::monostate, RimSummaryCase*, RimSummaryEnsemble*> RimWellRftPlot::dataSource() const
 {
     // Return the first selected ensemble, if any
     // If no ensemble is selected, return the first selected summary case, if any
