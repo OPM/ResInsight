@@ -131,6 +131,9 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
 
         if ( children.empty() )
         {
+            // Do not write value if field is not writable
+            if ( fieldHandle->xmlCapability() && !fieldHandle->xmlCapability()->isIOWritable() ) continue;
+
             if ( caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle ) )
             {
                 settings.setValue( context + fieldHandle->keyword(), valueField->toQVariant() );
