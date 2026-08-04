@@ -476,6 +476,9 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors( PdmChildArrayFieldHandl
 //--------------------------------------------------------------------------------------------------
 PdmFieldHandle* PdmUiTableViewQModel::getField( const QModelIndex& index ) const
 {
+    if ( !index.isValid() ) return nullptr;
+    if ( index.column() >= static_cast<int>( m_modelColumnIndexToFieldIndex.size() ) ) return nullptr;
+
     auto childArrayField = childArrayFieldHandle();
 
     if ( childArrayField && index.row() < static_cast<int>( childArrayField->size() ) )
@@ -610,6 +613,8 @@ caf::PdmUiFieldHandle* PdmUiTableViewQModel::getUiFieldHandle( const QModelIndex
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiTableViewQModel::pdmObjectForRow( int row ) const
 {
+    if ( row < 0 ) return nullptr;
+
     auto childArrayField = childArrayFieldHandle();
     if ( childArrayField && row < static_cast<int>( childArrayField->size() ) )
     {
