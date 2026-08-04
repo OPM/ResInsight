@@ -3049,7 +3049,8 @@ void RigCaseCellResultsData::setHdf5Filename( const QString& hdf5SourSimFilename
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::setActiveFormationNames( const RigFormationNames* activeFormationNames )
 {
-    m_activeFormationNamesData = activeFormationNames;
+    // Store a copy, as the owning RimFormationNames can be reloaded or deleted while this data is in use
+    m_activeFormationNamesData = activeFormationNames ? *activeFormationNames : RigFormationNames();
 
     if ( !activeFormationNames )
     {
@@ -3065,7 +3066,7 @@ void RigCaseCellResultsData::setActiveFormationNames( const RigFormationNames* a
                                                                                        RiaResultNames::activeFormationNamesResultName() ),
                                                               0 );
 
-    if ( !m_activeFormationNamesData )
+    if ( m_activeFormationNamesData.isEmpty() )
     {
         for ( size_t cIdx = 0; cIdx < totalGlobCellCount; ++cIdx )
         {
@@ -3123,7 +3124,7 @@ void RigCaseCellResultsData::setActiveFormationNames( const RigFormationNames* a
 //--------------------------------------------------------------------------------------------------
 const RigFormationNames* RigCaseCellResultsData::activeFormationNames() const
 {
-    return m_activeFormationNamesData;
+    return m_activeFormationNamesData.isEmpty() ? nullptr : &m_activeFormationNamesData;
 }
 
 //--------------------------------------------------------------------------------------------------

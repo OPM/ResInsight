@@ -30,6 +30,7 @@ class RigFormationNames
 public:
     RigFormationNames();
 
+    bool    isEmpty() const;
     int     formationIndexFromKLayerIdx( size_t Kidx ) const;
     QString formationNameFromKLayerIdx( size_t Kidx ) const;
     bool    formationColorFromKLayerIdx( size_t Kidx, cvf::Color3f* formationColor ) const;

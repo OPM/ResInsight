@@ -23,6 +23,7 @@
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
+#include "RigFormationNames.h"
 #include "RigStatisticsDataCache.h"
 
 #include <QDateTime>
@@ -38,7 +39,6 @@ class RigMainGrid;
 class RigEclipseResultInfo;
 class RigEclipseTimeStepInfo;
 class RigEclipseCaseData;
-class RigFormationNames;
 class RigAllanDiagramData;
 class RigEclipseResultAddress;
 
@@ -267,5 +267,6 @@ private:
     RigEclipseCaseData*           m_ownerCaseData;
     RigActiveCellInfo*            m_activeCellInfo;
     RiaDefines::PorosityModelType m_porosityModel;
-    const RigFormationNames*      m_activeFormationNamesData = nullptr;
+    // Stored by value, as the owning RimFormationNames can be reloaded or deleted while this data is in use
+    RigFormationNames m_activeFormationNamesData;
 };

@@ -124,6 +124,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifGridCalculationIO-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationIO-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEmReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNames-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifPolygonReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifParquetReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOsduWellPathReader-Test.cpp

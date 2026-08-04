@@ -20,6 +20,7 @@
 #pragma once
 
 #include "RigFemResultAddress.h"
+#include "RigFormationNames.h"
 
 #include "RimMudWeightWindowParameters.h"
 
@@ -42,7 +43,6 @@ class RigFemPartResultsCollection;
 class RigFemPartResults;
 class RigStatisticsDataCache;
 class RigFemPartCollection;
-class RigFormationNames;
 class RigFemPartResultCalculator;
 
 namespace caf
@@ -205,7 +205,8 @@ private:
     cvf::ref<RifGeoMechReaderInterface> m_readerInterface;
     cvf::ref<RifElementPropertyReader>  m_elementPropertyReader;
     cvf::cref<RigFemPartCollection>     m_femParts;
-    const RigFormationNames*            m_activeFormationNamesData = nullptr;
+    // Stored by value, as the owning RimFormationNames can be reloaded or deleted while this data is in use
+    RigFormationNames m_activeFormationNamesData;
 
     double m_cohesion;
     double m_frictionAngleRad;

@@ -215,7 +215,8 @@ RigFemPartResultsCollection::~RigFemPartResultsCollection()
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::setActiveFormationNames( const RigFormationNames* activeFormationNames )
 {
-    m_activeFormationNamesData = activeFormationNames;
+    // Store a copy, as the owning RimFormationNames can be reloaded or deleted while this data is in use
+    m_activeFormationNamesData = activeFormationNames ? *activeFormationNames : RigFormationNames();
 
     deleteResult( RigFemResultAddress( RIG_FORMATION_NAMES, "Active Formation Names", "" ) );
 }
@@ -238,7 +239,7 @@ std::vector<QString> RigFemPartResultsCollection::formationNames() const
 //--------------------------------------------------------------------------------------------------
 const RigFormationNames* RigFemPartResultsCollection::activeFormationNames() const
 {
-    return m_activeFormationNamesData;
+    return m_activeFormationNamesData.isEmpty() ? nullptr : &m_activeFormationNamesData;
 }
 
 //--------------------------------------------------------------------------------------------------
