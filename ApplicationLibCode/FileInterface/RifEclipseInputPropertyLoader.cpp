@@ -114,7 +114,7 @@ std::map<QString, QString> RifEclipseInputPropertyLoader::readProperties( const 
         {
             resultNameAndEclipseNameMap[newResultName] = QString::fromStdString( keywordAndValues.keyword );
         }
-        else
+        else if ( !errorText.isEmpty() )
         {
             RiaLogging::error( errorText.toStdString() );
         }
