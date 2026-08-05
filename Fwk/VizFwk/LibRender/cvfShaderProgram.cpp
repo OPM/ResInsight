@@ -503,7 +503,7 @@ void ShaderProgram::applyUniformAtLocation(OpenGLContext* oglContext, int locati
     CVF_TIGHT_ASSERT(location >= 0);
 
     const int valCount = uniform.valueCount();
-    CVF_ASSERT_MSG(valCount > 0, "No data set for uniform");
+    CVF_ASSERT(valCount > 0);
 
     switch (uniform.type())
     {

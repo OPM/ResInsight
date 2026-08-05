@@ -49,8 +49,6 @@ int main(int argc, char **argv)
 {
     //printf("Running main() from LibGuiQt_UnitTests.cpp\n");
 
-    cvf::Assert::setReportMode(cvf::Assert::CONSOLE);
-
     testing::InitGoogleTest(&argc, argv);
 
     return RUN_ALL_TESTS();

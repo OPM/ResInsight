@@ -51,8 +51,6 @@ int main(int argc, char **argv)
     //printf("Running main() from LibCore_UnitTests.cpp\n");
     //printf("LibCore version: %s.%s-%s (%s) \n\n", CVF_MAJOR_VERSION, CVF_MINOR_VERSION, CVF_BUILD_NUMBER, CVF_SPECIAL_BUILD);
 
-    cvf::Assert::setReportMode(cvf::Assert::CONSOLE);
-
     testing::InitGoogleTest(&argc, argv);
 
     return RUN_ALL_TESTS();
