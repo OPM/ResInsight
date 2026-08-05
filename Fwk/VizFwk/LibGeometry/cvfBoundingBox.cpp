@@ -41,7 +41,8 @@
 
 #include <limits>
 
-namespace cvf {
+namespace cvf
+{
 
 
 
@@ -68,8 +69,7 @@ namespace cvf {
     //--------------------------------------------------------------------------------------------------
     BoundingBox::BoundingBox(const Vec3d& min, const Vec3d& max)
         : m_min(min), m_max(max)
-    {
-    }
+    {}
 
 
     //--------------------------------------------------------------------------------------------------
@@ -77,8 +77,7 @@ namespace cvf {
     //--------------------------------------------------------------------------------------------------
     BoundingBox::BoundingBox(const Vec3f& min, const Vec3f& max)
         : m_min(min), m_max(max)
-    {
-    }
+    {}
 
 
     //--------------------------------------------------------------------------------------------------
@@ -87,8 +86,7 @@ namespace cvf {
     BoundingBox::BoundingBox(const BoundingBox& other)
         : m_min(other.m_min),
         m_max(other.m_max)
-    {
-    }
+    {}
 
 
     //--------------------------------------------------------------------------------------------------
@@ -359,14 +357,15 @@ namespace cvf {
     /// 
     /// If a bounding box is expanded by 10%, the bounding box's size will increase by 5% in each direction
     //--------------------------------------------------------------------------------------------------
-    void BoundingBox::expandPercent(double percent)
+    void BoundingBox::expandPercent(double percentXY, double percentZ)
     {
         const auto ext = extent();
-        const double factor = percent / 100.0;
+        const double factorXY = percentXY / 100.0;
+        const double factorZ = percentZ / 100.0;
 
-        const double xHalf = (ext.x() / 2) * factor;
-        const double yHalf = (ext.y() / 2) * factor;
-        const double zHalf = (ext.z() / 2) * factor;
+        const double xHalf = (ext.x() / 2) * factorXY;
+        const double yHalf = (ext.y() / 2) * factorXY;
+        const double zHalf = (ext.z() / 2) * factorZ;
 
         m_min.x() -= xHalf;
         m_min.y() -= yHalf;

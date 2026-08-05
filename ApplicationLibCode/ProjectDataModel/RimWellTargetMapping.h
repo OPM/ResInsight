@@ -94,6 +94,9 @@ private:
     caf::PdmField<double> m_permeability;
     caf::PdmField<double> m_transmissibility;
 
+    caf::PdmField<double> m_expandBoundingBoxXYPercent;
+    caf::PdmField<double> m_expandBoundingBoxZPercent;
+
     caf::PdmField<int> m_maxIterations;
     caf::PdmField<int> m_maxNumTargets;
 

@@ -41,7 +41,8 @@
 #include "cvfMatrix4.h"
 #include "cvfString.h"
 
-namespace cvf {
+namespace cvf
+{
 
 
     //==================================================================================================
@@ -83,7 +84,7 @@ namespace cvf {
         void        cornerVertices(Vec3d corners[8]) const;
 
         void                expand(double amount);
-        void                expandPercent(double percent);
+        void                expandPercent(double percentXY, double percentZ);
         void                transform(const Mat4d& matrix);
         const BoundingBox   getTransformed(const Mat4d& matrix) const;
 

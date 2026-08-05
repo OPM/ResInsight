@@ -95,7 +95,9 @@ public:
                                                            VolumesType                         volumesType,
                                                            VolumeResultType                    volumeResultType,
                                                            const RigFloodingSettings&          floodingSettings,
-                                                           const ClusteringLimits&             limits );
+                                                           const ClusteringLimits&             limits,
+                                                           double                              expandBoundingBoxXYPercent,
+                                                           double                              expandBoundingBoxZPercent );
 
     static QString wellTargetResultName();
 };

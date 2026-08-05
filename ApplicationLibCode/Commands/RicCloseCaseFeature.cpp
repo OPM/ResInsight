@@ -51,7 +51,16 @@ CAF_CMD_SOURCE_INIT( RicCloseCaseFeature, "RicCloseCaseFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicCloseCaseFeature::isCommandEnabled() const
 {
-    return !selectedCases().empty();
+    if ( !selectedCases().empty() )
+    {
+        for ( auto ecase : selectedCases() )
+        {
+            if ( !ecase->isDeletable() ) return false;
+        }
+
+        return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
