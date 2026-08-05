@@ -72,9 +72,8 @@ std::unique_ptr<RimFormationNames> readNorneFormationNames()
     auto formationNames = std::make_unique<RimFormationNames>();
     formationNames->setFileName( filePath );
 
-    QString errorMessage;
-    formationNames->readFormationNamesFile( &errorMessage );
-    EXPECT_TRUE( errorMessage.isEmpty() );
+    auto result = formationNames->readFormationNamesFile();
+    EXPECT_TRUE( result.has_value() );
 
     return formationNames;
 }
@@ -106,9 +105,8 @@ TEST( RimFormationNamesTest, CaseDataKeepsFormationNamesAliveAfterReloadAndDelet
     EXPECT_FALSE( namesBeforeReload.empty() );
 
     // Reload replaces the data owned by RimFormationNames
-    QString errorMessage;
-    formationNames->readFormationNamesFile( &errorMessage );
-    EXPECT_TRUE( errorMessage.isEmpty() );
+    auto result = formationNames->readFormationNamesFile();
+    EXPECT_TRUE( result.has_value() );
 
     EXPECT_EQ( namesBeforeReload, joinedFormationNames( mockCase.eclipseCase.p() ) );
 
