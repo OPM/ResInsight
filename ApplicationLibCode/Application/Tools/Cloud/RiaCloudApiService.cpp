@@ -359,7 +359,7 @@ QString RiaCloudApiService::serviceWorkingDirectory()
 
         // Probe the candidate itself and a nested 'ri-cloud-api' repository folder, so a shared
         // script folder can point either at the repository or at the folder containing it.
-        const QStringList probePaths = {candidate, candidate + "/ri-cloud-api"};
+        const QStringList probePaths = { candidate, candidate + "/ri-cloud-api" };
         for ( const QString& path : probePaths )
         {
             QDir dir( path );
