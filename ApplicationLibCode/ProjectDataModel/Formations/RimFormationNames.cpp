@@ -67,11 +67,9 @@ void RimFormationNames::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     if ( &m_formationNamesFileName == changedField )
     {
         updateUiTreeName();
-        QString errorMessage;
-        readFormationNamesFile( &errorMessage );
-        if ( !errorMessage.isEmpty() )
+        if ( auto result = readFormationNamesFile(); !result )
         {
-            RiuMessageDialog::showError( nullptr, "Formation Names", errorMessage );
+            RiuMessageDialog::showError( nullptr, "Formation Names", result.error() );
         }
         updateConnectedViews();
     }
@@ -150,9 +148,17 @@ void RimFormationNames::updateConnectedViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFormationNames::readFormationNamesFile( QString* errorMessage )
+std::expected<void, QString> RimFormationNames::readFormationNamesFile()
 {
-    m_formationNamesData = RifFormationNamesReader::readFormationNamesFile( m_formationNamesFileName().path(), errorMessage );
+    auto result = RifFormationNamesReader::readFormationNamesFile( m_formationNamesFileName().path() );
+    if ( !result )
+    {
+        m_formationNamesData.reset();
+        return std::unexpected( result.error() );
+    }
+
+    m_formationNamesData = std::make_unique<RigFormationNames>( std::move( *result ) );
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

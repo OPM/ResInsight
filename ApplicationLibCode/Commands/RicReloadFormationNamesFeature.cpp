@@ -61,11 +61,9 @@ void RicReloadFormationNamesFeature::onActionTriggered( bool isChecked )
     const auto selectedFormationNamesObjs = caf::SelectionManager::instance()->objectsByType<RimFormationNames>();
     for ( RimFormationNames* fnames : selectedFormationNamesObjs )
     {
-        QString errorMessage;
-        fnames->readFormationNamesFile( &errorMessage );
-        if ( !errorMessage.isEmpty() )
+        if ( auto result = fnames->readFormationNamesFile(); !result )
         {
-            RiuMessageDialog::showError( nullptr, "Reload Formation Names", errorMessage );
+            RiuMessageDialog::showError( nullptr, "Reload Formation Names", result.error() );
         }
 
         fnames->updateConnectedViews();

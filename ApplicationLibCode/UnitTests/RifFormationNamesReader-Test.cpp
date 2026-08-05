@@ -18,10 +18,8 @@ TEST( RifFormationNamesReader, ReadLYRFileWithoutColor )
     const QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
-    QString errormessage;
-
-    auto fm = RifFormationNamesReader::readFormationNamesFile( filePath, &errormessage );
-    EXPECT_TRUE( errormessage.isEmpty() );
+    auto fm = RifFormationNamesReader::readFormationNamesFile( filePath );
+    ASSERT_TRUE( fm.has_value() );
 
     QString formationName_K1 = fm->formationNameFromKLayerIdx( 0 );
     int     formationIndex   = fm->formationIndexFromKLayerIdx( 1 );
@@ -38,10 +36,8 @@ TEST( RifFormationNamesReader, ReadLYRFileWithColorName )
     const QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
-    QString errormessage;
-
-    auto fm = RifFormationNamesReader::readFormationNamesFile( filePath, &errormessage );
-    EXPECT_TRUE( errormessage.isEmpty() );
+    auto fm = RifFormationNamesReader::readFormationNamesFile( filePath );
+    ASSERT_TRUE( fm.has_value() );
 
     QString formationName_K1 = fm->formationNameFromKLayerIdx( 1 );
     int     formationIndex   = fm->formationIndexFromKLayerIdx( 1 );
@@ -65,10 +61,8 @@ TEST( RifFormationNamesReader, ReadLYRFileWithColorHTML )
     const QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
-    QString errormessage;
-
-    auto fm = RifFormationNamesReader::readFormationNamesFile( filePath, &errormessage );
-    EXPECT_TRUE( errormessage.isEmpty() );
+    auto fm = RifFormationNamesReader::readFormationNamesFile( filePath );
+    ASSERT_TRUE( fm.has_value() );
 
     QString formationName_K1 = fm->formationNameFromKLayerIdx( 1 );
     int     formationIndex   = fm->formationIndexFromKLayerIdx( 1 );

@@ -46,7 +46,10 @@ void RimFormationNamesCollection::readAllFormationNames()
 {
     for ( RimFormationNames* fmNames : m_formationNamesList )
     {
-        fmNames->readFormationNamesFile( nullptr );
+        if ( auto result = fmNames->readFormationNamesFile(); !result )
+        {
+            RiaLogging::error( result.error().toStdString() );
+        }
         RimProject::current()->colorLegendCollection->createColorLegendFromFormationNames( fmNames );
     }
 }
@@ -90,12 +93,9 @@ std::vector<RimFormationNames*> RimFormationNamesCollection::importFiles( const 
 
     for ( RimFormationNames* fmNames : formNamesObjsToReload )
     {
-        QString errormessage;
-
-        fmNames->readFormationNamesFile( &errormessage );
-        if ( !errormessage.isEmpty() )
+        if ( auto result = fmNames->readFormationNamesFile(); !result )
         {
-            totalErrorMessage += "\nError in: " + fmNames->fileName() + "\n\t" + errormessage;
+            totalErrorMessage += "\nError in: " + fmNames->fileName() + "\n\t" + result.error();
         }
     }
 

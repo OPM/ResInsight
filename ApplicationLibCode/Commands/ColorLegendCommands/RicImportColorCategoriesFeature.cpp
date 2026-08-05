@@ -67,13 +67,10 @@ void RicImportColorCategoriesFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( fileName ).absolutePath() );
 
-    QString errormessage;
-    auto    formations = RifFormationNamesReader::readFormationNamesFile( fileName, &errormessage );
-    if ( !formations || !errormessage.isEmpty() )
+    auto formations = RifFormationNamesReader::readFormationNamesFile( fileName );
+    if ( !formations )
     {
-        QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
-                              "Import Formation File Failed",
-                              errormessage.isEmpty() ? "Unknown error reading formation file." : errormessage );
+        QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "Import Formation File Failed", formations.error() );
         return;
     }
 

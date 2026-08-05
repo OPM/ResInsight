@@ -20,6 +20,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <expected>
 #include <memory>
 
 class RigFormationNames;
@@ -45,7 +46,7 @@ public:
 
     void updateConnectedViews();
 
-    void readFormationNamesFile( QString* errorMessage );
+    std::expected<void, QString> readFormationNamesFile();
 
     static QString layerZoneTableFileName();
 

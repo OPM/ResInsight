@@ -20,10 +20,11 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include <memory>
+#include "RigFormationNames.h"
 
-class RigFormationNames;
-class QString;
+#include <expected>
+
+#include <QString>
 
 namespace cvf
 {
@@ -36,11 +37,11 @@ class Color3f;
 class RifFormationNamesReader
 {
 public:
-    [[nodiscard]] static std::unique_ptr<RigFormationNames> readFormationNamesFile( const QString& fileName, QString* errorMessage );
+    [[nodiscard]] static std::expected<RigFormationNames, QString> readFormationNamesFile( const QString& fileName );
 
 private:
-    static std::unique_ptr<RigFormationNames> readLyrFormationNameFile( const QString& fileName, QString* errorMessage );
-    static std::unique_ptr<RigFormationNames> readFmuFormationNameFile( const QString& fileName, QString* errorMessage );
+    static std::expected<RigFormationNames, QString> readLyrFormationNameFile( const QString& fileName );
+    static std::expected<RigFormationNames, QString> readFmuFormationNameFile( const QString& fileName );
 
     static bool convertStringToColor( const QString& word, cvf::Color3f* color );
 };
