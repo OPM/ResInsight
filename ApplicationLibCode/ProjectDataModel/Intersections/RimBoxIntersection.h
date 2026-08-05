@@ -85,6 +85,8 @@ public:
 
     void rebuildGeometryAndScheduleCreateDisplayModel() override;
 
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() final;
 

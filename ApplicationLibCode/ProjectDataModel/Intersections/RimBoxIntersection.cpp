@@ -537,6 +537,14 @@ void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimBoxIntersection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    appendCommonMenuItems( menuBuilder );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimBoxIntersection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     appendSurfaceIntersectionsToTreeOrdering( uiTreeOrdering );

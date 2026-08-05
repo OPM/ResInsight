@@ -41,7 +41,6 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationInViewCollection.h"
-#include "RimBoxIntersection.h"
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -90,7 +89,6 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimIjkIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
@@ -788,32 +786,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicSeismicSectionFromIntersectionFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicNewIntersectionViewFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
-        }
-        else if ( dynamic_cast<RimBoxIntersection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicCreateSurfaceIntersectionBandFeature";
-            menuBuilder << "RicCreateSurfaceIntersectionCurveFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicPasteIntersectionsFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicAppendIntersectionFeature";
-            menuBuilder << "RicAppendIntersectionBoxFeature";
-            menuBuilder << "RicAppendIjkIntersectionFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
-        }
-        else if ( dynamic_cast<RimIjkIntersection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicCreateSurfaceIntersectionBandFeature";
-            menuBuilder << "RicCreateSurfaceIntersectionCurveFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicPasteIntersectionsFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicAppendIntersectionFeature";
-            menuBuilder << "RicAppendIntersectionBoxFeature";
-            menuBuilder << "RicAppendIjkIntersectionFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
         }

@@ -474,6 +474,14 @@ void RimIjkIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimIjkIntersection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    appendCommonMenuItems( menuBuilder );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimIjkIntersection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     appendSurfaceIntersectionsToTreeOrdering( uiTreeOrdering );

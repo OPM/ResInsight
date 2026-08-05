@@ -35,6 +35,7 @@
 #include "RivEclipseIntersectionGrid.h"
 #include "RivFemIntersectionGrid.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -293,6 +294,23 @@ void RimIntersection::appendSurfaceIntersectionsToTreeOrdering( caf::PdmUiTreeOr
     {
         uiTreeOrdering.add( c );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersection::appendCommonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicCreateSurfaceIntersectionBandFeature";
+    menuBuilder << "RicCreateSurfaceIntersectionCurveFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicPasteIntersectionsFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicAppendIntersectionFeature";
+    menuBuilder << "RicAppendIntersectionBoxFeature";
+    menuBuilder << "RicAppendIjkIntersectionFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

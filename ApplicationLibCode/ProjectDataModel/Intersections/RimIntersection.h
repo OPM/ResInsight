@@ -38,8 +38,9 @@ class RivIntersectionGeometryGeneratorInterface;
 
 namespace caf
 {
+class CmdFeatureMenuBuilder;
 class PdmUiTreeOrdering;
-}
+} // namespace caf
 
 //==================================================================================================
 /// The curtain of an intersection, described at a set of positions along it
@@ -102,6 +103,9 @@ protected:
     void updateDefaultSeparateDataSource();
 
     void appendSurfaceIntersectionsToTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering );
+
+    /// The context menu shared by the intersection types that have no commands of their own
+    void appendCommonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const;
 
     /// A curtain that is a vertical extrusion of the trace, spanning [bottomZ, topZ]
     static RimIntersectionCurtain verticalCurtain( const std::vector<cvf::Vec3d>& trace, double topZ, double bottomZ );
