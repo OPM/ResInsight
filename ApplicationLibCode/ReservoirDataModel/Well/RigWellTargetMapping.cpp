@@ -364,22 +364,31 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( const std:
                                                                       VolumesType                         volumesType,
                                                                       VolumeResultType                    volumeResultType,
                                                                       const RigFloodingSettings&          floodingSettings,
-                                                                      const ClusteringLimits&             limits )
+                                                                      const ClusteringLimits&             limits,
+                                                                      double                              expandBoundingBoxXYPercent,
+                                                                      double                              expandBoundingBoxZPercent )
 {
     RiaLogging::debug( "Generating ensemble statistics" );
 
-    caf::ProgressInfo progInfo( cases.size() * 2, "Generating ensemble statistics" );
+    caf::ProgressInfo progInfo( cases.size(), "Generating ensemble statistics" );
 
     cvf::BoundingBox boundingBox;
     for ( auto eclipseCase : cases )
     {
-        auto task = progInfo.task( "Generating realization statistics.", 1 );
-
-        generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, floodingSettings, limits, false );
-        cvf::BoundingBox bb =
-            RigWellTargetMappingTools::computeBoundingBoxForResult( *eclipseCase, RigWellTargetMapping::wellTargetResultName(), timeStepIdx );
-        boundingBox.add( bb );
+        if ( eclipseCase->eclipseCaseData() != nullptr )
+        {
+            boundingBox.add( eclipseCase->activeCellsBoundingBox() );
+            break;
+        }
     }
+
+    if ( !boundingBox.isValid() )
+    {
+        RiaLogging::error( "Failed to compute valid bounding box for ensemble statistics. At least one view must be opened" );
+        return nullptr;
+    }
+
+    boundingBox.expandPercent( expandBoundingBoxXYPercent, expandBoundingBoxZPercent );
 
     RiaLogging::debug( QString( "Clusters bounding box min: [%1 %2 %3]" )
                            .arg( boundingBox.min().x() )
@@ -412,9 +421,16 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( const std:
 
     for ( auto eclipseCase : cases )
     {
-        auto task = progInfo.task( "Accumulating results.", 1 );
+        auto task = progInfo.task( "Generating realization statistics.", 1 );
 
-        RigWellTargetMappingTools::accumulateResultsForSingleCase( *eclipseCase, *targetCase, resultNamesAndSamples, occurrence, timeStepIdx );
+        bool closeGrid = ( eclipseCase->eclipseCaseData() == nullptr );
+
+        if ( eclipseCase->ensureReservoirCaseIsOpen() )
+        {
+            generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, floodingSettings, limits, false );
+            RigWellTargetMappingTools::accumulateResultsForSingleCase( *eclipseCase, *targetCase, resultNamesAndSamples, occurrence, timeStepIdx );
+        }
+        if ( closeGrid ) eclipseCase->closeReservoirCase();
     }
 
     auto createFractionVector = []( const std::vector<int>& occurrence, int maxRealizationCount ) -> std::vector<double>

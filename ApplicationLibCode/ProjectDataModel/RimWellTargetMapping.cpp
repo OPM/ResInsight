@@ -41,6 +41,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimRegularGridCase.h"
 #include "RimReservoirGridEnsemble.h"
 #include "RimTools.h"
@@ -143,6 +144,21 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitField( &m_cellCountI, "CellCountI", 100, "Cell Count I" );
     CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 100, "Cell Count J" );
     CAF_PDM_InitField( &m_cellCountK, "CellCountK", 10, "Cell Count K" );
+
+    CAF_PDM_InitField( &m_expandBoundingBoxXYPercent,
+                       "ExpandBoundingBoxXYPercent",
+                       5.0,
+                       "Expand Bounding Box XY [%]",
+                       "",
+                       "How much to increase the bounding box of the first case to cover for any grid size differences across the "
+                       "ensemble." );
+    CAF_PDM_InitField( &m_expandBoundingBoxZPercent,
+                       "ExpandBoundingBoxZPercent",
+                       10.0,
+                       "Expand Bounding Box Z [%]",
+                       "",
+                       "How much to increase the bounding box of the first case to cover for any grid size differences across the "
+                       "ensemble." );
 
     CAF_PDM_InitFieldNoDefault( &m_filterView, "FilterView", "Filter By View" );
 
@@ -397,6 +413,9 @@ void RimWellTargetMapping::generateEnsembleStatistics()
     RigWellTargetMapping::ClusteringLimits limits              = getClusteringLimits();
     RigFloodingSettings floodingSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
 
+    double expandXY = ensemble->hasSharedGrid() ? 0.0 : m_expandBoundingBoxXYPercent();
+    double expandZ  = ensemble->hasSharedGrid() ? 0.0 : m_expandBoundingBoxZPercent();
+
     RimRegularGridCase* regularGridCase = RigWellTargetMapping::generateEnsembleCandidates( ensemble->cases(),
                                                                                             m_timeStep(),
                                                                                             resultGridCellCount,
@@ -404,9 +423,17 @@ void RimWellTargetMapping::generateEnsembleStatistics()
                                                                                             m_volumesType(),
                                                                                             m_volumeResultType(),
                                                                                             floodingSettings,
-                                                                                            limits );
+                                                                                            limits,
+                                                                                            expandXY,
+                                                                                            expandZ );
 
     regularGridCase->setCustomCaseName( "Ensemble Grid" );
+    regularGridCase->setDeletable( false );
+
+    if ( m_ensembleStatisticsCase() != nullptr )
+    {
+        delete m_ensembleStatisticsCase();
+    }
 
     m_ensembleStatisticsCase = regularGridCase;
 
@@ -466,8 +493,9 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 
     resultGroup->add( &m_volumesType );
 
-    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr ||
-                             firstAncestorOrThisOfType<RimReservoirGridEnsemble>() != nullptr;
+    auto gridEnsemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>();
+
+    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr || gridEnsemble != nullptr;
     if ( !hasEnsembleParent ) uiOrdering.add( &m_filterView );
 
     caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
@@ -484,6 +512,12 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
         ensembleGridGroup->add( &m_cellCountI );
         ensembleGridGroup->add( &m_cellCountJ );
         ensembleGridGroup->add( &m_cellCountK );
+
+        if ( gridEnsemble && !gridEnsemble->hasSharedGrid() )
+        {
+            ensembleGridGroup->add( &m_expandBoundingBoxXYPercent );
+            ensembleGridGroup->add( &m_expandBoundingBoxZPercent );
+        }
     }
 
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Advanced" );
