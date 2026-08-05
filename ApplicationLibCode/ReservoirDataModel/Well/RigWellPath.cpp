@@ -207,6 +207,8 @@ cvf::Vec3d RigWellPath::interpolatedVectorValuesAlongWellPath( const std::vector
 
     if ( horizontalLengthAlongWellToStartClipPoint ) *horizontalLengthAlongWellToStartClipPoint = 0.0;
 
+    if ( m_measuredDepths.empty() || vectorValuesAlongWellPath.empty() ) return cvf::Vec3d::UNDEFINED;
+
     size_t vxIdx = 0;
     while ( vxIdx < m_measuredDepths.size() && m_measuredDepths.at( vxIdx ) < measuredDepth )
     {
