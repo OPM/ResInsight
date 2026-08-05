@@ -47,6 +47,7 @@
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -725,6 +726,20 @@ QList<caf::PdmOptionItemInfo> RimExtrudedCurveIntersection::calculateValueOption
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    appendCommonMenuItems( menuBuilder );
+
+    menuBuilder << "RicSeismicSectionFromIntersectionFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicNewIntersectionViewFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

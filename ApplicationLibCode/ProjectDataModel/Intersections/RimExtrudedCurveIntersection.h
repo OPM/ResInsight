@@ -137,6 +137,8 @@ public:
     int  branchIndex() const;
     void rebuildGeometryAndScheduleCreateDisplayModel() override;
 
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
 private:
     caf::PdmFieldHandle* userDescriptionField() final;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

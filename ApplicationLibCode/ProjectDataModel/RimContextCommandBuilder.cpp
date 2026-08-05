@@ -67,7 +67,6 @@
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleFractureStatisticsCollection.h"
-#include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
 #include "RimFaultReactivationModel.h"
 #include "RimFileWellPath.h"
@@ -89,9 +88,6 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimIntersectionCollection.h"
-#include "RimIntersectionResultDefinition.h"
-#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimModeledWellPath.h"
 #include "RimMultiPlot.h"
 #include "RimObservedSummaryData.h"
@@ -761,38 +757,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimWellLogChannel*>( firstUiItem ) )
         {
             menuBuilder << "RicAddWellLogToPlotFeature";
-        }
-        else if ( dynamic_cast<RimIntersectionCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicPasteIntersectionsFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicAppendIntersectionFeature";
-            menuBuilder << "RicAppendIntersectionBoxFeature";
-            menuBuilder << "RicAppendIjkIntersectionFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
-        }
-        else if ( dynamic_cast<RimExtrudedCurveIntersection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicCreateSurfaceIntersectionBandFeature";
-            menuBuilder << "RicCreateSurfaceIntersectionCurveFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicPasteIntersectionsFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicAppendIntersectionFeature";
-            menuBuilder << "RicAppendIntersectionBoxFeature";
-            menuBuilder << "RicAppendIjkIntersectionFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicSeismicSectionFromIntersectionFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicNewIntersectionViewFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
-        }
-        else if ( dynamic_cast<RimIntersectionResultsDefinitionCollection*>( firstUiItem ) ||
-                  dynamic_cast<RimIntersectionResultDefinition*>( firstUiItem ) )
-        {
-            menuBuilder << "RicAppendSeparateIntersectionResultFeature";
         }
         else if ( dynamic_cast<RimSimWellInView*>( firstUiItem ) )
         {

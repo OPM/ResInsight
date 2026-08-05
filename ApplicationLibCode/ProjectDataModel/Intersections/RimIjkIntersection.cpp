@@ -25,6 +25,7 @@
 
 #include "RivIjkIntersectionPartMgr.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -477,6 +478,8 @@ void RimIjkIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 void RimIjkIntersection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     appendCommonMenuItems( menuBuilder );
+
+    menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

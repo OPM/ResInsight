@@ -310,7 +310,6 @@ void RimIntersection::appendCommonMenuItems( caf::CmdFeatureMenuBuilder& menuBui
     menuBuilder << "RicAppendIntersectionBoxFeature";
     menuBuilder << "RicAppendIjkIntersectionFeature";
     menuBuilder.addSeparator();
-    menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

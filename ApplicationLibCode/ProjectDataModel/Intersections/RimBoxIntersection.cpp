@@ -28,6 +28,7 @@
 
 #include "RivBoxIntersectionPartMgr.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -540,6 +541,8 @@ void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 void RimBoxIntersection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     appendCommonMenuItems( menuBuilder );
+
+    menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

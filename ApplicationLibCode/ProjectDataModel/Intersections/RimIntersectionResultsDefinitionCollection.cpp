@@ -22,6 +22,7 @@
 #include "RimGridView.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
+#include "cafCmdFeatureMenuBuilder.h"
 
 CAF_PDM_SOURCE_INIT( RimIntersectionResultsDefinitionCollection, "RimIntersectionResultsDefinitionCollection" );
 
@@ -50,6 +51,14 @@ RimIntersectionResultsDefinitionCollection::~RimIntersectionResultsDefinitionCol
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionResultsDefinitionCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicAppendSeparateIntersectionResultFeature";
+}
+
 bool RimIntersectionResultsDefinitionCollection::isActive() const
 {
     return m_isActive();

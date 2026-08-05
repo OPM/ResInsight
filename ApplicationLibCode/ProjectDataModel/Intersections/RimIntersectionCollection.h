@@ -36,6 +36,11 @@ class RimEclipseCellColors;
 class RimSimWellInView;
 class RivTernaryScalarMapper;
 
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+}
+
 namespace cvf
 {
 class ModelBasicList;
@@ -92,6 +97,8 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
     bool isActive() const;
     void setActive( bool active );

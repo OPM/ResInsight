@@ -104,7 +104,8 @@ protected:
 
     void appendSurfaceIntersectionsToTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering );
 
-    /// The context menu shared by the intersection types that have no commands of their own
+    /// The context menu entries shared by all intersection types, ending with a separator so the
+    /// caller can add its own entries before the trailing copy-to-all-views command
     void appendCommonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const;
 
     /// A curtain that is a vertical extrusion of the trace, spanning [bottomZ, topZ]
