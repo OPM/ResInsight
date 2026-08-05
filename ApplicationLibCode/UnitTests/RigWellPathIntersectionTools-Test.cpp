@@ -18,10 +18,13 @@
 
 #include "gtest/gtest.h"
 
+#include "Well/RigWellLogExtractor.h"
 #include "Well/RigWellPath.h"
+#include "Well/RigWellPathIntersectionTools.h"
 
 #include "cvfVector3.h"
 
+#include <limits>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -83,5 +86,46 @@ TEST( RigWellPathTest, FindWellPathCoordsIncludingIntersectionPoint )
     {
         auto wellPathPoints = wellPathGeometry.wellPathPointsIncludingInterpolatedIntersectionPoint( 10.0 );
         EXPECT_EQ( 5u, wellPathPoints.size() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigWellPathIntersectionToolsTest, BuildContinuousIntersectionsIsSortedByMeasuredDepth )
+{
+    auto createIntersection = []( size_t globCellIndex, double startMD, double endMD )
+    {
+        WellPathCellIntersectionInfo intersection;
+        intersection.globCellIndex               = globCellIndex;
+        intersection.startPoint                  = cvf::Vec3d( 0.0, 0.0, -startMD );
+        intersection.endPoint                    = cvf::Vec3d( 0.0, 0.0, -endMD );
+        intersection.startMD                     = startMD;
+        intersection.endMD                       = endMD;
+        intersection.intersectionLengthsInCellCS = cvf::Vec3d::ZERO;
+        intersection.intersectedCellFaceIn       = cvf::StructGridInterface::NEG_K;
+        intersection.intersectedCellFaceOut      = cvf::StructGridInterface::POS_K;
+        return intersection;
+    };
+
+    // Two cells, then a gap where the well path is outside the grid, then a third cell
+    std::vector<WellPathCellIntersectionInfo> intersections;
+    intersections.push_back( createIntersection( 0, 100.0, 110.0 ) );
+    intersections.push_back( createIntersection( 1, 110.0, 120.0 ) );
+    intersections.push_back( createIntersection( 2, 200.0, 210.0 ) );
+
+    auto continuousIntersections = RigWellPathIntersectionTools::buildContinuousIntersections( intersections, nullptr );
+
+    ASSERT_EQ( 4u, continuousIntersections.size() );
+
+    // The gap intersection is inserted between the second and third cell
+    EXPECT_EQ( std::numeric_limits<size_t>::max(), continuousIntersections[2].globCellIndex );
+    EXPECT_DOUBLE_EQ( 120.0, continuousIntersections[2].startMD );
+    EXPECT_DOUBLE_EQ( 200.0, continuousIntersections[2].endMD );
+
+    for ( size_t i = 1; i < continuousIntersections.size(); i++ )
+    {
+        EXPECT_GE( continuousIntersections[i].startMD, continuousIntersections[i - 1].startMD );
+        EXPECT_GE( continuousIntersections[i].endMD, continuousIntersections[i - 1].endMD );
     }
 }

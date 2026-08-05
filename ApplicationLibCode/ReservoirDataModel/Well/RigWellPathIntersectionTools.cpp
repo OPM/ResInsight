@@ -163,6 +163,8 @@ std::vector<WellPathCellIntersectionInfo>
         const WellPathCellIntersectionInfo& current = originalIntersections[i];
         const WellPathCellIntersectionInfo& next    = originalIntersections[i + 1];
 
+        intersectionsNoGap.push_back( current );
+
         double distance           = std::fabs( current.endMD - next.startMD );
         double gapInGridThreshold = 0.1;
         if ( distance > gapInGridThreshold )
@@ -214,10 +216,10 @@ std::vector<WellPathCellIntersectionInfo>
             extraIntersection.intersectedCellFaceOut      = cvf::StructGridInterface::oppositeFace( next.intersectedCellFaceIn );
             extraIntersection.intersectionLengthsInCellCS = cvf::Vec3d::ZERO;
 
+            // The gap spans [current.endMD, next.startMD], and must be inserted after current to keep the
+            // intersections sorted by measured depth.
             intersectionsNoGap.push_back( extraIntersection );
         }
-
-        intersectionsNoGap.push_back( current );
     }
 
     if ( !originalIntersections.empty() )
