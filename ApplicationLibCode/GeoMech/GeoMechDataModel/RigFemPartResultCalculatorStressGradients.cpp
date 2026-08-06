@@ -70,7 +70,7 @@ bool RigFemPartResultCalculatorStressGradients::isMatching( const RigFemResultAd
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorStressGradients::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" );
+    CAF_ASSERT( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
     stepCountProgress.setProgressDescription( "Calculating gradient: " +
@@ -167,6 +167,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressGradients::calculate( 
     }
 
     RigFemScalarResultFrames* requestedStress = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
-    CVF_ASSERT( requestedStress );
+    CAF_ASSERT( requestedStress );
     return requestedStress;
 }

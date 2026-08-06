@@ -133,7 +133,7 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
     int gridProgressPercentage = 100 - resultProgressPercentage - faultsProgressPercentage;
     caf::ProgressInfo progress( gridProgressPercentage + resultProgressPercentage + faultsProgressPercentage, "Export Eclipse Sector Model" );
 
-    CVF_ASSERT( exportSettings.refinement().x() > 0u && exportSettings.refinement().y() > 0u && exportSettings.refinement().z() > 0u );
+    CAF_ASSERT( exportSettings.refinement().x() > 0u && exportSettings.refinement().y() > 0u && exportSettings.refinement().z() > 0u );
 
     if ( exportSettings.exportGrid() )
     {

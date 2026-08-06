@@ -16,6 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "cafAssert.h"
+
 #include <algorithm>
 #include <cmath> // Needed for HUGE_VAL on Linux
 
@@ -67,7 +69,7 @@ RiaCurveMerger<XValueType>::RiaCurveMerger( RiaCurveDefines::InterpolationMethod
 template <typename XValueType>
 void RiaCurveMerger<XValueType>::addCurveData( const std::vector<XValueType>& xValues, const std::vector<double>& yValues )
 {
-    CVF_ASSERT( xValues.size() == yValues.size() );
+    CAF_ASSERT( xValues.size() == yValues.size() );
 
     if ( !xValues.empty() )
     {
@@ -119,7 +121,7 @@ const std::vector<XValueType>& RiaCurveMerger<XValueType>::allXValues() const
 template <typename XValueType>
 const std::vector<double>& RiaCurveMerger<XValueType>::interpolatedYValuesForAllXValues( size_t curveIdx ) const
 {
-    CVF_ASSERT( curveIdx < m_interpolatedValuesForAllCurves.size() );
+    CAF_ASSERT( curveIdx < m_interpolatedValuesForAllCurves.size() );
 
     return m_interpolatedValuesForAllCurves[curveIdx];
 }
@@ -130,7 +132,7 @@ const std::vector<double>& RiaCurveMerger<XValueType>::interpolatedYValuesForAll
 template <typename XValueType>
 std::vector<double>& RiaCurveMerger<XValueType>::interpolatedYValuesForAllXValues( size_t curveIdx )
 {
-    CVF_ASSERT( curveIdx < m_interpolatedValuesForAllCurves.size() );
+    CAF_ASSERT( curveIdx < m_interpolatedValuesForAllCurves.size() );
 
     return m_interpolatedValuesForAllCurves[curveIdx];
 }

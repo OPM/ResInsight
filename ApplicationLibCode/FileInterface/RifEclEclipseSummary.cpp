@@ -27,6 +27,8 @@
 #include "RifOpmCommonSummary.h"
 #include "RifReaderEclipseOutput.h"
 
+#include "cafAssert.h"
+
 #include <cassert>
 #include <regex>
 #include <string>
@@ -242,7 +244,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         }
         break;
         default:
-            CVF_ASSERT( false );
+            CAF_ASSERT( false );
             break;
     }
 

@@ -19,6 +19,8 @@
 #include "RivSectionFlattener.h"
 #include "cvfGeometryTools.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 /// Returns the next index higher than idxToStartOfLineSegment that makes the line
 //  polyline[idxToStartOfLineSegment] .. polyline[nextIdx] not parallel to extrDir
@@ -54,14 +56,14 @@ std::vector<cvf::Mat4d> RivSectionFlattener::calculateFlatteningCSsForPolyline( 
                                                                                 const cvf::Vec3d&              startOffset,
                                                                                 cvf::Vec3d*                    endOffset )
 {
-    CVF_ASSERT( endOffset );
+    CAF_ASSERT( endOffset );
     const size_t pointCount = polyLine.size();
     if ( pointCount == 0 ) return {};
     // If only one point, return identity matrix, as we can't calculate a direction
     if ( pointCount == 1 )
     {
         // trigger assert in debug builds, as this should not happen, but return something valid in release builds
-        CVF_TIGHT_ASSERT( false );
+        CAF_ASSERT( false );
         return { cvf::Mat4d() };
     }
 

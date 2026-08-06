@@ -247,7 +247,7 @@ void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve( const QDateTime&    
                                                             const std::vector<double>& xVals,
                                                             const std::vector<double>& yVals )
 {
-    CVF_ASSERT( !m_dateToColorMap.empty() );
+    CAF_ASSERT( !m_dateToColorMap.empty() );
 
     RiuQwtPlotCurve* plotCurve           = createEmptyCurve( m_flowCapVsStorageCapPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
     bool             useLogarithmicScale = false;
@@ -262,7 +262,7 @@ void RiuFlowCharacteristicsPlot::addSweepEfficiencyCurve( const QDateTime&      
                                                           const std::vector<double>& xVals,
                                                           const std::vector<double>& yVals )
 {
-    CVF_ASSERT( !m_dateToColorMap.empty() );
+    CAF_ASSERT( !m_dateToColorMap.empty() );
 
     RiuQwtPlotCurve* plotCurve           = createEmptyCurve( m_sweepEffPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
     bool             useLogarithmicScale = false;
@@ -384,7 +384,7 @@ void RiuFlowCharacteristicsPlot::setDefaults()
 //--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::initializeColors( const std::vector<QDateTime>& dateTimes )
 {
-    CVF_ASSERT( m_dateToColorMap.empty() );
+    CAF_ASSERT( m_dateToColorMap.empty() );
 
     const caf::ColorTable& palette    = RiaColorTables::timestepsPaletteColors();
     cvf::Color3ubArray     colorArray = caf::ColorTable::interpolateColorArray( palette.color3ubArray(), dateTimes.size() );

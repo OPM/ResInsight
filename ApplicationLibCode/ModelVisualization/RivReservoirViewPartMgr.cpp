@@ -51,6 +51,8 @@
 #include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
 
+#include "cafAssert.h"
+
 #include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
@@ -411,7 +413,7 @@ void RivReservoirViewPartMgr::computeVisibility( cvf::UByteArray* cellVisibility
         }
         break;
         default:
-            CVF_ASSERT( false ); // Call special function for property filtered stuff
+            CAF_ASSERT( false ); // Call special function for property filtered stuff
             break;
     }
 }
@@ -597,11 +599,11 @@ void RivReservoirViewPartMgr::computeNativeVisibility( cvf::UByteArray*         
                                                        bool                     inactiveCellsIsVisible,
                                                        bool                     activeCellsIsVisible )
 {
-    CVF_ASSERT( cellVisibility != nullptr );
-    CVF_ASSERT( grid != nullptr );
-    CVF_ASSERT( activeCellInfo != nullptr );
-    CVF_ASSERT( cellIsInWellStatuses != nullptr );
-    CVF_ASSERT( cellIsInWellStatuses->size() >= grid->cellCount() );
+    CAF_ASSERT( cellVisibility != nullptr );
+    CAF_ASSERT( grid != nullptr );
+    CAF_ASSERT( activeCellInfo != nullptr );
+    CAF_ASSERT( cellIsInWellStatuses != nullptr );
+    CAF_ASSERT( cellIsInWellStatuses->size() >= grid->cellCount() );
 
     cellVisibility->resize( grid->cellCount() );
     cellVisibility->setAll( 0 );
@@ -653,7 +655,7 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility( cvf::UByteArray* 
 {
     RimViewController* masterViewLink = m_reservoirView->viewController();
 
-    CVF_ASSERT( masterViewLink );
+    CAF_ASSERT( masterViewLink );
 
     RimGridView* masterView = dynamic_cast<RimGridView*>( masterViewLink->ownerViewLinker()->masterView() );
     if ( !masterView ) return;
@@ -666,8 +668,8 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility( cvf::UByteArray* 
     std::vector<std::vector<cvf::UByteArray*>> gridsWithCellSetVisibility = masterView->getAllGridsCurrentCellSetsCellVisibility();
 #endif
 
-    CVF_ASSERT( cellVisibility != nullptr );
-    CVF_ASSERT( grid != nullptr );
+    CAF_ASSERT( cellVisibility != nullptr );
+    CAF_ASSERT( grid != nullptr );
 
     size_t gridCellCount = grid->cellCount();
     cellVisibility->resize( gridCellCount );
@@ -710,8 +712,8 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility( cvf::UByteArray* 
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::copyByteArray( cvf::UByteArray* destination, const cvf::UByteArray* source )
 {
-    CVF_ASSERT( destination != nullptr );
-    CVF_ASSERT( source != nullptr );
+    CAF_ASSERT( destination != nullptr );
+    CAF_ASSERT( source != nullptr );
 
     if ( destination->size() != source->size() )
     {
@@ -734,12 +736,12 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                                                        const cvf::UByteArray*         nativeVisibility,
                                                        const RimCellFilterCollection* cellFilterColl )
 {
-    CVF_ASSERT( cellVisibility != nullptr );
-    CVF_ASSERT( nativeVisibility != nullptr );
-    CVF_ASSERT( cellFilterColl != nullptr );
+    CAF_ASSERT( cellVisibility != nullptr );
+    CAF_ASSERT( nativeVisibility != nullptr );
+    CAF_ASSERT( cellFilterColl != nullptr );
 
-    CVF_ASSERT( grid != nullptr );
-    CVF_ASSERT( nativeVisibility->size() == grid->cellCount() );
+    CAF_ASSERT( grid != nullptr );
+    CAF_ASSERT( nativeVisibility->size() == grid->cellCount() );
 
     // Initialize filter with native visibility
     if ( cellVisibility != nativeVisibility ) ( *cellVisibility ) = ( *nativeVisibility );
@@ -762,7 +764,7 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
             lgr = static_cast<const RigLocalGrid*>( grid );
 
             size_t parentGridIndex = lgr->parentGrid()->gridIndex();
-            CVF_ASSERT( parentGridIndex < grid->gridIndex() );
+            CAF_ASSERT( parentGridIndex < grid->gridIndex() );
 
             if ( geometryType == RANGE_FILTERED_WELL_CELLS )
             {
@@ -846,12 +848,12 @@ void RivReservoirViewPartMgr::computePropertyVisibility( cvf::UByteArray*       
                                                          const cvf::UByteArray*              rangeFilterVisibility,
                                                          RimEclipsePropertyFilterCollection* propFilterColl )
 {
-    CVF_ASSERT( cellVisibility != nullptr );
-    CVF_ASSERT( rangeFilterVisibility != nullptr );
-    CVF_ASSERT( propFilterColl != nullptr );
+    CAF_ASSERT( cellVisibility != nullptr );
+    CAF_ASSERT( rangeFilterVisibility != nullptr );
+    CAF_ASSERT( propFilterColl != nullptr );
 
-    CVF_ASSERT( grid->cellCount() > 0 );
-    CVF_ASSERT( rangeFilterVisibility->size() == grid->cellCount() );
+    CAF_ASSERT( grid->cellCount() > 0 );
+    CAF_ASSERT( rangeFilterVisibility->size() == grid->cellCount() );
 
     // Copy if not equal
     if ( cellVisibility != rangeFilterVisibility ) ( *cellVisibility ) = *rangeFilterVisibility;

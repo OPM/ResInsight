@@ -27,7 +27,6 @@
 #include "RimEclipseResultDefinition.h"
 
 #include "cafPdmUiLineEditor.h"
-#include "cvfAssert.h"
 
 #include <QString>
 

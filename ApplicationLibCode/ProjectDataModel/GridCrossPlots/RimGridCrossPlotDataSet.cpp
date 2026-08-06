@@ -114,7 +114,7 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     CAF_PDM_InitFieldNoDefault( &m_groupingProperty, "GroupingProperty", "Data Grouping Property" );
     m_groupingProperty = new RimEclipseCellColors;
     m_groupingProperty->useDiscreteLogLevels( true );
-    CVF_ASSERT( m_groupingProperty->legendConfig() );
+    CAF_ASSERT( m_groupingProperty->legendConfig() );
     m_groupingProperty->legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
     m_groupingProperty->setTernaryEnabled( false );
 
@@ -744,7 +744,7 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves( const RigEclipseCro
 {
     if ( !groupingEnabled() )
     {
-        CVF_ASSERT( m_crossPlotCurves.size() == 1u );
+        CAF_ASSERT( m_crossPlotCurves.size() == 1u );
         RimGridCrossPlotCurve* curve = m_crossPlotCurves[0];
         curve->setGroupingInformation( indexInPlot(), 0 );
         curve->updateCurveVisibility();
@@ -828,7 +828,7 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingRegressionCurves( const Rig
 {
     if ( !groupingEnabled() )
     {
-        CVF_ASSERT( m_crossPlotRegressionCurves.size() == 1u );
+        CAF_ASSERT( m_crossPlotRegressionCurves.size() == 1u );
         RimGridCrossPlotRegressionCurve* curve = m_crossPlotRegressionCurves[0];
         curve->setGroupingInformation( indexInPlot(), 0 );
         curve->updateCurveVisibility();
@@ -1011,7 +1011,7 @@ void RimGridCrossPlotDataSet::defineUiOrdering( QString uiConfigName, caf::PdmUi
         uiOrdering.add( &m_cellFilterView );
         uiOrdering.add( &m_grouping );
 
-        CVF_ASSERT( m_xAxisProperty && m_yAxisProperty && m_groupingProperty && "All property objects should always be created" );
+        CAF_ASSERT( m_xAxisProperty && m_yAxisProperty && m_groupingProperty && "All property objects should always be created" );
 
         if ( m_grouping() == GROUP_BY_TIME && !( m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult() ) )
         {
@@ -1168,7 +1168,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions( co
             options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
             for ( RimEclipseView* view : eclipseCase->reservoirViews() )
             {
-                CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
+                CAF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
                 options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );
             }
         }

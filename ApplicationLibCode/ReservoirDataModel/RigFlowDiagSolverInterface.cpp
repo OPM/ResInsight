@@ -180,7 +180,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
         progressInfo.incrementProgress();
         progressInfo.setProgressDescription( "Calculating Connectivities" );
 
-        CVF_ASSERT( m_opmFlowDiagStaticData != nullptr );
+        CAF_ASSERT( m_opmFlowDiagStaticData != nullptr );
         const Opm::FlowDiagnostics::ConnectivityGraph connGraph =
             Opm::FlowDiagnostics::ConnectivityGraph{ static_cast<int>( m_opmFlowDiagStaticData->m_eclGraph->numCells() ),
                                                      m_opmFlowDiagStaticData->m_eclGraph->neighbours() };
@@ -255,7 +255,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
         currentRestartData = m_opmFlowDiagStaticData->m_unifiedRestartData.get();
     }
 
-    CVF_ASSERT( currentRestartData );
+    CAF_ASSERT( currentRestartData );
 
     RigEclipseResultAddress addrToMaxTimeStepCountResult;
     m_eclipseCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount( &addrToMaxTimeStepCountResult );
@@ -605,7 +605,7 @@ std::vector<RigFlowDiagDefines::RelPermCurve> RigFlowDiagSolverInterface::calcul
         return retCurveArr;
     }
 
-    CVF_ASSERT( m_opmFlowDiagStaticData != nullptr );
+    CAF_ASSERT( m_opmFlowDiagStaticData != nullptr );
     if ( !m_opmFlowDiagStaticData->m_eclSaturationFunc )
     {
         return retCurveArr;
@@ -758,7 +758,7 @@ std::vector<RigFlowDiagDefines::PvtCurve> RigFlowDiagSolverInterface::calculateP
             return retCurveArr;
         }
 
-        CVF_ASSERT( m_opmFlowDiagStaticData != nullptr );
+        CAF_ASSERT( m_opmFlowDiagStaticData != nullptr );
         if ( !m_opmFlowDiagStaticData->m_eclPvtCurveCollection )
         {
             return retCurveArr;
@@ -863,7 +863,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( int pvtNum, d
         return false;
     }
 
-    CVF_ASSERT( m_opmFlowDiagStaticData != nullptr );
+    CAF_ASSERT( m_opmFlowDiagStaticData != nullptr );
     if ( !m_opmFlowDiagStaticData->m_eclPvtCurveCollection )
     {
         return false;
@@ -925,7 +925,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( int pvt
         return false;
     }
 
-    CVF_ASSERT( m_opmFlowDiagStaticData != nullptr );
+    CAF_ASSERT( m_opmFlowDiagStaticData != nullptr );
     if ( !m_opmFlowDiagStaticData->m_eclPvtCurveCollection )
     {
         return false;

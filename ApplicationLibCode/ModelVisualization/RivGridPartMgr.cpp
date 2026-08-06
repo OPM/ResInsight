@@ -87,7 +87,7 @@ RivGridPartMgr::RivGridPartMgr( RivCellSetEnum cellSetType, RimEclipseCase* ecli
     , m_eclipseCase( eclipseCase )
     , m_cellSetType( cellSetType )
 {
-    CVF_ASSERT( grid );
+    CAF_ASSERT( grid );
     m_cellVisibility            = new cvf::UByteArray;
     m_surfaceFacesTextureCoords = new cvf::Vec2fArray;
 }
@@ -105,8 +105,8 @@ void RivGridPartMgr::setTransform( cvf::Transform* scaleTransform )
 //--------------------------------------------------------------------------------------------------
 void RivGridPartMgr::setCellVisibility( cvf::UByteArray* cellVisibilities )
 {
-    CVF_ASSERT( m_scaleTransform.notNull() );
-    CVF_ASSERT( cellVisibilities );
+    CAF_ASSERT( m_scaleTransform.notNull() );
+    CAF_ASSERT( cellVisibilities );
 
     m_cellVisibility = cellVisibilities;
 
@@ -237,7 +237,7 @@ void RivGridPartMgr::generatePartGeometry( cvf::StructGridGeometryGenerator& geo
 //--------------------------------------------------------------------------------------------------
 void RivGridPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 {
-    CVF_ASSERT( model != nullptr );
+    CAF_ASSERT( model != nullptr );
 
     if ( m_surfaceFaces.notNull() ) model->addPart( m_surfaceFaces.p() );
     if ( m_surfaceGridLines.notNull() ) model->addPart( m_surfaceGridLines.p() );
@@ -278,7 +278,7 @@ void RivGridPartMgr::updateCellColor( cvf::Color4f color )
 //--------------------------------------------------------------------------------------------------
 void RivGridPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCellColors* cellResultColors )
 {
-    CVF_ASSERT( cellResultColors );
+    CAF_ASSERT( cellResultColors );
 
     // Outer surface
     if ( m_surfaceFaces.notNull() )

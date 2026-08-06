@@ -21,6 +21,8 @@
 #include "RimAnnotationGroupCollection.h"
 #include "RimTextAnnotation.h"
 
+#include "cafAssert.h"
+
 CAF_PDM_SOURCE_INIT( RimTextAnnotationInView, "RimTextAnnotationInView" );
 
 //--------------------------------------------------------------------------------------------------
@@ -46,7 +48,7 @@ RimTextAnnotationInView::RimTextAnnotationInView()
 RimTextAnnotationInView::RimTextAnnotationInView( RimTextAnnotation* sourceAnnotation )
     : RimTextAnnotationInView()
 {
-    CVF_ASSERT( sourceAnnotation );
+    CAF_ASSERT( sourceAnnotation );
 
     setCheckState( sourceAnnotation->isActive() );
     m_sourceAnnotation = sourceAnnotation;

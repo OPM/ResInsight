@@ -200,7 +200,7 @@ const std::array<int, 4> RigFaultReactivationModelGenerator::faceIJCornerIndexes
             break;
     }
 
-    CVF_ASSERT( false ); // not supported for K faces
+    CAF_ASSERT( false ); // not supported for K faces
     return { 0, 0, 0, 0 };
 }
 
@@ -675,7 +675,7 @@ std::pair<cvf::StructGridInterface::FaceType, cvf::StructGridInterface::FaceType
             break;
     }
 
-    CVF_ASSERT( false ); // not supported for K faces
+    CAF_ASSERT( false ); // not supported for K faces
     return { cvf::StructGridInterface::NO_FACE, cvf::StructGridInterface::NO_FACE };
 }
 

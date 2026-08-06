@@ -23,6 +23,8 @@
 
 #include "cvfBoundingBox.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +138,7 @@ std::pair<int, size_t> RigFemPartCollection::partIdAndElementIndex( size_t globa
 {
     const size_t nParts = m_partElementOffset.size();
 
-    CVF_ASSERT( nParts > 0 );
+    CAF_ASSERT( nParts > 0 );
 
     for ( size_t i = 1; i < nParts; i++ )
     {
@@ -224,7 +226,7 @@ int RigFemPartCollection::getPartIndexFromPoint( const cvf::Vec3d& point ) const
 int RigFemPartCollection::nodeIdxFromElementNodeResultIdx( size_t globalIndex ) const
 {
     const size_t nParts = m_partConnectivityOffset.size();
-    CVF_ASSERT( nParts > 0 );
+    CAF_ASSERT( nParts > 0 );
 
     int    partId  = (int)( nParts - 1 );
     size_t partIdx = globalIndex - m_partConnectivityOffset.back();

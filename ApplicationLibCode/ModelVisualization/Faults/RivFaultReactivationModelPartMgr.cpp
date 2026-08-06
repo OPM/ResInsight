@@ -46,7 +46,7 @@
 RivFaultReactivationModelPartMgr::RivFaultReactivationModelPartMgr( RimFaultReactivationModel* frm )
     : m_frm( frm )
 {
-    CVF_ASSERT( frm );
+    CAF_ASSERT( frm );
 }
 
 //--------------------------------------------------------------------------------------------------

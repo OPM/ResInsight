@@ -19,7 +19,6 @@
 #include "RiuGeoMechXfTensorResultAccessor.h"
 #include "RigFemPartResultsCollection.h"
 #include "RivIntersectionVertexWeights.h"
-#include "cvfAssert.h"
 #include "cvfGeometryTools.h"
 
 float RiuGeoMechXfTensorResultAccessor::SN( const caf::Ten3f& t ) const

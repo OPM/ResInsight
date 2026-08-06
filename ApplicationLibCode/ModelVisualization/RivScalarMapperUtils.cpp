@@ -46,7 +46,7 @@ void RivScalarMapperUtils::applyTextureResultsToPart( cvf::Part*               p
                                                       bool                     disableLighting,
                                                       const cvf::Color3f&      undefColor )
 {
-    CVF_ASSERT( part && textureCoords && mapper );
+    CAF_ASSERT( part && textureCoords && mapper );
 
     cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>( part->drawable() );
     if ( dg ) dg->setTextureCoordArray( textureCoords );
@@ -66,7 +66,7 @@ void RivScalarMapperUtils::applyTernaryTextureResultsToPart( cvf::Part*         
                                                              caf::FaceCulling              faceCulling,
                                                              bool                          disableLighting )
 {
-    CVF_ASSERT( part && textureCoords && mapper );
+    CAF_ASSERT( part && textureCoords && mapper );
 
     cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>( part->drawable() );
     if ( dg ) dg->setTextureCoordArray( textureCoords );
@@ -149,7 +149,7 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createScalarMapperEffect( const cvf:
                                                                       bool                     disableLighting,
                                                                       const cvf::Color3f&      undefColor )
 {
-    CVF_ASSERT( mapper );
+    CAF_ASSERT( mapper );
 
     caf::PolygonOffset               polygonOffset = caf::PO_1;
     caf::ScalarMapperEffectGenerator scalarEffgen( mapper, polygonOffset );
@@ -171,7 +171,7 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createTernaryScalarMapperEffect( con
                                                                              caf::FaceCulling              faceCulling,
                                                                              bool                          disableLighting )
 {
-    CVF_ASSERT( mapper );
+    CAF_ASSERT( mapper );
 
     caf::PolygonOffset                    polygonOffset = caf::PO_1;
     RivTernaryScalarMapperEffectGenerator scalarEffgen( mapper, polygonOffset );

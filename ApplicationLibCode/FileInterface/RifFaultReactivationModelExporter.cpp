@@ -36,6 +36,8 @@
 #include "RimFaultReactivationModel.h"
 #include "RimFaultReactivationTools.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 #include <filesystem>
 #include <fstream>

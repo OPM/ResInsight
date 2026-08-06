@@ -33,7 +33,7 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfBoundingBox.h"
 
 #include <QAction>
@@ -97,7 +97,7 @@ QString RicNewAzimuthDipIntersectionFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 void RicNewAzimuthDipIntersectionFeatureCmd::redo()
 {
-    CVF_ASSERT( m_intersectionCollection );
+    CAF_ASSERT( m_intersectionCollection );
 
     RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( "Azimuth and Dip" );

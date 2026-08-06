@@ -108,7 +108,7 @@ QString RimEclipseCaseEnsemble::ensembleName() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCaseEnsemble::addCase( RimEclipseCase* reservoir )
 {
-    CVF_ASSERT( reservoir );
+    CAF_ASSERT( reservoir );
 
     m_caseCollection()->reservoirs().push_back( reservoir );
 }
@@ -128,7 +128,7 @@ void RimEclipseCaseEnsemble::removeCase( RimEclipseCase* reservoir )
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseCaseEnsemble::contains( RimEclipseCase* reservoir ) const
 {
-    CVF_ASSERT( reservoir );
+    CAF_ASSERT( reservoir );
 
     for ( RimEclipseCase* rimReservoir : cases() )
     {

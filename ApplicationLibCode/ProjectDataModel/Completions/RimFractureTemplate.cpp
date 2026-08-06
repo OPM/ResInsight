@@ -797,7 +797,7 @@ void RimFractureTemplate::setScaleFactors( double halfLengthScale, double height
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::scaleFactors( double* halfLengthScale, double* heightScale, double* dFactorScale, double* conductivityScale ) const
 {
-    CVF_ASSERT( halfLengthScale && heightScale && dFactorScale && conductivityScale );
+    CAF_ASSERT( halfLengthScale && heightScale && dFactorScale && conductivityScale );
 
     *halfLengthScale   = m_halfLengthScaleFactor;
     *heightScale       = m_heightScaleFactor;

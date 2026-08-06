@@ -34,8 +34,6 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
-
 #include <QAction>
 #include <vector>
 

@@ -238,9 +238,9 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
                                                                 RiaDefines::PlotAxis    plotAxis,
                                                                 const cvf::Color3f&     color )
 {
-    CVF_ASSERT( plot );
-    CVF_ASSERT( summaryCase );
-    CVF_ASSERT( well );
+    CAF_ASSERT( plot );
+    CAF_ASSERT( summaryCase );
+    CAF_ASSERT( well );
 
     auto reader = summaryCase->summaryReader();
     if ( !reader ) return nullptr;

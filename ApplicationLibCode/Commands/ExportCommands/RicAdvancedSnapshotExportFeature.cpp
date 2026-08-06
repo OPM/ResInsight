@@ -142,7 +142,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
             if ( eclCase && sourceEclipseView )
             {
                 RimEclipseView* copyOfEclipseView = eclCase->createCopyAndAddView( sourceEclipseView );
-                CVF_ASSERT( copyOfEclipseView );
+                CAF_ASSERT( copyOfEclipseView );
 
                 copyOfEclipseView->loadDataAndUpdate();
 
@@ -158,7 +158,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
             if ( geomCase && sourceGeoMechView )
             {
                 auto copyOfGeoMechView = sourceGeoMechView->copyObject<RimGeoMechView>();
-                CVF_ASSERT( copyOfGeoMechView );
+                CAF_ASSERT( copyOfGeoMechView );
                 copyOfGeoMechView->resetDockWindowId();
 
                 geomCase->geoMechViews().push_back( copyOfGeoMechView );
@@ -221,7 +221,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
                                                                      const QString&                       folder )
 {
     RimCase* rimCase = rimView->ownerCase();
-    CVF_ASSERT( rimCase );
+    CAF_ASSERT( rimCase );
 
     RiuViewer*  viewer    = rimView->viewer();
     QStringList timeSteps = rimCase->timeStepStrings();

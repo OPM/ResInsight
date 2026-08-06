@@ -28,6 +28,8 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +58,7 @@ cvf::ref<cvf::DrawableGeo> RivNNCGeometryGenerator::generateSurface()
 {
     computeArrays();
 
-    CVF_ASSERT( m_vertices.notNull() );
+    CAF_ASSERT( m_vertices.notNull() );
 
     if ( m_vertices->size() == 0 ) return nullptr;
 

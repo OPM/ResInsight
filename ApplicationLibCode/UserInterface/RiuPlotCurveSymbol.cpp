@@ -19,8 +19,8 @@
 
 #include "RiuPlotCurveSymbol.h"
 
+#include "cafAssert.h"
 #include "cafFontTools.h"
-#include "cvfAssert.h"
 
 #include <QPainter>
 #include <QRect>
@@ -119,7 +119,7 @@ bool RiuPlotCurveSymbol::isFilledSymbol( PointSymbolEnum symbol )
 //--------------------------------------------------------------------------------------------------
 QRect RiuPlotCurveSymbol::labelBoundingRect( const QPainter* painter, const QRect& symbolRect, const QString& label ) const
 {
-    CVF_ASSERT( painter );
+    CAF_ASSERT( painter );
 
     QPoint symbolPosition = symbolRect.topLeft();
 

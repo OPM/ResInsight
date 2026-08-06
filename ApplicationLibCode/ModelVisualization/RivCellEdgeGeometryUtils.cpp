@@ -40,6 +40,8 @@
 #include "cvfScalarMapper.h"
 #include "cvfVertexAttribute.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +55,7 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo( size_t          
                                                                 float                                      opacityLevel )
 {
     RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
-    CVF_ASSERT( eclipseCase != nullptr );
+    CAF_ASSERT( eclipseCase != nullptr );
 
     // Create result access objects
 
@@ -204,7 +206,7 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo( size_t   
                                                                        float                                      opacityLevel )
 {
     RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
-    CVF_ASSERT( eclipseCase != nullptr );
+    CAF_ASSERT( eclipseCase != nullptr );
 
     cvf::ref<RigResultAccessor> cellEdgeResultAccessor =
         createCellEdgeResultAccessor( cellResultColors, cellEdgeResultColors, timeStepIndex, eclipseCase, eclipseCase->grid( gridIndex ) );

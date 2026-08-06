@@ -777,7 +777,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
                 if ( wellLogFile->readFile( &errorMessage ) )
                 {
                     RigWellLogLasFile* wellLogDataFile = wellLogFile->wellLogData();
-                    CVF_ASSERT( wellLogDataFile );
+                    CAF_ASSERT( wellLogDataFile );
 
                     if ( isFirst )
                     {
@@ -1276,7 +1276,7 @@ bool RimEnsembleWellLogCurveSet::hasPropertyInFile( const QString& property ) co
         if ( !wellLogFile->readFile( &errorMessage ) ) return false;
 
         RigWellLogLasFile* wellLogDataFile = wellLogFile->wellLogData();
-        CVF_ASSERT( wellLogDataFile );
+        CAF_ASSERT( wellLogDataFile );
 
         std::vector<double> values = wellLogDataFile->values( RiaResultNames::indexKResultName() );
         if ( values.empty() ) return false;

@@ -26,7 +26,7 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -38,12 +38,12 @@ CAF_CMD_SOURCE_INIT( RicAppendSeparateIntersectionResultFeature, "RicAppendSepar
 void RicAppendSeparateIntersectionResultFeature::onActionTriggered( bool isChecked )
 {
     const auto collection = caf::SelectionManager::instance()->objectsByType<caf::PdmObjectHandle>();
-    CVF_ASSERT( collection.size() == 1 );
+    CAF_ASSERT( collection.size() == 1 );
 
     RimIntersectionResultsDefinitionCollection* intersectionResCollection =
         collection[0]->firstAncestorOrThisOfType<RimIntersectionResultsDefinitionCollection>();
 
-    CVF_ASSERT( intersectionResCollection );
+    CAF_ASSERT( intersectionResCollection );
 
     RicAppendSeparateIntersectionResultFeatureCmd* cmd = new RicAppendSeparateIntersectionResultFeatureCmd( intersectionResCollection );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
@@ -88,7 +88,7 @@ QString RicAppendSeparateIntersectionResultFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 void RicAppendSeparateIntersectionResultFeatureCmd::redo()
 {
-    CVF_ASSERT( m_intersectionCollection );
+    CAF_ASSERT( m_intersectionCollection );
 
     RimIntersectionResultDefinition* intersectionResDef = new RimIntersectionResultDefinition();
     m_intersectionCollection->appendIntersectionResultDefinition( intersectionResDef );

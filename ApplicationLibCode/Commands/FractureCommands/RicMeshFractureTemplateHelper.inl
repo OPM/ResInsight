@@ -30,7 +30,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 #include <QFileInfo>
@@ -107,7 +107,7 @@ std::vector<T*> RicMeshFractureTemplateHelper<T>::createNewTemplatesFromFiles( c
     if ( fileNames.empty() ) return std::vector<T*>();
 
     RimProject* project = RimProject::current();
-    CVF_ASSERT( project );
+    CAF_ASSERT( project );
 
     RimOilField* oilfield = project->activeOilField();
     if ( oilfield == nullptr ) return std::vector<T*>();

@@ -23,6 +23,8 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -260,9 +262,9 @@ void RigReservoirBuilder::appendCubeNodes( const cvf::Vec3d& min, const cvf::Vec
 //--------------------------------------------------------------------------------------------------
 size_t RigReservoirBuilder::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 {
-    CVF_TIGHT_ASSERT( i < m_ijkCount.x() );
-    CVF_TIGHT_ASSERT( j < m_ijkCount.y() );
-    CVF_TIGHT_ASSERT( k < m_ijkCount.z() );
+    CAF_ASSERT( i < m_ijkCount.x() );
+    CAF_ASSERT( j < m_ijkCount.y() );
+    CAF_ASSERT( k < m_ijkCount.z() );
 
     size_t ci = i + j * m_ijkCount.x() + k * m_ijkCount.x() * m_ijkCount.y();
     return ci;

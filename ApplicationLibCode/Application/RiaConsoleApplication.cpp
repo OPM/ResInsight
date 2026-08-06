@@ -35,6 +35,8 @@
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
+#include "cafAssert.h"
+
 #include <QFileInfo>
 
 #ifdef WIN32
@@ -181,7 +183,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
     // -----------------
     if ( cvf::Option o = progOpt->option( "generate" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         QString outputFile = cvfqt::Utils::toQString( o.value( 0 ) );
 
         QString errMsg;
@@ -196,7 +198,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
 
     if ( cvf::Option o = progOpt->option( "preferences" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         m_preferencesFileName = cvfqt::Utils::toQString( o.value( 0 ) );
         RiaApplication::initialize();
         onProjectClosed();
@@ -204,13 +206,13 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
 
     if ( cvf::Option o = progOpt->option( "startdir" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         setStartDir( cvfqt::Utils::toQString( o.value( 0 ) ) );
     }
 
     if ( cvf::Option o = progOpt->option( "egridReader" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         std::string readerName = o.value( 0 ).toLower().toStdString();
         m_preferences->gridPreferences()->setGridModelReaderOverride( readerName );
     }
@@ -224,7 +226,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
 
     if ( cvf::Option o = progOpt->option( "project" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         projectFileName = cvfqt::Utils::toQString( o.value( 0 ) );
     }
 
@@ -383,7 +385,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
             }
             else
             {
-                CVF_ASSERT( caseIds.size() == caseListFiles.size() );
+                CAF_ASSERT( caseIds.size() == caseListFiles.size() );
 
                 std::vector<std::vector<QString>> allCaseFiles;
                 size_t                            maxFiles = 0;

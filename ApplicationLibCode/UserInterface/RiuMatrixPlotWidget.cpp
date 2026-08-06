@@ -38,6 +38,8 @@
 #include "qwt_scale_draw.h"
 #include "qwt_text.h"
 
+#include "cafAssert.h"
+
 #include <QHBoxLayout>
 
 class MatrixShapeItem : public QwtPlotShapeItem

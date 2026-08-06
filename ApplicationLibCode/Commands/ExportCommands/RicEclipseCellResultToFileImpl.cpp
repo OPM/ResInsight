@@ -45,7 +45,7 @@ bool RicEclipseCellResultToFileImpl::writePropertyToTextFile( const QString&    
                                                               bool                writeEchoKeywords,
                                                               QString*            errorMsg )
 {
-    CVF_TIGHT_ASSERT( eclipseCase );
+    CAF_ASSERT( eclipseCase );
     if ( !eclipseCase ) return false;
 
     cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultAddress( eclipseCase,
@@ -81,7 +81,7 @@ bool RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile( const QString&
                                                                   bool                        writeEchoKeywords,
                                                                   QString*                    errorMsg )
 {
-    CVF_TIGHT_ASSERT( eclipseCase );
+    CAF_ASSERT( eclipseCase );
 
     cvf::ref<RigResultAccessor> resultAccessor =
         RigResultAccessorFactory::createFromResultDefinition( eclipseCase, 0, timeStep, resultDefinition );

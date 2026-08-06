@@ -211,7 +211,7 @@ RimEclipseContourMapView*
                                                                                 RimEclipseContourMapView* existingContourMap )
 {
     auto contourMap = existingContourMap->copyObject<RimEclipseContourMapView>();
-    CVF_ASSERT( contourMap );
+    CAF_ASSERT( contourMap );
 
     contourMap->resetDockWindowId();
     contourMap->setEclipseCase( eclipseCase );
@@ -240,7 +240,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
         sourceView->xmlCapability()->copyAndCastByXmlSerialization( RimEclipseContourMapView::classKeywordStatic(),
                                                                     sourceView->classKeyword(),
                                                                     caf::PdmDefaultObjectFactory::instance() ) );
-    CVF_ASSERT( contourMap );
+    CAF_ASSERT( contourMap );
 
     contourMap->resetDockWindowId();
     contourMap->setEclipseCase( eclipseCase );
@@ -339,7 +339,7 @@ RimGeoMechContourMapView*
                                                                                 RimGeoMechContourMapView* existingContourMap )
 {
     auto contourMap = existingContourMap->copyObject<RimGeoMechContourMapView>();
-    CVF_ASSERT( contourMap );
+    CAF_ASSERT( contourMap );
     contourMap->setGeoMechCase( geoMechCase );
     contourMap->resetDockWindowId();
 
@@ -367,7 +367,7 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFr
         sourceView->xmlCapability()->copyAndCastByXmlSerialization( RimGeoMechContourMapView::classKeywordStatic(),
                                                                     sourceView->classKeyword(),
                                                                     caf::PdmDefaultObjectFactory::instance() ) );
-    CVF_ASSERT( contourMap );
+    CAF_ASSERT( contourMap );
 
     contourMap->setGeoMechCase( geoMechCase );
     contourMap->resetDockWindowId();

@@ -485,7 +485,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays( cvf::UByteA
                             }
                             else
                             {
-                                CVF_ASSERT( false );
+                                CAF_ASSERT( false );
                             }
 
                             if ( cvx1.isVxIdsNative && cvx2.isVxIdsNative )
@@ -522,7 +522,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays( cvf::UByteA
                                 }
                                 else
                                 {
-                                    CVF_ASSERT( false );
+                                    CAF_ASSERT( false );
                                 }
 
                                 if ( cvx2.isVxIdsNative )
@@ -542,10 +542,10 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays( cvf::UByteA
                                 }
                                 else
                                 {
-                                    CVF_ASSERT( false );
+                                    CAF_ASSERT( false );
                                 }
 
-                                CVF_TIGHT_ASSERT( cvx11.isVxIdsNative && cvx12.isVxIdsNative && cvx21.isVxIdsNative && cvx22.isVxIdsNative );
+                                CAF_ASSERT( cvx11.isVxIdsNative && cvx12.isVxIdsNative && cvx21.isVxIdsNative && cvx22.isVxIdsNative );
 
                                 m_triVxToCellCornerWeights.emplace_back( cvx11.clippedEdgeVx1Id,
                                                                          cvx11.clippedEdgeVx2Id,
@@ -591,7 +591,7 @@ cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::genera
 {
     calculateArrays( visibleCells );
 
-    CVF_ASSERT( m_triangleVxes.notNull() );
+    CAF_ASSERT( m_triangleVxes.notNull() );
 
     if ( m_triangleVxes->size() == 0 ) return nullptr;
 
@@ -706,7 +706,7 @@ const std::vector<std::pair<QString, cvf::Vec3d>>& RivExtrudedCurveIntersectionG
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RivExtrudedCurveIntersectionGeometryGenerator::triangleToCellIndex() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
     return m_triangleToCellIdxMap;
 }
 
@@ -715,7 +715,7 @@ const std::vector<size_t>& RivExtrudedCurveIntersectionGeometryGenerator::triang
 //--------------------------------------------------------------------------------------------------
 const std::vector<RivIntersectionVertexWeights>& RivExtrudedCurveIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
     return m_triVxToCellCornerWeights;
 }
 
@@ -724,7 +724,7 @@ const std::vector<RivIntersectionVertexWeights>& RivExtrudedCurveIntersectionGeo
 //--------------------------------------------------------------------------------------------------
 const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::triangleVxes() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
     return m_triangleVxes.p();
 }
 
@@ -733,7 +733,7 @@ const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::triangleVx
 //--------------------------------------------------------------------------------------------------
 const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::cellMeshVxes() const
 {
-    CVF_ASSERT( m_cellBorderLineVxes->size() );
+    CAF_ASSERT( m_cellBorderLineVxes->size() );
     return m_cellBorderLineVxes.p();
 }
 
@@ -768,8 +768,8 @@ cvf::Vec3d RivExtrudedCurveIntersectionGeometryGenerator::transformPointByPolyli
                                                                                                 size_t            lineIndex,
                                                                                                 size_t            segmentIndex )
 {
-    CVF_ASSERT( lineIndex < m_lineSegmentTransforms.size() );
-    CVF_ASSERT( segmentIndex < m_lineSegmentTransforms[lineIndex].size() );
+    CAF_ASSERT( lineIndex < m_lineSegmentTransforms.size() );
+    CAF_ASSERT( segmentIndex < m_lineSegmentTransforms[lineIndex].size() );
 
     // Each line segment along the polyline has a transformation matrix representing the transformation from 3D into
     // flat 2D. Return the transformed domain coord using the required transformation matrix

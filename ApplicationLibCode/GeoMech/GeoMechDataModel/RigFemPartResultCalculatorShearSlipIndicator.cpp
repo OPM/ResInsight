@@ -59,7 +59,7 @@ bool RigFemPartResultCalculatorShearSlipIndicator::isMatching( const RigFemResul
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorShearSlipIndicator::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( isMatching( resVarAddr ) );
+    CAF_ASSERT( isMatching( resVarAddr ) );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
     stepCountProgress.setProgressDescription( "Calculating Shear Slip Indicator." );

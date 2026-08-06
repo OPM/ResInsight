@@ -18,7 +18,7 @@
 
 #include "RifTextDataTableFormatter.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <limits>
 
@@ -61,8 +61,8 @@ RifTextDataTableFormatter::RifTextDataTableFormatter( const RifTextDataTableForm
 //--------------------------------------------------------------------------------------------------
 RifTextDataTableFormatter::~RifTextDataTableFormatter()
 {
-    CVF_ASSERT( m_buffer.empty() );
-    CVF_ASSERT( m_columns.empty() );
+    CAF_ASSERT( m_buffer.empty() );
+    CAF_ASSERT( m_columns.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -470,7 +470,7 @@ RifTextDataTableFormatter& RifTextDataTableFormatter::addHorizontalLine( const Q
 RifTextDataTableFormatter& RifTextDataTableFormatter::add( const QString& str )
 {
     size_t column = m_lineBuffer.size();
-    CVF_ASSERT( column < m_columns.size() );
+    CAF_ASSERT( column < m_columns.size() );
     m_columns[column].width = std::max( measure( str ), m_columns[column].width );
     m_lineBuffer.push_back( str );
     return *this;
@@ -482,7 +482,7 @@ RifTextDataTableFormatter& RifTextDataTableFormatter::add( const QString& str )
 RifTextDataTableFormatter& RifTextDataTableFormatter::add( double num )
 {
     size_t column = m_lineBuffer.size();
-    CVF_ASSERT( column < m_columns.size() );
+    CAF_ASSERT( column < m_columns.size() );
     m_columns[column].width = std::max( measure( num, m_columns[column].doubleFormat ), m_columns[column].width );
     m_lineBuffer.push_back( format( num, m_columns[column].doubleFormat ) );
     return *this;
@@ -494,7 +494,7 @@ RifTextDataTableFormatter& RifTextDataTableFormatter::add( double num )
 RifTextDataTableFormatter& RifTextDataTableFormatter::add( int num )
 {
     size_t column = m_lineBuffer.size();
-    CVF_ASSERT( column < m_columns.size() );
+    CAF_ASSERT( column < m_columns.size() );
     m_columns[column].width = std::max( measure( num ), m_columns[column].width );
     m_lineBuffer.push_back( format( num ) );
     return *this;
@@ -506,7 +506,7 @@ RifTextDataTableFormatter& RifTextDataTableFormatter::add( int num )
 RifTextDataTableFormatter& RifTextDataTableFormatter::add( size_t num )
 {
     size_t column = m_lineBuffer.size();
-    CVF_ASSERT( column < m_columns.size() );
+    CAF_ASSERT( column < m_columns.size() );
     m_columns[column].width = std::max( measure( num ), m_columns[column].width );
     m_lineBuffer.push_back( format( num ) );
     return *this;

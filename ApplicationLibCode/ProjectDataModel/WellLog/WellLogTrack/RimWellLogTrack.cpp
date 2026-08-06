@@ -101,7 +101,7 @@
 #include "cafSelectionManager.h"
 
 #include "caf.h"
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include "qwt_scale_map.h"
 
@@ -333,7 +333,7 @@ void RimWellLogTrack::setDescription( const QString& description )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::simWellOptionItems( QList<caf::PdmOptionItemInfo>* options, RimCase* rimCase )
 {
-    CVF_ASSERT( options );
+    CAF_ASSERT( options );
     if ( !options ) return;
 
     std::set<QString> sortedWellNames;
@@ -2275,7 +2275,7 @@ RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor( RimWellLogP
 
     if ( wellPaths.empty() ) return nullptr;
 
-    CVF_ASSERT( branchIndex >= 0 && branchIndex < static_cast<int>( wellPaths.size() ) );
+    CAF_ASSERT( branchIndex >= 0 && branchIndex < static_cast<int>( wellPaths.size() ) );
 
     return ( wellLogCollection->findOrCreateSimWellExtractor( simWellName,
                                                               QString( "Find or create sim well extractor" ),

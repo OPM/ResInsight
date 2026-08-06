@@ -286,8 +286,8 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
         m_flowDagSolverInterface = std::make_unique<RigFlowDiagSolverInterface>( this );
 
-        CVF_ASSERT( eclipseCaseData() );
-        CVF_ASSERT( readerInterface.notNull() );
+        CAF_ASSERT( eclipseCaseData() );
+        CAF_ASSERT( readerInterface.notNull() );
 
         progInfo.setProgressDescription( "Computing Case Cache" );
         eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
@@ -437,7 +437,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
 
         cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( this );
 
-        CVF_ASSERT( mainEclipseCase && mainEclipseCase->mainGrid() );
+        CAF_ASSERT( mainEclipseCase && mainEclipseCase->mainGrid() );
         eclipseCase->setMainGrid( mainEclipseCase->mainGrid() );
 
         std::vector<QDateTime> timeStepDates = mainEclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
@@ -455,8 +455,8 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
     results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
 
-    CVF_ASSERT( eclipseCaseData() );
-    CVF_ASSERT( readerInterface.notNull() );
+    CAF_ASSERT( eclipseCaseData() );
+    CAF_ASSERT( readerInterface.notNull() );
 
     computeActiveCellsBoundingBox();
 

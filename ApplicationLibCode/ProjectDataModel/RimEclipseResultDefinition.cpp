@@ -903,7 +903,7 @@ void RimEclipseResultDefinition::setFromEclipseResultAddress( const RigEclipseRe
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
 {
-    CVF_ASSERT( isFlowDiagOrInjectionFlooding() );
+    CAF_ASSERT( isFlowDiagOrInjectionFlooding() );
 
     if ( m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS )
     {
@@ -1670,7 +1670,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
                                                                                                  bool addPerCellFaceOptionItems,
                                                                                                  bool ternaryEnabled )
 {
-    CVF_ASSERT( resultCatType != RiaDefines::ResultCatType::FLOW_DIAGNOSTICS && resultCatType != RiaDefines::ResultCatType::INJECTION_FLOODING );
+    CAF_ASSERT( resultCatType != RiaDefines::ResultCatType::FLOW_DIAGNOSTICS && resultCatType != RiaDefines::ResultCatType::INJECTION_FLOODING );
 
     return RimEclipseResultDefinitionTools::calcOptionsForVariableUiFieldStandard( resultCatType,
                                                                                    results,

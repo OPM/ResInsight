@@ -33,7 +33,7 @@
 #include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiSliderEditor.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfStructGrid.h"
 
 CAF_PDM_SOURCE_INIT( RimCellRangeFilter, "CellRangeFilter" );
@@ -407,7 +407,7 @@ void RimCellRangeFilter::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex )
 {
-    CVF_ASSERT( cellRangeFilter );
+    CAF_ASSERT( cellRangeFilter );
 
     if ( gridIndex != m_gridIndex ) return;
 

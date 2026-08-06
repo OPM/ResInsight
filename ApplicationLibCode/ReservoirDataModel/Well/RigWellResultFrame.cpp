@@ -18,6 +18,8 @@
 
 #include "RigWellResultFrame.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +57,7 @@ RigWellResultPoint RigWellResultFrame::findResultCellWellHeadIncluded( size_t gr
 //--------------------------------------------------------------------------------------------------
 RigWellResultPoint RigWellResultFrame::findResultCellWellHeadExcluded( size_t gridIndex, size_t gridCellIndex ) const
 {
-    CVF_ASSERT( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T );
+    CAF_ASSERT( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T );
 
     for ( const auto& wellResultBranch : m_wellResultBranches )
     {
@@ -205,6 +207,6 @@ void RigWellResultFrame::setWellResultBranches( const std::vector<RigWellResultB
 //--------------------------------------------------------------------------------------------------
 std::vector<RigWellResultPoint> RigWellResultFrame::branchResultPointsFromBranchIndex( size_t index ) const
 {
-    CVF_ASSERT( index < m_wellResultBranches.size() );
+    CAF_ASSERT( index < m_wellResultBranches.size() );
     return m_wellResultBranches[index].branchResultPoints();
 }

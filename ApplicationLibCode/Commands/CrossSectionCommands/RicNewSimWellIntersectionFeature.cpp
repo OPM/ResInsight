@@ -27,7 +27,7 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -86,8 +86,8 @@ QString RicNewSimWellIntersectionCmd::name()
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellIntersectionCmd::redo()
 {
-    CVF_ASSERT( m_intersectionCollection );
-    CVF_ASSERT( m_simWell );
+    CAF_ASSERT( m_intersectionCollection );
+    CAF_ASSERT( m_simWell );
 
     auto* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( m_simWell->name );

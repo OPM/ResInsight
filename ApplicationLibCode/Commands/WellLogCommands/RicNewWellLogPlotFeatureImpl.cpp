@@ -39,7 +39,7 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QString>
 
@@ -51,7 +51,7 @@ RimWellBoreStabilityPlot* RicNewWellLogPlotFeatureImpl::createWellBoreStabilityP
                                                                                      const RimWbsParameters* params /*= nullptr*/ )
 {
     RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
-    CVF_ASSERT( wellLogPlotColl );
+    CAF_ASSERT( wellLogPlotColl );
 
     // Make sure the summary plot window is created
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
@@ -125,7 +125,7 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogTrackWithAutoUpdate(
 RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterCreation, const QString& plotDescription )
 {
     RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
-    CVF_ASSERT( wellLogPlotColl );
+    CAF_ASSERT( wellLogPlotColl );
 
     // Make sure the summary plot window is created
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
@@ -273,7 +273,7 @@ RimWellLogTrack*
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimDepthTrackPlot* plot )
 {
-    CVF_ASSERT( plot );
+    CAF_ASSERT( plot );
     plot->loadDataAndUpdate();
     plot->zoomAll();
 }

@@ -25,8 +25,6 @@
 #include "RiaLogging.h"
 #include "RiaTextStringTools.h"
 
-#include "cvfAssert.h"
-
 #include <QString>
 #include <QStringList>
 #include <QTextStream>

@@ -26,7 +26,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -64,7 +64,7 @@ void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered( bool isCheck
             dynamic_cast<RimFlowCharacteristicsPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
         auto flowCharacteristicsPlot = sourceObject->copyObject<RimFlowCharacteristicsPlot>();
-        CVF_ASSERT( flowCharacteristicsPlot );
+        CAF_ASSERT( flowCharacteristicsPlot );
         flowCharacteristicsPlot->resetDockWindowId();
 
         flowPlotColl->addFlowCharacteristicsPlotToStoredPlots( flowCharacteristicsPlot );

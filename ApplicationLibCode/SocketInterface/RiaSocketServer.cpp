@@ -203,7 +203,7 @@ bool RiaSocketServer::readCommandFromOctave()
         args.push_back( arg );
     }
 
-    CVF_ASSERT( !args.empty() );
+    CAF_ASSERT( !args.empty() );
 
     // Create the actual RiaSocketCommand object that will interpret the socket data
 
@@ -337,8 +337,8 @@ void RiaSocketServer::handleNextPendingConnection()
     QTcpSocket* clientToHandle = m_tcpServer->nextPendingConnection();
     if ( clientToHandle )
     {
-        CVF_ASSERT( m_currentClient == nullptr );
-        CVF_ASSERT( m_currentCommand == nullptr );
+        CAF_ASSERT( m_currentClient == nullptr );
+        CAF_ASSERT( m_currentCommand == nullptr );
 
         m_currentClient      = clientToHandle;
         m_currentCommandSize = 0;

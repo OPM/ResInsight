@@ -22,6 +22,8 @@
 #include "cvfArray.h"
 #include "cvfGeometryUtils.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -67,8 +69,8 @@ void RivPatchGenerator::setSubdivisions( const std::vector<double>& uValues, con
 //--------------------------------------------------------------------------------------------------
 void RivPatchGenerator::generate( cvf::GeometryBuilder* builder )
 {
-    CVF_ASSERT( !m_uValues.empty() );
-    CVF_ASSERT( !m_vValues.empty() );
+    CAF_ASSERT( !m_uValues.empty() );
+    CAF_ASSERT( !m_vValues.empty() );
 
     size_t numVertices = m_uValues.size() * m_vValues.size();
 

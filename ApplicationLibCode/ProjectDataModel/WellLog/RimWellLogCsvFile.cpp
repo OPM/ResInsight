@@ -27,6 +27,8 @@
 #include "RimTools.h"
 #include "RimWellLogChannel.h"
 
+#include "cafAssert.h"
+
 #include <QFileInfo>
 #include <QString>
 #include <QStringList>
@@ -112,7 +114,7 @@ std::vector<std::pair<double, double>> RimWellLogCsvFile::findMdAndChannelValues
                     *unitString = fileData->wellLogChannelUnitString( channelName );
                 }
                 std::vector<double> depthValues = fileData->depthValues();
-                CVF_ASSERT( depthValues.size() == channelValues.size() );
+                CAF_ASSERT( depthValues.size() == channelValues.size() );
                 std::vector<std::pair<double, double>> depthValuePairs;
                 for ( size_t i = 0; i < depthValues.size(); ++i )
                 {

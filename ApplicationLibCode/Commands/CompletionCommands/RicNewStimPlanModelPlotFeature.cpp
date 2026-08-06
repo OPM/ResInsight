@@ -49,9 +49,9 @@
 
 #include "RiuPlotMainWindowTools.h"
 
+#include "cafAssert.h"
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
-#include "cvfAssert.h"
 #include "cvfMath.h"
 
 #include <QAction>
@@ -409,7 +409,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createStimPlanModelPlot( b
 
 {
     RimStimPlanModelPlotCollection* stimPlanModelPlotColl = stimPlanModelPlotCollection();
-    CVF_ASSERT( stimPlanModelPlotColl );
+    CAF_ASSERT( stimPlanModelPlotColl );
 
     // Make sure the summary plot window is created
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();

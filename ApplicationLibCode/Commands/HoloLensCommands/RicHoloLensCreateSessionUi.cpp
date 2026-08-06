@@ -25,7 +25,7 @@
 
 #include "cafPdmSettings.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 CAF_PDM_SOURCE_INIT( RicHoloLensCreateSessionUi, "RicHoloLensCreateSessionUi" );
 
@@ -58,7 +58,7 @@ RicHoloLensCreateSessionUi::~RicHoloLensCreateSessionUi()
 //--------------------------------------------------------------------------------------------------
 QString RicHoloLensCreateSessionUi::serverUrl() const
 {
-    CVF_ASSERT( m_serverSettings() );
+    CAF_ASSERT( m_serverSettings() );
 
     return m_serverSettings->serverUrl();
 }

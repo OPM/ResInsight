@@ -34,6 +34,8 @@
 #include "RimFlowDiagSolution.h"
 #include "RimReservoirCellResultsStorage.h"
 
+#include "cafAssert.h"
+
 #include <map>
 
 //==================================================================================================
@@ -50,16 +52,16 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
                                                                     size_t                timeStepIndex,
                                                                     RiaDefines::PhaseType phase )
 {
-    CVF_ASSERT( caseToApply );
+    CAF_ASSERT( caseToApply );
 
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
-    CVF_ASSERT( eclipseCaseData );
+    CAF_ASSERT( eclipseCaseData );
 
     RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
-    CVF_ASSERT( flowDiagSolution );
+    CAF_ASSERT( flowDiagSolution );
 
     RigFlowDiagResults* flowDiagResults = flowDiagSolution->flowDiagResults();
-    CVF_ASSERT( flowDiagResults );
+    CAF_ASSERT( flowDiagResults );
 
     const std::vector<double>* porvResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                             RiaDefines::ResultCatType::STATIC_NATIVE,
@@ -305,7 +307,7 @@ const QString& RigTofWellDistributionCalculator::contributingWellName( size_t co
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigTofWellDistributionCalculator::accumulatedVolumeForContributingWell( size_t contributingWellIndex ) const
 {
-    CVF_ASSERT( contributingWellIndex < m_contributingWells.size() );
+    CAF_ASSERT( contributingWellIndex < m_contributingWells.size() );
     const ContribWellEntry& entry = m_contributingWells[contributingWellIndex];
     return entry.accumulatedVolAlongTof;
 }

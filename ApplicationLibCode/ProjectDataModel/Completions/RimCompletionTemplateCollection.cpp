@@ -27,7 +27,7 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 CAF_PDM_SOURCE_INIT( RimCompletionTemplateCollection, "CompletionTemplateCollection" );
 
@@ -105,7 +105,7 @@ void RimCompletionTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 //--------------------------------------------------------------------------------------------------
 void RimCompletionTemplateCollection::setFractureTemplateCollection( RimFractureTemplateCollection* fractureTemplateCollection )
 {
-    CVF_ASSERT( !m_fractureTemplates->fractureTemplates().empty() );
+    CAF_ASSERT( !m_fractureTemplates->fractureTemplates().empty() );
     m_fractureTemplates = fractureTemplateCollection;
 }
 

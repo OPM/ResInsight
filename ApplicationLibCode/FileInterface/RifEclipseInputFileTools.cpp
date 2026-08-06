@@ -45,6 +45,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigUniformRefinement.h"
 
+#include "cafAssert.h"
 #include "cafProgressInfo.h"
 
 #include <array>
@@ -838,7 +839,7 @@ void RifEclipseInputFileTools::findGridKeywordPositions( const std::vector<RifKe
                                                          qint64*                                  mapaxesPos,
                                                          qint64*                                  gridunitPos )
 {
-    CVF_ASSERT( coordPos && zcornPos && specgridPos && actnumPos && mapaxesPos && gridunitPos );
+    CAF_ASSERT( coordPos && zcornPos && specgridPos && actnumPos && mapaxesPos && gridunitPos );
 
     size_t i;
     for ( i = 0; i < keywords.size(); i++ )
@@ -1048,7 +1049,7 @@ QString RifEclipseInputFileTools::faultFaceText( cvf::StructGridInterface::FaceT
         case cvf::StructGridInterface::NEG_K:
             return QString( "K-" );
         default:
-            CVF_ASSERT( false );
+            CAF_ASSERT( false );
     }
     return "";
 }
@@ -1668,14 +1669,14 @@ void RifEclipseInputFileTools::readFaults( QFile& data, qint64 filePos, cvf::Col
             size_t faultIndex = findFaultByName( *faults, faultName );
             if ( faultIndex == cvf::UNDEFINED_SIZE_T )
             {
-                CVF_ASSERT( faultIndex != cvf::UNDEFINED_SIZE_T );
+                CAF_ASSERT( faultIndex != cvf::UNDEFINED_SIZE_T );
                 continue;
             }
 
             fault = faults->at( faultIndex );
         }
 
-        CVF_ASSERT( fault );
+        CAF_ASSERT( fault );
 
         fault->addCellRangeForFace( cellFaceEnum, cellrange );
 

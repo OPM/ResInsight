@@ -53,7 +53,7 @@ bool Riv3dWellLogDrawSurfaceGenerator::createDrawSurface( const caf::DisplayCoor
                                                           double                            planeWidth,
                                                           double                            samplingIntervalSize )
 {
-    CVF_ASSERT( samplingIntervalSize > 0 );
+    CAF_ASSERT( samplingIntervalSize > 0 );
 
     clearGeometry();
 

@@ -29,7 +29,7 @@
 #include "RigLocalGrid.h"
 #include "RigNNCData.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfBoundingBoxTree.h"
 
 #include <array>
@@ -103,11 +103,11 @@ const std::vector<RigCell>& RigMainGrid::reservoirCells() const
 //--------------------------------------------------------------------------------------------------
 RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx )
 {
-    CVF_ASSERT( globalCellIdx < totalCellCount() );
+    CAF_ASSERT( globalCellIdx < totalCellCount() );
 
     const RigCell& cell     = this->cell( globalCellIdx );
     RigGridBase*   hostGrid = cell.hostGrid();
-    CVF_ASSERT( hostGrid );
+    CAF_ASSERT( hostGrid );
 
     if ( gridLocalCellIdx )
     {
@@ -122,11 +122,11 @@ RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCel
 //--------------------------------------------------------------------------------------------------
 const RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx( size_t globalCellIdx, size_t* gridLocalCellIdx ) const
 {
-    CVF_ASSERT( globalCellIdx < totalCellCount() );
+    CAF_ASSERT( globalCellIdx < totalCellCount() );
 
     const RigCell&     cell     = this->cell( globalCellIdx );
     const RigGridBase* hostGrid = cell.hostGrid();
-    CVF_ASSERT( hostGrid );
+    CAF_ASSERT( hostGrid );
 
     if ( gridLocalCellIdx )
     {
@@ -179,8 +179,8 @@ size_t RigMainGrid::findReservoirCellIndexFromPoint( const cvf::Vec3d& point ) c
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::addLocalGrid( RigLocalGrid* localGrid )
 {
-    CVF_ASSERT( localGrid && localGrid->gridId() != cvf::UNDEFINED_INT ); // The grid ID must be set.
-    CVF_ASSERT( localGrid->gridId() >= 0 ); // We can't handle negative ID's if they exist.
+    CAF_ASSERT( localGrid && localGrid->gridId() != cvf::UNDEFINED_INT ); // The grid ID must be set.
+    CAF_ASSERT( localGrid->gridId() >= 0 ); // We can't handle negative ID's if they exist.
 
     m_localGrids.push_back( localGrid );
     localGrid->setGridIndex( m_localGrids.size() ); // Maingrid itself has grid index 0
@@ -294,7 +294,7 @@ void RigMainGrid::computeCachedData( std::string* aabbTreeInfo )
 RigGridBase* RigMainGrid::gridByIndex( size_t localGridIndex )
 {
     if ( localGridIndex == 0 ) return this;
-    CVF_ASSERT( localGridIndex - 1 < m_localGrids.size() );
+    CAF_ASSERT( localGridIndex - 1 < m_localGrids.size() );
     return m_localGrids[localGridIndex - 1].p();
 }
 
@@ -304,7 +304,7 @@ RigGridBase* RigMainGrid::gridByIndex( size_t localGridIndex )
 const RigGridBase* RigMainGrid::gridByIndex( size_t localGridIndex ) const
 {
     if ( localGridIndex == 0 ) return this;
-    CVF_ASSERT( localGridIndex - 1 < m_localGrids.size() );
+    CAF_ASSERT( localGridIndex - 1 < m_localGrids.size() );
     return m_localGrids[localGridIndex - 1].p();
 }
 
@@ -369,7 +369,7 @@ void RigMainGrid::setFlipAxis( bool flipXAxis, bool flipYAxis )
 //--------------------------------------------------------------------------------------------------
 RigGridBase* RigMainGrid::gridById( int localGridId )
 {
-    CVF_ASSERT( localGridId >= 0 && static_cast<size_t>( localGridId ) < m_gridIdToIndexMapping.size() );
+    CAF_ASSERT( localGridId >= 0 && static_cast<size_t>( localGridId ) < m_gridIdToIndexMapping.size() );
     return gridByIndex( m_gridIdToIndexMapping[localGridId] );
 }
 
@@ -673,7 +673,7 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
             }
             else
             {
-                CVF_FAIL_MSG( "Found fault with global neighbor index less than the native index. " );
+                CAF_ASSERT( false && "Found fault with global neighbor index less than the native index. " );
             }
         }
     }

@@ -139,7 +139,7 @@ RimMainPlotCollection::~RimMainPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimMainPlotCollection* RimMainPlotCollection::current()
 {
-    CVF_ASSERT( RimProject::current() );
+    CAF_ASSERT( RimProject::current() );
 
     return RimProject::current()->mainPlotCollection();
 }

@@ -22,6 +22,8 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RivExtrudedCurveIntersectionGeometryGenerator.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -30,7 +32,7 @@ RivExtrudedCurveIntersectionSourceInfo::RivExtrudedCurveIntersectionSourceInfo( 
     : m_intersectionGeometryGenerator( geometryGenerator )
     , m_intersection( intersection )
 {
-    CVF_ASSERT( m_intersectionGeometryGenerator.notNull() );
+    CAF_ASSERT( m_intersectionGeometryGenerator.notNull() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -38,7 +40,7 @@ RivExtrudedCurveIntersectionSourceInfo::RivExtrudedCurveIntersectionSourceInfo( 
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RivExtrudedCurveIntersectionSourceInfo::triangleToCellIndex() const
 {
-    CVF_ASSERT( m_intersectionGeometryGenerator.notNull() );
+    CAF_ASSERT( m_intersectionGeometryGenerator.notNull() );
 
     return m_intersectionGeometryGenerator->triangleToCellIndex();
 }

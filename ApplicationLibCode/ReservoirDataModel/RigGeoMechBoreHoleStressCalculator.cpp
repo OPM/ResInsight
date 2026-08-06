@@ -1,5 +1,7 @@
 #include "RigGeoMechBoreHoleStressCalculator.h"
 
+#include "cafAssert.h"
+
 //==================================================================================================
 /// Internal root finding class to find a Well Pressure that gives:
 /// a) a zero SigmaT for estimating the fracture gradient.
@@ -102,7 +104,7 @@ double RigGeoMechBoreHoleStressCalculator::solveBisection( double minPw, double 
         }
         range = std::abs( maxPw - minPw );
     }
-    CVF_ASSERT( i < N ); // Otherwise it hasn't converged
+    CAF_ASSERT( i < N ); // Otherwise it hasn't converged
 
     if ( thetaOut )
     {
@@ -161,7 +163,7 @@ double RigGeoMechBoreHoleStressCalculator::solveSecant( MemberFunc fn, double* t
 //--------------------------------------------------------------------------------------------------
 double RigGeoMechBoreHoleStressCalculator::sigmaTMinOfMin( double wellPressure, double* thetaAtMin ) const
 {
-    CVF_ASSERT( thetaAtMin );
+    CAF_ASSERT( thetaAtMin );
     double sigma_t_min_min = std::numeric_limits<double>::max();
     for ( const cvf::Vec4d& stressComponentsForAngle : m_stressComponents )
     {
@@ -184,7 +186,7 @@ double RigGeoMechBoreHoleStressCalculator::sigmaTMinOfMin( double wellPressure, 
 //--------------------------------------------------------------------------------------------------
 double RigGeoMechBoreHoleStressCalculator::stassiDalia( double wellPressure, double* thetaAtMin ) const
 {
-    CVF_ASSERT( thetaAtMin );
+    CAF_ASSERT( thetaAtMin );
     double minStassiDalia = std::numeric_limits<double>::max();
     for ( const cvf::Vec4d& stressComponentsForAngle : m_stressComponents )
     {

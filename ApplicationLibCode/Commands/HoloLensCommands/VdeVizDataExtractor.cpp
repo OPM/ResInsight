@@ -28,7 +28,7 @@
 #include "RiaLogging.h"
 #include "RiaQStringFormatter.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSet.h"
 #include "cvfTimer.h"
@@ -48,7 +48,7 @@ VdeVizDataExtractor::VdeVizDataExtractor( const RimGridView& view, VdeCachingHas
     : m_view( view )
     , m_cachingIdFactory( cachingIdFactory )
 {
-    CVF_ASSERT( m_cachingIdFactory );
+    CAF_ASSERT( m_cachingIdFactory );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -428,14 +428,14 @@ QString VdeVizDataExtractor::createModelMetaJsonString( const std::vector<std::u
 //--------------------------------------------------------------------------------------------------
 void VdeVizDataExtractor::debugComparePackets( const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB )
 {
-    CVF_ASSERT( packetA.elementCount() == packetB.elementCount() );
-    CVF_ASSERT( packetA.elementSize() == packetB.elementSize() );
-    CVF_ASSERT( packetA.elementType() == packetB.elementType() );
+    CAF_ASSERT( packetA.elementCount() == packetB.elementCount() );
+    CAF_ASSERT( packetA.elementSize() == packetB.elementSize() );
+    CAF_ASSERT( packetA.elementType() == packetB.elementType() );
 
     const char* arrA = packetA.arrayData();
     const char* arrB = packetB.arrayData();
     for ( size_t i = 0; i < packetA.elementCount(); i++ )
     {
-        CVF_ASSERT( arrA[i] == arrB[i] );
+        CAF_ASSERT( arrA[i] == arrB[i] );
     }
 }

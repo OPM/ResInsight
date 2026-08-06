@@ -41,6 +41,8 @@
 #include "Riu3dSelectionManager.h"
 #include "RiuRelativePermeabilityPlotPanel.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 //==================================================================================================
@@ -116,7 +118,7 @@ size_t mapToActiveCellIndex( const RigEclipseCaseData* eclipseCaseData, size_t g
         // Which type of porosity model to choose? Currently hard-code to MATRIX_MODEL
         const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-        CVF_ASSERT( activeCellInfo );
+        CAF_ASSERT( activeCellInfo );
 
         const size_t reservoirCellIndex = grid->reservoirCellIndex( gridLocalCellIndex );
         const size_t activeCellIndex    = activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();

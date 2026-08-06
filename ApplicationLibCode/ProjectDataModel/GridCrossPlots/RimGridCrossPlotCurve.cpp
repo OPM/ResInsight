@@ -23,6 +23,8 @@
 #include "RiuPlotCurve.h"
 #include "RiuPlotWidget.h"
 
+#include "cafAssert.h"
+
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotCurve, "GridCrossPlotCurve" );
 
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +55,7 @@ void RimGridCrossPlotCurve::setGroupingInformation( int dataSetIndex, int groupI
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::setSamples( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
-    CVF_ASSERT( xValues.size() == yValues.size() );
+    CAF_ASSERT( xValues.size() == yValues.size() );
 
     if ( xValues.empty() || yValues.empty() || !m_plotCurve ) return;
 

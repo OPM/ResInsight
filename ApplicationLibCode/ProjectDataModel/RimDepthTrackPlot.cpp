@@ -58,12 +58,12 @@
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
 
+#include "cafAssert.h"
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
-#include "cvfAssert.h"
 
 #include <QKeyEvent>
 
@@ -799,7 +799,7 @@ void RimDepthTrackPlot::performAutoNameUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::recreatePlotWidgets()
 {
-    CVF_ASSERT( m_viewer );
+    CAF_ASSERT( m_viewer );
 
     m_viewer->removeAllPlots();
 
@@ -1301,7 +1301,7 @@ RiuPlotCurveInfoTextProvider* RimDepthTrackPlot::curveTextProvider()
 void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
 {
     auto wellLogTrack = dynamic_cast<RimWellLogTrack*>( plot );
-    CVF_ASSERT( wellLogTrack && "Only type RimWellLogTrack is supported in RimDepthTrackPlot" );
+    CAF_ASSERT( wellLogTrack && "Only type RimWellLogTrack is supported in RimDepthTrackPlot" );
 
     if ( wellLogTrack )
     {

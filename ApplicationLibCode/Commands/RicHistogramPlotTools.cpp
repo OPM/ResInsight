@@ -37,6 +37,8 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include "cafAssert.h"
+
 namespace caf
 {
 template <>

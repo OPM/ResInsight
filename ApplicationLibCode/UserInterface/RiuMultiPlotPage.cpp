@@ -44,7 +44,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include "qwt_axis.h"
 #include "qwt_legend.h"
@@ -863,7 +863,7 @@ void RiuMultiPlotPage::updateLegendColumns( RiuQwtPlotLegend* legend )
 //--------------------------------------------------------------------------------------------------
 int RiuMultiPlotPage::alignCanvasTops()
 {
-    CVF_ASSERT( m_legends.size() == m_plotWidgets.size() );
+    CAF_ASSERT( m_legends.size() == m_plotWidgets.size() );
 
     QList<QPointer<RiuPlotWidget>>    plotWidgets = visiblePlotWidgets();
     QList<QPointer<RiuQwtPlotLegend>> legends     = legendsForVisiblePlots();

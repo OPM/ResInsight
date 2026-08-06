@@ -28,6 +28,8 @@
 #include "RigFault.h"
 #include "RigMainGrid.h"
 
+#include "cafAssert.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicEclipseHideFaultFeature, "RicEclipseHideFaultFeature" );

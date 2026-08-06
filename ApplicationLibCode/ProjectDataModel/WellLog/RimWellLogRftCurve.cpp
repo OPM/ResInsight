@@ -63,9 +63,9 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
 
+#include "cafAssert.h"
 #include "cafPdmObject.h"
 #include "cafVecIjk.h"
-#include "cvfAssert.h"
 
 #include <qwt_plot.h>
 
@@ -714,7 +714,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
         else
         {
-            CVF_ASSERT( false && "Need to have either an eclipse result case, a summary case or an ensemble" );
+            CAF_ASSERT( false && "Need to have either an eclipse result case, a summary case or an ensemble" );
         }
 
         if ( tvDepthVector.size() != measuredDepthVector.size() )
@@ -1267,7 +1267,7 @@ bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<
             if ( tvdValuesOfObservedData.size() < 2 ) return false;
 
             derivedMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfObservedData, tvdValuesOfObservedData, tvDepthValues );
-            CVF_ASSERT( derivedMDValues.size() == tvDepthValues.size() );
+            CAF_ASSERT( derivedMDValues.size() == tvDepthValues.size() );
             return true;
         }
     }

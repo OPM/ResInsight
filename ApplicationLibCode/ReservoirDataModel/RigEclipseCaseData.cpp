@@ -37,6 +37,8 @@
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
 
+#include "cafAssert.h"
+
 #include <QDebug>
 
 #include <array>
@@ -101,7 +103,7 @@ void RigEclipseCaseData::setMainGrid( RigMainGrid* mainGrid )
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::allGrids( std::vector<RigGridBase*>* grids )
 {
-    CVF_ASSERT( grids );
+    CAF_ASSERT( grids );
 
     if ( m_mainGrid.isNull() )
     {
@@ -120,7 +122,7 @@ void RigEclipseCaseData::allGrids( std::vector<RigGridBase*>* grids )
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::allGrids( std::vector<const RigGridBase*>* grids ) const
 {
-    CVF_ASSERT( grids );
+    CAF_ASSERT( grids );
 
     if ( m_mainGrid.isNull() )
     {
@@ -139,7 +141,7 @@ void RigEclipseCaseData::allGrids( std::vector<const RigGridBase*>* grids ) cons
 //--------------------------------------------------------------------------------------------------
 const RigGridBase* RigEclipseCaseData::grid( size_t index ) const
 {
-    CVF_ASSERT( m_mainGrid.notNull() );
+    CAF_ASSERT( m_mainGrid.notNull() );
     return m_mainGrid->gridByIndex( index );
 }
 
@@ -148,7 +150,7 @@ const RigGridBase* RigEclipseCaseData::grid( size_t index ) const
 //--------------------------------------------------------------------------------------------------
 RigGridBase* RigEclipseCaseData::grid( size_t index )
 {
-    CVF_ASSERT( m_mainGrid.notNull() );
+    CAF_ASSERT( m_mainGrid.notNull() );
     return m_mainGrid->gridByIndex( index );
 }
 
@@ -181,7 +183,7 @@ const RigGridBase* RigEclipseCaseData::grid( const QString& gridName ) const
 //--------------------------------------------------------------------------------------------------
 size_t RigEclipseCaseData::gridCount() const
 {
-    CVF_ASSERT( m_mainGrid.notNull() );
+    CAF_ASSERT( m_mainGrid.notNull() );
     return m_mainGrid->gridCount();
 }
 
@@ -333,7 +335,7 @@ const RigSimWellData* RigEclipseCaseData::findSimWellData( QString wellName ) co
 const cvf::UByteArray* RigEclipseCaseData::wellCellsInGrid( size_t gridIndex )
 {
     computeWellCellsPrGrid();
-    CVF_ASSERT( gridIndex < m_wellCellsInGrid.size() );
+    CAF_ASSERT( gridIndex < m_wellCellsInGrid.size() );
 
     return m_wellCellsInGrid[gridIndex].p();
 }
@@ -344,7 +346,7 @@ const cvf::UByteArray* RigEclipseCaseData::wellCellsInGrid( size_t gridIndex )
 const cvf::UIntArray* RigEclipseCaseData::gridCellToResultWellIndex( size_t gridIndex )
 {
     computeWellCellsPrGrid();
-    CVF_ASSERT( gridIndex < m_gridCellToResultWellIndex.size() );
+    CAF_ASSERT( gridIndex < m_gridCellToResultWellIndex.size() );
 
     return m_gridCellToResultWellIndex[gridIndex].p();
 }
@@ -354,7 +356,7 @@ const cvf::UIntArray* RigEclipseCaseData::gridCellToResultWellIndex( size_t grid
 //--------------------------------------------------------------------------------------------------
 const RigCell& RigEclipseCaseData::cellFromWellResultCell( const RigWellResultPoint& wellResultPoint ) const
 {
-    CVF_ASSERT( wellResultPoint.isCell() );
+    CAF_ASSERT( wellResultPoint.isCell() );
 
     size_t gridIndex     = wellResultPoint.gridIndex();
     size_t gridCellIndex = wellResultPoint.cellIndex();

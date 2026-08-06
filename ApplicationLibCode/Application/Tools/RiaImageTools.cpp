@@ -1,6 +1,6 @@
 #include "RiaImageTools.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QColor>
 #include <QImage>
@@ -28,7 +28,7 @@ void RiaImageTools::distanceTransform2d( std::vector<std::vector<unsigned int>>&
     const int64_t N = (int64_t)image.front().size();
 
     int64_t infVal = M + N;
-    CVF_ASSERT( infVal <= std::numeric_limits<unsigned int>::max() );
+    CAF_ASSERT( infVal <= std::numeric_limits<unsigned int>::max() );
 
     // First phase
     std::vector<std::vector<int64_t>> g( M );
@@ -106,7 +106,7 @@ void RiaImageTools::distanceTransform2d( std::vector<std::vector<unsigned int>>&
         for ( int64_t u = M - 1; u >= 0; --u )
         {
             int64_t fVal = f( u, s[q], g, y );
-            CVF_ASSERT( fVal <= std::numeric_limits<double>::max() );
+            CAF_ASSERT( fVal <= std::numeric_limits<double>::max() );
             image[u][y] = static_cast<unsigned int>( fVal );
             if ( u == t[q] )
             {

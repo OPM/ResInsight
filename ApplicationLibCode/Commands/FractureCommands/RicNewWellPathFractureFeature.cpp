@@ -43,7 +43,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -57,7 +57,7 @@ RimWellPathFracture* RicNewWellPathFractureFeature::addFracture( RimWellPath* we
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return nullptr;
 
     RimWellPathFractureCollection* fractureCollection = wellPath->fractureCollection();
-    CVF_ASSERT( fractureCollection );
+    CAF_ASSERT( fractureCollection );
 
     if ( fractureCollection->allFractures().empty() )
     {

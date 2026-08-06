@@ -56,7 +56,7 @@ bool RigFemPartResultCalculatorEV::isMatching( const RigFemResultAddress& resVar
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorEV::calculate( int partIndex, const RigFemResultAddress& resAddr )
 {
-    CVF_ASSERT( resAddr.fieldName == "NE" && resAddr.componentName == "EV" );
+    CAF_ASSERT( resAddr.fieldName == "NE" && resAddr.componentName == "EV" );
 
     QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 

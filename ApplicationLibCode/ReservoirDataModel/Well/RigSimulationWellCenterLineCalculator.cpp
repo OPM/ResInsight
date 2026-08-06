@@ -37,6 +37,8 @@
 #include "cvfGeometryTools.h"
 #include "cvfRay.h"
 
+#include "cafAssert.h"
+
 #include <deque>
 #include <list>
 
@@ -122,7 +124,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( c
                                                                                std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords,
                                                                                std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds )
 {
-    CVF_ASSERT( rimWell );
+    CAF_ASSERT( rimWell );
 
     const RigSimWellData* simWellData = rimWell->simWellData();
     if ( !simWellData ) return;
@@ -262,7 +264,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeSt
 
     const RigWellResultPoint* prevWellResPoint = nullptr;
 
-    // CVF_ASSERT(isMultiSegmentWell ||  resBranches.size() <= 1); // TODO : Consider to set isMultiSegmentWell = true;
+    // CAF_ASSERT(isMultiSegmentWell ||  resBranches.size() <= 1); // TODO : Consider to set isMultiSegmentWell = true;
 
     // The centerline is calculated by adding a point when the pipe enters a cell,
     // and one when the line leaves the cell.
@@ -314,7 +316,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeSt
 
             if ( !currentWellResPoint.isValid() )
             {
-                // CVF_ASSERT(false); // Some segments does not get anything yet.
+                // CAF_ASSERT(false); // Some segments does not get anything yet.
                 continue;
             }
 
@@ -324,7 +326,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeSt
             if ( !currentWellResPoint.isCell() )
             {
                 // Use the interpolated value of branch head
-                CVF_ASSERT( currentWellResPoint.isPointValid() );
+                CAF_ASSERT( currentWellResPoint.isPointValid() );
 
                 cvf::Vec3d currentPoint = currentWellResPoint.bottomPosition();
 
@@ -461,7 +463,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeSt
                 {
                     // Need to start a "display branch" for a Normal Well.
 
-                    CVF_ASSERT( !isMultiSegmentWell );
+                    CAF_ASSERT( !isMultiSegmentWell );
 
                     // This cell is further from the previous cell than from the well head,
                     // thus we interpret it as a new branch.
@@ -515,10 +517,10 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeSt
 
     if ( useAllCellCenters ) addCellCenterPoints( eclipseCaseData, pipeBranchesCLCoords, pipeBranchesCellIds );
 
-    CVF_ASSERT( pipeBranchesCellIds.size() == pipeBranchesCLCoords.size() );
+    CAF_ASSERT( pipeBranchesCellIds.size() == pipeBranchesCLCoords.size() );
     for ( size_t i = 0; i < pipeBranchesCellIds.size(); ++i )
     {
-        CVF_ASSERT( pipeBranchesCellIds[i].size() == pipeBranchesCLCoords[i].size() - 1 );
+        CAF_ASSERT( pipeBranchesCellIds[i].size() == pipeBranchesCLCoords[i].size() - 1 );
     }
 }
 
@@ -577,8 +579,8 @@ bool RigSimulationWellCenterLineCalculator::hasAnyValidDataCells( const RigWellR
 void RigSimulationWellCenterLineCalculator::finishPipeCenterLine( std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords,
                                                                   const cvf::Vec3d&                     lastCellCenter )
 {
-    CVF_ASSERT( pipeBranchesCLCoords.size() );
-    CVF_ASSERT( pipeBranchesCLCoords.back().size() );
+    CAF_ASSERT( pipeBranchesCLCoords.size() );
+    CAF_ASSERT( pipeBranchesCLCoords.back().size() );
 
     cvf::Vec3d entryPointLastCell = pipeBranchesCLCoords.back().back();
 

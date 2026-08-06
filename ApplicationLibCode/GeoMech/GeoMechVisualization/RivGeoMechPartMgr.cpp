@@ -26,6 +26,8 @@
 
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+
+#include "cafAssert.h"
 #include <cstdlib>
 
 //--------------------------------------------------------------------------------------------------
@@ -89,7 +91,7 @@ void RivGeoMechPartMgr::setTransform( cvf::Transform* scaleTransform )
 //--------------------------------------------------------------------------------------------------
 void RivGeoMechPartMgr::setCellVisibility( size_t partIndex, cvf::UByteArray* cellVisibilities )
 {
-    CVF_ASSERT( partIndex < m_femPartPartMgrs.size() );
+    CAF_ASSERT( partIndex < m_femPartPartMgrs.size() );
     m_femPartPartMgrs[partIndex]->setCellVisibility( cellVisibilities );
 }
 
@@ -98,7 +100,7 @@ void RivGeoMechPartMgr::setCellVisibility( size_t partIndex, cvf::UByteArray* ce
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::UByteArray> RivGeoMechPartMgr::cellVisibility( size_t partIdx )
 {
-    CVF_ASSERT( partIdx < m_femPartPartMgrs.size() );
+    CAF_ASSERT( partIdx < m_femPartPartMgrs.size() );
     return m_femPartPartMgrs[partIdx]->cellVisibility();
 }
 

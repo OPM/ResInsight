@@ -75,7 +75,7 @@ RimEclipseCellColors::RimEclipseCellColors()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors::~RimEclipseCellColors()
 {
-    CVF_ASSERT( obsoleteField_legendConfig() == nullptr );
+    CAF_ASSERT( obsoleteField_legendConfig() == nullptr );
 
     m_legendConfigData.deleteChildren();
 

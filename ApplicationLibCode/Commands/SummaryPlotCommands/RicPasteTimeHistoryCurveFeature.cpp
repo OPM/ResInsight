@@ -25,7 +25,7 @@
 #include "cafPdmObjectGroup.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include "RimGridTimeHistoryCurve.h"
 #include "RimSummaryPlot.h"
@@ -60,7 +60,7 @@ bool RicPasteTimeHistoryCurveFeature::isCommandEnabled() const
 void RicPasteTimeHistoryCurveFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
-    CVF_ASSERT( destinationObject );
+    CAF_ASSERT( destinationObject );
 
     auto summaryPlot = destinationObject->firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( !summaryPlot )
@@ -73,7 +73,7 @@ void RicPasteTimeHistoryCurveFeature::onActionTriggered( bool isChecked )
     for ( size_t i = 0; i < sourceObjects.size(); i++ )
     {
         auto newObject = sourceObjects[i]->copyObject<RimGridTimeHistoryCurve>();
-        CVF_ASSERT( newObject );
+        CAF_ASSERT( newObject );
 
         summaryPlot->addGridTimeHistoryCurve( newObject );
 

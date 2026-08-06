@@ -19,6 +19,8 @@
 
 #include "RifGeoMechReaderInterface.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +55,7 @@ void RifGeoMechReaderInterface::setTimeStepFilter( const std::vector<size_t>& fi
 //--------------------------------------------------------------------------------------------------
 bool RifGeoMechReaderInterface::isTimeStepIncludedByFilter( int timeStepIndex ) const
 {
-    CVF_ASSERT( timeStepIndex >= 0 );
+    CAF_ASSERT( timeStepIndex >= 0 );
     if ( m_fileTimeStepIndices.empty() ) return true;
 
     for ( auto i : m_fileTimeStepIndices )
@@ -76,8 +78,8 @@ int RifGeoMechReaderInterface::timeStepIndexOnFile( int timeStepIndex ) const
     {
         return timeStepIndex;
     }
-    CVF_ASSERT( timeStepIndex >= 0 );
-    CVF_ASSERT( static_cast<size_t>( timeStepIndex ) < m_fileTimeStepIndices.size() );
+    CAF_ASSERT( timeStepIndex >= 0 );
+    CAF_ASSERT( static_cast<size_t>( timeStepIndex ) < m_fileTimeStepIndices.size() );
 
     if ( static_cast<size_t>( timeStepIndex ) < m_fileTimeStepIndices.size() )
     {

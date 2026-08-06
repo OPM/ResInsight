@@ -67,7 +67,7 @@ cvf::ref<cvf::DrawableGeo> RivBoxIntersectionGeometryGenerator::generateSurface(
 {
     calculateArrays( visibleCells );
 
-    CVF_ASSERT( m_triangleVxes.notNull() );
+    CAF_ASSERT( m_triangleVxes.notNull() );
 
     if ( m_triangleVxes->size() == 0 ) return nullptr;
 
@@ -99,7 +99,7 @@ cvf::ref<cvf::DrawableGeo> RivBoxIntersectionGeometryGenerator::createMeshDrawab
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RivBoxIntersectionGeometryGenerator::triangleToCellIndex() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
     return m_triangleToCellIdxMap;
 }
 
@@ -108,7 +108,7 @@ const std::vector<size_t>& RivBoxIntersectionGeometryGenerator::triangleToCellIn
 //--------------------------------------------------------------------------------------------------
 const std::vector<RivIntersectionVertexWeights>& RivBoxIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
     return m_triVxToCellCornerWeights;
 }
 
@@ -117,7 +117,7 @@ const std::vector<RivIntersectionVertexWeights>& RivBoxIntersectionGeometryGener
 //--------------------------------------------------------------------------------------------------
 const cvf::Vec3fArray* RivBoxIntersectionGeometryGenerator::triangleVxes() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
 
     return m_triangleVxes.p();
 }
@@ -403,7 +403,7 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visi
                         }
                         else
                         {
-                            CVF_ASSERT( false );
+                            CAF_ASSERT( false );
                         }
 
                         if ( cvx1.isVxIdsNative && cvx2.isVxIdsNative )
@@ -440,7 +440,7 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visi
                             }
                             else
                             {
-                                CVF_ASSERT( false );
+                                CAF_ASSERT( false );
                             }
 
                             if ( cvx2.isVxIdsNative )
@@ -460,10 +460,10 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visi
                             }
                             else
                             {
-                                CVF_ASSERT( false );
+                                CAF_ASSERT( false );
                             }
 
-                            CVF_TIGHT_ASSERT( cvx11.isVxIdsNative && cvx12.isVxIdsNative && cvx21.isVxIdsNative && cvx22.isVxIdsNative );
+                            CAF_ASSERT( cvx11.isVxIdsNative && cvx12.isVxIdsNative && cvx21.isVxIdsNative && cvx22.isVxIdsNative );
 
                             m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights( cvx11.clippedEdgeVx1Id,
                                                                                                 cvx11.clippedEdgeVx2Id,

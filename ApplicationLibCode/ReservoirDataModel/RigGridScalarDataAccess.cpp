@@ -20,7 +20,7 @@
 
 #include "cvfLibCore.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfObject.h"
 
 #include "RigActiveCellInfo.h"
@@ -53,8 +53,8 @@ RigGridAllCellsScalarDataAccess::RigGridAllCellsScalarDataAccess( const RigGridB
     : m_grid( grid )
     , m_reservoirResultValues( reservoirResultValues )
 {
-    CVF_ASSERT( reservoirResultValues != NULL );
-    CVF_ASSERT( grid != NULL );
+    CAF_ASSERT( reservoirResultValues != NULL );
+    CAF_ASSERT( grid != NULL );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ double RigGridAllCellsScalarDataAccess::cellScalar( size_t gridLocalCellIndex ) 
     if ( m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
 
     size_t globalGridCellIndex = m_grid->globalGridCellIndex( gridLocalCellIndex );
-    CVF_TIGHT_ASSERT( globalGridCellIndex < m_reservoirResultValues->size() );
+    CAF_ASSERT( globalGridCellIndex < m_reservoirResultValues->size() );
 
     return m_reservoirResultValues->at( globalGridCellIndex );
 }
@@ -76,7 +76,7 @@ double RigGridAllCellsScalarDataAccess::cellScalar( size_t gridLocalCellIndex ) 
 void RigGridAllCellsScalarDataAccess::setCellScalar( size_t gridLocalCellIndex, double scalarValue )
 {
     size_t globalGridCellIndex = m_grid->globalGridCellIndex( gridLocalCellIndex );
-    CVF_TIGHT_ASSERT( globalGridCellIndex < m_reservoirResultValues->size() );
+    CAF_ASSERT( globalGridCellIndex < m_reservoirResultValues->size() );
 
     ( *m_reservoirResultValues )[globalGridCellIndex] = scalarValue;
 }
@@ -92,7 +92,7 @@ public:
         , m_reservoirResultValues( reservoirResultValues )
         , m_activeCellInfo( activeCellInfo )
     {
-        CVF_ASSERT( grid != NULL );
+        CAF_ASSERT( grid != NULL );
     }
 
     virtual double cellScalar( size_t gridLocalCellIndex ) const
@@ -103,7 +103,7 @@ public:
         size_t resultValueIndex    = m_activeCellInfo->cellResultIndex( globalGridCellIndex );
         if ( resultValueIndex == cvf::UNDEFINED_SIZE_T ) return HUGE_VAL;
 
-        CVF_TIGHT_ASSERT( resultValueIndex < m_reservoirResultValues->size() );
+        CAF_ASSERT( resultValueIndex < m_reservoirResultValues->size() );
 
         return m_reservoirResultValues->at( resultValueIndex );
     }
@@ -116,7 +116,7 @@ public:
         size_t globalGridCellIndex = m_grid->globalGridCellIndex( gridLocalCellIndex );
         size_t resultValueIndex    = m_activeCellInfo->cellResultIndex( globalGridCellIndex );
 
-        CVF_TIGHT_ASSERT( m_reservoirResultValues != NULL && resultValueIndex < m_reservoirResultValues->size() );
+        CAF_ASSERT( m_reservoirResultValues != NULL && resultValueIndex < m_reservoirResultValues->size() );
 
         ( *m_reservoirResultValues )[resultValueIndex] = scalarValue;
     }
@@ -144,10 +144,10 @@ cvf::ref<cvf::StructGridScalarDataAccess>
                                                                 size_t                                      timeStepIndex,
                                                                 size_t                                      scalarSetIndex )
 {
-    CVF_ASSERT( gridIndex < eclipseCase->gridCount() );
-    CVF_ASSERT( eclipseCase );
-    CVF_ASSERT( eclipseCase->results( porosityModel ) );
-    CVF_ASSERT( eclipseCase->activeCellInfo( porosityModel ) );
+    CAF_ASSERT( gridIndex < eclipseCase->gridCount() );
+    CAF_ASSERT( eclipseCase );
+    CAF_ASSERT( eclipseCase->results( porosityModel ) );
+    CAF_ASSERT( eclipseCase->activeCellInfo( porosityModel ) );
 
     RigGridBase* grid = eclipseCase->grid( gridIndex );
 

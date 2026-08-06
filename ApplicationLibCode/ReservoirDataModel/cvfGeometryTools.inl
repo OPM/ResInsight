@@ -17,6 +17,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 namespace cvf
@@ -642,8 +644,8 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon( ArrayWrapperConst<Ver
     // Vertex Index to position in polygon
     using VxIdxToPolygonPositionMap = std::map<IndexType, typename std::vector<IndexType>::const_iterator>;
 
-    CVF_ASSERT( m_partiallyFreeCubeFaceHasHoles );
-    CVF_ASSERT( partialFacePolygon != NULL );
+    CAF_ASSERT( m_partiallyFreeCubeFaceHasHoles );
+    CAF_ASSERT( partialFacePolygon != NULL );
 
     // Copy the start polygon
     std::list<IndexType> resultPolygon;

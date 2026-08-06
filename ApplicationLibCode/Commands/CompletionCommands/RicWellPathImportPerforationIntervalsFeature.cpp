@@ -53,7 +53,7 @@ bool RicWellPathImportPerforationIntervalsFeature::isCommandEnabled() const
 void RicWellPathImportPerforationIntervalsFeature::onActionTriggered( bool isChecked )
 {
     RimWellPathCollection* wellPathCollection = RicWellPathImportPerforationIntervalsFeature::selectedWellPathCollection();
-    CVF_ASSERT( wellPathCollection );
+    CAF_ASSERT( wellPathCollection );
 
     // Open dialog box to select well path files
     RiaApplication* app               = RiaApplication::instance();

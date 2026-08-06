@@ -35,6 +35,8 @@
 
 #include "CellFilters/RimPlotCellPropertyFilter.h"
 
+#include "cafAssert.h"
+
 CAF_PDM_SOURCE_INIT( RimSaturationPressurePlot, "RimSaturationPressurePlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +55,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
                                                                 int                           zeroBasedEquilRegionIndex,
                                                                 int                           timeStep )
 {
-    CVF_ASSERT( eclipseResultCase && eclipseResultCase->eclipseCaseData() );
+    CAF_ASSERT( eclipseResultCase && eclipseResultCase->eclipseCaseData() );
 
     auto equilData = eclipseResultCase->eclipseCaseData()->equilData();
     if ( zeroBasedEquilRegionIndex >= (int)equilData.size() )

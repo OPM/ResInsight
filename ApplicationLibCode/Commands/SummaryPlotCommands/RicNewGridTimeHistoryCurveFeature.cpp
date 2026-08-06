@@ -48,7 +48,7 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiPropertyViewDialog.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfColor3.h"
 
 #include <QAction>
@@ -244,7 +244,7 @@ void RicNewGridTimeHistoryCurveFeature::onActionTriggered( bool isChecked )
 
     std::vector<RiuSelectionItem*> items;
     Riu3dSelectionManager::instance()->selectedItems( items );
-    CVF_ASSERT( !items.empty() );
+    CAF_ASSERT( !items.empty() );
 
     for ( auto item : items )
     {

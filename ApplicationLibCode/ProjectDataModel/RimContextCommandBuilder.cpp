@@ -170,7 +170,6 @@
 #include "cafSelectionManager.h"
 #include "cafSelectionManagerTools.h"
 #include "cafTreeNode.h"
-#include "cvfAssert.h"
 
 #include <QDir>
 #include <QIcon>

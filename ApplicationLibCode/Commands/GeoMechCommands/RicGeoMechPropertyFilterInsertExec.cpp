@@ -24,7 +24,7 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -32,7 +32,7 @@
 RicGeoMechPropertyFilterInsertExec::RicGeoMechPropertyFilterInsertExec( RimGeoMechPropertyFilter* propertyFilter )
     : CmdExecuteCommand( nullptr )
 {
-    CVF_ASSERT( propertyFilter );
+    CAF_ASSERT( propertyFilter );
     m_propertyFilter = propertyFilter;
 }
 
@@ -57,10 +57,10 @@ QString RicGeoMechPropertyFilterInsertExec::name()
 void RicGeoMechPropertyFilterInsertExec::redo()
 {
     RimGeoMechPropertyFilterCollection* propertyFilterCollection = m_propertyFilter->parentContainer();
-    CVF_ASSERT( propertyFilterCollection );
+    CAF_ASSERT( propertyFilterCollection );
 
     size_t index = propertyFilterCollection->propertyFilters.indexOf( m_propertyFilter );
-    CVF_ASSERT( index < propertyFilterCollection->propertyFilters.size() );
+    CAF_ASSERT( index < propertyFilterCollection->propertyFilters.size() );
 
     RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter( propertyFilterCollection, index );
 }
@@ -71,5 +71,5 @@ void RicGeoMechPropertyFilterInsertExec::redo()
 void RicGeoMechPropertyFilterInsertExec::undo()
 {
     // TODO
-    CVF_ASSERT( 0 );
+    CAF_ASSERT( 0 );
 }

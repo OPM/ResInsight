@@ -78,7 +78,7 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 
     if ( !streamlineCollection->isActive() ) return;
 
-    CVF_ASSERT( model );
+    CAF_ASSERT( model );
     if ( m_rimReservoirView.isNull() ) return;
 
     RimEclipseCase* eclipseCase = m_rimReservoirView->eclipseCase();
@@ -231,11 +231,11 @@ void RivStreamlinesPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*    
                                                             const Streamline&        streamline,
                                                             const cvf::ScalarMapper* mapper )
 {
-    CVF_ASSERT( textureCoords );
-    CVF_ASSERT( mapper );
+    CAF_ASSERT( textureCoords );
+    CAF_ASSERT( mapper );
 
     RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
-    CVF_ASSERT( streamlineCollection != nullptr );
+    CAF_ASSERT( streamlineCollection != nullptr );
 
     size_t vertexCount = streamline.countTracerPoints() * 2 - 2;
     if ( textureCoords->capacity() != vertexCount ) textureCoords->reserve( vertexCount );

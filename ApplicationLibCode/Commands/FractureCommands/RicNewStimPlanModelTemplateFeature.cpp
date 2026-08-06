@@ -33,7 +33,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -45,7 +45,7 @@ CAF_CMD_SOURCE_INIT( RicNewStimPlanModelTemplateFeature, "RicNewStimPlanModelTem
 void RicNewStimPlanModelTemplateFeature::onActionTriggered( bool isChecked )
 {
     RimProject* project = RimProject::current();
-    CVF_ASSERT( project );
+    CAF_ASSERT( project );
 
     RimOilField* oilfield = project->activeOilField();
     if ( !oilfield ) return;

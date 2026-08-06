@@ -38,8 +38,6 @@
 #include "cafPdmObjectHandleTools.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
-
 #include <QAction>
 #include <QMessageBox>
 

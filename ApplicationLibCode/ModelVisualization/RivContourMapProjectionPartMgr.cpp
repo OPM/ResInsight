@@ -412,7 +412,7 @@ std::vector<cvf::ref<cvf::Drawable>>
                                                          caf::NumberFormatType                                        numberFormat,
                                                          int                                                          precision ) const
 {
-    CVF_ASSERT( camera && displayCoordTransform && labelBBoxes );
+    CAF_ASSERT( camera && displayCoordTransform && labelBBoxes );
 
     std::vector<cvf::ref<cvf::Drawable>> labelDrawables;
     labelBBoxes->clear();
@@ -469,15 +469,15 @@ std::vector<cvf::ref<cvf::Drawable>>
                 cvf::Vec3d displayVertex = displayCoordTransform->transformToDisplayCoord( globalVertex );
                 cvf::Vec3d windowVertex;
                 camera->project( displayVertex, &windowVertex );
-                CVF_ASSERT( !windowVertex.isUndefined() );
+                CAF_ASSERT( !windowVertex.isUndefined() );
                 displayVertex.z() += 10.0f;
                 cvf::BoundingBox windowBBox = label->textBoundingBox( labelText, cvf::Vec3f::ZERO, cvf::Vec3f( segment.getNormalized() ) );
                 cvf::Vec3d       displayBBoxMin, displayBBoxMax;
                 camera->unproject( windowBBox.min() + windowVertex, &displayBBoxMin );
                 camera->unproject( windowBBox.max() + windowVertex, &displayBBoxMax );
 
-                CVF_ASSERT( !displayBBoxMin.isUndefined() );
-                CVF_ASSERT( !displayBBoxMax.isUndefined() );
+                CAF_ASSERT( !displayBBoxMin.isUndefined() );
+                CAF_ASSERT( !displayBBoxMax.isUndefined() );
 
                 cvf::BoundingBox displayBBox( displayBBoxMin - cvf::Vec3d::Z_AXIS * 20.0, displayBBoxMax + cvf::Vec3d::Z_AXIS * 20.0 );
 
@@ -511,7 +511,7 @@ std::vector<cvf::ref<cvf::Drawable>>
                 if ( !overlaps )
                 {
                     cvf::Vec3f displayVertexV( displayVertex );
-                    CVF_ASSERT( !displayVertex.isUndefined() );
+                    CAF_ASSERT( !displayVertex.isUndefined() );
                     label->addText( labelText, displayVertexV, cvf::Vec3f( segment.getNormalized() ) );
                     labelBBoxes->at( i ).push_back( displayBBox );
                     distanceSinceLastLabel = 0.0;

@@ -19,7 +19,7 @@
 #include "RiaEclipseUnitTools.h"
 
 #include "cafAppEnum.h"
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <cmath>
 
@@ -40,7 +40,7 @@ double RiaEclipseUnitTools::darcysConstant( RiaDefines::EclipseUnitSystem unitSy
         case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
             return 0.008527;
         default:
-            CVF_ASSERT( false );
+            CAF_ASSERT( false );
             return 0.0;
     }
 }

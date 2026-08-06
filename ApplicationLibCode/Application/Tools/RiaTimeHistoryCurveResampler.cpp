@@ -16,8 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include <cvfAssert.h>
-#include <cvfConfigCore.h>
+#include "cafAssert.h"
 
 #include "RiaQDateTimeTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
@@ -60,7 +59,7 @@ void RiaTimeHistoryCurveResampler::setCurveData( const std::vector<double>& valu
         return;
     }
 
-    CVF_ASSERT( values.size() == timeSteps.size() );
+    CAF_ASSERT( values.size() == timeSteps.size() );
 
     clearData();
     m_originalValues = std::make_pair( values, timeSteps );
@@ -251,7 +250,7 @@ void RiaTimeHistoryCurveResampler::clearData()
 //--------------------------------------------------------------------------------------------------
 void RiaTimeHistoryCurveResampler::computeResampledTimeSteps( RiaDefines::DateTimePeriod period )
 {
-    CVF_ASSERT( period != RiaDefines::DateTimePeriod::NONE && m_originalValues.second.size() > 0 );
+    CAF_ASSERT( period != RiaDefines::DateTimePeriod::NONE && m_originalValues.second.size() > 0 );
 
     auto firstOriginalTimeStep = RiaQDateTimeTools::fromTime_t( m_originalValues.second.front() );
     auto lastOriginalTimeStep  = RiaQDateTimeTools::fromTime_t( m_originalValues.second.back() );
@@ -285,7 +284,7 @@ QDateTime RiaTimeHistoryCurveResampler::firstResampledTimeStep( const QDateTime&
 //--------------------------------------------------------------------------------------------------
 double RiaTimeHistoryCurveResampler::interpolatedValue( time_t t, time_t t1, double v1, time_t t2, double v2 )
 {
-    CVF_ASSERT( t2 >= t1 );
+    CAF_ASSERT( t2 >= t1 );
 
     if ( t <= t1 ) return v1;
     if ( t >= t2 ) return v2;

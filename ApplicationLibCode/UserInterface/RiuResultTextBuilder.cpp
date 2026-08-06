@@ -536,10 +536,10 @@ QString RiuResultTextBuilder::nncResultText()
             RigEclipseCaseData* eclipseCase = m_eclResDef->eclipseCase()->eclipseCaseData();
 
             RigMainGrid* grid = eclipseCase->mainGrid();
-            CVF_ASSERT( grid );
+            CAF_ASSERT( grid );
 
             RigNNCData* nncData = grid->nncData();
-            CVF_ASSERT( nncData );
+            CAF_ASSERT( nncData );
 
             if ( nncData && m_nncIndex < nncData->allConnections().size() )
             {
@@ -907,10 +907,10 @@ QString RiuResultTextBuilder::nncDetails()
             RigEclipseCaseData* eclipseCase = m_eclResDef->eclipseCase()->eclipseCaseData();
 
             RigMainGrid* grid = eclipseCase->mainGrid();
-            CVF_ASSERT( grid );
+            CAF_ASSERT( grid );
 
             RigNNCData* nncData = grid->nncData();
-            CVF_ASSERT( nncData );
+            CAF_ASSERT( nncData );
 
             if ( nncData && m_nncIndex < nncData->allConnections().size() )
             {
@@ -921,7 +921,7 @@ QString RiuResultTextBuilder::nncDetails()
 
                     // First cell of NNC
                     {
-                        CVF_ASSERT( conn.c1GlobIdx() < grid->totalCellCount() );
+                        CAF_ASSERT( conn.c1GlobIdx() < grid->totalCellCount() );
                         const RigCell& cell = grid->cell( conn.c1GlobIdx() );
 
                         RigGridBase* hostGrid           = cell.hostGrid();
@@ -943,7 +943,7 @@ QString RiuResultTextBuilder::nncDetails()
 
                     // Second cell of NNC
                     {
-                        CVF_ASSERT( conn.c2GlobIdx() < grid->totalCellCount() );
+                        CAF_ASSERT( conn.c2GlobIdx() < grid->totalCellCount() );
                         const RigCell& cell = grid->cell( conn.c2GlobIdx() );
 
                         RigGridBase* hostGrid           = cell.hostGrid();

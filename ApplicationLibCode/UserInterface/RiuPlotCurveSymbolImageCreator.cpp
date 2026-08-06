@@ -19,7 +19,6 @@
 #include "RiuPlotCurveSymbolImageCreator.h"
 
 #include "cafFontTools.h"
-#include "cvfAssert.h"
 
 #include <QPainter>
 #include <QRect>

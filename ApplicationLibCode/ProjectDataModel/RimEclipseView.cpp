@@ -163,7 +163,7 @@ CAF_PDM_XML_SOURCE_INIT( RimEclipseView, "ReservoirView" );
 RimEclipseView::RimEclipseView()
 {
     RiaPreferences* preferences = RiaPreferences::current();
-    CVF_ASSERT( preferences );
+    CAF_ASSERT( preferences );
 
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Reservoir View",
                                                     ":/3DView16x16.png",
@@ -612,7 +612,7 @@ std::vector<size_t> RimEclipseView::activeTimeStepIndices( bool propertyFiltersA
     // Find the number of time frames the animation needs to show the requested data.
     if ( ( isTimeStepDependentDataVisibleInThisOrComparisonView() && currentGridCellResults()->maxTimeStepCount() > 0 ) )
     {
-        CVF_ASSERT( currentGridCellResults() );
+        CAF_ASSERT( currentGridCellResults() );
 
         size_t i;
         for ( i = 0; i < currentGridCellResults()->maxTimeStepCount(); i++ )
@@ -1259,10 +1259,10 @@ void RimEclipseView::onLoadDataAndUpdate()
     // (e.g. dataFilterCollection()). Without a case there is nothing to load, so bail out.
     if ( !eclipseCase() ) return;
 
-    CVF_ASSERT( cellResult() != nullptr );
+    CAF_ASSERT( cellResult() != nullptr );
     cellResult()->loadResult();
 
-    CVF_ASSERT( cellEdgeResult() != nullptr );
+    CAF_ASSERT( cellEdgeResult() != nullptr );
     cellEdgeResult()->loadResult();
 
     faultResultSettings()->customFaultResult()->loadResult();
@@ -1527,7 +1527,7 @@ void RimEclipseView::scheduleSimWellGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RimEclipseView::indicesToVisibleGrids() const
 {
-    CVF_ASSERT( gridCollection() );
+    CAF_ASSERT( gridCollection() );
 
     return gridCollection()->indicesToVisibleGrids();
 }
@@ -1560,10 +1560,10 @@ void RimEclipseView::onUpdateLegends()
     }
 
     RigEclipseCaseData* eclipseCaseData = eclipseCase()->eclipseCaseData();
-    CVF_ASSERT( eclipseCaseData );
+    CAF_ASSERT( eclipseCaseData );
 
     RigCaseCellResultsData* results = eclipseCaseData->results( cellResult()->porosityModel() );
-    CVF_ASSERT( results );
+    CAF_ASSERT( results );
 
     updateLegendRangesTextAndVisibility( cellResult()->legendConfig(),
                                          cellResult()->ternaryLegendConfig(),
@@ -1872,7 +1872,7 @@ RivReservoirViewPartMgr* RimEclipseView::reservoirGridPartManager()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateVisibleWellCellsIncFence( cvf::UByteArray* visibleCells, RigGridBase* grid )
 {
-    CVF_ASSERT( visibleCells != nullptr );
+    CAF_ASSERT( visibleCells != nullptr );
 
     // Initialize the return array
     if ( visibleCells->size() != grid->cellCount() )
@@ -1883,7 +1883,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence( cvf::UByteArray* visible
 
     const RigActiveCellInfo* activeCellInfo = currentActiveCellInfo();
 
-    CVF_ASSERT( activeCellInfo );
+    CAF_ASSERT( activeCellInfo );
 
     // Loop over the wells and find their contribution
     for ( size_t wIdx = 0; wIdx < wellCollection()->wells().size(); ++wIdx )
@@ -2577,7 +2577,7 @@ void RimEclipseView::updateIconStateForFilterCollections()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
 {
-    CVF_ASSERT( xLabel && yLabel && zLabel );
+    CAF_ASSERT( xLabel && yLabel && zLabel );
 
     *xLabel = "E(x)";
     *yLabel = "N(y)";

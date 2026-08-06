@@ -33,8 +33,6 @@
 
 #include <QAction>
 
-#include "cvfAssert.h"
-
 CAF_CMD_SOURCE_INIT( RicNewWellLogPlotFeature, "RicNewWellLogPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------

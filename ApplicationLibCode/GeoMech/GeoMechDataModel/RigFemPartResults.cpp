@@ -19,6 +19,8 @@
 
 #include "RigFemPartResults.h"
 #include "RigFemResultAddress.h"
+
+#include "cafAssert.h"
 #include <cstdlib>
 
 //--------------------------------------------------------------------------------------------------
@@ -48,7 +50,7 @@ void RigFemPartResults::initResultSteps( const std::vector<std::string>& stepNam
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResults::createScalarResult( const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( m_stepNames.size() );
+    CAF_ASSERT( m_stepNames.size() );
 
     RigFemScalarResultFrames* resFrames = new RigFemScalarResultFrames( static_cast<int>( m_stepNames.size() ) );
     resultSets[resVarAddr]              = resFrames;

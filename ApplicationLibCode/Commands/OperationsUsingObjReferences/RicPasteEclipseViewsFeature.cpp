@@ -88,7 +88,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered( bool isChecked )
     for ( const auto& eclipseView : eclipseViews )
     {
         auto* rimReservoirView = eclipseView->copyObject<RimEclipseView>();
-        CVF_ASSERT( rimReservoirView );
+        CAF_ASSERT( rimReservoirView );
         rimReservoirView->resetDockWindowId();
 
         QString nameOfCopy = QString( "Copy of " ) + rimReservoirView->name();
@@ -97,7 +97,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered( bool isChecked )
         if ( dynamic_cast<RimEclipseContourMapView*>( eclipseView.p() ) )
         {
             auto contourMapView = dynamic_cast<RimEclipseContourMapView*>( rimReservoirView );
-            CVF_ASSERT( contourMapView );
+            CAF_ASSERT( contourMapView );
 
             eclipseCase->contourMapCollection()->addView( contourMapView );
         }

@@ -52,7 +52,7 @@
 //--------------------------------------------------------------------------------------------------
 bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
 {
-    CVF_ASSERT( progOpt );
+    CAF_ASSERT( progOpt );
     progOpt->registerOption( "help", "", "Displays help text and exits." );
     progOpt->registerOption( "?", "", "Displays help text and exits." );
 

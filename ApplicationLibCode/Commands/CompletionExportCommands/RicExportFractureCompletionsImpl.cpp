@@ -65,6 +65,8 @@
 #include "cvfGeometryTools.h"
 #include "cvfPlane.h"
 
+#include "cafAssert.h"
+
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -233,7 +235,7 @@ std::vector<RigCompletionData>
     if ( performPressureDepletionScaling )
     {
         pressureResultVector = &results->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
-        CVF_ASSERT( !pressureResultVector->empty() );
+        CAF_ASSERT( !pressureResultVector->empty() );
 
         if ( pdParams.pressureScalingTimeStep < static_cast<int>( pressureResultVector->size() ) )
         {
@@ -418,7 +420,7 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
             if ( isOk )
             {
                 std::vector<time_t> summaryTimeSteps = summaryCase->summaryReader()->timeSteps( wbhpPressureAddress );
-                CVF_ASSERT( values.size() == summaryTimeSteps.size() );
+                CAF_ASSERT( values.size() == summaryTimeSteps.size() );
                 for ( size_t i = 0; i < summaryTimeSteps.size(); ++i )
                 {
                     QDateTime summaryDate = RiaQDateTimeTools::fromTime_t( summaryTimeSteps[i] );

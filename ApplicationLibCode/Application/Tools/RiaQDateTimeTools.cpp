@@ -26,7 +26,7 @@
 #include "cafPdmOptionItemInfo.h"
 #include "cafPdmUiItem.h"
 
-#include <cvfAssert.h>
+#include "cafAssert.h"
 
 #include <cmath>
 #include <ctime>
@@ -295,7 +295,7 @@ const DateTimeSpan RiaQDateTimeTools::timeSpan( RiaDefines::DateTimePeriod perio
         case RiaDefines::DateTimePeriod::DECADE:
             return TIMESPAN_DECADE;
     }
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return DateTimeSpan();
 }
 
@@ -332,7 +332,7 @@ QDateTime RiaQDateTimeTools::truncateTime( const QDateTime& dt, RiaDefines::Date
         case RiaDefines::DateTimePeriod::DECADE:
             return createUtcDateTime( QDate( ( y / 10 ) * 10, 1, 1 ) );
     }
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return createUtcDateTime();
 }
 
@@ -489,7 +489,7 @@ QString RiaQDateTimeTools::dateFormatString( const QString& fullDateFormat, RiaD
     {
         return allVariants[enumValue];
     }
-    CVF_ASSERT( false && "Date format string is malformed" );
+    CAF_ASSERT( false && "Date format string is malformed" );
     return "";
 }
 
@@ -505,7 +505,7 @@ QString RiaQDateTimeTools::timeFormatString( const QString& fullTimeFormat, RiaD
     {
         return allVariants[static_cast<int>( timeComponents )];
     }
-    CVF_ASSERT( false && "Time format string is malformed" );
+    CAF_ASSERT( false && "Time format string is malformed" );
     return "";
 }
 

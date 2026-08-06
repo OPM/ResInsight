@@ -36,7 +36,7 @@
 #include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuTextDialog.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include "qwt_legend.h"
 #include "qwt_picker_machine.h"
@@ -389,7 +389,7 @@ void RiuRelativePermeabilityPlotPanel::addTransparentCurve( QwtPlot*            
     QVector<QPointF> pointsOnRightAxis;
 
     // Each point is defined by either left or right axis
-    CVF_ASSERT( points.size() == axes.size() );
+    CAF_ASSERT( points.size() == axes.size() );
 
     for ( size_t i = 0; i < points.size(); i++ )
     {
@@ -489,7 +489,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
 
         QwtPlotCurve* qwtCurve = new QwtPlotCurve( displayName.c_str() );
 
-        CVF_ASSERT( curve.saturationVals.size() == curve.yVals.size() );
+        CAF_ASSERT( curve.saturationVals.size() == curve.yVals.size() );
         qwtCurve->setSamples( curve.saturationVals.data(), curve.yVals.data(), static_cast<int>( curve.saturationVals.size() ) );
 
         // Use the display name which may be modified for GAS/WATER cases

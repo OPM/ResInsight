@@ -23,7 +23,7 @@
 #include "RimFishbones.h"
 #include "RimWellPath.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,14 +38,14 @@ RigFisbonesGeometry::RigFisbonesGeometry( RimFishbones* fishbonesSub )
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<cvf::Vec3d, double>> RigFisbonesGeometry::coordsForLateral( size_t subIndex, size_t lateralIndex ) const
 {
-    CVF_ASSERT( lateralIndex < m_fishbonesSub->lateralLengths().size() );
+    CAF_ASSERT( lateralIndex < m_fishbonesSub->lateralLengths().size() );
 
     const auto& subAndLateralIndices = m_fishbonesSub->installedLateralIndices();
 
     bool found = std::find( subAndLateralIndices.begin(), subAndLateralIndices.end(), std::make_pair( subIndex, lateralIndex ) ) !=
                  subAndLateralIndices.end();
 
-    CVF_ASSERT( found );
+    CAF_ASSERT( found );
 
     cvf::Vec3d position;
     cvf::Vec3d lateralInitialDirection;
@@ -87,7 +87,7 @@ void RigFisbonesGeometry::computeLateralPositionAndOrientation( size_t      subI
         cvf::Vec3d p2                      = cvf::Vec3d::UNDEFINED;
         wellPathGeometry->twoClosestPoints( position, &p1, &p2 );
 
-        CVF_ASSERT( !p1.isUndefined() && !p2.isUndefined() );
+        CAF_ASSERT( !p1.isUndefined() && !p2.isUndefined() );
 
         cvf::Vec3d alongWellPath = ( p2 - p1 ).getNormalized();
 

@@ -31,7 +31,7 @@
 #include "cafPdmUiItem.h"
 #include "cafSelectionManagerTools.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -115,7 +115,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(
                 RimIntersectionCollection* destCollection = currGridView->intersectionCollection();
 
                 auto copy = intersection->copyObject<RimExtrudedCurveIntersection>();
-                CVF_ASSERT( copy );
+                CAF_ASSERT( copy );
 
                 destCollection->appendIntersectionAndUpdate( copy, false );
 
@@ -145,7 +145,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionBoxesToOtherVi
                 RimIntersectionCollection* destCollection = currGridView->intersectionCollection();
 
                 auto copy = intersectionBox->copyObject<RimBoxIntersection>();
-                CVF_ASSERT( copy );
+                CAF_ASSERT( copy );
 
                 destCollection->appendIntersectionBoxAndUpdate( copy );
             }
@@ -171,7 +171,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIjkIntersectionsToOtherVie
                 RimIntersectionCollection* destCollection = currGridView->intersectionCollection();
 
                 auto copy = ijkIntersection->copyObject<RimIjkIntersection>();
-                CVF_ASSERT( copy );
+                CAF_ASSERT( copy );
 
                 destCollection->appendIjkIntersectionAndUpdate( copy );
             }

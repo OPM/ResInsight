@@ -27,8 +27,8 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
+#include "cafAssert.h"
 #include "cafVecIjk.h"
-#include "cvfAssert.h"
 #include "cvfStructGrid.h"
 
 #include <QString>
@@ -80,14 +80,14 @@ RigGridExportAdapter::RigGridExportAdapter( RigEclipseCaseData*    eclipseCase,
     , m_refinedNJ( 0 )
     , m_refinedNK( 0 )
 {
-    CVF_ASSERT( eclipseCase );
+    CAF_ASSERT( eclipseCase );
 
     m_mainGrid       = eclipseCase->mainGrid();
     m_activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    CVF_ASSERT( m_mainGrid );
-    CVF_ASSERT( m_activeCellInfo );
-    CVF_ASSERT( !max.isUndefined() );
+    CAF_ASSERT( m_mainGrid );
+    CAF_ASSERT( m_activeCellInfo );
+    CAF_ASSERT( !max.isUndefined() );
 
     m_refinedNI = m_refinement->totalRefinedCount( RigRefinement::DimI );
     m_refinedNJ = m_refinement->totalRefinedCount( RigRefinement::DimJ );

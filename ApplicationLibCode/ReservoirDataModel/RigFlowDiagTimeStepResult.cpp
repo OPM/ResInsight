@@ -22,6 +22,8 @@
 
 #include "cvfTrace.h"
 
+#include "cafAssert.h"
+
 #include <set>
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +85,7 @@ void RigFlowDiagTimeStepResult::addResult( const RigFlowDiagResultAddress& resAd
 {
     std::vector<double>& activeCellValues = m_nativeResults[resAddr];
 
-    CVF_ASSERT( activeCellValues.empty() );
+    CAF_ASSERT( activeCellValues.empty() );
 
     activeCellValues.resize( m_activeCellCount, HUGE_VAL );
 

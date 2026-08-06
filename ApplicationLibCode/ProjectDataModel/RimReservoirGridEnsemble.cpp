@@ -175,7 +175,7 @@ RimEnsembleFileSet* RimReservoirGridEnsemble::ensembleFileSet() const
 //--------------------------------------------------------------------------------------------------
 void RimReservoirGridEnsemble::addCase( RimEclipseCase* reservoir )
 {
-    CVF_ASSERT( reservoir );
+    CAF_ASSERT( reservoir );
 
     if ( !m_mainGrid && reservoir->eclipseCaseData() )
     {
@@ -218,7 +218,7 @@ void RimReservoirGridEnsemble::removeCase( RimEclipseCase* reservoir )
 //--------------------------------------------------------------------------------------------------
 bool RimReservoirGridEnsemble::contains( RimEclipseCase* reservoir ) const
 {
-    CVF_ASSERT( reservoir );
+    CAF_ASSERT( reservoir );
 
     for ( RimEclipseCase* rimReservoir : cases() )
     {

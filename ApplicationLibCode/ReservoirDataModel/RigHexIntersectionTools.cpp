@@ -23,6 +23,7 @@
 #include "cvfGeometryTools.h"
 #include "cvfRay.h"
 
+#include "cafAssert.h"
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -34,7 +35,7 @@ int RigHexIntersectionTools::lineHexCellIntersection( const cvf::Vec3d&         
                                                       const size_t                      hexIndex,
                                                       std::vector<HexIntersectionInfo>* intersections )
 {
-    CVF_ASSERT( intersections != nullptr );
+    CAF_ASSERT( intersections != nullptr );
 
     std::set<HexIntersectionInfo> uniqueIntersections;
 

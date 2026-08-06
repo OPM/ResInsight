@@ -180,8 +180,8 @@ void RimEclipseStatisticsCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::setMainGrid( RigMainGrid* mainGrid )
 {
-    CVF_ASSERT( mainGrid );
-    CVF_ASSERT( eclipseCaseData() );
+    CAF_ASSERT( mainGrid );
+    CAF_ASSERT( eclipseCaseData() );
 
     eclipseCaseData()->setMainGrid( mainGrid );
 }
@@ -469,7 +469,7 @@ void RimEclipseStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
 {
     for ( RimEclipseView* reservoirView : reservoirViews() )
     {
-        CVF_ASSERT( reservoirView );
+        CAF_ASSERT( reservoirView );
         reservoirView->scheduleGeometryRegen( ACTIVE );
     }
 }
@@ -768,7 +768,7 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
         // Update views
         for ( RimEclipseView* reservoirView : reservoirViews() )
         {
-            CVF_ASSERT( reservoirView );
+            CAF_ASSERT( reservoirView );
 
             reservoirView->wellCollection()->wells.deleteChildren();
             reservoirView->updateDisplayModelForWellResults();

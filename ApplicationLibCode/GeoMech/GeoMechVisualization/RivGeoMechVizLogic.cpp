@@ -41,12 +41,14 @@
 #include "cvfModelBasicList.h"
 #include "cvfStructGridGeometryGenerator.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RivGeoMechVizLogic::RivGeoMechVizLogic( RimGeoMechView* geomView )
 {
-    CVF_ASSERT( geomView );
+    CAF_ASSERT( geomView );
     m_geomechView  = geomView;
     m_partMgrCache = new RivGeoMechPartMgrCache;
 }
@@ -287,7 +289,7 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
         }
         else
         {
-            CVF_ASSERT( false ); // Unsupported CellSet Enum
+            CAF_ASSERT( false ); // Unsupported CellSet Enum
         }
 
         partMgrToUpdate->setCellVisibility( femPartIdx, elmVisibility.p() );
@@ -321,7 +323,7 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* t
     for ( size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx )
     {
         RivGeoMechPartMgr* partMgr = getUpdatedPartMgr( visiblePartMgrs[pmIdx] );
-        CVF_ASSERT( partMgr );
+        CAF_ASSERT( partMgr );
         if ( partMgr )
         {
             int elmOffset = 0;
@@ -381,7 +383,7 @@ void RivGeoMechVizLogic::calculateCellVisibility( cvf::UByteArray* totalVisibili
     for ( size_t pmIdx = 0; pmIdx < partMgrs.size(); ++pmIdx )
     {
         RivGeoMechPartMgr* partMgr = getUpdatedPartMgr( partMgrs[pmIdx] );
-        CVF_ASSERT( partMgr );
+        CAF_ASSERT( partMgr );
         if ( partMgr )
         {
             int elmOffset = 0;

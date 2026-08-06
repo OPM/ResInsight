@@ -27,8 +27,8 @@
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
+#include "cafAssert.h"
 #include "cafSelectionManager.h"
-#include "cvfAssert.h"
 
 #include <QAction>
 

@@ -49,6 +49,8 @@
 #include <QTcpSocket>
 
 #include "RimGeoMechResultDefinition.h"
+
+#include "cafAssert.h"
 #include <array>
 
 //--------------------------------------------------------------------------------------------------
@@ -212,7 +214,7 @@ public:
             {
                 auto&        cell = mainGrid->cell( cIdx );
                 RigGridBase* grid = cell.hostGrid();
-                CVF_ASSERT( grid != nullptr );
+                CAF_ASSERT( grid != nullptr );
                 size_t cellIndex = cell.gridLocalCellIndex();
 
                 size_t i, j, k;
@@ -232,7 +234,7 @@ public:
                 {
                     size_t parentCellIdx = cell.parentCellIndex();
                     parentGrid           = ( static_cast<RigLocalGrid*>( grid ) )->parentGrid();
-                    CVF_ASSERT( parentGrid != nullptr );
+                    CAF_ASSERT( parentGrid != nullptr );
                     parentGrid->ijkFromCellIndex( parentCellIdx, &pi, &pj, &pk );
                 }
 
@@ -628,7 +630,7 @@ public:
                                  ->getOrCreateStructGrid()
                                  ->ijkFromCellIndex( geomechItem->m_cellIndex, &i, &j, &k );
 
-                CVF_ASSERT( validIndex );
+                CAF_ASSERT( validIndex );
 
                 gridIndex = geomechItem->m_gridIndex;
                 caseId    = geomechItem->m_resultDefinition->geoMechCase()->caseId();

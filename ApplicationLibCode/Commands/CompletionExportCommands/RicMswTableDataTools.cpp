@@ -22,6 +22,8 @@
 
 #include "RimWellPath.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 #include <cmath>
 #include <set>
@@ -138,7 +140,7 @@ std::vector<std::pair<double, double>>
 double RicMswTableDataTools::tvdFromMeasuredDepth( const RimWellPath* wellPath, double measuredDepth )
 {
     auto wellPathGeometry = wellPath->wellPathGeometry();
-    CVF_ASSERT( wellPathGeometry );
+    CAF_ASSERT( wellPathGeometry );
 
     double tvdValue = -wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth ).z();
 

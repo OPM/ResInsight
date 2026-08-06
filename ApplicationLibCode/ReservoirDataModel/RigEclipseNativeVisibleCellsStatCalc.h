@@ -30,6 +30,8 @@
 
 #include "cvfArray.h"
 
+#include "cafAssert.h"
+
 class RigEclipseNativeVisibleCellsStatCalc : public RigStatisticsCalculator
 {
 public:
@@ -73,7 +75,7 @@ private:
         size_t                   cellCount                = actCellInfo->reservoirCellCount();
         bool                     isUsingGlobalActiveIndex = m_caseData->isUsingGlobalActiveIndex( m_resultAddress );
 
-        CVF_TIGHT_ASSERT( cellCount == m_cellVisibilities->size() );
+        CAF_ASSERT( cellCount == m_cellVisibilities->size() );
 
         for ( size_t cIdx = 0; cIdx < cellCount; ++cIdx )
         {

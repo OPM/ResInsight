@@ -183,7 +183,7 @@ void RivWellPathPartMgr::appendStaticFracturePartsToModel( cvf::ModelBasicList* 
 
     for ( RimWellPathFracture* f : m_rimWellPath->fractureCollection()->activeFractures() )
     {
-        CVF_ASSERT( f );
+        CAF_ASSERT( f );
 
         f->fracturePartManager()->appendGeometryPartsToModel( model, *eclView );
     }
@@ -409,7 +409,7 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
     }
 
     // Since we're using the index of measured depths to find the index of a point, ensure they're equal
-    CVF_ASSERT( wellPathGeometry->measuredDepths().size() == wellPathGeometry->wellPathPoints().size() );
+    CAF_ASSERT( wellPathGeometry->measuredDepths().size() == wellPathGeometry->wellPathPoints().size() );
 
     double wellPathRadius    = this->wellPathRadius( characteristicCellSize, wellPathCollection );
     double perforationRadius = wellPathRadius * 1.2;
@@ -608,7 +608,7 @@ void RivWellPathPartMgr::appendMswSegmentsToModel( cvf::ModelBasicList*         
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return;
 
-    CVF_ASSERT( wellPathGeometry->measuredDepths().size() == wellPathGeometry->wellPathPoints().size() );
+    CAF_ASSERT( wellPathGeometry->measuredDepths().size() == wellPathGeometry->wellPathPoints().size() );
 
     double wellPathRadius    = this->wellPathRadius( characteristicCellSize, wellPathCollection );
     double referenceDiameter = segmentCollection->referenceDiameter();
@@ -1097,7 +1097,7 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
                                                             double                            characteristicCellSize,
                                                             const cvf::BoundingBox&           wellPathClipBoundingBox )
 {
-    CVF_ASSERT( model );
+    CAF_ASSERT( model );
 
     bool showWellPath = isWellPathEnabled( wellPathClipBoundingBox );
 
@@ -1135,7 +1135,7 @@ void RivWellPathPartMgr::appendFlattenedDynamicGeometryPartsToModel( cvf::ModelB
                                                                      double                            characteristicCellSize,
                                                                      const cvf::BoundingBox&           wellPathClipBoundingBox )
 {
-    CVF_ASSERT( model );
+    CAF_ASSERT( model );
 
     RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if ( !wellPathCollection ) return;
@@ -1206,7 +1206,7 @@ void RivWellPathPartMgr::appendWellIntegrityIntervalsToModel( cvf::ModelBasicLis
     if ( !wellPathGeometry ) return;
 
     // Since we're using the index of measured depths to find the index of a point, ensure they're equal
-    CVF_ASSERT( wellPathGeometry->measuredDepths().size() == wellPathGeometry->wellPathPoints().size() );
+    CAF_ASSERT( wellPathGeometry->measuredDepths().size() == wellPathGeometry->wellPathPoints().size() );
 
     double wellPathRadius    = this->wellPathRadius( characteristicCellSize, wellPathCollection );
     double wiaIntervalRadius = wellPathRadius * 1.15;

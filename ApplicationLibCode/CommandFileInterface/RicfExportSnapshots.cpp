@@ -89,7 +89,7 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
     int height = m_height();
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    CVF_ASSERT( mainWnd );
+    CAF_ASSERT( mainWnd );
 
     QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::SNAPSHOTS );
 

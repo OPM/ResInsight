@@ -21,6 +21,8 @@
 
 #include "cvfGeometryTools.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -39,7 +41,7 @@ RiaPolyArcLineSampler::RiaPolyArcLineSampler( const cvf::Vec3d& startTangent, co
 std::pair<std::vector<cvf::Vec3d>, std::vector<double>> RiaPolyArcLineSampler::sampledPointsAndMDs( double sampleInterval,
                                                                                                     bool   isResamplingLines )
 {
-    CVF_ASSERT( sampleInterval > 0.0 );
+    CAF_ASSERT( sampleInterval > 0.0 );
 
     m_maxSamplingsInterval = sampleInterval;
     m_isResamplingLines    = isResamplingLines;

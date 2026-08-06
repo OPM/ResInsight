@@ -42,6 +42,8 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
 
+#include "cafAssert.h"
+
 #include <QTcpSocket>
 
 //--------------------------------------------------------------------------------------------------
@@ -464,7 +466,7 @@ public:
 
         if ( m_timeStepCountToRead != m_requestedTimesteps.size() )
         {
-            CVF_ASSERT( false );
+            CAF_ASSERT( false );
         }
 
         // Check if a complete timestep is available, return and whait for readyRead() if not

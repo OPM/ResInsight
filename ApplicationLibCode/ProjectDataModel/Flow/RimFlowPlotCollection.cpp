@@ -26,7 +26,6 @@
 #include "RimWellDistributionPlotCollection.h"
 
 #include "cafProgressInfo.h"
-#include "cvfAssert.h"
 
 CAF_PDM_SOURCE_INIT( RimFlowPlotCollection, "FlowPlotCollection" );
 

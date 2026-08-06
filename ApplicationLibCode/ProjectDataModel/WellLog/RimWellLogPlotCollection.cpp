@@ -37,8 +37,6 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
-#include "cvfAssert.h"
-
 CAF_PDM_SOURCE_INIT( RimWellLogPlotCollection, "WellLogPlotCollection" );
 
 //--------------------------------------------------------------------------------------------------

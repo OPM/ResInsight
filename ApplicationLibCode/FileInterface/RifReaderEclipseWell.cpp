@@ -31,6 +31,7 @@
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
 
+#include "cafAssert.h"
 #include "cafProgressInfo.h"
 
 #include "cvfTrace.h"
@@ -80,8 +81,8 @@ size_t RifReaderEclipseWell::localGridCellIndexFromErtConnection( const RigGridB
                                                                   const well_conn_type* ert_connection,
                                                                   const char*           wellNameForErrorMsgs )
 {
-    CVF_ASSERT( ert_connection );
-    CVF_ASSERT( grid );
+    CAF_ASSERT( ert_connection );
+    CAF_ASSERT( grid );
 
     int cellI = well_conn_get_i( ert_connection );
     int cellJ = well_conn_get_j( ert_connection );
@@ -150,8 +151,8 @@ RigWellResultPoint RifReaderEclipseWell::createWellResultPoint( const RigEclipse
                                                                 const well_segment_type*  segment,
                                                                 const char*               wellName )
 {
-    CVF_ASSERT( ert_connection );
-    CVF_ASSERT( grid );
+    CAF_ASSERT( ert_connection );
+    CAF_ASSERT( grid );
 
     size_t gridCellIndex = localGridCellIndexFromErtConnection( grid, ert_connection, wellName );
 
@@ -455,7 +456,7 @@ void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDa
                                           std::vector<std::string>     gridNames,
                                           bool                         importCompleteMswData )
 {
-    CVF_ASSERT( eclipseCaseData );
+    CAF_ASSERT( eclipseCaseData );
 
     if ( restartDataAccess == nullptr ) return;
 
@@ -494,7 +495,7 @@ void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDa
     for ( wellIdx = 0; wellIdx < well_info_get_num_wells( ert_well_info ); wellIdx++ )
     {
         const char* wellName = well_info_iget_well_name( ert_well_info, wellIdx );
-        CVF_ASSERT( wellName );
+        CAF_ASSERT( wellName );
 
         cvf::ref<RigSimWellData> simWellData = new RigSimWellData;
         simWellData->m_wellName              = wellName;
@@ -903,7 +904,7 @@ void RifReaderEclipseWell::readWellCells( RifEclipseRestartDataAccess* restartDa
 
                                 std::map<int, std::vector<SegmentPositionContribution>>::iterator posContribIt;
                                 posContribIt = segmentIdToPositionContrib.find( ertSegmentId );
-                                CVF_ASSERT( posContribIt != segmentIdToPositionContrib.end() );
+                                CAF_ASSERT( posContribIt != segmentIdToPositionContrib.end() );
 
                                 std::vector<SegmentPositionContribution> posContributions = posContribIt->second;
                                 for ( size_t i = 0; i < posContributions.size(); ++i )
@@ -1029,8 +1030,8 @@ std::string RifReaderEclipseWell::ertGridName( const RigEclipseCaseData* eCaseDa
     }
     else
     {
-        CVF_ASSERT( eCaseData );
-        CVF_ASSERT( eCaseData->gridCount() > gridNr );
+        CAF_ASSERT( eCaseData );
+        CAF_ASSERT( eCaseData->gridCount() > gridNr );
         gridName = eCaseData->grid( gridNr )->gridName();
     }
 

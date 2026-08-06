@@ -27,6 +27,8 @@
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -39,7 +41,7 @@ void RicIntersectionFeatureImpl::createIntersectionBoxSlize( const QString& name
     if ( activeMainOrComparisonView && activeView && activeView->viewer() )
     {
         RimIntersectionCollection* coll = activeMainOrComparisonView->intersectionCollection();
-        CVF_ASSERT( coll );
+        CAF_ASSERT( coll );
 
         cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
 

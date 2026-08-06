@@ -20,6 +20,8 @@
 
 #include "RiaCurveMerger.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 #include <cmath>
 
@@ -35,7 +37,7 @@ RiaWellLogCurveMerger::RiaWellLogCurveMerger()
 //--------------------------------------------------------------------------------------------------
 void RiaWellLogCurveMerger::addCurveData( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
-    CVF_ASSERT( xValues.size() == yValues.size() );
+    CAF_ASSERT( xValues.size() == yValues.size() );
 
     if ( !xValues.empty() )
     {
@@ -72,7 +74,7 @@ const std::vector<double>& RiaWellLogCurveMerger::allXValues() const
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RiaWellLogCurveMerger::lookupYValuesForAllXValues( size_t curveIdx ) const
 {
-    CVF_ASSERT( curveIdx < m_lookupValuesForAllCurves.size() );
+    CAF_ASSERT( curveIdx < m_lookupValuesForAllCurves.size() );
 
     return m_lookupValuesForAllCurves[curveIdx];
 }

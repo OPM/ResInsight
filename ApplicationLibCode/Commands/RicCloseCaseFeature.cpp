@@ -123,7 +123,7 @@ std::vector<RimCase*> RicCloseCaseFeature::selectedCases() const
 //--------------------------------------------------------------------------------------------------
 void RicCloseCaseFeature::removeCaseFromAllGroups( RimEclipseCase* eclipseCase )
 {
-    CVF_ASSERT( eclipseCase );
+    CAF_ASSERT( eclipseCase );
 
     RimProject*               proj           = RimProject::current();
     RimOilField*              activeOilField = proj ? proj->activeOilField() : nullptr;
@@ -140,7 +140,7 @@ void RicCloseCaseFeature::removeCaseFromAllGroups( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
 {
-    CVF_ASSERT( eclipseCase );
+    CAF_ASSERT( eclipseCase );
 
     RimCaseCollection* caseCollection = eclipseCase->parentCaseCollection();
     if ( caseCollection )
@@ -214,7 +214,7 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 void RicCloseCaseFeature::deleteGeoMechCase( RimGeoMechCase* geoMechCase )
 {
-    CVF_ASSERT( geoMechCase );
+    CAF_ASSERT( geoMechCase );
 
     RimProject*       proj           = RimProject::current();
     RimOilField*      activeOilField = proj ? proj->activeOilField() : nullptr;
@@ -233,7 +233,7 @@ void RicCloseCaseFeature::deleteGeoMechCase( RimGeoMechCase* geoMechCase )
 //--------------------------------------------------------------------------------------------------
 bool RicCloseCaseFeature::hasAnyStatisticsResults( RimIdenticalGridCaseGroup* gridCaseGroup )
 {
-    CVF_ASSERT( gridCaseGroup );
+    CAF_ASSERT( gridCaseGroup );
 
     for ( size_t i = 0; i < gridCaseGroup->statisticsCaseCollection()->reservoirs().size(); i++ )
     {

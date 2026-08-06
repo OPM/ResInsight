@@ -19,6 +19,8 @@
 
 #include "cvfGeometryTools.h"
 
+#include "cafAssert.h"
+
 namespace cvf
 {
 //--------------------------------------------------------------------------------------------------
@@ -505,8 +507,8 @@ int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d& p0,
                                                  cvf::Vec3d*       intersectionPoint,
                                                  bool*             isLineDirDotNormalNegative )
 {
-    CVF_TIGHT_ASSERT( intersectionPoint != nullptr );
-    CVF_TIGHT_ASSERT( isLineDirDotNormalNegative != nullptr );
+    CAF_ASSERT( intersectionPoint != nullptr );
+    CAF_ASSERT( isLineDirDotNormalNegative != nullptr );
 
     cvf::Vec3d u, v, n; // triangle vectors
     cvf::Vec3d dir, w0, w; // ray vectors
@@ -862,7 +864,7 @@ void EdgeSplitStorage::setVertexCount( size_t size )
 bool EdgeSplitStorage::findSplitPoint( size_t edgeP1Index, size_t edgeP2Index, size_t* splitPointIndex )
 {
     canonizeAddress( edgeP1Index, edgeP2Index );
-    CVF_ASSERT( edgeP1Index < m_edgeSplitMap.size() );
+    CAF_ASSERT( edgeP1Index < m_edgeSplitMap.size() );
 
     std::map<size_t, size_t>::iterator it;
 
@@ -879,7 +881,7 @@ bool EdgeSplitStorage::findSplitPoint( size_t edgeP1Index, size_t edgeP2Index, s
 void EdgeSplitStorage::addSplitPoint( size_t edgeP1Index, size_t edgeP2Index, size_t splitPointIndex )
 {
     canonizeAddress( edgeP1Index, edgeP2Index );
-    CVF_ASSERT( edgeP1Index < m_edgeSplitMap.size() );
+    CAF_ASSERT( edgeP1Index < m_edgeSplitMap.size() );
     m_edgeSplitMap[edgeP1Index][edgeP2Index] = splitPointIndex;
 }
 
@@ -916,8 +918,8 @@ EarClipTesselator::EarClipTesselator()
 
 bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices )
 {
-    CVF_ASSERT( m_nodeCoords != nullptr );
-    CVF_ASSERT( m_X > -1 && m_Y > -1 );
+    CAF_ASSERT( m_nodeCoords != nullptr );
+    CAF_ASSERT( m_X > -1 && m_Y > -1 );
 
     size_t numVertices = m_polygonIndices.size();
 
@@ -996,7 +998,7 @@ EarClipTesselator::TriangleStatus EarClipTesselator::calculateTriangleStatus( st
                                                                               std::list<size_t>::const_iterator v,
                                                                               std::list<size_t>::const_iterator w ) const
 {
-    CVF_ASSERT( m_X > -1 && m_Y > -1 );
+    CAF_ASSERT( m_X > -1 && m_Y > -1 );
 
     cvf::Vec3d A = ( *m_nodeCoords )[*u];
     cvf::Vec3d B = ( *m_nodeCoords )[*v];
@@ -1057,7 +1059,7 @@ EarClipTesselator::TriangleStatus EarClipTesselator::calculateTriangleStatus( st
 
 bool EarClipTesselator::isPointInsideTriangle( const cvf::Vec3d& A, const cvf::Vec3d& B, const cvf::Vec3d& C, const cvf::Vec3d& P ) const
 {
-    CVF_ASSERT( m_X > -1 && m_Y > -1 );
+    CAF_ASSERT( m_X > -1 && m_Y > -1 );
 
     double ax = C[m_X] - B[m_X];
     double ay = C[m_Y] - B[m_Y];
@@ -1087,7 +1089,7 @@ bool EarClipTesselator::isPointInsideTriangle( const cvf::Vec3d& A, const cvf::V
 
 double EarClipTesselator::calculateProjectedPolygonArea() const
 {
-    CVF_ASSERT( m_X > -1 && m_Y > -1 );
+    CAF_ASSERT( m_X > -1 && m_Y > -1 );
 
     double A = 0;
 
@@ -1166,9 +1168,9 @@ FanEarClipTesselator::FanEarClipTesselator()
 //--------------------------------------------------------------------------------------------------
 bool FanEarClipTesselator::calculateTriangles( std::vector<size_t>* triangles )
 {
-    CVF_ASSERT( m_centerNodeIndex != std::numeric_limits<size_t>::max() );
-    CVF_ASSERT( m_nodeCoords != nullptr );
-    CVF_ASSERT( m_X > -1 && m_Y > -1 );
+    CAF_ASSERT( m_centerNodeIndex != std::numeric_limits<size_t>::max() );
+    CAF_ASSERT( m_nodeCoords != nullptr );
+    CAF_ASSERT( m_X > -1 && m_Y > -1 );
 
     size_t nv = m_polygonIndices.size();
 
@@ -1239,7 +1241,7 @@ bool FanEarClipTesselator::calculateTriangles( std::vector<size_t>* triangles )
 //--------------------------------------------------------------------------------------------------
 bool FanEarClipTesselator::isTriangleValid( size_t u, size_t v, size_t w )
 {
-    CVF_ASSERT( m_X > -1 && m_Y > -1 );
+    CAF_ASSERT( m_X > -1 && m_Y > -1 );
 
     cvf::Vec3d A = ( *m_nodeCoords )[u];
     cvf::Vec3d B = ( *m_nodeCoords )[v];

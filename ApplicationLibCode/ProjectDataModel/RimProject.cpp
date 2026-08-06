@@ -966,7 +966,7 @@ std::vector<RimOilField*> RimProject::allOilFields() const
 //--------------------------------------------------------------------------------------------------
 RimOilField* RimProject::activeOilField()
 {
-    CVF_ASSERT( oilFields.size() == 1 );
+    CAF_ASSERT( oilFields.size() == 1 );
 
     return oilFields[0];
 }
@@ -977,7 +977,7 @@ RimOilField* RimProject::activeOilField()
 //--------------------------------------------------------------------------------------------------
 const RimOilField* RimProject::activeOilField() const
 {
-    CVF_ASSERT( oilFields.size() == 1 );
+    CAF_ASSERT( oilFields.size() == 1 );
 
     return oilFields[0];
 }

@@ -28,6 +28,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +59,7 @@ QString RicEclipseCaseNewGroupExec::name()
 void RicEclipseCaseNewGroupExec::redo()
 {
     RimProject* proj = RimProject::current();
-    CVF_ASSERT( proj );
+    CAF_ASSERT( proj );
 
     RimEclipseCaseCollection* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : nullptr;
 
@@ -84,5 +86,5 @@ void RicEclipseCaseNewGroupExec::redo()
 void RicEclipseCaseNewGroupExec::undo()
 {
     // TODO
-    CVF_ASSERT( 0 );
+    CAF_ASSERT( 0 );
 }

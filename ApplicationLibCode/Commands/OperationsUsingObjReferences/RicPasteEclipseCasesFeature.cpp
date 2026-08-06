@@ -100,7 +100,7 @@ void RicPasteEclipseCasesFeature::setupActionLook( QAction* actionToSetup )
 void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup( caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup )
 {
     RimProject* proj = RimProject::current();
-    CVF_ASSERT( proj );
+    CAF_ASSERT( proj );
 
     std::vector<RimEclipseResultCase*> resultCases;
 
@@ -127,7 +127,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup( caf::PdmObjectGroup& 
     if ( gridCaseGroup->mainCase() )
     {
         mainResultCase = dynamic_cast<RimEclipseResultCase*>( gridCaseGroup->mainCase() );
-        CVF_ASSERT( mainResultCase );
+        CAF_ASSERT( mainResultCase );
 
         mainResultCase->readGridDimensions( mainCaseGridDimensions );
     }
@@ -174,7 +174,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup( caf::PdmObjectGroup& 
 
             if ( !rimResultReservoir->openAndReadActiveCellData( mainResultCase->eclipseCaseData() ) )
             {
-                CVF_ASSERT( false );
+                CAF_ASSERT( false );
             }
         }
 

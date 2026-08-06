@@ -53,6 +53,8 @@
 #include "RimPerforationInterval.h"
 #include "RimWellPathFracture.h"
 
+#include "cafAssert.h"
+
 #include <QAction>
 #include <QDir>
 #include <QFile>
@@ -187,8 +189,8 @@ public:
     //--------------------------------------------------------------------------------------------------
     bool intersects( const IjkBoundingBox& box ) const
     {
-        CVF_TIGHT_ASSERT( isValid() );
-        CVF_TIGHT_ASSERT( box.isValid() );
+        CAF_ASSERT( isValid() );
+        CAF_ASSERT( box.isValid() );
 
         if ( m_max[I] < box.m_min[I] || m_min[I] > box.m_max[I] ) return false;
         if ( m_max[J] < box.m_min[J] || m_min[J] > box.m_max[J] ) return false;

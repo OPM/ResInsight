@@ -104,7 +104,7 @@ void RicCreateGridCaseEnsemblesFromFilesFeature::setupActionLook( QAction* actio
 RimEclipseCaseEnsemble* RicCreateGridCaseEnsemblesFromFilesFeature::importSingleGridCaseEnsemble( const QStringList& fileNames )
 {
     RimProject* project = RimProject::current();
-    CVF_ASSERT( project );
+    CAF_ASSERT( project );
 
     RimOilField* oilfield = project->activeOilField();
     if ( !oilfield ) return nullptr;

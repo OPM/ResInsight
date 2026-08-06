@@ -48,6 +48,8 @@
 #include "RimStimPlanModelTemplate.h"
 #include "RimWellPath.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -243,7 +245,7 @@ void RimStimPlanModelWellLogCalculator::replaceMissingValues( std::vector<double
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelWellLogCalculator::replaceMissingValues( std::vector<double>& values, const std::vector<double>& replacementValues )
 {
-    CVF_ASSERT( values.size() == replacementValues.size() );
+    CAF_ASSERT( values.size() == replacementValues.size() );
     for ( size_t i = 0; i < values.size(); i++ )
     {
         if ( values[i] == std::numeric_limits<double>::infinity() )
@@ -702,7 +704,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherProperty( R
         return false;
     }
 
-    CVF_ASSERT( values.size() == initialValues.size() );
+    CAF_ASSERT( values.size() == initialValues.size() );
     replaceMissingValues( values, initialValues );
     return true;
 }

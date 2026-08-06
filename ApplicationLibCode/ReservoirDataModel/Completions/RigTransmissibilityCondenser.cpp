@@ -23,7 +23,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigFractureTransmissibilityEquations.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -163,7 +163,7 @@ std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByM
                 {
                     size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
                     size_t eclipseResultIndex  = actCellInfo->cellResultIndex( ReservoirCellIndex( globalMatrixCellIdx ) ).value();
-                    CVF_ASSERT( eclipseResultIndex < currentMatrixPressures.size() );
+                    CAF_ASSERT( eclipseResultIndex < currentMatrixPressures.size() );
                     double unsignedDeltaPressure = std::abs( currentMatrixPressures[eclipseResultIndex] - currentWellPressure );
                     double nonZeroDeltaPressure  = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
                     maxNonZeroDeltaPressure      = std::max( maxNonZeroDeltaPressure, nonZeroDeltaPressure );
@@ -183,7 +183,7 @@ std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByM
                 {
                     size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
                     size_t eclipseResultIndex  = actCellInfo->cellResultIndex( ReservoirCellIndex( globalMatrixCellIdx ) ).value();
-                    CVF_ASSERT( eclipseResultIndex < currentMatrixPressures.size() );
+                    CAF_ASSERT( eclipseResultIndex < currentMatrixPressures.size() );
 
                     originalLumpedMatrixToFractureTrans[globalMatrixCellIdx] += jt->second;
 
@@ -267,12 +267,12 @@ std::map<size_t, double> RigTransmissibilityCondenser::calculateEffectiveMatrixT
             size_t globalMatrixCellIdx = externalCell.m_globalCellIdx;
 
             auto matrixToFractureIt = originalLumpedMatrixToFractureTrans.find( globalMatrixCellIdx );
-            CVF_ASSERT( matrixToFractureIt != originalLumpedMatrixToFractureTrans.end() );
+            CAF_ASSERT( matrixToFractureIt != originalLumpedMatrixToFractureTrans.end() );
             // Sum(T_mf)
             double lumpedOriginalMatrixToFractureT = matrixToFractureIt->second;
             // T'_fjw
             auto fictitiousFractureToWellIt = ficticuousFractureToWellTransMap.find( globalMatrixCellIdx );
-            CVF_ASSERT( fictitiousFractureToWellIt != ficticuousFractureToWellTransMap.end() );
+            CAF_ASSERT( fictitiousFractureToWellIt != ficticuousFractureToWellTransMap.end() );
             double fictitiousFractureToWellTrans = fictitiousFractureToWellIt->second;
 
             // T^dp_mw

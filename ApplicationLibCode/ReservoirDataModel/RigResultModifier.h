@@ -22,6 +22,8 @@
 #include "RigActiveCellInfo.h"
 #include "RigGridBase.h"
 
+#include "cafAssert.h"
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -46,7 +48,7 @@ public:
     void setCellScalar( size_t gridLocalCellIndex, double scalarValue ) override
     {
         size_t reservoirCellIndex = m_grid->reservoirCellIndex( gridLocalCellIndex );
-        CVF_TIGHT_ASSERT( reservoirCellIndex < m_reservoirResultValues->size() );
+        CAF_ASSERT( reservoirCellIndex < m_reservoirResultValues->size() );
 
         ( *m_reservoirResultValues )[reservoirCellIndex] = scalarValue;
     }
@@ -74,7 +76,7 @@ public:
         size_t reservoirCellIndex = m_grid->reservoirCellIndex( gridLocalCellIndex );
         size_t resultValueIndex   = m_activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCellIndex ) ).value();
 
-        CVF_TIGHT_ASSERT( m_reservoirResultValues != nullptr && resultValueIndex < m_reservoirResultValues->size() );
+        CAF_ASSERT( m_reservoirResultValues != nullptr && resultValueIndex < m_reservoirResultValues->size() );
 
         ( *m_reservoirResultValues )[resultValueIndex] = scalarValue;
     }

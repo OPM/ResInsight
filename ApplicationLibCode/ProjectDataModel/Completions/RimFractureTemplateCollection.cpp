@@ -240,7 +240,7 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
                     RiaLogging::warning( "Detected fracture with different unit than fracture template. Creating copy of template "
                                          "with matching unit." );
 
-                    CVF_ASSERT( templateWithMatchingUnit->fractureTemplateUnit() == fracture->fractureUnit() );
+                    CAF_ASSERT( templateWithMatchingUnit->fractureTemplateUnit() == fracture->fractureUnit() );
                     fracture->setFractureTemplateNoUpdate( templateWithMatchingUnit );
                 }
             }

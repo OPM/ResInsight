@@ -18,7 +18,7 @@
 
 #include "RigNncConnection.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -65,7 +65,7 @@ RigConnection::RigConnection( size_t c1GlobIdx, size_t c2GlobIdx, cvf::StructGri
     , m_c1Face( static_cast<unsigned char>( c1Face ) )
     , m_polygon( polygon )
 {
-    CVF_ASSERT( c1GlobIdx < std::numeric_limits<unsigned>::max() && c2GlobIdx < std::numeric_limits<unsigned>::max() );
+    CAF_ASSERT( c1GlobIdx < std::numeric_limits<unsigned>::max() && c2GlobIdx < std::numeric_limits<unsigned>::max() );
 
     if ( c1GlobIdx >= c2GlobIdx )
     {

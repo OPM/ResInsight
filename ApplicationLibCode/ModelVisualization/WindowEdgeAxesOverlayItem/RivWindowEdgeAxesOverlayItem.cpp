@@ -70,8 +70,8 @@ RivWindowEdgeAxesOverlayItem::RivWindowEdgeAxesOverlayItem( Font* font )
     , m_showAxisLines( false )
     , m_domainAxes( XZ_AXES )
 {
-    CVF_ASSERT( font );
-    CVF_ASSERT( !font->isEmpty() );
+    CAF_ASSERT( font );
+    CAF_ASSERT( !font->isEmpty() );
 
     setLayoutFixedPosition( { 0, 0 } );
     updateGeomerySizes();
@@ -529,7 +529,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
     // Shader program
 
     ref<ShaderProgram> shaderProgram = oglContext->resourceManager()->getLinkedUnlitColorShaderProgram( oglContext );
-    CVF_TIGHT_ASSERT( shaderProgram.notNull() );
+    CAF_ASSERT( shaderProgram.notNull() );
 
     if ( shaderProgram->useProgram( oglContext ) )
     {
@@ -631,7 +631,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
 
     cvfGL->glDisableVertexAttribArray( ShaderProgram::VERTEX );
 
-    CVF_TIGHT_ASSERT( shaderProgram.notNull() );
+    CAF_ASSERT( shaderProgram.notNull() );
     cvf::ShaderProgram::useNoProgram( oglContext );
 
     // Reset render states

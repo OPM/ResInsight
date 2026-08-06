@@ -27,6 +27,8 @@
 
 #include "RiaQDateTimeTools.h"
 
+#include "cafAssert.h"
+
 #include <QFileInfo>
 
 //==================================================================================================
@@ -144,7 +146,7 @@ QString Rim3dWellLogFileCurve::createAutoName() const
             {
                 /*   RimWellLogPlot* wellLogPlot;
                    firstAncestorOrThisOfType(wellLogPlot);
-                   CVF_ASSERT(wellLogPlot);
+                   CAF_ASSERT(wellLogPlot);
                    QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannelName,
                    wellLogPlot->depthUnit());
 

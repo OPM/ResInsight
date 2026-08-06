@@ -20,6 +20,8 @@
 
 #include "cvfStructGridGeometryGenerator.h"
 
+#include "cafAssert.h"
+
 CAF_PDM_SOURCE_INIT( RimUserDefinedFilter, "UserDefinedFilter" );
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +84,7 @@ void RimUserDefinedFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex )
 {
-    CVF_ASSERT( cellRangeFilter );
+    CAF_ASSERT( cellRangeFilter );
 
     if ( gridIndex != m_gridIndex ) return;
 

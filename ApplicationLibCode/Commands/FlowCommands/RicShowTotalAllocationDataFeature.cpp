@@ -23,8 +23,8 @@
 #include "RimTotalWellAllocationPlot.h"
 #include "RimWellAllocationPlot.h"
 
+#include "cafAssert.h"
 #include "cafSelectionManager.h"
-#include "cvfAssert.h"
 
 #include <QAction>
 
@@ -50,7 +50,7 @@ void RicShowTotalAllocationDataFeature::onActionTriggered( bool isChecked )
     disableModelChangeContribution();
 
     std::set<RimWellAllocationPlot*> wellAllocPlots = RicShowTotalAllocationDataFeature::selectedWellAllocationPlots();
-    CVF_ASSERT( wellAllocPlots.size() > 0 );
+    CAF_ASSERT( wellAllocPlots.size() > 0 );
 
     for ( auto wellAllocPlot : wellAllocPlots )
     {
@@ -83,7 +83,7 @@ std::set<RimWellAllocationPlot*> RicShowTotalAllocationDataFeature::selectedWell
 
     for ( auto obj : caf::SelectionManager::instance()->objectsByType<caf::PdmObject>() )
     {
-        CVF_ASSERT( obj );
+        CAF_ASSERT( obj );
 
         RimWellAllocationPlot* parentPlot = obj->firstAncestorOrThisOfType<RimWellAllocationPlot>();
         if ( parentPlot )

@@ -187,7 +187,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
 
     progress.setProgressDescription( "Reading Current Result" );
 
-    CVF_ASSERT( cellResult() != nullptr );
+    CAF_ASSERT( cellResult() != nullptr );
     m_geomechCase->geoMechData()->femPartResults()->setNormalizationAirGap( cellResult()->normalizationAirGap() );
     m_geomechCase->geoMechData()->femPartResults()->assertResultsLoaded( cellResult()->resultAddress() );
     progress.incrementProgress();
@@ -610,7 +610,7 @@ void RimGeoMechView::updateTensorLegendTextAndRanges( RimRegularLegendConfig* le
     double globalPosClosestToZero, globalNegClosestToZero;
 
     RigGeoMechCaseData* gmCase = m_geomechCase->geoMechData();
-    CVF_ASSERT( gmCase );
+    CAF_ASSERT( gmCase );
 
     RigFemResultPosEnum resPos       = RimTensorResults::resultPositionType();
     QString             resFieldName = tensorResults()->resultFieldName();
@@ -1000,7 +1000,7 @@ void RimGeoMechView::updateIconStateForFilterCollections()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
 {
-    CVF_ASSERT( xLabel && yLabel && zLabel );
+    CAF_ASSERT( xLabel && yLabel && zLabel );
 
     *xLabel = "E(x,1)";
     *yLabel = "N(y,2)";

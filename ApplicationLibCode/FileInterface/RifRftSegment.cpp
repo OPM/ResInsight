@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <unordered_set>
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 /// segnxt : Int ID for the next segment
@@ -199,7 +199,7 @@ const RifRftSegmentData* RifRftSegment::segmentData( int segmentNumber ) const
 //--------------------------------------------------------------------------------------------------
 const RifRftSegmentData* RifRftSegment::segmentDataByIndex( int segmentIndex ) const
 {
-    CVF_ASSERT( segmentIndex < static_cast<int>( m_topology.size() ) );
+    CAF_ASSERT( segmentIndex < static_cast<int>( m_topology.size() ) );
 
     return &( m_topology[segmentIndex] );
 }

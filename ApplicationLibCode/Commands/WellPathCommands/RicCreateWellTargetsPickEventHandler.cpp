@@ -132,7 +132,7 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
             cvf::Vec3d domainRayEnd = targetPointInDomain + rayVector;
 
             cvf::Vec3d hexElementIntersection = findHexElementIntersection( rimView, firstPickItem, domainRayOrigin, domainRayEnd );
-            CVF_TIGHT_ASSERT( !hexElementIntersection.isUndefined() );
+            CAF_ASSERT( !hexElementIntersection.isUndefined() );
             if ( !hexElementIntersection.isUndefined() )
             {
                 targetPointInDomain = hexElementIntersection;
@@ -273,7 +273,7 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( Rim
         const double eps             = 1.0e-2;
         cvf::Vec3d   intersectionRay = intersectionInfo.back().m_intersectionPoint - intersectionInfo.front().m_intersectionPoint;
         cvf::Vec3d   newPoint        = intersectionInfo.front().m_intersectionPoint + intersectionRay * eps;
-        CVF_ASSERT( RigHexIntersectionTools::isPointInCell( newPoint, cornerVertices ) );
+        CAF_ASSERT( RigHexIntersectionTools::isPointInCell( newPoint, cornerVertices ) );
         return newPoint;
     }
 

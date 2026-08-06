@@ -84,7 +84,7 @@ void RicNewFishbonesSubsFeature::onAcidJetting()
 void RicNewFishbonesSubsFeature::createFishbones( const RimFishbonesDefines::RicFishbonesSystemParameters& customParameters )
 {
     RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
-    CVF_ASSERT( fishbonesCollection );
+    CAF_ASSERT( fishbonesCollection );
 
     RimWellPath* wellPath = fishbonesCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
@@ -168,7 +168,7 @@ bool RicNewFishbonesSubsFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::adjustWellPathScaling( RimFishbonesCollection* fishboneCollection )
 {
-    CVF_ASSERT( fishboneCollection );
+    CAF_ASSERT( fishboneCollection );
     RimWellPathCollection* wellPathColl = RimWellPathCollection::instance();
 
     if ( wellPathColl->wellPathRadiusScaleFactor > 0.05 )

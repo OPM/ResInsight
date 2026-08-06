@@ -565,7 +565,7 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
 void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve, RimSummaryPlot* plot, bool forceVisible )
 {
     auto curveCopy = curve->copyObject<RimSummaryCurve>();
-    CVF_ASSERT( curveCopy );
+    CAF_ASSERT( curveCopy );
 
     if ( forceVisible )
     {

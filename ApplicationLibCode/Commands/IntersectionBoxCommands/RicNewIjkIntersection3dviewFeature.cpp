@@ -26,6 +26,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafAssert.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewIjkIntersection3dviewFeature, "RicNewIjkIntersection3dviewFeature" );

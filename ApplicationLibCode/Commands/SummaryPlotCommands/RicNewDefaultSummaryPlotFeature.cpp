@@ -43,8 +43,8 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include "cafAssert.h"
 #include "cafSelectionManagerTools.h"
-#include "cvfAssert.h"
 
 #include <QAction>
 

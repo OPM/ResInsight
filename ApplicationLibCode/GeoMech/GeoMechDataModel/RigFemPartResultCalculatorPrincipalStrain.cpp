@@ -69,7 +69,7 @@ bool RigFemPartResultCalculatorPrincipalStrain::isMatching( const RigFemResultAd
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStrain::calculate( int partIndex, const RigFemResultAddress& resAddr )
 {
-    CVF_ASSERT( resAddr.componentName == m_componentNames[0] || resAddr.componentName == m_componentNames[1] ||
+    CAF_ASSERT( resAddr.componentName == m_componentNames[0] || resAddr.componentName == m_componentNames[1] ||
                 resAddr.componentName == m_componentNames[2] );
 
     QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );

@@ -19,6 +19,8 @@
 
 #include "RigWellLogData.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +72,7 @@ QString RigWellLogData::convertedWellLogChannelUnitString( const QString& wellLo
             }
             else if ( displayDepthUnit == RiaDefines::DepthUnitType::UNIT_NONE )
             {
-                CVF_ASSERT( false );
+                CAF_ASSERT( false );
                 return "";
             }
         }

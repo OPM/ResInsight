@@ -55,6 +55,8 @@
 #include "cvfRenderState_FF.h"
 #include "cvfStructGridGeometryGenerator.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +64,7 @@ RivBoxIntersectionPartMgr::RivBoxIntersectionPartMgr( RimBoxIntersection* inters
     : m_rimIntersectionBox( intersectionBox )
     , m_defaultColor( cvf::Color3::WHITE )
 {
-    CVF_ASSERT( m_rimIntersectionBox );
+    CAF_ASSERT( m_rimIntersectionBox );
 
     m_intersectionBoxFacesTextureCoords = new cvf::Vec2fArray;
 

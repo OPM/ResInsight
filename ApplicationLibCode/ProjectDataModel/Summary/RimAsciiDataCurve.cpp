@@ -231,7 +231,7 @@ void RimAsciiDataCurve::setValues( const std::vector<double>& values )
 //--------------------------------------------------------------------------------------------------
 bool RimAsciiDataCurve::curveData( std::vector<QDateTime>* timeSteps, std::vector<double>* values ) const
 {
-    CVF_ASSERT( timeSteps && values );
+    CAF_ASSERT( timeSteps && values );
 
     *timeSteps = m_timeSteps();
     *values    = m_values();

@@ -44,6 +44,8 @@
 #include "qwt_text.h"
 #include "qwt_weeding_curve_fitter.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 #include <limits>
 
@@ -512,8 +514,8 @@ void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   
                                                    bool                         useLogarithmicScale,
                                                    RiaCurveDataTools::ErrorAxis errorAxis )
 {
-    CVF_ASSERT( xValues.size() == yValues.size() );
-    CVF_ASSERT( xValues.size() == errorValues.size() );
+    CAF_ASSERT( xValues.size() == yValues.size() );
+    CAF_ASSERT( xValues.size() == errorValues.size() );
 
     auto                intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, useLogarithmicScale );
     std::vector<double> filteredYValues;

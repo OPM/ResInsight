@@ -28,7 +28,7 @@
 #include "cafPdmObjectHandle.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -73,7 +73,7 @@ void RicPasteWellLogPlotFeature::onActionTriggered( bool isChecked )
         if ( fileCurve )
         {
             auto newObject = fileCurve->copyObject<RimWellLogPlot>();
-            CVF_ASSERT( newObject );
+            CAF_ASSERT( newObject );
 
             newObject->resetDockWindowId();
             wellLogPlotCollection->addWellLogPlot( newObject );

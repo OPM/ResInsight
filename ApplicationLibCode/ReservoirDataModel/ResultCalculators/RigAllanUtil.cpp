@@ -28,13 +28,15 @@
 #include "RigNNCData.h"
 #include "RigNncConnection.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RigAllanUtil::computeAllanResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid, bool includeInactiveCells )
 {
-    CVF_ASSERT( mainGrid );
-    CVF_ASSERT( cellResultsData );
+    CAF_ASSERT( mainGrid );
+    CAF_ASSERT( cellResultsData );
 
     if ( cellResultsData && cellResultsData->activeFormationNames() && !cellResultsData->activeFormationNames()->formationNames().empty() )
     {

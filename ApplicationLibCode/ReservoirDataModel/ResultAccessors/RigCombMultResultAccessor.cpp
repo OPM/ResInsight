@@ -23,6 +23,8 @@
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
+
+#include "cafAssert.h"
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +58,7 @@ void RigCombMultResultAccessor::setMultResultAccessors( RigResultAccessor* multX
 //--------------------------------------------------------------------------------------------------
 double RigCombMultResultAccessor::cellScalar( size_t gridLocalCellIndex ) const
 {
-    CVF_TIGHT_ASSERT( false );
+    CAF_ASSERT( false );
 
     return HUGE_VAL;
 }
@@ -162,7 +164,7 @@ double RigCombMultResultAccessor::nativeMultScalar( size_t gridLocalCellIndex, c
 //--------------------------------------------------------------------------------------------------
 double RigCombMultResultAccessor::cellScalarGlobIdx( size_t globCellIndex ) const
 {
-    CVF_TIGHT_ASSERT( false );
+    CAF_ASSERT( false );
 
     return HUGE_VAL;
 }

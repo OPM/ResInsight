@@ -24,6 +24,8 @@
 
 #include "cvfTrace.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +68,7 @@ std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::cellIntersectionI
 
     for ( size_t i = 0; i < m_intersectedCellsGlobIdx.size() - 1; i = i + 2 )
     {
-        CVF_ASSERT( m_intersectedCellsGlobIdx[i] == m_intersectedCellsGlobIdx[i + 1] );
+        CAF_ASSERT( m_intersectedCellsGlobIdx[i] == m_intersectedCellsGlobIdx[i + 1] );
 
         WellPathCellIntersectionInfo cellInfo;
 
@@ -269,7 +271,7 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
                     if ( it1->first.hexIndex == it2->first.hexIndex )
                     {
                         // Remove the two from the map, as they just are a touch of the cell surface
-                        CVF_TIGHT_ASSERT( !it1->first.isEnteringCell && it2->first.isEnteringCell );
+                        CAF_ASSERT( !it1->first.isEnteringCell && it2->first.isEnteringCell );
 
                         iteratorsToIntersectonsToErase.push_back( it1 );
                         iteratorsToIntersectonsToErase.push_back( it2 );

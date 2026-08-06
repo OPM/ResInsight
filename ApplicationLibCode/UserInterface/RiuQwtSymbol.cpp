@@ -23,7 +23,6 @@
 #include "RiaFontCache.h"
 
 #include "RiuPlotCurveSymbol.h"
-#include "cvfAssert.h"
 #include "qwt_symbol.h"
 
 #include <QPainter>

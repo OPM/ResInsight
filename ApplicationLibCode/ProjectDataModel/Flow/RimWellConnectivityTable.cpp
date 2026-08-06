@@ -694,7 +694,7 @@ QList<caf::PdmOptionItemInfo> RimWellConnectivityTable::calculateValueOptions( c
         options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
         for ( RimEclipseView* view : m_case()->reservoirViews() )
         {
-            CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
+            CAF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
             options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );
         }
     }

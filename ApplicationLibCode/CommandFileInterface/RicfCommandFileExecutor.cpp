@@ -27,6 +27,8 @@
 #include "RicfReplaceCase.h"
 #include "RifcCommandFileReader.h"
 
+#include "cafAssert.h"
+
 namespace caf
 {
 template <>

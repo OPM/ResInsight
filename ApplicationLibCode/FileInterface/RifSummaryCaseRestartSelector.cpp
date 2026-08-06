@@ -419,7 +419,7 @@ RifSummaryCaseFileResultInfo::RifSummaryCaseFileResultInfo( const QString& summa
     , m_includeRestartFiles( includeRestartFiles )
     , m_fileType( fileType )
 {
-    CVF_ASSERT( !m_summaryFileName.isEmpty() );
+    CAF_ASSERT( !m_summaryFileName.isEmpty() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -249,7 +249,7 @@ RimFaultInView* RimFaultInViewCollection::findFaultByName( QString name )
 //--------------------------------------------------------------------------------------------------
 bool faultComparator( const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b )
 {
-    CVF_TIGHT_ASSERT( a.notNull() && b.notNull() );
+    CAF_ASSERT( a.notNull() && b.notNull() );
 
     int compareValue = a->name().compare( b->name(), Qt::CaseInsensitive );
 

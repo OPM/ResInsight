@@ -21,6 +21,8 @@
 
 #include "RigMainGrid.h"
 
+#include "cafAssert.h"
+
 cvf::ref<RigFaultsPrCellAccumulator> RigFault::m_faultsPrCellAcc;
 
 //--------------------------------------------------------------------------------------------------
@@ -36,7 +38,7 @@ RigFault::RigFault()
 void RigFault::addCellRangeForFace( cvf::StructGridInterface::FaceType face, const cvf::CellRange& cellRange )
 {
     size_t faceIndex = static_cast<size_t>( face );
-    CVF_ASSERT( faceIndex < 6 );
+    CAF_ASSERT( faceIndex < 6 );
 
     m_cellRangesForFaces[faceIndex].push_back( cellRange );
 }

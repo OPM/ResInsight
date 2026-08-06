@@ -172,7 +172,7 @@ RimGeoMechCase::~RimGeoMechCase()
     if ( geoMechData() )
     {
         // At this point, we assume that memory should be released
-        CVF_ASSERT( geoMechData()->refCount() == 1 );
+        CAF_ASSERT( geoMechData()->refCount() == 1 );
     }
 }
 
@@ -215,7 +215,7 @@ void RimGeoMechCase::reloadDataAndUpdate()
 
         for ( RimGeoMechContourMapView* contourMap : m_contourMapCollection->views() )
         {
-            CVF_ASSERT( contourMap );
+            CAF_ASSERT( contourMap );
             contourMap->loadDataAndUpdate();
             contourMap->updateGridBoxData();
             contourMap->updateAnnotationItems();
@@ -242,7 +242,7 @@ RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 RimGeoMechView* RimGeoMechCase::createCopyAndAddView( const RimGeoMechView* sourceView )
 {
     auto rimGeoMechView = sourceView->copyObject<RimGeoMechView>();
-    CVF_ASSERT( rimGeoMechView );
+    CAF_ASSERT( rimGeoMechView );
 
     rimGeoMechView->resetDockWindowId();
     rimGeoMechView->setGeoMechCase( this );
@@ -261,7 +261,7 @@ RimGeoMechCase* RimGeoMechCase::createCopy( const QString& newInputFileName )
     RimProject* project = RimProject::current();
 
     auto copycase = copyObject<RimGeoMechCase>();
-    CVF_ASSERT( copycase );
+    CAF_ASSERT( copycase );
 
     QFileInfo filenameInfo( newInputFileName );
     QString   newCaseName = filenameInfo.completeBaseName();
@@ -432,7 +432,7 @@ void RimGeoMechCase::initAfterRead()
 
     for ( RimGeoMechView* riv : geoMechViews() )
     {
-        CVF_ASSERT( riv );
+        CAF_ASSERT( riv );
         riv->setGeoMechCase( this );
     }
 
@@ -501,7 +501,7 @@ cvf::BoundingBox RimGeoMechCase::reservoirBoundingBox()
             for ( int i = 0; i < femPart->elementCount(); ++i )
             {
                 size_t resValueIdx = femPart->elementNodeResultIdx( (int)i, 0 );
-                CVF_ASSERT( resValueIdx < resultValues.size() );
+                CAF_ASSERT( resValueIdx < resultValues.size() );
                 double scalarValue   = resultValues[resValueIdx];
                 bool   validPorValue = scalarValue != std::numeric_limits<double>::infinity();
 

@@ -58,7 +58,7 @@ void RicFlyToObjectFeature::onActionTriggered( bool isChecked )
     if ( !destinationViewer ) return;
 
     cvf::BoundingBox bb = RicFlyToObjectFeature::boundingBoxForSelectedObjects();
-    CVF_ASSERT( bb.isValid() );
+    CAF_ASSERT( bb.isValid() );
 
     cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
 

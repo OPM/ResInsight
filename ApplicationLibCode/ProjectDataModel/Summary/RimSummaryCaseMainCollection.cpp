@@ -324,7 +324,7 @@ void RimSummaryCaseMainCollection::removeEnsemble( RimSummaryEnsemble* ensemble 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::addEnsemble( RimSummaryEnsemble* ensemble )
 {
-    CVF_ASSERT( ensemble );
+    CAF_ASSERT( ensemble );
 
     m_ensembles.push_back( ensemble );
 

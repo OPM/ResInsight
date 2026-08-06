@@ -89,7 +89,7 @@ void RimMultipleValveLocations::perforationIntervalUpdated()
 //--------------------------------------------------------------------------------------------------
 double RimMultipleValveLocations::measuredDepth( size_t valveIndex ) const
 {
-    CVF_ASSERT( valveIndex < m_locationOfValves().size() );
+    CAF_ASSERT( valveIndex < m_locationOfValves().size() );
 
     return m_locationOfValves()[valveIndex];
 }

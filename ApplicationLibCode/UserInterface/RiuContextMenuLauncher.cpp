@@ -20,7 +20,7 @@
 
 #include "RimContextCommandBuilder.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QContextMenuEvent>
 #include <QEvent>
@@ -65,7 +65,7 @@ bool RiuContextMenuLauncher::eventFilter( QObject* watchedObject, QEvent* event 
         if ( !menu.actions().empty() )
         {
             QContextMenuEvent* cme = static_cast<QContextMenuEvent*>( event );
-            CVF_ASSERT( cme );
+            CAF_ASSERT( cme );
 
             menu.exec( cme->globalPos() );
         }

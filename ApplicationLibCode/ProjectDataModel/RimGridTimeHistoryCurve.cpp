@@ -170,7 +170,7 @@ std::vector<double> RimGridTimeHistoryCurve::yValues() const
         size_t cellIndex = eclTopItem->cellIndex();
         size_t gridIndex = eclTopItem->gridIndex();
 
-        CVF_ASSERT( m_eclipseResultDefinition() );
+        CAF_ASSERT( m_eclipseResultDefinition() );
         m_eclipseResultDefinition->loadResult();
 
         RigCaseCellResultsData* cellResultsData = m_eclipseResultDefinition->currentGridCellResults();
@@ -223,14 +223,14 @@ QString RimGridTimeHistoryCurve::quantityName() const
     RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
     if ( eclTopItem )
     {
-        CVF_ASSERT( m_eclipseResultDefinition() );
+        CAF_ASSERT( m_eclipseResultDefinition() );
 
         return m_eclipseResultDefinition->resultVariableUiName();
     }
 
     if ( geoMechGeomSelectionItem() )
     {
-        CVF_ASSERT( m_geoMechResultDefinition() );
+        CAF_ASSERT( m_geoMechResultDefinition() );
 
         RimGeoMechGeometrySelectionItem*                 geoMechTopItem         = geoMechGeomSelectionItem();
         std::unique_ptr<RiuFemTimeHistoryResultAccessor> timeHistResultAccessor = femTimeHistoryResultAccessor();

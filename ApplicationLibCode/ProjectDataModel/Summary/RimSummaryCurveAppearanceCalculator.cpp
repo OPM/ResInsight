@@ -33,6 +33,8 @@
 
 #include "cvfVector3.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 namespace caf
@@ -642,7 +644,7 @@ float RimSummaryCurveAppearanceCalculator::gradient( size_t totalCount, int inde
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimSummaryCurveAppearanceCalculator::gradeColor( const cvf::Color3f& color, float factor )
 {
-    CVF_ASSERT( -1.0 <= factor && factor <= 1.0 );
+    CAF_ASSERT( -1.0 <= factor && factor <= 1.0 );
 
     cvf::Vec3f orgC( color.r(), color.g(), color.b() );
     cvf::Vec3f targetC;

@@ -35,6 +35,8 @@
 
 #include "cvfStructGridGeometryGenerator.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -46,7 +48,7 @@ RivTextureCoordsCreator::RivTextureCoordsCreator( RimEclipseCellColors*         
     RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
 
     m_quadMapper = quadMapper;
-    CVF_ASSERT( quadMapper && eclipseCase );
+    CAF_ASSERT( quadMapper && eclipseCase );
 
     m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition( eclipseCase, gridIndex, timeStepIndex, cellResultColors );
 
@@ -55,7 +57,7 @@ RivTextureCoordsCreator::RivTextureCoordsCreator( RimEclipseCellColors*         
     const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
     m_texMapper = new RivDefaultResultToTextureMapper( mapper, pipeInCellEval.p() );
-    CVF_ASSERT( m_texMapper.notNull() );
+    CAF_ASSERT( m_texMapper.notNull() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,7 +101,7 @@ void RivTextureCoordsCreator::createTextureCoords( cvf::Vec2fArray*             
                                                    const RigResultAccessor*                   resultAccessor,
                                                    const RivResultToTextureMapper*            texMapper )
 {
-    CVF_ASSERT( quadTextureCoords && quadMapper && resultAccessor && texMapper );
+    CAF_ASSERT( quadTextureCoords && quadMapper && resultAccessor && texMapper );
 
     size_t numVertices = quadMapper->quadCount() * 4;
     quadTextureCoords->resize( numVertices );

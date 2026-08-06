@@ -32,6 +32,8 @@
 
 #include "cvfGeometryTools.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 
 //--------------------------------------------------------------------------------------------------

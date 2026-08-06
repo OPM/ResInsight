@@ -25,7 +25,6 @@
 #include "RimWellLogLasFile.h"
 
 #include "cafAppEnum.h"
-#include "cvfAssert.h"
 
 #include <QString>
 #include <QTextStream>

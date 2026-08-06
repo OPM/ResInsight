@@ -20,6 +20,8 @@
 
 #include "cvfMath.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -143,7 +145,7 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
                                                    double*                    mean,
                                                    PercentileStyle            percentileStyle )
 {
-    CVF_ASSERT( p10 && p50 && p90 && mean );
+    CAF_ASSERT( p10 && p50 && p90 && mean );
 
     if ( values.empty() ) return;
 

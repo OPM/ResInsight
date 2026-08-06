@@ -56,7 +56,7 @@ bool RigFemPartResultCalculatorFOS::isMatching( const RigFemResultAddress& resVa
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorFOS::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "FOS" );
+    CAF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "FOS" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
     stepCountProgress.setProgressDescription( "Calculating " +

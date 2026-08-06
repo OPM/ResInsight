@@ -26,7 +26,7 @@
 #include "cafSelectionManager.h"
 #include "cafSelectionManagerTools.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -65,7 +65,7 @@ void RicPasteAsciiDataCurveFeature::onActionTriggered( bool isChecked )
     for ( size_t i = 0; i < sourceObjects.size(); i++ )
     {
         auto newObject = sourceObjects[i]->copyObject<RimAsciiDataCurve>();
-        CVF_ASSERT( newObject );
+        CAF_ASSERT( newObject );
 
         summaryPlot->addAsciiDataCruve( newObject );
 

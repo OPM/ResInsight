@@ -25,14 +25,14 @@
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmXmlFieldHandle.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaFieldHandleTools::disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fieldHandle )
 {
-    CVF_ASSERT( fieldHandle );
+    CAF_ASSERT( fieldHandle );
 
     if ( fieldHandle->uiCapability() )
     {

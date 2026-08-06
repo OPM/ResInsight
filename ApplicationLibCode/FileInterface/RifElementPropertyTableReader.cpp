@@ -23,6 +23,8 @@
 #include "RiaQStringFormatter.h"
 #include "RiuMainWindow.h"
 
+#include "cafAssert.h"
+
 #include <QFile>
 #include <QStringList>
 #include <QTextStream>
@@ -99,7 +101,7 @@ RifElementPropertyMetadata RifElementPropertyTableReader::readMetadata( const QS
 //--------------------------------------------------------------------------------------------------
 void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* metadata, RifElementPropertyTable* table )
 {
-    CVF_ASSERT( metadata && table );
+    CAF_ASSERT( metadata && table );
 
     int    expectedColumnCount = (int)metadata->dataColumns.size() + 1;
     QFile* file                = nullptr;

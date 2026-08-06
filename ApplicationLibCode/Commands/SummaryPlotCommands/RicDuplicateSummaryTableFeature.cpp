@@ -28,7 +28,7 @@
 
 #include "cafSelectionManagerTools.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -64,7 +64,7 @@ void RicDuplicateSummaryTableFeature::copyTableAndAddToCollection( RimSummaryTab
     if ( !summaryTableColl ) return;
 
     auto newSummaryTable = sourceTable->copyObject<RimSummaryTable>();
-    CVF_ASSERT( newSummaryTable );
+    CAF_ASSERT( newSummaryTable );
 
     // Add table to collection
     summaryTableColl->addTable( newSummaryTable );

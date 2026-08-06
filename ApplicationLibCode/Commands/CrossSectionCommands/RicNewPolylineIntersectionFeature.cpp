@@ -33,7 +33,7 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -96,7 +96,7 @@ QString RicNewPolylineIntersectionFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 void RicNewPolylineIntersectionFeatureCmd::redo()
 {
-    CVF_ASSERT( m_intersectionCollection );
+    CAF_ASSERT( m_intersectionCollection );
 
     RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( "Polyline" );

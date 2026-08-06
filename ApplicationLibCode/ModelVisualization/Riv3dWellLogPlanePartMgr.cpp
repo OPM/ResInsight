@@ -52,7 +52,7 @@ Riv3dWellLogPlanePartMgr::Riv3dWellLogPlanePartMgr( RimWellPath* wellPath, RimGr
     : m_wellPath( wellPath )
     , m_gridView( gridView )
 {
-    CVF_ASSERT( m_wellPath.notNull() );
+    CAF_ASSERT( m_wellPath.notNull() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurveToModel( cvf::ModelBasicList*
                                                             Rim3dWellLogCurve*                rim3dWellLogCurve,
                                                             const std::vector<cvf::Vec3d>&    drawSurfaceVertices )
 {
-    CVF_ASSERT( rim3dWellLogCurve );
+    CAF_ASSERT( rim3dWellLogCurve );
 
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> generator = rim3dWellLogCurve->geometryGenerator();
     if ( generator.isNull() )

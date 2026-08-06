@@ -35,6 +35,8 @@
 #include "Well/RigEclipseWellLogExtractor.h"
 #include "Well/RigWellPath.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 #include <limits>
 

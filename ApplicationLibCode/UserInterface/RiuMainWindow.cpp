@@ -484,7 +484,7 @@ void RiuMainWindow::createActions()
 void RiuMainWindow::createMenus()
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    CVF_ASSERT( cmdFeatureMgr );
+    CAF_ASSERT( cmdFeatureMgr );
 
     // File menu
     QMenu* fileMenu = RiuMenuBarBuildTools::createDefaultFileMenu( menuBar() );
@@ -593,7 +593,7 @@ void RiuMainWindow::createMenus()
 void RiuMainWindow::createToolBars()
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    CVF_ASSERT( cmdFeatureMgr );
+    CAF_ASSERT( cmdFeatureMgr );
 
     {
         QToolBar* toolbar = addToolBar( tr( "Standard" ) );
@@ -999,7 +999,7 @@ void RiuMainWindow::refreshViewActions()
 void RiuMainWindow::slotRefreshFileActions()
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    CVF_ASSERT( cmdFeatureMgr );
+    CAF_ASSERT( cmdFeatureMgr );
 
     QStringList commandIdList;
     commandIdList << "RicExportSectorModelFeature";

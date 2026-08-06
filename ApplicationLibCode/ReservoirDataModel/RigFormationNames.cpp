@@ -18,6 +18,8 @@
 
 #include "RigFormationNames.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
@@ -147,7 +149,7 @@ cvf::Color3f RigFormationNames::undefinedColor()
 //--------------------------------------------------------------------------------------------------
 void RigFormationNames::appendFormationRangeWithColor( const QString& name, cvf::Color3f color, int kStartIdx, int kEndIdx )
 {
-    CVF_ASSERT( kStartIdx <= kEndIdx );
+    CAF_ASSERT( kStartIdx <= kEndIdx );
 
     int nameIdx = static_cast<int>( m_formationNames.size() );
 

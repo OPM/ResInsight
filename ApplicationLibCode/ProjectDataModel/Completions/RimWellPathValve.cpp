@@ -329,7 +329,7 @@ double RimWellPathValve::convertOrificeDiameter( double                        o
             return RiaEclipseUnitTools::inchToFeet( orificeDiameterWellPathUnits );
         }
     }
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return 0.0;
 }
 

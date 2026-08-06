@@ -23,6 +23,8 @@
 #include "RimFractureTemplate.h"
 #include "RimProject.h"
 
+#include "cafAssert.h"
+
 CAF_PDM_SOURCE_INIT( RimFractureContainment, "FractureContainment" );
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +93,7 @@ bool RimFractureContainment::isEclipseCellOpenForFlow( const RigMainGrid*      m
 
     if ( m_useContainment() )
     {
-        CVF_ASSERT( mainGrid );
+        CAF_ASSERT( mainGrid );
 
         if ( globalCellIndex >= mainGrid->totalCellCount() ) return false;
 

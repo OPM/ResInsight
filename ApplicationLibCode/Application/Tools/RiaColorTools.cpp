@@ -20,7 +20,7 @@
 #include "RiaColorTools.h"
 #include "RiuGuiTheme.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <algorithm>
 #include <cmath>
@@ -181,7 +181,7 @@ cvf::Color3f RiaColorTools::textColor3f()
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTools::blendCvfColors( const cvf::Color3f& color1, const cvf::Color3f& color2, int weight1 /*= 1*/, int weight2 /*= 1*/ )
 {
-    CVF_ASSERT( weight1 > 0 && weight2 > 0 );
+    CAF_ASSERT( weight1 > 0 && weight2 > 0 );
     int weightsum = weight1 + weight2;
     return cvf::Color3f( ( color1.r() * weight1 + color2.r() * weight2 ) / weightsum,
                          ( color1.g() * weight1 + color2.g() * weight2 ) / weightsum,
@@ -193,7 +193,7 @@ cvf::Color3f RiaColorTools::blendCvfColors( const cvf::Color3f& color1, const cv
 //--------------------------------------------------------------------------------------------------
 QColor RiaColorTools::blendQColors( const QColor& color1, const QColor& color2, int weight1 /*= 1*/, int weight2 /*= 1*/ )
 {
-    CVF_ASSERT( weight1 > 0 && weight2 > 0 );
+    CAF_ASSERT( weight1 > 0 && weight2 > 0 );
     int weightsum = weight1 + weight2;
     return QColor( ( color1.red() * weight1 + color2.red() * weight2 ) / weightsum,
                    ( color1.green() * weight1 + color2.green() * weight2 ) / weightsum,

@@ -37,6 +37,8 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimFlowDiagSolution.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -126,17 +128,17 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
                                                                                     size_t                         timeStepIndex,
                                                                                     const RigEclipseResultAddress& resVarAddr )
 {
-    CVF_ASSERT( gridIndex < eclipseCase->gridCount() );
-    CVF_ASSERT( eclipseCase );
-    CVF_ASSERT( eclipseCase->results( porosityModel ) );
-    CVF_ASSERT( eclipseCase->activeCellInfo( porosityModel ) );
+    CAF_ASSERT( gridIndex < eclipseCase->gridCount() );
+    CAF_ASSERT( eclipseCase );
+    CAF_ASSERT( eclipseCase->results( porosityModel ) );
+    CAF_ASSERT( eclipseCase->activeCellInfo( porosityModel ) );
 
     RigEclipseResultAddress nativeAddr( resVarAddr );
     const RigGridBase*      grid = eclipseCase->grid( gridIndex );
 
     if ( resVarAddr.resultName() == RiaResultNames::combinedTransmissibilityResultName() )
     {
-        CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
+        CAF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
         nativeAddr.setResultName( "TRANX" );
@@ -155,7 +157,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
     }
     else if ( resVarAddr.resultName() == RiaResultNames::combinedMultResultName() )
     {
-        CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
+        CAF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
 
         cvf::ref<RigCombMultResultAccessor> cellFaceAccessObject = new RigCombMultResultAccessor( grid );
 
@@ -184,7 +186,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
     }
     else if ( resVarAddr.resultName() == RiaResultNames::combinedRiTranResultName() )
     {
-        CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
+        CAF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
 
@@ -204,7 +206,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
     }
     else if ( resVarAddr.resultName() == RiaResultNames::combinedRiMultResultName() )
     {
-        CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
+        CAF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
         nativeAddr.setResultName( RiaResultNames::riMultXResultName() );
@@ -224,7 +226,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
 
     else if ( resVarAddr.resultName() == RiaResultNames::combinedRiAreaNormTranResultName() )
     {
-        CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
+        CAF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
 

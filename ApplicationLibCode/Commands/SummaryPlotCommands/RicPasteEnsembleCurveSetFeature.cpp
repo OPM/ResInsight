@@ -31,7 +31,7 @@
 #include "cafPdmObjectGroup.h"
 #include "cafSelectionManagerTools.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -43,10 +43,10 @@ CAF_CMD_SOURCE_INIT( RicPasteEnsembleCurveSetFeature, "RicPasteEnsembleCurveSetF
 RimEnsembleCurveSet* RicPasteEnsembleCurveSetFeature::copyCurveSetAndAddToCollection( RimEnsembleCurveSetCollection* curveSetCollection,
                                                                                       const RimEnsembleCurveSet*     sourceCurveSet )
 {
-    CVF_ASSERT( curveSetCollection );
+    CAF_ASSERT( curveSetCollection );
 
     auto newCurveSet = sourceCurveSet->copyObject<RimEnsembleCurveSet>();
-    CVF_ASSERT( newCurveSet );
+    CAF_ASSERT( newCurveSet );
 
     curveSetCollection->addCurveSet( newCurveSet );
 

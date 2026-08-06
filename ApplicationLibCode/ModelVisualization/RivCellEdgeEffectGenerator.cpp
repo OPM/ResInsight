@@ -33,6 +33,8 @@
 #include "cvfUniform.h"
 #include "cvfqtUtils.h"
 
+#include "cafAssert.h"
+
 #include <QFile>
 #include <QTextStream>
 
@@ -43,7 +45,7 @@
 //--------------------------------------------------------------------------------------------------
 CellEdgeEffectGenerator::CellEdgeEffectGenerator( const cvf::ScalarMapper* edgeScalarMapper )
 {
-    CVF_ASSERT( edgeScalarMapper != nullptr );
+    CAF_ASSERT( edgeScalarMapper != nullptr );
 
     m_edgeScalarMapper = edgeScalarMapper;
 

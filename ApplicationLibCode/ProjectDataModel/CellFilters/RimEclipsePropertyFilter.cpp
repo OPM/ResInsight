@@ -51,7 +51,7 @@
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
@@ -747,7 +747,7 @@ void RimEclipsePropertyFilter::applyToCellVisibility( cvf::UByteArray* cellVisib
     cvf::ref<RigResultAccessor> resultAccessor =
         RigResultAccessorFactory::createFromResultDefinition( eclipseCase, grid->gridIndex(), timeStepIndex, resultDefinition() );
 
-    CVF_ASSERT( resultAccessor.notNull() );
+    CAF_ASSERT( resultAccessor.notNull() );
 
     const RimCellFilter::FilterModeType filterType = filterMode();
 

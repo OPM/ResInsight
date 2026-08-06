@@ -30,6 +30,8 @@
 #include "cvfBoundingBoxTree.h"
 #include "cvfGeometryTools.h"
 
+#include "cafAssert.h"
+
 #include <array>
 #include <cmath>
 
@@ -539,7 +541,7 @@ TEST( EarClipTesselator, ErrorTest )
     std::vector<size_t> triangleIndices;
     bool                isTesselationOk = tess.calculateTriangles( &triangleIndices );
 
-    // CVF_ASSERT( isTesselationOk );
+    // CAF_ASSERT( isTesselationOk );
     if ( !isTesselationOk )
     {
         // continue;

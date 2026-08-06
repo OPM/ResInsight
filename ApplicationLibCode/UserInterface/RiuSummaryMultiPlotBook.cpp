@@ -23,6 +23,8 @@
 
 #include "RiuPlotWidget.h"
 
+#include "cafAssert.h"
+
 #include <QDebug>
 #include <QList>
 

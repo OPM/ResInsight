@@ -18,6 +18,8 @@
 
 #include "RigContourMapGrid.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 #include <cmath>
 
@@ -149,8 +151,8 @@ cvf::Vec2ui RigContourMapGrid::ijFromVertexIndex( size_t gridIndex ) const
 //--------------------------------------------------------------------------------------------------
 size_t RigContourMapGrid::cellIndexFromIJ( uint i, uint j ) const
 {
-    CVF_ASSERT( i < m_mapSize.x() );
-    CVF_ASSERT( j < m_mapSize.y() );
+    CAF_ASSERT( i < m_mapSize.x() );
+    CAF_ASSERT( j < m_mapSize.y() );
 
     return i + j * m_mapSize.x();
 }
@@ -160,7 +162,7 @@ size_t RigContourMapGrid::cellIndexFromIJ( uint i, uint j ) const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui RigContourMapGrid::ijFromCellIndex( size_t cellIndex ) const
 {
-    CVF_TIGHT_ASSERT( cellIndex < numberOfCells() );
+    CAF_ASSERT( cellIndex < numberOfCells() );
 
     uint quotientX  = static_cast<uint>( cellIndex ) / m_mapSize.x();
     uint remainderX = static_cast<uint>( cellIndex ) % m_mapSize.x();

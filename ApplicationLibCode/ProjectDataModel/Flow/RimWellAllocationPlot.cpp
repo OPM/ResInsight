@@ -59,6 +59,8 @@
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellAllocationPlot.h"
 
+#include "cafAssert.h"
+
 CAF_PDM_SOURCE_INIT( RimWellAllocationPlot, "WellAllocationPlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -284,7 +286,7 @@ void RimWellAllocationPlot::updateFromWell()
         }
     }
 
-    CVF_ASSERT( accumulatedWellFlowPlot()->plotCount() == 0 );
+    CAF_ASSERT( accumulatedWellFlowPlot()->plotCount() == 0 );
 
     QString description;
     if ( m_flowType() == ACCUMULATED ) description = "Accumulated Flow";

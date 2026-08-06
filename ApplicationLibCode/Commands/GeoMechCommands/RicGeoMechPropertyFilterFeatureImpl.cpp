@@ -31,7 +31,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -55,7 +55,7 @@ std::vector<RimGeoMechPropertyFilterCollection*> RicGeoMechPropertyFilterFeature
 void RicGeoMechPropertyFilterFeatureImpl::addPropertyFilter( RimGeoMechPropertyFilterCollection* propertyFilterCollection )
 {
     RimGeoMechPropertyFilter* propertyFilter = createPropertyFilter( propertyFilterCollection );
-    CVF_ASSERT( propertyFilter );
+    CAF_ASSERT( propertyFilter );
 
     propertyFilterCollection->propertyFilters.push_back( propertyFilter );
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen( PROPERTY_FILTERED );
@@ -72,7 +72,7 @@ void RicGeoMechPropertyFilterFeatureImpl::addPropertyFilter( RimGeoMechPropertyF
 void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter( RimGeoMechPropertyFilterCollection* propertyFilterCollection, size_t index )
 {
     RimGeoMechPropertyFilter* propertyFilter = createPropertyFilter( propertyFilterCollection );
-    CVF_ASSERT( propertyFilter );
+    CAF_ASSERT( propertyFilter );
 
     propertyFilterCollection->propertyFilters.insertAt( static_cast<int>( index ), propertyFilter );
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen( PROPERTY_FILTERED );
@@ -97,7 +97,7 @@ bool RicGeoMechPropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( caf:
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilter* RicGeoMechPropertyFilterFeatureImpl::createPropertyFilter( RimGeoMechPropertyFilterCollection* propertyFilterCollection )
 {
-    CVF_ASSERT( propertyFilterCollection );
+    CAF_ASSERT( propertyFilterCollection );
 
     RimGeoMechPropertyFilter* propertyFilter = new RimGeoMechPropertyFilter();
     propertyFilter->setParentContainer( propertyFilterCollection );
@@ -112,13 +112,13 @@ RimGeoMechPropertyFilter* RicGeoMechPropertyFilterFeatureImpl::createPropertyFil
 //--------------------------------------------------------------------------------------------------
 void RicGeoMechPropertyFilterFeatureImpl::setDefaults( RimGeoMechPropertyFilter* propertyFilter )
 {
-    CVF_ASSERT( propertyFilter );
+    CAF_ASSERT( propertyFilter );
 
     RimGeoMechPropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
-    CVF_ASSERT( propertyFilterCollection );
+    CAF_ASSERT( propertyFilterCollection );
 
     RimGeoMechView* reservoirView = propertyFilterCollection->reservoirView();
-    CVF_ASSERT( reservoirView );
+    CAF_ASSERT( reservoirView );
 
     propertyFilter->resultDefinition()->setGeoMechCase( reservoirView->geoMechCase() );
     propertyFilter->resultDefinition()->setResultAddress( reservoirView->cellResultResultDefinition()->resultAddress() );

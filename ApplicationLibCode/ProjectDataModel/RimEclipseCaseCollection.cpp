@@ -81,7 +81,7 @@ void RimEclipseCaseCollection::close()
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFromMainCase( RimEclipseCase* mainCase )
 {
-    CVF_ASSERT( mainCase );
+    CAF_ASSERT( mainCase );
 
     registerCaseInGridCollection( mainCase );
 
@@ -135,7 +135,7 @@ void RimEclipseCaseCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menu
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RimEclipseCase* rimEclipseCase )
 {
-    CVF_ASSERT( rimEclipseCase && rimEclipseCase->eclipseCaseData() );
+    CAF_ASSERT( rimEclipseCase && rimEclipseCase->eclipseCaseData() );
     RigEclipseCaseData* rigEclipseCase = rimEclipseCase->eclipseCaseData();
 
     RigMainGrid* equalGrid = m_gridCollection->findEqualGrid( rigEclipseCase->mainGrid() );
@@ -165,7 +165,7 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RimEclipseC
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCaseCollection::insertCaseInCaseGroup( RimIdenticalGridCaseGroup* caseGroup, RimEclipseCase* rimReservoir )
 {
-    CVF_ASSERT( rimReservoir );
+    CAF_ASSERT( rimReservoir );
 
     registerCaseInGridCollection( rimReservoir );
 

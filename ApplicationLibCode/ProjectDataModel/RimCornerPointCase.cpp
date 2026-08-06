@@ -126,19 +126,19 @@ std::expected<void, QString> RimCornerPointCase::replaceGridFromCoordinatesArray
                                                                                   const std::vector<float>& actnum )
 {
     RigActiveCellInfo* activeCellInfo = cornerPointCase.eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    CVF_ASSERT( activeCellInfo );
+    CAF_ASSERT( activeCellInfo );
     activeCellInfo->clear();
 
     RigActiveCellInfo* fractureActiveCellInfo =
         cornerPointCase.eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-    CVF_ASSERT( fractureActiveCellInfo );
+    CAF_ASSERT( fractureActiveCellInfo );
     fractureActiveCellInfo->clear();
 
     RimReloadCaseTools::clearAllGridData( cornerPointCase.eclipseCaseData() );
 
     // Clear the existing grid geometry before building the new grid
     RigMainGrid* mainGrid = cornerPointCase.eclipseCaseData()->mainGrid();
-    CVF_ASSERT( mainGrid );
+    CAF_ASSERT( mainGrid );
     mainGrid->reservoirCells().clear();
     mainGrid->nodes().clear();
 
@@ -233,13 +233,13 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
     auto startTime = high_resolution_clock::now();
 
     RigActiveCellInfo* activeCellInfo = eclipseCaseData.activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    CVF_ASSERT( activeCellInfo );
+    CAF_ASSERT( activeCellInfo );
 
     RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData.activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-    CVF_ASSERT( fractureActiveCellInfo );
+    CAF_ASSERT( fractureActiveCellInfo );
 
     RigMainGrid* mainGrid = eclipseCaseData.mainGrid();
-    CVF_ASSERT( mainGrid );
+    CAF_ASSERT( mainGrid );
 
     mainGrid->setCellCounts( cvf::Vec3st( nx, ny, nz ) );
 
@@ -355,10 +355,10 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
 void RimCornerPointCase::createActnumResult( RigEclipseCaseData& eclipseCaseData )
 {
     RigActiveCellInfo* activeCellInfo = eclipseCaseData.activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    CVF_ASSERT( activeCellInfo );
+    CAF_ASSERT( activeCellInfo );
 
     RigCaseCellResultsData* matrixResults = eclipseCaseData.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    CVF_ASSERT( matrixResults );
+    CAF_ASSERT( matrixResults );
 
     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE, "ACTNUM" );
     if ( matrixResults->hasResultEntry( resAddr ) ) return;
@@ -368,7 +368,7 @@ void RimCornerPointCase::createActnumResult( RigEclipseCaseData& eclipseCaseData
     matrixResults->addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, "ACTNUM", false, activeCellCount );
 
     auto modifiableData = matrixResults->modifiableCellScalarResultTimesteps( resAddr );
-    CVF_ASSERT( modifiableData && !modifiableData->empty() );
+    CAF_ASSERT( modifiableData && !modifiableData->empty() );
     std::fill( ( *modifiableData )[0].begin(), ( *modifiableData )[0].end(), 1.0 );
 }
 

@@ -38,7 +38,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QDebug>
 #include <QFocusEvent>
@@ -196,7 +196,7 @@ void RiuMultiPlotBook::removePlotNoUpdate( RiuPlotWidget* plotWidget )
     if ( !plotWidget ) return;
 
     int plotWidgetIdx = m_plotWidgets.indexOf( plotWidget );
-    CVF_ASSERT( plotWidgetIdx >= 0 );
+    CAF_ASSERT( plotWidgetIdx >= 0 );
 
     m_plotWidgets.removeAt( plotWidgetIdx );
 }

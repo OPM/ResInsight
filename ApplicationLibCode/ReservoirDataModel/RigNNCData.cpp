@@ -315,7 +315,7 @@ const std::vector<double>* RigNNCData::staticConnectionScalarResult( const RigEc
 
     if ( it != m_connectionResults.end() )
     {
-        CVF_ASSERT( it->second.size() == 1 );
+        CAF_ASSERT( it->second.size() == 1 );
         return &( it->second[0] );
     }
     else
@@ -333,7 +333,7 @@ const std::vector<double>* RigNNCData::staticConnectionScalarResultByName( const
 
     if ( it != m_connectionResults.end() )
     {
-        CVF_ASSERT( it->second.size() == 1 );
+        CAF_ASSERT( it->second.size() == 1 );
         return &( it->second[0] );
     }
     else

@@ -335,7 +335,7 @@ void RiuPlotMainWindow::createActions()
 void RiuPlotMainWindow::createMenus()
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    CVF_ASSERT( cmdFeatureMgr );
+    CAF_ASSERT( cmdFeatureMgr );
 
     // File menu
     QMenu* fileMenu = RiuMenuBarBuildTools::createDefaultFileMenu( menuBar() );
@@ -435,7 +435,7 @@ QStringList RiuPlotMainWindow::toolbarCommandIds( const QString& toolbarName )
 void RiuPlotMainWindow::createToolBars()
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    CVF_ASSERT( cmdFeatureMgr );
+    CAF_ASSERT( cmdFeatureMgr );
 
     QStringList toolbarNames;
     toolbarNames << "Standard" << "Window Management" << "View Snapshots" << "View";
@@ -646,7 +646,7 @@ void RiuPlotMainWindow::createDockPanels()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::addToTemporaryWidgets( QWidget* widget )
 {
-    CVF_ASSERT( widget );
+    CAF_ASSERT( widget );
 
     m_temporaryWidgets.push_back( widget );
 }

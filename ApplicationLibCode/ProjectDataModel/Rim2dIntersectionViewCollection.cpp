@@ -25,6 +25,8 @@
 #include "RimIntersectionCollection.h"
 #include "RimReservoirGridEnsemble.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 
 CAF_PDM_SOURCE_INIT( Rim2dIntersectionViewCollection, "Intersection2dViewCollection" );
@@ -115,7 +117,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
     std::map<RimExtrudedCurveIntersection*, Rim2dIntersectionView*> intersectionToViewMap;
     for ( Rim2dIntersectionView* iv : m_intersectionViews )
     {
-        CVF_ASSERT( iv && iv->intersection() );
+        CAF_ASSERT( iv && iv->intersection() );
         intersectionToViewMap[iv->intersection()] = iv;
     }
 

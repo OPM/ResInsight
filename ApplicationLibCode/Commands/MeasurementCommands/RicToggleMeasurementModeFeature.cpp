@@ -25,10 +25,10 @@
 #include "RimMeasurement.h"
 #include "RimProject.h"
 
+#include "cafAssert.h"
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
-#include "cvfAssert.h"
 
 #include <QAction>
 

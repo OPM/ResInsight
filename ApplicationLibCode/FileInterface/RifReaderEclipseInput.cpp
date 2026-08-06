@@ -26,6 +26,8 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
+#include "cafAssert.h"
+
 //==================================================================================================
 //
 // Class RifReaderEclipseInput
@@ -51,7 +53,7 @@ RifReaderEclipseInput::~RifReaderEclipseInput()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseInput::open( const QString& fileName, RigEclipseCaseData* eclipseCase )
 {
-    CVF_ASSERT( eclipseCase );
+    CAF_ASSERT( eclipseCase );
 
     // Should we handle gridless properties ?
     //    If so, they must match dimensions, and a grid afterwards must match dimension

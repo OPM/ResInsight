@@ -36,6 +36,8 @@
 #include "cvfTexture2D_FF.h"
 #include "cvfUniform.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 
 //==================================================================================================
@@ -183,7 +185,7 @@ void RivTernaryScalarMapperEffectGenerator::updateForFixedFunctionRendering( cvf
 //--------------------------------------------------------------------------------------------------
 void RivTernaryScalarMapperEffectGenerator::updateCommonEffect( cvf::Effect* effect ) const
 {
-    CVF_ASSERT( effect );
+    CAF_ASSERT( effect );
 
     if ( m_polygonOffset != caf::PO_NONE )
     {

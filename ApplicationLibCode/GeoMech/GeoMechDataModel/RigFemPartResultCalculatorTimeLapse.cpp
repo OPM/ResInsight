@@ -60,7 +60,7 @@ bool RigFemPartResultCalculatorTimeLapse::isMatching( const RigFemResultAddress&
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.isTimeLapse() );
+    CAF_ASSERT( resVarAddr.isTimeLapse() );
 
     RigFemPartResultCalculatorStressAnisotropy anisotropyCalculator( *m_resultCollection );
     if ( resVarAddr.fieldName == "Gamma" )

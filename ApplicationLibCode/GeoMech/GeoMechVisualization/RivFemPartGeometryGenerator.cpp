@@ -29,6 +29,8 @@
 #include "cvfScalarMapper.h"
 #include "cvfStructGridGeometryGenerator.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 #include <cstdlib>
 
@@ -46,7 +48,7 @@ RivFemPartGeometryGenerator::RivFemPartGeometryGenerator( const RigFemPart* part
     : m_part( part )
     , m_displayOffset( displayOffset )
 {
-    CVF_ASSERT( part );
+    CAF_ASSERT( part );
     m_triangleMapper = new RivFemPartTriangleToElmMapper;
 }
 
@@ -65,7 +67,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface( const std::vector
 {
     computeArrays( nodeCoordinates );
 
-    CVF_ASSERT( m_quadVertices.notNull() );
+    CAF_ASSERT( m_quadVertices.notNull() );
 
     if ( m_quadVertices->size() == 0 ) return nullptr;
 

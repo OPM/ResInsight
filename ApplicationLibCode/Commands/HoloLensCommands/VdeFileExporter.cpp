@@ -23,6 +23,8 @@
 
 #include "cvfTrace.h"
 
+#include "cafAssert.h"
+
 #include <QDir>
 #include <QFile>
 
@@ -65,7 +67,7 @@ bool VdeFileExporter::exportToFile( const QString&            modelMetaJsonStr,
             return false;
         }
 
-        CVF_ASSERT( packetArrayId == dataPacket->arrayId() );
+        CAF_ASSERT( packetArrayId == dataPacket->arrayId() );
         if ( !writeDataPacketToFile( dataPacket->arrayId(), *dataPacket ) )
         {
             cvf::Trace::show( "Error writing packet data to file, arrayId %d", packetArrayId );

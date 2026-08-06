@@ -59,8 +59,8 @@ bool RigFemPartResultCalculatorNodalGradients::isMatching( const RigFemResultAdd
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == RigFemAddressDefines::porBar() );
-    CVF_ASSERT( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" );
+    CAF_ASSERT( resVarAddr.fieldName == RigFemAddressDefines::porBar() );
+    CAF_ASSERT( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 5, "" );
     stepCountProgress.setProgressDescription( "Calculating gradient: " +
@@ -173,6 +173,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( i
     }
 
     RigFemScalarResultFrames* requestedGradient = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
-    CVF_ASSERT( requestedGradient );
+    CAF_ASSERT( requestedGradient );
     return requestedGradient;
 }
