@@ -26,8 +26,6 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
-
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewElasticPropertyScalingFeature, "RicNewElasticPropertyScalingFeature" );

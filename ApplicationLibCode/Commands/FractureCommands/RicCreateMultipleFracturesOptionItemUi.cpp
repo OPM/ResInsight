@@ -24,6 +24,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
+#include "cafAssert.h"
+
 CAF_PDM_SOURCE_INIT( RicCreateMultipleFracturesOptionItemUi, "RiuMultipleFractionsOptions" );
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +130,7 @@ QList<caf::PdmOptionItemInfo> RicCreateMultipleFracturesOptionItemUi::calculateV
     QList<caf::PdmOptionItemInfo> options;
 
     RimProject* proj = RimProject::current();
-    CVF_ASSERT( proj );
+    CAF_ASSERT( proj );
 
     if ( fieldNeedingOptions == &m_fractureTemplate )
     {

@@ -27,6 +27,8 @@
 
 #include "RimCellRangeFilter.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -81,8 +83,8 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilter( const RimCellRangeFilte
                                                          const RigFemPart*         femPart,
                                                          bool                      femIsDestination )
 {
-    CVF_ASSERT( srcFilter && eclGrid && dstFilter && femPart );
-    CVF_ASSERT( srcFilter->gridIndex() == 0 ); // LGR not supported yet
+    CAF_ASSERT( srcFilter && eclGrid && dstFilter && femPart );
+    CAF_ASSERT( srcFilter->gridIndex() == 0 ); // LGR not supported yet
 
     RigRangeEndPoints src;
     // Convert the (start, count) range filter vars to end point cell ijk
@@ -335,7 +337,7 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints( const RigRange
 #ifdef DEBUG
             for ( int faceIdx = 0; faceIdx < 6; ++faceIdx )
             {
-                CVF_TIGHT_ASSERT( faceIJKs[faceIdx] != cvf::UNDEFINED_SIZE_T );
+                CAF_ASSERT( faceIJKs[faceIdx] != cvf::UNDEFINED_SIZE_T );
             }
 #endif
 
@@ -418,7 +420,7 @@ RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::fi
     if ( elmIdxToBestMatch != -1 )
     {
         bool validIndex = dependentFemPart->getOrCreateStructGrid()->ijkFromCellIndex( elmIdxToBestMatch, fi, fj, fk );
-        CVF_ASSERT( validIndex );
+        CAF_ASSERT( validIndex );
     }
     else
     {

@@ -30,8 +30,6 @@
 #include "cafPdmObjectGroup.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
-
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicPasteSummaryCaseFeature, "RicPasteSummaryCaseFeature" );

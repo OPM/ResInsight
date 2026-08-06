@@ -50,7 +50,7 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfDrawableGeo.h"
 #include "cvfGeometryTools.h"
 #include "cvfModelBasicList.h"
@@ -349,7 +349,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart( const RimE
         }
 
         cvf::ref<cvf::DrawableGeo> geo = buildDrawableGeoFromTriangles( triangleIndices, nodeDisplayCoords );
-        CVF_ASSERT( geo.notNull() );
+        CAF_ASSERT( geo.notNull() );
 
         cvf::ref<cvf::Part> surfacePart = new cvf::Part( 0, "FractureSurfacePart_ellipse" );
         surfacePart->setDrawable( geo.p() );
@@ -396,9 +396,9 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart( const RimE
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfacePart( const RimEclipseView& activeView )
 {
-    CVF_ASSERT( m_rimFracture );
+    CAF_ASSERT( m_rimFracture );
     RimMeshFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
-    CVF_ASSERT( stimPlanFracTemplate );
+    CAF_ASSERT( stimPlanFracTemplate );
 
     auto displayCoordTransform = activeView.displayCoordTransform();
     if ( displayCoordTransform.isNull() ) return nullptr;
@@ -447,7 +447,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
                 }
             }
         }
-        CVF_ASSERT( perNodeResultValues.size() == nodeDisplayCoords.size() );
+        CAF_ASSERT( perNodeResultValues.size() == nodeDisplayCoords.size() );
 
         std::vector<cvf::uint> triIndicesToInclude;
         for ( size_t i = 0; i < triangleIndices.size(); i += 6 )
@@ -478,7 +478,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
 
         cvf::ref<cvf::DrawableGeo> geo          = buildDrawableGeoFromTriangles( triIndicesToInclude, nodeDisplayCoords );
         const cvf::ScalarMapper*   scalarMapper = legendConfig->scalarMapper();
-        CVF_ASSERT( scalarMapper );
+        CAF_ASSERT( scalarMapper );
 
         cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray( nodeDisplayCoords.size() );
         textureCoords->setAll( cvf::Vec2f( 0.5f, 1.0f ) );
@@ -531,9 +531,9 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createSingleColorSurfacePart( const 
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePart( const RimEclipseView& activeView )
 {
-    CVF_ASSERT( m_rimFracture );
+    CAF_ASSERT( m_rimFracture );
     RimMeshFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
-    CVF_ASSERT( stimPlanFracTemplate );
+    CAF_ASSERT( stimPlanFracTemplate );
 
     if ( !m_rimFracture->fractureGrid() ) return nullptr;
 
@@ -1140,8 +1140,8 @@ std::vector<cvf::Vec3f> RivWellFracturePartMgr::transformToFractureDisplayCoords
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::buildDrawableGeoFromTriangles( const std::vector<cvf::uint>&  triangleIndices,
                                                                                   const std::vector<cvf::Vec3f>& nodeCoords )
 {
-    CVF_ASSERT( !triangleIndices.empty() );
-    CVF_ASSERT( !nodeCoords.empty() );
+    CAF_ASSERT( !triangleIndices.empty() );
+    CAF_ASSERT( !nodeCoords.empty() );
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
 

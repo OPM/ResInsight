@@ -20,6 +20,8 @@
 
 #include "cvfTextureImage.h"
 
+#include "cafAssert.h"
+
 #include <zgyaccess/seismicslice.h>
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +112,7 @@ void RigTexturedSection::resize( int size )
 //--------------------------------------------------------------------------------------------------
 RigTexturedSectionPart& RigTexturedSection::part( int index )
 {
-    CVF_ASSERT( index < (int)m_sectionParts.size() );
+    CAF_ASSERT( index < (int)m_sectionParts.size() );
     return m_sectionParts[index];
 }
 

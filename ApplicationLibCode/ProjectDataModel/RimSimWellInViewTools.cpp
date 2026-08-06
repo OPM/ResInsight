@@ -36,7 +36,7 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 namespace RimSimWellInViewTools
 {
@@ -140,7 +140,7 @@ double extractValueForTimeStep( RifSummaryReaderInterface* summaryReader,
                                 bool*                      isOk )
 
 {
-    CVF_ASSERT( summaryReader );
+    CAF_ASSERT( summaryReader );
 
     if ( vectorName.empty() )
     {

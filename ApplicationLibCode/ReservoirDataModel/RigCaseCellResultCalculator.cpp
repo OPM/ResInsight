@@ -32,7 +32,7 @@
 #include "RimEclipseCase.h"
 #include "RimProject.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <algorithm>
 //--------------------------------------------------------------------------------------------------
@@ -42,8 +42,8 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
                                                      RiaDefines::PorosityModelType  porosityModel,
                                                      const RigEclipseResultAddress& address )
 {
-    CVF_ASSERT( address.isValid() );
-    CVF_ASSERT( address.isDeltaCaseActive() || address.isDeltaTimeStepActive() );
+    CAF_ASSERT( address.isValid() );
+    CAF_ASSERT( address.isDeltaCaseActive() || address.isDeltaTimeStepActive() );
 
     // Assume at this stage that data for the case is available
     // It is up to the caller to make sure the case is read from file
@@ -218,8 +218,8 @@ bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*     
         return false;
     }
 
-    CVF_ASSERT( address.isValid() );
-    CVF_ASSERT( address.isDivideByCellFaceAreaActive() );
+    CAF_ASSERT( address.isValid() );
+    CAF_ASSERT( address.isDivideByCellFaceAreaActive() );
 
     RigCaseCellResultsData* baseCaseResults = destination->results( porosityModel );
     if ( !baseCaseResults )

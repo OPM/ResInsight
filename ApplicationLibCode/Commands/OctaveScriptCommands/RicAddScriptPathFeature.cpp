@@ -29,8 +29,6 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
 
-#include "cvfAssert.h"
-
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicAddScriptPathFeature, "RicAddScriptPathFeature" );

@@ -47,7 +47,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -58,10 +58,10 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryEnsembleCurveSetFeature, "RicNewSummaryEnsembl
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveSet*> RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSets( RimSummaryPlot* plot, RimSummaryEnsemble* ensemble )
 {
-    CVF_ASSERT( plot && ensemble );
+    CAF_ASSERT( plot && ensemble );
 
     RimProject* project = RimProject::current();
-    CVF_ASSERT( project );
+    CAF_ASSERT( project );
 
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
@@ -158,7 +158,7 @@ bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled() const
     if ( summaryPlotSelected )
     {
         RimProject* project = RimProject::current();
-        CVF_ASSERT( project );
+        CAF_ASSERT( project );
         if ( !project->summaryEnsembles().empty() )
         {
             return true;
@@ -173,12 +173,12 @@ bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled() const
 void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
 {
     RimProject* project = RimProject::current();
-    CVF_ASSERT( project );
+    CAF_ASSERT( project );
 
     RimSummaryPlot* plot = selectedSummaryPlot();
     if ( plot )
     {
-        CVF_ASSERT( !project->summaryEnsembles().empty() );
+        CAF_ASSERT( !project->summaryEnsembles().empty() );
         auto ensemble = project->summaryEnsembles().back();
 
         RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();

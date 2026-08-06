@@ -33,7 +33,7 @@
 #include "cafPdmObjectHandle.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -106,7 +106,7 @@ void RicPasteWellLogCurveFeature::onActionTriggered( bool isChecked )
         if ( fileCurve || measurementCurve || extractionCurve || rftCurve )
         {
             auto* newObject = sourceObject->copyObject<RimWellLogCurve>();
-            CVF_ASSERT( newObject );
+            CAF_ASSERT( newObject );
 
             wellLogTrack->addCurve( newObject );
 

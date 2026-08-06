@@ -20,6 +20,8 @@
 
 #include "RimCalculatedSummaryCurveReader.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +130,7 @@ std::string RifMultipleSummaryReaders::unitName( const RifEclipseSummaryAddress&
 //--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RifMultipleSummaryReaders::unitSystem() const
 {
-    CVF_ASSERT( !m_readers.empty() );
+    CAF_ASSERT( !m_readers.empty() );
 
     return m_readers.at( 0 )->unitSystem();
 }

@@ -29,7 +29,7 @@
 #include "RimWellLogLasFile.h"
 
 #include "cafAppEnum.h"
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QString>
 #include <QTextStream>
@@ -64,8 +64,8 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt()
 //--------------------------------------------------------------------------------------------------
 RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimEclipseCase* eclCase )
 {
-    CVF_ASSERT( sourceType == SourceType::RFT_SIM_WELL_DATA || sourceType == SourceType::GRID_MODEL_CELL_DATA );
-    CVF_ASSERT( eclCase != nullptr );
+    CAF_ASSERT( sourceType == SourceType::RFT_SIM_WELL_DATA || sourceType == SourceType::GRID_MODEL_CELL_DATA );
+    CAF_ASSERT( eclCase != nullptr );
 
     m_sourceType = sourceType;
     m_eclCase    = eclCase;
@@ -298,7 +298,7 @@ QString RifDataSourceForRftPlt::sourceTypeUiText( SourceType sourceType )
 QTextStream& operator<<( QTextStream& str, const RifDataSourceForRftPlt& addr )
 {
     // Not implemented
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return str;
 }
 
@@ -308,6 +308,6 @@ QTextStream& operator<<( QTextStream& str, const RifDataSourceForRftPlt& addr )
 QTextStream& operator>>( QTextStream& str, RifDataSourceForRftPlt& source )
 {
     // Not implemented
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return str;
 }

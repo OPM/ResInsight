@@ -90,7 +90,7 @@ std::vector<std::pair<double, double>>
                 *unitString = fileData->wellLogChannelUnitString( channelName );
             }
             std::vector<double> depthValues = fileData->depthValues();
-            CVF_ASSERT( depthValues.size() == channelValues.size() );
+            CAF_ASSERT( depthValues.size() == channelValues.size() );
             std::vector<std::pair<double, double>> depthValuePairs;
             for ( size_t i = 0; i < depthValues.size(); ++i )
             {

@@ -74,7 +74,7 @@ void RivElementVectorResultPartMgr::setTransform( cvf::Transform* scaleTransform
 //--------------------------------------------------------------------------------------------------
 void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex )
 {
-    CVF_ASSERT( model );
+    CAF_ASSERT( model );
 
     if ( m_rimReservoirView.isNull() ) return;
 
@@ -418,8 +418,8 @@ void RivElementVectorResultPartMgr::createResultColorTextureCoords( cvf::Vec2fAr
                                                                     const std::vector<ElementVectorResultVisualization>& elementVectorResultVisualizations,
                                                                     const cvf::ScalarMapper* mapper )
 {
-    CVF_ASSERT( textureCoords );
-    CVF_ASSERT( mapper );
+    CAF_ASSERT( textureCoords );
+    CAF_ASSERT( mapper );
 
     size_t vertexCount = elementVectorResultVisualizations.size() * 7;
     if ( textureCoords->size() != vertexCount ) textureCoords->reserve( vertexCount );

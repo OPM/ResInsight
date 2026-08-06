@@ -27,6 +27,8 @@
 #include "RigSimulationWellCoordsAndMD.h"
 #include "RigWellResultPoint.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 //==================================================================================================
@@ -80,7 +82,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<std::vecto
     , m_isProducer( isProducer )
     , m_useTotalWellPhaseRateOnly( false )
 {
-    CVF_ASSERT( !pipeBranchesWellResultPoints.empty() );
+    CAF_ASSERT( !pipeBranchesWellResultPoints.empty() );
 
     m_connectionFlowPrBranch.resize( m_pipeBranchesWellResultPoints.size() );
     m_pseudoLengthFlowPrBranch.resize( m_pipeBranchesWellResultPoints.size() );
@@ -110,7 +112,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<std::vecto
     , m_isProducer( true )
     , m_useTotalWellPhaseRateOnly( false )
 {
-    CVF_ASSERT( !pipeBranchesWellResultPoints.empty() );
+    CAF_ASSERT( !pipeBranchesWellResultPoints.empty() );
 
     m_connectionFlowPrBranch.resize( m_pipeBranchesWellResultPoints.size() );
     m_pseudoLengthFlowPrBranch.resize( m_pipeBranchesWellResultPoints.size() );
@@ -145,7 +147,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<cvf::Vec3d
     , m_isProducer( true )
     , m_useTotalWellPhaseRateOnly( totalFlowOnly )
 {
-    CVF_ASSERT( !pipeBranchesWellResultPoints.empty() );
+    CAF_ASSERT( !pipeBranchesWellResultPoints.empty() );
 
     m_pipeBranchesCLCoords.push_back( pipeBranchCLCoords );
     m_pipeBranchesWellResultPoints.push_back( pipeBranchesWellResultPoints );
@@ -206,7 +208,7 @@ const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrConn
     }
     else
     {
-        CVF_ASSERT( false );
+        CAF_ASSERT( false );
         static std::vector<double> dummy;
         return dummy;
     }
@@ -224,7 +226,7 @@ const std::vector<double>& RigAccWellFlowCalculator::tracerFlowPrConnection( con
     }
     else
     {
-        CVF_ASSERT( false );
+        CAF_ASSERT( false );
         static std::vector<double> dummy;
         return dummy;
     }
@@ -258,7 +260,7 @@ const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrPseu
     }
     else
     {
-        CVF_ASSERT( false );
+        CAF_ASSERT( false );
         static std::vector<double> dummy;
         return dummy;
     }
@@ -276,7 +278,7 @@ const std::vector<double>& RigAccWellFlowCalculator::tracerFlowPrPseudoLength( c
     }
     else
     {
-        CVF_ASSERT( false );
+        CAF_ASSERT( false );
         static std::vector<double> dummy;
         return dummy;
     }

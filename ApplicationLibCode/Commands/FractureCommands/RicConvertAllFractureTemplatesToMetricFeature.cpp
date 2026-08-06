@@ -35,8 +35,6 @@
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
-
 #include "cafSelectionManagerTools.h"
 #include <QAction>
 #include <QFileInfo>

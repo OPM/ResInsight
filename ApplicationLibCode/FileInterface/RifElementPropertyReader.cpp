@@ -21,7 +21,7 @@
 #include "RiaLogging.h"
 #include "RiuMessageDialog.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <cmath>
 
@@ -117,11 +117,11 @@ std::map<std::string, std::vector<float>> RifElementPropertyReader::readAllEleme
     RifElementPropertyTable table;
     RifElementPropertyTableReader::readData( &m_fieldsMetaData[fieldName], &table );
 
-    CVF_ASSERT( m_fieldsMetaData[fieldName].dataColumns.size() == table.data.size() );
+    CAF_ASSERT( m_fieldsMetaData[fieldName].dataColumns.size() == table.data.size() );
 
     for ( size_t i = 0; i < table.data.size(); i++ )
     {
-        CVF_ASSERT( table.data[i].size() == table.elementIds.size() );
+        CAF_ASSERT( table.data[i].size() == table.elementIds.size() );
     }
 
     const std::vector<int>& elementIdsFromFile = table.elementIds;

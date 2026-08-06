@@ -78,8 +78,8 @@ RigCaseCellResultsData::RigCaseCellResultsData( RigEclipseCaseData* ownerCaseDat
     : m_activeCellInfo( nullptr )
     , m_porosityModel( porosityModel )
 {
-    CVF_ASSERT( ownerCaseData != nullptr );
-    CVF_ASSERT( ownerCaseData->mainGrid() != nullptr );
+    CAF_ASSERT( ownerCaseData != nullptr );
+    CAF_ASSERT( ownerCaseData->mainGrid() != nullptr );
 
     m_ownerCaseData = ownerCaseData;
     m_ownerMainGrid = ownerCaseData->mainGrid();
@@ -263,7 +263,7 @@ size_t RigCaseCellResultsData::resultCount() const
 size_t RigCaseCellResultsData::timeStepCount( const RigEclipseResultAddress& resVarAddr ) const
 {
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
-    CVF_TIGHT_ASSERT( scalarResultIndex < resultCount() );
+    CAF_ASSERT( scalarResultIndex < resultCount() );
 
     return m_cellScalarResults[scalarResultIndex].size();
 }
@@ -275,7 +275,7 @@ const std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResult
 {
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
 
-    CVF_TIGHT_ASSERT( scalarResultIndex < resultCount() );
+    CAF_ASSERT( scalarResultIndex < resultCount() );
 
     return m_cellScalarResults[scalarResultIndex];
 }
@@ -287,7 +287,7 @@ std::vector<std::vector<double>>* RigCaseCellResultsData::modifiableCellScalarRe
 {
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
 
-    CVF_TIGHT_ASSERT( scalarResultIndex < resultCount() );
+    CAF_ASSERT( scalarResultIndex < resultCount() );
 
     return &( m_cellScalarResults[scalarResultIndex] );
 }
@@ -299,8 +299,8 @@ std::vector<double>* RigCaseCellResultsData::modifiableCellScalarResult( const R
 {
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
 
-    CVF_TIGHT_ASSERT( scalarResultIndex < resultCount() );
-    CVF_TIGHT_ASSERT( timeStepIndex < m_cellScalarResults[scalarResultIndex].size() );
+    CAF_ASSERT( scalarResultIndex < resultCount() );
+    CAF_ASSERT( timeStepIndex < m_cellScalarResults[scalarResultIndex].size() );
 
     return &( m_cellScalarResults[scalarResultIndex][timeStepIndex] );
 }
@@ -311,8 +311,8 @@ std::vector<double>* RigCaseCellResultsData::modifiableCellScalarResult( const R
 const std::vector<double>& RigCaseCellResultsData::cellScalarResults( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex ) const
 {
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
-    CVF_TIGHT_ASSERT( scalarResultIndex < resultCount() );
-    CVF_TIGHT_ASSERT( timeStepIndex < m_cellScalarResults[scalarResultIndex].size() );
+    CAF_ASSERT( scalarResultIndex < resultCount() );
+    CAF_ASSERT( timeStepIndex < m_cellScalarResults[scalarResultIndex].size() );
 
     return m_cellScalarResults[scalarResultIndex][timeStepIndex];
 }
@@ -545,7 +545,7 @@ void RigCaseCellResultsData::recalculateStatistics( const RigEclipseResultAddres
 bool RigCaseCellResultsData::isUsingGlobalActiveIndex( const RigEclipseResultAddress& resVarAddr ) const
 {
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
-    CVF_TIGHT_ASSERT( scalarResultIndex < m_cellScalarResults.size() );
+    CAF_ASSERT( scalarResultIndex < m_cellScalarResults.size() );
 
     if ( m_cellScalarResults[scalarResultIndex].empty() ) return true;
 
@@ -662,7 +662,7 @@ std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos( const
 void RigCaseCellResultsData::setTimeStepInfos( const RigEclipseResultAddress&             resVarAddr,
                                                const std::vector<RigEclipseTimeStepInfo>& timeStepInfos )
 {
-    CVF_ASSERT( findScalarResultIndexFromAddress( resVarAddr ) < m_resultInfos.size() );
+    CAF_ASSERT( findScalarResultIndexFromAddress( resVarAddr ) < m_resultInfos.size() );
 
     m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].setTimeStepInfos( timeStepInfos );
 
@@ -798,7 +798,7 @@ bool RigCaseCellResultsData::isResultLoaded( const RigEclipseResultAddress& resu
 {
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resultAddr );
 
-    CVF_TIGHT_ASSERT( scalarResultIndex != cvf::UNDEFINED_SIZE_T );
+    CAF_ASSERT( scalarResultIndex != cvf::UNDEFINED_SIZE_T );
     if ( scalarResultIndex != cvf::UNDEFINED_SIZE_T )
     {
         return isDataPresent( scalarResultIndex );
@@ -1806,7 +1806,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
         if ( !resultLoadingSuccess )
         {
             // Error logging
-            CVF_ASSERT( false );
+            CAF_ASSERT( false );
         }
     }
 
@@ -2168,7 +2168,7 @@ void calculateConnectionGeometry( const RigCell&                     c1,
                                   cvf::StructGridInterface::FaceType faceId,
                                   cvf::Vec3d*                        faceAreaVec )
 {
-    CVF_TIGHT_ASSERT( faceAreaVec );
+    CAF_ASSERT( faceAreaVec );
 
     *faceAreaVec = cvf::Vec3d::ZERO;
 
@@ -2224,7 +2224,7 @@ double newtran( double cdarchy, double mult, double halfCellTrans, double neighb
     }
 
     double result = cdarchy * mult / ( ( 1 / halfCellTrans ) + ( 1 / neighborHalfCellTrans ) );
-    CVF_TIGHT_ASSERT( result == result );
+    CAF_ASSERT( result == result );
     return result;
 }
 
@@ -2281,7 +2281,7 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
     }
     else
     {
-        CVF_ASSERT( false );
+        CAF_ASSERT( false );
     }
 
     double cdarchy = darchysValue();
@@ -2297,7 +2297,7 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
 
     size_t riTransResultIdx =
         findScalarResultIndexFromAddress( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, riTransComponentResultName ) );
-    CVF_ASSERT( riTransResultIdx != cvf::UNDEFINED_SIZE_T );
+    CAF_ASSERT( riTransResultIdx != cvf::UNDEFINED_SIZE_T );
 
     // Get the result count, to handle that one of them might be globally defined
 
@@ -2653,7 +2653,7 @@ void RigCaseCellResultsData::computeRiMULTComponent( const QString& riMultCompNa
     }
     else
     {
-        CVF_ASSERT( false );
+        CAF_ASSERT( false );
     }
 
     // Get the needed result indices we depend on
@@ -2666,11 +2666,11 @@ void RigCaseCellResultsData::computeRiMULTComponent( const QString& riMultCompNa
 
     size_t riMultResultIdx =
         findScalarResultIndexFromAddress( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, riMultCompName ) );
-    CVF_ASSERT( riMultResultIdx != cvf::UNDEFINED_SIZE_T );
+    CAF_ASSERT( riMultResultIdx != cvf::UNDEFINED_SIZE_T );
 
     // Get the result count, to handle that one of them might be globally defined
 
-    CVF_ASSERT( m_cellScalarResults[riTransResultIdx][0].size() == m_cellScalarResults[transResultIdx][0].size() );
+    CAF_ASSERT( m_cellScalarResults[riTransResultIdx][0].size() == m_cellScalarResults[transResultIdx][0].size() );
 
     size_t resultValueCount = m_cellScalarResults[transResultIdx][0].size();
 
@@ -2748,7 +2748,7 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
     }
     else
     {
-        CVF_ASSERT( false );
+        CAF_ASSERT( false );
     }
 
     // Get the needed result indices we depend on
@@ -2760,7 +2760,7 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
     size_t riTranByAreaScResIdx =
         findScalarResultIndexFromAddress( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, riTransByAreaCompResultName ) );
 
-    CVF_ASSERT( riTranByAreaScResIdx != cvf::UNDEFINED_SIZE_T );
+    CAF_ASSERT( riTranByAreaScResIdx != cvf::UNDEFINED_SIZE_T );
 
     // Get the result count, to handle that one of them might be globally defined
 
@@ -3166,7 +3166,7 @@ size_t RigCaseCellResultsData::allocatedValueCount( size_t scalarResultIndex ) c
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::assignValuesToTemporaryLgrs( const QString& resultName, std::vector<double>& valuesForAllReservoirCells )
 {
-    CVF_ASSERT( m_activeCellInfo );
+    CAF_ASSERT( m_activeCellInfo );
 
     static std::vector<QString> excludedProperties = {
         "MOBPROV",  "PORV",     "FIPOIL",   "FIPGAS",   "FIPWAT",   "FLROILI+", "FLROILJ+", "FLROILK+", "FLRGASI+", "FLRGASJ+", "FLRGASK+",

@@ -29,7 +29,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -77,7 +77,7 @@ void RicNewValveTemplateFeature::createNewValveTemplateForValveAndUpdate( RimWel
 RimValveTemplate* RicNewValveTemplateFeature::createNewValveTemplate()
 {
     RimProject* project = RimProject::current();
-    CVF_ASSERT( project );
+    CAF_ASSERT( project );
 
     RimOilField* oilfield = project->activeOilField();
     if ( oilfield == nullptr ) return nullptr;

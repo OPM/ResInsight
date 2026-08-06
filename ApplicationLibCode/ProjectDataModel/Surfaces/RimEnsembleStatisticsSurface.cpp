@@ -128,7 +128,7 @@ bool RimEnsembleStatisticsSurface::updateSurfaceData()
 std::vector<cvf::Vec3d> RimEnsembleStatisticsSurface::extractStatisticalDepthForVertices( const RigSurface* surface ) const
 
 {
-    CVF_ASSERT( surface );
+    CAF_ASSERT( surface );
     std::vector<cvf::Vec3d> verts = surface->vertices();
 
     const auto& meanValues =

@@ -39,6 +39,8 @@
 
 #include "cvfStructGridGeometryGenerator.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +51,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( const RimEclipse
                                                                 size_t                                     gridIndex,
                                                                 const cvf::StructGridQuadToCellFaceMapper* quadMapper )
 {
-    CVF_ASSERT( quadMapper );
+    CAF_ASSERT( quadMapper );
     m_quadMapper = quadMapper;
 
     RigEclipseCaseData* eclipseCase = cellResultColors->eclipseCase()->eclipseCaseData();
@@ -86,7 +88,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( const RimEclipse
     const RivTernaryScalarMapper* mapper = ternaryLegendConfig->scalarMapper();
 
     m_texMapper = new RivTernaryResultToTextureMapper( mapper, pipeInCellEval.p() );
-    CVF_ASSERT( m_texMapper.notNull() );
+    CAF_ASSERT( m_texMapper.notNull() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,7 +129,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( const RimEclipse
 
     // Create a texture mapper without detecting transparency using RigPipeInCellEvaluator
     m_texMapper = new RivTernaryResultToTextureMapper( ternaryColorMapper, nullptr );
-    CVF_ASSERT( m_texMapper.notNull() );
+    CAF_ASSERT( m_texMapper.notNull() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,7 +137,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator( const RimEclipse
 //--------------------------------------------------------------------------------------------------
 void RivTernaryTextureCoordsCreator::createTextureCoords( cvf::Vec2fArray* quadTextureCoords )
 {
-    CVF_ASSERT( m_quadMapper.notNull() );
+    CAF_ASSERT( m_quadMapper.notNull() );
     createTextureCoords( quadTextureCoords, m_quadMapper.p(), m_resultAccessor.p(), m_texMapper.p() );
 }
 
@@ -144,7 +146,7 @@ void RivTernaryTextureCoordsCreator::createTextureCoords( cvf::Vec2fArray* quadT
 //--------------------------------------------------------------------------------------------------
 void RivTernaryTextureCoordsCreator::createTextureCoords( cvf::Vec2fArray* triTextureCoords, const std::vector<size_t>& triangleToCellIdx )
 {
-    CVF_ASSERT( m_quadMapper.isNull() );
+    CAF_ASSERT( m_quadMapper.isNull() );
 
     createTextureCoords( triTextureCoords, triangleToCellIdx, m_resultAccessor.p(), m_texMapper.p() );
 }
@@ -157,7 +159,7 @@ void RivTernaryTextureCoordsCreator::createTextureCoords( cvf::Vec2fArray*      
                                                           const RigTernaryResultAccessor*            resultAccessor,
                                                           const RivTernaryResultToTextureMapper*     texMapper )
 {
-    CVF_ASSERT( quadTextureCoords && quadMapper && resultAccessor && texMapper );
+    CAF_ASSERT( quadTextureCoords && quadMapper && resultAccessor && texMapper );
 
     size_t numVertices = quadMapper->quadCount() * 4;
     quadTextureCoords->resize( numVertices );
@@ -188,7 +190,7 @@ void RivTernaryTextureCoordsCreator::createTextureCoords( cvf::Vec2fArray*      
                                                           const RigTernaryResultAccessor*        resultAccessor,
                                                           const RivTernaryResultToTextureMapper* texMapper )
 {
-    CVF_ASSERT( textureCoords && resultAccessor && texMapper );
+    CAF_ASSERT( textureCoords && resultAccessor && texMapper );
 
     size_t numVertices = triangleToCellIdx.size() * 3;
     textureCoords->resize( numVertices );

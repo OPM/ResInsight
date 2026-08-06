@@ -29,6 +29,8 @@
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
 
+#include "cafAssert.h"
+
 #include <QRegularExpression>
 
 /* rand example: guess the number */
@@ -180,8 +182,8 @@ bool RigReservoirBuilderMock::dynamicResult( RigEclipseCaseData* eclipseCase, co
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigGridBase* grid )
 {
-    CVF_ASSERT( eclipseCase );
-    CVF_ASSERT( grid );
+    CAF_ASSERT( eclipseCase );
+    CAF_ASSERT( grid );
 
     auto cellCountJ = grid->cellCountJ();
     auto cellCountK = grid->cellCountK();

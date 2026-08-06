@@ -20,6 +20,8 @@
 #include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
+#include "cafAssert.h"
+
 #include <map>
 
 #include <QDebug>
@@ -38,10 +40,10 @@ RigSimWellData::RigSimWellData()
 //--------------------------------------------------------------------------------------------------
 const RigWellResultFrame* RigSimWellData::wellResultFrame( size_t resultTimeStepIndex ) const
 {
-    CVF_ASSERT( resultTimeStepIndex < m_resultTimeStepIndexToWellTimeStepIndex.size() );
+    CAF_ASSERT( resultTimeStepIndex < m_resultTimeStepIndexToWellTimeStepIndex.size() );
 
     size_t wellTimeStepIndex = m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex];
-    CVF_ASSERT( wellTimeStepIndex < m_wellCellsTimeSteps.size() );
+    CAF_ASSERT( wellTimeStepIndex < m_wellCellsTimeSteps.size() );
 
     return &( m_wellCellsTimeSteps[wellTimeStepIndex] );
 }

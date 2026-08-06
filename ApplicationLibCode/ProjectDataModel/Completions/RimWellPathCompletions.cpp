@@ -36,7 +36,7 @@
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathValve.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include "cafPdmDoubleStringValidator.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -103,7 +103,7 @@ RimWellPathCompletions::RimWellPathCompletions()
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RimWellPathCompletions::fishbonesCollection() const
 {
-    CVF_ASSERT( m_fishbonesCollection );
+    CAF_ASSERT( m_fishbonesCollection );
 
     return m_fishbonesCollection;
 }
@@ -113,7 +113,7 @@ RimFishbonesCollection* RimWellPathCompletions::fishbonesCollection() const
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection* RimWellPathCompletions::perforationCollection() const
 {
-    CVF_ASSERT( m_perforationCollection );
+    CAF_ASSERT( m_perforationCollection );
 
     return m_perforationCollection;
 }
@@ -123,7 +123,7 @@ RimPerforationCollection* RimWellPathCompletions::perforationCollection() const
 //--------------------------------------------------------------------------------------------------
 RimValveCollection* RimWellPathCompletions::valveCollection() const
 {
-    CVF_ASSERT( m_valveCollection );
+    CAF_ASSERT( m_valveCollection );
 
     return m_valveCollection;
 }
@@ -133,7 +133,7 @@ RimValveCollection* RimWellPathCompletions::valveCollection() const
 //--------------------------------------------------------------------------------------------------
 RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() const
 {
-    CVF_ASSERT( m_fractureCollection );
+    CAF_ASSERT( m_fractureCollection );
 
     return m_fractureCollection;
 }
@@ -143,7 +143,7 @@ RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() cons
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelCollection* RimWellPathCompletions::stimPlanModelCollection() const
 {
-    CVF_ASSERT( m_stimPlanModelCollection );
+    CAF_ASSERT( m_stimPlanModelCollection );
 
     return m_stimPlanModelCollection;
 }

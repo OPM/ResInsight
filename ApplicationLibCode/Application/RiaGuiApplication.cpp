@@ -235,7 +235,7 @@ RiaGuiApplication::~RiaGuiApplication()
 //--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::saveProject()
 {
-    CVF_ASSERT( m_project );
+    CAF_ASSERT( m_project );
 
     QString fileName;
     if ( !isProjectSavedToDisc() )
@@ -617,7 +617,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
     // -----------------
     if ( cvf::Option o = progOpt->option( "generate" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         QString outputFile = cvfqt::Utils::toQString( o.value( 0 ) );
 
         QString errMsg;
@@ -632,7 +632,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
     if ( cvf::Option o = progOpt->option( "preferences" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         m_preferencesFileName = cvfqt::Utils::toQString( o.value( 0 ) );
         RiaApplication::initialize();
         onProjectClosed();
@@ -640,7 +640,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
     if ( cvf::Option o = progOpt->option( "regressiontest" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         QString regressionTestPath = cvfqt::Utils::toQString( o.value( 0 ) );
 
         // Use a logger writing to stdout instead of message panel
@@ -657,7 +657,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
     if ( cvf::Option o = progOpt->option( "updateregressiontestbase" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         QString regressionTestPath = cvfqt::Utils::toQString( o.value( 0 ) );
         RiaRegressionTestRunner::updateRegressionTest( regressionTestPath );
         return ApplicationStatus::EXIT_COMPLETED;
@@ -665,13 +665,13 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
     if ( cvf::Option o = progOpt->option( "startdir" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         setStartDir( cvfqt::Utils::toQString( o.value( 0 ) ) );
     }
 
     if ( cvf::Option o = progOpt->option( "egridReader" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         std::string readerName = o.value( 0 ).toLower().toStdString();
         m_preferences->gridPreferences()->setGridModelReaderOverride( readerName );
     }
@@ -714,7 +714,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
     QString snapshotFolderFromCommandLine;
     if ( cvf::Option o = progOpt->option( "snapshotfolder" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         snapshotFolderFromCommandLine = cvfqt::Utils::toQString( o.value( 0 ) );
     }
 
@@ -738,7 +738,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
     if ( cvf::Option o = progOpt->option( "project" ) )
     {
-        CVF_ASSERT( o.valueCount() == 1 );
+        CAF_ASSERT( o.valueCount() == 1 );
         projectFileName = cvfqt::Utils::toQString( o.value( 0 ) );
     }
 
@@ -991,7 +991,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
             }
             else
             {
-                CVF_ASSERT( caseIds.size() == caseListFiles.size() );
+                CAF_ASSERT( caseIds.size() == caseListFiles.size() );
 
                 std::vector<std::vector<QString>> allCaseFiles;
                 size_t                            maxFiles = 0;
@@ -1073,7 +1073,7 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::createMainWindow()
 {
-    CVF_ASSERT( m_mainWindow == nullptr );
+    CAF_ASSERT( m_mainWindow == nullptr );
 
     // Always enable undo/redo framework, as multi-select operations perform significantly better with it enabled
     caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
@@ -1106,7 +1106,7 @@ void RiaGuiApplication::createMainWindow()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::createMainPlotWindow()
 {
-    CVF_ASSERT( m_mainPlotWindow == nullptr );
+    CAF_ASSERT( m_mainPlotWindow == nullptr );
 
     // Always enable undo/redo framework, as multi-select operations perform significantly better with it enabled
     caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
@@ -1248,7 +1248,7 @@ bool RiaGuiApplication::isMainPlotWindowVisible() const
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::addToRecentFiles( const QString& fileName )
 {
-    CVF_ASSERT( m_recentFileActionProvider && "The provider needs to be created before any attempts to use the recent file actions" );
+    CAF_ASSERT( m_recentFileActionProvider && "The provider needs to be created before any attempts to use the recent file actions" );
     m_recentFileActionProvider->addFileName( fileName );
 }
 
@@ -1257,7 +1257,7 @@ void RiaGuiApplication::addToRecentFiles( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 std::vector<QAction*> RiaGuiApplication::recentFileActions() const
 {
-    CVF_ASSERT( m_recentFileActionProvider && "The provider needs to be created before any attempts to use the recent file actions" );
+    CAF_ASSERT( m_recentFileActionProvider && "The provider needs to be created before any attempts to use the recent file actions" );
     return m_recentFileActionProvider->actions();
 }
 

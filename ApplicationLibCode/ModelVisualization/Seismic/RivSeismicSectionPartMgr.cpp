@@ -58,7 +58,7 @@
 RivSeismicSectionPartMgr::RivSeismicSectionPartMgr( RimSeismicSection* section )
     : m_section( section )
 {
-    CVF_ASSERT( section );
+    CAF_ASSERT( section );
 }
 
 //--------------------------------------------------------------------------------------------------

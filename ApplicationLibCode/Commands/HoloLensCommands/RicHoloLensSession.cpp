@@ -29,7 +29,6 @@
 #include "VdePacketDirectory.h"
 #include "VdeVizDataExtractor.h"
 
-#include "cvfAssert.h"
 #include "cvfTimer.h"
 
 #include <QDir>

@@ -19,6 +19,8 @@
 
 #include "RigCellEdgeResultAccessor.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -42,7 +44,7 @@ void RigCellEdgeResultAccessor::setDataAccessObjectForFace( cvf::StructGridInter
 double RigCellEdgeResultAccessor::cellScalar( size_t gridLocalCellIndex ) const
 {
     // TODO: How to handle when we get here?
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
 
     return cvf::UNDEFINED_DOUBLE;
 }
@@ -67,7 +69,7 @@ double RigCellEdgeResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cvf
 double RigCellEdgeResultAccessor::cellScalarGlobIdx( size_t globCellIndex ) const
 {
     // TODO: How to handle when we get here?
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
 
     return cvf::UNDEFINED_DOUBLE;
 }

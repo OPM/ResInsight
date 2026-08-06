@@ -31,8 +31,8 @@
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
 
+#include "cafAssert.h"
 #include "cafSelectionManager.h"
-#include "cvfAssert.h"
 
 #include <QAction>
 #include <QFileInfo>
@@ -58,7 +58,7 @@ bool RicExecuteScriptFeature::isCommandEnabled() const
 void RicExecuteScriptFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
-    CVF_ASSERT( !selection.empty() );
+    CAF_ASSERT( !selection.empty() );
 
     executeScript( selection[0] );
 }

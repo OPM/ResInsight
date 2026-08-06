@@ -95,8 +95,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
                                                           RifElementPropertyReader*   elementPropertyReader,
                                                           const RigFemPartCollection* femPartCollection )
 {
-    CVF_ASSERT( readerInterface );
-    CVF_ASSERT( elementPropertyReader );
+    CAF_ASSERT( readerInterface );
+    CAF_ASSERT( elementPropertyReader );
     m_readerInterface       = readerInterface;
     m_elementPropertyReader = elementPropertyReader;
     m_femParts              = femPartCollection;
@@ -432,9 +432,9 @@ double RigFemPartResultsCollection::permeabilityExponent() const
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( partIndex < (int)( m_femPartResults.size() ) );
-    CVF_ASSERT( m_readerInterface.notNull() );
-    CVF_ASSERT( resVarAddr.isValid() );
+    CAF_ASSERT( partIndex < (int)( m_femPartResults.size() ) );
+    CAF_ASSERT( m_readerInterface.notNull() );
+    CAF_ASSERT( resVarAddr.isValid() );
 
     // If we have it in the cache, return it
     RigFemScalarResultFrames* frames = m_femPartResults[partIndex]->findScalarResult( resVarAddr );
@@ -537,8 +537,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::createScalarResult( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( partIndex < static_cast<int>( m_femPartResults.size() ) );
-    CVF_ASSERT( resVarAddr.isValid() );
+    CAF_ASSERT( partIndex < static_cast<int>( m_femPartResults.size() ) );
+    CAF_ASSERT( resVarAddr.isValid() );
     return m_femPartResults[partIndex]->createScalarResult( resVarAddr );
 }
 
@@ -932,7 +932,7 @@ std::vector<RigFemResultAddress> RigFemPartResultsCollection::getResAddrToCompon
 
         if ( compNames.empty() ) // This is a scalar field. Add one component named ""
         {
-            CVF_ASSERT( resVarAddr.componentName.empty() );
+            CAF_ASSERT( resVarAddr.componentName.empty() );
             resAddressToComponents.push_back( resVarAddr );
         }
     }
@@ -945,7 +945,7 @@ std::vector<RigFemResultAddress> RigFemPartResultsCollection::getResAddrToCompon
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RigFemPartResultsCollection::filteredTimeStepNames() const
 {
-    CVF_ASSERT( m_readerInterface.notNull() );
+    CAF_ASSERT( m_readerInterface.notNull() );
     return m_readerInterface->filteredStepNames();
 }
 
@@ -962,7 +962,7 @@ int RigFemPartResultsCollection::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 int RigFemPartResultsCollection::frameCount( int timeStepIndex ) const
 {
-    CVF_ASSERT( m_readerInterface.notNull() );
+    CAF_ASSERT( m_readerInterface.notNull() );
     return m_readerInterface->frameCount( timeStepIndex );
 }
 
@@ -1033,7 +1033,7 @@ bool RigFemPartResultsCollection::assertResultsLoaded( const RigFemResultAddress
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::deleteResult( const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.isValid() );
+    CAF_ASSERT( resVarAddr.isValid() );
 
     for ( auto& femPartResult : m_femPartResults )
     {
@@ -1099,7 +1099,7 @@ std::vector<RigFemResultAddress> RigFemPartResultsCollection::loadedResults() co
 const std::vector<float>&
     RigFemPartResultsCollection::resultValues( const RigFemResultAddress& resVarAddr, int partIndex, int stepIndex, int frameIndex )
 {
-    CVF_ASSERT( resVarAddr.isValid() );
+    CAF_ASSERT( resVarAddr.isValid() );
 
     RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult( partIndex, resVarAddr );
 
@@ -1117,7 +1117,7 @@ void RigFemPartResultsCollection::globalResultValues( const RigFemResultAddress&
                                                       int                        frameIndex,
                                                       std::vector<float>&        resultValues )
 {
-    CVF_ASSERT( resVarAddr.isValid() );
+    CAF_ASSERT( resVarAddr.isValid() );
 
     for ( int i = 0; i < partCount(); i++ )
     {
@@ -1163,7 +1163,7 @@ void RigFemPartResultsCollection::globalResultValues( const RigFemResultAddress&
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::Ten3f> RigFemPartResultsCollection::tensors( const RigFemResultAddress& resVarAddr, int partIndex, int stepIndex, int frameIndex )
 {
-    CVF_ASSERT( resVarAddr.resultPosType == RIG_ELEMENT_NODAL || resVarAddr.resultPosType == RIG_INTEGRATION_POINT );
+    CAF_ASSERT( resVarAddr.resultPosType == RIG_ELEMENT_NODAL || resVarAddr.resultPosType == RIG_INTEGRATION_POINT );
 
     std::vector<caf::Ten3f> outputTensors;
 
@@ -1257,7 +1257,7 @@ void RigFemPartResultsCollection::posNegClosestToZero( const RigFemResultAddress
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::meanScalarValue( const RigFemResultAddress& resVarAddr, double* meanValue )
 {
-    CVF_ASSERT( meanValue );
+    CAF_ASSERT( meanValue );
 
     statistics( resVarAddr )->meanCellScalarValues( *meanValue );
 }
@@ -1291,7 +1291,7 @@ void RigFemPartResultsCollection::p10p90ScalarValues( const RigFemResultAddress&
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& resVarAddr, double* sum )
 {
-    CVF_ASSERT( sum );
+    CAF_ASSERT( sum );
 
     statistics( resVarAddr )->sumCellScalarValues( *sum );
 }
@@ -1301,7 +1301,7 @@ void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& res
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* sum )
 {
-    CVF_ASSERT( sum );
+    CAF_ASSERT( sum );
 
     statistics( resVarAddr )->sumCellScalarValues( stepIndex, *sum );
 }

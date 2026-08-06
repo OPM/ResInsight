@@ -38,6 +38,8 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
 
+#include "cafAssert.h"
+
 #include <QTcpSocket>
 
 #include <array>
@@ -138,7 +140,7 @@ public:
                 }
             }
 
-            CVF_ASSERT( valueIndex == cellCount );
+            CAF_ASSERT( valueIndex == cellCount );
 
             RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)doubleValues.data(), blockByteCount );
         }
@@ -216,7 +218,7 @@ public:
                 doubleValues[valueIndex++] = center[coordIdx];
             }
 
-            CVF_ASSERT( valueIndex == activeCellCount );
+            CAF_ASSERT( valueIndex == activeCellCount );
             RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)doubleValues.data(), blockByteCount );
         }
 
@@ -304,7 +306,7 @@ public:
                     }
                 }
 
-                CVF_ASSERT( valueIndex == cellCount );
+                CAF_ASSERT( valueIndex == cellCount );
 
                 RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)doubleValues.data(), blockByteCount );
             }
@@ -385,7 +387,7 @@ public:
                     doubleValues[valueIndex++]            = getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );
                 }
 
-                CVF_ASSERT( valueIndex == activeCellCount );
+                CAF_ASSERT( valueIndex == activeCellCount );
 
                 RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)doubleValues.data(), blockByteCount );
             }

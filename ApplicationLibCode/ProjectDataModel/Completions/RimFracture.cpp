@@ -285,7 +285,7 @@ cvf::Vec3d RimFracture::fracturePosition() const
 //--------------------------------------------------------------------------------------------------
 const NonDarcyData& RimFracture::nonDarcyProperties() const
 {
-    CVF_ASSERT( !m_cachedFractureProperties.isDirty() );
+    CAF_ASSERT( !m_cachedFractureProperties.isDirty() );
 
     return m_cachedFractureProperties;
 }
@@ -634,7 +634,7 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions( const caf::Pdm
     QList<caf::PdmOptionItemInfo> options;
 
     RimProject* proj = RimProject::current();
-    CVF_ASSERT( proj );
+    CAF_ASSERT( proj );
 
     if ( fieldNeedingOptions == &m_fractureTemplate )
     {
@@ -849,7 +849,7 @@ bool RimFracture::isEclipseCellOpenForFlow( const RigMainGrid*      mainGrid,
                                             const std::set<size_t>& reservoirCellIndicesOpenForFlow,
                                             size_t                  globalCellIndex ) const
 {
-    CVF_ASSERT( fractureTemplate() );
+    CAF_ASSERT( fractureTemplate() );
     if ( !fractureTemplate()->fractureContainment()->isEnabled() ) return true;
 
     return fractureTemplate()->fractureContainment()->isEclipseCellOpenForFlow( mainGrid, globalCellIndex, reservoirCellIndicesOpenForFlow );
@@ -910,7 +910,7 @@ RimFractureTemplate* RimFracture::fractureTemplate() const
 //--------------------------------------------------------------------------------------------------
 RivWellFracturePartMgr* RimFracture::fracturePartManager()
 {
-    CVF_ASSERT( m_fracturePartMgr.notNull() );
+    CAF_ASSERT( m_fracturePartMgr.notNull() );
 
     return m_fracturePartMgr.p();
 }

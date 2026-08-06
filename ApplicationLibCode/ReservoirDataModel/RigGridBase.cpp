@@ -25,7 +25,7 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <algorithm>
 #include <array>
@@ -101,8 +101,8 @@ void RigGridBase::setIsRadial( bool isRadial )
 //--------------------------------------------------------------------------------------------------
 RigCell& RigGridBase::cell( size_t gridLocalCellIndex )
 {
-    CVF_TIGHT_ASSERT( m_mainGrid );
-    CVF_TIGHT_ASSERT( m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->reservoirCells().size() );
+    CAF_ASSERT( m_mainGrid );
+    CAF_ASSERT( m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->reservoirCells().size() );
 
     return m_mainGrid->reservoirCells()[m_indexToStartOfCells + gridLocalCellIndex];
 }
@@ -112,7 +112,7 @@ RigCell& RigGridBase::cell( size_t gridLocalCellIndex )
 //--------------------------------------------------------------------------------------------------
 const RigCell& RigGridBase::cell( size_t gridLocalCellIndex ) const
 {
-    CVF_TIGHT_ASSERT( m_mainGrid );
+    CAF_ASSERT( m_mainGrid );
 
     return m_mainGrid->reservoirCells()[m_indexToStartOfCells + gridLocalCellIndex];
 }
@@ -211,8 +211,8 @@ size_t RigGridBase::cellIndexFromIJK( const caf::VecIjk0& ijk ) const
 //--------------------------------------------------------------------------------------------------
 size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 {
-    CVF_TIGHT_ASSERT( i != cvf::UNDEFINED_SIZE_T && j != cvf::UNDEFINED_SIZE_T && k != cvf::UNDEFINED_SIZE_T );
-    CVF_TIGHT_ASSERT( i < m_cellCounts.x() && j < m_cellCounts.y() && k < m_cellCounts.z() );
+    CAF_ASSERT( i != cvf::UNDEFINED_SIZE_T && j != cvf::UNDEFINED_SIZE_T && k != cvf::UNDEFINED_SIZE_T );
+    CAF_ASSERT( i < m_cellCounts.x() && j < m_cellCounts.y() && k < m_cellCounts.z() );
 
     return i + j * m_cellCounts.x() + k * m_cellCountIJ;
 }
@@ -237,7 +237,7 @@ void RigGridBase::cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordin
 //--------------------------------------------------------------------------------------------------
 bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
 {
-    CVF_TIGHT_ASSERT( cellIndex < m_cellCountIJK );
+    CAF_ASSERT( cellIndex < m_cellCountIJK );
 
     size_t index = cellIndex;
 
@@ -473,7 +473,7 @@ size_t RigGridBase::addCoarseningBox( size_t i1, size_t i2, size_t j1, size_t j2
                 size_t cellIdx = cellIndexFromIJK( i, j, k );
 
                 RigCell& c = cell( cellIdx );
-                CVF_ASSERT( c.coarseningBoxIndex() == cvf::UNDEFINED_SIZE_T );
+                CAF_ASSERT( c.coarseningBoxIndex() == cvf::UNDEFINED_SIZE_T );
 
                 c.setCoarseningBoxIndex( coarseningBoxIndex );
             }
@@ -488,9 +488,9 @@ size_t RigGridBase::addCoarseningBox( size_t i1, size_t i2, size_t j1, size_t j2
 //--------------------------------------------------------------------------------------------------
 void RigGridBase::coarseningBox( size_t coarseningBoxIndex, size_t* i1, size_t* i2, size_t* j1, size_t* j2, size_t* k1, size_t* k2 ) const
 {
-    CVF_ASSERT( coarseningBoxIndex < m_coarseningBoxInfo.size() );
+    CAF_ASSERT( coarseningBoxIndex < m_coarseningBoxInfo.size() );
 
-    CVF_ASSERT( i1 && i2 && j1 && j2 && k1 && k2 );
+    CAF_ASSERT( i1 && i2 && j1 && j2 && k1 && k2 );
 
     const std::array<size_t, 6>& box = m_coarseningBoxInfo[coarseningBoxIndex];
     *i1                              = box[0];
@@ -615,7 +615,7 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                     
                                                      cvf::StructGridInterface::FaceType face,
                                                      const cvf::UByteArray*             cellVisibility ) const
 {
-    CVF_TIGHT_ASSERT( m_grid );
+    CAF_ASSERT( m_grid );
 
     size_t cellIndex = m_grid->cellIndexFromIJK( i, j, k );
     if ( m_grid->mainGrid()->gridCount() > 1 && m_grid->cell( cellIndex ).subGrid() )

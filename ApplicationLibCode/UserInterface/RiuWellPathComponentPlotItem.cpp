@@ -38,6 +38,8 @@
 #include "qwt_plot_marker.h"
 #include "qwt_text.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
 {
-    CVF_ASSERT( wellPath && wellPath->wellPathGeometry() );
+    CAF_ASSERT( wellPath && wellPath->wellPathGeometry() );
     m_startMD     = wellPath->startMD();
     m_endMD       = wellPath->endMD();
     m_label       = wellPath->name();
@@ -67,7 +69,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
 {
-    CVF_ASSERT( wellPath && component );
+    CAF_ASSERT( wellPath && component );
 
     m_componentType = component->componentType();
     m_label         = component->componentLabel();
@@ -491,7 +493,7 @@ cvf::Color4f RiuWellPathComponentPlotItem::componentColor( float alpha /*= 1.0*/
 //--------------------------------------------------------------------------------------------------
 bool RiuWellPathComponentPlotItem::propertyValueRange( double* minimumValue, double* maximumValue ) const
 {
-    CVF_ASSERT( minimumValue && maximumValue );
+    CAF_ASSERT( minimumValue && maximumValue );
     *maximumValue = 1.0;
     *minimumValue = -1.0;
     return true;
@@ -502,7 +504,7 @@ bool RiuWellPathComponentPlotItem::propertyValueRange( double* minimumValue, dou
 //--------------------------------------------------------------------------------------------------
 bool RiuWellPathComponentPlotItem::depthValueRange( double* minimumValue, double* maximumValue ) const
 {
-    CVF_ASSERT( minimumValue && maximumValue );
+    CAF_ASSERT( minimumValue && maximumValue );
 
     if ( minimumValue && maximumValue )
     {

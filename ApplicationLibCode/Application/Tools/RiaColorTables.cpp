@@ -21,7 +21,7 @@
 
 #include "RiuGuiTheme.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QColor>
 
@@ -649,7 +649,7 @@ cvf::Color3f RiaColorTables::defaultViewerBackgroundColor()
 //--------------------------------------------------------------------------------------------------
 caf::ColorTable RiaColorTables::createBrightnessBasedColorTable( cvf::Color3ub baseColor, int brightnessLevelCount )
 {
-    CVF_ASSERT( brightnessLevelCount >= 1 );
+    CAF_ASSERT( brightnessLevelCount >= 1 );
     QColor baseRGB( baseColor.r(), baseColor.g(), baseColor.b() );
     float  hueF = baseRGB.hslHueF();
     float  satF = baseRGB.hslSaturationF();

@@ -21,6 +21,8 @@
 
 #include "RigFemPart.h"
 
+#include "cafAssert.h"
+
 #include <array>
 #include <climits>
 #include <cmath>
@@ -106,7 +108,7 @@ void RigFemPartGrid::generateStructGridData( bool invertIJK )
                 int        iCoord             = 0;
                 while ( true )
                 {
-                    CVF_ASSERT( elmIdxInI >= 0 && size_t( elmIdxInI ) < m_ijkPrElement.size() );
+                    CAF_ASSERT( elmIdxInI >= 0 && size_t( elmIdxInI ) < m_ijkPrElement.size() );
                     // Assign ijk coordinate
                     m_ijkPrElement[elmIdxInI] = cvf::Vec3i( iCoord, jCoord, kCoord );
 
@@ -282,7 +284,7 @@ cvf::Vec3i RigFemPartGrid::findMainIJKFaces( int elementIndex ) const
         mainElmDirections[1] = cvf::Vec3f::ZERO;
         mainElmDirections[2] = cvf::Vec3f::ZERO;
 
-        CVF_ASSERT( false );
+        CAF_ASSERT( false );
     }
 
     mainElmDirections[0].normalize();
@@ -380,7 +382,7 @@ int RigFemPartGrid::perpendicularFaceInDirection( cvf::Vec3f direction, int perp
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartGrid::isCellValid( size_t i, size_t j, size_t k ) const
 {
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return false;
 }
 
@@ -389,7 +391,7 @@ bool RigFemPartGrid::isCellValid( size_t i, size_t j, size_t k ) const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigFemPartGrid::minCoordinate() const
 {
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return cvf::Vec3d::ZERO;
 }
 
@@ -398,7 +400,7 @@ cvf::Vec3d RigFemPartGrid::minCoordinate() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigFemPartGrid::maxCoordinate() const
 {
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return cvf::Vec3d::ZERO;
 }
 
@@ -407,7 +409,7 @@ cvf::Vec3d RigFemPartGrid::maxCoordinate() const
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartGrid::cellIJKNeighbor( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const
 {
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return false;
 }
 
@@ -446,7 +448,7 @@ bool RigFemPartGrid::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, s
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartGrid::cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const
 {
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return false;
 }
 
@@ -510,7 +512,7 @@ size_t RigFemPartGrid::cellCountK() const
 //--------------------------------------------------------------------------------------------------
 void RigFemPartGrid::cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate ) const
 {
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -518,7 +520,7 @@ void RigFemPartGrid::cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoor
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPartGrid::gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const
 {
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return cvf::UNDEFINED_SIZE_T;
 }
 
@@ -527,6 +529,6 @@ size_t RigFemPartGrid::gridPointIndexFromIJK( size_t i, size_t j, size_t k ) con
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigFemPartGrid::gridPointCoordinate( size_t i, size_t j, size_t k ) const
 {
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return cvf::Vec3d::ZERO;
 }

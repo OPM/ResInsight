@@ -24,7 +24,6 @@
 #include "RiaPorosityModel.h"
 
 #include "cvfArray.h"
-#include "cvfAssert.h"
 #include "cvfCollection.h"
 #include "cvfObject.h"
 #include "cvfStructGrid.h"

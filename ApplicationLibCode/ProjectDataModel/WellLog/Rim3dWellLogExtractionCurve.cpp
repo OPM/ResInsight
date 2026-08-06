@@ -167,7 +167,7 @@ bool Rim3dWellLogExtractionCurve::followAnimationTimeStep() const
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogExtractionCurve::curveValuesAndMds( std::vector<double>* values, std::vector<double>* measuredDepthValues ) const
 {
-    CVF_ASSERT( m_timeStep() >= 0 );
+    CAF_ASSERT( m_timeStep() >= 0 );
 
     return curveValuesAndMdsAtTimeStep( values, measuredDepthValues, m_timeStep );
 }

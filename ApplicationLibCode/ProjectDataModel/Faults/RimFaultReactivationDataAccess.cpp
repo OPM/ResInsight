@@ -41,6 +41,8 @@
 #include "RimFaultReactivationDataAccessorVoidRatio.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimFaultReactivationModel.h"
+
+#include "cafAssert.h"
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------

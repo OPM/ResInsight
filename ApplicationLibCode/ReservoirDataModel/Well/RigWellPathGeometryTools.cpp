@@ -29,6 +29,8 @@
 #include "qwt_spline.h"
 #include "qwt_spline_curve_fitter.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 #include <cmath>
 
@@ -332,7 +334,7 @@ std::vector<cvf::Vec3d> calculateLineSegmentNormals( const std::vector<cvf::Vec3
     const cvf::Vec3d dominantDirection = Internal::estimateDominantDirectionInXYPlane( vertices );
 
     const cvf::Vec3d projectionPlaneNormal = ( up ^ dominantDirection ).getNormalized();
-    CVF_ASSERT( projectionPlaneNormal * dominantDirection <= std::numeric_limits<double>::epsilon() );
+    CAF_ASSERT( projectionPlaneNormal * dominantDirection <= std::numeric_limits<double>::epsilon() );
 
     double sumDotWithRotatedUp = 0.0;
     for ( size_t i = 0; i < vertices.size() - 1; ++i )
@@ -373,7 +375,7 @@ std::vector<double> interpolateMdFromTvd( const std::vector<double>& originalMdV
                                           const std::vector<double>& originalTvdValues,
                                           const std::vector<double>& tvdValuesToInterpolateFrom )
 {
-    CVF_ASSERT( !originalMdValues.empty() );
+    CAF_ASSERT( !originalMdValues.empty() );
     if ( originalMdValues.size() < 2u )
     {
         return { originalMdValues };

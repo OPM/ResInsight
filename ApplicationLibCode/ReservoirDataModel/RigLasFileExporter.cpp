@@ -31,7 +31,7 @@
 
 #include "cafUtils.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include "laswell.hpp"
 
@@ -58,7 +58,7 @@ public:
 
     void appendDataToLasFile( NRLib::LasWell* lasFile, double absentValue ) const
     {
-        CVF_ASSERT( lasFile );
+        CAF_ASSERT( lasFile );
 
         if ( !m_curveData.propertyValues().empty() )
         {
@@ -209,7 +209,7 @@ public:
                 }
                 else if ( firstCurveData.depthUnit() == RiaDefines::DepthUnitType::UNIT_NONE )
                 {
-                    CVF_ASSERT( false );
+                    CAF_ASSERT( false );
                     lasFile->AddLog( "TVDRKB", "", "", tvdrkbValues );
                 }
             }
@@ -243,7 +243,7 @@ public:
 private:
     const RigWellLogCurveData& curveDataForFirstCurve() const
     {
-        CVF_ASSERT( !m_logCurveData.empty() );
+        CAF_ASSERT( !m_logCurveData.empty() );
 
         return m_logCurveData[0].curveData();
     }
@@ -445,7 +445,7 @@ void RigLasFileExporter::appendLasFileDescriptions( const std::vector<RimWellLog
                                                     std::vector<SingleLasFileMetaData>*  lasFileDescriptions,
                                                     bool                                 convertCurveUnits )
 {
-    CVF_ASSERT( lasFileDescriptions );
+    CAF_ASSERT( lasFileDescriptions );
 
     struct CurveCollectionDefinition
     {

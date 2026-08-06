@@ -70,7 +70,7 @@ cvf::ref<cvf::DrawableGeo> RivIjkIntersectionGeometryGenerator::generateSurface(
 {
     calculateArrays( visibleCells );
 
-    CVF_ASSERT( m_triangleVxes.notNull() );
+    CAF_ASSERT( m_triangleVxes.notNull() );
 
     if ( m_triangleVxes->size() == 0 ) return nullptr;
 
@@ -102,7 +102,7 @@ cvf::ref<cvf::DrawableGeo> RivIjkIntersectionGeometryGenerator::createMeshDrawab
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RivIjkIntersectionGeometryGenerator::triangleToCellIndex() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
     return m_triangleToCellIdxMap;
 }
 
@@ -111,7 +111,7 @@ const std::vector<size_t>& RivIjkIntersectionGeometryGenerator::triangleToCellIn
 //--------------------------------------------------------------------------------------------------
 const std::vector<RivIntersectionVertexWeights>& RivIjkIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
     return m_triVxToCellCornerWeights;
 }
 
@@ -120,7 +120,7 @@ const std::vector<RivIntersectionVertexWeights>& RivIjkIntersectionGeometryGener
 //--------------------------------------------------------------------------------------------------
 const cvf::Vec3fArray* RivIjkIntersectionGeometryGenerator::triangleVxes() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
 
     return m_triangleVxes.p();
 }

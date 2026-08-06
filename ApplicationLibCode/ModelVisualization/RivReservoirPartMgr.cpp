@@ -30,6 +30,8 @@
 
 #include "cvfModelBasicList.h"
 #include "cvfStructGrid.h"
+
+#include "cafAssert.h"
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -83,12 +85,12 @@ void RivReservoirPartMgr::setTransform( cvf::Transform* scaleTransform )
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::setCellVisibility( size_t gridIndex, cvf::UByteArray* cellVisibilities )
 {
-    CVF_ASSERT( gridIndex < m_allGrids.size() );
+    CAF_ASSERT( gridIndex < m_allGrids.size() );
     m_allGrids[gridIndex]->setCellVisibility( cellVisibilities );
 
     if ( gridIndex == 0 )
     {
-        CVF_ASSERT( m_faultsPartMgr.notNull() );
+        CAF_ASSERT( m_faultsPartMgr.notNull() );
         m_faultsPartMgr->setCellVisibility( cellVisibilities );
     }
 }
@@ -98,7 +100,7 @@ void RivReservoirPartMgr::setCellVisibility( size_t gridIndex, cvf::UByteArray* 
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::UByteArray> RivReservoirPartMgr::cellVisibility( size_t gridIdx )
 {
-    CVF_ASSERT( gridIdx < m_allGrids.size() );
+    CAF_ASSERT( gridIdx < m_allGrids.size() );
     return m_allGrids[gridIdx]->cellVisibility();
 }
 

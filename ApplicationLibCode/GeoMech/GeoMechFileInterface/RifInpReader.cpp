@@ -27,6 +27,7 @@
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
 
+#include "cafAssert.h"
 #include "cafProgressInfo.h"
 
 #include <QString>
@@ -104,7 +105,7 @@ bool RifInpReader::isOpen() const
 //--------------------------------------------------------------------------------------------------
 bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
 {
-    CVF_ASSERT( femParts );
+    CAF_ASSERT( femParts );
 
     // The key in the maps is the part ID
     std::map<int, std::string>                                              parts;
@@ -665,7 +666,7 @@ std::map<std::string, std::vector<std::string>> RifInpReader::scalarIntegrationP
 //--------------------------------------------------------------------------------------------------
 void RifInpReader::readDisplacements( int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements )
 {
-    CVF_ASSERT( displacements );
+    CAF_ASSERT( displacements );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -677,7 +678,7 @@ void RifInpReader::readField( RigFemResultPosEnum               resultType,
                               int                               stepIndex,
                               std::vector<std::vector<float>*>* resultValues )
 {
-    CVF_ASSERT( resultValues );
+    CAF_ASSERT( resultValues );
 
     auto dataMap = propertyDataMap( resultType );
     if ( dataMap == nullptr ) return;

@@ -83,7 +83,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
             plotTrack->addCurve( curve );
 
             RigWellLogData* wellLogData = wellLog->wellLogData();
-            CVF_ASSERT( wellLogData );
+            CAF_ASSERT( wellLogData );
 
             if ( isFirst )
             {

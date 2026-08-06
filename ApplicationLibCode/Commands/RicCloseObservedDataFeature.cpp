@@ -32,7 +32,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -125,7 +125,7 @@ void RicCloseObservedDataFeature::onActionTriggered( bool isChecked )
     const auto summarySelection = caf::SelectionManager::instance()->objectsByType<RimObservedSummaryData>();
     const auto fmuRftSelection  = caf::SelectionManager::instance()->objectsByType<RimObservedFmuRftData>();
 
-    CVF_ASSERT( !( summarySelection.empty() && fmuRftSelection.empty() ) );
+    CAF_ASSERT( !( summarySelection.empty() && fmuRftSelection.empty() ) );
 
     RicCloseObservedDataFeature::deleteObservedSummaryData( summarySelection );
     RicCloseObservedDataFeature::deleteObservedRmuRftData( fmuRftSelection );

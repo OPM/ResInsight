@@ -70,7 +70,7 @@ RivFemPartPartMgr::RivFemPartPartMgr( const RigFemPart* part, cvf::Vec3d display
     , m_opacityLevel( 1.0f )
     , m_defaultColor( cvf::Color3::WHITE )
 {
-    CVF_ASSERT( part );
+    CAF_ASSERT( part );
     m_partIdx                   = part->elementPartId();
     m_cellVisibility            = new cvf::UByteArray;
     m_surfaceFacesTextureCoords = new cvf::Vec2fArray;
@@ -96,8 +96,8 @@ void RivFemPartPartMgr::setTransform( cvf::Transform* scaleTransform )
 //--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::setCellVisibility( cvf::UByteArray* cellVisibilities )
 {
-    CVF_ASSERT( m_scaleTransform.notNull() );
-    CVF_ASSERT( cellVisibilities );
+    CAF_ASSERT( m_scaleTransform.notNull() );
+    CAF_ASSERT( cellVisibilities );
 
     m_cellVisibility = cellVisibilities;
 
@@ -216,7 +216,7 @@ void RivFemPartPartMgr::generatePartGeometry( RivFemPartGeometryGenerator& geoBu
 //--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 {
-    CVF_ASSERT( model != nullptr );
+    CAF_ASSERT( model != nullptr );
 
     if ( m_part->enabled() )
     {
@@ -273,7 +273,7 @@ void RivFemPartPartMgr::updateCellColor( cvf::Color4f color )
 //--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::updateCellResultColor( int timeStepIndex, int frameIndex, RimGeoMechCellColors* cellResultColors )
 {
-    CVF_ASSERT( cellResultColors );
+    CAF_ASSERT( cellResultColors );
 
     if ( !m_part->enabled() ) return;
 

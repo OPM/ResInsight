@@ -49,6 +49,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafAssert.h"
+
 #include <QFileInfo>
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +74,7 @@ void RimReloadCaseTools::reloadEclipseGrid( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 void RimReloadCaseTools::reloadEclipseData( RimEclipseCase* eclipseCase, bool reloadSummaryData )
 {
-    CVF_ASSERT( eclipseCase );
+    CAF_ASSERT( eclipseCase );
 
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
     if ( !eclipseCaseData ) return;
@@ -137,7 +139,7 @@ void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
 
     for ( RimEclipseView* reservoirView : eclipseCase->reservoirViews() )
     {
-        CVF_ASSERT( reservoirView );
+        CAF_ASSERT( reservoirView );
         reservoirView->setEclipseCase( eclipseCase );
         reservoirView->loadDataAndUpdate();
         reservoirView->updateGridBoxData();
@@ -146,7 +148,7 @@ void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
 
     for ( RimEclipseContourMapView* contourMap : eclipseCase->contourMapCollection()->views() )
     {
-        CVF_ASSERT( contourMap );
+        CAF_ASSERT( contourMap );
 
         // Reloading the grid file destroys and recreates RigEclipseCaseData, including the RigCaseCellResultsData
         // that the contour map projection caches by raw pointer. The cached grid mapping and result data are only

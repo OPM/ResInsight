@@ -26,7 +26,7 @@
 #include "cafCmdFeatureManager.h"
 #include "cafCmdFeatureMenuBuilder.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QMainWindow>
 #include <QMenu>
@@ -38,7 +38,7 @@
 QMenu* RiuMenuBarBuildTools::createDefaultFileMenu( QMenuBar* menuBar )
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    CVF_ASSERT( menuBar && cmdFeatureMgr );
+    CAF_ASSERT( menuBar && cmdFeatureMgr );
 
     QMenu* fileMenu = new RiuToolTipMenu( menuBar );
     fileMenu->setTitle( "&File" );
@@ -57,7 +57,7 @@ QMenu* RiuMenuBarBuildTools::createDefaultFileMenu( QMenuBar* menuBar )
 QMenu* RiuMenuBarBuildTools::createDefaultEditMenu( QMenuBar* menuBar )
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    CVF_ASSERT( menuBar && cmdFeatureMgr );
+    CAF_ASSERT( menuBar && cmdFeatureMgr );
 
     QMenu* editMenu = menuBar->addMenu( "&Edit" );
     editMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToClipboardFeature" ) );
@@ -75,7 +75,7 @@ QMenu* RiuMenuBarBuildTools::createDefaultEditMenu( QMenuBar* menuBar )
 QMenu* RiuMenuBarBuildTools::createDefaultViewMenu( QMenuBar* menuBar )
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    CVF_ASSERT( menuBar && cmdFeatureMgr );
+    CAF_ASSERT( menuBar && cmdFeatureMgr );
 
     QMenu* viewMenu = menuBar->addMenu( "&View" );
     viewMenu->addAction( cmdFeatureMgr->action( "RicViewZoomAllFeature" ) );
@@ -89,7 +89,7 @@ QMenu* RiuMenuBarBuildTools::createDefaultViewMenu( QMenuBar* menuBar )
 QMenu* RiuMenuBarBuildTools::createDefaultHelpMenu( QMenuBar* menuBar )
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    CVF_ASSERT( menuBar && cmdFeatureMgr );
+    CAF_ASSERT( menuBar && cmdFeatureMgr );
 
     QMenu* helpMenu = menuBar->addMenu( "&Help" );
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpAboutFeature" ) );

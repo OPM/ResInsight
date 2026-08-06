@@ -58,7 +58,7 @@ RivSurfacePartMgr::RivSurfacePartMgr( RimSurfaceInView* surface, bool nativeOnly
     : m_surfaceInView( surface )
     , m_useNativePartsOnly( nativeOnly )
 {
-    CVF_ASSERT( surface );
+    CAF_ASSERT( surface );
 
     if ( !nativeOnly )
     {

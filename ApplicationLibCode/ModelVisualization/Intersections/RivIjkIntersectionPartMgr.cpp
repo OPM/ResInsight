@@ -45,7 +45,7 @@ RivIjkIntersectionPartMgr::RivIjkIntersectionPartMgr( RimIjkIntersection* inters
     : m_rimIntersection( intersection )
     , m_defaultColor( cvf::Color3::WHITE )
 {
-    CVF_ASSERT( m_rimIntersection );
+    CAF_ASSERT( m_rimIntersection );
 
     m_intersectionFacesTextureCoords = new cvf::Vec2fArray;
 

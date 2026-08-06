@@ -19,7 +19,6 @@
 #pragma once
 
 #include "cafPdmPointer.h"
-#include "cvfAssert.h"
 #include "cvfObject.h"
 
 namespace cvf

@@ -62,7 +62,7 @@ bool RigFemPartResultCalculatorSurfaceAngles::isMatching( const RigFemResultAddr
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorSurfaceAngles::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.componentName == "Pazi" || resVarAddr.componentName == "Pinc" );
+    CAF_ASSERT( resVarAddr.componentName == "Pazi" || resVarAddr.componentName == "Pinc" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 1, "" );
     stepCountProgress.setProgressDescription( "Calculating " +

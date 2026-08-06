@@ -103,7 +103,7 @@ RimIdenticalGridCaseGroup::~RimIdenticalGridCaseGroup()
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::addCase( RimEclipseCase* reservoir )
 {
-    CVF_ASSERT( reservoir );
+    CAF_ASSERT( reservoir );
 
     if ( !reservoir ) return;
 
@@ -188,7 +188,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     }
 
     RigEclipseCaseData* rigCaseData = mainCase->eclipseCaseData();
-    CVF_ASSERT( rigCaseData );
+    CAF_ASSERT( rigCaseData );
 
     RiaDefines::PorosityModelType poroModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
     mainCase->results( poroModel )->createPlaceholderResultEntries();
@@ -459,7 +459,7 @@ void RimIdenticalGridCaseGroup::clearActiveCellUnions()
 //--------------------------------------------------------------------------------------------------
 bool RimIdenticalGridCaseGroup::contains( RimEclipseCase* reservoir ) const
 {
-    CVF_ASSERT( reservoir );
+    CAF_ASSERT( reservoir );
 
     for ( size_t i = 0; i < caseCollection()->reservoirs().size(); i++ )
     {

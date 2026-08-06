@@ -212,8 +212,8 @@ bool RimEclipseInputCase::openEclipseGridFile()
             setReservoirData( eclipseCase.p() );
         }
 
-        CVF_ASSERT( eclipseCaseData() );
-        CVF_ASSERT( readerInterface.notNull() );
+        CAF_ASSERT( eclipseCaseData() );
+        CAF_ASSERT( readerInterface.notNull() );
 
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
         results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );

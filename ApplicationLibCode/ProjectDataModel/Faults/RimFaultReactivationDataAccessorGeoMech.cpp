@@ -33,6 +33,8 @@
 #include "RimGeoMechCase.h"
 #include "RimWellIADataAccess.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 #include <limits>
 

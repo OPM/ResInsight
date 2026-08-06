@@ -21,6 +21,8 @@
 #include "cvfMath.h"
 #include "cvfVector2.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 const double RigFractureTransmissibilityEquations::EPSILON = 1.0e-9;
@@ -65,7 +67,7 @@ double RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans( doub
 
     double Tc = 2 * cvf::PI_D * cDarcyForRelevantUnit * fractureCellConductivity / ( log( ro / wellRadius ) + skinFactor );
 
-    CVF_TIGHT_ASSERT( Tc > 0 );
+    CAF_ASSERT( Tc > 0 );
     return Tc;
 }
 
@@ -140,7 +142,7 @@ double RigFractureTransmissibilityEquations::matrixToFractureTrans( double perm,
 
     double transmissibility = 8 * cDarcy * ( perm * NTG ) * A / ( cellSizeLength + slDivPi );
 
-    CVF_ASSERT( !std::isnan( transmissibility ) );
+    CAF_ASSERT( !std::isnan( transmissibility ) );
     return transmissibility;
 }
 

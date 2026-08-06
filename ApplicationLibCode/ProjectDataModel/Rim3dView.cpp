@@ -101,7 +101,7 @@ Rim3dView::Rim3dView()
     , m_animationTimerUsers( 0 )
 {
     RiaPreferences* preferences = RiaPreferences::current();
-    CVF_ASSERT( preferences );
+    CAF_ASSERT( preferences );
 
     CAF_PDM_InitObject( "3d View" );
 
@@ -1852,7 +1852,7 @@ Rim3dView* Rim3dView::prepareComparisonView()
 void Rim3dView::restoreComparisonView()
 {
     Rim3dView* depView = activeComparisonView();
-    CVF_ASSERT( depView );
+    CAF_ASSERT( depView );
 
     depView->setOverrideViewer( nullptr );
     viewer()->setCurrentComparisonFrame( depView->currentTimeStep() );

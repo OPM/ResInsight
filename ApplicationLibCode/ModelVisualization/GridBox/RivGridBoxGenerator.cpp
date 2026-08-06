@@ -268,7 +268,7 @@ void RivGridBoxGenerator::updateFromCamera( const cvf::Camera* camera )
         std::vector<bool> edgeVisibility( 12, false );
         computeEdgeVisibility( faceVisibility, edgeVisibility );
 
-        CVF_ASSERT( m_gridBoxLegendParts.size() == ( NEG_X_NEG_Y + 1 ) * 2 );
+        CAF_ASSERT( m_gridBoxLegendParts.size() == ( NEG_X_NEG_Y + 1 ) * 2 );
         for ( size_t i = POS_Z_POS_X; i <= NEG_X_NEG_Y; i++ )
         {
             if ( edgeVisibility[i] )
@@ -288,8 +288,8 @@ void RivGridBoxGenerator::updateFromCamera( const cvf::Camera* camera )
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::computeEdgeVisibility( const std::vector<bool>& faceVisibility, std::vector<bool>& edgeVisibility )
 {
-    CVF_ASSERT( faceVisibility.size() == NEG_Z + 1 );
-    CVF_ASSERT( edgeVisibility.size() == NEG_X_NEG_Y + 1 );
+    CAF_ASSERT( faceVisibility.size() == NEG_Z + 1 );
+    CAF_ASSERT( edgeVisibility.size() == NEG_X_NEG_Y + 1 );
 
     // POS Z
     if ( faceVisibility[POS_Z] ^ faceVisibility[POS_X] )
@@ -363,10 +363,10 @@ void RivGridBoxGenerator::createGridBoxFaceParts()
 {
     m_gridBoxFaceParts.clear();
 
-    CVF_ASSERT( m_displayCoordsBoundingBox.isValid() );
-    CVF_ASSERT( !m_displayCoordsXValues.empty() );
-    CVF_ASSERT( !m_displayCoordsYValues.empty() );
-    CVF_ASSERT( !m_displayCoordsZValues.empty() );
+    CAF_ASSERT( m_displayCoordsBoundingBox.isValid() );
+    CAF_ASSERT( !m_displayCoordsXValues.empty() );
+    CAF_ASSERT( !m_displayCoordsYValues.empty() );
+    CAF_ASSERT( !m_displayCoordsZValues.empty() );
 
     cvf::Vec3d min = m_displayCoordsBoundingBox.min();
     cvf::Vec3d max = m_displayCoordsBoundingBox.max();
@@ -414,7 +414,7 @@ void RivGridBoxGenerator::createGridBoxFaceParts()
         }
         else
         {
-            CVF_ASSERT( false );
+            CAF_ASSERT( false );
         }
 
         cvf::GeometryBuilderFaceList builder;
@@ -455,10 +455,10 @@ void RivGridBoxGenerator::createGridBoxLegendParts()
 {
     m_gridBoxLegendParts.clear();
 
-    CVF_ASSERT( m_displayCoordsBoundingBox.isValid() );
-    CVF_ASSERT( !m_displayCoordsXValues.empty() );
-    CVF_ASSERT( !m_displayCoordsYValues.empty() );
-    CVF_ASSERT( !m_displayCoordsZValues.empty() );
+    CAF_ASSERT( m_displayCoordsBoundingBox.isValid() );
+    CAF_ASSERT( !m_displayCoordsXValues.empty() );
+    CAF_ASSERT( !m_displayCoordsYValues.empty() );
+    CAF_ASSERT( !m_displayCoordsZValues.empty() );
 
     for ( int edge = POS_Z_POS_X; edge <= NEG_X_NEG_Y; edge++ )
     {
@@ -579,7 +579,7 @@ void RivGridBoxGenerator::createLegend( EdgeType edge, cvf::Collection<cvf::Part
             tickMarkDir = cornerDirection( NEG_X, NEG_Y );
             break;
         default:
-            CVF_TIGHT_ASSERT( false );
+            CAF_ASSERT( false );
             break;
     }
 
@@ -602,8 +602,8 @@ void RivGridBoxGenerator::createLegend( EdgeType edge, cvf::Collection<cvf::Part
         domainCoordsTickValues  = &m_domainCoordsZValues;
     }
 
-    CVF_ASSERT( displayCoordsTickValues );
-    CVF_ASSERT( domainCoordsTickValues );
+    CAF_ASSERT( displayCoordsTickValues );
+    CAF_ASSERT( domainCoordsTickValues );
 
     size_t numVerts = ( displayCoordsTickValues->size() ) * 2;
     size_t numLines = ( displayCoordsTickValues->size() ) + 1;

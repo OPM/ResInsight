@@ -40,7 +40,6 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
-#include "cvfAssert.h"
 
 #include <QKeyEvent>
 

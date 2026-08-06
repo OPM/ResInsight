@@ -32,6 +32,8 @@
 
 #include "cvfScalarMapper.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +66,7 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::generateSurface( bool only
 {
     computeArrays( onlyShowFacesWithDefinedNeighbors );
 
-    CVF_ASSERT( m_vertices.notNull() );
+    CAF_ASSERT( m_vertices.notNull() );
 
     if ( m_vertices->size() == 0 ) return nullptr;
 

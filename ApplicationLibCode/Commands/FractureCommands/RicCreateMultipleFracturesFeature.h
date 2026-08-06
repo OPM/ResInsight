@@ -23,7 +23,6 @@
 #include "RigBoundingBoxIjk.h"
 
 #include "cafVecIjk.h"
-#include "cvfAssert.h"
 #include "cvfVector3.h"
 
 #include <QPointer>

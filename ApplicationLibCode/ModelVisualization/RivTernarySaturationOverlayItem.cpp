@@ -174,7 +174,7 @@ void RivTernarySaturationOverlayItem::renderAxisImmediateMode( float            
 {
 #ifdef CVF_OPENGL_ES
     CVF_UNUSED( layout );
-    CVF_FAIL_MSG( "Not supported on OpenGL ES" );
+    CAF_ASSERT( false && "Not supported on OpenGL ES" );
 #else
 
     cvf::RenderStateDepth depth( false );

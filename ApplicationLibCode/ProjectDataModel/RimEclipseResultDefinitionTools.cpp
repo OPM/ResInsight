@@ -438,7 +438,7 @@ void RimEclipseResultDefinitionTools::updateLegendForFlowDiagnostics( const RimE
         localNegClosestToZero = globalNegClosestToZero;
     }
 
-    CVF_ASSERT( legendConfigToUpdate );
+    CAF_ASSERT( legendConfigToUpdate );
 
     legendConfigToUpdate->disableAllTimeStepsRange( true );
     legendConfigToUpdate->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero );
@@ -531,7 +531,7 @@ void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseRe
         localNegClosestToZero = globalNegClosestToZero;
     }
 
-    CVF_ASSERT( legendConfigToUpdate );
+    CAF_ASSERT( legendConfigToUpdate );
 
     legendConfigToUpdate->disableAllTimeStepsRange( false );
     legendConfigToUpdate->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero );

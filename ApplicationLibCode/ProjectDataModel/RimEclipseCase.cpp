@@ -185,7 +185,7 @@ RimEclipseCase::~RimEclipseCase()
     if ( eclipseCaseData() )
     {
         // At this point, we assume that memory should be released
-        CVF_ASSERT( eclipseCaseData()->refCount() == 1 );
+        CAF_ASSERT( eclipseCaseData()->refCount() == 1 );
     }
 }
 
@@ -302,7 +302,7 @@ void RimEclipseCase::initAfterRead()
     RimEclipseViewCollection* viewColl = viewCollection();
     for ( RimEclipseView* riv : m_reservoirViews_OBSOLETE.childrenByType() )
     {
-        CVF_ASSERT( riv );
+        CAF_ASSERT( riv );
         riv->setEclipseCase( this );
         m_reservoirViews_OBSOLETE.removeChild( riv );
         viewColl->addView( riv );
@@ -397,10 +397,10 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView( RimEclipseViewCollect
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipseCase::createCopyAndAddView( const RimEclipseView* sourceView )
 {
-    CVF_ASSERT( sourceView );
+    CAF_ASSERT( sourceView );
 
     auto rimEclipseView = sourceView->copyObject<RimEclipseView>();
-    CVF_ASSERT( rimEclipseView );
+    CAF_ASSERT( rimEclipseView );
     rimEclipseView->resetDockWindowId();
     rimEclipseView->setEclipseCase( this );
 

@@ -172,7 +172,7 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t frameIndex, const caf::Displ
 
             m_wellHeadPipeCenterPart = part;
             part->updateBoundingBox();
-            CVF_ASSERT( part->boundingBox().isValid() );
+            CAF_ASSERT( part->boundingBox().isValid() );
         }
     }
 

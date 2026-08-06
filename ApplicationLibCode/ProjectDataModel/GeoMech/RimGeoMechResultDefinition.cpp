@@ -498,7 +498,7 @@ void RimGeoMechResultDefinition::getUiAndResultVariableStringList( QStringList* 
                                                                    QStringList*                                           variableNames,
                                                                    const std::map<std::string, std::vector<std::string>>& fieldCompNames )
 {
-    CVF_ASSERT( uiNames && variableNames );
+    CAF_ASSERT( uiNames && variableNames );
 
     std::map<std::string, std::vector<std::string>>::const_iterator fieldIt;
     for ( fieldIt = fieldCompNames.begin(); fieldIt != fieldCompNames.end(); ++fieldIt )
@@ -934,7 +934,7 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
     double globalPosClosestToZero, globalNegClosestToZero;
 
     RigGeoMechCaseData* gmCase = ownerCaseData();
-    CVF_ASSERT( gmCase );
+    CAF_ASSERT( gmCase );
 
     RigFemResultAddress resVarAddress = resultAddress();
 

@@ -134,7 +134,7 @@ void RimGridCrossPlotRegressionCurve::setGroupingInformation( int dataSetIndex, 
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotRegressionCurve::setSamples( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
-    CVF_ASSERT( xValues.size() == yValues.size() );
+    CAF_ASSERT( xValues.size() == yValues.size() );
 
     if ( xValues.empty() || yValues.empty() || !m_plotCurve ) return;
 
@@ -191,7 +191,7 @@ void RimGridCrossPlotRegressionCurve::setSamples( const std::vector<double>& xVa
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotRegressionCurve::setRangeDefaults( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
-    CVF_ASSERT( xValues.size() == yValues.size() );
+    CAF_ASSERT( xValues.size() == yValues.size() );
 
     if ( xValues.empty() || yValues.empty() ) return;
 

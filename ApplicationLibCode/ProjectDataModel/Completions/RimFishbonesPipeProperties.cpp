@@ -22,6 +22,8 @@
 
 #include "RimWellPath.h"
 
+#include "cafAssert.h"
+
 #include <cstdlib>
 
 CAF_PDM_SOURCE_INIT( RimFishbonesPipeProperties, "FishbonesPipeProperties" );
@@ -89,7 +91,7 @@ double RimFishbonesPipeProperties::holeDiameter( RiaDefines::EclipseUnitSystem u
             return RiaEclipseUnitTools::inchToFeet( m_lateralHoleDiameter() );
         }
     }
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return 0.0;
 }
 

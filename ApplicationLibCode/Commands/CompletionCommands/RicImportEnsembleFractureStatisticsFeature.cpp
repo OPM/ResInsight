@@ -77,7 +77,7 @@ void RicImportEnsembleFractureStatisticsFeature::importSingleEnsembleFractureSta
     caf::ProgressInfo progInfo( fileNames.size() + 1, "Creating Ensemble Fracture Statistics" );
 
     RimProject* project = RimProject::current();
-    CVF_ASSERT( project );
+    CAF_ASSERT( project );
 
     RimOilField* oilfield = project->activeOilField();
     if ( !oilfield ) return;

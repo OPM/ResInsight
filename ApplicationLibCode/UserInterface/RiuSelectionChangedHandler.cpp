@@ -58,6 +58,8 @@
 #include "RiuResultTextBuilder.h"
 #include "RiuSeismicHistogramPanel.h"
 
+#include "cafAssert.h"
+
 #include <QStatusBar>
 
 #include <cafDisplayCoordTransform.h>
@@ -183,7 +185,7 @@ void RiuSelectionChangedHandler::addResultCurveFromSelectionItem( const RiuEclip
                                                                                                  eclipseSelectionItem->m_gridIndex,
                                                                                                  eclipseSelectionItem->m_gridLocalCellIndex,
                                                                                                  timeStepDates.size() );
-        CVF_ASSERT( timeStepDates.size() == timeHistoryValues.size() );
+        CAF_ASSERT( timeStepDates.size() == timeHistoryValues.size() );
 
         RiuMainWindow::instance()->resultPlot()->addCurve( eclResDef->eclipseCase(),
                                                            curveName,
@@ -546,7 +548,7 @@ void RiuSelectionChangedHandler::addDepthCurveFromSelectionItem( const RiuSelect
                                                                                static_cast<int>( eclipseSelectionItem->m_gridLocalCellIndex ),
                                                                                static_cast<int>( eclipseSelectionItem->m_gridIndex ) );
 
-        CVF_ASSERT( kValues.size() == resultValues.size() );
+        CAF_ASSERT( kValues.size() == resultValues.size() );
 
         RiuMainWindow::instance()->depthPlot()->addCurve( eclResDef->eclipseCase(),
                                                           curveName,

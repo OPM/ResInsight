@@ -81,10 +81,10 @@ bool RicNewFishbonesSubsAtMeasuredDepthFeature::isCommandEnabled() const
 void RicNewFishbonesSubsAtMeasuredDepthFeature::createFishbones( const RimFishbonesDefines::RicFishbonesSystemParameters& customParameters )
 {
     RiuWellPathSelectionItem* wellPathSelItem = RiuWellPathSelectionItem::wellPathSelectionItem();
-    CVF_ASSERT( wellPathSelItem );
+    CAF_ASSERT( wellPathSelItem );
 
     RimWellPath* wellPath = wellPathSelItem->m_wellpath;
-    CVF_ASSERT( wellPath );
+    CAF_ASSERT( wellPath );
 
     RicFishbonesCreateHelper::createAndConfigureFishbones( wellPath->fishbonesCollection(), customParameters, wellPathSelItem->m_measuredDepth );
 }

@@ -349,7 +349,7 @@ const std::vector<std::pair<QString, cvf::Vec3d>>& RivSurfaceIntersectionGeometr
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RivSurfaceIntersectionGeometryGenerator::triangleToCellIndex() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
     return m_triangleToCellIdxMap;
 }
 
@@ -358,7 +358,7 @@ const std::vector<size_t>& RivSurfaceIntersectionGeometryGenerator::triangleToCe
 //--------------------------------------------------------------------------------------------------
 const std::vector<RivIntersectionVertexWeights>& RivSurfaceIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
     return m_triVxToCellCornerWeights;
 }
 
@@ -367,7 +367,7 @@ const std::vector<RivIntersectionVertexWeights>& RivSurfaceIntersectionGeometryG
 //--------------------------------------------------------------------------------------------------
 const cvf::Vec3fArray* RivSurfaceIntersectionGeometryGenerator::triangleVxes() const
 {
-    CVF_ASSERT( m_triangleVxes->size() );
+    CAF_ASSERT( m_triangleVxes->size() );
     return m_triangleVxes.p();
 }
 

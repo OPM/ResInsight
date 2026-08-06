@@ -197,7 +197,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
     cvf::ref<cvf::Color3ubArray> colorArray  = new cvf::Color3ubArray;
     colorArray->resize( vertexCount );
     colorArray->setAll( cvf::Color3::WHITE );
-    CVF_ASSERT( vertexCount == numSectors * 3 );
+    CAF_ASSERT( vertexCount == numSectors * 3 );
 
     std::vector<std::pair<cvf::String, cvf::Vec3f>> labelsWithPosition;
 

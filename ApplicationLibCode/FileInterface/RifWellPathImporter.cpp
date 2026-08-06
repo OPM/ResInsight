@@ -40,7 +40,7 @@
 //--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellData RifWellPathImporter::readWellData( const QString& filePath, size_t indexInFile )
 {
-    CVF_ASSERT( caf::Utils::fileExists( filePath ) );
+    CAF_ASSERT( caf::Utils::fileExists( filePath ) );
 
     if ( isJsonFile( filePath ) )
     {
@@ -69,7 +69,7 @@ RifWellPathImporter::WellData RifWellPathImporter::readWellData( const QString& 
 //--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellMetaData RifWellPathImporter::readWellMetaData( const QString& filePath, size_t indexInFile )
 {
-    CVF_ASSERT( caf::Utils::fileExists( filePath ) );
+    CAF_ASSERT( caf::Utils::fileExists( filePath ) );
 
     if ( isJsonFile( filePath ) )
     {
@@ -116,7 +116,7 @@ size_t RifWellPathImporter::wellDataCount( const QString& filePath )
 
         readAllAsciiWellData( filePath );
         it = m_fileNameToWellDataGroupMap.find( filePath );
-        CVF_ASSERT( it != m_fileNameToWellDataGroupMap.end() );
+        CAF_ASSERT( it != m_fileNameToWellDataGroupMap.end() );
 
         return it->second.size();
     }
@@ -352,7 +352,7 @@ RifWellPathImporter::WellData RifWellPathImporter::readAsciiWellData( const QStr
 
     std::map<QString, std::vector<RifWellPathImporter::WellData>>::iterator it = m_fileNameToWellDataGroupMap.find( filePath );
 
-    CVF_ASSERT( it != m_fileNameToWellDataGroupMap.end() );
+    CAF_ASSERT( it != m_fileNameToWellDataGroupMap.end() );
 
     if ( indexInFile < it->second.size() )
     {

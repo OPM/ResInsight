@@ -195,7 +195,7 @@ bool RicWellPathExportCompletionDataFeature::isCommandEnabled() const
 void RicWellPathExportCompletionDataFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
-    CVF_ASSERT( !wellPaths.empty() );
+    CAF_ASSERT( !wellPaths.empty() );
 
     QString dialogTitle = "Export Completion Data for Selected Well Paths";
     RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompletions( dialogTitle, wellPaths );

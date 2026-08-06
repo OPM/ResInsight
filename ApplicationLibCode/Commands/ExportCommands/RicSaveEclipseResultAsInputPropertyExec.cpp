@@ -43,7 +43,7 @@
 RicSaveEclipseResultAsInputPropertyExec::RicSaveEclipseResultAsInputPropertyExec( RimEclipseCellColors* cellColors )
     : CmdExecuteCommand( nullptr )
 {
-    CVF_ASSERT( cellColors );
+    CAF_ASSERT( cellColors );
     m_cellColors = cellColors;
 }
 
@@ -67,7 +67,7 @@ QString RicSaveEclipseResultAsInputPropertyExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseResultAsInputPropertyExec::redo()
 {
-    CVF_ASSERT( m_cellColors );
+    CAF_ASSERT( m_cellColors );
 
     if ( !m_cellColors->reservoirView() ) return;
     if ( !m_cellColors->reservoirView()->eclipseCase() ) return;
@@ -125,5 +125,5 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
 void RicSaveEclipseResultAsInputPropertyExec::undo()
 {
     // TODO
-    CVF_ASSERT( 0 );
+    CAF_ASSERT( 0 );
 }

@@ -151,7 +151,7 @@ std::vector<RigFemResultAddress> RiaMemoryCleanup::selectedGeoMechResults() cons
     {
         for ( size_t index : m_resultsToDelete() )
         {
-            CVF_ASSERT( index < m_geomResultAddresses.size() );
+            CAF_ASSERT( index < m_geomResultAddresses.size() );
             results.push_back( m_geomResultAddresses[index] );
         }
     }
@@ -168,7 +168,7 @@ std::vector<RigEclipseResultAddress> RiaMemoryCleanup::selectedEclipseResults() 
     {
         for ( size_t index : m_resultsToDelete() )
         {
-            CVF_ASSERT( index < m_eclipseResultAddresses.size() );
+            CAF_ASSERT( index < m_eclipseResultAddresses.size() );
             results.push_back( m_eclipseResultAddresses[index] );
         }
     }

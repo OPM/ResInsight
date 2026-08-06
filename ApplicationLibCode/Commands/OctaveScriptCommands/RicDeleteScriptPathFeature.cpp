@@ -28,8 +28,6 @@
 #include "RimScriptCollection.h"
 #include "RiuMainWindow.h"
 
-#include "cvfAssert.h"
-
 #include <QAction>
 #include <QStringList>
 

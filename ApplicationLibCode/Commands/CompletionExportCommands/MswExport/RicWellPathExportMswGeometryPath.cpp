@@ -38,6 +38,8 @@
 #include "RimWellPathTieIn.h"
 #include "RimWellPathValve.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 
 namespace RicWellPathExportMswGeometryPath
@@ -266,7 +268,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                              const std::optional<QDateTime>&               exportDate )
 {
     auto mswParameters = wellPath->mswCompletionParameters();
-    CVF_ASSERT( mswParameters );
+    CAF_ASSERT( mswParameters );
 
     const RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
     const RigMainGrid*                  mainGrid   = eclipseCase->mainGrid();

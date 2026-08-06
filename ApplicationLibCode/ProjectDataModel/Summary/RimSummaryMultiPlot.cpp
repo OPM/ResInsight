@@ -188,7 +188,7 @@ RimSummaryMultiPlot::~RimSummaryMultiPlot()
 void RimSummaryMultiPlot::addPlot( RimPlot* plot )
 {
     auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
-    CVF_ASSERT( sumPlot != nullptr );
+    CAF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
         RimMultiPlot::addPlot( plot );
@@ -201,7 +201,7 @@ void RimSummaryMultiPlot::addPlot( RimPlot* plot )
 void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 {
     auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
-    CVF_ASSERT( sumPlot != nullptr );
+    CAF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
         sumPlot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
@@ -272,7 +272,7 @@ void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObject
 void RimSummaryMultiPlot::removePlot( RimPlot* plot )
 {
     auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
-    CVF_ASSERT( sumPlot != nullptr );
+    CAF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
         RimMultiPlot::removePlot( plot );
@@ -285,7 +285,7 @@ void RimSummaryMultiPlot::removePlot( RimPlot* plot )
 void RimSummaryMultiPlot::removePlotNoUpdate( RimPlot* plot )
 {
     auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
-    CVF_ASSERT( sumPlot != nullptr );
+    CAF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
         RimMultiPlot::removePlotNoUpdate( plot );

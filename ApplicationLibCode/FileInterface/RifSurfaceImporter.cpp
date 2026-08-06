@@ -24,7 +24,7 @@
 
 #include "cafProgressInfo.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfGeometryTools.h"
 #include "cvfVector3.h"
 
@@ -47,7 +47,7 @@
 //--------------------------------------------------------------------------------------------------
 void RifSurfaceImporter::readGocadFile( const QString& filename, RigTriangleMeshData* triangleMeshData )
 {
-    CVF_ASSERT( triangleMeshData );
+    CAF_ASSERT( triangleMeshData );
 
     enum class GocadZPositive
     {

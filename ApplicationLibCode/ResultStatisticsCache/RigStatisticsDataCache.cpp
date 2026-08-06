@@ -22,6 +22,8 @@
 #include "RigStatisticsCalculator.h"
 #include "RigStatisticsMath.h"
 
+#include "cafAssert.h"
+
 #include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
@@ -31,7 +33,7 @@ RigStatisticsDataCache::RigStatisticsDataCache( RigStatisticsCalculator* statist
     : m_statisticsCalculator( statisticsCalculator )
     , m_numBins( RigStatisticsDataCache::defaultNumBins() )
 {
-    CVF_ASSERT( m_statisticsCalculator.notNull() );
+    CAF_ASSERT( m_statisticsCalculator.notNull() );
 
     clearAllStatistics();
 }

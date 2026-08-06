@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <cstddef>
 #include <set>
@@ -48,7 +48,7 @@ public:
     template <typename T>
     static void getValuesByIntervals( const std::vector<T>& values, const CurveIntervals& intervals, std::vector<T>* filteredValues )
     {
-        CVF_ASSERT( filteredValues );
+        CAF_ASSERT( filteredValues );
 
         for ( size_t intIdx = 0; intIdx < intervals.size(); intIdx++ )
         {

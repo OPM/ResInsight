@@ -60,7 +60,7 @@ CAF_CMD_SOURCE_INIT( RicExportCompletionsWellSegmentsFeature, "RicExportCompleti
 void RicExportCompletionsWellSegmentsFeature::onActionTriggered( bool isChecked )
 {
     RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
-    CVF_ASSERT( wellPath );
+    CAF_ASSERT( wellPath );
 
     RimFishbonesCollection* fishbonesCollection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFishbonesCollection>();
     RimWellPathFractureCollection* fractureCollection =
@@ -68,7 +68,7 @@ void RicExportCompletionsWellSegmentsFeature::onActionTriggered( bool isChecked 
     RimPerforationCollection* perforationCollection =
         caf::SelectionManager::instance()->selectedItemAncestorOfType<RimPerforationCollection>();
 
-    CVF_ASSERT( fishbonesCollection || fractureCollection || perforationCollection );
+    CAF_ASSERT( fishbonesCollection || fractureCollection || perforationCollection );
 
     RiaApplication* app = RiaApplication::instance();
 

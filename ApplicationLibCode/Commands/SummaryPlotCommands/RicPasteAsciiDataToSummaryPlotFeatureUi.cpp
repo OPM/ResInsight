@@ -370,7 +370,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat RicPasteAsciiDataToSummaryPl
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    CVF_ASSERT( m_uiMode != UI_MODE_NONE );
+    CAF_ASSERT( m_uiMode != UI_MODE_NONE );
 
     if ( m_uiMode == UI_MODE_PASTE )
     {
@@ -428,7 +428,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering( QString uiConfig
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RicPasteAsciiDataToSummaryPlotFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    CVF_ASSERT( m_uiMode != UI_MODE_NONE );
+    CAF_ASSERT( m_uiMode != UI_MODE_NONE );
 
     QList<caf::PdmOptionItemInfo> options;
 
@@ -484,7 +484,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::fieldChangedByUi( const caf::PdmFi
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize( RifCsvUserDataParser* parser )
 {
-    CVF_ASSERT( parser );
+    CAF_ASSERT( parser );
 
     QString cellSep = parser->tryDetermineCellSeparator();
     if ( !cellSep.isEmpty() )

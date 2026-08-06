@@ -23,6 +23,8 @@
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
+
+#include "cafAssert.h"
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -52,7 +54,7 @@ void RigCombTransResultAccessor::setTransResultAccessors( RigResultAccessor* xTr
 //--------------------------------------------------------------------------------------------------
 double RigCombTransResultAccessor::cellScalar( size_t gridLocalCellIndex ) const
 {
-    CVF_TIGHT_ASSERT( false );
+    CAF_ASSERT( false );
 
     return HUGE_VAL;
 }
@@ -146,7 +148,7 @@ double RigCombTransResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cv
 //--------------------------------------------------------------------------------------------------
 double RigCombTransResultAccessor::cellScalarGlobIdx( size_t globCellIndex ) const
 {
-    CVF_TIGHT_ASSERT( false );
+    CAF_ASSERT( false );
 
     return HUGE_VAL;
 }

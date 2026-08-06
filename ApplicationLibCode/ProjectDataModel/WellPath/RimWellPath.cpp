@@ -258,7 +258,7 @@ void RimWellPath::applyOffset( double offsetMD )
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RimWellPath::fishbonesCollection()
 {
-    CVF_ASSERT( m_completions );
+    CAF_ASSERT( m_completions );
 
     return m_completions->fishbonesCollection();
 }
@@ -268,7 +268,7 @@ RimFishbonesCollection* RimWellPath::fishbonesCollection()
 //--------------------------------------------------------------------------------------------------
 const RimFishbonesCollection* RimWellPath::fishbonesCollection() const
 {
-    CVF_ASSERT( m_completions );
+    CAF_ASSERT( m_completions );
 
     return m_completions->fishbonesCollection();
 }
@@ -278,7 +278,7 @@ const RimFishbonesCollection* RimWellPath::fishbonesCollection() const
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection* RimWellPath::perforationIntervalCollection()
 {
-    CVF_ASSERT( m_completions );
+    CAF_ASSERT( m_completions );
 
     return m_completions->perforationCollection();
 }
@@ -288,7 +288,7 @@ RimPerforationCollection* RimWellPath::perforationIntervalCollection()
 //--------------------------------------------------------------------------------------------------
 RimValveCollection* RimWellPath::valveCollection() const
 {
-    CVF_ASSERT( m_completions );
+    CAF_ASSERT( m_completions );
 
     return m_completions->valveCollection();
 }
@@ -298,7 +298,7 @@ RimValveCollection* RimWellPath::valveCollection() const
 //--------------------------------------------------------------------------------------------------
 const RimPerforationCollection* RimWellPath::perforationIntervalCollection() const
 {
-    CVF_ASSERT( m_completions );
+    CAF_ASSERT( m_completions );
 
     return m_completions->perforationCollection();
 }
@@ -370,7 +370,7 @@ const RimMswCompletionParameters* RimWellPath::mswCompletionParameters() const
 //--------------------------------------------------------------------------------------------------
 RimWellPathFractureCollection* RimWellPath::fractureCollection()
 {
-    CVF_ASSERT( m_completions );
+    CAF_ASSERT( m_completions );
 
     return m_completions->fractureCollection();
 }
@@ -380,7 +380,7 @@ RimWellPathFractureCollection* RimWellPath::fractureCollection()
 //--------------------------------------------------------------------------------------------------
 const RimWellPathFractureCollection* RimWellPath::fractureCollection() const
 {
-    CVF_ASSERT( m_completions );
+    CAF_ASSERT( m_completions );
 
     return m_completions->fractureCollection();
 }
@@ -390,7 +390,7 @@ const RimWellPathFractureCollection* RimWellPath::fractureCollection() const
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelCollection* RimWellPath::stimPlanModelCollection()
 {
-    CVF_ASSERT( m_completions );
+    CAF_ASSERT( m_completions );
 
     return m_completions->stimPlanModelCollection();
 }
@@ -400,7 +400,7 @@ RimStimPlanModelCollection* RimWellPath::stimPlanModelCollection()
 //--------------------------------------------------------------------------------------------------
 const RimStimPlanModelCollection* RimWellPath::stimPlanModelCollection() const
 {
-    CVF_ASSERT( m_completions );
+    CAF_ASSERT( m_completions );
 
     return m_completions->stimPlanModelCollection();
 }
@@ -1274,7 +1274,7 @@ RimWellPathTieIn* RimWellPath::wellPathTieIn() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::connectWellPaths( RimWellPath* parentWell, double parentTieInMeasuredDepth )
 {
-    CVF_ASSERT( parentWell != this );
+    CAF_ASSERT( parentWell != this );
 
     if ( parentWell != this )
     {

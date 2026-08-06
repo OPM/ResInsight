@@ -146,7 +146,7 @@ bool RimPlotDataFilterItem::isValid() const
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimPlotDataFilterItem::summaryAddress() const
 {
-    CVF_ASSERT( m_filterTarget() == SUMMARY_CASE || m_filterTarget() == SUMMARY_ITEM );
+    CAF_ASSERT( m_filterTarget() == SUMMARY_CASE || m_filterTarget() == SUMMARY_ITEM );
     return m_filterAddress->address();
 }
 
@@ -155,7 +155,7 @@ RifEclipseSummaryAddress RimPlotDataFilterItem::summaryAddress() const
 //--------------------------------------------------------------------------------------------------
 QString RimPlotDataFilterItem::ensembleParameterName() const
 {
-    CVF_ASSERT( m_filterTarget() == ENSEMBLE_CASE );
+    CAF_ASSERT( m_filterTarget() == ENSEMBLE_CASE );
     return m_filterEnsembleParameter();
 }
 
@@ -164,7 +164,7 @@ QString RimPlotDataFilterItem::ensembleParameterName() const
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimPlotDataFilterItem::filterRangeMinMax() const
 {
-    CVF_ASSERT( m_filterOperation() == RANGE );
+    CAF_ASSERT( m_filterOperation() == RANGE );
     return std::make_pair( m_min(), m_max() );
 }
 
@@ -173,7 +173,7 @@ std::pair<double, double> RimPlotDataFilterItem::filterRangeMinMax() const
 //--------------------------------------------------------------------------------------------------
 int RimPlotDataFilterItem::topBottomN() const
 {
-    CVF_ASSERT( m_filterOperation() != RANGE );
+    CAF_ASSERT( m_filterOperation() != RANGE );
     return m_topBottomN;
 }
 
@@ -182,7 +182,7 @@ int RimPlotDataFilterItem::topBottomN() const
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimPlotDataFilterItem::selectedEnsembleParameterCategories() const
 {
-    CVF_ASSERT( m_filterTarget() == ENSEMBLE_CASE );
+    CAF_ASSERT( m_filterTarget() == ENSEMBLE_CASE );
     return m_ensembleParameterValueCategories;
 }
 
@@ -191,7 +191,7 @@ std::vector<QString> RimPlotDataFilterItem::selectedEnsembleParameterCategories(
 //--------------------------------------------------------------------------------------------------
 RimPlotDataFilterItem::TimeStepSourceType RimPlotDataFilterItem::consideredTimeStepsType() const
 {
-    CVF_ASSERT( m_filterTarget() != ENSEMBLE_CASE );
+    CAF_ASSERT( m_filterTarget() != ENSEMBLE_CASE );
     return m_consideredTimestepsType();
 }
 
@@ -200,7 +200,7 @@ RimPlotDataFilterItem::TimeStepSourceType RimPlotDataFilterItem::consideredTimeS
 //--------------------------------------------------------------------------------------------------
 std::pair<time_t, time_t> RimPlotDataFilterItem::timeRangeMinMax() const
 {
-    CVF_ASSERT( m_consideredTimestepsType() == SELECT_TIMESTEP_RANGE );
+    CAF_ASSERT( m_consideredTimestepsType() == SELECT_TIMESTEP_RANGE );
 
     if ( m_explicitlySelectedTimeSteps().size() >= 2 )
     {
@@ -217,7 +217,7 @@ std::pair<time_t, time_t> RimPlotDataFilterItem::timeRangeMinMax() const
 //--------------------------------------------------------------------------------------------------
 std::vector<time_t> RimPlotDataFilterItem::explicitlySelectedTimeSteps() const
 {
-    CVF_ASSERT( m_consideredTimestepsType == RimPlotDataFilterItem::SELECT_TIMESTEPS );
+    CAF_ASSERT( m_consideredTimestepsType == RimPlotDataFilterItem::SELECT_TIMESTEPS );
 
     std::vector<time_t> selectedTimesteps;
     {

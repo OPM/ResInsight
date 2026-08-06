@@ -29,6 +29,8 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
 
+#include "cafAssert.h"
+
 #include <QAction>
 #include <QFileInfo>
 
@@ -48,7 +50,7 @@ bool RicImportWellMeasurementsFeature::isCommandEnabled() const
 void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
 {
     RimWellPathCollection* wellPathCollection = RicWellMeasurementImportTools::selectedWellPathCollection();
-    CVF_ASSERT( wellPathCollection );
+    CAF_ASSERT( wellPathCollection );
 
     // Open dialog box to select well path files
     RiaApplication* app               = RiaApplication::instance();

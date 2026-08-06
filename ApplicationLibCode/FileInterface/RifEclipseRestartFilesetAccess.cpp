@@ -22,6 +22,7 @@
 #include "RiaStringEncodingTools.h"
 #include "RifEclipseOutputFileTools.h"
 
+#include "cafAssert.h"
 #include "cafProgressInfo.h"
 
 #include "ert/ecl/ecl_file.h"
@@ -92,7 +93,7 @@ void RifEclipseRestartFilesetAccess::setRestartFiles( const QStringList& fileSet
         m_ecl_files.push_back( nullptr );
     }
 
-    CVF_ASSERT( m_fileNames.size() == static_cast<int>( m_ecl_files.size() ) );
+    CAF_ASSERT( m_fileNames.size() == static_cast<int>( m_ecl_files.size() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,7 +108,7 @@ void RifEclipseRestartFilesetAccess::close()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseRestartFilesetAccess::setTimeSteps( const std::vector<QDateTime>& timeSteps )
 {
-    CVF_ASSERT( (size_t)m_fileNames.size() == timeSteps.size() );
+    CAF_ASSERT( (size_t)m_fileNames.size() == timeSteps.size() );
     m_timeSteps = timeSteps;
 }
 
@@ -160,7 +161,7 @@ void RifEclipseRestartFilesetAccess::timeSteps( std::vector<QDateTime>* timeStep
 //--------------------------------------------------------------------------------------------------
 std::vector<RifEclipseKeywordValueCount> RifEclipseRestartFilesetAccess::keywordValueCounts()
 {
-    CVF_ASSERT( timeStepCount() > 0 );
+    CAF_ASSERT( timeStepCount() > 0 );
 
     for ( int i = 0; i < m_fileNames.size(); i++ )
     {
@@ -272,7 +273,7 @@ void RifEclipseRestartFilesetAccess::readWellData( well_info_type* well_info, bo
 //--------------------------------------------------------------------------------------------------
 void RifEclipseRestartFilesetAccess::openTimeStep( size_t timeStep )
 {
-    CVF_ASSERT( timeStep < m_ecl_files.size() );
+    CAF_ASSERT( timeStep < m_ecl_files.size() );
 
     if ( m_ecl_files[timeStep] == nullptr )
     {

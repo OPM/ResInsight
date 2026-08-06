@@ -290,7 +290,7 @@ void RimGridView::setOverrideCellFilterCollection( RimCellFilterCollection* rfc 
 void RimGridView::replaceCellFilterCollectionWithOverride()
 {
     RimCellFilterCollection* overrideRfc = m_overrideCellFilterCollection;
-    CVF_ASSERT( overrideRfc );
+    CAF_ASSERT( overrideRfc );
 
     RimCellFilterCollection* currentRfc = m_cellFilterCollection;
     if ( currentRfc )
@@ -407,7 +407,7 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
 
             if ( eclipseSelItem && eclipseSelItem->m_view == this && eclipseSelItem->m_resultDefinition->eclipseCase() )
             {
-                CVF_ASSERT( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData() );
+                CAF_ASSERT( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData() );
 
                 RivSingleCellPartGenerator partGen( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData(),
                                                     eclipseSelItem->m_gridIndex,

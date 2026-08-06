@@ -61,7 +61,7 @@ bool RigFemPartResultCalculatorPrincipalStress::isMatching( const RigFemResultAd
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStress::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ||
+    CAF_ASSERT( resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ||
                 resVarAddr.componentName == "S1inc" || resVarAddr.componentName == "S1azi" || resVarAddr.componentName == "S2inc" ||
                 resVarAddr.componentName == "S2azi" || resVarAddr.componentName == "S3inc" || resVarAddr.componentName == "S3azi" );
 

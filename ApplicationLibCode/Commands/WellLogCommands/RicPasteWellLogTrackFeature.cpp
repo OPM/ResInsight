@@ -30,7 +30,7 @@
 #include "cafSelectionManager.h"
 #include "cafSelectionManagerTools.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -74,7 +74,7 @@ void RicPasteWellLogTrackFeature::onActionTriggered( bool isChecked )
         if ( fileCurve )
         {
             auto newObject = fileCurve->copyObject<RimWellLogTrack>();
-            CVF_ASSERT( newObject );
+            CAF_ASSERT( newObject );
 
             wellLogPlot->addPlot( newObject );
 

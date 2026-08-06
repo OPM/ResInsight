@@ -57,10 +57,10 @@ bool RicNewWellPathLateralAtDepthFeature::isCommandEnabled() const
 void RicNewWellPathLateralAtDepthFeature::onActionTriggered( bool isChecked )
 {
     RiuWellPathSelectionItem* wellPathSelItem = RiuWellPathSelectionItem::wellPathSelectionItem();
-    CVF_ASSERT( wellPathSelItem );
+    CAF_ASSERT( wellPathSelItem );
 
     RimWellPath* parentWellPath = wellPathSelItem->m_wellpath;
-    CVF_ASSERT( parentWellPath );
+    CAF_ASSERT( parentWellPath );
 
     double parentWellMD = wellPathSelItem->m_measuredDepth;
 

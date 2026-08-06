@@ -167,13 +167,13 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         interpretSplitenzData( static_cast<int>( nz ) + 1, zOffset, zScale, splitEnz, zValues, zCorners );
 
         RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        CVF_ASSERT( activeCellInfo );
+        CAF_ASSERT( activeCellInfo );
 
         RigActiveCellInfo* fractureActiveCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-        CVF_ASSERT( fractureActiveCellInfo );
+        CAF_ASSERT( fractureActiveCellInfo );
 
         RigMainGrid* mainGrid = eclipseCase->mainGrid();
-        CVF_ASSERT( mainGrid );
+        CAF_ASSERT( mainGrid );
 
         mainGrid->setCellCounts( cvf::Vec3st( nx, ny, nz ) );
         mainGrid->setGridName( "Main grid" );
@@ -686,7 +686,7 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
                                                      roff::Token::Kind   kind,
                                                      roff::Reader&       reader )
 {
-    CVF_ASSERT( caseData );
+    CAF_ASSERT( caseData );
 
     int                 nx     = static_cast<int>( caseData->mainGrid()->cellCountI() );
     int                 ny     = static_cast<int>( caseData->mainGrid()->cellCountJ() );
@@ -769,7 +769,7 @@ bool RifRoffFileTools::appendZoneIndexPropertyFromSubgrids( RigEclipseCaseData* 
                                                             roff::Reader&               reader,
                                                             std::map<QString, QString>& keywordMapping )
 {
-    CVF_ASSERT( caseData );
+    CAF_ASSERT( caseData );
 
     auto* mainGrid = caseData->mainGrid();
     if ( !mainGrid ) return false;

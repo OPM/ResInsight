@@ -28,6 +28,8 @@
 #include "RigContourMapProjection.h"
 #include "RigPolyLinesData.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 #include <cmath>
 #include <map>
@@ -66,7 +68,7 @@ double RigContourMapCalculator::calculateValueInMapCell( const RigContourMapProj
             return calculateSum( contourMapProjection, matchingCells, gridCellValues );
         default:
         {
-            CVF_TIGHT_ASSERT( false );
+            CAF_ASSERT( false );
             return std::numeric_limits<double>::infinity();
         }
     }

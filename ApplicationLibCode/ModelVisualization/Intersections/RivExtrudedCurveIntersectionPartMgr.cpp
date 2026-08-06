@@ -94,7 +94,7 @@ RivExtrudedCurveIntersectionPartMgr::RivExtrudedCurveIntersectionPartMgr( RimExt
     : m_rimIntersection( rimCrossSection )
     , m_isFlattened( isFlattened )
 {
-    CVF_ASSERT( m_rimIntersection );
+    CAF_ASSERT( m_rimIntersection );
 
     m_intersectionFacesTextureCoords = new cvf::Vec2fArray;
 

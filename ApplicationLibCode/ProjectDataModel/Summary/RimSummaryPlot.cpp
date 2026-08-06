@@ -1518,7 +1518,7 @@ RimEnsembleCurveSetCollection* RimSummaryPlot::ensembleCurveSetCollection() cons
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve )
 {
-    CVF_ASSERT( curve );
+    CAF_ASSERT( curve );
 
     m_gridTimeHistoryCurves.push_back( curve );
     connectCurveSignals( curve );
@@ -1543,7 +1543,7 @@ std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::gridTimeHistoryCurves() co
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::addAsciiDataCruve( RimAsciiDataCurve* curve )
 {
-    CVF_ASSERT( curve );
+    CAF_ASSERT( curve );
 
     m_asciiDataCurves.push_back( curve );
     if ( plotWidget() )

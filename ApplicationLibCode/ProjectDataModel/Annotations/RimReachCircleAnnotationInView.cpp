@@ -21,6 +21,8 @@
 #include "RimAnnotationGroupCollection.h"
 #include "RimReachCircleAnnotation.h"
 
+#include "cafAssert.h"
+
 CAF_PDM_SOURCE_INIT( RimReachCircleAnnotationInView, "RimReachCircleAnnotationInView" );
 
 //--------------------------------------------------------------------------------------------------
@@ -45,7 +47,7 @@ RimReachCircleAnnotationInView::RimReachCircleAnnotationInView()
 RimReachCircleAnnotationInView::RimReachCircleAnnotationInView( RimReachCircleAnnotation* sourceAnnotation )
     : RimReachCircleAnnotationInView()
 {
-    CVF_ASSERT( sourceAnnotation );
+    CAF_ASSERT( sourceAnnotation );
 
     setCheckState( sourceAnnotation->isActive() );
     m_sourceAnnotation = sourceAnnotation;

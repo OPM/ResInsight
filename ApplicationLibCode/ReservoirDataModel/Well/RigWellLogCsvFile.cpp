@@ -31,6 +31,8 @@
 #include "RimWellLogCurve.h"
 #include "RimWellPath.h"
 
+#include "cafAssert.h"
+
 #include <QFileInfo>
 #include <QString>
 

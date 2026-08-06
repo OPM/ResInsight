@@ -18,7 +18,7 @@
 
 #include "RiaCellDividingTools.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <cmath>
 #include <limits>
@@ -197,7 +197,7 @@ std::vector<std::vector<cvf::Vec3d>> calcFacePoints( const std::vector<cvf::Vec3
                                                      const std::vector<cvf::Vec3d> edgeYPtsLow,
                                                      const std::vector<cvf::Vec3d> edgeYPtsHigh )
 {
-    CVF_ASSERT( edgeXPtsLow.size() == edgeXPtsHigh.size() && edgeYPtsLow.size() == edgeYPtsHigh.size() );
+    CAF_ASSERT( edgeXPtsLow.size() == edgeXPtsHigh.size() && edgeYPtsLow.size() == edgeYPtsHigh.size() );
 
     size_t xSize = edgeXPtsLow.size();
     size_t ySize = edgeYPtsLow.size();
@@ -246,7 +246,7 @@ std::vector<std::vector<cvf::Vec3d>> calcFacePointsNonUniform( const std::vector
                                                                const std::vector<cvf::Vec3d>& edgeYPtsHigh,
                                                                const std::vector<double>&     xCumulativeFractions )
 {
-    CVF_ASSERT( edgeYPtsLow.size() == edgeYPtsHigh.size() );
+    CAF_ASSERT( edgeYPtsLow.size() == edgeYPtsHigh.size() );
 
     size_t ySize = edgeYPtsLow.size();
 

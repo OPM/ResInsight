@@ -144,7 +144,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
         gridIndex = rivSourceInfo->gridIndex();
         if ( rivSourceInfo->hasCellFaceMapping() )
         {
-            CVF_ASSERT( rivSourceInfo->m_cellFaceFromTriangleMapper.notNull() );
+            CAF_ASSERT( rivSourceInfo->m_cellFaceFromTriangleMapper.notNull() );
 
             gridLocalCellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex( firstPartTriangleIndex );
             face               = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace( firstPartTriangleIndex );

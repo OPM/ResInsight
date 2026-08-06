@@ -275,7 +275,7 @@ RiaDefines::PlotAxis RiaDefines::opposite( PlotAxis axis )
     }
 
     // Should never come here
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return {};
 }
 

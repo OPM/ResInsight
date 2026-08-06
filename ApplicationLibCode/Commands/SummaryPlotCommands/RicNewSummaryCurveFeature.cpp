@@ -36,7 +36,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include "RicSummaryPlotFeatureImpl.h"
 #include "RiuPlotMainWindowTools.h"
@@ -59,7 +59,7 @@ void RicNewSummaryCurveFeature::onActionTriggered( bool isChecked )
 {
     RiaGuiApplication* app     = RiaGuiApplication::instance();
     RimProject*        project = app->project();
-    CVF_ASSERT( project );
+    CAF_ASSERT( project );
 
     RimSummaryPlot* plot = selectedSummaryPlot();
     if ( plot )

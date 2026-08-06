@@ -35,6 +35,8 @@
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelStressCalculator.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +139,7 @@ bool RimStimPlanModelStressCalculator::calculate( RiaDefines::CurveProperty curv
             double md = RiaInterpolationTools::linear( tvdValuesOfWellPath, mdValuesOfWellPath, tvd );
             measuredDepthValues.push_back( md );
         }
-        CVF_ASSERT( measuredDepthValues.size() == tvDepthValues.size() );
+        CAF_ASSERT( measuredDepthValues.size() == tvDepthValues.size() );
     }
 
     return true;

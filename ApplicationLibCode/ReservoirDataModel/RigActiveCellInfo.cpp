@@ -20,6 +20,8 @@
 
 #include "RigActiveCellInfo.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +56,7 @@ bool RigActiveCellInfo::isActive( ReservoirCellIndex reservoirCellIndex ) const
         return true;
     }
 
-    CVF_TIGHT_ASSERT( reservoirCellIndex.value() < m_reservoirCellToActiveCell.size() );
+    CAF_ASSERT( reservoirCellIndex.value() < m_reservoirCellToActiveCell.size() );
 
     return m_reservoirCellToActiveCell[reservoirCellIndex.value()].value() != cvf::UNDEFINED_SIZE_T;
 }
@@ -64,7 +66,7 @@ bool RigActiveCellInfo::isActive( ReservoirCellIndex reservoirCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 ActiveCellIndex RigActiveCellInfo::cellResultIndex( ReservoirCellIndex reservoirCellIndex ) const
 {
-    CVF_TIGHT_ASSERT( reservoirCellIndex.value() < m_reservoirCellToActiveCell.size() );
+    CAF_ASSERT( reservoirCellIndex.value() < m_reservoirCellToActiveCell.size() );
 
     return m_reservoirCellToActiveCell[reservoirCellIndex.value()];
 }
@@ -74,7 +76,7 @@ ActiveCellIndex RigActiveCellInfo::cellResultIndex( ReservoirCellIndex reservoir
 //--------------------------------------------------------------------------------------------------
 void RigActiveCellInfo::setCellResultIndex( ReservoirCellIndex reservoirCellIndex, ActiveCellIndex reservoirCellResultIndex )
 {
-    CVF_TIGHT_ASSERT( reservoirCellResultIndex.value() < m_reservoirCellToActiveCell.size() );
+    CAF_ASSERT( reservoirCellResultIndex.value() < m_reservoirCellToActiveCell.size() );
 
     m_reservoirCellToActiveCell[reservoirCellIndex.value()] = reservoirCellResultIndex;
 }
@@ -100,7 +102,7 @@ void RigActiveCellInfo::setGridCount( size_t gridCount )
 //--------------------------------------------------------------------------------------------------
 void RigActiveCellInfo::setGridActiveCellCounts( size_t gridIndex, size_t activeCellCount )
 {
-    CVF_ASSERT( gridIndex < m_perGridActiveCellInfo.size() );
+    CAF_ASSERT( gridIndex < m_perGridActiveCellInfo.size() );
 
     m_perGridActiveCellInfo[gridIndex].setActiveCellCount( activeCellCount );
 }

@@ -24,6 +24,8 @@
 #include "cvfPlane.h"
 #include "cvfRay.h"
 
+#include "cafAssert.h"
+
 #include <array>
 #include <cmath>
 
@@ -169,7 +171,7 @@ bool RigCell::isLongPyramidCell( double maxHeightFactor, double nodeNearToleranc
                 oppositeFace = cvf::StructGridInterface::POS_K;
                 break;
             default:
-                CVF_ASSERT(false);
+                CAF_ASSERT(false);
                 break;
             }
 
@@ -355,7 +357,7 @@ double RigCell::volume() const
 //--------------------------------------------------------------------------------------------------
 int RigCell::firstIntersectionPoint( const cvf::Ray& ray, cvf::Vec3d* intersectionPoint ) const
 {
-    CVF_ASSERT( intersectionPoint != nullptr );
+    CAF_ASSERT( intersectionPoint != nullptr );
 
     cvf::ubyte                     faceVertexIndices[4];
     int                            face;

@@ -390,7 +390,7 @@ bool RimStimPlanModelPressureCalculator::extractPressureDataFromTable( RiaDefine
     const std::vector<double>& tvdValuesOfWellPath = wellPathGeometry->trueVerticalDepths();
 
     measuredDepthValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
-    CVF_ASSERT( measuredDepthValues.size() == tvDepthValues.size() );
+    CAF_ASSERT( measuredDepthValues.size() == tvDepthValues.size() );
 
     return true;
 }

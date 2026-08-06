@@ -656,7 +656,7 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction           
 //--------------------------------------------------------------------------------------------------
 void RiuDragDrop::objectGroupFromModelIndexes( caf::PdmUiTreeView* uiTreeView, caf::PdmObjectGroup* objectGroup, const QModelIndexList& indexes )
 {
-    CVF_ASSERT( objectGroup );
+    CAF_ASSERT( objectGroup );
 
     objectGroup->objects.clear();
 

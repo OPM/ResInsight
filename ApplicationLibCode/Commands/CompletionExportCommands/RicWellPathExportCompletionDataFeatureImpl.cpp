@@ -382,7 +382,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compu
 RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCellCompletions( const std::vector<RigCompletionData>& completions,
                                                                                              const RicExportCompletionDataSettingsUi& settings )
 {
-    CVF_ASSERT( !completions.empty() );
+    CAF_ASSERT( !completions.empty() );
 
     // For detailed description of how the combined completion data is computed, see
     // https://github.com/OPM/ResInsight/issues/7049

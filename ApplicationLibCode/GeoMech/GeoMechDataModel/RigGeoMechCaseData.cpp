@@ -119,7 +119,7 @@ bool RigGeoMechCaseData::open( std::string* errorMessage )
 //--------------------------------------------------------------------------------------------------
 bool RigGeoMechCaseData::readTimeSteps( std::string* errorMessage, std::vector<std::string>* stepNames )
 {
-    CVF_ASSERT( stepNames );
+    CAF_ASSERT( stepNames );
     if ( m_readerInterface.notNull() && m_readerInterface->isOpen() )
     {
         *stepNames = m_readerInterface->allStepNames();
@@ -134,7 +134,7 @@ bool RigGeoMechCaseData::readTimeSteps( std::string* errorMessage, std::vector<s
 //--------------------------------------------------------------------------------------------------
 bool RigGeoMechCaseData::readFemParts( std::string* errorMessage, const std::vector<size_t>& timeStepFilter, bool readOnlyLastFrame )
 {
-    CVF_ASSERT( errorMessage );
+    CAF_ASSERT( errorMessage );
 
     if ( m_readerInterface.notNull() && m_readerInterface->isOpen() )
     {
@@ -174,7 +174,7 @@ bool RigGeoMechCaseData::readFemParts( std::string* errorMessage, const std::vec
 //--------------------------------------------------------------------------------------------------
 bool RigGeoMechCaseData::readDisplacements( std::string* errorMessage, int partId, int timeStep, int frameIndex, std::vector<cvf::Vec3f>* displacements )
 {
-    CVF_ASSERT( errorMessage );
+    CAF_ASSERT( errorMessage );
 
     if ( m_readerInterface.notNull() && m_readerInterface->isOpen() )
     {

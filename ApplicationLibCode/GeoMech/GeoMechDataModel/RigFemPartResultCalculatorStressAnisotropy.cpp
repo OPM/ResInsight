@@ -56,7 +56,7 @@ bool RigFemPartResultCalculatorStressAnisotropy::isMatching( const RigFemResultA
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( isMatching( resVarAddr ) );
+    CAF_ASSERT( isMatching( resVarAddr ) );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 4, "" );
     stepCountProgress.setProgressDescription( "Calculating " +
@@ -130,7 +130,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculate(
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculateTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( isMatching( resVarAddr ) );
+    CAF_ASSERT( isMatching( resVarAddr ) );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 4, "" );
     stepCountProgress.setProgressDescription( "Calculating " +

@@ -37,7 +37,7 @@
 #include <QPaintDevice>
 #include <QRegularExpression>
 
-#include <cvfAssert.h>
+#include "cafAssert.h"
 
 CAF_PDM_SOURCE_INIT( RimMultiPlot, "MultiPlot" );
 
@@ -874,7 +874,7 @@ void RimMultiPlot::updateZoom()
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlot::recreatePlotWidgets()
 {
-    CVF_ASSERT( m_viewer );
+    CAF_ASSERT( m_viewer );
 
     m_viewer->removeAllPlots();
 

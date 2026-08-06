@@ -21,6 +21,8 @@
 
 #include "cvfTextureImage.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +77,7 @@ cvf::Vec2f RivTernaryScalarMapper::mapToTextureCoord( double soil, double sgas, 
 //--------------------------------------------------------------------------------------------------
 bool RivTernaryScalarMapper::updateTexture( cvf::TextureImage* image, float opacityLevel ) const
 {
-    CVF_ASSERT( image );
+    CAF_ASSERT( image );
     image->allocate( m_textureSize.x(), m_textureSize.y() );
 
     image->fill( cvf::Color4ub( cvf::Color3ub( m_undefScalarColor ) ) );

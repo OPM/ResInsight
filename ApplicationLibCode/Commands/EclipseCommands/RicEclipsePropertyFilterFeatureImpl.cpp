@@ -35,7 +35,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -171,7 +171,7 @@ bool RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( caf:
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterFeatureImpl::setDefaults( RimEclipsePropertyFilter* propertyFilter )
 {
-    CVF_ASSERT( propertyFilter );
+    CAF_ASSERT( propertyFilter );
 
     // View-tolerant: case-level data filters have no RimEclipseView ancestor; the result
     // definition's eclipse case is already wired by RimEclipsePropertyFilter::setCase via the

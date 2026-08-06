@@ -20,13 +20,15 @@
 
 #include "RivIjkIntersectionGeometryGenerator.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RivIjkIntersectionSourceInfo::RivIjkIntersectionSourceInfo( RivIjkIntersectionGeometryGenerator* geometryGenerator )
     : m_intersectionGeometryGenerator( geometryGenerator )
 {
-    CVF_ASSERT( m_intersectionGeometryGenerator.notNull() );
+    CAF_ASSERT( m_intersectionGeometryGenerator.notNull() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -34,7 +36,7 @@ RivIjkIntersectionSourceInfo::RivIjkIntersectionSourceInfo( RivIjkIntersectionGe
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RivIjkIntersectionSourceInfo::triangleToCellIndex() const
 {
-    CVF_ASSERT( m_intersectionGeometryGenerator.notNull() );
+    CAF_ASSERT( m_intersectionGeometryGenerator.notNull() );
 
     return m_intersectionGeometryGenerator->triangleToCellIndex();
 }

@@ -38,6 +38,8 @@
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -134,12 +136,12 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
                                                                const cvf::UByteArray*              rangeFilterVisibility,
                                                                RimGeoMechPropertyFilterCollection* propFilterColl )
 {
-    CVF_ASSERT( cellVisibility != nullptr );
-    CVF_ASSERT( rangeFilterVisibility != nullptr );
-    CVF_ASSERT( propFilterColl != nullptr );
+    CAF_ASSERT( cellVisibility != nullptr );
+    CAF_ASSERT( rangeFilterVisibility != nullptr );
+    CAF_ASSERT( propFilterColl != nullptr );
 
-    CVF_ASSERT( part->elementCount() > 0 );
-    CVF_ASSERT( rangeFilterVisibility->size() == static_cast<size_t>( part->elementCount() ) );
+    CAF_ASSERT( part->elementCount() > 0 );
+    CAF_ASSERT( rangeFilterVisibility->size() == static_cast<size_t>( part->elementCount() ) );
 
     // Copy if not equal
     if ( cellVisibility != rangeFilterVisibility ) ( *cellVisibility ) = *rangeFilterVisibility;
@@ -290,8 +292,8 @@ void RivFemElmVisibilityCalculator::computeOverriddenCellVisibility( cvf::UByteA
                                                                      const RigFemPart*  femPart,
                                                                      RimViewController* masterViewLink )
 {
-    CVF_ASSERT( elmVisibilities != nullptr );
-    CVF_ASSERT( femPart != nullptr );
+    CAF_ASSERT( elmVisibilities != nullptr );
+    CAF_ASSERT( femPart != nullptr );
 
     RimGridView* masterView = dynamic_cast<RimGridView*>( masterViewLink->ownerViewLinker()->masterView() );
     if ( !masterView ) return;

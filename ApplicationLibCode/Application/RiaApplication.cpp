@@ -779,7 +779,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             for ( size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx )
             {
                 RimCase* cas = casesToLoad[cIdx];
-                CVF_ASSERT( cas );
+                CAF_ASSERT( cas );
 
                 // Make sure case name is updated. It can be out-of-sync if the
                 // user has updated the project file manually.
@@ -794,7 +794,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
                     for ( j = 0; j < views.size(); j++ )
                     {
                         Rim3dView* riv = views[j];
-                        CVF_ASSERT( riv );
+                        CAF_ASSERT( riv );
 
                         viewProgress.setProgressDescription( riv->name() );
 
@@ -1637,7 +1637,7 @@ std::vector<QString> RiaApplication::readFileListFromTextFile( QString listFileN
 //--------------------------------------------------------------------------------------------------
 cvf::Font* RiaApplication::defaultSceneFont()
 {
-    CVF_ASSERT( m_defaultSceneFont.notNull() );
+    CAF_ASSERT( m_defaultSceneFont.notNull() );
 
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
@@ -1663,7 +1663,7 @@ cvf::Font* RiaApplication::sceneFont( int fontSize )
 //--------------------------------------------------------------------------------------------------
 cvf::Font* RiaApplication::defaultAnnotationFont()
 {
-    CVF_ASSERT( m_defaultAnnotationFont.notNull() );
+    CAF_ASSERT( m_defaultAnnotationFont.notNull() );
 
     return m_defaultAnnotationFont.p();
 }
@@ -1673,7 +1673,7 @@ cvf::Font* RiaApplication::defaultAnnotationFont()
 //--------------------------------------------------------------------------------------------------
 cvf::Font* RiaApplication::defaultWellLabelFont()
 {
-    CVF_ASSERT( m_defaultWellLabelFont.notNull() );
+    CAF_ASSERT( m_defaultWellLabelFont.notNull() );
 
     return m_defaultWellLabelFont.p();
 }

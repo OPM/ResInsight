@@ -341,7 +341,7 @@ void RiuViewer::mouseReleaseEvent( QMouseEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotEndAnimation()
 {
-    CVF_ASSERT( m_mainRendering.notNull() );
+    CAF_ASSERT( m_mainRendering.notNull() );
 
     if ( m_rimView ) m_rimView->endAnimation();
 
@@ -778,7 +778,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* added
 
     RiaGuiApplication* app              = RiaGuiApplication::instance();
     cvf::Rendering*    overlayRendering = overlayItemsRendering();
-    CVF_ASSERT( overlayRendering );
+    CAF_ASSERT( overlayRendering );
 
     cvf::Color4f backgroundColor = mainCamera()->viewport()->clearColor();
     backgroundColor.a()          = 0.8f;
@@ -1021,7 +1021,7 @@ void RiuViewer::updateNavigationPolicy()
             break;
 
         default:
-            CVF_ASSERT( 0 );
+            CAF_ASSERT( 0 );
             break;
     }
 
@@ -1050,7 +1050,7 @@ void RiuViewer::navigationPolicyUpdate()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setCurrentFrame( int frameIndex )
 {
-    CVF_ASSERT( m_mainRendering.notNull() );
+    CAF_ASSERT( m_mainRendering.notNull() );
 
     if ( m_rimView ) m_rimView->setCurrentTimeStepAndUpdate( frameIndex );
 

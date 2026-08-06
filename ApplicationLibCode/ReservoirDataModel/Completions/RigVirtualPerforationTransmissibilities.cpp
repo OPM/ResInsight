@@ -20,6 +20,8 @@
 
 #include "RigStatisticsMath.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +78,7 @@ RigVirtualPerforationTransmissibilities::~RigVirtualPerforationTransmissibilitie
 void RigVirtualPerforationTransmissibilities::setCompletionDataForWellPath( const RimWellPath* wellPath,
                                                                             const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep )
 {
-    CVF_ASSERT( m_mapFromWellToCompletionData.find( wellPath ) == m_mapFromWellToCompletionData.end() );
+    CAF_ASSERT( m_mapFromWellToCompletionData.find( wellPath ) == m_mapFromWellToCompletionData.end() );
 
     {
         std::vector<CompletionDataFrame> values;

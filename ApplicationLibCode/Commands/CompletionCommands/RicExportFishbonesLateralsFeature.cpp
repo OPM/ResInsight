@@ -33,7 +33,7 @@
 #include "cafSelectionManagerTools.h"
 #include "cafUtils.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -47,7 +47,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
     using EXP = RicExportSelectedWellPathsFeature;
 
     RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
-    CVF_ASSERT( fishbonesCollection );
+    CAF_ASSERT( fishbonesCollection );
 
     auto wellPath = fishbonesCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 

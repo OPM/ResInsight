@@ -27,6 +27,8 @@
 #include "cvfArray.h"
 #include "cvfGeometryTools.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 #include <array>
 #include <limits>
@@ -171,8 +173,8 @@ size_t RigContourMapProjection::numberOfVertices() const
 //--------------------------------------------------------------------------------------------------
 bool RigContourMapProjection::checkForMapIntersection( const cvf::Vec3d& domainPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const
 {
-    CVF_TIGHT_ASSERT( contourMapPoint );
-    CVF_TIGHT_ASSERT( valueAtPoint );
+    CAF_ASSERT( contourMapPoint );
+    CAF_ASSERT( valueAtPoint );
 
     const cvf::Vec3d& minPoint = m_contourMapGrid->expandedBoundingBox().min();
     cvf::Vec3d        mapPos3d = domainPoint3d - minPoint;

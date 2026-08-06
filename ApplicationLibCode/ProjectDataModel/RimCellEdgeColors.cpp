@@ -411,7 +411,7 @@ std::array<RigEclipseResultAddress, 6> RimCellEdgeColors::resultAddresses() cons
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::gridScalarResultNames( std::vector<QString>* resultNames )
 {
-    CVF_ASSERT( resultNames );
+    CAF_ASSERT( resultNames );
 
     int cubeFaceIndex;
     for ( cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex )
@@ -433,7 +433,7 @@ bool RimCellEdgeColors::isUserDefinedPropertiesActive() const
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* metaDataVector )
 {
-    CVF_ASSERT( metaDataVector );
+    CAF_ASSERT( metaDataVector );
 
     auto addresses = resultAddresses();
 

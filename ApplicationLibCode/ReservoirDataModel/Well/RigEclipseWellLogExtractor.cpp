@@ -33,6 +33,8 @@
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 
+#include "cafAssert.h"
+
 #include <array>
 #include <map>
 
@@ -174,7 +176,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 //--------------------------------------------------------------------------------------------------
 void RigEclipseWellLogExtractor::curveData( const RigResultAccessor* resultAccessor, std::vector<double>* values )
 {
-    CVF_TIGHT_ASSERT( values );
+    CAF_ASSERT( values );
     values->resize( intersections().size() );
 
     for ( size_t cpIdx = 0; cpIdx < intersections().size(); ++cpIdx )

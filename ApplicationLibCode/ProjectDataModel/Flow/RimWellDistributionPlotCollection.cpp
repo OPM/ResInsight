@@ -40,6 +40,8 @@
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 
+#include "cafAssert.h"
+
 #include <QGridLayout>
 #include <QTextBrowser>
 #include <QWidget>
@@ -424,7 +426,7 @@ void RimWellDistributionPlotCollection::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::recreatePlotWidgets()
 {
-    CVF_ASSERT( m_viewer );
+    CAF_ASSERT( m_viewer );
 
     for ( auto plot : m_plots() )
     {

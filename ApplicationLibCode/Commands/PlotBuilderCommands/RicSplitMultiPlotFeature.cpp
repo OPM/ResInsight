@@ -27,7 +27,6 @@
 #include "RimSummaryPlot.h"
 
 #include "cafSelectionManager.h"
-#include "cvfAssert.h"
 
 #include <QAction>
 

@@ -223,7 +223,7 @@ void RiuGridCrossQwtPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotI
 //--------------------------------------------------------------------------------------------------
 bool RiuGridCrossQwtPlot::curveText( const QwtPlotCurve* curve, QString* curveTitle, QString* xParamName, QString* yParamName ) const
 {
-    CVF_ASSERT( curveTitle && xParamName && yParamName );
+    CAF_ASSERT( curveTitle && xParamName && yParamName );
 
     auto riuCurve = dynamic_cast<const RiuPlotCurve*>( curve );
     if ( riuCurve )

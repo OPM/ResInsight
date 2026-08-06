@@ -66,7 +66,7 @@ RimUserDefinedCalculation* RimUserDefinedCalculationCollection::addCalculation( 
 RimUserDefinedCalculation* RimUserDefinedCalculationCollection::addCalculationCopy( const RimUserDefinedCalculation* sourceCalculation )
 {
     auto calcCopy = sourceCalculation->copyObject<RimUserDefinedCalculation>();
-    CVF_ASSERT( calcCopy );
+    CAF_ASSERT( calcCopy );
 
     std::set<QString> calcNames;
     for ( const auto& calc : m_calculations )

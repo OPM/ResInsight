@@ -42,6 +42,8 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 
+#include "cafAssert.h"
+
 namespace caf
 {
 template <>
@@ -192,7 +194,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                                                         StatisticsTimeRangeType     timeRange,
                                                         int                         timeStep )
 {
-    CVF_ASSERT( eclResultDefinition );
+    CAF_ASSERT( eclResultDefinition );
 
     RigHistogramData histData;
 
@@ -218,7 +220,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             }
             else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
             {
-                CVF_ASSERT( eclipseView );
+                CAF_ASSERT( eclipseView );
 
                 updateVisCellStatsIfNeeded( eclipseView, eclResultDefinition );
 
@@ -250,7 +252,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             }
             else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
             {
-                CVF_ASSERT( eclipseView );
+                CAF_ASSERT( eclipseView );
 
                 updateVisCellStatsIfNeeded( eclipseView, eclResultDefinition );
 
@@ -295,7 +297,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
     }
     else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
     {
-        CVF_ASSERT( eclipseView );
+        CAF_ASSERT( eclipseView );
         updateVisCellStatsIfNeeded( eclipseView, eclResultDefinition );
         if ( timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
         {
@@ -418,8 +420,8 @@ void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimGeoMechView* geoMech
 //--------------------------------------------------------------------------------------------------
 void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimEclipseView* eclipseView, RimEclipseResultDefinition* eclResultDefinition )
 {
-    CVF_ASSERT( eclipseView );
-    CVF_ASSERT( eclResultDefinition );
+    CAF_ASSERT( eclipseView );
+    CAF_ASSERT( eclResultDefinition );
 
     if ( m_isVisCellStatUpToDate ) return;
 

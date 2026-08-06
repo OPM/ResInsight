@@ -563,7 +563,7 @@ void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const
 {
-    CVF_ASSERT( cellRangeFilter );
+    CAF_ASSERT( cellRangeFilter );
 
     int gIndx = static_cast<int>( gridIndex );
 
@@ -585,8 +585,8 @@ void RimCellFilterCollection::updateCellVisibilityByIndex( cvf::UByteArray* incl
                                                            cvf::UByteArray* excludeCellVisibility,
                                                            size_t           gridIndex ) const
 {
-    CVF_ASSERT( includeCellVisibility );
-    CVF_ASSERT( excludeCellVisibility );
+    CAF_ASSERT( includeCellVisibility );
+    CAF_ASSERT( excludeCellVisibility );
 
     bool needIncludeVisibilityReset = true;
 

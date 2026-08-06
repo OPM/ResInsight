@@ -32,7 +32,7 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -48,7 +48,7 @@ void RicIntersectionBoxAtPosFeature::onActionTriggered( bool isChecked )
     if ( activeMainOrComparisonView )
     {
         RimIntersectionCollection* coll = activeMainOrComparisonView->intersectionCollection();
-        CVF_ASSERT( coll );
+        CAF_ASSERT( coll );
 
         RimBoxIntersection* intersectionBox = new RimBoxIntersection();
         intersectionBox->setName( "Intersection box" );

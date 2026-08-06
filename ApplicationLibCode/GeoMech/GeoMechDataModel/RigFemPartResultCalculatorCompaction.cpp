@@ -77,7 +77,7 @@ bool RigFemPartResultCalculatorCompaction::isMatching( const RigFemResultAddress
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == RigFemPartResultsCollection::FIELD_NAME_COMPACTION );
+    CAF_ASSERT( resVarAddr.fieldName == RigFemPartResultsCollection::FIELD_NAME_COMPACTION );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() + 1, "" );
     stepCountProgress.setProgressDescription( "Calculating " + QString::fromStdString( resVarAddr.fieldName ) );
@@ -176,7 +176,7 @@ void findReferenceElementForNode( const RigFemPart& part, size_t nodeIdx, size_t
         if ( validIndex && k == kRefLayer )
         {
             const std::array<size_t, 8> nodeIndices = nodesForElement( part, elemIdx );
-            CVF_ASSERT( nodeIndices.size() == 8 );
+            CAF_ASSERT( nodeIndices.size() == 8 );
 
             std::vector<HexIntersectionInfo> intersections;
             RigHexIntersectionTools::lineHexCellIntersection( cvf::Vec3d( p1 ),

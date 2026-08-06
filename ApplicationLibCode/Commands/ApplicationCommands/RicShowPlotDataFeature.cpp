@@ -131,7 +131,7 @@ void RicShowPlotDataFeature::setupActionLook( QAction* actionToSetup )
 void RicShowPlotDataFeature::showTabbedTextWindow( std::unique_ptr<RimTabbedTextProvider> textProvider )
 {
     RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
-    CVF_ASSERT( plotwindow );
+    CAF_ASSERT( plotwindow );
 
     auto* textWidget = new RiuTabbedTextDialog( std::move( textProvider ) );
     textWidget->setMinimumSize( 800, 600 );
@@ -157,7 +157,7 @@ void RicShowPlotDataFeature::showTabbedTextWindow( std::unique_ptr<RimTabbedText
 void RicShowPlotDataFeature::showTextWindow( const QString& title, const QString& text )
 {
     RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
-    CVF_ASSERT( plotwindow );
+    CAF_ASSERT( plotwindow );
 
     auto* textWiget = new RiuTextDialog( RiaGuiApplication::widgetToUseAsParent() );
     textWiget->setMinimumSize( 400, 600 );

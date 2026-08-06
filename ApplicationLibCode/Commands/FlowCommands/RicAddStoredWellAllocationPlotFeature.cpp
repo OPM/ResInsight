@@ -27,7 +27,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -63,7 +63,7 @@ void RicAddStoredWellAllocationPlotFeature::onActionTriggered( bool isChecked )
         RimWellAllocationPlot* sourceObject = dynamic_cast<RimWellAllocationPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
         auto wellAllocationPlot = sourceObject->copyObject<RimWellAllocationPlot>();
-        CVF_ASSERT( wellAllocationPlot );
+        CAF_ASSERT( wellAllocationPlot );
         wellAllocationPlot->resetDockWindowId();
 
         flowPlotColl->addWellAllocPlotToStoredPlots( wellAllocationPlot );

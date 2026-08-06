@@ -39,6 +39,8 @@
 
 #include "cvfTimer.h"
 
+#include "cafAssert.h"
+
 #include <QTcpSocket>
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +72,7 @@ RimEclipseCase* RiaSocketTools::findCaseFromArgs( RiaSocketServer* server, const
 //--------------------------------------------------------------------------------------------------
 void RiaSocketTools::getCaseInfoFromCase( RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId )
 {
-    CVF_ASSERT( rimCase );
+    CAF_ASSERT( rimCase );
 
     caseId   = rimCase->caseId();
     caseName = rimCase->caseUserDescription();

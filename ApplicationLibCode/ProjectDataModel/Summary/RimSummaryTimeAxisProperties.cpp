@@ -33,7 +33,7 @@
 #include "cafPdmUiTimeEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include "qwt_date.h"
 
@@ -694,7 +694,7 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
             break;
 
         default:
-            CVF_ASSERT( false );
+            CAF_ASSERT( false );
             break;
     }
 
@@ -727,7 +727,7 @@ double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
             scale = 1.0 / 365.2425;
             break;
         default:
-            CVF_ASSERT( false );
+            CAF_ASSERT( false );
             break;
     }
 

@@ -32,6 +32,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +69,7 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( RimEclips
                                                                        std::vector<double>& completionTypeCellResult,
                                                                        size_t               timeStep )
 {
-    CVF_ASSERT( eclipseCase && eclipseCase->eclipseCaseData() );
+    CAF_ASSERT( eclipseCase && eclipseCase->eclipseCaseData() );
 
     const RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 

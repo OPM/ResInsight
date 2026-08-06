@@ -24,6 +24,8 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuMessageDialog.h"
 
+#include "cafAssert.h"
+
 #include <QFile>
 #include <QStringList>
 
@@ -79,7 +81,7 @@ std::map<QString, cvf::ref<RigWellPathFormations>> RifWellPathFormationReader::r
         return result;
     }
 
-    CVF_ASSERT( wellNames.size() == formationNames.size() );
+    CAF_ASSERT( wellNames.size() == formationNames.size() );
 
     std::map<QString, std::vector<RigWellPathFormation>> formations;
 

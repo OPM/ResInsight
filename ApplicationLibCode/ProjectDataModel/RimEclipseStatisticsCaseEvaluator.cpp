@@ -48,7 +48,7 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult( RigCaseCellResultsData* 
                                                         size_t                    activeUnionCellCount )
 {
     // Use time step dates from first result in first source case
-    CVF_ASSERT( !m_sourceCases.empty() );
+    CAF_ASSERT( !m_sourceCases.empty() );
 
     std::vector<RigEclipseResultAddress> resAddresses =
         m_sourceCases[0]->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->existingResults();
@@ -109,7 +109,7 @@ QString createResultNamePVal( const QString& resultName, double pValPos )
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>& resultSpecification, RimEclipseView* filterView )
 {
-    CVF_ASSERT( m_destinationCase );
+    CAF_ASSERT( m_destinationCase );
 
     // First build the destination result data structures to receive the statistics
     addNamedResults( resultSpecification );
@@ -318,7 +318,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                 }
                                 else
                                 {
-                                    CVF_ASSERT( false );
+                                    CAF_ASSERT( false );
                                 }
                             }
                         }
@@ -425,7 +425,7 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator( const std:
         m_reservoirCellCount = sourceCases[0]->eclipseCaseData()->mainGrid()->totalCellCount();
     }
 
-    CVF_ASSERT( m_destinationCase );
+    CAF_ASSERT( m_destinationCase );
 }
 
 //--------------------------------------------------------------------------------------------------

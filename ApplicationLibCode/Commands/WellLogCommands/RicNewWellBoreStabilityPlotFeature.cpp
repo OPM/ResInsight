@@ -56,7 +56,6 @@
 
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
-#include "cvfAssert.h"
 #include "cvfColor3.h"
 #include "cvfMath.h"
 

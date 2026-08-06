@@ -32,6 +32,8 @@
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 #include <cmath> // Needed for HUGE_VAL on Linux
 
@@ -65,7 +67,7 @@ RigFlowDiagResults::RigFlowDiagResults( RimFlowDiagSolution* flowSolution, size_
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>* RigFlowDiagResults::resultValues( const RigFlowDiagResultAddress& resVarAddr, size_t timeStepIndex )
 {
-    CVF_ASSERT( m_timeStepCount != cvf::UNDEFINED_SIZE_T ); // Forgotten to call init
+    CAF_ASSERT( m_timeStepCount != cvf::UNDEFINED_SIZE_T ); // Forgotten to call init
 
     return findOrCalculateResult( resVarAddr, timeStepIndex );
 }
@@ -589,7 +591,7 @@ void RigFlowDiagResults::posNegClosestToZero( const RigFlowDiagResultAddress& re
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::meanScalarValue( const RigFlowDiagResultAddress& resVarAddr, double* meanValue )
 {
-    CVF_ASSERT( meanValue );
+    CAF_ASSERT( meanValue );
 
     statistics( resVarAddr )->meanCellScalarValues( *meanValue );
 }
@@ -623,7 +625,7 @@ void RigFlowDiagResults::p10p90ScalarValues( const RigFlowDiagResultAddress& res
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::sumScalarValue( const RigFlowDiagResultAddress& resVarAddr, double* sum )
 {
-    CVF_ASSERT( sum );
+    CAF_ASSERT( sum );
 
     statistics( resVarAddr )->sumCellScalarValues( *sum );
 }
@@ -633,7 +635,7 @@ void RigFlowDiagResults::sumScalarValue( const RigFlowDiagResultAddress& resVarA
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::sumScalarValue( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* sum )
 {
-    CVF_ASSERT( sum );
+    CAF_ASSERT( sum );
 
     statistics( resVarAddr )->sumCellScalarValues( timeStepIndex, *sum );
 }

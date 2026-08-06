@@ -21,6 +21,8 @@
 
 #include "RigGridBase.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -40,7 +42,7 @@ double RigAllGridCellsResultAccessor::cellScalar( size_t gridLocalCellIndex ) co
     if ( m_reservoirResultValues->empty() ) return HUGE_VAL;
 
     size_t reservoirCellIndex = m_grid->reservoirCellIndex( gridLocalCellIndex );
-    CVF_TIGHT_ASSERT( reservoirCellIndex < m_reservoirResultValues->size() );
+    CAF_ASSERT( reservoirCellIndex < m_reservoirResultValues->size() );
 
     return m_reservoirResultValues->at( reservoirCellIndex );
 }
@@ -60,7 +62,7 @@ double RigAllGridCellsResultAccessor::cellScalarGlobIdx( size_t globCellIndex ) 
 {
     if ( m_reservoirResultValues->empty() ) return HUGE_VAL;
 
-    CVF_TIGHT_ASSERT( globCellIndex < m_reservoirResultValues->size() );
+    CAF_ASSERT( globCellIndex < m_reservoirResultValues->size() );
 
     return m_reservoirResultValues->at( globCellIndex );
 }

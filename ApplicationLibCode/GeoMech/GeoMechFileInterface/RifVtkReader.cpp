@@ -28,6 +28,7 @@
 #include "RiaLogging.h"
 #include "RiaQStringFormatter.h"
 
+#include "cafAssert.h"
 #include "cafProgressInfo.h"
 
 #include <QString>
@@ -119,7 +120,7 @@ bool RifVtkReader::isOpen() const
 //--------------------------------------------------------------------------------------------------
 bool RifVtkReader::readFemParts( RigFemPartCollection* femParts )
 {
-    CVF_ASSERT( femParts );
+    CAF_ASSERT( femParts );
 
     // The key in the maps is the part ID
     std::map<int, std::string>                                              parts;
@@ -464,7 +465,7 @@ std::map<std::string, std::vector<std::string>> RifVtkReader::scalarIntegrationP
 //--------------------------------------------------------------------------------------------------
 void RifVtkReader::readDisplacements( int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements )
 {
-    CVF_ASSERT( displacements );
+    CAF_ASSERT( displacements );
     if ( auto it = m_displacements.find( partIndex ); it != m_displacements.end() )
     {
         *displacements = it->second[stepIndex];
@@ -480,7 +481,7 @@ void RifVtkReader::readField( RigFemResultPosEnum               resultType,
                               int                               stepIndex,
                               std::vector<std::vector<float>*>* resultValues )
 {
-    CVF_ASSERT( resultValues );
+    CAF_ASSERT( resultValues );
 
     auto dataMap = propertyDataMap( resultType );
     if ( dataMap == nullptr ) return;
@@ -515,7 +516,7 @@ void RifVtkReader::readNodeField( const std::string&                fieldName,
                                   int                               frameIndex,
                                   std::vector<std::vector<float>*>* resultValues )
 {
-    CVF_ASSERT( resultValues );
+    CAF_ASSERT( resultValues );
 
     if ( fieldName == "U" )
     {

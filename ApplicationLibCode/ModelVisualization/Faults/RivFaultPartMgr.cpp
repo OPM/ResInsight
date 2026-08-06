@@ -55,6 +55,8 @@
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfqtUtils.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +72,7 @@ RivFaultPartMgr::RivFaultPartMgr( const RigGridBase* grid, const RimFaultInViewC
     , m_isAllNncsGenerated( false )
 
 {
-    CVF_ASSERT( rimFault->faultGeometry() );
+    CAF_ASSERT( rimFault->faultGeometry() );
 
     m_nativeFaultGenerator = new RivFaultGeometryGenerator( grid, rimFault->faultGeometry(), grid->mainGrid()->nncData(), true );
 
@@ -112,7 +114,7 @@ void RivFaultPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCellColors* cellResultColors )
 {
-    CVF_ASSERT( cellResultColors );
+    CAF_ASSERT( cellResultColors );
 
     updateNNCColors( timeStepIndex, cellResultColors );
 
@@ -646,7 +648,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine( const cvf::Part* part )
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3f RivFaultPartMgr::findClosestVertex( const cvf::Vec3f& point, const cvf::Vec3fArray* vertices )
 {
-    CVF_ASSERT( vertices );
+    CAF_ASSERT( vertices );
 
     if ( !vertices ) return cvf::Vec3f::UNDEFINED;
 
@@ -888,7 +890,7 @@ void RivFaultPartMgr::updateNNCColors( size_t timeStepIndex, RimEclipseCellColor
         nncColor.g() += ( 1.0 - nncColor.g() ) * 0.2;
         nncColor.b() += ( 1.0 - nncColor.b() ) * 0.2;
 
-        CVF_ASSERT( nncColor.isValid() );
+        CAF_ASSERT( nncColor.isValid() );
         cvf::ref<cvf::Effect> nncEffect;
 
         if ( m_rimFaultCollection->showFaultFaces() || m_rimFaultCollection->showOppositeFaultFaces() )

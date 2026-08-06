@@ -25,6 +25,8 @@
 #include "cvfGeometryBuilder.h"
 #include "cvfGeometryUtils.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -82,8 +84,8 @@ void RivDiskGeometryGenerator::setNumSlices( unsigned int numSlices )
 //--------------------------------------------------------------------------------------------------
 void createDisc( double radius, size_t numSlices, cvf::GeometryBuilder* builder )
 {
-    CVF_ASSERT( numSlices >= 4 );
-    CVF_ASSERT( builder );
+    CAF_ASSERT( numSlices >= 4 );
+    CAF_ASSERT( builder );
 
     double da = 2 * cvf::PI_D / numSlices;
 

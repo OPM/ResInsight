@@ -20,8 +20,6 @@
 
 #include "RiaLogging.h"
 
-#include "cvfAssert.h"
-
 #include <QString>
 
 #include <cmath>

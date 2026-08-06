@@ -59,7 +59,7 @@ bool RigFemPartResultCalculatorSurfaceAlignedStress::isMatching( const RigFemRes
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorSurfaceAlignedStress::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.componentName == "STH" || resVarAddr.componentName == "STQV" || resVarAddr.componentName == "SN" ||
+    CAF_ASSERT( resVarAddr.componentName == "STH" || resVarAddr.componentName == "STQV" || resVarAddr.componentName == "SN" ||
                 resVarAddr.componentName == "TPH" || resVarAddr.componentName == "TPQV" || resVarAddr.componentName == "THQV" ||
                 resVarAddr.componentName == "TP" || resVarAddr.componentName == "TPinc" || resVarAddr.componentName == "FAULTMOB" ||
                 resVarAddr.componentName == "PCRIT" );

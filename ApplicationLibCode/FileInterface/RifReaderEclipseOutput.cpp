@@ -51,6 +51,7 @@
 #include "Well/RigWellResultFrame.h"
 #include "Well/RigWellResultPoint.h"
 
+#include "cafAssert.h"
 #include "cafProgressInfo.h"
 
 #include "cvfTrace.h"
@@ -161,7 +162,7 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
                                                    size_t               fractureActiveStartIndex,
                                                    bool                 invalidateLongPyramidCells )
 {
-    CVF_ASSERT( activeCellInfo && fractureActiveCellInfo );
+    CAF_ASSERT( activeCellInfo && fractureActiveCellInfo );
 
     int    cellCount      = ecl_grid_get_global_size( localEclGrid );
     size_t cellStartIndex = mainGrid->reservoirCells().size();
@@ -223,7 +224,7 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
         if ( subGrid != nullptr )
         {
             int subGridId = ecl_grid_get_lgr_nr( subGrid );
-            CVF_ASSERT( subGridId > 0 );
+            CAF_ASSERT( subGridId > 0 );
             cell.setSubGrid( static_cast<RigLocalGrid*>( mainGrid->gridById( subGridId ) ) );
         }
 
@@ -245,7 +246,7 @@ bool RifReaderEclipseOutput::transferGridCellData( RigMainGrid*         mainGrid
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase, bool invalidateLongThinCells )
 {
-    CVF_ASSERT( eclipseCase );
+    CAF_ASSERT( eclipseCase );
 
     if ( !mainEclGrid )
     {
@@ -256,10 +257,10 @@ bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid,
     RigActiveCellInfo* activeCellInfo         = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo* fractureActiveCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
-    CVF_ASSERT( activeCellInfo && fractureActiveCellInfo );
+    CAF_ASSERT( activeCellInfo && fractureActiveCellInfo );
 
     RigMainGrid* mainGrid = eclipseCase->mainGrid();
-    CVF_ASSERT( mainGrid );
+    CAF_ASSERT( mainGrid );
     mainGrid->setCellCounts( cvf::Vec3st( ecl_grid_get_nx( mainEclGrid ), ecl_grid_get_ny( mainEclGrid ), ecl_grid_get_nz( mainEclGrid ) ) );
 
     // std::string mainGridName = ecl_grid_get_name(mainEclGrid);
@@ -360,7 +361,7 @@ bool RifReaderEclipseOutput::transferGeometry( const ecl_grid_type* mainEclGrid,
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* eclipseCaseData )
 {
-    CVF_ASSERT( eclipseCaseData );
+    CAF_ASSERT( eclipseCaseData );
     caf::ProgressInfo progress( 100, "Reading Grid" );
 
     if ( !RifEclipseOutputFileTools::isValidEclipseFileName( fileName ) )
@@ -549,10 +550,10 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
 {
-    CVF_ASSERT( m_eclipseCaseData );
+    CAF_ASSERT( m_eclipseCaseData );
 
     RigCaseCellResultsData* matrixModelResults = m_eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    CVF_ASSERT( matrixModelResults );
+    CAF_ASSERT( matrixModelResults );
 
     if ( fileName.isEmpty() )
     {
@@ -709,7 +710,7 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
 {
     if ( !m_ecl_init_file ) return;
 
-    CVF_ASSERT( mainEclGrid && mainGrid );
+    CAF_ASSERT( mainEclGrid && mainGrid );
 
     // Get the data from ERT
     ecl_nnc_geometry_type* nnc_geo = ecl_nnc_geometry_alloc( mainEclGrid );
@@ -720,7 +721,7 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
         {
             int numNNC       = ecl_nnc_data_get_size( tran_data );
             int geometrySize = ecl_nnc_geometry_size( nnc_geo );
-            CVF_ASSERT( numNNC == geometrySize );
+            CAF_ASSERT( numNNC == geometrySize );
 
             if ( numNNC > 0 )
             {
@@ -760,7 +761,7 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::transferDynamicNNCData( const ecl_grid_type* mainEclGrid, RigMainGrid* mainGrid )
 {
-    CVF_ASSERT( mainEclGrid && mainGrid );
+    CAF_ASSERT( mainEclGrid && mainGrid );
 
     if ( m_dynamicResultsAccess.isNull() ) return;
 
@@ -786,7 +787,7 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData( const QString&          
                                                         const std::vector<QDateTime>& mainCaseTimeSteps,
                                                         RigEclipseCaseData*           eclipseCase )
 {
-    CVF_ASSERT( eclipseCase );
+    CAF_ASSERT( eclipseCase );
 
     // It is required to have a main grid before reading active cell data
     if ( !eclipseCase->mainGrid() )
@@ -822,8 +823,8 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData( const QString&          
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::readActiveCellInfo()
 {
-    CVF_ASSERT( m_eclipseCaseData );
-    CVF_ASSERT( m_eclipseCaseData->mainGrid() );
+    CAF_ASSERT( m_eclipseCaseData );
+    CAF_ASSERT( m_eclipseCaseData->mainGrid() );
 
     std::vector<std::vector<int>> actnumValuesPerGrid;
 
@@ -866,8 +867,8 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 {
-    CVF_ASSERT( m_eclipseCaseData );
-    CVF_ASSERT( !m_filesWithSameBaseName.empty() );
+    CAF_ASSERT( m_eclipseCaseData );
+    CAF_ASSERT( !m_filesWithSameBaseName.empty() );
 
     caf::ProgressInfo progInfo( m_filesWithSameBaseName.size() + 3, "" );
 
@@ -979,7 +980,7 @@ void RifReaderEclipseOutput::ensureDynamicResultAccessIsPresent()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )
 {
-    CVF_ASSERT( values );
+    CAF_ASSERT( values );
 
     if ( result.compare( "ACTNUM", Qt::CaseInsensitive ) == 0 )
     {

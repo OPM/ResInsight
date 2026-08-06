@@ -75,7 +75,7 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
                                                                 int                  localTimeStepIndex,
                                                                 int                  frameIndex ) const
 {
-    CVF_ASSERT( model );
+    CAF_ASSERT( model );
 
     if ( m_rimReservoirView.isNull() ) return;
     if ( !m_rimReservoirView->geoMechCase() ) return;
@@ -231,7 +231,7 @@ void RivTensorResultPartMgr::calculateElementTensors( const RigFemPart&         
                                                       const std::vector<caf::Ten3f>& vertexTensors,
                                                       std::vector<caf::Ten3f>*       elmTensors )
 {
-    CVF_ASSERT( elmTensors );
+    CAF_ASSERT( elmTensors );
 
     size_t elmCount = part.elementCount();
     elmTensors->resize( elmCount );
@@ -258,8 +258,8 @@ void RivTensorResultPartMgr::calculatePrincipalsAndDirections( const std::vector
                                                                std::array<std::vector<float>, 3>*      principals,
                                                                std::vector<std::array<cvf::Vec3f, 3>>* principalDirections )
 {
-    CVF_ASSERT( principals );
-    CVF_ASSERT( principalDirections );
+    CAF_ASSERT( principals );
+    CAF_ASSERT( principalDirections );
 
     size_t elmCount = tensors.size();
 
@@ -388,7 +388,7 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart( const std::vector<Tensor
 void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper( const RimTensorResults::TensorColors& colorSet,
                                                                      cvf::ScalarMapperDiscreteLinear*      scalarMapper )
 {
-    CVF_ASSERT( scalarMapper );
+    CAF_ASSERT( scalarMapper );
 
     cvf::Color3ubArray arrowColors;
     arrowColors.resize( 3 );
@@ -421,8 +421,8 @@ void RivTensorResultPartMgr::createOneColorPerPrincipalTextureCoords( cvf::Vec2f
                                                                       const std::vector<TensorVisualization>& tensorVisualizations,
                                                                       const cvf::ScalarMapper*                mapper )
 {
-    CVF_ASSERT( textureCoords );
-    CVF_ASSERT( mapper );
+    CAF_ASSERT( textureCoords );
+    CAF_ASSERT( mapper );
 
     size_t vertexCount = tensorVisualizations.size() * 5;
     if ( textureCoords->size() != vertexCount ) textureCoords->reserve( vertexCount );
@@ -444,8 +444,8 @@ void RivTensorResultPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*   
                                                              const std::vector<TensorVisualization>& tensorVisualizations,
                                                              const cvf::ScalarMapper*                mapper )
 {
-    CVF_ASSERT( textureCoords );
-    CVF_ASSERT( mapper );
+    CAF_ASSERT( textureCoords );
+    CAF_ASSERT( mapper );
 
     size_t vertexCount = tensorVisualizations.size() * 5;
     if ( textureCoords->size() != vertexCount ) textureCoords->reserve( vertexCount );

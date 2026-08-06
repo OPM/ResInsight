@@ -66,7 +66,7 @@ bool RigFemPartResultCalculatorMudWeightWindow::isMatching( const RigFemResultAd
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( isMatching( resVarAddr ) );
+    CAF_ASSERT( isMatching( resVarAddr ) );
 
     const std::vector<RimMudWeightWindowParameters::ParameterType> parameterTypes = { RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
                                                                                       RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,

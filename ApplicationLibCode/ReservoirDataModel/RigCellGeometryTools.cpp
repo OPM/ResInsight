@@ -21,6 +21,7 @@
 #include "cvfGeometryTools.h"
 #include "cvfStructGrid.h"
 
+#include "cafAssert.h"
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 #include "cvfBoundingBox.h"
 #include "cvfMatrix3.h"
@@ -93,7 +94,7 @@ bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox( const std::array<c
                                                               std::array<cvf::Vec3d, 8>*       overlapElement,
                                                               cvf::BoundingBox*                overlapBoundingBox )
 {
-    CVF_ASSERT( overlapElement && overlapBoundingBox );
+    CAF_ASSERT( overlapElement && overlapBoundingBox );
     *overlapBoundingBox = cvf::BoundingBox();
 
     std::vector<cvf::Vec3d> uniqueTopPoints = { hexCorners[0], hexCorners[1], hexCorners[2], hexCorners[3] };

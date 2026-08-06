@@ -1150,7 +1150,7 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       m
                                               size_t*                          cellIndex,
                                               size_t*                          gridIndex )
 {
-    CVF_ASSERT( cellIndex && gridIndex );
+    CAF_ASSERT( cellIndex && gridIndex );
     RimEclipseCase* eclipseCase = nullptr;
     RimGeoMechCase* geomechCase = dynamic_cast<RimGeoMechCase*>( mainOrComparisonView->ownerCase() );
 
@@ -1194,9 +1194,9 @@ void RiuViewerCommands::findFirstItems( Rim3dView*                          main
                                         size_t*                             indexToFirstNoneNncItem,
                                         size_t*                             indexToNncItemNearFirsItem )
 {
-    CVF_ASSERT( !pickItemInfos.empty() );
-    CVF_ASSERT( indexToFirstNoneNncItem );
-    CVF_ASSERT( indexToNncItemNearFirsItem );
+    CAF_ASSERT( !pickItemInfos.empty() );
+    CAF_ASSERT( indexToFirstNoneNncItem );
+    CAF_ASSERT( indexToNncItemNearFirsItem );
 
     double pickDepthThresholdSquared = 0.05 * 0.05;
     {

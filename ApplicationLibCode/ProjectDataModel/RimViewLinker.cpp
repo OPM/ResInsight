@@ -90,14 +90,14 @@ RimViewLinker::~RimViewLinker()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateTimeStep( Rim3dView* sourceView, int timeStep )
 {
-    CVF_ASSERT( sourceView );
+    CAF_ASSERT( sourceView );
 
     if ( !isActive() ) return;
 
     if ( masterView() != sourceView )
     {
         RimViewController* sourceViewLink = sourceView->viewController();
-        CVF_ASSERT( sourceViewLink );
+        CAF_ASSERT( sourceViewLink );
 
         if ( !sourceViewLink->isTimeStepLinked() )
         {
@@ -411,7 +411,7 @@ void RimViewLinker::updateScaleZ( Rim3dView* sourceView, double scaleZ )
     if ( masterView() != sourceView )
     {
         RimViewController* sourceViewLink = sourceView->viewController();
-        CVF_ASSERT( sourceViewLink );
+        CAF_ASSERT( sourceViewLink );
 
         if ( !sourceViewLink->isCameraLinked() )
         {
@@ -491,7 +491,7 @@ void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::findNameAndIconFromView( QString* name, caf::IconProvider* icon, Rim3dView* view )
 {
-    CVF_ASSERT( name && icon );
+    CAF_ASSERT( name && icon );
 
     if ( view )
     {

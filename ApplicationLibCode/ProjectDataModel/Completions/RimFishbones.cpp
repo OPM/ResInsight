@@ -36,7 +36,7 @@
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiListEditor.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfBoundingBox.h"
 #include "cvfMath.h"
 
@@ -149,7 +149,7 @@ bool RimFishbones::isActive() const
 QString RimFishbones::generatedName() const
 {
     caf::PdmChildArrayField<RimFishbones*>* container = dynamic_cast<caf::PdmChildArrayField<RimFishbones*>*>( parentField() );
-    CVF_ASSERT( container );
+    CAF_ASSERT( container );
 
     size_t index = container->indexOf( this ) + 1;
     return QString( "Fishbone %1" ).arg( index );
@@ -215,7 +215,7 @@ double RimFishbones::rotationAngle( size_t index ) const
     }
     else
     {
-        CVF_ASSERT( index < m_installationRotationAngles().size() );
+        CAF_ASSERT( index < m_installationRotationAngles().size() );
 
         return m_installationRotationAngles()[index];
     }
@@ -265,7 +265,7 @@ double RimFishbones::tubingDiameter( RiaDefines::EclipseUnitSystem unitSystem ) 
             return RiaEclipseUnitTools::inchToFeet( m_lateralTubingDiameter() );
         }
     }
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return 0.0;
 }
 

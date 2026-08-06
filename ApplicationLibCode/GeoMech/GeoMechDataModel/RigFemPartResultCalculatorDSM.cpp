@@ -56,7 +56,7 @@ bool RigFemPartResultCalculatorDSM::isMatching( const RigFemResultAddress& resVa
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorDSM::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "DSM" );
+    CAF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "DSM" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
     stepCountProgress.setProgressDescription( "Calculating " +
@@ -112,7 +112,7 @@ float RigFemPartResultCalculatorDSM::dsm( float p1, float p3, float tanFricAng, 
         return std::nan( "" );
     }
 
-    CVF_ASSERT( p1 > p3 );
+    CAF_ASSERT( p1 > p3 );
 
     float pi_4 = 0.785398163397448309616f;
     float rho  = 2.0f * ( atan( sqrt( ( p1 + cohPrTanFricAngle ) / ( p3 + cohPrTanFricAngle ) ) ) - pi_4 );

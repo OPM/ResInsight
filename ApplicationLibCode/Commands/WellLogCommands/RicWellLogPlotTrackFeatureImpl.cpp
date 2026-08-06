@@ -28,7 +28,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,7 +37,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
                                                                    const std::vector<RimWellLogCurve*>& curves,
                                                                    int                                  insertAtPosition )
 {
-    CVF_ASSERT( destTrack );
+    CAF_ASSERT( destTrack );
 
     std::set<RimWellLogTrack*> srcTracks;
     std::set<RimWellLogPlot*>  srcPlots;
@@ -96,7 +96,7 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( RimWellLogPlot*   
                                                               const std::vector<RimWellLogTrack*>& tracksToMove,
                                                               int                                  insertAtPosition )
 {
-    CVF_ASSERT( wellLogPlot );
+    CAF_ASSERT( wellLogPlot );
 
     for ( size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++ )
     {

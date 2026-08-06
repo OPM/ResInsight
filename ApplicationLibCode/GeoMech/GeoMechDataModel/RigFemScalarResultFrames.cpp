@@ -19,6 +19,8 @@
 
 #include "RigFemScalarResultFrames.h"
 #include "RigStatisticsDataCache.h"
+
+#include "cafAssert.h"
 #include <cstdlib>
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +72,7 @@ int RigFemScalarResultFrames::frameCount( int timeStepIndex ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<float>& RigFemScalarResultFrames::frameData( int timeStepIndex, int frameIndex )
 {
-    CVF_ASSERT( timeStepIndex < timeStepCount() );
+    CAF_ASSERT( timeStepIndex < timeStepCount() );
 
     if ( m_isSingleStepResult )
     {
@@ -83,7 +85,7 @@ std::vector<float>& RigFemScalarResultFrames::frameData( int timeStepIndex, int 
     // frame index == -1 means last available frame
     if ( frameIndex == -1 ) frameIndex = availFrames - 1;
 
-    CVF_ASSERT( frameIndex >= 0 );
+    CAF_ASSERT( frameIndex >= 0 );
 
     if ( frameIndex >= availFrames )
     {
@@ -98,7 +100,7 @@ std::vector<float>& RigFemScalarResultFrames::frameData( int timeStepIndex, int 
 //--------------------------------------------------------------------------------------------------
 const std::vector<float>& RigFemScalarResultFrames::frameData( int timeStepIndex, int frameIndex ) const
 {
-    CVF_ASSERT( timeStepIndex < timeStepCount() );
+    CAF_ASSERT( timeStepIndex < timeStepCount() );
 
     if ( m_isSingleStepResult ) timeStepIndex = 0;
 

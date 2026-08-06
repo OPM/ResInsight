@@ -22,6 +22,8 @@
 
 #include "RimThermalFractureTemplate.h"
 
+#include "cafAssert.h"
+
 #include <QFile>
 #include <QTextStream>
 

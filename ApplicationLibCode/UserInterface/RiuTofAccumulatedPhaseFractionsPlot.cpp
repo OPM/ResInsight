@@ -29,8 +29,6 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
-
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"

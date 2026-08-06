@@ -28,6 +28,8 @@
 #include "laswell.hpp"
 #include "well.hpp"
 
+#include "cafAssert.h"
+
 #include <QFileInfo>
 #include <QString>
 
@@ -88,7 +90,7 @@ bool RigWellLogLasFile::open( const QString& fileName, QString* errorMessage )
 
         if ( e.what() )
         {
-            CVF_ASSERT( errorMessage );
+            CAF_ASSERT( errorMessage );
             *errorMessage = e.what();
         }
 
@@ -145,7 +147,7 @@ void RigWellLogLasFile::close()
 //--------------------------------------------------------------------------------------------------
 QString RigWellLogLasFile::wellName() const
 {
-    CVF_ASSERT( m_wellLogFile );
+    CAF_ASSERT( m_wellLogFile );
     return RiaStringEncodingTools::fromNativeEncoded( m_wellLogFile->GetWellName().data() );
 }
 
@@ -154,7 +156,7 @@ QString RigWellLogLasFile::wellName() const
 //--------------------------------------------------------------------------------------------------
 QString RigWellLogLasFile::date() const
 {
-    CVF_ASSERT( m_wellLogFile );
+    CAF_ASSERT( m_wellLogFile );
     return QString::fromStdString( m_wellLogFile->GetDate() );
 }
 
@@ -195,7 +197,7 @@ std::vector<double> RigWellLogLasFile::tvdRkbValues() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellLogLasFile::values( const QString& name ) const
 {
-    CVF_ASSERT( m_wellLogFile );
+    CAF_ASSERT( m_wellLogFile );
 
     if ( m_wellLogFile->HasContLog( name.toStdString() ) )
     {

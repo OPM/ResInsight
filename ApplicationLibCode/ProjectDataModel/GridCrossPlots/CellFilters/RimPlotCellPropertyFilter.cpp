@@ -142,7 +142,7 @@ void RimPlotCellPropertyFilter::updateName()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter( size_t timeStepIndex, cvf::UByteArray* visibleCells )
 {
-    CVF_ASSERT( visibleCells );
+    CAF_ASSERT( visibleCells );
 
     RimEclipseResultDefinition* resDef = eclipseResultDefinition();
     if ( resDef )

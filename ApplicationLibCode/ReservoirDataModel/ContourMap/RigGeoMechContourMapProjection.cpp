@@ -36,6 +36,8 @@
 
 #include "cvfVector3.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 #include <array>
 
@@ -83,7 +85,7 @@ cvf::BoundingBox RigGeoMechContourMapProjection::calculateExpandedPorBarBBox( Ri
     for ( int i = 0; i < femPart->elementCount(); ++i )
     {
         size_t resValueIdx = femPart->elementNodeResultIdx( (int)i, 0 );
-        CVF_ASSERT( resValueIdx < resultValues.size() );
+        CAF_ASSERT( resValueIdx < resultValues.size() );
         double scalarValue   = resultValues[resValueIdx];
         bool   validPorValue = scalarValue != std::numeric_limits<double>::infinity();
 
@@ -137,7 +139,7 @@ std::vector<bool> RigGeoMechContourMapProjection::getMapCellVisibility( RigFemRe
     std::vector<double> cellResults = generateResultsFromAddress( resAddr, mapCellVisibility, resultAggregation, viewStepIndex );
 
     mapCellVisibility.resize( numberOfCells(), true );
-    CVF_ASSERT( mapCellVisibility.size() == cellResults.size() );
+    CAF_ASSERT( mapCellVisibility.size() == cellResults.size() );
 
     {
         cvf::BoundingBox validResBoundingBox;

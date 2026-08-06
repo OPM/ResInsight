@@ -43,10 +43,10 @@ CAF_CMD_SOURCE_INIT( RicNewValveAtMeasuredDepthFeature, "RicNewValveAtMeasuredDe
 void RicNewValveAtMeasuredDepthFeature::onActionTriggered( bool isChecked )
 {
     RiuWellPathSelectionItem* wellPathSelItem = RiuWellPathSelectionItem::wellPathSelectionItem();
-    CVF_ASSERT( wellPathSelItem );
+    CAF_ASSERT( wellPathSelItem );
 
     RimWellPath* wellPath = wellPathSelItem->m_wellpath;
-    CVF_ASSERT( wellPath );
+    CAF_ASSERT( wellPath );
 
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 

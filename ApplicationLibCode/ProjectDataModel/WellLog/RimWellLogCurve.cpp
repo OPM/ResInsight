@@ -36,7 +36,7 @@
 
 #include "cafPdmUiComboBoxEditor.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include "qwt_symbol.h"
 

@@ -508,7 +508,7 @@ void RiuMainWindowBase::slotRefreshUndoRedoActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::createTreeViews( int numberOfTrees )
 {
-    CVF_ASSERT( m_projectTreeViews.empty() );
+    CAF_ASSERT( m_projectTreeViews.empty() );
 
     for ( int i = 0; i < numberOfTrees; i++ )
     {
@@ -540,8 +540,8 @@ void RiuMainWindowBase::setUpCentralDockWidget()
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiTreeView* RiuMainWindowBase::projectTreeView( int treeId )
 {
-    CVF_ASSERT( treeId >= 0 );
-    CVF_ASSERT( treeId < (int)m_projectTreeViews.size() );
+    CAF_ASSERT( treeId >= 0 );
+    CAF_ASSERT( treeId < (int)m_projectTreeViews.size() );
 
     return m_projectTreeViews[treeId];
 }

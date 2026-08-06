@@ -33,7 +33,7 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 CAF_PDM_SOURCE_INIT( RimGeoMechPropertyFilter, "GeoMechPropertyFilter" );
 
@@ -156,7 +156,7 @@ RimGeoMechPropertyFilterCollection* RimGeoMechPropertyFilter::parentContainer()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::setToDefaultValues()
 {
-    CVF_ASSERT( m_parentContainer );
+    CAF_ASSERT( m_parentContainer );
 
     computeResultValueRange();
 
@@ -297,7 +297,7 @@ void RimGeoMechPropertyFilter::defineEditorAttribute( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::computeResultValueRange()
 {
-    CVF_ASSERT( m_parentContainer );
+    CAF_ASSERT( m_parentContainer );
 
     double min = 0.0;
     double max = 0.0;

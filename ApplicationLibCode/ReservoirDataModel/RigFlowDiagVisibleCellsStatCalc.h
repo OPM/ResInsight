@@ -29,6 +29,8 @@
 
 #include "cvfArray.h"
 
+#include "cafAssert.h"
+
 class RigFlowDiagResults;
 class RigActiveCellInfo;
 
@@ -62,7 +64,7 @@ private:
 
         size_t cellCount = actCellInfo->reservoirCellCount();
 
-        CVF_TIGHT_ASSERT( cellCount == m_cellVisibilities->size() );
+        CAF_ASSERT( cellCount == m_cellVisibilities->size() );
 
         for ( size_t cIdx = 0; cIdx < cellCount; ++cIdx )
         {

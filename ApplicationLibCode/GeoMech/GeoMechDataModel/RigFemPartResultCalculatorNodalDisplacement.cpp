@@ -57,8 +57,8 @@ bool RigFemPartResultCalculatorNodalDisplacement::isMatching( const RigFemResult
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorNodalDisplacement::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "U" );
-    CVF_ASSERT( resVarAddr.componentName == "U_LENGTH" );
+    CAF_ASSERT( resVarAddr.fieldName == "U" );
+    CAF_ASSERT( resVarAddr.componentName == "U_LENGTH" );
 
     // Why calculating by 5?
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 5, "" );
@@ -81,7 +81,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalDisplacement::calculate
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
-    CVF_ASSERT( srcFramesU1->timeStepCount() == srcFramesU2->timeStepCount() && srcFramesU2->timeStepCount() == srcFramesU3->timeStepCount() );
+    CAF_ASSERT( srcFramesU1->timeStepCount() == srcFramesU2->timeStepCount() && srcFramesU2->timeStepCount() == srcFramesU3->timeStepCount() );
 
     RigFemResultAddress       dstVarAddrULength( RIG_NODAL, resVarAddr.fieldName, resVarAddr.componentName );
     RigFemScalarResultFrames* dstFramesULength = m_resultCollection->createScalarResult( partIndex, dstVarAddrULength );

@@ -28,7 +28,7 @@
 
 #include "cafSelectionManagerTools.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -89,7 +89,7 @@ RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddT
     RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
 
     RimSummaryDeclineCurve* newCurve = new RimSummaryDeclineCurve();
-    CVF_ASSERT( newCurve );
+    CAF_ASSERT( newCurve );
 
     RiaSummaryTools::copyCurveDataSources( *newCurve, *sourceCurve );
 

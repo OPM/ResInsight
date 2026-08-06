@@ -36,8 +36,6 @@
 #include "cafSelectionManager.h"
 #include "cafSelectionManagerTools.h"
 
-#include "cvfAssert.h"
-
 #include <QAction>
 #include <QFileInfo>
 #include <QString>

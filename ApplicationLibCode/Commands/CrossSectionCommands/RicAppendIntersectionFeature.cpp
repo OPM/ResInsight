@@ -28,7 +28,7 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -40,11 +40,11 @@ CAF_CMD_SOURCE_INIT( RicAppendIntersectionFeature, "RicAppendIntersectionFeature
 void RicAppendIntersectionFeature::onActionTriggered( bool isChecked )
 {
     const auto collection = caf::SelectionManager::instance()->objectsByType<caf::PdmObjectHandle>();
-    CVF_ASSERT( collection.size() == 1 );
+    CAF_ASSERT( collection.size() == 1 );
 
     RimIntersectionCollection* intersectionCollection = collection[0]->firstAncestorOrThisOfType<RimIntersectionCollection>();
 
-    CVF_ASSERT( intersectionCollection );
+    CAF_ASSERT( intersectionCollection );
 
     RicAppendIntersectionFeatureCmd* cmd = new RicAppendIntersectionFeatureCmd( intersectionCollection );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
@@ -88,7 +88,7 @@ QString RicAppendIntersectionFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 void RicAppendIntersectionFeatureCmd::redo()
 {
-    CVF_ASSERT( m_intersectionCollection );
+    CAF_ASSERT( m_intersectionCollection );
 
     RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( "Intersection" );

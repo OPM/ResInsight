@@ -29,7 +29,7 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -97,8 +97,8 @@ QString RicNewWellPathIntersectionFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathIntersectionFeatureCmd::redo()
 {
-    CVF_ASSERT( m_intersectionCollection );
-    CVF_ASSERT( m_wellPath );
+    CAF_ASSERT( m_intersectionCollection );
+    CAF_ASSERT( m_wellPath );
 
     RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( m_wellPath->name() );

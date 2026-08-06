@@ -29,8 +29,6 @@
 #include "cafPdmObjectGroup.h"
 #include "cafSelectionManagerTools.h"
 
-#include "cvfAssert.h"
-
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicPasteSummaryMultiPlotFeature, "RicPasteSummaryMultiPlotFeature" );

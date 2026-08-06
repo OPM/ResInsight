@@ -37,6 +37,8 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
 
+#include "cafAssert.h"
+
 #include <QAction>
 #include <QFileInfo>
 #include <QString>
@@ -64,7 +66,7 @@ RicImportGeneralDataFeature::OpenCaseResults RicImportGeneralDataFeature::openEc
                                                                                                          bool createDefaultView,
                                                                                                          RifReaderSettings& readerSettings )
 {
-    CVF_ASSERT( !fileNames.empty() );
+    CAF_ASSERT( !fileNames.empty() );
 
     QString defaultDir = QFileInfo( fileNames.last() ).absolutePath();
 

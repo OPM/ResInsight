@@ -28,8 +28,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafAssert.h"
 #include "cafSelectionManager.h"
-#include "cvfAssert.h"
 
 #include <QAction>
 
@@ -50,7 +50,7 @@ bool RicEditScriptFeature::isCommandEnabled() const
 void RicEditScriptFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
-    CVF_ASSERT( !selection.empty() );
+    CAF_ASSERT( !selection.empty() );
 
     RimCalcScript* calcScript = selection[0];
 

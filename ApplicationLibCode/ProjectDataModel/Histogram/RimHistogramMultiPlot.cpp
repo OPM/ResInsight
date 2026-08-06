@@ -73,7 +73,7 @@ RimHistogramMultiPlot::~RimHistogramMultiPlot()
 void RimHistogramMultiPlot::addPlot( RimPlot* plot )
 {
     auto* sumPlot = dynamic_cast<RimHistogramPlot*>( plot );
-    CVF_ASSERT( sumPlot != nullptr );
+    CAF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
         RimMultiPlot::addPlot( plot );
@@ -86,7 +86,7 @@ void RimHistogramMultiPlot::addPlot( RimPlot* plot )
 void RimHistogramMultiPlot::insertPlot( RimPlot* plot, size_t index )
 {
     auto* sumPlot = dynamic_cast<RimHistogramPlot*>( plot );
-    CVF_ASSERT( sumPlot != nullptr );
+    CAF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
         sumPlot->axisChanged.connect( this, &RimHistogramMultiPlot::onSubPlotAxisChanged );
@@ -104,7 +104,7 @@ void RimHistogramMultiPlot::insertPlot( RimPlot* plot, size_t index )
 void RimHistogramMultiPlot::removePlot( RimPlot* plot )
 {
     auto* sumPlot = dynamic_cast<RimHistogramPlot*>( plot );
-    CVF_ASSERT( sumPlot != nullptr );
+    CAF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
         RimMultiPlot::removePlot( plot );
@@ -117,7 +117,7 @@ void RimHistogramMultiPlot::removePlot( RimPlot* plot )
 void RimHistogramMultiPlot::removePlotNoUpdate( RimPlot* plot )
 {
     auto* sumPlot = dynamic_cast<RimHistogramPlot*>( plot );
-    CVF_ASSERT( sumPlot != nullptr );
+    CAF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
         RimMultiPlot::removePlotNoUpdate( plot );

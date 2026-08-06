@@ -301,6 +301,8 @@ void RigFemPart::assertElmNeighborsIsCalculated()
 }
 
 #include "RigFemFaceComparator.h"
+
+#include "cafAssert.h"
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -446,7 +448,7 @@ cvf::Vec3f RigFemPart::faceNormal( int elmIdx, int faceIdx ) const
     }
     else if ( faceNodeCount != 4 )
     {
-        CVF_ASSERT( false );
+        CAF_ASSERT( false );
     }
 
     return cvf::Vec3f::ZERO;
@@ -536,7 +538,7 @@ std::vector<size_t> RigFemPart::findIntersectingElementIndices( const cvf::Bound
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RigFemPart::findIntersectingElementsWithExistingSearchTree( const cvf::BoundingBox& inputBB ) const
 {
-    CVF_ASSERT( m_elementSearchTree.notNull() );
+    CAF_ASSERT( m_elementSearchTree.notNull() );
     std::vector<size_t> elementIndices;
     m_elementSearchTree->findIntersections( inputBB, &elementIndices );
     return elementIndices;
@@ -595,12 +597,12 @@ size_t RigFemPart::resultValueIdxFromResultPosType( RigFemResultPosEnum resultPo
 {
     if ( resultPosType == RIG_ELEMENT || resultPosType == RIG_FORMATION_NAMES )
     {
-        CVF_ASSERT( elementIdx < static_cast<int>( m_elementId.size() ) );
+        CAF_ASSERT( elementIdx < static_cast<int>( m_elementId.size() ) );
         return elementIdx;
     }
 
     size_t elementNodeResultIdx = this->elementNodeResultIdx( static_cast<int>( elementIdx ), elmLocalNodeIdx );
-    CVF_ASSERT( elementNodeResultIdx < elementNodeResultCount() );
+    CAF_ASSERT( elementNodeResultIdx < elementNodeResultCount() );
 
     if ( resultPosType == RIG_ELEMENT_NODAL || resultPosType == RIG_INTEGRATION_POINT )
     {
@@ -609,11 +611,11 @@ size_t RigFemPart::resultValueIdxFromResultPosType( RigFemResultPosEnum resultPo
     else if ( resultPosType == RIG_NODAL )
     {
         size_t nodeIdx = nodeIdxFromElementNodeResultIdx( elementNodeResultIdx );
-        CVF_ASSERT( nodeIdx < m_nodes.nodeIds.size() );
+        CAF_ASSERT( nodeIdx < m_nodes.nodeIds.size() );
         return nodeIdx;
     }
 
-    CVF_ASSERT( false );
+    CAF_ASSERT( false );
     return 0u;
 }
 

@@ -20,6 +20,8 @@
 
 #include "cvfTrace.h"
 
+#include "cafAssert.h"
+
 #include <QDateTime>
 #include <QNetworkRequest>
 #include <QSslConfiguration>
@@ -400,7 +402,7 @@ void RicHoloLensRestClient::slotSslErrors( const QList<QSslError>& errors )
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensRestClient::addBearerAuthenticationHeaderToRequest( QNetworkRequest* request ) const
 {
-    CVF_ASSERT( request );
+    CAF_ASSERT( request );
 
     request->setRawHeader( "Authorization", "Bearer " + m_bearerToken );
 }
@@ -410,7 +412,7 @@ void RicHoloLensRestClient::addBearerAuthenticationHeaderToRequest( QNetworkRequ
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensRestClient::detectAndHandleErrorReply( QString operationName, QNetworkReply* reply )
 {
-    CVF_ASSERT( reply );
+    CAF_ASSERT( reply );
 
     const QNetworkReply::NetworkError nwErrCode      = reply->error();
     const int                         httpStatusCode = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();

@@ -42,6 +42,7 @@
 #include "ert/ecl/ecl_nnc_data.h"
 #include "ert/ecl/ecl_nnc_geometry.h"
 
+#include "cafAssert.h"
 #include "cafProgressInfo.h"
 
 #include "cvfMath.h"
@@ -156,7 +157,7 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
 {
     if ( !ecl_file ) return;
 
-    CVF_ASSERT( timeSteps && daysSinceSimulationStart );
+    CAF_ASSERT( timeSteps && daysSinceSimulationStart );
 
     timeSteps->clear();
     daysSinceSimulationStart->clear();
@@ -191,7 +192,7 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         for ( int i = 0; i < numINTEHEAD; i++ )
         {
             ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, i );
-            CVF_ASSERT( kwINTEHEAD );
+            CAF_ASSERT( kwINTEHEAD );
             int day   = 0;
             int month = 0;
             int year  = 0;
@@ -248,14 +249,14 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
             kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, i );
         }
 
-        CVF_ASSERT( kwINTEHEAD );
+        CAF_ASSERT( kwINTEHEAD );
         int day   = 0;
         int month = 0;
         int year  = 0;
         getDayMonthYear( kwINTEHEAD, &day, &month, &year );
 
         QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime( QDate( year, month, day ) );
-        CVF_ASSERT( reportDateTime.isValid() );
+        CAF_ASSERT( reportDateTime.isValid() );
 
         double dayDoubleValue = dayValues[i];
         int    dayValue       = cvf::Math::floor( dayDoubleValue );
@@ -441,7 +442,7 @@ QByteArray RifEclipseOutputFileTools::md5sum( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( const QString& fullPathFileName, QStringList* baseNameFiles )
 {
-    CVF_ASSERT( baseNameFiles );
+    CAF_ASSERT( baseNameFiles );
     baseNameFiles->clear();
 
     QString filePath     = QFileInfo( fullPathFileName ).absoluteFilePath();

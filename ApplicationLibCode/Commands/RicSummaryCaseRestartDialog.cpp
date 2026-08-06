@@ -53,7 +53,7 @@
 #include <QToolBar>
 #include <QVBoxLayout>
 
-#include <cvfAssert.h>
+#include "cafAssert.h"
 
 #include <ctime>
 #include <thread>
@@ -501,7 +501,7 @@ void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout( QGridLayout*      
                                                               const RifRestartFileInfo& fileInfo,
                                                               const QString&            fullPathFileName )
 {
-    CVF_ASSERT( gridLayout );
+    CAF_ASSERT( gridLayout );
 
     QDateTime startDate       = QDateTime::fromSecsSinceEpoch( fileInfo.startDate );
     QString   startDateString = startDate.toString( RiaQDateTimeTools::dateFormatString() );
@@ -534,7 +534,7 @@ void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout( QGridLayout*      
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCaseRestartDialog::appendTextToGridLayout( QGridLayout* gridLayout, const QString& text )
 {
-    CVF_ASSERT( gridLayout );
+    CAF_ASSERT( gridLayout );
 
     int rowCount = gridLayout->rowCount();
 

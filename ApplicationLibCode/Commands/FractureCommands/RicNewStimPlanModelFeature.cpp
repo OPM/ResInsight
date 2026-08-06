@@ -38,7 +38,7 @@
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 
@@ -53,12 +53,12 @@ RimStimPlanModel* RicNewStimPlanModelFeature::addStimPlanModel( RimWellPath*    
                                                                 int                    timeStep,
                                                                 double                 measuredDepth )
 {
-    CVF_ASSERT( wellPath );
+    CAF_ASSERT( wellPath );
 
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return nullptr;
 
     RimStimPlanModelCollection* stimPlanModelCollection = wellPath->stimPlanModelCollection();
-    CVF_ASSERT( stimPlanModelCollection );
+    CAF_ASSERT( stimPlanModelCollection );
 
     RimStimPlanModel* stimPlanModel = new RimStimPlanModel();
     stimPlanModelCollection->addStimPlanModel( stimPlanModel );

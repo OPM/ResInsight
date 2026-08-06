@@ -53,7 +53,7 @@ bool RicExportCarfin::isCommandEnabled() const
 void RicExportCarfin::onActionTriggered( bool isChecked )
 {
     RimEclipseCase* rimCase = RicExportCarfin::selectedCase();
-    CVF_ASSERT( rimCase );
+    CAF_ASSERT( rimCase );
 
     QString exportCarfinDataAsString = RimProject::current()->dialogData()->exportCarfinDataAsString();
 

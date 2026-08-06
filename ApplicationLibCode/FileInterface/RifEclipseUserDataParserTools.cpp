@@ -25,8 +25,6 @@
 
 #include "RifEclipseUserDataKeywordTools.h"
 
-#include "cvfAssert.h"
-
 #include <QString>
 #include <QStringList>
 #include <QTextStream>

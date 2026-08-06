@@ -34,6 +34,8 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +79,7 @@ bool RifEclipseInputPropertyLoader::isInputPropertyCandidate( const RigEclipseCa
                                                               size_t                    numberOfValues,
                                                               QString*                  errorText )
 {
-    CVF_ASSERT( caseData );
+    CAF_ASSERT( caseData );
 
     if ( !isValidDataKeyword( QString::fromStdString( eclipseKeyword ) ) ) return false;
 
@@ -164,7 +166,7 @@ bool RifEclipseInputPropertyLoader::appendNewInputPropertyResult( RigEclipseCase
 {
     if ( !isValidDataKeyword( QString::fromStdString( eclipseKeyword ) ) ) return false;
 
-    CVF_ASSERT( caseData );
+    CAF_ASSERT( caseData );
 
     size_t keywordItemCount = values.size();
     if ( keywordItemCount != caseData->mainGrid()->cellCount() )

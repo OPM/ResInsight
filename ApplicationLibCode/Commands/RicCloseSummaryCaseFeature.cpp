@@ -41,7 +41,7 @@
 #include "cafPdmObjectHandleTools.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 #include <QAction>
 

@@ -18,7 +18,7 @@
 
 #include "RigEclipseResultInfo.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,8 +37,8 @@ std::vector<RigEclipseTimeStepInfo> RigEclipseTimeStepInfo::createTimeStepInfos(
                                                                                  std::vector<int>       reportNumbers,
                                                                                  std::vector<double>    daysSinceSimulationStarts )
 {
-    CVF_ASSERT( dates.size() == reportNumbers.size() );
-    CVF_ASSERT( dates.size() == daysSinceSimulationStarts.size() );
+    CAF_ASSERT( dates.size() == reportNumbers.size() );
+    CAF_ASSERT( dates.size() == daysSinceSimulationStarts.size() );
 
     std::vector<RigEclipseTimeStepInfo> timeStepInfos;
 

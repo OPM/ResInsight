@@ -200,7 +200,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
                                                           bool                    useBranchDetection,
                                                           bool                    showPlotWindow )
 {
-    CVF_ASSERT( plotTrack );
+    CAF_ASSERT( plotTrack );
 
     RiaDefines::DepthUnitType defaultDepthUnit = RiaDefines::DepthUnitType::UNIT_METER;
 
@@ -330,7 +330,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
 //--------------------------------------------------------------------------------------------------
 RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, const RimSimWellInView* simWell, bool showPlotWindow )
 {
-    CVF_ASSERT( plotTrack );
+    CAF_ASSERT( plotTrack );
 
     RimWellLogRftCurve* curve = new RimWellLogRftCurve();
 
@@ -406,7 +406,7 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, co
 //--------------------------------------------------------------------------------------------------
 RimWellLogLasFileCurve* RicWellLogTools::addFileCurve( RimWellLogTrack* plotTrack, bool showPlotWindow )
 {
-    CVF_ASSERT( plotTrack );
+    CAF_ASSERT( plotTrack );
 
     RimWellLogLasFileCurve* curve = new RimWellLogLasFileCurve();
 
@@ -551,7 +551,7 @@ RimWellMeasurementCurve* RicWellLogTools::addWellMeasurementCurve( RimWellLogTra
                                                                    const QString&   measurementKind,
                                                                    bool             showPlotWindow )
 {
-    CVF_ASSERT( plotTrack );
+    CAF_ASSERT( plotTrack );
 
     RimWellMeasurementCurve* curve = new RimWellMeasurementCurve;
     curve->setWellPath( wellPath );
@@ -577,7 +577,7 @@ RimWellMeasurementCurve* RicWellLogTools::addWellMeasurementCurve( RimWellLogTra
 //--------------------------------------------------------------------------------------------------
 RimWellLogCalculatedCurve* RicWellLogTools::addWellLogCalculatedCurve( RimWellLogTrack* plotTrack, bool showPlotWindow )
 {
-    CVF_ASSERT( plotTrack );
+    CAF_ASSERT( plotTrack );
 
     RimWellLogCalculatedCurve* curve      = new RimWellLogCalculatedCurve();
     const cvf::Color3f         curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );

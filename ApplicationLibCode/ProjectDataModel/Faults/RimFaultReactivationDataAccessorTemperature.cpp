@@ -34,6 +34,8 @@
 #include "RimEclipseCase.h"
 #include "RimFaultReactivationDataAccessorWellLogExtraction.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 #include <limits>
 

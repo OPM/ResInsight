@@ -24,7 +24,7 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -32,7 +32,7 @@
 RicEclipsePropertyFilterInsertExec::RicEclipsePropertyFilterInsertExec( RimEclipsePropertyFilter* propertyFilter )
     : CmdExecuteCommand( nullptr )
 {
-    CVF_ASSERT( propertyFilter );
+    CAF_ASSERT( propertyFilter );
     m_propertyFilter = propertyFilter;
 }
 
@@ -60,7 +60,7 @@ void RicEclipsePropertyFilterInsertExec::redo()
         m_propertyFilter->firstAncestorOrThisOfTypeAsserted<RimEclipsePropertyFilterCollection>();
 
     size_t index = propertyFilterCollection->propertyFiltersField().indexOf( m_propertyFilter );
-    CVF_ASSERT( index < propertyFilterCollection->propertyFiltersField().size() );
+    CAF_ASSERT( index < propertyFilterCollection->propertyFiltersField().size() );
 
     RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter( propertyFilterCollection, index );
 }
@@ -71,5 +71,5 @@ void RicEclipsePropertyFilterInsertExec::redo()
 void RicEclipsePropertyFilterInsertExec::undo()
 {
     // TODO
-    CVF_ASSERT( 0 );
+    CAF_ASSERT( 0 );
 }

@@ -35,12 +35,14 @@
 
 #include "cvfRay.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<SimulationWellCellBranch> RigMswCenterLineCalculator::calculateMswWellPipeGeometry( const RimSimWellInView* rimWell )
 {
-    CVF_ASSERT( rimWell );
+    CAF_ASSERT( rimWell );
 
     const RigSimWellData* simWellData = rimWell->simWellData();
     if ( !simWellData ) return {};

@@ -56,6 +56,8 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
+#include "cafAssert.h"
+
 #include <QFileInfo>
 
 #include <set>

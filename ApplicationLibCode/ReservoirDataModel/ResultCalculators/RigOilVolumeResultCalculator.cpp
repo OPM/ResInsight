@@ -25,6 +25,8 @@
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
 
+#include "cafAssert.h"
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -82,7 +84,7 @@ void RigOilVolumeResultCalculator::calculate( const RigEclipseResultAddress& res
             {
                 if ( resultIndex < soilResults.size() && resultIndex < cellVolumeResults.size() )
                 {
-                    CVF_ASSERT( soilResults.at( resultIndex ) <= 1.01 );
+                    CAF_ASSERT( soilResults.at( resultIndex ) <= 1.01 );
                     oilVolumeResults[resultIndex] = std::max( 0.0, soilResults.at( resultIndex ) * cellVolumeResults.at( resultIndex ) );
                 }
             }

@@ -28,7 +28,6 @@
 #endif
 #include "H5Cpp.h"
 
-#include "cvfAssert.h"
 #include "cvfMath.h"
 
 #include <QDateTime>

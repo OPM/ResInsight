@@ -30,7 +30,7 @@
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryPlot.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfMath.h"
 
 #include <QMessageBox>
@@ -40,7 +40,7 @@
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurvesData::populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves, RimSummaryCurvesData* curvesData )
 {
-    CVF_ASSERT( curvesData );
+    CAF_ASSERT( curvesData );
 
     curvesData->clear();
 
@@ -60,7 +60,7 @@ void RimSummaryCurvesData::populateTimeHistoryCurvesData( std::vector<RimGridTim
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurvesData::populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, RimSummaryCurvesData* curvesData )
 {
-    CVF_ASSERT( curvesData );
+    CAF_ASSERT( curvesData );
 
     curvesData->clear();
 
@@ -111,7 +111,7 @@ void RimSummaryCurvesData::addCurveData( const QString&             caseName,
     }
     else
     {
-        CVF_ASSERT( timeSteps[existingCaseIndex].size() == curveData.values.size() );
+        CAF_ASSERT( timeSteps[existingCaseIndex].size() == curveData.values.size() );
 
         allCurveData[existingCaseIndex].push_back( curveData );
     }
@@ -221,7 +221,7 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
                                                       SummaryCurveType              curveType,
                                                       RimSummaryCurvesData*         curvesData )
 {
-    CVF_ASSERT( curvesData );
+    CAF_ASSERT( curvesData );
 
     curvesData->clear();
 
@@ -512,7 +512,7 @@ void RimSummaryCurvesData::appendToExportData( QString& out, const std::vector<R
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurvesData RimSummaryCurvesData::concatCurvesData( const std::vector<RimSummaryCurvesData>& curvesData )
 {
-    CVF_ASSERT( !curvesData.empty() );
+    CAF_ASSERT( !curvesData.empty() );
 
     RiaDefines::DateTimePeriod period = curvesData.front().resamplePeriod;
     RimSummaryCurvesData       resultCurvesData;
@@ -523,7 +523,7 @@ RimSummaryCurvesData RimSummaryCurvesData::concatCurvesData( const std::vector<R
     {
         if ( curvesDataItem.caseIds.empty() ) continue;
 
-        CVF_ASSERT( curvesDataItem.resamplePeriod == period );
+        CAF_ASSERT( curvesDataItem.resamplePeriod == period );
 
         resultCurvesData.caseIds.insert( resultCurvesData.caseIds.end(), curvesDataItem.caseIds.begin(), curvesDataItem.caseIds.end() );
         resultCurvesData.timeSteps.insert( resultCurvesData.timeSteps.end(), curvesDataItem.timeSteps.begin(), curvesDataItem.timeSteps.end() );

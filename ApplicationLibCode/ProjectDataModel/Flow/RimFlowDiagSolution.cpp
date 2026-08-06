@@ -31,6 +31,8 @@
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
 
+#include "cafAssert.h"
+
 CAF_PDM_SOURCE_INIT( RimFlowDiagSolution, "FlowDiagSolution" );
 
 #define CROSS_FLOW_ENDING "-XF"
@@ -312,7 +314,7 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
             }
             else
             {
-                CVF_ASSERT( false );
+                CAF_ASSERT( false );
             }
         }
     }

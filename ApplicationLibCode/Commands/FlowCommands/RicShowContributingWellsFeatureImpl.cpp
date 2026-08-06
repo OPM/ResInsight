@@ -68,7 +68,7 @@ RimEclipseView*
 //--------------------------------------------------------------------------------------------------
 void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( RimEclipseView* viewToModify, const QString& wellName, int timeStep )
 {
-    CVF_ASSERT( viewToModify );
+    CAF_ASSERT( viewToModify );
 
     RimSimWellInView* selectedWell = nullptr;
 
@@ -80,7 +80,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
         }
     }
 
-    CVF_ASSERT( selectedWell );
+    CAF_ASSERT( selectedWell );
     if ( !selectedWell ) return;
 
     RimEclipseResultCase* eclipseResultCase = selectedWell->firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
@@ -93,7 +93,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     }
 
     // assert(flowDiagSolution);
-    CVF_ASSERT( flowDiagSolution );
+    CAF_ASSERT( flowDiagSolution );
 
     RimFlowDiagSolution::TracerStatusType tracerStatus = flowDiagSolution->tracerStatusInTimeStep( selectedWell->name(), timeStep );
     if ( tracerStatus != RimFlowDiagSolution::TracerStatusType::INJECTOR && tracerStatus != RimFlowDiagSolution::TracerStatusType::PRODUCER )
@@ -116,7 +116,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
             break;
 
         default:
-            CVF_ASSERT( false );
+            CAF_ASSERT( false );
             break;
     }
 

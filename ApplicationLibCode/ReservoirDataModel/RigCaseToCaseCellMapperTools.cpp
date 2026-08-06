@@ -24,6 +24,8 @@
 #include "RigFemPartGrid.h"
 #include "RigMainGrid.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 //==================================================================================================
@@ -73,8 +75,8 @@ void RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell( const RigMainGri
                                                                 size_t             reservoirCellIndex,
                                                                 cvf::Vec3d         estimatedElmCorners[8] )
 {
-    CVF_TIGHT_ASSERT( reservoirCellIndex < eclGrid->cellCount() ); // Assume reservoirCellIdx == localGridCellIdx for
-                                                                   // maingrid
+    CAF_ASSERT( reservoirCellIndex < eclGrid->cellCount() ); // Assume reservoirCellIdx == localGridCellIdx for
+                                                             // maingrid
 
     const std::vector<cvf::Vec3d>& eclNodes = eclGrid->nodes();
 

@@ -85,7 +85,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables( const caf::Displa
     if ( !wellPathClipBoundingBox.isValid() ) return;
 
     if ( resultValues.empty() ) return;
-    CVF_ASSERT( resultValues.size() == resultMds.size() );
+    CAF_ASSERT( resultValues.size() == resultMds.size() );
 
     auto wellPathCollection = m_wellPath->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
 
@@ -247,7 +247,7 @@ bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve( const cvf::Vec
     *measuredDepthAtPoint  = cvf::UNDEFINED_DOUBLE;
     *valueAtClosestPoint   = cvf::UNDEFINED_DOUBLE;
     if ( m_curveVertices.size() < 2u ) return false;
-    CVF_ASSERT( m_curveVertices.size() == m_curveValues.size() );
+    CAF_ASSERT( m_curveVertices.size() == m_curveValues.size() );
     for ( size_t i = 1; i < m_curveVertices.size(); ++i )
     {
         bool validCurveSegment = RiaCurveDataTools::isValidValue( m_curveValues[i], false ) &&

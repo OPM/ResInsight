@@ -22,7 +22,7 @@
 #include "RiaCurveDataTools.h"
 #include "RiaWellLogUnitTools.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfMath.h"
 
 #include <cmath>
@@ -77,7 +77,7 @@ void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>& xValues
                                               bool                       isExtractionCurve,
                                               bool                       useLogarithmicScale )
 {
-    CVF_ASSERT( xValues.size() == depths.size() );
+    CAF_ASSERT( xValues.size() == depths.size() );
 
     m_propertyValues      = xValues;
     m_depths[depthType]   = depths;
@@ -104,7 +104,7 @@ void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>&        
 {
     for ( auto it = depths.begin(); it != depths.end(); ++it )
     {
-        CVF_ASSERT( xValues.size() == it->second.size() );
+        CAF_ASSERT( xValues.size() == it->second.size() );
     }
 
     m_propertyValues      = xValues;
@@ -583,9 +583,9 @@ void RigWellLogCurveData::splitIntervalAtEmptySpace( const std::vector<double>& 
                                                      size_t                                  stopIdx,
                                                      std::vector<std::pair<size_t, size_t>>* intervals )
 {
-    CVF_ASSERT( intervals );
+    CAF_ASSERT( intervals );
 
-    CVF_ASSERT( startIdx <= stopIdx );
+    CAF_ASSERT( startIdx <= stopIdx );
 
     if ( stopIdx - startIdx <= 1 )
     {
@@ -632,7 +632,7 @@ bool RigWellLogCurveData::calculateDepthRange( RiaDefines::DepthType     depthTy
                                                double*                   minimumDepth,
                                                double*                   maximumDepth ) const
 {
-    CVF_ASSERT( minimumDepth && maximumDepth );
+    CAF_ASSERT( minimumDepth && maximumDepth );
 
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;

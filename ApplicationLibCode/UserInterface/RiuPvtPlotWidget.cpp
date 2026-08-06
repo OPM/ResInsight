@@ -27,7 +27,7 @@
 
 #include "RigFlowDiagSolverInterface.h"
 
-#include "cvfAssert.h"
+#include "cafAssert.h"
 #include "cvfMath.h"
 
 #include "qwt_legend.h"
@@ -228,7 +228,7 @@ void RiuPvtPlotWidget::plotCurves( RiaDefines::EclipseUnitSystem                
         QwtPlotCurve*                       qwtCurve    = new QwtPlotCurve();
         QwtSymbol*                          curveSymbol = new QwtSymbol( QwtSymbol::Ellipse );
 
-        CVF_ASSERT( curve.pressureVals.size() == curve.yVals.size() );
+        CAF_ASSERT( curve.pressureVals.size() == curve.yVals.size() );
         qwtCurve->setSamples( curve.pressureVals.data(), curve.yVals.data(), static_cast<int>( curve.pressureVals.size() ) );
 
         qwtCurve->setStyle( QwtPlotCurve::Lines );
@@ -259,7 +259,7 @@ void RiuPvtPlotWidget::plotCurves( RiaDefines::EclipseUnitSystem                
     }
 
     m_pvtCurveArr = curveArr;
-    CVF_ASSERT( m_pvtCurveArr.size() == m_qwtCurveArr.size() );
+    CAF_ASSERT( m_pvtCurveArr.size() == m_qwtCurveArr.size() );
 
     // Add vertical marker line to indicate cell pressure
     if ( pressure != HUGE_VAL )
