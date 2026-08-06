@@ -18,6 +18,8 @@
 
 #include "RiaNameUniquenessTools.h"
 
+#include "RiaLogging.h"
+
 #include "RimNamedObject.h"
 #include "RimSurface.h"
 
@@ -170,6 +172,22 @@ QString RiaNameUniquenessTools::ensureUniqueAmongSiblings( caf::PdmObjectHandle*
     const QString uniqueName  = makeUniqueAmongSiblings( object, currentName );
 
     if ( uniqueName != currentName ) setObjectName( object, uniqueName );
+
+    return uniqueName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaNameUniquenessTools::resolveRenameConflict( const caf::PdmObjectHandle* object, const QString& desiredName )
+{
+    const QString uniqueName = makeUniqueAmongSiblings( object, desiredName );
+
+    if ( uniqueName != desiredName )
+    {
+        RiaLogging::info(
+            QString( "\"%1\" already exists in this folder, using \"%2\" instead." ).arg( desiredName ).arg( uniqueName ).toStdString() );
+    }
 
     return uniqueName;
 }

@@ -66,6 +66,11 @@ QString makeUniqueAmongSiblings( const caf::PdmObjectHandle* object, const QStri
 // already be inserted into its parent collection. Returns the name in effect after the call.
 QString ensureUniqueAmongSiblings( caf::PdmObjectHandle* object );
 
+// Returns the name to apply when the user renames an object. If desiredName is already unique
+// among the siblings of the object, it is returned unchanged. Otherwise an auto-generated unique
+// name is returned, and the substitution is written to the log.
+QString resolveRenameConflict( const caf::PdmObjectHandle* object, const QString& desiredName );
+
 // For objects not yet inserted into a parent collection.
 bool    isUniqueInCollection( const caf::PdmChildArrayFieldHandle* childArrayField, const QString& candidateName );
 QString makeUniqueInCollection( const caf::PdmChildArrayFieldHandle* childArrayField, const QString& candidateName );

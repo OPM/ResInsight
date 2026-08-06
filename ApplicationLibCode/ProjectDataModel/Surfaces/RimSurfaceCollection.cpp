@@ -38,8 +38,6 @@
 #include "RimSurfaceInView.h"
 #include "RimSurfaceResultDefinition.h"
 
-#include "RiuNameConflictTools.h"
-
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -116,8 +114,7 @@ void RimSurfaceCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     if ( changedField == &m_collectionName )
     {
         // Keep the name unique among the folders in the same parent folder
-        auto resolvedName = RiuNameConflictTools::resolveRenameConflict( this, newValue.toString() );
-        m_collectionName  = resolvedName.value_or( oldValue.toString() );
+        m_collectionName = RiaNameUniquenessTools::resolveRenameConflict( this, newValue.toString() );
     }
 
     caf::PdmNestedCollection<RimSurfaceCollection, RimSurface>::fieldChangedByUi( changedField, oldValue, newValue );
