@@ -20,8 +20,6 @@
 
 #include "RiaDefines.h"
 
-#include "cvfVector3.h"
-
 #include <QString>
 
 #include <vector>

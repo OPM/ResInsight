@@ -23,8 +23,6 @@
 
 #include "RigFlowDiagSolverInterface.h"
 
-#include "cvfMath.h"
-
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>

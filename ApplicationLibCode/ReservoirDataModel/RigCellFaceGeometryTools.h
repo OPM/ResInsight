@@ -21,7 +21,6 @@
 #include "RigFault.h"
 #include "RigNncConnection.h"
 
-#include "cvfCollection.h"
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"
 

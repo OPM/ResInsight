@@ -40,8 +40,6 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 
-#include "cvfMath.h"
-
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotRegressionCurve, "GridCrossPlotRegressionCurve" );
 
 namespace caf

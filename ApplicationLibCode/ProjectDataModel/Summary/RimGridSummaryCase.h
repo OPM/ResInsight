@@ -22,8 +22,6 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
-#include "cvfObject.h"
-
 class RimProject;
 class RimEclipseCase;
 class RifSummaryReaderInterface;

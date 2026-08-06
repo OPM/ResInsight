@@ -49,7 +49,6 @@
 #include "cafPdmUiPropertyViewDialog.h"
 
 #include "cafAssert.h"
-#include "cvfColor3.h"
 
 #include <QAction>
 

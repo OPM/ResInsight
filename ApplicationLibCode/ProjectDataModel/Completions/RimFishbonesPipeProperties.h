@@ -20,9 +20,6 @@
 
 #include "RiaDefines.h"
 
-#include "cvfColor3.h"
-#include "cvfVector3.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 

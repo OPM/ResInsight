@@ -54,8 +54,6 @@
 #include "cafAssert.h"
 #include "cafProgressInfo.h"
 
-#include "cvfTrace.h"
-
 #include "ert/ecl/ecl_kw_magic.h"
 #include "ert/ecl/ecl_nnc_data.h"
 #include "ert/ecl/ecl_nnc_export.h"

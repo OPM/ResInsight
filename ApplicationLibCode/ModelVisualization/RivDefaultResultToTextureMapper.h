@@ -26,7 +26,6 @@
 #include "cvfScalarMapper.h"
 #include "cvfVector2.h"
 
-#include "cvfObject.h"
 #include "cvfStructGrid.h"
 
 #include <cmath>

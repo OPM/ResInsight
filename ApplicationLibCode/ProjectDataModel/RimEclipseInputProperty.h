@@ -21,7 +21,6 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cvfObject.h"
 
 class QString;
 

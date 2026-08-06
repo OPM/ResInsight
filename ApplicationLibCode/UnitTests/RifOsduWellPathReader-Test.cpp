@@ -22,8 +22,6 @@
 
 #include "Well/RigWellPath.h"
 
-#include "cvfObject.h"
-
 TEST( RifOsduWellPathReader, ParseCsv )
 {
     std::string fileContent = R"(

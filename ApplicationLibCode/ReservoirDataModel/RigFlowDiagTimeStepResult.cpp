@@ -20,8 +20,6 @@
 
 #include "RigFlowDiagDefines.h"
 
-#include "cvfTrace.h"
-
 #include "cafAssert.h"
 
 #include <set>

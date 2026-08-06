@@ -29,8 +29,6 @@
 #include "RigEclipseResultAddress.h"
 #include "RigNNCData.h"
 
-#include "cvfArray.h"
-
 class RigEclipseAllanFaultsStatCalc : public RigStatisticsCalculator
 {
 public:

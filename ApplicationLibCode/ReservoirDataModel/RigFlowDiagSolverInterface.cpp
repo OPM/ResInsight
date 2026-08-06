@@ -44,8 +44,6 @@
 
 #include "cafProgressInfo.h"
 
-#include "cvfTrace.h"
-
 class RigOpmFlowDiagStaticData
 {
 public:

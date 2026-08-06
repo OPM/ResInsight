@@ -22,8 +22,6 @@
 
 #include "Well/RigWellLogCurveData.h"
 
-#include "cvfVector3.h"
-
 #include <vector>
 
 #include <iostream>

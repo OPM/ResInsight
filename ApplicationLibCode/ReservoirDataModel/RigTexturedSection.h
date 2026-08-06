@@ -19,9 +19,7 @@
 #pragma once
 
 #include "cvfArray.h"
-#include "cvfColor3.h"
 #include "cvfObject.h"
-#include "cvfVector3.h"
 
 #include <memory>
 #include <vector>

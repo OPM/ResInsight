@@ -25,9 +25,6 @@
 #include "cafCmdFeature.h"
 #include "cafPickEventHandler.h"
 
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
 namespace cvf
 {
 class Part;

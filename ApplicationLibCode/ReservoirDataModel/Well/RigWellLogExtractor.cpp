@@ -22,8 +22,6 @@
 #include "RiaLogging.h"
 #include "RigWellPath.h"
 
-#include "cvfTrace.h"
-
 #include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------

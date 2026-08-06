@@ -21,7 +21,6 @@
 #include "cafPdmObject.h"
 
 #include "cafPdmFieldCvfColor.h"
-#include "cvfVector3.h"
 
 class RigPolyLinesData;
 

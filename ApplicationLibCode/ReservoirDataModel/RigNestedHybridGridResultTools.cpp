@@ -38,8 +38,6 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 
-#include "cvfObject.h"
-
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>

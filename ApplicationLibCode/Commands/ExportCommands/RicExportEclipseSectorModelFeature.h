@@ -22,9 +22,6 @@
 
 #include "cafVecIjk.h"
 
-#include "cvfArray.h"
-#include "cvfVector3.h"
-
 #include <expected>
 
 class RimEclipseView;

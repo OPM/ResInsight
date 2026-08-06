@@ -24,7 +24,6 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cvfObject.h"
 
 //==================================================================================================
 //

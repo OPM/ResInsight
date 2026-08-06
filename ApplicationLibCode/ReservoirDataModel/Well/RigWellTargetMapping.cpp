@@ -50,7 +50,6 @@
 #include "cafVecIjk.h"
 
 #include "cvfBoundingBox.h"
-#include "cvfMath.h"
 #include "cvfStructGrid.h"
 
 #include <cmath>

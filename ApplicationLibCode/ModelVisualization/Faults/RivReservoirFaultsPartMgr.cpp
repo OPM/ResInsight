@@ -34,7 +34,6 @@
 
 #include "RivFaultPartMgr.h"
 
-#include "cvfColor3.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfTransform.h"

@@ -48,8 +48,6 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiSliderTools.h"
 
-#include "cvfMath.h"
-
 #include <cmath>
 #include <limits>
 

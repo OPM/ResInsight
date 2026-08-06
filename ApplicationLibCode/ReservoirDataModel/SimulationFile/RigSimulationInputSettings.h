@@ -24,7 +24,6 @@
 
 #include "cafAppEnum.h"
 #include "cafVecIjk.h"
-#include "cvfVector3.h"
 
 #include <QString>
 

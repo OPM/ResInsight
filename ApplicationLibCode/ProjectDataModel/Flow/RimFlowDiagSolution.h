@@ -22,7 +22,6 @@
 #include "cafPdmObject.h"
 
 #include "cvfColor3.h"
-#include "cvfObject.h"
 
 class RigFlowDiagResults;
 

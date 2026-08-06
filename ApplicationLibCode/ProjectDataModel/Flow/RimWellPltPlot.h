@@ -26,7 +26,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "cvfCollection.h"
 
 #include <QDate>
 #include <QMetaType>

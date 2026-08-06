@@ -38,8 +38,6 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
-#include "cvfMath.h"
-
 #include <array>
 
 namespace caf

@@ -23,7 +23,6 @@
 #include "cafVecIjk.h"
 #include "cvfBoundingBox.h"
 #include "cvfObject.h"
-#include "cvfVector3.h"
 
 #include <utility>
 

@@ -21,7 +21,6 @@
 #include "RimWellLogCurve.h"
 
 #include "cafPdmPtrField.h"
-#include "cvfObject.h"
 
 class RimCase;
 class RimWellPath;

@@ -19,7 +19,6 @@
 #pragma once
 
 #include "cafTensor3.h"
-#include "cvfVector3.h"
 #include "cvfVector4.h"
 
 #include <vector>

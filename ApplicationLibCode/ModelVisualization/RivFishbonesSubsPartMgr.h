@@ -21,10 +21,8 @@
 #include "cafPdmPointer.h"
 
 #include "cvfObject.h"
-#include "cvfVector3.h"
 
 #include "cvfCollection.h"
-#include "cvfColor3.h"
 
 namespace cvf
 {

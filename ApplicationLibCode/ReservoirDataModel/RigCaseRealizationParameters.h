@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "cvfObject.h"
-
 #include <QString>
 
 #include <map>

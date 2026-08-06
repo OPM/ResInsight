@@ -52,7 +52,6 @@
 #include "cafAssert.h"
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
-#include "cvfMath.h"
 
 #include <QAction>
 #include <QDateTime>

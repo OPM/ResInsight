@@ -26,7 +26,6 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDocument.h"
-#include "cvfCollection.h"
 
 #include <vector>
 

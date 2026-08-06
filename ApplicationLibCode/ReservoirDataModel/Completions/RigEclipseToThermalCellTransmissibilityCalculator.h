@@ -21,7 +21,6 @@
 #include "RigEclipseToStimPlanCellTransmissibilityCalculator.h"
 
 #include "cvfMatrix4.h"
-#include "cvfObject.h"
 
 #include "RimThermalFractureTemplate.h"
 
