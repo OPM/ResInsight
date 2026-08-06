@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cvfBase.h"
-
 #include <vector>
 
 class RimSeismicAlphaMapper
@@ -29,7 +27,7 @@ public:
 
     void setDataRangeAndAlphas( double minVal, double maxVal, std::vector<double> alphas );
 
-    cvf::ubyte alphaValue( double dataValue ) const;
+    unsigned char alphaValue( double dataValue ) const;
 
 private:
     std::vector<double> m_alphavalues;

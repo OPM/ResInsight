@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfMath.h"
 #include "cvfVector3.h"
 

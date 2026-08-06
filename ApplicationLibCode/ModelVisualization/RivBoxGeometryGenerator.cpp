@@ -20,7 +20,6 @@
 
 #include "cafEffectGenerator.h"
 
-#include "cvfBase.h"
 #include "cvfDrawableGeo.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSetDirect.h"
