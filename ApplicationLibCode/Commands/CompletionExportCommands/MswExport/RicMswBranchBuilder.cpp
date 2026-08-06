@@ -844,10 +844,11 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
             icdSeg.outletSegmentNumber = outletSeg;
             icdSeg.length              = icdLength;
             icdSeg.depth               = icdDepth;
-            // Use RigMswSegment defaults for diameter/roughness (matching tree approach for fishbones ICD)
-            icdSeg.sourceWellName = wellPath->name().toStdString();
-            icdSeg.description    = QString( "ICD sub %1" ).arg( subIndex + 1 ).toStdString();
-            icdSeg.intersections  = std::move( icdCompsegs );
+            icdSeg.diameter            = 0.15; // default segment diameter
+            icdSeg.roughness           = 5.0e-5; // default segment roughness
+            icdSeg.sourceWellName      = wellPath->name().toStdString();
+            icdSeg.description         = QString( "ICD sub %1" ).arg( subIndex + 1 ).toStdString();
+            icdSeg.intersections       = std::move( icdCompsegs );
 
             WsegvalvRow wv;
             wv.well             = wellNameForExport;
