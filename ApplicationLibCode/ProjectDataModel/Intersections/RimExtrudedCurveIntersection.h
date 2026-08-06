@@ -129,15 +129,15 @@ public:
     double     extentLength();
     bool       hasDefiningPoints() const;
 
-    std::vector<RimSurfaceIntersectionCurve*> surfaceIntersectionCurves() const;
-    std::vector<RimSurfaceIntersectionBand*>  surfaceIntersectionBands() const;
-    RimSurfaceIntersectionCurve*              addIntersectionCurve();
-    RimSurfaceIntersectionBand*               addIntersectionBand();
+    bool                   supportsSurfaceIntersectionCurves() const override;
+    RimIntersectionCurtain surfaceCurtain() const override;
 
     bool showIntersectionGeometry() const;
 
     int  branchIndex() const;
-    void rebuildGeometryAndScheduleCreateDisplayModel();
+    void rebuildGeometryAndScheduleCreateDisplayModel() override;
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     caf::PdmFieldHandle* userDescriptionField() final;
@@ -158,8 +158,6 @@ private:
     static double               azimuthInRadians( cvf::Vec3d vec );
 
     void appendOptionItemsForSources( int currentLevel, RimSurfaceCollection* currentCollection, QList<caf::PdmOptionItemInfo>& options ) const;
-
-    void onSurfaceIntersectionsChanged( const caf::SignalEmitter* emitter );
 
     std::vector<cvf::Vec3d> pointsXYD() const;
     void                    setPointsFromXYD( const std::vector<cvf::Vec3d>& pointsXYD );
@@ -206,8 +204,6 @@ private:
     caf::PdmField<std::vector<cvf::Vec3d>> m_userPolylineXyz;
     caf::PdmField<std::vector<cvf::Vec3d>> m_customExtrusionPoints;
     caf::PdmField<std::vector<cvf::Vec3d>> m_twoAzimuthPoints;
-
-    caf::PdmChildField<RimSurfaceIntersectionCollection*> m_surfaceIntersections;
 
     cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_crossSectionPartMgr;
 

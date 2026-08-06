@@ -41,6 +41,7 @@
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivIjkIntersectionPartMgr.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -246,6 +247,20 @@ bool RimIntersectionCollection::hasAnyActiveSeparateResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicPasteIntersectionsFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicAppendIntersectionFeature";
+    menuBuilder << "RicAppendIntersectionBoxFeature";
+    menuBuilder << "RicAppendIjkIntersectionFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
+}
+
 void RimIntersectionCollection::appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
     if ( !isActive() ) return;
@@ -291,9 +306,10 @@ void RimIntersectionCollection::appendDynamicPartsToModel( cvf::ModelBasicList* 
     {
         if ( cs->isActive() )
         {
-            cs->intersectionBoxPartMgr()->generatePartGeometry( visibleCells );
+            cs->intersectionBoxPartMgr()->generatePartGeometry( visibleCells, scaleTransform );
             cs->intersectionBoxPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
+            cs->intersectionBoxPartMgr()->appendAnnotationPartsToModel( model, scaleTransform );
         }
     }
 
@@ -301,9 +317,10 @@ void RimIntersectionCollection::appendDynamicPartsToModel( cvf::ModelBasicList* 
     {
         if ( cs->isActive() )
         {
-            cs->intersectionPartMgr()->generatePartGeometry( visibleCells );
+            cs->intersectionPartMgr()->generatePartGeometry( visibleCells, scaleTransform );
             cs->intersectionPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
+            cs->intersectionPartMgr()->appendAnnotationPartsToModel( model, scaleTransform );
         }
     }
 }

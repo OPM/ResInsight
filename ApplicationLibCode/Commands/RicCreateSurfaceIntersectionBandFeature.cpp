@@ -22,7 +22,7 @@
 
 #include "RimAnnotationLineAppearance.h"
 #include "RimEnsembleSurface.h"
-#include "RimExtrudedCurveIntersection.h"
+#include "RimIntersection.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceIntersectionBand.h"
@@ -39,10 +39,20 @@ CAF_CMD_SOURCE_INIT( RicCreateSurfaceIntersectionBandFeature, "RicCreateSurfaceI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RicCreateSurfaceIntersectionBandFeature::isCommandEnabled() const
+{
+    auto* intersection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimIntersection>();
+
+    return intersection && intersection->supportsSurfaceIntersectionCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked )
 {
-    auto* intersection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimExtrudedCurveIntersection>();
-    if ( intersection )
+    auto* intersection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimIntersection>();
+    if ( intersection && intersection->supportsSurfaceIntersectionCurves() )
     {
         RimEnsembleSurface* firstEnsembleSurface = nullptr;
         {

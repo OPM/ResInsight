@@ -148,42 +148,27 @@ void RivIjkIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visi
     const size_t nk = m_mainGrid->cellCountK();
     if ( ni == 0 || nj == 0 || nk == 0 ) return;
 
-    // Determine which cell face the surface follows and the i/j/k loop bounds
+    // Determine which cell face the surface follows
     RimIjkIntersection::GridAxis axis = m_intersectionDefinition->axis();
     bool                         neg  = m_intersectionDefinition->useNegativeFace();
 
-    const RigBoundingBoxIjk<caf::VecIjk0> range = m_intersectionDefinition->ijkRange();
-
-    // Snap the fixed index into the grid so a stale project file still renders the border slice
-    const size_t fixed = static_cast<size_t>( std::max( 0, m_intersectionDefinition->fixedIndex() ) );
-
-    // Pick the cell face the surface follows and collapse the fixed axis of the range to the fixed index.
-    // The i()/j()/k() accessors are read-only, so the assignments must use x()/y()/z()
-    auto computeFaceAndRange = [&]() -> std::pair<FaceType, RigBoundingBoxIjk<caf::VecIjk0>>
+    auto computeFace = [&]() -> FaceType
     {
-        caf::VecIjk0 min = range.min();
-        caf::VecIjk0 max = range.max();
-
         switch ( axis )
         {
             case RimIjkIntersection::GridAxis::AXIS_I:
-                min.x() = max.x() = std::min( fixed, ni - 1 );
-                return { neg ? FaceType::NEG_I : FaceType::POS_I, { min, max } };
+                return neg ? FaceType::NEG_I : FaceType::POS_I;
             case RimIjkIntersection::GridAxis::AXIS_J:
-                min.y() = max.y() = std::min( fixed, nj - 1 );
-                return { neg ? FaceType::NEG_J : FaceType::POS_J, { min, max } };
+                return neg ? FaceType::NEG_J : FaceType::POS_J;
             case RimIjkIntersection::GridAxis::AXIS_K:
             default:
-                min.z() = max.z() = std::min( fixed, nk - 1 );
-                return { neg ? FaceType::NEG_K : FaceType::POS_K, { min, max } };
+                return neg ? FaceType::NEG_K : FaceType::POS_K;
         }
     };
 
-    const auto [face, requestedRange] = computeFaceAndRange();
+    const FaceType face = computeFace();
 
-    const RigBoundingBoxIjk<caf::VecIjk0> gridBounds( caf::VecIjk0::ZERO, caf::VecIjk0( ni - 1, nj - 1, nk - 1 ) );
-
-    const auto visibleRange = requestedRange.clamp( gridBounds );
+    const auto visibleRange = m_intersectionDefinition->clampedCellRange( m_mainGrid.p() );
     if ( !visibleRange ) return;
 
     cvf::ubyte faceVtxIdx[4];

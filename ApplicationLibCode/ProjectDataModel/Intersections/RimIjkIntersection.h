@@ -26,6 +26,8 @@
 #include "cafPdmField.h"
 #include "cafVecIjk.h"
 
+#include <optional>
+
 class RigMainGrid;
 class RivIjkIntersectionPartMgr;
 
@@ -75,16 +77,27 @@ public:
 
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const override;
 
+    bool                   supportsSurfaceIntersectionCurves() const override;
+    RimIntersectionCurtain surfaceCurtain() const override;
+
+    void rebuildGeometryAndScheduleCreateDisplayModel() override;
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+    /// The index range of the visible cells, with the fixed axis collapsed to the fixed index. The
+    /// grid is passed in, as the intersection is not always reachable from a view.
+    std::optional<RigBoundingBoxIjk<caf::VecIjk0>> clampedCellRange( const RigMainGrid* grid ) const;
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() final;
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
-    int  axisCellCount() const;
-    void rebuildGeometryAndScheduleCreateDisplayModel();
+    int axisCellCount() const;
 
 private:
     caf::PdmField<QString>                m_name;

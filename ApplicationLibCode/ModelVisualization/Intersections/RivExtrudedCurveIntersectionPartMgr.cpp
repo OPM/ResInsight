@@ -64,6 +64,7 @@
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivSimWellPipeSourceInfo.h"
+#include "RivSurfaceIntersectionCurveTools.h"
 #include "RivTernaryScalarMapper.h"
 #include "RivTernaryTextureCoordsCreator.h"
 #include "RivWellPathSourceInfo.h"
@@ -325,7 +326,7 @@ void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry( cvf::UByteArray*
 
     applySingleColorEffect();
 
-    createAnnotationSurfaceParts( useBufferObjects, scaleTransform );
+    if ( scaleTransform ) createAnnotationSurfaceParts( *scaleTransform );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -602,199 +603,12 @@ void RivExtrudedCurveIntersectionPartMgr::createExtrusionDirParts( bool useBuffe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool useBufferObjects, cvf::Transform* scaleTransform )
+void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( cvf::Transform& scaleTransform )
 {
-    m_annotationParts.clear();
-
-    auto surfPolys = m_intersectionGenerator->transformedSurfaceIntersectionPolylines();
-
-    for ( auto curve : m_rimIntersection->surfaceIntersectionCurves() )
-    {
-        if ( !curve->isChecked() ) continue;
-
-        auto surface = curve->surface();
-        if ( !surface ) continue;
-
-        if ( surfPolys.count( surface ) == 0 ) continue;
-        auto polylines = surfPolys[surface];
-
-        auto part = createCurvePart( polylines,
-                                     useBufferObjects,
-                                     surface->fullName(),
-                                     curve->lineAppearance()->color(),
-                                     curve->lineAppearance()->thickness(),
-                                     scaleTransform );
-
-        if ( part.notNull() ) m_annotationParts.push_back( part.p() );
-    }
-
-    for ( auto band : m_rimIntersection->surfaceIntersectionBands() )
-    {
-        if ( !band->isChecked() ) continue;
-
-        auto surface1 = band->surface1();
-        auto surface2 = band->surface2();
-
-        if ( !surface1 || !surface2 ) continue;
-
-        if ( surfPolys.count( surface1 ) == 0 ) continue;
-        if ( surfPolys.count( surface2 ) == 0 ) continue;
-
-        auto polylineA = surfPolys[surface1];
-        auto polylineB = surfPolys[surface2];
-
-        // Create curve parts
-        {
-            auto part = createCurvePart( polylineA,
-                                         useBufferObjects,
-                                         surface1->fullName(),
-                                         band->lineAppearance()->color(),
-                                         band->lineAppearance()->thickness(),
-                                         scaleTransform );
-
-            if ( part.notNull() ) m_annotationParts.push_back( part.p() );
-        }
-        {
-            auto part = createCurvePart( polylineB,
-                                         useBufferObjects,
-                                         surface2->fullName(),
-                                         band->lineAppearance()->color(),
-                                         band->lineAppearance()->thickness(),
-                                         scaleTransform );
-
-            if ( part.notNull() ) m_annotationParts.push_back( part.p() );
-        }
-
-        // Create a quad strip between the two polylines
-        size_t pointCount = std::min( polylineA.size(), polylineB.size() );
-        if ( pointCount > 1 )
-        {
-            cvf::GeometryBuilderDrawableGeo geoBuilder;
-
-            for ( size_t i = 1; i < pointCount; i++ )
-            {
-                const auto& pA0 = polylineA[i - 1];
-                const auto& pA1 = polylineA[i];
-                const auto& pB0 = polylineB[i - 1];
-                const auto& pB1 = polylineB[i];
-
-                geoBuilder.addQuadByVertices( cvf::Vec3f( pA0 ), cvf::Vec3f( pA1 ), cvf::Vec3f( pB1 ), cvf::Vec3f( pB0 ) );
-            }
-
-            cvf::ref<cvf::DrawableGeo> geo = geoBuilder.drawableGeo();
-            if ( geo.notNull() )
-            {
-                geo->computeNormals();
-
-                if ( useBufferObjects )
-                {
-                    geo->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
-                }
-
-                cvf::ref<cvf::Part> part = new cvf::Part;
-                part->setName( "Surface Intersection Band" );
-                part->setDrawable( geo.p() );
-                part->updateBoundingBox();
-                part->setEnableMask( intersectionCellFaceBit );
-                part->setPriority( RivPartPriority::PartType::Transparent );
-
-                auto                        color = cvf::Color4f( band->bandColor(), band->bandOpacity() );
-                caf::SurfaceEffectGenerator geometryEffgen( color, caf::PO_NEG_LARGE );
-
-                cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateUnCachedEffect();
-
-                {
-                    cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
-
-                    polyOffset->enableFillMode( true );
-
-                    // The factor value is defined by enums in
-                    // EffectGenerator::createAndConfigurePolygonOffsetRenderState() Use a factor that is more negative
-                    // than the existing enums
-                    const double offsetFactor = -5;
-                    polyOffset->setFactor( offsetFactor );
-
-                    polyOffset->setUnits( band->polygonOffsetUnit() );
-
-                    geometryOnlyEffect->setRenderState( polyOffset.p() );
-                }
-
-                part->setEffect( geometryOnlyEffect.p() );
-
-                m_annotationParts.push_back( part.p() );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivExtrudedCurveIntersectionPartMgr::createCurvePart( const std::vector<cvf::Vec3d>& polylines,
-                                                                          bool                           useBufferObjects,
-                                                                          const QString&                 description,
-                                                                          const cvf::Color3f&            color,
-                                                                          float                          lineWidth,
-                                                                          cvf::Transform*                scaleTransform )
-{
-    auto polylineGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( polylines );
-    if ( polylineGeo.notNull() )
-    {
-        if ( useBufferObjects )
-        {
-            polylineGeo->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
-        }
-
-        cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setName( "Intersection " + description.toStdString() );
-        part->setDrawable( polylineGeo.p() );
-
-        part->updateBoundingBox();
-        part->setPriority( RivPartPriority::PartType::FaultMeshLines );
-
-        caf::MeshEffectGenerator lineEffGen( color );
-        lineEffGen.setLineWidth( lineWidth );
-
-        cvf::ref<cvf::Effect> eff = lineEffGen.generateUnCachedEffect();
-
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
-        polyOffset->enableFillMode( true );
-        polyOffset->setFactor( -5 );
-        const double maxOffsetFactor = -1000;
-        polyOffset->setUnits( maxOffsetFactor );
-
-        eff->setRenderState( polyOffset.p() );
-
-        part->setEffect( eff.p() );
-
-        if ( part.notNull() && scaleTransform )
-        {
-            // The polylines are defined in the display coordinate system without Z-scaling. The z-scaling is applied to the visualization
-            // parts using Part::setTransform(Transform* transform)
-            // The annotation objects are defined by display coordinates, so apply the Z-scaling to the coordinates
-
-            std::vector<cvf::Vec3d> displayCoords;
-            const auto&             mat = scaleTransform->worldTransform();
-
-            for ( const auto& p : polylines )
-            {
-                displayCoords.push_back( p.getTransformedPoint( mat ) );
-            }
-
-            // Add annotation info to be used to display label in Rim3dView::onViewNavigationChanged()
-            // Set the source info on one part only, as this data is only used for display of labels
-            auto annoObj = new RivAnnotationSourceInfo( description.toStdString(), displayCoords );
-            annoObj->setLabelPositionStrategyHint( RivAnnotationTools::LabelPositionStrategy::RIGHT );
-            annoObj->setShowColor( true );
-            annoObj->setColor( color );
-
-            part->setSourceInfo( annoObj );
-        }
-
-        return part;
-    }
-
-    return nullptr;
+    m_annotationParts =
+        RivSurfaceIntersectionCurveTools::createAnnotationParts( m_rimIntersection->surfaceIntersectionCollection(),
+                                                                 m_intersectionGenerator->transformedSurfaceIntersectionPolylines(),
+                                                                 scaleTransform );
 }
 
 //--------------------------------------------------------------------------------------------------

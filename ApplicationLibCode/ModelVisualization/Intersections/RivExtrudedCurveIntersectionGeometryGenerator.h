@@ -22,6 +22,7 @@
 #include "cafPdmPointer.h"
 
 #include "RivIntersectionGeometryGeneratorInterface.h"
+#include "RivSurfaceIntersectionCurveTools.h"
 
 #include "cvfArray.h"
 
@@ -76,7 +77,7 @@ public:
     // GeomGen Interface
     bool isAnyGeometryPresent() const override;
 
-    std::map<RimSurface*, std::vector<cvf::Vec3d>> transformedSurfaceIntersectionPolylines() const;
+    std::map<RimSurface*, RivSurfaceCurtainPolyline> transformedSurfaceIntersectionPolylines() const;
 
     const std::vector<size_t>&                       triangleToCellIndex() const override;
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const override;
@@ -116,5 +117,5 @@ private:
 
     std::vector<std::pair<QString, cvf::Vec3d>> m_faultMeshLabelAndAnchorPositions;
 
-    std::map<RimSurface*, std::vector<cvf::Vec3d>> m_transformedSurfaceIntersectionPolylines;
+    std::map<RimSurface*, RivSurfaceCurtainPolyline> m_transformedSurfaceIntersectionPolylines;
 };

@@ -160,52 +160,24 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
 {
     m_transformedSurfaceIntersectionPolylines.clear();
 
-    if ( !m_polylines.empty() )
+    if ( m_polylines.empty() ) return;
+
+    const auto surfaces = RivSurfaceIntersectionCurveTools::referencedSurfaces( m_intersection->surfaceIntersectionCollection() );
+    if ( surfaces.empty() ) return;
+
+    // Vertical pillars along the same polyline as the one used to build the geometry
+    const auto curtain = m_intersection->surfaceCurtain();
+    if ( !curtain.isValid() ) return;
+
+    // The polyline is flattened when the curve is displayed in a 2D intersection view
+    auto pointTransform = [this]( const cvf::Vec3d& point, size_t segmentIndex )
     {
-        auto firstPolyLine = m_polylines.front();
+        const size_t lineIndex = 0;
+        return transformPointByPolylineSegmentIndex( point, lineIndex, segmentIndex );
+    };
 
-        std::vector<RimSurface*> surfaces;
-        for ( auto curve : m_intersection->surfaceIntersectionCurves() )
-        {
-            if ( curve->surface() ) surfaces.push_back( curve->surface() );
-        }
-        for ( auto band : m_intersection->surfaceIntersectionBands() )
-        {
-            if ( band->surface1() ) surfaces.push_back( band->surface1() );
-            if ( band->surface2() ) surfaces.push_back( band->surface2() );
-        }
-
-        for ( auto rimSurface : surfaces )
-        {
-            if ( !rimSurface ) return;
-
-            rimSurface->loadDataIfRequired();
-            auto surface = rimSurface->surfaceData();
-            if ( !surface ) return;
-
-            std::vector<cvf::Vec3d> transformedSurfacePolyline;
-
-            // Resample polyline to required resolution
-            const double maxLineSegmentLength = 1.0;
-            const auto resampledPolyline = RigSurfaceResampler::computeResampledPolylineWithSegmentInfo( firstPolyLine, maxLineSegmentLength );
-
-            for ( const auto& [point, segmentIndex] : resampledPolyline )
-            {
-                cvf::Vec3d pointAbove = cvf::Vec3d( point.x(), point.y(), 10000.0 );
-                cvf::Vec3d pointBelow = cvf::Vec3d( point.x(), point.y(), -10000.0 );
-
-                cvf::Vec3d intersectionPoint;
-                bool foundMatch = RigSurfaceResampler::findClosestPointOnSurface( surface, pointAbove, pointBelow, intersectionPoint );
-                if ( foundMatch )
-                {
-                    const size_t lineIndex = 0;
-                    transformedSurfacePolyline.push_back( transformPointByPolylineSegmentIndex( intersectionPoint, lineIndex, segmentIndex ) );
-                }
-            }
-
-            if ( !transformedSurfacePolyline.empty() ) m_transformedSurfaceIntersectionPolylines[rimSurface] = transformedSurfacePolyline;
-        }
-    }
+    m_transformedSurfaceIntersectionPolylines =
+        RivSurfaceIntersectionCurveTools::computeSurfaceCurtainPolylines( surfaces, curtain, pointTransform );
 }
 
 class MeshLinesAccumulator
@@ -844,7 +816,7 @@ bool RivExtrudedCurveIntersectionGeometryGenerator::isAnyGeometryPresent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<RimSurface*, std::vector<cvf::Vec3d>> RivExtrudedCurveIntersectionGeometryGenerator::transformedSurfaceIntersectionPolylines() const
+std::map<RimSurface*, RivSurfaceCurtainPolyline> RivExtrudedCurveIntersectionGeometryGenerator::transformedSurfaceIntersectionPolylines() const
 {
     return m_transformedSurfaceIntersectionPolylines;
 }

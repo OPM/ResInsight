@@ -22,6 +22,11 @@
 
 class RimIntersectionResultDefinition;
 
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+}
+
 class RimIntersectionResultsDefinitionCollection : public caf::PdmObjectCollection<RimIntersectionResultDefinition>
 {
     CAF_PDM_HEADER_INIT;
@@ -29,6 +34,8 @@ class RimIntersectionResultsDefinitionCollection : public caf::PdmObjectCollecti
 public:
     RimIntersectionResultsDefinitionCollection();
     ~RimIntersectionResultsDefinitionCollection() override;
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
     bool isActive() const;
 

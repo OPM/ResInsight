@@ -31,6 +31,11 @@ class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
 class RiuViewer;
 
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+}
+
 class RimIntersectionResultDefinition : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -38,6 +43,8 @@ class RimIntersectionResultDefinition : public caf::PdmObject
 public:
     RimIntersectionResultDefinition();
     ~RimIntersectionResultDefinition() override;
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
     bool     isActive() const;
     bool     isInAction() const;

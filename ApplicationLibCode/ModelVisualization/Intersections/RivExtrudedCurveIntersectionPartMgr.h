@@ -87,14 +87,7 @@ private:
     void createFaultLabelParts( const std::vector<std::pair<QString, cvf::Vec3d>>& labelAndAnchors );
     void createPolyLineParts( bool useBufferObjects );
     void createExtrusionDirParts( bool useBufferObjects );
-    void createAnnotationSurfaceParts( bool useBufferObjects, cvf::Transform* scaleTransform );
-
-    cvf::ref<cvf::Part> createCurvePart( const std::vector<cvf::Vec3d>& polylines,
-                                         bool                           useBufferObjects,
-                                         const QString&                 description,
-                                         const cvf::Color3f&            color,
-                                         float                          lineWidth,
-                                         cvf::Transform*                scaleTransform );
+    void createAnnotationSurfaceParts( cvf::Transform& scaleTransform );
 
 private:
     caf::PdmPointer<RimExtrudedCurveIntersection> m_rimIntersection;

@@ -36,6 +36,7 @@
 
 #include "RiuViewer.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimIntersectionResultDefinition, "IntersectionResultDefinition" );
@@ -88,6 +89,14 @@ RimIntersectionResultDefinition::~RimIntersectionResultDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionResultDefinition::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicAppendSeparateIntersectionResultFeature";
+}
+
 bool RimIntersectionResultDefinition::isActive() const
 {
     return m_isActive();

@@ -25,7 +25,9 @@
 
 #include "RivIjkIntersectionPartMgr.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiSliderEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include <algorithm>
 
@@ -202,6 +204,129 @@ void RimIjkIntersection::setToDefaultValues()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The I and J axes give a vertical curtain. A K slice is horizontal, and would require the surface
+/// to be contoured instead of projected along a vertical ray.
+//--------------------------------------------------------------------------------------------------
+bool RimIjkIntersection::supportsSurfaceIntersectionCurves() const
+{
+    return m_axis() != GridAxis::AXIS_K;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Walk the cells of the index plane along the varying axis and pick the cell face corners. Each
+/// pillar runs from the top of the first k layer to the bottom of the last k layer, so a tilted
+/// pillar gives a curve that lies on the curtain rather than on a vertical plane through it.
+//--------------------------------------------------------------------------------------------------
+RimIntersectionCurtain RimIjkIntersection::surfaceCurtain() const
+{
+    if ( !supportsSurfaceIntersectionCurves() ) return {};
+
+    RigMainGrid* grid = mainGrid();
+    if ( !grid ) return {};
+
+    const auto cellRange = clampedCellRange( grid );
+    if ( !cellRange ) return {};
+
+    const bool alongJ = m_axis() == GridAxis::AXIS_I;
+
+    // Corner indices of the cell face, see the hex vertex numbering in StructGridInterface::cellFaceVertexIndices().
+    // The first corner is at the start of the varying axis, the second at the end of the same axis. Corners 0-3 are
+    // the low k side of the cell, and adding 4 gives the corner on the same pillar at the high k side.
+    const int cornersPerKSide = 4;
+
+    int startCorner = 0;
+    int endCorner   = 0;
+    if ( alongJ )
+    {
+        startCorner = m_useNegativeFace() ? 0 : 1;
+        endCorner   = m_useNegativeFace() ? 3 : 2;
+    }
+    else
+    {
+        startCorner = m_useNegativeFace() ? 0 : 3;
+        endCorner   = m_useNegativeFace() ? 1 : 2;
+    }
+
+    // The fixed axis is collapsed to a single index by clampedCellRange()
+    const size_t fixedI = cellRange->min().i();
+    const size_t fixedJ = cellRange->min().j();
+
+    const size_t firstK = cellRange->min().k();
+    const size_t lastK  = cellRange->max().k();
+
+    const size_t varyingMin = alongJ ? cellRange->min().j() : cellRange->min().i();
+    const size_t varyingMax = alongJ ? cellRange->max().j() : cellRange->max().i();
+
+    RimIntersectionCurtain curtain;
+
+    // The pillar at one position is spanned between the first and the last cell of the k range. The
+    // top of the pillar is used as the trace, so the curve is resampled along the top of the curtain.
+    auto appendPillar = [&]( size_t i, size_t j, int corner )
+    {
+        const size_t topCellIndex    = grid->cellIndexFromIJK( i, j, firstK );
+        const size_t bottomCellIndex = grid->cellIndexFromIJK( i, j, lastK );
+
+        if ( topCellIndex == cvf::UNDEFINED_SIZE_T || bottomCellIndex == cvf::UNDEFINED_SIZE_T ) return;
+        if ( grid->cell( topCellIndex ).isInvalid() || grid->cell( bottomCellIndex ).isInvalid() ) return;
+
+        const auto topCorners    = grid->cellCornerVertices( topCellIndex );
+        const auto bottomCorners = grid->cellCornerVertices( bottomCellIndex );
+
+        curtain.trace.push_back( topCorners[corner] );
+        curtain.pillars.emplace_back( topCorners[corner], bottomCorners[corner + cornersPerKSide] );
+    };
+
+    for ( size_t varying = varyingMin; varying <= varyingMax; ++varying )
+    {
+        const size_t i = alongJ ? fixedI : varying;
+        const size_t j = alongJ ? varying : fixedJ;
+
+        appendPillar( i, j, startCorner );
+
+        if ( varying == varyingMax ) appendPillar( i, j, endCorner );
+    }
+
+    return curtain;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The index range of the visible cells, with the fixed axis collapsed to the fixed index
+//--------------------------------------------------------------------------------------------------
+std::optional<RigBoundingBoxIjk<caf::VecIjk0>> RimIjkIntersection::clampedCellRange( const RigMainGrid* grid ) const
+{
+    if ( !grid ) return {};
+
+    const size_t ni = grid->cellCountI();
+    const size_t nj = grid->cellCountJ();
+    const size_t nk = grid->cellCountK();
+    if ( ni == 0 || nj == 0 || nk == 0 ) return {};
+
+    const auto range = ijkRange();
+
+    caf::VecIjk0 min   = range.min();
+    caf::VecIjk0 max   = range.max();
+    const size_t fixed = static_cast<size_t>( std::max( 0, fixedIndex() ) );
+
+    switch ( m_axis() )
+    {
+        case GridAxis::AXIS_I:
+            min.x() = max.x() = std::min( fixed, ni - 1 );
+            break;
+        case GridAxis::AXIS_J:
+            min.y() = max.y() = std::min( fixed, nj - 1 );
+            break;
+        case GridAxis::AXIS_K:
+        default:
+            min.z() = max.z() = std::min( fixed, nk - 1 );
+            break;
+    }
+
+    const RigBoundingBoxIjk<caf::VecIjk0> gridBounds( caf::VecIjk0::ZERO, caf::VecIjk0( ni - 1, nj - 1, nk - 1 ) );
+
+    return RigBoundingBoxIjk<caf::VecIjk0>( min, max ).clamp( gridBounds );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RivIjkIntersectionPartMgr* RimIjkIntersection::intersectionPartMgr()
@@ -345,6 +470,26 @@ void RimIjkIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIjkIntersection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    appendCommonMenuItems( menuBuilder );
+
+    menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIjkIntersection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    appendSurfaceIntersectionsToTreeOrdering( uiTreeOrdering );
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------

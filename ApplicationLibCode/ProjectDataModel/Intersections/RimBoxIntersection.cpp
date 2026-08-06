@@ -28,10 +28,12 @@
 
 #include "RivBoxIntersectionPartMgr.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 namespace caf
 {
@@ -186,6 +188,35 @@ bool RimBoxIntersection::show3dManipulator() const
 RimBoxIntersection::SinglePlaneState RimBoxIntersection::singlePlaneState() const
 {
     return m_singlePlaneState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Only the single plane states X and Y give a vertical curtain. A depth slice, and the full box,
+/// would require the surface to be contoured instead of projected along a vertical ray.
+//--------------------------------------------------------------------------------------------------
+bool RimBoxIntersection::supportsSurfaceIntersectionCurves() const
+{
+    return m_singlePlaneState() == PLANE_STATE_X || m_singlePlaneState() == PLANE_STATE_Y;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The pillars span the depth range of the box, so the curve is clipped to the box face. The depth
+/// fields are positive downwards, while z is positive upwards.
+//--------------------------------------------------------------------------------------------------
+RimIntersectionCurtain RimBoxIntersection::surfaceCurtain() const
+{
+    std::vector<cvf::Vec3d> trace;
+
+    if ( m_singlePlaneState() == PLANE_STATE_X )
+    {
+        trace = { cvf::Vec3d( m_minXCoord, m_minYCoord, 0.0 ), cvf::Vec3d( m_minXCoord, m_maxYCoord, 0.0 ) };
+    }
+    else if ( m_singlePlaneState() == PLANE_STATE_Y )
+    {
+        trace = { cvf::Vec3d( m_minXCoord, m_minYCoord, 0.0 ), cvf::Vec3d( m_maxXCoord, m_minYCoord, 0.0 ) };
+    }
+
+    return verticalCurtain( trace, -m_minDepth(), -m_maxDepth() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -502,6 +533,26 @@ void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     uiOrdering.add( &m_show3DManipulator );
 
     defineSeparateDataSourceUi( uiConfigName, uiOrdering );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimBoxIntersection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    appendCommonMenuItems( menuBuilder );
+
+    menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimBoxIntersection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    appendSurfaceIntersectionsToTreeOrdering( uiTreeOrdering );
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------

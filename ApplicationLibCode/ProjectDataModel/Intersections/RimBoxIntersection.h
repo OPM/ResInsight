@@ -80,12 +80,20 @@ public:
 
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const override;
 
+    bool                   supportsSurfaceIntersectionCurves() const override;
+    RimIntersectionCurtain surfaceCurtain() const override;
+
+    void rebuildGeometryAndScheduleCreateDisplayModel() override;
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() final;
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void initAfterRead() override;
 
 protected slots:
@@ -96,7 +104,6 @@ private:
     friend class RimIntersectionCollection;
     void updateBoxManipulatorGeometry();
 
-    void rebuildGeometryAndScheduleCreateDisplayModel();
     void updateVisibility();
     void clampSinglePlaneValues();
     void switchSingelPlaneState();

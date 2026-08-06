@@ -30,6 +30,7 @@
 #include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivScalarMapperUtils.h"
+#include "RivSurfaceIntersectionCurveTools.h"
 
 #include "cafEffectGenerator.h"
 
@@ -91,7 +92,7 @@ void RivIjkIntersectionPartMgr::updateCellResultColor( int timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIjkIntersectionPartMgr::generatePartGeometry( cvf::UByteArray* visibleCells )
+void RivIjkIntersectionPartMgr::generatePartGeometry( cvf::UByteArray* visibleCells, cvf::Transform* scaleTransform )
 {
     bool useBufferObjects = true;
     // Surface geometry
@@ -146,6 +147,8 @@ void RivIjkIntersectionPartMgr::generatePartGeometry( cvf::UByteArray* visibleCe
         }
     }
 
+    if ( scaleTransform ) m_annotationParts = RivSurfaceIntersectionCurveTools::createAnnotationParts( m_rimIntersection, *scaleTransform );
+
     updatePartEffect();
 }
 
@@ -194,6 +197,18 @@ void RivIjkIntersectionPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList*
     {
         m_intersectionGridLines->setTransform( scaleTransform );
         model->addPart( m_intersectionGridLines.p() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivIjkIntersectionPartMgr::appendAnnotationPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+{
+    for ( size_t i = 0; i < m_annotationParts.size(); i++ )
+    {
+        m_annotationParts[i]->setTransform( scaleTransform );
+        model->addPart( m_annotationParts.at( i ) );
     }
 }
 
