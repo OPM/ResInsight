@@ -152,7 +152,8 @@ void RivBoxIntersectionPartMgr::generatePartGeometry( cvf::UByteArray* visibleCe
         }
     }
 
-    m_annotationParts = RivSurfaceIntersectionCurveTools::createAnnotationParts( m_rimIntersectionBox, scaleTransform );
+    if ( scaleTransform )
+        m_annotationParts = RivSurfaceIntersectionCurveTools::createAnnotationParts( m_rimIntersectionBox, *scaleTransform );
 
     updatePartEffect();
 }

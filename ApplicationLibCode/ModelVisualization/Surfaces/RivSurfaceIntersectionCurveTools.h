@@ -42,15 +42,14 @@ class Transform;
 
 //==================================================================================================
 /// The curve created when a surface is projected onto an intersection. One entry per resampled
-/// position along the intersection, where valid[i] is false if the pillar at that position missed
-/// the surface. Invalid points are kept in the array instead of being removed, so the two curves of
-/// a band stay index aligned.
+/// position along the intersection, set to cvf::Vec3d::UNDEFINED where the pillar at that position
+/// missed the surface. The missing points are kept in the array instead of being removed, so the two
+/// curves of a band stay index aligned.
 //==================================================================================================
 class RivSurfaceCurtainPolyline
 {
 public:
     std::vector<cvf::Vec3d> points;
-    std::vector<bool>       valid;
 
     /// The stretches of consecutive valid points that are long enough to draw a line
     std::vector<std::vector<cvf::Vec3d>> validRuns() const;
@@ -80,18 +79,18 @@ public:
 
     static cvf::Collection<cvf::Part> createAnnotationParts( const RimSurfaceIntersectionCollection*                 surfaceIntersections,
                                                              const std::map<RimSurface*, RivSurfaceCurtainPolyline>& surfacePolylines,
-                                                             cvf::Transform*                                         scaleTransform );
+                                                             cvf::Transform&                                         scaleTransform );
 
     /// Curves and bands for an intersection that is drawn in 3D only, computed from the pillars
     /// reported by the intersection itself
-    static cvf::Collection<cvf::Part> createAnnotationParts( const RimIntersection* intersection, cvf::Transform* scaleTransform );
+    static cvf::Collection<cvf::Part> createAnnotationParts( const RimIntersection* intersection, cvf::Transform& scaleTransform );
 
 private:
     static cvf::Collection<cvf::Part> createCurveParts( const RivSurfaceCurtainPolyline& polyline,
                                                         const QString&                   description,
                                                         const cvf::Color3f&              color,
                                                         float                            lineWidth,
-                                                        cvf::Transform*                  scaleTransform );
+                                                        cvf::Transform&                  scaleTransform );
 
     static cvf::ref<cvf::Part> createCurvePart( const std::vector<cvf::Vec3d>& polyline, const cvf::Color3f& color, float lineWidth );
 

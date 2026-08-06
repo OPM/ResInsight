@@ -74,12 +74,12 @@ cvf::Vec3d projectOntoPillarLine( const cvf::Vec3d& pillarTop, const cvf::Vec3d&
 //--------------------------------------------------------------------------------------------------
 /// The depth range covered by a surface, used to decide how far a pillar has to be continued
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> surfaceZRange( RigSurface* surface )
+std::pair<double, double> surfaceZRange( const RigSurface& surface )
 {
     double lowZ  = std::numeric_limits<double>::max();
     double highZ = -std::numeric_limits<double>::max();
 
-    for ( const auto& vertex : surface->vertices() )
+    for ( const auto& vertex : surface.vertices() )
     {
         lowZ  = std::min( lowZ, vertex.z() );
         highZ = std::max( highZ, vertex.z() );
@@ -94,14 +94,14 @@ std::pair<double, double> surfaceZRange( RigSurface* surface )
 /// on past the extent of the intersection instead of stopping. The pillar is continued only as far as
 /// the surface reaches, to keep the search for candidate triangles small.
 //--------------------------------------------------------------------------------------------------
-bool findSurfacePointOnPillar( RigSurface*       surface,
+bool findSurfacePointOnPillar( RigSurface&       surface,
                                const cvf::Vec3d& pillarTop,
                                const cvf::Vec3d& pillarBottom,
                                double            surfaceLowZ,
                                double            surfaceHighZ,
                                cvf::Vec3d&       point )
 {
-    if ( RigSurfaceResampler::computeIntersectionWithLine( surface, pillarTop, pillarBottom, point ) ) return true;
+    if ( RigSurfaceResampler::computeIntersectionWithLine( &surface, pillarTop, pillarBottom, point ) ) return true;
 
     if ( std::fabs( pillarTop.z() - pillarBottom.z() ) > 1.0e-9 )
     {
@@ -111,12 +111,12 @@ bool findSurfacePointOnPillar( RigSurface*       surface,
         const cvf::Vec3d extendedTop    = projectOntoPillarLine( pillarTop, pillarBottom, cvf::Vec3d( 0.0, 0.0, searchHighZ ) );
         const cvf::Vec3d extendedBottom = projectOntoPillarLine( pillarTop, pillarBottom, cvf::Vec3d( 0.0, 0.0, searchLowZ ) );
 
-        if ( RigSurfaceResampler::computeIntersectionWithLine( surface, extendedTop, extendedBottom, point ) ) return true;
+        if ( RigSurfaceResampler::computeIntersectionWithLine( &surface, extendedTop, extendedBottom, point ) ) return true;
     }
 
     // The surface may not cover this position at all. Search in the XY plane around the pillar itself, as
     // a continued pillar would move the search away from the intersection.
-    return RigSurfaceResampler::findClosestPointOnSurface( surface, pillarTop, pillarBottom, point );
+    return RigSurfaceResampler::findClosestPointOnSurface( &surface, pillarTop, pillarBottom, point );
 }
 } // namespace
 
@@ -128,11 +128,11 @@ std::vector<std::vector<cvf::Vec3d>> RivSurfaceCurtainPolyline::validRuns() cons
     std::vector<std::vector<cvf::Vec3d>> runs;
 
     std::vector<cvf::Vec3d> currentRun;
-    for ( size_t i = 0; i < points.size(); i++ )
+    for ( const auto& point : points )
     {
-        if ( valid[i] )
+        if ( !point.isUndefined() )
         {
-            currentRun.push_back( points[i] );
+            currentRun.push_back( point );
         }
         else if ( currentRun.size() > 1 )
         {
@@ -233,9 +233,8 @@ std::map<RimSurface*, RivSurfaceCurtainPolyline>
 
         RivSurfaceCurtainPolyline curtainPolyline;
         curtainPolyline.points.reserve( resampledPillars.size() );
-        curtainPolyline.valid.reserve( resampledPillars.size() );
 
-        const auto [surfaceLowZ, surfaceHighZ] = surfaceZRange( surface );
+        const auto [surfaceLowZ, surfaceHighZ] = surfaceZRange( *surface );
 
         bool anyValidPoint = false;
 
@@ -244,13 +243,19 @@ std::map<RimSurface*, RivSurfaceCurtainPolyline>
             const auto& [pillarTop, pillarBottom] = resampledPillars[i];
 
             cvf::Vec3d intersectionPoint;
-            bool       isValid = findSurfacePointOnPillar( surface, pillarTop, pillarBottom, surfaceLowZ, surfaceHighZ, intersectionPoint );
-
-            if ( isValid ) intersectionPoint = projectOntoPillarLine( pillarTop, pillarBottom, intersectionPoint );
+            const bool isValid = findSurfacePointOnPillar( *surface, pillarTop, pillarBottom, surfaceLowZ, surfaceHighZ, intersectionPoint );
 
             // A point is always appended, also when the surface was not hit, to keep the two curves of a band index aligned
-            curtainPolyline.points.push_back( pointTransform( intersectionPoint, segmentIndices[i] ) );
-            curtainPolyline.valid.push_back( isValid );
+            if ( isValid )
+            {
+                intersectionPoint = pointTransform( projectOntoPillarLine( pillarTop, pillarBottom, intersectionPoint ), segmentIndices[i] );
+            }
+            else
+            {
+                intersectionPoint = cvf::Vec3d::UNDEFINED;
+            }
+
+            curtainPolyline.points.push_back( intersectionPoint );
 
             anyValidPoint = anyValidPoint || isValid;
         }
@@ -267,7 +272,7 @@ std::map<RimSurface*, RivSurfaceCurtainPolyline>
 cvf::Collection<cvf::Part>
     RivSurfaceIntersectionCurveTools::createAnnotationParts( const RimSurfaceIntersectionCollection*                 surfaceIntersections,
                                                              const std::map<RimSurface*, RivSurfaceCurtainPolyline>& surfacePolylines,
-                                                             cvf::Transform*                                         scaleTransform )
+                                                             cvf::Transform&                                         scaleTransform )
 {
     cvf::Collection<cvf::Part> parts;
 
@@ -333,7 +338,7 @@ cvf::Collection<cvf::Part>
 ///
 //--------------------------------------------------------------------------------------------------
 cvf::Collection<cvf::Part> RivSurfaceIntersectionCurveTools::createAnnotationParts( const RimIntersection* intersection,
-                                                                                    cvf::Transform*        scaleTransform )
+                                                                                    cvf::Transform&        scaleTransform )
 {
     if ( !intersection || !intersection->supportsSurfaceIntersectionCurves() ) return {};
 
@@ -364,7 +369,7 @@ cvf::Collection<cvf::Part> RivSurfaceIntersectionCurveTools::createCurveParts( c
                                                                                const QString&                   description,
                                                                                const cvf::Color3f&              color,
                                                                                float                            lineWidth,
-                                                                               cvf::Transform*                  scaleTransform )
+                                                                               cvf::Transform&                  scaleTransform )
 {
     cvf::Collection<cvf::Part> parts;
 
@@ -378,17 +383,13 @@ cvf::Collection<cvf::Part> RivSurfaceIntersectionCurveTools::createCurveParts( c
         part->setName( "Intersection " + description.toStdString() );
         parts.push_back( part.p() );
 
-        if ( scaleTransform )
+        // The polylines are defined in the display coordinate system without Z-scaling. The z-scaling is applied to the
+        // visualization parts using Part::setTransform(Transform* transform)
+        // The annotation objects are defined by display coordinates, so apply the Z-scaling to the coordinates
+        const auto& mat = scaleTransform.worldTransform();
+        for ( const auto& p : run )
         {
-            // The polylines are defined in the display coordinate system without Z-scaling. The z-scaling is applied to the
-            // visualization parts using Part::setTransform(Transform* transform)
-            // The annotation objects are defined by display coordinates, so apply the Z-scaling to the coordinates
-
-            const auto& mat = scaleTransform->worldTransform();
-            for ( const auto& p : run )
-            {
-                allDisplayCoords.push_back( p.getTransformedPoint( mat ) );
-            }
+            allDisplayCoords.push_back( p.getTransformedPoint( mat ) );
         }
     }
 
@@ -459,14 +460,14 @@ cvf::ref<cvf::Part> RivSurfaceIntersectionCurveTools::createBandPart( const RivS
     bool anyQuad = false;
     for ( size_t i = 1; i < pointCount; i++ )
     {
-        // A quad requires both surfaces to be present at both ends of the segment
-        if ( !polylineA.valid[i - 1] || !polylineA.valid[i] ) continue;
-        if ( !polylineB.valid[i - 1] || !polylineB.valid[i] ) continue;
-
         const auto& pA0 = polylineA.points[i - 1];
         const auto& pA1 = polylineA.points[i];
         const auto& pB0 = polylineB.points[i - 1];
         const auto& pB1 = polylineB.points[i];
+
+        // A quad requires both surfaces to be present at both ends of the segment
+        if ( pA0.isUndefined() || pA1.isUndefined() ) continue;
+        if ( pB0.isUndefined() || pB1.isUndefined() ) continue;
 
         geoBuilder.addQuadByVertices( cvf::Vec3f( pA0 ), cvf::Vec3f( pA1 ), cvf::Vec3f( pB1 ), cvf::Vec3f( pB0 ) );
         anyQuad = true;

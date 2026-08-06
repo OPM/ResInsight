@@ -87,7 +87,7 @@ private:
     void createFaultLabelParts( const std::vector<std::pair<QString, cvf::Vec3d>>& labelAndAnchors );
     void createPolyLineParts( bool useBufferObjects );
     void createExtrusionDirParts( bool useBufferObjects );
-    void createAnnotationSurfaceParts( cvf::Transform* scaleTransform );
+    void createAnnotationSurfaceParts( cvf::Transform& scaleTransform );
 
 private:
     caf::PdmPointer<RimExtrudedCurveIntersection> m_rimIntersection;

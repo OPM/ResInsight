@@ -326,7 +326,7 @@ void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry( cvf::UByteArray*
 
     applySingleColorEffect();
 
-    createAnnotationSurfaceParts( scaleTransform );
+    if ( scaleTransform ) createAnnotationSurfaceParts( *scaleTransform );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -603,7 +603,7 @@ void RivExtrudedCurveIntersectionPartMgr::createExtrusionDirParts( bool useBuffe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( cvf::Transform* scaleTransform )
+void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( cvf::Transform& scaleTransform )
 {
     m_annotationParts =
         RivSurfaceIntersectionCurveTools::createAnnotationParts( m_rimIntersection->surfaceIntersectionCollection(),
