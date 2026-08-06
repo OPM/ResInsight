@@ -108,6 +108,9 @@ void applyEffectiveDiameters( const FishbonesExportContext& context, RigMswWellE
 //--------------------------------------------------------------------------------------------------
 /// Replace the WSEGVALV area of fishbones ICD subs connected to the same grid cell with the sum of
 /// their areas, so that the cell sees the total flow area of the ICDs completing it.
+///
+/// The sums are computed from the original areas only. An ICD sub reaching into more than one cell
+/// reports the largest of the sums it takes part in.
 //--------------------------------------------------------------------------------------------------
 void applyIcdAreaPerCell( const FishbonesExportContext& context, RigMswWellExportData& exportData );
 

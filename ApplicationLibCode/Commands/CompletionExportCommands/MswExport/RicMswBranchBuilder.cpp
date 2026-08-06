@@ -101,22 +101,13 @@ void applyIcdAreaPerCell( const FishbonesExportContext& context, RigMswWellExpor
 {
     if ( context.icdSegments.empty() ) return;
 
-    std::map<size_t, std::set<int>> icdSegmentsPerCell;
-    for ( const auto& icdSegment : context.icdSegments )
-    {
-        for ( auto globalCellIndex : icdSegment.globalCellIndices )
-        {
-            icdSegmentsPerCell[globalCellIndex].insert( icdSegment.segmentNumber );
-        }
-    }
-
     std::set<int> icdSegmentNumbers;
     for ( const auto& icdSegment : context.icdSegments )
     {
         icdSegmentNumbers.insert( icdSegment.segmentNumber );
     }
 
-    std::map<int, double> areaPerSegment;
+    std::map<int, double> originalAreaPerSegment;
     for ( const auto& branch : exportData.branches )
     {
         for ( const auto& segment : branch.segments )
@@ -124,26 +115,36 @@ void applyIcdAreaPerCell( const FishbonesExportContext& context, RigMswWellExpor
             if ( !segment.wsegvalvData.has_value() ) continue;
             if ( !icdSegmentNumbers.count( segment.segmentNumber ) ) continue;
 
-            areaPerSegment[segment.segmentNumber] = segment.wsegvalvData->area;
+            originalAreaPerSegment[segment.segmentNumber] = segment.wsegvalvData->area;
         }
     }
 
-    // An ICD sub connected to several cells is summed once per cell, in ascending cell order, and
-    // ends up with the sum of the last cell it takes part in. This matches the tree implementation.
-    for ( const auto& [globalCellIndex, segmentNumbers] : icdSegmentsPerCell )
+    // Every sum is computed from the original areas, so the result does not depend on the order the
+    // cells are visited in.
+    std::map<size_t, double> areaSumPerCell;
+    for ( const auto& icdSegment : context.icdSegments )
     {
-        double areaSum = 0.0;
-        for ( auto segmentNumber : segmentNumbers )
+        auto it = originalAreaPerSegment.find( icdSegment.segmentNumber );
+        if ( it == originalAreaPerSegment.end() ) continue;
+
+        for ( auto globalCellIndex : icdSegment.globalCellIndices )
         {
-            auto it = areaPerSegment.find( segmentNumber );
-            if ( it != areaPerSegment.end() ) areaSum += it->second;
+            areaSumPerCell[globalCellIndex] += it->second;
+        }
+    }
+
+    // An ICD sub spans a 0.1 m valve segment and normally connects to a single cell. When it reaches
+    // into more than one, it reports the largest of the sums it takes part in.
+    std::map<int, double> areaPerSegment;
+    for ( const auto& icdSegment : context.icdSegments )
+    {
+        double area = 0.0;
+        for ( auto globalCellIndex : icdSegment.globalCellIndices )
+        {
+            area = std::max( area, areaSumPerCell[globalCellIndex] );
         }
 
-        for ( auto segmentNumber : segmentNumbers )
-        {
-            auto it = areaPerSegment.find( segmentNumber );
-            if ( it != areaPerSegment.end() ) it->second = areaSum;
-        }
+        if ( area > 0.0 ) areaPerSegment[icdSegment.segmentNumber] = area;
     }
 
     for ( auto& branch : exportData.branches )

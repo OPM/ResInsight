@@ -355,6 +355,56 @@ TEST( RicMswBranchBuilder, IcdAreaPerCell_SeparateCellsAreIndependent )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// An ICD sub reaching into two cells reports the largest sum, computed from the original areas.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, IcdAreaPerCell_MultipleCellsUseLargestSum )
+{
+    FishbonesExportContext context;
+    context.icdSegments.push_back( { 10, { 100, 200 } } );
+    context.icdSegments.push_back( { 20, { 100 } } );
+    context.icdSegments.push_back( { 30, { 200 } } );
+    context.icdSegments.push_back( { 40, { 200 } } );
+
+    auto exportData = makeExportData( { { 10, 0.001 }, { 20, 0.002 }, { 30, 0.003 }, { 40, 0.004 } } );
+    applyIcdAreaPerCell( context, exportData );
+
+    // Cell 100 sums to 0.003, cell 200 to 0.008. Segment 10 takes part in both and reports the larger.
+    EXPECT_DOUBLE_EQ( 0.008, areaOfSegment( exportData, 10 ) );
+    EXPECT_DOUBLE_EQ( 0.003, areaOfSegment( exportData, 20 ) );
+    EXPECT_DOUBLE_EQ( 0.008, areaOfSegment( exportData, 30 ) );
+    EXPECT_DOUBLE_EQ( 0.008, areaOfSegment( exportData, 40 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The result does not depend on the order the ICD subs are recorded in.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, IcdAreaPerCell_IsIndependentOfRecordingOrder )
+{
+    FishbonesExportContext forward;
+    forward.icdSegments.push_back( { 10, { 100, 200 } } );
+    forward.icdSegments.push_back( { 20, { 100 } } );
+    forward.icdSegments.push_back( { 30, { 200 } } );
+
+    FishbonesExportContext reversed;
+    reversed.icdSegments.push_back( { 30, { 200 } } );
+    reversed.icdSegments.push_back( { 20, { 100 } } );
+    reversed.icdSegments.push_back( { 10, { 200, 100 } } );
+
+    const std::vector<std::pair<int, double>> segments = { { 10, 0.001 }, { 20, 0.002 }, { 30, 0.003 } };
+
+    auto forwardData = makeExportData( segments );
+    applyIcdAreaPerCell( forward, forwardData );
+
+    auto reversedData = makeExportData( segments );
+    applyIcdAreaPerCell( reversed, reversedData );
+
+    for ( int segmentNumber : { 10, 20, 30 } )
+    {
+        EXPECT_DOUBLE_EQ( areaOfSegment( forwardData, segmentNumber ), areaOfSegment( reversedData, segmentNumber ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Valve segments that are not fishbones ICD subs are left alone.
 //--------------------------------------------------------------------------------------------------
 TEST( RicMswBranchBuilder, IcdAreaPerCell_NonIcdValveIsUntouched )
