@@ -228,8 +228,16 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawable()
 {
     if ( m_rigCaseData && m_cellIndex != cvf::UNDEFINED_SIZE_T )
     {
+        auto mainGrid = m_rigCaseData->mainGrid();
+        if ( !mainGrid ) return nullptr;
+
+        if ( m_gridIndex >= mainGrid->gridCount() ) return nullptr;
+
         auto grid = m_rigCaseData->grid( m_gridIndex );
         if ( !grid ) return nullptr;
+
+        // The selection can be stale after the case data has been reloaded, and the cell index can be out of bounds
+        if ( m_cellIndex >= grid->cellCount() ) return nullptr;
 
         if ( m_showLgrMeshLines && RiaPreferencesGrid::current()->radialGridMode() == RiaGridDefines::RadialGridMode::CYLINDRICAL )
         {
