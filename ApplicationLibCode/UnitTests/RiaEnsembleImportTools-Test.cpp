@@ -2,11 +2,23 @@
 
 #include "Tools/Ensemble/RiaEnsembleImportTools.h"
 
+#include <QDir>
+#include <QFile>
+#include <QTemporaryDir>
+
 namespace internal
 {
 QString placeholderText()
 {
     return "$(INDEX)";
+}
+
+void createEmptyFile( const QString& filePath )
+{
+    QDir().mkpath( QFileInfo( filePath ).absolutePath() );
+
+    QFile file( filePath );
+    if ( file.open( QIODevice::WriteOnly ) ) file.close();
 }
 } // namespace internal
 
@@ -30,6 +42,46 @@ TEST( RimPathPatternFileSetTest, OneVaryingNumberRealizations )
     {
         EXPECT_STREQ( paths[i].toStdString().data(), filePaths[i].toStdString().data() );
     }
+}
+
+TEST( RimPathPatternFileSetTest, FolderNameContainingDot )
+{
+    QStringList filePaths = { "/scratch/fmu/user/drogon.2024/realization-0/iter-0/eclipse/model/DROGON-0.ESMRY",
+                              "/scratch/fmu/user/drogon.2024/realization-1/iter-0/eclipse/model/DROGON-1.ESMRY",
+                              "/scratch/fmu/user/drogon.2024/realization-2/iter-0/eclipse/model/DROGON-2.ESMRY" };
+
+    const auto& [pattern, numberRange] = RiaEnsembleImportTools::findPathPattern( filePaths, internal::placeholderText() );
+    EXPECT_STREQ( pattern.toStdString().data(),
+                  "/scratch/fmu/user/drogon.2024/realization-$(INDEX)/iter-0/eclipse/model/DROGON-$(INDEX).ESMRY" );
+    EXPECT_STREQ( numberRange.toStdString().data(), "0-2" );
+
+    const auto paths = RiaEnsembleImportTools::createPathsFromPattern( pattern, numberRange, internal::placeholderText() );
+    EXPECT_EQ( paths.size(), filePaths.size() );
+    if ( paths.size() != filePaths.size() ) return;
+    for ( auto i = 0; i < paths.size(); i++ )
+    {
+        EXPECT_STREQ( paths[i].toStdString().data(), filePaths[i].toStdString().data() );
+    }
+}
+
+TEST( RimPathPatternFileSetTest, SearchFileSystemFolderNameContainingDot )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    const QString rootFolder = QDir::fromNativeSeparators( tempDir.path() ) + "/drogon.2024";
+
+    for ( int realizationNumber = 0; realizationNumber < 3; realizationNumber++ )
+    {
+        const QString filePath =
+            QString( "%1/realization-%2/iter-0/eclipse/model/DROGON-%2.SMSPEC" ).arg( rootFolder ).arg( realizationNumber );
+        internal::createEmptyFile( filePath );
+    }
+
+    const QString pathPattern = rootFolder + "/realization-*/iter-0/eclipse/model/DROGON-*";
+
+    const auto paths = RiaEnsembleImportTools::createPathsBySearchingFileSystem( pathPattern, ".SMSPEC", "*" );
+    EXPECT_EQ( paths.size(), 3 );
 }
 
 TEST( RimPathPatternFileSetTest, OneVaryingNumberMultipleLocations )

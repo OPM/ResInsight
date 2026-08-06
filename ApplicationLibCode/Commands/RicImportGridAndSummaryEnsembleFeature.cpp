@@ -104,18 +104,12 @@ static void doImport( const RicImportGridAndSummaryEnsembleDialogResult& result,
     // Build the union of base paths (extension-stripped) from both lists so every realization
     // appears exactly once. findPathPattern requires each realization number to be unique across
     // the input; duplicating paths with different extensions breaks the pattern detection.
-    auto stripExtension = []( const QString& path ) -> QString
-    {
-        int dot = path.lastIndexOf( '.' );
-        return dot != -1 ? path.left( dot ) : path;
-    };
-
     QStringList strippedPaths;
 
     for ( const auto& f : result.gridFiles )
-        strippedPaths << stripExtension( f );
+        strippedPaths << RiaFilePathTools::removeFileExtension( f );
     for ( const auto& f : result.summaryFiles )
-        strippedPaths << stripExtension( f );
+        strippedPaths << RiaFilePathTools::removeFileExtension( f );
 
     strippedPaths.removeDuplicates();
 
