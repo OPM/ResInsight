@@ -37,6 +37,11 @@
 
 #pragma once
 
+// CVF_ENABLE_ASSERTS gets its default value of 1 here. Without this include, a translation unit that
+// processes cvfAssert.h before cvfConfigCore.h would evaluate the undefined CVF_ENABLE_ASSERTS as 0
+// and silently compile every assert below into a no-op. See OPM/ResInsight#14397.
+#include "cvfConfigCore.h"
+
 namespace cvf {
 
 // Forward of base class for assert handlers

@@ -60,7 +60,7 @@ bool RigFemPartResultCalculatorNormalized::isMatching( const RigFemResultAddress
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) );
+    CVF_ASSERT( resVarAddr.normalizeByHydrostaticPressure() && RigFemPartResultsCollection::isNormalizableResult( resVarAddr ) );
 
     RigFemResultAddress unscaledResult             = RigFemAddressDefines::getResultLookupAddress( resVarAddr );
     unscaledResult.normalizedByHydrostaticPressure = false;
