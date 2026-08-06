@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RicMswBranchBuilder.h"
 #include "RicWellPathExportMswTableData.h"
 
 #include "CompletionsMsw/RigMswSegment.h"
@@ -39,15 +40,16 @@ class RigMainGrid;
 namespace RicWellPathExportMswGeometryPath
 {
 
-std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                               eclipseCase,
-                                                const RimWellPath*                            wellPath,
-                                                const RigMainGrid*                            mainGrid,
-                                                int                                           outletSegNum,
-                                                RicWellPathExportMswTableData::CompletionType completionType,
-                                                const std::optional<QDateTime>&               exportDate,
-                                                int&                                          segmentNumber,
-                                                int&                                          branchNumber,
-                                                RiaDefines::EclipseUnitSystem                 unitSystem );
+std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                                eclipseCase,
+                                                const RimWellPath*                             wellPath,
+                                                const RigMainGrid*                             mainGrid,
+                                                int                                            outletSegNum,
+                                                RicWellPathExportMswTableData::CompletionType  completionType,
+                                                const std::optional<QDateTime>&                exportDate,
+                                                int&                                           segmentNumber,
+                                                int&                                           branchNumber,
+                                                RiaDefines::EclipseUnitSystem                  unitSystem,
+                                                RicMswBranchBuilder::FishbonesDiameterContext& diameterContext );
 
 RigMswWellExportData buildMswWellExportData( RimEclipseCase*                               eclipseCase,
                                              const RimWellPath*                            wellPath,
