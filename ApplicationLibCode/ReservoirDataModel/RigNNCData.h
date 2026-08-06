@@ -25,7 +25,6 @@
 
 #include "cvfObject.h"
 #include "cvfStructGrid.h"
-#include "cvfVector3.h"
 
 #include <QStringList>
 

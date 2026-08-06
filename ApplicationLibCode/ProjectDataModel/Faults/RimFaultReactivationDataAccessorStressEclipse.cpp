@@ -37,7 +37,6 @@
 #include "RimFaultReactivationDataAccessorWellLogExtraction.h"
 #include "RimFaultReactivationEnums.h"
 
-#include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include "cafAssert.h"

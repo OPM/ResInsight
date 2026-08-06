@@ -40,8 +40,6 @@
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
-#include "cvfScalarMapper.h"
-
 CAF_PDM_SOURCE_INIT( RimSummaryTable, "RimSummaryTable" );
 
 //--------------------------------------------------------------------------------------------------

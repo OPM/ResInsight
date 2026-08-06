@@ -30,8 +30,6 @@
 
 #include "cafSelectionManagerTools.h"
 
-#include "cvfCamera.h"
-
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewIntersectionViewFeature, "RicNewIntersectionViewFeature" );

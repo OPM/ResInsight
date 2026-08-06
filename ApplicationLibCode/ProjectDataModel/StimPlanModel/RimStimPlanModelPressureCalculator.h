@@ -23,8 +23,6 @@
 
 #include "RiaStimPlanModelDefines.h"
 
-#include "cvfObject.h"
-
 #include <vector>
 
 class RigEclipseCaseData;

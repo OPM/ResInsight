@@ -51,8 +51,6 @@
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
-#include "cvfScalarMapper.h"
-
 #include <QPainter>
 
 CAF_PDM_SOURCE_INIT( RimWellConnectivityTable, "RimWellConnectivityTable" );

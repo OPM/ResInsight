@@ -26,9 +26,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
 #include <vector>
 
 //==================================================================================================

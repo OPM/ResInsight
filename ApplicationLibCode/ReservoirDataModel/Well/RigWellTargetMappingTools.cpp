@@ -41,7 +41,6 @@
 
 #include "cafAssert.h"
 #include "cafVecIjk.h"
-#include "cvfMath.h"
 #include "cvfStructGrid.h"
 
 #include <algorithm>

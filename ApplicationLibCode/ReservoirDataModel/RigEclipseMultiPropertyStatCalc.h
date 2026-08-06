@@ -22,7 +22,6 @@
 #include "RigStatisticsCalculator.h"
 
 #include "cvfCollection.h"
-#include "cvfObject.h"
 
 #include <vector>
 

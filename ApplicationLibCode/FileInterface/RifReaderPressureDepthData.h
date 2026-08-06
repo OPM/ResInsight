@@ -22,8 +22,6 @@
 
 #include "RigPressureDepthData.h"
 
-#include "cvfObject.h"
-
 #include <map>
 #include <string>
 #include <vector>

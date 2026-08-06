@@ -22,8 +22,6 @@
 
 #include "RimFaultReactivationEnums.h"
 
-#include "cvfVector3.h"
-
 #include <map>
 #include <memory>
 #include <vector>

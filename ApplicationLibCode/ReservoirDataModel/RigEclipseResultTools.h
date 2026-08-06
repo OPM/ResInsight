@@ -22,7 +22,6 @@
 #include <vector>
 
 #include "cafVecIjk.h"
-#include "cvfArray.h"
 #include "cvfStructGrid.h"
 
 class RimEclipseCase;

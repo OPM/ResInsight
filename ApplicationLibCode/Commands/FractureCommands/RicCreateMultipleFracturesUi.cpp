@@ -37,8 +37,6 @@
 #include "cafPdmUiTextEditor.h"
 #include "cafSelectionManagerTools.h"
 
-#include "cvfBoundingBox.h"
-
 #include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RiuCreateMultipleFractionsUi, "RiuCreateMultipleFractionsUi" );

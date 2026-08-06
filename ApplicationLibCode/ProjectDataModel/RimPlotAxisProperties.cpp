@@ -30,8 +30,6 @@
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
-#include "cvfVector2.h"
-
 #include <cmath>
 
 namespace caf

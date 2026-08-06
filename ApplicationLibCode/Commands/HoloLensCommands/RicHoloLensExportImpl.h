@@ -22,8 +22,6 @@
 
 #include "VdeExportPart.h"
 
-#include "cvfCollection.h"
-
 class QString;
 class RimGridView;
 

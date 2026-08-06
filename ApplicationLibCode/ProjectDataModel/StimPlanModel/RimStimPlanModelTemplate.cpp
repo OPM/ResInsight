@@ -52,8 +52,6 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
-#include "cvfBoundingBox.h"
-
 #include <cmath>
 
 #include <QString>

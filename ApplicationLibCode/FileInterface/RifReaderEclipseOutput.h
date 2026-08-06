@@ -23,7 +23,6 @@
 #include "RifReaderInterface.h"
 
 #include "cvfCollection.h"
-#include "cvfVector3.h"
 
 #include <memory>
 

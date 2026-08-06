@@ -32,8 +32,6 @@
 #include "RiuQwtPlotZoomer.h"
 #include "RiuQwtSymbol.h"
 
-#include "cvfColor3.h"
-
 #include "cafCmdFeatureMenuBuilder.h"
 
 #include "qwt_date.h"

@@ -35,8 +35,6 @@
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiTextEditor.h"
 
-#include "cvfVector3.h"
-
 #include <cmath>
 
 namespace caf

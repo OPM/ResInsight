@@ -22,8 +22,6 @@
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
 
-#include "cvfVector3.h"
-
 #include <QString>
 
 //==================================================================================================

@@ -22,7 +22,6 @@
 #include "RigFemPart.h"
 
 #include "cvfArray.h"
-#include "cvfDebugTimer.h"
 #include "cvfDrawableGeo.h"
 #include "cvfOutlineEdgeExtractor.h"
 #include "cvfPrimitiveSetIndexedUInt.h"

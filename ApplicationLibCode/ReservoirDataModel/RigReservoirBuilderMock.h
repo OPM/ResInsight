@@ -24,7 +24,6 @@
 #include "RigReservoirBuilder.h"
 
 #include "cvfArray.h"
-#include "cvfObject.h"
 #include "cvfVector3.h"
 
 class RigEclipseCaseData;

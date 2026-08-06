@@ -28,9 +28,6 @@
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
 
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
 #include <vector>
 
 class QString;

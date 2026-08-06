@@ -47,8 +47,6 @@
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
-#include "cvfMath.h"
-
 #include <QAction>
 #include <QDir>
 

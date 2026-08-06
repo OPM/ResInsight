@@ -42,8 +42,6 @@
 #include "cafDataLoadController.h"
 #include "cafProgressInfo.h"
 
-#include "cvfObject.h"
-
 #include <QAction>
 #include <QDir>
 

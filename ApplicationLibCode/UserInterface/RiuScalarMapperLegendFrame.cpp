@@ -21,7 +21,6 @@
 
 #include "cvfScalarMapperDiscreteLinear.h"
 #include "cvfScalarMapperDiscreteLog.h"
-#include "cvfString.h"
 #include "cvfqtUtils.h"
 
 #include <QFontMetrics>

@@ -22,7 +22,6 @@
 #include "cafPdmUiNumberFormat.h"
 
 #include "cvfObject.h"
-#include "cvfRect.h"
 #include "cvfScalarMapper.h"
 
 #include <QLabel>

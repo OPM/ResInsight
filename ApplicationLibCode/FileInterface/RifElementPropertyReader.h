@@ -21,7 +21,6 @@
 #include "RifElementPropertyTableReader.h"
 
 #include "cvfObject.h"
-#include "cvfVector3.h"
 
 #include <map>
 #include <string>

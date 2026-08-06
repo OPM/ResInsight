@@ -44,8 +44,6 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#include "cvfMath.h"
-
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
