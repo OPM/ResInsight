@@ -60,7 +60,7 @@ namespace RicMswBranchBuilder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void applyEffectiveDiameters( const FishbonesDiameterContext& context, RigMswWellExportData& exportData )
+void applyEffectiveDiameters( const FishbonesExportContext& context, RigMswWellExportData& exportData )
 {
     if ( context.lateralSegments.empty() ) return;
 
@@ -90,6 +90,70 @@ void applyEffectiveDiameters( const FishbonesDiameterContext& context, RigMswWel
         {
             auto it = effectiveDiameterPerSegment.find( segment.segmentNumber );
             if ( it != effectiveDiameterPerSegment.end() && it->second > 0.0 ) segment.diameter = it->second;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void applyIcdAreaPerCell( const FishbonesExportContext& context, RigMswWellExportData& exportData )
+{
+    if ( context.icdSegments.empty() ) return;
+
+    std::map<size_t, std::set<int>> icdSegmentsPerCell;
+    for ( const auto& icdSegment : context.icdSegments )
+    {
+        for ( auto globalCellIndex : icdSegment.globalCellIndices )
+        {
+            icdSegmentsPerCell[globalCellIndex].insert( icdSegment.segmentNumber );
+        }
+    }
+
+    std::set<int> icdSegmentNumbers;
+    for ( const auto& icdSegment : context.icdSegments )
+    {
+        icdSegmentNumbers.insert( icdSegment.segmentNumber );
+    }
+
+    std::map<int, double> areaPerSegment;
+    for ( const auto& branch : exportData.branches )
+    {
+        for ( const auto& segment : branch.segments )
+        {
+            if ( !segment.wsegvalvData.has_value() ) continue;
+            if ( !icdSegmentNumbers.count( segment.segmentNumber ) ) continue;
+
+            areaPerSegment[segment.segmentNumber] = segment.wsegvalvData->area;
+        }
+    }
+
+    // An ICD sub connected to several cells is summed once per cell, in ascending cell order, and
+    // ends up with the sum of the last cell it takes part in. This matches the tree implementation.
+    for ( const auto& [globalCellIndex, segmentNumbers] : icdSegmentsPerCell )
+    {
+        double areaSum = 0.0;
+        for ( auto segmentNumber : segmentNumbers )
+        {
+            auto it = areaPerSegment.find( segmentNumber );
+            if ( it != areaPerSegment.end() ) areaSum += it->second;
+        }
+
+        for ( auto segmentNumber : segmentNumbers )
+        {
+            auto it = areaPerSegment.find( segmentNumber );
+            if ( it != areaPerSegment.end() ) it->second = areaSum;
+        }
+    }
+
+    for ( auto& branch : exportData.branches )
+    {
+        for ( auto& segment : branch.segments )
+        {
+            if ( !segment.wsegvalvData.has_value() ) continue;
+
+            auto it = areaPerSegment.find( segment.segmentNumber );
+            if ( it != areaPerSegment.end() ) segment.wsegvalvData->area = it->second;
         }
     }
 }
@@ -778,7 +842,7 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                                                   int&                                             segmentNumber,
                                                   int&                                             branchNumber,
                                                   RiaDefines::EclipseUnitSystem                    unitSystem,
-                                                  FishbonesDiameterContext&                        diameterContext )
+                                                  FishbonesExportContext&                          fishbonesContext )
 {
     std::vector<RigMswBranch> result;
 
@@ -852,6 +916,7 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                 icdCellIndices.insert( cellIntersectionContainingSubIndex[subIndex] );
 
             std::vector<RigMswCellIntersection> icdCompsegs;
+            std::set<size_t>                    icdGlobalCellIndices;
             for ( auto idx : icdCellIndices )
             {
                 const auto&  ci           = filteredIntersections[idx];
@@ -861,6 +926,7 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                 if ( auto mci = toMswCellIntersection( ci, mainGrid, overlapStart, overlapEnd ) )
                 {
                     icdCompsegs.push_back( *mci );
+                    icdGlobalCellIndices.insert( ci.globCellIndex );
                     usedGlobalCellIndices.insert( ci.globCellIndex );
                 }
             }
@@ -897,6 +963,8 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
             wv.status           = "OPEN";
             wv.description      = QString( "ICD sub %1" ).arg( subIndex + 1 ).toStdString();
             icdSeg.wsegvalvData = wv;
+
+            fishbonesContext.icdSegments.push_back( { icdSegNum, std::move( icdGlobalCellIndices ) } );
 
             result.push_back( RigMswBranch{ icdBranch, std::nullopt, { std::move( icdSeg ) } } );
 
@@ -960,7 +1028,7 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                         if ( firstLatSeg ) latSeg.description = lateralLabel;
                         latSeg.intersections = isNewCell ? std::vector<RigMswCellIntersection>{ *mci } : std::vector<RigMswCellIntersection>{};
 
-                        diameterContext.lateralSegments.push_back(
+                        fishbonesContext.lateralSegments.push_back(
                             { latSeg.segmentNumber, cellIntInfo.globCellIndex, subs->equivalentDiameter( unitSystem ) } );
 
                         latOutletSeg = latSeg.segmentNumber;
@@ -973,7 +1041,7 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
 
                 if ( latSegs.size() > 1 )
                 {
-                    diameterContext.firstAndSecondSegments.emplace_back( latSegs[0].segmentNumber, latSegs[1].segmentNumber );
+                    fishbonesContext.firstAndSecondSegments.emplace_back( latSegs[0].segmentNumber, latSegs[1].segmentNumber );
                 }
 
                 result.push_back( RigMswBranch{ latBranch, std::nullopt, std::move( latSegs ) } );
