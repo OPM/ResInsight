@@ -186,15 +186,32 @@ size_t RigEclipseCaseData::gridCount() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The cached well cell arrays are indexed by grid cell index, and are only valid as long as they
+/// have one array per grid sized to match the cell count of that grid.
+//--------------------------------------------------------------------------------------------------
+bool RigEclipseCaseData::isWellCellsPrGridUpToDate( const std::vector<RigGridBase*>& grids ) const
+{
+    if ( m_wellCellsInGrid.size() != grids.size() ) return false;
+
+    for ( size_t gIdx = 0; gIdx < grids.size(); ++gIdx )
+    {
+        if ( m_wellCellsInGrid[gIdx].isNull() || m_wellCellsInGrid[gIdx]->size() != grids[gIdx]->cellCount() ) return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::computeWellCellsPrGrid()
 {
-    // If we have computed this already, return
-    if ( !m_wellCellsInGrid.empty() ) return;
-
     std::vector<RigGridBase*> grids;
     allGrids( &grids );
+
+    // If we have computed this already for the current set of grids, return. The cached arrays are indexed by grid
+    // cell index, and must be recomputed if the grids have changed after the previous computation.
+    if ( isWellCellsPrGridUpToDate( grids ) ) return;
 
     // Debug code used to display grid names and grid sizes
     /*
