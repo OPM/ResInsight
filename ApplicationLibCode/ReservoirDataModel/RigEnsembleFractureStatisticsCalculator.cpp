@@ -157,6 +157,7 @@ std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateGridStatis
 {
     std::vector<double> samples;
     if ( fractureDefinitions.empty() ) return samples;
+    if ( fractureDefinitions[0]->conductivityResultNames().isEmpty() ) return samples;
 
     // TODO: heuristic to find conductivity name?
     QString conductivityResultName = fractureDefinitions[0]->conductivityResultNames()[0];
@@ -255,6 +256,7 @@ std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateAreaWeight
 {
     std::vector<double> samples;
     if ( fractureDefinitions.empty() ) return samples;
+    if ( fractureDefinitions[0]->conductivityResultNames().isEmpty() ) return samples;
 
     // TODO: heuristic to find conductivity name?
     QString conductivityResultName = fractureDefinitions[0]->conductivityResultNames()[0];
