@@ -174,7 +174,11 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                    unitSystem,
                                                                    &childCellSegMap,
                                                                    activeCellInfo );
-    if ( tieInValve && !lateralBranch.segments.empty() ) lateralBranch.segments.front().description.clear();
+    // Identify the segments of this lateral by name in the exported comment line
+    if ( !lateralBranch.segments.empty() )
+    {
+        lateralBranch.segments.front().description = QString( "Segments on lateral %1" ).arg( wellPath->name() ).toStdString();
+    }
     lateralBranch.tieInValve = std::move( tieInValve );
 
     // Standalone valves (from valveCollection, not inside perforation intervals)
