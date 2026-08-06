@@ -70,14 +70,25 @@ struct FishbonesLateralSegment
 };
 
 //--------------------------------------------------------------------------------------------------
-/// Data collected across all fishbones of a well, used by applyEffectiveDiameters().
+/// One fishbones ICD sub segment, recorded with the grid cells it connects to.
 //--------------------------------------------------------------------------------------------------
-struct FishbonesDiameterContext
+struct FishbonesIcdSegment
+{
+    int              segmentNumber;
+    std::set<size_t> globalCellIndices;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Data collected across all fishbones of a well, used by the apply functions below.
+//--------------------------------------------------------------------------------------------------
+struct FishbonesExportContext
 {
     std::vector<FishbonesLateralSegment> lateralSegments;
 
     /// Segment numbers of the first and second segment of each lateral having more than one segment.
     std::vector<std::pair<int, int>> firstAndSecondSegments;
+
+    std::vector<FishbonesIcdSegment> icdSegments;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -92,7 +103,13 @@ struct FishbonesDiameterContext
 /// diameter of the second segment of the same lateral, see
 /// https://github.com/OPM/ResInsight/issues/7731
 //--------------------------------------------------------------------------------------------------
-void applyEffectiveDiameters( const FishbonesDiameterContext& context, RigMswWellExportData& exportData );
+void applyEffectiveDiameters( const FishbonesExportContext& context, RigMswWellExportData& exportData );
+
+//--------------------------------------------------------------------------------------------------
+/// Replace the WSEGVALV area of fishbones ICD subs connected to the same grid cell with the sum of
+/// their areas, so that the cell sees the total flow area of the ICDs completing it.
+//--------------------------------------------------------------------------------------------------
+void applyIcdAreaPerCell( const FishbonesExportContext& context, RigMswWellExportData& exportData );
 
 //--------------------------------------------------------------------------------------------------
 /// Convert a WellPathCellIntersectionInfo global-cell index to a RigMswCellIntersection (1-based i,j,k).
@@ -174,6 +191,6 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                                                   int&                                             segmentNumber,
                                                   int&                                             branchNumber,
                                                   RiaDefines::EclipseUnitSystem                    unitSystem,
-                                                  FishbonesDiameterContext&                        diameterContext );
+                                                  FishbonesExportContext&                          fishbonesContext );
 
 } // namespace RicMswBranchBuilder

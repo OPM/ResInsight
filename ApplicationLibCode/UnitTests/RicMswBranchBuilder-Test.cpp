@@ -258,3 +258,164 @@ TEST( RicMswBranchBuilder, ToMswCellIntersection_DualPorosity_KShifted )
     ASSERT_TRUE( result.has_value() );
     EXPECT_EQ( 1u + cellCountK, result->k );
 }
+
+//==================================================================================================
+// applyEffectiveDiameters / applyIcdAreaPerCell tests
+//==================================================================================================
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Build export data with one branch holding the given segment numbers, each with a WSEGVALV area.
+//--------------------------------------------------------------------------------------------------
+RigMswWellExportData makeExportData( const std::vector<std::pair<int, double>>& segmentNumberAndArea )
+{
+    RigMswWellExportData exportData;
+    RigMswBranch         branch;
+    branch.branchNumber = 1;
+
+    for ( const auto& [segmentNumber, area] : segmentNumberAndArea )
+    {
+        RigMswSegment segment;
+        segment.segmentNumber       = segmentNumber;
+        segment.outletSegmentNumber = 1;
+        segment.length              = 1.0;
+        segment.depth               = 1.0;
+
+        WsegvalvRow row;
+        row.segmentNumber    = segmentNumber;
+        row.cv               = 1.5;
+        row.area             = area;
+        segment.wsegvalvData = row;
+
+        branch.segments.push_back( segment );
+    }
+
+    exportData.branches.push_back( branch );
+    return exportData;
+}
+
+double areaOfSegment( const RigMswWellExportData& exportData, int segmentNumber )
+{
+    for ( const auto& branch : exportData.branches )
+    {
+        for ( const auto& segment : branch.segments )
+        {
+            if ( segment.segmentNumber == segmentNumber && segment.wsegvalvData.has_value() ) return segment.wsegvalvData->area;
+        }
+    }
+    return -1.0;
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// A single ICD sub in a cell keeps its own area.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, IcdAreaPerCell_SingleIcdIsUnchanged )
+{
+    FishbonesExportContext context;
+    context.icdSegments.push_back( { 10, { 100 } } );
+
+    auto exportData = makeExportData( { { 10, 0.002 } } );
+    applyIcdAreaPerCell( context, exportData );
+
+    EXPECT_DOUBLE_EQ( 0.002, areaOfSegment( exportData, 10 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Two ICD subs connected to the same cell both report the sum of their areas.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, IcdAreaPerCell_SharedCellGetsAreaSum )
+{
+    FishbonesExportContext context;
+    context.icdSegments.push_back( { 10, { 100 } } );
+    context.icdSegments.push_back( { 20, { 100 } } );
+
+    auto exportData = makeExportData( { { 10, 0.002 }, { 20, 0.003 } } );
+    applyIcdAreaPerCell( context, exportData );
+
+    EXPECT_DOUBLE_EQ( 0.005, areaOfSegment( exportData, 10 ) );
+    EXPECT_DOUBLE_EQ( 0.005, areaOfSegment( exportData, 20 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// ICD subs in different cells are not combined.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, IcdAreaPerCell_SeparateCellsAreIndependent )
+{
+    FishbonesExportContext context;
+    context.icdSegments.push_back( { 10, { 100 } } );
+    context.icdSegments.push_back( { 20, { 200 } } );
+
+    auto exportData = makeExportData( { { 10, 0.002 }, { 20, 0.003 } } );
+    applyIcdAreaPerCell( context, exportData );
+
+    EXPECT_DOUBLE_EQ( 0.002, areaOfSegment( exportData, 10 ) );
+    EXPECT_DOUBLE_EQ( 0.003, areaOfSegment( exportData, 20 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Valve segments that are not fishbones ICD subs are left alone.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, IcdAreaPerCell_NonIcdValveIsUntouched )
+{
+    FishbonesExportContext context;
+    context.icdSegments.push_back( { 10, { 100 } } );
+    context.icdSegments.push_back( { 20, { 100 } } );
+
+    auto exportData = makeExportData( { { 10, 0.002 }, { 20, 0.003 }, { 30, 0.007 } } );
+    applyIcdAreaPerCell( context, exportData );
+
+    EXPECT_DOUBLE_EQ( 0.007, areaOfSegment( exportData, 30 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Three laterals in the same cell give Deff = sqrt(3) * d.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, EffectiveDiameters_SharedCellCombinesDiameters )
+{
+    FishbonesExportContext context;
+    context.lateralSegments.push_back( { 10, 100, 0.0096 } );
+    context.lateralSegments.push_back( { 20, 100, 0.0096 } );
+    context.lateralSegments.push_back( { 30, 100, 0.0096 } );
+
+    auto exportData = makeExportData( { { 10, 0.0 }, { 20, 0.0 }, { 30, 0.0 } } );
+    applyEffectiveDiameters( context, exportData );
+
+    const double expected = std::sqrt( 3.0 ) * 0.0096;
+    for ( int segmentNumber : { 10, 20, 30 } )
+    {
+        for ( const auto& segment : exportData.branches[0].segments )
+        {
+            if ( segment.segmentNumber != segmentNumber ) continue;
+            ASSERT_TRUE( segment.diameter.has_value() );
+            EXPECT_NEAR( expected, *segment.diameter, 1.0e-12 );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The first segment of a lateral inherits the effective diameter of the second segment.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, EffectiveDiameters_FirstSegmentInheritsSecond )
+{
+    FishbonesExportContext context;
+
+    // Two laterals start in cell 100, only the first one continues into cell 200.
+    context.lateralSegments.push_back( { 10, 100, 0.0096 } );
+    context.lateralSegments.push_back( { 11, 200, 0.0096 } );
+    context.lateralSegments.push_back( { 20, 100, 0.0096 } );
+    context.firstAndSecondSegments.emplace_back( 10, 11 );
+
+    auto exportData = makeExportData( { { 10, 0.0 }, { 11, 0.0 }, { 20, 0.0 } } );
+    applyEffectiveDiameters( context, exportData );
+
+    const auto& segments = exportData.branches[0].segments;
+
+    // Segment 10 is alone with segment 20 in cell 100, but takes the value of segment 11.
+    EXPECT_NEAR( 0.0096, *segments[0].diameter, 1.0e-12 );
+    EXPECT_NEAR( 0.0096, *segments[1].diameter, 1.0e-12 );
+
+    // Segment 20 has no second segment and keeps the combined value of cell 100.
+    EXPECT_NEAR( std::sqrt( 2.0 ) * 0.0096, *segments[2].diameter, 1.0e-12 );
+}

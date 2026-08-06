@@ -49,16 +49,16 @@ using CompletionType = RicWellPathExportMswTableData::CompletionType;
 /// Recursively build all WELSEGS/COMPSEGS/valve segments for one lateral (child well path)
 /// and any of its own child laterals.
 //--------------------------------------------------------------------------------------------------
-std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                                eclipseCase,
-                                                const RimWellPath*                             wellPath,
-                                                const RigMainGrid*                             mainGrid,
-                                                int                                            outletSegNum,
-                                                CompletionType                                 completionType,
-                                                const std::optional<QDateTime>&                exportDate,
-                                                int&                                           segmentNumber,
-                                                int&                                           branchNumber,
-                                                RiaDefines::EclipseUnitSystem                  unitSystem,
-                                                RicMswBranchBuilder::FishbonesDiameterContext& diameterContext )
+std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                              eclipseCase,
+                                                const RimWellPath*                           wellPath,
+                                                const RigMainGrid*                           mainGrid,
+                                                int                                          outletSegNum,
+                                                CompletionType                               completionType,
+                                                const std::optional<QDateTime>&              exportDate,
+                                                int&                                         segmentNumber,
+                                                int&                                         branchNumber,
+                                                RiaDefines::EclipseUnitSystem                unitSystem,
+                                                RicMswBranchBuilder::FishbonesExportContext& fishbonesContext )
 {
     std::vector<RigMswBranch> result;
     auto                      mswParameters = wellPath->mswCompletionParameters();
@@ -237,7 +237,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                          segmentNumber,
                                                                          branchNumber,
                                                                          unitSystem,
-                                                                         diameterContext );
+                                                                         fishbonesContext );
         result.insert( result.end(), std::make_move_iterator( fishBranches.begin() ), std::make_move_iterator( fishBranches.end() ) );
     }
 
@@ -255,7 +255,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                         segmentNumber,
                                                         branchNumber,
                                                         unitSystem,
-                                                        diameterContext );
+                                                        fishbonesContext );
         result.insert( result.end(), std::make_move_iterator( grandchildBranches.begin() ), std::make_move_iterator( grandchildBranches.end() ) );
     }
 
@@ -325,7 +325,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
     std::vector<RicMswBranchBuilder::CellSegmentEntry> cellSegMap;
 
     // Collected across the main bore and all tie-in laterals, applied once the branches are assembled.
-    RicMswBranchBuilder::FishbonesDiameterContext diameterContext;
+    RicMswBranchBuilder::FishbonesExportContext fishbonesContext;
 
     const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
@@ -410,7 +410,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                          segmentNumber,
                                                                          branchNumber,
                                                                          unitSystem,
-                                                                         diameterContext );
+                                                                         fishbonesContext );
     }
 
     // Tie-in child laterals (recursive)
@@ -428,7 +428,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                    segmentNumber,
                                                    branchNumber,
                                                    unitSystem,
-                                                   diameterContext );
+                                                   fishbonesContext );
         lateralBranches.insert( lateralBranches.end(),
                                 std::make_move_iterator( childBranches.begin() ),
                                 std::make_move_iterator( childBranches.end() ) );
@@ -450,7 +450,8 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                             std::make_move_iterator( lateralBranches.begin() ),
                             std::make_move_iterator( lateralBranches.end() ) );
 
-    RicMswBranchBuilder::applyEffectiveDiameters( diameterContext, result );
+    RicMswBranchBuilder::applyEffectiveDiameters( fishbonesContext, result );
+    RicMswBranchBuilder::applyIcdAreaPerCell( fishbonesContext, result );
 
     return result;
 }
