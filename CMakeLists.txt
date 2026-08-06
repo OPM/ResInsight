@@ -1340,9 +1340,9 @@ set(CLOUD_SERVICE_API_PYTHON_SOURCE_PATH
     "${CMAKE_CURRENT_SOURCE_DIR}/scripts/ri-cloud-api"
 )
 
-# The contents of the repository are installed side by side, so that the service can be started
-# with 'CloudServiceApi' as working directory, importing the 'ri_cloud_api' package and resolving
-# the workspace libraries in 'libs'.
+# The contents of the repository are installed side by side, so that the service
+# can be started with 'CloudServiceApi' as working directory, importing the
+# 'ri_cloud_api' package and resolving the workspace libraries in 'libs'.
 install(
   DIRECTORY ${CLOUD_SERVICE_API_PYTHON_SOURCE_PATH}/
   DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/CloudServiceApi
