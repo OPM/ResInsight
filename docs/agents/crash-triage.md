@@ -1,16 +1,18 @@
 # Crash triage
 
-Investigate one crash signature from the `resinsight-system-doc` stacktrace
-registry and drive it to one of two outcomes:
+Investigate a **batch of 4–5 crash signatures** from the `resinsight-system-doc`
+stacktrace registry and drive each to one of two outcomes:
 
-- **A verified fix** → file an OPM issue, push a fix branch to your personal
-  fork, open a PR, and record all three on the signature.
-- **No confident fix** → record a note explaining the findings and why a fix is
-  uncertain. No issue or PR is filed.
+- **A verified fix** → included in one shared fix PR pushed to your personal
+  fork, with the signature's call stack in the PR body.
+- **No confident fix** → record a note on the signature explaining the findings
+  and why a fix is uncertain. Nothing is filed for it.
+
+No GitHub issue is created. The call stack that motivated each fix lives in the
+PR body, and `registry.json` holds the state.
 
 This is **step 3** of the weekly pipeline. Steps 1–2 (dedupe + issue-linking)
-are done by `registry.py` / `link_issues.py` in the system-doc repo; only
-signatures with **no linked issue** reach this stage.
+are done by `registry.py` / `link_issues.py` in the system-doc repo.
 
 > A locally-invokable Claude Code skill mirroring this doc lives at
 > `.claude/skills/crash-triage/SKILL.md` (untracked — `.claude/` is gitignored).
@@ -19,8 +21,8 @@ signatures with **no linked issue** reach this stage.
 ## Locations
 
 - Registry repo (state + tooling): `resinsight-system-doc/stacktrace-reports/`
-  - `registry.json` — source of truth, one entry per signature
-  - `registry.py worklist` — unlinked signatures, highest impact first
+  - `registry.json` — **single source of truth**, one entry per signature
+  - `registry.py worklist` — candidate signatures, highest impact first
   - `registry.py set --id <sid> ...` — write the outcome back
 - Source tree to patch: this repo
 - See [build.md](build.md) for build commands and [coding-style.md](coding-style.md)
@@ -28,28 +30,50 @@ signatures with **no linked issue** reach this stage.
 
 ## Hard rules
 
-- **Never post to GitHub before the human gate.** Prepare everything (issue text,
-  patch, PR text) and stop for explicit approval. Only after approval run the
+- **`registry.json` status is the single source of truth** for what has already
+  been handled. Never re-triage a signature whose status is anything other than
+  `new` or `linked`, and update the status at every transition.
+- **Do not create GitHub issues.** One PR covers the whole batch; each fix's
+  call stack goes in the PR body.
+- **Never post to GitHub before the human gate.** Prepare everything (patches,
+  PR text) and stop for explicit approval. Only after approval run the
   `gh`/`git push` commands.
 - Branches and PRs go to your **personal fork** remote, never `origin` (OPM upstream).
-- Commit/PR messages start with `#<issue>`; no AI attribution; no `## Test plan` section.
-- One signature per run unless explicitly told to batch.
-- Keep all comments and descriptions (issues, PRs, notes, code) short and concise.
+- Commit messages are a short description with no issue number (there is no
+  issue); no AI attribution; no `## Test plan` section in the PR.
+- Keep all comments and descriptions (PR, notes, code) short and concise.
+
+## Status lifecycle
+
+| status | meaning |
+| --- | --- |
+| `new` / `linked` | not yet triaged — eligible to pick |
+| `investigating` | picked into the current batch |
+| `pr-open` | fix is in the batch PR, awaiting merge |
+| `resolved` | the batch PR has been **merged** |
+| `no-fix-found` | investigated, no confident fix; note recorded |
+| `on-hold` | deliberately parked |
 
 ## Procedure
 
-### 1. Pick the signature
+### 1. Pick the batch
 
-If given a `signature_id`, use it. Otherwise run `registry.py worklist` and take
-the highest-impact entry (the `(unsymbolized crash site)` bucket is already
-filtered out — those stacks have no ResInsight symbol at the fault and are not
-individually actionable). Read its registry entry (`top_frame`,
-`signature_frames`, `representative_stack`, `total_count`, `weeks`) and set
-status to `investigating`:
+Run `registry.py worklist` and take the 4–5 highest-impact entries. The
+`(unsymbolized crash site)` bucket is already filtered out — those stacks have
+no ResInsight symbol at the fault and are not individually actionable.
+
+`worklist` does not filter on status, so **check each candidate's status in
+`registry.json` and skip anything that is not `new` or `linked`** — otherwise
+signatures already covered by an open PR resurface.
+
+Read each entry (`top_frame`, `signature_frames`, `representative_stack`,
+`total_count`, `weeks`) and mark it picked:
 
 ```
 python registry.py set --id <sid> --status investigating
 ```
+
+Then work steps 2–5 per signature.
 
 ### 2. Locate the real crash site
 
@@ -57,9 +81,9 @@ Map each frame in `representative_stack` to source via its `at <path>:<line>`.
 The reported crash line is often the optimizer's line marker, not the true
 fault — read the surrounding function and find the actual unsafe operation
 (null dereference, out-of-range index, use-after-free, unchecked cast). The
-model investigation is PR #14194 / issue #14193: the trace blamed
-`cvf::ref<…>::isNull()` but the real bug was an unchecked `mainGrid()` returning
-`nullptr`. Use `git log`/`git blame` on the crash site to understand intent.
+model investigation is PR #14194: the trace blamed `cvf::ref<…>::isNull()` but
+the real bug was an unchecked `mainGrid()` returning `nullptr`. Use
+`git log`/`git blame` on the crash site to understand intent.
 
 ### 3. Form a fix
 
@@ -100,23 +124,41 @@ passing (or a stated reason why no test is feasible).
 
 ### 6. Human gate
 
-Present, in one message: the root cause, the patch diff, the test and build
-results, a confidence rating, and the drafts for the issue and PR. Then
-**stop** and ask the user to approve, revise, or downgrade to a note.
+Once the whole batch is investigated, present in one message — per signature:
+the root cause, the patch diff, the test and build results, and a confidence
+rating — plus the draft PR body covering the batch. Then **stop** and ask the
+user to approve, revise, or downgrade individual signatures to a note.
 
-### 7a. On approval — file issue, branch, PR
+### 7a. On approval — one branch, one PR for the batch
 
-Use short titles for issues and PRs.
+Branch on the fork (`crash-triage-<YYYY-MM-DD>`), one commit per signature with
+a short description, push to your personal fork, and open a single PR with a
+short title.
 
-Create the issue (body = the raw stack in a code fence, matching #14193), with
-labels `BugInRelease`. Branch on the fork (`fix-<issue>-<slug>`), commit
-`#<issue> <description>`, push to your personal fork, and open the PR (title
-`#<issue> <description>`, body `Fixes #<issue>` + Problem/Fix sections,
-matching #14194). Then record the outcome:
+The PR body has one section per signature containing a one-line Problem/Fix and
+the raw `representative_stack` in a code fence (this replaces the issue that
+used to carry it):
+
+````markdown
+### <short description>
+
+Problem: <one line>
+Fix: <one line>
+
+<details><summary>Crash stack (signature <sid>, <total_count> reports)</summary>
 
 ```
-python registry.py set --id <sid> --issue <issue> --state OPEN \
-  --pr <pr> --branch fix-<issue>-<slug> --status pr-open
+[0] ...
+[1] ...
+```
+
+</details>
+````
+
+Then record the outcome for **every** signature in the batch:
+
+```
+python registry.py set --id <sid> --pr <pr> --branch crash-triage-<date> --status pr-open
 python registry.py render --date <latest-week>
 ```
 
@@ -127,13 +169,25 @@ python registry.py set --id <sid> --status no-fix-found \
   --note "Crash at <site>. Findings: <ruled in/out>. Uncertain because <reason>."
 ```
 
-### 8. Commit the registry change
+### 8. When the PR is merged — mark resolved
+
+The PR merging is what closes a signature out. For every signature in that PR:
+
+```
+python registry.py set --id <sid> --status resolved
+python registry.py render --date <latest-week>
+```
+
+Signatures whose PR is still open stay at `pr-open`; do not mark them resolved
+early.
+
+### 9. Commit the registry change
 
 In the system-doc repo, commit `registry.json` (and any re-rendered report) on a
-branch and push to the user's fork.
+branch and push to the user's fork. Do this after step 7 and again after step 8.
 
 ## Notes
 
 - The same `top_frame` can appear under two signature ids (different deeper
-  paths). Linking/fixing one does not auto-resolve the other — handle each,
-  though the same issue/PR may cover both.
+  paths). Fixing one does not auto-resolve the other — handle each, though the
+  same PR may cover both; set the status on both ids.
