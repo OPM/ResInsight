@@ -563,9 +563,10 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     if ( &m_case == changedField )
     {
-        m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+        // The case field can be set to nothing from the UI
+        m_flowDiagSolution = m_case() ? m_case()->defaultFlowDiagSolution() : nullptr;
         m_currentlyPlottedTimeSteps.clear();
-        if ( !m_case()->reservoirViews().empty() )
+        if ( m_case() && !m_case()->reservoirViews().empty() )
         {
             m_cellFilterView = m_case()->reservoirViews()[0];
         }
