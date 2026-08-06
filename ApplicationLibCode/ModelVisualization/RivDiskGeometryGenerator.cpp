@@ -19,7 +19,6 @@
 #include "RivDiskGeometryGenerator.h"
 
 #include "cvfArray.h"
-#include "cvfBase.h"
 #include "cvfMath.h"
 
 #include "cvfGeometryBuilder.h"

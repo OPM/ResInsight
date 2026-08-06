@@ -35,8 +35,6 @@
 
 #include "RiuMainWindow.h"
 
-#include "cvfBase.h"
-
 #include <QInputDialog>
 
 namespace internal
