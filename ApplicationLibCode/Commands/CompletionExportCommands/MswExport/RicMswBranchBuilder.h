@@ -26,6 +26,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <QDateTime>
@@ -56,6 +57,42 @@ struct CellSegmentEntry
     double cellEndMD;
     int    lastSubSegmentNumber;
 };
+
+//--------------------------------------------------------------------------------------------------
+/// One fishbones lateral segment, recorded while the lateral branches are built so that effective
+/// diameters can be computed once all laterals of the well are known.
+//--------------------------------------------------------------------------------------------------
+struct FishbonesLateralSegment
+{
+    int    segmentNumber;
+    size_t globalCellIndex;
+    double equivalentDiameter;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Data collected across all fishbones of a well, used by applyEffectiveDiameters().
+//--------------------------------------------------------------------------------------------------
+struct FishbonesDiameterContext
+{
+    std::vector<FishbonesLateralSegment> lateralSegments;
+
+    /// Segment numbers of the first and second segment of each lateral having more than one segment.
+    std::vector<std::pair<int, int>> firstAndSecondSegments;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Replace the WELSEGS diameter of fishbones lateral segments with an effective diameter.
+///
+/// Several laterals may run through the same grid cell. The combined flow area is represented by
+/// Deff = sqrt(d1^2 + d2^2 + ..) over the lateral segments in that cell, see
+/// https://github.com/OPM/ResInsight/issues/7686
+///
+/// The first segment of a lateral shares its cell with the main bore and with the first segment of
+/// every other lateral on the same sub, which inflates Deff. It therefore inherits the effective
+/// diameter of the second segment of the same lateral, see
+/// https://github.com/OPM/ResInsight/issues/7731
+//--------------------------------------------------------------------------------------------------
+void applyEffectiveDiameters( const FishbonesDiameterContext& context, RigMswWellExportData& exportData );
 
 //--------------------------------------------------------------------------------------------------
 /// Convert a WellPathCellIntersectionInfo global-cell index to a RigMswCellIntersection (1-based i,j,k).
@@ -136,6 +173,7 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                                                   const std::string&                               wellNameForExport,
                                                   int&                                             segmentNumber,
                                                   int&                                             branchNumber,
-                                                  RiaDefines::EclipseUnitSystem                    unitSystem );
+                                                  RiaDefines::EclipseUnitSystem                    unitSystem,
+                                                  FishbonesDiameterContext&                        diameterContext );
 
 } // namespace RicMswBranchBuilder

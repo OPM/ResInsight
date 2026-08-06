@@ -49,12 +49,50 @@
 #include "Well/RigWellPath.h"
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <map>
 #include <set>
 
 namespace RicMswBranchBuilder
 {
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void applyEffectiveDiameters( const FishbonesDiameterContext& context, RigMswWellExportData& exportData )
+{
+    if ( context.lateralSegments.empty() ) return;
+
+    // Deff = sqrt(d1^2 + d2^2 + ..) for all lateral segments sharing a grid cell
+    std::map<size_t, double> sumOfSquaresPerCell;
+    for ( const auto& lateralSegment : context.lateralSegments )
+    {
+        sumOfSquaresPerCell[lateralSegment.globalCellIndex] += lateralSegment.equivalentDiameter * lateralSegment.equivalentDiameter;
+    }
+
+    std::map<int, double> effectiveDiameterPerSegment;
+    for ( const auto& lateralSegment : context.lateralSegments )
+    {
+        effectiveDiameterPerSegment[lateralSegment.segmentNumber] = std::sqrt( sumOfSquaresPerCell[lateralSegment.globalCellIndex] );
+    }
+
+    // Reduce the diameter of the segment sharing a cell with the main bore
+    for ( const auto& [firstSegment, secondSegment] : context.firstAndSecondSegments )
+    {
+        auto it = effectiveDiameterPerSegment.find( secondSegment );
+        if ( it != effectiveDiameterPerSegment.end() ) effectiveDiameterPerSegment[firstSegment] = it->second;
+    }
+
+    for ( auto& branch : exportData.branches )
+    {
+        for ( auto& segment : branch.segments )
+        {
+            auto it = effectiveDiameterPerSegment.find( segment.segmentNumber );
+            if ( it != effectiveDiameterPerSegment.end() && it->second > 0.0 ) segment.diameter = it->second;
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -739,7 +777,8 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                                                   const std::string&                               wellNameForExport,
                                                   int&                                             segmentNumber,
                                                   int&                                             branchNumber,
-                                                  RiaDefines::EclipseUnitSystem                    unitSystem )
+                                                  RiaDefines::EclipseUnitSystem                    unitSystem,
+                                                  FishbonesDiameterContext&                        diameterContext )
 {
     std::vector<RigMswBranch> result;
 
@@ -921,6 +960,9 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                         if ( firstLatSeg ) latSeg.description = lateralLabel;
                         latSeg.intersections = isNewCell ? std::vector<RigMswCellIntersection>{ *mci } : std::vector<RigMswCellIntersection>{};
 
+                        diameterContext.lateralSegments.push_back(
+                            { latSeg.segmentNumber, cellIntInfo.globCellIndex, subs->equivalentDiameter( unitSystem ) } );
+
                         latOutletSeg = latSeg.segmentNumber;
                         prevMD       = cellIntInfo.endMD;
                         prevTVD      = cellIntInfo.endTVD();
@@ -928,6 +970,12 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                         latSegs.push_back( std::move( latSeg ) );
                     }
                 }
+
+                if ( latSegs.size() > 1 )
+                {
+                    diameterContext.firstAndSecondSegments.emplace_back( latSegs[0].segmentNumber, latSegs[1].segmentNumber );
+                }
+
                 result.push_back( RigMswBranch{ latBranch, std::nullopt, std::move( latSegs ) } );
             }
         }

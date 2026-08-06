@@ -49,15 +49,16 @@ using CompletionType = RicWellPathExportMswTableData::CompletionType;
 /// Recursively build all WELSEGS/COMPSEGS/valve segments for one lateral (child well path)
 /// and any of its own child laterals.
 //--------------------------------------------------------------------------------------------------
-std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 eclipseCase,
-                                                const RimWellPath*              wellPath,
-                                                const RigMainGrid*              mainGrid,
-                                                int                             outletSegNum,
-                                                CompletionType                  completionType,
-                                                const std::optional<QDateTime>& exportDate,
-                                                int&                            segmentNumber,
-                                                int&                            branchNumber,
-                                                RiaDefines::EclipseUnitSystem   unitSystem )
+std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                                eclipseCase,
+                                                const RimWellPath*                             wellPath,
+                                                const RigMainGrid*                             mainGrid,
+                                                int                                            outletSegNum,
+                                                CompletionType                                 completionType,
+                                                const std::optional<QDateTime>&                exportDate,
+                                                int&                                           segmentNumber,
+                                                int&                                           branchNumber,
+                                                RiaDefines::EclipseUnitSystem                  unitSystem,
+                                                RicMswBranchBuilder::FishbonesDiameterContext& diameterContext )
 {
     std::vector<RigMswBranch> result;
     auto                      mswParameters = wellPath->mswCompletionParameters();
@@ -235,7 +236,8 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                          wellNameForExport,
                                                                          segmentNumber,
                                                                          branchNumber,
-                                                                         unitSystem );
+                                                                         unitSystem,
+                                                                         diameterContext );
         result.insert( result.end(), std::make_move_iterator( fishBranches.begin() ), std::make_move_iterator( fishBranches.end() ) );
     }
 
@@ -244,8 +246,16 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
     {
         const int grandchildOutlet =
             RicMswBranchBuilder::findOutletSegmentForMD( childCellSegMap, grandchild->wellPathTieIn()->branchValveMeasuredDepth() );
-        auto grandchildBranches =
-            buildLateralBranches( eclipseCase, grandchild, mainGrid, grandchildOutlet, completionType, exportDate, segmentNumber, branchNumber, unitSystem );
+        auto grandchildBranches = buildLateralBranches( eclipseCase,
+                                                        grandchild,
+                                                        mainGrid,
+                                                        grandchildOutlet,
+                                                        completionType,
+                                                        exportDate,
+                                                        segmentNumber,
+                                                        branchNumber,
+                                                        unitSystem,
+                                                        diameterContext );
         result.insert( result.end(), std::make_move_iterator( grandchildBranches.begin() ), std::make_move_iterator( grandchildBranches.end() ) );
     }
 
@@ -313,6 +323,9 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
     int                                                segmentNumber = 2; // Segment 1 is the implicit well heel.
     int                                                branchNumber  = 1; // Incremented for each new branch.
     std::vector<RicMswBranchBuilder::CellSegmentEntry> cellSegMap;
+
+    // Collected across the main bore and all tie-in laterals, applied once the branches are assembled.
+    RicMswBranchBuilder::FishbonesDiameterContext diameterContext;
 
     const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
@@ -396,7 +409,8 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                          wellNameForExport,
                                                                          segmentNumber,
                                                                          branchNumber,
-                                                                         unitSystem );
+                                                                         unitSystem,
+                                                                         diameterContext );
     }
 
     // Tie-in child laterals (recursive)
@@ -405,8 +419,16 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
     {
         const int childOutlet =
             RicMswBranchBuilder::findOutletSegmentForMD( cellSegMap, childWellPath->wellPathTieIn()->branchValveMeasuredDepth() );
-        auto childBranches =
-            buildLateralBranches( eclipseCase, childWellPath, mainGrid, childOutlet, completionType, exportDate, segmentNumber, branchNumber, unitSystem );
+        auto childBranches = buildLateralBranches( eclipseCase,
+                                                   childWellPath,
+                                                   mainGrid,
+                                                   childOutlet,
+                                                   completionType,
+                                                   exportDate,
+                                                   segmentNumber,
+                                                   branchNumber,
+                                                   unitSystem,
+                                                   diameterContext );
         lateralBranches.insert( lateralBranches.end(),
                                 std::make_move_iterator( childBranches.begin() ),
                                 std::make_move_iterator( childBranches.end() ) );
@@ -427,6 +449,9 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
     result.branches.insert( result.branches.end(),
                             std::make_move_iterator( lateralBranches.begin() ),
                             std::make_move_iterator( lateralBranches.end() ) );
+
+    RicMswBranchBuilder::applyEffectiveDiameters( diameterContext, result );
+
     return result;
 }
 
