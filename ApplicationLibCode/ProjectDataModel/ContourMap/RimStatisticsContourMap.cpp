@@ -586,8 +586,8 @@ void RimStatisticsContourMap::computeStatistics()
     computeStatisticsForMaps( { this } );
 }
 
-    cvf::BoundingBox gridBoundingBox = eclipseCase()->activeCellsBoundingBox();
-    gridBoundingBox.expandPercent( m_boundingBoxExpPercent(), m_boundingBoxExpPercent() );
+cvf::BoundingBox gridBoundingBox = eclipseCase()->activeCellsBoundingBox();
+gridBoundingBox.expandPercent( m_boundingBoxExpPercent(), m_boundingBoxExpPercent() );
 //--------------------------------------------------------------------------------------------------
 /// Compute statistics for several contour maps in one sweep over the ensemble realizations, so that
 /// each realization is opened once instead of once per contour map. All maps must belong to the
@@ -627,7 +627,7 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
     std::set<RimStatisticsContourMap*> uniqueMaps;
 
     for ( RimStatisticsContourMap* map : maps )
-{
+    {
         if ( map == nullptr || !uniqueMaps.insert( map ).second ) continue;
         if ( map->ensembleCases().empty() ) continue;
 
@@ -635,10 +635,10 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
         if ( primaryCase == nullptr ) continue;
 
         if ( !primaryOldSettings.contains( primaryCase ) )
-    {
+        {
             primaryOldSettings[primaryCase] = primaryCase->readerSettings();
             primaryCase->setReaderSettings( readerSettings );
-    }
+        }
 
         // A sibling map can be computed before its own initAfterRead() has run, and then the result
         // definition has no case to resolve the result address against, producing empty results
@@ -662,7 +662,7 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
         ctx.contourMapGrid = std::make_unique<RigContourMapGrid>( gridBoundingBox, sampleSpacing );
 
         if ( ctx.active )
-    {
+        {
             if ( ctx.useSharedGrid )
             {
                 if ( auto kLayers = findKLayersForFormations( primaryCase, map->selectedFormations(), map->activeFormationNames() ) )
@@ -677,20 +677,20 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                     ctx.sharedProjection->generateGridMapping( ctx.resultAggregation, {}, ctx.kLayers, map->selectedPolygons() );
                 }
                 else
-        {
+                {
                     RiaLogging::warning( "Formation names are missing for primary case, skipping statistics computation." );
                     ctx.active = false;
-        }
-    }
+                }
+            }
         }
 
         contexts.push_back( std::move( ctx ) );
-}
+    }
 
     const bool anyActive = std::any_of( contexts.begin(), contexts.end(), []( const MapContext& ctx ) { return ctx.active; } );
 
     if ( anyActive )
-{
+    {
         RiaLogging::info( std::format( "Computing statistics for {} ensemble contour map(s)", contexts.size() ) );
 
         // All maps belong to the same ensemble, so the realization cases are shared
@@ -701,26 +701,26 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
         for ( const auto& ctx : contexts )
             primaryCases.insert( ctx.map->eclipseCase() );
 
-    const size_t nCases = cases.size();
+        const size_t      nCases = cases.size();
         caf::ProgressInfo progInfo( nCases, QString( "Reading Eclipse Ensemble" ) );
-    int          i      = 1;
+        int               i = 1;
 
         // The key point of this loop is that each realization is opened once, contributes to all pending contour maps,
         // and is then closed again to release memory.
-    for ( RimEclipseCase* eCase : cases )
-    {
-        auto task = progInfo.task( QString( "Processing Case %1 of %2" ).arg( i++ ).arg( nCases ) );
-
-        RifReaderSettings oldSettings = eCase->readerSettings();
-        eCase->setReaderSettings( readerSettings );
-
-        if ( eCase->ensureReservoirCaseIsOpen() )
+        for ( RimEclipseCase* eCase : cases )
         {
-            RiaLogging::info( std::format( "Processing Grid: {}", eCase->caseUserDescription() ) );
+            auto task = progInfo.task( QString( "Processing Case %1 of %2" ).arg( i++ ).arg( nCases ) );
 
-            auto eclipseCaseData = eCase->eclipseCaseData();
+            RifReaderSettings oldSettings = eCase->readerSettings();
+            eCase->setReaderSettings( readerSettings );
+
+            if ( eCase->ensureReservoirCaseIsOpen() )
+            {
+                RiaLogging::info( std::format( "Processing Grid: {}", eCase->caseUserDescription() ) );
+
+                auto eclipseCaseData = eCase->eclipseCaseData();
                 auto activeCellInfo  = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-            auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+                auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
                 for ( auto& ctx : contexts )
                 {
@@ -730,7 +730,7 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                     auto                     localToGlobalTimeSteps = map->mapLocalToGlobalTimeSteps( eCase->timeStepDates() );
 
                     if ( ctx.useSharedGrid )
-            {
+                    {
                         ctx.sharedProjection->updateRealizationData( activeCellInfo, resultData );
                         extractCaseResults( *ctx.sharedProjection,
                                             map->m_resultDefinition()->eclipseResultAddress(),
@@ -746,24 +746,24 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                         {
                             RigEclipseContourMapProjection contourMapProjection( ctx.contourMapGrid.get(), eclipseCaseData, resultData );
                             contourMapProjection.generateGridMapping( ctx.resultAggregation, {}, *kLayers, map->selectedPolygons() );
-                extractCaseResults( contourMapProjection,
+                            extractCaseResults( contourMapProjection,
                                                 map->m_resultDefinition()->eclipseResultAddress(),
                                                 map->m_resultDefinition()->hasDynamicResult(),
                                                 ctx.resultAggregation,
                                                 ctx.floodSettings,
                                                 localToGlobalTimeSteps,
                                                 ctx.timestepResults );
-            }
-            else
-            {
+                        }
+                        else
+                        {
                             RiaLogging::warning(
                                 std::format( "Formation names are missing for case {}, skipping case.", eCase->caseUserDescription() ) );
-            }
-        }
+                        }
+                    }
                 }
             }
 
-        eCase->setReaderSettings( oldSettings );
+            eCase->setReaderSettings( oldSettings );
 
             // Release the grid data for cases that were opened only to compute statistics. A case is kept open if it has
             // its own views, if it is the primary case of one of the contour maps, or if it is displayed in one of the
@@ -771,8 +771,8 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
             if ( eCase->views().empty() && !primaryCases.contains( eCase ) && !casesInViews.contains( eCase ) )
             {
                 eCase->closeReservoirCase();
-    }
-}
+            }
+        }
     }
 
     for ( auto& [primaryCase, settings] : primaryOldSettings )
@@ -945,7 +945,7 @@ void RimStatisticsContourMap::ensureResultsComputed()
         for ( auto sibling : ensemble->statisticsContourMaps() )
         {
             if ( sibling != this && !sibling->m_contourMapGrid && !sibling->views().empty() ) maps.push_back( sibling );
-}
+        }
     }
 
     computeStatisticsForMaps( maps );
