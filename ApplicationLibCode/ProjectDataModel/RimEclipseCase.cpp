@@ -1122,6 +1122,15 @@ bool RimEclipseCase::ensureReservoirCaseIsOpen()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseCase::isReservoirCaseOpen() const
+{
+    // for most grid case types, this is a sufficient test
+    return eclipseCaseData() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseCase::openReservoirCase()
 {
     if ( !openEclipseGridFile() )

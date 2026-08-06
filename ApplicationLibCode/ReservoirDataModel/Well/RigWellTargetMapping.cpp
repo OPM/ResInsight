@@ -24,6 +24,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
 #include "RiaWeightedMeanCalculator.h"
@@ -419,19 +420,43 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( const std:
     resultNamesAndSamples["TOTAL_SFIPOIL"]        = {};
     resultNamesAndSamples["TOTAL_SFIPGAS"]        = {};
 
+    auto readerSettings                = RiaPreferencesGrid::gridOnlyReaderSettings();
+    readerSettings.onlyLoadActiveCells = true;
+
+    auto oldReaderType = RiaPreferencesGrid::current()->gridModelReaderOverride();
+    RiaPreferencesGrid::current()->setGridModelReaderOverride( RiaDefines::GridModelReader::OPM_COMMON );
+
     for ( auto eclipseCase : cases )
     {
         auto task = progInfo.task( "Generating realization statistics.", 1 );
 
-        bool closeGrid = ( eclipseCase->eclipseCaseData() == nullptr );
+        bool closeGrid = ( eclipseCase->isReservoirCaseOpen() );
+
+        if ( closeGrid )
+        {
+            RiaLogging::debug( QString( "Opening grid for case: %1" ).arg( eclipseCase->gridFileName() ).toStdString() );
+        }
+
+        auto oldReaderSettings = eclipseCase->readerSettings();
+        if ( closeGrid )
+        {
+            eclipseCase->setReaderSettings( readerSettings );
+        }
 
         if ( eclipseCase->ensureReservoirCaseIsOpen() )
         {
             generateCandidates( eclipseCase, timeStepIdx, volumeType, volumesType, volumeResultType, floodingSettings, limits, false );
             RigWellTargetMappingTools::accumulateResultsForSingleCase( *eclipseCase, *targetCase, resultNamesAndSamples, occurrence, timeStepIdx );
         }
-        if ( closeGrid ) eclipseCase->closeReservoirCase();
+        if ( closeGrid )
+        {
+            eclipseCase->closeReservoirCase();
+            eclipseCase->setReaderSettings( oldReaderSettings );
+            RiaLogging::debug( QString( "Closing grid for case: %1" ).arg( eclipseCase->gridFileName() ).toStdString() );
+        }
     }
+
+    RiaPreferencesGrid::current()->setGridModelReaderOverride( oldReaderType );
 
     auto createFractionVector = []( const std::vector<int>& occurrence, int maxRealizationCount ) -> std::vector<double>
     {

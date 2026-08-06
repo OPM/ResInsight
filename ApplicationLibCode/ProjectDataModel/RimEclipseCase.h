@@ -88,6 +88,7 @@ public:
 
     bool         ensureReservoirCaseIsOpen();
     bool         openReservoirCase();
+    virtual bool isReservoirCaseOpen() const;
     virtual void closeReservoirCase();
     virtual bool openEclipseGridFile() = 0;
     virtual void reloadEclipseGridFile();

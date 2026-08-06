@@ -418,6 +418,14 @@ void RimEclipseResultCase::closeReservoirCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseResultCase::isReservoirCaseOpen() const
+{
+    return RimEclipseCase::isReservoirCaseOpen() && m_gridAndWellDataIsReadFromFile && m_activeCellInfoIsReadFromFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEclipseCase )
 {
     // Early exit if data is already read
