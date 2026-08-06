@@ -59,14 +59,26 @@ struct CellSegmentEntry
 };
 
 //--------------------------------------------------------------------------------------------------
-/// One fishbones lateral segment, recorded while the lateral branches are built so that effective
-/// diameters can be computed once all laterals of the well are known.
+/// One grid-cell intersection of a fishbones lateral, recorded while the lateral branches are built
+/// so that effective diameters can be computed once all laterals of the well are known.
+///
+/// A cell intersection longer than the max segment length is split into several WELSEGS rows. They
+/// all belong to the same intersection and share one effective diameter, so the segment numbers are
+/// kept together here.
 //--------------------------------------------------------------------------------------------------
 struct FishbonesLateralSegment
 {
-    int    segmentNumber;
-    size_t globalCellIndex;
-    double equivalentDiameter;
+    std::vector<int> segmentNumbers;
+    size_t           globalCellIndex;
+    double           equivalentDiameter;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// The cell intersections of one fishbones lateral, in order from the ICD sub and outwards.
+//--------------------------------------------------------------------------------------------------
+struct FishbonesLateral
+{
+    std::vector<FishbonesLateralSegment> segments;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -83,11 +95,7 @@ struct FishbonesIcdSegment
 //--------------------------------------------------------------------------------------------------
 struct FishbonesExportContext
 {
-    std::vector<FishbonesLateralSegment> lateralSegments;
-
-    /// Segment numbers of the first and second segment of each lateral having more than one segment.
-    std::vector<std::pair<int, int>> firstAndSecondSegments;
-
+    std::vector<FishbonesLateral>    laterals;
     std::vector<FishbonesIcdSegment> icdSegments;
 };
 
@@ -98,9 +106,9 @@ struct FishbonesExportContext
 /// Deff = sqrt(d1^2 + d2^2 + ..) over the lateral segments in that cell, see
 /// https://github.com/OPM/ResInsight/issues/7686
 ///
-/// The first segment of a lateral shares its cell with the main bore and with the first segment of
-/// every other lateral on the same sub, which inflates Deff. It therefore inherits the effective
-/// diameter of the second segment of the same lateral, see
+/// The first cell intersection of a lateral shares its cell with the main bore and with the first
+/// intersection of every other lateral on the same sub, which inflates Deff. It therefore inherits
+/// the effective diameter of the second intersection of the same lateral, see
 /// https://github.com/OPM/ResInsight/issues/7731
 //--------------------------------------------------------------------------------------------------
 void applyEffectiveDiameters( const FishbonesExportContext& context, RigMswWellExportData& exportData );
@@ -193,6 +201,8 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                                                   const std::string&                               wellNameForExport,
                                                   int&                                             segmentNumber,
                                                   int&                                             branchNumber,
+                                                  double                                           maxSegmentLength,
+                                                  const std::vector<std::pair<double, double>>&    customSegmentIntervals,
                                                   RiaDefines::EclipseUnitSystem                    unitSystem,
                                                   FishbonesExportContext&                          fishbonesContext );
 
