@@ -112,6 +112,36 @@ RiaLogging::info( QString( "Exported %1 cells for well '%2'." ).arg( count ).arg
 RiaLogging::info( std::format( "Exported {} cells for well '{}'.", count, wellName ) );
 ```
 
+### Asserts
+
+Use `CAF_ASSERT` (`cafAssert.h`). Do not add new `CVF_ASSERT`, `CVF_ASSERT_MSG`, `CVF_FAIL_MSG` or `CVF_TIGHT_ASSERT` — those are legacy and are being migrated away from.
+
+An assert documents an invariant that holds whenever the program is correct. It is not error handling. Conditions that can legitimately occur at run time — a missing file, a malformed input deck, a failed network call, a user selecting nothing — must be handled with a return value, `std::optional`, `std::expected` or a logged error message, never with an assert.
+
+```cpp
+// Bad – a missing file is a run-time condition, not a broken invariant
+CAF_ASSERT( QFile::exists( fileName ) );
+
+// Good – handled and reported
+if ( !QFile::exists( fileName ) )
+{
+    RiaLogging::error( std::format( "File not found: {}", fileName ) );
+    return {};
+}
+
+// Good – a broken invariant, unreachable unless the code is wrong
+CAF_ASSERT( index >= 0 && index < m_values.size() );
+```
+
+`CAF_ASSERT` follows the semantics of the standard `assert()`:
+
+- **Debug builds**: active. A failure prints file, line and expression, then calls `std::abort()`.
+- **Optimized builds** (Release, RelWithDebInfo): compiled out. The expression is still type checked but never evaluated, so it must be free of side effects — never put work inside the assert that the surrounding code depends on.
+
+Configure with `-DRESINSIGHT_ENABLE_ASSERTS_IN_RELEASE=ON` to keep the asserts active in an optimized build, which is useful when reproducing a problem in RelWithDebInfo with a debugger attached.
+
+A failing assert aborts via `SIGABRT`, which the crash handler installed in `RiaMain.cpp` picks up: the failure is written to the log file and reported to OpenTelemetry with a stack trace.
+
 ### Lambda Functions
 
 Keep lambdas short and readable:
