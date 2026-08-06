@@ -141,6 +141,25 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 # ##############################################################################
+# Asserts
+# ##############################################################################
+
+# CAF_ASSERT follows the semantics of the standard assert(): active in Debug,
+# compiled out in optimized builds (Release, RelWithDebInfo, MinSizeRel). Enable
+# this option to keep the asserts active in an optimized build as well, which is
+# useful when reproducing a problem in a RelWithDebInfo build with a debugger
+# attached.
+option(RESINSIGHT_ENABLE_ASSERTS_IN_RELEASE
+       "Keep CAF_ASSERT active in optimized builds (Release, RelWithDebInfo)"
+       OFF
+)
+mark_as_advanced(RESINSIGHT_ENABLE_ASSERTS_IN_RELEASE)
+if(RESINSIGHT_ENABLE_ASSERTS_IN_RELEASE)
+  message(STATUS "Enabling CAF_ASSERT in optimized builds")
+  add_definitions(-DCAF_ENABLE_ASSERTS=1)
+endif()
+
+# ##############################################################################
 # OpenMP
 # ##############################################################################
 option(RESINSIGHT_USE_OPENMP "Enable OpenMP parallellization in the code" ON)
