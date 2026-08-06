@@ -148,13 +148,9 @@ void RimEnsembleFileSet::findAndSetPathPatternAndRangeString( const QStringList&
 
     const auto& [pattern, rangeString] = RiaEnsembleImportTools::findPathPattern( normalizedPaths, internal::placeholderString() );
 
-    // find the pattern without extension by finding . and remove rest of string
-    auto noExtension = pattern;
-    auto dotIndex    = noExtension.lastIndexOf( '.' );
-    if ( dotIndex != -1 )
-    {
-        noExtension = noExtension.left( dotIndex );
-    }
+    // The file paths can be given with or without a file extension. Remove the extension if present, without
+    // truncating a folder name containing a dot.
+    auto noExtension = RiaFilePathTools::removeFileExtension( pattern );
 
     m_pathPattern                     = noExtension;
     m_realizationNumbersReadFromFiles = rangeString;

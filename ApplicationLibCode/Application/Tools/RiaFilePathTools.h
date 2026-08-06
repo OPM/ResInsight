@@ -40,6 +40,7 @@ QString                     canonicalPath( const QString& path );
 std::pair<QString, QString> toFolderAndFileName( const QString& absFileName );
 QString                     removeDuplicatePathSeparators( const QString& path );
 QString                     rootSearchPathFromSearchFilter( const QString& searchFilter );
+QString                     removeFileExtension( const QString& filePath );
 QString                     commonRootOfFileNames( const QStringList& filePaths );
 std::string                 makeSuitableAsFileName( const std::string candidateName );
 std::string                 normalizePath( std::string path );

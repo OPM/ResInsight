@@ -194,6 +194,18 @@ QString rootSearchPathFromSearchFilter( const QString& searchFilter )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Remove the file extension, if any. A folder name can contain a dot, and only the extension of the file
+/// name is removed. Paths without a file extension are returned unmodified.
+//--------------------------------------------------------------------------------------------------
+QString removeFileExtension( const QString& filePath )
+{
+    // Use UTF-16 in both directions to avoid lossy conversion of non-ASCII paths
+    std::filesystem::path path( filePath.toStdU16String() );
+
+    return QString::fromStdU16String( path.replace_extension().u16string() );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QString commonRootOfFileNames( const QStringList& fileList )
