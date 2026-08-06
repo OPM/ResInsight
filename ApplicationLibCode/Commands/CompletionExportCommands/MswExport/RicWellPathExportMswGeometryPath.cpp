@@ -236,6 +236,8 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                          wellNameForExport,
                                                                          segmentNumber,
                                                                          branchNumber,
+                                                                         mswParameters->maxSegmentLength(),
+                                                                         {},
                                                                          unitSystem,
                                                                          fishbonesContext );
         result.insert( result.end(), std::make_move_iterator( fishBranches.begin() ), std::make_move_iterator( fishBranches.end() ) );
@@ -409,6 +411,8 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                          wellNameForExport,
                                                                          segmentNumber,
                                                                          branchNumber,
+                                                                         maxSegmentLength,
+                                                                         customSegmentIntervals,
                                                                          unitSystem,
                                                                          fishbonesContext );
     }

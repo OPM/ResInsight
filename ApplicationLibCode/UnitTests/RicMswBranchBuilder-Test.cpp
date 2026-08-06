@@ -425,22 +425,40 @@ TEST( RicMswBranchBuilder, IcdAreaPerCell_NonIcdValveIsUntouched )
 TEST( RicMswBranchBuilder, EffectiveDiameters_SharedCellCombinesDiameters )
 {
     FishbonesExportContext context;
-    context.lateralSegments.push_back( { 10, 100, 0.0096 } );
-    context.lateralSegments.push_back( { 20, 100, 0.0096 } );
-    context.lateralSegments.push_back( { 30, 100, 0.0096 } );
+    context.laterals.push_back( { { { { 10 }, 100, 0.0096 } } } );
+    context.laterals.push_back( { { { { 20 }, 100, 0.0096 } } } );
+    context.laterals.push_back( { { { { 30 }, 100, 0.0096 } } } );
 
     auto exportData = makeExportData( { { 10, 0.0 }, { 20, 0.0 }, { 30, 0.0 } } );
     applyEffectiveDiameters( context, exportData );
 
     const double expected = std::sqrt( 3.0 ) * 0.0096;
-    for ( int segmentNumber : { 10, 20, 30 } )
+    for ( const auto& segment : exportData.branches[0].segments )
     {
-        for ( const auto& segment : exportData.branches[0].segments )
-        {
-            if ( segment.segmentNumber != segmentNumber ) continue;
-            ASSERT_TRUE( segment.diameter.has_value() );
-            EXPECT_NEAR( expected, *segment.diameter, 1.0e-12 );
-        }
+        ASSERT_TRUE( segment.diameter.has_value() );
+        EXPECT_NEAR( expected, *segment.diameter, 1.0e-12 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A cell intersection split into several WELSEGS rows contributes once to the sum, and all its rows
+/// get the same effective diameter.
+//--------------------------------------------------------------------------------------------------
+TEST( RicMswBranchBuilder, EffectiveDiameters_SplitIntersectionCountsOnce )
+{
+    FishbonesExportContext context;
+    context.laterals.push_back( { { { { 10, 11, 12 }, 100, 0.0096 } } } );
+    context.laterals.push_back( { { { { 20 }, 100, 0.0096 } } } );
+
+    auto exportData = makeExportData( { { 10, 0.0 }, { 11, 0.0 }, { 12, 0.0 }, { 20, 0.0 } } );
+    applyEffectiveDiameters( context, exportData );
+
+    // Two intersections in cell 100, not four rows.
+    const double expected = std::sqrt( 2.0 ) * 0.0096;
+    for ( const auto& segment : exportData.branches[0].segments )
+    {
+        ASSERT_TRUE( segment.diameter.has_value() );
+        EXPECT_NEAR( expected, *segment.diameter, 1.0e-12 );
     }
 }
 
@@ -452,10 +470,8 @@ TEST( RicMswBranchBuilder, EffectiveDiameters_FirstSegmentInheritsSecond )
     FishbonesExportContext context;
 
     // Two laterals start in cell 100, only the first one continues into cell 200.
-    context.lateralSegments.push_back( { 10, 100, 0.0096 } );
-    context.lateralSegments.push_back( { 11, 200, 0.0096 } );
-    context.lateralSegments.push_back( { 20, 100, 0.0096 } );
-    context.firstAndSecondSegments.emplace_back( 10, 11 );
+    context.laterals.push_back( { { { { 10 }, 100, 0.0096 }, { { 11 }, 200, 0.0096 } } } );
+    context.laterals.push_back( { { { { 20 }, 100, 0.0096 } } } );
 
     auto exportData = makeExportData( { { 10, 0.0 }, { 11, 0.0 }, { 20, 0.0 } } );
     applyEffectiveDiameters( context, exportData );
@@ -466,6 +482,6 @@ TEST( RicMswBranchBuilder, EffectiveDiameters_FirstSegmentInheritsSecond )
     EXPECT_NEAR( 0.0096, *segments[0].diameter, 1.0e-12 );
     EXPECT_NEAR( 0.0096, *segments[1].diameter, 1.0e-12 );
 
-    // Segment 20 has no second segment and keeps the combined value of cell 100.
+    // The second lateral has a single intersection and keeps the combined value of cell 100.
     EXPECT_NEAR( std::sqrt( 2.0 ) * 0.0096, *segments[2].diameter, 1.0e-12 );
 }

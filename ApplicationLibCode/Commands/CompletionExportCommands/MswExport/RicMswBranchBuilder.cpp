@@ -62,26 +62,38 @@ namespace RicMswBranchBuilder
 //--------------------------------------------------------------------------------------------------
 void applyEffectiveDiameters( const FishbonesExportContext& context, RigMswWellExportData& exportData )
 {
-    if ( context.lateralSegments.empty() ) return;
+    if ( context.laterals.empty() ) return;
 
-    // Deff = sqrt(d1^2 + d2^2 + ..) for all lateral segments sharing a grid cell
+    // Deff = sqrt(d1^2 + d2^2 + ..) for all cell intersections sharing a grid cell. A cell
+    // intersection contributes once, no matter how many WELSEGS rows it was split into.
     std::map<size_t, double> sumOfSquaresPerCell;
-    for ( const auto& lateralSegment : context.lateralSegments )
+    for ( const auto& lateral : context.laterals )
     {
-        sumOfSquaresPerCell[lateralSegment.globalCellIndex] += lateralSegment.equivalentDiameter * lateralSegment.equivalentDiameter;
+        for ( const auto& lateralSegment : lateral.segments )
+        {
+            sumOfSquaresPerCell[lateralSegment.globalCellIndex] += lateralSegment.equivalentDiameter * lateralSegment.equivalentDiameter;
+        }
     }
 
     std::map<int, double> effectiveDiameterPerSegment;
-    for ( const auto& lateralSegment : context.lateralSegments )
+    for ( const auto& lateral : context.laterals )
     {
-        effectiveDiameterPerSegment[lateralSegment.segmentNumber] = std::sqrt( sumOfSquaresPerCell[lateralSegment.globalCellIndex] );
-    }
+        std::vector<double> effectiveDiameters;
+        for ( const auto& lateralSegment : lateral.segments )
+        {
+            effectiveDiameters.push_back( std::sqrt( sumOfSquaresPerCell[lateralSegment.globalCellIndex] ) );
+        }
 
-    // Reduce the diameter of the segment sharing a cell with the main bore
-    for ( const auto& [firstSegment, secondSegment] : context.firstAndSecondSegments )
-    {
-        auto it = effectiveDiameterPerSegment.find( secondSegment );
-        if ( it != effectiveDiameterPerSegment.end() ) effectiveDiameterPerSegment[firstSegment] = it->second;
+        // Reduce the diameter of the cell intersection shared with the main bore
+        if ( effectiveDiameters.size() > 1 ) effectiveDiameters[0] = effectiveDiameters[1];
+
+        for ( size_t i = 0; i < lateral.segments.size(); i++ )
+        {
+            for ( auto segmentNumber : lateral.segments[i].segmentNumbers )
+            {
+                effectiveDiameterPerSegment[segmentNumber] = effectiveDiameters[i];
+            }
+        }
     }
 
     for ( auto& branch : exportData.branches )
@@ -842,6 +854,8 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                                                   const std::string&                               wellNameForExport,
                                                   int&                                             segmentNumber,
                                                   int&                                             branchNumber,
+                                                  double                                           maxSegmentLength,
+                                                  const std::vector<std::pair<double, double>>&    customSegmentIntervals,
                                                   RiaDefines::EclipseUnitSystem                    unitSystem,
                                                   FishbonesExportContext&                          fishbonesContext )
 {
@@ -998,52 +1012,80 @@ std::vector<RigMswBranch> buildFishbonesBranches( const RimEclipseCase*         
                 const auto lateralLabel = QString( "Lateral %1" ).arg( lateralIndex + 1 ).toStdString();
 
                 std::vector<RigMswSegment> latSegs;
+                FishbonesLateral           lateralContext;
                 for ( const auto& cellIntInfo : lateralIntersections )
                 {
                     if ( auto mci = toMswCellIntersection( cellIntInfo, mainGrid, cellIntInfo.startMD, cellIntInfo.endMD ) )
                     {
-                        double len = 0.0;
-                        double dep = 0.0;
-                        if ( infoType == "INC" )
-                        {
-                            len = cellIntInfo.endMD - prevMD;
-                            dep = cellIntInfo.endTVD() - prevTVD;
-                        }
-                        else
-                        {
-                            len = cellIntInfo.endMD;
-                            dep = cellIntInfo.endTVD();
-                        }
-
                         // Deduplicate COMPSEGS: skip cells already connected (matching tree intersectedCells logic)
                         const bool isNewCell = usedGlobalCellIndices.insert( cellIntInfo.globCellIndex ).second;
 
-                        RigMswSegment latSeg;
-                        latSeg.segmentNumber       = segmentNumber++;
-                        latSeg.outletSegmentNumber = latOutletSeg;
-                        latSeg.length              = len;
-                        latSeg.depth               = dep;
-                        latSeg.diameter            = subs->equivalentDiameter( unitSystem );
-                        latSeg.roughness           = subs->openHoleRoughnessFactor( unitSystem );
-                        latSeg.sourceWellName      = wellPath->name().toStdString();
-                        if ( firstLatSeg ) latSeg.description = lateralLabel;
-                        latSeg.intersections = isNewCell ? std::vector<RigMswCellIntersection>{ *mci } : std::vector<RigMswCellIntersection>{};
+                        const double startMD  = prevMD;
+                        const double endMD    = cellIntInfo.endMD;
+                        const double startTVD = prevTVD;
+                        const double endTVD   = cellIntInfo.endTVD();
 
-                        fishbonesContext.lateralSegments.push_back(
-                            { latSeg.segmentNumber, cellIntInfo.globCellIndex, subs->equivalentDiameter( unitSystem ) } );
+                        FishbonesLateralSegment lateralSegmentContext;
+                        lateralSegmentContext.globalCellIndex    = cellIntInfo.globCellIndex;
+                        lateralSegmentContext.equivalentDiameter = subs->equivalentDiameter( unitSystem );
 
-                        latOutletSeg = latSeg.segmentNumber;
-                        prevMD       = cellIntInfo.endMD;
-                        prevTVD      = cellIntInfo.endTVD();
-                        firstLatSeg  = false;
-                        latSegs.push_back( std::move( latSeg ) );
+                        const auto subSegs =
+                            RicMswTableDataTools::createSubSegmentMDPairs( startMD, endMD, maxSegmentLength, customSegmentIntervals );
+
+                        bool firstSubSeg = true;
+                        for ( const auto& [subStartMD, subEndMD] : subSegs )
+                        {
+                            // The lateral geometry is not part of the well path, so the TVD of a sub-segment
+                            // cannot be interpolated along the well path. Interpolate linearly instead.
+                            const double mdRange     = endMD - startMD;
+                            const double startWeight = mdRange > 0.0 ? ( subStartMD - startMD ) / mdRange : 0.0;
+                            const double endWeight   = mdRange > 0.0 ? ( subEndMD - startMD ) / mdRange : 1.0;
+
+                            const double subStartTVD = startTVD * ( 1.0 - startWeight ) + endTVD * startWeight;
+                            const double subEndTVD   = startTVD * ( 1.0 - endWeight ) + endTVD * endWeight;
+
+                            double len = 0.0;
+                            double dep = 0.0;
+                            if ( infoType == "INC" )
+                            {
+                                len = subEndMD - subStartMD;
+                                dep = subEndTVD - subStartTVD;
+                            }
+                            else
+                            {
+                                len = subEndMD;
+                                dep = subEndTVD;
+                            }
+
+                            RigMswSegment latSeg;
+                            latSeg.segmentNumber       = segmentNumber++;
+                            latSeg.outletSegmentNumber = latOutletSeg;
+                            latSeg.length              = len;
+                            latSeg.depth               = dep;
+                            latSeg.diameter            = subs->equivalentDiameter( unitSystem );
+                            latSeg.roughness           = subs->openHoleRoughnessFactor( unitSystem );
+                            latSeg.sourceWellName      = wellPath->name().toStdString();
+                            if ( firstLatSeg ) latSeg.description = lateralLabel;
+
+                            // The cell is connected by the first sub-segment only
+                            if ( firstSubSeg && isNewCell ) latSeg.intersections = { *mci };
+
+                            lateralSegmentContext.segmentNumbers.push_back( latSeg.segmentNumber );
+
+                            latOutletSeg = latSeg.segmentNumber;
+                            firstLatSeg  = false;
+                            firstSubSeg  = false;
+                            latSegs.push_back( std::move( latSeg ) );
+                        }
+
+                        lateralContext.segments.push_back( std::move( lateralSegmentContext ) );
+
+                        prevMD  = cellIntInfo.endMD;
+                        prevTVD = cellIntInfo.endTVD();
                     }
                 }
 
-                if ( latSegs.size() > 1 )
-                {
-                    fishbonesContext.firstAndSecondSegments.emplace_back( latSegs[0].segmentNumber, latSegs[1].segmentNumber );
-                }
+                fishbonesContext.laterals.push_back( std::move( lateralContext ) );
 
                 result.push_back( RigMswBranch{ latBranch, std::nullopt, std::move( latSegs ) } );
             }
