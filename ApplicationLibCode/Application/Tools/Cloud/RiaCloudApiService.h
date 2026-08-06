@@ -47,8 +47,20 @@ public:
     void stop();
     void restart();
 
+    // True as soon as the process has been launched, which is not the same as the service being
+    // usable: uvicorn may still be booting, or may be about to exit on a missing dependency.
     bool isRunning() const;
-    int  port() const;
+
+    // True once the service has answered a health check, i.e. it is actually serving requests.
+    bool isResponding() const;
+
+    int port() const;
+
+signals:
+    // Emitted when isRunning() or isResponding() changes, so that user interface elements showing
+    // the server status can refresh. The status changes without any user interaction, driven by the
+    // health check and by the process exiting on its own.
+    void statusChanged();
 
 private slots:
     void onHealthCheck();
@@ -65,6 +77,7 @@ private:
     QTimer                 m_startupTimer;
     QTimer                 m_healthTimer;
 
-    int m_port;
-    int m_consecutiveFailures;
+    int  m_port;
+    int  m_consecutiveFailures;
+    bool m_isResponding;
 };

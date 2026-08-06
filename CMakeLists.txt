@@ -441,7 +441,9 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   mark_as_advanced(RESINSIGHT_UPDATE_SUBMODULES)
 
   if(RESINSIGHT_UPDATE_SUBMODULES)
-    set(SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty")
+    set(SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty"
+               "${PROJECT_SOURCE_DIR}/scripts/ri-cloud-api"
+    )
     message(STATUS "Initializing GIT submodules")
     execute_process(
       COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive -- ${SUBDIR}
@@ -1335,9 +1337,17 @@ endif(RESINSIGHT_BUILD_DOCUMENTATION)
 # Installation packaging Cloud Service API
 # ##############################################################################
 set(CLOUD_SERVICE_API_PYTHON_SOURCE_PATH
-    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/ri_cloud_api"
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/ri-cloud-api"
 )
 
-install(DIRECTORY ${CLOUD_SERVICE_API_PYTHON_SOURCE_PATH}/
-        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/CloudServiceApi/ri_cloud_api
+# The contents of the repository are installed side by side, so that the service can be started
+# with 'CloudServiceApi' as working directory, importing the 'ri_cloud_api' package and resolving
+# the workspace libraries in 'libs'.
+install(
+  DIRECTORY ${CLOUD_SERVICE_API_PYTHON_SOURCE_PATH}/
+  DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/CloudServiceApi
+  PATTERN ".git*" EXCLUDE
+  PATTERN "__pycache__" EXCLUDE
+  PATTERN ".venv" EXCLUDE
+  PATTERN ".*_cache" EXCLUDE
 )

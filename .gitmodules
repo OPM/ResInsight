@@ -28,3 +28,6 @@
 [submodule "ThirdParty/custom-opm-flowdiag-app/opm-flowdiagnostics-applications"]
 	path = ThirdParty/custom-opm-flowdiag-app/opm-flowdiagnostics-applications
 	url = https://github.com/CeetronSolutions/opm-flowdiagnostics-applications
+[submodule "scripts/ri-cloud-api"]
+	path = scripts/ri-cloud-api
+	url = https://github.com/OPM/ri-cloud-api

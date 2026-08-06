@@ -249,12 +249,20 @@ void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::
     // Cloud server group
     auto serverGroup = uiOrdering.addNewGroup( QString( "Cloud API Server %1" ).arg( RiaDefines::betaFeaturePostfix() ) );
 
-    auto*   cloudApiService = RiaApplication::instance()->cloudApiService();
-    bool    isServerRunning = cloudApiService && cloudApiService->isRunning();
-    QString serverStatus    = "Server Status: ";
-    if ( isServerRunning )
+    auto* cloudApiService = RiaApplication::instance()->cloudApiService();
+    bool  isServerRunning = cloudApiService && cloudApiService->isRunning();
+
+    // A launched process is not yet a working server: uvicorn may still be booting, or may be about
+    // to exit on a missing dependency. Only report "Running" once a health check has succeeded.
+    bool    isServerResponding = cloudApiService && cloudApiService->isResponding();
+    QString serverStatus       = "Server Status: ";
+    if ( isServerResponding )
     {
         serverStatus += QString( "<font color='#228B22'>✔ Running (port %1)</font>" ).arg( cloudApiService->port() );
+    }
+    else if ( isServerRunning )
+    {
+        serverStatus += QString( "<font color='#FFA500'>… Starting (port %1)</font>" ).arg( cloudApiService->port() );
     }
     else
     {
