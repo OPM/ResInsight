@@ -19,6 +19,7 @@
 #include "RicNewContourMapViewFeature.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
 
@@ -51,7 +52,7 @@
 
 #include "RiaColorTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferencesGrid.h"
+#include "RiaResultNames.h"
 
 #include "cafPdmDocument.h"
 #include "cafSelectionManager.h"
@@ -311,7 +312,11 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
     contourMap->setEclipseCase( eclipseCase );
     contourMap->resetDockWindowId();
 
-    assignDefaultResultAndLegend( contourMap );
+    // Prefer the cell result of an existing view for this case, fall back to the default result of the case
+    if ( !assignResultFromExistingView( contourMap ) )
+    {
+        assignDefaultResultAndLegend( contourMap );
+    }
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 
@@ -415,13 +420,35 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMap( 
 //--------------------------------------------------------------------------------------------------
 void RicNewContourMapViewFeature::assignDefaultResultAndLegend( RimEclipseContourMapView* contourMap )
 {
-    if ( contourMap->cellResult() )
-    {
-        contourMap->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+    if ( !contourMap->cellResult() ) return;
 
-        if ( RiaPreferencesGrid::current()->loadAndShowSoil() )
-        {
-            contourMap->cellResult()->setResultVariable( "SOIL" );
-        }
+    // Use the default result of the case, as this result is guaranteed to be available. See issue #14486.
+    if ( auto cellResultsData = contourMap->currentGridCellResults() )
+    {
+        contourMap->cellResult()->setFromEclipseResultAddress( cellResultsData->defaultResult() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Use the cell result of an existing view for the same case, if this result is available
+//--------------------------------------------------------------------------------------------------
+bool RicNewContourMapViewFeature::assignResultFromExistingView( RimEclipseContourMapView* contourMap )
+{
+    if ( !contourMap->cellResult() || !contourMap->eclipseCase() ) return false;
+
+    for ( auto view : contourMap->eclipseCase()->reservoirViews() )
+    {
+        if ( !view || view == contourMap ) continue;
+
+        auto sourceCellResult = view->cellResult();
+        if ( !sourceCellResult || sourceCellResult->isTernarySaturationSelected() || !sourceCellResult->hasResult() ) continue;
+
+        // Completion Type is a category result, and is not useful as a contour map data source
+        if ( sourceCellResult->resultVariable() == RiaResultNames::completionTypeResultName() ) continue;
+
+        contourMap->cellResult()->setFromEclipseResultAddress( sourceCellResult->eclipseResultAddress() );
+        return true;
+    }
+
+    return false;
 }
