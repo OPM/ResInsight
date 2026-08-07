@@ -30,6 +30,7 @@ jobs:
               execute-pytests: true,
               unity-build: true,
               publish-to-pypi: false,
+              enable-asserts: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
               qt-version: 6.10.1,
               ri-unit-test-path: "ResInsight-tests",
@@ -44,6 +45,7 @@ jobs:
               execute-pytests: true,
               unity-build: false,
               publish-to-pypi: true,
+              enable-asserts: false,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
               qt-version: 6.7.0,
               ri-unit-test-path: "ResInsight-tests",
@@ -58,6 +60,7 @@ jobs:
               execute-pytests: false,
               unity-build: false,
               publish-to-pypi: false,
+              enable-asserts: true,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
               qt-version: 6.7.0,
               ri-unit-test-path: "ResInsight-tests",
@@ -271,6 +274,7 @@ jobs:
           -DRESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
           -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=false
           -DRESINSIGHT_ENABLE_UNITY_BUILD=${{ matrix.config.unity-build }}
+          -DRESINSIGHT_ENABLE_ASSERTS_IN_RELEASE=${{ matrix.config.enable-asserts }}
           -DRESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
           -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
           -DRESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
