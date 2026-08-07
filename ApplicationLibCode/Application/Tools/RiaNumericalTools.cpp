@@ -46,7 +46,8 @@ double RiaNumericalTools::roundToClosestPowerOfTenFloor( double value )
 //--------------------------------------------------------------------------------------------------
 double RiaNumericalTools::computeTenExponentCeil( double value )
 {
-    if ( value < 0.0 ) return 0.0;
+    // log10() is not defined for zero and negative values
+    if ( value <= 0.0 ) return 0.0;
 
     double logDecValueMax = log10( value );
     logDecValueMax        = cvf::Math::ceil( logDecValueMax );
@@ -59,7 +60,8 @@ double RiaNumericalTools::computeTenExponentCeil( double value )
 //--------------------------------------------------------------------------------------------------
 double RiaNumericalTools::computeTenExponentFloor( double value )
 {
-    if ( value < 0.0 ) return 0.0;
+    // log10() is not defined for zero and negative values
+    if ( value <= 0.0 ) return 0.0;
 
     double logDecValueMin = log10( value );
     logDecValueMin        = cvf::Math::floor( logDecValueMin );

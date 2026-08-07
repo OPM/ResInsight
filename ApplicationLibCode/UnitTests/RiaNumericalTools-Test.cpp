@@ -2,11 +2,24 @@
 
 #include "RiaNumericalTools.h"
 
+#include <cmath>
+
 TEST( RiaNumericalTools, LogTenFunctions )
 {
     {
         // Negative values will return zero
         double value = -0.0015;
+
+        auto exponentCeil = RiaNumericalTools::computeTenExponentCeil( value );
+        EXPECT_EQ( 0.0f, exponentCeil );
+
+        auto exponentFloor = RiaNumericalTools::computeTenExponentFloor( value );
+        EXPECT_EQ( 0.0f, exponentFloor );
+    }
+
+    {
+        // Zero will return zero, as log10() is not defined for zero
+        double value = 0.0;
 
         auto exponentCeil = RiaNumericalTools::computeTenExponentCeil( value );
         EXPECT_EQ( 0.0f, exponentCeil );
@@ -43,6 +56,45 @@ TEST( RiaNumericalTools, LogTenFunctions )
 
         auto exponentFloor = RiaNumericalTools::computeTenExponentFloor( value );
         EXPECT_EQ( 1.0f, exponentFloor );
+    }
+}
+
+TEST( RiaNumericalTools, ComputeTenExponentFloor )
+{
+    struct TestValues
+    {
+        double value;
+        double expectedExponent;
+    };
+
+    TestValues testValues[] = {
+        // Zero and negative values are not defined for log10(), and return zero
+        { -1150.0, 0.0 },
+        { -0.5, 0.0 },
+        { 0.0, 0.0 },
+        // Values below one give a negative exponent
+        { 0.0005, -4.0 },
+        { 0.05, -2.0 },
+        { 0.1, -1.0 },
+        { 0.5, -1.0 },
+        // Values above one give a positive exponent
+        { 1.0, 0.0 },
+        { 9.99, 0.0 },
+        { 10.0, 1.0 },
+        { 1150.0, 3.0 },
+    };
+
+    for ( const auto& testValue : testValues )
+    {
+        auto exponentFloor = RiaNumericalTools::computeTenExponentFloor( testValue.value );
+        EXPECT_EQ( testValue.expectedExponent, exponentFloor ) << "Failed for value " << testValue.value;
+
+        // The lower limit of a logarithmic range is the closest power of ten below the value
+        if ( testValue.value > 0.0 )
+        {
+            EXPECT_EQ( pow( 10.0, testValue.expectedExponent ), RiaNumericalTools::roundToClosestPowerOfTenFloor( testValue.value ) )
+                << "Failed for value " << testValue.value;
+        }
     }
 }
 

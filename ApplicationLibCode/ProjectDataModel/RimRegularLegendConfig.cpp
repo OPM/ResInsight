@@ -381,6 +381,21 @@ auto computeAdjustedMinMax = []( double minimum, double maximum, double precisio
 };
 
 //--------------------------------------------------------------------------------------------------
+/// A logarithmic scale is not defined for zero, so the lower limit must always be larger than zero.
+/// Return the first candidate value above zero, and use one decade below the maximum value if no
+/// candidate value is above zero. The candidate values are given in prioritized order.
+//--------------------------------------------------------------------------------------------------
+auto lowerLimitForLogarithmicScale = []( const std::vector<double>& candidateValues, double maximumValue ) -> double
+{
+    for ( auto candidateValue : candidateValues )
+    {
+        if ( candidateValue > 0.0 ) return candidateValue;
+    }
+
+    return RiaNumericalTools::roundToClosestPowerOfTenFloor( maximumValue ) / 10.0;
+};
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateLegend()
@@ -466,6 +481,12 @@ void RimRegularLegendConfig::updateLegend()
             {
                 adjustedMin = negClosestToZero;
             }
+        }
+
+        // The values closest to zero are not always available, make sure the lower limit is never zero
+        if ( adjustedMin <= 0.0 && adjustedMax > 0.0 )
+        {
+            adjustedMin = lowerLimitForLogarithmicScale( { posClosestToZero, m_globalAutoMin, m_localAutoMin }, adjustedMax );
         }
     }
 
@@ -816,8 +837,15 @@ void RimRegularLegendConfig::updateTickCountAndUserDefinedRange()
     {
         if ( m_mappingMode() == MappingType::LOG10_CONTINUOUS || m_mappingMode() == MappingType::LOG10_DISCRETE )
         {
+            // Use the closest power of ten below the lowest value. The value closest to zero is used when the lowest
+            // value is zero or negative, as a logarithmic scale is not defined for these values.
+            double minimumValue = lowerLimitForLogarithmicScale( { m_globalAutoMin, m_globalAutoPosClosestToZero }, m_globalAutoMax );
+
             double exponentMax = RiaNumericalTools::computeTenExponentCeil( m_globalAutoMax );
-            double exponentMin = RiaNumericalTools::computeTenExponentFloor( m_globalAutoPosClosestToZero );
+            double exponentMin = RiaNumericalTools::computeTenExponentFloor( minimumValue );
+
+            // Make sure the range spans at least one decade
+            if ( exponentMin >= exponentMax ) exponentMin = exponentMax - 1.0;
 
             m_userDefinedMaxValue = pow( 10, exponentMax );
             m_userDefinedMinValue = pow( 10, exponentMin );
