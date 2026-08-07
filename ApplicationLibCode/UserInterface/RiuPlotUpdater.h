@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cafPdmPointer.h"
+
 #include <QPointer>
 #include <QString>
 
@@ -61,8 +63,9 @@ protected:
     const Rim3dView* m_viewToFollowAnimationFrom;
 
     // cached values for delayed plot updates
-    const RimEclipseResultDefinition* m_eclipseResultDef;
-    size_t                            m_timeStepIndex;
-    size_t                            m_gridIndex;
-    size_t                            m_gridLocalCellIndex;
+    // Use a guarded pointer, as the result definition can be deleted before the delayed update is executed
+    caf::PdmPointer<RimEclipseResultDefinition> m_eclipseResultDef;
+    size_t                                      m_timeStepIndex;
+    size_t                                      m_gridIndex;
+    size_t                                      m_gridLocalCellIndex;
 };

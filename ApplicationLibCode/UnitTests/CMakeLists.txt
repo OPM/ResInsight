@@ -22,6 +22,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseDataTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigEnsembleFractureStatisticsCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMobilePoreVolumeResultCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoir-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigResdataGridConverter-Test.cpp
@@ -47,6 +48,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ObservedDataParser-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExpressionParser-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotUpdater-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLinearScaleEngine-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorDescriptionMap-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/FixedWidthDataParser-Test.cpp

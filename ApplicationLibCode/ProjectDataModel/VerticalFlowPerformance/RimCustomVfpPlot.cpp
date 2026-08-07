@@ -646,10 +646,11 @@ void RimCustomVfpPlot::onLoadDataAndUpdate()
 
     for ( const auto& table : tables )
     {
-        if ( !table ) continue;
+        if ( !table || !table->dataSource() ) continue;
 
         int  tableNumber = table->tableNumber();
         auto vfpTables   = table->dataSource()->vfpTables();
+        if ( !vfpTables ) continue;
 
         if ( table->tableType() == RimVfpDefines::TableType::INJECTION )
         {
@@ -1445,7 +1446,8 @@ void RimCustomVfpPlot::scheduleReplot()
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimCustomVfpPlot::familyValuesForTable( RimVfpTable* table ) const
 {
-    if ( !table || !m_mainDataSource || !m_mainDataSource->dataSource() || !m_mainDataSource->dataSource()->vfpTables() ) return {};
+    if ( !table || !table->dataSource() || !table->dataSource()->vfpTables() ) return {};
+    if ( !m_mainDataSource || !m_mainDataSource->dataSource() || !m_mainDataSource->dataSource()->vfpTables() ) return {};
 
     std::vector<double> mainTableFamilyValues = valuesForProductionType( m_familyVariable() );
 

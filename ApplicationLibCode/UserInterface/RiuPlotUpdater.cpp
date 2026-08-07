@@ -81,7 +81,7 @@ RiuEclipseSelectionItem* RiuPlotUpdater::extractEclipseSelectionItem( const RiuS
 //--------------------------------------------------------------------------------------------------
 void RiuPlotUpdater::doDelayedUpdate()
 {
-    if ( m_eclipseResultDef != nullptr )
+    if ( m_eclipseResultDef.notNull() )
     {
         if ( !queryDataAndUpdatePlot( m_eclipseResultDef, m_timeStepIndex, m_gridIndex, m_gridLocalCellIndex ) )
         {
