@@ -432,9 +432,11 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
 
     int columnPos = trueWidth - columnWidth - margin - edgeAxisFrameBorderWidth;
 
-    if ( isComparisonViewActive() )
+    Rim3dView* rimView = dynamic_cast<Rim3dView*>( m_rimView.p() );
+
+    if ( isComparisonViewActive() && rimView )
     {
-        Rim3dView* compView = dynamic_cast<Rim3dView*>( m_rimView.p() )->activeComparisonView();
+        Rim3dView* compView = rimView->activeComparisonView();
         if ( compView )
         {
             columnWidth = 200;
@@ -445,15 +447,17 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
 
             if ( m_showInfoText )
             {
+                // The owner case is nullptr while the case is being closed
+                if ( rimView->ownerCase() )
                 {
-                    Rim3dView* view = dynamic_cast<Rim3dView*>( m_rimView.p() );
-                    m_shortInfoLabel->setText( "<center>" + view->ownerCase()->caseUserDescription() + "</center>" );
+                    m_shortInfoLabel->setText( "<center>" + rimView->ownerCase()->caseUserDescription() + "</center>" );
 
                     QPoint topLeft = QPoint( columnPos, yPos );
                     m_shortInfoLabel->resize( columnWidth, m_shortInfoLabel->sizeHint().height() );
                     m_shortInfoLabel->render( painter, topLeft );
                 }
 
+                if ( compView->ownerCase() )
                 {
                     m_shortInfoLabelCompView->setText( "<center>" + compView->ownerCase()->caseUserDescription() + "</center>" );
                     QPoint topLeft = QPoint( compViewItemsXPos, yPos );

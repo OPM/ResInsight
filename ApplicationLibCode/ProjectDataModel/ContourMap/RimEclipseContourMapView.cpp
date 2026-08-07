@@ -210,7 +210,7 @@ void RimEclipseContourMapView::onCreateDisplayModel()
         updateGeometry();
     }
 
-    if ( viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
+    if ( viewer() && viewer()->mainCamera() && viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
     {
         zoomAll();
     }
