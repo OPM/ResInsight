@@ -563,9 +563,10 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     if ( &m_case == changedField )
     {
-        m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+        // The case field can be set to nothing from the UI
+        m_flowDiagSolution = m_case() ? m_case()->defaultFlowDiagSolution() : nullptr;
         m_currentlyPlottedTimeSteps.clear();
-        if ( !m_case()->reservoirViews().empty() )
+        if ( m_case() && !m_case()->reservoirViews().empty() )
         {
             m_cellFilterView = m_case()->reservoirViews()[0];
         }
@@ -607,9 +608,15 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
             m_currentlyPlottedTimeSteps = calculatedTimesteps;
         }
 
-        std::vector<QDateTime> timeStepDates   = m_case->timeStepDates();
-        QStringList            timeStepStrings = m_case->timeStepStrings();
-        std::vector<double>    lorenzVals( timeStepDates.size(), HUGE_VAL );
+        // The case can be missing, as the case field can be set to nothing from the UI
+        std::vector<QDateTime> timeStepDates;
+        QStringList            timeStepStrings;
+        if ( m_case() )
+        {
+            timeStepDates   = m_case()->timeStepDates();
+            timeStepStrings = m_case()->timeStepStrings();
+        }
+        std::vector<double> lorenzVals( timeStepDates.size(), HUGE_VAL );
 
         m_flowCharPlotWidget->removeAllCurves();
 
@@ -660,7 +667,11 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
                                                                                m_maxTof() );
                 timeStepToFlowResultMap[timeStepIdx] = flowCharResults;
             }
-            lorenzVals[timeStepIdx] = timeStepToFlowResultMap[timeStepIdx].m_lorenzCoefficient;
+            // The time step indices are given by the flow diagnostics solution, and can be out of range for the case
+            if ( timeStepIdx >= 0 && static_cast<size_t>( timeStepIdx ) < lorenzVals.size() )
+            {
+                lorenzVals[timeStepIdx] = timeStepToFlowResultMap[timeStepIdx].m_lorenzCoefficient;
+            }
         }
 
         m_timeStepToFlowResultMap = timeStepToFlowResultMap;
@@ -678,6 +689,8 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 
         for ( int timeStepIdx : m_currentlyPlottedTimeSteps )
         {
+            if ( timeStepIdx < 0 || static_cast<size_t>( timeStepIdx ) >= timeStepDates.size() ) continue;
+
             const auto& flowCharResults = timeStepToFlowResultMap[timeStepIdx];
 
             m_flowCharPlotWidget->addFlowCapStorageCapCurve( timeStepDates[timeStepIdx],

@@ -84,6 +84,30 @@ TEST( RigGridManager, EqualTests )
     EXPECT_TRUE( existingGrid.notNull() );
 }
 
+//--------------------------------------------------------------------------------------------------
+/// The well cell arrays are cached, and must be recomputed if the grid changes size after the first
+/// computation. A stale array is shorter than the cell count of the grid it is used with.
+//--------------------------------------------------------------------------------------------------
+TEST( RigEclipseCaseDataTest, WellCellsInGridIsRecomputedWhenGridSizeChanges )
+{
+    cvf::ref<RigMainGrid> mainGrid = new RigMainGrid;
+    mainGrid->setCellCounts( cvf::Vec3st( 2, 2, 2 ) );
+
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( nullptr );
+    eclipseCase->setMainGrid( mainGrid.p() );
+
+    const cvf::UByteArray* wellCells = eclipseCase->wellCellsInGrid( 0 );
+    ASSERT_TRUE( wellCells != nullptr );
+    EXPECT_EQ( mainGrid->cellCount(), wellCells->size() );
+
+    // Grow the grid after the well cell arrays have been cached
+    mainGrid->setCellCounts( cvf::Vec3st( 3, 3, 3 ) );
+
+    wellCells = eclipseCase->wellCellsInGrid( 0 );
+    ASSERT_TRUE( wellCells != nullptr );
+    EXPECT_EQ( mainGrid->cellCount(), wellCells->size() );
+}
+
 /*
 
 //--------------------------------------------------------------------------------------------------

@@ -381,10 +381,13 @@ bool RiuGuiTheme::applyStyleSheet( RiaDefines::ThemeEnum theme )
     {
         if ( styleSheetFile.open( QIODevice::ReadOnly ) )
         {
-            RiaGuiApplication* app        = RiaGuiApplication::instance();
-            QString            styleSheet = styleSheetFile.readAll();
+            QString styleSheet = styleSheetFile.readAll();
             preparseStyleSheet( theme, styleSheet );
-            app->setStyleSheet( styleSheet );
+
+            if ( RiaGuiApplication* app = RiaGuiApplication::instance() )
+            {
+                app->setStyleSheet( styleSheet );
+            }
         }
         return true;
     }

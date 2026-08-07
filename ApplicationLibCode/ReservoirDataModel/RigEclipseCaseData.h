@@ -130,6 +130,7 @@ public:
 private:
     void computeActiveCellIJKBBox();
     void computeWellCellsPrGrid();
+    bool isWellCellsPrGridUpToDate( const std::vector<RigGridBase*>& grids ) const;
     void computeActiveCellsGeometryBoundingBoxSlow();
     void computeActiveCellsGeometryBoundingBoxOptimized();
 
