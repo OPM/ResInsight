@@ -46,7 +46,9 @@ public:
 
     void setTokenDataFilePath( const QString& filePath );
 
-    QString server() const;
+    // Virtual, as a derived connector may talk to a server whose address is not known when the connector
+    // is constructed, and can change while it is alive.
+    virtual QString server() const;
 
     QString requestTokenBlocking();
     void    requestTokenWithCancelButton();

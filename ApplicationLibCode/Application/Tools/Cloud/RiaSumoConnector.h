@@ -25,6 +25,7 @@
 #include <QNetworkAccessManager>
 #include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 
+#include <functional>
 #include <map>
 
 class QEventLoop;
@@ -70,13 +71,18 @@ class RiaSumoConnector : public RiaCloudConnector
 {
     Q_OBJECT
 public:
-    RiaSumoConnector( QObject*       parent,
-                      const QString& server,
-                      const QString& authority,
-                      const QString& scopes,
-                      const QString& clientId,
-                      unsigned int   port );
+    // The Sumo data is served by a server whose address is not known when the connector is constructed,
+    // and which can change while the connector is alive. It is therefore supplied as a callable that is
+    // invoked for every request, rather than as a fixed address.
+    RiaSumoConnector( QObject*                 parent,
+                      std::function<QString()> serverUrlProvider,
+                      const QString&           authority,
+                      const QString&           scopes,
+                      const QString&           clientId,
+                      unsigned int             port );
     ~RiaSumoConnector() override;
+
+    QString server() const override;
 
     void requestAssets();
     void requestAssetsBlocking();
@@ -148,6 +154,8 @@ private:
     void wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod );
 
 private:
+    std::function<QString()> m_serverUrlProvider;
+
     std::vector<SumoAsset>    m_assets;
     std::vector<SumoCase>     m_cases;
     std::vector<QString>      m_vectorNames;

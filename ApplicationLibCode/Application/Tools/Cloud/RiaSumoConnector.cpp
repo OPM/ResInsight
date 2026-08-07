@@ -36,14 +36,27 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSumoConnector::RiaSumoConnector( QObject*       parent,
-                                    const QString& server,
-                                    const QString& authority,
-                                    const QString& scopes,
-                                    const QString& clientId,
-                                    unsigned int   port )
-    : RiaCloudConnector( parent, server, authority, scopes, clientId, port )
+RiaSumoConnector::RiaSumoConnector( QObject*                 parent,
+                                    std::function<QString()> serverUrlProvider,
+                                    const QString&           authority,
+                                    const QString&           scopes,
+                                    const QString&           clientId,
+                                    unsigned int             port )
+    : RiaCloudConnector( parent, {}, authority, scopes, clientId, port )
+    , m_serverUrlProvider( std::move( serverUrlProvider ) )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaSumoConnector::server() const
+{
+    // Ask for the address on every call. The server is bound to the first available port, and gets a new
+    // port if it is restarted, so a cached address goes stale.
+    if ( !m_serverUrlProvider ) return {};
+
+    return m_serverUrlProvider();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,10 +108,9 @@ void RiaSumoConnector::requestCasesForField( const QString& fieldName )
              &QNetworkReply::finished,
              [this, reply]()
              {
-                 if ( reply->error() == QNetworkReply::NoError )
-                 {
-                     parseCases( reply );
-                 }
+                 // parseCases handles the error case and always emits casesFinished, so the blocking caller
+                 // returns immediately instead of waiting for the request to time out.
+                 parseCases( reply );
              } );
 }
 
@@ -130,10 +142,9 @@ void RiaSumoConnector::requestAssets()
              &QNetworkReply::finished,
              [this, reply]()
              {
-                 if ( reply->error() == QNetworkReply::NoError )
-                 {
-                     parseAssets( reply );
-                 }
+                 // parseAssets handles the error case and always emits assetsFinished, so the blocking caller
+                 // returns immediately instead of waiting for the request to time out.
+                 parseAssets( reply );
              } );
 }
 
@@ -166,10 +177,9 @@ void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
              &QNetworkReply::finished,
              [this, reply, caseId]()
              {
-                 if ( reply->error() == QNetworkReply::NoError )
-                 {
-                     parseEnsembleNames( reply, caseId );
-                 }
+                 // parseEnsembleNames handles the error case and always emits ensembleNamesFinished, so the
+                 // blocking caller returns immediately instead of waiting for the request to time out.
+                 parseEnsembleNames( reply, caseId );
              } );
 }
 
@@ -199,7 +209,7 @@ void RiaSumoConnector::parseEnsembleNames( QNetworkReply* reply, const SumoCaseI
     }
     else
     {
-        RiaLogging::error( std::format( "Request ensemble names failed: : '%s'", reply->errorString() ) );
+        RiaLogging::error( std::format( "Request ensemble names failed: '{}'", reply->errorString() ) );
     }
 
     emit ensembleNamesFinished();
@@ -619,7 +629,7 @@ void RiaSumoConnector::parseAssets( QNetworkReply* reply )
     }
     else
     {
-        RiaLogging::error( std::format( "Request assets failed: : '%s'", reply->errorString() ) );
+        RiaLogging::error( std::format( "Request assets failed: '{}'", reply->errorString() ) );
     }
 
     emit assetsFinished();
@@ -654,7 +664,7 @@ void RiaSumoConnector::parseCases( QNetworkReply* reply )
     }
     else
     {
-        RiaLogging::error( std::format( "Request cases failed: : '%s'", reply->errorString() ) );
+        RiaLogging::error( std::format( "Request cases failed: '{}'", reply->errorString() ) );
     }
 
     emit casesFinished();
@@ -684,7 +694,7 @@ void RiaSumoConnector::parseVectorNames( QNetworkReply* reply, const SumoCaseId&
     }
     else
     {
-        RiaLogging::error( std::format( "Request vector names failed: : '%s'", reply->errorString() ) );
+        RiaLogging::error( std::format( "Request vector names failed: '{}'", reply->errorString() ) );
     }
 
     emit vectorNamesFinished();
@@ -712,7 +722,7 @@ void RiaSumoConnector::parseRealizationNumbers( QNetworkReply* reply, const Sumo
     }
     else
     {
-        RiaLogging::error( std::format( "Request realization IDs failed: '%s'", reply->errorString() ) );
+        RiaLogging::error( std::format( "Request realization IDs failed: '{}'", reply->errorString() ) );
     }
 
     emit realizationIdsFinished();

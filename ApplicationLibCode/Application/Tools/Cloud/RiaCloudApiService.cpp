@@ -52,18 +52,19 @@ constexpr int maxConsecutiveFailures = 2;
 // Per-request timeout for the health check, kept well below the poll interval.
 constexpr int healthCheckTimeoutMs = 5 * 1000;
 
-// Range of ports scanned when looking for a free port to bind the service to.
-constexpr int firstPortNumber = 8000;
+// Number of ports scanned, starting at the wanted port, when looking for a free port to bind to.
 constexpr int portRangeLength = 100;
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaCloudApiService::RiaCloudApiService( QObject* parent )
+RiaCloudApiService::RiaCloudApiService( const QString& serverAddress, int wantedPort, QObject* parent )
     : QObject( parent )
     , m_process( nullptr )
     , m_networkAccessManager( new QNetworkAccessManager( this ) )
+    , m_serverAddress( serverAddress )
+    , m_wantedPort( wantedPort )
     , m_port( -1 )
     , m_consecutiveFailures( 0 )
     , m_isResponding( false )
@@ -121,6 +122,16 @@ int RiaCloudApiService::port() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaCloudApiService::serverUrl() const
+{
+    if ( m_port < 0 ) return {};
+
+    return QString( "%1:%2" ).arg( m_serverAddress ).arg( m_port );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaCloudApiService::start()
 {
     if ( isRunning() ) return;
@@ -142,7 +153,14 @@ void RiaCloudApiService::start()
         return;
     }
 
-    const int port = findAvailablePortNumber();
+    const QString host = QUrl( m_serverAddress ).host();
+    if ( host.isEmpty() )
+    {
+        RiaLogging::error( std::format( "Cloud API service: invalid server address '{}', cannot start service.", m_serverAddress ) );
+        return;
+    }
+
+    const int port = findAvailablePortNumber( m_wantedPort );
     if ( port < 0 )
     {
         RiaLogging::error( "Cloud API service: no available port found, cannot start service." );
@@ -154,8 +172,7 @@ void RiaCloudApiService::start()
     arguments << "-m"
               << "uvicorn"
               << "ri_cloud_api.main:app"
-              << "--host"
-              << "127.0.0.1"
+              << "--host" << host
               << "--port" << QString::number( m_port );
 
     m_process = new QProcess( this );
@@ -205,7 +222,7 @@ void RiaCloudApiService::start()
 
     m_process->start( pythonExecutable, arguments );
 
-    RiaLogging::info( std::format( "Cloud API service: starting on http://127.0.0.1:{}.", m_port ) );
+    RiaLogging::info( std::format( "Cloud API service: starting on {}.", serverUrl() ) );
 
     emit statusChanged();
 
@@ -273,7 +290,7 @@ void RiaCloudApiService::onHealthCheck()
         return;
     }
 
-    QNetworkRequest request( QUrl( QString( "http://127.0.0.1:%1/alive" ).arg( m_port ) ) );
+    QNetworkRequest request( QUrl( serverUrl() + "/alive" ) );
     request.setTransferTimeout( healthCheckTimeoutMs );
 
     QNetworkReply* reply = m_networkAccessManager->get( request );
@@ -311,12 +328,12 @@ void RiaCloudApiService::onHealthCheck()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaCloudApiService::findAvailablePortNumber()
+int RiaCloudApiService::findAvailablePortNumber( int firstPort )
 {
-    const int endPort = std::min( firstPortNumber + portRangeLength, (int)std::numeric_limits<quint16>::max() );
+    const int endPort = std::min( firstPort + portRangeLength, (int)std::numeric_limits<quint16>::max() );
 
     QTcpServer serverTest;
-    for ( quint16 port = static_cast<quint16>( firstPortNumber ); port <= static_cast<quint16>( endPort ); ++port )
+    for ( quint16 port = static_cast<quint16>( firstPort ); port <= static_cast<quint16>( endPort ); ++port )
     {
         if ( serverTest.listen( QHostAddress::LocalHost, port ) )
         {
