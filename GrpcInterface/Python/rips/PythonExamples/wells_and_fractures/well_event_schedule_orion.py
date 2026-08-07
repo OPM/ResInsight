@@ -22,6 +22,7 @@ works with any project that has at least one well path.
 """
 
 import rips
+import rips.orion_events
 
 
 def build_orion_text(well_name):

@@ -20,6 +20,7 @@ an Eclipse case is already loaded.
 import os
 
 import rips
+import rips.orion_events
 
 
 def main():
