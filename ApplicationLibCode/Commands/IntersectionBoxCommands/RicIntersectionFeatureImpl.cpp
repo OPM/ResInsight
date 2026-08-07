@@ -35,7 +35,8 @@ void RicIntersectionFeatureImpl::createIntersectionBoxSlize( const QString& name
     RimGridView* activeView                 = RiaApplication::instance()->activeGridView();
     RimGridView* activeMainOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
 
-    if ( activeMainOrComparisonView )
+    // activeGridView() and activeMainOrComparisonGridView() are different objects, both must be checked
+    if ( activeMainOrComparisonView && activeView && activeView->viewer() )
     {
         RimIntersectionCollection* coll = activeMainOrComparisonView->intersectionCollection();
         CVF_ASSERT( coll );

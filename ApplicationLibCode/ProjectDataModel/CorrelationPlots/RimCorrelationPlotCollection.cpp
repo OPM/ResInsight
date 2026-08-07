@@ -320,8 +320,9 @@ void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAb
         auto crossPlot = dynamic_cast<RimParameterResultCrossPlot*>( plot );
         if ( crossPlot )
         {
-            crossPlot->setEnsembleParameter(
-                RimSummaryEnsembleTools::alphabeticEnsembleParameters( ensembles.front()->allSummaryCases() ).front().name );
+            // An ensemble without realization parameters has no parameters to select
+            const auto parameters = RimSummaryEnsembleTools::alphabeticEnsembleParameters( ensembles.front()->allSummaryCases() );
+            if ( !parameters.empty() ) crossPlot->setEnsembleParameter( parameters.front().name );
         }
     }
 }
