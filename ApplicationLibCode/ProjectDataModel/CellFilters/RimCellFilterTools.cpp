@@ -56,8 +56,7 @@ cvf::ref<cvf::UByteArray>
         if ( filter->isRangeFilter() )
         {
             // Range filters evaluate only on their target grid. On other grids an INCLUDE filter
-            // contributes no cells, while an EXCLUDE filter removes none. Cells in LGRs follow the
-            // visibility of their parent grid cell, as in the filtered geometry of a 3d view.
+            // contributes no cells, while an EXCLUDE filter removes none.
             const bool isTargetGrid = ( filter->gridIndex() == static_cast<int>( gridIndex ) );
             if ( isTargetGrid )
             {
@@ -67,30 +66,35 @@ cvf::ref<cvf::UByteArray>
             {
                 gridMask.setAll( !isInclude );
             }
-
-            if ( !grid->isMainGrid() )
-            {
-                auto                   localGrid  = static_cast<const RigLocalGrid*>( grid );
-                const cvf::UByteArray& parentMask = *gridMasks[localGrid->parentGrid()->gridIndex()];
-
-                for ( size_t localIdx = 0; localIdx < grid->cellCount(); localIdx++ )
-                {
-                    const size_t parentCellIndex = grid->cell( localIdx ).parentCellIndex();
-                    if ( isInclude )
-                    {
-                        gridMask[localIdx] = gridMask[localIdx] || parentMask[parentCellIndex];
-                    }
-                    else
-                    {
-                        gridMask[localIdx] = gridMask[localIdx] && parentMask[parentCellIndex];
-                    }
-                }
-            }
         }
         else
         {
             // Index filters (polygon, user defined) and property filters evaluate on all grids
             filter->applyToCellVisibility( &gridMask, grid, timeStepIndex, eclipseCase );
+        }
+
+        // Cells in LGRs follow the visibility of their parent grid cell, as in the filtered geometry
+        // of a 3d view. Geometry based filters (range and index, e.g. an INDEX_K polygon) can fail to
+        // select the refined cells directly on a fine LGR, so propagate the parent grid visibility.
+        // Property filters evaluate each cell against its own result value and must be left untouched.
+        const bool isGeometryFilter = filter->isRangeFilter() || filter->isIndexFilter();
+        if ( isGeometryFilter && !grid->isMainGrid() )
+        {
+            auto                   localGrid  = static_cast<const RigLocalGrid*>( grid );
+            const cvf::UByteArray& parentMask = *gridMasks[localGrid->parentGrid()->gridIndex()];
+
+            for ( size_t localIdx = 0; localIdx < grid->cellCount(); localIdx++ )
+            {
+                const size_t parentCellIndex = grid->cell( localIdx ).parentCellIndex();
+                if ( isInclude )
+                {
+                    gridMask[localIdx] = gridMask[localIdx] || parentMask[parentCellIndex];
+                }
+                else
+                {
+                    gridMask[localIdx] = gridMask[localIdx] && parentMask[parentCellIndex];
+                }
+            }
         }
 
         for ( size_t localIdx = 0; localIdx < grid->cellCount(); localIdx++ )
