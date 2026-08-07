@@ -62,6 +62,7 @@
 #include <QDateTime>
 #include <QFileInfo>
 
+#include <algorithm>
 #include <cmath> // Needed for HUGE_VAL on Linux
 #include <iostream>
 #include <map>
@@ -719,7 +720,18 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
         {
             int numNNC       = ecl_nnc_data_get_size( tran_data );
             int geometrySize = ecl_nnc_geometry_size( nnc_geo );
-            CAF_ASSERT( numNNC == geometrySize );
+
+            if ( numNNC != geometrySize )
+            {
+                // The transmissibility data is read from the INIT file, the geometry from the grid file. If the two files are out of
+                // sync, iterating the geometry using the data count reads out of bounds. Use the smallest count.
+                RiaLogging::warning( std::format( "NNC data count ({}) does not match NNC geometry count ({}), importing {} connections.",
+                                                  numNNC,
+                                                  geometrySize,
+                                                  std::min( numNNC, geometrySize ) ) );
+
+                numNNC = std::min( numNNC, geometrySize );
+            }
 
             if ( numNNC > 0 )
             {
