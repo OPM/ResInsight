@@ -23,8 +23,11 @@
 #include "RimSummaryEnsembleSumo.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmPointer.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
+
+#include <QCoreApplication>
 
 CAF_PDM_SOURCE_INIT( RimSumoDataSource, "RimSumoDataSource", "RimSummarySumoDataSource" );
 
@@ -273,7 +276,24 @@ void RimSumoDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     }
     else if ( changedField == &m_realizationFilter )
     {
-        onRealizationFilterChanged();
+        // Do not update here. This runs from the line editor's editingFinished handler, which Qt emits
+        // both on Enter and on focus-out, so tabbing out of the field runs it inside Qt's focus transfer.
+        // The update ends in updateAllRequiredEditors(), which through
+        // PdmUiObjectEditorHandle::updateUiAllObjectEditors() rebuilds every object editor in the
+        // application - including the property editor holding the line edit Qt is still processing. Qt
+        // then dereferences the freed widget while moving focus.
+        //
+        // Running on the next event loop turn lets the editor finish its current event before its widgets
+        // are replaced. The PdmPointer makes this a no-op if the data source is deleted in the meantime.
+        caf::PdmPointer<RimSumoDataSource> self( this );
+
+        QMetaObject::invokeMethod(
+            QCoreApplication::instance(),
+            [self]()
+            {
+                if ( self.notNull() ) self->onRealizationFilterChanged();
+            },
+            Qt::QueuedConnection );
     }
 }
 

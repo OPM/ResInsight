@@ -35,6 +35,7 @@
 
 #include <arrow/type_fwd.h>
 
+#include <map>
 #include <optional>
 
 CAF_PDM_SOURCE_INIT( RimSummaryEnsembleSumo, "RimSummaryEnsembleSumo" );
@@ -146,6 +147,11 @@ std::pair<std::string, std::string> RimSummaryEnsembleSumo::nameKeys() const
 void RimSummaryEnsembleSumo::loadSummaryData( const RifEclipseSummaryAddress& resultAddress )
 {
     if ( resultAddress.isStatistics() ) return;
+
+    // An address without a vector name has no blob to fetch. The special time address used as curve
+    // x-axis is one such address. Requesting it would produce a URL with an empty vector segment, which
+    // the service answers with 404, surfacing as a misleading "parquet file size is 0 bytes" error.
+    if ( resultAddress.vectorName().empty() ) return;
 
     if ( !m_sumoDataSource() ) return;
 
@@ -640,28 +646,76 @@ void RimSummaryEnsembleSumo::onLoadDataAndUpdate()
             }
         }
 
-        // Rebuild the realization cases whenever the selected set changes (added, removed or swapped),
+        // Update the realization cases whenever the selected set changes (added, removed or swapped),
         // so editing the realizations on the data source updates the summary plot.
         if ( selectedRealizations != currentRealizations )
         {
-            m_cases.deleteChildren();
+            // Update incrementally: a case whose realization is still selected is kept alive and reused.
+            // Widening the selection therefore deletes nothing, which keeps the curves referring to those
+            // cases valid and avoids a large tree structure change while the realization filter is being
+            // edited. Only the deselected realizations are deleted.
+            std::map<int, RimSummaryCaseSumo*> reusableCases;
+            std::vector<RimSummaryCase*>       obsoleteCases;
+            for ( auto summaryCase : m_cases.childrenByType() )
+            {
+                auto sumoCase = dynamic_cast<RimSummaryCaseSumo*>( summaryCase );
+                if ( sumoCase && selectedRealizations.contains( sumoCase->realizationNumber() ) )
+                {
+                    reusableCases[sumoCase->realizationNumber()] = sumoCase;
+                }
+                else
+                {
+                    obsoleteCases.push_back( summaryCase );
+                }
+            }
+
+            // Detach everything without deleting, then re-attach in realization order. The reused cases
+            // survive this, so only the obsolete ones are destroyed.
+            m_cases.clearWithoutDelete();
 
             for ( int realization : selectedRealizations )
             {
+                auto it = reusableCases.find( realization );
+                if ( it != reusableCases.end() )
+                {
+                    m_cases.push_back( it->second );
+                    continue;
+                }
+
                 auto realizationCase = new RimSummaryCaseSumo();
                 realizationCase->setEnsemble( this );
                 realizationCase->setRealizationName( QString( "real-%1" ).arg( realization ) );
                 realizationCase->setRealizationNumber( realization );
                 realizationCase->updateAutoShortName();
 
-                realizationCase->setShowTreeNodes( m_cases.empty() );
-
                 m_cases.push_back( realizationCase );
             }
 
-            // The realization cases were rebuilt, but the parquet tables are still cached. Push the
-            // cached data into the new cases, otherwise loadSummaryData() would skip the distribution
-            // (the cache lookup hits) and the rebuilt cases would have no values, making the plot empty.
+            // Only the first case shows its tree nodes, also after cases have been reused.
+            bool isFirstCase = true;
+            for ( auto summaryCase : m_cases.childrenByType() )
+            {
+                if ( auto sumoCase = dynamic_cast<RimSummaryCaseSumo*>( summaryCase ) )
+                {
+                    sumoCase->setShowTreeNodes( isFirstCase );
+                    isFirstCase = false;
+                }
+            }
+
+            // Refresh the connected editors while the obsolete cases are still alive, so no tree item
+            // editor ends up referencing freed objects during the update. Deleting them first caused a
+            // use-after-free crash. caf::CmdDeleteItemExec and RicDeleteSummaryCaseCollectionFeature use
+            // this same ordering.
+            m_cases.uiCapability()->updateConnectedEditors();
+
+            for ( auto obsoleteCase : obsoleteCases )
+            {
+                delete obsoleteCase;
+            }
+
+            // Newly created cases hold no values, while the parquet tables are still cached. Push the
+            // cached data into the cases, otherwise loadSummaryData() would skip the distribution (the
+            // cache lookup hits) and the new cases would have no values, making the plot empty.
             redistributeCachedDataToRealizations();
         }
     }
