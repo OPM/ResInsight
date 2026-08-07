@@ -17,7 +17,7 @@ A standalone validator runs Layer A only:
 python3 -m rips.orion_events myfile.orion
 ```
 
-Runnable examples: `rips/PythonExamples/wells_and_fractures/import_orion_events.py` (reads the shipped sample `rips/example_input_files/well_events.orion`) and `well_event_schedule_orion.py` (full event coverage, generates schedule text).
+Runnable examples: `rips/PythonExamples/experimental/import_orion_events.py` (reads the shipped sample `rips/example_input_files/well_events.orion`) and `well_event_schedule_orion.py` (full event coverage, generates schedule text).
 
 ## Quick example
 
