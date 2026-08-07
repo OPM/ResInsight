@@ -357,11 +357,16 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, co
     {
         curve->setEclipseCase( resultCase );
 
-        auto wellNames = resultCase->rftReader()->wellNames();
-        if ( !wellNames.empty() )
+        // The case selected above is the first Eclipse result case, which is not guaranteed to have an RFT reader. See
+        // hasRftData() that requires a reader to be present.
+        if ( auto* rftReader = resultCase->rftReader() )
         {
-            auto wellName = *( wellNames.begin() );
-            curve->setDefaultAddress( wellName );
+            auto wellNames = rftReader->wellNames();
+            if ( !wellNames.empty() )
+            {
+                auto wellName = *( wellNames.begin() );
+                curve->setDefaultAddress( wellName );
+            }
         }
     }
     else
