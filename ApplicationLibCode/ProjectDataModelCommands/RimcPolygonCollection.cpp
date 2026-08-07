@@ -18,6 +18,8 @@
 
 #include "RimcPolygonCollection.h"
 
+#include "RiaNameUniquenessTools.h"
+
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
 
@@ -37,6 +39,13 @@ RimcPolygonCollection_createPolygon::RimcPolygonCollection_createPolygon( caf::P
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordinates, "Coordinates", "Coordinates" );
+    CAF_PDM_InitScriptableField( &m_onNameConflict,
+                                 "OnNameConflict",
+                                 caf::AppEnum<RiaDefines::NameConflictPolicy>( RiaDefines::NameConflictPolicy::FAIL ),
+                                 "",
+                                 "",
+                                 "",
+                                 "How to handle a polygon name already used in this folder" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,6 +57,20 @@ std::expected<caf::PdmObjectHandle*, QString> RimcPolygonCollection_createPolygo
 
     QString                 name   = m_name();
     std::vector<cvf::Vec3d> coords = m_coordinates();
+
+    if ( !name.isEmpty() )
+    {
+        auto resolution = RiaNameUniquenessTools::applyConflictPolicy( &polygonCollection->itemsField(), name, m_onNameConflict().value() );
+        if ( !resolution.errorMessage.isEmpty() ) return std::unexpected( resolution.errorMessage );
+
+        // The new polygon is added below, and that refreshes the views for both objects
+        if ( auto* existingPolygon = dynamic_cast<RimPolygon*>( resolution.objectToReplace ) )
+        {
+            polygonCollection->deleteItem( existingPolygon );
+        }
+
+        name = resolution.nameToUse;
+    }
 
     RimPolygon* polygon = new RimPolygon();
     if ( !name.isEmpty() )

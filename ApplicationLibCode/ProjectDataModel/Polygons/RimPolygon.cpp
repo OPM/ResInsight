@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTools.h"
+#include "RiaNameUniquenessTools.h"
 #include "RiaVec3Tools.h"
 
 #include "RigPolyLinesData.h"
@@ -222,6 +223,11 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     if ( changedField == &m_pointsInDomainCoords || changedField == &m_pointsInDomainCoordsForUi )
     {
         coordinatesChanged.send();
+    }
+    else if ( changedField == nameField() )
+    {
+        // Keep the name unique among the polygons in the same folder
+        setName( RiaNameUniquenessTools::resolveRenameConflict( this, newValue.toString() ) );
     }
 
     objectChanged.send();

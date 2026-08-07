@@ -19,6 +19,7 @@
 #include "RimSurface.h"
 
 #include "RiaApplication.h"
+#include "RiaNameUniquenessTools.h"
 
 #include "RimCase.h"
 #include "RimProject.h"
@@ -252,6 +253,9 @@ void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     }
     else if ( changedField == &m_userDescription )
     {
+        // Keep the name unique among the surfaces in the same folder
+        m_userDescription = RiaNameUniquenessTools::resolveRenameConflict( this, newValue.toString() );
+
         updateConnectedEditors();
     }
     else if ( changedField == &m_depthOffset )

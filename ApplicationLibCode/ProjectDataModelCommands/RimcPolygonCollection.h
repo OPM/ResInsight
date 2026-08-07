@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -40,6 +43,7 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<QString>                 m_name;
-    caf::PdmField<std::vector<cvf::Vec3d>> m_coordinates;
+    caf::PdmField<QString>                                      m_name;
+    caf::PdmField<std::vector<cvf::Vec3d>>                      m_coordinates;
+    caf::PdmField<caf::AppEnum<RiaDefines::NameConflictPolicy>> m_onNameConflict;
 };

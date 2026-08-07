@@ -135,6 +135,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigVfpTables-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaResultName-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaNameUniquenessTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkSurfaceImporter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkImportUtil-Test.cpp

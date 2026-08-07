@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -42,5 +45,6 @@ public:
     QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<QString> m_folderName;
+    caf::PdmField<QString>                                      m_folderName;
+    caf::PdmField<caf::AppEnum<RiaDefines::NameConflictPolicy>> m_onNameConflict;
 };

@@ -25,6 +25,7 @@
 
 namespace caf
 {
+class PdmChildArrayFieldHandle;
 
 //==================================================================================================
 ///
@@ -58,6 +59,11 @@ public:
     // Creates a subcollection, adds it to this collection, and returns it. Default returns
     // nullptr; concrete derivations (typically PdmNestedCollection<>) override.
     virtual PdmObject* addNewSubCollection() { return nullptr; }
+
+    // Type-erased access to the field holding the sub-collections, for generic code that must
+    // inspect the folders without knowing the concrete collection type. Default returns nullptr;
+    // PdmNestedCollection<> overrides.
+    virtual PdmChildArrayFieldHandle* subCollectionsField() { return nullptr; }
 
     // Marks this instance as the topmost folder: hides and disables IO on the collection name,
     // makes the object non-deletable.

@@ -156,3 +156,38 @@ def test_create_regular_surface_invalid_values(rips_instance, initialize_test):
 
     with pytest.raises(rips.RipsError, match="Invalid rotation."):
         surface_collection.new_regular_surface(rotation=-1.0)
+
+
+def test_surface_name_uniqueness(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    rips_instance.project.load_case(path=case_path)
+
+    surface_collection = rips_instance.project.descendants(rips.SurfaceCollection)[0]
+
+    surface_collection.new_regular_surface(name="Top")
+
+    # The default policy is to fail on a name already used in the same folder
+    with pytest.raises(rips.RipsError, match="already exists"):
+        surface_collection.new_regular_surface(name="Top")
+
+    renamed = surface_collection.new_regular_surface(
+        name="Top", on_name_conflict=rips.NameConflictPolicy.AUTO_RENAME
+    )
+    assert renamed.surface_user_description == "Top_1"
+
+    # Names are case sensitive, so this is not a conflict
+    other_case = surface_collection.new_regular_surface(name="top")
+    assert other_case.surface_user_description == "top"
+
+    overwritten = surface_collection.new_regular_surface(
+        name="Top", on_name_conflict=rips.NameConflictPolicy.OVERWRITE
+    )
+    assert overwritten.surface_user_description == "Top"
+
+    names = [s.surface_user_description for s in surface_collection.surfaces_field()]
+    assert names.count("Top") == 1
+
+    # A different folder is a separate namespace
+    folder = surface_collection.add_folder(folder_name="Folder A")
+    in_folder = folder.new_regular_surface(name="Top")
+    assert in_folder.surface_user_description == "Top"

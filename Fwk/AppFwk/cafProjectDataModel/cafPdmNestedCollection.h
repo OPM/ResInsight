@@ -72,9 +72,10 @@ public:
     std::vector<SelfT*> subCollections() const;
 
     // Subcollection CRUD
-    void       addSubCollection( SelfT* sub );
-    PdmObject* addNewSubCollection() override;
-    SelfT*     findSubCollectionByName( const QString& name ) const;
+    void                      addSubCollection( SelfT* sub );
+    PdmObject*                addNewSubCollection() override;
+    PdmChildArrayFieldHandle* subCollectionsField() override;
+    SelfT*                    findSubCollectionByName( const QString& name ) const;
 
     // Returns items held by this collection and recursively by all subcollections.
     // For items at this level only, use items().

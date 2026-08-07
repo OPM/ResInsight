@@ -64,8 +64,14 @@ public:
 
     std::vector<RimSurface*> surfaces() const;
 
+    // Renames the surface if another surface in this folder already carries the same name.
+    void ensureUniqueSurfaceName( RimSurface* surface );
+
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+    // Enforces name uniqueness among sibling folders when the folder is renamed.
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     void orderChanged( const caf::SignalEmitter* emitter );

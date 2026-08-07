@@ -2,6 +2,8 @@ import sys
 import os
 import math
 
+import pytest
+
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import rips
 
@@ -65,3 +67,67 @@ def test_add_folders_and_polygons(rips_instance, initialize_test):
     assert [p.name for p in folder_a.polygons()] == ["A poly"]
     assert [p.name for p in folder_b.polygons()] == []
     assert [p.name for p in nested.polygons()] == ["nested poly"]
+
+
+def test_polygon_name_uniqueness(rips_instance, initialize_test):
+    rips_instance.project.open(
+        dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
+    )
+
+    root = rips_instance.project.descendants(rips.PolygonCollection)[0]
+
+    coordinates = [
+        [0.0, 0.0, -1000.0],
+        [100.0, 0.0, -1000.0],
+        [100.0, 100.0, -1000.0],
+        [0.0, 100.0, -1000.0],
+    ]
+
+    root.create_polygon(name="Fence", coordinates=coordinates)
+
+    # The default policy is to fail on a name already used in the same folder
+    with pytest.raises(rips.RipsError, match="already exists"):
+        root.create_polygon(name="Fence", coordinates=coordinates)
+
+    renamed = root.create_polygon(
+        name="Fence",
+        coordinates=coordinates,
+        on_name_conflict=rips.NameConflictPolicy.AUTO_RENAME,
+    )
+    assert renamed.name == "Fence_1"
+
+    # Names are case sensitive, so this is not a conflict
+    other_case = root.create_polygon(name="fence", coordinates=coordinates)
+    assert other_case.name == "fence"
+
+    overwritten = root.create_polygon(
+        name="Fence",
+        coordinates=coordinates,
+        on_name_conflict=rips.NameConflictPolicy.OVERWRITE,
+    )
+    assert overwritten.name == "Fence"
+    assert [p.name for p in root.polygons()].count("Fence") == 1
+
+    # A different folder is a separate namespace
+    folder = root.add_folder(folder_name="Folder A")
+    in_folder = folder.create_polygon(name="Fence", coordinates=coordinates)
+    assert in_folder.name == "Fence"
+
+
+def test_folder_name_uniqueness(rips_instance, initialize_test):
+    rips_instance.project.open(
+        dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
+    )
+
+    root = rips_instance.project.descendants(rips.PolygonCollection)[0]
+
+    root.add_folder(folder_name="Folder A")
+
+    with pytest.raises(rips.RipsError, match="already exists"):
+        root.add_folder(folder_name="Folder A")
+
+    renamed = root.add_folder(
+        folder_name="Folder A",
+        on_name_conflict=rips.NameConflictPolicy.AUTO_RENAME,
+    )
+    assert renamed.polygon_collection_name == "Folder A_1"

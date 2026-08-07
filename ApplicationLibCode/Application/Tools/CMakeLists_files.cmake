@@ -36,6 +36,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedMeanCalculator.inl
     ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaNameUniquenessTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaWslTools.h
@@ -94,6 +95,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaNameUniquenessTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaWslTools.cpp

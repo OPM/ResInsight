@@ -19,6 +19,7 @@
 #include "RimPolygonCollection.h"
 
 #include "RiaColorTables.h"
+#include "RiaNameUniquenessTools.h"
 
 #include "Rim3dView.h"
 #include "RimPolygon.h"
@@ -69,7 +70,7 @@ RimPolygonCollection* RimPolygonCollection::createTopmost()
 RimPolygon* RimPolygonCollection::createUserDefinedPolygon()
 {
     auto newPolygon = new RimPolygon();
-    newPolygon->setName( "Polygon " + QString::number( allPolygons().size() + 1 ) );
+    newPolygon->setName( "Polygon " + QString::number( items().size() + 1 ) );
 
     auto colorCandidates = RiaColorTables::summaryCurveDefaultPaletteColors();
     newPolygon->setColor( colorCandidates.cycledColor3f( allPolygons().size() ) );
@@ -94,6 +95,7 @@ RimPolygon* RimPolygonCollection::appendUserDefinedPolygon()
 void RimPolygonCollection::addUserDefinedPolygon( RimPolygon* polygon )
 {
     m_items.push_back( polygon );
+    ensureUniquePolygonName( polygon );
 
     connectPolygonSignals( polygon );
 
@@ -140,6 +142,7 @@ void RimPolygonCollection::addPolygonFile( RimPolygonFile* polygonFile )
     if ( !polygonFile ) return;
 
     addSubCollection( polygonFile );
+    RiaNameUniquenessTools::ensureUniqueAmongSiblings( polygonFile );
     connectPolygonFileSignals( polygonFile );
 
     updateViewTreeItems();

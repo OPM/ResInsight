@@ -48,4 +48,11 @@ public:
     // Default behavior recurses into sub-collections. Leaf containers (e.g., file-backed)
     // override to load their own data; folder containers inherit the recursion.
     virtual void loadData();
+
+    // Renames the polygon if another polygon in this container already carries the same name.
+    void ensureUniquePolygonName( RimPolygon* polygon );
+
+protected:
+    // Enforces name uniqueness among sibling folders when the folder is renamed.
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 };
