@@ -51,4 +51,5 @@ protected:
     static RimGeoMechContourMapView* createGeoMechContourMap( RimGeoMechCase* geoMechCase );
 
     static void assignDefaultResultAndLegend( RimEclipseContourMapView* contourMap );
+    static bool assignResultFromExistingView( RimEclipseContourMapView* contourMap );
 };

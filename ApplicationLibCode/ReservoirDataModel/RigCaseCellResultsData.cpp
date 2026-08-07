@@ -830,6 +830,10 @@ RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
 {
     auto allResults = existingResults();
 
+    // Completion Type is a category result, and is not useful as a default result. See issue #14486.
+    auto isCandidateResult = []( const RigEclipseResultAddress& adr, RiaDefines::ResultCatType category )
+    { return adr.resultCatType() == category && adr.resultName() != RiaResultNames::completionTypeResultName(); };
+
     if ( maxTimeStepCount() > 0 )
     {
         auto prefs = RiaPreferencesGrid::current();
@@ -860,8 +864,8 @@ RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
 
         auto dynamicResult = std::find_if( allResults.begin(),
                                            allResults.end(),
-                                           []( const RigEclipseResultAddress& adr )
-                                           { return adr.resultCatType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE; } );
+                                           [&isCandidateResult]( const RigEclipseResultAddress& adr )
+                                           { return isCandidateResult( adr, RiaDefines::ResultCatType::DYNAMIC_NATIVE ); } );
 
         if ( dynamicResult != allResults.end() ) return *dynamicResult;
     }
@@ -869,16 +873,16 @@ RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
     // If any input property exists, use that
     auto inputProperty = std::find_if( allResults.begin(),
                                        allResults.end(),
-                                       []( const RigEclipseResultAddress& adr )
-                                       { return adr.resultCatType() == RiaDefines::ResultCatType::INPUT_PROPERTY; } );
+                                       [&isCandidateResult]( const RigEclipseResultAddress& adr )
+                                       { return isCandidateResult( adr, RiaDefines::ResultCatType::INPUT_PROPERTY ); } );
 
     if ( inputProperty != allResults.end() ) return *inputProperty;
 
     // If any static property exists, use that
     auto staticResult = std::find_if( allResults.begin(),
                                       allResults.end(),
-                                      []( const RigEclipseResultAddress& adr )
-                                      { return adr.resultCatType() == RiaDefines::ResultCatType::STATIC_NATIVE; } );
+                                      [&isCandidateResult]( const RigEclipseResultAddress& adr )
+                                      { return isCandidateResult( adr, RiaDefines::ResultCatType::STATIC_NATIVE ); } );
 
     if ( staticResult != allResults.end() ) return *staticResult;
 
