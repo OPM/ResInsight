@@ -16,35 +16,48 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSummarySumoDataSource.h"
+#include "RimSumoDataSource.h"
 
 #include "RiaStdStringTools.h"
 
-#include "cafCmdFeatureMenuBuilder.h"
-#include "cafPdmUiTreeSelectionEditor.h"
+#include "RimSummaryEnsembleSumo.h"
 
-CAF_PDM_SOURCE_INIT( RimSummarySumoDataSource, "RimSummarySumoDataSource" );
+#include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiLineEditor.h"
+#include "cafPdmUiTextEditor.h"
+
+CAF_PDM_SOURCE_INIT( RimSumoDataSource, "RimSumoDataSource", "RimSummarySumoDataSource" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummarySumoDataSource::RimSummarySumoDataSource()
+RimSumoDataSource::RimSumoDataSource()
 {
     CAF_PDM_InitObject( "Sumo Data Source", ":/CloudBlobs.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_caseId, "CaseId", "Case Id" );
+    CAF_PDM_InitFieldNoDefault( &m_assetName, "AssetName", "Asset Name" );
     CAF_PDM_InitFieldNoDefault( &m_caseName, "CaseName", "Case Name" );
     CAF_PDM_InitFieldNoDefault( &m_ensembleName, "EnsembleName", "Ensemble Name" );
     CAF_PDM_InitFieldNoDefault( &m_customName, "CustomName", "Custom Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_realizationIds, "RealizationIds", "Realizations Ids" );
-    m_realizationIds.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_availableRealizationIds, "RealizationIds", "Available Realization Ids" );
+    m_availableRealizationIds.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_realizationInfo, "NameProxy", "Realization Info" );
-    m_realizationInfo.registerGetMethod( this, &RimSummarySumoDataSource::realizationInfoText );
+    CAF_PDM_InitField( &m_realizationFilter,
+                       "RealizationFilter",
+                       QString(),
+                       "Realization Filter",
+                       "",
+                       "Specify realization numbers. Example: 1-5, 8, 11-20, !4 will include 1, 2, 3, 5, 8, 11-20" );
+
+    CAF_PDM_InitFieldNoDefault( &m_realizationFilterInfo, "RealizationFilterInfo", "Info" );
+    m_realizationFilterInfo.registerGetMethod( this, &RimSumoDataSource::realizationFilterInfoText );
+    m_realizationFilterInfo.uiCapability()->setUiReadOnly( true );
+    m_realizationFilterInfo.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_vectorNames, "VectorNames", "Vector Names" );
-    m_vectorNames.uiCapability()->setUiReadOnly( true );
+    m_vectorNames.uiCapability()->setUiHidden( true );
 
     setDeletable( true );
 }
@@ -52,7 +65,7 @@ RimSummarySumoDataSource::RimSummarySumoDataSource()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-SumoCaseId RimSummarySumoDataSource::caseId() const
+SumoCaseId RimSumoDataSource::caseId() const
 {
     return SumoCaseId( m_caseId() );
 }
@@ -60,7 +73,7 @@ SumoCaseId RimSummarySumoDataSource::caseId() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummarySumoDataSource::setCaseId( const SumoCaseId& caseId )
+void RimSumoDataSource::setCaseId( const SumoCaseId& caseId )
 {
     m_caseId = caseId.get();
 }
@@ -68,7 +81,23 @@ void RimSummarySumoDataSource::setCaseId( const SumoCaseId& caseId )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummarySumoDataSource::caseName() const
+QString RimSumoDataSource::assetName() const
+{
+    return m_assetName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSumoDataSource::setAssetName( const QString& assetName )
+{
+    m_assetName = assetName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSumoDataSource::caseName() const
 {
     return m_caseName();
 }
@@ -76,7 +105,7 @@ QString RimSummarySumoDataSource::caseName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummarySumoDataSource::setCaseName( const QString& caseName )
+void RimSumoDataSource::setCaseName( const QString& caseName )
 {
     m_caseName = caseName;
 }
@@ -84,7 +113,7 @@ void RimSummarySumoDataSource::setCaseName( const QString& caseName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummarySumoDataSource::ensembleName() const
+QString RimSumoDataSource::ensembleName() const
 {
     return m_ensembleName();
 }
@@ -92,7 +121,7 @@ QString RimSummarySumoDataSource::ensembleName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummarySumoDataSource::setEnsembleName( const QString& ensembleName )
+void RimSumoDataSource::setEnsembleName( const QString& ensembleName )
 {
     m_ensembleName = ensembleName;
 }
@@ -100,23 +129,53 @@ void RimSummarySumoDataSource::setEnsembleName( const QString& ensembleName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimSummarySumoDataSource::realizationIds() const
+std::vector<QString> RimSumoDataSource::availableRealizationIds() const
 {
-    return m_realizationIds();
+    return m_availableRealizationIds();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The available realizations are the source of truth. An empty filter selects all of them.
+//--------------------------------------------------------------------------------------------------
+void RimSumoDataSource::setAvailableRealizationIds( const std::vector<QString>& realizationIds )
+{
+    m_availableRealizationIds = realizationIds;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The subset of available realizations matching the realization filter. An empty filter (or '*')
+/// selects all available realizations.
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimSumoDataSource::selectedRealizationIds() const
+{
+    const auto& available = m_availableRealizationIds();
+
+    auto filter = m_realizationFilter();
+    if ( filter.trimmed().isEmpty() || filter.contains( '*' ) )
+    {
+        return available;
+    }
+
+    auto selectedValues = RiaStdStringTools::valuesFromRangeSelection( filter.toStdString() );
+
+    std::vector<QString> result;
+    for ( const auto& realizationId : available )
+    {
+        bool ok    = false;
+        int  value = realizationId.toInt( &ok );
+        if ( ok && selectedValues.count( value ) > 0 )
+        {
+            result.push_back( realizationId );
+        }
+    }
+
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummarySumoDataSource::setRealizationIds( const std::vector<QString>& realizationIds )
-{
-    m_realizationIds = realizationIds;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RimSummarySumoDataSource::vectorNames() const
+std::vector<QString> RimSumoDataSource::vectorNames() const
 {
     return m_vectorNames();
 }
@@ -124,7 +183,7 @@ std::vector<QString> RimSummarySumoDataSource::vectorNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummarySumoDataSource::setVectorNames( const std::vector<QString>& vectorNames )
+void RimSumoDataSource::setVectorNames( const std::vector<QString>& vectorNames )
 {
     m_vectorNames = vectorNames;
 }
@@ -132,7 +191,7 @@ void RimSummarySumoDataSource::setVectorNames( const std::vector<QString>& vecto
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummarySumoDataSource::updateName()
+void RimSumoDataSource::updateName()
 {
     if ( !m_customName().isEmpty() )
     {
@@ -148,7 +207,7 @@ void RimSummarySumoDataSource::updateName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummarySumoDataSource::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+void RimSumoDataSource::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder.addCmdFeature( "RicCreateSumoEnsembleFeature" );
 }
@@ -156,15 +215,20 @@ void RimSummarySumoDataSource::appendMenuItems( caf::CmdFeatureMenuBuilder& menu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummarySumoDataSource::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+void RimSumoDataSource::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_vectorNames )
+    if ( field == &m_realizationFilter )
     {
-        if ( auto attr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute ) )
+        if ( auto lineEdAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
         {
-            attr->showCheckBoxes        = false;
-            attr->showContextMenu       = false;
-            attr->showToggleAllCheckbox = false;
+            lineEdAttr->placeholderText = "E.g. 0,1,4-10,!6. Use '*' for all.";
+        }
+    }
+    else if ( field == &m_realizationFilterInfo )
+    {
+        if ( auto* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute ) )
+        {
+            myAttr->heightHint = -1;
         }
     }
 }
@@ -172,7 +236,7 @@ void RimSummarySumoDataSource::defineEditorAttribute( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummarySumoDataSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimSumoDataSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto group = uiOrdering.addNewGroup( "General" );
 
@@ -182,6 +246,9 @@ void RimSummarySumoDataSource::defineUiOrdering( QString uiConfigName, caf::PdmU
     group->add( &m_caseId );
     m_caseId.uiCapability()->setUiReadOnly( true );
 
+    group->add( &m_assetName );
+    m_assetName.uiCapability()->setUiReadOnly( true );
+
     group->add( &m_caseName );
     m_caseName.uiCapability()->setUiReadOnly( true );
 
@@ -190,39 +257,53 @@ void RimSummarySumoDataSource::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     group->add( &m_customName );
 
-    auto summaryInfo = uiOrdering.addNewGroup( "Info" );
-    summaryInfo->setCollapsedByDefault();
-    summaryInfo->add( &m_realizationInfo );
-    summaryInfo->add( &m_vectorNames );
+    auto ensembleGroup = uiOrdering.addNewGroup( "Ensemble Selection" );
+    ensembleGroup->add( &m_realizationFilter );
+    ensembleGroup->add( &m_realizationFilterInfo );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummarySumoDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimSumoDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_customName )
     {
         updateName();
     }
+    else if ( changedField == &m_realizationFilter )
+    {
+        onRealizationFilterChanged();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Propagate a change in the realization filter to the ensembles created from this data source, so
+/// editing the filter updates the realization cases (and the connected plots/views).
 //--------------------------------------------------------------------------------------------------
-QString RimSummarySumoDataSource::realizationInfoText() const
+void RimSumoDataSource::onRealizationFilterChanged()
+{
+    // Update any summary ensembles created from this data source (same behaviour as summary ensembles
+    // loaded from disk, see RimSummaryFileSetEnsemble::onFileSetChanged).
+    for ( auto ensemble : objectsWithReferringPtrFieldsOfType<RimSummaryEnsembleSumo>() )
+    {
+        ensemble->onRealizationSelectionChanged();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Compact range text for the available ensemble realizations.
+//--------------------------------------------------------------------------------------------------
+QString RimSumoDataSource::realizationFilterInfoText() const
 {
     std::vector<int> intValues;
-    for ( const auto& realizationId : realizationIds() )
+    for ( const auto& realizationId : m_availableRealizationIds() )
     {
         bool ok    = false;
         int  value = realizationId.toInt( &ok );
-        if ( ok )
-        {
-            intValues.push_back( value );
-        }
+        if ( ok ) intValues.push_back( value );
     }
 
     auto rangeString = RiaStdStringTools::formatRangeSelection( intValues );
-    return QString::fromStdString( rangeString );
+    return "Available realizations: " + QString::fromStdString( rangeString );
 }

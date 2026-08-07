@@ -27,7 +27,7 @@
 #include <QPointer>
 #include <QString>
 
-class RimSummarySumoDataSource;
+class RimSumoDataSource;
 
 //==================================================================================================
 ///
@@ -42,9 +42,9 @@ public:
 
     static RimCloudDataSourceCollection* instance();
 
-    std::vector<RimSummarySumoDataSource*> sumoDataSources() const;
+    std::vector<RimSumoDataSource*> sumoDataSources() const;
 
-    static void createEnsemblesFromSelectedDataSources( const std::vector<RimSummarySumoDataSource*>& dataSources );
+    static void createEnsemblesFromSelectedDataSources( const std::vector<RimSumoDataSource*>& dataSources );
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -53,8 +53,8 @@ private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    std::vector<RimSummarySumoDataSource*> addDataSources();
-    void                                   addEnsembles();
+    std::vector<RimSumoDataSource*> addDataSources();
+    void                            addEnsembles();
 
 private:
     caf::PdmField<bool>                 m_authenticate;
@@ -62,9 +62,9 @@ private:
     caf::PdmField<QString>              m_sumoCaseId;
     caf::PdmField<std::vector<QString>> m_sumoEnsembleNames;
 
-    caf::PdmField<bool>                                m_addDataSources;
-    caf::PdmField<bool>                                m_addEnsembles;
-    caf::PdmChildArrayField<RimSummarySumoDataSource*> m_sumoDataSources;
+    caf::PdmField<bool>                         m_addDataSources;
+    caf::PdmField<bool>                         m_addEnsembles;
+    caf::PdmChildArrayField<RimSumoDataSource*> m_sumoDataSources;
 
     caf::PdmField<bool> m_startServer;
     caf::PdmField<bool> m_stopServer;

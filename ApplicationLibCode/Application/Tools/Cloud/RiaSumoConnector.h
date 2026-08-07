@@ -101,7 +101,7 @@ public:
     void requestBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
 
     void requestBlobDownload( const QString& blobId );
-    void requestBlobByRedirectUri( const QString& blobId, const QString& redirectUri );
+    void requestBlobBySasUri( const QString& blobId, const QString& sasUri );
 
     QByteArray requestParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
 
@@ -110,7 +110,7 @@ public:
     std::vector<QString>      ensembleNamesForCase( const SumoCaseId& caseId ) const;
     std::vector<QString>      vectorNames() const;
     std::vector<QString>      realizationIds() const;
-    std::vector<QString>      blobUrls() const;
+    std::vector<QString>      blobIds() const;
     std::vector<SumoRedirect> blobContents() const;
 
 public slots:
@@ -119,7 +119,7 @@ public slots:
     void parseCases( QNetworkReply* reply );
     void parseVectorNames( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
     void parseRealizationNumbers( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
-    void parseBlobIds( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName, bool isParameters );
+    void parseBlobId( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName, bool isParameters );
 
     void requestFailed( const QAbstractOAuth::Error error );
     void parquetDownloadComplete( const QString& blobId, const QByteArray&, const QString& url );
@@ -140,12 +140,10 @@ signals:
 private:
     void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& contentType );
 
-    QNetworkReply* makeRequest( const std::map<QString, QString>& parameters, const QString& server, const QString& token );
     QNetworkReply* makeDownloadRequest( const QString& url, const QString& token, const QString& contentType );
     void           requestParquetData( const QString& url, const QString& token );
 
-    static QString constructSearchUrl( const QString& server );
-    static QString constructDownloadUrl( const QString& server, const QString& blobId );
+    static QString constructSasUri( const QString& blobStoreBaseUri, const QString& blobId, const QString& sasToken );
 
     void wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod );
 
@@ -156,7 +154,7 @@ private:
     std::vector<QString>      m_realizationIds;
     std::vector<SumoEnsemble> m_ensembleNames;
 
-    std::vector<QString> m_blobUrl;
+    std::vector<QString> m_blobId;
 
     std::vector<SumoRedirect> m_redirectInfo;
 };

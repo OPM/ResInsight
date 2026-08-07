@@ -26,7 +26,7 @@
 
 #include <QPointer>
 
-class RimSummarySumoDataSource;
+class RimSumoDataSource;
 
 //==================================================================================================
 //
@@ -60,7 +60,9 @@ class RimSummaryEnsembleSumo : public RimSummaryEnsemble
 public:
     RimSummaryEnsembleSumo();
 
-    void setSumoDataSource( RimSummarySumoDataSource* sumoDataSource );
+    void setSumoDataSource( RimSumoDataSource* sumoDataSource );
+
+    void onRealizationSelectionChanged();
 
     void                               loadSummaryData( const RifEclipseSummaryAddress& resultAddress );
     std::string                        unitName( const RifEclipseSummaryAddress& resultAddress );
@@ -86,11 +88,12 @@ private:
     void buildMetaData();
 
     void distributeParametersDataToRealizations( std::shared_ptr<arrow::Table> table );
+    void redistributeCachedDataToRealizations();
 
     static std::shared_ptr<arrow::Table> readParquetTable( const QByteArray& contents, const QString& messageTag );
 
 private:
-    caf::PdmPtrField<RimSummarySumoDataSource*> m_sumoDataSource;
+    caf::PdmPtrField<RimSumoDataSource*> m_sumoDataSource;
 
     QPointer<RiaSumoConnector> m_sumoConnector;
 

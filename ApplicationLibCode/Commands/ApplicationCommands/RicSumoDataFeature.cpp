@@ -181,14 +181,14 @@ void SimpleDialog::onParquetClicked()
 {
     if ( !isTokenValid() ) return;
 
-    if ( m_sumoConnector->blobUrls().empty() )
+    if ( m_sumoConnector->blobIds().empty() )
     {
         onFindBlobIdClicked();
     }
 
-    if ( !m_sumoConnector->blobUrls().empty() )
+    if ( !m_sumoConnector->blobIds().empty() )
     {
-        m_sumoConnector->requestBlobDownload( m_sumoConnector->blobUrls().back() );
+        m_sumoConnector->requestBlobDownload( m_sumoConnector->blobIds().back() );
 
         label->setText( "Requesting blob ID for vector name (see log for response" );
     }
