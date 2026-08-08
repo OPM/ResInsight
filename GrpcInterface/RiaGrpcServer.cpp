@@ -38,6 +38,8 @@
 
 #include <QTcpServer>
 
+#include <thread>
+
 using grpc::CompletionQueue;
 using grpc::Server;
 using grpc::ServerAsyncResponseWriter;
