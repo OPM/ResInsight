@@ -88,6 +88,14 @@ void RimAnnotationLineAppearance::setLineFieldsHidden( bool hidden )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAnnotationLineAppearance::setColorReadOnly( bool readOnly )
+{
+    m_color.uiCapability()->setUiReadOnly( readOnly );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAnnotationLineAppearance::configureForSummaryAnnotations()
 {
     m_style.uiCapability()->setUiHidden( false );

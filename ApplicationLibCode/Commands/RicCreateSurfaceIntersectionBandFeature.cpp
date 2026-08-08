@@ -78,7 +78,9 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
                     auto band = intersection->addIntersectionBand();
                     band->setSurfaces( surf1, surf2 );
 
+                    // The statistics surfaces share the same color, use distinct colors to separate the bands
                     auto color = colors.cycledColor3f( 0 );
+                    band->setUseCustomColor( true );
                     band->setBandColor( color );
                     band->setBandOpacity( defaultOpacity );
                     band->setPolygonOffsetUnit( 0.08 );
@@ -100,6 +102,7 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
                     band->setSurfaces( surf1, surf2 );
 
                     auto color = colors.cycledColor3f( 1 );
+                    band->setUseCustomColor( true );
                     band->setBandColor( color );
                     band->setBandOpacity( defaultOpacity );
                     band->setPolygonOffsetUnit( 0.1 );
@@ -117,15 +120,12 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
 
             if ( surfaces.size() > 1 )
             {
+                // The color defined in the Surfaces collection is used for the band
                 band->setSurfaces( surfaces[0], surfaces[1] );
             }
 
-            auto color = colors.cycledColor3f( 1 );
-            band->setBandColor( color );
             band->setBandOpacity( defaultOpacity );
             band->setPolygonOffsetUnit( 0.1 );
-
-            band->lineAppearance()->setColor( color );
 
             objectToSelect = band;
         }

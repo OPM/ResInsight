@@ -169,7 +169,10 @@ std::vector<RimSurface*> RivSurfaceIntersectionCurveTools::referencedSurfaces( c
 
     for ( auto curve : surfaceIntersections->surfaceIntersectionCurves() )
     {
-        appendSurface( curve->surface() );
+        for ( auto surface : curve->surfaces() )
+        {
+            appendSurface( surface );
+        }
     }
 
     for ( auto band : surfaceIntersections->surfaceIntersectionBands() )
@@ -290,18 +293,21 @@ cvf::Collection<cvf::Part>
     {
         if ( !curve->isChecked() ) continue;
 
-        auto surface = curve->surface();
-        if ( !surface ) continue;
+        // One curve is created per selected surface, each with its own label and color
+        for ( auto surface : curve->surfaces() )
+        {
+            if ( !surface ) continue;
 
-        auto it = surfacePolylines.find( surface );
-        if ( it == surfacePolylines.end() ) continue;
+            auto it = surfacePolylines.find( surface );
+            if ( it == surfacePolylines.end() ) continue;
 
-        auto curveParts = createCurveParts( it->second,
-                                            surface->fullName(),
-                                            curve->lineAppearance()->color(),
-                                            curve->lineAppearance()->thickness(),
-                                            scaleTransform );
-        appendParts( curveParts );
+            auto curveParts = createCurveParts( it->second,
+                                                surface->fullName(),
+                                                curve->colorForSurface( surface ),
+                                                curve->lineAppearance()->thickness(),
+                                                scaleTransform );
+            appendParts( curveParts );
+        }
     }
 
     for ( auto band : surfaceIntersections->surfaceIntersectionBands() )
@@ -320,11 +326,11 @@ cvf::Collection<cvf::Part>
         const auto& polylineB = it2->second;
 
         auto curvePartsA =
-            createCurveParts( polylineA, surface1->fullName(), band->lineAppearance()->color(), band->lineAppearance()->thickness(), scaleTransform );
+            createCurveParts( polylineA, surface1->fullName(), band->lineColor(), band->lineAppearance()->thickness(), scaleTransform );
         appendParts( curvePartsA );
 
         auto curvePartsB =
-            createCurveParts( polylineB, surface2->fullName(), band->lineAppearance()->color(), band->lineAppearance()->thickness(), scaleTransform );
+            createCurveParts( polylineB, surface2->fullName(), band->lineColor(), band->lineAppearance()->thickness(), scaleTransform );
         appendParts( curvePartsB );
 
         auto bandPart = createBandPart( polylineA, polylineB, band->bandColor(), band->bandOpacity(), band->polygonOffsetUnit() );
