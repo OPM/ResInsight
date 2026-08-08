@@ -1,4 +1,3 @@
-#include "cafAsyncObjectDeleter.h"
 #include "cafClassTypeName.h"
 #include "cafPdmObjectHandle.h"
 
@@ -182,26 +181,6 @@ void PdmChildArrayField<DataType*>::deleteChildren()
     }
 
     m_pointers.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Transfers ownership of the objects pointed to a separate thread.
-/// Then clears the container and lets the thread delete the objects.
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void PdmChildArrayField<DataType*>::deleteChildrenAsync()
-{
-    CAF_ASSERT( isInitializedByInitFieldMacro() );
-
-    auto objectsToDelete = m_pointers;
-
-    // Disconnect the connection to observers before deleting the objects
-    // https://github.com/OPM/ResInsight/issues/12262
-    //
-    // See test in \Fwk\AppFwk\cafProjectDataModel\cafPdmCore\cafPdmCore_UnitTests\cafPdmChildArrayFieldHandleTest.cpp
-    clearWithoutDelete();
-
-    AsyncPdmObjectVectorDeleter<DataType> pointerDeleter( objectsToDelete );
 }
 
 //--------------------------------------------------------------------------------------------------

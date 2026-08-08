@@ -71,8 +71,6 @@ public:
     void             setValue( const std::vector<DataType*>& objects );
     size_t           indexOf( const PdmObjectHandle* obj ) const override;
 
-    virtual void deleteChildrenAsync();
-
     // std::vector-like access
 
     DataType* operator[]( size_t index ) const;

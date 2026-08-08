@@ -37,11 +37,8 @@
 
 #include "RiuPlotMainWindow.h"
 
-#include "cafAsyncObjectDeleter.h"
 #include "cafPdmObjectHandleTools.h"
 #include "cafSelectionManager.h"
-
-#include "cafAssert.h"
 
 #include <QAction>
 
@@ -96,8 +93,7 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateMultiPlotToolBar();
 
-    caf::AsyncPdmObjectVectorDeleter<RimSummaryCase> summaryCaseDeleter( cases );
-    CAF_ASSERT( cases.empty() ); // vector should be empty immediately.
+    caf::PdmObjectHandleTools::deleteObjects( cases );
 }
 
 //--------------------------------------------------------------------------------------------------
