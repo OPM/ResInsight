@@ -53,6 +53,7 @@
 #include <QFileInfo>
 
 #include <cmath>
+#include <set>
 
 CAF_PDM_SOURCE_INIT( RimSummaryEnsemble, "SummaryCaseSubCollection" );
 
@@ -118,7 +119,8 @@ RimSummaryEnsemble::~RimSummaryEnsemble()
 {
     m_cases.deleteChildren();
 
-    updateReferringCurveSets();
+    // The cases are gone at this point, so the referring curve sets are cleared and their plots redrawn without data.
+    clearReferringCurveSets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -785,6 +787,37 @@ void RimSummaryEnsemble::updateReferringCurveSets( bool doZoomAll )
 void RimSummaryEnsemble::updateReferringCurveSets()
 {
     updateReferringCurveSets( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Clear the curves of the curve sets referring to this ensemble, and redraw the affected plots.
+///
+/// Used when the summary cases have been deleted. Reloading the curve data has nothing to read at that point, so this
+/// deletes the curves directly instead of going through loadDataAndUpdate(). Each plot is updated once, even when it
+/// holds several curve sets referring to this ensemble.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::clearReferringCurveSets()
+{
+    std::set<RimSummaryPlot*> plotsToUpdate;
+
+    for ( auto curveSet : objectsWithReferringPtrFieldsOfType<RimEnsembleCurveSet>() )
+    {
+        if ( !curveSet ) continue;
+
+        curveSet->deleteEnsembleCurves();
+        curveSet->deleteStatisticsCurves();
+        curveSet->filterChanged.send();
+
+        if ( auto parentPlot = curveSet->firstAncestorOrThisOfType<RimSummaryPlot>() )
+        {
+            plotsToUpdate.insert( parentPlot );
+        }
+    }
+
+    for ( auto plot : plotsToUpdate )
+    {
+        plot->updateAll();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

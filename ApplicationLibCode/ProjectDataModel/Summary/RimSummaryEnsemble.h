@@ -113,6 +113,7 @@ public:
 
     void updateReferringCurveSets();
     void updateReferringCurveSetsZoomAll();
+    void clearReferringCurveSets();
 
     RiaSummaryAddressAnalyzer* addressAnalyzer();
 
