@@ -285,6 +285,21 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
         return;
     }
 
+    // A case that failed to open is left in the collection by loadMainCaseAndActiveCellInfo(), and has no case data. Collect the cases
+    // that do have data, calling activeCellInfo() on a null case data crashes.
+    std::vector<RigEclipseCaseData*> sourceCaseData;
+    for ( auto* reservoir : caseCollection->reservoirs.childrenByType() )
+    {
+        if ( reservoir && reservoir->eclipseCaseData() ) sourceCaseData.push_back( reservoir->eclipseCaseData() );
+    }
+
+    if ( sourceCaseData.empty() )
+    {
+        clearActiveCellUnions();
+
+        return;
+    }
+
     m_unionOfMatrixActiveCells->setReservoirCellCount( m_mainGrid->totalCellCount() );
     m_unionOfFractureActiveCells->setReservoirCellCount( m_mainGrid->totalCellCount() );
     m_unionOfMatrixActiveCells->setGridCount( m_mainGrid->gridCount() );
@@ -302,14 +317,13 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
         for ( size_t gridLocalCellIndex = 0; gridLocalCellIndex < grid->cellCount(); gridLocalCellIndex++ )
         {
-            for ( size_t caseIdx = 0; caseIdx < caseCollection->reservoirs.size(); caseIdx++ )
+            for ( size_t caseIdx = 0; caseIdx < sourceCaseData.size(); caseIdx++ )
             {
                 size_t reservoirCellIndex = grid->reservoirCellIndex( gridLocalCellIndex );
 
                 if ( activeM[gridLocalCellIndex] == 0 )
                 {
-                    if ( caseCollection->reservoirs[caseIdx]
-                             ->eclipseCaseData()
+                    if ( sourceCaseData[caseIdx]
                              ->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )
                              ->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                     {
@@ -319,8 +333,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if ( activeF[gridLocalCellIndex] == 0 )
                 {
-                    if ( caseCollection->reservoirs[caseIdx]
-                             ->eclipseCaseData()
+                    if ( sourceCaseData[caseIdx]
                              ->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )
                              ->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                     {
