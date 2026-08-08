@@ -19,12 +19,24 @@
 #include "gtest/gtest.h"
 
 #include "CompletionExportCommands/MswExport/RicWellPathExportMswGeometryPath.h"
+#include "CompletionExportCommands/RicWellPathExportMswTableData.h"
 
 #include "CompletionsMsw/RigMswSegment.h"
 #include "CompletionsMsw/RigMswTableData.h"
 #include "CompletionsMsw/RigMswTableRows.h"
 
+#include "RiaApplication.h"
 #include "RiaDefines.h"
+#include "RiaTestDataDirectory.h"
+
+#include "RimEclipseCase.h"
+#include "RimProject.h"
+#include "RimWellPath.h"
+
+#include <QDir>
+#include <QFile>
+
+#include <map>
 
 namespace
 {
@@ -416,4 +428,113 @@ TEST( RicWellPathExportMswGeometryPath, HeaderFieldsPropagated )
     EXPECT_DOUBLE_EQ( 2345.6, result.welsegsHeader().topLength );
     EXPECT_EQ( "ABS", result.welsegsHeader().infoType );
     EXPECT_EQ( RiaDefines::EclipseUnitSystem::UNITS_FIELD, result.unitSystem() );
+}
+
+//==================================================================================================
+// Branch numbering, using the multiple_laterals test project.
+//
+// Well-A is a main bore with an ICD-valved perforation interval and two well path laterals tied in
+// (Y2 and Y3). The main bore and the laterals must be given the lowest branch numbers, and the
+// completion branches must follow.
+//==================================================================================================
+
+namespace
+{
+
+//--------------------------------------------------------------------------------------------------
+/// The single Eclipse case of the multiple_laterals project, and one of its well paths.
+//--------------------------------------------------------------------------------------------------
+struct MswExportInput
+{
+    RimEclipseCase* eclipseCase = nullptr;
+    RimWellPath*    wellPath    = nullptr;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Load the multiple_laterals project and look up the well path with the given name.
+/// Members are left as nullptr if the project, the case or the well path could not be found.
+//--------------------------------------------------------------------------------------------------
+MswExportInput loadMultipleLateralsProject( const QString& wellPathName )
+{
+    MswExportInput input;
+
+    QDir projectFolder( TEST_MODEL_DIR );
+    if ( !projectFolder.cd( "msw-export/project-files" ) ) return input;
+
+    const QString projectFileName = projectFolder.absoluteFilePath( "multiple_laterals.rsp" );
+    if ( !QFile::exists( projectFileName ) ) return input;
+
+    if ( !RiaApplication::instance()->loadProject( projectFileName ) ) return input;
+
+    RimProject* project = RimProject::current();
+    if ( !project ) return input;
+
+    const auto eclipseCases = project->eclipseCases();
+    if ( !eclipseCases.empty() ) input.eclipseCase = eclipseCases.front();
+
+    for ( auto* wellPath : project->allWellPaths() )
+    {
+        if ( wellPath && wellPath->name() == wellPathName ) input.wellPath = wellPath;
+    }
+
+    return input;
+}
+
+} // anonymous namespace
+
+//--------------------------------------------------------------------------------------------------
+/// The main bore and the well path laterals occupy branch 1..N, and every completion branch is
+/// numbered above them.
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, MultipleLaterals_LateralsNumberedBeforeCompletionBranches )
+{
+    auto input = loadMultipleLateralsProject( "Well-A Y1" );
+    ASSERT_TRUE( input.eclipseCase != nullptr );
+    ASSERT_TRUE( input.wellPath != nullptr );
+
+    auto tableData = RicWellPathExportMswTableData::extractSingleWellMswData( input.eclipseCase, input.wellPath );
+    ASSERT_TRUE( tableData.has_value() );
+
+    // Branch 1 is the main bore, branches 2 and 3 are the laterals Y2 and Y3. The three ICD
+    // completion branches follow as 4, 5 and 6.
+    std::map<int, std::string> descriptionOfFirstSegmentInBranch;
+    for ( const auto& branch : tableData->mswBranches() )
+    {
+        if ( !branch.segments.empty() ) descriptionOfFirstSegmentInBranch[branch.branchNumber] = branch.segments.front().description;
+    }
+
+    ASSERT_EQ( 6u, descriptionOfFirstSegmentInBranch.size() );
+    EXPECT_EQ( "Segments on main bore", descriptionOfFirstSegmentInBranch[1] );
+    EXPECT_EQ( "Segments on lateral Well-A Y2", descriptionOfFirstSegmentInBranch[2] );
+    EXPECT_EQ( "Segments on lateral Well-A Y3", descriptionOfFirstSegmentInBranch[3] );
+    for ( int branchNumber : { 4, 5, 6 } )
+    {
+        EXPECT_EQ( "1 ICD: 3100 - 3800 #1", descriptionOfFirstSegmentInBranch[branchNumber] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The completion branches of a lateral are listed immediately after that lateral, even though
+/// their branch numbers are higher than the branch numbers of the laterals listed later.
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, MultipleLaterals_CompletionBranchesListedAfterTheirLateral )
+{
+    auto input = loadMultipleLateralsProject( "Well-A Y1" );
+    ASSERT_TRUE( input.eclipseCase != nullptr );
+    ASSERT_TRUE( input.wellPath != nullptr );
+
+    auto tableData = RicWellPathExportMswTableData::extractSingleWellMswData( input.eclipseCase, input.wellPath );
+    ASSERT_TRUE( tableData.has_value() );
+
+    // The branch number of each WELSEGS row, in the order the rows are written to the export file.
+    std::vector<int> branchNumbersInListedOrder;
+    for ( const auto& row : tableData->welsegsData() )
+    {
+        if ( branchNumbersInListedOrder.empty() || branchNumbersInListedOrder.back() != row.branch )
+            branchNumbersInListedOrder.push_back( row.branch );
+    }
+
+    // Main bore, its three ICD branches, then lateral Y2 and lateral Y3.
+    const std::vector<int> expected = { 1, 4, 5, 6, 2, 3 };
+    EXPECT_EQ( expected, branchNumbersInListedOrder );
 }

@@ -48,6 +48,19 @@ namespace RicWellPathExportMswGeometryPath
 using CompletionType = RicWellPathExportMswTableData::CompletionType;
 
 //--------------------------------------------------------------------------------------------------
+/// Number of well path laterals in the tie-in tree, including the given well path itself.
+//--------------------------------------------------------------------------------------------------
+static int lateralCount( const RimWellPath* wellPath )
+{
+    int count = 1;
+    for ( const auto* childWellPath : RicWellPathExportMswTableData::wellPathsWithTieIn( wellPath ) )
+    {
+        count += lateralCount( childWellPath );
+    }
+    return count;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Recursively build all WELSEGS/COMPSEGS/valve segments for one lateral (child well path)
 /// and any of its own child laterals.
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +71,8 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                 CompletionType                               completionType,
                                                 const std::optional<QDateTime>&              exportDate,
                                                 int&                                         segmentNumber,
-                                                int&                                         branchNumber,
+                                                int&                                         lateralBranchNumber,
+                                                int&                                         completionBranchNumber,
                                                 RiaDefines::EclipseUnitSystem                unitSystem,
                                                 RicMswBranchBuilder::FishbonesExportContext& fishbonesContext )
 {
@@ -71,7 +85,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
     const double      tieInTVD          = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( tieInMD ).z();
     const std::string wellNameForExport = wellPath->completionSettings()->wellNameForExport().toStdString();
 
-    const int lateralBranchNum = ++branchNumber;
+    const int lateralBranchNum = ++lateralBranchNumber;
     int       childOutletSeg   = outletSegNum;
 
     // Optional ICV valve at the tie-in point — stored on the branch, not as a separate branch
@@ -217,7 +231,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                   infoType,
                                                                   wellNameForExport,
                                                                   segmentNumber,
-                                                                  branchNumber,
+                                                                  completionBranchNumber,
                                                                   mswParameters->maxSegmentLength(),
                                                                   {},
                                                                   exportDate,
@@ -226,8 +240,13 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
 
     if ( ( completionType & CompletionType::FRACTURES ) == CompletionType::FRACTURES )
     {
-        auto fracBranches =
-            RicMswBranchBuilder::buildFractureBranches( eclipseCase, wellPath, mainGrid, childCellSegMap, infoType, segmentNumber, branchNumber );
+        auto fracBranches = RicMswBranchBuilder::buildFractureBranches( eclipseCase,
+                                                                        wellPath,
+                                                                        mainGrid,
+                                                                        childCellSegMap,
+                                                                        infoType,
+                                                                        segmentNumber,
+                                                                        completionBranchNumber );
         result.insert( result.end(), std::make_move_iterator( fracBranches.begin() ), std::make_move_iterator( fracBranches.end() ) );
     }
 
@@ -241,7 +260,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                          infoType,
                                                                          wellNameForExport,
                                                                          segmentNumber,
-                                                                         branchNumber,
+                                                                         completionBranchNumber,
                                                                          mswParameters->maxSegmentLength(),
                                                                          {},
                                                                          unitSystem,
@@ -261,7 +280,8 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                         completionType,
                                                         exportDate,
                                                         segmentNumber,
-                                                        branchNumber,
+                                                        lateralBranchNumber,
+                                                        completionBranchNumber,
                                                         unitSystem,
                                                         fishbonesContext );
         result.insert( result.end(), std::make_move_iterator( grandchildBranches.begin() ), std::make_move_iterator( grandchildBranches.end() ) );
@@ -328,8 +348,15 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
         }
     }
 
-    int                                                segmentNumber = 2; // Segment 1 is the implicit well heel.
-    int                                                branchNumber  = 1; // Incremented for each new branch.
+    int segmentNumber = 2; // Segment 1 is the implicit well heel.
+
+    // The well path laterals are given their branch number first, so that the main bore and the
+    // laterals occupy the lowest branch numbers. The completion branches (valves, fractures and
+    // fishbones) are numbered after all laterals, but are still listed immediately after the
+    // lateral they are connected to.
+    int lateralBranchNumber    = 1; // Main bore is branch 1, incremented for each lateral.
+    int completionBranchNumber = lateralCount( wellPath ); // Incremented for each completion branch.
+
     std::vector<RicMswBranchBuilder::CellSegmentEntry> cellSegMap;
 
     // Collected across the main bore and all tie-in laterals, applied once the branches are assembled.
@@ -346,7 +373,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                     infoType,
                                                                     initialMD,
                                                                     initialTVD,
-                                                                    branchNumber,
+                                                                    lateralBranchNumber,
                                                                     segmentNumber,
                                                                     1, // outlet = heel (segment 1)
                                                                     maxSegmentLength,
@@ -390,7 +417,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                   infoType,
                                                                   wellNameForExport,
                                                                   segmentNumber,
-                                                                  branchNumber,
+                                                                  completionBranchNumber,
                                                                   maxSegmentLength,
                                                                   customSegmentIntervals,
                                                                   exportDate,
@@ -401,7 +428,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
     if ( includeFractures )
     {
         fractureBranches =
-            RicMswBranchBuilder::buildFractureBranches( eclipseCase, wellPath, mainGrid, cellSegMap, infoType, segmentNumber, branchNumber );
+            RicMswBranchBuilder::buildFractureBranches( eclipseCase, wellPath, mainGrid, cellSegMap, infoType, segmentNumber, completionBranchNumber );
     }
 
     const bool                includeFishbones = ( completionType & CompletionType::FISHBONES ) == CompletionType::FISHBONES;
@@ -416,7 +443,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                          infoType,
                                                                          wellNameForExport,
                                                                          segmentNumber,
-                                                                         branchNumber,
+                                                                         completionBranchNumber,
                                                                          maxSegmentLength,
                                                                          customSegmentIntervals,
                                                                          unitSystem,
@@ -436,7 +463,8 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                    completionType,
                                                    exportDate,
                                                    segmentNumber,
-                                                   branchNumber,
+                                                   lateralBranchNumber,
+                                                   completionBranchNumber,
                                                    unitSystem,
                                                    fishbonesContext );
         lateralBranches.insert( lateralBranches.end(),
