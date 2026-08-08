@@ -26,6 +26,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <set>
+
 class RimSummaryCase;
 class RimSummaryCurve;
 class RimSummaryPlot;
@@ -75,7 +77,8 @@ private:
     void deleteCurve( RimSummaryCurve* curve );
     void removeCurve( RimSummaryCurve* curve );
 
-    void deleteCurvesAssosiatedWithCase( RimSummaryCase* summaryCase );
+    /// Delete the curves associated with any of the given cases. Returns true if any curve was deleted.
+    bool deleteCurvesAssosiatedWithCases( const std::set<RimSummaryCase*>& summaryCases );
     void deleteAllCurves();
     void updateCaseNameHasChanged();
 

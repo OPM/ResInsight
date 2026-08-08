@@ -60,7 +60,7 @@ void RicCloseObservedDataFeature::deleteObservedSummaryData( const std::vector<R
         {
             for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
             {
-                summaryPlot->deleteCurvesAssosiatedWithCase( observedData );
+                summaryPlot->deleteCurvesAssosiatedWithCases( { observedData } );
             }
             multiPlot->updateConnectedEditors();
         }

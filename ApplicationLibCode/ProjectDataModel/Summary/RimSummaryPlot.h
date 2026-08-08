@@ -107,7 +107,8 @@ public:
 
     void deleteCurves( const std::vector<RimSummaryCurve*>& curves );
 
-    void deleteCurvesAssosiatedWithCase( RimSummaryCase* summaryCase );
+    /// Delete the curves associated with any of the given cases. Returns true if any curve was deleted.
+    bool deleteCurvesAssosiatedWithCases( const std::set<RimSummaryCase*>& summaryCases );
 
     RimEnsembleCurveSetCollection* ensembleCurveSetCollection() const;
 

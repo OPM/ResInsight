@@ -42,6 +42,8 @@
 
 #include <QAction>
 
+#include <set>
+
 CAF_CMD_SOURCE_INIT( RicCloseSummaryCaseFeature, "RicCloseSummaryCaseFeature" );
 
 //--------------------------------------------------------------------------------------------------
@@ -66,16 +68,15 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
 
     auto depthTrackPlots = caf::PdmObjectHandleTools::referringAncestorOfType<RimDepthTrackPlot, RimSummaryCase>( cases );
 
-    for ( RimSummaryCase* summaryCase : cases )
+    const std::set<RimSummaryCase*> casesToDelete( cases.begin(), cases.end() );
+
+    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
     {
-        for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
+        for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
         {
-            for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
-            {
-                summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
-            }
-            plotsToUpdate.insert( multiPlot );
+            summaryPlot->deleteCurvesAssosiatedWithCases( casesToDelete );
         }
+        plotsToUpdate.insert( multiPlot );
     }
 
     summaryCaseMainCollection->removeCases( cases );
