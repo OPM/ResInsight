@@ -41,6 +41,8 @@
 #include <QAction>
 #include <QMessageBox>
 
+#include <set>
+
 CAF_CMD_SOURCE_INIT( RicDeleteSummaryCaseCollectionFeature, "RicDeleteSummaryCaseCollectionFeature" );
 
 //--------------------------------------------------------------------------------------------------
@@ -48,18 +50,25 @@ CAF_CMD_SOURCE_INIT( RicDeleteSummaryCaseCollectionFeature, "RicDeleteSummaryCas
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( RimSummaryEnsemble* caseCollection )
 {
+    auto cases = caseCollection->allSummaryCases();
+    if ( cases.empty() ) return;
+
+    // Delete the curves for all the cases in one pass per plot, and update each multi plot only if it actually lost a
+    // curve. Doing this per case meant scanning every plot once per realization and updating the connected editors
+    // once per realization and multi plot.
+    const std::set<RimSummaryCase*> casesToDelete( cases.begin(), cases.end() );
+
     RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
-    for ( RimSummaryCase* summaryCase : caseCollection->allSummaryCases() )
+    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
     {
-        for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
+        bool curvesDeleted = false;
+        for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
         {
-            for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
-            {
-                summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
-            }
-            multiPlot->updateConnectedEditors();
+            if ( summaryPlot->deleteCurvesAssosiatedWithCases( casesToDelete ) ) curvesDeleted = true;
         }
+
+        if ( curvesDeleted ) multiPlot->updateConnectedEditors();
     }
 }
 

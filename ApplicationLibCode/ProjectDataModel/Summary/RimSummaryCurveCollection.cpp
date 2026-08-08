@@ -229,7 +229,7 @@ std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase( RimSummaryCase* summaryCase )
+bool RimSummaryCurveCollection::deleteCurvesAssosiatedWithCases( const std::set<RimSummaryCase*>& summaryCases )
 {
     std::vector<RimSummaryCurve*> summaryCurvesToDelete;
 
@@ -238,7 +238,7 @@ void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase( RimSummaryCase* 
         if ( !summaryCurve ) continue;
         if ( !summaryCurve->summaryCaseY() ) continue;
 
-        if ( summaryCurve->summaryCaseY() == summaryCase )
+        if ( summaryCases.contains( summaryCurve->summaryCaseY() ) )
         {
             summaryCurvesToDelete.push_back( summaryCurve );
         }
@@ -248,6 +248,8 @@ void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase( RimSummaryCase* 
         m_curves.removeChild( summaryCurve );
         delete summaryCurve;
     }
+
+    return !summaryCurvesToDelete.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

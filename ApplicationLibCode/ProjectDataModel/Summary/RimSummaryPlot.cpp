@@ -1497,12 +1497,14 @@ void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::deleteCurvesAssosiatedWithCase( RimSummaryCase* summaryCase )
+bool RimSummaryPlot::deleteCurvesAssosiatedWithCases( const std::set<RimSummaryCase*>& summaryCases )
 {
     if ( m_summaryCurveCollection )
     {
-        m_summaryCurveCollection->deleteCurvesAssosiatedWithCase( summaryCase );
+        return m_summaryCurveCollection->deleteCurvesAssosiatedWithCases( summaryCases );
     }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
