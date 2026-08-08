@@ -40,6 +40,12 @@ class RigMainGrid;
 namespace RicWellPathExportMswGeometryPath
 {
 
+//--------------------------------------------------------------------------------------------------
+/// Branch numbers are handed out from two separate counters. The well path laterals are numbered
+/// first (lateralBranchNumber), so that the main bore and the laterals occupy the lowest branch
+/// numbers. The completion branches follow (completionBranchNumber), but are listed immediately
+/// after the lateral they are connected to.
+//--------------------------------------------------------------------------------------------------
 std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                               eclipseCase,
                                                 const RimWellPath*                            wellPath,
                                                 const RigMainGrid*                            mainGrid,
@@ -47,7 +53,8 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                 RicWellPathExportMswTableData::CompletionType completionType,
                                                 const std::optional<QDateTime>&               exportDate,
                                                 int&                                          segmentNumber,
-                                                int&                                          branchNumber,
+                                                int&                                          lateralBranchNumber,
+                                                int&                                          completionBranchNumber,
                                                 RiaDefines::EclipseUnitSystem                 unitSystem,
                                                 RicMswBranchBuilder::FishbonesExportContext&  fishbonesContext );
 
