@@ -503,6 +503,9 @@ RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDef
     RigMswTableData tableData( exportData.header.well, unitSystem );
     tableData.setWelsegsHeader( exportData.header );
 
+    // Collected while the segments are visited, and added to the table data ordered by branch number.
+    std::vector<CompsegsRow> compsegsRows;
+
     auto emitSegment = [&]( const RigMswBranch& branch, const RigMswSegment& seg )
     {
         // WELSEGS row
@@ -530,7 +533,7 @@ RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDef
             compRow.distanceStart = inter.distanceStart;
             compRow.distanceEnd   = inter.distanceEnd;
             compRow.gridName      = inter.gridName;
-            tableData.addCompsegsRow( compRow );
+            compsegsRows.push_back( compRow );
         }
 
         // WSEGVALV row
@@ -550,6 +553,19 @@ RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDef
             emitSegment( branch, seg );
         tableData.addMswBranch( branch );
     }
+
+    // COMPSEGS is ordered by branch number. WELSEGS keeps the order the branches are listed in, where
+    // the completion branches follow the lateral they are connected to and thus are not sorted by
+    // branch number. The sort is stable, so the rows of a branch keep their order along the well path.
+    std::stable_sort( compsegsRows.begin(),
+                      compsegsRows.end(),
+                      []( const CompsegsRow& lhs, const CompsegsRow& rhs ) { return lhs.branch < rhs.branch; } );
+
+    for ( const auto& compsegsRow : compsegsRows )
+    {
+        tableData.addCompsegsRow( compsegsRow );
+    }
+
     return tableData;
 }
 

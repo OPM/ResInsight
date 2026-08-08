@@ -36,6 +36,7 @@
 #include <QDir>
 #include <QFile>
 
+#include <algorithm>
 #include <map>
 
 namespace
@@ -537,4 +538,31 @@ TEST( RicWellPathExportMswGeometryPath, MultipleLaterals_CompletionBranchesListe
     // Main bore, its three ICD branches, then lateral Y2 and lateral Y3.
     const std::vector<int> expected = { 1, 4, 5, 6, 2, 3 };
     EXPECT_EQ( expected, branchNumbersInListedOrder );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// COMPSEGS is ordered by branch number, unlike WELSEGS.
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, MultipleLaterals_CompsegsOrderedByBranchNumber )
+{
+    auto input = loadMultipleLateralsProject( "Well-A Y1" );
+    ASSERT_TRUE( input.eclipseCase != nullptr );
+    ASSERT_TRUE( input.wellPath != nullptr );
+
+    auto tableData = RicWellPathExportMswTableData::extractSingleWellMswData( input.eclipseCase, input.wellPath );
+    ASSERT_TRUE( tableData.has_value() );
+
+    ASSERT_FALSE( tableData->compsegsData().empty() );
+
+    std::vector<int> branchNumbers;
+    for ( const auto& row : tableData->compsegsData() )
+    {
+        branchNumbers.push_back( row.branch );
+    }
+
+    EXPECT_TRUE( std::is_sorted( branchNumbers.begin(), branchNumbers.end() ) );
+
+    // The lateral Y2 rows come before the ICD rows of the main bore, even though the ICD segments are
+    // listed first in WELSEGS.
+    EXPECT_LT( branchNumbers.front(), branchNumbers.back() );
 }
