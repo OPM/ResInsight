@@ -50,6 +50,8 @@ RimSurfaceIntersectionBand::RimSurfaceIntersectionBand()
     m_lineAppearance->objectChanged.connect( this, &RimSurfaceIntersectionBand::onObjectChanged );
     uiCapability()->setUiTreeChildrenHidden( true );
 
+    CAF_PDM_InitField( &m_useCustomColor, "UseCustomColor", false, "Custom Color" );
+
     CAF_PDM_InitField( &m_bandColor, "BandColor", cvf::Color3f( cvf::Color3f::BLACK ), "Band Color" );
     CAF_PDM_InitField( &m_bandOpacity, "BandOpacity", 0.8, "Band Opacity" );
     m_bandOpacity.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -76,6 +78,16 @@ void RimSurfaceIntersectionBand::setSurfaces( RimSurface* surface1, RimSurface* 
 
     m_surfaces.push_back( surface1 );
     m_surfaces.push_back( surface2 );
+
+    updateColorFromSurface();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionBand::setUseCustomColor( bool useCustomColor )
+{
+    m_useCustomColor = useCustomColor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,7 +127,25 @@ RimAnnotationLineAppearance* RimSurfaceIntersectionBand::lineAppearance() const
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimSurfaceIntersectionBand::bandColor() const
 {
+    if ( !m_useCustomColor() )
+    {
+        if ( auto surface = surface1() ) return surface->color();
+    }
+
     return m_bandColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSurfaceIntersectionBand::lineColor() const
+{
+    if ( !m_useCustomColor() )
+    {
+        if ( auto surface = surface1() ) return surface->color();
+    }
+
+    return m_lineAppearance->color();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,6 +209,12 @@ void RimSurfaceIntersectionBand::fieldChangedByUi( const caf::PdmFieldHandle* ch
         }
 
         m_surfaces.setValue( surfaces );
+    }
+
+    if ( changedField == &m_surfaces || changedField == &m_useCustomColor )
+    {
+        updateColorFromSurface();
+        updateConnectedEditors();
     }
 
     onObjectChanged( this );
@@ -272,8 +308,16 @@ QString RimSurfaceIntersectionBand::objectName() const
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceIntersectionBand::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    // The colors defined in the Surfaces collection are used unless the user asks for a custom color
+    updateColorFromSurface();
+
+    const bool useCustomColor = m_useCustomColor();
+    m_bandColor.uiCapability()->setUiReadOnly( !useCustomColor );
+    m_lineAppearance->setColorReadOnly( !useCustomColor );
+
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Band Appearance" );
+        group->add( &m_useCustomColor );
         group->add( &m_bandColor );
         group->add( &m_bandOpacity );
     }
@@ -281,4 +325,27 @@ void RimSurfaceIntersectionBand::defineUiOrdering( QString uiConfigName, caf::Pd
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Line Appearance" );
         m_lineAppearance->uiOrdering( uiConfigName, *group );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionBand::initAfterRead()
+{
+    updateColorFromSurface();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Keep the color fields in sync with the first surface, so the read-only color fields show the
+/// colors used to draw the band
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionBand::updateColorFromSurface()
+{
+    if ( m_useCustomColor() ) return;
+
+    auto surface = surface1();
+    if ( !surface ) return;
+
+    m_bandColor = surface->color();
+    m_lineAppearance->setColor( surface->color() );
 }

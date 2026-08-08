@@ -20,8 +20,9 @@
 
 #include "RimCheckableObject.h"
 #include "cafPdmChildField.h"
+#include "cafPdmFieldCvfColor.h" // Include to make Pdm work for cvf::Color
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
+#include "cafPdmPtrArrayField.h"
 
 class RimSurface;
 class RimAnnotationLineAppearance;
@@ -42,8 +43,12 @@ public:
 public:
     RimSurfaceIntersectionCurve();
 
-    RimSurface*                  surface() const;
+    std::vector<RimSurface*>     surfaces() const;
     RimAnnotationLineAppearance* lineAppearance() const;
+
+    /// The color of the curve for the given surface. The color defined in the Surfaces collection is used unless the
+    /// user has specified a custom color.
+    cvf::Color3f colorForSurface( const RimSurface* surface ) const;
 
     static void appendOptionItemsForSources( int                            currentLevel,
                                              RimSurfaceCollection*          currentCollection,
@@ -57,12 +62,16 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void initAfterRead() override;
 
     void    onObjectChanged( const caf::SignalEmitter* emitter );
     QString objectName() const;
 
+    void updateColorFromSurface();
+
 private:
-    caf::PdmPtrField<RimSurface*>                    m_surface1;
+    caf::PdmPtrArrayField<RimSurface*>               m_surfaces;
+    caf::PdmField<bool>                              m_useCustomColor;
     caf::PdmChildField<RimAnnotationLineAppearance*> m_lineAppearance;
     caf::PdmProxyValueField<QString>                 m_nameProxy;
 };

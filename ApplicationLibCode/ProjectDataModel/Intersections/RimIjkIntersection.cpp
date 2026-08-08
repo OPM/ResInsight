@@ -39,7 +39,7 @@ void AppEnum<RimIjkIntersection::GridAxis>::setUp()
     addItem( RimIjkIntersection::GridAxis::AXIS_I, "AXIS_I", "I" );
     addItem( RimIjkIntersection::GridAxis::AXIS_J, "AXIS_J", "J" );
     addItem( RimIjkIntersection::GridAxis::AXIS_K, "AXIS_K", "K" );
-    setDefault( RimIjkIntersection::GridAxis::AXIS_K );
+    setDefault( RimIjkIntersection::GridAxis::AXIS_I );
 }
 } // namespace caf
 
@@ -193,14 +193,14 @@ void RimIjkIntersection::setToDefaultValues()
     int nj = static_cast<int>( grid->cellCountJ() );
     int nk = static_cast<int>( grid->cellCountK() );
 
-    m_axis       = GridAxis::AXIS_K;
+    m_axis       = GridAxis::AXIS_I;
     m_iMin       = 1;
     m_iMax       = ni;
     m_jMin       = 1;
     m_jMax       = nj;
     m_kMin       = 1;
     m_kMax       = nk;
-    m_fixedIndex = nk / 2 + 1;
+    m_fixedIndex = ni / 2 + 1;
 }
 
 //--------------------------------------------------------------------------------------------------

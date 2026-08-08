@@ -26,6 +26,8 @@
 
 #include "cafPdmUiTreeSelectionEditor.h"
 
+#include <QStringList>
+
 CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionCurve, "RimSurfaceIntersectionCurve" );
 
 //--------------------------------------------------------------------------------------------------
@@ -41,8 +43,11 @@ RimSurfaceIntersectionCurve::RimSurfaceIntersectionCurve()
     m_lineAppearance->objectChanged.connect( this, &RimSurfaceIntersectionCurve::onObjectChanged );
     uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_surface1, "Surface1", "Surface 1" );
-    m_surface1.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_surfaces, "Surfaces", "Surfaces" );
+    m_surfaces.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_surfaces.registerKeywordAlias( "Surface1" );
+
+    CAF_PDM_InitField( &m_useCustomColor, "UseCustomColor", false, "Custom Color" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name" );
     m_nameProxy.registerGetMethod( this, &RimSurfaceIntersectionCurve::objectName );
@@ -54,9 +59,9 @@ RimSurfaceIntersectionCurve::RimSurfaceIntersectionCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurface* RimSurfaceIntersectionCurve::surface() const
+std::vector<RimSurface*> RimSurfaceIntersectionCurve::surfaces() const
 {
-    return m_surface1();
+    return m_surfaces.ptrReferencedObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,6 +70,16 @@ RimSurface* RimSurfaceIntersectionCurve::surface() const
 RimAnnotationLineAppearance* RimSurfaceIntersectionCurve::lineAppearance() const
 {
     return m_lineAppearance();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSurfaceIntersectionCurve::colorForSurface( const RimSurface* surface ) const
+{
+    if ( !m_useCustomColor() && surface ) return surface->color();
+
+    return m_lineAppearance->color();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +95,12 @@ caf::PdmFieldHandle* RimSurfaceIntersectionCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceIntersectionCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    if ( changedField == &m_surfaces || changedField == &m_useCustomColor )
+    {
+        updateColorFromSurface();
+        updateConnectedEditors();
+    }
+
     onObjectChanged( this );
 }
 
@@ -90,7 +111,7 @@ QList<caf::PdmOptionItemInfo> RimSurfaceIntersectionCurve::calculateValueOptions
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_surface1 )
+    if ( fieldNeedingOptions == &m_surfaces )
     {
         RimSurfaceCollection* surfColl = RimTools::surfaceCollection();
 
@@ -105,8 +126,23 @@ QList<caf::PdmOptionItemInfo> RimSurfaceIntersectionCurve::calculateValueOptions
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceIntersectionCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_surfaces );
+
     caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Line Appearance" );
+    group->add( &m_useCustomColor );
+
+    // The color defined in the Surfaces collection is used unless the user asks for a custom color
+    updateColorFromSurface();
+    m_lineAppearance->setColorReadOnly( !m_useCustomColor() );
     m_lineAppearance->uiOrdering( uiConfigName, *group );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionCurve::initAfterRead()
+{
+    updateColorFromSurface();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,25 +154,44 @@ void RimSurfaceIntersectionCurve::onObjectChanged( const caf::SignalEmitter* emi
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Keep the color of the line appearance in sync with the first surface, so the read-only color field
+/// shows the color used to draw the curve
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionCurve::updateColorFromSurface()
+{
+    if ( m_useCustomColor() ) return;
+
+    auto surfaces = m_surfaces.ptrReferencedObjectsByType();
+    if ( surfaces.empty() || !surfaces.front() ) return;
+
+    m_lineAppearance->setColor( surfaces.front()->color() );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSurfaceIntersectionCurve::objectName() const
 {
-    if ( m_surface1() )
+    auto nameForSurface = []( const RimSurface* surface ) -> QString
     {
-        auto ensembleSurface = m_surface1()->firstAncestorOfType<RimEnsembleSurface>();
+        auto ensembleSurface = surface->firstAncestorOfType<RimEnsembleSurface>();
         if ( ensembleSurface )
         {
-            QString text;
-            text += ensembleSurface->collectionName();
-            text += "( " + m_surface1()->fullName() + " )";
-            return text;
+            return ensembleSurface->collectionName() + "( " + surface->fullName() + " )";
         }
 
-        return m_surface1()->fullName();
+        return surface->fullName();
+    };
+
+    QStringList names;
+    for ( auto surface : m_surfaces.ptrReferencedObjectsByType() )
+    {
+        if ( surface ) names.push_back( nameForSurface( surface ) );
     }
 
-    return "Surface Curve";
+    if ( names.isEmpty() ) return "Surface Curve";
+
+    return names.join( ", " );
 }
 
 //--------------------------------------------------------------------------------------------------
