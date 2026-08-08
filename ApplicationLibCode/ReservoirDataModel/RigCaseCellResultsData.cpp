@@ -2372,6 +2372,11 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
             size_t         neighborResvCellIdx = grid->reservoirCellIndex( gridLocalNeighborCellIdx );
             const RigCell& neighborCell        = m_ownerMainGrid->cell( neighborResvCellIdx );
 
+            // Do nothing if this cell has no permeability result. The transmissibility and the permeability results can use
+            // different indexing, so a defined transmissibility index does not imply a defined permeability index.
+            size_t nativeCellPermResIdx = ( *permIdxFunc )( activeCellInfo, nativeResvCellIndex );
+            if ( nativeCellPermResIdx == cvf::UNDEFINED_SIZE_T ) continue;
+
             // Do nothing if neighbor cell has no results
             size_t neighborCellPermResIdx = ( *permIdxFunc )( activeCellInfo, neighborResvCellIdx );
             if ( neighborCellPermResIdx == cvf::UNDEFINED_SIZE_T ) continue;
@@ -2402,8 +2407,7 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
             {
                 cvf::Vec3d centerToFace = nativeCell.faceCenter( faceId ) - nativeCell.center();
 
-                size_t permResIdx = ( *permIdxFunc )( activeCellInfo, nativeResvCellIndex );
-                double perm       = permResults[permResIdx];
+                double perm = permResults[nativeCellPermResIdx];
 
                 double ntg = 1.0;
                 if ( hasNTGResults && faceId != cvf::StructGridInterface::POS_K )
