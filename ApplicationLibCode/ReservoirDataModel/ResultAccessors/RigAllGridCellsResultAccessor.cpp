@@ -21,8 +21,6 @@
 
 #include "RigGridBase.h"
 
-#include "cafAssert.h"
-
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -42,9 +40,9 @@ double RigAllGridCellsResultAccessor::cellScalar( size_t gridLocalCellIndex ) co
     if ( m_reservoirResultValues->empty() ) return HUGE_VAL;
 
     size_t reservoirCellIndex = m_grid->reservoirCellIndex( gridLocalCellIndex );
-    CAF_ASSERT( reservoirCellIndex < m_reservoirResultValues->size() );
+    if ( reservoirCellIndex >= m_reservoirResultValues->size() ) return HUGE_VAL;
 
-    return m_reservoirResultValues->at( reservoirCellIndex );
+    return ( *m_reservoirResultValues )[reservoirCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,9 +60,11 @@ double RigAllGridCellsResultAccessor::cellScalarGlobIdx( size_t globCellIndex ) 
 {
     if ( m_reservoirResultValues->empty() ) return HUGE_VAL;
 
-    CAF_ASSERT( globCellIndex < m_reservoirResultValues->size() );
+    // The cell index can come from another case, see RimGridCalculation::getActiveCellValues(). Avoid at(), which throws: an
+    // exception escaping an OpenMP loop calls std::terminate.
+    if ( globCellIndex >= m_reservoirResultValues->size() ) return HUGE_VAL;
 
-    return m_reservoirResultValues->at( globCellIndex );
+    return ( *m_reservoirResultValues )[globCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
