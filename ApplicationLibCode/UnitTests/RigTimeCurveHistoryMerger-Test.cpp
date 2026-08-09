@@ -234,3 +234,56 @@ TEST( RiaTimeHistoryCurveMergerTest, SharedXValues )
     auto generatedYValuesB = interpolate.interpolatedYValuesForAllXValues( 1 );
     EXPECT_TRUE( std::equal( valuesB.begin(), valuesB.end(), generatedYValuesB.begin() ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// A curve where the value count is smaller than the time step count must not read out of bounds.
+/// See https://github.com/OPM/ResInsight/issues/12810
+//--------------------------------------------------------------------------------------------------
+TEST( RiaTimeHistoryCurveMergerTest, FewerValuesThanTimeSteps )
+{
+    std::vector<time_t> timeSteps{ 1, 2, 3, 4, 5, 6, 7 };
+    std::vector<double> partialValues{ 1.0, 2.0, 3.0, 4.0 };
+
+    RiaTimeHistoryCurveMerger interpolate( RiaCurveDefines::InterpolationMethod::LINEAR );
+    interpolate.addCurveData( timeSteps, partialValues );
+    interpolate.computeInterpolatedValues( true );
+
+    // The trailing time steps without a value are discarded
+    EXPECT_EQ( partialValues.size(), interpolate.allXValues().size() );
+
+    auto generatedValues = interpolate.interpolatedYValuesForAllXValues( 0 );
+    ASSERT_EQ( partialValues.size(), generatedValues.size() );
+    EXPECT_TRUE( std::equal( partialValues.begin(), partialValues.end(), generatedValues.begin() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Curves sharing time steps, but where one curve has fewer values, must not read out of bounds in
+/// the shared-X code path. See https://github.com/OPM/ResInsight/issues/12810
+//--------------------------------------------------------------------------------------------------
+TEST( RiaTimeHistoryCurveMergerTest, SharedXValuesWithFewerValuesInOneCurve )
+{
+    std::vector<time_t> timeSteps{ 1, 2, 3, 4, 5, 6, 7 };
+    std::vector<double> completeValues{ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
+    std::vector<double> partialValues{ 10.0, 20.0, 30.0, 40.0 };
+
+    RiaTimeHistoryCurveMerger interpolate( RiaCurveDefines::InterpolationMethod::LINEAR );
+    interpolate.addCurveData( timeSteps, completeValues );
+    interpolate.addCurveData( timeSteps, partialValues );
+    interpolate.computeInterpolatedValues( true );
+
+    EXPECT_EQ( timeSteps.size(), interpolate.allXValues().size() );
+
+    auto generatedComplete = interpolate.interpolatedYValuesForAllXValues( 0 );
+    ASSERT_EQ( timeSteps.size(), generatedComplete.size() );
+    EXPECT_TRUE( std::equal( completeValues.begin(), completeValues.end(), generatedComplete.begin() ) );
+
+    auto generatedPartial = interpolate.interpolatedYValuesForAllXValues( 1 );
+    ASSERT_EQ( timeSteps.size(), generatedPartial.size() );
+    EXPECT_TRUE( std::equal( partialValues.begin(), partialValues.end(), generatedPartial.begin() ) );
+
+    // No data is available for the time steps beyond the last value
+    for ( size_t i = partialValues.size(); i < generatedPartial.size(); i++ )
+    {
+        EXPECT_EQ( HUGE_VAL, generatedPartial[i] );
+    }
+}
