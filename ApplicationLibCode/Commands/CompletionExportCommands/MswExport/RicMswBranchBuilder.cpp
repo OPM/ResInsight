@@ -360,7 +360,19 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
                 if ( !filterEval.includesGlobalCell( cellInfo.globCellIndex ) ) continue;
                 if ( auto ci = toMswCellIntersection( cellInfo, mainGrid, overlapStart, overlapEnd ) )
                 {
-                    cellCompsegs.push_back( *ci );
+                    // All candidates here describe the same grid cell, as they are derived from a single cellInfo.
+                    // Several perforation intervals may overlap that cell, but the cell must be connected only once,
+                    // matching the single COMPDAT connection. Widen the existing range instead of adding another row.
+                    if ( cellCompsegs.empty() )
+                    {
+                        cellCompsegs.push_back( *ci );
+                    }
+                    else
+                    {
+                        auto& existing         = cellCompsegs.front();
+                        existing.distanceStart = std::min( existing.distanceStart, ci->distanceStart );
+                        existing.distanceEnd   = std::max( existing.distanceEnd, ci->distanceEnd );
+                    }
                     emittedCountPerInterval[perf]++;
                 }
             }
