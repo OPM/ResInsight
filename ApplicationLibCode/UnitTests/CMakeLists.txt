@@ -160,6 +160,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportMswGeometryPath-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicMswBranchBuilder-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMswTableData-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigAllGridCellsResultAccessor-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)

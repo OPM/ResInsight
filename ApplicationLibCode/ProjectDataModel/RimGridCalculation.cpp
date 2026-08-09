@@ -635,6 +635,7 @@ std::vector<double> RimGridCalculation::getActiveCellValues( const QString&     
     size_t gridIndex = 0;
     auto   resultAccessor =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData, gridIndex, porosityModel, timeStepToUse, resAddr );
+    if ( resultAccessor.isNull() ) return {};
 
 #pragma omp parallel for
     for ( int i = 0; i < static_cast<int>( activeReservoirCells.size() ); i++ )
