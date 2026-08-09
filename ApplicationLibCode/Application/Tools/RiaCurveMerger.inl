@@ -69,23 +69,29 @@ RiaCurveMerger<XValueType>::RiaCurveMerger( RiaCurveDefines::InterpolationMethod
 template <typename XValueType>
 void RiaCurveMerger<XValueType>::addCurveData( const std::vector<XValueType>& xValues, const std::vector<double>& yValues )
 {
-    CAF_ASSERT( xValues.size() == yValues.size() );
+    // X and Y can have different sizes when the data is read from file. This is a legitimate run-time condition, e.g. for an
+    // ongoing simulation where the last report step is not complete, or when depth values and result values come from different
+    // sources. computeInterpolatedValues() assumes that the two vectors have the same number of samples, so discard the trailing
+    // samples that have no counterpart. See https://github.com/OPM/ResInsight/issues/12810
+    const size_t sampleCount = std::min( xValues.size(), yValues.size() );
+    if ( sampleCount == 0 ) return;
 
-    if ( !xValues.empty() )
+    std::vector<XValueType> x( xValues.begin(), xValues.begin() + sampleCount );
+    std::vector<double>     y( yValues.begin(), yValues.begin() + sampleCount );
+
+    if ( m_originalValues.empty() )
     {
-        if ( m_originalValues.empty() )
-        {
-            m_isXValuesSharedBetweenCurves     = true;
-            m_isXValuesMonotonicallyIncreasing = isMonotonicallyIncreasing( xValues );
-        }
-        else
-        {
-            const auto& firstXValues = m_originalValues.front().first;
-            m_isXValuesSharedBetweenCurves &= std::equal( firstXValues.begin(), firstXValues.end(), xValues.begin(), xValues.end() );
-            m_isXValuesMonotonicallyIncreasing &= isMonotonicallyIncreasing( xValues );
-        }
-        m_originalValues.push_back( std::make_pair( xValues, yValues ) );
+        m_isXValuesSharedBetweenCurves     = true;
+        m_isXValuesMonotonicallyIncreasing = isMonotonicallyIncreasing( x );
     }
+    else
+    {
+        const auto& firstXValues = m_originalValues.front().first;
+        m_isXValuesSharedBetweenCurves &= std::equal( firstXValues.begin(), firstXValues.end(), x.begin(), x.end() );
+        m_isXValuesMonotonicallyIncreasing &= isMonotonicallyIncreasing( x );
+    }
+
+    m_originalValues.push_back( std::make_pair( std::move( x ), std::move( y ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------

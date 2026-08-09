@@ -37,12 +37,14 @@ RiaWellLogCurveMerger::RiaWellLogCurveMerger()
 //--------------------------------------------------------------------------------------------------
 void RiaWellLogCurveMerger::addCurveData( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
-    CAF_ASSERT( xValues.size() == yValues.size() );
+    // Mismatching sizes is a legitimate run-time condition for data read from file. lookupYValue() discards the whole curve when
+    // the sizes differ, so truncate to the common sample count to keep the samples that do have a counterpart.
+    // See https://github.com/OPM/ResInsight/issues/12810
+    const size_t sampleCount = std::min( xValues.size(), yValues.size() );
+    if ( sampleCount == 0 ) return;
 
-    if ( !xValues.empty() )
-    {
-        m_originalValues.push_back( std::make_pair( xValues, yValues ) );
-    }
+    m_originalValues.push_back( std::make_pair( std::vector<double>( xValues.begin(), xValues.begin() + sampleCount ),
+                                                std::vector<double>( yValues.begin(), yValues.begin() + sampleCount ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
