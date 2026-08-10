@@ -396,7 +396,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       POST_BUILD
       COMMAND
         ${WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE:ResInsight>
-        "$<IF:$<CONFIG:Debug>,--debug,--release>" --no-translations >NUL 2>NUL
+        "$<IF:$<CONFIG:Debug>,--debug,--release>"
+        "$<$<CONFIG:Debug,RelWithDebInfo>:--pdb>" --no-translations >NUL 2>NUL
       COMMENT
         "Running windeployqt to deploy Qt dependencies to the build folder, required by install()"
     )
