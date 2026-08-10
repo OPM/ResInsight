@@ -836,6 +836,54 @@ namespace
         }
         return result;
     }
+
+    //--------------------------------------------------------------------------------------------------
+    /// Shorten a parser item name to at most maxWidth characters so long names (e.g.
+    /// "CONNECTION_TRANSMISSIBILITY_FACTOR") do not widen their column beyond the data. Each
+    /// underscore-separated token is truncated to progressively shorter prefixes ("CONN_TRAN_FACT",
+    /// "CON_TRA_FAC", ...), falling back to token initials ("CTF") and finally a hard cut.
+    //--------------------------------------------------------------------------------------------------
+    std::string shortenItemName( const std::string& name, size_t maxWidth )
+    {
+        if ( name.size() <= maxWidth ) return name;
+
+        std::vector<std::string> tokens;
+        std::stringstream        tokenStream( name );
+        std::string              token;
+        while ( std::getline( tokenStream, token, '_' ) )
+        {
+            if ( !token.empty() ) tokens.push_back( token );
+        }
+        if ( tokens.empty() ) return name.substr( 0, maxWidth );
+
+        auto joinPrefixes = [&tokens]( size_t prefixLength )
+        {
+            std::string joined;
+            for ( const auto& t : tokens )
+            {
+                if ( !joined.empty() ) joined += "_";
+                joined += t.substr( 0, prefixLength );
+            }
+            return joined;
+        };
+
+        size_t longestToken = 0;
+        for ( const auto& t : tokens )
+            longestToken = std::max( longestToken, t.size() );
+
+        for ( size_t prefixLength = longestToken - 1; prefixLength >= 2; --prefixLength )
+        {
+            std::string candidate = joinPrefixes( prefixLength );
+            if ( candidate.size() <= maxWidth ) return candidate;
+        }
+
+        std::string initials;
+        for ( const auto& t : tokens )
+            initials += t.front();
+        if ( initials.size() <= maxWidth ) return initials;
+
+        return name.substr( 0, maxWidth );
+    }
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -897,11 +945,20 @@ QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword )
 
         const size_t        numCols = header.size();
         std::vector<size_t> width( numCols, 0 );
-        for ( size_t c = 0; c < numCols; ++c )
-            width[c] = header[c].size();
         for ( const auto& row : rows )
             for ( size_t c = 0; c < numCols; ++c )
                 width[c] = std::max( width[c], row[c].size() );
+
+        // Long parser item names (e.g. "CONNECTION_TRANSMISSIBILITY_FACTOR") would otherwise pad
+        // every data row to the header width and push lines past the 132-character limit enforced
+        // by some simulators. Shorten each header to the width of its data, letting narrow columns
+        // grow to a small minimum so the abbreviations stay readable.
+        constexpr size_t minHeaderWidth = 8;
+        for ( size_t c = 0; c < numCols; ++c )
+        {
+            header[c] = shortenItemName( header[c], std::max( width[c], minHeaderWidth ) );
+            width[c]  = std::max( width[c], header[c].size() );
+        }
 
         // Header comment line: "--" occupies the same two columns as the data-row indent so the
         // header names line up with the values below them.
