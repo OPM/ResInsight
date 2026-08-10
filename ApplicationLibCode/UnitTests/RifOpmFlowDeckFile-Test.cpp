@@ -15,6 +15,7 @@
 #include "opm/input/eclipse/Deck/DeckKeyword.hpp"
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/B.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
 
 #include <QDebug>
 #include <QDir>
@@ -574,4 +575,40 @@ TEST( RifOpmFlowDeckFileTest, RemoveAndInsertKeywordAtSectionStart )
     auto nextIt = std::next( schedIt );
     ASSERT_NE( nextIt, keywords.end() );
     EXPECT_EQ( "BCPROP", *nextIt ) << "BCPROP should be the first keyword inside SCHEDULE";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimKeywordFactoryTest, DeckKeywordToAlignedStringShortensLongHeaders )
+{
+    using C = Opm::ParserKeywords::COMPDAT;
+
+    Opm::DeckKeyword kw( ( Opm::ParserKeywords::COMPDAT() ) );
+
+    std::vector<Opm::DeckItem> items;
+    items.push_back( RifOpmDeckTools::item( C::WELL::itemName, std::string( "WELL-1" ) ) );
+    items.push_back( RifOpmDeckTools::item( C::I::itemName, 12 ) );
+    items.push_back( RifOpmDeckTools::item( C::J::itemName, 34 ) );
+    items.push_back( RifOpmDeckTools::item( C::K1::itemName, 5 ) );
+    items.push_back( RifOpmDeckTools::item( C::K2::itemName, 7 ) );
+    items.push_back( RifOpmDeckTools::item( C::STATE::itemName, std::string( "OPEN" ) ) );
+    items.push_back( RifOpmDeckTools::defaultItem( C::SAT_TABLE::itemName ) );
+    items.push_back( RifOpmDeckTools::item( C::CONNECTION_TRANSMISSIBILITY_FACTOR::itemName, 0.1234567891 ) );
+    items.push_back( RifOpmDeckTools::item( C::DIAMETER::itemName, 0.216 ) );
+    items.push_back( RifOpmDeckTools::defaultItem( C::Kh::itemName ) );
+    items.push_back( RifOpmDeckTools::item( C::SKIN::itemName, 0.0 ) );
+    items.push_back( RifOpmDeckTools::defaultItem( C::D_FACTOR::itemName ) );
+    items.push_back( RifOpmDeckTools::item( C::DIR::itemName, std::string( "Z" ) ) );
+    kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+
+    QString text = RimKeywordFactory::deckKeywordToAlignedString( kw );
+
+    // Long parser item names must be abbreviated so they do not widen the columns (issue #14136).
+    EXPECT_FALSE( text.contains( "CONNECTION_TRANSMISSIBILITY_FACTOR" ) );
+
+    for ( const QString& line : text.split( '\n' ) )
+    {
+        EXPECT_LE( line.size(), 132 ) << "Line exceeds 132 characters: " << line.toStdString();
+    }
 }
