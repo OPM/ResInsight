@@ -18,11 +18,29 @@
 
 #include "RimWellEvent.h"
 
+#include "RimTools.h"
 #include "RimWellPath.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDateEditor.h"
+
+namespace caf
+{
+template <>
+void AppEnum<RimWellEvent::EventType>::setUp()
+{
+    addItem( RimWellEvent::EventType::PERF, "PERF", "Perforation" );
+    addItem( RimWellEvent::EventType::VALVE, "VALVE", "Valve" );
+    addItem( RimWellEvent::EventType::TUBING, "TUBING", "Tubing" );
+    addItem( RimWellEvent::EventType::WSTATE, "WSTATE", "Well State" );
+    addItem( RimWellEvent::EventType::WTYPE, "WTYPE", "Well Type" );
+    addItem( RimWellEvent::EventType::WCONTROL, "WCONTROL", "Well Control" );
+    addItem( RimWellEvent::EventType::KEYWORD, "KEYWORD", "Well Keyword" );
+    addItem( RimWellEvent::EventType::SCHEDULE_KEYWORD, "SCHEDULE_KEYWORD", "Schedule Keyword" );
+    setDefault( RimWellEvent::EventType::PERF );
+}
+} // namespace caf
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimWellEvent, "WellEvent" );
 
@@ -95,4 +113,19 @@ void RimWellEvent::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
 {
     uiOrdering.add( &m_wellPath );
     uiOrdering.add( &m_eventDate );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellEvent::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_wellPath )
+    {
+        RimTools::wellPathOptionItems( &options );
+    }
+
+    return options;
 }

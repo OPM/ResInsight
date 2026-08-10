@@ -27,6 +27,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiOrdering.h"
+#include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimWellEventKeyword, "WellEventKeyword" );
@@ -40,6 +41,12 @@ RimWellEventKeyword::RimWellEventKeyword()
 
     CAF_PDM_InitScriptableField( &m_keywordName, "KeywordName", QString(), "Keyword Name" );
     CAF_PDM_InitFieldNoDefault( &m_items, "Items", "Items" );
+    m_items.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_items.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
+    m_items.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::RESIZE_POLICY,
+                                          static_cast<int>( caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER ) );
+    m_items.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::ALWAYS_ENFORCE_RESIZE_POLICY, true );
+    m_items.uiCapability()->setAttribute( caf::PdmUiTableViewEditor::Keys::MINIMUM_HEIGHT, 200 );
 
     setDeletable( true );
 }
@@ -148,8 +155,12 @@ std::optional<Opm::DeckKeyword> RimWellEventKeyword::generateDeckKeyword( const 
 //--------------------------------------------------------------------------------------------------
 void RimWellEventKeyword::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimWellEvent::defineUiOrdering( uiConfigName, uiOrdering );
+
     uiOrdering.add( &m_keywordName );
     uiOrdering.add( &m_items );
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,5 +168,7 @@ void RimWellEventKeyword::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 void RimWellEventKeyword::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    uiTreeOrdering.add( &m_items );
+    setUiName( QString( "%1 %2 [%3]" ).arg( m_keywordName() ).arg( m_eventDate().toString( "yyyy-MM-dd" ) ).arg( wellName() ) );
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }

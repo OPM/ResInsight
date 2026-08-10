@@ -64,9 +64,16 @@ public:
     virtual QString   generateScheduleKeyword( const QString& wellName ) const = 0;
 
 protected:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 protected:
     caf::PdmField<QDateTime>       m_eventDate;
     caf::PdmPtrField<RimWellPath*> m_wellPath;
 };
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimWellEvent::EventType>::setUp();
+} // namespace caf
