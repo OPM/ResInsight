@@ -529,7 +529,7 @@ bool RimWellEventTimeline::applyPerfEvent( const RimWellEventPerf& event, RimWel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellEventTimeline::applyValveEvent( const RimWellEventValve& event, RimWellPath& wellPath )
+bool RimWellEventTimeline::applyValveEvent( RimWellEventValve& event, RimWellPath& wellPath )
 {
     auto* perfCollection = wellPath.perforationIntervalCollection();
     if ( !perfCollection )
@@ -597,32 +597,43 @@ bool RimWellEventTimeline::applyValveEvent( const RimWellEventValve& event, RimW
     // Map the event valve type to the RiaDefines type and find a matching template
     RiaDefines::WellPathComponentType valveComponentType = convertToValveType( event.valveType() );
 
-    // Create a new valve template with the event's specific parameters
-    if ( RimProject* project = RimProject::current() )
+    // Reuse the template assigned to the event; otherwise create one from the event's specific
+    // parameters and assign it back to the event so the UI shows the template in use
+    RimValveTemplate* tmpl = event.valveTemplate();
+    if ( !tmpl )
     {
-        auto collections = project->allValveTemplateCollections();
-        if ( !collections.empty() )
+        if ( RimProject* project = RimProject::current() )
         {
-            auto* tmpl = new RimValveTemplate;
-            tmpl->setType( valveComponentType );
-
-            tmpl->setFlowCoefficient( event.flowCoefficient() );
-            double orifice_mm = 2000.0 * std::sqrt( event.area() / cvf::PI_D );
-            tmpl->setOrificeDiameter( orifice_mm );
-
-            if ( valveComponentType == RiaDefines::WellPathComponentType::AICD )
+            auto collections = project->allValveTemplateCollections();
+            if ( !collections.empty() )
             {
-                tmpl->setAicdParameter( AICD_STRENGTH, event.aicdStrength() );
-                tmpl->setAicdParameter( AICD_DENSITY_CALIB_FLUID, event.aicdDensityCalibFluid() );
-                tmpl->setAicdParameter( AICD_VISCOSITY_CALIB_FLUID, event.aicdViscosityCalibFluid() );
-                tmpl->setAicdParameter( AICD_VOL_FLOW_EXP, event.aicdVolFlowExp() );
-                tmpl->setAicdParameter( AICD_VISOSITY_FUNC_EXP, event.aicdViscFuncExp() );
-            }
+                tmpl = new RimValveTemplate;
+                tmpl->setType( valveComponentType );
 
-            tmpl->setUserLabel( QString( "Event Valve %1" ).arg( event.measuredDepth() ) );
-            collections.front()->addItem( tmpl );
-            valve->setValveTemplate( tmpl );
+                tmpl->setFlowCoefficient( event.flowCoefficient() );
+                double orifice_mm = 2000.0 * std::sqrt( event.area() / cvf::PI_D );
+                tmpl->setOrificeDiameter( orifice_mm );
+
+                if ( valveComponentType == RiaDefines::WellPathComponentType::AICD )
+                {
+                    tmpl->setAicdParameter( AICD_STRENGTH, event.aicdStrength() );
+                    tmpl->setAicdParameter( AICD_DENSITY_CALIB_FLUID, event.aicdDensityCalibFluid() );
+                    tmpl->setAicdParameter( AICD_VISCOSITY_CALIB_FLUID, event.aicdViscosityCalibFluid() );
+                    tmpl->setAicdParameter( AICD_VOL_FLOW_EXP, event.aicdVolFlowExp() );
+                    tmpl->setAicdParameter( AICD_VISOSITY_FUNC_EXP, event.aicdViscFuncExp() );
+                }
+
+                tmpl->setUserLabel( QString( "Event Valve %1" ).arg( event.measuredDepth() ) );
+                collections.front()->addItem( tmpl );
+                event.setValveTemplate( tmpl );
+                event.updateConnectedEditors();
+            }
         }
+    }
+
+    if ( tmpl )
+    {
+        valve->setValveTemplate( tmpl );
     }
 
     targetPerf->updateConnectedEditors();

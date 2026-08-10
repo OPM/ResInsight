@@ -109,7 +109,7 @@ private:
 
     bool applyTubingEvent( const RimWellEventTubing& event, RimWellPath& wellPath );
     bool applyPerfEvent( const RimWellEventPerf& event, RimWellPath& wellPath );
-    bool applyValveEvent( const RimWellEventValve& event, RimWellPath& wellPath );
+    bool applyValveEvent( RimWellEventValve& event, RimWellPath& wellPath );
 
     std::vector<RimWellEvent*> filteredAndSortedEventsForUi() const;
 
