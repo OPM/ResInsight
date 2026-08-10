@@ -26,10 +26,16 @@ File format grammar, version 2.0 (EBNF-ish)::
                     | schedule_block_open | event_line ;
     unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
 
-    declaration     = date_decl | duration_decl | well_decl ;
+    declaration     = date_decl | duration_decl | well_decl | filter_decl ;
     date_decl       = "DATE" , ident , "=" , date_expr ;         (* DATE X = 2018-03-01 + 9 *)
     duration_decl   = "DURATION" , ident , "=" , duration_expr ; (* DURATION RAMP = 5 DAYS *)
     well_decl       = "WELL" , ident , "=" , quoted_string ;     (* WELL A1 = "55_33-A-1" *)
+    filter_decl     = "FILTER" , ident , "=" , '"' , filter_expr , '"' ;
+                                        (* FILTER POROPERM = "PORO > 0.4 AND PERMX > 100.0" *)
+    filter_expr     = filter_term , { ( "AND" | "OR" ) , filter_term } ;
+                                        (* one combine mode; mixing AND and OR is an error *)
+    filter_term     = [ result_type , "." ] , ident , comp_op , number ;
+    comp_op         = ">" | ">=" | "<" | "<=" ;
 
     well_block_open     = "WELL" , ( quoted_string | ident ) ;   (* no "=" present *)
     schedule_block_open = "SCHEDULE" ;                  (* well-less keyword events *)
@@ -53,8 +59,9 @@ Notes on the grammar:
   ``SCHEDULE`` or ``@``. Anything else is an error. Keywords are uppercase and
   case-sensitive (the ``DAYS`` suffix is also accepted as ``days``).
 * Comments start with ``#`` (outside of double quotes) and run to end of line.
-* Variables are **typed**: ``DATE``, ``DURATION`` (whole days) and ``WELL``
-  (well-name alias) declarations share one namespace and must precede use.
+* Variables are **typed**: ``DATE``, ``DURATION`` (whole days), ``WELL``
+  (well-name alias) and ``FILTER`` (cell filter expression) declarations share
+  one namespace and must precede use.
   Using a variable of the wrong type is an error that cites both the use and
   the declaration site. Redeclaring a name with the same type warns and the
   last value wins; redeclaring with a different type is an error.
@@ -68,8 +75,8 @@ Notes on the grammar:
   variables. A ``WELL`` line containing ``=`` is always a declaration. A bare
   ``SCHEDULE`` line opens a block of schedule-level keyword events not tied to
   any well (RPTRST, GRUPTREE, TUNING, ...). Empty blocks are legal.
-* Double quotes are used everywhere: well names and attribute values, e.g.
-  ``FILTER="SOIL(0) > 0.8 AND PERMX > 200"``.
+* Double quotes are used everywhere: well names, filter expressions and
+  attribute values, e.g. ``FILTER="SOIL > 0.8 AND PERMX > 200"``.
 * Every attribute is ``KEY=VALUE``; bare positional tokens are rejected.
 * Event types inside a WELL block are either the built-in completion events
   ``PERFORATION``, ``TUBING``, ``VALVE`` and ``STATE``, or any Eclipse well
@@ -78,8 +85,17 @@ Notes on the grammar:
   types inside a SCHEDULE block are Eclipse schedule keywords passed through
   as-is. An event type that closely resembles a built-in is treated as a typo
   per the ``on_unknown_event`` policy instead of being passed through.
-* Any attribute key parses; keys the applier does not support yet (``FILTER``,
-  ``PERFID``, ``DSHIFT``) are ignored with a warning when applied.
+* On a PERFORATION event, ``FILTER=<name>`` references a declared ``FILTER``
+  variable and ``FILTER="<expr>"`` is an inline anonymous filter expression.
+  The applier materializes each used filter as a case-level combined data
+  filter and attaches it to the perforation event. A filter term is
+  ``[TYPE.]NAME <op> NUMBER`` with ``>``, ``>=``, ``<`` or ``<=``; bounds are
+  inclusive, so ``>`` behaves as ``>=``. An unqualified result name is
+  searched in STATIC_NATIVE, then DYNAMIC_NATIVE, then GENERATED results; a
+  ``TYPE.`` qualifier (``STATIC``/``DYNAMIC``/``GENERATED`` or the full
+  ``*_NATIVE`` form, case-insensitive) restricts the search to that type.
+* Any other attribute key parses; keys the applier does not support yet
+  (``PERFID``, ``DSHIFT``) are ignored with a warning when applied.
 * The parser recovers per line and reports **all** errors in one pass: the
   raised :class:`OrionParseError` carries one :class:`ParseIssue` per problem.
   Unknown names come with "did you mean" suggestions where possible.
@@ -156,15 +172,50 @@ class ParseWarning:
 
 
 @dataclass(frozen=True)
+class FilterTerm:
+    """One comparison in a filter expression: ``[TYPE.]NAME <op> value``.
+
+    ``result_type`` is ``STATIC_NATIVE``, ``DYNAMIC_NATIVE`` or ``GENERATED``
+    when the term is qualified, or None to search all three (in that order).
+    """
+
+    result_name: str
+    result_type: Optional[str]
+    op: str
+    value: float
+
+
+@dataclass(frozen=True)
+class FilterExpr:
+    """A parsed filter expression: comparison terms with one combine mode."""
+
+    terms: Tuple[FilterTerm, ...]
+    combine_mode: str
+    raw: str
+
+
+@dataclass(frozen=True)
+class EventFilter:
+    """A cell filter attached to a PERFORATION event.
+
+    ``name`` is the FILTER declaration name, or None for an inline expression.
+    """
+
+    name: Optional[str]
+    expr: FilterExpr
+
+
+@dataclass(frozen=True)
 class OrionValue:
-    """A typed variable: kind is ``DATE``, ``DURATION`` or ``WELL``.
+    """A typed variable: kind is ``DATE``, ``DURATION``, ``WELL`` or ``FILTER``.
 
     A ``DATE`` value is a :class:`datetime.date`, or a :class:`datetime.datetime`
-    when declared with a time-of-day.
+    when declared with a time-of-day. A ``FILTER`` value is a
+    :class:`FilterExpr`.
     """
 
     kind: str
-    value: Union[datetime.date, datetime.datetime, int, str]
+    value: Union[datetime.date, datetime.datetime, int, str, FilterExpr]
     loc: SourceLoc
 
 
@@ -185,6 +236,7 @@ class OrionEvent:
     event_date: Union[datetime.date, datetime.datetime]
     attributes: Dict[str, AttrValue]
     loc: SourceLoc
+    filter: Optional[EventFilter] = None
 
 
 @dataclass
@@ -212,7 +264,7 @@ class OrionDocument:
 # Layer A: pure parser
 # ---------------------------------------------------------------------------
 
-_KEYWORDS = ("ORIONEVENTS", "UNIT", "DATE", "DURATION", "WELL", "SCHEDULE")
+_KEYWORDS = ("ORIONEVENTS", "UNIT", "DATE", "DURATION", "WELL", "FILTER", "SCHEDULE")
 
 _IDENT = r"[A-Za-z_]\w*"
 _ISO_DATE = r"\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?)?"
@@ -227,6 +279,21 @@ _DURATION_DECL_RE = re.compile(
     r"(?:\s+(?:DAYS|days))?$"
 )
 _WELL_DECL_RE = re.compile(rf'^WELL\s+(?P<name>{_IDENT})\s*=\s*"(?P<well>[^"]*)"$')
+_FILTER_DECL_RE = re.compile(rf'^FILTER\s+(?P<name>{_IDENT})\s*=\s*"(?P<expr>[^"]*)"$')
+_FILTER_SPLIT_RE = re.compile(r"\s+(AND|OR)\s+")
+_NUMBER = r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?"
+_FILTER_TERM_RE = re.compile(
+    rf"^(?:(?P<qual>{_IDENT})\.)?(?P<name>{_IDENT})\s*"
+    rf"(?P<op>>=|<=|>|<)\s*(?P<value>{_NUMBER})$"
+)
+# Result-type qualifiers accepted in filter terms (case-insensitive).
+_RESULT_TYPE_ALIASES = {
+    "STATIC": "STATIC_NATIVE",
+    "STATIC_NATIVE": "STATIC_NATIVE",
+    "DYNAMIC": "DYNAMIC_NATIVE",
+    "DYNAMIC_NATIVE": "DYNAMIC_NATIVE",
+    "GENERATED": "GENERATED",
+}
 _WELL_BLOCK_RE = re.compile(rf'^WELL\s+(?:"(?P<qname>[^"]*)"|(?P<ref>{_IDENT}))$')
 _EVENT_RE = re.compile(rf"^@\s*{_DATE_BASE}{_TERMS}\s+(?P<rest>.+)$")
 _TERM_RE = re.compile(rf"([-+])\s*(\d+|{_IDENT})")
@@ -405,6 +472,24 @@ def _parse_line(
         )
         return current_events
 
+    if first == "FILTER":
+        match = _FILTER_DECL_RE.match(line)
+        if match is None:
+            raise OrionParseError(
+                f"Malformed FILTER declaration: {line!r} "
+                '(expected FILTER NAME = "<result> <op> <number> [AND|OR ...]")',
+                loc,
+            )
+        expr = _parse_filter_expr(match.group("expr"), loc)
+        _declare(
+            match.group("name"),
+            OrionValue("FILTER", expr, loc),
+            variables,
+            warnings,
+            loc,
+        )
+        return current_events
+
     if first == "WELL":
         decl_match = _WELL_DECL_RE.match(line)
         if decl_match is not None:
@@ -546,6 +631,71 @@ def _eval_duration_expr(
     return result + _eval_terms(terms, variables, loc)
 
 
+def _parse_filter_expr(text: str, loc: SourceLoc) -> FilterExpr:
+    """Parse a filter expression into typed comparison terms."""
+    stripped = text.strip()
+    if not stripped:
+        raise OrionParseError("Empty filter expression", loc)
+
+    parts = _FILTER_SPLIT_RE.split(stripped)
+    chunks = parts[0::2]
+    connectors = parts[1::2]
+    if len(set(connectors)) > 1:
+        raise OrionParseError(
+            "Filter expression mixes AND and OR; a combined filter has a "
+            "single combine mode",
+            loc,
+        )
+    combine_mode = connectors[0] if connectors else "AND"
+
+    terms = tuple(_parse_filter_term(chunk, loc) for chunk in chunks)
+    return FilterExpr(terms=terms, combine_mode=combine_mode, raw=stripped)
+
+
+def _parse_filter_term(chunk: str, loc: SourceLoc) -> FilterTerm:
+    chunk = chunk.strip()
+    match = _FILTER_TERM_RE.match(chunk)
+    if match is None:
+        raise OrionParseError(_malformed_filter_term_message(chunk), loc)
+
+    qual = match.group("qual")
+    result_type: Optional[str] = None
+    if qual is not None:
+        result_type = _RESULT_TYPE_ALIASES.get(qual.upper())
+        if result_type is None:
+            close = difflib.get_close_matches(
+                qual.upper(), sorted(set(_RESULT_TYPE_ALIASES)), n=1, cutoff=0.6
+            )
+            hint = f"; did you mean '{close[0]}'?" if close else ""
+            raise OrionParseError(
+                f"Unknown result type '{qual}' in filter term {chunk!r}{hint}", loc
+            )
+    return FilterTerm(
+        result_name=match.group("name").upper(),
+        result_type=result_type,
+        op=match.group("op"),
+        value=float(match.group("value")),
+    )
+
+
+def _malformed_filter_term_message(chunk: str) -> str:
+    if re.search(r"\b(and|or)\b", chunk):
+        return (
+            f"Malformed filter term {chunk!r}: combine keywords must be "
+            "uppercase AND / OR"
+        )
+    if re.search(r"(?<![<>])=", chunk):
+        return (
+            f"Malformed filter term {chunk!r}: only >, >=, < and <= are "
+            "supported in filter expressions (bounds are inclusive, so > "
+            "behaves as >=)"
+        )
+    return (
+        f"Malformed filter term {chunk!r} "
+        "(expected NAME <op> NUMBER with >, >=, < or <=, optionally TYPE.NAME)"
+    )
+
+
 def _strip_comment(line: str) -> str:
     """Remove a ``#`` comment, honoring double-quoted spans."""
     in_quote = False
@@ -574,12 +724,35 @@ def _parse_event_line(
     event_type = parts[0]
     attr_str = parts[1] if len(parts) > 1 else ""
     attributes = _parse_attributes(attr_str, loc)
+
+    event_filter: Optional[EventFilter] = None
+    if event_type.upper() == "PERFORATION" and "FILTER" in attributes:
+        event_filter = _resolve_event_filter(attributes["FILTER"], variables, loc)
+
     return OrionEvent(
         event_type=event_type,
         event_date=event_date,
         attributes=attributes,
         loc=loc,
+        filter=event_filter,
     )
+
+
+def _resolve_event_filter(
+    attr: AttrValue, variables: Dict[str, OrionValue], loc: SourceLoc
+) -> EventFilter:
+    """Resolve a PERFORATION FILTER attribute to a declared or inline filter."""
+    if attr.quoted:
+        return EventFilter(name=None, expr=_parse_filter_expr(attr.raw, loc))
+    if re.fullmatch(_IDENT, attr.raw) is None:
+        raise OrionParseError(
+            "FILTER must name a declared FILTER variable or be a quoted "
+            f"expression, got {attr.raw!r}",
+            loc,
+        )
+    value = _lookup_var(attr.raw, "FILTER", variables, loc)
+    assert isinstance(value.value, FilterExpr)
+    return EventFilter(name=attr.raw, expr=value.value)
 
 
 def _parse_attributes(attr_str: str, loc: SourceLoc) -> Dict[str, AttrValue]:
@@ -640,9 +813,10 @@ _POLICIES = ("warn", "error", "skip")
 _IGNORED_KEYWORD_ATTRS = {"DSHIFT", "FILTER", "PERFID"}
 
 # Completion event attribute handling: (required, known-optional) per type.
-# FILTER/PERFID are accepted on any completion event but ignored with a warning.
+# FILTER is applied on PERFORATION events; FILTER/PERFID are accepted on the
+# other completion events but ignored with a warning.
 _PERF_REQUIRED = ("MDSTART", "MDEND")
-_PERF_KNOWN = {"MDSTART", "MDEND", "RADIUS", "SKIN", "COMPLETION_NUMBER"}
+_PERF_KNOWN = {"MDSTART", "MDEND", "RADIUS", "SKIN", "COMPLETION_NUMBER", "FILTER"}
 _TUBING_REQUIRED = ("MDSTART", "MDEND")
 _TUBING_KNOWN = {"MDSTART", "MDEND", "INNER_DIAMETER", "ROUGHNESS"}
 _VALVE_REQUIRED = ("MD", "TYPE")
@@ -676,11 +850,13 @@ def apply_orion_events_file(
     path: Union[str, "os.PathLike[str]"],
     timeline: Any,
     project: Any,
+    *,
+    case: Any = None,
     **options: str,
 ) -> ApplyReport:
     """Parse an ORIONEVENTS file and apply it to ``timeline``."""
     document = parse_orion_events_file(path)
-    return apply_orion_document(document, timeline, project, **options)
+    return apply_orion_document(document, timeline, project, case=case, **options)
 
 
 def apply_orion_document(
@@ -688,6 +864,7 @@ def apply_orion_document(
     timeline: Any,
     project: Any,
     *,
+    case: Any = None,
     on_unknown_well: str = "warn",
     on_unknown_event: str = "warn",
 ) -> ApplyReport:
@@ -697,6 +874,12 @@ def apply_orion_document(
         document: The parsed document (see :func:`parse_orion_events`).
         timeline: A ``rips.WellEventTimeline`` object.
         project: A ``rips.Project`` used to resolve well names to well paths.
+        case: The ``rips.Case`` used to resolve filter result names and to own
+            the combined data filters created from FILTER expressions. Only
+            needed when the document uses filters; defaults to the project's
+            first case. Raises :class:`RipsError` if a filter is used and no
+            case is available, or if a filter references a result that does
+            not exist in the case (checked up front, before applying events).
         on_unknown_well: ``"warn"`` (default), ``"error"`` or ``"skip"`` -
             behavior when a well name has no matching well path.
         on_unknown_event: same policy values, for event types that closely
@@ -709,6 +892,8 @@ def apply_orion_document(
     _validate_policy(on_unknown_well, "on_unknown_well")
     _validate_policy(on_unknown_event, "on_unknown_event")
     report = ApplyReport()
+
+    ctx = _prepare_filter_context(document, project, case)
 
     for well in document.wells:
         well_path = project.well_path_by_name(well.well_name)
@@ -738,12 +923,136 @@ def apply_orion_document(
                     report.events_skipped += 1
                     continue
                 dispatch = _apply_generic_well_keyword
-            dispatch(event, well_path, timeline, report)
+            dispatch(event, well_path, timeline, report, ctx)
 
     for event in document.schedule_events:
         _apply_schedule_event(event, timeline, report)
 
     return report
+
+
+# Search order for unqualified filter result names.
+_UNQUALIFIED_RESULT_SEARCH_ORDER = ("STATIC_NATIVE", "DYNAMIC_NATIVE", "GENERATED")
+
+
+@dataclass
+class _FilterContext:
+    """Per-apply-run state for materializing filter expressions on a case."""
+
+    case: Any
+    resolved_types: Dict[FilterTerm, str] = field(default_factory=dict)
+    combined_by_key: Dict[str, Any] = field(default_factory=dict)
+    properties_by_type: Dict[str, List[str]] = field(default_factory=dict)
+
+    def available(self, result_type: str) -> List[str]:
+        if result_type not in self.properties_by_type:
+            try:
+                names = list(self.case.available_properties(result_type))
+            except RipsError:
+                # The gRPC service reports NOT_FOUND when the case has no
+                # results of this type at all; treat that as an empty list.
+                names = []
+            self.properties_by_type[result_type] = names
+        return self.properties_by_type[result_type]
+
+
+def _prepare_filter_context(
+    document: OrionDocument, project: Any, case: Any
+) -> Optional[_FilterContext]:
+    """Build a filter context when the document uses filters; else None.
+
+    Resolves every filter term's result type up front so a missing result
+    raises before any event has been applied.
+    """
+    filtered_events: List[Tuple[OrionEvent, EventFilter]] = []
+    for well in document.wells:
+        for event in well.events:
+            if event.filter is not None:
+                filtered_events.append((event, event.filter))
+    if not filtered_events:
+        return None
+
+    if case is None:
+        cases = project.cases()
+        case = cases[0] if cases else None
+    if case is None:
+        raise RipsError(
+            "The document uses FILTER but no case is available; pass case= "
+            "or load a case in the project"
+        )
+
+    ctx = _FilterContext(case=case)
+    missing: List[str] = []
+    for event, event_filter in filtered_events:
+        label = event_filter.name or event_filter.expr.raw
+        for term in event_filter.expr.terms:
+            if term in ctx.resolved_types:
+                continue
+            resolved = _resolve_result_type(ctx, term)
+            if resolved is not None:
+                ctx.resolved_types[term] = resolved
+                continue
+            if term.result_type is not None:
+                missing.append(
+                    f"Line {event.loc.line}: filter '{label}': result "
+                    f"'{term.result_name}' not found among "
+                    f"{term.result_type} results"
+                )
+            else:
+                missing.append(
+                    f"Line {event.loc.line}: filter '{label}': result "
+                    f"'{term.result_name}' not found (searched "
+                    f"{', '.join(_UNQUALIFIED_RESULT_SEARCH_ORDER)})"
+                )
+    if missing:
+        raise RipsError("\n".join(missing))
+    return ctx
+
+
+def _resolve_result_type(ctx: _FilterContext, term: FilterTerm) -> Optional[str]:
+    """Return the result type holding this term's result, or None if missing."""
+    search_order = (
+        (term.result_type,)
+        if term.result_type is not None
+        else _UNQUALIFIED_RESULT_SEARCH_ORDER
+    )
+    for result_type in search_order:
+        if term.result_name in ctx.available(result_type):
+            return result_type
+    return None
+
+
+def _materialize_filter(ctx: _FilterContext, event_filter: EventFilter) -> Any:
+    """Create (or reuse) the case-level combined filter for an event filter.
+
+    Declared filters are created once per declaration name and shared between
+    the perforations that reference them; inline filters are shared when their
+    expression text is identical.
+    """
+    key = event_filter.name or event_filter.expr.raw
+    existing = ctx.combined_by_key.get(key)
+    if existing is not None:
+        return existing
+
+    expr = event_filter.expr
+    combined = ctx.case.data_filter_collection().add_combined_filter(
+        name=event_filter.name or "", combine_mode=expr.combine_mode
+    )
+    for term in expr.terms:
+        property_filter = combined.add_property_filter(
+            result_variable=term.result_name,
+            result_type=ctx.resolved_types[term],
+        )
+        # Only one bound is set; the other keeps the default result min/max,
+        # so '>' and '>=' are equivalent (bounds are inclusive).
+        if term.op in (">", ">="):
+            property_filter.lower_bound = term.value
+        else:
+            property_filter.upper_bound = term.value
+        property_filter.update()
+
+    ctx.combined_by_key[key] = combined
+    return combined
 
 
 def _suspected_typo(event_type: str) -> Optional[str]:
@@ -794,10 +1103,11 @@ def _check_completion_attrs(
     known: Set[str],
     required: Tuple[str, ...],
     report: ApplyReport,
+    ignored: Set[str] = _COMPLETION_IGNORED,
 ) -> bool:
     """Validate a completion event's attributes; False means skip the event."""
     attrs = event.attributes
-    unknown = set(attrs) - known - _COMPLETION_IGNORED
+    unknown = set(attrs) - known - ignored
     if unknown:
         report.errors.append(
             f"Line {event.loc.line}: unknown {type_name} attribute(s): "
@@ -806,7 +1116,7 @@ def _check_completion_attrs(
         report.events_skipped += 1
         return False
 
-    for key in sorted(_COMPLETION_IGNORED & set(attrs)):
+    for key in sorted(ignored & set(attrs)):
         report.warnings.append(
             f"Line {event.loc.line}: attribute '{key}' on {type_name} "
             "is ignored (not yet supported)"
@@ -824,10 +1134,14 @@ def _check_completion_attrs(
 
 
 def _apply_perforation(
-    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+    event: OrionEvent,
+    well_path: Any,
+    timeline: Any,
+    report: ApplyReport,
+    ctx: Optional[_FilterContext] = None,
 ) -> None:
     if not _check_completion_attrs(
-        event, "PERFORATION", _PERF_KNOWN, _PERF_REQUIRED, report
+        event, "PERFORATION", _PERF_KNOWN, _PERF_REQUIRED, report, ignored={"PERFID"}
     ):
         return
 
@@ -853,12 +1167,18 @@ def _apply_perforation(
         report.events_skipped += 1
         return
 
-    timeline.add_perf_event(**kwargs)
+    perf_event = timeline.add_perf_event(**kwargs)
+    if event.filter is not None and ctx is not None:
+        perf_event.add_filter(filter=_materialize_filter(ctx, event.filter))
     report.events_applied += 1
 
 
 def _apply_tubing(
-    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+    event: OrionEvent,
+    well_path: Any,
+    timeline: Any,
+    report: ApplyReport,
+    ctx: Optional[_FilterContext] = None,
 ) -> None:
     if not _check_completion_attrs(
         event, "TUBING", _TUBING_KNOWN, _TUBING_REQUIRED, report
@@ -901,7 +1221,11 @@ _VALVE_NUMERIC_KWARGS = {
 
 
 def _apply_valve(
-    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+    event: OrionEvent,
+    well_path: Any,
+    timeline: Any,
+    report: ApplyReport,
+    ctx: Optional[_FilterContext] = None,
 ) -> None:
     if not _check_completion_attrs(
         event, "VALVE", _VALVE_KNOWN, _VALVE_REQUIRED, report
@@ -931,7 +1255,11 @@ def _apply_valve(
 
 
 def _apply_state(
-    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+    event: OrionEvent,
+    well_path: Any,
+    timeline: Any,
+    report: ApplyReport,
+    ctx: Optional[_FilterContext] = None,
 ) -> None:
     if not _check_completion_attrs(
         event, "STATE", _STATE_KNOWN, _STATE_REQUIRED, report
@@ -974,13 +1302,21 @@ def _apply_keyword(
 
 
 def _apply_wconhist(
-    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+    event: OrionEvent,
+    well_path: Any,
+    timeline: Any,
+    report: ApplyReport,
+    ctx: Optional[_FilterContext] = None,
 ) -> None:
     _apply_keyword(event, well_path, timeline, report, "WCONHIST", _WCONHIST_FIELD_MAP)
 
 
 def _apply_weltarg(
-    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+    event: OrionEvent,
+    well_path: Any,
+    timeline: Any,
+    report: ApplyReport,
+    ctx: Optional[_FilterContext] = None,
 ) -> None:
     _apply_keyword(event, well_path, timeline, report, "WELTARG", _WELTARG_FIELD_MAP)
 
@@ -992,12 +1328,18 @@ def _as_number(attr: AttrValue, loc: SourceLoc) -> Union[int, float]:
 
 
 def _apply_generic_well_keyword(
-    event: OrionEvent, well_path: Any, timeline: Any, report: ApplyReport
+    event: OrionEvent,
+    well_path: Any,
+    timeline: Any,
+    report: ApplyReport,
+    ctx: Optional[_FilterContext] = None,
 ) -> None:
     _apply_keyword(event, well_path, timeline, report, event.event_type.upper(), {})
 
 
-_EventDispatch = Callable[[OrionEvent, Any, Any, ApplyReport], None]
+_EventDispatch = Callable[
+    [OrionEvent, Any, Any, ApplyReport, Optional[_FilterContext]], None
+]
 
 # Built-in event types. Any other event type inside a WELL block is passed
 # through as a generic Eclipse well keyword (unless it looks like a typo of a

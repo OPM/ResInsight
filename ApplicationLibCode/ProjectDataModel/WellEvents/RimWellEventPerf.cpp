@@ -18,6 +18,8 @@
 
 #include "RimWellEventPerf.h"
 
+#include "RimCellFilter.h"
+
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -48,6 +50,7 @@ RimWellEventPerf::RimWellEventPerf()
     CAF_PDM_InitScriptableField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor" );
     CAF_PDM_InitScriptableField( &m_state, "State", caf::AppEnum<State>( State::OPEN ), "State" );
     CAF_PDM_InitScriptableField( &m_completionNumber, "CompletionNumber", 0, "Completion Number" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilter, "CellFilter", "Cell Filter" );
 
     setDeletable( true );
 }
@@ -110,6 +113,14 @@ int RimWellEventPerf::completionNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCellFilter* RimWellEventPerf::cellFilter() const
+{
+    return m_cellFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellEventPerf::setStartMD( double md )
 {
     m_startMD = md;
@@ -153,6 +164,14 @@ void RimWellEventPerf::setState( State state )
 void RimWellEventPerf::setCompletionNumber( int completionNumber )
 {
     m_completionNumber = completionNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventPerf::setCellFilter( RimCellFilter* filter )
+{
+    m_cellFilter = filter;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,6 +42,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathCompletionSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathValve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellEventTimeline.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcWellEventPerf.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcColorLegend.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcNestedCollectionBase.cpp
 )
