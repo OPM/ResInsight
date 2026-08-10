@@ -21,6 +21,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
 #include <QString>
 
@@ -59,12 +60,22 @@ public:
     void setDoubleValue( double value );
     void setFlag();
 
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void initAfterRead() override;
+
+private:
+    QString valueForUi() const;
+    void    setValueForUi( const QString& value );
+    void    updateValueFieldReadOnlyState();
+
 private:
     caf::PdmField<QString>                m_itemName;
     caf::PdmField<caf::AppEnum<ItemType>> m_itemType;
     caf::PdmField<QString>                m_stringValue;
     caf::PdmField<int>                    m_intValue;
     caf::PdmField<double>                 m_doubleValue;
+    caf::PdmProxyValueField<QString>      m_valueForUi;
 };
 
 namespace caf

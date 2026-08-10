@@ -338,7 +338,7 @@ void RimWellEventValve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrde
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellEventValve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options;
+    QList<caf::PdmOptionItemInfo> options = RimWellEvent::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_valveTemplate )
     {

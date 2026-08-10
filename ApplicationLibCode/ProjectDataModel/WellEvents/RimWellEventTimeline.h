@@ -20,8 +20,10 @@
 
 #include "RimWellEvent.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrArrayField.h"
 
 #include <QDateTime>
 #include <vector>
@@ -47,6 +49,13 @@ class RimWellEventTimeline : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class SortMode
+    {
+        DATE,
+        WELL,
+        TYPE
+    };
+
     RimWellEventTimeline();
     ~RimWellEventTimeline() override;
 
@@ -90,7 +99,10 @@ public:
     QDateTime lastAppliedTimestamp() const;
 
 protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     bool applyEvent( RimWellPathCollection* wellPathCollection, RimWellEvent* event );
@@ -99,6 +111,23 @@ private:
     bool applyPerfEvent( const RimWellEventPerf& event, RimWellPath& wellPath );
     bool applyValveEvent( const RimWellEventValve& event, RimWellPath& wellPath );
 
+    std::vector<RimWellEvent*> filteredAndSortedEventsForUi() const;
+
     caf::PdmChildArrayField<RimWellEvent*> m_events;
     QDateTime                              m_lastAppliedTimestamp;
+
+    caf::PdmField<caf::AppEnum<SortMode>>                             m_sortBy;
+    caf::PdmField<bool>                                               m_sortDescending;
+    caf::PdmPtrArrayField<RimWellPath*>                               m_wellPathFilter;
+    caf::PdmField<std::vector<caf::AppEnum<RimWellEvent::EventType>>> m_eventTypeFilter;
+    caf::PdmField<bool>                                               m_filterByStartDate;
+    caf::PdmField<QDateTime>                                          m_startDateFilter;
+    caf::PdmField<bool>                                               m_filterByEndDate;
+    caf::PdmField<QDateTime>                                          m_endDateFilter;
 };
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimWellEventTimeline::SortMode>::setUp();
+} // namespace caf

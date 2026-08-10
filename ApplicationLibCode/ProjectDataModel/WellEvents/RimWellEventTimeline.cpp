@@ -47,6 +47,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <algorithm>
 #include <cmath>
@@ -62,6 +63,23 @@ RimWellEventTimeline::RimWellEventTimeline()
     CAF_PDM_InitScriptableObject( "Well Event Timeline", "", "", "WellEventTimeline" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_events, "Events", "Events" );
+
+    CAF_PDM_InitFieldNoDefault( &m_sortBy, "SortBy", "Sort By" );
+    CAF_PDM_InitField( &m_sortDescending, "SortDescending", false, "Descending" );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellPathFilter, "WellPathFilter", "Wells" );
+    m_wellPathFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_wellPathFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_eventTypeFilter, "EventTypeFilter", "Event Types" );
+    m_eventTypeFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_eventTypeFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
+
+    CAF_PDM_InitField( &m_filterByStartDate, "FilterByStartDate", false, "Filter by Start Date" );
+    CAF_PDM_InitField( &m_startDateFilter, "StartDateFilter", QDateTime::currentDateTime(), "Start Date" );
+
+    CAF_PDM_InitField( &m_filterByEndDate, "FilterByEndDate", false, "Filter by End Date" );
+    CAF_PDM_InitField( &m_endDateFilter, "EndDateFilter", QDateTime::currentDateTime(), "End Date" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -615,20 +633,148 @@ bool RimWellEventTimeline::applyValveEvent( const RimWellEventValve& event, RimW
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellEvent*> RimWellEventTimeline::filteredAndSortedEventsForUi() const
+{
+    std::vector<RimWellEvent*> filteredEvents;
+
+    std::set<RimWellPath*> wellPathFilter( m_wellPathFilter.begin(), m_wellPathFilter.end() );
+
+    std::set<RimWellEvent::EventType> eventTypeFilter;
+    for ( const auto& eventType : m_eventTypeFilter() )
+    {
+        eventTypeFilter.insert( eventType.value() );
+    }
+
+    for ( auto* event : events() )
+    {
+        // Events without a well (schedule-level keywords) are hidden when a well filter is active
+        if ( !wellPathFilter.empty() && !wellPathFilter.contains( event->wellPath() ) ) continue;
+        if ( !eventTypeFilter.empty() && !eventTypeFilter.contains( event->eventType() ) ) continue;
+        if ( m_filterByStartDate() && event->eventDate() < m_startDateFilter() ) continue;
+        if ( m_filterByEndDate() && event->eventDate() > m_endDateFilter() ) continue;
+
+        filteredEvents.push_back( event );
+    }
+
+    auto compareEvents = [this]( const RimWellEvent* a, const RimWellEvent* b )
+    {
+        switch ( m_sortBy() )
+        {
+            case SortMode::WELL:
+                if ( a->wellName() != b->wellName() ) return a->wellName() < b->wellName();
+                break;
+            case SortMode::TYPE:
+                if ( a->eventType() != b->eventType() ) return a->eventType() < b->eventType();
+                break;
+            case SortMode::DATE:
+            default:
+                break;
+        }
+        return a->eventDate() < b->eventDate();
+    };
+    std::stable_sort( filteredEvents.begin(), filteredEvents.end(), compareEvents );
+
+    if ( m_sortDescending() )
+    {
+        std::reverse( filteredEvents.begin(), filteredEvents.end() );
+    }
+
+    return filteredEvents;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventTimeline::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    auto sortGroup = uiOrdering.addNewGroup( "Sorting" );
+    sortGroup->add( &m_sortBy );
+    sortGroup->add( &m_sortDescending );
+
+    auto filterGroup = uiOrdering.addNewGroup( "Filter" );
+    filterGroup->add( &m_wellPathFilter );
+    filterGroup->add( &m_eventTypeFilter );
+    filterGroup->add( &m_filterByStartDate );
+    filterGroup->add( &m_startDateFilter );
+    m_startDateFilter.uiCapability()->setUiReadOnly( !m_filterByStartDate() );
+    filterGroup->add( &m_filterByEndDate );
+    filterGroup->add( &m_endDateFilter );
+    m_endDateFilter.uiCapability()->setUiReadOnly( !m_filterByEndDate() );
+
+    uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellEventTimeline::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    setUiName( QString( "Event Timeline (%1 events)" ).arg( m_events.size() ) );
+    std::vector<RimWellEvent*> visibleEvents = filteredAndSortedEventsForUi();
 
-    // Sort events by date for display
-    std::vector<RimWellEvent*> sortedEvents = events();
-    std::sort( sortedEvents.begin(),
-               sortedEvents.end(),
-               []( const RimWellEvent* a, const RimWellEvent* b ) { return a->eventDate() < b->eventDate(); } );
+    if ( visibleEvents.size() != m_events.size() )
+    {
+        setUiName( QString( "Event Timeline (%1 of %2 events)" ).arg( visibleEvents.size() ).arg( m_events.size() ) );
+    }
+    else
+    {
+        setUiName( QString( "Event Timeline (%1 events)" ).arg( m_events.size() ) );
+    }
 
-    for ( auto* event : sortedEvents )
+    for ( auto* event : visibleEvents )
     {
         uiTreeOrdering.add( event );
     }
 
     uiTreeOrdering.skipRemainingChildren();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventTimeline::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_sortBy || changedField == &m_sortDescending || changedField == &m_wellPathFilter ||
+         changedField == &m_eventTypeFilter || changedField == &m_filterByStartDate || changedField == &m_startDateFilter ||
+         changedField == &m_filterByEndDate || changedField == &m_endDateFilter )
+    {
+        updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellEventTimeline::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_wellPathFilter )
+    {
+        for ( auto* wellPath : getWellPathsWithEvents() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath, false ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_eventTypeFilter )
+    {
+        for ( size_t i = 0; i < caf::AppEnum<RimWellEvent::EventType>::size(); i++ )
+        {
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RimWellEvent::EventType>::uiTextFromIndex( i ),
+                                                       caf::AppEnum<RimWellEvent::EventType>::fromIndex( i ) ) );
+        }
+    }
+
+    return options;
+}
+
+namespace caf
+{
+template <>
+void AppEnum<RimWellEventTimeline::SortMode>::setUp()
+{
+    addItem( RimWellEventTimeline::SortMode::DATE, "DATE", "Date" );
+    addItem( RimWellEventTimeline::SortMode::WELL, "WELL", "Well" );
+    addItem( RimWellEventTimeline::SortMode::TYPE, "TYPE", "Type" );
+    setDefault( RimWellEventTimeline::SortMode::DATE );
+}
+} // namespace caf
