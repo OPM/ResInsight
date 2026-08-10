@@ -11,21 +11,34 @@ applied in one go with rips.orion_events.apply_orion_document().
 It demonstrates the full event coverage of the format:
 1. TUBING, PERFORATION (incl. a time-of-day date), VALVE and STATE completion
    events on a well
-2. Well keyword events: WCONHIST and WELTARG (with attribute translation) and
+2. A FILTER declaration (qualified result name) referenced by a perforation,
+   materialized as a case-level combined data filter
+3. Well keyword events: WCONHIST and WELTARG (with attribute translation) and
    WRFTPLT (generic Eclipse well keyword pass-through)
-3. SCHEDULE-level keyword events not tied to a well: RPTRST, GRUPTREE, TUNING
-4. Generating Eclipse schedule text from the resulting timeline
+4. SCHEDULE-level keyword events not tied to a well: RPTRST, GRUPTREE, TUNING
+5. Generating Eclipse schedule text from the resulting timeline
 
 The ORIONEVENTS text is built inline with the name of the first well path in
 the project (like well_event_schedule.py, which uses wells[0]), so the example
-works with any project that has at least one well path.
+works with any project that has at least one well path. Applying a FILTER needs
+a loaded Eclipse case (to resolve the result name and own the created filter),
+so the FILTER parts are included only when the project has a case.
 """
 
 import rips
 import rips.orion_events
 
 
-def build_orion_text(well_name):
+def build_orion_text(well_name, with_filter):
+    # 'static.PORO' restricts the result lookup to STATIC_NATIVE results; an
+    # unqualified name would search STATIC_NATIVE, DYNAMIC_NATIVE, GENERATED.
+    filter_decl = 'FILTER   HIPORO  = "static.PORO > 0.15"\n' if with_filter else ""
+    filter_comment = (
+        "\n  # The first one is restricted to cells passing the HIPORO filter."
+        if with_filter
+        else ""
+    )
+    filter_ref = "  FILTER=HIPORO" if with_filter else ""
     return f"""\
 ORIONEVENTS 2.0
 UNIT METRIC
@@ -33,15 +46,15 @@ UNIT METRIC
 # Typed declarations
 DATE     STARTUP = 2024-01-01
 DURATION RAMP    = 31 DAYS
-
+{filter_decl}
 WELL W1 = "{well_name}"
 
 WELL W1
   # Tubing installed early (MD 0-2500m)
   @STARTUP         TUBING       MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5
 
-  # Perforations; COMPLETION_NUMBER groups connections for COMPLUMP
-  @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1
+  # Perforations; COMPLETION_NUMBER groups connections for COMPLUMP.{filter_comment}
+  @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1{filter_ref}
   @2024-04-01      PERFORATION  MDSTART=2400  MDEND=2600  RADIUS=0.05  SKIN=0.3  COMPLETION_NUMBER=2
 
   # Time-of-day is preserved and emitted as the TIME field of DATES
@@ -79,8 +92,14 @@ def main():
     well_path = wells[0]
     print("   Well name:", well_path.name)
 
+    # A FILTER needs a case; without one, build the text without the filter.
+    cases = project.cases()
+    case = cases[0] if cases else None
+    if case is None:
+        print("   No Eclipse case loaded - FILTER parts are left out.")
+
     print("\n2. Parsing ORIONEVENTS text...")
-    orion_text = build_orion_text(well_path.name)
+    orion_text = build_orion_text(well_path.name, with_filter=case is not None)
     print(orion_text)
     document = rips.orion_events.parse_orion_events(orion_text)
     print(f"   Wells: {[w.well_name for w in document.wells]}")
@@ -90,7 +109,9 @@ def main():
     print("\n3. Applying events to the timeline...")
     well_path_coll = project.descendants(rips.WellPathCollection)[0]
     timeline = well_path_coll.event_timeline()
-    report = rips.orion_events.apply_orion_document(document, timeline, project)
+    report = rips.orion_events.apply_orion_document(
+        document, timeline, project, case=case
+    )
     print(f"   Events applied: {report.events_applied}")
     print(f"   Events skipped: {report.events_skipped}")
     for warning in report.warnings:
@@ -105,17 +126,19 @@ def main():
     perforations = well_path.completions().perforations().perforations()
     print(f"   Perforations created: {len(perforations)}")
     for perf in perforations:
+        # The HIPORO filter was carried from the perforation event onto the
+        # materialized perforation interval.
+        cell_filter = perf.cell_filter()
+        filter_note = f"  (filter: {cell_filter.name})" if cell_filter else ""
         print(
-            f"      - MD {perf.start_measured_depth:.0f} to {perf.end_measured_depth:.0f}m"
+            f"      - MD {perf.start_measured_depth:.0f} to "
+            f"{perf.end_measured_depth:.0f}m{filter_note}"
         )
 
     print("\n5. Generating Eclipse schedule text from events...")
-    cases = project.cases()
-    if not cases:
+    if case is None:
         print("   No Eclipse case loaded - skipping schedule generation.")
         return
-
-    case = cases[0]
     schedule_text = timeline.generate_schedule_text(
         eclipse_case=case, export_msw_for_wells=[well_path]
     )
