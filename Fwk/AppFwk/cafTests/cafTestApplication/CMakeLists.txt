@@ -64,6 +64,8 @@ set(PROJECT_FILES
     PdmObjects/OptionalFields.cpp
     PdmObjects/ValidationTest.h
     PdmObjects/ValidationTest.cpp
+    PdmObjects/ReentrantEditorRebuild.h
+    PdmObjects/ReentrantEditorRebuild.cpp
 )
 
 qt_add_executable(

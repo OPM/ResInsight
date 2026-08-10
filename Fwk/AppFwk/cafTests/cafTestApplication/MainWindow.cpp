@@ -13,6 +13,7 @@
 #include "PdmObjects/LineEditAndPushButtons.h"
 #include "PdmObjects/ManyGroups.h"
 #include "PdmObjects/OptionalFields.h"
+#include "PdmObjects/ReentrantEditorRebuild.h"
 #include "PdmObjects/SingleEditorPdmObject.h"
 #include "PdmObjects/SmallDemoPdmObject.h"
 #include "PdmObjects/SmallDemoPdmObjectA.h"
@@ -196,6 +197,7 @@ void MainWindow::buildTestModel()
     m_testRoot->objects.push_back( new LineEditAndPushButtons );
     m_testRoot->objects.push_back( new LabelsAndHyperlinks );
     m_testRoot->objects.push_back( new OptionalFields );
+    m_testRoot->objects.push_back( new ReentrantEditorRebuild );
 
     auto tamComboBox = new TamComboBox;
     m_testRoot->objects.push_back( tamComboBox );
