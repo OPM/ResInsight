@@ -276,15 +276,18 @@ void RimSumoDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     }
     else if ( changedField == &m_realizationFilter )
     {
-        // Do not update here. This runs from the line editor's editingFinished handler, which Qt emits
-        // both on Enter and on focus-out, so tabbing out of the field runs it inside Qt's focus transfer.
-        // The update ends in updateAllRequiredEditors(), which through
-        // PdmUiObjectEditorHandle::updateUiAllObjectEditors() rebuilds every object editor in the
-        // application - including the property editor holding the line edit Qt is still processing. Qt
-        // then dereferences the freed widget while moving focus.
+        // NOTE: This is a temporary workaround, to be fixed later.
         //
-        // Running on the next event loop turn lets the editor finish its current event before its widgets
-        // are replaced. The PdmPointer makes this a no-op if the data source is deleted in the meantime.
+        // Tabbing out of the field emits editingFinished from inside Qt's focus transfer. Updating here
+        // reaches updateAllRequiredEditors(), which rebuilds every object editor in the application -
+        // including the property editor holding the line edit Qt is still processing. Qt then dereferences
+        // the freed widget while moving focus. Running on the next event loop turn lets the editor finish
+        // its current event before its widgets are replaced. The PdmPointer makes this a no-op if the data
+        // source is deleted in the meantime.
+        //
+        // The proper fix belongs in the UI layer: an object editor must not be rebuilt underneath a field
+        // editor still handling an event. The same hazard exists wherever updateAllRequiredEditors() is
+        // reached from fieldChangedByUi(). Remove this deferral once that is addressed.
         caf::PdmPointer<RimSumoDataSource> self( this );
 
         QMetaObject::invokeMethod(
