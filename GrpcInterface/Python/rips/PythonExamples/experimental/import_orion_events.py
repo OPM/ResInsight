@@ -5,7 +5,9 @@ Example: import an ORIONEVENTS well-event-timeline file into ResInsight.
 
 This example shows how to:
 1. Parse an ORIONEVENTS text file into a structured document
-2. Apply its events to the well event timeline (perforations, WCONHIST, WELTARG)
+2. Apply its events to the well event timeline (perforations, WCONHIST, WELTARG),
+   materializing FILTER declarations as case-level combined data filters
+   attached to the perforations
 3. Generate Eclipse schedule text from the resulting timeline
 
 The ORIONEVENTS format is a compact, human-authored description of dated well
@@ -14,7 +16,9 @@ rips/example_input_files/well_events.orion.
 
 The well names in the file ("55_33-A-1", ...) must match well paths that exist
 in the open project, so this example assumes a project with matching wells and
-an Eclipse case is already loaded.
+an Eclipse case is already loaded. The case must also hold the results the
+FILTER expressions reference (PORO and PERMX in the sample file); a missing
+result raises before any event is applied.
 """
 
 import os
@@ -42,13 +46,24 @@ def main():
         f"   Variables: { {k: f'{v.kind} {v.value}' for k, v in document.variables.items()} }"
     )
 
+    # The sample file uses FILTER declarations, so a case is needed to resolve
+    # the referenced result names and to own the created combined filters.
+    cases = project.cases()
+    if not cases:
+        print(
+            "\nNo Eclipse case loaded - the sample file uses FILTER, "
+            "which needs a case. Load a case and rerun."
+        )
+        return
+    case = cases[0]
+
     # Apply the parsed document to the shared well event timeline.
     print("\n2. Applying events to the timeline...")
     well_path_coll = project.descendants(rips.WellPathCollection)[0]
     timeline = well_path_coll.event_timeline()
 
     report = rips.orion_events.apply_orion_document(
-        document, timeline, project, on_unknown_well="warn"
+        document, timeline, project, case=case, on_unknown_well="warn"
     )
     print(f"   Events applied: {report.events_applied}")
     print(f"   Events skipped: {report.events_skipped}")
@@ -57,14 +72,23 @@ def main():
     for error in report.errors:
         print(f"   ERROR:   {error}")
 
-    # Generate Eclipse schedule text from the timeline.
-    print("\n3. Generating Eclipse schedule text...")
-    cases = project.cases()
-    if not cases:
-        print("   No Eclipse case loaded - skipping schedule generation.")
-        return
+    # FILTER declarations referenced by applied perforations now exist as
+    # combined data filters under the case's "Data Filters" node; they are
+    # carried onto the perforation intervals when completions are materialized
+    # with timeline.set_timestamp().
+    print("\n3. Case-level data filters created from FILTER declarations:")
+    data_filters = case.data_filter_collection().filters()
+    if data_filters:
+        for cell_filter in data_filters:
+            print(f"   {cell_filter.name}")
+    else:
+        print("   (none - no applied perforation referenced a filter)")
 
-    case = cases[0]
+    # Generate Eclipse schedule text from the timeline.
+    print("\n4. Generating Eclipse schedule text...")
+    if report.events_applied == 0:
+        print("   No events applied - skipping schedule generation.")
+        return
     schedule_text = timeline.generate_schedule_text(
         eclipse_case=case, export_msw_for_wells=project.well_paths()
     )
