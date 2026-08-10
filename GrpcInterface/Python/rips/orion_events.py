@@ -193,6 +193,9 @@ class FilterExpr:
     combine_mode: str
     raw: str
 
+    def __str__(self) -> str:
+        return self.raw
+
 
 @dataclass(frozen=True)
 class EventFilter:
