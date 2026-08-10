@@ -22,6 +22,9 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
+#include "cafPdmPtrField.h"
+
+class RimCellFilter;
 
 //==================================================================================================
 ///
@@ -43,12 +46,13 @@ public:
     ~RimWellEventPerf() override;
 
     // Getters
-    double startMD() const;
-    double endMD() const;
-    double diameter() const;
-    double skinFactor() const;
-    State  state() const;
-    int    completionNumber() const;
+    double         startMD() const;
+    double         endMD() const;
+    double         diameter() const;
+    double         skinFactor() const;
+    State          state() const;
+    int            completionNumber() const;
+    RimCellFilter* cellFilter() const;
 
     // Setters
     void setStartMD( double md );
@@ -57,6 +61,7 @@ public:
     void setSkinFactor( double skinFactor );
     void setState( State state );
     void setCompletionNumber( int completionNumber );
+    void setCellFilter( RimCellFilter* filter );
 
     // Override from RimWellEvent
     EventType eventType() const override;
@@ -73,6 +78,7 @@ private:
     caf::PdmField<double>              m_skinFactor;
     caf::PdmField<caf::AppEnum<State>> m_state;
     caf::PdmField<int>                 m_completionNumber;
+    caf::PdmPtrField<RimCellFilter*>   m_cellFilter;
 };
 
 namespace caf

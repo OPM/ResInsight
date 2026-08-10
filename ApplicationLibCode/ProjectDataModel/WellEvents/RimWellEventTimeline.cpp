@@ -493,6 +493,11 @@ bool RimWellEventTimeline::applyPerfEvent( const RimWellEventPerf& event, RimWel
         perfInterval->setCompletionNumber( event.completionNumber() );
     }
 
+    if ( event.cellFilter() )
+    {
+        perfInterval->setCellFilter( event.cellFilter() );
+    }
+
     // Set the custom start date based on the event date
     perfInterval->enableCustomStartDate( true );
     perfInterval->setCustomStartDate( event.eventDate().date() );

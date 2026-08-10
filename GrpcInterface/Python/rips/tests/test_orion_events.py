@@ -60,11 +60,80 @@ class FakeWellPath:
 
 
 class FakeProject:
-    def __init__(self, names):
+    def __init__(self, names, cases=()):
         self._wells = {name: FakeWellPath(name) for name in names}
+        self._cases = list(cases)
 
     def well_path_by_name(self, name):
         return self._wells.get(name)
+
+    def cases(self):
+        return self._cases
+
+
+class FakePropertyFilter:
+    """Bounds default to sentinel 'result range' values, as setToDefaultValues does."""
+
+    def __init__(self, result_variable, result_type):
+        self.result_variable = result_variable
+        self.result_type = result_type
+        self.lower_bound = -1.0e20
+        self.upper_bound = 1.0e20
+        self.update_calls = 0
+
+    def update(self):
+        self.update_calls += 1
+
+
+class FakeCombinedFilter:
+    def __init__(self, name, combine_mode):
+        self.name = name
+        self.combine_mode = combine_mode
+        self.property_filters = []
+
+    def add_property_filter(self, result_variable, result_type):
+        property_filter = FakePropertyFilter(result_variable, result_type)
+        self.property_filters.append(property_filter)
+        return property_filter
+
+
+class FakeDataFilterCollection:
+    def __init__(self):
+        self.combined_filters = []
+
+    def add_combined_filter(self, name="", combine_mode="AND"):
+        combined = FakeCombinedFilter(name, combine_mode)
+        self.combined_filters.append(combined)
+        return combined
+
+
+class FakeCase:
+    """A case with canned per-type result names and a data filter collection."""
+
+    _PROPERTIES = {
+        "STATIC_NATIVE": ["PORO", "PERMX"],
+        "DYNAMIC_NATIVE": ["SOIL", "PRESSURE", "PORO"],
+        "GENERATED": [],
+    }
+
+    def __init__(self):
+        self._data_filter_collection = FakeDataFilterCollection()
+
+    def available_properties(self, property_type):
+        return self._PROPERTIES[property_type]
+
+    def data_filter_collection(self):
+        return self._data_filter_collection
+
+
+class FakePerfEvent:
+    """The object returned by add_perf_event; records attached filters."""
+
+    def __init__(self):
+        self.filters = []
+
+    def add_filter(self, filter):
+        self.filters.append(filter)
 
 
 class FakeTimeline:
@@ -72,6 +141,7 @@ class FakeTimeline:
 
     def __init__(self):
         self.perf_calls = []
+        self.perf_events = []
         self.keyword_calls = []
         self.tubing_calls = []
         self.valve_calls = []
@@ -80,6 +150,9 @@ class FakeTimeline:
 
     def add_perf_event(self, **kwargs):
         self.perf_calls.append(kwargs)
+        perf_event = FakePerfEvent()
+        self.perf_events.append(perf_event)
+        return perf_event
 
     def add_well_keyword_event(self, **kwargs):
         self.keyword_calls.append(kwargs)
@@ -146,11 +219,11 @@ class TestParsing:
     def test_quoted_filter_value_is_single_attribute(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            '  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER="SOIL(0) > 0.8 AND PERMX > 200"\n'
+            '  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER="SOIL > 0.8 AND PERMX > 200"\n'
         )
         doc = parse_orion_events(text)
         filter_attr = doc.wells[0].events[0].attributes["FILTER"]
-        assert filter_attr.value == "SOIL(0) > 0.8 AND PERMX > 200"
+        assert filter_attr.value == "SOIL > 0.8 AND PERMX > 200"
         assert filter_attr.quoted is True
         assert doc.wells[0].events[0].attributes["MDEND"].value == 2
 
@@ -360,6 +433,169 @@ class TestParsing:
         )
 
 
+class TestFilterParsing:
+    def _perf_with_filter(self, decls, filter_value):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            + decls
+            + 'WELL "W"\n'
+            + f"  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER={filter_value}\n"
+        )
+        return parse_orion_events(text)
+
+    def test_filter_declaration_single_term(self):
+        doc = parse_orion_events('ORIONEVENTS 2.0\nFILTER F = "poro > 0.4"\n')
+        value = doc.variables["F"]
+        assert value.kind == "FILTER"
+        expr = value.value
+        assert expr.combine_mode == "AND"
+        assert len(expr.terms) == 1
+        term = expr.terms[0]
+        assert term.result_name == "PORO"  # uppercased
+        assert term.result_type is None
+        assert term.op == ">"
+        assert term.value == 0.4
+
+    def test_filter_declaration_two_terms_and(self):
+        doc = parse_orion_events(
+            'ORIONEVENTS 2.0\nFILTER F = "poro>0.4 AND permx > 100.0"\n'
+        )
+        expr = doc.variables["F"].value
+        assert expr.combine_mode == "AND"
+        assert [t.result_name for t in expr.terms] == ["PORO", "PERMX"]
+
+    def test_filter_declaration_or_mode(self):
+        doc = parse_orion_events(
+            'ORIONEVENTS 2.0\nFILTER F = "PORO < 0.1 OR PERMX <= 10"\n'
+        )
+        expr = doc.variables["F"].value
+        assert expr.combine_mode == "OR"
+        assert [t.op for t in expr.terms] == ["<", "<="]
+
+    def test_filter_all_operators(self):
+        doc = parse_orion_events(
+            'ORIONEVENTS 2.0\nFILTER F = "A > 1 AND B >= 2 AND C < 3 AND D <= 4"\n'
+        )
+        expr = doc.variables["F"].value
+        assert [t.op for t in expr.terms] == [">", ">=", "<", "<="]
+        assert [t.value for t in expr.terms] == [1.0, 2.0, 3.0, 4.0]
+
+    def test_filter_scientific_notation_value(self):
+        doc = parse_orion_events('ORIONEVENTS 2.0\nFILTER F = "PERMX < 1.5e4"\n')
+        assert doc.variables["F"].value.terms[0].value == 15000.0
+
+    def test_filter_qualified_result_type(self):
+        doc = parse_orion_events(
+            'ORIONEVENTS 2.0\nFILTER F = "DYNAMIC_NATIVE.MY_PROPERTY > 1"\n'
+        )
+        term = doc.variables["F"].value.terms[0]
+        assert term.result_type == "DYNAMIC_NATIVE"
+        assert term.result_name == "MY_PROPERTY"
+
+    def test_filter_qualifier_alias_case_insensitive(self):
+        for qualifier, expected in (
+            ("dynamic", "DYNAMIC_NATIVE"),
+            ("static", "STATIC_NATIVE"),
+            ("Generated", "GENERATED"),
+            ("static_native", "STATIC_NATIVE"),
+        ):
+            doc = parse_orion_events(
+                f'ORIONEVENTS 2.0\nFILTER F = "{qualifier}.my_property > 1"\n'
+            )
+            term = doc.variables["F"].value.terms[0]
+            assert term.result_type == expected
+            assert term.result_name == "MY_PROPERTY"
+
+    def test_perforation_filter_reference_resolves(self):
+        doc = self._perf_with_filter('FILTER poroperm = "poro>0.4"\n', "poroperm")
+        event = doc.wells[0].events[0]
+        assert event.filter is not None
+        assert event.filter.name == "poroperm"
+        assert event.filter.expr.terms[0].result_name == "PORO"
+        # The attribute dict stays lossless.
+        assert event.attributes["FILTER"].value == "poroperm"
+
+    def test_perforation_inline_filter_expression(self):
+        doc = self._perf_with_filter("", '"permx > 100 OR poro < 0.1"')
+        event = doc.wells[0].events[0]
+        assert event.filter is not None
+        assert event.filter.name is None
+        assert event.filter.expr.combine_mode == "OR"
+        assert [t.result_name for t in event.filter.expr.terms] == ["PERMX", "PORO"]
+
+    def test_filter_on_non_perforation_event_is_plain_attribute(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "W"\n'
+            '  @2018-01-01 WCONHIST STATUS=OPEN FILTER="PERMX > 200"\n'
+        )
+        doc = parse_orion_events(text)
+        event = doc.wells[0].events[0]
+        assert event.filter is None
+        assert event.attributes["FILTER"].value == "PERMX > 200"
+
+    def test_mixed_and_or_raises(self):
+        with pytest.raises(OrionParseError, match="mixes AND and OR"):
+            parse_orion_events(
+                'ORIONEVENTS 2.0\nFILTER F = "A > 1 AND B > 2 OR C > 3"\n'
+            )
+
+    def test_lowercase_connector_raises(self):
+        with pytest.raises(OrionParseError, match="uppercase AND / OR"):
+            parse_orion_events('ORIONEVENTS 2.0\nFILTER F = "poro>0.4 and permx>1"\n')
+
+    def test_equality_operator_raises(self):
+        with pytest.raises(OrionParseError, match="only >, >=, < and <="):
+            parse_orion_events('ORIONEVENTS 2.0\nFILTER F = "poro = 0.4"\n')
+
+    def test_function_style_result_name_raises(self):
+        with pytest.raises(OrionParseError, match="Malformed filter term"):
+            parse_orion_events('ORIONEVENTS 2.0\nFILTER F = "SOIL(0) > 0.8"\n')
+
+    def test_non_numeric_value_raises(self):
+        with pytest.raises(OrionParseError, match="Malformed filter term"):
+            parse_orion_events('ORIONEVENTS 2.0\nFILTER F = "poro > high"\n')
+
+    def test_empty_filter_expression_raises(self):
+        with pytest.raises(OrionParseError, match="Empty filter expression"):
+            parse_orion_events('ORIONEVENTS 2.0\nFILTER F = ""\n')
+
+    def test_unknown_qualifier_raises_with_hint(self):
+        with pytest.raises(
+            OrionParseError, match="Unknown result type 'DYNAMIK'.*did you mean"
+        ):
+            parse_orion_events('ORIONEVENTS 2.0\nFILTER F = "DYNAMIK.PORO > 1"\n')
+
+    def test_malformed_filter_declaration_raises(self):
+        with pytest.raises(OrionParseError, match="Malformed FILTER declaration"):
+            parse_orion_events("ORIONEVENTS 2.0\nFILTER F = poro>0.4\n")
+
+    def test_undeclared_filter_reference_raises_with_hint(self):
+        with pytest.raises(OrionParseError, match="did you mean 'poroperm'"):
+            self._perf_with_filter('FILTER poroperm = "poro>1"\n', "poropermm")
+
+    def test_wrong_kind_filter_reference_raises(self):
+        with pytest.raises(OrionParseError, match="is a DATE .* but a FILTER"):
+            self._perf_with_filter("DATE X = 2018-01-01\n", "X")
+
+    def test_filter_variable_in_date_context_raises(self):
+        text = (
+            'ORIONEVENTS 2.0\nFILTER F = "poro>1"\nWELL "W"\n'
+            "  @F PERFORATION MDSTART=1 MDEND=2\n"
+        )
+        with pytest.raises(OrionParseError, match="is a FILTER .* but a DATE"):
+            parse_orion_events(text)
+
+    def test_non_identifier_filter_value_raises(self):
+        with pytest.raises(OrionParseError, match="must name a declared FILTER"):
+            self._perf_with_filter("", "123")
+
+    def test_duplicate_filter_declaration_warns(self):
+        text = 'ORIONEVENTS 2.0\nFILTER F = "poro>1"\nFILTER F = "permx>2"\n'
+        doc = parse_orion_events(text)
+        assert any("Duplicate FILTER" in w.message for w in doc.warnings)
+        assert doc.variables["F"].value.terms[0].result_name == "PERMX"
+
+
 class TestDiagnostics:
     def test_all_errors_reported_in_one_pass(self):
         text = (
@@ -485,17 +721,6 @@ class TestApplying:
         # Event date is NOT shifted.
         assert timeline.keyword_calls[0]["event_date"] == "2018-01-01"
         assert any("DSHIFT" in w for w in report.warnings)
-
-    def test_filter_on_perforation_warns_and_applies(self):
-        text = (
-            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            '  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER="SOIL(0) > 0.8"\n'
-        )
-        timeline, report = self._apply(text)
-        assert report.events_applied == 1
-        assert report.events_skipped == 0
-        assert any("FILTER" in w for w in report.warnings)
-        assert len(timeline.perf_calls) == 1
 
     def test_perfid_on_perforation_warns_and_applies(self):
         text = (
@@ -655,6 +880,140 @@ class TestApplying:
         assert report.warnings == []
 
 
+class TestFilterApplying:
+    def _apply(self, text, case=None, cases=None, **opts):
+        doc = parse_orion_events(text)
+        timeline = FakeTimeline()
+        project = FakeProject(
+            ["55_33-A-1"], cases=cases if cases is not None else [FakeCase()]
+        )
+        report = apply_orion_document(doc, timeline, project, case=case, **opts)
+        return timeline, project, report
+
+    def _perf_text(self, decls, *filter_values):
+        events = "".join(
+            f"  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER={value}\n"
+            for value in filter_values
+        )
+        return "ORIONEVENTS 2.0\n" + decls + 'WELL "55_33-A-1"\n' + events
+
+    def test_declared_filter_creates_combined_filter_and_attaches(self):
+        text = self._perf_text(
+            'FILTER poroperm = "poro>0.4 AND permx > 100.0"\n', "poroperm"
+        )
+        timeline, project, report = self._apply(text)
+        assert report.events_applied == 1
+        assert report.errors == []
+        assert report.warnings == []  # FILTER no longer warns on PERFORATION
+
+        combined_filters = project.cases()[0].data_filter_collection().combined_filters
+        assert len(combined_filters) == 1
+        combined = combined_filters[0]
+        assert combined.name == "poroperm"
+        assert combined.combine_mode == "AND"
+
+        poro, permx = combined.property_filters
+        assert (poro.result_variable, poro.result_type) == ("PORO", "STATIC_NATIVE")
+        assert (permx.result_variable, permx.result_type) == ("PERMX", "STATIC_NATIVE")
+        # '>' sets only the lower bound; the default upper bound is untouched.
+        assert poro.lower_bound == 0.4
+        assert poro.upper_bound == 1.0e20
+        assert permx.lower_bound == 100.0
+        assert poro.update_calls == 1
+
+        assert timeline.perf_events[0].filters == [combined]
+
+    def test_upper_bound_operators_and_or_mode(self):
+        text = self._perf_text("", '"PORO < 0.1 OR PERMX <= 10"')
+        _, project, report = self._apply(text)
+        assert report.errors == []
+        combined = project.cases()[0].data_filter_collection().combined_filters[0]
+        assert combined.combine_mode == "OR"
+        assert combined.name == ""  # anonymous inline filter: auto-derived name
+        poro, permx = combined.property_filters
+        assert poro.upper_bound == 0.1
+        assert poro.lower_bound == -1.0e20
+        assert permx.upper_bound == 10.0
+
+    def test_declared_filter_shared_between_perforations(self):
+        text = self._perf_text('FILTER poroperm = "poro>0.4"\n', "poroperm", "poroperm")
+        timeline, project, _ = self._apply(text)
+        combined_filters = project.cases()[0].data_filter_collection().combined_filters
+        assert len(combined_filters) == 1
+        assert timeline.perf_events[0].filters == timeline.perf_events[1].filters
+
+    def test_identical_inline_filters_shared_distinct_not(self):
+        text = self._perf_text("", '"poro>0.4"', '"poro>0.4"', '"poro>0.5"')
+        timeline, project, _ = self._apply(text)
+        combined_filters = project.cases()[0].data_filter_collection().combined_filters
+        assert len(combined_filters) == 2
+        assert timeline.perf_events[0].filters == timeline.perf_events[1].filters
+        assert timeline.perf_events[2].filters != timeline.perf_events[0].filters
+
+    def test_unqualified_name_prefers_static_over_dynamic(self):
+        # PORO exists in both STATIC_NATIVE and DYNAMIC_NATIVE in FakeCase.
+        text = self._perf_text("", '"PORO > 0.2"')
+        _, project, _ = self._apply(text)
+        combined = project.cases()[0].data_filter_collection().combined_filters[0]
+        assert combined.property_filters[0].result_type == "STATIC_NATIVE"
+
+    def test_qualified_name_searches_only_that_type(self):
+        text = self._perf_text("", '"dynamic.PORO > 0.2"')
+        _, project, _ = self._apply(text)
+        combined = project.cases()[0].data_filter_collection().combined_filters[0]
+        assert combined.property_filters[0].result_type == "DYNAMIC_NATIVE"
+
+    def test_explicit_case_overrides_project_first_case(self):
+        explicit_case = FakeCase()
+        text = self._perf_text("", '"PORO > 0.2"')
+        _, project, _ = self._apply(text, case=explicit_case)
+        assert explicit_case.data_filter_collection().combined_filters
+        first_case = project.cases()[0]
+        assert not first_case.data_filter_collection().combined_filters
+
+    def test_filter_without_case_raises(self):
+        from rips.exception import RipsError
+
+        text = self._perf_text("", '"PORO > 0.2"')
+        with pytest.raises(RipsError, match="no case is available"):
+            self._apply(text, cases=[])
+
+    def test_no_filter_without_case_is_fine(self):
+        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2\n'
+        _, _, report = self._apply(text, cases=[])
+        assert report.events_applied == 1
+
+    def test_missing_result_raises_before_applying(self):
+        from rips.exception import RipsError
+
+        text = self._perf_text("", '"NOTHERE > 1"')
+        doc = parse_orion_events(text)
+        timeline = FakeTimeline()
+        project = FakeProject(["55_33-A-1"], cases=[FakeCase()])
+        with pytest.raises(
+            RipsError,
+            match="'NOTHERE' not found .searched STATIC_NATIVE, DYNAMIC_NATIVE, GENERATED",
+        ):
+            apply_orion_document(doc, timeline, project)
+        assert timeline.perf_calls == []  # nothing applied
+
+    def test_missing_qualified_result_raises(self):
+        from rips.exception import RipsError
+
+        text = self._perf_text("", '"generated.PORO > 1"')
+        with pytest.raises(RipsError, match="'PORO' not found among GENERATED results"):
+            self._apply(text)
+
+    def test_declared_but_unused_filter_creates_nothing(self):
+        text = (
+            'ORIONEVENTS 2.0\nFILTER unused = "poro>0.4"\nWELL "55_33-A-1"\n'
+            "  @2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
+        )
+        _, project, report = self._apply(text)
+        assert report.events_applied == 1
+        assert not project.cases()[0].data_filter_collection().combined_filters
+
+
 # ---------------------------------------------------------------------------
 # Integration: drives the real WellEventTimeline API (needs a ResInsight
 # instance provided by conftest.py).
@@ -775,3 +1134,101 @@ class TestOrionEventsIntegration:
         report = apply_orion_document(document, timeline, project)
         assert report.events_applied == 0
         assert any("NO_SUCH_WELL" in w for w in report.warnings)
+
+    def test_apply_filter_creates_combined_filter_on_perforation(
+        self, project_with_case_and_wells
+    ):
+        """FILTER declaration -> case-level combined filter attached to the perforation."""
+        project, case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+
+        text = (
+            "ORIONEVENTS 2.0\n"
+            'FILTER hiperm = "PERMX > 50.0"\n'
+            f'WELL "{well.name}"\n'
+            "  @2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 RADIUS=0.05 FILTER=hiperm\n"
+        )
+        document = parse_orion_events(text)
+        report = apply_orion_document(document, timeline, project, case=case)
+        assert report.errors == []
+        assert report.warnings == []
+        assert report.events_applied == 1
+
+        # The declared filter exists at case level under its declaration name.
+        combined = next(
+            f for f in case.data_filter_collection().filters() if f.name == "hiperm"
+        )
+        assert combined.combine_mode == "AND"
+        property_filter = combined.filters()[0]
+        assert property_filter.lower_bound == 50.0
+        # Only the lower bound was set; the upper bound keeps the result max
+        # (PERMX in TEST10K tops out at exactly 100.0).
+        assert property_filter.upper_bound == 100.0
+
+        # The filter survives materialization onto the perforation interval.
+        timeline.set_timestamp(timestamp="2024-01-15")
+        perforations = well.completions().perforations().perforations()
+        assert len(perforations) == 1
+        cell_filter = perforations[0].cell_filter()
+        assert cell_filter is not None
+        assert cell_filter.name == "hiperm"
+
+    def test_apply_inline_filter_gets_auto_derived_name(
+        self, project_with_case_and_wells
+    ):
+        project, case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+
+        text = (
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            '  @2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 FILTER="static.PERMX >= 50"\n'
+        )
+        document = parse_orion_events(text)
+        report = apply_orion_document(document, timeline, project, case=case)
+        assert report.errors == []
+        assert report.events_applied == 1
+
+        filters = case.data_filter_collection().filters()
+        assert len(filters) == 1
+        # Anonymous inline filter: ResInsight auto-derives a descriptive name.
+        assert "PERMX" in filters[0].name
+
+    def test_apply_filter_missing_result_raises_and_applies_nothing(
+        self, project_with_case_and_wells
+    ):
+        from rips.exception import RipsError
+
+        project, case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+
+        text = (
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            '  @2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 FILTER="NO_SUCH_RESULT > 1"\n'
+        )
+        document = parse_orion_events(text)
+        with pytest.raises(RipsError, match="NO_SUCH_RESULT"):
+            apply_orion_document(document, timeline, project, case=case)
+        assert case.data_filter_collection().filters() == []
+
+    def test_perf_event_filter_round_trip(self, project_with_case_and_wells):
+        """Direct timeline API: add_filter / cell_filter on the perf event itself."""
+        project, case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+
+        combined = case.data_filter_collection().add_combined_filter(
+            name="Round Trip", combine_mode="AND"
+        )
+        perf_event = timeline.add_perf_event(
+            event_date="2024-01-01",
+            well_path=well,
+            start_md=2000.0,
+            end_md=2200.0,
+            state="OPEN",
+        )
+        assert perf_event.cell_filter() is None
+        perf_event.add_filter(filter=combined)
+        cell_filter = perf_event.cell_filter()
+        assert cell_filter is not None
+        assert cell_filter.name == "Round Trip"

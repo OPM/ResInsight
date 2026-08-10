@@ -26,15 +26,16 @@ ORIONEVENTS 2.0
 UNIT METRIC
 
 # Typed declarations
-DATE     STARTUP = 2024-01-01
-DATE     PHASE2  = 2024-03-01 + 9
-DURATION RAMP    = 31 DAYS
+DATE     STARTUP  = 2024-01-01
+DATE     PHASE2   = 2024-03-01 + 9
+DURATION RAMP     = 31 DAYS
+FILTER   POROPERM = "PORO > 0.4 AND PERMX > 100.0"
 
 WELL A1 = "55_33-A-1"            # alias declaration (has '=')
 
 WELL A1                          # opens an event block via the alias
   @STARTUP         TUBING       MDSTART=0     MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5
-  @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1
+  @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1  FILTER=POROPERM
   @2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05
   @2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001
   @STARTUP + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1
@@ -59,10 +60,16 @@ statement       = unit_directive | declaration | well_block_open
                 | schedule_block_open | event_line ;
 unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
 
-declaration     = date_decl | duration_decl | well_decl ;
+declaration     = date_decl | duration_decl | well_decl | filter_decl ;
 date_decl       = "DATE" , ident , "=" , date_expr ;         (* DATE X = 2018-03-01 + 9 *)
 duration_decl   = "DURATION" , ident , "=" , duration_expr ; (* DURATION RAMP = 5 DAYS *)
 well_decl       = "WELL" , ident , "=" , quoted_string ;     (* WELL A1 = "55_33-A-1" *)
+filter_decl     = "FILTER" , ident , "=" , '"' , filter_expr , '"' ;
+                                        (* FILTER F = "PORO > 0.4 AND PERMX > 100.0" *)
+filter_expr     = filter_term , { ( "AND" | "OR" ) , filter_term } ;
+                                        (* one combine mode; mixing AND and OR is an error *)
+filter_term     = [ result_type , "." ] , ident , comp_op , number ;
+comp_op         = ">" | ">=" | "<" | "<=" ;
 
 well_block_open     = "WELL" , ( quoted_string | ident ) ;   (* no "=" present *)
 schedule_block_open = "SCHEDULE" ;                  (* well-less keyword events *)
@@ -90,6 +97,7 @@ The format is line-oriented. Every non-blank line is dispatched on its first tok
 | `UNIT` | Unit system: `METRIC`, `FIELD` or `LAB` (default `METRIC`) |
 | `DATE` | Declare a typed date variable |
 | `DURATION` | Declare a typed whole-day duration variable |
+| `FILTER` | Declare a typed cell-filter expression |
 | `WELL` | With `=`: declare a well-name alias. Without `=`: open a well event block |
 | `SCHEDULE` | Open a block of schedule-level keyword events (bare keyword, no arguments) |
 | `@` | An event line, appended to the enclosing WELL or SCHEDULE block |
@@ -97,13 +105,14 @@ The format is line-oriented. Every non-blank line is dispatched on its first tok
 
 ## Typed declarations
 
-Variables are typed — `DATE`, `DURATION` (whole days) and `WELL` (well-name alias) — and share one namespace. They must be declared before use (single-pass, no forward references).
+Variables are typed — `DATE`, `DURATION` (whole days), `WELL` (well-name alias) and `FILTER` (cell filter expression) — and share one namespace. They must be declared before use (single-pass, no forward references).
 
 ```
-DATE     STARTUP = 2024-01-01
-DURATION RAMP    = 31 DAYS               # DAYS suffix optional
-DATE     PHASE2  = STARTUP + RAMP        # date arithmetic with variables
-WELL     A1      = "55_33-A-1"
+DATE     STARTUP  = 2024-01-01
+DURATION RAMP     = 31 DAYS              # DAYS suffix optional
+DATE     PHASE2   = STARTUP + RAMP       # date arithmetic with variables
+WELL     A1       = "55_33-A-1"
+FILTER   POROPERM = "PORO > 0.4 AND PERMX > 100.0"
 ```
 
 Using a variable of the wrong type is an error citing both the use and the declaration site:
@@ -146,6 +155,7 @@ Event lines are `@<date_expr> <EVENT_TYPE> KEY=VALUE ...`. Inside a WELL block, 
 | `RADIUS` | no | `diameter` = 2 × radius |
 | `SKIN` | no | `skin_factor` |
 | `COMPLETION_NUMBER` | no | `completion_number` (COMPLUMP grouping) |
+| `FILTER` | no | case-level combined data filter attached to the perforation: a declared `FILTER` variable (`FILTER=POROPERM`) or an inline quoted expression (`FILTER="PORO > 0.4"`) — see [Filter expressions](#filter-expressions) |
 
 **TUBING** → `add_tubing_event`
 
@@ -173,7 +183,7 @@ Event lines are `@<date_expr> <EVENT_TYPE> KEY=VALUE ...`. Inside a WELL block, 
 |---|---|---|
 | `STATE` | yes | `well_state`: `OPEN`, `SHUT` or `STOP` |
 
-Unknown attributes on a completion event are an error and skip the event. `FILTER` and `PERFID` are accepted but ignored with a warning (reserved for future use).
+Unknown attributes on a completion event are an error and skip the event. `PERFID` is accepted but ignored with a warning (reserved for future use); on completion events other than `PERFORATION`, `FILTER` is likewise ignored with a warning.
 
 ### Well keyword events
 
@@ -203,11 +213,29 @@ Completion event types (`PERFORATION`, `TUBING`, `VALVE`, `STATE`) are rejected 
 
 ## Attributes and quoting
 
-Every attribute is `KEY=VALUE`; bare positional tokens are rejected. Values are type-inferred (int, then float, otherwise string). Double quotes are used everywhere — well names and attribute values — and allow spaces and operators inside a value:
+Every attribute is `KEY=VALUE`; bare positional tokens are rejected. Values are type-inferred (int, then float, otherwise string). Double quotes are used everywhere — well names, filter expressions and attribute values — and allow spaces and operators inside a value:
 
 ```
-FILTER="SOIL(0) > 0.8 AND PERMX > 200"
+FILTER="SOIL > 0.8 AND PERMX > 200"
 ```
+
+## Filter expressions
+
+A filter expression — the quoted value of a `FILTER` declaration or of an inline `FILTER="..."` attribute — is a list of comparison terms joined by `AND` or `OR` (uppercase, one mode per expression; mixing them is an error, since a combined filter has a single combine mode):
+
+```
+FILTER POROPERM = "PORO > 0.4 AND PERMX > 100.0"
+FILTER LOWSAT   = "dynamic.SOIL < 0.2 OR PRESSURE < 150"
+```
+
+Each term is `[TYPE.]NAME <op> NUMBER`:
+
+* Operators are `>`, `>=`, `<` and `<=`. A term sets only one bound of the generated property filter; the other bound keeps the result's minimum/maximum. Bounds are inclusive, so `>` behaves as `>=` (and `<` as `<=`).
+* The result name is case-insensitive (uppercased on parse). An unqualified name is searched in the case's `STATIC_NATIVE`, then `DYNAMIC_NATIVE`, then `GENERATED` results; the first type containing it wins.
+* A `TYPE.` qualifier restricts the search to one result type: `STATIC`/`STATIC_NATIVE`, `DYNAMIC`/`DYNAMIC_NATIVE` or `GENERATED`, case-insensitive (`DYNAMIC_NATIVE.MY_PROPERTY` and `dynamic.my_property` are equivalent).
+* A result that does not exist in the case raises an error. All filter terms are checked up front, before any event is applied.
+
+When applied, each used filter becomes a case-level **combined data filter** (under the case's *Data Filters*) holding one property filter per term. A declared filter is created once, named after its declaration, and shared between every perforation that references it; an inline filter gets an auto-derived name from its content (identical inline expressions share one filter). The filter is attached to the perforation event and carried onto the perforation interval when completions are materialized with `set_timestamp`. Declared-but-unreferenced filters create nothing.
 
 ## Diagnostics
 
@@ -240,7 +268,7 @@ well_path_coll = project.descendants(rips.WellPathCollection)[0]
 timeline = well_path_coll.event_timeline()
 
 report = rips.orion_events.apply_orion_events_file(
-    "well_events.orion", timeline, project, on_unknown_well="warn"
+    "well_events.orion", timeline, project, case=case, on_unknown_well="warn"
 )
 print(report.events_applied, report.events_skipped, report.warnings, report.errors)
 
@@ -250,7 +278,9 @@ schedule_text = timeline.generate_schedule_text(
 )
 ```
 
-`apply_orion_document` / `apply_orion_events_file` accept two policies, each `"warn"` (default), `"error"` or `"skip"`:
+`apply_orion_document` / `apply_orion_events_file` accept an optional `case` — the `rips.Case` used to resolve filter result names and to own the created combined filters. It is only needed when the document uses `FILTER` and defaults to the project's first case; a `RipsError` is raised if a filter is used and no case is available, or if a filter references a result missing from the case (checked before any event is applied).
+
+They also accept two policies, each `"warn"` (default), `"error"` or `"skip"`:
 
 | Policy | Governs |
 |---|---|
@@ -261,5 +291,5 @@ The returned `ApplyReport` carries `events_applied`, `events_skipped`, `warnings
 
 ## Version history
 
-- **2.0** — current: typed `DATE`/`DURATION`/`WELL` declarations, `WELL`/`SCHEDULE` blocks, signed day-offset chains, ISO datetimes, built-in completion events plus generic keyword pass-through, multi-error diagnostics, validator CLI.
+- **2.0** — current: typed `DATE`/`DURATION`/`WELL`/`FILTER` declarations, `WELL`/`SCHEDULE` blocks, signed day-offset chains, ISO datetimes, built-in completion events plus generic keyword pass-through, perforation data filters, multi-error diagnostics, validator CLI.
 - **1.x** — unsupported. Files using `SET` variables and single-quoted well names are rejected with a migration message pointing at this grammar.
