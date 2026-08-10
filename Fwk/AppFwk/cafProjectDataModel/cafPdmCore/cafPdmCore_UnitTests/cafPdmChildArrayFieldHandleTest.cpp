@@ -160,15 +160,14 @@ TEST( ChildArrayFieldHandle, DerivedOtherObjects )
     delete containerObj;
 }
 
-TEST( ChildArrayFieldHandle, AsyncDeleteOfMultipleChildren )
+TEST( ChildArrayFieldHandle, DeletedChildrenDisconnectFromObserver )
 {
-    // https://github.com/OPM/ResInsight/issues/12262
+    // A deleted child unregisters itself from its observers. ~Signal() calls removeObservedSignal()
+    // on every observer, so the container is not left holding signals owned by destroyed objects.
     //
-    // To trigger crash, remove the line
-    // clearWithoutDelete();
-    // from PdmChildArrayField<DataType*>::deleteChildrenAsync()
-    //
-    // Crash was reproduced in Debug build in VS2022 17.13.2
+    // https://github.com/OPM/ResInsight/issues/12262 was a race in the async delete path, which no
+    // longer exists. ~Signal() ran on a worker thread and mutated the observer list concurrently
+    // with the main thread. Deletion is synchronous now, so this ordering is deterministic.
 
     ContainerObj containerObj;
     const int    numObjects = 1000;
@@ -177,8 +176,9 @@ TEST( ChildArrayFieldHandle, AsyncDeleteOfMultipleChildren )
         containerObj.createAndAppendObject();
     }
 
-    containerObj.derivedObjs.deleteChildrenAsync();
+    EXPECT_EQ( size_t( numObjects ), containerObj.observedSignals().size() );
 
-    // Wait for async delete to complete
-    std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+    containerObj.derivedObjs.deleteChildren();
+
+    EXPECT_EQ( size_t( 0 ), containerObj.observedSignals().size() );
 }

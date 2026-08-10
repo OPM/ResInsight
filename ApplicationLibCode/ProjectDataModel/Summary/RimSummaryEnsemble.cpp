@@ -116,7 +116,8 @@ RimSummaryEnsemble::RimSummaryEnsemble()
 //--------------------------------------------------------------------------------------------------
 RimSummaryEnsemble::~RimSummaryEnsemble()
 {
-    m_cases.deleteChildrenAsync();
+    m_cases.deleteChildren();
+
     updateReferringCurveSets();
 }
 
@@ -204,13 +205,7 @@ RimSummaryCase* RimSummaryEnsemble::firstSummaryCase() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::replaceCases( const std::vector<RimSummaryCase*>& summaryCases, bool notifyChange )
 {
-    // Delete synchronously to prevent a race between the std::thread spawned by
-    // deleteChildrenAsync() and any active OpenMP parallel loop in loadFileSummaryCaseData().
-    // clearWithoutDelete() disconnects observer signals first (preserves the fix for #12262).
-    auto casesToDelete = m_cases.childrenByType();
-    m_cases.clearWithoutDelete();
-    for ( auto* c : casesToDelete )
-        delete c;
+    m_cases.deleteChildren();
 
     if ( summaryCases.empty() ) return;
 

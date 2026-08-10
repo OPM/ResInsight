@@ -143,8 +143,8 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection::~RimSummaryCaseMainCollection()
 {
-    m_cases.deleteChildrenAsync();
-    m_ensembles.deleteChildrenAsync();
+    m_cases.deleteChildren();
+    m_ensembles.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

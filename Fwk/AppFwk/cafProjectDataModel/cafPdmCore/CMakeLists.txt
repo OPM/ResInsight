@@ -56,8 +56,6 @@ set(PROJECT_FILES
     cafTristate.h
     cafFilePath.cpp
     cafFilePath.h
-    cafAsyncObjectDeleter.h
-    cafAsyncObjectDeleter.inl
     cafAsyncWorkerManager.h
     cafAsyncWorkerManager.cpp
     cafPdmObjectHandleTools.h

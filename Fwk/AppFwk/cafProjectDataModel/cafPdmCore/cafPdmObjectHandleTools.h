@@ -33,5 +33,22 @@ namespace PdmObjectHandleTools
 
         return destinationObjects;
     }
+
+    // Delete all objects in the vector, then clear it.
+    //
+    // Use this instead of a hand written delete loop. Objects that are still owned by a
+    // PdmChildArrayField must not be deleted this way, call deleteChildren() on the field instead so
+    // the observer signals are disconnected first.
+    //
+    template <typename ObjectType>
+    void deleteObjects( std::vector<ObjectType*>& objects )
+    {
+        for ( auto* object : objects )
+        {
+            delete object;
+        }
+
+        objects.clear();
+    }
 } //namespace PdmObjectHandleTools
 } //namespace caf
