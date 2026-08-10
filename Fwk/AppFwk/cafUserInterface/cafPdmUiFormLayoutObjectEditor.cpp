@@ -60,6 +60,30 @@
 #include <QLabel>
 #include <QPushButton>
 
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Schedule deletion of a group box without destroying the widgets inside it synchronously.
+///
+/// A plain delete destroys the child widgets immediately, which defeats the deleteLater() used by
+/// PdmUiFieldEditorHandle to keep field editor widgets alive. When the rebuild is triggered from inside a
+/// widget event handler, Qt is still using those widgets further up the stack.
+/// See https://github.com/OPM/ResInsight/issues/14505
+///
+/// The group box is hidden and detached from its parent before the deferred delete is scheduled, so it is
+/// out of the layout, the visual tree and the focus chain immediately. This is what plain deleteLater()
+/// failed to do in https://github.com/OPM/ResInsight/issues/9719
+//--------------------------------------------------------------------------------------------------
+auto scheduleGroupBoxDeletion = []( QMinimizePanel* groupBox )
+{
+    if ( !groupBox ) return;
+
+    groupBox->hide();
+    groupBox->setParent( nullptr );
+    groupBox->deleteLater();
+};
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -626,11 +650,7 @@ void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingPdmObject()
         QMinimizePanel* groupBox = groupIt->second;
         if ( groupBox )
         {
-            // https://github.com/OPM/ResInsight/issues/9719
-            // When opening a summary file from the command line, it seems like the groupBoxes are not deleted when
-            // using groupBox->deleteLater()
-
-            delete groupBox;
+            scheduleGroupBoxDeletion( groupBox );
         }
     }
 
@@ -721,7 +741,7 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi( const QString& uiCo
         if ( itNew == m_newGroupBoxes.end() )
         {
             // The old groupBox is not present anymore, get rid of it
-            if ( !itOld->second.isNull() ) delete itOld->second;
+            if ( !itOld->second.isNull() ) scheduleGroupBoxDeletion( itOld->second );
         }
     }
     m_groupBoxes = m_newGroupBoxes;
