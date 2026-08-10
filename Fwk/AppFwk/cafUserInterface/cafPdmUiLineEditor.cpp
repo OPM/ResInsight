@@ -218,23 +218,29 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                 m_lineEdit->setStyleSheet( "" );
             }
 
-            if ( uiField()->isAutoValueSupported() )
+            // The tool button and the layout are owned by m_placeholder, which is not returned as the editor widget
+            // when auto value is not supported. m_placeholder can then be destroyed by its parent widget while
+            // m_lineEdit survives, leaving these pointers null on a later update.
+            if ( !m_autoValueToolButton.isNull() )
             {
-                auto icon = UiIconFactory::twoStateChainIcon();
-                m_autoValueToolButton->setIcon( icon );
+                if ( uiField()->isAutoValueSupported() )
+                {
+                    auto icon = UiIconFactory::twoStateChainIcon();
+                    m_autoValueToolButton->setIcon( icon );
 
-                m_autoValueToolButton->setChecked( uiField()->isAutoValueEnabled() );
-                QString tooltipText = uiField()->isAutoValueEnabled() ? UiAppearanceSettings::globaleValueButtonText()
-                                                                      : UiAppearanceSettings::localValueButtonText();
-                m_autoValueToolButton->setToolTip( tooltipText );
+                    m_autoValueToolButton->setChecked( uiField()->isAutoValueEnabled() );
+                    QString tooltipText = uiField()->isAutoValueEnabled() ? UiAppearanceSettings::globaleValueButtonText()
+                                                                          : UiAppearanceSettings::localValueButtonText();
+                    m_autoValueToolButton->setToolTip( tooltipText );
 
-                m_layout->addWidget( m_autoValueToolButton );
-                m_autoValueToolButton->show();
-            }
-            else
-            {
-                m_layout->removeWidget( m_autoValueToolButton );
-                m_autoValueToolButton->hide();
+                    if ( !m_layout.isNull() ) m_layout->addWidget( m_autoValueToolButton );
+                    m_autoValueToolButton->show();
+                }
+                else
+                {
+                    if ( !m_layout.isNull() ) m_layout->removeWidget( m_autoValueToolButton );
+                    m_autoValueToolButton->hide();
+                }
             }
 
             if ( leab.validator )
