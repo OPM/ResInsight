@@ -59,6 +59,18 @@ foreach(qtlib ${QT_LIBRARIES})
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}>
             $<TARGET_FILE_DIR:${PROJECT_NAME}>
   )
+
+  # Copy the matching pdb file, if present, to get symbols when debugging
+  if(MSVC)
+    add_custom_command(
+      TARGET ${PROJECT_NAME}
+      POST_BUILD
+      COMMAND
+        ${CMAKE_COMMAND} -DBINARY_FILE=$<TARGET_FILE:${qtlib}>
+        -DDESTINATION_DIR=$<TARGET_FILE_DIR:${PROJECT_NAME}> -P
+        ${CMAKE_CURRENT_LIST_DIR}/../../../cmake/CopyPdbIfExists.cmake
+    )
+  endif()
 endforeach(qtlib)
 
 # Install
