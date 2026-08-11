@@ -143,6 +143,13 @@ std::vector<QString> RimSumoDataSource::availableRealizationIds() const
 void RimSumoDataSource::setAvailableRealizationIds( const std::vector<QString>& realizationIds )
 {
     m_availableRealizationIds = realizationIds;
+
+    // Show the full range instead of an empty field. Only an empty filter is replaced, keeping a user
+    // or project defined filter. Selection is unchanged, as empty and full range both select all.
+    if ( m_realizationFilter().trimmed().isEmpty() )
+    {
+        m_realizationFilter = availableRealizationsRangeText();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,9 +302,17 @@ void RimSumoDataSource::onRealizationFilterChanged()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Compact range text for the available ensemble realizations.
+/// Info text shown next to the realization filter.
 //--------------------------------------------------------------------------------------------------
 QString RimSumoDataSource::realizationFilterInfoText() const
+{
+    return "Available realizations: " + availableRealizationsRangeText();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Compact range text for the available ensemble realizations, e.g. "0-99".
+//--------------------------------------------------------------------------------------------------
+QString RimSumoDataSource::availableRealizationsRangeText() const
 {
     std::vector<int> intValues;
     for ( const auto& realizationId : m_availableRealizationIds() )
@@ -308,5 +323,5 @@ QString RimSumoDataSource::realizationFilterInfoText() const
     }
 
     auto rangeString = RiaStdStringTools::formatRangeSelection( intValues );
-    return "Available realizations: " + QString::fromStdString( rangeString );
+    return QString::fromStdString( rangeString );
 }

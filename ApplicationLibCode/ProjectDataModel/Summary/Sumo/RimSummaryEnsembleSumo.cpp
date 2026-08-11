@@ -30,6 +30,7 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCaseSumo.h"
 #include "RimSumoDataSource.h"
 
@@ -139,6 +140,39 @@ std::pair<std::string, std::string> RimSummaryEnsembleSumo::nameKeys() const
     }
 
     return { "Sumo Data Source", "" };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Name the ensemble after the data source, like RimSummaryFileSetEnsemble does with its file set. A
+/// lone ensemble needs no disambiguation and uses the short name ("iter-0"), otherwise the data source
+/// name, which also carries the case name ("iter-0 (drogon_ahm)").
+///
+/// The base class KEY1/KEY2 template can not be used: KEY1 is the data source name and KEY2 is unused,
+/// so a single Sumo ensemble falls back to the empty KEY2.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleSumo::updateName( const std::set<QString>& existingEnsembleNames )
+{
+    // A user defined name template is still resolved by the base class.
+    if ( !isAutoNameChecked() )
+    {
+        RimSummaryEnsemble::updateName( existingEnsembleNames );
+        return;
+    }
+
+    QString candidateName = "Sumo Data Source";
+
+    if ( m_sumoDataSource() )
+    {
+        auto mainCollection = firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
+        bool isOnlyEnsemble = mainCollection && mainCollection->summaryEnsembles().size() == 1;
+
+        candidateName = isOnlyEnsemble ? m_sumoDataSource()->ensembleName() : m_sumoDataSource()->name();
+    }
+
+    if ( m_name == candidateName ) return;
+
+    m_name = candidateName;
+    caseNameChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

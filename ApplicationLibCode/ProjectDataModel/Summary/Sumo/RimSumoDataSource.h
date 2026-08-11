@@ -76,6 +76,7 @@ private:
     void onRealizationFilterChanged();
 
     QString realizationFilterInfoText() const;
+    QString availableRealizationsRangeText() const;
 
 private:
     caf::PdmField<QString> m_caseId;

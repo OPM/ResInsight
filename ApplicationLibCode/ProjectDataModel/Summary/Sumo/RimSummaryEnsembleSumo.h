@@ -70,6 +70,7 @@ public:
     std::set<RifEclipseSummaryAddress> allResultAddresses() const;
 
     std::pair<std::string, std::string> nameKeys() const override;
+    void                                updateName( const std::set<QString>& existingEnsembleNames ) override;
 
 protected:
     void onLoadDataAndUpdate() override;
