@@ -518,7 +518,7 @@ void RiaSumoConnector::requestBlobBySasUri( const QString& blobId, const QString
                  }
 
                  QString msg = "Received data from : " + sasUri;
-                 RiaLogging::info( msg.toStdString() );
+                 RiaLogging::debug( msg.toStdString() );
 
                  parquetDownloadComplete( blobId, contents, sasUri );
 
@@ -624,7 +624,7 @@ void RiaSumoConnector::parseAssets( QNetworkReply* reply )
 
         for ( auto a : m_assets )
         {
-            RiaLogging::info( std::format( "Asset: {}", a.name ) );
+            RiaLogging::debug( std::format( "Asset: {}", a.name ) );
         }
     }
     else
@@ -803,7 +803,7 @@ QNetworkReply* RiaSumoConnector::makeDownloadRequest( const QString& url, const 
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::requestParquetData( const QString& url, const QString& token )
 {
-    RiaLogging::info( "Requesting download of parquet from: " + url.toStdString() );
+    RiaLogging::debug( "Requesting download of parquet from: " + url.toStdString() );
 
     auto reply = makeDownloadRequest( url, token, RiaCloudDefines::contentTypeJson() );
     connect( reply,
@@ -813,8 +813,8 @@ void RiaSumoConnector::requestParquetData( const QString& url, const QString& to
                  if ( reply->error() == QNetworkReply::NoError )
                  {
                      QByteArray contents = reply->readAll();
-                     RiaLogging::info( std::format( "Download succeeded: {} bytes.", contents.length() ) );
-                     RiaLogging::info( std::format( "Download succeeded for url: {}", url.toStdString() ) );
+                     RiaLogging::debug( std::format( "Download succeeded: {} bytes.", contents.length() ) );
+                     RiaLogging::debug( std::format( "Download succeeded for url: {}", url.toStdString() ) );
                      emit parquetDownloadFinished( contents, "" );
                  }
                  else
