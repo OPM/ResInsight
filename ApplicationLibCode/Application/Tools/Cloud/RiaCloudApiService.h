@@ -31,9 +31,9 @@ class QNetworkAccessManager;
 /// Manages the life cycle of the local "ri_cloud_api" uvicorn service.
 ///
 /// The service is a long-lived localhost process (unlike the single-shot script worker process in
-/// RiaApplication). It is started when Sumo cloud authentication is performed, bound to the first
-/// available port at or above the wanted port, polled for liveness on its /alive endpoint, restarted
-/// if it stops responding, and killed when ResInsight closes.
+/// RiaApplication). It is started from the Cloud Data user interface, bound to the first available
+/// port at or above the wanted port, polled for liveness on its /alive endpoint, restarted if it
+/// stops responding, and killed when ResInsight closes.
 ///
 /// A restart scans for a port again, so the port in use can change during a session. Always read the
 /// current address from serverUrl() instead of caching it.

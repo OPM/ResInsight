@@ -580,6 +580,14 @@ QString RiaSumoConnector::constructSasUri( const QString& blobStoreBaseUri, cons
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod )
 {
+    // Without a running local service there is no server address, and the resulting host-less URL makes
+    // Qt report a confusing 'Protocol "" is unknown'. Report the actual cause instead.
+    if ( server().isEmpty() )
+    {
+        RiaLogging::error( "Cloud API server is not running. Start it from the Cloud Data user interface." );
+        return;
+    }
+
     QEventLoop eventLoop;
 
     QTimer timer;

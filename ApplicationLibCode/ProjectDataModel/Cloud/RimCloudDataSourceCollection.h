@@ -56,6 +56,8 @@ private:
     std::vector<RimSumoDataSource*> addDataSources();
     void                            addEnsembles();
 
+    static bool isCloudApiServerAvailable();
+
 private:
     caf::PdmField<bool>                 m_authenticate;
     caf::PdmField<QString>              m_sumoFieldName;
