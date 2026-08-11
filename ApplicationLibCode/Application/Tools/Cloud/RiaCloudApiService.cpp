@@ -274,7 +274,7 @@ void RiaCloudApiService::onReadyReadStandardOutput()
     const QString output = QString::fromLocal8Bit( m_process->readAllStandardOutput() );
     for ( const QString& line : output.split( '\n', Qt::SkipEmptyParts ) )
     {
-        RiaLogging::info( std::format( "Cloud API service: {}", line.trimmed() ) );
+        RiaLogging::debug( std::format( "Cloud API service: {}", line.trimmed() ) );
     }
 }
 
