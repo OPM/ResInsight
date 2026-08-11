@@ -172,8 +172,7 @@ void RiaCloudApiService::start()
     arguments << "-m"
               << "uvicorn"
               << "ri_cloud_api.main:app"
-              << "--host" << host
-              << "--port" << QString::number( m_port );
+              << "--host" << host << "--port" << QString::number( m_port );
 
     m_process = new QProcess( this );
     m_process->setWorkingDirectory( workingDirectory );
