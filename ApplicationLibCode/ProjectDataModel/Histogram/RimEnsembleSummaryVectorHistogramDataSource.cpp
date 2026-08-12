@@ -290,7 +290,7 @@ void RimEnsembleSummaryVectorHistogramDataSource::setEnsemble( RimSummaryEnsembl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleSummaryVectorHistogramDataSource::setSummaryAddress( RifEclipseSummaryAddress& summaryAddress )
+void RimEnsembleSummaryVectorHistogramDataSource::setSummaryAddress( const RifEclipseSummaryAddress& summaryAddress )
 {
     m_summaryAddressUiField = summaryAddress;
     m_summaryAddress->setAddress( m_summaryAddressUiField );
@@ -299,9 +299,25 @@ void RimEnsembleSummaryVectorHistogramDataSource::setSummaryAddress( RifEclipseS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleSummaryVectorHistogramDataSource::setTimeStep( QDateTime& timeStep )
+void RimEnsembleSummaryVectorHistogramDataSource::setTimeStep( const QDateTime& timeStep )
 {
     m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RimEnsembleSummaryVectorHistogramDataSource::summaryAddress() const
+{
+    return m_summaryAddress->address();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RimEnsembleSummaryVectorHistogramDataSource::timeStep() const
+{
+    return m_timeStep();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -228,11 +228,30 @@ std::set<QString> RicHistogramPlotTools::existingEnsembleParameters( RimHistogra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<std::pair<RifEclipseSummaryAddress, QDateTime>> RicHistogramPlotTools::existingSummaryVectors( RimHistogramPlot* plot )
+{
+    std::set<std::pair<RifEclipseSummaryAddress, QDateTime>> foundVectors;
+
+    for ( auto source : existingDataSources( plot ) )
+    {
+        if ( auto histSource = dynamic_cast<RimEnsembleSummaryVectorHistogramDataSource*>( source ) )
+        {
+            foundVectors.insert( { histSource->summaryAddress(), histSource->timeStep() } );
+        }
+    }
+
+    return foundVectors;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Recreate the data sources shown in the plot for the given ensemble
+//--------------------------------------------------------------------------------------------------
 void RicHistogramPlotTools::appendEnsembleToHistogram( RimHistogramPlot* plot, RimSummaryEnsemble* ensemble )
 {
     auto currentParameters = existingEnsembleParameters( plot );
+    auto currentVectors    = existingSummaryVectors( plot );
 
-    if ( currentParameters.empty() )
+    if ( currentParameters.empty() && currentVectors.empty() )
     {
         auto newDataSource = new RimEnsembleParameterHistogramDataSource();
         newDataSource->setDefaults();
@@ -247,5 +266,14 @@ void RicHistogramPlotTools::appendEnsembleToHistogram( RimHistogramPlot* plot, R
         newDataSource->setEnsemble( ensemble );
         newDataSource->setEnsembleParameter( parameter );
         appendEnsembleParameterHistogramCurve( plot, newDataSource );
+    }
+
+    for ( const auto& [address, timeStep] : currentVectors )
+    {
+        auto newDataSource = new RimEnsembleSummaryVectorHistogramDataSource();
+        newDataSource->setEnsemble( ensemble );
+        newDataSource->setSummaryAddress( address );
+        newDataSource->setTimeStep( timeStep );
+        createHistogramCurve( plot, newDataSource );
     }
 }

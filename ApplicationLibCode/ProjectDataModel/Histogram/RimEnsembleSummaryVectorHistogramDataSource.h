@@ -42,8 +42,11 @@ public:
     ~RimEnsembleSummaryVectorHistogramDataSource() override;
 
     void setEnsemble( RimSummaryEnsemble* ensemble );
-    void setSummaryAddress( RifEclipseSummaryAddress& summaryAddress );
-    void setTimeStep( QDateTime& timeStep );
+    void setSummaryAddress( const RifEclipseSummaryAddress& summaryAddress );
+    void setTimeStep( const QDateTime& timeStep );
+
+    RifEclipseSummaryAddress summaryAddress() const;
+    QDateTime                timeStep() const;
 
     std::string unitNameX() const override;
     std::string unitNameY() const override;
