@@ -18,9 +18,13 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
 #include <set>
+#include <utility>
 #include <vector>
 
+#include <QDateTime>
 #include <QString>
 
 class RimHistogramDataSource;
@@ -58,7 +62,8 @@ public:
 
     static void appendEnsembleToHistogram( RimHistogramPlot* plot, RimSummaryEnsemble* ensemble );
 
-    static std::set<QString> existingEnsembleParameters( RimHistogramPlot* plot );
+    static std::set<QString>                                        existingEnsembleParameters( RimHistogramPlot* plot );
+    static std::set<std::pair<RifEclipseSummaryAddress, QDateTime>> existingSummaryVectors( RimHistogramPlot* plot );
 
 private:
     static std::vector<RimHistogramDataSource*> existingDataSources( RimHistogramPlot* plot );
