@@ -110,7 +110,7 @@ public:
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void appendBinningUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void appendBinningUiOrdering( caf::PdmUiOrdering& uiOrdering, caf::PdmFieldHandle* numBinsField );
 
     std::pair<double, double> binRange( double dataMin, double dataMax, double smallestPositiveValue ) const;
 

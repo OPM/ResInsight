@@ -136,8 +136,7 @@ void RimEnsembleSummaryVectorHistogramDataSource::defineUiOrdering( QString uiCo
     uiOrdering.add( &m_ensemble );
     uiOrdering.add( &m_summaryAddressUiField );
     uiOrdering.add( &m_timeStep );
-    uiOrdering.add( &m_numBins );
-    appendBinningUiOrdering( uiOrdering );
+    appendBinningUiOrdering( uiOrdering, &m_numBins );
 
     uiOrdering.skipRemainingFields( true );
 }

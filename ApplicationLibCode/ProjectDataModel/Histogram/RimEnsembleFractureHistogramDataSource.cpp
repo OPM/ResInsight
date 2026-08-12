@@ -77,8 +77,7 @@ void RimEnsembleFractureHistogramDataSource ::defineUiOrdering( QString uiConfig
 {
     uiOrdering.add( &m_ensembleFractureStatistics );
     uiOrdering.add( &m_property );
-    uiOrdering.add( &m_numBins );
-    appendBinningUiOrdering( uiOrdering );
+    appendBinningUiOrdering( uiOrdering, &m_numBins );
 
     uiOrdering.skipRemainingFields( true );
 }
