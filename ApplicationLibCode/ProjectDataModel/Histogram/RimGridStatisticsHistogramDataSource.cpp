@@ -130,8 +130,7 @@ void RimGridStatisticsHistogramDataSource ::defineUiOrdering( QString uiConfigNa
         m_property->uiOrdering( uiConfigName, *propertyGroup );
     }
 
-    uiOrdering.add( &m_numBins );
-    appendBinningUiOrdering( uiOrdering );
+    appendBinningUiOrdering( uiOrdering, &m_numBins );
 
     uiOrdering.skipRemainingFields( true );
 }

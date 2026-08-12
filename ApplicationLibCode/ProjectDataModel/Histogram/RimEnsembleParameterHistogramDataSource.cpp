@@ -91,8 +91,7 @@ void RimEnsembleParameterHistogramDataSource ::defineUiOrdering( QString uiConfi
 {
     uiOrdering.add( &m_ensemble );
     uiOrdering.add( &m_parameter );
-    uiOrdering.add( &m_numBins );
-    appendBinningUiOrdering( uiOrdering );
+    appendBinningUiOrdering( uiOrdering, &m_numBins );
 
     uiOrdering.skipRemainingFields( true );
 }

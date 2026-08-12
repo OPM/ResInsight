@@ -104,15 +104,17 @@ void RimHistogramDataSource::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistogramDataSource::appendBinningUiOrdering( caf::PdmUiOrdering& uiOrdering )
+void RimHistogramDataSource::appendBinningUiOrdering( caf::PdmUiOrdering& uiOrdering, caf::PdmFieldHandle* numBinsField )
 {
-    uiOrdering.add( &m_binningMode );
-    uiOrdering.add( &m_binRangeMode );
+    caf::PdmUiGroup* binsGroup = uiOrdering.addNewGroup( "Bins" );
+    if ( numBinsField ) binsGroup->add( numBinsField );
+    binsGroup->add( &m_binningMode );
+    binsGroup->add( &m_binRangeMode );
     if ( useUserDefinedBinRange() )
     {
-        uiOrdering.add( &m_binRangeMin );
-        uiOrdering.add( &m_binRangeMax );
-        uiOrdering.add( &m_outOfRangeHandling );
+        binsGroup->add( &m_binRangeMin );
+        binsGroup->add( &m_binRangeMax );
+        binsGroup->add( &m_outOfRangeHandling );
     }
 }
 
