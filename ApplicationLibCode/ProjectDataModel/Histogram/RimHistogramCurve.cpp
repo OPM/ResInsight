@@ -117,6 +117,7 @@ void RimHistogramCurve::setDataSource( RimHistogramDataSource* dataSource )
         m_dataSource->uiCapability()->setUiTreeHidden( true );
         m_dataSource->dataSourceChanged.connect( this, &RimHistogramCurve::onDataSourceChanged );
         m_dataSource->cumulativeChanged.connect( this, &RimHistogramCurve::onCumulativeChanged );
+        m_dataSource->logarithmicBinningEnabled.connect( this, &RimHistogramCurve::onLogarithmicBinningEnabled );
     }
 }
 
@@ -602,6 +603,19 @@ void RimHistogramCurve::onDataSourceChanged( const caf::SignalEmitter* emitter )
 void RimHistogramCurve::onCumulativeChanged( const caf::SignalEmitter* emitter )
 {
     updateCumulativeCurve();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Logarithmic bins are best viewed on a logarithmic axis: enable it once when logarithmic binning
+/// is selected. The user stays in control of the axis setting afterwards.
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCurve::onLogarithmicBinningEnabled( const caf::SignalEmitter* emitter )
+{
+    auto plot = firstAncestorOrThisOfType<RimHistogramPlot>();
+    if ( !plot ) return;
+
+    auto axisProperties = dynamic_cast<RimPlotAxisProperties*>( plot->axisPropertiesForPlotAxis( axisX() ) );
+    if ( axisProperties ) axisProperties->setLogarithmicScaleEnabled( true );
 }
 
 //--------------------------------------------------------------------------------------------------

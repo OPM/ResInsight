@@ -89,6 +89,61 @@ void RimHistogramCalculator::setNumBins( size_t numBins )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimHistogramCalculator::setBinningParameters( RigHistogramCalculator::BinningMode        binningMode,
+                                                   RigHistogramCalculator::OutOfRangeHandling outOfRangeHandling,
+                                                   std::optional<std::pair<double, double>>   customBinRange )
+{
+    m_binningMode        = binningMode;
+    m_outOfRangeHandling = outOfRangeHandling;
+    m_customBinRange     = customBinRange;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Recompute the histogram with non-default binning (logarithmic and/or a custom bin range) directly
+/// from the underlying data. The statistics cached for other consumers are left untouched.
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCalculator::applyCustomBinning( RigStatisticsDataCache* statisticsCache,
+                                                 std::optional<size_t>   timeStepIndex,
+                                                 RigHistogramData&       histData )
+{
+    const bool useCustomBinning = ( m_binningMode != RigHistogramCalculator::BinningMode::LINEAR ) || m_customBinRange.has_value();
+    if ( !useCustomBinning || !statisticsCache ) return;
+
+    double binMin = m_customBinRange ? m_customBinRange->first : histData.min;
+    double binMax = m_customBinRange ? m_customBinRange->second : histData.max;
+
+    if ( m_binningMode == RigHistogramCalculator::BinningMode::LOGARITHMIC && binMin <= 0.0 )
+    {
+        // Use the smallest positive value as the logarithmic range minimum. HUGE_VAL when there are none.
+        double pos = HUGE_VAL;
+        double neg = -HUGE_VAL;
+        if ( timeStepIndex.has_value() )
+            statisticsCache->posNegClosestToZero( *timeStepIndex, pos, neg );
+        else
+            statisticsCache->posNegClosestToZero( pos, neg );
+
+        binMin = pos;
+    }
+
+    histData.histogram.clear();
+
+    if ( binMin <= binMax && RigStatisticsTools::isValidNumber( binMin ) && RigStatisticsTools::isValidNumber( binMax ) )
+    {
+        RigHistogramCalculator histCalc( binMin, binMax, m_numBins, &histData.histogram, m_binningMode, m_outOfRangeHandling );
+        if ( timeStepIndex.has_value() )
+            statisticsCache->computeHistogram( *timeStepIndex, histCalc );
+        else
+            statisticsCache->computeHistogram( histCalc );
+
+        // Let the plot draw bin edges that match the histogram
+        histData.min = binMin;
+        histData.max = binMax;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimHistogramCalculator::invalidateVisibleCellsCache()
 {
     m_isVisCellStatUpToDate = false;
@@ -198,6 +253,9 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
 
     RigHistogramData histData;
 
+    RigStatisticsDataCache* statisticsCache = nullptr;
+    std::optional<size_t>   timeStepContext;
+
     eclResultDefinition->loadResult();
 
     if ( eclResultDefinition->isFlowDiagOrInjectionFlooding() )
@@ -217,6 +275,9 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 fldResults->mobileVolumeWeightedMean( resAddr, timeStep, &histData.weightedMean );
 
                 histData.histogram = fldResults->scalarValuesHistogram( resAddr, timeStep );
+
+                statisticsCache = fldResults->statistics( resAddr );
+                timeStepContext = static_cast<size_t>( timeStep );
             }
             else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
             {
@@ -232,6 +293,9 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
 
                 histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram( timeStep );
+
+                statisticsCache = m_visibleCellStatistics.p();
+                timeStepContext = static_cast<size_t>( timeStep );
             }
         }
         else if ( timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
@@ -249,6 +313,8 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 fldResults->mobileVolumeWeightedMean( resAddr, &histData.weightedMean );
 
                 histData.histogram = fldResults->scalarValuesHistogram( resAddr );
+
+                statisticsCache = fldResults->statistics( resAddr );
             }
             else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
             {
@@ -264,6 +330,8 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 m_visibleCellStatistics->mobileVolumeWeightedMean( histData.weightedMean );
 
                 histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram();
+
+                statisticsCache = m_visibleCellStatistics.p();
             }
         }
     }
@@ -282,6 +350,8 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 cellResults->sumCellScalarValues( eclResAddr, histData.sum );
                 cellResults->mobileVolumeWeightedMean( eclResAddr, histData.weightedMean );
                 histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr );
+
+                statisticsCache = cellResults->statistics( eclResAddr );
             }
             else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
             {
@@ -292,6 +362,9 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 cellResults->sumCellScalarValues( eclResAddr, timeStep, histData.sum );
                 cellResults->mobileVolumeWeightedMean( eclResAddr, timeStep, histData.weightedMean );
                 histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr, timeStep );
+
+                statisticsCache = cellResults->statistics( eclResAddr );
+                timeStepContext = static_cast<size_t>( timeStep );
             }
         }
     }
@@ -310,6 +383,8 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             m_visibleCellStatistics->mobileVolumeWeightedMean( histData.weightedMean );
 
             histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram();
+
+            statisticsCache = m_visibleCellStatistics.p();
         }
         else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
         {
@@ -321,8 +396,14 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
 
             histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram( timeStep );
+
+            statisticsCache = m_visibleCellStatistics.p();
+            timeStepContext = static_cast<size_t>( timeStep );
         }
     }
+
+    applyCustomBinning( statisticsCache, timeStepContext, histData );
+
     return histData;
 }
 

@@ -131,6 +131,7 @@ void RimGridStatisticsHistogramDataSource ::defineUiOrdering( QString uiConfigNa
     }
 
     uiOrdering.add( &m_numBins );
+    appendBinningUiOrdering( uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -142,6 +143,8 @@ void RimGridStatisticsHistogramDataSource::fieldChangedByUi( const caf::PdmField
                                                              const QVariant&            oldValue,
                                                              const QVariant&            newValue )
 {
+    RimHistogramDataSource::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_case )
     {
         if ( RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() ) )
@@ -195,7 +198,7 @@ RimHistogramDataSource::HistogramResult RimGridStatisticsHistogramDataSource::co
     double min = histogramData.min;
     double max = histogramData.max;
 
-    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative );
+    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative, binningMode() );
     result.valuesY = computeHistogramFrequencies( histogramData.histogram, graphType, frequencyType, cumulative );
 
     result.p10  = histogramData.p10;
@@ -212,6 +215,10 @@ RigHistogramData RimGridStatisticsHistogramDataSource::createStatisticsData() co
 {
     std::unique_ptr<RimHistogramCalculator> histogramCalculator = std::make_unique<RimHistogramCalculator>();
     histogramCalculator->setNumBins( static_cast<size_t>( m_numBins() ) );
+
+    std::optional<std::pair<double, double>> customBinRange;
+    if ( useUserDefinedBinRange() ) customBinRange = std::make_pair( m_binRangeMin(), m_binRangeMax() );
+    histogramCalculator->setBinningParameters( binningMode(), outOfRangeHandling(), customBinRange );
 
     RimHistogramCalculator::StatisticsCellRangeType cellRange = RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;
 

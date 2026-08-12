@@ -99,3 +99,128 @@ TEST( RimHistogramDataSourceTest, NonCumulativeIsUnchanged )
     EXPECT_NEAR( 2.0, frequencies[1], 1e-9 );
     EXPECT_NEAR( 3.0, frequencies[2], 1e-9 );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimHistogramDataSourceTest, LinearBinsUnchangedWithDefaultBinningMode )
+{
+    std::vector<double> xValues = RimHistogramDataSource::computeHistogramBins( 0.0, 10.0, 2, RimHistogramPlot::GraphType::BAR_GRAPH, false );
+
+    std::vector<double> expected = { 0.0, 0.0, 5.0, 5.0, 10.0, 10.0 };
+    ASSERT_EQ( expected.size(), xValues.size() );
+    for ( size_t i = 0; i < expected.size(); i++ )
+    {
+        EXPECT_NEAR( expected[i], xValues[i], 1e-9 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimHistogramDataSourceTest, LogarithmicBinsBarGraph )
+{
+    std::vector<double> xValues = RimHistogramDataSource::computeHistogramBins( 1.0,
+                                                                                1000.0,
+                                                                                3,
+                                                                                RimHistogramPlot::GraphType::BAR_GRAPH,
+                                                                                false,
+                                                                                RigHistogramCalculator::BinningMode::LOGARITHMIC );
+
+    std::vector<double> expected = { 1.0, 1.0, 10.0, 10.0, 100.0, 100.0, 1000.0, 1000.0 };
+    ASSERT_EQ( expected.size(), xValues.size() );
+    for ( size_t i = 0; i < expected.size(); i++ )
+    {
+        EXPECT_NEAR( expected[i], xValues[i], 1e-9 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimHistogramDataSourceTest, LogarithmicBinsCumulativeBarGraph )
+{
+    std::vector<double> xValues = RimHistogramDataSource::computeHistogramBins( 1.0,
+                                                                                1000.0,
+                                                                                3,
+                                                                                RimHistogramPlot::GraphType::BAR_GRAPH,
+                                                                                true,
+                                                                                RigHistogramCalculator::BinningMode::LOGARITHMIC );
+
+    // A cumulative curve is not closed on the right side
+    std::vector<double> expected = { 1.0, 1.0, 10.0, 10.0, 100.0, 100.0, 1000.0 };
+    ASSERT_EQ( expected.size(), xValues.size() );
+    for ( size_t i = 0; i < expected.size(); i++ )
+    {
+        EXPECT_NEAR( expected[i], xValues[i], 1e-9 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimHistogramDataSourceTest, LogarithmicBinsLineGraph )
+{
+    std::vector<double> xValues = RimHistogramDataSource::computeHistogramBins( 1.0,
+                                                                                1000.0,
+                                                                                3,
+                                                                                RimHistogramPlot::GraphType::LINE_GRAPH,
+                                                                                false,
+                                                                                RigHistogramCalculator::BinningMode::LOGARITHMIC );
+
+    // Bin centers are the geometric means of the bin edges
+    std::vector<double> expected = { std::pow( 10.0, 0.5 ), std::pow( 10.0, 1.5 ), std::pow( 10.0, 2.5 ) };
+    ASSERT_EQ( expected.size(), xValues.size() );
+    for ( size_t i = 0; i < expected.size(); i++ )
+    {
+        EXPECT_NEAR( expected[i], xValues[i], 1e-9 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimHistogramDataSourceTest, ComputeBinRange )
+{
+    using BinRangeMode = RimHistogramDataSource::BinRangeMode;
+    using BinningMode  = RigHistogramCalculator::BinningMode;
+
+    const double smallestPositive = 0.01;
+
+    {
+        auto [min, max] =
+            RimHistogramDataSource::computeBinRange( BinRangeMode::AUTOMATIC, 5.0, 6.0, -2.0, 100.0, BinningMode::LINEAR, smallestPositive );
+        EXPECT_DOUBLE_EQ( -2.0, min );
+        EXPECT_DOUBLE_EQ( 100.0, max );
+    }
+
+    {
+        auto [min, max] =
+            RimHistogramDataSource::computeBinRange( BinRangeMode::USER_DEFINED, 5.0, 6.0, -2.0, 100.0, BinningMode::LINEAR, smallestPositive );
+        EXPECT_DOUBLE_EQ( 5.0, min );
+        EXPECT_DOUBLE_EQ( 6.0, max );
+    }
+
+    {
+        // A non-positive minimum is replaced by the smallest positive value for logarithmic binning
+        auto [min, max] =
+            RimHistogramDataSource::computeBinRange( BinRangeMode::AUTOMATIC, 5.0, 6.0, -2.0, 100.0, BinningMode::LOGARITHMIC, smallestPositive );
+        EXPECT_DOUBLE_EQ( smallestPositive, min );
+        EXPECT_DOUBLE_EQ( 100.0, max );
+    }
+
+    {
+        auto [min, max] =
+            RimHistogramDataSource::computeBinRange( BinRangeMode::USER_DEFINED, 0.0, 6.0, -2.0, 100.0, BinningMode::LOGARITHMIC, smallestPositive );
+        EXPECT_DOUBLE_EQ( smallestPositive, min );
+        EXPECT_DOUBLE_EQ( 6.0, max );
+    }
+
+    {
+        // A positive minimum is used unchanged for logarithmic binning
+        auto [min, max] =
+            RimHistogramDataSource::computeBinRange( BinRangeMode::USER_DEFINED, 5.0, 6.0, -2.0, 100.0, BinningMode::LOGARITHMIC, smallestPositive );
+        EXPECT_DOUBLE_EQ( 5.0, min );
+        EXPECT_DOUBLE_EQ( 6.0, max );
+    }
+}

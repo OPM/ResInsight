@@ -57,6 +57,10 @@ public:
     const std::vector<size_t>& cellScalarValuesHistogram();
     const std::vector<size_t>& cellScalarValuesHistogram( size_t timeStepIndex );
 
+    // Fills the supplied histogram calculator from the underlying data. Nothing is cached.
+    void computeHistogram( RigHistogramCalculator& histogramCalculator );
+    void computeHistogram( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator );
+
     const std::vector<int>& uniqueCellScalarValues();
     const std::vector<int>& uniqueCellScalarValues( size_t timeStepIndex );
 

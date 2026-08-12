@@ -18,11 +18,17 @@
 
 #pragma once
 
+#include "RigStatisticsMath.h"
+
 #include "RimHistogramPlot.h"
 
+#include "cafAppEnum.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafSignal.h"
+
 #include <limits>
+#include <utility>
 
 //==================================================================================================
 ///
@@ -33,6 +39,12 @@ class RimHistogramDataSource : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class BinRangeMode
+    {
+        AUTOMATIC,
+        USER_DEFINED
+    };
+
     struct HistogramResult
     {
         HistogramResult()
@@ -54,6 +66,7 @@ public:
 
     caf::Signal<> dataSourceChanged;
     caf::Signal<> cumulativeChanged;
+    caf::Signal<> logarithmicBinningEnabled;
 
     virtual std::string unitNameX() const = 0;
     virtual std::string unitNameY() const = 0;
@@ -69,7 +82,12 @@ public:
     virtual std::string name() const = 0;
 
     static std::vector<double>
-        computeHistogramBins( double min, double max, int numBins, RimHistogramPlot::GraphType graphType, bool cumulative = false );
+                               computeHistogramBins( double                              min,
+                                                     double                              max,
+                                                     int                                 numBins,
+                                                     RimHistogramPlot::GraphType         graphType,
+                                                     bool                                cumulative = false,
+                                                     RigHistogramCalculator::BinningMode binningMode = RigHistogramCalculator::BinningMode::LINEAR );
     static std::vector<double> computeHistogramFrequencies( const std::vector<size_t>&      values,
                                                             RimHistogramPlot::GraphType     graphType,
                                                             RimHistogramPlot::FrequencyType frequencyType,
@@ -78,4 +96,31 @@ public:
                                                             RimHistogramPlot::GraphType     graphType,
                                                             RimHistogramPlot::FrequencyType frequencyType,
                                                             bool                            cumulative = false );
+
+    // Resolve the effective bin range: the user-defined range when USER_DEFINED, otherwise [dataMin, dataMax].
+    // For logarithmic binning a non-positive minimum is replaced by smallestPositiveValue.
+    static std::pair<double, double> computeBinRange( BinRangeMode                        binRangeMode,
+                                                      double                              userMin,
+                                                      double                              userMax,
+                                                      double                              dataMin,
+                                                      double                              dataMax,
+                                                      RigHistogramCalculator::BinningMode binningMode,
+                                                      double                              smallestPositiveValue );
+
+protected:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    void appendBinningUiOrdering( caf::PdmUiOrdering& uiOrdering );
+
+    std::pair<double, double> binRange( double dataMin, double dataMax, double smallestPositiveValue ) const;
+
+    RigHistogramCalculator::BinningMode        binningMode() const;
+    RigHistogramCalculator::OutOfRangeHandling outOfRangeHandling() const;
+    bool                                       useUserDefinedBinRange() const;
+
+    caf::PdmField<caf::AppEnum<RigHistogramCalculator::BinningMode>>        m_binningMode;
+    caf::PdmField<caf::AppEnum<BinRangeMode>>                               m_binRangeMode;
+    caf::PdmField<double>                                                   m_binRangeMin;
+    caf::PdmField<double>                                                   m_binRangeMax;
+    caf::PdmField<caf::AppEnum<RigHistogramCalculator::OutOfRangeHandling>> m_outOfRangeHandling;
 };

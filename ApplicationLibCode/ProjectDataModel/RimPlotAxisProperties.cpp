@@ -795,3 +795,15 @@ bool RimPlotAxisProperties::isLogarithmicScaleEnabled() const
 {
     return m_isLogarithmicScaleEnabled;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setLogarithmicScaleEnabled( bool enabled )
+{
+    if ( m_isLogarithmicScaleEnabled() == enabled ) return;
+
+    m_isLogarithmicScaleEnabled = enabled;
+    updateConnectedEditors();
+    logarithmicChanged.send( enabled );
+}

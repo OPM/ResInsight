@@ -92,6 +92,7 @@ void RimEnsembleParameterHistogramDataSource ::defineUiOrdering( QString uiConfi
     uiOrdering.add( &m_ensemble );
     uiOrdering.add( &m_parameter );
     uiOrdering.add( &m_numBins );
+    appendBinningUiOrdering( uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -103,6 +104,8 @@ void RimEnsembleParameterHistogramDataSource::fieldChangedByUi( const caf::PdmFi
                                                                 const QVariant&            oldValue,
                                                                 const QVariant&            newValue )
 {
+    RimHistogramDataSource::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_ensemble )
     {
         if ( m_ensemble )
@@ -158,18 +161,22 @@ RimHistogramDataSource::HistogramResult RimEnsembleParameterHistogramDataSource:
     auto parameter = m_ensemble->ensembleParameter( m_parameter );
     if ( !parameter.isNumeric() || !parameter.isValid() ) return result;
 
-    double min     = parameter.minValue;
-    double max     = parameter.maxValue;
-    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative );
-
     std::vector<double> values;
     for ( const QVariant& v : parameter.values )
     {
         values.push_back( v.toDouble() );
     }
 
+    PosNegAccumulator posNegAccumulator;
+    posNegAccumulator.addData( values );
+
+    auto [min, max] = binRange( parameter.minValue, parameter.maxValue, posNegAccumulator.pos );
+    if ( min > max || RigStatisticsTools::isInvalidNumber( min ) || RigStatisticsTools::isInvalidNumber( max ) ) return result;
+
+    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative, binningMode() );
+
     std::vector<size_t>    histogram;
-    RigHistogramCalculator histCalc( min, max, m_numBins, &histogram );
+    RigHistogramCalculator histCalc( min, max, m_numBins, &histogram, binningMode(), outOfRangeHandling() );
     histCalc.addData( values );
 
     result.valuesY = computeHistogramFrequencies( histogram, graphType, frequencyType, cumulative );

@@ -23,3 +23,31 @@ TEST( RigEnsembleFractureStatisticsCalculatorTest, NoConductivityResultNames )
         EXPECT_TRUE( values.empty() );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// The default binning arguments must produce an invalid histogram for empty input, for both the
+/// default and the custom binning code paths
+//--------------------------------------------------------------------------------------------------
+TEST( RigEnsembleFractureStatisticsCalculatorTest, EmptyDefinitionsProduceInvalidHistogram )
+{
+    std::vector<cvf::ref<RigStimPlanFractureDefinition>> definitions;
+
+    {
+        RigHistogramData histogramData =
+            RigEnsembleFractureStatisticsCalculator::createStatisticsData( definitions,
+                                                                           RigEnsembleFractureStatisticsCalculator::PropertyType::HEIGHT,
+                                                                           50 );
+        EXPECT_FALSE( histogramData.isHistogramVectorValid() );
+    }
+
+    {
+        RigHistogramData histogramData =
+            RigEnsembleFractureStatisticsCalculator::createStatisticsData( definitions,
+                                                                           RigEnsembleFractureStatisticsCalculator::PropertyType::HEIGHT,
+                                                                           50,
+                                                                           RigHistogramCalculator::BinningMode::LOGARITHMIC,
+                                                                           std::make_pair( 1.0, 100.0 ),
+                                                                           RigHistogramCalculator::OutOfRangeHandling::INCLUDE_IN_BOUNDARY_BINS );
+        EXPECT_FALSE( histogramData.isHistogramVectorValid() );
+    }
+}

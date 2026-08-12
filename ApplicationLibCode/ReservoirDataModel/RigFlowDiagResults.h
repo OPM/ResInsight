@@ -97,6 +97,8 @@ public:
 
     void setStatisticsDataCacheNumBins( const RigFlowDiagResultAddress& resVarAddr, size_t numBins );
 
+    RigStatisticsDataCache* statistics( const RigFlowDiagResultAddress& resVarAddr );
+
 private:
     const std::vector<double>* findOrCalculateResult( const RigFlowDiagResultAddress& resVarAddr, size_t timeStepIndex );
     void calculateNativeResultsIfNotPreviouslyAttempted( size_t timeStepIndex, RigFlowDiagResultAddress::PhaseSelection phaseSelection );
@@ -128,8 +130,6 @@ private:
     void calculateSumOfFractions( const std::vector<const std::vector<double>*>& fractions,
                                   size_t                                         activeCellCount,
                                   std::vector<double>*                           sumOfFractions );
-
-    RigStatisticsDataCache* statistics( const RigFlowDiagResultAddress& resVarAddr );
 
     RigFlowDiagResultFrames* createScalarResult( const RigFlowDiagResultAddress& resVarAddr );
     RigFlowDiagResultFrames* findScalarResult( const RigFlowDiagResultAddress& resVarAddr );

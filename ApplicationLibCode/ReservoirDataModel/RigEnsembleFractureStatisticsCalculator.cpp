@@ -57,9 +57,12 @@ void caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::setUp(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( const RimEnsembleFractureStatistics* esf,
-                                                                                PropertyType                         propertyType,
-                                                                                int                                  numBins )
+RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( const RimEnsembleFractureStatistics*     esf,
+                                                                                PropertyType                             propertyType,
+                                                                                int                                      numBins,
+                                                                                RigHistogramCalculator::BinningMode      binningMode,
+                                                                                std::optional<std::pair<double, double>> customBinRange,
+                                                                                RigHistogramCalculator::OutOfRangeHandling outOfRangeHandling )
 {
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> fractureDefinitions = esf->readFractureDefinitions();
 
@@ -68,7 +71,7 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( 
         fractureDefinitions = RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( fractureDefinitions );
     }
 
-    return createStatisticsData( fractureDefinitions, propertyType, numBins );
+    return createStatisticsData( fractureDefinitions, propertyType, numBins, binningMode, customBinRange, outOfRangeHandling );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,8 +79,11 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( 
 //--------------------------------------------------------------------------------------------------
 RigHistogramData
     RigEnsembleFractureStatisticsCalculator::createStatisticsData( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
-                                                                   PropertyType propertyType,
-                                                                   int          numBins )
+                                                                   PropertyType                               propertyType,
+                                                                   int                                        numBins,
+                                                                   RigHistogramCalculator::BinningMode        binningMode,
+                                                                   std::optional<std::pair<double, double>>   customBinRange,
+                                                                   RigHistogramCalculator::OutOfRangeHandling outOfRangeHandling )
 {
     std::vector<double> samples = calculateProperty( fractureDefinitions, propertyType );
 
@@ -97,12 +103,30 @@ RigHistogramData
                                                   &mean,
                                                   RigStatisticsMath::PercentileStyle::SWITCHED );
 
-    std::vector<size_t>    histogram;
-    RigHistogramCalculator histogramCalculator( histogramData.min, histogramData.max, numBins, &histogram );
-    for ( auto s : samples )
-        histogramCalculator.addValue( s );
+    double binMin = customBinRange ? customBinRange->first : histogramData.min;
+    double binMax = customBinRange ? customBinRange->second : histogramData.max;
 
-    histogramData.histogram = histogram;
+    if ( binningMode == RigHistogramCalculator::BinningMode::LOGARITHMIC && binMin <= 0.0 )
+    {
+        // Use the smallest positive value as the logarithmic range minimum. HUGE_VAL when there are none.
+        PosNegAccumulator posNegAccumulator;
+        posNegAccumulator.addData( samples );
+        binMin = posNegAccumulator.pos;
+    }
+
+    if ( !samples.empty() && binMin <= binMax && RigStatisticsTools::isValidNumber( binMin ) && RigStatisticsTools::isValidNumber( binMax ) )
+    {
+        std::vector<size_t>    histogram;
+        RigHistogramCalculator histogramCalculator( binMin, binMax, numBins, &histogram, binningMode, outOfRangeHandling );
+        for ( auto s : samples )
+            histogramCalculator.addValue( s );
+
+        histogramData.histogram = histogram;
+
+        // Let the plot draw bin edges that match the histogram
+        histogramData.min = binMin;
+        histogramData.max = binMax;
+    }
 
     return histogramData;
 }

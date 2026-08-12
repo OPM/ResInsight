@@ -23,8 +23,12 @@
 #include "RigHistogramData.h"
 
 #include "RigStatisticsDataCache.h"
+#include "RigStatisticsMath.h"
 
 #include "cvfObject.h"
+
+#include <optional>
+#include <utility>
 
 class RimEclipseResultDefinition;
 class RimGeoMechContourMapView;
@@ -55,6 +59,10 @@ public:
 
     void setNumBins( size_t numBins );
 
+    void setBinningParameters( RigHistogramCalculator::BinningMode        binningMode,
+                               RigHistogramCalculator::OutOfRangeHandling outOfRangeHandling,
+                               std::optional<std::pair<double, double>>   customBinRange );
+
     RigHistogramData histogramData( RimEclipseContourMapView* contourMap );
     RigHistogramData histogramData( RimGeoMechContourMapView* contourMap );
     RigHistogramData histogramData( RimEclipseView* eclipseView, StatisticsCellRangeType cellRange, StatisticsTimeRangeType timeRange );
@@ -74,9 +82,15 @@ private:
 
     void updateVisCellStatsIfNeeded( RimGeoMechView* geoMechView );
 
+    void applyCustomBinning( RigStatisticsDataCache* statisticsCache, std::optional<size_t> timeStepIndex, RigHistogramData& histData );
+
     std::vector<RigEclipseResultAddress> sourcesForMultiPropertyResults( const QString& resultName );
 
     bool                             m_isVisCellStatUpToDate;
     cvf::ref<RigStatisticsDataCache> m_visibleCellStatistics;
     size_t                           m_numBins;
+
+    RigHistogramCalculator::BinningMode        m_binningMode        = RigHistogramCalculator::BinningMode::LINEAR;
+    RigHistogramCalculator::OutOfRangeHandling m_outOfRangeHandling = RigHistogramCalculator::OutOfRangeHandling::EXCLUDE;
+    std::optional<std::pair<double, double>>   m_customBinRange;
 };

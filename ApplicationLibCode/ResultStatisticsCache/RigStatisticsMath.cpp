@@ -451,7 +451,12 @@ double RigStatisticsMath::calculateMean( const std::vector<double>& values )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigHistogramCalculator::RigHistogramCalculator( double min, double max, size_t nBins, std::vector<size_t>* histogram )
+RigHistogramCalculator::RigHistogramCalculator( double               min,
+                                                double               max,
+                                                size_t               nBins,
+                                                std::vector<size_t>* histogram,
+                                                BinningMode          binningMode,
+                                                OutOfRangeHandling   outOfRangeHandling )
 {
     assert( histogram );
     assert( nBins > 0 );
@@ -461,16 +466,33 @@ RigHistogramCalculator::RigHistogramCalculator( double min, double max, size_t n
         nBins = 1;
     } // Avoid dividing on 0 range
 
-    m_histogram        = histogram;
-    m_min              = min;
-    m_observationCount = 0;
+    // Logarithmic binning requires a positive range
+    if ( binningMode == BinningMode::LOGARITHMIC && min <= 0.0 )
+    {
+        binningMode = BinningMode::LINEAR;
+    }
+
+    m_histogram          = histogram;
+    m_binningMode        = binningMode;
+    m_outOfRangeHandling = outOfRangeHandling;
+    m_observationCount   = 0;
 
     // Initialize bins
     m_histogram->resize( nBins );
     for ( size_t i = 0; i < m_histogram->size(); ++i )
         ( *m_histogram )[i] = 0;
 
-    m_range    = max - min;
+    if ( m_binningMode == BinningMode::LOGARITHMIC )
+    {
+        m_min = std::log10( min );
+        m_max = std::log10( max );
+    }
+    else
+    {
+        m_min = min;
+        m_max = max;
+    }
+    m_range    = m_max - m_min;
     m_maxIndex = nBins - 1;
 }
 
@@ -481,15 +503,37 @@ void RigHistogramCalculator::addValue( double value )
 {
     if ( RigStatisticsTools::isInvalidNumber<double>( value ) ) return;
 
+    double transformed = value;
+    if ( m_binningMode == BinningMode::LOGARITHMIC )
+    {
+        if ( value <= 0.0 )
+        {
+            // Non-positive values cannot be represented on a logarithmic scale and are below any valid range
+            if ( m_outOfRangeHandling != OutOfRangeHandling::INCLUDE_IN_BOUNDARY_BINS ) return;
+            ( *m_histogram )[0]++;
+            m_observationCount++;
+            return;
+        }
+        transformed = std::log10( value );
+    }
+
+    if ( transformed < m_min || transformed > m_max )
+    {
+        if ( m_outOfRangeHandling != OutOfRangeHandling::INCLUDE_IN_BOUNDARY_BINS ) return;
+        size_t boundaryIndex = transformed < m_min ? 0 : m_maxIndex;
+        ( *m_histogram )[boundaryIndex]++;
+        m_observationCount++;
+        return;
+    }
+
     size_t index = 0;
 
-    if ( m_maxIndex > 0 ) index = (size_t)( m_maxIndex * ( value - m_min ) / m_range );
+    // Uniform bins of width m_range / nBins, consistent with calculatePercentil() and the bin edges
+    // drawn by the histogram plots. The maximum value is included in the last bin.
+    if ( m_maxIndex > 0 ) index = std::min( (size_t)( m_histogram->size() * ( transformed - m_min ) / m_range ), m_maxIndex );
 
-    if ( index < m_histogram->size() ) // Just clip to the max min range (-index will overflow to positive )
-    {
-        ( *m_histogram )[index]++;
-        m_observationCount++;
-    }
+    ( *m_histogram )[index]++;
+    m_observationCount++;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -545,8 +589,11 @@ double RigHistogramCalculator::calculatePercentil( double pVal, RigStatisticsMat
         pValClamped = 1.0 - pValClamped;
     }
 
+    auto toDomainValue = [this]( double binSpaceValue )
+    { return m_binningMode == BinningMode::LOGARITHMIC ? std::pow( 10.0, binSpaceValue ) : binSpaceValue; };
+
     double pValObservationCount = pValClamped * m_observationCount;
-    if ( pValObservationCount == 0.0 ) return m_min;
+    if ( pValObservationCount == 0.0 ) return toDomainValue( m_min );
 
     size_t accObsCount = 0;
     double binWidth    = m_range / m_histogram->size();
@@ -564,7 +611,8 @@ double RigHistogramCalculator::calculatePercentil( double pVal, RigStatisticsMat
 
             // See https://resinsight.org/docs/casegroupsandstatistics/#percentile-methods for details
 
-            return histogramBasedEstimate;
+            // For logarithmic binning the interpolation happens in log10 space
+            return toDomainValue( histogramBasedEstimate );
         }
     }
     assert( false );

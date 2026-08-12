@@ -137,6 +137,7 @@ void RimEnsembleSummaryVectorHistogramDataSource::defineUiOrdering( QString uiCo
     uiOrdering.add( &m_summaryAddressUiField );
     uiOrdering.add( &m_timeStep );
     uiOrdering.add( &m_numBins );
+    appendBinningUiOrdering( uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -148,6 +149,8 @@ void RimEnsembleSummaryVectorHistogramDataSource::fieldChangedByUi( const caf::P
                                                                     const QVariant&            oldValue,
                                                                     const QVariant&            newValue )
 {
+    RimHistogramDataSource::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_ensemble )
     {
         updateConnectedEditors();
@@ -240,12 +243,16 @@ RimHistogramDataSource::HistogramResult RimEnsembleSummaryVectorHistogramDataSou
 
     auto [min_it, max_it] = std::minmax_element( values.begin(), values.end() );
 
-    double min     = *min_it;
-    double max     = *max_it;
-    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative );
+    PosNegAccumulator posNegAccumulator;
+    posNegAccumulator.addData( values );
+
+    auto [min, max] = binRange( *min_it, *max_it, posNegAccumulator.pos );
+    if ( min > max || RigStatisticsTools::isInvalidNumber( min ) || RigStatisticsTools::isInvalidNumber( max ) ) return result;
+
+    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative, binningMode() );
 
     std::vector<size_t>    histogram;
-    RigHistogramCalculator histCalc( min, max, m_numBins, &histogram );
+    RigHistogramCalculator histCalc( min, max, m_numBins, &histogram, binningMode(), outOfRangeHandling() );
     histCalc.addData( values );
 
     result.valuesY = computeHistogramFrequencies( histogram, graphType, frequencyType, cumulative );

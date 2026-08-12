@@ -20,10 +20,12 @@
 
 #include "gtest/gtest.h"
 
+#include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
 
 #include "QElapsedTimer"
 
+#include <cmath>
 #include <numeric>
 
 //--------------------------------------------------------------------------------------------------
@@ -136,8 +138,8 @@ TEST( RigStatisticsMath, HistogramPercentiles )
     p90 = histCalc.calculatePercentil( 0.9, RigStatisticsMath::PercentileStyle::REGULAR );
 
     EXPECT_DOUBLE_EQ( -76273.240559989776, p10 );
-    EXPECT_DOUBLE_EQ( 5312.1312871307755, p50 );
-    EXPECT_DOUBLE_EQ( 94818.413022321271, p90 );
+    EXPECT_DOUBLE_EQ( 7292.3587591482656, p50 );
+    EXPECT_DOUBLE_EQ( 96798.640494338761, p90 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -346,6 +348,263 @@ TEST( RigStatisticsMath, calculateMean )
         std::vector<double> values{ -5.0, 5.0 };
         EXPECT_DOUBLE_EQ( 0.0, RigStatisticsMath::calculateMean( values ) );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Default constructor arguments: linear binning, out-of-range values excluded
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, LinearHistogramBinning )
+{
+    std::vector<size_t>    histogram;
+    RigHistogramCalculator histCalc( 0.0, 10.0, 5, &histogram );
+
+    histCalc.addData( std::vector<double>{ -0.1, 0.0, 3.0, 4.9, 7.0, 9.9, 10.0, 10.1, HUGE_VAL, -HUGE_VAL, std::nan( "" ) } );
+
+    // Uniform bins of width 2. Values outside [0, 10] and invalid numbers are discarded.
+    // The maximum value is included in the last bin.
+    std::vector<size_t> expected = { 1, 1, 1, 1, 2 };
+    EXPECT_EQ( expected, histogram );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, LogarithmicHistogramBinning )
+{
+    std::vector<size_t>    histogram;
+    RigHistogramCalculator histCalc( 1.0, 1000.0, 3, &histogram, RigHistogramCalculator::BinningMode::LOGARITHMIC );
+
+    histCalc.addData( std::vector<double>{ 0.5, 1.0, 2.0, 20.0, 200.0, 999.0, 1000.0, 2000.0 } );
+
+    // One bin per decade: [1, 10), [10, 100), [100, 1000]. Values outside the range are discarded.
+    std::vector<size_t> expected = { 2, 1, 3 };
+    EXPECT_EQ( expected, histogram );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, CustomRangeExcludesOutOfRangeValues )
+{
+    std::vector<size_t>    histogram;
+    RigHistogramCalculator histCalc( 10.0, 20.0, 2, &histogram );
+
+    histCalc.addData( std::vector<double>{ 5.0, 12.0, 18.0, 20.0, 25.0 } );
+
+    std::vector<size_t> expected = { 1, 2 };
+    EXPECT_EQ( expected, histogram );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, CustomRangeClampsToBoundaryBins )
+{
+    {
+        std::vector<size_t>    histogram;
+        RigHistogramCalculator histCalc( 10.0,
+                                         20.0,
+                                         2,
+                                         &histogram,
+                                         RigHistogramCalculator::BinningMode::LINEAR,
+                                         RigHistogramCalculator::OutOfRangeHandling::INCLUDE_IN_BOUNDARY_BINS );
+
+        histCalc.addData( std::vector<double>{ 5.0, 12.0, 18.0, 20.0, 25.0, HUGE_VAL, -HUGE_VAL, std::nan( "" ) } );
+
+        // Below range -> first bin, above range -> last bin, invalid numbers still skipped
+        std::vector<size_t> expected = { 2, 3 };
+        EXPECT_EQ( expected, histogram );
+    }
+
+    {
+        std::vector<size_t>    histogram;
+        RigHistogramCalculator histCalc( 10.0,
+                                         1000.0,
+                                         2,
+                                         &histogram,
+                                         RigHistogramCalculator::BinningMode::LOGARITHMIC,
+                                         RigHistogramCalculator::OutOfRangeHandling::INCLUDE_IN_BOUNDARY_BINS );
+
+        histCalc.addData( std::vector<double>{ 5.0, 50.0, 2000.0 } );
+
+        std::vector<size_t> expected = { 2, 1 };
+        EXPECT_EQ( expected, histogram );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, LogarithmicBinningNonPositiveValues )
+{
+    {
+        std::vector<size_t>    histogram;
+        RigHistogramCalculator histCalc( 1.0, 100.0, 2, &histogram, RigHistogramCalculator::BinningMode::LOGARITHMIC );
+
+        histCalc.addData( std::vector<double>{ 0.0, -5.0, 5.0 } );
+
+        std::vector<size_t> expected = { 1, 0 };
+        EXPECT_EQ( expected, histogram );
+    }
+
+    {
+        std::vector<size_t>    histogram;
+        RigHistogramCalculator histCalc( 1.0,
+                                         100.0,
+                                         2,
+                                         &histogram,
+                                         RigHistogramCalculator::BinningMode::LOGARITHMIC,
+                                         RigHistogramCalculator::OutOfRangeHandling::INCLUDE_IN_BOUNDARY_BINS );
+
+        histCalc.addData( std::vector<double>{ 0.0, -5.0, 5.0 } );
+
+        // Non-positive values cannot be represented on a logarithmic scale and count in the first bin
+        std::vector<size_t> expected = { 3, 0 };
+        EXPECT_EQ( expected, histogram );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, LogarithmicHistogramPercentiles )
+{
+    std::vector<size_t>    histogram;
+    RigHistogramCalculator histCalc( 1.0, 10000.0, 4, &histogram, RigHistogramCalculator::BinningMode::LOGARITHMIC );
+
+    histCalc.addData( std::vector<double>{ 1.0, 10.0, 100.0, 1000.0, 10000.0 } );
+
+    // Percentile interpolation happens in log10 space, results are transformed back to the value domain
+    double p10 = histCalc.calculatePercentil( 0.1, RigStatisticsMath::PercentileStyle::REGULAR );
+    double p50 = histCalc.calculatePercentil( 0.5, RigStatisticsMath::PercentileStyle::REGULAR );
+
+    EXPECT_DOUBLE_EQ( std::pow( 10.0, 0.5 ), p10 );
+    EXPECT_DOUBLE_EQ( std::pow( 10.0, 2.5 ), p50 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, HistogramDegenerateRanges )
+{
+    {
+        // Zero range collapses to a single bin
+        std::vector<size_t>    histogram;
+        RigHistogramCalculator histCalc( 5.0, 5.0, 3, &histogram );
+        histCalc.addValue( 5.0 );
+
+        std::vector<size_t> expected = { 1 };
+        EXPECT_EQ( expected, histogram );
+    }
+
+    {
+        // Logarithmic binning with a non-positive minimum falls back to linear binning
+        std::vector<size_t>    histogram;
+        RigHistogramCalculator histCalc( 0.0, 10.0, 2, &histogram, RigHistogramCalculator::BinningMode::LOGARITHMIC );
+        histCalc.addValue( 7.0 );
+
+        std::vector<size_t> expected = { 0, 1 };
+        EXPECT_EQ( expected, histogram );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+namespace
+{
+class VectorBackedStatisticsCalculator : public RigStatisticsCalculator
+{
+public:
+    explicit VectorBackedStatisticsCalculator( const std::vector<std::vector<double>>& valuesPerTimeStep )
+        : m_valuesPerTimeStep( valuesPerTimeStep )
+    {
+    }
+
+    void minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max ) override
+    {
+        MinMaxAccumulator accumulator( min, max );
+        accumulator.addData( m_valuesPerTimeStep[timeStepIndex] );
+        min = accumulator.min;
+        max = accumulator.max;
+    }
+
+    void posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg ) override
+    {
+        PosNegAccumulator accumulator( pos, neg );
+        accumulator.addData( m_valuesPerTimeStep[timeStepIndex] );
+        pos = accumulator.pos;
+        neg = accumulator.neg;
+    }
+
+    void valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount ) override
+    {
+        SumCountAccumulator accumulator( valueSum, sampleCount );
+        accumulator.addData( m_valuesPerTimeStep[timeStepIndex] );
+        valueSum    = accumulator.valueSum;
+        sampleCount = accumulator.sampleCount;
+    }
+
+    void addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator ) override
+    {
+        histogramCalculator.addData( m_valuesPerTimeStep[timeStepIndex] );
+    }
+
+    void uniqueValues( size_t timeStepIndex, std::set<int>& values ) override {}
+
+    size_t timeStepCount() override { return m_valuesPerTimeStep.size(); }
+
+private:
+    std::vector<std::vector<double>> m_valuesPerTimeStep;
+};
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// computeHistogram() fills a custom-configured histogram calculator without disturbing the
+/// statistics cached for other consumers
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, StatisticsDataCacheComputeHistogramPassThrough )
+{
+    cvf::ref<VectorBackedStatisticsCalculator> calculator = new VectorBackedStatisticsCalculator( { { 1.0, 10.0, 100.0 }, { 1000.0, 0.5 } } );
+
+    cvf::ref<RigStatisticsDataCache> cache = new RigStatisticsDataCache( calculator.p() );
+
+    std::vector<size_t> cachedHistogramBefore = cache->cellScalarValuesHistogram();
+
+    double minBefore, maxBefore, p10Before, p90Before;
+    cache->minMaxCellScalarValues( minBefore, maxBefore );
+    cache->p10p90CellScalarValues( p10Before, p90Before );
+
+    {
+        std::vector<size_t>    histogram;
+        RigHistogramCalculator histCalc( 1.0, 1000.0, 3, &histogram, RigHistogramCalculator::BinningMode::LOGARITHMIC );
+        cache->computeHistogram( histCalc );
+
+        // All time steps: {1, 10, 100, 1000, 0.5} in decade bins, 0.5 is below range and discarded
+        std::vector<size_t> expected = { 1, 1, 2 };
+        EXPECT_EQ( expected, histogram );
+    }
+
+    {
+        std::vector<size_t>    histogram;
+        RigHistogramCalculator histCalc( 1.0, 1000.0, 3, &histogram, RigHistogramCalculator::BinningMode::LOGARITHMIC );
+        cache->computeHistogram( 0, histCalc );
+
+        std::vector<size_t> expected = { 1, 1, 1 };
+        EXPECT_EQ( expected, histogram );
+    }
+
+    // The cached statistics are not perturbed by the custom histogram computations
+    EXPECT_EQ( cachedHistogramBefore, cache->cellScalarValuesHistogram() );
+
+    double minAfter, maxAfter, p10After, p90After;
+    cache->minMaxCellScalarValues( minAfter, maxAfter );
+    cache->p10p90CellScalarValues( p10After, p90After );
+
+    EXPECT_DOUBLE_EQ( minBefore, minAfter );
+    EXPECT_DOUBLE_EQ( maxBefore, maxAfter );
+    EXPECT_DOUBLE_EQ( p10Before, p10After );
+    EXPECT_DOUBLE_EQ( p90Before, p90After );
 }
 
 //--------------------------------------------------------------------------------------------------

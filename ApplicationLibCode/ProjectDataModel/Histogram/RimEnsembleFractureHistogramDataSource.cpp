@@ -78,6 +78,7 @@ void RimEnsembleFractureHistogramDataSource ::defineUiOrdering( QString uiConfig
     uiOrdering.add( &m_ensembleFractureStatistics );
     uiOrdering.add( &m_property );
     uiOrdering.add( &m_numBins );
+    appendBinningUiOrdering( uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -89,6 +90,8 @@ void RimEnsembleFractureHistogramDataSource::fieldChangedByUi( const caf::PdmFie
                                                                const QVariant&            oldValue,
                                                                const QVariant&            newValue )
 {
+    RimHistogramDataSource::fieldChangedByUi( changedField, oldValue, newValue );
+
     dataSourceChanged.send();
 }
 
@@ -119,15 +122,22 @@ RimHistogramDataSource::HistogramResult RimEnsembleFractureHistogramDataSource::
 
     if ( !m_ensembleFractureStatistics() ) return result;
 
-    RigHistogramData histogramData =
-        RigEnsembleFractureStatisticsCalculator::createStatisticsData( m_ensembleFractureStatistics(), m_property(), m_numBins() );
+    std::optional<std::pair<double, double>> customBinRange;
+    if ( useUserDefinedBinRange() ) customBinRange = std::make_pair( m_binRangeMin(), m_binRangeMax() );
+
+    RigHistogramData histogramData = RigEnsembleFractureStatisticsCalculator::createStatisticsData( m_ensembleFractureStatistics(),
+                                                                                                    m_property(),
+                                                                                                    m_numBins(),
+                                                                                                    binningMode(),
+                                                                                                    customBinRange,
+                                                                                                    outOfRangeHandling() );
 
     if ( !histogramData.isHistogramVectorValid() ) return result;
 
     double min = histogramData.min;
     double max = histogramData.max;
 
-    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative );
+    result.valuesX = computeHistogramBins( min, max, m_numBins, graphType, cumulative, binningMode() );
     result.valuesY = computeHistogramFrequencies( histogramData.histogram, graphType, frequencyType, cumulative );
 
     result.p10  = histogramData.p10;
