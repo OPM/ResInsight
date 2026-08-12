@@ -30,12 +30,52 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCaseSumo.h"
-#include "RimSummarySumoDataSource.h"
+#include "RimSumoDataSource.h"
 
 #include <arrow/type_fwd.h>
 
+#include <map>
+#include <optional>
+
 CAF_PDM_SOURCE_INIT( RimSummaryEnsembleSumo, "RimSummaryEnsembleSumo" );
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Read an integer column of any width as int64. The bit width of a column is decided by the producer
+/// of the parquet file, and can not be assumed to be a specific type.
+//--------------------------------------------------------------------------------------------------
+std::optional<std::vector<int64_t>> readIntegerColumn( const std::shared_ptr<arrow::ChunkedArray>& column )
+{
+    if ( !column ) return {};
+
+    const auto typeId = column->type()->id();
+
+    if ( typeId == arrow::Type::INT8 ) return RifArrowTools::chunkedArrayToVector<arrow::Int8Array, int64_t>( column );
+    if ( typeId == arrow::Type::INT16 ) return RifArrowTools::chunkedArrayToVector<arrow::Int16Array, int64_t>( column );
+    if ( typeId == arrow::Type::INT32 ) return RifArrowTools::chunkedArrayToVector<arrow::Int32Array, int64_t>( column );
+    if ( typeId == arrow::Type::INT64 ) return RifArrowTools::chunkedArrayToVector<arrow::Int64Array, int64_t>( column );
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Read a floating point column of any precision as double
+//--------------------------------------------------------------------------------------------------
+std::optional<std::vector<double>> readFloatingPointColumn( const std::shared_ptr<arrow::ChunkedArray>& column )
+{
+    if ( !column ) return {};
+
+    const auto typeId = column->type()->id();
+
+    if ( typeId == arrow::Type::FLOAT ) return RifArrowTools::chunkedArrayToVector<arrow::FloatArray, double>( column );
+    if ( typeId == arrow::Type::DOUBLE ) return RifArrowTools::chunkedArrayToVector<arrow::DoubleArray, double>( column );
+
+    return {};
+}
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -58,7 +98,7 @@ RimSummaryEnsembleSumo::RimSummaryEnsembleSumo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryEnsembleSumo::setSumoDataSource( RimSummarySumoDataSource* sumoDataSource )
+void RimSummaryEnsembleSumo::setSumoDataSource( RimSumoDataSource* sumoDataSource )
 {
     m_sumoDataSource = sumoDataSource;
 }
@@ -103,11 +143,49 @@ std::pair<std::string, std::string> RimSummaryEnsembleSumo::nameKeys() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Name the ensemble after the data source, like RimSummaryFileSetEnsemble does with its file set. A
+/// lone ensemble needs no disambiguation and uses the short name ("iter-0"), otherwise the data source
+/// name, which also carries the case name ("iter-0 (drogon_ahm)").
+///
+/// The base class KEY1/KEY2 template can not be used: KEY1 is the data source name and KEY2 is unused,
+/// so a single Sumo ensemble falls back to the empty KEY2.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleSumo::updateName( const std::set<QString>& existingEnsembleNames )
+{
+    // A user defined name template is still resolved by the base class.
+    if ( !isAutoNameChecked() )
+    {
+        RimSummaryEnsemble::updateName( existingEnsembleNames );
+        return;
+    }
+
+    QString candidateName = "Sumo Data Source";
+
+    if ( m_sumoDataSource() )
+    {
+        auto mainCollection = firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
+        bool isOnlyEnsemble = mainCollection && mainCollection->summaryEnsembles().size() == 1;
+
+        candidateName = isOnlyEnsemble ? m_sumoDataSource()->ensembleName() : m_sumoDataSource()->name();
+    }
+
+    if ( m_name == candidateName ) return;
+
+    m_name = candidateName;
+    caseNameChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsembleSumo::loadSummaryData( const RifEclipseSummaryAddress& resultAddress )
 {
     if ( resultAddress.isStatistics() ) return;
+
+    // An address without a vector name has no blob to fetch. The special time address used as curve
+    // x-axis is one such address. Requesting it would produce a URL with an empty vector segment, which
+    // the service answers with 404, surfacing as a misleading "parquet file size is 0 bytes" error.
+    if ( resultAddress.vectorName().empty() ) return;
 
     if ( !m_sumoDataSource() ) return;
 
@@ -354,11 +432,10 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
     std::vector<int64_t> realizations;
 
     {
-        const std::string                    columnName = "REAL";
-        std::shared_ptr<arrow::ChunkedArray> column     = table->GetColumnByName( columnName );
-        if ( column && column->type()->id() == arrow::Type::INT64 )
+        const std::string columnName = "REAL";
+        if ( auto values = readIntegerColumn( table->GetColumnByName( columnName ) ) )
         {
-            realizations = RifArrowTools::chunkedArrayToVector<arrow::Int64Array, int64_t>( column );
+            realizations = *values;
         }
         else
         {
@@ -378,20 +455,17 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
 
             if ( column )
             {
-                if ( column->type()->id() == arrow::Type::DOUBLE )
+                if ( auto values = readFloatingPointColumn( column ) )
                 {
-                    std::vector<double> values              = RifArrowTools::chunkedArrayToVector<arrow::DoubleArray, double>( column );
-                    doubleValuesForRealizations[columnName] = values;
+                    doubleValuesForRealizations[columnName] = *values;
                 }
-                else if ( column->type()->id() == arrow::Type::INT64 )
+                else if ( auto values = readIntegerColumn( column ) )
                 {
-                    std::vector<int64_t> values          = RifArrowTools::chunkedArrayToVector<arrow::Int64Array, int64_t>( column );
-                    intValuesForRealizations[columnName] = values;
+                    intValuesForRealizations[columnName] = *values;
                 }
                 else if ( column->type()->id() == arrow::Type::STRING )
                 {
-                    std::vector<std::string> values         = RifArrowTools::chunkedArrayToStringVector( column );
-                    stringValuesForRealizations[columnName] = values;
+                    stringValuesForRealizations[columnName] = RifArrowTools::chunkedArrayToStringVector( column );
                 }
             }
             else
@@ -402,14 +476,15 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
         }
     }
 
-    // find unique realizations
-    std::set<int16_t> uniqueRealizations;
-    for ( auto realizationNumber : realizations )
+    // find the row index in the table for each unique realization. The realization number can not be used as row index, as
+    // the realization numbers are not guaranteed to be continuous and starting at zero.
+    std::map<int32_t, size_t> rowIndexForRealization;
+    for ( size_t i = 0; i < realizations.size(); ++i )
     {
-        uniqueRealizations.insert( realizationNumber );
+        rowIndexForRealization.try_emplace( static_cast<int32_t>( realizations[i] ), i );
     }
 
-    auto findSummaryCase = [this]( int16_t realizationNumber ) -> RimSummaryCaseSumo*
+    auto findSummaryCase = [this]( int32_t realizationNumber ) -> RimSummaryCaseSumo*
     {
         for ( auto sumCase : allSummaryCases() )
         {
@@ -420,7 +495,7 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
         return nullptr;
     };
 
-    for ( auto realizationNumber : uniqueRealizations )
+    for ( const auto& [realizationNumber, rowIndex] : rowIndexForRealization )
     {
         if ( auto summaryCase = findSummaryCase( realizationNumber ) )
         {
@@ -434,23 +509,52 @@ void RimSummaryEnsembleSumo::distributeParametersDataToRealizations( std::shared
                 {
                     if ( auto it = doubleValuesForRealizations.find( columnName ); it != doubleValuesForRealizations.end() )
                     {
-                        double value = it->second[realizationNumber];
+                        if ( rowIndex >= it->second.size() ) continue;
+
+                        double value = it->second[rowIndex];
                         parameters->addParameter( QString::fromStdString( columnName ), value );
                     }
                     else if ( auto it = intValuesForRealizations.find( columnName ); it != intValuesForRealizations.end() )
                     {
-                        double value = it->second[realizationNumber];
+                        if ( rowIndex >= it->second.size() ) continue;
+
+                        double value = static_cast<double>( it->second[rowIndex] );
                         parameters->addParameter( QString::fromStdString( columnName ), value );
                     }
                     else if ( auto it = stringValuesForRealizations.find( columnName ); it != stringValuesForRealizations.end() )
                     {
-                        QString value = QString::fromStdString( it->second[realizationNumber] );
+                        if ( rowIndex >= it->second.size() ) continue;
+
+                        QString value = QString::fromStdString( it->second[rowIndex] );
                         parameters->addParameter( QString::fromStdString( columnName ), value );
                     }
                 }
             }
 
             summaryCase->setCaseRealizationParameters( parameters );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Re-distribute already cached parquet tables to the current set of realization cases. Used after
+/// the realization cases have been rebuilt (e.g. when the realization filter changes), as the cached
+/// tables hold the data for all realizations and a re-download is not needed.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleSumo::redistributeCachedDataToRealizations()
+{
+    for ( const auto& [key, table] : m_parquetTable )
+    {
+        if ( !table ) continue;
+
+        if ( key.isSensitivityParameters )
+        {
+            distributeParametersDataToRealizations( table );
+        }
+        else
+        {
+            auto resultAddress = RifEclipseSummaryAddress::fromEclipseTextAddress( key.vectorName.toStdString() );
+            distributeDataToRealizations( resultAddress, table );
         }
     }
 }
@@ -559,31 +663,123 @@ void RimSummaryEnsembleSumo::onLoadDataAndUpdate()
 {
     if ( m_sumoDataSource() )
     {
-        auto realizationIds = m_sumoDataSource->realizationIds();
-        if ( realizationIds.size() != m_cases.size() )
+        std::set<int> selectedRealizations;
+        for ( const auto& realizationId : m_sumoDataSource->selectedRealizationIds() )
         {
-            m_cases.deleteChildren();
+            bool ok    = false;
+            int  value = realizationId.toInt( &ok );
+            if ( ok ) selectedRealizations.insert( value );
+        }
 
-            for ( auto realId : realizationIds )
+        std::set<int> currentRealizations;
+        for ( auto summaryCase : allSummaryCases() )
+        {
+            if ( auto sumoCase = dynamic_cast<RimSummaryCaseSumo*>( summaryCase ) )
             {
-                auto realization = new RimSummaryCaseSumo();
-                realization->setEnsemble( this );
-                realization->setRealizationName( QString( "real-%1" ).arg( realId ) );
-                realization->setRealizationNumber( realId.toInt() );
-                realization->updateAutoShortName();
-
-                realization->setShowTreeNodes( m_cases.empty() );
-
-                m_cases.push_back( realization );
+                currentRealizations.insert( sumoCase->realizationNumber() );
             }
+        }
+
+        // Update the realization cases whenever the selected set changes (added, removed or swapped),
+        // so editing the realizations on the data source updates the summary plot.
+        if ( selectedRealizations != currentRealizations )
+        {
+            // Update incrementally: a case whose realization is still selected is kept alive and reused.
+            // Widening the selection therefore deletes nothing, which keeps the curves referring to those
+            // cases valid and avoids a large tree structure change while the realization filter is being
+            // edited. Only the deselected realizations are deleted.
+            std::map<int, RimSummaryCaseSumo*> reusableCases;
+            std::vector<RimSummaryCase*>       obsoleteCases;
+            for ( auto summaryCase : m_cases.childrenByType() )
+            {
+                auto sumoCase = dynamic_cast<RimSummaryCaseSumo*>( summaryCase );
+                if ( sumoCase && selectedRealizations.contains( sumoCase->realizationNumber() ) )
+                {
+                    reusableCases[sumoCase->realizationNumber()] = sumoCase;
+                }
+                else
+                {
+                    obsoleteCases.push_back( summaryCase );
+                }
+            }
+
+            // Detach everything without deleting, then re-attach in realization order. The reused cases
+            // survive this, so only the obsolete ones are destroyed.
+            m_cases.clearWithoutDelete();
+
+            for ( int realization : selectedRealizations )
+            {
+                auto it = reusableCases.find( realization );
+                if ( it != reusableCases.end() )
+                {
+                    m_cases.push_back( it->second );
+                    continue;
+                }
+
+                auto realizationCase = new RimSummaryCaseSumo();
+                realizationCase->setEnsemble( this );
+                realizationCase->setRealizationName( QString( "real-%1" ).arg( realization ) );
+                realizationCase->setRealizationNumber( realization );
+                realizationCase->updateAutoShortName();
+
+                m_cases.push_back( realizationCase );
+            }
+
+            // Only the first case shows its tree nodes, also after cases have been reused.
+            bool isFirstCase = true;
+            for ( auto summaryCase : m_cases.childrenByType() )
+            {
+                if ( auto sumoCase = dynamic_cast<RimSummaryCaseSumo*>( summaryCase ) )
+                {
+                    sumoCase->setShowTreeNodes( isFirstCase );
+                    isFirstCase = false;
+                }
+            }
+
+            // Refresh the connected editors while the obsolete cases are still alive, so no tree item
+            // editor ends up referencing freed objects during the update. Deleting them first caused a
+            // use-after-free crash. caf::CmdDeleteItemExec and RicDeleteSummaryCaseCollectionFeature use
+            // this same ordering.
+            m_cases.uiCapability()->updateConnectedEditors();
+
+            for ( auto obsoleteCase : obsoleteCases )
+            {
+                delete obsoleteCase;
+            }
+
+            // Newly created cases hold no values, while the parquet tables are still cached. Push the
+            // cached data into the cases, otherwise loadSummaryData() would skip the distribution (the
+            // cache lookup hits) and the new cases would have no values, making the plot empty.
+            redistributeCachedDataToRealizations();
         }
     }
 
     RiaSummaryTools::updateSummaryEnsembleNames();
     updateResultAddresses();
 
-    buildMetaData();
-
-    // call the base class method after data has been loaded
+    // The base class clears the child (address) nodes. Build the metadata afterwards so the available
+    // vectors remain present in the tree after the cases have been rebuilt (e.g. when editing the
+    // realization selection).
     RimSummaryEnsemble::onLoadDataAndUpdate();
+
+    buildMetaData();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Rebuild the realization cases from the data source selection and refresh dependent plots. This
+/// mirrors RimSummaryFileSetEnsemble::onFileSetChanged, which updates the realization cases (the
+/// RimSummaryCase collection) and the connected plots when the underlying file set changes.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleSumo::onRealizationSelectionChanged()
+{
+    // Rebuild the realization cases (done in onLoadDataAndUpdate) and refresh the connected plots,
+    // mirroring RimSummaryFileSetEnsemble::onFileSetChanged.
+    //
+    // Note: we intentionally do not use addCase()/replaceCases() here. Those validate ensemble
+    // parameters, which Sumo realizations do not carry, and would raise a "case has no ensemble
+    // parameters" warning dialog.
+    loadDataAndUpdate();
+
+    RiaSummaryTools::updateConnectedPlots( this );
+    updateAllRequiredEditors();
 }

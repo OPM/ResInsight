@@ -25,6 +25,7 @@
 #include <QNetworkAccessManager>
 #include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 
+#include <functional>
 #include <map>
 
 class QEventLoop;
@@ -70,13 +71,18 @@ class RiaSumoConnector : public RiaCloudConnector
 {
     Q_OBJECT
 public:
-    RiaSumoConnector( QObject*       parent,
-                      const QString& server,
-                      const QString& authority,
-                      const QString& scopes,
-                      const QString& clientId,
-                      unsigned int   port );
+    // The Sumo data is served by a server whose address is not known when the connector is constructed,
+    // and which can change while the connector is alive. It is therefore supplied as a callable that is
+    // invoked for every request, rather than as a fixed address.
+    RiaSumoConnector( QObject*                 parent,
+                      std::function<QString()> serverUrlProvider,
+                      const QString&           authority,
+                      const QString&           scopes,
+                      const QString&           clientId,
+                      unsigned int             port );
     ~RiaSumoConnector() override;
+
+    QString server() const override;
 
     void requestAssets();
     void requestAssetsBlocking();
@@ -101,7 +107,7 @@ public:
     void requestBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
 
     void requestBlobDownload( const QString& blobId );
-    void requestBlobByRedirectUri( const QString& blobId, const QString& redirectUri );
+    void requestBlobBySasUri( const QString& blobId, const QString& sasUri );
 
     QByteArray requestParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
 
@@ -110,7 +116,7 @@ public:
     std::vector<QString>      ensembleNamesForCase( const SumoCaseId& caseId ) const;
     std::vector<QString>      vectorNames() const;
     std::vector<QString>      realizationIds() const;
-    std::vector<QString>      blobUrls() const;
+    std::vector<QString>      blobIds() const;
     std::vector<SumoRedirect> blobContents() const;
 
 public slots:
@@ -119,7 +125,7 @@ public slots:
     void parseCases( QNetworkReply* reply );
     void parseVectorNames( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
     void parseRealizationNumbers( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
-    void parseBlobIds( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName, bool isParameters );
+    void parseBlobId( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName, bool isParameters );
 
     void requestFailed( const QAbstractOAuth::Error error );
     void parquetDownloadComplete( const QString& blobId, const QByteArray&, const QString& url );
@@ -140,23 +146,23 @@ signals:
 private:
     void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& contentType );
 
-    QNetworkReply* makeRequest( const std::map<QString, QString>& parameters, const QString& server, const QString& token );
     QNetworkReply* makeDownloadRequest( const QString& url, const QString& token, const QString& contentType );
     void           requestParquetData( const QString& url, const QString& token );
 
-    static QString constructSearchUrl( const QString& server );
-    static QString constructDownloadUrl( const QString& server, const QString& blobId );
+    static QString constructSasUri( const QString& blobStoreBaseUri, const QString& blobId, const QString& sasToken );
 
     void wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod );
 
 private:
+    std::function<QString()> m_serverUrlProvider;
+
     std::vector<SumoAsset>    m_assets;
     std::vector<SumoCase>     m_cases;
     std::vector<QString>      m_vectorNames;
     std::vector<QString>      m_realizationIds;
     std::vector<SumoEnsemble> m_ensembleNames;
 
-    std::vector<QString> m_blobUrl;
+    std::vector<QString> m_blobId;
 
     std::vector<SumoRedirect> m_redirectInfo;
 };

@@ -31,16 +31,21 @@ class QNetworkAccessManager;
 /// Manages the life cycle of the local "ri_cloud_api" uvicorn service.
 ///
 /// The service is a long-lived localhost process (unlike the single-shot script worker process in
-/// RiaApplication). It is started when Sumo cloud authentication is performed, bound to an
-/// automatically selected free port, polled for liveness on its /alive endpoint, restarted on a
-/// new port if it stops responding, and killed when ResInsight closes.
+/// RiaApplication). It is started when Sumo cloud authentication is performed and from the Cloud Data
+/// user interface, bound to the first available port at or above the wanted port, polled for liveness
+/// on its /alive endpoint, restarted if it stops responding, and killed when ResInsight closes.
+///
+/// A restart scans for a port again, so the port in use can change during a session. Always read the
+/// current address from serverUrl() instead of caching it.
 ///
 //==================================================================================================
 class RiaCloudApiService : public QObject
 {
     Q_OBJECT
 public:
-    explicit RiaCloudApiService( QObject* parent = nullptr );
+    // The server address is the base URL without the port, e.g. "http://127.0.0.1". The wanted port is
+    // where the search for an available port starts.
+    RiaCloudApiService( const QString& serverAddress, int wantedPort, QObject* parent = nullptr );
     ~RiaCloudApiService() override;
 
     void start();
@@ -56,6 +61,10 @@ public:
 
     int port() const;
 
+    // Base URL of the service, including the port actually in use, e.g. "http://127.0.0.1:8001". Empty
+    // when the service is not running.
+    QString serverUrl() const;
+
 signals:
     // Emitted when isRunning() or isResponding() changes, so that user interface elements showing
     // the server status can refresh. The status changes without any user interaction, driven by the
@@ -67,7 +76,7 @@ private slots:
     void onReadyReadStandardOutput();
 
 private:
-    static int                 findAvailablePortNumber();
+    static int                 findAvailablePortNumber( int firstPort );
     static QString             serviceWorkingDirectory();
     static QProcessEnvironment buildProcessEnvironment( const QString& workingDirectory );
 
@@ -76,6 +85,9 @@ private:
     QNetworkAccessManager* m_networkAccessManager;
     QTimer                 m_startupTimer;
     QTimer                 m_healthTimer;
+
+    const QString m_serverAddress;
+    const int     m_wantedPort;
 
     int  m_port;
     int  m_consecutiveFailures;

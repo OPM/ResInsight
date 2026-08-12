@@ -27,12 +27,17 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "Sumo/RimSummaryEnsembleSumo.h"
-#include "Sumo/RimSummarySumoDataSource.h"
+#include "Sumo/RimSumoDataSource.h"
 
 #include "RiuPlotMainWindowTools.h"
 
+#include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+
+#include <QDialogButtonBox>
+
+#include <set>
 
 CAF_PDM_SOURCE_INIT( RimCloudDataSourceCollection, "RimCloudDataSourceCollection" );
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +88,7 @@ RimCloudDataSourceCollection* RimCloudDataSourceCollection::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummarySumoDataSource*> RimCloudDataSourceCollection::sumoDataSources() const
+std::vector<RimSumoDataSource*> RimCloudDataSourceCollection::sumoDataSources() const
 {
     return m_sumoDataSources.childrenByType();
 }
@@ -91,7 +96,7 @@ std::vector<RimSummarySumoDataSource*> RimCloudDataSourceCollection::sumoDataSou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const std::vector<RimSummarySumoDataSource*>& dataSources )
+void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const std::vector<RimSumoDataSource*>& dataSources )
 {
     auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection();
     if ( !sumCaseMainColl ) return;
@@ -116,10 +121,17 @@ void RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( const
 //--------------------------------------------------------------------------------------------------
 void RimCloudDataSourceCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    // The Cloud API server controls are independent of the Sumo connection, so handle them before the
-    // Sumo connector guard below. This allows force-starting the server even when authentication failed.
+    // The Cloud API server controls are handled before the Sumo connector guard below, so the server can
+    // be started, stopped and restarted also when no connector is present or authentication failed.
     if ( changedField == &m_startServer )
     {
+        // Authenticate up front, as the server is of little use without a token. The server is started
+        // regardless of the outcome, so it can still be force-started if authentication is cancelled.
+        if ( m_sumoConnector && !m_sumoConnector->isGranted() )
+        {
+            m_sumoConnector->requestTokenWithCancelButton();
+        }
+
         RiaApplication::instance()->cloudApiService()->start();
 
         m_startServer = false;
@@ -147,6 +159,7 @@ void RimCloudDataSourceCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( changedField == &m_authenticate )
     {
+        // Authentication only, the server is started from its own button.
         m_sumoConnector->requestTokenWithCancelButton();
 
         m_authenticate = false;
@@ -178,11 +191,25 @@ void RimCloudDataSourceCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
 }
 
 //--------------------------------------------------------------------------------------------------
+/// True once the local service is serving requests. Being launched is not enough, as uvicorn may still
+/// be booting.
+//--------------------------------------------------------------------------------------------------
+bool RimCloudDataSourceCollection::isCloudApiServerAvailable()
+{
+    auto* cloudApiService = RiaApplication::instance()->cloudApiService();
+    return cloudApiService && cloudApiService->isResponding();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimCloudDataSourceCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     if ( !m_sumoConnector || !m_sumoConnector->isGranted() ) return {};
+
+    // The Sumo data is read through the local service, so requesting anything before it is up produces
+    // failing requests against an empty server address.
+    if ( !isCloudApiServerAvailable() ) return {};
 
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_sumoFieldName )
@@ -240,7 +267,7 @@ void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::
     authGroup->add( &m_authenticate );
 
     bool    isGranted = m_sumoConnector && m_sumoConnector->isGranted();
-    QString text      = "Authentication Status: ";
+    QString text      = " Authentication Status: ";
     text += isGranted ? "<font color='#228B22'>✔ Granted</font>" : "<font color='#FFA500'>❌ Not Granted</font>";
 
     m_authenticate.uiCapability()->setUiName( text );
@@ -279,8 +306,8 @@ void RimCloudDataSourceCollection::defineUiOrdering( QString uiConfigName, caf::
     serverGroup->add( &m_stopServer );
     serverGroup->add( &m_restartServer );
 
-    // Cloud selector
-    if ( isGranted )
+    // Cloud selector. Both a token and a running service are required to browse the Sumo content.
+    if ( isGranted && isCloudApiServerAvailable() )
     {
         caf::PdmUiOrdering::LayoutOptions layout = { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 };
         uiOrdering.add( &m_sumoFieldName, layout );
@@ -348,14 +375,14 @@ void RimCloudDataSourceCollection::defineEditorAttribute( const caf::PdmFieldHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummarySumoDataSource*> RimCloudDataSourceCollection::addDataSources()
+std::vector<RimSumoDataSource*> RimCloudDataSourceCollection::addDataSources()
 {
     if ( !m_sumoConnector ) return {};
 
-    std::vector<RimSummarySumoDataSource*> dataSources;
+    std::vector<RimSumoDataSource*> dataSources;
 
-    RimSummarySumoDataSource* objectToSelect = nullptr;
-    auto                      sumoCaseId     = SumoCaseId( m_sumoCaseId );
+    RimSumoDataSource* objectToSelect = nullptr;
+    auto               sumoCaseId     = SumoCaseId( m_sumoCaseId );
 
     for ( const auto& ensembleName : m_sumoEnsembleNames() )
     {
@@ -387,14 +414,15 @@ std::vector<RimSummarySumoDataSource*> RimCloudDataSourceCollection::addDataSour
         m_sumoConnector->requestRealizationIdsForEnsembleBlocking( sumoCaseId, ensembleName );
         m_sumoConnector->requestVectorNamesForEnsembleBlocking( sumoCaseId, ensembleName );
 
-        auto realizationIds = m_sumoConnector->realizationIds();
-        auto vectorNames    = m_sumoConnector->vectorNames();
+        auto availableRealizationIds = m_sumoConnector->realizationIds();
+        auto vectorNames             = m_sumoConnector->vectorNames();
 
-        auto dataSource = new RimSummarySumoDataSource();
+        auto dataSource = new RimSumoDataSource();
         dataSource->setCaseId( sumoCaseId );
+        dataSource->setAssetName( m_sumoFieldName );
         dataSource->setCaseName( caseName );
         dataSource->setEnsembleName( ensembleName );
-        dataSource->setRealizationIds( realizationIds );
+        dataSource->setAvailableRealizationIds( availableRealizationIds );
         dataSource->setVectorNames( vectorNames );
         dataSource->updateName();
 

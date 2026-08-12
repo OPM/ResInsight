@@ -17,6 +17,10 @@ strictly required in the environment.
 
 - Python 3.11 or later, which is what `ri-cloud-api` requires.
 - The submodule checked out: `git submodule update --init`.
+- **Development builds only:** *Preferences -> Scripting -> Shared Script Folder(s)* has to include
+  `<repo>/scripts/ri-cloud-api`, or the `scripts` folder above it. Nothing is copied into the build
+  folder, so this is the only way a development build finds the service. See
+  [where ResInsight looks](#where-resinsight-looks-for-the-package).
 
 ## Python Environment
 

@@ -21,7 +21,7 @@
 #include "RiaDefines.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
-#include "Sumo/RimSummarySumoDataSource.h"
+#include "Sumo/RimSumoDataSource.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT( RicCreateSumoEnsembleFeature, "RicCreateSumoEnsembleFeature
 //--------------------------------------------------------------------------------------------------
 void RicCreateSumoEnsembleFeature::onActionTriggered( bool isChecked )
 {
-    auto dataSources = caf::selectedObjectsByType<RimSummarySumoDataSource*>();
+    auto dataSources = caf::selectedObjectsByType<RimSumoDataSource*>();
 
     RimCloudDataSourceCollection::createEnsemblesFromSelectedDataSources( dataSources );
 }

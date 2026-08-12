@@ -156,6 +156,11 @@
 
 RiaApplication* RiaApplication::s_riaApplication = nullptr;
 
+// Address and port of the local 'ri_cloud_api' service. RiaCloudApiService launches the service here,
+// and RiaSumoConnector reads all Sumo data through it, so the two must agree on the address.
+constexpr auto CLOUD_API_SERVER_ADDRESS = "http://127.0.0.1";
+constexpr int  CLOUD_API_SERVER_PORT    = 8000;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -1921,17 +1926,23 @@ RiaSumoConnector* RiaApplication::makeSumoConnector()
     if ( !m_sumoConnector )
     {
         auto               sumoPrefs = preferences()->sumoPreferences();
-        const QString      server    = sumoPrefs->server();
         const QString      authority = sumoPrefs->authority();
         const QString      scopes    = sumoPrefs->scopes();
         const QString      clientId  = sumoPrefs->clientId();
         const unsigned int port      = 53527;
 
-        m_sumoConnector = new RiaSumoConnector( RiuMainWindow::instance(), server, authority, scopes, clientId, port );
+        // The Sumo data is read through the local ri_cloud_api service, so the connector asks that service
+        // for its address before every request. The authentication parameters still come from the Sumo
+        // configuration.
+        auto serverUrlProvider = [this]() { return cloudApiService()->serverUrl(); };
+
+        m_sumoConnector = new RiaSumoConnector( RiuMainWindow::instance(), serverUrlProvider, authority, scopes, clientId, port );
         m_sumoConnector->setTokenDataFilePath( RiaSumoDefines::tokenPath() );
         m_sumoConnector->importTokenFromFile();
 
-        // Start the local ri_cloud_api service once Sumo authentication has been performed.
+        // Start the local ri_cloud_api service once Sumo authentication has been performed. Every request
+        // asks for a token first, so this also covers project loading, where the Sumo data is read without
+        // any user interaction.
         QObject::connect( m_sumoConnector,
                           &RiaSumoConnector::tokenReady,
                           cloudApiService(),
@@ -1948,7 +1959,7 @@ RiaCloudApiService* RiaApplication::cloudApiService()
 {
     if ( !m_cloudApiService )
     {
-        m_cloudApiService = std::make_unique<RiaCloudApiService>();
+        m_cloudApiService = std::make_unique<RiaCloudApiService>( CLOUD_API_SERVER_ADDRESS, CLOUD_API_SERVER_PORT );
 
         // Ensure the service process is killed while the event loop is still alive at shutdown.
         QObject::connect( QCoreApplication::instance(), &QCoreApplication::aboutToQuit, m_cloudApiService.get(), &RiaCloudApiService::stop );
