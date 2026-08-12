@@ -1939,6 +1939,14 @@ RiaSumoConnector* RiaApplication::makeSumoConnector()
         m_sumoConnector = new RiaSumoConnector( RiuMainWindow::instance(), serverUrlProvider, authority, scopes, clientId, port );
         m_sumoConnector->setTokenDataFilePath( RiaSumoDefines::tokenPath() );
         m_sumoConnector->importTokenFromFile();
+
+        // Start the local ri_cloud_api service once Sumo authentication has been performed. Every request
+        // asks for a token first, so this also covers project loading, where the Sumo data is read without
+        // any user interaction.
+        QObject::connect( m_sumoConnector,
+                          &RiaSumoConnector::tokenReady,
+                          cloudApiService(),
+                          [this]( const QString& ) { cloudApiService()->start(); } );
     }
 
     return m_sumoConnector;
