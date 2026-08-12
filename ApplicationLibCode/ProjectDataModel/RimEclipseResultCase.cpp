@@ -294,7 +294,8 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
         const bool hasNestedHybridSidecars = !RigNestedHybridGridResultTools::refineSidecarFilePath( gridFileName() ).isEmpty() &&
                                              !RigNestedHybridGridResultTools::oldIjkSidecarFilePath( gridFileName() ).isEmpty();
-        if ( hasNestedHybridSidecars )
+        const bool hasFipnestInInit = RigNestedHybridGridResultTools::initFileHasFipnest( gridFileName() );
+        if ( hasNestedHybridSidecars || hasFipnestInInit )
         {
             // The flat nested hybrid grid piles the refined and collapsed coarse cells into the same
             // physical space, which makes the geometric fault/NNC computation in computeCachedData()
@@ -304,8 +305,19 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             // extended to cover the new LGR cells.
             loadAndSynchronizeInputProperties( false );
             RigNestedHybridGridResultTools::importRefineSidecarIfPresent( gridFileName(), inputPropertyCollection(), eclipseCaseData() );
-            RigNestedHybridGridResultTools::importOldIjkSidecarIfPresent( gridFileName(), inputPropertyCollection(), eclipseCaseData() );
-            RigNestedHybridGridResultTools::reconstructNestedHybridGridIfPresent( gridFileName(), eclipseCaseData() );
+
+            // The FIPNEST/FIPSLOT/REFINE arrays embedded in the INIT file take precedence over the
+            // OLDIJK sidecar files; the sidecars remain as the fallback (#14510).
+            bool reconstructed = false;
+            if ( hasFipnestInInit )
+            {
+                reconstructed = RigNestedHybridGridResultTools::reconstructNestedHybridGridFromInitFile( gridFileName(), eclipseCaseData() );
+            }
+            if ( !reconstructed && hasNestedHybridSidecars )
+            {
+                RigNestedHybridGridResultTools::importOldIjkSidecarIfPresent( gridFileName(), inputPropertyCollection(), eclipseCaseData() );
+                RigNestedHybridGridResultTools::reconstructNestedHybridGridIfPresent( gridFileName(), eclipseCaseData() );
+            }
             computeCachedData();
         }
         else

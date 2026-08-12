@@ -22,6 +22,7 @@
 
 #include <QString>
 
+#include <utility>
 #include <vector>
 
 class RigCaseCellResultsData;
@@ -45,6 +46,22 @@ public:
 
     // Path to the "<grid-basename>_OLDIJK.grdecl" sidecar next to the grid file, or empty if absent.
     static QString oldIjkSidecarFilePath( const QString& gridFileName );
+
+    // Path to the "<grid-basename>_FIPNEST.grdecl" parent-child sidecar, or empty if absent.
+    static QString fipnestSidecarFilePath( const QString& gridFileName );
+
+    // Write integer keywords to a GRDECL text file (run-length encoded). Used for the auto-exported
+    // FIPNEST/FIPSLOT/REFINE parent-child sidecar (#14510).
+    static bool writeIntKeywordsToGrdeclFile( const QString&                                                  filePath,
+                                              const std::vector<std::pair<QString, const std::vector<int>*>>& keywords );
+
+    // True if the INIT file next to the grid file contains the FIPNEST keyword.
+    static bool initFileHasFipnest( const QString& gridFileName );
+
+    // Reconstruct the nested hybrid grid from the FIPNEST/FIPSLOT/REFINE arrays embedded in the INIT
+    // file (#14510). Returns false if the arrays are absent or unusable, so the caller can fall back
+    // to the sidecar-based path.
+    static bool reconstructNestedHybridGridFromInitFile( const QString& gridFileName, RigEclipseCaseData* eclipseCaseData );
 
     static void importRefineSidecarIfPresent( const QString&                     gridFileName,
                                               RimEclipseInputPropertyCollection* inputPropertyCollection,

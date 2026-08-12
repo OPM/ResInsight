@@ -21,8 +21,10 @@
 #include "RiaDefines.h"
 #include "RiaLogging.h"
 #include "RiaResultNames.h"
+#include "RiaStringEncodingTools.h"
 
 #include "RifEclipseKeywordContent.h"
+#include "RifEclipseOutputFileTools.h"
 #include "RifEclipseTextFileReader.h"
 #include "RifInputPropertyLoader.h"
 
@@ -32,15 +34,19 @@
 #include "RigEclipseCaseData.h"
 #include "RigLocalGrid.h"
 #include "RigMainGrid.h"
+#include "RigNestedHybridGridFipnestCodec.h"
 #include "RigNestedHybridGridReconstructor.h"
 #include "RigTypeSafeIndex.h"
 
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 
+#include "ert/ecl/ecl_file.hpp"
+
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QTextStream>
 
 #include <cmath>
 #include <limits>
@@ -97,6 +103,89 @@ QString RigNestedHybridGridResultTools::oldIjkSidecarFilePath( const QString& gr
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Nested hybrid grid: the compact parent-child encoding (FIPNEST/FIPSLOT/REFINE, see
+/// RigNestedHybridGridFipnestCodec) in a sidecar GRDECL file named "<grid-basename>_FIPNEST.grdecl".
+/// Returns its path if it exists.
+//--------------------------------------------------------------------------------------------------
+QString RigNestedHybridGridResultTools::fipnestSidecarFilePath( const QString& gridFileName )
+{
+    QFileInfo gridFileInfo( gridFileName );
+    if ( !gridFileInfo.exists() ) return {};
+
+    QDir          dir      = gridFileInfo.absoluteDir();
+    const QString baseName = gridFileInfo.completeBaseName();
+
+    const QStringList candidates = { baseName + "_FIPNEST.grdecl", baseName + "_FIPNEST.GRDECL" };
+    for ( const QString& candidate : candidates )
+    {
+        QString path = dir.absoluteFilePath( candidate );
+        if ( QFile::exists( path ) ) return path;
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Write integer keywords to a GRDECL text file, run-length encoding repeated values as "N*V".
+//--------------------------------------------------------------------------------------------------
+bool RigNestedHybridGridResultTools::writeIntKeywordsToGrdeclFile( const QString& filePath,
+                                                                   const std::vector<std::pair<QString, const std::vector<int>*>>& keywords )
+{
+    QFile file( filePath );
+    if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) return false;
+
+    QTextStream out( &file );
+    out << "-- Nested hybrid grid parent-child arrays exported by ResInsight (#14510)\n";
+
+    const int maxTokensPerLine = 12;
+
+    for ( const auto& [keyword, values] : keywords )
+    {
+        if ( !values ) continue;
+
+        out << keyword << "\n";
+
+        int  tokensOnLine = 0;
+        auto emitToken    = [&]( const QString& token )
+        {
+            out << ' ' << token;
+            if ( ++tokensOnLine == maxTokensPerLine )
+            {
+                out << "\n";
+                tokensOnLine = 0;
+            }
+        };
+
+        size_t i = 0;
+        while ( i < values->size() )
+        {
+            const int v   = ( *values )[i];
+            size_t    run = 1;
+            while ( i + run < values->size() && ( *values )[i + run] == v )
+                run++;
+
+            // Only run-length encode non-negative values; "N*-V" is not universally parsed.
+            if ( run >= 4 && v >= 0 )
+            {
+                emitToken( QString( "%1*%2" ).arg( run ).arg( v ) );
+            }
+            else
+            {
+                for ( size_t r = 0; r < run; r++ )
+                    emitToken( QString::number( v ) );
+            }
+            i += run;
+        }
+
+        if ( tokensOnLine != 0 ) out << "\n";
+        out << " /\n";
+    }
+
+    out.flush();
+    return out.status() == QTextStream::Ok && file.error() == QFile::NoError;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RigNestedHybridGridResultTools::importRefineSidecarIfPresent( const QString&                     gridFileName,
@@ -143,6 +232,60 @@ void RigNestedHybridGridResultTools::importOldIjkSidecarIfPresent( const QString
     RifInputPropertyLoader::loadAndSynchronizeInputProperties( inputPropertyCollection, eclipseCaseData, std::vector<QString>{ sidecarPath }, false );
 }
 
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Auto-export the compact FIPNEST/FIPSLOT/REFINE parent-child encoding next to the grid file after
+/// a successful sidecar-based reconstruction (#14510), unless the file already exists. The arrays
+/// are computed from the same sidecar input the reconstruction used.
+//--------------------------------------------------------------------------------------------------
+void exportFipnestSidecarIfAbsent( const QString&                                             gridFileName,
+                                   const RigNestedHybridGridReconstructor::NestedHybridInput& input,
+                                   const RigEclipseCaseData*                                  eclipseCaseData )
+{
+    const QString existing = RigNestedHybridGridResultTools::fipnestSidecarFilePath( gridFileName );
+    if ( !existing.isEmpty() )
+    {
+        RiaLogging::info( QString( "Nested hybrid grid: FIPNEST sidecar already present: %1" ).arg( existing ).toStdString() );
+        return;
+    }
+
+    const RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
+    const size_t       nx       = mainGrid->cellCountI();
+    const size_t       ny       = mainGrid->cellCountJ();
+    const size_t       nz       = mainGrid->cellCountK();
+
+    const auto arrays = RigNestedHybridGridFipnestCodec::computeParentChildArrays( input, nx, ny, nz );
+    if ( arrays.fipnest.empty() )
+    {
+        RiaLogging::warning( "Nested hybrid grid: could not compute FIPNEST arrays; sidecar not exported." );
+        return;
+    }
+    if ( arrays.unresolvedRefinedCells > 0 )
+    {
+        RiaLogging::warning(
+            QString( "Nested hybrid grid: %1 refined cells could not be encoded in FIPNEST." ).arg( arrays.unresolvedRefinedCells ).toStdString() );
+    }
+
+    // Note: RifEclipseTextFileReader parses GRDECL values as float, so FIPNEST indices written here
+    // stay exact only up to 2^24 cells (~16.7M); the INIT-embedded INTE path has no such limit.
+    QFileInfo     gridFileInfo( gridFileName );
+    const QString path = gridFileInfo.absoluteDir().absoluteFilePath( gridFileInfo.completeBaseName() + "_FIPNEST.grdecl" );
+
+    const std::vector<std::pair<QString, const std::vector<int>*>> keywords = { { "FIPNEST", &arrays.fipnest },
+                                                                                { "FIPSLOT", &arrays.fipslot },
+                                                                                { RiaResultNames::refine(), &input.refine } };
+    if ( RigNestedHybridGridResultTools::writeIntKeywordsToGrdeclFile( path, keywords ) )
+    {
+        RiaLogging::info( QString( "Nested hybrid grid: exported FIPNEST sidecar to %1" ).arg( path ).toStdString() );
+    }
+    else
+    {
+        RiaLogging::warning( QString( "Nested hybrid grid: failed to write FIPNEST sidecar %1" ).arg( path ).toStdString() );
+    }
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -184,10 +327,125 @@ void RigNestedHybridGridResultTools::reconstructNestedHybridGridIfPresent( const
     input.tmpK   = readIntKeyword( oldIjkContent, "TMPK" );
 
     QString errorMessage;
-    RigNestedHybridGridReconstructor::reconstruct( eclipseCaseData, input, &errorMessage );
+    if ( RigNestedHybridGridReconstructor::reconstruct( eclipseCaseData, input, &errorMessage ) )
+    {
+        exportFipnestSidecarIfAbsent( gridFileName, input, eclipseCaseData );
+    }
 
     // The caller computes grid caches (search tree, faults, NNCs) once, after this reconstruction, so
     // that the expensive geometric passes run on the clean grid rather than the flat overlapping one.
+}
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Open the INIT file next to the grid file, or nullptr if there is none. The caller owns the handle.
+//--------------------------------------------------------------------------------------------------
+ecl_file_type* openInitFileNextToGrid( const QString& gridFileName, QString* initFileNameOut = nullptr )
+{
+    QStringList fileSet;
+    if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( gridFileName, &fileSet ) ) return nullptr;
+
+    const QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType( fileSet, ECL_INIT_FILE );
+    if ( initFileName.isEmpty() ) return nullptr;
+
+    if ( initFileNameOut ) *initFileNameOut = initFileName;
+    return ecl_file_open( RiaStringEncodingTools::toNativeEncoded( initFileName ).data(), ECL_FILE_CLOSE_STREAM );
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigNestedHybridGridResultTools::initFileHasFipnest( const QString& gridFileName )
+{
+    ecl_file_type* initFile = openInitFileNextToGrid( gridFileName );
+    if ( !initFile ) return false;
+
+    const bool hasFipnest = ecl_file_has_kw( initFile, "FIPNEST" );
+    ecl_file_close( initFile );
+
+    return hasFipnest;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Reconstruct the nested hybrid grid LGR hierarchy from the FIPNEST/FIPSLOT/REFINE arrays embedded
+/// in the INIT file - the sidecar-free import path prototyped in #14510. The REFINE levels are
+/// stored as an input-property result before the reconstruction so the per-level result helpers
+/// (and the LGR-cell extension) see them, mirroring the sidecar path.
+//--------------------------------------------------------------------------------------------------
+bool RigNestedHybridGridResultTools::reconstructNestedHybridGridFromInitFile( const QString& gridFileName, RigEclipseCaseData* eclipseCaseData )
+{
+    if ( !eclipseCaseData || !eclipseCaseData->mainGrid() ) return false;
+
+    QString        initFileName;
+    ecl_file_type* initFile = openInitFileNextToGrid( gridFileName, &initFileName );
+    if ( !initFile ) return false;
+
+    auto readIntKeyword = [&]( const char* keyword, std::vector<int>* values )
+    { return ecl_file_has_kw( initFile, keyword ) && RifEclipseOutputFileTools::keywordData( initFile, keyword, 0, values ); };
+
+    std::vector<int> fipnest, fipslot, refine;
+    const bool       haveFipnest = readIntKeyword( "FIPNEST", &fipnest );
+    const bool       haveAll     = haveFipnest && readIntKeyword( "FIPSLOT", &fipslot ) &&
+                         readIntKeyword( RiaResultNames::refine().toLatin1().data(), &refine );
+    ecl_file_close( initFile );
+
+    if ( !haveFipnest ) return false;
+    if ( !haveAll )
+    {
+        RiaLogging::warning( QString( "Nested hybrid grid: %1 contains FIPNEST but not its FIPSLOT/REFINE companions; "
+                                      "falling back to sidecar import." )
+                                 .arg( initFileName )
+                                 .toStdString() );
+        return false;
+    }
+
+    const RigMainGrid* mainGrid  = eclipseCaseData->mainGrid();
+    const size_t       nx        = mainGrid->cellCountI();
+    const size_t       ny        = mainGrid->cellCountJ();
+    const size_t       nz        = mainGrid->cellCountK();
+    const size_t       cellCount = nx * ny * nz;
+    if ( fipnest.size() != cellCount || fipslot.size() != cellCount || refine.size() != cellCount )
+    {
+        RiaLogging::warning( QString( "Nested hybrid grid: FIPNEST/FIPSLOT/REFINE in %1 do not cover all %2 cells; "
+                                      "falling back to sidecar import." )
+                                 .arg( initFileName )
+                                 .arg( cellCount )
+                                 .toStdString() );
+        return false;
+    }
+
+    RiaLogging::info(
+        QString( "Nested hybrid grid: reconstructing from the FIPNEST/FIPSLOT/REFINE arrays in %1" ).arg( initFileName ).toStdString() );
+
+    QString    warnings;
+    const auto input = RigNestedHybridGridFipnestCodec::buildInputFromParentChildArrays( fipnest, fipslot, refine, nx, ny, nz, &warnings );
+    for ( const QString& line : warnings.split( '\n', Qt::SkipEmptyParts ) )
+    {
+        RiaLogging::warning( ( "Nested hybrid grid: " + line ).toStdString() );
+    }
+
+    // Make the refinement levels available as the REFINE result (used by the per-level aggregation
+    // helpers) unless the sidecar import already provided it. Created before the reconstruction so
+    // the full-length array is extended to cover the new LGR cells.
+    if ( RigCaseCellResultsData* results = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
+    {
+        RigEclipseResultAddress refineAddr( RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                            RiaDefines::ResultDataType::INTEGER,
+                                            RiaResultNames::refine() );
+        if ( !results->hasResultEntry( refineAddr ) )
+        {
+            results->createResultEntry( refineAddr, false );
+            if ( auto* timesteps = results->modifiableCellScalarResultTimesteps( refineAddr ) )
+            {
+                timesteps->push_back( std::vector<double>( refine.begin(), refine.end() ) );
+            }
+        }
+    }
+
+    QString errorMessage;
+    return RigNestedHybridGridReconstructor::reconstruct( eclipseCaseData, input, &errorMessage );
 }
 
 //--------------------------------------------------------------------------------------------------
