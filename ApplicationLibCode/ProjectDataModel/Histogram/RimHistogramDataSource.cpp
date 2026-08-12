@@ -18,7 +18,38 @@
 
 #include "RimHistogramDataSource.h"
 
+#include "cafPdmUiOrdering.h"
+
+#include <cmath>
+
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimHistogramDataSource, "HistogramDataSource" );
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RigHistogramCalculator::BinningMode>::setUp()
+{
+    addItem( RigHistogramCalculator::BinningMode::LINEAR, "LINEAR", "Linear" );
+    addItem( RigHistogramCalculator::BinningMode::LOGARITHMIC, "LOGARITHMIC", "Logarithmic" );
+    setDefault( RigHistogramCalculator::BinningMode::LINEAR );
+}
+
+template <>
+void caf::AppEnum<RimHistogramDataSource::BinRangeMode>::setUp()
+{
+    addItem( RimHistogramDataSource::BinRangeMode::AUTOMATIC, "AUTOMATIC", "Automatic" );
+    addItem( RimHistogramDataSource::BinRangeMode::USER_DEFINED, "USER_DEFINED", "User Defined" );
+    setDefault( RimHistogramDataSource::BinRangeMode::AUTOMATIC );
+}
+
+template <>
+void caf::AppEnum<RigHistogramCalculator::OutOfRangeHandling>::setUp()
+{
+    addItem( RigHistogramCalculator::OutOfRangeHandling::EXCLUDE, "EXCLUDE", "Exclude" );
+    addItem( RigHistogramCalculator::OutOfRangeHandling::INCLUDE_IN_BOUNDARY_BINS, "INCLUDE_IN_BOUNDARY_BINS", "Include in Boundary Bins" );
+    setDefault( RigHistogramCalculator::OutOfRangeHandling::EXCLUDE );
+}
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -26,8 +57,15 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimHistogramDataSource, "HistogramDataSource" 
 RimHistogramDataSource::RimHistogramDataSource()
     : dataSourceChanged( this )
     , cumulativeChanged( this )
+    , logarithmicBinningEnabled( this )
 {
     CAF_PDM_InitObject( "Histogram Data Source", );
+
+    CAF_PDM_InitFieldNoDefault( &m_binningMode, "BinningMode", "Binning Mode" );
+    CAF_PDM_InitFieldNoDefault( &m_binRangeMode, "BinRangeMode", "Bin Range" );
+    CAF_PDM_InitField( &m_binRangeMin, "BinRangeMin", 0.0, "Minimum" );
+    CAF_PDM_InitField( &m_binRangeMax, "BinRangeMax", 1.0, "Maximum" );
+    CAF_PDM_InitFieldNoDefault( &m_outOfRangeHandling, "OutOfRangeHandling", "Out of Range Values" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,18 +93,115 @@ void RimHistogramDataSource::setShowCumulativeCurve( bool showCumulativeCurve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double>
-    RimHistogramDataSource::computeHistogramBins( double min, double max, int numBins, RimHistogramPlot::GraphType graphType, bool cumulative )
+void RimHistogramDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    if ( changedField == &m_binningMode && m_binningMode() == RigHistogramCalculator::BinningMode::LOGARITHMIC )
+    {
+        logarithmicBinningEnabled.send();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramDataSource::appendBinningUiOrdering( caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_binningMode );
+    uiOrdering.add( &m_binRangeMode );
+    if ( useUserDefinedBinRange() )
+    {
+        uiOrdering.add( &m_binRangeMin );
+        uiOrdering.add( &m_binRangeMax );
+        uiOrdering.add( &m_outOfRangeHandling );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimHistogramDataSource::computeBinRange( BinRangeMode                        binRangeMode,
+                                                                   double                              userMin,
+                                                                   double                              userMax,
+                                                                   double                              dataMin,
+                                                                   double                              dataMax,
+                                                                   RigHistogramCalculator::BinningMode binningMode,
+                                                                   double                              smallestPositiveValue )
+{
+    double min = dataMin;
+    double max = dataMax;
+    if ( binRangeMode == BinRangeMode::USER_DEFINED )
+    {
+        min = userMin;
+        max = userMax;
+    }
+
+    if ( binningMode == RigHistogramCalculator::BinningMode::LOGARITHMIC && min <= 0.0 )
+    {
+        min = smallestPositiveValue;
+    }
+
+    return { min, max };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimHistogramDataSource::binRange( double dataMin, double dataMax, double smallestPositiveValue ) const
+{
+    return computeBinRange( m_binRangeMode(), m_binRangeMin(), m_binRangeMax(), dataMin, dataMax, m_binningMode(), smallestPositiveValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigHistogramCalculator::BinningMode RimHistogramDataSource::binningMode() const
+{
+    return m_binningMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Out of range values only exist for a user-defined bin range: an automatic range covers the data
+//--------------------------------------------------------------------------------------------------
+RigHistogramCalculator::OutOfRangeHandling RimHistogramDataSource::outOfRangeHandling() const
+{
+    if ( !useUserDefinedBinRange() ) return RigHistogramCalculator::OutOfRangeHandling::EXCLUDE;
+
+    return m_outOfRangeHandling();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimHistogramDataSource::useUserDefinedBinRange() const
+{
+    return m_binRangeMode() == BinRangeMode::USER_DEFINED;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimHistogramDataSource::computeHistogramBins( double                              min,
+                                                                  double                              max,
+                                                                  int                                 numBins,
+                                                                  RimHistogramPlot::GraphType         graphType,
+                                                                  bool                                cumulative,
+                                                                  RigHistogramCalculator::BinningMode binningMode )
+{
+    const bool isLogarithmic = ( binningMode == RigHistogramCalculator::BinningMode::LOGARITHMIC && min > 0.0 );
+
+    const double logMin  = isLogarithmic ? std::log10( min ) : 0.0;
+    const double logStep = isLogarithmic ? ( std::log10( max ) - logMin ) / numBins : 0.0;
     const double binSize = ( max - min ) / numBins;
+
+    auto binEdge = [=]( int i ) { return isLogarithmic ? std::pow( 10.0, logMin + logStep * i ) : min + binSize * i; };
 
     std::vector<double> values;
     for ( int i = 0; i < numBins; i++ )
     {
         if ( graphType == RimHistogramPlot::GraphType::BAR_GRAPH )
         {
-            const double binMin = min + binSize * i;
-            const double binMax = min + binSize * ( i + 1 );
+            const double binMin = binEdge( i );
+            const double binMax = binEdge( i + 1 );
 
             // Close first on left side
             if ( i == 0 ) values.push_back( binMin );
@@ -80,7 +215,8 @@ std::vector<double>
         }
         else if ( graphType == RimHistogramPlot::GraphType::LINE_GRAPH )
         {
-            double centerOfBin = min + binSize * i + binSize / 2.0;
+            // For logarithmic bins the center is the geometric mean of the bin edges
+            double centerOfBin = isLogarithmic ? std::pow( 10.0, logMin + logStep * ( i + 0.5 ) ) : min + binSize * i + binSize / 2.0;
             values.push_back( centerOfBin );
         }
     }

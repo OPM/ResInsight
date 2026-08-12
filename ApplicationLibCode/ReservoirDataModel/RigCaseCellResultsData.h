@@ -158,6 +158,8 @@ public:
 
     void setStatisticsDataCacheNumBins( const RigEclipseResultAddress& resultAddress, size_t numBins );
 
+    RigStatisticsDataCache* statistics( const RigEclipseResultAddress& resVarAddr );
+
     size_t addStaticScalarResult( RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount );
 
     RigEclipseResultAddress defaultResult() const;
@@ -246,8 +248,6 @@ private:
     size_t allocatedValueCount( size_t scalarResultIndex ) const;
 
     void assignValuesToTemporaryLgrs( const QString& resultName, std::vector<double>& values );
-
-    RigStatisticsDataCache* statistics( const RigEclipseResultAddress& resVarAddr );
 
     bool isRadialModel() const;
 

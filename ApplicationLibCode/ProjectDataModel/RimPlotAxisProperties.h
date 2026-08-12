@@ -118,6 +118,7 @@ public:
     void                                removeAllAnnotations() override;
 
     bool isLogarithmicScaleEnabled() const override;
+    void setLogarithmicScaleEnabled( bool enabled );
     bool isActive() const override;
 
     void showAnnotationObjectsInProjectTree();

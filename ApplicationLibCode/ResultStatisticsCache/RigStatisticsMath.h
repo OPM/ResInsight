@@ -65,7 +65,24 @@ public:
 class RigHistogramCalculator
 {
 public:
-    RigHistogramCalculator( double min, double max, size_t nBins, std::vector<size_t>* histogram );
+    enum class BinningMode
+    {
+        LINEAR,
+        LOGARITHMIC
+    };
+
+    enum class OutOfRangeHandling
+    {
+        EXCLUDE,
+        INCLUDE_IN_BOUNDARY_BINS
+    };
+
+    RigHistogramCalculator( double               min,
+                            double               max,
+                            size_t               nBins,
+                            std::vector<size_t>* histogram,
+                            BinningMode          binningMode        = BinningMode::LINEAR,
+                            OutOfRangeHandling   outOfRangeHandling = OutOfRangeHandling::EXCLUDE );
 
     void addData( const std::vector<double>& data );
     void addData( const std::vector<float>& data );
@@ -74,7 +91,7 @@ public:
 
     /// Calculates the estimated percentile from the histogram.
     /// the percentile is the domain value at which pVal of the observations are below it.
-    /// Will only consider observed values between min and max, as all other values are discarded from the histogram
+    /// The estimate is only meaningful when the histogram covers the full range of the observed values.
 
     double calculatePercentil( double pVal, RigStatisticsMath::PercentileStyle percentileStyle );
 
@@ -82,6 +99,9 @@ private:
     size_t               m_maxIndex;
     double               m_range;
     double               m_min;
+    double               m_max;
+    BinningMode          m_binningMode;
+    OutOfRangeHandling   m_outOfRangeHandling;
     size_t               m_observationCount;
     std::vector<size_t>* m_histogram;
 };

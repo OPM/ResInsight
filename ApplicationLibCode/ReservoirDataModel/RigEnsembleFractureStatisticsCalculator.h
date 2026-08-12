@@ -21,12 +21,15 @@
 #include "RiaDefines.h"
 
 #include "RigHistogramData.h"
+#include "RigStatisticsMath.h"
 
 #include "cafPdmUiNumberFormat.h"
 
 #include "cvfObject.h"
 
 #include <functional>
+#include <optional>
+#include <utility>
 #include <vector>
 
 class RimEnsembleFractureStatistics;
@@ -51,11 +54,21 @@ public:
         FORMATION_DIP
     };
 
-    static RigHistogramData createStatisticsData( const RimEnsembleFractureStatistics* esf, PropertyType propertyType, int numBins );
+    static RigHistogramData createStatisticsData(
+        const RimEnsembleFractureStatistics*       esf,
+        PropertyType                               propertyType,
+        int                                        numBins,
+        RigHistogramCalculator::BinningMode        binningMode        = RigHistogramCalculator::BinningMode::LINEAR,
+        std::optional<std::pair<double, double>>   customBinRange     = std::nullopt,
+        RigHistogramCalculator::OutOfRangeHandling outOfRangeHandling = RigHistogramCalculator::OutOfRangeHandling::EXCLUDE );
 
-    static RigHistogramData createStatisticsData( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
-                                                  PropertyType                                                propertyType,
-                                                  int                                                         numBins );
+    static RigHistogramData createStatisticsData(
+        const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
+        PropertyType                                                propertyType,
+        int                                                         numBins,
+        RigHistogramCalculator::BinningMode                         binningMode    = RigHistogramCalculator::BinningMode::LINEAR,
+        std::optional<std::pair<double, double>>                    customBinRange = std::nullopt,
+        RigHistogramCalculator::OutOfRangeHandling outOfRangeHandling              = RigHistogramCalculator::OutOfRangeHandling::EXCLUDE );
 
     static std::vector<cvf::ref<RigStimPlanFractureDefinition>>
         removeZeroWidthDefinitions( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions );

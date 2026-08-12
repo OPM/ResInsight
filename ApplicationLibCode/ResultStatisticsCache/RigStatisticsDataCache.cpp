@@ -286,6 +286,22 @@ const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram( si
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::computeHistogram( RigHistogramCalculator& histogramCalculator )
+{
+    m_statisticsCalculator->addDataToHistogramCalculator( histogramCalculator );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::computeHistogram( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator )
+{
+    m_statisticsCalculator->addDataToHistogramCalculator( timeStepIndex, histogramCalculator );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::vector<int>& RigStatisticsDataCache::uniqueCellScalarValues()
 {
     computeUniqueValuesIfNeeded();

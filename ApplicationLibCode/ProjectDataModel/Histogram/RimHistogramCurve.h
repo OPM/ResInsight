@@ -86,6 +86,7 @@ protected:
 
     void onDataSourceChanged( const caf::SignalEmitter* emitter );
     void onCumulativeChanged( const caf::SignalEmitter* emitter );
+    void onLogarithmicBinningEnabled( const caf::SignalEmitter* emitter );
 
     void               updateCumulativeCurve();
     void               connectReferencedDataSourceSignals();
