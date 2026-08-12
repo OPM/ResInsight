@@ -81,7 +81,7 @@ public:
     void syncAxisRanges();
     void syncTimeAxisRanges( RimSummaryPlot* sourceSummaryPlot );
 
-    void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects );
+    void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
 
     void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
 

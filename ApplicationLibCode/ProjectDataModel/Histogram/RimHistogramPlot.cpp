@@ -1337,10 +1337,32 @@ RimHistogramPlot::GraphType RimHistogramPlot::graphType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimHistogramPlot::isDroppableObject( caf::PdmObjectHandle* object )
+{
+    if ( dynamic_cast<RimSummaryFileSetEnsemble*>( object ) ) return true;
+
+    if ( auto parameter = dynamic_cast<RimSummaryEnsembleParameter*>( object ) )
+    {
+        return RiaSummaryTools::ensembleById( parameter->ensembleId() ) != nullptr;
+    }
+
+    if ( auto address = dynamic_cast<RimSummaryAddress*>( object ) )
+    {
+        return address->isEnsemble() && RiaSummaryTools::ensembleById( address->ensembleId() ) != nullptr;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimHistogramPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
     for ( auto obj : objects )
     {
+        if ( !isDroppableObject( obj ) ) continue;
+
         if ( auto fileSet = dynamic_cast<RimSummaryFileSetEnsemble*>( obj ) )
         {
             RicHistogramPlotTools::appendEnsembleToHistogram( this, fileSet );

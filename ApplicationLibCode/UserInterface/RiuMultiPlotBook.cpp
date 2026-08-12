@@ -769,10 +769,9 @@ void RiuMultiPlotBook::dropEvent( QDropEvent* event )
 
     if ( RiuDragDrop::handleGenericDropEvent( event, objects ) )
     {
-        RimSummaryMultiPlot* multiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
-        if ( multiPlot )
+        if ( m_plotDefinition.notNull() )
         {
-            multiPlot->handleDroppedObjects( objects );
+            m_plotDefinition->handleDroppedObjects( objects );
         }
     }
 }
