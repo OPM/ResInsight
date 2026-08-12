@@ -21,6 +21,8 @@
 #include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
 
+#include "RicHistogramPlotTools.h"
+
 #include "RimEnsembleCurveSet.h"
 #include "RimHistogramPlot.h"
 #include "RimMainPlotCollection.h"
@@ -210,6 +212,20 @@ void RimHistogramMultiPlot::updatePlotTitles()
     }
 
     if ( !m_viewer.isNull() ) m_viewer->scheduleTitleUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Create a new subplot for each dropped object, following the behavior of the summary multi plot
+//--------------------------------------------------------------------------------------------------
+void RimHistogramMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
+{
+    for ( auto obj : objects )
+    {
+        if ( !RimHistogramPlot::isDroppableObject( obj ) ) continue;
+
+        auto* plot = RicHistogramPlotTools::addNewHistogramPlot( this );
+        plot->handleDroppedObjects( { obj } );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

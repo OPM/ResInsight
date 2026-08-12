@@ -74,6 +74,8 @@ public:
     virtual void removePlotNoUpdate( RimPlot* plot );
     virtual void updateAfterPlotRemove();
 
+    virtual void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects );
+
     void         deleteAllPlots() override;
     void         updatePlots();
     virtual void updatePlotTitles();

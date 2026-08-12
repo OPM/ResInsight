@@ -248,6 +248,13 @@ void RimMultiPlot::updateAfterPlotRemove()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, int insertAtPosition )
 {
     for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )

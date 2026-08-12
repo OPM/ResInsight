@@ -146,6 +146,9 @@ public:
 
     std::vector<RimHistogramCurve*> histogramCurves() const;
 
+    static bool isDroppableObject( caf::PdmObjectHandle* object );
+    void        handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
+
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;
@@ -176,8 +179,6 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
-
-    void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
 
     void initAfterRead() override;
 

@@ -55,6 +55,8 @@ public:
     void updateAfterPlotRemove() override;
     void updatePlotTitles() override;
 
+    void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
+
     void syncAxisRanges();
 
     std::vector<RimHistogramPlot*> histogramPlots() const;
