@@ -2,8 +2,6 @@
 
 #include "Summary/RiaSummaryTools.h"
 
-#include "RigCaseRealizationParameters.h"
-
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimMockSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -15,22 +13,10 @@
 #include "cafPdmPtrField.h"
 
 #include <algorithm>
-#include <memory>
 #include <vector>
 
 namespace
 {
-RimSummaryCase* createMockCase( int realizationNumber )
-{
-    auto* summaryCase = new RimMockSummaryCase();
-
-    auto parameters = std::make_shared<RigCaseRealizationParameters>();
-    parameters->setRealizationNumber( realizationNumber );
-    summaryCase->setCaseRealizationParameters( parameters );
-
-    return summaryCase;
-}
-
 size_t countOf( const std::vector<RimDeltaSummaryEnsemble*>& ensembles, const RimDeltaSummaryEnsemble* ensemble )
 {
     return static_cast<size_t>( std::count( ensembles.begin(), ensembles.end(), ensemble ) );

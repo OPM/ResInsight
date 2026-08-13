@@ -2,8 +2,6 @@
 
 #include "Summary/RiaSummaryTools.h"
 
-#include "RigCaseRealizationParameters.h"
-
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimMockSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -13,22 +11,7 @@
 #include "cafPdmPointer.h"
 
 #include <algorithm>
-#include <memory>
 #include <vector>
-
-namespace
-{
-RimSummaryCase* createMockCase( int realizationNumber )
-{
-    auto* summaryCase = new RimMockSummaryCase();
-
-    auto parameters = std::make_shared<RigCaseRealizationParameters>();
-    parameters->setRealizationNumber( realizationNumber );
-    summaryCase->setCaseRealizationParameters( parameters );
-
-    return summaryCase;
-}
-} // namespace
 
 //--------------------------------------------------------------------------------------------------
 /// Removing a source case makes a delta ensemble rebuild its derived cases. Those derived cases are

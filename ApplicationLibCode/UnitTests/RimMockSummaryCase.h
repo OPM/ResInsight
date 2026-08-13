@@ -1,9 +1,11 @@
 #pragma once
 
 #include "RifSummaryReaderInterface.h"
+#include "RigCaseRealizationParameters.h"
 #include "RimSummaryCase.h"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -63,3 +65,17 @@ private:
     QString                                        m_name = "MockCase";
     std::map<RifEclipseSummaryAddress, VectorData> m_data;
 };
+
+//--------------------------------------------------------------------------------------------------
+/// A mock case carrying the realization number a delta ensemble matches its source cases on.
+//--------------------------------------------------------------------------------------------------
+inline RimSummaryCase* createMockCase( int realizationNumber )
+{
+    auto* summaryCase = new RimMockSummaryCase();
+
+    auto parameters = std::make_shared<RigCaseRealizationParameters>();
+    parameters->setRealizationNumber( realizationNumber );
+    summaryCase->setCaseRealizationParameters( parameters );
+
+    return summaryCase;
+}
