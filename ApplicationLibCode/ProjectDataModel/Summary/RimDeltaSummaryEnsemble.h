@@ -87,8 +87,6 @@ private:
     static RimSummaryCase* findCaseByParametersHash( const std::vector<RimSummaryCase*>& cases, size_t hash );
     static RimSummaryCase* findCaseByRealizationNumber( const std::vector<RimSummaryCase*>& cases, int realizationNumber );
 
-    std::vector<RimDeltaSummaryEnsemble*> findReferringEnsembles() const;
-
     std::vector<RimSummaryEnsemble*> allEnsembles() const;
 
 private:
