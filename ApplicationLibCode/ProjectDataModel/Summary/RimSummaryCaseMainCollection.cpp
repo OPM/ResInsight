@@ -48,6 +48,7 @@
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseUpdateBatch.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlotCollection.h"
@@ -227,27 +228,21 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase, bool
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& cases )
+void RimSummaryCaseMainCollection::removeCases( const std::vector<RimSummaryCase*>& cases )
 {
-    // Removing one case can delete other cases in the list. A delta ensemble recreates its derived cases when a source
-    // case is removed, and deletes the derived cases no longer in use. Use guarded pointers to avoid touching deleted
-    // cases, and return only the cases that are still alive.
-    std::vector<caf::PdmPointer<RimSummaryCase>> guardedCases( cases.begin(), cases.end() );
+    // Removing one case makes a delta ensemble rebuild its derived cases, and some of those derived cases can be part
+    // of this very list. The batch detaches them now and destroys them when the outermost batch scope ends, so a caller
+    // holding on to the list across this call never sees a freed case, as long as it opens a batch of its own.
+    RimSummaryCaseUpdateBatch updateBatch;
 
-    for ( const auto& sumCase : guardedCases )
+    for ( auto sumCase : cases )
     {
-        if ( sumCase.notNull() ) removeCase( sumCase, false );
+        removeCase( sumCase, false );
     }
 
     for ( RimSummaryEnsemble* ensemble : m_ensembles )
     {
         ensemble->updateReferringCurveSetsZoomAll();
-    }
-
-    cases.clear();
-    for ( const auto& sumCase : guardedCases )
-    {
-        if ( sumCase.notNull() ) cases.push_back( sumCase );
     }
 
     dataSourceHasChanged.send();
