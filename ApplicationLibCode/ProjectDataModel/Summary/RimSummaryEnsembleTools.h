@@ -27,6 +27,7 @@ class RimSummaryCase;
 class RimPlotCurve;
 class RigEnsembleParameter;
 class RimSummaryEnsemble;
+class RimDeltaSummaryEnsemble;
 
 namespace RimSummaryEnsembleTools
 {
@@ -46,6 +47,17 @@ void                         highlightCurvesForSummaryCases( const std::vector<R
 void                         resetHighlightAllPlots();
 
 RimSummaryCase* caseWithMostDataObjects( const std::vector<RimSummaryCase*>& sourceCases );
+
+// The delta ensembles referring to sourceEnsemble, one entry per delta ensemble. An ensemble used as both source 1 and
+// source 2 is reported once.
+std::vector<RimDeltaSummaryEnsemble*> dependentDeltaEnsembles( const RimSummaryEnsemble* sourceEnsemble );
+
+// All delta ensembles depending directly or indirectly on any of sourceEnsembles, ordered so that a delta ensemble
+// always appears before the delta ensembles using it as a source. Cycles are reported and not traversed.
+std::vector<RimDeltaSummaryEnsemble*> deltaEnsemblesInUpdateOrder( const std::vector<RimSummaryEnsemble*>& sourceEnsembles );
+
+// True if using candidateSource as a source for deltaEnsemble would make the dependency graph cyclic.
+bool wouldCreateDependencyCycle( const RimDeltaSummaryEnsemble* deltaEnsemble, const RimSummaryEnsemble* candidateSource );
 
 void updateDependentDeltaEnsembles( const RimSummaryEnsemble* sourceEnsemble );
 

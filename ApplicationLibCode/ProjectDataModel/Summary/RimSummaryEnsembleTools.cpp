@@ -18,6 +18,8 @@
 
 #include "RimSummaryEnsembleTools.h"
 
+#include "RiaLogging.h"
+
 #include "Summary/RiaSummaryTools.h"
 
 #include "RifReaderRftInterface.h"
@@ -41,6 +43,8 @@
 #include "RiuQwtPlotWidget.h"
 
 #include "cafPdmUiTreeView.h"
+
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -531,14 +535,129 @@ RimSummaryCase* RimSummaryEnsembleTools::caseWithMostDataObjects( const std::vec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimDeltaSummaryEnsemble*> RimSummaryEnsembleTools::dependentDeltaEnsembles( const RimSummaryEnsemble* sourceEnsemble )
+{
+    std::vector<RimDeltaSummaryEnsemble*> dependents;
+    if ( !sourceEnsemble ) return dependents;
+
+    // One entry is returned per referring field, so a delta ensemble using the same ensemble as both sources is
+    // reported twice. Report each delta ensemble once.
+    std::set<RimDeltaSummaryEnsemble*> seen;
+    for ( auto deltaEnsemble : sourceEnsemble->objectsWithReferringPtrFieldsOfType<RimDeltaSummaryEnsemble>() )
+    {
+        if ( !deltaEnsemble ) continue;
+        if ( seen.insert( deltaEnsemble ).second ) dependents.push_back( deltaEnsemble );
+    }
+
+    return dependents;
+}
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Depth first traversal of the dependency graph, following the edges from a source ensemble to the delta ensembles
+/// referring to it. The reverse postorder of that traversal is a topological order, so a delta ensemble is always
+/// visited before the delta ensembles using it as a source.
+//--------------------------------------------------------------------------------------------------
+std::vector<RimDeltaSummaryEnsemble*> dependentDeltaEnsemblesInOrder( const std::vector<const RimSummaryEnsemble*>& sourceEnsembles )
+{
+    struct StackEntry
+    {
+        RimDeltaSummaryEnsemble*              ensemble = nullptr;
+        std::vector<RimDeltaSummaryEnsemble*> dependents;
+        size_t                                nextDependent = 0;
+    };
+
+    std::vector<RimDeltaSummaryEnsemble*> postOrder;
+    std::set<const RimSummaryEnsemble*>   visited;
+    std::set<const RimSummaryEnsemble*>   onPath;
+    std::vector<StackEntry>               stack;
+
+    auto pushEnsemble = [&]( RimDeltaSummaryEnsemble* deltaEnsemble )
+    {
+        if ( visited.count( deltaEnsemble ) ) return;
+
+        if ( onPath.count( deltaEnsemble ) )
+        {
+            RiaLogging::error( QString( "Delta ensemble '%1' is part of a circular dependency. The cycle is not traversed." )
+                                   .arg( deltaEnsemble->name() )
+                                   .toStdString() );
+            return;
+        }
+
+        onPath.insert( deltaEnsemble );
+        stack.push_back( { deltaEnsemble, RimSummaryEnsembleTools::dependentDeltaEnsembles( deltaEnsemble ), 0 } );
+    };
+
+    for ( auto sourceEnsemble : sourceEnsembles )
+    {
+        for ( auto deltaEnsemble : RimSummaryEnsembleTools::dependentDeltaEnsembles( sourceEnsemble ) )
+        {
+            pushEnsemble( deltaEnsemble );
+
+            while ( !stack.empty() )
+            {
+                auto& top = stack.back();
+                if ( top.nextDependent < top.dependents.size() )
+                {
+                    auto* dependent = top.dependents[top.nextDependent++];
+                    pushEnsemble( dependent );
+                }
+                else
+                {
+                    auto* completed = top.ensemble;
+                    stack.pop_back();
+
+                    onPath.erase( completed );
+                    visited.insert( completed );
+                    postOrder.push_back( completed );
+                }
+            }
+        }
+    }
+
+    std::reverse( postOrder.begin(), postOrder.end() );
+
+    return postOrder;
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimDeltaSummaryEnsemble*>
+    RimSummaryEnsembleTools::deltaEnsemblesInUpdateOrder( const std::vector<RimSummaryEnsemble*>& sourceEnsembles )
+{
+    return dependentDeltaEnsemblesInOrder( std::vector<const RimSummaryEnsemble*>( sourceEnsembles.begin(), sourceEnsembles.end() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryEnsembleTools::wouldCreateDependencyCycle( const RimDeltaSummaryEnsemble* deltaEnsemble,
+                                                          const RimSummaryEnsemble*      candidateSource )
+{
+    if ( !deltaEnsemble || !candidateSource ) return false;
+    if ( deltaEnsemble == candidateSource ) return true;
+
+    // Everything depending on deltaEnsemble, directly or indirectly, would close a cycle if used as a source for it
+    for ( auto dependent : dependentDeltaEnsemblesInOrder( { deltaEnsemble } ) )
+    {
+        if ( dependent == candidateSource ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryEnsembleTools::updateDependentDeltaEnsembles( const RimSummaryEnsemble* sourceEnsemble )
 {
     if ( !sourceEnsemble ) return;
 
-    auto referringObjects = sourceEnsemble->objectsWithReferringPtrFieldsOfType<RimDeltaSummaryEnsemble>();
-    for ( auto referringEnsemble : referringObjects )
+    for ( auto deltaEnsemble : dependentDeltaEnsemblesInOrder( { sourceEnsemble } ) )
     {
-        referringEnsemble->onSourceEnsembleChanged();
-        updateDependentDeltaEnsembles( referringEnsemble );
+        deltaEnsemble->onSourceEnsembleChanged();
     }
 }

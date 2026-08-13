@@ -29,6 +29,7 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryEnsemble.h"
+#include "RimSummaryEnsembleTools.h"
 
 #include "cafPdmUiButton.h"
 #include "cafPdmUiCheckBoxEditor.h"
@@ -207,7 +208,7 @@ void RimDeltaSummaryEnsemble::createDerivedEnsembleCases()
     }
 
     // If other derived ensembles are referring to this ensemble, update their cases as well
-    for ( auto referring : findReferringEnsembles() )
+    for ( auto referring : RimSummaryEnsembleTools::dependentDeltaEnsembles( this ) )
     {
         referring->createDerivedEnsembleCases();
     }
@@ -404,7 +405,7 @@ void RimDeltaSummaryEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* chang
         updateReferringCurveSetsZoomAll();
 
         // If other derived ensembles are referring to this ensemble, update their cases as well
-        for ( auto referring : findReferringEnsembles() )
+        for ( auto referring : RimSummaryEnsembleTools::dependentDeltaEnsembles( this ) )
         {
             referring->updateReferringCurveSetsZoomAll();
         }
@@ -512,7 +513,7 @@ void RimDeltaSummaryEnsemble::updateDerivedEnsembleCases()
     }
 
     // If other derived ensembles are referring to this ensemble, update their cases as well
-    for ( auto referring : findReferringEnsembles() )
+    for ( auto referring : RimSummaryEnsembleTools::dependentDeltaEnsembles( this ) )
     {
         referring->updateDerivedEnsembleCases();
     }
@@ -555,31 +556,6 @@ RimSummaryCase* RimDeltaSummaryEnsemble::findCaseByRealizationNumber( const std:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimDeltaSummaryEnsemble*> RimDeltaSummaryEnsemble::findReferringEnsembles() const
-{
-    std::vector<RimDeltaSummaryEnsemble*> referringEnsembles;
-
-    auto mainColl = firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
-    if ( mainColl )
-    {
-        for ( auto ensemble : mainColl->summaryEnsembles() )
-        {
-            auto derivedEnsemble = dynamic_cast<RimDeltaSummaryEnsemble*>( ensemble );
-            if ( derivedEnsemble )
-            {
-                if ( derivedEnsemble->m_ensemble1() == this || derivedEnsemble->m_ensemble2() == this )
-                {
-                    referringEnsembles.push_back( derivedEnsemble );
-                }
-            }
-        }
-    }
-    return referringEnsembles;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryEnsemble*> RimDeltaSummaryEnsemble::allEnsembles() const
 {
     std::vector<RimSummaryEnsemble*> ensembles;
@@ -614,7 +590,7 @@ void RimDeltaSummaryEnsemble::onSwapEnsemblesButtonClicked()
     updateConnectedEditors();
     updateReferringCurveSetsZoomAll();
 
-    for ( auto referring : findReferringEnsembles() )
+    for ( auto referring : RimSummaryEnsembleTools::dependentDeltaEnsembles( this ) )
     {
         referring->updateReferringCurveSetsZoomAll();
     }
