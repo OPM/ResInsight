@@ -124,17 +124,6 @@ void RimDeltaSummaryEnsemble::setEnsemble2( RimSummaryEnsemble* ensemble )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimDeltaSummaryEnsemble::allSummaryCases() const
-{
-    std::vector<RimSummaryCase*> cases;
-    for ( auto sumCase : allDerivedCases( true ) )
-        cases.push_back( sumCase );
-    return cases;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimDeltaSummaryEnsemble::ensembleSummaryAddresses() const
 {
     std::set<RifEclipseSummaryAddress> addresses;
@@ -164,48 +153,7 @@ void RimDeltaSummaryEnsemble::createDerivedEnsembleCases()
 {
     if ( !m_ensemble1 || !m_ensemble2 ) return;
 
-    setAllCasesNotInUse();
-
-    const auto cases1 = m_ensemble1->allSummaryCases();
-    const auto cases2 = m_ensemble2->allSummaryCases();
-
-    for ( auto& sumCase1 : cases1 )
-    {
-        auto crp = sumCase1->caseRealizationParameters();
-        if ( !crp ) continue;
-
-        RimSummaryCase* summaryCase2 = nullptr;
-        if ( m_matchOnParameters )
-        {
-            summaryCase2 = findCaseByParametersHash( cases2, crp->parametersHash() );
-        }
-        else
-        {
-            summaryCase2 = findCaseByRealizationNumber( cases2, crp->realizationNumber() );
-        }
-        if ( !summaryCase2 ) continue;
-
-        auto derivedCase = firstCaseNotInUse();
-        derivedCase->setSummaryCases( sumCase1, summaryCase2 );
-        derivedCase->setOperator( m_operator() );
-
-        int fixedTimeStepCase1 = -1;
-        int fixedTimeStepCase2 = -1;
-        if ( m_useFixedTimeStep == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 )
-        {
-            fixedTimeStepCase1 = m_fixedTimeStepIndex;
-        }
-        else if ( m_useFixedTimeStep == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 )
-        {
-            fixedTimeStepCase2 = m_fixedTimeStepIndex;
-        }
-
-        derivedCase->setFixedTimeSteps( fixedTimeStepCase1, fixedTimeStepCase2 );
-        derivedCase->createSummaryReaderInterface();
-        derivedCase->setCaseRealizationParameters( crp );
-        derivedCase->setInUse( true );
-        derivedCase->updateDisplayNameFromCases();
-    }
+    auto orphanedCases = rebuildDerivedCases();
 
     // If other derived ensembles are referring to this ensemble, update their cases as well
     for ( auto referring : RimSummaryEnsembleTools::dependentDeltaEnsembles( this ) )
@@ -213,7 +161,111 @@ void RimDeltaSummaryEnsemble::createDerivedEnsembleCases()
         referring->createDerivedEnsembleCases();
     }
 
-    deleteCasesNoInUse();
+    for ( auto orphanedCase : orphanedCases )
+    {
+        delete orphanedCase;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The source case pairs this ensemble should have derived cases for, in the order of the cases in
+/// the first source ensemble. Pure computation, the object graph is not modified.
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<RimSummaryCase*, RimSummaryCase*>> RimDeltaSummaryEnsemble::desiredSourceCasePairs() const
+{
+    std::vector<std::pair<RimSummaryCase*, RimSummaryCase*>> casePairs;
+
+    if ( !m_ensemble1 || !m_ensemble2 ) return casePairs;
+
+    const auto cases1 = m_ensemble1->allSummaryCases();
+    const auto cases2 = m_ensemble2->allSummaryCases();
+
+    for ( auto sumCase1 : cases1 )
+    {
+        auto crp = sumCase1->caseRealizationParameters();
+        if ( !crp ) continue;
+
+        RimSummaryCase* summaryCase2 = m_matchOnParameters ? findCaseByParametersHash( cases2, crp->parametersHash() )
+                                                           : findCaseByRealizationNumber( cases2, crp->realizationNumber() );
+        if ( !summaryCase2 ) continue;
+
+        casePairs.emplace_back( sumCase1, summaryCase2 );
+    }
+
+    return casePairs;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Bring the derived cases in sync with desiredSourceCasePairs(). Existing derived cases are matched
+/// on the source case pair, so a rebuild producing the same pairs reuses the same objects.
+///
+/// Surplus cases are detached and returned, never deleted. Destroying them is the responsibility of
+/// the caller, which may be several frames above a caller still iterating over these very objects.
+//--------------------------------------------------------------------------------------------------
+std::vector<RimDeltaSummaryCase*> RimDeltaSummaryEnsemble::rebuildDerivedCases()
+{
+    std::vector<RimDeltaSummaryCase*> orphanedCases;
+
+    std::map<std::pair<RimSummaryCase*, RimSummaryCase*>, RimDeltaSummaryCase*> reusableCases;
+    for ( auto derivedCase : allDerivedCases() )
+    {
+        auto sourceCase1 = derivedCase->summaryCase1();
+        auto sourceCase2 = derivedCase->summaryCase2();
+
+        // A case with unresolved sources, or a duplicate of a pair already seen, can not be reused
+        if ( sourceCase1 && sourceCase2 && reusableCases.try_emplace( { sourceCase1, sourceCase2 }, derivedCase ).second ) continue;
+
+        orphanedCases.push_back( derivedCase );
+    }
+
+    int fixedTimeStepCase1 = -1;
+    int fixedTimeStepCase2 = -1;
+    if ( m_useFixedTimeStep == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 )
+    {
+        fixedTimeStepCase1 = m_fixedTimeStepIndex;
+    }
+    else if ( m_useFixedTimeStep == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 )
+    {
+        fixedTimeStepCase2 = m_fixedTimeStepIndex;
+    }
+
+    for ( const auto& [sourceCase1, sourceCase2] : desiredSourceCasePairs() )
+    {
+        RimDeltaSummaryCase* derivedCase = nullptr;
+
+        auto it = reusableCases.find( { sourceCase1, sourceCase2 } );
+        if ( it != reusableCases.end() )
+        {
+            derivedCase = it->second;
+            reusableCases.erase( it );
+        }
+        else
+        {
+            derivedCase = new RimDeltaSummaryCase();
+            addCaseWithoutDependencyUpdate( derivedCase );
+            derivedCase->setSummaryCases( sourceCase1, sourceCase2 );
+        }
+
+        derivedCase->setOperator( m_operator() );
+        derivedCase->setFixedTimeSteps( fixedTimeStepCase1, fixedTimeStepCase2 );
+        derivedCase->createSummaryReaderInterface();
+        derivedCase->setCaseRealizationParameters( sourceCase1->caseRealizationParameters() );
+        derivedCase->updateDisplayNameFromCases();
+    }
+
+    // The reusable cases not claimed by a desired pair are surplus
+    for ( const auto& [casePair, derivedCase] : reusableCases )
+    {
+        orphanedCases.push_back( derivedCase );
+    }
+
+    for ( auto orphanedCase : orphanedCases )
+    {
+        removeCase( orphanedCase, false );
+        orphanedCase->clearSourceCases();
+    }
+
+    return orphanedCases;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,68 +483,17 @@ void RimDeltaSummaryEnsemble::defineEditorAttribute( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDeltaSummaryEnsemble::setAllCasesNotInUse()
+std::vector<RimDeltaSummaryCase*> RimDeltaSummaryEnsemble::allDerivedCases() const
 {
-    for ( auto derCase : allDerivedCases( true ) )
-        derCase->setInUse( false );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDeltaSummaryEnsemble::deleteCasesNoInUse()
-{
-    std::vector<RimDeltaSummaryCase*> inactiveCases;
-    auto                              allCases = allDerivedCases( false );
-    std::copy_if( allCases.begin(),
-                  allCases.end(),
-                  std::back_inserter( inactiveCases ),
-                  []( RimDeltaSummaryCase* derCase ) { return !derCase->isInUse(); } );
-
-    for ( auto derCase : inactiveCases )
+    std::vector<RimDeltaSummaryCase*> derivedCases;
+    for ( auto sumCase : allSummaryCases() )
     {
-        removeCase( derCase );
-        delete derCase;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimDeltaSummaryCase* RimDeltaSummaryEnsemble::firstCaseNotInUse()
-{
-    auto allCases = allDerivedCases( false );
-    auto itr      = std::find_if( allCases.begin(), allCases.end(), []( RimDeltaSummaryCase* derCase ) { return !derCase->isInUse(); } );
-    if ( itr != allCases.end() )
-    {
-        return *itr;
-    }
-
-    // If no active case was found, add a new case to the collection
-    auto newCase = new RimDeltaSummaryCase();
-
-    // Show realization data source for the first case. If we create for all, the performance will be bad
-    newCase->setShowTreeNodes( m_cases.empty() );
-
-    m_cases.push_back( newCase );
-    return newCase;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimDeltaSummaryCase*> RimDeltaSummaryEnsemble::allDerivedCases( bool activeOnly ) const
-{
-    std::vector<RimDeltaSummaryCase*> activeCases;
-    for ( auto sumCase : RimSummaryEnsemble::allSummaryCases() )
-    {
-        auto derivedCase = dynamic_cast<RimDeltaSummaryCase*>( sumCase );
-        if ( derivedCase && ( !activeOnly || derivedCase->isInUse() ) )
+        if ( auto derivedCase = dynamic_cast<RimDeltaSummaryCase*>( sumCase ) )
         {
-            activeCases.push_back( derivedCase );
+            derivedCases.push_back( derivedCase );
         }
     }
-    return activeCases;
+    return derivedCases;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -500,7 +501,7 @@ std::vector<RimDeltaSummaryCase*> RimDeltaSummaryEnsemble::allDerivedCases( bool
 //--------------------------------------------------------------------------------------------------
 void RimDeltaSummaryEnsemble::updateDerivedEnsembleCases()
 {
-    for ( auto& derivedCase : allDerivedCases( true ) )
+    for ( auto& derivedCase : allDerivedCases() )
     {
         derivedCase->createSummaryReaderInterface();
 

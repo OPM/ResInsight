@@ -56,9 +56,8 @@ public:
 public:
     RimDeltaSummaryCase();
 
-    void setInUse( bool inUse );
-    bool isInUse() const;
     void setSummaryCases( RimSummaryCase* sumCase1, RimSummaryCase* sumCase2 );
+    void clearSourceCases();
     void setOperator( DerivedSummaryOperator oper );
     void setFixedTimeSteps( int fixedTimeStepCase1, int fixedTimeStepCase2 );
 
@@ -110,8 +109,6 @@ private:
 
     caf::PdmField<caf::AppEnum<FixedTimeStepMode>> m_useFixedTimeStep;
     caf::PdmField<int>                             m_fixedTimeStepIndex;
-
-    caf::PdmField<bool> m_inUse;
 
     // Local cache considered mutable
     mutable std::map<RifEclipseSummaryAddress, std::pair<std::vector<time_t>, std::vector<double>>> m_dataCache;

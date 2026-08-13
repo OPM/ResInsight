@@ -53,7 +53,6 @@ public:
     void setEnsemble1( RimSummaryEnsemble* ensemble );
     void setEnsemble2( RimSummaryEnsemble* ensemble );
 
-    std::vector<RimSummaryCase*>       allSummaryCases() const override;
     std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const override;
 
     bool hasCaseReference( const RimSummaryCase* sumCase ) const;
@@ -62,6 +61,13 @@ public:
 
     void onSourceEnsembleChanged();
     void createDerivedEnsembleCases();
+
+    std::vector<std::pair<RimSummaryCase*, RimSummaryCase*>> desiredSourceCasePairs() const;
+
+    // Detaches and returns the derived cases no longer backed by a source case pair. The caller owns them.
+    [[nodiscard]] std::vector<RimDeltaSummaryCase*> rebuildDerivedCases();
+
+    std::vector<RimDeltaSummaryCase*> allDerivedCases() const;
 
     bool discardMissingOrIncompleteRealizations() const;
 
@@ -75,11 +81,6 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void onSwapEnsemblesButtonClicked();
-
-    void                              setAllCasesNotInUse();
-    void                              deleteCasesNoInUse();
-    RimDeltaSummaryCase*              firstCaseNotInUse();
-    std::vector<RimDeltaSummaryCase*> allDerivedCases( bool activeOnly ) const;
 
     void updateDerivedEnsembleCases();
     bool isValid() const;
