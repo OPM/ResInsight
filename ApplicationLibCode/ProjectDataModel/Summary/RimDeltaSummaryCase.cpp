@@ -183,32 +183,8 @@ RimDeltaSummaryCase::RimDeltaSummaryCase()
 
     CAF_PDM_InitFieldNoDefault( &m_useFixedTimeStep, "UseFixedTimeStep", "Use Fixed Time Step" );
     CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step" );
-    CAF_PDM_InitField( &m_inUse, "InUse", false, "In Use" );
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDeltaSummaryCase::setInUse( bool inUse )
-{
-    m_inUse = inUse;
-
-    if ( !m_inUse )
-    {
-        m_summaryCase1 = nullptr;
-        m_summaryCase2 = nullptr;
-        m_dataCache.clear();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimDeltaSummaryCase::isInUse() const
-{
-    return m_inUse;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,6 +194,18 @@ void RimDeltaSummaryCase::setSummaryCases( RimSummaryCase* sumCase1, RimSummaryC
 {
     m_summaryCase1 = sumCase1;
     m_summaryCase2 = sumCase2;
+
+    clearCache();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Sever the references to the source cases. Used when a derived case is detached from its ensemble,
+/// so it does not keep the source cases alive in any way after the ensemble has moved on.
+//--------------------------------------------------------------------------------------------------
+void RimDeltaSummaryCase::clearSourceCases()
+{
+    m_summaryCase1 = nullptr;
+    m_summaryCase2 = nullptr;
 
     clearCache();
 }

@@ -155,13 +155,7 @@ void RimSummaryEnsemble::removeCase( RimSummaryCase* summaryCase, bool notifyCha
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase, bool notifyChange )
 {
-    summaryCase->nameChanged.connect( this, &RimSummaryEnsemble::onCaseNameChanged );
-
-    summaryCase->setShowTreeNodes( m_cases.empty() );
-
-    m_cases.push_back( summaryCase );
-    m_cachedSortedEnsembleParameters.clear();
-    m_analyzer.reset();
+    addCaseWithoutDependencyUpdate( summaryCase );
 
     // Update derived ensemble cases (if any)
     std::vector<RimDeltaSummaryEnsemble*> referringObjects = objectsWithReferringPtrFieldsOfType<RimDeltaSummaryEnsemble>();
@@ -180,6 +174,21 @@ void RimSummaryEnsemble::addCase( RimSummaryCase* summaryCase, bool notifyChange
     }
 
     if ( notifyChange ) updateReferringCurveSetsZoomAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsemble::addCaseWithoutDependencyUpdate( RimSummaryCase* summaryCase )
+{
+    summaryCase->nameChanged.connect( this, &RimSummaryEnsemble::onCaseNameChanged );
+
+    // Show realization data source for the first case. If we create for all, the performance will be bad
+    summaryCase->setShowTreeNodes( m_cases.empty() );
+
+    m_cases.push_back( summaryCase );
+    m_cachedSortedEnsembleParameters.clear();
+    m_analyzer.reset();
 
     clearChildNodes();
 }

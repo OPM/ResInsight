@@ -166,6 +166,80 @@ TEST_F( RimDeltaSummaryEnsembleTest, DependencyOrder_CycleTerminates )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Derived cases are matched on the source case pair, so rebuilding without changing the sources must
+/// reuse the very same objects.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RimDeltaSummaryEnsembleTest, Rebuild_IsIdempotent )
+{
+    auto* ensemble1 = createEnsemble( "Ensemble 1", { 0, 1 } );
+    auto* ensemble2 = createEnsemble( "Ensemble 2", { 0, 1 } );
+
+    auto* deltaEnsemble = createDeltaEnsemble( ensemble1, ensemble2 );
+    deltaEnsemble->createDerivedEnsembleCases();
+
+    auto derivedCases = deltaEnsemble->allDerivedCases();
+    ASSERT_EQ( size_t( 2 ), derivedCases.size() );
+
+    auto orphanedCases = deltaEnsemble->rebuildDerivedCases();
+    EXPECT_TRUE( orphanedCases.empty() );
+
+    EXPECT_EQ( derivedCases, deltaEnsemble->allDerivedCases() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST_F( RimDeltaSummaryEnsembleTest, Rebuild_CreatesMissingAndOrphansSurplus )
+{
+    auto* ensemble1 = createEnsemble( "Ensemble 1", { 0, 1 } );
+    auto* ensemble2 = createEnsemble( "Ensemble 2", { 0, 1 } );
+
+    auto* deltaEnsemble = createDeltaEnsemble( ensemble1, ensemble2 );
+    deltaEnsemble->createDerivedEnsembleCases();
+    ASSERT_EQ( size_t( 2 ), deltaEnsemble->allDerivedCases().size() );
+
+    // A matching realization in both source ensembles gives one more derived case
+    auto* addedCase1 = createMockCase( 2 );
+    auto* addedCase2 = createMockCase( 2 );
+    ensemble1->addCase( addedCase1, false );
+    ensemble2->addCase( addedCase2, false );
+
+    auto orphanedCases = deltaEnsemble->rebuildDerivedCases();
+    EXPECT_TRUE( orphanedCases.empty() );
+    EXPECT_EQ( size_t( 3 ), deltaEnsemble->allDerivedCases().size() );
+
+    // Removing it again makes the derived case surplus
+    ensemble1->removeCase( addedCase1, false );
+    delete addedCase1;
+
+    orphanedCases = deltaEnsemble->rebuildDerivedCases();
+    ASSERT_EQ( size_t( 1 ), orphanedCases.size() );
+    EXPECT_EQ( size_t( 2 ), deltaEnsemble->allDerivedCases().size() );
+
+    for ( auto* orphanedCase : orphanedCases )
+    {
+        delete orphanedCase;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST_F( RimDeltaSummaryEnsembleTest, Rebuild_NoMatchingRealizations )
+{
+    auto* ensemble1 = createEnsemble( "Ensemble 1", { 0, 1 } );
+    auto* ensemble2 = createEnsemble( "Ensemble 2", { 5, 6 } );
+
+    auto* deltaEnsemble = createDeltaEnsemble( ensemble1, ensemble2 );
+
+    EXPECT_TRUE( deltaEnsemble->desiredSourceCasePairs().empty() );
+
+    auto orphanedCases = deltaEnsemble->rebuildDerivedCases();
+    EXPECT_TRUE( orphanedCases.empty() );
+    EXPECT_TRUE( deltaEnsemble->allDerivedCases().empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST_F( RimDeltaSummaryEnsembleTest, WouldCreateDependencyCycle )

@@ -128,6 +128,10 @@ public:
 protected:
     virtual void onLoadDataAndUpdate();
 
+    // Add a case without notifying the delta ensembles depending on this ensemble. Used when the caller is itself the
+    // owner of the dependency update, as is the case when a delta ensemble rebuilds its derived cases.
+    void addCaseWithoutDependencyUpdate( RimSummaryCase* summaryCase );
+
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void buildMetaData();
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
