@@ -61,7 +61,7 @@ RimCellEdgeColors::RimCellEdgeColors()
 {
     CAF_PDM_InitObject( "Cell Edge Result", ":/EdgeResult_1.png" );
 
-    CAF_PDM_InitField( &m_enableCellEdgeColors, "EnableCellEdgeColors", true, "Enable Cell Edge Results" );
+    CAF_PDM_InitField( &m_enableCellEdgeColors, "EnableCellEdgeColors", false, "Enable Cell Edge Results" );
 
     CAF_PDM_InitFieldNoDefault( &m_propertyType, "propertyType", "Property Type" );
 
@@ -112,6 +112,7 @@ void RimCellEdgeColors::setReservoirView( RimEclipseView* ownerReservoirView )
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::loadResult()
 {
+    if ( !m_enableCellEdgeColors() ) return;
     if ( !m_reservoirView->currentGridCellResults() ) return;
 
     resetResultAddresses();
