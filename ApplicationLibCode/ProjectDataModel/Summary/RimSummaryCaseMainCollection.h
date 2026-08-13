@@ -60,8 +60,8 @@ public:
     void addCases( const std::vector<RimSummaryCase*> cases );
     void addCase( RimSummaryCase* summaryCase );
     void removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
-    // Cases deleted as a side effect of the removal are erased from the input vector
-    void removeCases( std::vector<RimSummaryCase*>& cases );
+    // Open a RimSummaryCaseUpdateBatch around this call if the case list is used afterwards, see removeCases()
+    void removeCases( const std::vector<RimSummaryCase*>& cases );
     void moveCase( RimSummaryCase* summaryCase, int destinationIndex );
 
     RimSummaryEnsemble* addEnsemble( const std::vector<RimSummaryCase*>&  summaryCases,

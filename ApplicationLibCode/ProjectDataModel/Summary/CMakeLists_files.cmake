@@ -55,6 +55,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressSelector.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCrossPlotStatisticsCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryEnsembleTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseUpdateBatch.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotReadOut.cpp
 )
 

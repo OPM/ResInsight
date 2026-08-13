@@ -7,9 +7,11 @@
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimMockSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCaseUpdateBatch.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
 
+#include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 
 #include <algorithm>
@@ -237,6 +239,69 @@ TEST_F( RimDeltaSummaryEnsembleTest, Rebuild_NoMatchingRealizations )
     auto orphanedCases = deltaEnsemble->rebuildDerivedCases();
     EXPECT_TRUE( orphanedCases.empty() );
     EXPECT_TRUE( deltaEnsemble->allDerivedCases().empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST_F( RimDeltaSummaryEnsembleTest, Batch_DeletionDeferredToFlush )
+{
+    auto* ensemble1 = createEnsemble( "Ensemble 1", { 0, 1 } );
+    auto* ensemble2 = createEnsemble( "Ensemble 2", { 0, 1 } );
+
+    auto* deltaEnsemble = createDeltaEnsemble( ensemble1, ensemble2 );
+    deltaEnsemble->createDerivedEnsembleCases();
+    ASSERT_EQ( size_t( 2 ), deltaEnsemble->allDerivedCases().size() );
+
+    caf::PdmPointer<RimDeltaSummaryCase> guardedCase = deltaEnsemble->allDerivedCases().front();
+
+    {
+        RimSummaryCaseUpdateBatch updateBatch;
+        EXPECT_TRUE( RimSummaryCaseUpdateBatch::isActive() );
+
+        auto* sourceCase = ensemble1->allSummaryCases().front();
+        mainCollection()->removeCase( sourceCase, false );
+        delete sourceCase;
+
+        // The derived case is detached, but still alive
+        EXPECT_EQ( size_t( 1 ), deltaEnsemble->allDerivedCases().size() );
+        EXPECT_TRUE( guardedCase.notNull() );
+    }
+
+    EXPECT_FALSE( RimSummaryCaseUpdateBatch::isActive() );
+    EXPECT_TRUE( guardedCase.isNull() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST_F( RimDeltaSummaryEnsembleTest, Batch_NestingFlushesOnce )
+{
+    auto* ensemble1 = createEnsemble( "Ensemble 1", { 0, 1 } );
+    auto* ensemble2 = createEnsemble( "Ensemble 2", { 0, 1 } );
+
+    auto* deltaEnsemble = createDeltaEnsemble( ensemble1, ensemble2 );
+    deltaEnsemble->createDerivedEnsembleCases();
+    ASSERT_EQ( size_t( 2 ), deltaEnsemble->allDerivedCases().size() );
+
+    caf::PdmPointer<RimDeltaSummaryCase> guardedCase = deltaEnsemble->allDerivedCases().front();
+
+    {
+        RimSummaryCaseUpdateBatch outerBatch;
+
+        {
+            RimSummaryCaseUpdateBatch innerBatch;
+
+            auto* sourceCase = ensemble1->allSummaryCases().front();
+            mainCollection()->removeCase( sourceCase, false );
+            delete sourceCase;
+        }
+
+        // The inner scope contributes to the outer batch and must not flush
+        EXPECT_TRUE( guardedCase.notNull() );
+    }
+
+    EXPECT_TRUE( guardedCase.isNull() );
 }
 
 //--------------------------------------------------------------------------------------------------

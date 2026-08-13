@@ -28,6 +28,7 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCaseUpdateBatch.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -61,6 +62,10 @@ void RicCloseSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*> cases )
 {
+    // The case list is used all the way down to the delete below. Keep a batch open for that whole span, so a derived
+    // case detached by the removal is not destroyed while this list still refers to it.
+    RimSummaryCaseUpdateBatch updateBatch;
+
     RimSummaryMultiPlotCollection* summaryPlotColl           = RiaSummaryTools::summaryMultiPlotCollection();
     RimSummaryCaseMainCollection*  summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
 

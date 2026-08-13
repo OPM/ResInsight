@@ -7,6 +7,7 @@
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimMockSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCaseUpdateBatch.h"
 #include "RimSummaryEnsemble.h"
 
 #include "cafPdmPointer.h"
@@ -30,10 +31,11 @@ RimSummaryCase* createMockCase( int realizationNumber )
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
-/// Removing a source case makes a delta ensemble recreate and delete derived cases. The derived cases
-/// are part of the list of cases to remove, and must not be left as dangling pointers in that list.
+/// Removing a source case makes a delta ensemble rebuild its derived cases. Those derived cases are
+/// part of the list of cases to remove, and must stay alive for as long as the caller holds that
+/// list. The caller states that span by opening a RimSummaryCaseUpdateBatch.
 //--------------------------------------------------------------------------------------------------
-TEST( RimSummaryCaseMainCollection, RemoveCasesReferredByDeltaEnsemble )
+TEST( RimSummaryCaseMainCollection, RemoveCases_NoDanglingInCallerVector )
 {
     RimSummaryCaseMainCollection* mainCollection = RiaSummaryTools::summaryCaseMainCollection();
 
@@ -54,30 +56,30 @@ TEST( RimSummaryCaseMainCollection, RemoveCasesReferredByDeltaEnsemble )
     // Guarded pointers are set to null when the object is deleted
     std::vector<caf::PdmPointer<RimSummaryCase>> guardedCases( cases.begin(), cases.end() );
 
-    mainCollection->removeCases( cases );
-
-    size_t aliveCount = 0;
-    for ( const auto& guardedCase : guardedCases )
+    auto aliveCount = [&guardedCases]()
     {
-        if ( guardedCase.notNull() ) aliveCount++;
+        return static_cast<size_t>( std::count_if( guardedCases.begin(),
+                                                   guardedCases.end(),
+                                                   []( const caf::PdmPointer<RimSummaryCase>& guardedCase )
+                                                   { return guardedCase.notNull(); } ) );
+    };
+
+    {
+        RimSummaryCaseUpdateBatch updateBatch;
+
+        mainCollection->removeCases( cases );
+
+        // The two derived cases are detached by the delta ensemble, but not destroyed while the batch is open
+        EXPECT_EQ( cases.size(), aliveCount() );
+
+        for ( auto* summaryCase : cases )
+        {
+            delete summaryCase;
+        }
     }
 
-    // The two derived cases are deleted by the delta ensemble during removal
-    EXPECT_EQ( size_t( 4 ), aliveCount );
-    EXPECT_EQ( aliveCount, cases.size() );
-
-    // No deleted case is left behind in the list
-    for ( auto* summaryCase : cases )
-    {
-        auto isAlive = [summaryCase]( const caf::PdmPointer<RimSummaryCase>& guardedCase )
-        { return guardedCase.notNull() && guardedCase.p() == summaryCase; };
-        EXPECT_TRUE( std::any_of( guardedCases.begin(), guardedCases.end(), isAlive ) );
-    }
-
-    for ( auto* summaryCase : cases )
-    {
-        delete summaryCase;
-    }
+    // Everything the caller handed over has been destroyed exactly once
+    EXPECT_EQ( size_t( 0 ), aliveCount() );
 
     mainCollection->removeEnsemble( deltaEnsemble );
     mainCollection->removeEnsemble( ensemble1 );

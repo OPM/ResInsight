@@ -28,6 +28,7 @@
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCaseUpdateBatch.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
 
@@ -161,10 +162,7 @@ void RimDeltaSummaryEnsemble::createDerivedEnsembleCases()
         referring->createDerivedEnsembleCases();
     }
 
-    for ( auto orphanedCase : orphanedCases )
-    {
-        delete orphanedCase;
-    }
+    RimSummaryCaseUpdateBatch::orphan( orphanedCases );
 }
 
 //--------------------------------------------------------------------------------------------------
