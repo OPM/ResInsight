@@ -93,6 +93,33 @@ void RimHistogramDataSource::setShowCumulativeCurve( bool showCumulativeCurve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimHistogramDataSource::enableLogarithmicBinning()
+{
+    m_binningMode = RigHistogramCalculator::BinningMode::LOGARITHMIC;
+    logarithmicBinningEnabled.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimHistogramDataSource::filterDescriptions() const
+{
+    if ( useUserDefinedBinRange() ) return { userDefinedRangeFilterText( m_binRangeMin(), m_binRangeMax() ) };
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimHistogramDataSource::userDefinedRangeFilterText( double min, double max )
+{
+    return QString( "Filter: User defined x-range [%1..%2]" ).arg( min ).arg( max );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimHistogramDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_binningMode && m_binningMode() == RigHistogramCalculator::BinningMode::LOGARITHMIC )

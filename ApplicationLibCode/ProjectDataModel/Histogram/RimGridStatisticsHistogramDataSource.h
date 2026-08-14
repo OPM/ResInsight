@@ -54,6 +54,8 @@ public:
 
     std::string name() const override;
 
+    std::vector<QString> filterDescriptions() const override;
+
     void setDefaults() override;
 
     void cellFilterViewUpdated();
