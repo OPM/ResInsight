@@ -402,6 +402,48 @@ class TestParsing:
         with pytest.raises(OrionParseError, match="SCHEDULE takes no arguments"):
             parse_orion_events("ORIONEVENTS 2.0\nSCHEDULE NOW\n")
 
+    def test_report_lines_parse(self):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            "DATE START = 2024-01-01\n"
+            "REPORT 2024-06-01\n"
+            "REPORT START + 31\n"
+        )
+        doc = parse_orion_events(text)
+        assert doc.report_dates == [
+            datetime.date(2024, 6, 1),
+            datetime.date(2024, 2, 1),
+        ]
+
+    def test_report_keeps_duplicates_and_file_order(self):
+        text = "ORIONEVENTS 2.0\nREPORT 2024-06-01\nREPORT 2024-06-01\n"
+        doc = parse_orion_events(text)
+        assert doc.report_dates == [datetime.date(2024, 6, 1)] * 2
+
+    def test_report_inside_block_does_not_close_it(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "W"\n'
+            "  @2024-01-01 WCONHIST STATUS=OPEN\n"
+            "REPORT 2024-06-01\n"
+            "  @2024-02-01 WELTARG CMODE=ORAT VALUE=5000\n"
+        )
+        doc = parse_orion_events(text)
+        assert [len(w.events) for w in doc.wells] == [2]
+        assert doc.report_dates == [datetime.date(2024, 6, 1)]
+
+    def test_report_with_undeclared_variable_raises(self):
+        with pytest.raises(OrionParseError, match="NOPE"):
+            parse_orion_events("ORIONEVENTS 2.0\nREPORT NOPE + 1\n")
+
+    def test_malformed_report_line_raises(self):
+        with pytest.raises(OrionParseError, match="Malformed REPORT line"):
+            parse_orion_events("ORIONEVENTS 2.0\nREPORT\n")
+
+    def test_report_with_datetime_literal(self):
+        text = "ORIONEVENTS 2.0\nREPORT 2024-06-01T14:45:30.500\n"
+        doc = parse_orion_events(text)
+        assert doc.report_dates == [datetime.datetime(2024, 6, 1, 14, 45, 30, 500000)]
+
     def test_datetime_literal_event(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
@@ -721,6 +763,20 @@ class TestApplying:
         # Event date is NOT shifted.
         assert timeline.keyword_calls[0]["event_date"] == "2018-01-01"
         assert any("DSHIFT" in w for w in report.warnings)
+
+    def test_report_dates_on_apply_report(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
+            "  @2018-01-01 WCONHIST STATUS=OPEN\n"
+            "REPORT 2018-07-01\n"
+            "REPORT 2018-03-01\n"
+            "REPORT 2018-07-01\n"
+        )
+        timeline, report = self._apply(text)
+        # Sorted, deduplicated ISO strings ready for
+        # generate_schedule_text(additional_dates=...). No timeline events.
+        assert report.report_dates == ["2018-03-01", "2018-07-01"]
+        assert report.events_applied == 1
 
     def test_perfid_on_perforation_warns_and_applies(self):
         text = (
@@ -1051,11 +1107,13 @@ class TestOrionEventsIntegration:
             "  @START         PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1\n"
             "  @START + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1\n"
             "  @START + RAMP  WELTARG      CMODE=BHP  VALUE=50\n"
+            "REPORT 2024-07-01\n"
         )
         document = parse_orion_events(text)
         report = apply_orion_document(document, timeline, project)
         assert report.errors == []
         assert report.events_applied == 3
+        assert report.report_dates == ["2024-07-01"]
 
         # Materialize completions from the perforation event.
         timeline.set_timestamp(timestamp="2024-01-15")
@@ -1066,13 +1124,19 @@ class TestOrionEventsIntegration:
         assert abs(perf.start_measured_depth - 2000.0) < 1.0
         assert abs(perf.end_measured_depth - 2200.0) < 1.0
 
-        # The generated schedule should carry the mapped keywords.
+        # The generated schedule should carry the mapped keywords, and the
+        # REPORT date should appear as a bare DATES entry (issue #14514).
         schedule = timeline.generate_schedule_text(
-            eclipse_case=case, export_msw_for_wells=[]
+            eclipse_case=case,
+            export_msw_for_wells=[],
+            additional_dates=report.report_dates,
         )
         assert "COMPDAT" in schedule
         assert "WCONHIST" in schedule
         assert "WELTARG" in schedule
+        assert "1 'JUL' 2024" in schedule, (
+            "REPORT date should be emitted as a DATES entry"
+        )
 
     def test_apply_full_event_coverage_and_schedule(self, project_with_case_and_wells):
         """All event kinds from well_event_schedule.py expressed as ORIONEVENTS."""

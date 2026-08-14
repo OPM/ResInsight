@@ -22,9 +22,10 @@ File format grammar, version 2.0 (EBNF-ish)::
 
     document        = header , { statement } ;
     header          = "ORIONEVENTS" , "2.0" ;           (* first meaningful line *)
-    statement       = unit_directive | declaration | well_block_open
+    statement       = unit_directive | declaration | report_line | well_block_open
                     | schedule_block_open | event_line ;
     unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
+    report_line     = "REPORT" , date_expr ;            (* REPORT 2024-06-01 *)
 
     declaration     = date_decl | duration_decl | well_decl | filter_decl ;
     date_decl       = "DATE" , ident , "=" , date_expr ;         (* DATE X = 2018-03-01 + 9 *)
@@ -75,6 +76,14 @@ Notes on the grammar:
   variables. A ``WELL`` line containing ``=`` is always a declaration. A bare
   ``SCHEDULE`` line opens a block of schedule-level keyword events not tied to
   any well (RPTRST, GRUPTREE, TUNING, ...). Empty blocks are legal.
+* ``REPORT <date_expr>`` (one date per line, anywhere after the header) names
+  a date that should appear as a bare ``DATES`` keyword in the generated
+  schedule even when no events fall on it — in Eclipse/Flow a ``DATES`` entry
+  ensures a summary report at that date. The dates are collected on
+  :attr:`OrionDocument.report_dates` and surfaced by the applier as sorted ISO
+  strings on :attr:`ApplyReport.report_dates`, ready to pass to
+  ``WellEventTimeline.generate_schedule_text(additional_dates=...)``. A
+  ``REPORT`` line is not tied to any well and does not close an open block.
 * Double quotes are used everywhere: well names, filter expressions and
   attribute values, e.g. ``FILTER="SOIL > 0.8 AND PERMX > 200"``.
 * Every attribute is ``KEY=VALUE``; bare positional tokens are rejected.
@@ -260,6 +269,9 @@ class OrionDocument:
     variables: Dict[str, OrionValue] = field(default_factory=dict)
     wells: List[WellBlock] = field(default_factory=list)
     schedule_events: List[OrionEvent] = field(default_factory=list)
+    report_dates: List[Union[datetime.date, datetime.datetime]] = field(
+        default_factory=list
+    )
     warnings: List[ParseWarning] = field(default_factory=list)
 
 
@@ -267,7 +279,16 @@ class OrionDocument:
 # Layer A: pure parser
 # ---------------------------------------------------------------------------
 
-_KEYWORDS = ("ORIONEVENTS", "UNIT", "DATE", "DURATION", "WELL", "FILTER", "SCHEDULE")
+_KEYWORDS = (
+    "ORIONEVENTS",
+    "UNIT",
+    "DATE",
+    "DURATION",
+    "WELL",
+    "FILTER",
+    "SCHEDULE",
+    "REPORT",
+)
 
 _IDENT = r"[A-Za-z_]\w*"
 _ISO_DATE = r"\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?)?"
@@ -282,6 +303,7 @@ _DURATION_DECL_RE = re.compile(
     r"(?:\s+(?:DAYS|days))?$"
 )
 _WELL_DECL_RE = re.compile(rf'^WELL\s+(?P<name>{_IDENT})\s*=\s*"(?P<well>[^"]*)"$')
+_REPORT_RE = re.compile(rf"^REPORT\s+{_DATE_BASE}{_TERMS}$")
 _FILTER_DECL_RE = re.compile(rf'^FILTER\s+(?P<name>{_IDENT})\s*=\s*"(?P<expr>[^"]*)"$')
 _FILTER_SPLIT_RE = re.compile(r"\s+(AND|OR)\s+")
 _NUMBER = r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?"
@@ -321,6 +343,7 @@ def parse_orion_events(text: str) -> OrionDocument:
     variables: Dict[str, OrionValue] = {}
     wells: List[WellBlock] = []
     schedule_events: List[OrionEvent] = []
+    report_dates: List[Union[datetime.date, datetime.datetime]] = []
     warnings: List[ParseWarning] = []
     errors: List[ParseIssue] = []
     # Event lines append to the current sink: a WellBlock's event list or the
@@ -352,6 +375,7 @@ def parse_orion_events(text: str) -> OrionDocument:
                 variables,
                 wells,
                 schedule_events,
+                report_dates,
                 warnings,
                 current_events,
                 unit_holder,
@@ -377,6 +401,7 @@ def parse_orion_events(text: str) -> OrionDocument:
         variables=variables,
         wells=wells,
         schedule_events=schedule_events,
+        report_dates=report_dates,
         warnings=warnings,
     )
 
@@ -404,6 +429,7 @@ def _parse_line(
     variables: Dict[str, OrionValue],
     wells: List[WellBlock],
     schedule_events: List[OrionEvent],
+    report_dates: List[Union[datetime.date, datetime.datetime]],
     warnings: List[ParseWarning],
     current_events: Optional[List[OrionEvent]],
     unit_holder: List[str],
@@ -434,6 +460,19 @@ def _parse_line(
                 f"Malformed SCHEDULE line: {line!r} (SCHEDULE takes no arguments)", loc
             )
         return schedule_events
+
+    if first == "REPORT":
+        match = _REPORT_RE.match(line)
+        if match is None:
+            raise OrionParseError(
+                f"Malformed REPORT line: {line!r} "
+                "(expected REPORT <iso-date|DATE-var> [+|- <days|DURATION-var> ...])",
+                loc,
+            )
+        report_dates.append(
+            _eval_date_expr(match.group("base"), match.group("terms"), variables, loc)
+        )
+        return current_events
 
     if first == "DATE":
         match = _DATE_DECL_RE.match(line)
@@ -805,6 +844,7 @@ class ApplyReport:
 
     events_applied: int = 0
     events_skipped: int = 0
+    report_dates: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
 
@@ -890,11 +930,16 @@ def apply_orion_document(
             event types are passed through as generic Eclipse keywords.
 
     Returns:
-        ApplyReport: counts plus collected warnings/errors.
+        ApplyReport: counts plus collected warnings/errors. ``REPORT`` dates
+            from the document are returned as sorted, deduplicated ISO strings
+            on ``report_dates`` — they do not create timeline events; pass them
+            to ``timeline.generate_schedule_text(additional_dates=...)`` to
+            emit them as DATES keywords.
     """
     _validate_policy(on_unknown_well, "on_unknown_well")
     _validate_policy(on_unknown_event, "on_unknown_event")
     report = ApplyReport()
+    report.report_dates = sorted({d.isoformat() for d in document.report_dates})
 
     ctx = _prepare_filter_context(document, project, case)
 
@@ -1398,7 +1443,8 @@ def _cli(argv: Optional[List[str]] = None) -> int:
     print(
         f"  {len(document.variables)} variable(s), {len(document.wells)} "
         f"well block(s), {event_count} well event(s), "
-        f"{len(document.schedule_events)} schedule event(s)"
+        f"{len(document.schedule_events)} schedule event(s), "
+        f"{len(document.report_dates)} report date(s)"
     )
     for warning in document.warnings:
         print(f"  Warning line {warning.loc.line}: {warning.message}")

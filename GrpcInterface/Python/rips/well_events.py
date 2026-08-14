@@ -290,6 +290,7 @@ def generate_schedule_text(
     export_msw_for_wells: List[WellPath] = [],
     first_date_as_comment: bool = True,
     align_columns: bool = False,
+    additional_dates: List[str] = [],
 ) -> str:
     """Generate Eclipse schedule text for all wells in the collection.
 
@@ -314,6 +315,15 @@ def generate_schedule_text(
         align_columns (bool): When True, emit each keyword with a "--"-prefixed
             column-header comment and right-aligned, fixed-width columns instead
             of the compact default form. Defaults to False.
+        additional_dates (List[str]): Additional dates ("YYYY-MM-DD" or a full
+            ISO timestamp such as "2024-05-15T14:45:30") emitted as DATES
+            keywords even when no events fall on them. In Eclipse/Flow a DATES
+            entry ensures a summary report at that date. The dates are merged,
+            deduplicated and sorted together with the event dates, and are not
+            filtered by set_timestamp(). If an additional date precedes all
+            event dates it becomes the earliest date and is therefore emitted
+            as a comment when first_date_as_comment is True; pass
+            first_date_as_comment=False to emit every date as a DATES keyword.
 
     Returns:
         str: Eclipse schedule text containing DATES, COMPDAT, WELSEGS, WCONPROD, etc.
@@ -358,6 +368,7 @@ def generate_schedule_text(
         export_msw_for_wells=export_msw_for_wells,
         first_date_as_comment=first_date_as_comment,
         align_columns=align_columns,
+        additional_dates=additional_dates,
     )
     if container and container.values:
         return "".join(container.values)
