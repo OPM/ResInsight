@@ -346,7 +346,7 @@ void RimGridStatisticsHistogramDataSource::cellFilterViewUpdated()
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsHistogramDataSource::loadDataAndUpdate()
 {
-    updateBinningModeOnPropertyChange();
+    updateBinningOnPropertyChange();
 
     dataSourceChanged.send();
 }
@@ -361,16 +361,18 @@ RigHistogramCalculator::BinningMode RimGridStatisticsHistogramDataSource::binnin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// The binning mode follows the selected property: logarithmic results are best viewed with
-/// logarithmic binning, others with linear binning. Only an actual property change updates the
-/// binning mode: the user stays in control of the setting afterwards.
+/// The binning follows the selected property: logarithmic results are best viewed with logarithmic
+/// binning, others with linear binning, and a user-defined bin range set up for one result does not
+/// apply to the value range of another. Only an actual property change updates the binning: the
+/// user stays in control of the settings afterwards.
 //--------------------------------------------------------------------------------------------------
-void RimGridStatisticsHistogramDataSource::updateBinningModeOnPropertyChange()
+void RimGridStatisticsHistogramDataSource::updateBinningOnPropertyChange()
 {
     const QString resultVariable = m_property()->resultVariable();
     if ( resultVariable != m_previousResultVariable )
     {
         setBinningMode( binningModeForResult( resultVariable ) );
+        resetBinRange();
         m_previousResultVariable = resultVariable;
     }
 }
@@ -390,7 +392,7 @@ void RimGridStatisticsHistogramDataSource::setPropertiesFromView( RimEclipseView
     const RimEclipseResultDefinition* resDef = dynamic_cast<const RimEclipseResultDefinition*>( view->cellResult() );
     if ( resDef ) m_property->simpleCopy( resDef );
 
-    updateBinningModeOnPropertyChange();
+    updateBinningOnPropertyChange();
 
     dataSourceChanged.send();
 }

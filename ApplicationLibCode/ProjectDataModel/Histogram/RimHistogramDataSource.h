@@ -81,6 +81,7 @@ public:
     virtual void setShowCumulativeCurve( bool showCumulativeCurve );
 
     void setBinningMode( RigHistogramCalculator::BinningMode binningMode );
+    void resetBinRange();
 
     virtual std::vector<QString> filterDescriptions() const;
     static QString               userDefinedRangeFilterText( double min, double max );

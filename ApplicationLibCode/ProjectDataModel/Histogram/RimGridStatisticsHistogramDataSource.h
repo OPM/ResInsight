@@ -74,7 +74,7 @@ protected:
 
     RigHistogramData createStatisticsData() const;
 
-    void updateBinningModeOnPropertyChange();
+    void updateBinningOnPropertyChange();
 
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;

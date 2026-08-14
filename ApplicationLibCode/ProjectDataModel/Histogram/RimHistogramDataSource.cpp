@@ -102,6 +102,16 @@ void RimHistogramDataSource::setBinningMode( RigHistogramCalculator::BinningMode
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimHistogramDataSource::resetBinRange()
+{
+    m_binRangeMode = BinRangeMode::AUTOMATIC;
+    m_binRangeMin  = m_binRangeMin.defaultValue();
+    m_binRangeMax  = m_binRangeMax.defaultValue();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<QString> RimHistogramDataSource::filterDescriptions() const
 {
     if ( useUserDefinedBinRange() ) return { userDefinedRangeFilterText( m_binRangeMin(), m_binRangeMax() ) };
@@ -125,6 +135,12 @@ void RimHistogramDataSource::fieldChangedByUi( const caf::PdmFieldHandle* change
     if ( changedField == &m_binningMode )
     {
         binningModeChanged.send( m_binningMode() );
+    }
+
+    // Stale cutoffs are of no use when the user returns to a user-defined range later
+    if ( changedField == &m_binRangeMode && m_binRangeMode() == BinRangeMode::AUTOMATIC )
+    {
+        resetBinRange();
     }
 }
 

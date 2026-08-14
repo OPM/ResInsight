@@ -260,3 +260,28 @@ TEST( RimHistogramDataSourceTest, BinningModeForResult )
     EXPECT_EQ( RigHistogramCalculator::BinningMode::LINEAR, RimGridStatisticsHistogramDataSource::binningModeForResult( "FLUXNUM" ) );
     EXPECT_EQ( RigHistogramCalculator::BinningMode::LINEAR, RimGridStatisticsHistogramDataSource::binningModeForResult( "" ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimHistogramDataSourceTest, ResetBinRange )
+{
+    RimGridStatisticsHistogramDataSource dataSource;
+
+    auto* binRangeMode =
+        dynamic_cast<caf::PdmField<caf::AppEnum<RimHistogramDataSource::BinRangeMode>>*>( dataSource.findField( "BinRangeMode" ) );
+    auto* binRangeMin = dynamic_cast<caf::PdmField<double>*>( dataSource.findField( "BinRangeMin" ) );
+    auto* binRangeMax = dynamic_cast<caf::PdmField<double>*>( dataSource.findField( "BinRangeMax" ) );
+    ASSERT_TRUE( binRangeMode && binRangeMin && binRangeMax );
+
+    *binRangeMode = RimHistogramDataSource::BinRangeMode::USER_DEFINED;
+    *binRangeMin  = 0.2;
+    *binRangeMax  = 0.8;
+    EXPECT_FALSE( dataSource.filterDescriptions().empty() );
+
+    dataSource.resetBinRange();
+
+    EXPECT_TRUE( dataSource.filterDescriptions().empty() );
+    EXPECT_DOUBLE_EQ( 0.0, binRangeMin->value() );
+    EXPECT_DOUBLE_EQ( 1.0, binRangeMax->value() );
+}
