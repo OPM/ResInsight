@@ -27,6 +27,7 @@
 #include "RiaPreferencesSystem.h"
 #include "RiaRegressionTest.h"
 #include "RiaRegressionTestRunner.h"
+#include "RiaZScaleTools.h"
 
 #include "RicGridCalculatorDialog.h"
 
@@ -670,8 +671,7 @@ void RiuMainWindow::createToolBars()
         toolbar->addWidget( scaleLabel );
 
         m_scaleFactor = new QComboBox( toolbar );
-        QStringList scaleItems;
-        for ( auto d : RiaDefines::viewScaleOptions() )
+        for ( auto d : RiaZScaleTools::scaleFactorOptions() )
         {
             m_scaleFactor->addItem( QString::number( d ), QVariant( d ) );
         }
@@ -1928,13 +1928,22 @@ void RiuMainWindow::updateScaleValue()
         m_scaleFactor->setEnabled( true );
         m_scaleFactor->blockSignals( true );
 
+        // Register the scale of the view to make custom values from project files available, and rebuild
+        // the item list to keep it sorted as the set of scale factors grows during the session
+        RiaZScaleTools::registerScaleFactor( view->scaleZ() );
+
+        m_scaleFactor->clear();
+        for ( auto scale : RiaZScaleTools::scaleFactorOptions() )
+        {
+            m_scaleFactor->addItem( QString::number( scale ), QVariant( scale ) );
+        }
         int index = m_scaleFactor->findData( QVariant( view->scaleZ() ) );
+        m_scaleFactor->setCurrentIndex( index );
         if ( index < 0 )
         {
-            m_scaleFactor->addItem( QString::number( view->scaleZ() ), QVariant( view->scaleZ() ) );
-            index = m_scaleFactor->findData( QVariant( view->scaleZ() ) );
+            // A non-positive scale from a project file is not registered as an option, display it as text
+            m_scaleFactor->setEditText( QString::number( view->scaleZ() ) );
         }
-        m_scaleFactor->setCurrentIndex( index );
 
         m_scaleFactor->blockSignals( false );
     }
