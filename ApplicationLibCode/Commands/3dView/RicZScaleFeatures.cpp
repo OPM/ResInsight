@@ -19,13 +19,11 @@
 #include "RicZScaleFeatures.h"
 
 #include "RiaApplication.h"
-#include "RiaDefines.h"
+#include "RiaZScaleTools.h"
 
 #include "Rim3dView.h"
 
 #include <QAction>
-
-#include <algorithm>
 
 CAF_CMD_SOURCE_INIT( RicIncreaseZScaleFeature, "RicIncreaseZScaleFeature" );
 CAF_CMD_SOURCE_INIT( RicDecreaseZScaleFeature, "RicDecreaseZScaleFeature" );
@@ -56,12 +54,8 @@ void RicIncreaseZScaleFeature::onActionTriggered( bool isChecked )
 {
     if ( Rim3dView* view = activeViewWithEditableZScale() )
     {
-        auto scaleOptions = RiaDefines::viewScaleOptions();
-        auto it           = std::upper_bound( scaleOptions.begin(), scaleOptions.end(), view->scaleZ() );
-        if ( it != scaleOptions.end() )
-        {
-            view->setScaleZAndUpdate( *it );
-        }
+        double nextScale = RiaZScaleTools::nextScaleFactor( view->scaleZ(), RiaZScaleTools::scaleFactorOptions() );
+        view->setScaleZAndUpdate( nextScale );
     }
 }
 
@@ -91,12 +85,8 @@ void RicDecreaseZScaleFeature::onActionTriggered( bool isChecked )
 {
     if ( Rim3dView* view = activeViewWithEditableZScale() )
     {
-        auto scaleOptions = RiaDefines::viewScaleOptions();
-        auto it           = std::lower_bound( scaleOptions.begin(), scaleOptions.end(), view->scaleZ() );
-        if ( it != scaleOptions.begin() )
-        {
-            view->setScaleZAndUpdate( *( it - 1 ) );
-        }
+        double previousScale = RiaZScaleTools::previousScaleFactor( view->scaleZ(), RiaZScaleTools::scaleFactorOptions() );
+        view->setScaleZAndUpdate( previousScale );
     }
 }
 

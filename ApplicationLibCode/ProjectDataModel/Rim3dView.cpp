@@ -26,6 +26,7 @@
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
 #include "RiaViewRedrawScheduler.h"
+#include "RiaZScaleTools.h"
 
 #include "Rim2dIntersectionView.h"
 #include "Rim3dWellLogCurve.h"
@@ -1016,6 +1017,8 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
             return;
         }
 
+        RiaZScaleTools::registerScaleFactor( m_scaleZ() );
+
         updateScaling();
 
         RiuMainWindow::instance()->updateScaleValue();
@@ -1612,7 +1615,7 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
     else if ( fieldNeedingOptions == &m_scaleZ )
     {
         // Include the current scale value in the options, as any value can be entered as text in the combo box
-        auto scaleOptions = RiaDefines::viewScaleOptions();
+        auto scaleOptions = RiaZScaleTools::scaleFactorOptions();
         if ( std::find( scaleOptions.begin(), scaleOptions.end(), m_scaleZ() ) == scaleOptions.end() )
         {
             scaleOptions.push_back( m_scaleZ() );
