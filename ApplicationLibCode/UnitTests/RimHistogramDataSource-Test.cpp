@@ -243,3 +243,22 @@ TEST( RimHistogramDataSourceTest, FilterDescriptionsDefaultIsEmpty )
     RimGridStatisticsHistogramDataSource dataSource;
     EXPECT_TRUE( dataSource.filterDescriptions().empty() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimHistogramDataSourceTest, ShouldEnableLogarithmicBinning )
+{
+    // Selecting a logarithmic property enables logarithmic binning
+    EXPECT_TRUE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "", "PERMX" ) );
+    EXPECT_TRUE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "PORO", "PERMZ" ) );
+    EXPECT_TRUE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "PORO", "TRANX" ) );
+    EXPECT_TRUE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "PERMX", "PERMZ" ) );
+
+    // Linear properties never enable logarithmic binning
+    EXPECT_FALSE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "", "PORO" ) );
+    EXPECT_FALSE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "PERMX", "PORO" ) );
+
+    // An unchanged property must not re-enable logarithmic binning: the user stays in control
+    EXPECT_FALSE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "PERMX", "PERMX" ) );
+}

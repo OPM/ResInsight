@@ -64,6 +64,8 @@ public:
 
     void setPropertiesFromView( RimEclipseView* view );
 
+    static bool shouldEnableLogarithmicBinning( const QString& previousResultVariable, const QString& newResultVariable );
+
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -72,10 +74,15 @@ protected:
 
     RigHistogramData createStatisticsData() const;
 
+    void updateBinningModeOnPropertyChange();
+
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmPtrField<RimGridView*>                  m_cellFilterView;
     caf::PdmChildField<RimEclipseResultDefinition*> m_property;
     caf::PdmField<int>                              m_numBins;
     caf::PdmField<bool>                             m_cumulative;
+
+private:
+    QString m_previousResultVariable;
 };

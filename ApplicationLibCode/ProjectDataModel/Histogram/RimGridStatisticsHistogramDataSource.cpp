@@ -302,6 +302,10 @@ void RimGridStatisticsHistogramDataSource ::initAfterRead()
     {
         m_property->setEclipseCase( eclipseCase );
     }
+
+    // A binning mode stored in the project file is a user choice: only property changes made after
+    // the project was loaded should enable logarithmic binning.
+    m_previousResultVariable = m_property->resultVariable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -342,7 +346,29 @@ void RimGridStatisticsHistogramDataSource::cellFilterViewUpdated()
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsHistogramDataSource::loadDataAndUpdate()
 {
+    updateBinningModeOnPropertyChange();
+
     dataSourceChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Logarithmic results are best viewed with logarithmic binning: enable it once when a logarithmic
+/// property is selected. The user stays in control of the binning mode afterwards.
+//--------------------------------------------------------------------------------------------------
+bool RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( const QString& previousResultVariable,
+                                                                           const QString& newResultVariable )
+{
+    return newResultVariable != previousResultVariable && RiaResultNames::isLogarithmicResult( newResultVariable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridStatisticsHistogramDataSource::updateBinningModeOnPropertyChange()
+{
+    const QString resultVariable = m_property()->resultVariable();
+    if ( shouldEnableLogarithmicBinning( m_previousResultVariable, resultVariable ) ) enableLogarithmicBinning();
+    m_previousResultVariable = resultVariable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -360,7 +386,7 @@ void RimGridStatisticsHistogramDataSource::setPropertiesFromView( RimEclipseView
     const RimEclipseResultDefinition* resDef = dynamic_cast<const RimEclipseResultDefinition*>( view->cellResult() );
     if ( resDef ) m_property->simpleCopy( resDef );
 
-    if ( RiaResultNames::isLogarithmicResult( m_property->resultVariable() ) ) enableLogarithmicBinning();
+    updateBinningModeOnPropertyChange();
 
     dataSourceChanged.send();
 }
