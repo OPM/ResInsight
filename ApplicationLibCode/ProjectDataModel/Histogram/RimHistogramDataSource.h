@@ -67,9 +67,9 @@ public:
     RimHistogramDataSource();
     ~RimHistogramDataSource() override;
 
-    caf::Signal<> dataSourceChanged;
-    caf::Signal<> cumulativeChanged;
-    caf::Signal<> logarithmicBinningEnabled;
+    caf::Signal<>                                    dataSourceChanged;
+    caf::Signal<>                                    cumulativeChanged;
+    caf::Signal<RigHistogramCalculator::BinningMode> binningModeChanged;
 
     virtual std::string unitNameX() const = 0;
     virtual std::string unitNameY() const = 0;
@@ -80,7 +80,7 @@ public:
     virtual bool showCumulativeCurve() const;
     virtual void setShowCumulativeCurve( bool showCumulativeCurve );
 
-    void enableLogarithmicBinning();
+    void setBinningMode( RigHistogramCalculator::BinningMode binningMode );
 
     virtual std::vector<QString> filterDescriptions() const;
     static QString               userDefinedRangeFilterText( double min, double max );

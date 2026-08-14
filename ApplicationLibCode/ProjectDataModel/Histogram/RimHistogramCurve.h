@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RigStatisticsMath.h"
+
 #include "RiuPlotAnnotationTool.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -86,7 +88,7 @@ protected:
 
     void onDataSourceChanged( const caf::SignalEmitter* emitter );
     void onCumulativeChanged( const caf::SignalEmitter* emitter );
-    void onLogarithmicBinningEnabled( const caf::SignalEmitter* emitter );
+    void onBinningModeChanged( const caf::SignalEmitter* emitter, RigHistogramCalculator::BinningMode binningMode );
 
     void               updateCumulativeCurve();
     void               connectReferencedDataSourceSignals();

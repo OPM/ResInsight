@@ -64,7 +64,7 @@ public:
 
     void setPropertiesFromView( RimEclipseView* view );
 
-    static bool shouldEnableLogarithmicBinning( const QString& previousResultVariable, const QString& newResultVariable );
+    static RigHistogramCalculator::BinningMode binningModeForResult( const QString& resultVariable );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;

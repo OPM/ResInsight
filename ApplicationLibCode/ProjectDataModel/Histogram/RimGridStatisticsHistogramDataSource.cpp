@@ -352,23 +352,27 @@ void RimGridStatisticsHistogramDataSource::loadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Logarithmic results are best viewed with logarithmic binning: enable it once when a logarithmic
-/// property is selected. The user stays in control of the binning mode afterwards.
+///
 //--------------------------------------------------------------------------------------------------
-bool RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( const QString& previousResultVariable,
-                                                                           const QString& newResultVariable )
+RigHistogramCalculator::BinningMode RimGridStatisticsHistogramDataSource::binningModeForResult( const QString& resultVariable )
 {
-    return newResultVariable != previousResultVariable && RiaResultNames::isLogarithmicResult( newResultVariable );
+    return RiaResultNames::isLogarithmicResult( resultVariable ) ? RigHistogramCalculator::BinningMode::LOGARITHMIC
+                                                                 : RigHistogramCalculator::BinningMode::LINEAR;
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The binning mode follows the selected property: logarithmic results are best viewed with
+/// logarithmic binning, others with linear binning. Only an actual property change updates the
+/// binning mode: the user stays in control of the setting afterwards.
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsHistogramDataSource::updateBinningModeOnPropertyChange()
 {
     const QString resultVariable = m_property()->resultVariable();
-    if ( shouldEnableLogarithmicBinning( m_previousResultVariable, resultVariable ) ) enableLogarithmicBinning();
-    m_previousResultVariable = resultVariable;
+    if ( resultVariable != m_previousResultVariable )
+    {
+        setBinningMode( binningModeForResult( resultVariable ) );
+        m_previousResultVariable = resultVariable;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
