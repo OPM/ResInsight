@@ -214,13 +214,21 @@ RimHistogramDataSource::HistogramResult RimGridStatisticsHistogramDataSource::co
 //--------------------------------------------------------------------------------------------------
 RigHistogramData RimGridStatisticsHistogramDataSource::createStatisticsData() const
 {
-    std::unique_ptr<RimHistogramCalculator> histogramCalculator = std::make_unique<RimHistogramCalculator>();
-    histogramCalculator->setNumBins( static_cast<size_t>( m_numBins() ) );
+    RimHistogramCalculator histogramCalculator;
+    histogramCalculator.setNumBins( static_cast<size_t>( m_numBins() ) );
 
     std::optional<std::pair<double, double>> customBinRange;
     if ( useUserDefinedBinRange() ) customBinRange = std::make_pair( m_binRangeMin(), m_binRangeMax() );
-    histogramCalculator->setBinningParameters( binningMode(), outOfRangeHandling(), customBinRange );
+    histogramCalculator.setBinningParameters( binningMode(), outOfRangeHandling(), customBinRange );
 
+    return statisticsData( histogramCalculator );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigHistogramData RimGridStatisticsHistogramDataSource::statisticsData( RimHistogramCalculator& histogramCalculator ) const
+{
     RimHistogramCalculator::StatisticsCellRangeType cellRange = RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;
 
     RimHistogramCalculator::StatisticsTimeRangeType timeRange = RimHistogramCalculator::StatisticsTimeRangeType::ALL_TIMESTEPS;
@@ -236,13 +244,28 @@ RigHistogramData RimGridStatisticsHistogramDataSource::createStatisticsData() co
         // Filter by visible cells of the view
         cellRange                   = RimHistogramCalculator::StatisticsCellRangeType::VISIBLE_CELLS;
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_cellFilterView.value() );
-        return histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
+        return histogramCalculator.histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
     }
     else
     {
         RimEclipseView* eclipseView = nullptr;
-        return histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
+        return histogramCalculator.histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The range of the data selected for the histogram: the statistics are computed without custom
+/// binning, where min and max always are the data range.
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>> RimGridStatisticsHistogramDataSource::dataRange() const
+{
+    RimHistogramCalculator histogramCalculator;
+    RigHistogramData       histogramData = statisticsData( histogramCalculator );
+
+    if ( !RigStatisticsTools::isValidNumber( histogramData.min ) || !RigStatisticsTools::isValidNumber( histogramData.max ) )
+        return std::nullopt;
+
+    return std::make_pair( histogramData.min, histogramData.max );
 }
 
 //--------------------------------------------------------------------------------------------------

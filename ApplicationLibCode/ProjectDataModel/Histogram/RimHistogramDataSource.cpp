@@ -112,6 +112,14 @@ void RimHistogramDataSource::resetBinRange()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>> RimHistogramDataSource::dataRange() const
+{
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<QString> RimHistogramDataSource::filterDescriptions() const
 {
     if ( useUserDefinedBinRange() ) return { userDefinedRangeFilterText( m_binRangeMin(), m_binRangeMax() ) };
@@ -141,6 +149,16 @@ void RimHistogramDataSource::fieldChangedByUi( const caf::PdmFieldHandle* change
     if ( changedField == &m_binRangeMode && m_binRangeMode() == BinRangeMode::AUTOMATIC )
     {
         resetBinRange();
+    }
+
+    // Start a user-defined range at the data range: the default [0..1] could exclude most values
+    if ( changedField == &m_binRangeMode && m_binRangeMode() == BinRangeMode::USER_DEFINED )
+    {
+        if ( auto range = dataRange() )
+        {
+            m_binRangeMin = range->first;
+            m_binRangeMax = range->second;
+        }
     }
 }
 

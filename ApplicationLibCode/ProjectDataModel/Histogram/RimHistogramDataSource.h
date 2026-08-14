@@ -30,6 +30,7 @@
 #include <QString>
 
 #include <limits>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -82,6 +83,8 @@ public:
 
     void setBinningMode( RigHistogramCalculator::BinningMode binningMode );
     void resetBinRange();
+
+    virtual std::optional<std::pair<double, double>> dataRange() const;
 
     virtual std::vector<QString> filterDescriptions() const;
     static QString               userDefinedRangeFilterText( double min, double max );

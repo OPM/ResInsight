@@ -29,6 +29,7 @@ class RimCase;
 class RimGridView;
 class RimEclipseResultDefinition;
 class RimEclipseView;
+class RimHistogramCalculator;
 
 //==================================================================================================
 ///
@@ -66,6 +67,8 @@ public:
 
     static RigHistogramCalculator::BinningMode binningModeForResult( const QString& resultVariable );
 
+    std::optional<std::pair<double, double>> dataRange() const override;
+
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -73,6 +76,7 @@ protected:
     void initAfterRead() override;
 
     RigHistogramData createStatisticsData() const;
+    RigHistogramData statisticsData( RimHistogramCalculator& histogramCalculator ) const;
 
     void updateBinningOnPropertyChange();
 
