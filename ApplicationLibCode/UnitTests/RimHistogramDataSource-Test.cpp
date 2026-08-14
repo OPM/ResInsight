@@ -247,18 +247,16 @@ TEST( RimHistogramDataSourceTest, FilterDescriptionsDefaultIsEmpty )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RimHistogramDataSourceTest, ShouldEnableLogarithmicBinning )
+TEST( RimHistogramDataSourceTest, BinningModeForResult )
 {
-    // Selecting a logarithmic property enables logarithmic binning
-    EXPECT_TRUE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "", "PERMX" ) );
-    EXPECT_TRUE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "PORO", "PERMZ" ) );
-    EXPECT_TRUE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "PORO", "TRANX" ) );
-    EXPECT_TRUE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "PERMX", "PERMZ" ) );
+    // Logarithmic results get logarithmic binning
+    EXPECT_EQ( RigHistogramCalculator::BinningMode::LOGARITHMIC, RimGridStatisticsHistogramDataSource::binningModeForResult( "PERMX" ) );
+    EXPECT_EQ( RigHistogramCalculator::BinningMode::LOGARITHMIC, RimGridStatisticsHistogramDataSource::binningModeForResult( "PERMZ" ) );
+    EXPECT_EQ( RigHistogramCalculator::BinningMode::LOGARITHMIC, RimGridStatisticsHistogramDataSource::binningModeForResult( "TRANX" ) );
+    EXPECT_EQ( RigHistogramCalculator::BinningMode::LOGARITHMIC, RimGridStatisticsHistogramDataSource::binningModeForResult( "MULTZ" ) );
 
-    // Linear properties never enable logarithmic binning
-    EXPECT_FALSE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "", "PORO" ) );
-    EXPECT_FALSE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "PERMX", "PORO" ) );
-
-    // An unchanged property must not re-enable logarithmic binning: the user stays in control
-    EXPECT_FALSE( RimGridStatisticsHistogramDataSource::shouldEnableLogarithmicBinning( "PERMX", "PERMX" ) );
+    // All other results get linear binning
+    EXPECT_EQ( RigHistogramCalculator::BinningMode::LINEAR, RimGridStatisticsHistogramDataSource::binningModeForResult( "PORO" ) );
+    EXPECT_EQ( RigHistogramCalculator::BinningMode::LINEAR, RimGridStatisticsHistogramDataSource::binningModeForResult( "FLUXNUM" ) );
+    EXPECT_EQ( RigHistogramCalculator::BinningMode::LINEAR, RimGridStatisticsHistogramDataSource::binningModeForResult( "" ) );
 }

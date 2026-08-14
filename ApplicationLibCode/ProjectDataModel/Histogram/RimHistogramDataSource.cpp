@@ -57,7 +57,7 @@ void caf::AppEnum<RigHistogramCalculator::OutOfRangeHandling>::setUp()
 RimHistogramDataSource::RimHistogramDataSource()
     : dataSourceChanged( this )
     , cumulativeChanged( this )
-    , logarithmicBinningEnabled( this )
+    , binningModeChanged( this )
 {
     CAF_PDM_InitObject( "Histogram Data Source", );
 
@@ -93,10 +93,10 @@ void RimHistogramDataSource::setShowCumulativeCurve( bool showCumulativeCurve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistogramDataSource::enableLogarithmicBinning()
+void RimHistogramDataSource::setBinningMode( RigHistogramCalculator::BinningMode binningMode )
 {
-    m_binningMode = RigHistogramCalculator::BinningMode::LOGARITHMIC;
-    logarithmicBinningEnabled.send();
+    m_binningMode = binningMode;
+    binningModeChanged.send( binningMode );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,9 +122,9 @@ QString RimHistogramDataSource::userDefinedRangeFilterText( double min, double m
 //--------------------------------------------------------------------------------------------------
 void RimHistogramDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_binningMode && m_binningMode() == RigHistogramCalculator::BinningMode::LOGARITHMIC )
+    if ( changedField == &m_binningMode )
     {
-        logarithmicBinningEnabled.send();
+        binningModeChanged.send( m_binningMode() );
     }
 }
 
