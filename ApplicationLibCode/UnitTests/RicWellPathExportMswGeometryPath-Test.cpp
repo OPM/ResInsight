@@ -452,6 +452,15 @@ struct MswExportInput
 };
 
 //--------------------------------------------------------------------------------------------------
+/// The project is a global object shared by all tests, and must be closed before the test completes.
+/// The tests below leave early on a failing assertion, so close from a destructor.
+//--------------------------------------------------------------------------------------------------
+struct ProjectCloser
+{
+    ~ProjectCloser() { RiaApplication::instance()->closeProject(); }
+};
+
+//--------------------------------------------------------------------------------------------------
 /// Load the multiple_laterals project and look up the well path with the given name.
 /// Members are left as nullptr if the project, the case or the well path could not be found.
 //--------------------------------------------------------------------------------------------------
@@ -489,6 +498,8 @@ MswExportInput loadMultipleLateralsProject( const QString& wellPathName )
 //--------------------------------------------------------------------------------------------------
 TEST( RicWellPathExportMswGeometryPath, MultipleLaterals_LateralsNumberedBeforeCompletionBranches )
 {
+    ProjectCloser projectCloser;
+
     auto input = loadMultipleLateralsProject( "Well-A Y1" );
     ASSERT_TRUE( input.eclipseCase != nullptr );
     ASSERT_TRUE( input.wellPath != nullptr );
@@ -520,6 +531,8 @@ TEST( RicWellPathExportMswGeometryPath, MultipleLaterals_LateralsNumberedBeforeC
 //--------------------------------------------------------------------------------------------------
 TEST( RicWellPathExportMswGeometryPath, MultipleLaterals_CompletionBranchesListedAfterTheirLateral )
 {
+    ProjectCloser projectCloser;
+
     auto input = loadMultipleLateralsProject( "Well-A Y1" );
     ASSERT_TRUE( input.eclipseCase != nullptr );
     ASSERT_TRUE( input.wellPath != nullptr );
@@ -545,6 +558,8 @@ TEST( RicWellPathExportMswGeometryPath, MultipleLaterals_CompletionBranchesListe
 //--------------------------------------------------------------------------------------------------
 TEST( RicWellPathExportMswGeometryPath, MultipleLaterals_CompsegsOrderedByBranchNumber )
 {
+    ProjectCloser projectCloser;
+
     auto input = loadMultipleLateralsProject( "Well-A Y1" );
     ASSERT_TRUE( input.eclipseCase != nullptr );
     ASSERT_TRUE( input.wellPath != nullptr );

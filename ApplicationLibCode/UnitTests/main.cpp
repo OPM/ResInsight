@@ -22,7 +22,55 @@
 #include "RiaQuantityInfoTools.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "RimProject.h"
+
 #include <QLocale>
+#include <QStringList>
+
+//--------------------------------------------------------------------------------------------------
+/// The project is a global object shared by all tests. A test leaving data behind in the project
+/// makes the outcome of the tests running after it depend on the test order, and the test order is
+/// not the same on all platforms.
+///
+/// Fail the test that leaves data behind, and close the project so the tests after it are unaffected.
+//--------------------------------------------------------------------------------------------------
+class RiaProjectIsolationListener : public testing::EmptyTestEventListener
+{
+private:
+    void OnTestEnd( const testing::TestInfo& ) override
+    {
+        RimProject* project = RimProject::current();
+        if ( !project ) return;
+
+        const QString leftovers = leftoverDescription( project );
+        if ( leftovers.isEmpty() ) return;
+
+        RiaApplication::instance()->closeProject();
+
+        ADD_FAILURE() << "The test left data behind in the shared project: " << leftovers.toStdString()
+                      << ". Call RiaApplication::instance()->closeProject() before the test completes.";
+    }
+
+    static QString leftoverDescription( RimProject* project )
+    {
+        QStringList leftovers;
+
+        auto appendCount = [&leftovers]( const QString& description, size_t count )
+        {
+            if ( count > 0 ) leftovers.append( QString( "%1 %2" ).arg( count ).arg( description ) );
+        };
+
+        appendCount( "grid case(s)", project->allGridCases().size() );
+        appendCount( "summary case(s)", project->allSummaryCases().size() );
+        appendCount( "summary ensemble(s)", project->summaryEnsembles().size() );
+        appendCount( "well path(s)", project->allWellPaths().size() );
+        appendCount( "view(s)", project->allViews().size() );
+
+        if ( !project->fileName().isEmpty() ) leftovers.append( "a project file name" );
+
+        return leftovers.join( ", " );
+    }
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -40,6 +88,11 @@ int main( int argc, char** argv )
     setlocale( LC_NUMERIC, "C" );
 
     testing::InitGoogleTest( &argc, argv );
+
+    // OnTestEnd is dispatched in reverse order of appending, so the listener appended last is the
+    // first to see the end of a test. The failure it reports is then part of the printed test result.
+    testing::UnitTest::GetInstance()->listeners().Append( new RiaProjectIsolationListener );
+
     int result = RUN_ALL_TESTS();
     return result;
 }
