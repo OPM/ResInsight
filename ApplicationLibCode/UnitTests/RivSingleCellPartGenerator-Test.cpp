@@ -32,7 +32,7 @@ namespace
 //--------------------------------------------------------------------------------------------------
 /// Build a regular ni x nj x nk box grid in memory (no file, no view)
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigEclipseCaseData> buildBoxGrid( int ni, int nj, int nk )
+cvf::ref<RigEclipseCaseData> buildBoxGridForPartGenerator( int ni, int nj, int nk )
 {
     RigReservoirBuilder builder;
     builder.setIJKCount( cvf::Vec3st( ni, nj, nk ) );
@@ -51,7 +51,7 @@ cvf::ref<RigEclipseCaseData> buildBoxGrid( int ni, int nj, int nk )
 //--------------------------------------------------------------------------------------------------
 TEST( RivSingleCellPartGeneratorTest, ValidCellIndexCreatesDrawable )
 {
-    cvf::ref<RigEclipseCaseData> caseData = buildBoxGrid( 2, 3, 4 );
+    cvf::ref<RigEclipseCaseData> caseData = buildBoxGridForPartGenerator( 2, 3, 4 );
 
     RivSingleCellPartGenerator partGen( caseData.p(), 0, 5, cvf::Vec3d::ZERO );
 
@@ -65,7 +65,7 @@ TEST( RivSingleCellPartGeneratorTest, ValidCellIndexCreatesDrawable )
 //--------------------------------------------------------------------------------------------------
 TEST( RivSingleCellPartGeneratorTest, CellIndexOutOfBoundsIsIgnored )
 {
-    cvf::ref<RigEclipseCaseData> caseData = buildBoxGrid( 2, 3, 4 );
+    cvf::ref<RigEclipseCaseData> caseData = buildBoxGridForPartGenerator( 2, 3, 4 );
 
     const size_t cellCount = caseData->mainGrid()->cellCount();
 
@@ -84,7 +84,7 @@ TEST( RivSingleCellPartGeneratorTest, CellIndexOutOfBoundsIsIgnored )
 //--------------------------------------------------------------------------------------------------
 TEST( RivSingleCellPartGeneratorTest, GridIndexOutOfBoundsIsIgnored )
 {
-    cvf::ref<RigEclipseCaseData> caseData = buildBoxGrid( 2, 3, 4 );
+    cvf::ref<RigEclipseCaseData> caseData = buildBoxGridForPartGenerator( 2, 3, 4 );
 
     RivSingleCellPartGenerator partGen( caseData.p(), 1, 0, cvf::Vec3d::ZERO );
 
@@ -98,7 +98,7 @@ TEST( RivSingleCellPartGeneratorTest, GridIndexOutOfBoundsIsIgnored )
 //--------------------------------------------------------------------------------------------------
 TEST( RivSingleCellPartGeneratorTest, UndefinedCellIndexIsIgnored )
 {
-    cvf::ref<RigEclipseCaseData> caseData = buildBoxGrid( 2, 3, 4 );
+    cvf::ref<RigEclipseCaseData> caseData = buildBoxGridForPartGenerator( 2, 3, 4 );
 
     RivSingleCellPartGenerator partGen( caseData.p(), 0, cvf::UNDEFINED_SIZE_T, cvf::Vec3d::ZERO );
 
