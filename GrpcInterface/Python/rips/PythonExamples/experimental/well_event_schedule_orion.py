@@ -16,7 +16,9 @@ It demonstrates the full event coverage of the format:
 3. Well keyword events: WCONHIST and WELTARG (with attribute translation) and
    WRFTPLT (generic Eclipse well keyword pass-through)
 4. SCHEDULE-level keyword events not tied to a well: RPTRST, GRUPTREE, TUNING
-5. Generating Eclipse schedule text from the resulting timeline
+5. REPORT dates, passed to generate_schedule_text(additional_dates=...) so
+   they appear as bare DATES keywords (summary-report triggers)
+6. Generating Eclipse schedule text from the resulting timeline
 
 The ORIONEVENTS text is built inline with the name of the first well path in
 the project (like well_event_schedule.py, which uses wells[0]), so the example
@@ -74,6 +76,11 @@ SCHEDULE
   @STARTUP  RPTRST    BASIC=2  FREQ=1
   @STARTUP  GRUPTREE  CHILD=OP  PARENT=FIELD
   @STARTUP  TUNING    TSINIT=1  TSMAXZ=30  TMAXWC=1  NEWTMX=12  NEWTMN=1  LITMAX=50  LITMIN=1  MXWSIT=50  MXWPIT=50
+
+# Report dates: emitted as bare DATES keywords so Eclipse/Flow writes a
+# summary report at these dates even though no events fall on them.
+REPORT 2024-07-01
+REPORT STARTUP + 365
 """
 
 
@@ -114,6 +121,7 @@ def main():
     )
     print(f"   Events applied: {report.events_applied}")
     print(f"   Events skipped: {report.events_skipped}")
+    print(f"   Report dates:   {report.report_dates}")
     for warning in report.warnings:
         print(f"   WARNING: {warning}")
     for error in report.errors:
@@ -139,8 +147,12 @@ def main():
     if case is None:
         print("   No Eclipse case loaded - skipping schedule generation.")
         return
+    # REPORT dates from the ORIONEVENTS text become bare DATES keywords
+    # (summary-report triggers) via additional_dates.
     schedule_text = timeline.generate_schedule_text(
-        eclipse_case=case, export_msw_for_wells=[well_path]
+        eclipse_case=case,
+        export_msw_for_wells=[well_path],
+        additional_dates=report.report_dates,
     )
     if schedule_text:
         print(f"   Generated schedule text ({len(schedule_text)} characters)")

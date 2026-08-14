@@ -231,4 +231,5 @@ private:
     caf::PdmPtrArrayField<RimWellPath*> m_exportMswForWells;
     caf::PdmField<bool>                 m_firstDateAsComment;
     caf::PdmField<bool>                 m_alignColumns;
+    caf::PdmField<std::vector<QString>> m_additionalDates;
 };

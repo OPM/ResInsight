@@ -592,6 +592,13 @@ RimcWellEventTimeline_generateSchedule::RimcWellEventTimeline_generateSchedule( 
                                  "",
                                  "",
                                  "Emit a column-header comment and right-aligned, fixed-width columns instead of the compact form" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_additionalDates,
+                                          "AdditionalDates",
+                                          "",
+                                          "",
+                                          "",
+                                          "Additional dates (YYYY-MM-DD or full ISO timestamp) emitted as DATES keywords, e.g. to "
+                                          "force summary reports at those dates" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -639,6 +646,24 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
     if ( wellPathsWithEvents.empty() )
     {
         return std::unexpected( QString( "No well paths with events found" ) );
+    }
+
+    // Merge in user-specified additional dates: each becomes a DATES keyword even when no events
+    // fall on it (e.g. to force a summary report). They are deliberately not filtered by the last
+    // applied timestamp.
+    if ( !m_additionalDates().empty() )
+    {
+        std::set<QDateTime> mergedDates( dates.begin(), dates.end() );
+        for ( const QString& dateString : m_additionalDates() )
+        {
+            QDateTime additionalDate = QDateTime::fromString( dateString, Qt::ISODate );
+            if ( !additionalDate.isValid() )
+            {
+                return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( dateString ) );
+            }
+            mergedDates.insert( additionalDate );
+        }
+        dates.assign( mergedDates.begin(), mergedDates.end() );
     }
 
     std::vector<RimWellPath*>    mswWellPaths = m_exportMswForWells.ptrReferencedObjectsByType();
