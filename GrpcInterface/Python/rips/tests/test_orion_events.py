@@ -227,11 +227,6 @@ class TestParsing:
         assert filter_attr.quoted is True
         assert doc.wells[0].events[0].attributes["MDEND"].value == 2
 
-    def test_perfid_attribute_parses(self):
-        text = 'ORIONEVENTS 2.0\nWELL "W"\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 PERFID=Valysar\n'
-        doc = parse_orion_events(text)
-        assert doc.wells[0].events[0].attributes["PERFID"].value == "Valysar"
-
     def test_trailing_comment_ignored_but_not_inside_quotes(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
@@ -752,17 +747,18 @@ class TestApplying:
         assert data["NEW_VALUE"] == 50  # VALUE -> NEW_VALUE
         assert data["CMODE"] == "BHP"
 
-    def test_dshift_is_ignored_with_warning(self):
+    def test_keyword_attributes_forward_without_special_casing(self):
+        # DSHIFT is not part of the format; it forwards unchanged like any
+        # other attribute instead of being stripped.
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
             "  @2018-01-01 WCONHIST STATUS=OPEN CMODE=ORAT DSHIFT=10\n"
         )
         timeline, report = self._apply(text)
         data = timeline.keyword_calls[0]["keyword_data"]
-        assert "DSHIFT" not in data
-        # Event date is NOT shifted.
+        assert data["DSHIFT"] == 10
         assert timeline.keyword_calls[0]["event_date"] == "2018-01-01"
-        assert any("DSHIFT" in w for w in report.warnings)
+        assert not report.warnings
 
     def test_report_dates_on_apply_report(self):
         text = (
@@ -778,14 +774,18 @@ class TestApplying:
         assert report.report_dates == ["2018-03-01", "2018-07-01"]
         assert report.events_applied == 1
 
-    def test_perfid_on_perforation_warns_and_applies(self):
+    def test_perfid_on_perforation_is_unknown_attribute_error(self):
+        # PERFID is not part of the format; it is rejected like any other
+        # unknown completion attribute.
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
             "  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 PERFID=Valysar\n"
         )
         timeline, report = self._apply(text)
-        assert report.events_applied == 1
-        assert any("PERFID" in w for w in report.warnings)
+        assert report.events_applied == 0
+        assert report.events_skipped == 1
+        assert any("PERFID" in e for e in report.errors)
+        assert not timeline.perf_calls
 
     def test_filter_on_keyword_event_warns_and_applies(self):
         text = (

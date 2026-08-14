@@ -103,8 +103,8 @@ Notes on the grammar:
   searched in STATIC_NATIVE, then DYNAMIC_NATIVE, then GENERATED results; a
   ``TYPE.`` qualifier (``STATIC``/``DYNAMIC``/``GENERATED`` or the full
   ``*_NATIVE`` form, case-insensitive) restricts the search to that type.
-* Any other attribute key parses; keys the applier does not support yet
-  (``PERFID``, ``DSHIFT``) are ignored with a warning when applied.
+* Any other attribute key parses; ``FILTER`` on events other than
+  PERFORATION is ignored with a warning when applied.
 * The parser recovers per line and reports **all** errors in one pass: the
   raised :class:`OrionParseError` carries one :class:`ParseIssue` per problem.
   Unknown names come with "did you mean" suggestions where possible.
@@ -853,11 +853,11 @@ class ApplyReport:
 _POLICIES = ("warn", "error", "skip")
 
 # Attributes accepted on a keyword event but intentionally not emitted.
-_IGNORED_KEYWORD_ATTRS = {"DSHIFT", "FILTER", "PERFID"}
+_IGNORED_KEYWORD_ATTRS = {"FILTER"}
 
 # Completion event attribute handling: (required, known-optional) per type.
-# FILTER is applied on PERFORATION events; FILTER/PERFID are accepted on the
-# other completion events but ignored with a warning.
+# FILTER is applied on PERFORATION events; it is accepted on the other
+# completion events but ignored with a warning.
 _PERF_REQUIRED = ("MDSTART", "MDEND")
 _PERF_KNOWN = {"MDSTART", "MDEND", "RADIUS", "SKIN", "COMPLETION_NUMBER", "FILTER"}
 _TUBING_REQUIRED = ("MDSTART", "MDEND")
@@ -872,7 +872,7 @@ _VALVE_KNOWN = {"MD", "TYPE", "STATE", "CV", "AREA"} | {
 }
 _STATE_REQUIRED = ("STATE",)
 _STATE_KNOWN = {"STATE"}
-_COMPLETION_IGNORED = {"FILTER", "PERFID"}
+_COMPLETION_IGNORED = {"FILTER"}
 _PERF_IGNORED = _COMPLETION_IGNORED  # backwards-compatible alias
 
 # ORIONEVENTS -> Eclipse item-name translations per keyword.
@@ -1189,7 +1189,7 @@ def _apply_perforation(
     ctx: Optional[_FilterContext] = None,
 ) -> None:
     if not _check_completion_attrs(
-        event, "PERFORATION", _PERF_KNOWN, _PERF_REQUIRED, report, ignored={"PERFID"}
+        event, "PERFORATION", _PERF_KNOWN, _PERF_REQUIRED, report, ignored=set()
     ):
         return
 

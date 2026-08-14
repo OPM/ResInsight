@@ -183,7 +183,7 @@ Event lines are `@<date_expr> <EVENT_TYPE> KEY=VALUE ...`. Inside a WELL block, 
 |---|---|---|
 | `STATE` | yes | `well_state`: `OPEN`, `SHUT` or `STOP` |
 
-Unknown attributes on a completion event are an error and skip the event. `PERFID` is accepted but ignored with a warning (reserved for future use); on completion events other than `PERFORATION`, `FILTER` is likewise ignored with a warning.
+Unknown attributes on a completion event are an error and skip the event. On completion events other than `PERFORATION`, `FILTER` is ignored with a warning.
 
 ### Well keyword events
 
@@ -194,7 +194,7 @@ Any other event type in a WELL block is passed through as an Eclipse well keywor
 | `WCONHIST` | `VFP` → `VFP_TABLE` |
 | `WELTARG` | `VALUE` → `NEW_VALUE` |
 
-All other keywords (`WRFTPLT`, `WCONPROD`, `WELOPEN`, ...) forward attributes unchanged, so attribute keys must match the Eclipse item names ResInsight uses for that keyword. `DSHIFT`, `FILTER` and `PERFID` are ignored with a warning.
+All other keywords (`WRFTPLT`, `WCONPROD`, `WELOPEN`, ...) forward attributes unchanged, so attribute keys must match the Eclipse item names ResInsight uses for that keyword. `FILTER` is ignored with a warning.
 
 An event type that closely resembles a misspelled built-in (e.g. `PERFORATIN`) is **not** passed through as a keyword; it is handled by the `on_unknown_event` policy with a "did you mean" hint.
 
