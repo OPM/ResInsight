@@ -27,8 +27,11 @@
 #include "cafPdmObject.h"
 #include "cafSignal.h"
 
+#include <QString>
+
 #include <limits>
 #include <utility>
+#include <vector>
 
 //==================================================================================================
 ///
@@ -76,6 +79,11 @@ public:
 
     virtual bool showCumulativeCurve() const;
     virtual void setShowCumulativeCurve( bool showCumulativeCurve );
+
+    void enableLogarithmicBinning();
+
+    virtual std::vector<QString> filterDescriptions() const;
+    static QString               userDefinedRangeFilterText( double min, double max );
 
     virtual void setDefaults() = 0;
 

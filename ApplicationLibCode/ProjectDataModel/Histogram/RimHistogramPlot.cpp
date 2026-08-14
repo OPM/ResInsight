@@ -38,7 +38,9 @@
 #include "Summary/RimSummaryAddress.h"
 #include "Tools/RimPlotAxisTools.h"
 
+#include "RiuAbstractOverlayContentFrame.h"
 #include "RiuContextMenuLauncher.h"
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotAxis.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -51,8 +53,6 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
-
-#include "qwt_text.h"
 
 #include <QDateTime>
 #include <QDebug>
@@ -353,6 +353,57 @@ void RimHistogramPlot::updateLegend()
 void RimHistogramPlot::setLegendPosition( RiuPlotWidget::Legend position )
 {
     m_legendPosition = position;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramPlot::showPlotInfoLabel( bool show )
+{
+    if ( !m_plotInfoFrame ) return;
+
+    if ( show )
+    {
+        if ( plotWidget() ) plotWidget()->addOverlayFrame( m_plotInfoFrame );
+    }
+    else
+    {
+        if ( plotWidget() ) plotWidget()->removeOverlayFrame( m_plotInfoFrame );
+        delete m_plotInfoFrame;
+        m_plotInfoFrame = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramPlot::updatePlotInfoLabel()
+{
+    QStringList descriptions;
+    for ( RimHistogramCurve* curve : histogramCurves() )
+    {
+        if ( !curve->isChecked() || !curve->dataSource() ) continue;
+
+        for ( const QString& description : curve->dataSource()->filterDescriptions() )
+        {
+            if ( !descriptions.contains( description ) ) descriptions += description;
+        }
+    }
+
+    if ( !descriptions.isEmpty() && plotWidget() )
+    {
+        if ( !m_plotInfoFrame )
+        {
+            m_plotInfoFrame = new RiuDraggableOverlayFrame( plotWidget()->getParentForOverlay(), plotWidget()->overlayMargins() );
+            m_plotInfoFrame->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopRight );
+
+            m_plotInfoTextFrame = new RiuTextOverlayContentFrame( m_plotInfoFrame );
+            m_plotInfoFrame->setContentFrame( m_plotInfoTextFrame );
+        }
+        m_plotInfoTextFrame->setText( descriptions.join( "\n" ) );
+    }
+
+    showPlotInfoLabel( !descriptions.isEmpty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -718,6 +769,8 @@ void RimHistogramPlot::onLoadDataAndUpdate()
     updateAxes();
 
     updateStackedCurveData();
+
+    updatePlotInfoLabel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1110,6 +1163,8 @@ void RimHistogramPlot::detachAllPlotItems()
     {
         m_histogramCurveCollection->detachPlotCurves();
     }
+
+    showPlotInfoLabel( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1167,6 +1222,7 @@ void RimHistogramPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
     curvesChanged.send();
 
     updateStackedCurveData();
+    updatePlotInfoLabel();
     scheduleReplotIfVisible();
 
     updateAllRequiredEditors();

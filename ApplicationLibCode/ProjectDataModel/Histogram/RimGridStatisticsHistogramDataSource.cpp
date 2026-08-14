@@ -18,6 +18,8 @@
 
 #include "RimGridStatisticsHistogramDataSource.h"
 
+#include "RiaResultNames.h"
+
 #include "Histogram/RimHistogramPlot.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -280,6 +282,19 @@ std::string RimGridStatisticsHistogramDataSource::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RimGridStatisticsHistogramDataSource::filterDescriptions() const
+{
+    std::vector<QString> descriptions;
+    if ( m_cellFilterView() ) descriptions.push_back( "Filter: Visible cells in 3D view" );
+
+    auto baseDescriptions = RimHistogramDataSource::filterDescriptions();
+    descriptions.insert( descriptions.end(), baseDescriptions.begin(), baseDescriptions.end() );
+    return descriptions;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridStatisticsHistogramDataSource ::initAfterRead()
 {
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
@@ -344,6 +359,8 @@ void RimGridStatisticsHistogramDataSource::setPropertiesFromView( RimEclipseView
 
     const RimEclipseResultDefinition* resDef = dynamic_cast<const RimEclipseResultDefinition*>( view->cellResult() );
     if ( resDef ) m_property->simpleCopy( resDef );
+
+    if ( RiaResultNames::isLogarithmicResult( m_property->resultVariable() ) ) enableLogarithmicBinning();
 
     dataSourceChanged.send();
 }

@@ -39,12 +39,13 @@ class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 class RimPlotTemplateFileItem;
 class RimStackablePlotCurve;
+class RiuDraggableOverlayFrame;
+class RiuTextOverlayContentFrame;
 
 class PdmUiTreeOrdering;
 
 class QwtInterval;
 class QwtPlotCurve;
-class QwtPlotTextLabel;
 
 class QKeyEvent;
 
@@ -232,6 +233,9 @@ private:
     caf::PdmField<caf::AppEnum<GraphType>>     m_graphType;
 
     QPointer<RiuPlotWidget> m_histogramPlot;
+
+    QPointer<RiuDraggableOverlayFrame>   m_plotInfoFrame;
+    QPointer<RiuTextOverlayContentFrame> m_plotInfoTextFrame;
 
     bool                  m_isValid;
     RiuPlotWidget::Legend m_legendPosition;

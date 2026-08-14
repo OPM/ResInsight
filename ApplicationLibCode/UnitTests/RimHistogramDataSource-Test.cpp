@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include "Histogram/RimGridStatisticsHistogramDataSource.h"
 #include "Histogram/RimHistogramDataSource.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -223,4 +224,22 @@ TEST( RimHistogramDataSourceTest, ComputeBinRange )
         EXPECT_DOUBLE_EQ( 5.0, min );
         EXPECT_DOUBLE_EQ( 6.0, max );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimHistogramDataSourceTest, UserDefinedRangeFilterText )
+{
+    EXPECT_EQ( "Filter: User defined x-range [0.1..100]", RimHistogramDataSource::userDefinedRangeFilterText( 0.1, 100.0 ).toStdString() );
+    EXPECT_EQ( "Filter: User defined x-range [-2.5..0]", RimHistogramDataSource::userDefinedRangeFilterText( -2.5, 0.0 ).toStdString() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimHistogramDataSourceTest, FilterDescriptionsDefaultIsEmpty )
+{
+    RimGridStatisticsHistogramDataSource dataSource;
+    EXPECT_TRUE( dataSource.filterDescriptions().empty() );
 }
