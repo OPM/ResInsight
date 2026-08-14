@@ -222,33 +222,7 @@ bool RifReaderOpmCommonActive::importGrid( RigMainGrid* /* mainGrid*/, RigEclips
         transferStaticNNCData( opmGrid, lgrGrids, activeGrid );
     }
 
-    auto opmMapAxes = opmGrid.get_mapaxes();
-    if ( opmMapAxes.size() == 6 )
-    {
-        std::array<double, 6> mapAxes;
-        for ( size_t i = 0; i < opmMapAxes.size(); ++i )
-        {
-            mapAxes[i] = opmMapAxes[i];
-        }
-
-        double norm_denominator = mapAxes[2] * mapAxes[5] - mapAxes[4] * mapAxes[3];
-
-        // Set the map axes transformation matrix on the main grid
-        activeGrid->setMapAxes( mapAxes );
-        activeGrid->setUseMapAxes( norm_denominator != 0.0 );
-
-        auto transform = activeGrid->mapAxisTransform();
-
-        // Invert the transformation matrix to convert from file coordinates to domain coordinates
-        transform.invert();
-
-#pragma omp parallel for
-        for ( long i = 0; i < static_cast<long>( activeGrid->nodes().size() ); i++ )
-        {
-            auto& n = activeGrid->nodes()[i];
-            n.transformPoint( transform );
-        }
-    }
+    applyMapAxes( opmGrid, activeGrid );
 
     return true;
 }

@@ -74,8 +74,14 @@ public:
 
     static GridDimensions readGridDimensions( const QString& gridFileName );
 
+    // opm-common scales MAPAXES to meter based on the MAPUNITS keyword, while the cell corner coordinates are left in
+    // the units given by GRIDUNIT. Returns the factor required to bring the map axes into grid units.
+    static double mapAxesScaleFactor( const std::string& mapUnits, int gridUnit );
+
 protected:
     virtual bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
+
+    void applyMapAxes( Opm::EclIO::EGrid& opmGrid, RigMainGrid* mainGrid );
 
     void transferActiveCells( Opm::EclIO::EGrid&  opmGrid,
                               size_t              cellStartIndex,
