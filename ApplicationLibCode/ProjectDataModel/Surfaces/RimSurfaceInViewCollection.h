@@ -26,6 +26,8 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
+#include <expected>
+
 namespace cvf
 {
 class ModelBasicList;
@@ -58,6 +60,12 @@ public:
     void                  setSurfaceCollection( RimSurfaceCollection* surfcoll );
 
     void updateFromSurfaceCollection();
+
+    bool                         setSurfaceVisible( RimSurface* surface, bool visible );
+    std::expected<void, QString> setSurfaceProperty( RimSurface* surface, const QString& propertyName );
+    bool                         isSurfaceVisible( const RimSurface* surface ) const;
+    QString                      surfaceProperty( const RimSurface* surface ) const;
+
     void loadData( int timeStep );
     void clearGeometry();
 
@@ -82,6 +90,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     RimSurfaceInView*           getSurfaceInViewForSurface( const RimSurface* surf ) const;
+    RimSurfaceInView*           findSurfaceInView( const RimSurface* surface ) const;
     RimSurfaceInViewCollection* getCollectionInViewForCollection( const RimSurfaceCollection* coll ) const;
 
     void updateAllViewItems();

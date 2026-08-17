@@ -26,6 +26,8 @@
 #include "Rim3dView.h"
 #include "RimEclipseView.h"
 #include "RimGridView.h"
+#include "Surfaces/RimSurface.h"
+#include "Surfaces/RimSurfaceInViewCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -33,6 +35,8 @@
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimcGridView_visibleCellsInternal, "visible_cells_internal" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, RimcGridView_setPolygonVisible, "set_polygon_visible" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, RimcGridView_setSurfaceVisible, "set_surface_visible" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, RimcGridView_setSurfaceProperty, "set_surface_property" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -117,6 +121,85 @@ std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setPolygonVisible::ex
     {
         return std::unexpected( QString( "Polygon '%1' is not available in this view." ).arg( m_polygon()->name() ) );
     }
+
+    gridView->scheduleCreateDisplayModelAndRedraw();
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcGridView_setSurfaceVisible::RimcGridView_setSurfaceVisible( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Surface Visible", "", "", "Set surface visibility in this view" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_surface, "Surface", "Surface" );
+    CAF_PDM_InitScriptableField( &m_visible, "Visible", true, "Visible" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setSurfaceVisible::execute()
+{
+    auto* gridView = self<RimGridView>();
+    if ( !gridView )
+    {
+        return std::unexpected( QString( "Surface visibility is only supported for grid views." ) );
+    }
+
+    if ( !m_surface() )
+    {
+        return std::unexpected( QString( "Surface is null." ) );
+    }
+
+    auto* collection = gridView->surfaceInViewCollection();
+    if ( !collection || !collection->setSurfaceVisible( m_surface(), m_visible() ) )
+    {
+        return std::unexpected( QString( "Surface '%1' is not available in this view." ).arg( m_surface()->fullName() ) );
+    }
+
+    gridView->scheduleCreateDisplayModelAndRedraw();
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcGridView_setSurfaceProperty::RimcGridView_setSurfaceProperty( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Surface Property", "", "", "Set the surface property shown in this view" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_surface, "Surface", "Surface" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_propertyName, "PropertyName", "Property Name" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setSurfaceProperty::execute()
+{
+    auto* gridView = self<RimGridView>();
+    if ( !gridView )
+    {
+        return std::unexpected( QString( "Surface properties are only supported for grid views." ) );
+    }
+
+    if ( !m_surface() )
+    {
+        return std::unexpected( QString( "Surface is null." ) );
+    }
+
+    auto* collection = gridView->surfaceInViewCollection();
+    if ( !collection )
+    {
+        return std::unexpected( QString( "Surface '%1' is not available in this view." ).arg( m_surface()->fullName() ) );
+    }
+
+    auto result = collection->setSurfaceProperty( m_surface(), m_propertyName() );
+    if ( !result ) return std::unexpected( result.error() );
 
     gridView->scheduleCreateDisplayModelAndRedraw();
     return nullptr;

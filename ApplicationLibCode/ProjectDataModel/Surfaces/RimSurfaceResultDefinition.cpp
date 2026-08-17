@@ -69,6 +69,17 @@ void RimSurfaceResultDefinition::setSurfaceInView( RimSurfaceInView* surfaceInVi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceResultDefinition::setPropertyName( const QString& propertyName )
+{
+    m_propertyName = propertyName;
+    setCheckState( true );
+    updateMinMaxValues( -1 );
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimSurfaceResultDefinition::propertyName() const
 {
     return m_propertyName;
