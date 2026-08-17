@@ -112,6 +112,7 @@ private:
     bool applyValveEvent( RimWellEventValve& event, RimWellPath& wellPath );
 
     std::vector<RimWellEvent*> filteredAndSortedEventsForUi() const;
+    void                       updateEditorsAfterEventChange();
 
     caf::PdmChildArrayField<RimWellEvent*> m_events;
     QDateTime                              m_lastAppliedTimestamp;

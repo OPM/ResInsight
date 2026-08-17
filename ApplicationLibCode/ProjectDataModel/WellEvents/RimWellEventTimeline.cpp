@@ -225,7 +225,7 @@ RimWellEventPerf* RimWellEventTimeline::addPerforationEvent( RimWellPath* wellPa
     event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
-    updateConnectedEditors();
+    updateEditorsAfterEventChange();
     return event;
 }
 
@@ -238,7 +238,7 @@ RimWellEventValve* RimWellEventTimeline::addValveEvent( RimWellPath* wellPath, c
     event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
-    updateConnectedEditors();
+    updateEditorsAfterEventChange();
     return event;
 }
 
@@ -251,7 +251,7 @@ RimWellEventTubing* RimWellEventTimeline::addTubingEvent( RimWellPath* wellPath,
     event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
-    updateConnectedEditors();
+    updateEditorsAfterEventChange();
     return event;
 }
 
@@ -264,7 +264,7 @@ RimWellEventState* RimWellEventTimeline::addStateEvent( RimWellPath* wellPath, c
     event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
-    updateConnectedEditors();
+    updateEditorsAfterEventChange();
     return event;
 }
 
@@ -277,7 +277,7 @@ RimWellEventType* RimWellEventTimeline::addTypeEvent( RimWellPath* wellPath, con
     event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
-    updateConnectedEditors();
+    updateEditorsAfterEventChange();
     return event;
 }
 
@@ -290,7 +290,7 @@ RimWellEventControl* RimWellEventTimeline::addControlEvent( RimWellPath* wellPat
     event->setWellPath( wellPath );
     event->setEventDate( date );
     m_events.push_back( event );
-    updateConnectedEditors();
+    updateEditorsAfterEventChange();
     return event;
 }
 
@@ -304,7 +304,7 @@ RimWellEventKeyword* RimWellEventTimeline::addWellKeywordEvent( RimWellPath* wel
     event->setEventDate( date );
     event->setKeywordName( keywordName );
     m_events.push_back( event );
-    updateConnectedEditors();
+    updateEditorsAfterEventChange();
     return event;
 }
 
@@ -318,7 +318,7 @@ RimKeywordEvent* RimWellEventTimeline::addKeywordEvent( const QDateTime& date, c
     event->setEventDate( date );
     event->setKeywordName( keywordName );
     m_events.push_back( event );
-    updateConnectedEditors();
+    updateEditorsAfterEventChange();
     return event;
 }
 
@@ -330,7 +330,7 @@ void RimWellEventTimeline::addEvent( RimWellEvent* event )
     if ( event )
     {
         m_events.push_back( event );
-        updateConnectedEditors();
+        updateEditorsAfterEventChange();
     }
 }
 
@@ -341,7 +341,7 @@ void RimWellEventTimeline::removeEvent( RimWellEvent* event )
 {
     m_events.removeChild( event );
     delete event;
-    updateConnectedEditors();
+    updateEditorsAfterEventChange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,7 +350,20 @@ void RimWellEventTimeline::removeEvent( RimWellEvent* event )
 void RimWellEventTimeline::clearAllEvents()
 {
     m_events.deleteChildren();
+    updateEditorsAfterEventChange();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEventTimeline::updateEditorsAfterEventChange()
+{
     updateConnectedEditors();
+
+    if ( auto* wellPathCollection = firstAncestorOrThisOfType<RimWellPathCollection>() )
+    {
+        wellPathCollection->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
