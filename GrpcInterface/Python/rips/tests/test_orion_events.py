@@ -393,6 +393,19 @@ class TestParsing:
         # WELL after SCHEDULE switches the sink back to the well block.
         assert [len(w.events) for w in doc.wells] == [1, 1]
 
+    def test_boolean_attributes_are_typed_unless_quoted(self):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            "SCHEDULE\n"
+            '  @2024-01-01 RPTRST DEN=True ROCKC=FALSE LABEL="True"\n'
+        )
+        attributes = parse_orion_events(text).schedule_events[0].attributes
+
+        assert attributes["DEN"].value is True
+        assert attributes["ROCKC"].value is False
+        assert attributes["LABEL"].value == "True"
+        assert isinstance(attributes["LABEL"].value, str)
+
     def test_schedule_line_with_arguments_rejected(self):
         with pytest.raises(OrionParseError, match="SCHEDULE takes no arguments"):
             parse_orion_events("ORIONEVENTS 2.0\nSCHEDULE NOW\n")
@@ -1115,6 +1128,35 @@ class TestOrionEventsIntegration:
             "CONNECTION_TRANSMISSIBILITY_FACTOR, DIAMETER, Kh, SKIN, D_FACTOR, "
             "DIR, PR"
         ) in error_msg
+
+    def test_rptrst_boolean_values_emit_bare_mnemonics(
+        self, project_with_case_and_wells
+    ):
+        project, case, timeline = project_with_case_and_wells
+        well = project.well_paths()[0]
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            "  @2024-01-01 WCONHIST STATUS=OPEN\n"
+            "SCHEDULE\n"
+            "  @2024-01-01 RPTRST BASIC=2 DEN=True ROCKC=True RPORV=True "
+            "RFIP=True FLOWS=True FLORES=True NORST=False\n"
+        )
+
+        report = apply_orion_document(document, timeline, project)
+        assert report.events_applied == 2
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[]
+        )
+        rptrst_block = schedule.split("RPTRST", 1)[1].split("/", 1)[0]
+        tokens = rptrst_block.split()
+
+        assert "BASIC=2" in tokens
+        for flag in ("DEN", "ROCKC", "RPORV", "RFIP", "FLOWS", "FLORES"):
+            assert flag in tokens
+            assert f"{flag}=True" not in rptrst_block
+        assert "NORST" not in tokens
 
     def test_apply_creates_perforations_and_schedule(self, project_with_case_and_wells):
         """End-to-end: parse -> apply -> set_timestamp -> generate schedule."""
