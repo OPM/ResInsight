@@ -184,8 +184,8 @@ def main():
         event_date="2024-01-01",
         keyword_name="GRUPTREE",
         keyword_data={
-            "CHILD": "OP",
-            "PARENT": "FIELD",
+            "CHILD_GROUP": "OP",
+            "PARENT_GROUP": "FIELD",
         },
     )
     print("   Added GRUPTREE event on 2024-01-01 (group tree definition)")

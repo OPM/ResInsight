@@ -442,6 +442,7 @@ set(UNITY_EXCLUDE_FILES
     # https://cmake.org/cmake/help/latest/prop_tgt/AUTOGEN_BUILD_DIR.html
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen/mocs_compilation.cpp
     ProjectDataModel/RiaOpmParserTools.cpp
+    ProjectDataModel/RiaOpmKeywordTools.cpp
     FileInterface/RifOsduWellPathReader.cpp
     FileInterface/RifOsduWellLogReader.cpp
     FileInterface/RifByteArrayArrowRandomAccessFile.cpp

@@ -19,6 +19,7 @@
 #include "RimcWellEventTimeline.h"
 
 #include "CompletionExportCommands/RicScheduleDataGenerator.h"
+#include "RiaOpmKeywordTools.h"
 #include "RimEclipseCase.h"
 #include "RimKeywordEvent.h"
 #include "RimWellEventControl.h"
@@ -36,9 +37,44 @@
 #include "cafPdmFieldScriptingCapability.h"
 
 #include <QDateTime>
+#include <QStringList>
 
 #include <algorithm>
 #include <set>
+
+namespace
+{
+std::expected<void, QString> validateKeywordItems( const QString& keywordName, const std::vector<QString>& itemNames )
+{
+    auto keywordInfo = RiaOpmKeywordTools::keywordInfo( keywordName );
+    if ( !keywordInfo )
+    {
+        return std::unexpected( QString( "Keyword '%1' is not recognized by opm-common." ).arg( keywordName ) );
+    }
+
+    if ( keywordInfo->acceptsArbitraryItems ) return {};
+
+    QStringList invalidNames;
+    for ( const auto& itemName : itemNames )
+    {
+        if ( std::find( keywordInfo->itemNames.begin(), keywordInfo->itemNames.end(), itemName ) == keywordInfo->itemNames.end() )
+        {
+            invalidNames.push_back( itemName );
+        }
+    }
+
+    if ( invalidNames.empty() ) return {};
+
+    QStringList validNames;
+    for ( const auto& itemName : keywordInfo->itemNames )
+    {
+        validNames.push_back( itemName );
+    }
+
+    return std::unexpected( QString( "Keyword '%1' contains invalid item names: %2. Valid item names are: %3." )
+                                .arg( keywordName.toUpper(), invalidNames.join( ", " ), validNames.join( ", " ) ) );
+}
+} // namespace
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addPerfEvent, "AddPerfEvent" );
 
@@ -373,6 +409,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addWellKeywo
         return std::unexpected( QString( "Item arrays must have same length" ) );
     }
 
+    auto validationResult = validateKeywordItems( m_keywordName(), m_itemNames() );
+    if ( !validationResult )
+    {
+        return std::unexpected( validationResult.error() );
+    }
+
     // Create event
     auto* event = timeline->addWellKeywordEvent( m_wellPath(), date, m_keywordName() );
 
@@ -467,6 +509,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addKeywordEv
     if ( m_itemNames().size() != m_itemTypes().size() || m_itemNames().size() != m_itemValues().size() )
     {
         return std::unexpected( QString( "Item arrays must have same length" ) );
+    }
+
+    auto validationResult = validateKeywordItems( m_keywordName(), m_itemNames() );
+    if ( !validationResult )
+    {
+        return std::unexpected( validationResult.error() );
     }
 
     // Create event (note: no wellPath parameter)
