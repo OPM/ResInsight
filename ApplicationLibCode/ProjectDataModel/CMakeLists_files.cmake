@@ -99,6 +99,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaOpmParserTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaOpmKeywordTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCaseDisplayNameTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.cpp

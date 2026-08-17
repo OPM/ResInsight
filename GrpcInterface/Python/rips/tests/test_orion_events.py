@@ -383,7 +383,7 @@ class TestParsing:
             "  @2024-01-01 WCONHIST STATUS=OPEN\n"
             "SCHEDULE\n"
             "  @2024-01-01 RPTRST BASIC=2 FREQ=1\n"
-            "  @2024-01-01 GRUPTREE CHILD=OP PARENT=FIELD\n"
+            "  @2024-01-01 GRUPTREE CHILD_GROUP=OP PARENT_GROUP=FIELD\n"
             'WELL "W"\n'
             "  @2024-02-01 WELTARG CMODE=ORAT VALUE=5000\n"
         )
@@ -1092,6 +1092,30 @@ class TestOrionEventsIntegration:
         well_path_coll = project.descendants(rips.WellPathCollection)[0]
         return project, case, well_path_coll.event_timeline()
 
+    def test_compdat_invalid_item_names_report_valid_names(
+        self, project_with_case_and_wells
+    ):
+        """Invalid COMPDAT items produce an actionable error (issue #14535)."""
+        project, _case, timeline = project_with_case_and_wells
+        well = project.well_paths()[0]
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            "  @2024-01-01 COMPDAT STATUS=OPEN TRANSMISSIBILITY=1.0\n"
+        )
+
+        with pytest.raises(rips.RipsError) as exc_info:
+            apply_orion_document(document, timeline, project)
+
+        error_msg = str(exc_info.value)
+        assert "Keyword 'COMPDAT' contains invalid item names" in error_msg
+        assert "STATUS, TRANSMISSIBILITY" in error_msg
+        assert (
+            "Valid item names are: WELL, I, J, K1, K2, STATE, SAT_TABLE, "
+            "CONNECTION_TRANSMISSIBILITY_FACTOR, DIAMETER, Kh, SKIN, D_FACTOR, "
+            "DIR, PR"
+        ) in error_msg
+
     def test_apply_creates_perforations_and_schedule(self, project_with_case_and_wells):
         """End-to-end: parse -> apply -> set_timestamp -> generate schedule."""
         project, case, timeline = project_with_case_and_wells
@@ -1159,7 +1183,7 @@ class TestOrionEventsIntegration:
             "  @2024-06-01      WRFTPLT      OUTPUT_RFT=YES  OUTPUT_PLT=NO  OUTPUT_SEGMENT=NO\n"
             "SCHEDULE\n"
             "  @STARTUP  RPTRST    BASIC=2  FREQ=1\n"
-            "  @STARTUP  GRUPTREE  CHILD=OP  PARENT=FIELD\n"
+            "  @STARTUP  GRUPTREE  CHILD_GROUP=OP  PARENT_GROUP=FIELD\n"
             "  @STARTUP  TUNING    TSINIT=1  TSMAXZ=30  NEWTMX=12\n"
         )
         document = parse_orion_events(text)

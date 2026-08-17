@@ -218,8 +218,8 @@ def add_keyword_event(
             event_date="2024-01-01",
             keyword_name="GRUPTREE",
             keyword_data={
-                "CHILD": "OP",
-                "PARENT": "FIELD",
+                "CHILD_GROUP": "OP",
+                "PARENT_GROUP": "FIELD",
             }
         )
 
