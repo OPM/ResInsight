@@ -21,6 +21,9 @@
 #include "RiaApplication.h"
 #include "RiaKeyValueStoreUtil.h"
 
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonInViewCollection.h"
+#include "Rim3dView.h"
 #include "RimEclipseView.h"
 #include "RimGridView.h"
 
@@ -29,6 +32,7 @@
 #include "cvfArray.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseView, RimcGridView_visibleCellsInternal, "visible_cells_internal" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, RimcGridView_setPolygonVisible, "set_polygon_visible" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -78,5 +82,42 @@ std::expected<caf::PdmObjectHandle*, QString> RimcGridView_visibleCellsInternal:
     auto keyValueStore = RiaApplication::instance()->keyValueStore();
     keyValueStore->set( m_visibilityKey().toStdString(), RiaKeyValueStoreUtil::convertToByteVector( visibilityValues ) );
 
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcGridView_setPolygonVisible::RimcGridView_setPolygonVisible( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Polygon Visible", "", "", "Set polygon visibility in this view" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_polygon, "Polygon", "Polygon" );
+    CAF_PDM_InitScriptableField( &m_visible, "Visible", true, "Visible" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setPolygonVisible::execute()
+{
+    auto* gridView = self<RimGridView>();
+    if ( !gridView )
+    {
+        return std::unexpected( QString( "Polygon visibility is only supported for grid views." ) );
+    }
+
+    if ( !m_polygon() )
+    {
+        return std::unexpected( QString( "Polygon is null." ) );
+    }
+
+    if ( !gridView->polygonInViewCollection()->setPolygonVisible( m_polygon(), m_visible() ) )
+    {
+        return std::unexpected( QString( "Polygon '%1' is not available in this view." ).arg( m_polygon()->name() ) );
+    }
+
+    gridView->scheduleCreateDisplayModelAndRedraw();
     return nullptr;
 }

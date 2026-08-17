@@ -40,12 +40,16 @@ public:
     std::vector<RimPolygonInView*> visiblePolygonsInView() const;
     std::vector<RimPolygonInView*> allPolygonsInView() const;
 
+    bool setPolygonVisible( RimPolygon* polygon, bool visible );
+
 protected:
     std::vector<RimPolygonContainer*> sourceSubCollections() const override;
     std::vector<RimPolygon*>          sourceItems() const override;
     RimPolygonInView*                 createItemInView( RimPolygon* source ) override;
 
 private:
+    RimPolygonInView* findPolygonInView( const RimPolygon* polygon ) const;
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 };
