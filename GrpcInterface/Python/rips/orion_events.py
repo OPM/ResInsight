@@ -23,7 +23,7 @@ File format grammar, version 2.0 (EBNF-ish)::
     document        = header , { statement } ;
     header          = "ORIONEVENTS" , "2.0" ;           (* first meaningful line *)
     statement       = unit_directive | declaration | report_line | well_block_open
-                    | schedule_block_open | event_line ;
+                    | group_block_open | schedule_block_open | event_line ;
     unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
     report_line     = "REPORT" , date_expr ;            (* REPORT 2024-06-01 *)
 
@@ -39,6 +39,7 @@ File format grammar, version 2.0 (EBNF-ish)::
     comp_op         = ">" | ">=" | "<" | "<=" ;
 
     well_block_open     = "WELL" , ( quoted_string | ident ) ;   (* no "=" present *)
+    group_block_open    = "GROUP" , quoted_string ;     (* group keyword events *)
     schedule_block_open = "SCHEDULE" ;                  (* well-less keyword events *)
     event_line      = "@" , date_expr , event_type , { attribute } ;
 
@@ -57,8 +58,8 @@ Notes on the grammar:
 
 * The format is line-oriented; every non-blank line is dispatched on its first
   token: ``ORIONEVENTS`` (once), ``UNIT``, ``DATE``, ``DURATION``, ``WELL``,
-  ``SCHEDULE`` or ``@``. Anything else is an error. Keywords are uppercase and
-  case-sensitive (the ``DAYS`` suffix is also accepted as ``days``).
+  ``GROUP``, ``SCHEDULE`` or ``@``. Anything else is an error. Keywords are
+  uppercase and case-sensitive (the ``DAYS`` suffix is also accepted as ``days``).
 * Comments start with ``#`` (outside of double quotes) and run to end of line.
 * Variables are **typed**: ``DATE``, ``DURATION`` (whole days), ``WELL``
   (well-name alias) and ``FILTER`` (cell filter expression) declarations share
@@ -74,8 +75,10 @@ Notes on the grammar:
 * ``WELL <ident>`` opens an event block for a declared ``WELL`` alias;
   ``WELL "<name>"`` opens a block for the literal well name and never consults
   variables. A ``WELL`` line containing ``=`` is always a declaration. A bare
-  ``SCHEDULE`` line opens a block of schedule-level keyword events not tied to
-  any well (RPTRST, GRUPTREE, TUNING, ...). Empty blocks are legal.
+  ``GROUP "<name>"`` opens a block of group-level Eclipse keyword events; the
+  group name is injected as the ``GROUP`` item when each event is applied.
+  A bare ``SCHEDULE`` line opens a block of schedule-level keyword events not
+  tied to any well (RPTRST, GRUPTREE, TUNING, ...). Empty blocks are legal.
 * ``REPORT <date_expr>`` (one date per line, anywhere after the header) names
   a date that should appear as a bare ``DATES`` keyword in the generated
   schedule even when no events fall on it — in Eclipse/Flow a ``DATES`` entry
@@ -91,9 +94,11 @@ Notes on the grammar:
   ``PERFORATION``, ``TUBING``, ``VALVE`` and ``STATE``, or any Eclipse well
   keyword (``WCONHIST``, ``WELTARG``, ``WRFTPLT``, ``WCONPROD``, ...), which
   is passed through generically with the well name injected as WELL. Event
-  types inside a SCHEDULE block are Eclipse schedule keywords passed through
-  as-is. An event type that closely resembles a built-in is treated as a typo
-  per the ``on_unknown_event`` policy instead of being passed through.
+  types inside a GROUP block are Eclipse group keywords with the group name
+  injected as GROUP. Event types inside a SCHEDULE block are Eclipse schedule
+  keywords passed through as-is. An event type that closely resembles a built-in
+  is treated as a typo per the ``on_unknown_event`` policy instead of being
+  passed through.
 * On a PERFORATION event, ``FILTER=<name>`` references a declared ``FILTER``
   variable and ``FILTER="<expr>"`` is an inline anonymous filter expression.
   The applier materializes each used filter as a case-level combined data
@@ -242,7 +247,7 @@ class AttrValue:
 
 @dataclass
 class OrionEvent:
-    """One event line: a dated action on the enclosing WELL or SCHEDULE block."""
+    """One event line in an enclosing WELL, GROUP or SCHEDULE block."""
 
     event_type: str
     event_date: Union[datetime.date, datetime.datetime]
@@ -261,6 +266,15 @@ class WellBlock:
 
 
 @dataclass
+class GroupBlock:
+    """A ``GROUP`` block header followed by its keyword events."""
+
+    group_name: str
+    events: List[OrionEvent] = field(default_factory=list)
+    loc: SourceLoc = SourceLoc(0, "")
+
+
+@dataclass
 class OrionDocument:
     """Parsed, lossless representation of an ORIONEVENTS file."""
 
@@ -268,6 +282,7 @@ class OrionDocument:
     unit_system: str = "METRIC"
     variables: Dict[str, OrionValue] = field(default_factory=dict)
     wells: List[WellBlock] = field(default_factory=list)
+    groups: List[GroupBlock] = field(default_factory=list)
     schedule_events: List[OrionEvent] = field(default_factory=list)
     report_dates: List[Union[datetime.date, datetime.datetime]] = field(
         default_factory=list
@@ -286,6 +301,7 @@ _KEYWORDS = (
     "DURATION",
     "WELL",
     "FILTER",
+    "GROUP",
     "SCHEDULE",
     "REPORT",
 )
@@ -320,6 +336,7 @@ _RESULT_TYPE_ALIASES = {
     "GENERATED": "GENERATED",
 }
 _WELL_BLOCK_RE = re.compile(rf'^WELL\s+(?:"(?P<qname>[^"]*)"|(?P<ref>{_IDENT}))$')
+_GROUP_BLOCK_RE = re.compile(r'^GROUP\s+"(?P<name>[^"]*)"$')
 _EVENT_RE = re.compile(rf"^@\s*{_DATE_BASE}{_TERMS}\s+(?P<rest>.+)$")
 _TERM_RE = re.compile(rf"([-+])\s*(\d+|{_IDENT})")
 _ATTR_RE = re.compile(r'(?P<key>[A-Za-z_]\w*)\s*=\s*(?:"(?P<qval>[^"]*)"|(?P<val>\S+))')
@@ -342,6 +359,7 @@ def parse_orion_events(text: str) -> OrionDocument:
     unit_holder = ["METRIC"]  # mutable so _parse_line can update it
     variables: Dict[str, OrionValue] = {}
     wells: List[WellBlock] = []
+    groups: List[GroupBlock] = []
     schedule_events: List[OrionEvent] = []
     report_dates: List[Union[datetime.date, datetime.datetime]] = []
     warnings: List[ParseWarning] = []
@@ -374,6 +392,7 @@ def parse_orion_events(text: str) -> OrionDocument:
                 loc,
                 variables,
                 wells,
+                groups,
                 schedule_events,
                 report_dates,
                 warnings,
@@ -382,7 +401,7 @@ def parse_orion_events(text: str) -> OrionDocument:
             )
         except OrionParseError as exc:
             errors.extend(exc.errors)
-            if line.split(None, 1)[0] in ("WELL", "SCHEDULE") or (
+            if line.split(None, 1)[0] in ("WELL", "GROUP", "SCHEDULE") or (
                 line.startswith("@") and current_events is None
             ):
                 # Suppress cascading errors from lines belonging to a broken
@@ -400,6 +419,7 @@ def parse_orion_events(text: str) -> OrionDocument:
         unit_system=unit_holder[0],
         variables=variables,
         wells=wells,
+        groups=groups,
         schedule_events=schedule_events,
         report_dates=report_dates,
         warnings=warnings,
@@ -428,6 +448,7 @@ def _parse_line(
     loc: SourceLoc,
     variables: Dict[str, OrionValue],
     wells: List[WellBlock],
+    groups: List[GroupBlock],
     schedule_events: List[OrionEvent],
     report_dates: List[Union[datetime.date, datetime.datetime]],
     warnings: List[ParseWarning],
@@ -453,6 +474,17 @@ def _parse_line(
             )
         unit_holder[0] = match.group("unit")
         return current_events
+
+    if first == "GROUP":
+        match = _GROUP_BLOCK_RE.match(line)
+        if match is None:
+            raise OrionParseError(
+                f'Malformed GROUP line: {line!r} (expected GROUP "<group-name>")',
+                loc,
+            )
+        new_group = GroupBlock(group_name=match.group("name"), loc=loc)
+        groups.append(new_group)
+        return new_group.events
 
     if first == "SCHEDULE":
         if line != "SCHEDULE":
@@ -979,6 +1011,10 @@ def apply_orion_document(
                 dispatch = _apply_generic_well_keyword
             dispatch(event, well_path, timeline, report, ctx)
 
+    for group in document.groups:
+        for event in group.events:
+            _apply_schedule_event(event, timeline, report, group.group_name)
+
     for event in document.schedule_events:
         _apply_schedule_event(event, timeline, report)
 
@@ -1116,14 +1152,17 @@ def _suspected_typo(event_type: str) -> Optional[str]:
 
 
 def _apply_schedule_event(
-    event: OrionEvent, timeline: Any, report: ApplyReport
+    event: OrionEvent,
+    timeline: Any,
+    report: ApplyReport,
+    group_name: Optional[str] = None,
 ) -> None:
-    """Apply one SCHEDULE-block event as a schedule-level Eclipse keyword."""
+    """Apply one GROUP- or SCHEDULE-block event as an Eclipse keyword."""
     event_type = event.event_type.upper()
     if event_type in _COMPLETION_EVENT_TYPES:
         report.errors.append(
             f"Line {event.loc.line}: {event_type} is a completion event and "
-            "needs a WELL block, not SCHEDULE"
+            "needs a WELL block, not GROUP or SCHEDULE"
         )
         report.events_skipped += 1
         return
@@ -1137,6 +1176,8 @@ def _apply_schedule_event(
             )
             continue
         keyword_data[key] = attr.value
+    if group_name is not None:
+        keyword_data["GROUP"] = group_name
 
     timeline.add_keyword_event(
         event_date=_iso_event_date(event.event_date),
@@ -1442,6 +1483,7 @@ def _cli(argv: Optional[List[str]] = None) -> int:
         return 1
 
     event_count = sum(len(well.events) for well in document.wells)
+    group_event_count = sum(len(group.events) for group in document.groups)
     print(
         f"{args.file}: OK (ORIONEVENTS {document.version}, "
         f"units {document.unit_system})"
@@ -1449,6 +1491,7 @@ def _cli(argv: Optional[List[str]] = None) -> int:
     print(
         f"  {len(document.variables)} variable(s), {len(document.wells)} "
         f"well block(s), {event_count} well event(s), "
+        f"{len(document.groups)} group block(s), {group_event_count} group event(s), "
         f"{len(document.schedule_events)} schedule event(s), "
         f"{len(document.report_dates)} report date(s)"
     )
