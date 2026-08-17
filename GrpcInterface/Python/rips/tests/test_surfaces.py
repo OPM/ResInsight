@@ -82,6 +82,33 @@ def test_create_regular_surface(rips_instance, initialize_test):
     s.update()
 
 
+def test_surface_settings_in_view(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+
+    surface_collection = rips_instance.project.descendants(rips.SurfaceCollection)[0]
+    folder = surface_collection.add_folder(folder_name="View surfaces")
+    surface = folder.new_regular_surface(name="View surface", nx=2, ny=2)
+    surface.set_property("Property A", [1.0, 2.0, 3.0, 4.0])
+    surface.set_property("Property B", [5.0, 6.0, 7.0, 8.0])
+
+    first_view = case.create_view()
+    second_view = case.create_view()
+
+    assert first_view.set_surface_visible(surface=surface, visible=False) is None
+    assert second_view.set_surface_visible(surface=surface, visible=True) is None
+    assert (
+        first_view.set_surface_property(surface=surface, property_name="Property B")
+        is None
+    )
+
+    with pytest.raises(rips.RipsError, match="not available for surface"):
+        first_view.set_surface_property(surface=surface, property_name="Missing")
+
+    with pytest.raises(rips.RipsError, match="Surface is null"):
+        first_view.set_surface_visible(surface=None, visible=True)
+
+
 def test_get_property(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
     c = rips_instance.project.load_case(path=case_path)

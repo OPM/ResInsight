@@ -18,6 +18,8 @@
 
 #include "RimSurfaceInViewCollection.h"
 
+#include "Surface/RigSurface.h"
+
 #include "Rim3dView.h"
 #include "RimEnsembleSurface.h"
 #include "RimGridView.h"
@@ -35,6 +37,8 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfModelBasicList.h"
+
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInViewCollection, "SurfaceInViewCollection" );
 
@@ -257,6 +261,71 @@ void RimSurfaceInViewCollection::updateFromSurfaceCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSurfaceInViewCollection::setSurfaceVisible( RimSurface* surface, bool visible )
+{
+    updateFromSurfaceCollection();
+
+    auto* surfaceInView = findSurfaceInView( surface );
+    if ( !surfaceInView ) return false;
+
+    surfaceInView->setActive( visible );
+    surfaceInView->updateConnectedEditors();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RimSurfaceInViewCollection::setSurfaceProperty( RimSurface* surface, const QString& propertyName )
+{
+    updateFromSurfaceCollection();
+
+    auto* surfaceInView = findSurfaceInView( surface );
+    if ( !surfaceInView )
+    {
+        return std::unexpected( QString( "Surface is not available in this view." ) );
+    }
+
+    surface->loadDataIfRequired();
+    auto* surfaceData = surface->surfaceData();
+    if ( !surfaceData )
+    {
+        return std::unexpected( QString( "Surface '%1' has no surface data." ).arg( surface->fullName() ) );
+    }
+
+    const auto propertyNames = surfaceData->propertyNames();
+    if ( std::find( propertyNames.begin(), propertyNames.end(), propertyName ) == propertyNames.end() )
+    {
+        return std::unexpected( QString( "Property '%1' is not available for surface '%2'." ).arg( propertyName, surface->fullName() ) );
+    }
+
+    surfaceInView->surfaceResultDefinition()->setPropertyName( propertyName );
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurfaceInViewCollection::isSurfaceVisible( const RimSurface* surface ) const
+{
+    auto* surfaceInView = findSurfaceInView( surface );
+    return surfaceInView && surfaceInView->isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSurfaceInViewCollection::surfaceProperty( const RimSurface* surface ) const
+{
+    auto* surfaceInView = findSurfaceInView( surface );
+    if ( !surfaceInView ) return {};
+
+    return surfaceInView->surfaceResultDefinition()->propertyName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::loadData( int timeStep )
 {
     for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
@@ -355,6 +424,21 @@ RimSurfaceInView* RimSurfaceInViewCollection::getSurfaceInViewForSurface( const 
         {
             return surfInView;
         }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceInView* RimSurfaceInViewCollection::findSurfaceInView( const RimSurface* surface ) const
+{
+    if ( auto* surfaceInView = getSurfaceInViewForSurface( surface ) ) return surfaceInView;
+
+    for ( auto collection : m_collectionsInView )
+    {
+        if ( auto* surfaceInView = collection->findSurfaceInView( surface ) ) return surfaceInView;
     }
 
     return nullptr;

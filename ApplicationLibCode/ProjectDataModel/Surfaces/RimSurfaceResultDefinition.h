@@ -40,6 +40,7 @@ public:
     ~RimSurfaceResultDefinition() override;
 
     void    setSurfaceInView( RimSurfaceInView* surfaceInView );
+    void    setPropertyName( const QString& propertyName );
     QString propertyName() const;
 
     RimRegularLegendConfig* legendConfig();
