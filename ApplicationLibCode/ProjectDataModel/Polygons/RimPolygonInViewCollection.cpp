@@ -95,6 +95,39 @@ std::vector<RimPolygonInView*> RimPolygonInViewCollection::allPolygonsInView() c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimPolygonInViewCollection::setPolygonVisible( RimPolygon* polygon, bool visible )
+{
+    updateFromPolygonCollection();
+
+    auto* polygonInView = findPolygonInView( polygon );
+    if ( !polygonInView ) return false;
+
+    polygonInView->setCheckState( visible );
+    polygonInView->updateConnectedEditors();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygonInView* RimPolygonInViewCollection::findPolygonInView( const RimPolygon* polygon ) const
+{
+    for ( auto polygonInView : m_itemsInView )
+    {
+        if ( polygonInView && polygonInView->polygon() == polygon ) return polygonInView;
+    }
+
+    for ( auto collection : m_collectionsInView )
+    {
+        if ( auto* polygonInView = collection->findPolygonInView( polygon ) ) return polygonInView;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimCheckableNamedObject::fieldChangedByUi( changedField, oldValue, newValue );

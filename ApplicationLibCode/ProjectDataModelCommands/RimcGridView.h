@@ -21,8 +21,11 @@
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
+#include "cafPdmPtrField.h"
 
 #include <QString>
+
+class RimPolygon;
 
 //==================================================================================================
 ///
@@ -39,4 +42,21 @@ public:
 private:
     caf::PdmField<QString> m_visibilityKey;
     caf::PdmField<int>     m_timeStep;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcGridView_setPolygonVisible : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcGridView_setPolygonVisible( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrField<RimPolygon*> m_polygon;
+    caf::PdmField<bool>           m_visible;
 };

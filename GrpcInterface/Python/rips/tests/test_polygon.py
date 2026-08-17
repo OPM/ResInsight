@@ -36,6 +36,33 @@ def test_create_polygon(rips_instance, initialize_test):
             assert math.isclose(e, a, rel_tol=1e-9, abs_tol=0.0)
 
 
+def test_set_polygon_visible_in_view(rips_instance, initialize_test):
+    project = rips_instance.project.open(
+        dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
+    )
+
+    polygon_collection = project.descendants(rips.PolygonCollection)[0]
+    polygon = polygon_collection.create_polygon(
+        name="View polygon",
+        coordinates=[
+            [0.0, 0.0, -1000.0],
+            [100.0, 0.0, -1000.0],
+            [100.0, 100.0, -1000.0],
+        ],
+    )
+
+    case = project.cases()[0]
+    first_view = case.views()[0]
+    second_view = case.create_view()
+
+    assert first_view.set_polygon_visible(polygon=polygon, visible=False) is None
+    assert second_view.set_polygon_visible(polygon=polygon, visible=True) is None
+    assert first_view.set_polygon_visible(polygon=polygon, visible=True) is None
+
+    with pytest.raises(rips.RipsError, match="Polygon is null"):
+        first_view.set_polygon_visible(polygon=None, visible=True)
+
+
 def test_add_folders_and_polygons(rips_instance, initialize_test):
     rips_instance.project.open(
         dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
