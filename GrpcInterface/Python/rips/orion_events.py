@@ -821,7 +821,13 @@ def _parse_attributes(attr_str: str, loc: SourceLoc) -> Dict[str, AttrValue]:
 
 
 def _infer_value(raw: str) -> AttrScalar:
-    """Infer int, then float, otherwise keep the raw string."""
+    """Infer bool, int, then float; otherwise keep the raw string."""
+    upper = raw.upper()
+    if upper == "TRUE":
+        return True
+    if upper == "FALSE":
+        return False
+
     try:
         return int(raw)
     except ValueError:
