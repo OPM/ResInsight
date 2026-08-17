@@ -393,6 +393,34 @@ class TestParsing:
         # WELL after SCHEDULE switches the sink back to the well block.
         assert [len(w.events) for w in doc.wells] == [1, 1]
 
+    def test_group_blocks_parse_and_switch_event_sink(self):
+        text = (
+            'ORIONEVENTS 2.0\nGROUP "OP"\n'
+            "  @2020-07-01 GEFAC FACTOR=1.0 TRANSFER=YES\n"
+            "  @2020-07-01 GCONPROD CMODE=LRAT LRAT=20000\n"
+            'GROUP "WI"\n'
+            "  @2020-07-01 GCONINJE TYPE=WATER CMODE=RATE RATE=16000\n"
+            "SCHEDULE\n"
+            "  @2020-07-01 RPTRST BASIC=2\n"
+        )
+        doc = parse_orion_events(text)
+        assert [group.group_name for group in doc.groups] == ["OP", "WI"]
+        assert [event.event_type for event in doc.groups[0].events] == [
+            "GEFAC",
+            "GCONPROD",
+        ]
+        assert [event.event_type for event in doc.groups[1].events] == ["GCONINJE"]
+        assert [event.event_type for event in doc.schedule_events] == ["RPTRST"]
+
+    def test_empty_group_block_ok(self):
+        doc = parse_orion_events('ORIONEVENTS 2.0\nGROUP "OP"\n')
+        assert doc.groups[0].group_name == "OP"
+        assert doc.groups[0].events == []
+
+    def test_malformed_group_line_rejected(self):
+        with pytest.raises(OrionParseError, match="Malformed GROUP line"):
+            parse_orion_events("ORIONEVENTS 2.0\nGROUP OP\n")
+
     def test_boolean_attributes_are_typed_unless_quoted(self):
         text = (
             "ORIONEVENTS 2.0\n"
@@ -919,6 +947,29 @@ class TestApplying:
         assert rptrst["keyword_data"] == {"BASIC": 2, "FREQ": 1}
         assert "WELL" not in rptrst["keyword_data"]
 
+    def test_group_events_inject_group_name(self):
+        text = (
+            'ORIONEVENTS 2.0\nGROUP "OP"\n'
+            "  @2020-07-01 GEFAC EFFICIENCY_FACTOR=1.0 USE_GEFAC_IN_NETWORK=YES\n"
+            "  @2020-07-01 GCONPROD CONTROL_MODE=LRAT LIQUID_TARGET=20000 WATER_TARGET=20000 OIL_TARGET=20000\n"
+            'GROUP "WI"\n'
+            "  @2020-07-01 GCONINJE PHASE=WATER CONTROL_MODE=RATE SURFACE_TARGET=16000\n"
+        )
+        timeline, report = self._apply(text)
+        assert report.events_applied == 3
+        assert [call["keyword_name"] for call in timeline.schedule_keyword_calls] == [
+            "GEFAC",
+            "GCONPROD",
+            "GCONINJE",
+        ]
+        assert timeline.schedule_keyword_calls[0]["keyword_data"] == {
+            "GROUP": "OP",
+            "EFFICIENCY_FACTOR": 1.0,
+            "USE_GEFAC_IN_NETWORK": "YES",
+        }
+        assert timeline.schedule_keyword_calls[1]["keyword_data"]["GROUP"] == "OP"
+        assert timeline.schedule_keyword_calls[2]["keyword_data"]["GROUP"] == "WI"
+
     def test_completion_event_in_schedule_block_is_error(self):
         text = (
             "ORIONEVENTS 2.0\nSCHEDULE\n  @2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
@@ -1157,6 +1208,35 @@ class TestOrionEventsIntegration:
             assert flag in tokens
             assert f"{flag}=True" not in rptrst_block
         assert "NORST" not in tokens
+
+    def test_group_sections_generate_group_keywords(self, project_with_case_and_wells):
+        project, case, timeline = project_with_case_and_wells
+        well = project.well_paths()[0]
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            "  @2020-07-01 WCONHIST STATUS=OPEN CMODE=ORAT\n"
+            'GROUP "OP"\n'
+            "  @2020-07-01 GEFAC EFFICIENCY_FACTOR=1.0 USE_GEFAC_IN_NETWORK=YES\n"
+            "  @2020-07-01 GCONPROD CONTROL_MODE=LRAT LIQUID_TARGET=20000 "
+            "WATER_TARGET=20000 OIL_TARGET=20000\n"
+            'GROUP "WI"\n'
+            "  @2020-07-01 GCONINJE PHASE=WATER CONTROL_MODE=RATE "
+            "SURFACE_TARGET=16000\n"
+        )
+
+        report = apply_orion_document(document, timeline, project)
+        assert report.errors == []
+        assert report.events_applied == 4
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, export_msw_for_wells=[]
+        )
+        assert "GEFAC" in schedule
+        assert "GCONPROD" in schedule
+        assert "GCONINJE" in schedule
+        assert "'OP'" in schedule
+        assert "'WI'" in schedule
 
     def test_apply_creates_perforations_and_schedule(self, project_with_case_and_wells):
         """End-to-end: parse -> apply -> set_timestamp -> generate schedule."""
