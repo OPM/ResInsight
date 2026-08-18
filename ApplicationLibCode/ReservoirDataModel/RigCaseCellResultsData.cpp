@@ -1809,8 +1809,9 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
 
         if ( !resultLoadingSuccess )
         {
-            // Error logging
-            CAF_ASSERT( false );
+            // A result present in the meta data can still fail to load from file. This is a run-time condition, not a
+            // programming error, so report it instead of asserting.
+            RiaLogging::error( QString( "Failed to load result '%1' for time step %2" ).arg( resultName ).arg( timeStepIndex ).toStdString() );
         }
     }
 
