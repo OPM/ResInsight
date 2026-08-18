@@ -73,6 +73,7 @@ public:
     std::pair<std::string, std::string> nameKeys() const override;
     void                                updateName( const std::set<QString>& existingEnsembleNames ) override;
     void                                prefetchSummaryData( const std::vector<RifEclipseSummaryAddress>& resultAddresses ) override;
+    bool                                isSummaryDataPending( const std::vector<RifEclipseSummaryAddress>& resultAddresses ) const override;
 
 protected:
     void onLoadDataAndUpdate() override;

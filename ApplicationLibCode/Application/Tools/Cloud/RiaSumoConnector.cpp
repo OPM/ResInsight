@@ -24,6 +24,8 @@
 #include "RiaOsduDefines.h"
 #include "RiaQStringFormatter.h"
 
+#include "cafProgressInfo.h"
+
 #include <QEventLoop>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -36,6 +38,7 @@
 #include <QTimer>
 
 #include <algorithm>
+#include <optional>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -241,7 +244,7 @@ void RiaSumoConnector::abortIfNotFinishedWithin( QNetworkReply* reply, int timeo
 /// Run work on the transfer thread and wait for it to finish, without dispatching any events on the calling
 /// thread. This is what keeps the view update code from re-entering a load that is already running.
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::runOnTransferThreadBlocking( const std::function<void()>& work )
+void RiaSumoConnector::runOnTransferThreadBlocking( const std::function<void()>& work, const QString& progressText )
 {
     // A blocking request can be issued from inside another one, for instance the blob id lookup done while
     // downloading a grid property. Already on the transfer thread, run directly instead of deadlocking on a
@@ -250,6 +253,21 @@ void RiaSumoConnector::runOnTransferThreadBlocking( const std::function<void()>&
     {
         work();
         return;
+    }
+
+    // Tell the user something is being loaded while this thread waits. Created only here, after the branch
+    // above has returned for calls made from the transfer thread: caf::ProgressInfo hands construction to the
+    // thread owning the user interface and waits for it, which would deadlock against a thread already
+    // waiting for this work.
+    //
+    // The dialog must not be delayed. A delayed dialog is put up by a timer, and no events are dispatched on
+    // this thread while the work runs, so it would never appear for exactly the requests slow enough to want
+    // it. There is one step: the work is a single wait, with nothing to count along the way.
+    std::optional<caf::ProgressInfo> progressInfo;
+    if ( !progressText.isEmpty() )
+    {
+        const bool delayShowingProgress = false;
+        progressInfo.emplace( 1, progressText, delayShowingProgress );
     }
 
     QSemaphore semaphore;
@@ -338,7 +356,7 @@ QByteArray RiaSumoConnector::downloadBlobBlocking( const QString& blobId )
 /// Issue a GET and return the response body, waiting on the transfer thread. Returns an empty array when
 /// the request fails. This is the primitive the data specific requests are built from.
 //--------------------------------------------------------------------------------------------------
-QByteArray RiaSumoConnector::getBlocking( const QString& url )
+QByteArray RiaSumoConnector::getBlocking( const QString& url, const QString& progressText )
 {
     requestTokenBlocking();
 
@@ -363,7 +381,8 @@ QByteArray RiaSumoConnector::getBlocking( const QString& url )
             eventLoop.exec();
 
             body = replyBody( reply, url );
-        } );
+        },
+        progressText );
 
     return body;
 }
@@ -418,7 +437,8 @@ std::map<QString, QByteArray> RiaSumoConnector::downloadBlobsBlocking( const std
 
     std::map<QString, QByteArray> contentsByBlobId;
 
-    runOnTransferThreadBlocking( [&]() { contentsByBlobId = downloadBlobs( blobIds ); } );
+    runOnTransferThreadBlocking( [&]() { contentsByBlobId = downloadBlobs( blobIds ); },
+                                 QString( "Downloading %1 file(s) from Sumo" ).arg( blobIds.size() ) );
 
     return contentsByBlobId;
 }

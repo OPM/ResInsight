@@ -22,6 +22,7 @@
 #include <QString>
 
 class QLabel;
+class QTimer;
 
 class RiuAbstractOverlayContentFrame : public QFrame
 {
@@ -50,4 +51,35 @@ private:
 
 private:
     QPointer<QLabel> m_textLabel;
+};
+
+//==================================================================================================
+/// Says that something is going on, for work that finishes on its own and reports no progress along the
+/// way. The animation is driven by a timer that only runs while the frame is visible, so a frame that has
+/// been taken off a plot costs nothing.
+//==================================================================================================
+class RiuSpinnerOverlayContentFrame : public RiuAbstractOverlayContentFrame
+{
+    Q_OBJECT
+public:
+    RiuSpinnerOverlayContentFrame( QWidget* parent = nullptr );
+
+    void setText( const QString& text );
+    void renderTo( QPainter* painter, const QRect& targetRect ) override;
+
+protected:
+    void paintEvent( QPaintEvent* event ) override;
+    void showEvent( QShowEvent* event ) override;
+    void hideEvent( QHideEvent* event ) override;
+
+private:
+    void       drawSpinner( QPainter* painter, const QPoint& topLeft ) const;
+    static int spinnerSize();
+    static int spinnerMargin();
+    void       updateLabelFont();
+
+private:
+    QPointer<QLabel> m_textLabel;
+    QTimer*          m_animationTimer = nullptr;
+    int              m_angleDegrees   = 0;
 };

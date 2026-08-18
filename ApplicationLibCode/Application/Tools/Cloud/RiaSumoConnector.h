@@ -73,13 +73,17 @@ public:
 
     // Transport used by the data specific delegates. Every request goes through the transfer thread, so
     // the calling thread waits without dispatching events.
-    QByteArray getBlocking( const QString& url );
+    QByteArray getBlocking( const QString& url, const QString& progressText = {} );
 
     // The REST API returns a blob id as a plain string, quoted by FastAPI.
     static QString blobIdFromBody( const QByteArray& body );
 
     void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& contentType );
-    void runOnTransferThreadBlocking( const std::function<void()>& work );
+
+    // Run work on the transfer thread and wait for it. Pass progressText to show the standard progress dialog
+    // while waiting, worth doing for the transfers slow enough to be noticed and not for the small requests
+    // that would only make it flash.
+    void runOnTransferThreadBlocking( const std::function<void()>& work, const QString& progressText = {} );
 
     // Run work on the transfer thread without waiting for it. The async data paths use this: the result is
     // delivered by a callback rather than by returning, so the calling thread carries on immediately.

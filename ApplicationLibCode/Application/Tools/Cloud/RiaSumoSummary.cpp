@@ -127,7 +127,8 @@ std::map<QString, QByteArray>
                     contentsByVectorName[namesToFetch[i]] = it->second;
                 }
             }
-        } );
+        },
+        QString( "Loading %1 summary vector(s) from Sumo" ).arg( namesToFetch.size() ) );
 
     return contentsByVectorName;
 }

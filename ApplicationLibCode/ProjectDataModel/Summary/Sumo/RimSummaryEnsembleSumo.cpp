@@ -312,6 +312,26 @@ void RimSummaryEnsembleSumo::prefetchSummaryData( const std::vector<RifEclipseSu
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryEnsembleSumo::isSummaryDataPending( const std::vector<RifEclipseSummaryAddress>& resultAddresses ) const
+{
+    if ( m_pendingVectors.empty() || !m_sumoDataSource() ) return false;
+
+    auto sumoCaseId       = m_sumoDataSource()->caseId();
+    auto sumoEnsembleName = m_sumoDataSource()->ensembleName();
+
+    for ( const auto& resultAddress : resultAddresses )
+    {
+        auto resultText = QString::fromStdString( resultAddress.toEclipseTextAddress() );
+
+        if ( m_pendingVectors.contains( ParquetKey{ sumoCaseId, sumoEnsembleName, resultText, false } ) ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// One requested vector has arrived. Called on the thread owning the user interface, once per vector.
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsembleSumo::onVectorDataReceived( const ParquetKey& parquetKey, const QByteArray& contents )

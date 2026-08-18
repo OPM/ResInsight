@@ -62,6 +62,8 @@
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 #include "Tools/RimPlotAxisTools.h"
 
+#include "RiuAbstractOverlayContentFrame.h"
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotAxis.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -1839,6 +1841,49 @@ void RimSummaryPlot::prefetchSummaryData()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Say that this plot is waiting for data. A source can load without waiting, and then the curves are drawn
+/// with what has arrived so far, leaving a plot looking finished when it is not. Called after every load, so
+/// the frame appears when the data is asked for and goes away when the last of it has arrived.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateLoadingOverlayFrame()
+{
+    if ( !plotWidget() ) return;
+
+    bool isWaitingForData = false;
+    for ( const auto& [ensemble, addresses] : summaryAddressesByEnsemble() )
+    {
+        if ( ensemble->isSummaryDataPending( addresses ) )
+        {
+            isWaitingForData = true;
+            break;
+        }
+    }
+
+    if ( !isWaitingForData )
+    {
+        if ( m_loadingOverlayFrame )
+        {
+            plotWidget()->removeOverlayFrame( m_loadingOverlayFrame );
+            delete m_loadingOverlayFrame;
+            m_loadingOverlayFrame = nullptr;
+        }
+        return;
+    }
+
+    if ( !m_loadingOverlayFrame )
+    {
+        m_loadingOverlayFrame = new RiuDraggableOverlayFrame( plotWidget()->getParentForOverlay(), plotWidget()->overlayMargins() );
+        m_loadingOverlayFrame->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopLeft );
+
+        auto* spinnerFrame = new RiuSpinnerOverlayContentFrame( m_loadingOverlayFrame );
+        m_loadingOverlayFrame->setContentFrame( spinnerFrame );
+        spinnerFrame->setText( "Loading" );
+    }
+
+    plotWidget()->addOverlayFrame( m_loadingOverlayFrame );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::onLoadDataAndUpdate()
@@ -1896,6 +1941,8 @@ void RimSummaryPlot::onLoadDataAndUpdate()
     updateAxes();
 
     updateStackedCurveData();
+
+    updateLoadingOverlayFrame();
 }
 
 //--------------------------------------------------------------------------------------------------

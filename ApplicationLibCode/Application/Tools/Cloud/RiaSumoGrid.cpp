@@ -159,7 +159,8 @@ void RiaSumoGrid::prefetchPropertyData( const SumoCaseId&           caseId,
     if ( timestampsToFetch.size() < 2 ) return; // nothing to gain over the single time step path
 
     m_connector.runOnTransferThreadBlocking(
-        [&]() { fetchPropertyBatch( caseId, ensembleName, gridName, realization, propertyName, timestampsToFetch, cacheKeys ); } );
+        [&]() { fetchPropertyBatch( caseId, ensembleName, gridName, realization, propertyName, timestampsToFetch, cacheKeys ); },
+        QString( "Loading %1 time step(s) of %2 from Sumo" ).arg( timestampsToFetch.size() ).arg( propertyName ) );
 }
 
 //--------------------------------------------------------------------------------------------------

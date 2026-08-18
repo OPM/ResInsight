@@ -56,6 +56,7 @@ class RimSummaryTimeAxisProperties;
 class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 class RiuSummaryQwtPlot;
+class RiuDraggableOverlayFrame;
 class RimSummaryNameHelper;
 class RimSummaryPlotNameHelper;
 class RimPlotTemplateFileItem;
@@ -253,6 +254,7 @@ protected:
     void onLoadDataAndUpdate() override;
 
     void prefetchSummaryData();
+    void updateLoadingOverlayFrame();
 
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
 
@@ -345,8 +347,9 @@ private:
 
     caf::PdmChildArrayField<RimPlotAxisPropertiesInterface*> m_axisPropertiesArray;
 
-    QPointer<RiuSummaryPlot>          m_summaryPlot;
-    std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;
+    QPointer<RiuSummaryPlot>           m_summaryPlot;
+    QPointer<RiuDraggableOverlayFrame> m_loadingOverlayFrame;
+    std::unique_ptr<QwtPlotTextLabel>  m_plotInfoLabel;
 
     std::unique_ptr<RimSummaryPlotNameHelper>         m_nameHelperAllCurves;
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
