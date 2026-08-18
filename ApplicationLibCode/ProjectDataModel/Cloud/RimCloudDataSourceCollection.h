@@ -58,6 +58,16 @@ private:
 
     static bool isCloudApiServerAvailable();
 
+    // The option lists are rebuilt every time the property editor refreshes, so what Sumo answered is kept
+    // here and only asked for again when the selection it belongs to changes.
+    const std::vector<SumoAsset>& cachedAssets();
+    const std::vector<SumoCase>&  cachedCases( const QString& assetName );
+    const std::vector<QString>&   cachedEnsembleNames( const SumoCaseId& caseId );
+
+    void clearCachedCases();
+
+    void clearCachedEnsembleNames();
+
 private:
     caf::PdmField<bool>                 m_authenticate;
     caf::PdmField<QString>              m_sumoFieldName;
@@ -73,4 +83,12 @@ private:
     caf::PdmField<bool> m_restartServer;
 
     QPointer<RiaSumoConnector> m_sumoConnector;
+
+    std::vector<SumoAsset> m_assets;
+
+    QString               m_casesAssetName;
+    std::vector<SumoCase> m_cases;
+
+    QString              m_ensembleNamesCaseId;
+    std::vector<QString> m_ensembleNames;
 };

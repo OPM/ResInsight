@@ -125,7 +125,7 @@ void RifReaderSumoGridProperty::prefetchFromTimeStep( const QString& propertyNam
         if ( !timestamps[i].isEmpty() ) batch.push_back( timestamps[i] );
     }
 
-    m_connector->prefetchGridPropertyDataBlocking( SumoCaseId( m_caseId ), m_ensembleName, m_gridName, m_realization, propertyName, batch );
+    m_connector->grid().prefetchPropertyData( SumoCaseId( m_caseId ), m_ensembleName, m_gridName, m_realization, propertyName, batch );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,12 +135,8 @@ bool RifReaderSumoGridProperty::fetchAndDecode( const QString& propertyName, con
 {
     if ( !m_connector || !m_caseData || !values ) return false;
 
-    QByteArray contents = m_connector->requestGridPropertyDataBlocking( SumoCaseId( m_caseId ),
-                                                                        m_ensembleName,
-                                                                        m_gridName,
-                                                                        m_realization,
-                                                                        propertyName,
-                                                                        isoDateOrInterval );
+    QByteArray contents =
+        m_connector->grid().propertyData( SumoCaseId( m_caseId ), m_ensembleName, m_gridName, m_realization, propertyName, isoDateOrInterval );
 
     RiaLogging::debug( std::format( "Sumo grid property '{}' (time '{}'): downloaded {} bytes.",
                                     propertyName.toStdString(),

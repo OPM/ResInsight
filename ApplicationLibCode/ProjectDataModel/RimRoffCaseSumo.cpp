@@ -187,8 +187,7 @@ bool RimRoffCaseSumo::openEclipseGridFile()
 
     if ( eclipseCaseData()->mainGrid()->cellCount() == 0 )
     {
-        QByteArray contents =
-            m_sumoConnector->requestGridDataBlocking( SumoCaseId( m_sumoCaseId() ), m_ensembleName(), m_gridName(), m_realization() );
+        QByteArray contents = m_sumoConnector->grid().gridData( SumoCaseId( m_sumoCaseId() ), m_ensembleName(), m_gridName(), m_realization() );
         if ( contents.isEmpty() )
         {
             RiaLogging::error(
@@ -263,14 +262,15 @@ void RimRoffCaseSumo::registerSumoGridProperties()
 {
     if ( !m_sumoConnector || !eclipseCaseData() ) return;
 
-    m_sumoConnector->requestGridPropertyInfoForEnsembleBlocking( SumoCaseId( m_sumoCaseId() ), m_ensembleName(), m_gridName(), m_realization() );
+    const auto gridPropertyInfos =
+        m_sumoConnector->grid().propertyInfo( SumoCaseId( m_sumoCaseId() ), m_ensembleName(), m_gridName(), m_realization() );
 
     // Properties without a timestamp are static. Properties with a single timestamp are dynamic (one time
     // step per timestamp). Time intervals (the iso string contains '/') are not supported and skipped.
     std::vector<QString>                 staticPropertyNames;
     std::map<QString, std::set<QString>> dynamicPropertyTimestamps; // property name -> the timestamps it has
     std::set<QString>                    allTimestamps; // union of timestamps across all properties
-    for ( const auto& info : m_sumoConnector->gridPropertyInfos() )
+    for ( const auto& info : gridPropertyInfos )
     {
         if ( info.isoDateOrInterval.isEmpty() )
         {

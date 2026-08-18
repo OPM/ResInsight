@@ -20,6 +20,9 @@
 
 #include "RiaCloudConnector.h"
 #include "RiaSumoDefines.h"
+#include "RiaSumoExplore.h"
+#include "RiaSumoGrid.h"
+#include "RiaSumoSummary.h"
 
 #include <QByteArray>
 #include <QNetworkAccessManager>
@@ -33,53 +36,6 @@ class QEventLoop;
 class QThread;
 
 using SumoObjectId = QString;
-
-struct SumoAsset
-{
-    SumoAssetId assetId;
-
-    QString kind;
-    QString name;
-};
-
-struct SumoCase
-{
-    SumoCaseId caseId;
-
-    QString kind;
-    QString name;
-};
-
-struct SumoRedirect
-{
-    SumoObjectId objectId;
-    QString      blobName;
-    QString      url;
-    QString      redirectBaseUri;
-    QString      redirectAuth;
-    QByteArray   contents;
-};
-
-struct SumoEnsemble
-{
-    SumoCaseId caseId;
-    QString    name;
-};
-
-struct SumoGridInfo
-{
-    QString          name;
-    std::vector<int> realizations;
-};
-
-struct SumoGridPropertyInfo
-{
-    QString name;
-
-    // Empty for a static property. For a dynamic property this is either a single timestamp ("2018-01-01")
-    // or an interval ("2018-01-01/2019-01-01"). ResInsight currently only supports the single-timestamp form.
-    QString isoDateOrInterval;
-};
 
 //==================================================================================================
 ///
@@ -101,191 +57,55 @@ public:
 
     QString server() const override;
 
-    void requestAssets();
-    void requestAssetsBlocking();
+    // Download blobs by id and return their contents. Getting a blob takes two round trips, one for the
+    // pre-signed URI and one for the data, and a batch does each of those as one concurrent group.
+    QByteArray                    downloadBlobBlocking( const QString& blobId );
+    std::map<QString, QByteArray> downloadBlobsBlocking( const std::vector<QString>& blobIds );
 
-    void requestCasesForField( const QString& fieldName );
-    void requestCasesForFieldBlocking( const QString& fieldName );
+    // What Sumo holds: assets, cases, ensembles and realizations.
+    RiaSumoExplore& explore();
 
-    void requestEnsembleByCasesId( const SumoCaseId& caseId );
-    void requestEnsembleByCasesIdBlocking( const SumoCaseId& caseId );
+    // The grid data of a case. Owned here so its blob cache lives as long as the connection.
+    RiaSumoGrid& grid();
 
-    void requestVectorNamesForEnsemble( const SumoCaseId& caseId, const QString& ensembleName );
-    void requestVectorNamesForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName );
+    // The summary data of a case.
+    RiaSumoSummary& summary();
 
-    void requestRealizationIdsForEnsemble( const SumoCaseId& caseId, const QString& ensembleName );
-    void requestRealizationIdsForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName );
+    // Transport used by the data specific delegates. Every request goes through the transfer thread, so
+    // the calling thread waits without dispatching events.
+    QByteArray getBlocking( const QString& url );
 
-    void       requestParametersBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName );
-    void       requestParametersBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName );
-    QByteArray requestParametersParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName );
+    // The REST API returns a blob id as a plain string, quoted by FastAPI.
+    static QString blobIdFromBody( const QByteArray& body );
 
-    void requestBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
-    void requestBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
-
-    void requestBlobDownload( const QString& blobId );
-    void requestBlobBySasUri( const QString& blobId, const QString& sasUri );
-
-    QByteArray requestParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
-
-    void requestGridInfoForEnsemble( const SumoCaseId& caseId, const QString& ensembleName );
-    void requestGridInfoForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName );
-
-    void requestGridBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );
-    void requestGridBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );
-
-    QByteArray requestGridDataBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );
-
-    void requestGridPropertyInfoForEnsemble( const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );
-    void requestGridPropertyInfoForEnsembleBlocking( const SumoCaseId& caseId,
-                                                     const QString&    ensembleName,
-                                                     const QString&    gridName,
-                                                     int               realization );
-
-    QString requestGridPropertyBlobIdBlocking( const SumoCaseId& caseId,
-                                               const QString&    ensembleName,
-                                               const QString&    gridName,
-                                               int               realization,
-                                               const QString&    propertyName,
-                                               const QString&    isoDateOrInterval );
-
-    QByteArray requestGridPropertyDataBlocking( const SumoCaseId& caseId,
-                                                const QString&    ensembleName,
-                                                const QString&    gridName,
-                                                int               realization,
-                                                const QString&    propertyName,
-                                                const QString&    isoDateOrInterval );
-
-    // Download several time steps of one grid property concurrently and put them in the blob cache, so the
-    // following per time step requests are served without going to Sumo. Entries already cached are skipped.
-    void prefetchGridPropertyDataBlocking( const SumoCaseId&           caseId,
-                                           const QString&              ensembleName,
-                                           const QString&              gridName,
-                                           int                         realization,
-                                           const QString&              propertyName,
-                                           const std::vector<QString>& isoDatesOrIntervals );
-
-    std::vector<SumoAsset>            assets() const;
-    std::vector<SumoCase>             cases() const;
-    std::vector<QString>              ensembleNamesForCase( const SumoCaseId& caseId ) const;
-    std::vector<QString>              vectorNames() const;
-    std::vector<QString>              realizationIds() const;
-    std::vector<SumoGridInfo>         gridInfos() const;
-    std::vector<SumoGridPropertyInfo> gridPropertyInfos() const;
-    std::vector<QString>              blobIds() const;
-    std::vector<SumoRedirect>         blobContents() const;
-
-public slots:
-    void parseAssets( QNetworkReply* reply );
-    void parseEnsembleNames( QNetworkReply* reply, const SumoCaseId& caseId );
-    void parseCases( QNetworkReply* reply );
-    void parseVectorNames( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
-    void parseRealizationNumbers( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
-    void parseGridInfo( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
-    void parseGridPropertyInfo( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );
-    void parseBlobId( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName, bool isParameters );
-
-    void requestFailed( const QAbstractOAuth::Error error );
-    void parquetDownloadComplete( const QString& blobId, const QByteArray&, const QString& url );
-
-signals:
-    void fileDownloadFinished( const QString& fileId, const QString& filePath );
-    void casesFinished();
-    void wellsFinished();
-    void wellboresFinished( const QString& wellId );
-    void wellboreTrajectoryFinished( const QString& wellboreId );
-    void parquetDownloadFinished( const QByteArray& contents, const QString& url );
-    void ensembleNamesFinished();
-    void vectorNamesFinished();
-    void blobIdFinished();
-    void assetsFinished();
-    void realizationIdsFinished();
-    void gridInfoFinished();
-    void gridPropertyInfoFinished();
-
-private:
     void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& contentType );
-
-    QNetworkReply* makeDownloadRequest( const QString& url, const QString& token, const QString& contentType );
-    void           requestParquetData( const QString& url, const QString& token );
-
-    static QString constructSasUri( const QString& blobStoreBaseUri, const QString& blobId, const QString& sasToken );
-
-    void wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod );
-    void waitForRequest( const std::function<void()>& requestCallable, const QMetaMethod& signalMethod );
-
-    QByteArray gridPropertyBlobFromCache( const QString& cacheKey );
-    void       insertGridPropertyBlobInCache( const QString& cacheKey, const QByteArray& contents );
-
-    static QString gridPropertyCacheKey( const SumoCaseId& caseId,
-                                         const QString&    ensembleName,
-                                         const QString&    gridName,
-                                         int               realization,
-                                         const QString&    propertyName,
-                                         const QString&    isoDateOrInterval );
-
-    QNetworkReply* makeGridPropertyBlobIdRequest( const SumoCaseId& caseId,
-                                                  const QString&    ensembleName,
-                                                  const QString&    gridName,
-                                                  int               realization,
-                                                  const QString&    propertyName,
-                                                  const QString&    isoDateOrInterval );
-
-    static QString blobIdFromReply( QNetworkReply* reply, const QString& propertyName );
-
-    void fetchGridPropertyBatch( const SumoCaseId&           caseId,
-                                 const QString&              ensembleName,
-                                 const QString&              gridName,
-                                 int                         realization,
-                                 const QString&              propertyName,
-                                 const std::vector<QString>& timestampsToFetch,
-                                 const std::vector<QString>& cacheKeys );
-
-    static void waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies );
-
-    // Download one blob by id and return its contents, waiting on the transfer thread.
-    QByteArray downloadBlobBlocking( const QString& blobId );
+    void runOnTransferThreadBlocking( const std::function<void()>& work );
 
     // The network manager belonging to the calling thread: the transfer thread manager when called from
     // there, otherwise the one owned by RiaCloudConnector on the GUI thread.
     QNetworkAccessManager* networkAccessManager();
 
-    // Run work on the transfer thread and block the caller until it returns. The caller waits on a semaphore
-    // and dispatches no events, so nothing can re-enter the code that started the request. Called from the
-    // transfer thread itself, the work is run directly, which keeps nested blocking requests working.
-    void runOnTransferThreadBlocking( const std::function<void()>& work );
+    static void waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies );
+
+    // Issue and collect the two round trips a blob transfer needs. Called on the transfer thread.
+    std::map<QString, QByteArray> downloadBlobs( const std::vector<QString>& blobIds );
+
+public slots:
+    void requestFailed( const QAbstractOAuth::Error error );
+
+private:
+    static QString constructSasUri( const QString& blobStoreBaseUri, const QString& blobId, const QString& sasToken );
+
+    QString           sasUriFromReply( QNetworkReply* reply, const QString& blobId );
+    static QByteArray blobContentsFromReply( QNetworkReply* reply, const QString& sasUri );
+    static QByteArray replyBody( QNetworkReply* reply, const QString& url );
 
 private:
     std::function<QString()> m_serverUrlProvider;
 
-    std::vector<SumoAsset>    m_assets;
-    std::vector<SumoCase>     m_cases;
-    std::vector<QString>      m_vectorNames;
-    std::vector<QString>      m_realizationIds;
-    std::vector<SumoEnsemble> m_ensembleNames;
-    std::vector<SumoGridInfo> m_gridInfos;
-
-    std::vector<SumoGridPropertyInfo> m_gridPropertyInfos;
-
-    std::vector<QString> m_blobId;
-
-    std::vector<SumoRedirect> m_redirectInfo;
-
-    // Downloaded grid-property blobs, keyed by the full property identity (case, ensemble, grid, realization,
-    // property, timestamp). Displaying a property computes its global legend range across all time steps, so a
-    // property is requested repeatedly; the cache ensures each blob is fetched from Sumo at most once.
-    //
-    // Bounded by total byte size, not by entry count, as the blob size follows the grid size and varies by orders
-    // of magnitude. The least recently used entries are evicted when the limit is exceeded.
-    struct GridPropertyBlobCacheEntry
-    {
-        QByteArray                   contents;
-        std::list<QString>::iterator orderIterator;
-    };
-
-    std::map<QString, GridPropertyBlobCacheEntry> m_gridPropertyBlobCache;
-    std::list<QString>                            m_gridPropertyBlobCacheOrder; // most recently used at front
-    size_t                                        m_gridPropertyBlobCacheSizeBytes = 0;
+    RiaSumoExplore m_explore;
+    RiaSumoGrid    m_grid;
+    RiaSumoSummary m_summary;
 
     // Transfers run on their own thread so the calling thread can wait without dispatching events. Waiting on
     // a nested event loop on the GUI thread let the view update code re-enter a load that was still running,

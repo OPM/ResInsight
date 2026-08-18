@@ -207,8 +207,6 @@ void RiuMessagePanelLogger::debug( const char* message )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 /// Deliver the messages handed over from other threads. Only the queued addMessage calls above are posted to
 /// a panel, so this writes out the pending log messages and nothing else. Must be called from the thread
 /// owning the panels.

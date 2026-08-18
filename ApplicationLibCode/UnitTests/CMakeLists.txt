@@ -18,6 +18,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmFlowDeckFile-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseOutput-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSumoBlobCache-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellInfo-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseDataTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor-Test.cpp

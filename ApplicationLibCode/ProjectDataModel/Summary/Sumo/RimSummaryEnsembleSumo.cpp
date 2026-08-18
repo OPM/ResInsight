@@ -209,7 +209,7 @@ void RimSummaryEnsembleSumo::loadSummaryData( const RifEclipseSummaryAddress& re
     auto parametersKey = ParquetKey{ sumoCaseId, sumoEnsembleName, "", true };
     if ( m_parquetTable.find( parametersKey ) == m_parquetTable.end() )
     {
-        auto contents = m_sumoConnector->requestParametersParquetDataBlocking( sumoCaseId, sumoEnsembleName );
+        auto contents = m_sumoConnector->summary().parameterData( sumoCaseId, sumoEnsembleName );
         RiaLogging::debug( std::format( "Load ensemble parameter sensitivities. Contents size: {}", contents.size() ) );
 
         std::shared_ptr<arrow::Table> table = readParquetTable( contents, QString( "%1 parameter sensitivities" ).arg( sumoEnsembleName ) );
@@ -226,7 +226,7 @@ QByteArray RimSummaryEnsembleSumo::loadParquetData( const ParquetKey& parquetKey
 {
     if ( !m_sumoConnector ) return {};
 
-    return m_sumoConnector->requestParquetDataBlocking( SumoCaseId( parquetKey.caseId ), parquetKey.ensembleId, parquetKey.vectorName );
+    return m_sumoConnector->summary().vectorData( SumoCaseId( parquetKey.caseId ), parquetKey.ensembleId, parquetKey.vectorName );
 }
 
 //--------------------------------------------------------------------------------------------------
