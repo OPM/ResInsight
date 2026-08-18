@@ -30,6 +30,7 @@
 #include <map>
 
 class QEventLoop;
+class QThread;
 
 using SumoObjectId = QString;
 
@@ -211,6 +212,7 @@ private:
     static QString constructSasUri( const QString& blobStoreBaseUri, const QString& blobId, const QString& sasToken );
 
     void wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod );
+    void waitForRequest( const std::function<void()>& requestCallable, const QMetaMethod& signalMethod );
 
     QByteArray gridPropertyBlobFromCache( const QString& cacheKey );
     void       insertGridPropertyBlobInCache( const QString& cacheKey, const QByteArray& contents );
@@ -231,7 +233,27 @@ private:
 
     static QString blobIdFromReply( QNetworkReply* reply, const QString& propertyName );
 
+    void fetchGridPropertyBatch( const SumoCaseId&           caseId,
+                                 const QString&              ensembleName,
+                                 const QString&              gridName,
+                                 int                         realization,
+                                 const QString&              propertyName,
+                                 const std::vector<QString>& timestampsToFetch,
+                                 const std::vector<QString>& cacheKeys );
+
     static void waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies );
+
+    // Download one blob by id and return its contents, waiting on the transfer thread.
+    QByteArray downloadBlobBlocking( const QString& blobId );
+
+    // The network manager belonging to the calling thread: the transfer thread manager when called from
+    // there, otherwise the one owned by RiaCloudConnector on the GUI thread.
+    QNetworkAccessManager* networkAccessManager();
+
+    // Run work on the transfer thread and block the caller until it returns. The caller waits on a semaphore
+    // and dispatches no events, so nothing can re-enter the code that started the request. Called from the
+    // transfer thread itself, the work is run directly, which keeps nested blocking requests working.
+    void runOnTransferThreadBlocking( const std::function<void()>& work );
 
 private:
     std::function<QString()> m_serverUrlProvider;
@@ -264,4 +286,12 @@ private:
     std::map<QString, GridPropertyBlobCacheEntry> m_gridPropertyBlobCache;
     std::list<QString>                            m_gridPropertyBlobCacheOrder; // most recently used at front
     size_t                                        m_gridPropertyBlobCacheSizeBytes = 0;
+
+    // Transfers run on their own thread so the calling thread can wait without dispatching events. Waiting on
+    // a nested event loop on the GUI thread let the view update code re-enter a load that was still running,
+    // and the same grid property was downloaded twice. Authentication stays on the GUI thread: the OAuth flow
+    // opens a browser and its objects live there.
+    QThread*               m_transferThread               = nullptr;
+    QObject*               m_transferContext              = nullptr; // lives on the transfer thread
+    QNetworkAccessManager* m_transferNetworkAccessManager = nullptr; // created on the transfer thread
 };

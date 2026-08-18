@@ -70,6 +70,8 @@ public:
     void info( const char* message ) override;
     void debug( const char* message ) override;
 
+    void flushPendingMessages() override;
+
 private:
     void writeToMessagePanel( RILogLevel messageLevel, const char* message );
 

@@ -31,6 +31,8 @@
 #include <QMetaMethod>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QSemaphore>
+#include <QThread>
 #include <QTimer>
 
 #include <algorithm>
@@ -47,6 +49,22 @@ RiaSumoConnector::RiaSumoConnector( QObject*                 parent,
     : RiaCloudConnector( parent, {}, authority, scopes, clientId, port )
     , m_serverUrlProvider( std::move( serverUrlProvider ) )
 {
+    // The transfer thread runs the network requests issued by the blocking wrappers, so the calling thread can
+    // wait for them without dispatching events. The context object gives us something with transfer thread
+    // affinity to post work to, and the network manager has to be constructed on the thread that uses it.
+    m_transferThread  = new QThread( this );
+    m_transferContext = new QObject;
+    m_transferContext->moveToThread( m_transferThread );
+
+    QObject::connect( m_transferThread,
+                      &QThread::started,
+                      m_transferContext,
+                      [this]() { m_transferNetworkAccessManager = new QNetworkAccessManager( m_transferContext ); } );
+
+    // The context object lives on the transfer thread, so let that thread delete it when it stops.
+    QObject::connect( m_transferThread, &QThread::finished, m_transferContext, &QObject::deleteLater );
+
+    m_transferThread->start();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,6 +105,66 @@ void RiaSumoConnector::parquetDownloadComplete( const QString& blobId, const QBy
 //--------------------------------------------------------------------------------------------------
 RiaSumoConnector::~RiaSumoConnector()
 {
+    if ( m_transferThread )
+    {
+        m_transferThread->quit();
+        m_transferThread->wait();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The network manager of the calling thread. A QNetworkAccessManager can only be used from the thread it
+/// was created on, and the connector is used from both the GUI thread (the token flow and the Sumo Data
+/// dialog) and the transfer thread (everything issued by a blocking wrapper).
+//--------------------------------------------------------------------------------------------------
+QNetworkAccessManager* RiaSumoConnector::networkAccessManager()
+{
+    if ( m_transferThread && QThread::currentThread() == m_transferThread && m_transferNetworkAccessManager )
+    {
+        return m_transferNetworkAccessManager;
+    }
+
+    return m_networkAccessManager;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Run work on the transfer thread and wait for it to finish, without dispatching any events on the calling
+/// thread. This is what keeps the view update code from re-entering a load that is already running.
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::runOnTransferThreadBlocking( const std::function<void()>& work )
+{
+    // A blocking request can be issued from inside another one, for instance the blob id lookup done while
+    // downloading a grid property. Already on the transfer thread, run directly instead of deadlocking on a
+    // thread that is busy waiting for us.
+    if ( !m_transferThread || !m_transferContext || QThread::currentThread() == m_transferThread )
+    {
+        work();
+        return;
+    }
+
+    QSemaphore semaphore;
+
+    QMetaObject::invokeMethod(
+        m_transferContext,
+        [&work, &semaphore]()
+        {
+            // Release on every exit path. A request that fails or times out must not leave the caller waiting.
+            struct Releaser
+            {
+                QSemaphore& semaphore;
+                ~Releaser() { semaphore.release(); }
+            } releaser{ semaphore };
+
+            work();
+        },
+        Qt::QueuedConnection );
+
+    semaphore.acquire();
+
+    // The transfer thread hands its log messages to the thread owning the message panel. Deliver them here,
+    // while the request they describe is still the most recent thing that happened, or they would appear
+    // after whatever the caller logs next and the log would read out of order.
+    RiaLogging::flushPendingMessages();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +182,7 @@ void RiaSumoConnector::requestCasesForField( const QString& fieldName )
 
     addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
+    auto reply = networkAccessManager()->get( m_networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -138,7 +216,7 @@ void RiaSumoConnector::requestAssets()
 
     addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
+    auto reply = networkAccessManager()->get( m_networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -173,7 +251,7 @@ void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
 
     addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
+    auto reply = networkAccessManager()->get( m_networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -240,7 +318,7 @@ void RiaSumoConnector::requestVectorNamesForEnsemble( const SumoCaseId& caseId, 
 
     addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
+    auto reply = networkAccessManager()->get( m_networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -277,7 +355,7 @@ void RiaSumoConnector::requestRealizationIdsForEnsemble( const SumoCaseId& caseI
 
     addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
+    auto reply = networkAccessManager()->get( m_networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -315,7 +393,7 @@ void RiaSumoConnector::requestGridInfoForEnsemble( const SumoCaseId& caseId, con
 
     addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
+    auto reply = networkAccessManager()->get( m_networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -366,7 +444,7 @@ void RiaSumoConnector::requestGridBlobIdForEnsemble( const SumoCaseId& caseId, c
 
     addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
+    auto reply = networkAccessManager()->get( m_networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -409,28 +487,7 @@ QByteArray
     if ( m_blobId.empty() ) return {};
 
     // The REST API returns the blob Id
-    auto blobId = m_blobId.back();
-
-    QEventLoop eventLoop;
-    QTimer     timer;
-    timer.setSingleShot( true );
-    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
-    QObject::connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
-
-    requestBlobDownload( blobId );
-
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
-
-    for ( const auto& blobData : m_redirectInfo )
-    {
-        if ( blobData.objectId == blobId )
-        {
-            return blobData.contents;
-        }
-    }
-
-    return {};
+    return downloadBlobBlocking( m_blobId.back() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -460,7 +517,7 @@ void RiaSumoConnector::requestGridPropertyInfoForEnsemble( const SumoCaseId& cas
 
     addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
+    auto reply = networkAccessManager()->get( m_networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -502,22 +559,33 @@ QString RiaSumoConnector::requestGridPropertyBlobIdBlocking( const SumoCaseId& c
                                                              const QString&    propertyName,
                                                              const QString&    isoDateOrInterval )
 {
-    auto reply = makeGridPropertyBlobIdRequest( caseId, ensembleName, gridName, realization, propertyName, isoDateOrInterval );
+    requestTokenBlocking();
 
-    // Wait for THIS reply only. Binding the event loop to the reply, rather than to the shared blobIdFinished
-    // signal, is what makes the mapping correct: a still-pending reply from an earlier property's request can no
-    // longer satisfy this wait and hand us its blob id (which previously caused e.g. SWAT to be served the SWCR
-    // blob). The blob id is read straight off this reply and never routed through shared state.
-    QEventLoop eventLoop;
-    QTimer     timer;
-    timer.setSingleShot( true );
-    QObject::connect( &timer, &QTimer::timeout, &eventLoop, &QEventLoop::quit );
-    QObject::connect( reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit );
+    QString blobId;
 
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
+    runOnTransferThreadBlocking(
+        [&]()
+        {
+            auto reply = makeGridPropertyBlobIdRequest( caseId, ensembleName, gridName, realization, propertyName, isoDateOrInterval );
 
-    return blobIdFromReply( reply, propertyName );
+            // Wait for THIS reply only. Binding the event loop to the reply, rather than to the shared
+            // blobIdFinished signal, is what makes the mapping correct: a still-pending reply from an earlier
+            // property's request can no longer satisfy this wait and hand us its blob id (which previously caused
+            // e.g. SWAT to be served the SWCR blob). The blob id is read straight off this reply and never routed
+            // through shared state.
+            QEventLoop eventLoop;
+            QTimer     timer;
+            timer.setSingleShot( true );
+            QObject::connect( &timer, &QTimer::timeout, &eventLoop, &QEventLoop::quit );
+            QObject::connect( reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit );
+
+            timer.start( RiaSumoDefines::requestTimeoutMillis() );
+            eventLoop.exec();
+
+            blobId = blobIdFromReply( reply, propertyName );
+        } );
+
+    return blobId;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -556,7 +624,7 @@ QNetworkReply* RiaSumoConnector::makeGridPropertyBlobIdRequest( const SumoCaseId
     networkRequest.setUrl( QUrl( url ) );
     addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    return m_networkAccessManager->get( networkRequest );
+    return networkAccessManager()->get( networkRequest );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -614,31 +682,37 @@ QByteArray RiaSumoConnector::requestGridPropertyDataBlocking( const SumoCaseId& 
     const QString blobId = requestGridPropertyBlobIdBlocking( caseId, ensembleName, gridName, realization, propertyName, isoDateOrInterval );
     if ( blobId.isEmpty() ) return {};
 
-    QEventLoop eventLoop;
-    QTimer     timer;
-    timer.setSingleShot( true );
-    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
-    QObject::connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
+    QByteArray contents;
 
-    requestBlobDownload( blobId );
-
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
-
-    // Move the downloaded blob out of the transient redirect list and into the cache. Erasing the consumed entry
-    // also keeps m_redirectInfo from growing without bound as more properties are downloaded.
-    for ( auto it = m_redirectInfo.begin(); it != m_redirectInfo.end(); ++it )
-    {
-        if ( it->objectId == blobId )
+    runOnTransferThreadBlocking(
+        [this, blobId, cacheKey, &contents]()
         {
-            QByteArray contents = it->contents;
-            m_redirectInfo.erase( it );
-            insertGridPropertyBlobInCache( cacheKey, contents );
-            return contents;
-        }
-    }
+            QEventLoop eventLoop;
+            QTimer     timer;
+            timer.setSingleShot( true );
+            QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
+            QObject::connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
 
-    return {};
+            requestBlobDownload( blobId );
+
+            timer.start( RiaSumoDefines::requestTimeoutMillis() );
+            eventLoop.exec();
+
+            // Move the downloaded blob out of the transient redirect list and into the cache. Erasing the consumed
+            // entry also keeps m_redirectInfo from growing without bound as more properties are downloaded.
+            for ( auto it = m_redirectInfo.begin(); it != m_redirectInfo.end(); ++it )
+            {
+                if ( it->objectId == blobId )
+                {
+                    contents = it->contents;
+                    m_redirectInfo.erase( it );
+                    insertGridPropertyBlobInCache( cacheKey, contents );
+                    return;
+                }
+            }
+        } );
+
+    return contents;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -669,6 +743,24 @@ void RiaSumoConnector::prefetchGridPropertyDataBlocking( const SumoCaseId&      
 
     if ( timestampsToFetch.size() < 2 ) return; // nothing to gain over the single time step path
 
+    requestTokenBlocking();
+
+    runOnTransferThreadBlocking(
+        [&]() { fetchGridPropertyBatch( caseId, ensembleName, gridName, realization, propertyName, timestampsToFetch, cacheKeys ); } );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Resolve the blob ids of a batch of time steps, download the blobs, and put them in the cache. Always
+/// called on the transfer thread, where the event loops it waits on dispatch no GUI events.
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::fetchGridPropertyBatch( const SumoCaseId&           caseId,
+                                               const QString&              ensembleName,
+                                               const QString&              gridName,
+                                               int                         realization,
+                                               const QString&              propertyName,
+                                               const std::vector<QString>& timestampsToFetch,
+                                               const std::vector<QString>& cacheKeys )
+{
     // Phase 1: resolve all blob ids concurrently.
     std::vector<QNetworkReply*> blobIdReplies;
     for ( const auto& isoDateOrInterval : timestampsToFetch )
@@ -729,7 +821,7 @@ void RiaSumoConnector::prefetchGridPropertyDataBlocking( const SumoCaseId&      
             // The downloads run concurrently, but allow the single request timeout per blob so a batch is
             // never given less time than the same blobs would get one by one.
             timer.start( static_cast<int>( pendingBlobIds.size() ) * RiaSumoDefines::requestTimeoutMillis() );
-            eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
+            eventLoop.exec();
 
             QObject::disconnect( connection );
         }
@@ -785,7 +877,7 @@ void RiaSumoConnector::waitForRepliesToFinish( const std::vector<QNetworkReply*>
     if ( !isAllFinished() )
     {
         timer.start( RiaSumoDefines::requestTimeoutMillis() );
-        eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
+        eventLoop.exec();
     }
 
     for ( const auto& connection : connections )
@@ -870,28 +962,45 @@ QByteArray RiaSumoConnector::requestParametersParquetDataBlocking( const SumoCas
 
     if ( m_blobId.empty() ) return {};
 
-    auto blobId = m_blobId.back();
+    return downloadBlobBlocking( m_blobId.back() );
+}
 
-    QEventLoop eventLoop;
-    QTimer     timer;
-    timer.setSingleShot( true );
-    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
-    QObject::connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
+//--------------------------------------------------------------------------------------------------
+/// Download one blob and return its contents. The download and the wait for it run on the transfer thread.
+//--------------------------------------------------------------------------------------------------
+QByteArray RiaSumoConnector::downloadBlobBlocking( const QString& blobId )
+{
+    if ( blobId.isEmpty() ) return {};
 
-    requestBlobDownload( blobId );
+    requestTokenBlocking();
 
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
+    QByteArray contents;
 
-    for ( const auto& blobData : m_redirectInfo )
-    {
-        if ( blobData.objectId == blobId )
+    runOnTransferThreadBlocking(
+        [this, blobId, &contents]()
         {
-            return blobData.contents;
-        }
-    }
+            QEventLoop eventLoop;
+            QTimer     timer;
+            timer.setSingleShot( true );
+            QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
+            QObject::connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
 
-    return {};
+            requestBlobDownload( blobId );
+
+            timer.start( RiaSumoDefines::requestTimeoutMillis() );
+            eventLoop.exec();
+
+            for ( const auto& blobData : m_redirectInfo )
+            {
+                if ( blobData.objectId == blobId )
+                {
+                    contents = blobData.contents;
+                    return;
+                }
+            }
+        } );
+
+    return contents;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -921,7 +1030,7 @@ void RiaSumoConnector::requestParametersBlobIdForEnsemble( const SumoCaseId& cas
 
     addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( networkRequest );
+    auto reply = networkAccessManager()->get( networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -952,7 +1061,7 @@ void RiaSumoConnector::requestBlobIdForEnsemble( const SumoCaseId& caseId, const
 
     addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( networkRequest );
+    auto reply = networkAccessManager()->get( networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -988,7 +1097,7 @@ void RiaSumoConnector::requestBlobDownload( const QString& blobId )
 
     addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( networkRequest );
+    auto reply = networkAccessManager()->get( networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -1042,7 +1151,7 @@ void RiaSumoConnector::requestBlobBySasUri( const QString& blobId, const QString
     // storage host. Redirect policy is set explicitly so behaviour is not Qt-version dependent.
     networkRequest.setAttribute( QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy );
 
-    auto reply = m_networkAccessManager->get( networkRequest );
+    auto reply = networkAccessManager()->get( networkRequest );
 
     connect( reply,
              &QNetworkReply::finished,
@@ -1100,28 +1209,7 @@ QByteArray RiaSumoConnector::requestParquetDataBlocking( const SumoCaseId& caseI
     if ( m_blobId.empty() ) return {};
 
     // The REST API now returns the complete blob URL, not just an ID
-    auto blobId = m_blobId.back();
-
-    QEventLoop eventLoop;
-    QTimer     timer;
-    timer.setSingleShot( true );
-    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
-    QObject::connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
-
-    requestBlobDownload( blobId );
-
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
-
-    for ( const auto& blobData : m_redirectInfo )
-    {
-        if ( blobData.objectId == blobId )
-        {
-            return blobData.contents;
-        }
-    }
-
-    return {};
+    return downloadBlobBlocking( m_blobId.back() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1142,15 +1230,24 @@ QString RiaSumoConnector::constructSasUri( const QString& blobStoreBaseUri, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-/// Note that this event loop dispatches everything except user input, so while a request is in flight the
-/// view update code can run and re-enter a cell result load that is already in progress. That makes the same
-/// result load twice. Declining the second load in RigCaseCellResultsData is not a way out: the only "no"
-/// that method can return is cvf::UNDEFINED_SIZE_T, which consumers read as "no such result" and act on -
-/// RimEclipseResultDefinitionTools::updateCellResultLegend computes the legend range straight after
-/// ensureKnownResultLoaded without checking it, and caches a range over no data. Preventing the re-entrancy
-/// means not dispatching events here at all, which requires moving the transfers off the GUI thread.
+/// The request runs on the transfer thread, and the event loop that waits for it runs there too. Waiting on
+/// the GUI thread instead would dispatch everything except user input, letting the view update code re-enter
+/// a cell result load that was still running and download the same grid property a second time. An event
+/// loop on the transfer thread dispatches no GUI events, so nothing can re-enter.
 //--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod )
+{
+    // Acquire the token before handing over to the transfer thread. The OAuth flow can open a browser and
+    // its objects live on the GUI thread, so it must not run on the transfer thread.
+    requestTokenBlocking();
+
+    runOnTransferThreadBlocking( [this, requestCallable, signalMethod]() { waitForRequest( requestCallable, signalMethod ); } );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Issue the request and wait for its completion signal. Always called on the transfer thread.
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::waitForRequest( const std::function<void()>& requestCallable, const QMetaMethod& signalMethod )
 {
     QEventLoop eventLoop;
 
@@ -1169,7 +1266,7 @@ void RiaSumoConnector::wrapAndCallNetworkRequest( std::function<void()> requestC
     requestCallable();
 
     timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
+    eventLoop.exec();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1449,7 +1546,7 @@ QNetworkReply* RiaSumoConnector::makeDownloadRequest( const QString& url, const 
 
     addStandardHeader( m_networkRequest, token, contentType );
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
+    auto reply = networkAccessManager()->get( m_networkRequest );
     return reply;
 }
 
