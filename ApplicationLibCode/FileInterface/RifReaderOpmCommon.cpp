@@ -384,7 +384,7 @@ double RifReaderOpmCommon::mapAxesScaleFactor( const std::string& mapUnits, int 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmCommon::applyMapAxes( Opm::EclIO::EGrid& opmGrid, RigMainGrid* mainGrid )
+void RifReaderOpmCommon::applyMapAxes( const Opm::EclIO::EGrid& opmGrid, RigMainGrid* mainGrid )
 {
     // get_mapaxes() returns a fixed size array that is only assigned when the MAPAXES keyword is present
     if ( !opmGrid.with_mapaxes() ) return;

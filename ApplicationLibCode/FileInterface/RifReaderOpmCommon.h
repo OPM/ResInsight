@@ -81,7 +81,7 @@ public:
 protected:
     virtual bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
 
-    void applyMapAxes( Opm::EclIO::EGrid& opmGrid, RigMainGrid* mainGrid );
+    void applyMapAxes( const Opm::EclIO::EGrid& opmGrid, RigMainGrid* mainGrid );
 
     void transferActiveCells( Opm::EclIO::EGrid&  opmGrid,
                               size_t              cellStartIndex,
