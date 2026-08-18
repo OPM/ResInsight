@@ -38,7 +38,7 @@ namespace
 //--------------------------------------------------------------------------------------------------
 /// Build a regular ni x nj x nk box grid in memory (no file, no view)
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigEclipseCaseData> buildBoxGrid( int ni, int nj, int nk )
+cvf::ref<RigEclipseCaseData> buildBoxGridForIjkIntersection( int ni, int nj, int nk )
 {
     RigReservoirBuilder builder;
     builder.setIJKCount( cvf::Vec3st( ni, nj, nk ) );
@@ -61,7 +61,7 @@ TEST( RivIjkIntersectionGeometryGeneratorTest, FullRangeKSliceTriangleCount )
     const int nj = 3;
     const int nk = 5;
 
-    cvf::ref<RigEclipseCaseData> caseData = buildBoxGrid( ni, nj, nk );
+    cvf::ref<RigEclipseCaseData> caseData = buildBoxGridForIjkIntersection( ni, nj, nk );
     RigMainGrid*                 mainGrid = caseData->mainGrid();
 
     cvf::ref<RivEclipseIntersectionGrid> hexGrid = new RivEclipseIntersectionGrid( mainGrid, nullptr, true );
@@ -91,7 +91,7 @@ TEST( RivIjkIntersectionGeometryGeneratorTest, KSliceVerticesAreCoplanar )
     const int nj = 3;
     const int nk = 4;
 
-    cvf::ref<RigEclipseCaseData> caseData = buildBoxGrid( ni, nj, nk );
+    cvf::ref<RigEclipseCaseData> caseData = buildBoxGridForIjkIntersection( ni, nj, nk );
     RigMainGrid*                 mainGrid = caseData->mainGrid();
 
     cvf::ref<RivEclipseIntersectionGrid> hexGrid = new RivEclipseIntersectionGrid( mainGrid, nullptr, true );
@@ -123,7 +123,7 @@ TEST( RivIjkIntersectionGeometryGeneratorTest, NarrowedRangeISlice )
     const int nj = 4;
     const int nk = 6;
 
-    cvf::ref<RigEclipseCaseData> caseData = buildBoxGrid( ni, nj, nk );
+    cvf::ref<RigEclipseCaseData> caseData = buildBoxGridForIjkIntersection( ni, nj, nk );
     RigMainGrid*                 mainGrid = caseData->mainGrid();
 
     cvf::ref<RivEclipseIntersectionGrid> hexGrid = new RivEclipseIntersectionGrid( mainGrid, nullptr, true );

@@ -38,7 +38,7 @@
 
 namespace
 {
-struct MockCase
+struct CrossPlotMockCase
 {
     std::unique_ptr<RimEclipseResultCase> resultCase;
     cvf::ref<RigEclipseCaseData>          eclipseCase;
@@ -47,13 +47,13 @@ struct MockCase
 //--------------------------------------------------------------------------------------------------
 /// Build a regular ni x nj x nk box grid in memory (no file, no view)
 //--------------------------------------------------------------------------------------------------
-MockCase buildBoxGridCase( int ni, int nj, int nk )
+CrossPlotMockCase buildCrossPlotBoxGridCase( int ni, int nj, int nk )
 {
     RigReservoirBuilder builder;
     builder.setIJKCount( cvf::Vec3st( ni, nj, nk ) );
     builder.setWorldCoordinates( cvf::Vec3d( 0.0, 0.0, 0.0 ), cvf::Vec3d( ni, nj, -nk ) );
 
-    MockCase mockCase;
+    CrossPlotMockCase mockCase;
     mockCase.resultCase.reset( new RimEclipseResultCase );
     mockCase.eclipseCase = new RigEclipseCaseData( mockCase.resultCase.get() );
 
@@ -94,7 +94,7 @@ void setupResultDefinition( RimEclipseResultDefinition* resultDefinition, RimEcl
 //--------------------------------------------------------------------------------------------------
 TEST( RigEclipseCrossPlotDataExtractorTest, ExtractIgnoresEmptyCellVisibility )
 {
-    MockCase mockCase = buildBoxGridCase( 10, 10, 5 );
+    CrossPlotMockCase mockCase = buildCrossPlotBoxGridCase( 10, 10, 5 );
 
     RigCaseCellResultsData* resultsData = mockCase.eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     ASSERT_NE( resultsData, nullptr );
@@ -134,7 +134,7 @@ TEST( RigEclipseCrossPlotDataExtractorTest, ExtractIgnoresEmptyCellVisibility )
 //--------------------------------------------------------------------------------------------------
 TEST( RigEclipseCrossPlotDataExtractorTest, ExtractIgnoresTooShortCellVisibility )
 {
-    MockCase mockCase = buildBoxGridCase( 10, 10, 5 );
+    CrossPlotMockCase mockCase = buildCrossPlotBoxGridCase( 10, 10, 5 );
 
     RigCaseCellResultsData* resultsData = mockCase.eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     ASSERT_NE( resultsData, nullptr );
