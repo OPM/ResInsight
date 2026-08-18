@@ -97,5 +97,5 @@ private:
     RigHistogramCalculator::BinningMode        m_binningMode        = RigHistogramCalculator::BinningMode::LINEAR;
     RigHistogramCalculator::OutOfRangeHandling m_outOfRangeHandling = RigHistogramCalculator::OutOfRangeHandling::EXCLUDE;
     std::optional<std::pair<double, double>>   m_customBinRange;
-    bool                             m_doComputeMobileVolumeWeightedMean;
+    bool                                       m_doComputeMobileVolumeWeightedMean;
 };
