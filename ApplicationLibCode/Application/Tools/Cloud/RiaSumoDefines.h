@@ -32,6 +32,11 @@ namespace RiaSumoDefines
 QString tokenPath();
 int     requestTimeoutMillis();
 
+// The timeout of a request nothing is waiting for. Only there so a request that never answers is eventually
+// given up on, and generous because a summary vector that has not been aggregated yet is produced on demand
+// by the request asking for it. Nothing is blocked while it runs, so waiting longer costs nothing.
+int asyncRequestTimeoutMillis();
+
 // The maximum number of bytes of downloaded grid property blobs kept in memory.
 size_t gridPropertyCacheLimitBytes();
 

@@ -83,6 +83,11 @@ public:
     virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
     virtual std::set<time_t>                   ensembleTimeSteps() const;
 
+    // Hint that these addresses are about to be read, given before the curves pull their values. Sources that
+    // fetch data remotely can use it to load everything in one go instead of one blocking request per address.
+    // Data is still loaded on demand, so this is an optimization only: not calling it changes nothing but speed.
+    virtual void prefetchSummaryData( const std::vector<RifEclipseSummaryAddress>& resultAddresses ) {}
+
     void setEnsembleId( int ensembleId );
     int  ensembleId() const;
     bool hasEnsembleParameters() const;

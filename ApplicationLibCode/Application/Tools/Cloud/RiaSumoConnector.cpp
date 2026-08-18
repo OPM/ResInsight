@@ -142,6 +142,102 @@ QNetworkAccessManager* RiaSumoConnector::networkAccessManager()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Run work on the transfer thread and return at once. Nothing is waited for here, so the result has to be
+/// delivered by a callback. The token is requested first, while still on the calling thread, because
+/// refreshing it may need the authentication objects that live there.
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::runOnTransferThread( const std::function<void()>& work )
+{
+    requestTokenBlocking();
+
+    // Without a transfer thread there is nothing to hand the work to, and running it here is the only option.
+    // Already on the transfer thread, run directly rather than queue behind work that may be waiting for us.
+    if ( !m_transferThread || !m_transferContext || QThread::currentThread() == m_transferThread )
+    {
+        work();
+        return;
+    }
+
+    QMetaObject::invokeMethod( m_transferContext, work, Qt::QueuedConnection );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::invokeOnConnectorThread( const std::function<void()>& work )
+{
+    if ( QThread::currentThread() == thread() )
+    {
+        work();
+        return;
+    }
+
+    QMetaObject::invokeMethod( this, work, Qt::QueuedConnection );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A blob is fetched in two steps, first the pre-signed URI and then the data itself. Both are started here
+/// and neither is waited for: each step continues from the reply of the one before.
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::downloadBlobAsync( const QString& blobId, const std::function<void( const QByteArray& )>& onFinished )
+{
+    const QString url = QString( "%1/blobs/%2/sas_token_and_blob_base_uri" ).arg( server() ).arg( blobId );
+
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl( QUrl( url ) );
+    addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
+
+    auto accessInfoReply = networkAccessManager()->get( networkRequest );
+    abortIfNotFinishedWithin( accessInfoReply, RiaSumoDefines::requestTimeoutMillis() );
+
+    QObject::connect( accessInfoReply,
+                      &QNetworkReply::finished,
+                      m_transferContext,
+                      [this, accessInfoReply, blobId, onFinished]()
+                      {
+                          const QString sasUri = sasUriFromReply( accessInfoReply, blobId );
+                          if ( sasUri.isEmpty() )
+                          {
+                              onFinished( {} );
+                              return;
+                          }
+
+                          RiaLogging::debug( std::format( "Requesting blob. Id: {} SAS URI: {}", blobId, sasUri ) );
+
+                          QNetworkRequest blobRequest;
+                          blobRequest.setUrl( sasUri );
+
+                          // The pre-signed SAS URI carries its own credential, so no Authorization header is
+                          // added. Do NOT forward the bearer token to the storage host.
+                          blobRequest.setAttribute( QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy );
+
+                          auto blobReply = networkAccessManager()->get( blobRequest );
+                          abortIfNotFinishedWithin( blobReply, RiaSumoDefines::requestTimeoutMillis() );
+
+                          QObject::connect( blobReply,
+                                            &QNetworkReply::finished,
+                                            m_transferContext,
+                                            [blobReply, sasUri, onFinished]() { onFinished( blobContentsFromReply( blobReply, sasUri ) ); } );
+                      } );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Nothing waits on an async reply, so a request that never answers would otherwise keep its data pending
+/// for good. Aborting makes the reply finish with an error, which the chain reports as a failed transfer.
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::abortIfNotFinishedWithin( QNetworkReply* reply, int timeoutMillis )
+{
+    if ( !reply ) return;
+
+    QTimer::singleShot( timeoutMillis,
+                        reply,
+                        [reply]()
+                        {
+                            if ( !reply->isFinished() ) reply->abort();
+                        } );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Run work on the transfer thread and wait for it to finish, without dispatching any events on the calling
 /// thread. This is what keeps the view update code from re-entering a load that is already running.
 //--------------------------------------------------------------------------------------------------
@@ -212,7 +308,11 @@ void RiaSumoConnector::waitForRepliesToFinish( const std::vector<QNetworkReply*>
 
     if ( !isAllFinished() )
     {
-        timer.start( RiaSumoDefines::requestTimeoutMillis() );
+        // The requests run concurrently, but give the group the timeout each of them would have been
+        // given on its own. A batch must not be more likely to time out than the same requests made one
+        // by one, and the server can take a while to answer: a summary vector that has not been
+        // aggregated yet is produced on demand by the first request that asks for it.
+        timer.start( static_cast<int>( replies.size() ) * RiaSumoDefines::requestTimeoutMillis() );
         eventLoop.exec();
     }
 

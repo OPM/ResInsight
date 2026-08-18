@@ -857,6 +857,10 @@ void RimMultiPlot::updatePlots()
 {
     if ( m_showWindow )
     {
+        // The plots are loaded one after the other, so a source loading data remotely would make its requests
+        // one plot at a time. Give it the chance to load everything this window needs in one go first.
+        prefetchPlotData();
+
         for ( RimPlot* plot : plots() )
         {
             plot->loadDataAndUpdate();

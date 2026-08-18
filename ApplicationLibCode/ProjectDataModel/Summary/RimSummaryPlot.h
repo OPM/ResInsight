@@ -150,6 +150,8 @@ public:
     void                                deleteAllSummaryCurves();
     RimSummaryCurveCollection*          summaryCurveCollection() const;
 
+    std::map<RimSummaryEnsemble*, std::vector<RifEclipseSummaryAddress>> summaryAddressesByEnsemble() const;
+
     void updatePlotTitle();
 
     const RimSummaryNameHelper* activePlotTitleHelperAllCurves() const;
@@ -249,6 +251,8 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
+
+    void prefetchSummaryData();
 
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
 
