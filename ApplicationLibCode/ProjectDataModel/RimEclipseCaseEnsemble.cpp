@@ -51,9 +51,17 @@ RimEclipseCaseEnsemble::RimEclipseCaseEnsemble()
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
 
+    // Limit the case dropdown of the ensemble views to the cases of this ensemble.
+    m_viewCollection->setEclipseCaseProvider( [this]() { return this->cases(); } );
+
     CAF_PDM_InitFieldNoDefault( &m_wellTargetMappings, "WellTargetMappings", "Well Target Mappings" );
 
     CAF_PDM_InitFieldNoDefault( &m_statisticsContourMaps, "StatisticsContourMaps", "Statistics Contour maps" );
+
+    // Set by the data source creating the ensemble. Defaults to true to keep the behavior of ensembles created
+    // before this field was introduced.
+    CAF_PDM_InitField( &m_doComputeMobileVolumeWeightedMean, "DoComputeMobileVolumeWeightedMean", true, "Compute Mobile Volume Weighted Mean" );
+    m_doComputeMobileVolumeWeightedMean.uiCapability()->setUiHidden( true );
 
     setDeletable( true );
 }
@@ -68,6 +76,18 @@ RimEclipseCaseEnsemble::~RimEclipseCaseEnsemble()
 
     delete m_viewCollection;
     m_viewCollection = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::initAfterRead()
+{
+    // The provider is a lambda and not serialized, so re-apply it after loading a project.
+    if ( m_viewCollection )
+    {
+        m_viewCollection->setEclipseCaseProvider( [this]() { return this->cases(); } );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,6 +292,22 @@ void RimEclipseCaseEnsemble::addStatisticsContourMap( RimStatisticsContourMap* s
 std::vector<RimStatisticsContourMap*> RimEclipseCaseEnsemble::statisticsContourMaps() const
 {
     return m_statisticsContourMaps.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseCaseEnsemble::doComputeMobileVolumeWeightedMean() const
+{
+    return m_doComputeMobileVolumeWeightedMean();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::setDoComputeMobileVolumeWeightedMean( bool enable )
+{
+    m_doComputeMobileVolumeWeightedMean = enable;
 }
 
 //--------------------------------------------------------------------------------------------------

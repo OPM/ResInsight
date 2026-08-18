@@ -63,6 +63,10 @@ public:
                                RigHistogramCalculator::OutOfRangeHandling outOfRangeHandling,
                                std::optional<std::pair<double, double>>   customBinRange );
 
+    // The mobile volume weighted mean is derived from MOBPROV, which in turn requires PORV, SWCR and MULTPV. For
+    // cases backed by remote data these are expensive to fetch, so the calculation can be turned off.
+    void setDoComputeMobileVolumeWeightedMean( bool enable );
+
     RigHistogramData histogramData( RimEclipseContourMapView* contourMap );
     RigHistogramData histogramData( RimGeoMechContourMapView* contourMap );
     RigHistogramData histogramData( RimEclipseView* eclipseView, StatisticsCellRangeType cellRange, StatisticsTimeRangeType timeRange );
@@ -93,4 +97,5 @@ private:
     RigHistogramCalculator::BinningMode        m_binningMode        = RigHistogramCalculator::BinningMode::LINEAR;
     RigHistogramCalculator::OutOfRangeHandling m_outOfRangeHandling = RigHistogramCalculator::OutOfRangeHandling::EXCLUDE;
     std::optional<std::pair<double, double>>   m_customBinRange;
+    bool                             m_doComputeMobileVolumeWeightedMean;
 };

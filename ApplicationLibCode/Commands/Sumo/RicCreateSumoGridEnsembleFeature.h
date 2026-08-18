@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2024- Equinor ASA
+//  Copyright (C) 2024-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,24 +18,21 @@
 
 #pragma once
 
-#include "nonstd/type.hpp"
+#include "cafCmdFeature.h"
 
-#include <QString>
+class RimSumoDataSource;
 
-#include <cstddef>
-
-using SumoAssetId = nonstd::ordered<QString, struct sumo_asset_tag>;
-using SumoCaseId  = nonstd::ordered<QString, struct sumo_case_tag>;
-
-namespace RiaSumoDefines
+//==================================================================================================
+///
+//==================================================================================================
+class RicCreateSumoGridEnsembleFeature : public caf::CmdFeature
 {
-QString tokenPath();
-int     requestTimeoutMillis();
+    CAF_CMD_HEADER_INIT;
 
-// The maximum number of bytes of downloaded grid property blobs kept in memory.
-size_t gridPropertyCacheLimitBytes();
+protected:
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
-// The number of grid property time steps fetched concurrently when prefetching. Bounds both the number of
-// requests in flight and the amount of blob data pulled in for time steps that may not be needed.
-size_t gridPropertyPrefetchBatchSize();
-}; // namespace RiaSumoDefines
+private:
+    static void createGridEnsemble( RimSumoDataSource* dataSource );
+};

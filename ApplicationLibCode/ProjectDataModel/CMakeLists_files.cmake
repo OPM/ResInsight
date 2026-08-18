@@ -11,6 +11,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputPropertyCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimRoffCaseSumo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCellColors.cpp

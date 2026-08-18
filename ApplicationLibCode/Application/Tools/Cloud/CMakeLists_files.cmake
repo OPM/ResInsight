@@ -6,6 +6,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaConnectorTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaOsduConnector.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaOAuthHttpServerReplyHandler.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderSumoGridProperty.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

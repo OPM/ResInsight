@@ -413,9 +413,16 @@ std::vector<RimSumoDataSource*> RimCloudDataSourceCollection::addDataSources()
 
         m_sumoConnector->requestRealizationIdsForEnsembleBlocking( sumoCaseId, ensembleName );
         m_sumoConnector->requestVectorNamesForEnsembleBlocking( sumoCaseId, ensembleName );
+        m_sumoConnector->requestGridInfoForEnsembleBlocking( sumoCaseId, ensembleName );
 
         auto availableRealizationIds = m_sumoConnector->realizationIds();
         auto vectorNames             = m_sumoConnector->vectorNames();
+
+        std::vector<QString> gridNames;
+        for ( const auto& gridInfo : m_sumoConnector->gridInfos() )
+        {
+            gridNames.push_back( gridInfo.name );
+        }
 
         auto dataSource = new RimSumoDataSource();
         dataSource->setCaseId( sumoCaseId );
@@ -424,6 +431,7 @@ std::vector<RimSumoDataSource*> RimCloudDataSourceCollection::addDataSources()
         dataSource->setEnsembleName( ensembleName );
         dataSource->setAvailableRealizationIds( availableRealizationIds );
         dataSource->setVectorNames( vectorNames );
+        dataSource->setGridNames( gridNames );
         dataSource->updateName();
 
         objectToSelect = dataSource;

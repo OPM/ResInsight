@@ -26,6 +26,7 @@
 #include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 
 #include <functional>
+#include <list>
 #include <map>
 
 class QEventLoop;
@@ -62,6 +63,21 @@ struct SumoEnsemble
 {
     SumoCaseId caseId;
     QString    name;
+};
+
+struct SumoGridInfo
+{
+    QString          name;
+    std::vector<int> realizations;
+};
+
+struct SumoGridPropertyInfo
+{
+    QString name;
+
+    // Empty for a static property. For a dynamic property this is either a single timestamp ("2018-01-01")
+    // or an interval ("2018-01-01/2019-01-01"). ResInsight currently only supports the single-timestamp form.
+    QString isoDateOrInterval;
 };
 
 //==================================================================================================
@@ -111,13 +127,52 @@ public:
 
     QByteArray requestParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
 
-    std::vector<SumoAsset>    assets() const;
-    std::vector<SumoCase>     cases() const;
-    std::vector<QString>      ensembleNamesForCase( const SumoCaseId& caseId ) const;
-    std::vector<QString>      vectorNames() const;
-    std::vector<QString>      realizationIds() const;
-    std::vector<QString>      blobIds() const;
-    std::vector<SumoRedirect> blobContents() const;
+    void requestGridInfoForEnsemble( const SumoCaseId& caseId, const QString& ensembleName );
+    void requestGridInfoForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName );
+
+    void requestGridBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );
+    void requestGridBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );
+
+    QByteArray requestGridDataBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );
+
+    void requestGridPropertyInfoForEnsemble( const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );
+    void requestGridPropertyInfoForEnsembleBlocking( const SumoCaseId& caseId,
+                                                     const QString&    ensembleName,
+                                                     const QString&    gridName,
+                                                     int               realization );
+
+    QString requestGridPropertyBlobIdBlocking( const SumoCaseId& caseId,
+                                               const QString&    ensembleName,
+                                               const QString&    gridName,
+                                               int               realization,
+                                               const QString&    propertyName,
+                                               const QString&    isoDateOrInterval );
+
+    QByteArray requestGridPropertyDataBlocking( const SumoCaseId& caseId,
+                                                const QString&    ensembleName,
+                                                const QString&    gridName,
+                                                int               realization,
+                                                const QString&    propertyName,
+                                                const QString&    isoDateOrInterval );
+
+    // Download several time steps of one grid property concurrently and put them in the blob cache, so the
+    // following per time step requests are served without going to Sumo. Entries already cached are skipped.
+    void prefetchGridPropertyDataBlocking( const SumoCaseId&           caseId,
+                                           const QString&              ensembleName,
+                                           const QString&              gridName,
+                                           int                         realization,
+                                           const QString&              propertyName,
+                                           const std::vector<QString>& isoDatesOrIntervals );
+
+    std::vector<SumoAsset>            assets() const;
+    std::vector<SumoCase>             cases() const;
+    std::vector<QString>              ensembleNamesForCase( const SumoCaseId& caseId ) const;
+    std::vector<QString>              vectorNames() const;
+    std::vector<QString>              realizationIds() const;
+    std::vector<SumoGridInfo>         gridInfos() const;
+    std::vector<SumoGridPropertyInfo> gridPropertyInfos() const;
+    std::vector<QString>              blobIds() const;
+    std::vector<SumoRedirect>         blobContents() const;
 
 public slots:
     void parseAssets( QNetworkReply* reply );
@@ -125,6 +180,8 @@ public slots:
     void parseCases( QNetworkReply* reply );
     void parseVectorNames( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
     void parseRealizationNumbers( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
+    void parseGridInfo( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
+    void parseGridPropertyInfo( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );
     void parseBlobId( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName, bool isParameters );
 
     void requestFailed( const QAbstractOAuth::Error error );
@@ -142,6 +199,8 @@ signals:
     void blobIdFinished();
     void assetsFinished();
     void realizationIdsFinished();
+    void gridInfoFinished();
+    void gridPropertyInfoFinished();
 
 private:
     void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& contentType );
@@ -153,6 +212,27 @@ private:
 
     void wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod );
 
+    QByteArray gridPropertyBlobFromCache( const QString& cacheKey );
+    void       insertGridPropertyBlobInCache( const QString& cacheKey, const QByteArray& contents );
+
+    static QString gridPropertyCacheKey( const SumoCaseId& caseId,
+                                         const QString&    ensembleName,
+                                         const QString&    gridName,
+                                         int               realization,
+                                         const QString&    propertyName,
+                                         const QString&    isoDateOrInterval );
+
+    QNetworkReply* makeGridPropertyBlobIdRequest( const SumoCaseId& caseId,
+                                                  const QString&    ensembleName,
+                                                  const QString&    gridName,
+                                                  int               realization,
+                                                  const QString&    propertyName,
+                                                  const QString&    isoDateOrInterval );
+
+    static QString blobIdFromReply( QNetworkReply* reply, const QString& propertyName );
+
+    static void waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies );
+
 private:
     std::function<QString()> m_serverUrlProvider;
 
@@ -161,8 +241,27 @@ private:
     std::vector<QString>      m_vectorNames;
     std::vector<QString>      m_realizationIds;
     std::vector<SumoEnsemble> m_ensembleNames;
+    std::vector<SumoGridInfo> m_gridInfos;
+
+    std::vector<SumoGridPropertyInfo> m_gridPropertyInfos;
 
     std::vector<QString> m_blobId;
 
     std::vector<SumoRedirect> m_redirectInfo;
+
+    // Downloaded grid-property blobs, keyed by the full property identity (case, ensemble, grid, realization,
+    // property, timestamp). Displaying a property computes its global legend range across all time steps, so a
+    // property is requested repeatedly; the cache ensures each blob is fetched from Sumo at most once.
+    //
+    // Bounded by total byte size, not by entry count, as the blob size follows the grid size and varies by orders
+    // of magnitude. The least recently used entries are evicted when the limit is exceeded.
+    struct GridPropertyBlobCacheEntry
+    {
+        QByteArray                   contents;
+        std::list<QString>::iterator orderIterator;
+    };
+
+    std::map<QString, GridPropertyBlobCacheEntry> m_gridPropertyBlobCache;
+    std::list<QString>                            m_gridPropertyBlobCacheOrder; // most recently used at front
+    size_t                                        m_gridPropertyBlobCacheSizeBytes = 0;
 };

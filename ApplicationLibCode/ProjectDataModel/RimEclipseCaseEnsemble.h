@@ -75,7 +75,11 @@ public:
     void                                  addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap ) override;
     std::vector<RimStatisticsContourMap*> statisticsContourMaps() const override;
 
+    bool doComputeMobileVolumeWeightedMean() const;
+    void setDoComputeMobileVolumeWeightedMean( bool enable );
+
 protected:
+    void initAfterRead() override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -86,4 +90,5 @@ private:
     caf::PdmChildArrayField<RimWellTargetMapping*>    m_wellTargetMappings;
     caf::PdmChildArrayField<RimStatisticsContourMap*> m_statisticsContourMaps;
     caf::PdmPtrField<RimEclipseCase*>                 m_selectedCase;
+    caf::PdmField<bool>                               m_doComputeMobileVolumeWeightedMean;
 };
