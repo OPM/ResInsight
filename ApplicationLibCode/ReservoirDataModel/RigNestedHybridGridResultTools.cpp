@@ -75,7 +75,7 @@ QString RigNestedHybridGridResultTools::refineSidecarFilePath( const QString& gr
 //--------------------------------------------------------------------------------------------------
 /// Nested hybrid grid: the parent mapping is provided in a sidecar GRDECL file named
 /// "<grid-basename>_OLDIJK.grdecl" next to the grid file. It holds, per flat cell, the original
-/// coarse cell IJK (OLDI/OLDJ/OLDK) and the local refined coordinates (TMPI/TMPJ/TMPK).
+/// coarse cell IJK (OLDI/OLDJ/OLDK).
 /// Returns its path if it exists.
 //--------------------------------------------------------------------------------------------------
 QString RigNestedHybridGridResultTools::oldIjkSidecarFilePath( const QString& gridFileName )
@@ -120,8 +120,8 @@ void RigNestedHybridGridResultTools::importRefineSidecarIfPresent( const QString
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Load the OLDIJK sidecar (OLDI/OLDJ/OLDK/TMPI/TMPJ/TMPK) as input properties so the parent-cell
-/// mapping is visible and scriptable, mirroring the REFINE property.
+/// Load the OLDIJK sidecar as input properties so the parent-cell mapping is visible and scriptable,
+/// mirroring the REFINE property.
 //--------------------------------------------------------------------------------------------------
 void RigNestedHybridGridResultTools::importOldIjkSidecarIfPresent( const QString&                     gridFileName,
                                                                    RimEclipseInputPropertyCollection* inputPropertyCollection,
@@ -179,9 +179,6 @@ void RigNestedHybridGridResultTools::reconstructNestedHybridGridIfPresent( const
     input.oldI   = readIntKeyword( oldIjkContent, "OLDI" );
     input.oldJ   = readIntKeyword( oldIjkContent, "OLDJ" );
     input.oldK   = readIntKeyword( oldIjkContent, "OLDK" );
-    input.tmpI   = readIntKeyword( oldIjkContent, "TMPI" );
-    input.tmpJ   = readIntKeyword( oldIjkContent, "TMPJ" );
-    input.tmpK   = readIntKeyword( oldIjkContent, "TMPK" );
 
     QString errorMessage;
     RigNestedHybridGridReconstructor::reconstruct( eclipseCaseData, input, &errorMessage );
@@ -354,7 +351,7 @@ RigEclipseResultAddress RigNestedHybridGridResultTools::computeCoarseAggregate( 
 
 //--------------------------------------------------------------------------------------------------
 /// Per refinement level, compute the aggregate (pore-volume-weighted average or sum) of a source
-/// result over the cells of each immediate parent and broadcast it back onto that level's cells. All
+/// result over the cells of each coarse parent and broadcast it back onto that level's cells. All
 /// other cells are left undefined (blank) so each level's result shows only that level. One result
 /// "<sourceName>_COARSE_L<level>" is created per level present (stored on the active refined cells;
 /// the parent cells are inactive).
@@ -409,7 +406,7 @@ std::vector<RigEclipseResultAddress> RigNestedHybridGridResultTools::computePerL
     auto activeIndex = [&]( size_t reservoirCell ) { return activeCellInfo->cellResultIndex( ReservoirCellIndex( reservoirCell ) ).value(); };
 
     // Collect every active reconstructed-LGR cell with its refinement level (from REFINE) and its
-    // immediate parent cell (from the LGR hierarchy).
+    // coarse parent cell (from the sibling LGR hierarchy).
     struct CellRef
     {
         size_t resultIndex;
@@ -480,7 +477,7 @@ std::vector<RigEclipseResultAddress> RigNestedHybridGridResultTools::computePerL
     {
         const std::vector<double>& src = sourceTs[ts];
 
-        // Accumulation keyed by (level, immediate parent) - cells of different levels are never
+        // Accumulation keyed by (level, coarse parent) - cells of different levels are never
         // accumulated together. The zero-bulk-volume filter excludes hidden duplicates in both modes.
         std::map<int, std::map<size_t, std::pair<double, double>>> acc;
         for ( const CellRef& cr : cellRefs )

@@ -56,7 +56,7 @@
 // The test model TestModels/NestedHybridGrid/DROGON_NESTED.* is a single flat 150x84x96 EGRID where
 // the refined cells of each coarse (15x24x12) cell are appended in per-level I bands. The sidecars:
 //   DROGON_NESTED_REFINE.grdecl  : per-cell nesting level (1 base, 2/3/4 refined)
-//   DROGON_NESTED_OLDIJK.grdecl  : OLDI/OLDJ/OLDK (coarse parent IJK) + TMPI/TMPJ/TMPK (local coords)
+//   DROGON_NESTED_OLDIJK.grdecl  : OLDI/OLDJ/OLDK (coarse parent IJK)
 //
 // Opening the ~1.2M cell EGRID, parsing the sidecars and reconstructing the LGR hierarchy is
 // expensive (several seconds), so it is done once in SetUpTestSuite() and shared read-only by all
@@ -98,9 +98,6 @@ RigNestedHybridGridReconstructor::NestedHybridInput buildInput( const QString& d
     input.oldI                                                 = oldIjk["OLDI"];
     input.oldJ                                                 = oldIjk["OLDJ"];
     input.oldK                                                 = oldIjk["OLDK"];
-    input.tmpI                                                 = oldIjk["TMPI"];
-    input.tmpJ                                                 = oldIjk["TMPJ"];
-    input.tmpK                                                 = oldIjk["TMPK"];
     return input;
 }
 
@@ -241,19 +238,21 @@ TEST_F( RigNestedHybridGridReconstructorTest, ReconstructFromOldIjk )
     }
     ASSERT_GT( level4Parents.size(), 0u );
 
-    // Count the level-4 LGRs (named "LGR_NHG_L4_<component>"). They are merged into connected regions,
-    // so there are far fewer than the number of coarse parents that own level-4 cells.
+    // Count the level-4 LGRs. Adjacent coarse parents with equal refinement dimensions are merged.
     size_t numLevel4Lgrs = 0;
     for ( size_t i = 1; i < mainGrid->gridCount(); i++ )
     {
         RigLocalGrid* lgr = dynamic_cast<RigLocalGrid*>( mainGrid->gridByIndex( i ) );
-        if ( lgr && QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4_" ) ) numLevel4Lgrs++;
+        ASSERT_NE( lgr, nullptr );
+        EXPECT_TRUE( lgr->isReconstructedGrid() );
+        EXPECT_EQ( lgr->parentGrid(), mainGrid );
+        if ( QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4" ) ) numLevel4Lgrs++;
     }
     EXPECT_GT( numLevel4Lgrs, 0u );
     EXPECT_LT( numLevel4Lgrs, level4Parents.size() ); // merged, not one-per-parent
 
-    // Level 2 and level 3 each become one LGR refining the coarse grid; level 4 nests inside level 3
-    // as merged regions. None is counted as an on-file grid.
+    // Every refinement level is reconstructed as sibling LGRs below the main grid. None is counted as
+    // an on-file grid.
     EXPECT_EQ( mainGrid->gridCount(), 1u + 2u + numLevel4Lgrs );
     EXPECT_EQ( mainGrid->gridCountOnFile(), 1u );
 
@@ -262,7 +261,7 @@ TEST_F( RigNestedHybridGridReconstructorTest, ReconstructFromOldIjk )
     ASSERT_TRUE( lgr2 != nullptr );
     EXPECT_EQ( lgr2->cellCountI(), 26u );
     EXPECT_EQ( lgr2->cellCountJ(), 44u );
-    EXPECT_EQ( lgr2->cellCountK(), 48u );
+    EXPECT_EQ( lgr2->cellCountK(), 24u );
     EXPECT_TRUE( lgr2->isReconstructedGrid() );
     EXPECT_EQ( lgr2->parentGrid(), mainGrid );
 
@@ -273,25 +272,23 @@ TEST_F( RigNestedHybridGridReconstructorTest, ReconstructFromOldIjk )
     EXPECT_EQ( lgr3->cellCountJ(), 76u );
     EXPECT_EQ( lgr3->cellCountK(), 48u );
 
-    // Level 4 nests inside the level-3 LGR (true LGR-in-LGR). Find a level-4 LGR and verify its parent
-    // grid is the level-3 LGR, and the level-3 cell it subdivides points back to it.
+    // Level 4 is also reconstructed directly below the main grid.
     RigLocalGrid* lgr4 = nullptr;
     for ( size_t i = 1; i < mainGrid->gridCount(); i++ )
     {
         RigLocalGrid* lgr = dynamic_cast<RigLocalGrid*>( mainGrid->gridByIndex( i ) );
-        if ( lgr && QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4_" ) )
+        if ( lgr && QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4" ) )
         {
             lgr4 = lgr;
             break;
         }
     }
     ASSERT_TRUE( lgr4 != nullptr );
-    EXPECT_EQ( lgr4->parentGrid(), lgr3 );
+    EXPECT_EQ( lgr4->parentGrid(), mainGrid );
     EXPECT_TRUE( lgr4->isReconstructedGrid() );
 
     {
-        // Pick a real (sourced) level-4 cell and verify its parent is a level-3 LGR cell whose subgrid
-        // is this level-4 LGR (parentCellIndex must be local to the level-3 grid).
+        // Pick a real (sourced) level-4 cell and verify that OLDIJK linked it to a coarse cell.
         const size_t                    l4Begin     = lgr4->reservoirCellIndex( 0 );
         const size_t                    l4End       = l4Begin + lgr4->cellCount();
         const std::map<size_t, size_t>& srcAll      = mainGrid->nestedHybridLgrSourceCells();
@@ -300,9 +297,9 @@ TEST_F( RigNestedHybridGridReconstructorTest, ReconstructFromOldIjk )
         {
             if ( lgrGlobal < l4Begin || lgrGlobal >= l4End ) continue;
             size_t parentLocal  = mainGrid->cell( lgrGlobal ).parentCellIndex();
-            size_t parentGlobal = lgr3->reservoirCellIndex( parentLocal );
+            size_t parentGlobal = mainGrid->reservoirCellIndex( parentLocal );
             EXPECT_EQ( mainGrid->cell( parentGlobal ).subGrid(), lgr4 );
-            EXPECT_EQ( mainGrid->cell( parentGlobal ).hostGrid(), lgr3 );
+            EXPECT_EQ( mainGrid->cell( parentGlobal ).hostGrid(), mainGrid );
             checkedNest = true;
             break;
         }
@@ -510,7 +507,7 @@ TEST_F( RigNestedHybridGridReconstructorTest, CoarsePoreVolumeWeightedAggregate 
 
 //--------------------------------------------------------------------------------------------------
 /// QC per refinement level: <RESULT>_COARSE_L4 holds, on each level-4 cell, the pore-volume-weighted
-/// average over the level-4 cells of its immediate (level-3) parent.
+/// average over the level-4 cells of its coarse parent.
 //--------------------------------------------------------------------------------------------------
 TEST_F( RigNestedHybridGridReconstructorTest, PerLevelPoreVolumeWeightedAggregate )
 {
@@ -547,7 +544,7 @@ TEST_F( RigNestedHybridGridReconstructorTest, PerLevelPoreVolumeWeightedAggregat
     for ( size_t i = 1; i < mainGrid->gridCount(); i++ )
     {
         RigLocalGrid* lgr = dynamic_cast<RigLocalGrid*>( mainGrid->gridByIndex( i ) );
-        if ( !lgr || !QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4_" ) ) continue;
+        if ( !lgr || !QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4" ) ) continue;
         for ( size_t c = 0; c < lgr->cellCount(); c++ )
             if ( ai->isActive( ReservoirCellIndex( lgr->reservoirCellIndex( c ) ) ) ) activeLevel4++;
     }
@@ -557,12 +554,12 @@ TEST_F( RigNestedHybridGridReconstructorTest, PerLevelPoreVolumeWeightedAggregat
     EXPECT_GT( activeLevel4, 0u );
     EXPECT_EQ( definedCount, activeLevel4 );
 
-    // Find a level-4 LGR and group its cells by their (level-3) parent cell.
+    // Find a level-4 LGR and group its cells by their coarse parent cell.
     RigLocalGrid* lgr4 = nullptr;
     for ( size_t i = 1; i < mainGrid->gridCount(); i++ )
     {
         RigLocalGrid* lgr = dynamic_cast<RigLocalGrid*>( mainGrid->gridByIndex( i ) );
-        if ( lgr && QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4_" ) )
+        if ( lgr && QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4" ) )
         {
             lgr4 = lgr;
             break;
@@ -570,7 +567,7 @@ TEST_F( RigNestedHybridGridReconstructorTest, PerLevelPoreVolumeWeightedAggregat
     }
     ASSERT_TRUE( lgr4 != nullptr );
 
-    std::map<size_t, std::vector<size_t>> byParent; // parent local cell -> level-4 global cells
+    std::map<size_t, std::vector<size_t>> byParent; // coarse parent cell -> level-4 global cells
     for ( size_t c = 0; c < lgr4->cellCount(); c++ )
     {
         size_t global = lgr4->reservoirCellIndex( c );
@@ -668,7 +665,7 @@ TEST_F( RigNestedHybridGridReconstructorTest, CoarseSumAggregate )
 
 //--------------------------------------------------------------------------------------------------
 /// Per-level SUM aggregate: <RESULT>_COARSE_L4 holds, on each level-4 cell, the sum over the level-4
-/// cells of its immediate (level-3) parent, and is blank everywhere else.
+/// cells of its coarse parent, and is blank everywhere else.
 //--------------------------------------------------------------------------------------------------
 TEST_F( RigNestedHybridGridReconstructorTest, PerLevelSumAggregate )
 {
@@ -696,7 +693,7 @@ TEST_F( RigNestedHybridGridReconstructorTest, PerLevelSumAggregate )
     for ( size_t i = 1; i < mainGrid->gridCount(); i++ )
     {
         RigLocalGrid* lgr = dynamic_cast<RigLocalGrid*>( mainGrid->gridByIndex( i ) );
-        if ( !lgr || !QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4_" ) ) continue;
+        if ( !lgr || !QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4" ) ) continue;
         for ( size_t c = 0; c < lgr->cellCount(); c++ )
             if ( ai->isActive( ReservoirCellIndex( lgr->reservoirCellIndex( c ) ) ) ) activeLevel4++;
     }
@@ -706,12 +703,12 @@ TEST_F( RigNestedHybridGridReconstructorTest, PerLevelSumAggregate )
     EXPECT_GT( activeLevel4, 0u );
     EXPECT_EQ( definedCount, activeLevel4 );
 
-    // Find a level-4 LGR and group its cells by their (level-3) parent cell.
+    // Find a level-4 LGR and group its cells by their coarse parent cell.
     RigLocalGrid* lgr4 = nullptr;
     for ( size_t i = 1; i < mainGrid->gridCount(); i++ )
     {
         RigLocalGrid* lgr = dynamic_cast<RigLocalGrid*>( mainGrid->gridByIndex( i ) );
-        if ( lgr && QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4_" ) )
+        if ( lgr && QString::fromStdString( lgr->gridName() ).startsWith( "LGR_NHG_L4" ) )
         {
             lgr4 = lgr;
             break;
@@ -719,7 +716,7 @@ TEST_F( RigNestedHybridGridReconstructorTest, PerLevelSumAggregate )
     }
     ASSERT_TRUE( lgr4 != nullptr );
 
-    std::map<size_t, std::vector<size_t>> byParent; // parent local cell -> level-4 global cells
+    std::map<size_t, std::vector<size_t>> byParent; // coarse parent cell -> level-4 global cells
     for ( size_t c = 0; c < lgr4->cellCount(); c++ )
     {
         size_t global = lgr4->reservoirCellIndex( c );

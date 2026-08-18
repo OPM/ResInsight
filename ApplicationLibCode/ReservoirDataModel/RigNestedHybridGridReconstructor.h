@@ -41,14 +41,15 @@ class RigLocalGrid;
 /// copying the real refined geometry, linking each region to its parent (coarse) cell, and hiding
 /// the original scattered cells.
 ///
-/// The parent of each refined cell is provided explicitly by sidecar properties (no HOSTNUM):
-///   - REFINE                 : per-cell nesting level (1 = unrefined base, 2/3/4 = refined levels)
+/// The coarse parent and refinement level of each refined cell are provided explicitly by sidecar
+/// properties (no HOSTNUM):
+///   - REFINE                 : per-cell refinement level (1 = unrefined base, 2/3/4 = refined levels)
 ///   - OLDI/OLDJ/OLDK         : the cell's parent COARSE cell IJK (1-based)
-///   - TMPI/TMPJ/TMPK         : the cell's local position in refined coordinate space
 ///
 /// The coarse host cell is the collapsed flat cell at (OLDI-1, OLDJ-1, (OLDK-1)*KF), where the K
-/// refinement factor KF = NZ / coarseNZ. Refinement is per-level and non-uniform, footprints may be
-/// non-rectangular (holes), and level-(n+1) regions nest inside a single level-n cell.
+/// refinement factor KF = NZ / coarseNZ. Each refinement level is reconstructed as one or more LGRs
+/// directly below the main grid. The flat-grid IJK positions determine the ordering within each
+/// coarse parent.
 //==================================================================================================
 class RigNestedHybridGridReconstructor
 {
@@ -60,9 +61,6 @@ public:
         std::vector<int> oldI; // 1-based coarse parent I
         std::vector<int> oldJ; // 1-based coarse parent J
         std::vector<int> oldK; // 1-based coarse parent K
-        std::vector<int> tmpI; // local refined I
-        std::vector<int> tmpJ; // local refined J
-        std::vector<int> tmpK; // local refined K
     };
 
     // Returns true if at least one refined region was reconstructed.
@@ -81,20 +79,7 @@ private:
                                          const cvf::Vec3st&         dims,
                                          const std::vector<size_t>& boxToFlat,
                                          const std::vector<size_t>& boxToParent,
-                                         std::map<size_t, size_t>&  sourceCells,
-                                         bool                       synthesizeHoleParentGeometry = false );
-
-    // Build the nested LGR(s) for a level that refines another (parent) level rather than the coarse
-    // grid (e.g. level 4 inside level 3). cellToParent maps each resolved cell (flat index) to its
-    // immediate parent cell (parent grid + parent-grid-local cell index). Cells are grouped by parent
-    // grid and merged into connected regions; one LGR is created per region, placed inside its parent
-    // grid (true LGR-in-LGR, any depth).
-    static void buildNestedLevel( RigEclipseCaseData*                                      caseData,
-                                  const std::vector<size_t>&                               cells,
-                                  const NestedHybridInput&                                 input,
-                                  const std::map<size_t, std::pair<RigGridBase*, size_t>>& cellToParent,
-                                  int&                                                     nextGridId,
-                                  std::map<size_t, size_t>&                                sourceCells );
+                                         std::map<size_t, size_t>&  sourceCells );
 
     static void updateActiveCellInfo( RigEclipseCaseData* caseData, const std::map<size_t, size_t>& sourceCells );
 
