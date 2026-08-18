@@ -93,9 +93,27 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <optional>
 #include <set>
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Returns the info required to report time as time from simulation start. Returns nothing if the
+/// time axis is configured to show dates.
+//--------------------------------------------------------------------------------------------------
+std::optional<TimeFromSimulationStartInfo> createTimeFromSimulationStartInfo( RimSummaryPlot* summaryPlot )
+{
+    auto* timeAxisProperties = summaryPlot->timeAxisProperties();
+    if ( !timeAxisProperties || timeAxisProperties->timeMode() != RimSummaryTimeAxisProperties::TIME_FROM_SIMULATION_START ) return {};
+
+    return TimeFromSimulationStartInfo{ summaryPlot->firstTimeStepOfFirstCurve(),
+                                        timeAxisProperties->timeUnit(),
+                                        caf::AppEnum<RimSummaryTimeAxisProperties::TimeUnitType>::uiText( timeAxisProperties->timeUnit() ) };
+}
+} // namespace
 
 struct RimSummaryPlot::CurveInfo
 {
@@ -368,13 +386,21 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePerio
     auto gridCurves  = m_gridTimeHistoryCurves.childrenByType();
     auto asciiCurves = m_asciiDataCurves.childrenByType();
 
+    auto timeFromSimulationStart = createTimeFromSimulationStartInfo( const_cast<RimSummaryPlot*>( this ) );
+
     QString text;
-    text += RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString );
+    text +=
+        RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString, timeFromSimulationStart );
 
     if ( !observedCurves.empty() )
     {
         text += "\n\n------------ Observed Curves --------------";
-        text += RimSummaryCurvesData::createTextForExport( observedCurves, {}, {}, RiaDefines::DateTimePeriod::NONE, showTimeAsLongString );
+        text += RimSummaryCurvesData::createTextForExport( observedCurves,
+                                                           {},
+                                                           {},
+                                                           RiaDefines::DateTimePeriod::NONE,
+                                                           showTimeAsLongString,
+                                                           timeFromSimulationStart );
     }
 
     text += RimSummaryCurvesData::createTextForCrossPlotCurves( crossPlotCurves );

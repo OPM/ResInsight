@@ -137,7 +137,7 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
             else
             {
-                double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
+                auto* timeAxisProperties = plot->timeAxisProperties();
 
                 std::vector<double> times;
                 if ( !dateTimes.empty() )
@@ -145,7 +145,7 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     time_t startDate = dateTimes[0];
                     for ( time_t& date : dateTimes )
                     {
-                        times.push_back( timeScale * ( date - startDate ) );
+                        times.push_back( timeAxisProperties->timeFromSimulationStart( startDate, date ) );
                     }
                 }
 

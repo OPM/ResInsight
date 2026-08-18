@@ -704,7 +704,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 }
                 else
                 {
-                    double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
+                    auto* timeAxisProperties = plot->timeAxisProperties();
 
                     std::vector<double> timeFromSimulationStart;
                     if ( !curveTimeStepsY.empty() )
@@ -712,7 +712,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         time_t startDate = curveTimeStepsY[0];
                         for ( const auto& date : curveTimeStepsY )
                         {
-                            timeFromSimulationStart.push_back( timeScale * ( date - startDate ) );
+                            timeFromSimulationStart.push_back( timeAxisProperties->timeFromSimulationStart( startDate, date ) );
                         }
                     }
 

@@ -668,12 +668,41 @@ void RimSummaryTimeAxisProperties::setTimeMode( TimeModeType val )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryTimeAxisProperties::TimeUnitType RimSummaryTimeAxisProperties::timeUnit() const
+{
+    return m_timeUnit();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSummaryTimeAxisProperties::timeFromSimulationStart( time_t simulationStartTime, time_t timeStep, TimeUnitType displayUnit )
+{
+    // A calendar month or year has a varying number of seconds, use calendar arithmetic for these units to make a time
+    // step exactly N calendar months/years after the simulation start report exactly N.
+    if ( displayUnit == MONTHS ) return RiaQDateTimeTools::calendarMonthsBetween( simulationStartTime, timeStep );
+    if ( displayUnit == YEARS ) return RiaQDateTimeTools::calendarYearsBetween( simulationStartTime, timeStep );
+
+    return scaleFromTimeTToDisplayUnit( displayUnit ) * static_cast<double>( timeStep - simulationStartTime );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSummaryTimeAxisProperties::timeFromSimulationStart( time_t simulationStartTime, time_t timeStep ) const
+{
+    return timeFromSimulationStart( simulationStartTime, timeStep, m_timeUnit() );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// https://www.unitconverters.net/time-converter.html
 //--------------------------------------------------------------------------------------------------
-double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
+double RimSummaryTimeAxisProperties::scaleFromTimeTToDisplayUnit( TimeUnitType displayUnit )
 {
     double scale = 1.0;
-    switch ( m_timeUnit() )
+    switch ( displayUnit )
     {
         case SECONDS:
             break;
@@ -699,6 +728,14 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
     }
 
     return scale;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
+{
+    return scaleFromTimeTToDisplayUnit( m_timeUnit() );
 }
 
 //--------------------------------------------------------------------------------------------------
