@@ -237,6 +237,14 @@ void RenderStateTextureBindings::applyOpenGL(OpenGLContext* oglContext) const
         const Sampler* sampler = m_bindings[i].sampler.p();
         CVF_ASSERT(texture && sampler);
 
+        // Texture setup in setupTextures() can fail at run-time, leaving the texture without a valid OpenGL id.
+        // Skip the binding in that case, as Texture::bind() asserts on an invalid id.
+        if (texture->textureOglId() == 0)
+        {
+            CVF_LOG_RENDER_ERROR(oglContext, "Skipping texture binding, texture has not been set up.");
+            continue;
+        }
+
         cvfGL->glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + i));
 
         texture->bind(oglContext);
