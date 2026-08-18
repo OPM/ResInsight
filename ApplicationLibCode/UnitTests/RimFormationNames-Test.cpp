@@ -36,7 +36,7 @@
 
 namespace
 {
-struct MockCase
+struct FormationNamesMockCase
 {
     std::unique_ptr<RimEclipseResultCase> resultCase;
     cvf::ref<RigEclipseCaseData>          eclipseCase;
@@ -45,13 +45,13 @@ struct MockCase
 //--------------------------------------------------------------------------------------------------
 /// Build a regular ni x nj x nk box grid in memory (no file, no view)
 //--------------------------------------------------------------------------------------------------
-MockCase buildBoxGridCase( int ni, int nj, int nk )
+FormationNamesMockCase buildFormationNamesBoxGridCase( int ni, int nj, int nk )
 {
     RigReservoirBuilder builder;
     builder.setIJKCount( cvf::Vec3st( ni, nj, nk ) );
     builder.setWorldCoordinates( cvf::Vec3d( 0.0, 0.0, 0.0 ), cvf::Vec3d( ni, nj, -nk ) );
 
-    MockCase mockCase;
+    FormationNamesMockCase mockCase;
     mockCase.resultCase.reset( new RimEclipseResultCase );
     mockCase.eclipseCase = new RigEclipseCaseData( mockCase.resultCase.get() );
 
@@ -96,8 +96,8 @@ std::string joinedFormationNames( const RigEclipseCaseData* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 TEST( RimFormationNamesTest, CaseDataKeepsFormationNamesAliveAfterReloadAndDelete )
 {
-    MockCase mockCase       = buildBoxGridCase( 2, 2, 3 );
-    auto     formationNames = readNorneFormationNames();
+    FormationNamesMockCase mockCase       = buildFormationNamesBoxGridCase( 2, 2, 3 );
+    auto                   formationNames = readNorneFormationNames();
 
     mockCase.eclipseCase->setActiveFormationNames( formationNames->formationNamesData() );
 
