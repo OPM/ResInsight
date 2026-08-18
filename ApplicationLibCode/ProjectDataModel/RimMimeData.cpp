@@ -55,7 +55,7 @@ const QModelIndexList& MimeDataWithIndexes::indexes() const
 //--------------------------------------------------------------------------------------------------
 bool MimeDataWithIndexes::hasFormat( const QString& mimetype ) const
 {
-    return ( mimetype == formatName() );
+    return ( mimetype == formatName() ) || QMimeData::hasFormat( mimetype );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ const std::vector<QString>& MimeDataWithReferences::references() const
 //--------------------------------------------------------------------------------------------------
 bool MimeDataWithReferences::hasFormat( const QString& mimetype ) const
 {
-    return ( mimetype == formatName() );
+    return ( mimetype == formatName() ) || QMimeData::hasFormat( mimetype );
 }
 
 //--------------------------------------------------------------------------------------------------
