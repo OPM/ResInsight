@@ -75,6 +75,7 @@ public:
     void viewNavigationChanged();
 
     virtual void updateWindowTitle();
+    void         updateWindowTitleIcon(QString title);
 
     void    resetDockWindowId();
     QString dockWindowName();

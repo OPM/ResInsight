@@ -546,14 +546,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicDeleteScriptPathFeature";
         }
-        else if ( dynamic_cast<RimViewController*>( firstUiItem ) )
-        {
-            menuBuilder << "RicShowAllLinkedViewsFeature";
-        }
         else if ( dynamic_cast<RimViewLinker*>( firstUiItem ) || dynamic_cast<RimViewLinkerCollection*>( firstUiItem ) )
         {
-            menuBuilder << "RicShowAllLinkedViewsFeature";
-            menuBuilder << "Separator";
             menuBuilder << "RicDeleteAllLinkedViewsFeature";
         }
         else if ( dynamic_cast<RimWellLogPlotCollection*>( firstUiItem ) )
