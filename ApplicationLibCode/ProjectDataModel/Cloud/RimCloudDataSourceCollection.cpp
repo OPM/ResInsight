@@ -167,14 +167,21 @@ void RimCloudDataSourceCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( changedField == &m_sumoFieldName )
     {
+        // What was picked below belonged to the asset that was just left, both the selection and the options
+        // it was chosen from. Forget the cached answers as well, or the case list would keep offering the
+        // cases of the previous asset. The editors are refreshed by the caller, which updates them as soon
+        // as this returns, so asking for that here would only fetch everything a second time.
         m_sumoCaseId = "";
-        m_sumoEnsembleNames.v().clear();
+        m_sumoEnsembleNames.setValue( {} );
 
-        m_sumoConnector->requestCasesForFieldBlocking( m_sumoFieldName );
+        clearCachedCases();
+        clearCachedEnsembleNames();
     }
     else if ( changedField == &m_sumoCaseId )
     {
-        m_sumoEnsembleNames.v().clear();
+        m_sumoEnsembleNames.setValue( {} );
+
+        clearCachedEnsembleNames();
     }
     if ( changedField == &m_addEnsembles )
     {
@@ -214,12 +221,7 @@ QList<caf::PdmOptionItemInfo> RimCloudDataSourceCollection::calculateValueOption
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_sumoFieldName )
     {
-        if ( m_sumoConnector->assets().empty() )
-        {
-            m_sumoConnector->requestAssetsBlocking();
-        }
-
-        for ( const auto& asset : m_sumoConnector->assets() )
+        for ( const auto& asset : cachedAssets() )
         {
             if ( m_sumoFieldName().isEmpty() )
             {
@@ -231,30 +233,80 @@ QList<caf::PdmOptionItemInfo> RimCloudDataSourceCollection::calculateValueOption
     }
     else if ( fieldNeedingOptions == &m_sumoCaseId && !m_sumoFieldName().isEmpty() )
     {
-        if ( m_sumoConnector->cases().empty() )
-        {
-            m_sumoConnector->requestCasesForFieldBlocking( m_sumoFieldName );
-        }
-
-        for ( const auto& sumoCase : m_sumoConnector->cases() )
+        for ( const auto& sumoCase : cachedCases( m_sumoFieldName ) )
         {
             options.push_back( { sumoCase.name, sumoCase.caseId.get() } );
         }
     }
     else if ( fieldNeedingOptions == &m_sumoEnsembleNames && !m_sumoCaseId().isEmpty() )
     {
-        if ( m_sumoConnector->ensembleNamesForCase( SumoCaseId( m_sumoCaseId ) ).empty() )
-        {
-            m_sumoConnector->requestEnsembleByCasesIdBlocking( SumoCaseId( m_sumoCaseId ) );
-        }
-
-        for ( const auto& name : m_sumoConnector->ensembleNamesForCase( SumoCaseId( m_sumoCaseId ) ) )
+        for ( const auto& name : cachedEnsembleNames( SumoCaseId( m_sumoCaseId ) ) )
         {
             options.push_back( { name, name } );
         }
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<SumoAsset>& RimCloudDataSourceCollection::cachedAssets()
+{
+    if ( m_assets.empty() && m_sumoConnector )
+    {
+        m_assets = m_sumoConnector->explore().assets();
+    }
+
+    return m_assets;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<SumoCase>& RimCloudDataSourceCollection::cachedCases( const QString& assetName )
+{
+    if ( m_casesAssetName != assetName && m_sumoConnector )
+    {
+        m_cases          = m_sumoConnector->explore().cases( assetName );
+        m_casesAssetName = assetName;
+    }
+
+    return m_cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<QString>& RimCloudDataSourceCollection::cachedEnsembleNames( const SumoCaseId& caseId )
+{
+    if ( m_ensembleNamesCaseId != caseId.get() && m_sumoConnector )
+    {
+        m_ensembleNames       = m_sumoConnector->explore().ensembleNames( caseId );
+        m_ensembleNamesCaseId = caseId.get();
+    }
+
+    return m_ensembleNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Forget the cases Sumo answered with, so the next request for them asks again. Called when the asset they
+/// belong to is left behind.
+//--------------------------------------------------------------------------------------------------
+void RimCloudDataSourceCollection::clearCachedCases()
+{
+    m_casesAssetName.clear();
+    m_cases.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The same for the ensemble names, which belong to a case.
+//--------------------------------------------------------------------------------------------------
+void RimCloudDataSourceCollection::clearCachedEnsembleNames()
+{
+    m_ensembleNamesCaseId.clear();
+    m_ensembleNames.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,7 +454,7 @@ std::vector<RimSumoDataSource*> RimCloudDataSourceCollection::addDataSources()
         }
 
         QString caseName;
-        for ( const auto& sumoCase : m_sumoConnector->cases() )
+        for ( const auto& sumoCase : cachedCases( m_sumoFieldName ) )
         {
             if ( sumoCase.caseId == sumoCaseId )
             {
@@ -411,11 +463,8 @@ std::vector<RimSumoDataSource*> RimCloudDataSourceCollection::addDataSources()
             }
         }
 
-        m_sumoConnector->requestRealizationIdsForEnsembleBlocking( sumoCaseId, ensembleName );
-        m_sumoConnector->requestVectorNamesForEnsembleBlocking( sumoCaseId, ensembleName );
-
-        auto availableRealizationIds = m_sumoConnector->realizationIds();
-        auto vectorNames             = m_sumoConnector->vectorNames();
+        const auto availableRealizationIds = m_sumoConnector->explore().realizationIds( sumoCaseId, ensembleName );
+        const auto vectorNames             = m_sumoConnector->summary().vectorNames( sumoCaseId, ensembleName );
 
         auto dataSource = new RimSumoDataSource();
         dataSource->setCaseId( sumoCaseId );

@@ -26,6 +26,7 @@
 
 #include "cafStyleSheetTools.h"
 
+#include <QCoreApplication>
 #include <QMenu>
 #include <QPlainTextEdit>
 #include <QThread>
@@ -206,6 +207,22 @@ void RiuMessagePanelLogger::debug( const char* message )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Deliver the messages handed over from other threads. Only the queued addMessage calls above are posted to
+/// a panel, so this writes out the pending log messages and nothing else. Must be called from the thread
+/// owning the panels.
+//--------------------------------------------------------------------------------------------------
+void RiuMessagePanelLogger::flushPendingMessages()
+{
+    for ( auto& panel : m_messagePanels )
+    {
+        if ( panel && panel->thread() == QThread::currentThread() )
+        {
+            QCoreApplication::sendPostedEvents( panel, QEvent::MetaCall );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::writeToMessagePanel( RILogLevel messageLevel, const char* message )
@@ -219,12 +236,23 @@ void RiuMessagePanelLogger::writeToMessagePanel( RILogLevel messageLevel, const 
     {
         if ( panel )
         {
-            // Make sure we only output messages for the GUI-thread.
-            // We can loose some messages, but we avoid updating UI from a different thread that will cause asserts and
-            // potential crashes
             if ( panel->thread() == QThread::currentThread() )
             {
                 panel->addMessage( messageLevel, message );
+            }
+            else
+            {
+                // The panel can only be touched from the thread owning it. Hand the message over instead of
+                // dropping it, so messages logged from a worker thread still reach the panel. The text is
+                // copied into the queued call, as the caller owns the buffer.
+                const QString messageText = QString::fromUtf8( message );
+                QMetaObject::invokeMethod(
+                    panel,
+                    [panel, messageLevel, messageText]()
+                    {
+                        if ( panel ) panel->addMessage( messageLevel, messageText );
+                    },
+                    Qt::QueuedConnection );
             }
         }
     }

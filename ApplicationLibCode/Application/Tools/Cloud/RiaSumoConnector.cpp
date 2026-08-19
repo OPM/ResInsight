@@ -31,7 +31,11 @@
 #include <QMetaMethod>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QSemaphore>
+#include <QThread>
 #include <QTimer>
+
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -44,7 +48,41 @@ RiaSumoConnector::RiaSumoConnector( QObject*                 parent,
                                     unsigned int             port )
     : RiaCloudConnector( parent, {}, authority, scopes, clientId, port )
     , m_serverUrlProvider( std::move( serverUrlProvider ) )
+    , m_explore( *this )
+    , m_summary( *this )
 {
+    // The transfer thread runs the network requests issued by the blocking wrappers, so the calling thread can
+    // wait for them without dispatching events. The context object gives us something with transfer thread
+    // affinity to post work to, and the network manager has to be constructed on the thread that uses it.
+    m_transferThread  = new QThread( this );
+    m_transferContext = new QObject;
+    m_transferContext->moveToThread( m_transferThread );
+
+    QObject::connect( m_transferThread,
+                      &QThread::started,
+                      m_transferContext,
+                      [this]() { m_transferNetworkAccessManager = new QNetworkAccessManager( m_transferContext ); } );
+
+    // The context object lives on the transfer thread, so let that thread delete it when it stops.
+    QObject::connect( m_transferThread, &QThread::finished, m_transferContext, &QObject::deleteLater );
+
+    m_transferThread->start();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSumoExplore& RiaSumoConnector::explore()
+{
+    return m_explore;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSumoSummary& RiaSumoConnector::summary()
+{
+    return m_summary;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,494 +108,359 @@ void RiaSumoConnector::requestFailed( const QAbstractOAuth::Error error )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::parquetDownloadComplete( const QString& blobId, const QByteArray& contents, const QString& url )
-{
-    SumoRedirect obj;
-    obj.objectId = blobId;
-    obj.contents = contents;
-    obj.url      = url;
-
-    m_redirectInfo.push_back( obj );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiaSumoConnector::~RiaSumoConnector()
 {
+    if ( m_transferThread )
+    {
+        m_transferThread->quit();
+        m_transferThread->wait();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The network manager of the calling thread. A QNetworkAccessManager can only be used from the thread it
+/// was created on, and the connector is used from both the GUI thread (the token flow and the Sumo Data
+/// dialog) and the transfer thread (everything issued by a blocking wrapper).
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestCasesForField( const QString& fieldName )
+QNetworkAccessManager* RiaSumoConnector::networkAccessManager()
 {
-    m_cases.clear();
+    if ( m_transferThread && QThread::currentThread() == m_transferThread && m_transferNetworkAccessManager )
+    {
+        return m_transferNetworkAccessManager;
+    }
 
+    return m_networkAccessManager;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Run work on the transfer thread and wait for it to finish, without dispatching any events on the calling
+/// thread. This is what keeps the view update code from re-entering a load that is already running.
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::runOnTransferThreadBlocking( const std::function<void()>& work )
+{
+    // A blocking request can be issued from inside another one, for instance the blob id lookup done while
+    // downloading a grid property. Already on the transfer thread, run directly instead of deadlocking on a
+    // thread that is busy waiting for us.
+    if ( !m_transferThread || !m_transferContext || QThread::currentThread() == m_transferThread )
+    {
+        work();
+        return;
+    }
+
+    QSemaphore semaphore;
+
+    QMetaObject::invokeMethod(
+        m_transferContext,
+        [&work, &semaphore]()
+        {
+            // Release on every exit path. A request that fails or times out must not leave the caller waiting.
+            struct Releaser
+            {
+                QSemaphore& semaphore;
+                ~Releaser() { semaphore.release(); }
+            } releaser{ semaphore };
+
+            work();
+        },
+        Qt::QueuedConnection );
+
+    semaphore.acquire();
+
+    // The transfer thread hands its log messages to the thread owning the message panel. Deliver them here,
+    // while the request they describe is still the most recent thing that happened, or they would appear
+    // after whatever the caller logs next and the log would read out of order.
+    RiaLogging::flushPendingMessages();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Wait until every reply has finished, or the timeout expires.
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies )
+{
+    if ( replies.empty() ) return;
+
+    QEventLoop eventLoop;
+    QTimer     timer;
+    timer.setSingleShot( true );
+    QObject::connect( &timer, &QTimer::timeout, &eventLoop, &QEventLoop::quit );
+
+    auto isAllFinished = [&replies]()
+    { return std::ranges::all_of( replies, []( QNetworkReply* reply ) { return reply && reply->isFinished(); } ); };
+
+    std::vector<QMetaObject::Connection> connections;
+    for ( auto reply : replies )
+    {
+        if ( !reply ) continue;
+
+        connections.push_back( QObject::connect( reply,
+                                                 &QNetworkReply::finished,
+                                                 &eventLoop,
+                                                 [&eventLoop, &isAllFinished]()
+                                                 {
+                                                     if ( isAllFinished() ) eventLoop.quit();
+                                                 } ) );
+    }
+
+    if ( !isAllFinished() )
+    {
+        timer.start( RiaSumoDefines::requestTimeoutMillis() );
+        eventLoop.exec();
+    }
+
+    for ( const auto& connection : connections )
+    {
+        QObject::disconnect( connection );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Download one blob and return its contents. The download and the wait for it run on the transfer thread.
+//--------------------------------------------------------------------------------------------------
+QByteArray RiaSumoConnector::downloadBlobBlocking( const QString& blobId )
+{
+    const auto contentsByBlobId = downloadBlobsBlocking( { blobId } );
+
+    if ( auto it = contentsByBlobId.find( blobId ); it != contentsByBlobId.end() ) return it->second;
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Issue a GET and return the response body, waiting on the transfer thread. Returns an empty array when
+/// the request fails. This is the primitive the data specific requests are built from.
+//--------------------------------------------------------------------------------------------------
+QByteArray RiaSumoConnector::getBlocking( const QString& url )
+{
     requestTokenBlocking();
 
-    QNetworkRequest m_networkRequest;
-    QString         url = QString( "%1/cases?asset_name=%2" ).arg( server() ).arg( fieldName );
-    m_networkRequest.setUrl( QUrl( url ) );
+    QByteArray body;
 
-    addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
+    runOnTransferThreadBlocking(
+        [&]()
+        {
+            QNetworkRequest networkRequest;
+            networkRequest.setUrl( QUrl( url ) );
+            addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
+            auto reply = networkAccessManager()->get( networkRequest );
 
-    connect( reply,
-             &QNetworkReply::finished,
-             [this, reply]()
-             {
-                 // parseCases handles the error case and always emits casesFinished, so the blocking caller
-                 // returns immediately instead of waiting for the request to time out.
-                 parseCases( reply );
-             } );
+            QEventLoop eventLoop;
+            QTimer     timer;
+            timer.setSingleShot( true );
+            QObject::connect( &timer, &QTimer::timeout, &eventLoop, &QEventLoop::quit );
+            QObject::connect( reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit );
+
+            timer.start( RiaSumoDefines::requestTimeoutMillis() );
+            eventLoop.exec();
+
+            body = replyBody( reply, url );
+        } );
+
+    return body;
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The REST API returns a blob id as a plain string, quoted by FastAPI.
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestCasesForFieldBlocking( const QString& fieldName )
+QString RiaSumoConnector::blobIdFromBody( const QByteArray& body )
 {
-    auto        requestCallable = [this, fieldName] { requestCasesForField( fieldName ); };
-    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::casesFinished );
-    wrapAndCallNetworkRequest( requestCallable, signalMethod );
+    if ( body.isEmpty() ) return {};
+
+    QString blobId = QString::fromUtf8( body ).trimmed();
+
+    if ( blobId.startsWith( '"' ) && blobId.endsWith( '"' ) )
+    {
+        blobId = blobId.mid( 1, blobId.length() - 2 );
+    }
+
+    return blobId;
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Read the body off a finished reply. The reply is consumed and scheduled for deletion.
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestAssets()
+QByteArray RiaSumoConnector::replyBody( QNetworkReply* reply, const QString& url )
 {
-    requestTokenBlocking();
+    if ( !reply ) return {};
 
-    QNetworkRequest m_networkRequest;
-    m_networkRequest.setUrl( QUrl( QString( "%1/assets" ).arg( server() ) ) );
+    const bool failed = !reply->isFinished() || reply->error() != QNetworkReply::NoError;
+    QByteArray body   = failed ? QByteArray() : reply->readAll();
 
-    addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
+    if ( failed )
+    {
+        RiaLogging::error( std::format( "Request failed: '{}': {}", url.toStdString(), reply->errorString().toStdString() ) );
+    }
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
-
-    connect( reply,
-             &QNetworkReply::finished,
-             [this, reply]()
-             {
-                 // parseAssets handles the error case and always emits assetsFinished, so the blocking caller
-                 // returns immediately instead of waiting for the request to time out.
-                 parseAssets( reply );
-             } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestAssetsBlocking()
-{
-    auto        requestCallable = [this] { requestAssets(); };
-    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::assetsFinished );
-    wrapAndCallNetworkRequest( requestCallable, signalMethod );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestEnsembleByCasesId( const SumoCaseId& caseId )
-{
-    requestTokenBlocking();
-
-    QNetworkRequest m_networkRequest;
-    QString         url = QString( "%1/cases/%2/ensembles" ).arg( server() ).arg( caseId.get() );
-    m_networkRequest.setUrl( QUrl( url ) );
-
-    addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
-
-    auto reply = m_networkAccessManager->get( m_networkRequest );
-
-    connect( reply,
-             &QNetworkReply::finished,
-             [this, reply, caseId]()
-             {
-                 // parseEnsembleNames handles the error case and always emits ensembleNamesFinished, so the
-                 // blocking caller returns immediately instead of waiting for the request to time out.
-                 parseEnsembleNames( reply, caseId );
-             } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::parseEnsembleNames( QNetworkReply* reply, const SumoCaseId& caseId )
-{
-    QByteArray result = reply->readAll();
     reply->deleteLater();
 
-    if ( reply->error() == QNetworkReply::NoError )
-    {
-        m_ensembleNames.clear();
-
-        QJsonDocument doc       = QJsonDocument::fromJson( result );
-        QJsonArray    jsonArray = doc.array();
-
-        for ( const QJsonValue& value : jsonArray )
-        {
-            QJsonObject ensembleObj  = value.toObject();
-            QString     ensembleName = ensembleObj["name"].toString();
-            m_ensembleNames.push_back( { caseId, ensembleName } );
-        }
-
-        RiaLogging::debug( std::format( "Ensemble count : {}", m_ensembleNames.size() ) );
-    }
-    else
-    {
-        RiaLogging::error( std::format( "Request ensemble names failed: '{}'", reply->errorString() ) );
-    }
-
-    emit ensembleNamesFinished();
+    return body;
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Entry point for callers on any thread: hand the work to the transfer thread and wait for it there, so
+/// the calling thread dispatches no events while the transfers are in flight. See downloadBlobs for what
+/// the transfers actually are.
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestEnsembleByCasesIdBlocking( const SumoCaseId& caseId )
+std::map<QString, QByteArray> RiaSumoConnector::downloadBlobsBlocking( const std::vector<QString>& blobIds )
 {
-    auto        requestCallable = [this, caseId] { requestEnsembleByCasesId( caseId ); };
-    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::ensembleNamesFinished );
-    wrapAndCallNetworkRequest( requestCallable, signalMethod );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestVectorNamesForEnsemble( const SumoCaseId& caseId, const QString& ensembleName )
-{
-    requestTokenBlocking();
-
-    QNetworkRequest m_networkRequest;
-    QString         url = QString( "%1/cases/%2/ensembles/%3/vector_list" ).arg( server() ).arg( caseId.get() ).arg( ensembleName );
-    m_networkRequest.setUrl( QUrl( url ) );
-
-    addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
-
-    auto reply = m_networkAccessManager->get( m_networkRequest );
-
-    connect( reply,
-             &QNetworkReply::finished,
-             [this, reply, ensembleName, caseId]()
-             {
-                 // parseVectorNames handles the error case and always emits vectorNamesFinished, so the
-                 // blocking caller returns immediately instead of waiting for the request to time out.
-                 parseVectorNames( reply, caseId, ensembleName );
-             } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestVectorNamesForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName )
-{
-    auto        requestCallable = [this, caseId, ensembleName] { requestVectorNamesForEnsemble( caseId, ensembleName ); };
-    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::vectorNamesFinished );
-    wrapAndCallNetworkRequest( requestCallable, signalMethod );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestRealizationIdsForEnsemble( const SumoCaseId& caseId, const QString& ensembleName )
-{
-    m_realizationIds.clear();
+    if ( blobIds.empty() ) return {};
 
     requestTokenBlocking();
 
-    QNetworkRequest m_networkRequest;
-    QString         url = QString( "%1/cases/%2/ensembles/%3/realizations" ).arg( server() ).arg( caseId.get() ).arg( ensembleName );
-    m_networkRequest.setUrl( QUrl( url ) );
+    std::map<QString, QByteArray> contentsByBlobId;
 
-    addStandardHeader( m_networkRequest, token(), RiaCloudDefines::contentTypeJson() );
+    runOnTransferThreadBlocking( [&]() { contentsByBlobId = downloadBlobs( blobIds ); } );
 
-    auto reply = m_networkAccessManager->get( m_networkRequest );
-
-    connect( reply,
-             &QNetworkReply::finished,
-             [this, reply, ensembleName, caseId]()
-             {
-                 // parseRealizationNumbers handles the error case and always emits realizationIdsFinished, so
-                 // the blocking caller returns immediately instead of waiting for the request to time out.
-                 parseRealizationNumbers( reply, caseId, ensembleName );
-             } );
+    return contentsByBlobId;
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Download several blobs and return their contents by blob id. Getting a blob takes two round trips, one
+/// for the pre-signed URI and one for the data itself, so both are done as a group: all the access info
+/// requests are issued and waited for together, then all the transfers. A blob that fails is left out of
+/// the returned map.
 ///
+/// Always called on the transfer thread, where the event loops it waits on dispatch no GUI events.
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestRealizationIdsForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName )
+std::map<QString, QByteArray> RiaSumoConnector::downloadBlobs( const std::vector<QString>& blobIds )
 {
-    auto        requestCallable = [this, caseId, ensembleName] { requestRealizationIdsForEnsemble( caseId, ensembleName ); };
-    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::realizationIdsFinished );
-    wrapAndCallNetworkRequest( requestCallable, signalMethod );
-}
+    std::map<QString, QByteArray> contentsByBlobId;
+    if ( blobIds.empty() ) return contentsByBlobId;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QByteArray RiaSumoConnector::requestParametersParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName )
-{
-    requestParametersBlobIdForEnsembleBlocking( caseId, ensembleName );
-
-    if ( m_blobId.empty() ) return {};
-
-    auto blobId = m_blobId.back();
-
-    QEventLoop eventLoop;
-    QTimer     timer;
-    timer.setSingleShot( true );
-    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
-    QObject::connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
-
-    requestBlobDownload( blobId );
-
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
-
-    for ( const auto& blobData : m_redirectInfo )
+    // Phase 1: ask for the pre-signed URI of every blob.
+    std::vector<QNetworkReply*> accessInfoReplies;
+    for ( const auto& blobId : blobIds )
     {
-        if ( blobData.objectId == blobId )
+        QString url = QString( "%1/blobs/%2/sas_token_and_blob_base_uri" ).arg( server() ).arg( blobId );
+
+        QNetworkRequest networkRequest;
+        networkRequest.setUrl( QUrl( url ) );
+        addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
+
+        accessInfoReplies.push_back( networkAccessManager()->get( networkRequest ) );
+    }
+
+    waitForRepliesToFinish( accessInfoReplies );
+
+    std::vector<QString> sasUris;
+    for ( size_t i = 0; i < accessInfoReplies.size(); i++ )
+    {
+        sasUris.push_back( sasUriFromReply( accessInfoReplies[i], blobIds[i] ) );
+    }
+
+    // Phase 2: transfer the blobs themselves.
+    std::vector<QNetworkReply*> blobReplies;
+    std::vector<size_t>         blobIndices; // index into blobIds for each reply
+    for ( size_t i = 0; i < sasUris.size(); i++ )
+    {
+        if ( sasUris[i].isEmpty() ) continue;
+
+        RiaLogging::debug( std::format( "Requesting blob. Id: {} SAS URI: {}", blobIds[i], sasUris[i] ) );
+
+        QNetworkRequest networkRequest;
+        networkRequest.setUrl( sasUris[i] );
+
+        // The pre-signed SAS URI carries its own credential (signature in the query string), so no
+        // Authorization header is added here. Do NOT forward the bearer token to the storage host. Redirect
+        // policy is set explicitly so behaviour is not Qt-version dependent.
+        networkRequest.setAttribute( QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy );
+
+        blobReplies.push_back( networkAccessManager()->get( networkRequest ) );
+        blobIndices.push_back( i );
+    }
+
+    waitForRepliesToFinish( blobReplies );
+
+    for ( size_t i = 0; i < blobReplies.size(); i++ )
+    {
+        const size_t blobIndex = blobIndices[i];
+
+        QByteArray contents = blobContentsFromReply( blobReplies[i], sasUris[blobIndex] );
+        if ( !contents.isEmpty() )
         {
-            return blobData.contents;
+            contentsByBlobId[blobIds[blobIndex]] = contents;
         }
     }
 
-    return {};
+    return contentsByBlobId;
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Read the pre-signed download URI off a finished blob access info reply. The reply is consumed and
+/// scheduled for deletion. Returns an empty string on failure.
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestParametersBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName )
+QString RiaSumoConnector::sasUriFromReply( QNetworkReply* reply, const QString& blobId )
 {
-    auto        requestCallable = [this, caseId, ensembleName] { requestParametersBlobIdForEnsemble( caseId, ensembleName ); };
-    QMetaMethod signalMethod    = QMetaMethod::fromSignal( &RiaSumoConnector::blobIdFinished );
-    wrapAndCallNetworkRequest( requestCallable, signalMethod );
-}
+    if ( !reply ) return {};
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestParametersBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName )
-{
-    requestTokenBlocking();
+    reply->deleteLater();
 
-    QNetworkRequest networkRequest;
-
-    // Properly URL-encode the path components
-    QString encodedEnsembleName = QUrl::toPercentEncoding( ensembleName );
-
-    QString url = QString( "%1/cases/%2/ensembles/%3/parameters/blob_id" ).arg( server() ).arg( caseId.get() ).arg( encodedEnsembleName );
-    networkRequest.setUrl( QUrl( url ) );
-
-    addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
-
-    auto reply = m_networkAccessManager->get( networkRequest );
-
-    connect( reply,
-             &QNetworkReply::finished,
-             [this, reply, ensembleName, caseId]()
-             {
-                 // parseBlobId handles the error case and always emits blobIdFinished, so the blocking
-                 // caller returns immediately instead of waiting for the request to time out.
-                 parseBlobId( reply, caseId, ensembleName, "", true );
-             } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName )
-{
-    requestTokenBlocking();
-
-    QNetworkRequest networkRequest;
-
-    // Properly URL-encode the path components
-    QString encodedVectorName   = QUrl::toPercentEncoding( vectorName );
-    QString encodedEnsembleName = QUrl::toPercentEncoding( ensembleName );
-
-    QString url =
-        QString( "%1/cases/%2/ensembles/%3/vectors/%4/blob_id" ).arg( server() ).arg( caseId.get() ).arg( encodedEnsembleName ).arg( encodedVectorName );
-    networkRequest.setUrl( QUrl( url ) );
-
-    addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
-
-    auto reply = m_networkAccessManager->get( networkRequest );
-
-    connect( reply,
-             &QNetworkReply::finished,
-             [this, reply, ensembleName, caseId, vectorName]()
-             {
-                 // parseBlobId handles the error case and always emits blobIdFinished, so the blocking
-                 // caller returns immediately instead of waiting for the request to time out.
-                 parseBlobId( reply, caseId, ensembleName, vectorName, false ); // false = vector data
-             } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName )
-{
-    auto requestCallable     = [this, caseId, ensembleName, vectorName] { requestBlobIdForEnsemble( caseId, ensembleName, vectorName ); };
-    QMetaMethod signalMethod = QMetaMethod::fromSignal( &RiaSumoConnector::blobIdFinished );
-    wrapAndCallNetworkRequest( requestCallable, signalMethod );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestBlobDownload( const QString& blobId )
-{
-    requestTokenBlocking();
-
-    QString url = QString( "%1/blobs/%2/sas_token_and_blob_base_uri" ).arg( server() ).arg( blobId );
-
-    QNetworkRequest networkRequest;
-    networkRequest.setUrl( QUrl( url ) );
-
-    addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
-
-    auto reply = m_networkAccessManager->get( networkRequest );
-
-    connect( reply,
-             &QNetworkReply::finished,
-             [this, reply, blobId, url]()
-             {
-                 reply->deleteLater(); // don't leak the reply
-
-                 if ( reply->error() != QNetworkReply::NoError )
-                 {
-                     RiaLogging::error( ( "Download failed: " + url + " failed. " + reply->errorString() ).toStdString() );
-                     return;
-                 }
-
-                 // The backend returns BlobAccessInfo as JSON: { "sasToken": "...", "blobStoreBaseUri": "..." }
-                 const QByteArray    contents = reply->readAll();
-                 QJsonParseError     parseError;
-                 const QJsonDocument doc = QJsonDocument::fromJson( contents, &parseError );
-                 if ( parseError.error != QJsonParseError::NoError || !doc.isObject() )
-                 {
-                     RiaLogging::error(
-                         std::format( "Could not parse blob access info response as JSON: {}", parseError.errorString().toStdString() ) );
-                     return;
-                 }
-
-                 const QJsonObject obj         = doc.object();
-                 const QString     sasToken    = obj.value( "sasToken" ).toString();
-                 const QString     blobBaseUri = obj.value( "blobStoreBaseUri" ).toString();
-                 if ( blobBaseUri.isEmpty() )
-                 {
-                     RiaLogging::error( "Blob access info response did not contain a blobStoreBaseUri." );
-                     return;
-                 }
-
-                 const QString sasUri = constructSasUri( blobBaseUri, blobId, sasToken );
-                 requestBlobBySasUri( blobId, sasUri );
-             } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestBlobBySasUri( const QString& blobId, const QString& sasUri )
-{
-    RiaLogging::debug( std::format( "Requesting blob. Id: {} SAS URI: {}", blobId, sasUri ) );
-
-    QNetworkRequest networkRequest;
-    networkRequest.setUrl( sasUri );
-
-    // The pre-signed SAS URI carries its own credential (signature in the query string),
-    // so no Authorization header is added here. Do NOT forward the bearer token to the
-    // storage host. Redirect policy is set explicitly so behaviour is not Qt-version dependent.
-    networkRequest.setAttribute( QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy );
-
-    auto reply = m_networkAccessManager->get( networkRequest );
-
-    connect( reply,
-             &QNetworkReply::finished,
-             [this, reply, blobId, sasUri]()
-             {
-                 reply->deleteLater();
-
-                 if ( reply->error() != QNetworkReply::NoError )
-                 {
-                     QString errorMessage = "Download failed: " + sasUri + " failed." + reply->errorString();
-                     RiaLogging::error( errorMessage.toStdString() );
-
-                     emit parquetDownloadFinished( {}, sasUri );
-                     return;
-                 }
-
-                 auto statusCode     = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
-                 auto contentLength  = reply->header( QNetworkRequest::ContentLengthHeader ).toLongLong();
-                 auto bytesAvailable = reply->bytesAvailable();
-
-                 RiaLogging::debug(
-                     std::format( "Response: status={}, content-length={}, bytes-available={}", statusCode, contentLength, bytesAvailable ) );
-
-                 auto contents = reply->readAll();
-
-                 RiaLogging::debug( std::format( "Read {} bytes from reply", contents.size() ) );
-
-                 // Guard against a silently truncated transfer: a dropped connection on a
-                 // chunked response can still report NoError. If the server told us how many
-                 // bytes to expect and we got fewer, treat it as a failure.
-                 if ( contentLength > 0 && contents.size() != contentLength )
-                 {
-                     RiaLogging::error( std::format( "Download truncated: expected {} bytes, got {}.", contentLength, contents.size() ) );
-
-                     emit parquetDownloadFinished( {}, sasUri );
-                     return;
-                 }
-
-                 QString msg = "Received data from : " + sasUri;
-                 RiaLogging::debug( msg.toStdString() );
-
-                 parquetDownloadComplete( blobId, contents, sasUri );
-
-                 emit parquetDownloadFinished( contents, sasUri );
-             } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QByteArray RiaSumoConnector::requestParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName )
-{
-    requestBlobIdForEnsembleBlocking( caseId, ensembleName, vectorName );
-
-    if ( m_blobId.empty() ) return {};
-
-    // The REST API now returns the complete blob URL, not just an ID
-    auto blobId = m_blobId.back();
-
-    QEventLoop eventLoop;
-    QTimer     timer;
-    timer.setSingleShot( true );
-    QObject::connect( &timer, SIGNAL( timeout() ), &eventLoop, SLOT( quit() ) );
-    QObject::connect( this, SIGNAL( parquetDownloadFinished( const QByteArray&, const QString& ) ), &eventLoop, SLOT( quit() ) );
-
-    requestBlobDownload( blobId );
-
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
-
-    for ( const auto& blobData : m_redirectInfo )
+    if ( !reply->isFinished() || reply->error() != QNetworkReply::NoError )
     {
-        if ( blobData.objectId == blobId )
-        {
-            return blobData.contents;
-        }
+        RiaLogging::error(
+            std::format( "Requesting access info for blob '{}' failed: {}", blobId.toStdString(), reply->errorString().toStdString() ) );
+        return {};
     }
 
-    return {};
+    // The backend returns BlobAccessInfo as JSON: { "sasToken": "...", "blobStoreBaseUri": "..." }
+    const QByteArray    contents = reply->readAll();
+    QJsonParseError     parseError;
+    const QJsonDocument doc = QJsonDocument::fromJson( contents, &parseError );
+    if ( parseError.error != QJsonParseError::NoError || !doc.isObject() )
+    {
+        RiaLogging::error( std::format( "Could not parse blob access info response as JSON: {}", parseError.errorString().toStdString() ) );
+        return {};
+    }
+
+    const QJsonObject obj         = doc.object();
+    const QString     sasToken    = obj.value( "sasToken" ).toString();
+    const QString     blobBaseUri = obj.value( "blobStoreBaseUri" ).toString();
+    if ( blobBaseUri.isEmpty() )
+    {
+        RiaLogging::error( "Blob access info response did not contain a blobStoreBaseUri." );
+        return {};
+    }
+
+    return constructSasUri( blobBaseUri, blobId, sasToken );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Read the blob contents off a finished transfer reply. The reply is consumed and scheduled for deletion.
+/// Returns an empty array on failure.
+//--------------------------------------------------------------------------------------------------
+QByteArray RiaSumoConnector::blobContentsFromReply( QNetworkReply* reply, const QString& sasUri )
+{
+    if ( !reply ) return {};
+
+    reply->deleteLater();
+
+    if ( !reply->isFinished() || reply->error() != QNetworkReply::NoError )
+    {
+        RiaLogging::error( ( "Download failed: " + sasUri + " failed." + reply->errorString() ).toStdString() );
+        return {};
+    }
+
+    auto statusCode     = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
+    auto contentLength  = reply->header( QNetworkRequest::ContentLengthHeader ).toLongLong();
+    auto bytesAvailable = reply->bytesAvailable();
+
+    RiaLogging::debug( std::format( "Response: status={}, content-length={}, bytes-available={}", statusCode, contentLength, bytesAvailable ) );
+
+    auto contents = reply->readAll();
+
+    RiaLogging::debug( std::format( "Read {} bytes from reply", contents.size() ) );
+
+    // Guard against a silently truncated transfer: a dropped connection on a chunked response can still
+    // report NoError. If the server told us how many bytes to expect and we got fewer, treat it as a failure.
+    if ( contentLength > 0 && contents.size() != contentLength )
+    {
+        RiaLogging::error( std::format( "Download truncated: expected {} bytes, got {}.", contentLength, contents.size() ) );
+        return {};
+    }
+
+    RiaLogging::debug( ( "Received data from : " + sasUri ).toStdString() );
+
+    return contents;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -578,314 +481,8 @@ QString RiaSumoConnector::constructSasUri( const QString& blobStoreBaseUri, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod )
-{
-    QEventLoop eventLoop;
-
-    QTimer timer;
-    timer.setSingleShot( true );
-
-    QObject::connect( &timer, &QTimer::timeout, [] { RiaLogging::error( "Sumo request timed out." ); } );
-    QObject::connect( &timer, &QTimer::timeout, &eventLoop, &QEventLoop::quit );
-
-    // Not able to use the modern connect syntax here, as the signal is communicated as a QMetaMethod
-    int         methodIndex = eventLoop.metaObject()->indexOfMethod( "quit()" );
-    QMetaMethod quitMethod  = eventLoop.metaObject()->method( methodIndex );
-    QObject::connect( this, signalMethod, &eventLoop, quitMethod );
-
-    // Call the function that will execute the request
-    requestCallable();
-
-    timer.start( RiaSumoDefines::requestTimeoutMillis() );
-    eventLoop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::parseAssets( QNetworkReply* reply )
-{
-    QByteArray result = reply->readAll();
-    reply->deleteLater();
-
-    if ( reply->error() == QNetworkReply::NoError )
-    {
-        QJsonDocument doc       = QJsonDocument::fromJson( result );
-        QJsonArray    jsonArray = doc.array();
-
-        m_assets.clear();
-
-        // This json is an array of AssetInfo
-        for ( const QJsonValue& assetInfo : jsonArray )
-        {
-            QString assetName = assetInfo["name"].toString();
-            m_assets.push_back( SumoAsset{ SumoAssetId( "" ), "", assetName } );
-        }
-
-        for ( auto a : m_assets )
-        {
-            RiaLogging::debug( std::format( "Asset: {}", a.name ) );
-        }
-    }
-    else
-    {
-        RiaLogging::error( std::format( "Request assets failed: '{}'", reply->errorString() ) );
-    }
-
-    emit assetsFinished();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::parseCases( QNetworkReply* reply )
-{
-    QByteArray result = reply->readAll();
-    reply->deleteLater();
-
-    if ( reply->error() == QNetworkReply::NoError )
-    {
-        QJsonDocument doc       = QJsonDocument::fromJson( result );
-        QJsonArray    jsonArray = doc.array();
-
-        m_cases.clear();
-
-        for ( const QJsonValue& value : jsonArray )
-        {
-            QJsonObject caseObj = value.toObject();
-
-            QString id   = caseObj["id"].toString();
-            QString kind = "";
-            QString name = caseObj["name"].toString();
-            m_cases.push_back( SumoCase{ SumoCaseId( id ), kind, name } );
-        }
-
-        RiaLogging::debug( std::format( "Case count : {}", m_cases.size() ) );
-    }
-    else
-    {
-        RiaLogging::error( std::format( "Request cases failed: '{}'", reply->errorString() ) );
-    }
-
-    emit casesFinished();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::parseVectorNames( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName )
-{
-    QByteArray result = reply->readAll();
-    reply->deleteLater();
-
-    m_vectorNames.clear();
-
-    if ( reply->error() == QNetworkReply::NoError )
-    {
-        QJsonDocument doc       = QJsonDocument::fromJson( result );
-        QJsonArray    jsonArray = doc.array();
-
-        for ( const QJsonValue& value : jsonArray )
-        {
-            QJsonObject vectorObj  = value.toObject();
-            QString     vectorName = vectorObj["name"].toString();
-            m_vectorNames.push_back( vectorName );
-        }
-    }
-    else
-    {
-        RiaLogging::error( std::format( "Request vector names failed: '{}'", reply->errorString() ) );
-    }
-
-    emit vectorNamesFinished();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::parseRealizationNumbers( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName )
-{
-    QByteArray result = reply->readAll();
-    reply->deleteLater();
-
-    if ( reply->error() == QNetworkReply::NoError )
-    {
-        QJsonDocument doc       = QJsonDocument::fromJson( result );
-        QJsonArray    jsonArray = doc.array();
-
-        for ( const QJsonValue& value : jsonArray )
-        {
-            int  intValue      = value.toInt();
-            auto realizationId = QString::number( intValue );
-            m_realizationIds.push_back( realizationId );
-        }
-    }
-    else
-    {
-        RiaLogging::error( std::format( "Request realization IDs failed: '{}'", reply->errorString() ) );
-    }
-
-    emit realizationIdsFinished();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::parseBlobId( QNetworkReply*    reply,
-                                    const SumoCaseId& caseId,
-                                    const QString&    ensembleName,
-                                    const QString&    vectorName,
-                                    bool              isParameters )
-{
-    QByteArray result = reply->readAll();
-    reply->deleteLater();
-
-    m_blobId.clear();
-
-    if ( reply->error() == QNetworkReply::NoError )
-    {
-        // The REST API returns a plain string (the blob id)
-        QString blobId = QString::fromUtf8( result ).trimmed();
-
-        // Remove quotes if present (FastAPI returns strings with quotes)
-        if ( blobId.startsWith( '"' ) && blobId.endsWith( '"' ) )
-        {
-            blobId = blobId.mid( 1, blobId.length() - 2 );
-        }
-
-        m_blobId.push_back( blobId );
-
-        // Context-aware logging
-        if ( isParameters )
-        {
-            RiaLogging::debug( std::format( "Received blob ID for parameters: {}", blobId.toStdString() ) );
-        }
-        else
-        {
-            RiaLogging::debug( std::format( "Received blob ID for vector '{}': {}", vectorName.toStdString(), blobId.toStdString() ) );
-        }
-    }
-    else
-    {
-        // Context-aware error logging
-        QString errorContext = isParameters ? "parameters" : QString( "vector '%1'" ).arg( vectorName );
-        RiaLogging::error( std::format( "Request blob ID failed for {}: {}", errorContext.toStdString(), reply->errorString().toStdString() ) );
-    }
-
-    emit blobIdFinished();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaSumoConnector::addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& contentType )
 {
     networkRequest.setHeader( QNetworkRequest::ContentTypeHeader, contentType );
     networkRequest.setRawHeader( "Authorization", "Bearer " + token.toUtf8() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QNetworkReply* RiaSumoConnector::makeDownloadRequest( const QString& url, const QString& token, const QString& contentType )
-{
-    QNetworkRequest m_networkRequest;
-    m_networkRequest.setUrl( QUrl( url ) );
-
-    addStandardHeader( m_networkRequest, token, contentType );
-
-    auto reply = m_networkAccessManager->get( m_networkRequest );
-    return reply;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::requestParquetData( const QString& url, const QString& token )
-{
-    RiaLogging::debug( "Requesting download of parquet from: " + url.toStdString() );
-
-    auto reply = makeDownloadRequest( url, token, RiaCloudDefines::contentTypeJson() );
-    connect( reply,
-             &QNetworkReply::finished,
-             [this, reply, url]()
-             {
-                 if ( reply->error() == QNetworkReply::NoError )
-                 {
-                     QByteArray contents = reply->readAll();
-                     RiaLogging::debug( std::format( "Download succeeded: {} bytes.", contents.length() ) );
-                     RiaLogging::debug( std::format( "Download succeeded for url: {}", url.toStdString() ) );
-                     emit parquetDownloadFinished( contents, "" );
-                 }
-                 else
-                 {
-                     QString errorMessage = "Download failed: " + url + " failed." + reply->errorString();
-                     RiaLogging::error( errorMessage.toStdString() );
-                     emit parquetDownloadFinished( QByteArray(), errorMessage );
-                 }
-             } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<SumoAsset> RiaSumoConnector::assets() const
-{
-    return m_assets;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<SumoCase> RiaSumoConnector::cases() const
-{
-    return m_cases;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaSumoConnector::ensembleNamesForCase( const SumoCaseId& caseId ) const
-{
-    std::vector<QString> ensembleNames;
-    for ( const auto& ensemble : m_ensembleNames )
-    {
-        if ( ensemble.caseId == caseId )
-        {
-            ensembleNames.push_back( ensemble.name );
-        }
-    }
-    return ensembleNames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaSumoConnector::vectorNames() const
-{
-    return m_vectorNames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaSumoConnector::realizationIds() const
-{
-    return m_realizationIds;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaSumoConnector::blobIds() const
-{
-    return m_blobId;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<SumoRedirect> RiaSumoConnector::blobContents() const
-{
-    return m_redirectInfo;
 }

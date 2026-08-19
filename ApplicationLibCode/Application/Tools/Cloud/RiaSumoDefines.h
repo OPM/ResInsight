@@ -22,6 +22,8 @@
 
 #include <QString>
 
+#include <cstddef>
+
 using SumoAssetId = nonstd::ordered<QString, struct sumo_asset_tag>;
 using SumoCaseId  = nonstd::ordered<QString, struct sumo_case_tag>;
 

@@ -52,6 +52,10 @@ public:
     virtual void warning( const char* message ) = 0;
     virtual void info( const char* message )    = 0;
     virtual void debug( const char* message )   = 0;
+
+    // Deliver messages a logger has accepted but not yet written out. A logger that has to hand messages from
+    // a worker thread over to another thread can otherwise let them arrive after messages logged later.
+    virtual void flushPendingMessages() {}
 };
 
 //==================================================================================================
@@ -72,6 +76,10 @@ public:
     static void warning( std::string_view message, std::string_view logKeyword = "" );
     static void info( std::string_view message, std::string_view logKeyword = "" );
     static void debug( std::string_view message, std::string_view logKeyword = "" );
+
+    // Write out anything the loggers are holding, so messages logged from a worker thread appear before the
+    // messages the waiting thread logs once the worker is done.
+    static void flushPendingMessages();
 
     static std::chrono::time_point<std::chrono::high_resolution_clock> currentTime();
     static void logElapsedTime( std::string_view message, const std::chrono::time_point<std::chrono::high_resolution_clock>& startTime );

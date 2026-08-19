@@ -67,6 +67,11 @@ private:
     QPushButton* realizationIdsButton;
 
     QPointer<RiaSumoConnector> m_sumoConnector;
+
+    // The most recently resolved blob id, and the blob downloaded from it, kept here so the buttons that
+    // follow have something to work on.
+    QString    m_blobId;
+    QByteArray m_blobContents;
 };
 
 //==================================================================================================
