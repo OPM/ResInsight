@@ -119,6 +119,7 @@ Notes on the grammar:
 
 from __future__ import annotations
 
+import copy
 import datetime
 import difflib
 import os
@@ -957,6 +958,71 @@ def apply_orion_events_file(
     return apply_orion_document(document, timeline, project, case=case, **options)
 
 
+def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
+    """Return a copy with same-owner/type/timestamp events merged.
+
+    The first event retains its position. Attributes from later matching events
+    are applied in source order, adding missing values and overriding repeated
+    values. Owners are matched by well name, group name, or the global SCHEDULE
+    scope.
+    """
+    result = copy.deepcopy(document)
+
+    def merge_events(events: List[OrionEvent]) -> List[OrionEvent]:
+        merged: List[OrionEvent] = []
+        by_key: Dict[
+            Tuple[Union[datetime.date, datetime.datetime], str], OrionEvent
+        ] = {}
+        for event in events:
+            key = (event.event_date, event.event_type.upper())
+            existing = by_key.get(key)
+            if existing is None:
+                by_key[key] = event
+                merged.append(event)
+                continue
+
+            existing.attributes.update(event.attributes)
+            if "FILTER" in event.attributes:
+                existing.filter = event.filter
+            existing.loc = event.loc
+        return merged
+
+    def merge_well_blocks(blocks: List[WellBlock]) -> List[WellBlock]:
+        merged_blocks: List[WellBlock] = []
+        by_name: Dict[str, WellBlock] = {}
+        for block in blocks:
+            block_events = block.events
+            existing = by_name.get(block.well_name)
+            if existing is None:
+                block.events = []
+                by_name[block.well_name] = block
+                merged_blocks.append(block)
+            by_name[block.well_name].events.extend(block_events)
+        for block in merged_blocks:
+            block.events = merge_events(block.events)
+        return merged_blocks
+
+    def merge_group_blocks(blocks: List[GroupBlock]) -> List[GroupBlock]:
+        merged_blocks: List[GroupBlock] = []
+        by_name: Dict[str, GroupBlock] = {}
+        for block in blocks:
+            block_events = block.events
+            existing = by_name.get(block.group_name)
+            if existing is None:
+                block.events = []
+                by_name[block.group_name] = block
+                merged_blocks.append(block)
+            by_name[block.group_name].events.extend(block_events)
+        for block in merged_blocks:
+            block.events = merge_events(block.events)
+        return merged_blocks
+
+    result.wells = merge_well_blocks(result.wells)
+    result.groups = merge_group_blocks(result.groups)
+    result.schedule_events = merge_events(result.schedule_events)
+    return result
+
+
 def apply_orion_document(
     document: OrionDocument,
     timeline: Any,
@@ -993,6 +1059,7 @@ def apply_orion_document(
     """
     _validate_policy(on_unknown_well, "on_unknown_well")
     _validate_policy(on_unknown_event, "on_unknown_event")
+    document = coalesce_orion_document(document)
     report = ApplyReport()
     report.report_dates = sorted({d.isoformat() for d in document.report_dates})
 
