@@ -177,12 +177,13 @@ QString RiaProjectFileTools::transferPathsToGlobalPathList( RimProject* project 
     {
         if ( gridCase->displayNameType() == RimCaseDisplayNameTools::DisplayName::CUSTOM )
         {
-            // At this point, after the replace of variables into caf::FilePath objects, the variable name is
-            // stored in the summary case object. Read out the variable name and append "_name" for custom
-            // summary variables.
-
+            // The grid file path was replaced by a path variable above, so reuse that variable as the key for
+            // the case name. A case not written to the project file still holds its raw path, and
+            // RiaVariableMapper cannot read back a key holding '/', '-' or '.', so leave that name alone.
             QString variableName = gridCase->gridFileName();
-            variableName         = variableName.remove( RiaVariableMapper::variableToken() );
+            if ( !variableName.startsWith( RiaVariableMapper::variableToken() ) ) continue;
+
+            variableName = variableName.remove( RiaVariableMapper::variableToken() );
 
             variableName = RiaVariableMapper::variableToken() + variableName + RiaVariableMapper::postfixName() +
                            RiaVariableMapper::variableToken();

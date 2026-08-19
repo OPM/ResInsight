@@ -24,6 +24,8 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QElapsedTimer>
+#include <QEventLoop>
 #include <QFileInfo>
 #include <QHostAddress>
 #include <QNetworkAccessManager>
@@ -51,6 +53,10 @@ constexpr int maxConsecutiveFailures = 2;
 
 // Per-request timeout for the health check, kept well below the poll interval.
 constexpr int healthCheckTimeoutMs = 5 * 1000;
+
+// Interval between the /alive attempts made while waiting for the service to come up. Much shorter than
+// the periodic health check, as a caller is blocked meanwhile.
+constexpr int readinessPollIntervalMs = 250;
 
 // Number of ports scanned, starting at the wanted port, when looking for a free port to bind to.
 constexpr int portRangeLength = 100;
@@ -227,6 +233,71 @@ void RiaCloudApiService::start()
 
     // Delay the first health check by the startup grace period to allow the server to boot.
     m_startupTimer.start();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The periodic health check first runs a grace period after the launch, which is far too long to make a
+/// caller wait for. Poll the service directly instead, so a request can be issued as soon as it answers.
+//--------------------------------------------------------------------------------------------------
+bool RiaCloudApiService::waitUntilResponding( int timeoutMs )
+{
+    if ( m_isResponding ) return true;
+
+    if ( !isRunning() ) start();
+
+    QElapsedTimer elapsed;
+    elapsed.start();
+
+    while ( elapsed.elapsed() < timeoutMs )
+    {
+        if ( m_port >= 0 )
+        {
+            QNetworkRequest request( QUrl( serverUrl() + "/alive" ) );
+            request.setTransferTimeout( healthCheckTimeoutMs );
+
+            QNetworkReply* reply = m_networkAccessManager->get( request );
+
+            QEventLoop eventLoop;
+            QObject::connect( reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit );
+            eventLoop.exec();
+
+            const int  statusCode = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
+            const bool answered   = reply->error() == QNetworkReply::NoError && statusCode == 200;
+            reply->deleteLater();
+
+            if ( answered )
+            {
+                m_consecutiveFailures = 0;
+
+                if ( !m_isResponding )
+                {
+                    m_isResponding = true;
+                    emit statusChanged();
+                }
+
+                // The service is known to be up, so the grace period before the periodic check has served
+                // its purpose. Fall back to the ordinary health check from here.
+                m_startupTimer.stop();
+                if ( !m_healthTimer.isActive() ) m_healthTimer.start();
+
+                return true;
+            }
+        }
+
+        // The process may still be booting, or may have exited on a missing dependency.
+        if ( !isRunning() ) break;
+
+        QEventLoop delayLoop;
+        QTimer     delayTimer;
+        delayTimer.setSingleShot( true );
+        QObject::connect( &delayTimer, &QTimer::timeout, &delayLoop, &QEventLoop::quit );
+        delayTimer.start( readinessPollIntervalMs );
+        delayLoop.exec();
+    }
+
+    RiaLogging::error( std::format( "Cloud API service: not responding after {} ms, giving up.", elapsed.elapsed() ) );
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

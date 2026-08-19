@@ -464,6 +464,7 @@ std::vector<RimSumoDataSource*> RimCloudDataSourceCollection::addDataSources()
         }
 
         const auto availableRealizationIds = m_sumoConnector->explore().realizationIds( sumoCaseId, ensembleName );
+        const auto gridNames               = m_sumoConnector->grid().gridNames( sumoCaseId, ensembleName );
         const auto vectorNames             = m_sumoConnector->summary().vectorNames( sumoCaseId, ensembleName );
 
         auto dataSource = new RimSumoDataSource();
@@ -473,6 +474,7 @@ std::vector<RimSumoDataSource*> RimCloudDataSourceCollection::addDataSources()
         dataSource->setEnsembleName( ensembleName );
         dataSource->setAvailableRealizationIds( availableRealizationIds );
         dataSource->setVectorNames( vectorNames );
+        dataSource->setGridNames( gridNames );
         dataSource->updateName();
 
         objectToSelect = dataSource;

@@ -25,6 +25,7 @@
 
 #include <QString>
 
+#include <iosfwd>
 #include <map>
 #include <vector>
 
@@ -52,9 +53,30 @@ public:
 
     static bool openGridFile( const QString& fileName, RigEclipseCaseData* eclipseCase, QString* errorMessages );
 
+    // Parse a roff grid directly from an already opened binary stream. Used when the roff data does not
+    // originate from a file on disk (e.g. a blob downloaded from Sumo).
+    static bool openGridFile( std::istream& stream, RigEclipseCaseData* eclipseCase, QString* errorMessages );
+
     static std::pair<bool, std::map<QString, QString>> createInputProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
 
+    // Read roff property data from an already opened binary stream (e.g. a blob downloaded from Sumo). The
+    // sourceName is only used for log messages. resultCategory selects the result category the properties are
+    // imported into (e.g. STATIC_NATIVE for static and DYNAMIC_NATIVE for time dependent properties).
+    static std::pair<bool, std::map<QString, QString>>
+        createInputProperties( std::istream&             stream,
+                               RigEclipseCaseData*       eclipseCase,
+                               const QString&            sourceName,
+                               RiaDefines::ResultCatType resultCategory = RiaDefines::ResultCatType::INPUT_PROPERTY );
+
     static bool hasGridData( const QString& filename );
+
+    // Read a single grid property from an in-memory roff blob and return its values (with inactive cells
+    // masked), without registering it. Among the arrays matching the grid cell count, the one whose keyword
+    // matches propertyName (case-insensitive) is preferred; otherwise the first matching array is used.
+    static bool propertyValuesFromStream( std::istream&        stream,
+                                          RigEclipseCaseData*  eclipseCase,
+                                          const QString&       propertyName,
+                                          std::vector<double>* values );
 
     static size_t computeActiveCellMatrixIndex( std::vector<int>& activeCells );
 
@@ -81,11 +103,12 @@ private:
     static std::vector<double>
         readAndConvertToDouble( int nx, int ny, int nz, const std::string& keyword, roff::Token::Kind kind, roff::Reader& reader );
 
-    static bool appendNewInputPropertyResult( RigEclipseCaseData* caseData,
-                                              const QString&      resultName,
-                                              const std::string&  keyword,
-                                              roff::Token::Kind   token,
-                                              roff::Reader&       reader );
+    static bool appendNewInputPropertyResult( RigEclipseCaseData*       caseData,
+                                              const QString&            resultName,
+                                              const std::string&        keyword,
+                                              roff::Token::Kind         token,
+                                              roff::Reader&             reader,
+                                              RiaDefines::ResultCatType resultCategory );
 
     static bool
         appendZoneIndexPropertyFromSubgrids( RigEclipseCaseData* caseData, roff::Reader& reader, std::map<QString, QString>& keywordMapping );

@@ -53,8 +53,8 @@ public:
     caf::PdmField<int>                     groupId;
     caf::PdmChildField<RimCaseCollection*> caseCollection;
 
-    void addCase( RimEclipseCase* reservoir );
-    void removeCase( RimEclipseCase* reservoir );
+    void addCase( RimEclipseCase* reservoir ) override;
+    void removeCase( RimEclipseCase* reservoir ) override;
 
     bool contains( RimEclipseCase* reservoir ) const;
 

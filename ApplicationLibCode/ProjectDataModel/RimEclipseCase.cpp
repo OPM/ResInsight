@@ -571,6 +571,16 @@ void RimEclipseCase::childFieldChangedByUi( const caf::PdmFieldHandle* changedCh
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The grid ensemble this case is a realization of, or null when it is not part of one.
+//--------------------------------------------------------------------------------------------------
+RimReservoirGridEnsembleBase* RimEclipseCase::parentGridEnsembleBase()
+{
+    if ( auto* caseCollection = parentCaseCollection() ) return caseCollection->parentGridEnsembleBase();
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Returns the formation names data for the case, falling back to the parent ensemble's
 /// shared formation names if the case has none of its own.
 //--------------------------------------------------------------------------------------------------

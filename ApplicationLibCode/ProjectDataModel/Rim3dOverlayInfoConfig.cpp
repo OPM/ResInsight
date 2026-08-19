@@ -56,6 +56,7 @@
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirGridEnsembleBase.h"
 #include "RimSeismicData.h"
 #include "RimSeismicView.h"
 #include "RimSimWellInViewCollection.h"
@@ -161,6 +162,10 @@ RigHistogramData Rim3dOverlayInfoConfig::histogramData()
     auto eclipseContourMap = dynamic_cast<RimEclipseContourMapView*>( eclipseView );
     auto geoMechContourMap = dynamic_cast<RimGeoMechContourMapView*>( geoMechView );
     auto seismicView       = dynamic_cast<RimSeismicView*>( m_viewDef.p() );
+
+    // The mobile volume weighted mean requires MOBPORV (PORV, SWCR and MULTPV). Skip the calculation when the value
+    // is not displayed, as computing it can be expensive for cases backed by remote data.
+    m_histogramCalculator->setDoComputeMobileVolumeWeightedMean( m_showVolumeWeightedMean() );
 
     if ( eclipseContourMap )
         return m_histogramCalculator->histogramData( eclipseContourMap );
@@ -754,6 +759,18 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         {
             m_showVolumeWeightedMean = false;
         }
+
+        if ( auto eclipseCase = reservoirView->eclipseCase() )
+        {
+            // Ensembles can opt out of the mobile volume weighted mean, as the data it is derived from can be
+            // expensive to fetch. Used by Sumo grid ensembles, see RimSumoDataSource.
+            auto ensemble = eclipseCase->firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>();
+            if ( ensemble && !ensemble->doComputeMobileVolumeWeightedMean() )
+            {
+                m_showVolumeWeightedMean = false;
+            }
+        }
+
         updateEclipse3DInfo( reservoirView );
     }
 

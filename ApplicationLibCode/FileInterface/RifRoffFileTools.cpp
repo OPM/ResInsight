@@ -108,6 +108,14 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         return false;
     }
 
+    return openGridFile( stream, eclipseCase, errorMessages );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifRoffFileTools::openGridFile( std::istream& stream, RigEclipseCaseData* eclipseCase, QString* errorMessages )
+{
     auto getInt = []( auto values, const std::string& name )
     {
         auto v = std::find_if( values.begin(), values.end(), [&name]( const auto& arg ) { return arg.first == name; } );
@@ -274,6 +282,7 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     catch ( std::runtime_error& err )
     {
         RiaLogging::error( std::format( "Roff file import failed: {}", err.what() ) );
+        if ( errorMessages ) *errorMessages = QString::fromStdString( err.what() );
         return false;
     }
 
@@ -492,16 +501,25 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 {
     RiaLogging::info( std::format( "Reading properties from roff file: {}", fileName ) );
 
-    std::string filename = fileName.toStdString();
-
-    std::map<QString, QString> keywordMapping;
-
-    std::ifstream stream( filename, std::ios::binary );
+    std::ifstream stream( fileName.toStdString(), std::ios::binary );
     if ( !stream.good() )
     {
         RiaLogging::error( "Unable to open roff file" );
-        return std::make_pair( false, keywordMapping );
+        return std::make_pair( false, std::map<QString, QString>{} );
     }
+
+    return createInputProperties( stream, eclipseCaseData, fileName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputProperties( std::istream&             stream,
+                                                                                     RigEclipseCaseData*       eclipseCaseData,
+                                                                                     const QString&            sourceName,
+                                                                                     RiaDefines::ResultCatType resultCategory )
+{
+    std::map<QString, QString> keywordMapping;
 
     auto codeNamesAndValuesForKeyword = []( const std::string& keyword, roff::Reader& reader ) -> std::map<int, QString>
     {
@@ -545,7 +563,7 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
             {
                 if ( !appendZoneIndexPropertyFromSubgrids( eclipseCaseData, reader, keywordMapping ) )
                 {
-                    RiaLogging::warning( std::format( "Unable to import ROFF subgrids zonation from {}", fileName ) );
+                    RiaLogging::warning( std::format( "Unable to import ROFF subgrids zonation from {}", sourceName ) );
                 }
             }
             else if ( eclipseCaseData->mainGrid()->cellCount() == keywordLength )
@@ -558,9 +576,9 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                     newResultName = "ACTNUM";
                 }
 
-                if ( !appendNewInputPropertyResult( eclipseCaseData, newResultName, keyword, kind, reader ) )
+                if ( !appendNewInputPropertyResult( eclipseCaseData, newResultName, keyword, kind, reader, resultCategory ) )
                 {
-                    RiaLogging::error( std::format( "Unable to import result '{}' from {}", keyword, fileName ) );
+                    RiaLogging::error( std::format( "Unable to import result '{}' from {}", keyword, sourceName ) );
                     return std::make_pair( false, keywordMapping );
                 }
 
@@ -604,12 +622,28 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                 const auto codeNames = codeNamesAndValuesForKeyword( keyword, reader );
                 RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRockColors( codeNames );
             }
+            else
+            {
+                // Skipped: typically grid metadata, but a property array whose length does not match the grid
+                // cell count is also skipped here. Log it so a size mismatch does not fail silently.
+                RiaLogging::debug( std::format( "Skipping roff array '{}' (length {}), grid cell count is {}.",
+                                                keyword,
+                                                keywordLength,
+                                                eclipseCaseData->mainGrid()->cellCount() ) );
+            }
         }
     }
     catch ( std::runtime_error& err )
     {
         RiaLogging::error( std::format( "Roff property file import failed: {}", err.what() ) );
         return std::make_pair( false, keywordMapping );
+    }
+
+    if ( keywordMapping.empty() )
+    {
+        RiaLogging::warning( std::format( "No grid properties matching the grid cell count ({}) were imported from {}.",
+                                          eclipseCaseData->mainGrid()->cellCount(),
+                                          sourceName.toStdString() ) );
     }
 
     return std::make_pair( true, keywordMapping );
@@ -680,11 +714,90 @@ std::vector<double>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseData,
-                                                     const QString&      resultName,
-                                                     const std::string&  keyword,
-                                                     roff::Token::Kind   kind,
-                                                     roff::Reader&       reader )
+bool RifRoffFileTools::propertyValuesFromStream( std::istream&        stream,
+                                                 RigEclipseCaseData*  eclipseCaseData,
+                                                 const QString&       propertyName,
+                                                 std::vector<double>* values )
+{
+    if ( !eclipseCaseData || !eclipseCaseData->mainGrid() || !values ) return false;
+
+    auto mainGrid = eclipseCaseData->mainGrid();
+
+    const int    nx        = static_cast<int>( mainGrid->cellCountI() );
+    const int    ny        = static_cast<int>( mainGrid->cellCountJ() );
+    const int    nz        = static_cast<int>( mainGrid->cellCountK() );
+    const size_t cellCount = mainGrid->cellCount();
+
+    try
+    {
+        roff::Reader reader( stream );
+        reader.parse();
+
+        // Collect the arrays whose length matches the grid cell count. A Sumo property blob may contain more
+        // than one such array, so pick the one whose keyword matches the requested property name rather than
+        // blindly taking the first match (which could decode a different property).
+        std::vector<std::pair<std::string, roff::Token::Kind>> candidates;
+        for ( const auto& [keyword, kind] : reader.getNamedArrayTypes() )
+        {
+            if ( reader.getArrayLength( keyword ) == cellCount ) candidates.push_back( { keyword, kind } );
+        }
+
+        if ( candidates.empty() ) return false;
+
+        std::string candidateNames;
+        for ( const auto& [keyword, kind] : candidates )
+        {
+            if ( !candidateNames.empty() ) candidateNames += ", ";
+            candidateNames += keyword;
+        }
+
+        auto selected = candidates.front();
+        for ( const auto& candidate : candidates )
+        {
+            if ( QString::fromStdString( candidate.first ).compare( propertyName, Qt::CaseInsensitive ) == 0 )
+            {
+                selected = candidate;
+                break;
+            }
+        }
+
+        RiaLogging::debug( std::format( "Roff property '{}': arrays matching cell count [{}], using '{}'.",
+                                        propertyName.toStdString(),
+                                        candidateNames,
+                                        selected.first ) );
+
+        std::vector<double> roffValues = readAndConvertToDouble( nx, ny, nz, selected.first, selected.second, reader );
+        if ( roffValues.size() != cellCount ) return false;
+
+        // Set better invalid value for inactive cells: roff file has -999.
+        auto activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        for ( size_t i = 0; i < cellCount; i++ )
+        {
+            if ( !activeCellInfo->isActive( ReservoirCellIndex( mainGrid->reservoirCellIndex( i ) ) ) )
+            {
+                roffValues[i] = HUGE_VAL;
+            }
+        }
+
+        *values = std::move( roffValues );
+        return true;
+    }
+    catch ( std::runtime_error& err )
+    {
+        RiaLogging::error( std::format( "Roff property parsing failed: {}", err.what() ) );
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData*       caseData,
+                                                     const QString&            resultName,
+                                                     const std::string&        keyword,
+                                                     roff::Token::Kind         kind,
+                                                     roff::Reader&             reader,
+                                                     RiaDefines::ResultCatType resultCategory )
 {
     CAF_ASSERT( caseData );
 
@@ -707,7 +820,7 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
         }
     }
 
-    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, RifRoffFileTools::mapFromType( kind ), resultName );
+    RigEclipseResultAddress resAddr( resultCategory, RifRoffFileTools::mapFromType( kind ), resultName );
     caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
     auto newPropertyData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );

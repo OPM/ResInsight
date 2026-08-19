@@ -94,10 +94,13 @@ void RicCreateReservoirGridEnsembleFromFileSetFeature::onActionTriggered( bool i
 
         RimReservoirGridEnsemble* gridEnsemble = new RimReservoirGridEnsemble();
         gridEnsemble->setEnsembleFileSet( fileSet );
-        gridEnsemble->createGridCasesFromEnsembleFileSet();
 
+        // Put the ensemble in the project tree before the cases are created, so RimProject::assignCaseIdToCase
+        // finds them as descendants of the project and hands out unique case ids.
         project->assignIdToCaseGroup( gridEnsemble );
         eclipseCaseColl->reservoirGridEnsembles.push_back( gridEnsemble );
+
+        gridEnsemble->createGridCasesFromEnsembleFileSet();
 
         gridEnsemble->loadDataAndUpdate();
 

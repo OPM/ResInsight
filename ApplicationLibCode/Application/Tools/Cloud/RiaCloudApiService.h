@@ -59,6 +59,14 @@ public:
     // True once the service has answered a health check, i.e. it is actually serving requests.
     bool isResponding() const;
 
+    // Block until the service answers a health check, starting it when it is not running. Returns
+    // immediately when it is already responding, and false when it does not answer within the timeout.
+    //
+    // Requests must not be issued before this returns true: isRunning() is true as soon as the process is
+    // launched, while uvicorn may still be booting. Call from the thread owning this object, as the health
+    // check uses its network access manager.
+    bool waitUntilResponding( int timeoutMs );
+
     int port() const;
 
     // Base URL of the service, including the port actually in use, e.g. "http://127.0.0.1:8001". Empty

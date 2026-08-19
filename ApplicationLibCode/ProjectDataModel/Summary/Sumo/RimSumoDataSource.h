@@ -25,12 +25,12 @@
 
 //==================================================================================================
 //
-// Common data source describing a single Sumo ensemble. Holds the information required by summary
-// ensembles (asset, vector names). The available ensemble realizations - fetched from the
-// realizations endpoint - are the source of truth, and the user selects a subset of them ("ensemble
-// selection"). Consumers listen to the selected realization id subset. All values are populated by
-// RimCloudDataSourceCollection, which owns the RiaSumoConnector; this object does not talk to the
-// connector directly.
+// Common data source describing a single Sumo ensemble. Holds the information required both for
+// summary ensembles (vector names) and for grid case ensembles (asset, grid names). The available
+// ensemble realizations - fetched from the realizations endpoint - are the source of truth, and the
+// user selects a subset of them ("ensemble selection"). Both summary and grid consumers listen to
+// the selected realization id subset. All values are populated by RimCloudDataSourceCollection,
+// which owns the RiaSumoConnector; this object does not talk to the connector directly.
 //
 //==================================================================================================
 
@@ -57,7 +57,7 @@ public:
     std::vector<QString> availableRealizationIds() const;
     void                 setAvailableRealizationIds( const std::vector<QString>& realizationIds );
 
-    // The subset of realizations matching the realization filter. Summary ensemble creation listens to this.
+    // The subset of realizations matching the realization filter. Both summary and grid creation listen to this.
     std::vector<QString> selectedRealizationIds() const;
 
     // Available summary vectors for the ensemble. Not shown in the UI, but used to populate the
@@ -65,15 +65,24 @@ public:
     std::vector<QString> vectorNames() const;
     void                 setVectorNames( const std::vector<QString>& vectorNames );
 
+    std::vector<QString> gridNames() const;
+    void                 setGridNames( const std::vector<QString>& gridNames );
+
+    QString selectedGridName() const;
+
+    bool doComputeMobileVolumeWeightedMean() const;
+
     void updateName();
 
 private:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void onRealizationFilterChanged();
+    void updateGridCaseEnsembles();
 
     QString realizationFilterInfoText() const;
     QString availableRealizationsRangeText() const;
@@ -90,4 +99,8 @@ private:
     caf::PdmProxyValueField<QString>    m_realizationFilterInfo;
 
     caf::PdmField<std::vector<QString>> m_vectorNames;
+
+    caf::PdmField<std::vector<QString>> m_gridNames;
+    caf::PdmField<QString>              m_selectedGridName;
+    caf::PdmField<bool>                 m_doComputeMobileVolumeWeightedMean;
 };

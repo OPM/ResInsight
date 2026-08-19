@@ -20,6 +20,12 @@
 
 #include "RiaStdStringTools.h"
 
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
+#include "RimProject.h"
+#include "RimReservoirGridEnsembleSumo.h"
+#include "RimRoffCaseSumo.h"
 #include "RimSummaryEnsembleSumo.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -29,7 +35,10 @@
 
 #include <QCoreApplication>
 
-CAF_PDM_SOURCE_INIT( RimSumoDataSource, "RimSumoDataSource", "RimSummarySumoDataSource" );
+#include <algorithm>
+#include <set>
+
+CAF_PDM_SOURCE_INIT( RimSumoDataSource, "RimSumoDataSource", "RimSummarySumoDataSource", "RimSumoGridDataSource" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -61,6 +70,19 @@ RimSumoDataSource::RimSumoDataSource()
 
     CAF_PDM_InitFieldNoDefault( &m_vectorNames, "VectorNames", "Vector Names" );
     m_vectorNames.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_gridNames, "GridNames", "Grid Names" );
+    m_gridNames.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedGridName, "GridName", "Grid Name" );
+
+    CAF_PDM_InitField( &m_doComputeMobileVolumeWeightedMean,
+                       "DoComputeMobileVolumeWeightedMean",
+                       false,
+                       "Compute Mobile Volume Weighted Mean",
+                       "",
+                       "Show the mobile volume weighted mean in the 3D info box. This downloads the PORV and SWCR grid "
+                       "properties for every realization." );
 
     setDeletable( true );
 }
@@ -201,6 +223,38 @@ void RimSumoDataSource::setVectorNames( const std::vector<QString>& vectorNames 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RimSumoDataSource::gridNames() const
+{
+    return m_gridNames();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSumoDataSource::setGridNames( const std::vector<QString>& gridNames )
+{
+    m_gridNames = gridNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSumoDataSource::selectedGridName() const
+{
+    return m_selectedGridName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSumoDataSource::doComputeMobileVolumeWeightedMean() const
+{
+    return m_doComputeMobileVolumeWeightedMean();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSumoDataSource::updateName()
 {
     if ( !m_customName().isEmpty() )
@@ -220,6 +274,7 @@ void RimSumoDataSource::updateName()
 void RimSumoDataSource::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder.addCmdFeature( "RicCreateSumoEnsembleFeature" );
+    menuBuilder.addCmdFeature( "RicCreateSumoReservoirGridEnsembleFeature" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,6 +325,28 @@ void RimSumoDataSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     auto ensembleGroup = uiOrdering.addNewGroup( "Ensemble Selection" );
     ensembleGroup->add( &m_realizationFilter );
     ensembleGroup->add( &m_realizationFilterInfo );
+
+    auto gridGroup = uiOrdering.addNewGroup( "Grid Selection" );
+    gridGroup->add( &m_selectedGridName );
+    gridGroup->add( &m_doComputeMobileVolumeWeightedMean );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimSumoDataSource::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_selectedGridName )
+    {
+        for ( const auto& gridName : m_gridNames() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( gridName, gridName ) );
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,6 +362,10 @@ void RimSumoDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         onRealizationFilterChanged();
     }
+    else if ( changedField == &m_doComputeMobileVolumeWeightedMean )
+    {
+        updateGridCaseEnsembles();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,6 +379,123 @@ void RimSumoDataSource::onRealizationFilterChanged()
     for ( auto ensemble : objectsWithReferringPtrFieldsOfType<RimSummaryEnsembleSumo>() )
     {
         ensemble->onRealizationSelectionChanged();
+    }
+
+    // Update any grid case ensembles created from this data source.
+    updateGridCaseEnsembles();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Synchronize the realization grid cases (RimRoffCaseSumo) of every grid ensemble created from this
+/// data source with the current realization filter: remove cases for deselected realizations and add
+/// cases for newly selected ones. The grid name of each ensemble is preserved.
+//--------------------------------------------------------------------------------------------------
+void RimSumoDataSource::updateGridCaseEnsembles()
+{
+    std::set<int> selectedRealizations;
+    for ( const auto& realizationId : selectedRealizationIds() )
+    {
+        bool ok    = false;
+        int  value = realizationId.toInt( &ok );
+        if ( ok ) selectedRealizations.insert( value );
+    }
+
+    // The ensembles hold the back link to this data source, so they are found even when the realization
+    // filter has left them without any cases.
+    for ( auto ensemble : objectsWithReferringPtrFieldsOfType<RimReservoirGridEnsembleSumo>() )
+    {
+        std::vector<RimRoffCaseSumo*> gridCases;
+        for ( auto eclipseCase : ensemble->sourceCases() )
+        {
+            if ( auto gridCase = dynamic_cast<RimRoffCaseSumo*>( eclipseCase ) ) gridCases.push_back( gridCase );
+        }
+
+        // All cases in an ensemble share the same grid, and the ensemble knows which one, so the name is
+        // available also when the filter has left it without any cases.
+        const QString gridName = ensemble->sumoGridName();
+        if ( gridName.isEmpty() ) continue;
+
+        if ( ensemble->doComputeMobileVolumeWeightedMean() != m_doComputeMobileVolumeWeightedMean() )
+        {
+            ensemble->setDoComputeMobileVolumeWeightedMean( m_doComputeMobileVolumeWeightedMean() );
+
+            // The 3D info box reads the setting when it is updated, so refresh it to apply the change immediately.
+            if ( auto viewColl = ensemble->viewCollection() )
+            {
+                for ( auto view : viewColl->views() )
+                {
+                    if ( view->overlayInfoConfig() ) view->overlayInfoConfig()->update3DInfo();
+                }
+            }
+        }
+
+        // A realization the grid does not exist for would only produce a case failing to load. An empty list
+        // means the realizations of the grid are not known, then do not filter on them.
+        std::set<int> realizationsToSelect = selectedRealizations;
+        if ( const auto gridRealizations = ensemble->gridRealizations(); !gridRealizations.empty() )
+        {
+            std::erase_if( realizationsToSelect,
+                           [&gridRealizations]( int realization )
+                           { return std::ranges::find( gridRealizations, realization ) == gridRealizations.end(); } );
+        }
+
+        std::set<int> currentRealizations;
+        for ( auto gridCase : gridCases )
+        {
+            currentRealizations.insert( gridCase->realization() );
+        }
+
+        // Add cases for newly selected realizations first, so a view displaying a removed realization
+        // can be repointed to one of these instead of being deleted.
+        for ( int realization : realizationsToSelect )
+        {
+            if ( currentRealizations.find( realization ) != currentRealizations.end() ) continue;
+
+            if ( auto* gridCase = RimRoffCaseSumo::createFromDataSource( this, gridName, realization ) )
+            {
+                ensemble->addCase( gridCase );
+
+                if ( auto project = RimProject::current() ) project->assignCaseIdToCase( gridCase );
+            }
+        }
+
+        // Remove cases for realizations no longer selected. Remember any views that displayed them, so
+        // they can be repointed to a surviving case below (a deleted case auto-nulls the view's case,
+        // which would otherwise make the view disappear, e.g. when changing 30-40 to 31-40).
+        std::vector<RimEclipseView*> orphanedViews;
+        for ( auto gridCase : gridCases )
+        {
+            if ( realizationsToSelect.find( gridCase->realization() ) != realizationsToSelect.end() ) continue;
+
+            if ( auto viewColl = ensemble->viewCollection() )
+            {
+                for ( auto view : viewColl->views() )
+                {
+                    if ( view->eclipseCase() == gridCase ) orphanedViews.push_back( view );
+                }
+            }
+
+            ensemble->removeCase( gridCase );
+            delete gridCase;
+        }
+
+        // Repoint orphaned views to a surviving case, or delete them if no realizations remain.
+        const auto remainingCases = ensemble->sourceCases();
+        for ( auto view : orphanedViews )
+        {
+            if ( !remainingCases.empty() )
+            {
+                view->setEclipseCase( remainingCases.front() );
+                view->loadDataAndUpdate();
+            }
+            else if ( auto viewColl = ensemble->viewCollection() )
+            {
+                viewColl->removeView( view );
+                delete view;
+            }
+        }
+
+        ensemble->updateConnectedEditors();
     }
 }
 

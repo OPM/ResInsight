@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2024-     Equinor ASA
+//  Copyright (C) 2026 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,23 +20,19 @@
 
 #include "cafCmdFeature.h"
 
-class RimEclipseView;
-class RimReservoirGridEnsembleBase;
+class RimSumoDataSource;
 
 //==================================================================================================
-///
+/// Create a grid ensemble of the selected Sumo grid, as a RimReservoirGridEnsembleSumo.
 //==================================================================================================
-class RicNewViewForGridEnsembleFeature : public caf::CmdFeature
+class RicCreateSumoReservoirGridEnsembleFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static void addView( RimReservoirGridEnsembleBase* gridEnsemble );
-
 protected:
-    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static RimReservoirGridEnsembleBase* selectedGridEnsemble();
+private:
+    static void createGridEnsemble( RimSumoDataSource* dataSource );
 };

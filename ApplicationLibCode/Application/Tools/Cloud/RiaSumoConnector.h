@@ -21,6 +21,7 @@
 #include "RiaCloudConnector.h"
 #include "RiaSumoDefines.h"
 #include "RiaSumoExplore.h"
+#include "RiaSumoGrid.h"
 #include "RiaSumoSummary.h"
 
 #include <QByteArray>
@@ -59,18 +60,30 @@ public:
 
     // Download blobs by id and return their contents. Getting a blob takes two round trips, one for the
     // pre-signed URI and one for the data, and a batch does each of those as one concurrent group.
-    QByteArray                    downloadBlobBlocking( const QString& blobId );
-    std::map<QString, QByteArray> downloadBlobsBlocking( const std::vector<QString>& blobIds );
+    // The description names what is being fetched in the progress dialog, e.g. "grid DROGON realization 1".
+    // Falls back to a plain file count when it is empty.
+    QByteArray                    downloadBlobBlocking( const QString& blobId, const QString& description = {} );
+    std::map<QString, QByteArray> downloadBlobsBlocking( const std::vector<QString>& blobIds, const QString& description = {} );
 
     // What Sumo holds: assets, cases, ensembles and realizations.
     RiaSumoExplore& explore();
+
+    // The grid data of a case. Owned here so its blob cache lives as long as the connection.
+    RiaSumoGrid& grid();
 
     // The summary data of a case.
     RiaSumoSummary& summary();
 
     // Transport used by the data specific delegates. Every request goes through the transfer thread, so
     // the calling thread waits without dispatching events.
-    QByteArray getBlocking( const QString& url, const QString& progressText = {} );
+    // Issue a GET against the local cloud API service and return the response body. Takes the path only,
+    // e.g. "/cases/{id}/ensembles": the base URL is prepended here, once the service is known to answer.
+    // Composing the full URL at the call site would capture the address before the service has one.
+    QByteArray getBlocking( const QString& path, const QString& progressText = {} );
+
+    // The base URL of the local cloud API service, empty when it could not be made ready. May block while
+    // the service starts, so call it from the calling thread and not from the transfer thread.
+    QString serviceBaseUrl();
 
     // The REST API returns a blob id as a plain string, quoted by FastAPI.
     static QString blobIdFromBody( const QByteArray& body );
@@ -108,7 +121,9 @@ public:
     static void waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies );
 
     // Issue and collect the two round trips a blob transfer needs. Called on the transfer thread.
-    std::map<QString, QByteArray> downloadBlobs( const std::vector<QString>& blobIds );
+    // Runs on the transfer thread, so the base URL is resolved by the caller and passed in: waiting for the
+    // service must not happen here.
+    std::map<QString, QByteArray> downloadBlobs( const QString& baseUrl, const std::vector<QString>& blobIds );
 
 public slots:
     void requestFailed( const QAbstractOAuth::Error error );
@@ -127,6 +142,7 @@ private:
     std::function<QString()> m_serverUrlProvider;
 
     RiaSumoExplore m_explore;
+    RiaSumoGrid    m_grid;
     RiaSumoSummary m_summary;
 
     // Transfers run on their own thread so the calling thread can wait without dispatching events. Waiting on
