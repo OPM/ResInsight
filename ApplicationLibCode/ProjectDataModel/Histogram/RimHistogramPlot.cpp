@@ -380,13 +380,16 @@ void RimHistogramPlot::showPlotInfoLabel( bool show )
 void RimHistogramPlot::updatePlotInfoLabel()
 {
     QStringList descriptions;
-    for ( RimHistogramCurve* curve : histogramCurves() )
+    if ( m_histogramCurveCollection->isCurvesVisible() )
     {
-        if ( !curve->isChecked() || !curve->dataSource() ) continue;
-
-        for ( const QString& description : curve->dataSource()->filterDescriptions() )
+        for ( RimHistogramCurve* curve : histogramCurves() )
         {
-            if ( !descriptions.contains( description ) ) descriptions += description;
+            if ( !curve->isChecked() || !curve->dataSource() ) continue;
+
+            for ( const QString& description : curve->dataSource()->filterDescriptions() )
+            {
+                if ( !descriptions.contains( description ) ) descriptions += description;
+            }
         }
     }
 

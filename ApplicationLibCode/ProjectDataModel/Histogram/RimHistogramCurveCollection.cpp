@@ -68,6 +68,7 @@ void RimHistogramCurveCollection::loadDataAndUpdate( bool updateParentPlot )
     {
         auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimHistogramPlot>();
         parentPlot->updateAll();
+        parentPlot->updatePlotInfoLabel();
     }
 }
 
