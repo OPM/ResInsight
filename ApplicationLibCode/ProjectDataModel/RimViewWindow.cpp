@@ -342,7 +342,7 @@ void RimViewWindow::updateWindowTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::updateWindowTitleIcon(QString title)
+void RimViewWindow::updateWindowTitleIcon( QString title )
 {
     if ( viewWidget() && dockWidget() )
     {
