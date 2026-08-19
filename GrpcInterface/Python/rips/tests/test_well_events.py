@@ -1874,6 +1874,17 @@ class TestScheduleGeneration:
                 f"Well {wp.name!r} missing from grouped WELSPECS block: {welspecs_block!r}"
             )
 
+        assert schedule_text.count("COMPORD\n") == 1
+        compord_block = schedule_text.split("COMPORD\n", 1)[1].split("\n/\n", 1)[0]
+        assert compord_block.count("INPUT") == 2
+        for wp in well_paths[:2]:
+            assert wp.name.replace(" ", "") in compord_block.replace(" ", ""), (
+                f"Well {wp.name!r} missing from grouped COMPORD block: {compord_block!r}"
+            )
+
+        assert schedule_text.index("WELSPECS\n") < schedule_text.index("COMPORD\n")
+        assert schedule_text.index("COMPORD\n") < schedule_text.index("COMPDAT\n")
+
     def test_per_well_keywords_sorted_by_well_name(self, project_with_case_and_well):
         """Per-well keyword records are emitted in deck-name-sorted well order, so WELSPECS
         and COMPDAT share the same ascending well order rather than an arbitrary one.

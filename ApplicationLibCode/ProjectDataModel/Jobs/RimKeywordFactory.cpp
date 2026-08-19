@@ -107,6 +107,22 @@ Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+Opm::DeckKeyword compordKeyword( const std::string& wellName )
+{
+    using C = Opm::ParserKeywords::COMPORD;
+
+    std::vector<Opm::DeckItem> items;
+    items.push_back( RifOpmDeckTools::item( C::WELL::itemName, wellName ) );
+    items.push_back( RifOpmDeckTools::item( C::ORDER_TYPE::itemName, "INPUT" ) );
+
+    Opm::DeckKeyword kw( ( C() ) );
+    kw.addRecord( Opm::DeckRecord{ std::move( items ) } );
+    return kw;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 Opm::DeckKeyword compdatKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName )
 {
     if ( compdata.empty() )
