@@ -897,11 +897,19 @@ _IGNORED_KEYWORD_ATTRS = {"FILTER"}
 # FILTER is applied on PERFORATION events; it is accepted on the other
 # completion events but ignored with a warning.
 _PERF_REQUIRED = ("MDSTART", "MDEND")
-_PERF_KNOWN = {"MDSTART", "MDEND", "RADIUS", "SKIN", "COMPLETION_NUMBER", "FILTER"}
+_PERF_KNOWN = {
+    "MDSTART",
+    "MDEND",
+    "RADIUS",
+    "SKIN",
+    "COMPLETION_NUMBER",
+    "FILTER",
+    "COMMENT",
+}
 _TUBING_REQUIRED = ("MDSTART", "MDEND")
-_TUBING_KNOWN = {"MDSTART", "MDEND", "INNER_DIAMETER", "ROUGHNESS"}
+_TUBING_KNOWN = {"MDSTART", "MDEND", "INNER_DIAMETER", "ROUGHNESS", "COMMENT"}
 _VALVE_REQUIRED = ("MD", "TYPE")
-_VALVE_KNOWN = {"MD", "TYPE", "STATE", "CV", "AREA"} | {
+_VALVE_KNOWN = {"MD", "TYPE", "STATE", "CV", "AREA", "COMMENT"} | {
     "AICD_STRENGTH",
     "AICD_DENSITY_CALIB_FLUID",
     "AICD_VISCOSITY_CALIB_FLUID",
@@ -909,7 +917,7 @@ _VALVE_KNOWN = {"MD", "TYPE", "STATE", "CV", "AREA"} | {
     "AICD_VISC_FUNC_EXP",
 }
 _STATE_REQUIRED = ("STATE",)
-_STATE_KNOWN = {"STATE"}
+_STATE_KNOWN = {"STATE", "COMMENT"}
 _COMPLETION_IGNORED = {"FILTER"}
 _PERF_IGNORED = _COMPLETION_IGNORED  # backwards-compatible alias
 
@@ -925,6 +933,15 @@ def _iso_event_date(event_date: Union[datetime.date, datetime.datetime]) -> str:
             return event_date.isoformat(timespec="milliseconds")
         return event_date.isoformat()
     return event_date.isoformat()
+
+
+def _apply_event_comment(event: OrionEvent, timeline_event: Any) -> None:
+    """Copy an optional COMMENT attribute to the created timeline event."""
+    comment = event.attributes.get("COMMENT")
+    if comment is None:
+        return
+    timeline_event.comment = str(comment.value)
+    timeline_event.update()
 
 
 def apply_orion_events_file(
@@ -1169,6 +1186,8 @@ def _apply_schedule_event(
 
     keyword_data: Dict[str, Any] = {}
     for key, attr in event.attributes.items():
+        if key == "COMMENT":
+            continue
         if key in _IGNORED_KEYWORD_ATTRS:
             report.warnings.append(
                 f"Line {event.loc.line}: attribute '{key}' on {event_type} "
@@ -1179,11 +1198,12 @@ def _apply_schedule_event(
     if group_name is not None:
         keyword_data["GROUP"] = group_name
 
-    timeline.add_keyword_event(
+    timeline_event = timeline.add_keyword_event(
         event_date=_iso_event_date(event.event_date),
         keyword_name=event_type,
         keyword_data=keyword_data,
     )
+    _apply_event_comment(event, timeline_event)
     report.events_applied += 1
 
 
@@ -1265,6 +1285,7 @@ def _apply_perforation(
     perf_event = timeline.add_perf_event(**kwargs)
     if event.filter is not None and ctx is not None:
         perf_event.add_filter(filter=_materialize_filter(ctx, event.filter))
+    _apply_event_comment(event, perf_event)
     report.events_applied += 1
 
 
@@ -1299,7 +1320,8 @@ def _apply_tubing(
         report.events_skipped += 1
         return
 
-    timeline.add_tubing_event(**kwargs)
+    timeline_event = timeline.add_tubing_event(**kwargs)
+    _apply_event_comment(event, timeline_event)
     report.events_applied += 1
 
 
@@ -1345,7 +1367,8 @@ def _apply_valve(
         report.events_skipped += 1
         return
 
-    timeline.add_valve_event(**kwargs)
+    timeline_event = timeline.add_valve_event(**kwargs)
+    _apply_event_comment(event, timeline_event)
     report.events_applied += 1
 
 
@@ -1361,11 +1384,12 @@ def _apply_state(
     ):
         return
 
-    timeline.add_state_event(
+    timeline_event = timeline.add_state_event(
         event_date=_iso_event_date(event.event_date),
         well_path=well_path,
         well_state=str(event.attributes["STATE"].value),
     )
+    _apply_event_comment(event, timeline_event)
     report.events_applied += 1
 
 
@@ -1379,6 +1403,8 @@ def _apply_keyword(
 ) -> None:
     keyword_data: Dict[str, Any] = {"WELL": well_path.name}
     for key, attr in event.attributes.items():
+        if key == "COMMENT":
+            continue
         if key in _IGNORED_KEYWORD_ATTRS:
             report.warnings.append(
                 f"Line {event.loc.line}: attribute '{key}' on {keyword_name} "
@@ -1387,12 +1413,13 @@ def _apply_keyword(
             continue
         keyword_data[field_map.get(key, key)] = attr.value
 
-    timeline.add_well_keyword_event(
+    timeline_event = timeline.add_well_keyword_event(
         event_date=_iso_event_date(event.event_date),
         well_path=well_path,
         keyword_name=keyword_name,
         keyword_data=keyword_data,
     )
+    _apply_event_comment(event, timeline_event)
     report.events_applied += 1
 
 

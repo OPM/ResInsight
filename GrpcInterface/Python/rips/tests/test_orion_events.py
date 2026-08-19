@@ -126,10 +126,20 @@ class FakeCase:
         return self._data_filter_collection
 
 
-class FakePerfEvent:
+class FakeTimelineEvent:
+    def __init__(self):
+        self.comment = ""
+        self.update_calls = 0
+
+    def update(self):
+        self.update_calls += 1
+
+
+class FakePerfEvent(FakeTimelineEvent):
     """The object returned by add_perf_event; records attached filters."""
 
     def __init__(self):
+        super().__init__()
         self.filters = []
 
     def add_filter(self, filter):
@@ -147,6 +157,7 @@ class FakeTimeline:
         self.valve_calls = []
         self.state_calls = []
         self.schedule_keyword_calls = []
+        self.created_events = []
 
     def add_perf_event(self, **kwargs):
         self.perf_calls.append(kwargs)
@@ -154,20 +165,30 @@ class FakeTimeline:
         self.perf_events.append(perf_event)
         return perf_event
 
+    def _new_event(self):
+        event = FakeTimelineEvent()
+        self.created_events.append(event)
+        return event
+
     def add_well_keyword_event(self, **kwargs):
         self.keyword_calls.append(kwargs)
+        return self._new_event()
 
     def add_tubing_event(self, **kwargs):
         self.tubing_calls.append(kwargs)
+        return self._new_event()
 
     def add_valve_event(self, **kwargs):
         self.valve_calls.append(kwargs)
+        return self._new_event()
 
     def add_state_event(self, **kwargs):
         self.state_calls.append(kwargs)
+        return self._new_event()
 
     def add_keyword_event(self, **kwargs):
         self.schedule_keyword_calls.append(kwargs)
+        return self._new_event()
 
 
 # ---------------------------------------------------------------------------
@@ -226,6 +247,15 @@ class TestParsing:
         assert filter_attr.value == "SOIL > 0.8 AND PERMX > 200"
         assert filter_attr.quoted is True
         assert doc.wells[0].events[0].attributes["MDEND"].value == 2
+
+    def test_comment_attribute_is_preserved(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "W"\n'
+            '  @2018-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
+        )
+        event = parse_orion_events(text).wells[0].events[0]
+        assert event.attributes["COMMENT"].value == "Startup target"
+        assert event.attributes["COMMENT"].quoted is True
 
     def test_trailing_comment_ignored_but_not_inside_quotes(self):
         text = (
@@ -779,6 +809,29 @@ class TestApplying:
         assert data["VFP_TABLE"] == 1  # VFP -> VFP_TABLE
         assert "VFP" not in data
 
+    def test_comment_is_applied_to_timeline_event_not_keyword_data(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
+            '  @2018-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
+        )
+        timeline, report = self._apply(text)
+
+        assert report.errors == []
+        assert "COMMENT" not in timeline.keyword_calls[0]["keyword_data"]
+        assert timeline.created_events[0].comment == "Startup target"
+        assert timeline.created_events[0].update_calls == 1
+
+    def test_perforation_comment_is_applied(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
+            "  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 COMMENT=Interval\n"
+        )
+        timeline, report = self._apply(text)
+
+        assert report.errors == []
+        assert timeline.perf_events[0].comment == "Interval"
+        assert timeline.perf_events[0].update_calls == 1
+
     def test_weltarg_value_translation(self):
         timeline, _ = self._apply(SAMPLE)
         weltarg = next(
@@ -1208,6 +1261,24 @@ class TestOrionEventsIntegration:
             assert flag in tokens
             assert f"{flag}=True" not in rptrst_block
         assert "NORST" not in tokens
+
+    def test_event_comment_precedes_generated_keyword(
+        self, project_with_case_and_wells
+    ):
+        project, case, timeline = project_with_case_and_wells
+        well = project.well_paths()[0]
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            '  @2024-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
+        )
+
+        report = apply_orion_document(document, timeline, project)
+        assert report.errors == []
+
+        schedule = timeline.generate_schedule_text(eclipse_case=case)
+        assert "-- Startup target\nWCONHIST\n" in schedule
+        assert "COMMENT" not in schedule
 
     def test_group_sections_generate_group_keywords(self, project_with_case_and_wells):
         project, case, timeline = project_with_case_and_wells
