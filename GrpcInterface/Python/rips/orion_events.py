@@ -95,11 +95,18 @@ Notes on the grammar:
   attribute values, e.g. ``FILTER="SOIL > 0.8 AND PERMX > 200"``.
 * Every attribute is ``KEY=VALUE``; bare positional tokens are rejected.
 * Event types inside a WELL block are either the built-in completion events
-  ``PERFORATION``, ``TUBING``, ``VALVE`` and ``STATE``, or any Eclipse well
-  keyword (``WCONHIST``, ``WELTARG``, ``WRFTPLT``, ``WCONPROD``, ...), which
+  ``PERFORATION``, ``TUBING``, ``VALVE``, ``STATE`` and ``WELLSPEC``, or any
+  Eclipse well keyword (``WCONHIST``, ``WELTARG``, ``WRFTPLT``, ``WCONPROD``,
+  ...), which
   is passed through generically with the well name injected as WELL. Event
-  types inside a GROUP block are Eclipse group keywords with the group name
-  injected as GROUP. Event types inside a SCHEDULE block are Eclipse schedule
+  ``WELLSPEC`` accepts partial updates to ``GROUP``, ``CROSSFLOW``, ``REFDEPTH``
+  and ``PHASE`` (OIL/GAS/WATER/LIQUID). Omitted values inherit the previous
+  WELLSPEC state, initially using the well's completion export settings. There
+  may be multiple WELLSPEC events for a well, but not at the same timestamp.
+  Each emits a WELSPECS record with the cumulative state. Event values are
+  materialized back onto completion settings by ``timeline.set_timestamp()``.
+  Event types inside a GROUP block are Eclipse group keywords with the group
+  name injected as GROUP. Event types inside a SCHEDULE block are Eclipse schedule
   keywords passed through as-is. An event type that closely resembles a built-in
   is treated as a typo per the ``on_unknown_event`` policy instead of being
   passed through.
@@ -251,6 +258,16 @@ class AttrValue:
 
 
 @dataclass
+class WellSpecState:
+    """Fully resolved cumulative state for one WELLSPEC event."""
+
+    group: str
+    crossflow: bool
+    refdepth: Optional[float]
+    phase: str
+
+
+@dataclass
 class OrionEvent:
     """One event line in an enclosing WELL, GROUP or SCHEDULE block."""
 
@@ -259,6 +276,7 @@ class OrionEvent:
     attributes: Dict[str, AttrValue]
     loc: SourceLoc
     filter: Optional[EventFilter] = None
+    well_spec: Optional[WellSpecState] = None
 
 
 @dataclass
@@ -417,6 +435,7 @@ def parse_orion_events(text: str) -> OrionDocument:
         raise OrionParseError("Empty file: missing 'ORIONEVENTS' header")
 
     errors.extend(_restart_validation_issues(wells, groups, schedule_events))
+    errors.extend(_wellspec_validation_issues(wells))
     if errors:
         raise OrionParseError(errors=errors)
 
@@ -462,6 +481,29 @@ def _restart_validation_issues(
         issues.append(
             ParseIssue("Only one RESTART event is allowed per schedule", event.loc)
         )
+    return issues
+
+
+def _wellspec_validation_issues(wells: List[WellBlock]) -> List[ParseIssue]:
+    """Reject multiple WELLSPEC events for one well at the same timestamp."""
+    seen: Dict[Tuple[str, Union[datetime.date, datetime.datetime]], OrionEvent] = {}
+    issues: List[ParseIssue] = []
+    for well in wells:
+        for event in well.events:
+            if event.event_type.upper() != "WELLSPEC":
+                continue
+            key = (well.well_name, event.event_date)
+            previous = seen.get(key)
+            if previous is not None:
+                issues.append(
+                    ParseIssue(
+                        f"WELLSPEC already defined for well '{well.well_name}' "
+                        f"at this date (line {previous.loc.line})",
+                        event.loc,
+                    )
+                )
+            else:
+                seen[key] = event
     return issues
 
 
@@ -957,6 +999,8 @@ _VALVE_KNOWN = {"MD", "TYPE", "STATE", "CV", "AREA", "COMMENT"} | {
 }
 _STATE_REQUIRED = ("STATE",)
 _STATE_KNOWN = {"STATE", "COMMENT"}
+_WELLSPEC_KNOWN = {"GROUP", "CROSSFLOW", "REFDEPTH", "PHASE", "COMMENT"}
+_WELLSPEC_PHASES = {"OIL", "GAS", "WATER", "LIQUID"}
 _COMPLETION_IGNORED = {"FILTER"}
 _PERF_IGNORED = _COMPLETION_IGNORED  # backwards-compatible alias
 
@@ -1061,6 +1105,80 @@ def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
     return result
 
 
+def _enum_text(value: Any) -> str:
+    """Return the serialized text of a generated enum or plain string."""
+    return str(getattr(value, "value", value)).upper()
+
+
+def _prepare_wellspec_events(
+    events: List[OrionEvent], completion_settings: Any, report: ApplyReport
+) -> None:
+    """Validate WELLSPEC attributes and resolve partial updates chronologically."""
+    state = WellSpecState(
+        group=str(completion_settings.group_name_for_export),
+        crossflow=bool(completion_settings.allow_well_cross_flow),
+        refdepth=completion_settings.reference_depth_for_export,
+        phase=_enum_text(completion_settings.well_type_for_export),
+    )
+
+    wellspecs = sorted(
+        (event for event in events if event.event_type.upper() == "WELLSPEC"),
+        key=lambda event: event.event_date,
+    )
+    for event in wellspecs:
+        attrs = event.attributes
+        unknown = set(attrs) - _WELLSPEC_KNOWN
+        if unknown:
+            report.errors.append(
+                f"Line {event.loc.line}: unknown WELLSPEC attribute(s): "
+                f"{', '.join(sorted(unknown))}"
+            )
+            report.events_skipped += 1
+            continue
+        if not (set(attrs) - {"COMMENT"}):
+            report.errors.append(
+                f"Line {event.loc.line}: WELLSPEC needs at least one setting attribute"
+            )
+            report.events_skipped += 1
+            continue
+
+        next_state = copy.copy(state)
+        errors: List[str] = []
+        if "GROUP" in attrs:
+            value = attrs["GROUP"].value
+            if not isinstance(value, str) or not value:
+                errors.append("GROUP must be a non-empty string")
+            else:
+                next_state.group = value
+        if "CROSSFLOW" in attrs:
+            value = attrs["CROSSFLOW"].value
+            if not isinstance(value, bool):
+                errors.append("CROSSFLOW must be True or False")
+            else:
+                next_state.crossflow = value
+        if "REFDEPTH" in attrs:
+            value = attrs["REFDEPTH"].value
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                errors.append("REFDEPTH must be numeric")
+            else:
+                next_state.refdepth = float(value)
+        if "PHASE" in attrs:
+            value = attrs["PHASE"].value
+            phase = value.upper() if isinstance(value, str) else ""
+            if phase not in _WELLSPEC_PHASES:
+                errors.append("PHASE must be OIL, GAS, WATER, or LIQUID")
+            else:
+                next_state.phase = phase
+
+        if errors:
+            report.errors.extend(f"Line {event.loc.line}: {error}" for error in errors)
+            report.events_skipped += 1
+            continue
+
+        state = next_state
+        event.well_spec = copy.copy(state)
+
+
 def apply_orion_document(
     document: OrionDocument,
     timeline: Any,
@@ -1113,6 +1231,8 @@ def apply_orion_document(
                 report.warnings.append(message)
             report.events_skipped += len(well.events)
             continue
+
+        _prepare_wellspec_events(well.events, well_path.completion_settings(), report)
 
         for event in well.events:
             event_type = event.event_type.upper()
@@ -1557,6 +1677,29 @@ def _apply_state(
     report.events_applied += 1
 
 
+def _apply_wellspec(
+    event: OrionEvent,
+    well_path: Any,
+    timeline: Any,
+    report: ApplyReport,
+    ctx: Optional[_FilterContext] = None,
+) -> None:
+    if event.well_spec is None:
+        return
+
+    state = event.well_spec
+    timeline_event = timeline.add_wellspec_event(
+        event_date=_iso_event_date(event.event_date),
+        well_path=well_path,
+        group_name=state.group,
+        allow_cross_flow=state.crossflow,
+        reference_depth=state.refdepth,
+        well_type=state.phase,
+    )
+    _apply_event_comment(event, timeline_event)
+    report.events_applied += 1
+
+
 def _apply_keyword(
     event: OrionEvent,
     well_path: Any,
@@ -1635,13 +1778,20 @@ _EVENT_DISPATCH: Dict[str, _EventDispatch] = {
     "TUBING": _apply_tubing,
     "VALVE": _apply_valve,
     "STATE": _apply_state,
+    "WELLSPEC": _apply_wellspec,
     "WCONHIST": _apply_wconhist,
     "WELTARG": _apply_weltarg,
 }
 
 # Completion event types that require a well and cannot appear in a SCHEDULE
 # block or be emitted as Eclipse keywords.
-_COMPLETION_EVENT_TYPES = ("PERFORATION", "TUBING", "VALVE", "STATE")
+_COMPLETION_EVENT_TYPES = (
+    "PERFORATION",
+    "TUBING",
+    "VALVE",
+    "STATE",
+    "WELLSPEC",
+)
 
 
 # ---------------------------------------------------------------------------

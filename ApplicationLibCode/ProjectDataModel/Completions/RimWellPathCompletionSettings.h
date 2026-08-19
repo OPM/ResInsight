@@ -71,9 +71,15 @@ public:
     RimWellPathCompletionSettings( const RimWellPathCompletionSettings& rhs );
     RimWellPathCompletionSettings& operator=( const RimWellPathCompletionSettings& rhs );
 
-    QString groupName() const;
-    QString wellName() const;
-    void    setGroupName( const QString& name );
+    QString  groupName() const;
+    QString  wellName() const;
+    WellType wellType() const;
+    bool     allowWellCrossFlow() const;
+
+    void setGroupName( const QString& name );
+    void setReferenceDepth( std::optional<double> depth );
+    void setWellType( WellType wellType );
+    void setAllowWellCrossFlow( bool allowCrossFlow );
 
     void    setWellNameForExport( const QString& name );
     void    updateWellPathNameHasChanged( const QString& newWellPathName, const QString& previousWellPathName );

@@ -29,7 +29,9 @@
 #include "RimWellEventTimeline.h"
 #include "RimWellEventTubing.h"
 #include "RimWellEventValve.h"
+#include "RimWellEventWellSpec.h"
 #include "RimWellPath.h"
+#include "RimWellPathCompletionSettings.h"
 #include "RimcDataContainerString.h"
 
 #include "cafAppEnum.h"
@@ -360,6 +362,66 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addTubingEve
 QString RimcWellEventTimeline_addTubingEvent::classKeywordReturnedType() const
 {
     return RimWellEventTubing::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addWellSpecEvent, "AddWellspecEvent" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellEventTimeline_addWellSpecEvent::RimcWellEventTimeline_addWellSpecEvent( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Add Well Specification Event", "", "", "Add a WELLSPEC event to the timeline" );
+
+    CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
+    CAF_PDM_InitScriptableField( &m_groupName, "GroupName", QString(), "", "", "", "Group Name" );
+    CAF_PDM_InitScriptableField( &m_allowCrossFlow, "AllowCrossFlow", true, "", "", "", "Allow Well Cross-Flow" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_referenceDepth, "ReferenceDepth", "", "", "", "Reference Depth" );
+    CAF_PDM_InitScriptableField( &m_wellType,
+                                 "WellType",
+                                 caf::AppEnum<RimWellPathCompletionSettings::WellType>( RimWellPathCompletionSettings::OIL ),
+                                 "",
+                                 "",
+                                 "",
+                                 "Preferred Fluid Phase" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addWellSpecEvent::execute()
+{
+    auto timeline = self<RimWellEventTimeline>();
+    if ( !m_wellPath() ) return std::unexpected( QString( "Well path is required" ) );
+
+    QDateTime date = QDateTime::fromString( m_eventDate(), Qt::ISODate );
+    if ( !date.isValid() )
+    {
+        return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
+    }
+
+    for ( const auto* existing : timeline->events() )
+    {
+        if ( existing->eventType() == RimWellEvent::EventType::WELLSPEC && existing->wellPath() == m_wellPath() && existing->eventDate() == date )
+        {
+            return std::unexpected(
+                QString( "A WELLSPEC event already exists for well '%1' at %2" ).arg( m_wellPath()->name(), m_eventDate() ) );
+        }
+    }
+
+    auto* event = timeline->addWellSpecEvent( m_wellPath(), date );
+    event->setWellSpecData( { m_groupName(), m_allowCrossFlow(), m_referenceDepth(), m_wellType() } );
+    return event;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellEventTimeline_addWellSpecEvent::classKeywordReturnedType() const
+{
+    return RimWellEventWellSpec::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addWellKeywordEvent, "AddWellKeywordEventInternal" );

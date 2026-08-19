@@ -11,19 +11,21 @@ applied in one go with rips.orion_events.apply_orion_document().
 It demonstrates the full event coverage of the format:
 1. TUBING, PERFORATION (incl. a time-of-day date), VALVE and STATE completion
    events on a well
-2. A FILTER declaration (qualified result name) referenced by a perforation,
+2. Partial WELLSPEC updates that cumulatively change completion export settings
+   and generate dated WELSPECS records
+3. A FILTER declaration (qualified result name) referenced by a perforation,
    materialized as a case-level combined data filter
-3. COMMENT attributes preserved on timeline events and emitted before their
+4. COMMENT attributes preserved on timeline events and emitted before their
    generated schedule keywords
-4. Same-owner/type/date WCONHIST lines merged into one event, with later
+5. Same-owner/type/date WCONHIST lines merged into one event, with later
    attributes extending or overriding earlier attributes
-5. Well keyword events: WCONHIST and WELTARG (with attribute translation) and
+6. Well keyword events: WCONHIST and WELTARG (with attribute translation) and
    WRFTPLT (generic Eclipse well keyword pass-through)
-6. A GROUP-level MEMBER event expanded to one GRUPTREE record per member
-7. SCHEDULE-level keyword events not tied to a well: RPTRST, GRUPTREE, TUNING
-8. REPORT dates, passed to generate_schedule_text(additional_dates=...) so
+7. A GROUP-level MEMBER event expanded to one GRUPTREE record per member
+8. SCHEDULE-level keyword events not tied to a well: RPTRST, GRUPTREE, TUNING
+9. REPORT dates, passed to generate_schedule_text(additional_dates=...) so
    they appear as bare DATES keywords (summary-report triggers)
-9. Schedule metadata, COMPORD generation and aligned-column output
+10. Schedule metadata, COMPORD generation and aligned-column output
 
 The ORIONEVENTS text is built inline with the name of the first well path in
 the project (like well_event_schedule.py, which uses wells[0]), so the example
@@ -57,6 +59,11 @@ DURATION RAMP    = 31 DAYS
 WELL W1 = "{well_name}"
 
 WELL W1
+  # WELLSPEC updates completion export settings and emits WELSPECS. Attributes
+  # are optional: the second event inherits GROUP from the first event.
+  @2024-01-05      WELLSPEC     GROUP="ORION_GROUP"  CROSSFLOW=True   REFDEPTH=1002  PHASE=WATER
+  @2024-04-15      WELLSPEC                          CROSSFLOW=False  REFDEPTH=1000  PHASE=OIL
+
   # COMMENT is stored on the event and safely emitted as a schedule comment.
   @STARTUP         TUBING       MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  COMMENT="Install production tubing"
 
@@ -148,7 +155,14 @@ def main():
     # Apply events up to a date to materialize completions
     timeline.set_timestamp(timestamp="2024-12-24")
 
-    print("\n4. Verifying created completions...")
+    print("\n4. Verifying created completions and WELLSPEC settings...")
+    completion_settings = well_path.completion_settings()
+    print("   Completion export settings after the latest WELLSPEC:")
+    print(f"      Group:       {completion_settings.group_name_for_export}")
+    print(f"      Cross-flow:  {completion_settings.allow_well_cross_flow}")
+    print(f"      Ref. depth:  {completion_settings.reference_depth_for_export}")
+    print(f"      Phase:       {completion_settings.well_type_for_export}")
+
     perforations = well_path.completions().perforations().perforations()
     print(f"   Perforations created: {len(perforations)}")
     for perf in perforations:

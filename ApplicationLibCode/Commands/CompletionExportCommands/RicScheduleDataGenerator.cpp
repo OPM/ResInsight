@@ -29,6 +29,7 @@
 #include "RimEclipseCase.h"
 #include "RimKeywordEvent.h"
 #include "RimWellEventTimeline.h"
+#include "RimWellEventWellSpec.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
 
@@ -270,6 +271,10 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
             {
                 isRelevant = keywordName == "WSEGVALV" || keywordName == "WSEGAICD";
             }
+            else if ( event->eventType() == RimWellEvent::EventType::WELLSPEC )
+            {
+                isRelevant = keywordName == "WELSPECS";
+            }
             else if ( event->eventType() == RimWellEvent::EventType::SCHEDULE_KEYWORD )
             {
                 const auto* keywordEvent = dynamic_cast<const RimKeywordEvent*>( event );
@@ -353,7 +358,7 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
     for ( auto* event : events )
     {
         if ( ( event->eventType() == RimWellEvent::EventType::PERF || event->eventType() == RimWellEvent::EventType::VALVE ||
-               event->eventType() == RimWellEvent::EventType::TUBING ) &&
+               event->eventType() == RimWellEvent::EventType::TUBING || event->eventType() == RimWellEvent::EventType::WELLSPEC ) &&
              event->wellName() == well.name() )
         {
             hasEvents = true;
@@ -363,8 +368,33 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
 
     if ( !hasEvents ) return std::nullopt;
 
+    const RimWellEventWellSpec* firstWellSpec  = nullptr;
+    const RimWellEventWellSpec* latestWellSpec = nullptr;
+    for ( auto* event : timeline.events() )
+    {
+        if ( event->eventType() != RimWellEvent::EventType::WELLSPEC || event->wellName() != well.name() ) continue;
+
+        auto* wellSpec = dynamic_cast<RimWellEventWellSpec*>( event );
+        if ( !wellSpec ) continue;
+        if ( !firstWellSpec || wellSpec->eventDate() < firstWellSpec->eventDate() ) firstWellSpec = wellSpec;
+        if ( wellSpec->eventDate() <= date && ( !latestWellSpec || wellSpec->eventDate() > latestWellSpec->eventDate() ) )
+        {
+            latestWellSpec = wellSpec;
+        }
+    }
+
+    std::optional<RimWellSpecData> wellSpecData;
+    if ( latestWellSpec )
+    {
+        wellSpecData = latestWellSpec->wellSpecData();
+    }
+    else if ( firstWellSpec )
+    {
+        wellSpecData = firstWellSpec->baselineData();
+    }
+
     std::string wellGroupName = well.completionSettings()->groupNameForExport().toStdString();
-    auto        welspecsKw    = RimKeywordFactory::welspecsKeyword( wellGroupName, &eclipseCase, &well );
+    auto welspecsKw = RimKeywordFactory::welspecsKeyword( wellGroupName, &eclipseCase, &well, wellSpecData ? &wellSpecData.value() : nullptr );
     if ( welspecsKw.name().empty() ) return std::nullopt;
     return welspecsKw;
 }
