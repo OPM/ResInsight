@@ -1553,9 +1553,25 @@ class TestScheduleGeneration:
             f"WCONHIST data row should keep per-column '1*' markers: {data_line!r}"
         )
 
-        # Same keywords are produced either way.
-        for keyword in ("DATES", "COMPDAT", "WCONHIST"):
+        # Every core tabular keyword has a column-title comment in aligned output, while compact
+        # output contains the same keywords without those comments.
+        expected_headers = {
+            "DATES": ("DAY", "MONTH", "YEAR"),
+            "WELSPECS": ("WELL", "GROUP", "HEAD_I", "HEAD_J"),
+            "COMPORD": ("WELL", "ORD_TYP"),
+            "COMPDAT": ("WELL", "I", "J", "K1", "K2", "STATE"),
+            "WCONHIST": ("WELL", "STATUS", "CMODE"),
+        }
+        for keyword, column_names in expected_headers.items():
             assert keyword in aligned and keyword in default
+
+            aligned_lines = aligned.split(f"{keyword}\n", 1)[1].splitlines()
+            assert aligned_lines[0].startswith("--")
+            assert all(name in aligned_lines[0] for name in column_names)
+            assert aligned_lines[1].startswith("  ")
+
+            compact_first_line = default.split(f"{keyword}\n", 1)[1].splitlines()[0]
+            assert not compact_first_line.startswith("--")
 
     def test_perf_completion_number_triggers_complump(self, project_with_case_and_well):
         """#13273 follow-up: a completion_number on add_perf_event must surface as a
