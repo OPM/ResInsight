@@ -13,12 +13,17 @@ It demonstrates the full event coverage of the format:
    events on a well
 2. A FILTER declaration (qualified result name) referenced by a perforation,
    materialized as a case-level combined data filter
-3. Well keyword events: WCONHIST and WELTARG (with attribute translation) and
+3. COMMENT attributes preserved on timeline events and emitted before their
+   generated schedule keywords
+4. Same-owner/type/date WCONHIST lines merged into one event, with later
+   attributes extending or overriding earlier attributes
+5. Well keyword events: WCONHIST and WELTARG (with attribute translation) and
    WRFTPLT (generic Eclipse well keyword pass-through)
-4. SCHEDULE-level keyword events not tied to a well: RPTRST, GRUPTREE, TUNING
-5. REPORT dates, passed to generate_schedule_text(additional_dates=...) so
+6. A GROUP-level MEMBER event expanded to one GRUPTREE record per member
+7. SCHEDULE-level keyword events not tied to a well: RPTRST, GRUPTREE, TUNING
+8. REPORT dates, passed to generate_schedule_text(additional_dates=...) so
    they appear as bare DATES keywords (summary-report triggers)
-6. Generating Eclipse schedule text from the resulting timeline
+9. Schedule metadata, COMPORD generation and aligned-column output
 
 The ORIONEVENTS text is built inline with the name of the first well path in
 the project (like well_event_schedule.py, which uses wells[0]), so the example
@@ -52,11 +57,11 @@ DURATION RAMP    = 31 DAYS
 WELL W1 = "{well_name}"
 
 WELL W1
-  # Tubing installed early (MD 0-2500m)
-  @STARTUP         TUBING       MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5
+  # COMMENT is stored on the event and safely emitted as a schedule comment.
+  @STARTUP         TUBING       MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  COMMENT="Install production tubing"
 
   # Perforations; COMPLETION_NUMBER groups connections for COMPLUMP.{filter_comment}
-  @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1{filter_ref}
+  @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1{filter_ref}  COMMENT="Open high-priority interval"
   @2024-04-01      PERFORATION  MDSTART=2400  MDEND=2600  RADIUS=0.05  SKIN=0.3  COMPLETION_NUMBER=2
 
   # Time-of-day is preserved and emitted as the TIME field of DATES
@@ -66,10 +71,18 @@ WELL W1
   @2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001
   @2024-02-15      STATE        STATE=OPEN
 
-  # Well keyword events; WRFTPLT is passed through as a generic Eclipse keyword
-  @2024-01-15      WCONHIST     STATUS=OPEN  CMODE=RESV  ORAT=3999.99  WRAT=0.01  GRAT=550678.44  VFP=1
+  # Matching owner/type/date lines merge. The second line extends the first;
+  # repeated attributes would use the value from the later line.
+  @2024-01-15      WCONHIST     STATUS=OPEN  CMODE=RESV  COMMENT="Start production history controls"
+  @2024-01-15      WCONHIST     ORAT=3999.99  WRAT=0.01  GRAT=550678.44  VFP=1
+
+  # WRFTPLT is passed through as a generic Eclipse keyword.
   @2024-05-01      WELTARG      CMODE=ORAT  VALUE=5000.0
   @2024-06-01      WRFTPLT      OUTPUT_RFT=YES  OUTPUT_PLT=NO  OUTPUT_SEGMENT=NO
+
+# MEMBER expands into one GRUPTREE record per unique comma-delimited member.
+GROUP "OP"
+  @STARTUP  MEMBER  MEMBERS="{well_name},OBSERVER"  COMMENT="Define operating group members"
 
 # Schedule-level keywords (not tied to a well)
 SCHEDULE
@@ -110,7 +123,12 @@ def main():
     print(orion_text)
     document = rips.orion_events.parse_orion_events(orion_text)
     print(f"   Wells: {[w.well_name for w in document.wells]}")
-    print(f"   Well events: {sum(len(w.events) for w in document.wells)}")
+    source_well_event_count = sum(len(w.events) for w in document.wells)
+    normalized = rips.orion_events.coalesce_orion_document(document)
+    merged_well_event_count = sum(len(w.events) for w in normalized.wells)
+    print(f"   Source well-event lines: {source_well_event_count}")
+    print(f"   Events after same-date merge: {merged_well_event_count}")
+    print(f"   Groups: {[group.group_name for group in document.groups]}")
     print(f"   Schedule events: {len(document.schedule_events)}")
 
     print("\n3. Applying events to the timeline...")
@@ -147,12 +165,14 @@ def main():
     if case is None:
         print("   No Eclipse case loaded - skipping schedule generation.")
         return
-    # REPORT dates from the ORIONEVENTS text become bare DATES keywords
-    # (summary-report triggers) via additional_dates.
+    # REPORT dates become bare DATES keywords via additional_dates. Aligned output
+    # adds column-title comments; the schedule header identifies its timestamp and
+    # user, and each generated WELSPECS record has a matching COMPORD INPUT record.
     schedule_text = timeline.generate_schedule_text(
         eclipse_case=case,
         export_msw_for_wells=[well_path],
         additional_dates=report.report_dates,
+        align_columns=True,
     )
     if schedule_text:
         print(f"   Generated schedule text ({len(schedule_text)} characters)")
@@ -163,6 +183,8 @@ def main():
 
         expected_keywords = [
             "DATES",
+            "WELSPECS",
+            "COMPORD",
             "COMPDAT",
             "COMPLUMP",
             "WCONHIST",
