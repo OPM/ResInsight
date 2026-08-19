@@ -775,6 +775,12 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
         QAction* exportLayoutAction = m_windowMenu->addAction( "Export Layout to Clipboard" );
         connect( exportLayoutAction, SIGNAL( triggered() ), this, SLOT( exportDockLayout() ) );
     }
+
+    m_windowMenu->addSeparator();
+    QAction* tileAction = m_windowMenu->addAction( "Tile Windows" );
+    connect( tileAction, SIGNAL( triggered() ), this, SLOT( tileViewWindows() ) );
+    QAction* maximizeAction = m_windowMenu->addAction( "Maximize Windows" );
+    connect( maximizeAction, SIGNAL( triggered() ), this, SLOT( maximizeViewWindows() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -847,5 +853,64 @@ void RiuMainWindowBase::slotHideTabs( bool hideTabs )
         {
             area->titleBar()->show();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::tileViewWindows()
+{
+    // store the views to tile
+    std::vector<RimViewWindow*> tiledWindows;
+
+    // remove all views from dock area
+    for ( auto view : viewWindows() )
+    {
+        if ( !view->dockWidget() ) continue;
+        if ( !view->showWindow() ) continue;
+        tiledWindows.push_back( view );
+    }
+
+    for ( auto view : tiledWindows )
+    {
+        m_dockManager->removeDockWidget( view->dockWidget() );
+    }
+
+    if ( m_dockManager->centralWidget() )
+    {
+        // TODO - find correct area to dock to here
+        if ( auto container = m_dockManager->centralWidget()->dockContainer() )
+        {
+            for ( auto view : tiledWindows )
+            {
+                container->addDockWidget( ads::DockWidgetArea::LeftDockWidgetArea, view->dockWidget() );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::maximizeViewWindows()
+{
+    // store the views to tile
+    std::vector<RimViewWindow*> activeViews;
+
+    // remove all views from dock manager
+    for ( auto view : viewWindows() )
+    {
+        if ( !view->dockWidget() ) continue;
+        if ( !view->showWindow() ) continue;
+        activeViews.push_back( view );
+
+        m_dockManager->removeDockWidget( view->dockWidget() );
+    }
+
+    // add all views to the center area
+    for ( auto view : activeViews )
+    {
+        m_dockManager->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, view->dockWidget() );
     }
 }

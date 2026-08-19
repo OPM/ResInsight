@@ -135,6 +135,9 @@ protected slots:
     void saveDockLayout();
     void exportDockLayout();
 
+    void tileViewWindows();
+    void maximizeViewWindows();
+
 protected:
     bool m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control
                                                // whether to select the corresponding active view or not
