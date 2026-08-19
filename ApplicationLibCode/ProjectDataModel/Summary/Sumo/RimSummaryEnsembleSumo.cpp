@@ -33,8 +33,12 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCaseSumo.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSumoDataSource.h"
+
+#include "RiuPlotCurve.h"
 
 #include <arrow/type_fwd.h>
 
@@ -47,6 +51,39 @@ CAF_PDM_SOURCE_INIT( RimSummaryEnsembleSumo, "RimSummaryEnsembleSumo" );
 
 namespace
 {
+//--------------------------------------------------------------------------------------------------
+/// Whether any curve of the plot holds samples. A plot with none has nothing to fit its axes to, which is the
+/// state a plot is left in when it is created for data that has not arrived yet.
+//--------------------------------------------------------------------------------------------------
+bool hasCurveSamples( const RimSummaryPlot* summaryPlot )
+{
+    for ( const RimSummaryCurve* curve : summaryPlot->summaryAndEnsembleCurves() )
+    {
+        if ( curve && curve->plotCurve() && curve->plotCurve()->numSamples() > 0 ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Whether any other plot of the same window already shows something. The plots of a window share their time
+/// axis, so a window that shows data has a range that fitting one plot would move for all of them.
+//--------------------------------------------------------------------------------------------------
+bool windowShowsData( RimSummaryPlot* summaryPlot )
+{
+    auto multiPlot = summaryPlot->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
+    if ( !multiPlot ) return false;
+
+    for ( const RimSummaryPlot* plot : multiPlot->summaryPlots() )
+    {
+        if ( plot == summaryPlot ) continue;
+
+        if ( hasCurveSamples( plot ) ) return true;
+    }
+
+    return false;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// Read an integer column of any width as int64. The bit width of a column is decided by the producer
 /// of the parquet file, and can not be assumed to be a specific type.
@@ -361,6 +398,13 @@ void RimSummaryEnsembleSumo::onVectorDataReceived( const ParquetKey& parquetKey,
 //--------------------------------------------------------------------------------------------------
 /// Redraw with what has arrived so far. The curves read their values again, those still waiting for data come
 /// back empty, and the replot itself is coalesced by the redraw scheduler.
+///
+/// A plot is created and fitted to its data in one go. Fetching from Sumo does not wait, so a plot created for
+/// data still on its way was fitted while it had none, and kept that range. Such a plot is fitted here when its
+/// first data arrives, which is what creation would have done had the data been there.
+///
+/// Only a plot that is still empty is fitted. A plot that already shows something has a range the user may have
+/// chosen, and loading another vector into it must not throw that away.
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsembleSumo::updatePlotsUsingThisEnsemble()
 {
@@ -382,7 +426,17 @@ void RimSummaryEnsembleSumo::updatePlotsUsingThisEnsemble()
         {
             if ( !summaryPlot->summaryAddressesByEnsemble().contains( this ) ) continue;
 
+            // Fit only a plot that has nothing to show and sits in a window where nothing else does either.
+            // Plots of a window share their time axis, so fitting one moves them all, and a window already
+            // showing data has a range the user may have chosen and must keep. A plot added to such a window
+            // takes the shared range instead, which is what happens when its data comes from the cache.
+            const bool needsInitialFit = !hasCurveSamples( summaryPlot ) && !windowShowsData( summaryPlot );
+
             summaryPlot->loadDataAndUpdate();
+
+            // zoomAll turns the automatic range back on, the one the fit onto an empty plot switched off.
+            if ( needsInitialFit ) summaryPlot->zoomAll();
+
             summaryPlot->scheduleReplotIfVisible();
         }
     } while ( m_hasMissedPlotUpdate );
