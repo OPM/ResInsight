@@ -80,7 +80,9 @@ Notes on the grammar:
   A bare ``SCHEDULE`` line opens a block of schedule-level keyword events not
   tied to any well (RPTRST, GRUPTREE, TUNING, ...). Empty blocks are legal.
   ``MEMBER MEMBERS="A,B"`` inside a GROUP block is shorthand for one GRUPTREE
-  record per unique member, with the enclosing group as parent.
+  record per unique member, with the enclosing group as parent. A schedule may
+  contain one attribute-free ``RESTART`` event; it truncates generated schedule
+  output before its timestamp and is not itself emitted as a keyword.
 * ``REPORT <date_expr>`` (one date per line, anywhere after the header) names
   a date that should appear as a bare ``DATES`` keyword in the generated
   schedule even when no events fall on it — in Eclipse/Flow a ``DATES`` entry
@@ -414,6 +416,7 @@ def parse_orion_events(text: str) -> OrionDocument:
     if version is None:
         raise OrionParseError("Empty file: missing 'ORIONEVENTS' header")
 
+    errors.extend(_restart_validation_issues(wells, groups, schedule_events))
     if errors:
         raise OrionParseError(errors=errors)
 
@@ -427,6 +430,39 @@ def parse_orion_events(text: str) -> OrionDocument:
         report_dates=report_dates,
         warnings=warnings,
     )
+
+
+def _restart_validation_issues(
+    wells: List[WellBlock],
+    groups: List[GroupBlock],
+    schedule_events: List[OrionEvent],
+) -> List[ParseIssue]:
+    """Validate placement, cardinality and shape of RESTART events."""
+    issues: List[ParseIssue] = []
+    for well_block in wells:
+        for event in well_block.events:
+            if event.event_type.upper() == "RESTART":
+                issues.append(
+                    ParseIssue("RESTART is only valid in a SCHEDULE block", event.loc)
+                )
+    for group_block in groups:
+        for event in group_block.events:
+            if event.event_type.upper() == "RESTART":
+                issues.append(
+                    ParseIssue("RESTART is only valid in a SCHEDULE block", event.loc)
+                )
+
+    restart_events = [
+        event for event in schedule_events if event.event_type.upper() == "RESTART"
+    ]
+    for event in restart_events:
+        if event.attributes:
+            issues.append(ParseIssue("RESTART takes no attributes", event.loc))
+    for event in restart_events[1:]:
+        issues.append(
+            ParseIssue("Only one RESTART event is allowed per schedule", event.loc)
+        )
+    return issues
 
 
 def _check_version(version: str, loc: SourceLoc) -> None:
@@ -1293,6 +1329,14 @@ def _apply_schedule_event(
 ) -> None:
     """Apply one GROUP- or SCHEDULE-block event as an Eclipse keyword."""
     event_type = event.event_type.upper()
+    if event_type == "RESTART":
+        timeline.add_keyword_event(
+            event_date=_iso_event_date(event.event_date),
+            keyword_name="RESTART",
+            keyword_data={},
+        )
+        report.events_applied += 1
+        return
     if event_type == "MEMBER":
         _apply_member_event(event, timeline, report, group_name)
         return

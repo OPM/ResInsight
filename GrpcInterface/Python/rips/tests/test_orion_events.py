@@ -465,6 +465,41 @@ class TestParsing:
         assert attributes["LABEL"].value == "True"
         assert isinstance(attributes["LABEL"].value, str)
 
+    def test_single_restart_event_parses(self):
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\nSCHEDULE\n  @2024-02-01 RESTART\n"
+        )
+        restart = document.schedule_events[0]
+        assert restart.event_type == "RESTART"
+        assert restart.attributes == {}
+
+    @pytest.mark.parametrize(
+        "text,expected_error",
+        [
+            (
+                'ORIONEVENTS 2.0\nWELL "W"\n  @2024-01-01 RESTART\n',
+                "only valid in a SCHEDULE block",
+            ),
+            (
+                'ORIONEVENTS 2.0\nGROUP "G"\n  @2024-01-01 RESTART\n',
+                "only valid in a SCHEDULE block",
+            ),
+            (
+                "ORIONEVENTS 2.0\nSCHEDULE\n  @2024-01-01 RESTART VALUE=1\n",
+                "takes no attributes",
+            ),
+            (
+                "ORIONEVENTS 2.0\nSCHEDULE\n"
+                "  @2024-01-01 RESTART\n"
+                "  @2024-02-01 RESTART\n",
+                "Only one RESTART event",
+            ),
+        ],
+    )
+    def test_invalid_restart_event_rejected(self, text, expected_error):
+        with pytest.raises(OrionParseError, match=expected_error):
+            parse_orion_events(text)
+
     def test_schedule_line_with_arguments_rejected(self):
         with pytest.raises(OrionParseError, match="SCHEDULE takes no arguments"):
             parse_orion_events("ORIONEVENTS 2.0\nSCHEDULE NOW\n")
@@ -1059,6 +1094,20 @@ class TestApplying:
         assert rptrst["keyword_data"] == {"BASIC": 2, "FREQ": 1}
         assert "WELL" not in rptrst["keyword_data"]
 
+    def test_restart_event_creates_non_emitting_timeline_marker(self):
+        text = "ORIONEVENTS 2.0\nSCHEDULE\n  @2024-02-01 RESTART\n"
+        timeline, report = self._apply(text)
+
+        assert report.events_applied == 1
+        assert report.errors == []
+        assert timeline.schedule_keyword_calls == [
+            {
+                "event_date": "2024-02-01",
+                "keyword_name": "RESTART",
+                "keyword_data": {},
+            }
+        ]
+
     def test_group_events_inject_group_name(self):
         text = (
             'ORIONEVENTS 2.0\nGROUP "OP"\n'
@@ -1432,6 +1481,39 @@ class TestOrionEventsIntegration:
         normalized_block = " ".join(grouptree_block.split())
         assert "'WELL_A' 'PRODUCERS'" in normalized_block
         assert "'WELL_B' 'PRODUCERS'" in normalized_block
+
+    def test_restart_truncates_generated_schedule(self, project_with_case_and_wells):
+        project, case, timeline = project_with_case_and_wells
+        well = project.well_paths()[0]
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            "  @2024-01-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=100\n"
+            "  @2024-02-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=200\n"
+            "  @2024-03-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=300\n"
+            "REPORT 2024-01-15\n"
+            "REPORT 2024-04-01\n"
+            "SCHEDULE\n"
+            "  @2024-02-01 RESTART\n"
+        )
+
+        report = apply_orion_document(document, timeline, project)
+        assert report.errors == []
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case,
+            first_date_as_comment=False,
+            additional_dates=report.report_dates,
+        )
+        assert "1 'JAN' 2024" not in schedule
+        assert "15 'JAN' 2024" not in schedule
+        assert "1 'FEB' 2024" in schedule
+        assert "1 'MAR' 2024" in schedule
+        assert "1 'APR' 2024" in schedule
+        assert " 100" not in schedule
+        assert " 200" in schedule
+        assert " 300" in schedule
+        assert "RESTART\n" not in schedule
 
     def test_apply_creates_perforations_and_schedule(self, project_with_case_and_wells):
         """End-to-end: parse -> apply -> set_timestamp -> generate schedule."""
