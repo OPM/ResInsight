@@ -19,6 +19,7 @@
 #include "RifReaderOpmCommon.h"
 
 #include "RiaEclipseFileNameTools.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaOpmParserTools.h"
 #include "RiaPreferencesSystem.h"
@@ -341,35 +342,80 @@ bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* 
         transferStaticNNCData( opmGrid, lgrGrids, mainGrid );
     }
 
-    auto opmMapAxes = opmGrid.get_mapaxes();
-    if ( opmMapAxes.size() == 6 )
-    {
-        std::array<double, 6> mapAxes;
-        for ( size_t i = 0; i < opmMapAxes.size(); ++i )
-        {
-            mapAxes[i] = opmMapAxes[i];
-        }
-
-        double norm_denominator = mapAxes[2] * mapAxes[5] - mapAxes[4] * mapAxes[3];
-
-        // Set the map axes transformation matrix on the main grid
-        mainGrid->setMapAxes( mapAxes );
-        mainGrid->setUseMapAxes( norm_denominator != 0.0 );
-
-        auto transform = mainGrid->mapAxisTransform();
-
-        // Invert the transformation matrix to convert from file coordinates to domain coordinates
-        transform.invert();
-
-#pragma omp parallel for
-        for ( long i = 0; i < static_cast<long>( mainGrid->nodes().size() ); i++ )
-        {
-            auto& n = mainGrid->nodes()[i];
-            n.transformPoint( transform );
-        }
-    }
+    applyMapAxes( opmGrid, mainGrid );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RifReaderOpmCommon::mapAxesScaleFactor( const std::string& mapUnits, int gridUnit )
+{
+    // opm-common scales MAPAXES to meter based on the MAPUNITS keyword, see EGrid.cpp. The string comparisons must
+    // mirror opm-common exactly, as the intention is to detect what opm-common did and not what the file says.
+    double mapUnitInMeter = 0.0;
+    if ( mapUnits == "METRES" )
+        mapUnitInMeter = 1.0;
+    else if ( mapUnits == "FEET" )
+        mapUnitInMeter = RiaEclipseUnitTools::meterPerFeet();
+    else if ( mapUnits == "CM" )
+        mapUnitInMeter = 0.01;
+
+    // MAPUNITS is missing or not recognized by opm-common, the map axes are left unscaled
+    if ( mapUnitInMeter == 0.0 ) return 1.0;
+
+    // 1 = Metric, 2 = Field, 3 = Lab
+    double gridUnitInMeter = 0.0;
+    if ( gridUnit == 1 )
+        gridUnitInMeter = 1.0;
+    else if ( gridUnit == 2 )
+        gridUnitInMeter = RiaEclipseUnitTools::meterPerFeet();
+    else if ( gridUnit == 3 )
+        gridUnitInMeter = 0.01;
+
+    // Unknown grid unit, undo the scaling applied by opm-common
+    if ( gridUnitInMeter == 0.0 ) return 1.0 / mapUnitInMeter;
+
+    // Convert from meter to grid unit
+    return 1.0 / gridUnitInMeter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmCommon::applyMapAxes( const Opm::EclIO::EGrid& opmGrid, RigMainGrid* mainGrid )
+{
+    // get_mapaxes() returns a fixed size array that is only assigned when the MAPAXES keyword is present
+    if ( !opmGrid.with_mapaxes() ) return;
+
+    // The cell corner coordinates are in grid units, scale the map axes to match before they are used as a translation
+    const double scaleFactor = mapAxesScaleFactor( opmGrid.get_mapunits(), m_gridUnit );
+
+    const auto&           opmMapAxes = opmGrid.get_mapaxes();
+    std::array<double, 6> mapAxes;
+    for ( size_t i = 0; i < opmMapAxes.size(); ++i )
+    {
+        mapAxes[i] = opmMapAxes[i] * scaleFactor;
+    }
+
+    double norm_denominator = mapAxes[2] * mapAxes[5] - mapAxes[4] * mapAxes[3];
+
+    // Set the map axes transformation matrix on the main grid
+    mainGrid->setMapAxes( mapAxes );
+    mainGrid->setUseMapAxes( norm_denominator != 0.0 );
+
+    auto transform = mainGrid->mapAxisTransform();
+
+    // Invert the transformation matrix to convert from file coordinates to domain coordinates
+    transform.invert();
+
+#pragma omp parallel for
+    for ( long i = 0; i < static_cast<long>( mainGrid->nodes().size() ); i++ )
+    {
+        auto& n = mainGrid->nodes()[i];
+        n.transformPoint( transform );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
