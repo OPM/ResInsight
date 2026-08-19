@@ -79,6 +79,8 @@ Notes on the grammar:
   group name is injected as the ``GROUP`` item when each event is applied.
   A bare ``SCHEDULE`` line opens a block of schedule-level keyword events not
   tied to any well (RPTRST, GRUPTREE, TUNING, ...). Empty blocks are legal.
+  ``MEMBER MEMBERS="A,B"`` inside a GROUP block is shorthand for one GRUPTREE
+  record per unique member, with the enclosing group as parent.
 * ``REPORT <date_expr>`` (one date per line, anywhere after the header) names
   a date that should appear as a bare ``DATES`` keyword in the generated
   schedule even when no events fall on it — in Eclipse/Flow a ``DATES`` entry
@@ -1235,6 +1237,54 @@ def _suspected_typo(event_type: str) -> Optional[str]:
     return close[0] if close else None
 
 
+def _apply_member_event(
+    event: OrionEvent,
+    timeline: Any,
+    report: ApplyReport,
+    group_name: Optional[str],
+) -> None:
+    """Expand a GROUP MEMBER event into one GRUPTREE event per member."""
+    if group_name is None:
+        report.errors.append(f"Line {event.loc.line}: MEMBER needs a GROUP block")
+        report.events_skipped += 1
+        return
+
+    unknown = set(event.attributes) - {"MEMBERS", "COMMENT"}
+    if unknown:
+        report.errors.append(
+            f"Line {event.loc.line}: unknown MEMBER attribute(s): "
+            f"{', '.join(sorted(unknown))}"
+        )
+        report.events_skipped += 1
+        return
+    if "MEMBERS" not in event.attributes:
+        report.errors.append(
+            f"Line {event.loc.line}: MEMBER missing required attribute: MEMBERS"
+        )
+        report.events_skipped += 1
+        return
+
+    raw_members = str(event.attributes["MEMBERS"].value)
+    members = [member.strip() for member in raw_members.split(",")]
+    if not members or any(not member for member in members):
+        report.errors.append(
+            f"Line {event.loc.line}: MEMBERS must be a comma-delimited list of "
+            "non-empty names"
+        )
+        report.events_skipped += 1
+        return
+
+    unique_members = list(dict.fromkeys(members))
+    for member in unique_members:
+        timeline_event = timeline.add_keyword_event(
+            event_date=_iso_event_date(event.event_date),
+            keyword_name="GRUPTREE",
+            keyword_data={"CHILD_GROUP": member, "PARENT_GROUP": group_name},
+        )
+        _apply_event_comment(event, timeline_event)
+        report.events_applied += 1
+
+
 def _apply_schedule_event(
     event: OrionEvent,
     timeline: Any,
@@ -1243,6 +1293,9 @@ def _apply_schedule_event(
 ) -> None:
     """Apply one GROUP- or SCHEDULE-block event as an Eclipse keyword."""
     event_type = event.event_type.upper()
+    if event_type == "MEMBER":
+        _apply_member_event(event, timeline, report, group_name)
+        return
     if event_type in _COMPLETION_EVENT_TYPES:
         report.errors.append(
             f"Line {event.loc.line}: {event_type} is a completion event and "

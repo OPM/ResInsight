@@ -1082,6 +1082,50 @@ class TestApplying:
         assert timeline.schedule_keyword_calls[1]["keyword_data"]["GROUP"] == "OP"
         assert timeline.schedule_keyword_calls[2]["keyword_data"]["GROUP"] == "WI"
 
+    def test_member_event_expands_to_unique_grouptree_events(self):
+        text = (
+            'ORIONEVENTS 2.0\nGROUP "PRODUCERS"\n'
+            '  @2024-01-01 MEMBER MEMBERS="WELL_A, WELL_B,WELL_A" '
+            'COMMENT="Group membership"\n'
+        )
+        timeline, report = self._apply(text)
+
+        assert report.events_applied == 2
+        assert report.errors == []
+        assert [call["keyword_data"] for call in timeline.schedule_keyword_calls] == [
+            {"CHILD_GROUP": "WELL_A", "PARENT_GROUP": "PRODUCERS"},
+            {"CHILD_GROUP": "WELL_B", "PARENT_GROUP": "PRODUCERS"},
+        ]
+        assert all(
+            event.comment == "Group membership" for event in timeline.created_events
+        )
+
+    @pytest.mark.parametrize(
+        "block,event,expected_error",
+        [
+            ("SCHEDULE", 'MEMBER MEMBERS="A"', "needs a GROUP block"),
+            ('GROUP "G"', "MEMBER", "missing required attribute"),
+            (
+                'GROUP "G"',
+                'MEMBER MEMBERS="A,,B"',
+                "non-empty names",
+            ),
+            (
+                'GROUP "G"',
+                'MEMBER MEMBERS="A" EXTRA=1',
+                "unknown MEMBER attribute",
+            ),
+        ],
+    )
+    def test_invalid_member_event_is_skipped(self, block, event, expected_error):
+        text = f"ORIONEVENTS 2.0\n{block}\n  @2024-01-01 {event}\n"
+        timeline, report = self._apply(text)
+
+        assert report.events_applied == 0
+        assert report.events_skipped == 1
+        assert timeline.schedule_keyword_calls == []
+        assert expected_error in report.errors[0]
+
     def test_completion_event_in_schedule_block_is_error(self):
         text = (
             "ORIONEVENTS 2.0\nSCHEDULE\n  @2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
@@ -1367,6 +1411,27 @@ class TestOrionEventsIntegration:
         assert "GCONINJE" in schedule
         assert "'OP'" in schedule
         assert "'WI'" in schedule
+
+    def test_member_event_generates_grouptree(self, project_with_case_and_wells):
+        project, case, timeline = project_with_case_and_wells
+        well = project.well_paths()[0]
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            "  @2024-01-01 WCONHIST STATUS=OPEN\n"
+            'GROUP "PRODUCERS"\n'
+            '  @2024-01-01 MEMBER MEMBERS="WELL_A,WELL_B"\n'
+        )
+
+        report = apply_orion_document(document, timeline, project)
+        assert report.errors == []
+        assert report.events_applied == 3
+
+        schedule = timeline.generate_schedule_text(eclipse_case=case)
+        grouptree_block = schedule.split("GRUPTREE", 1)[1].split("\n/\n", 1)[0]
+        normalized_block = " ".join(grouptree_block.split())
+        assert "'WELL_A' 'PRODUCERS'" in normalized_block
+        assert "'WELL_B' 'PRODUCERS'" in normalized_block
 
     def test_apply_creates_perforations_and_schedule(self, project_with_case_and_wells):
         """End-to-end: parse -> apply -> set_timestamp -> generate schedule."""
