@@ -42,7 +42,7 @@ std::vector<SumoAsset> RiaSumoExplore::assets()
 {
     const QString url = QString( "%1/assets" ).arg( m_connector.server() );
 
-    return parseAssets( m_connector.getBlocking( url ) );
+    return parseAssets( m_connector.getBlocking( url, "Loading assets from Sumo" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ std::vector<SumoCase> RiaSumoExplore::cases( const QString& assetName )
 {
     const QString url = QString( "%1/cases?asset_name=%2" ).arg( m_connector.server() ).arg( QString( QUrl::toPercentEncoding( assetName ) ) );
 
-    return parseCases( m_connector.getBlocking( url ) );
+    return parseCases( m_connector.getBlocking( url, QString( "Loading the cases of %1 from Sumo" ).arg( assetName ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ std::vector<QString> RiaSumoExplore::ensembleNames( const SumoCaseId& caseId )
 {
     const QString url = QString( "%1/cases/%2/ensembles" ).arg( m_connector.server() ).arg( caseId.get() );
 
-    return parseEnsembleNames( m_connector.getBlocking( url ) );
+    return parseEnsembleNames( m_connector.getBlocking( url, "Loading ensembles from Sumo" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ std::vector<QString> RiaSumoExplore::realizationIds( const SumoCaseId& caseId, c
     const QString url =
         QString( "%1/cases/%2/ensembles/%3/realizations" ).arg( m_connector.server() ).arg( caseId.get() ).arg( encodedEnsembleName );
 
-    return parseRealizationIds( m_connector.getBlocking( url ) );
+    return parseRealizationIds( m_connector.getBlocking( url, "Loading realizations from Sumo" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

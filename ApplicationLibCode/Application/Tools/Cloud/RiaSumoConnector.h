@@ -69,13 +69,33 @@ public:
 
     // Transport used by the data specific delegates. Every request goes through the transfer thread, so
     // the calling thread waits without dispatching events.
-    QByteArray getBlocking( const QString& url );
+    QByteArray getBlocking( const QString& url, const QString& progressText = {} );
 
     // The REST API returns a blob id as a plain string, quoted by FastAPI.
     static QString blobIdFromBody( const QByteArray& body );
 
     void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& contentType );
-    void runOnTransferThreadBlocking( const std::function<void()>& work );
+
+    // Run work on the transfer thread and wait for it. Pass progressText to show the standard progress dialog
+    // while waiting, worth doing for the transfers slow enough to be noticed and not for the small requests
+    // that would only make it flash.
+    void runOnTransferThreadBlocking( const std::function<void()>& work, const QString& progressText = {} );
+
+    // Run work on the transfer thread without waiting for it. The async data paths use this: the result is
+    // delivered by a callback rather than by returning, so the calling thread carries on immediately.
+    void runOnTransferThread( const std::function<void()>& work );
+
+    // Hand a call back to the thread the connector lives on, the one owning the user interface. Results of
+    // async work are delivered through this, so a caller never has its data handed to it on another thread.
+    void invokeOnConnectorThread( const std::function<void()>& work );
+
+    // Download one blob, calling onFinished with its contents. Call on the transfer thread, where onFinished
+    // is called as well. Empty contents mean the transfer failed.
+    void downloadBlobAsync( const QString& blobId, const std::function<void( const QByteArray& )>& onFinished );
+
+    // Abort a reply that has not finished in time, so an async chain reports a failure instead of hanging and
+    // leaving whoever waits for the data waiting forever.
+    static void abortIfNotFinishedWithin( QNetworkReply* reply, int timeoutMillis );
 
     // The network manager belonging to the calling thread: the transfer thread manager when called from
     // there, otherwise the one owned by RiaCloudConnector on the GUI thread.

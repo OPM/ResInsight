@@ -142,6 +142,11 @@ protected:
 
     virtual void onPlotAdditionOrRemoval();
 
+    // Called before the plots are loaded, giving a window the chance to load what all of its plots need at
+    // once instead of leaving each plot to request its own. Data is still loaded on demand, so this is an
+    // optimization only: not overriding it changes nothing but speed.
+    virtual void prefetchPlotData() {}
+
     bool isMouseCursorInsidePlot();
 
 private:

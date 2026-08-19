@@ -1589,6 +1589,32 @@ void RimSummaryMultiPlot::onPlotAdditionOrRemoval()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Gather what every plot in the window is about to read and hand it to each ensemble as one set. A plot
+/// prefetches for itself as well, but the plots are loaded one at a time, so doing it here is what lets a
+/// remote source load the whole window in one request group rather than one per plot.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::prefetchPlotData()
+{
+    std::map<RimSummaryEnsemble*, std::vector<RifEclipseSummaryAddress>> addressesByEnsemble;
+
+    for ( RimSummaryPlot* plot : summaryPlots() )
+    {
+        if ( !plot ) continue;
+
+        for ( const auto& [ensemble, addresses] : plot->summaryAddressesByEnsemble() )
+        {
+            auto& allAddresses = addressesByEnsemble[ensemble];
+            allAddresses.insert( allAddresses.end(), addresses.begin(), addresses.end() );
+        }
+    }
+
+    for ( const auto& [ensemble, addresses] : addressesByEnsemble )
+    {
+        ensemble->prefetchSummaryData( addresses );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryMultiPlot::isStepDimensionSharedAmongSubPlots()
