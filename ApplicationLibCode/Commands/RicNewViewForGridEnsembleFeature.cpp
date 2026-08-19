@@ -23,13 +23,15 @@
 #include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
+#include "RimReservoirGridEnsembleBase.h"
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmObject.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -39,13 +41,20 @@ CAF_CMD_SOURCE_INIT( RicNewViewForGridEnsembleFeature, "RicNewViewForGridEnsembl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewViewForGridEnsembleFeature::addView( RimEclipseCaseEnsemble* eclipseCaseEnsemble )
+void RicNewViewForGridEnsembleFeature::addView( RimReservoirGridEnsembleBase* gridEnsemble )
 {
-    std::vector<RimEclipseCase*> cases = eclipseCaseEnsemble->cases();
+    if ( !gridEnsemble ) return;
+
+    auto viewCollection = gridEnsemble->viewCollection();
+    if ( !viewCollection ) return;
+
+    std::vector<RimEclipseCase*> cases = gridEnsemble->sourceCases();
     if ( cases.empty() ) return;
 
-    auto newView = eclipseCaseEnsemble->addViewForCase( cases[0] );
-    eclipseCaseEnsemble->updateConnectedEditors();
+    auto newView = viewCollection->addView( cases[0] );
+
+    // The ensemble types are not PdmObject in the shared base, so get there by cast.
+    if ( auto pdmObject = dynamic_cast<caf::PdmObject*>( gridEnsemble ) ) pdmObject->updateConnectedEditors();
 
     Riu3DMainWindowTools::setExpanded( newView );
 
@@ -58,7 +67,7 @@ void RicNewViewForGridEnsembleFeature::addView( RimEclipseCaseEnsemble* eclipseC
 //--------------------------------------------------------------------------------------------------
 bool RicNewViewForGridEnsembleFeature::isCommandEnabled() const
 {
-    return selectedEclipseCaseEnsemble() != nullptr;
+    return selectedGridEnsemble() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,8 +75,7 @@ bool RicNewViewForGridEnsembleFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewViewForGridEnsembleFeature::onActionTriggered( bool isChecked )
 {
-    RimEclipseCaseEnsemble* eclipseCaseEnsemble = selectedEclipseCaseEnsemble();
-    addView( eclipseCaseEnsemble );
+    addView( selectedGridEnsemble() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +90,7 @@ void RicNewViewForGridEnsembleFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCaseEnsemble* RicNewViewForGridEnsembleFeature::selectedEclipseCaseEnsemble()
+RimReservoirGridEnsembleBase* RicNewViewForGridEnsembleFeature::selectedGridEnsemble()
 {
-    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCaseEnsemble>();
+    return caf::SelectionManager::instance()->selectedItemOfType<RimReservoirGridEnsembleBase>();
 }

@@ -199,6 +199,12 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
     RigMainGrid* mainGrid = ensembleBase->mainGrid();
     if ( !mainGrid ) return false;
 
+    // Statistics are computed from every realization, and the realizations of an ensemble can be opened
+    // lazily. Compute the union first, so it is complete before it is used below: an empty union would
+    // give a degenerate active cell bounding box and make computeCachedData() classify the faults of the
+    // shared grid from an all inactive grid.
+    ensembleBase->computeUnionOfActiveCells();
+
     cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( this );
     eclipseCase->setMainGrid( mainGrid );
 

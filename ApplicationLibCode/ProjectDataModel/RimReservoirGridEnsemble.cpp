@@ -74,7 +74,6 @@ void caf::AppEnum<RimReservoirGridEnsembleBase::GridModeType>::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 RimReservoirGridEnsemble::RimReservoirGridEnsemble()
-    : m_mainGrid( nullptr )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Reservoir Grid Ensemble",
                                                     ":/GridCaseGroup16x16.png",
@@ -177,14 +176,14 @@ void RimReservoirGridEnsemble::addCase( RimEclipseCase* reservoir )
 {
     CAF_ASSERT( reservoir );
 
-    if ( !m_mainGrid && reservoir->eclipseCaseData() )
+    if ( m_mainGrid.isNull() && reservoir->eclipseCaseData() )
     {
         m_mainGrid = reservoir->eclipseCaseData()->mainGrid();
     }
     else if ( hasSharedGrid() && reservoir->eclipseCaseData() )
     {
         // Share the main grid for identical grids
-        reservoir->eclipseCaseData()->setMainGrid( m_mainGrid );
+        reservoir->eclipseCaseData()->setMainGrid( m_mainGrid.p() );
     }
 
     m_caseCollection()->reservoirs().push_back( reservoir );
@@ -284,7 +283,7 @@ bool RimReservoirGridEnsemble::hasSharedGrid() const
 //--------------------------------------------------------------------------------------------------
 bool RimReservoirGridEnsemble::isGridDataLoaded() const
 {
-    return m_mainGrid != nullptr;
+    return m_mainGrid.notNull();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -310,12 +309,51 @@ QString RimReservoirGridEnsemble::ensembleName() const
 RigMainGrid* RimReservoirGridEnsemble::mainGrid()
 {
     // Trigger deferred loading if needed
-    if ( !m_mainGrid && !cases().empty() )
+    if ( m_mainGrid.isNull() && !cases().empty() )
     {
-        const_cast<RimReservoirGridEnsemble*>( this )->loadGridDataFromFiles();
+        loadGridDataFromFiles();
     }
 
-    return m_mainGrid;
+    return m_mainGrid.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// True when the two grids have the same IJK dimensions, which is what makes it safe to use one of them
+/// in place of the other. The total cell count also guards against a grid with LGRs.
+//--------------------------------------------------------------------------------------------------
+bool RimReservoirGridEnsemble::hasMatchingDimensions( const RigMainGrid* lhs, const RigMainGrid* rhs )
+{
+    if ( !lhs || !rhs ) return false;
+
+    return lhs->cellCountI() == rhs->cellCountI() && lhs->cellCountJ() == rhs->cellCountJ() && lhs->cellCountK() == rhs->cellCountK() &&
+           lhs->totalCellCount() == rhs->totalCellCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigMainGrid* RimReservoirGridEnsemble::shareOrAdoptMainGrid( RigMainGrid* candidate )
+{
+    if ( !candidate || !hasSharedGrid() ) return candidate;
+
+    // The first realization to be opened provides the grid the rest of the ensemble shares.
+    if ( m_mainGrid.isNull() )
+    {
+        m_mainGrid = candidate;
+        return candidate;
+    }
+
+    // The dimensions are checked when the ensemble is created, so this only triggers when the meta data
+    // and the grid itself disagree. Let the realization keep its own grid rather than failing to open it.
+    if ( !hasMatchingDimensions( m_mainGrid.p(), candidate ) )
+    {
+        RiaLogging::warning( std::format( "Grid ensemble '{}': grid dimensions differ from the shared grid. "
+                                          "Keeping a separate grid for this realization.",
+                                          name().toStdString() ) );
+        return candidate;
+    }
+
+    return m_mainGrid.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -339,7 +377,7 @@ void RimReservoirGridEnsemble::setupSharedGrid()
     {
         if ( allCases[i] && allCases[i]->eclipseCaseData() )
         {
-            allCases[i]->eclipseCaseData()->setMainGrid( m_mainGrid );
+            allCases[i]->eclipseCaseData()->setMainGrid( m_mainGrid.p() );
         }
     }
 }
@@ -360,6 +398,33 @@ RigActiveCellInfo* RimReservoirGridEnsemble::unionOfActiveCells( RiaDefines::Por
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Open every realization. Realizations can be opened lazily, and opening one can mean downloading a
+/// grid, so this is only called by the operations that genuinely read them all.
+//--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::ensureAllCasesAreOpen()
+{
+    auto allCases = cases();
+
+    std::vector<RimEclipseCase*> casesToOpen;
+    for ( auto* eclipseCase : allCases )
+    {
+        if ( eclipseCase && !eclipseCase->eclipseCaseData() ) casesToOpen.push_back( eclipseCase );
+    }
+
+    if ( casesToOpen.empty() ) return;
+
+    caf::ProgressInfo progInfo( casesToOpen.size(), "Loading realizations" );
+    for ( auto* eclipseCase : casesToOpen )
+    {
+        eclipseCase->openReservoirCase();
+        progInfo.incrementProgress();
+    }
+
+    // More realizations contribute now, so any union computed earlier is incomplete.
+    clearActiveCellUnions();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimReservoirGridEnsemble::computeUnionOfActiveCells()
@@ -371,7 +436,26 @@ void RimReservoirGridEnsemble::computeUnionOfActiveCells()
         return;
     }
 
-    if ( m_caseCollection->reservoirs.empty() || !m_mainGrid )
+    // The union is only correct when every realization has been read, and the result is cached by the
+    // check above. Realizations can be opened lazily, so make sure they are all open first.
+    ensureAllCasesAreOpen();
+
+    if ( m_caseCollection->reservoirs.empty() || m_mainGrid.isNull() )
+    {
+        clearActiveCellUnions();
+        return;
+    }
+
+    // Only realizations that are open and actually use the shared grid can contribute: a realization
+    // whose dimensions did not match kept a grid of its own, and its cell indices mean nothing here.
+    std::vector<RigEclipseCaseData*> contributingCases;
+    for ( auto* eclipseCase : m_caseCollection->reservoirs.childrenByType() )
+    {
+        auto* caseData = eclipseCase ? eclipseCase->eclipseCaseData() : nullptr;
+        if ( caseData && caseData->mainGrid() == m_mainGrid.p() ) contributingCases.push_back( caseData );
+    }
+
+    if ( contributingCases.empty() )
     {
         clearActiveCellUnions();
         return;
@@ -392,32 +476,25 @@ void RimReservoirGridEnsemble::computeUnionOfActiveCells()
         std::vector<char> activeM( grid->cellCount(), 0 );
         std::vector<char> activeF( grid->cellCount(), 0 );
 
-        for ( size_t gridLocalCellIndex = 0; gridLocalCellIndex < grid->cellCount(); gridLocalCellIndex++ )
+        for ( auto* caseData : contributingCases )
         {
-            for ( size_t caseIdx = 0; caseIdx < m_caseCollection->reservoirs.size(); caseIdx++ )
+            const auto* matrixActiveCells   = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            const auto* fractureActiveCells = caseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+            for ( size_t gridLocalCellIndex = 0; gridLocalCellIndex < grid->cellCount(); gridLocalCellIndex++ )
             {
                 size_t reservoirCellIndex = grid->reservoirCellIndex( gridLocalCellIndex );
 
-                if ( activeM[gridLocalCellIndex] == 0 )
+                if ( activeM[gridLocalCellIndex] == 0 && matrixActiveCells &&
+                     matrixActiveCells->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                 {
-                    if ( m_caseCollection->reservoirs[caseIdx]
-                             ->eclipseCaseData()
-                             ->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                             ->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
-                    {
-                        activeM[gridLocalCellIndex] = 1;
-                    }
+                    activeM[gridLocalCellIndex] = 1;
                 }
 
-                if ( activeF[gridLocalCellIndex] == 0 )
+                if ( activeF[gridLocalCellIndex] == 0 && fractureActiveCells &&
+                     fractureActiveCells->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                 {
-                    if ( m_caseCollection->reservoirs[caseIdx]
-                             ->eclipseCaseData()
-                             ->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )
-                             ->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
-                    {
-                        activeF[gridLocalCellIndex] = 1;
-                    }
+                    activeF[gridLocalCellIndex] = 1;
                 }
             }
         }
@@ -609,6 +686,14 @@ void RimReservoirGridEnsemble::createGridCasesFromEnsembleFileSet()
 {
     if ( !m_ensembleFileSet ) return;
 
+    recreateCaseObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::recreateCaseObjects()
+{
     // Clear existing cases and statistics
     m_caseCollection->reservoirs.deleteChildren();
     m_statisticsCaseCollection->reservoirs.deleteChildren();
@@ -616,9 +701,17 @@ void RimReservoirGridEnsemble::createGridCasesFromEnsembleFileSet()
     clearActiveCellUnions();
 
     // Create case objects without loading grids
-    createCaseObjectsFromEnsembleFileSet();
+    createCaseObjects();
 
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCaseCollection* RimReservoirGridEnsemble::caseCollection() const
+{
+    return m_caseCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -681,7 +774,10 @@ void RimReservoirGridEnsemble::defineUiOrdering( QString uiConfigName, caf::PdmU
 {
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_groupId );
-    uiOrdering.add( &m_ensembleFileSet );
+
+    // A subclass can take the realizations from somewhere else than a file set, see RimReservoirGridEnsembleSumo.
+    if ( m_ensembleFileSet ) uiOrdering.add( &m_ensembleFileSet );
+
     uiOrdering.add( &m_autoDetectGridType );
 
     if ( m_autoDetectGridType )
@@ -755,7 +851,7 @@ void RimReservoirGridEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimReservoirGridEnsemble::createDerivedObjects()
 {
-    createCaseObjectsFromEnsembleFileSet();
+    createCaseObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -861,7 +957,7 @@ void RimReservoirGridEnsemble::updateMainGridAndActiveCellsForStatisticsCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReservoirGridEnsemble::createCaseObjectsFromEnsembleFileSet()
+void RimReservoirGridEnsemble::createCaseObjects()
 {
     if ( !m_ensembleFileSet ) return;
 
@@ -897,7 +993,7 @@ void RimReservoirGridEnsemble::createCaseObjectsFromEnsembleFileSet()
 void RimReservoirGridEnsemble::loadGridDataFromFiles()
 {
     // Guard: Only load once
-    if ( m_mainGrid != nullptr ) return;
+    if ( m_mainGrid.notNull() ) return;
 
     auto allCases = cases();
     if ( allCases.empty() ) return;
@@ -934,7 +1030,9 @@ void RimReservoirGridEnsemble::updateGridModeToolTip()
 {
     const bool individualGrids = ( gridMode() == GridModeType::INDIVIDUAL_GRIDS );
 
-    uiCapability()->setUiToolTip( individualGrids ? QString( "This ensemble has grids with varying number of K layers." ) : QString() );
+    uiCapability()->setUiToolTip( individualGrids ? QString( "The realizations of this ensemble have grids with differing dimensions, "
+                                                             "so each realization keeps its own grid." )
+                                                  : QString() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1008,7 +1106,7 @@ void RimReservoirGridEnsemble::loadGridsInSharedMode()
             // Reading of active cell data can fail, and no case data is created for the case
             if ( auto caseData = eclipseCase->eclipseCaseData() )
             {
-                caseData->setMainGrid( m_mainGrid );
+                caseData->setMainGrid( m_mainGrid.p() );
             }
             else
             {
