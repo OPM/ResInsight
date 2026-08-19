@@ -61,15 +61,32 @@ class FakeCompletionSettings:
         self.allow_well_cross_flow = True
         self.reference_depth_for_export = None
         self.well_type_for_export = "OIL"
+        self.custom_segment_calls = []
+
+    def add_custom_segment_interval(self, **kwargs):
+        self.custom_segment_calls.append(kwargs)
+
+
+class FakeMswSettings:
+    def __init__(self):
+        self.pressure_drop = "HF-"
+        self.update_calls = 0
+
+    def update(self):
+        self.update_calls += 1
 
 
 class FakeWellPath:
     def __init__(self, name):
         self.name = name
         self._completion_settings = FakeCompletionSettings()
+        self._msw_settings = FakeMswSettings()
 
     def completion_settings(self):
         return self._completion_settings
+
+    def msw_settings(self):
+        return self._msw_settings
 
 
 class FakeProject:
@@ -1100,10 +1117,11 @@ class TestApplying:
         assert expected_error in report.errors[0]
         assert timeline.wellspec_calls == []
 
-    def test_tubing_mapping(self):
+    def test_segment_mapping_creates_custom_interval_and_sets_pressure_drop(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2024-01-01 TUBING MDSTART=0 MDEND=2500 INNER_DIAMETER=0.15 ROUGHNESS=1.0e-5\n"
+            "  @2024-01-01 SEGMENT MDSTART=0 MDEND=2500 INNER_DIAMETER=0.15 "
+            "ROUGHNESS=1.0e-5 PRESSURE_COMPONENTS=HFA\n"
         )
         timeline, report = self._apply(text)
         assert report.events_applied == 1
@@ -1112,6 +1130,37 @@ class TestApplying:
         assert call["end_md"] == 2500.0
         assert call["inner_diameter"] == 0.15
         assert call["roughness"] == pytest.approx(1.0e-5)
+
+        well = call["well_path"]
+        assert well.completion_settings().custom_segment_calls == [
+            {"start_md": 0.0, "end_md": 2500.0}
+        ]
+        assert well.msw_settings().pressure_drop == "HFA"
+        assert well.msw_settings().update_calls == 1
+
+    def test_segment_rejects_invalid_pressure_components(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
+            "  @2024-01-01 SEGMENT MDSTART=0 MDEND=2500 "
+            "PRESSURE_COMPONENTS=INVALID\n"
+        )
+        timeline, report = self._apply(text)
+
+        assert report.events_applied == 0
+        assert report.events_skipped == 1
+        assert "PRESSURE_COMPONENTS must be H--, HF-, or HFA" in report.errors[0]
+        assert timeline.tubing_calls == []
+
+    def test_tubing_is_reported_as_renamed_event(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
+            "  @2024-01-01 TUBING MDSTART=0 MDEND=2500\n"
+        )
+        timeline, report = self._apply(text)
+
+        assert report.events_skipped == 1
+        assert timeline.keyword_calls == []
+        assert any("did you mean 'SEGMENT'" in warning for warning in report.warnings)
 
     def test_valve_mapping(self):
         text = (
@@ -1702,7 +1751,7 @@ class TestOrionEventsIntegration:
             "DATE STARTUP = 2024-01-01\n"
             "DURATION RAMP = 31 DAYS\n"
             f'WELL "{well.name}"\n'
-            "  @STARTUP         TUBING       MDSTART=0  MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5\n"
+            "  @STARTUP         SEGMENT      MDSTART=0  MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5 PRESSURE_COMPONENTS=HFA\n"
             "  @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1\n"
             "  @2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05  SKIN=0.4  COMPLETION_NUMBER=2\n"
             "  @2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001\n"
@@ -1720,6 +1769,13 @@ class TestOrionEventsIntegration:
         assert report.errors == []
         assert report.warnings == []
         assert report.events_applied == 11
+
+        custom_segments = well.descendants(rips.CustomSegmentInterval)
+        assert any(
+            segment.start_md == 0.0 and segment.end_md == 2500.0
+            for segment in custom_segments
+        )
+        assert well.msw_settings().pressure_drop == "HFA"
 
         timeline.set_timestamp(timestamp="2024-12-24")
         schedule = timeline.generate_schedule_text(

@@ -9,7 +9,7 @@ written as ORIONEVENTS 2.0 text (see rips/orion_events.py for the grammar) and
 applied in one go with rips.orion_events.apply_orion_document().
 
 It demonstrates the full event coverage of the format:
-1. TUBING, PERFORATION (incl. a time-of-day date), VALVE and STATE completion
+1. SEGMENT, PERFORATION (incl. a time-of-day date), VALVE and STATE completion
    events on a well
 2. Partial WELLSPEC updates that cumulatively change completion export settings
    and generate dated WELSPECS records
@@ -65,7 +65,7 @@ WELL W1
   @2024-04-15      WELLSPEC                          CROSSFLOW=False  REFDEPTH=1000  PHASE=OIL
 
   # COMMENT is stored on the event and safely emitted as a schedule comment.
-  @STARTUP         TUBING       MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  COMMENT="Install production tubing"
+  @STARTUP         SEGMENT      MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  PRESSURE_COMPONENTS=HFA  COMMENT="Install production segment"
 
   # Perforations; COMPLETION_NUMBER groups connections for COMPLUMP.{filter_comment}
   @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1{filter_ref}  COMMENT="Open high-priority interval"

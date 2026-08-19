@@ -34,7 +34,7 @@ FILTER   POROPERM = "PORO > 0.4 AND PERMX > 100.0"
 WELL A1 = "55_33-A-1"            # alias declaration (has '=')
 
 WELL A1                          # opens an event block via the alias
-  @STARTUP         TUBING       MDSTART=0     MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5
+  @STARTUP         SEGMENT      MDSTART=0     MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  PRESSURE_COMPONENTS=HFA
   @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1  FILTER=POROPERM
   @2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05
   @2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001
@@ -56,9 +56,10 @@ SCHEDULE                         # schedule-level keywords, not tied to a well
 ```
 document        = header , { statement } ;
 header          = "ORIONEVENTS" , "2.0" ;           (* first meaningful line *)
-statement       = unit_directive | declaration | well_block_open
-                | schedule_block_open | event_line ;
+statement       = unit_directive | declaration | report_line | well_block_open
+                | group_block_open | schedule_block_open | event_line ;
 unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
+report_line     = "REPORT" , date_expr ;
 
 declaration     = date_decl | duration_decl | well_decl | filter_decl ;
 date_decl       = "DATE" , ident , "=" , date_expr ;         (* DATE X = 2018-03-01 + 9 *)
@@ -72,8 +73,14 @@ filter_term     = [ result_type , "." ] , ident , comp_op , number ;
 comp_op         = ">" | ">=" | "<" | "<=" ;
 
 well_block_open     = "WELL" , ( quoted_string | ident ) ;   (* no "=" present *)
+group_block_open    = "GROUP" , quoted_string ;      (* group keyword events *)
 schedule_block_open = "SCHEDULE" ;                  (* well-less keyword events *)
-event_line      = "@" , date_expr , event_type , { attribute } ;
+event_line          = "@" , date_expr , event_type , { attribute } ;
+event_type          = completion_event_type | eclipse_keyword ;
+completion_event_type = "PERFORATION" | "SEGMENT" | "VALVE" | "STATE" | "WELLSPEC" ;
+segment_attribute   = "MDSTART" | "MDEND" | "INNER_DIAMETER" | "ROUGHNESS"
+                    | "PRESSURE_COMPONENTS" | "COMMENT" ;
+                    (* accepted attribute names when event_type is "SEGMENT" *)
 
 date_expr       = ( iso_date | iso_datetime | date_ident ) , { sign , term } ;
 duration_expr   = ( integer | dur_ident ) , { sign , term } , [ "DAYS" | "days" ] ;
@@ -98,9 +105,11 @@ The format is line-oriented. Every non-blank line is dispatched on its first tok
 | `DATE` | Declare a typed date variable |
 | `DURATION` | Declare a typed whole-day duration variable |
 | `FILTER` | Declare a typed cell-filter expression |
+| `REPORT` | Add a date that must appear in generated schedule output |
 | `WELL` | With `=`: declare a well-name alias. Without `=`: open a well event block |
+| `GROUP` | Open a block of group-level keyword events |
 | `SCHEDULE` | Open a block of schedule-level keyword events (bare keyword, no arguments) |
-| `@` | An event line, appended to the enclosing WELL or SCHEDULE block |
+| `@` | An event line, appended to the enclosing WELL, GROUP or SCHEDULE block |
 | `#` | Comment (also allowed trailing on any line, outside double quotes) |
 
 ## Typed declarations
@@ -142,7 +151,7 @@ Whitespace around `+`/`-` is optional but conventional. A time-of-day is preserv
 
 ## Event types
 
-Event lines are `@<date_expr> <EVENT_TYPE> KEY=VALUE ...`. Inside a WELL block, the event type is either one of the four built-in completion events or any Eclipse well keyword.
+Event lines are `@<date_expr> <EVENT_TYPE> KEY=VALUE ...`. Inside a WELL block, the event type is either one of the five built-in completion events or any Eclipse well keyword.
 
 ### Built-in completion events
 
@@ -157,14 +166,17 @@ Event lines are `@<date_expr> <EVENT_TYPE> KEY=VALUE ...`. Inside a WELL block, 
 | `COMPLETION_NUMBER` | no | `completion_number` (COMPLUMP grouping) |
 | `FILTER` | no | case-level combined data filter attached to the perforation: a declared `FILTER` variable (`FILTER=POROPERM`) or an inline quoted expression (`FILTER="PORO > 0.4"`) — see [Filter expressions](#filter-expressions) |
 
-**TUBING** → `add_tubing_event`
+**SEGMENT** → `add_tubing_event` and `add_custom_segment_interval`
+
+Each event adds the underlying tubing timeline event and a corresponding **Custom Segment Interval** with the same measured-depth range.
 
 | Attribute | Required | Maps to |
 |---|---|---|
-| `MDSTART` | yes | `start_md` |
-| `MDEND` | yes | `end_md` |
-| `INNER_DIAMETER` | no | `inner_diameter` [m] |
-| `ROUGHNESS` | no | `roughness` [m] |
+| `MDSTART` | yes | tubing `start_md` and custom interval `start_md` |
+| `MDEND` | yes | tubing `end_md` and custom interval `end_md` |
+| `INNER_DIAMETER` | no | tubing `inner_diameter` [m] |
+| `ROUGHNESS` | no | tubing `roughness` [m] |
+| `PRESSURE_COMPONENTS` | no | MSW `pressure_drop`: `H--`, `HF-` or `HFA` |
 
 **VALVE** → `add_valve_event` (requires an existing perforation at the MD)
 
@@ -209,7 +221,7 @@ SCHEDULE
   @STARTUP  TUNING    TSINIT=1  TSMAXZ=30  NEWTMX=12
 ```
 
-Completion event types (`PERFORATION`, `TUBING`, `VALVE`, `STATE`) are rejected in a SCHEDULE block. A later `WELL` line switches back to well events; blocks can be interleaved freely.
+Completion event types (`PERFORATION`, `SEGMENT`, `VALVE`, `STATE`, `WELLSPEC`) are rejected in a SCHEDULE block. A later `WELL` line switches back to well events; blocks can be interleaved freely.
 
 ## Attributes and quoting
 
@@ -291,5 +303,5 @@ The returned `ApplyReport` carries `events_applied`, `events_skipped`, `warnings
 
 ## Version history
 
-- **2.0** — current: typed `DATE`/`DURATION`/`WELL`/`FILTER` declarations, `WELL`/`SCHEDULE` blocks, signed day-offset chains, ISO datetimes, built-in completion events plus generic keyword pass-through, perforation data filters, multi-error diagnostics, validator CLI.
+- **2.0** — current: typed `DATE`/`DURATION`/`WELL`/`FILTER` declarations, `WELL`/`SCHEDULE` blocks, signed day-offset chains, ISO datetimes, built-in completion events (including `SEGMENT` custom intervals and pressure components) plus generic keyword pass-through, perforation data filters, multi-error diagnostics, validator CLI.
 - **1.x** — unsupported. Files using `SET` variables and single-quoted well names are rejected with a migration message pointing at this grammar.
