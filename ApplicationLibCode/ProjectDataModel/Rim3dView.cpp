@@ -405,22 +405,18 @@ void Rim3dView::assignIdIfNecessary()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateWindowTitle()
 {
-    if ( m_viewer )
+    auto title = autoName();
+
+    if ( isMasterView() && assosiatedViewLinker() && assosiatedViewLinker()->isActive() )
     {
-        auto title = autoName();
-
-        if ( isMasterView() && assosiatedViewLinker() && assosiatedViewLinker()->isActive() )
-        {
-            title += " (Primary)";
-        }
-        else if ( viewController() && viewController()->isActive() )
-        {
-            title += " (Controlled)";
-        }
-
-        m_viewer->layoutWidget()->setWindowTitle( title );
+        title += " (Primary)";
     }
-    RimViewWindow::updateWindowTitle();
+    else if ( viewController() && viewController()->isActive() )
+    {
+        title += " (Controlled)";
+    }
+
+    RimViewWindow::updateWindowTitleIcon( title );
 }
 
 //--------------------------------------------------------------------------------------------------

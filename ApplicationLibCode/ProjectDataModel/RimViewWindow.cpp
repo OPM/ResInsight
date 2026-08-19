@@ -337,10 +337,17 @@ void RimViewWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::updateWindowTitle()
 {
+    updateWindowTitleIcon( windowTitle() );
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::updateWindowTitleIcon(QString title)
+{
     if ( viewWidget() && dockWidget() )
     {
-        viewWidget()->setWindowTitle( windowTitle() );
-        dockWidget()->setWindowTitle( windowTitle() );
+        viewWidget()->setWindowTitle( title );
+        dockWidget()->setWindowTitle( title );
 
         if ( isActiveViewer() )
         {
