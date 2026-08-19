@@ -80,6 +80,11 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void syncPreviewCurvesFromUiSelection();
+
+    // The preview plot lives outside the project, so a source loading without waiting cannot reach it.
+    void listenForSummaryDataLoaded();
+    void onSummaryDataLoaded( const caf::SignalEmitter* emitter );
+
     void updatePreviewCurvesFromCurveDefinitions( const std::set<RiaSummaryCurveDefinition>& allCurveDefsToDisplay,
                                                   const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
                                                   const std::set<RimSummaryCurve*>&          curvesToDelete,

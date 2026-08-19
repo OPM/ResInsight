@@ -122,6 +122,7 @@ std::optional<std::vector<double>> readFloatingPointColumn( const std::shared_pt
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryEnsembleSumo::RimSummaryEnsembleSumo()
+    : summaryDataLoaded( this )
 {
     CAF_PDM_InitObject( "Sumo Ensemble", ":/SummaryCase.svg", "", "The Base Class for all Summary Cases" );
 
@@ -442,6 +443,10 @@ void RimSummaryEnsembleSumo::updatePlotsUsingThisEnsemble()
     } while ( m_hasMissedPlotUpdate );
 
     m_isUpdatingPlots = false;
+
+    // Sent after the guard is released, so a listener reloading something is not treated as a nested update.
+    // The plots of the project are already done above; this reaches the views held outside it.
+    summaryDataLoaded.send();
 }
 
 //--------------------------------------------------------------------------------------------------

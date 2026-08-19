@@ -58,6 +58,10 @@ class RimSummaryEnsembleSumo : public RimSummaryEnsemble
     CAF_PDM_HEADER_INIT;
 
 public:
+    // Sent when data asked for earlier has arrived, for views the reload below cannot reach.
+    caf::Signal<> summaryDataLoaded;
+
+public:
     RimSummaryEnsembleSumo();
 
     void setSumoDataSource( RimSumoDataSource* sumoDataSource );

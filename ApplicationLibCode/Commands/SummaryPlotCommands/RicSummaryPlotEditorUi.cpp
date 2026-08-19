@@ -44,6 +44,7 @@
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "Sumo/RimSummaryEnsembleSumo.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -456,6 +457,37 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
     m_previewPlot->zoomAll();
     m_previewPlot->updateConnectedEditors();
     m_previewPlot->summaryCurveCollection()->updateConnectedEditors();
+
+    listenForSummaryDataLoaded();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Follow the ensembles the preview plot now reads from. Connecting twice to the same one is harmless, and the
+/// set changes as the selection does, so this is redone whenever the preview curves are rebuilt.
+//--------------------------------------------------------------------------------------------------
+void RicSummaryPlotEditorUi::listenForSummaryDataLoaded()
+{
+    for ( const auto& [ensemble, addresses] : m_previewPlot->summaryAddressesByEnsemble() )
+    {
+        // Only a source that loads without waiting has anything to announce.
+        if ( auto sumoEnsemble = dynamic_cast<RimSummaryEnsembleSumo*>( ensemble ) )
+        {
+            sumoEnsemble->summaryDataLoaded.connect( this, &RicSummaryPlotEditorUi::onSummaryDataLoaded );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Data the preview plot was waiting for has arrived. The axes are fitted as well, as the plot was drawn while
+/// it had nothing to fit to.
+//--------------------------------------------------------------------------------------------------
+void RicSummaryPlotEditorUi::onSummaryDataLoaded( const caf::SignalEmitter* emitter )
+{
+    if ( !m_previewPlot ) return;
+
+    m_previewPlot->loadDataAndUpdate();
+    m_previewPlot->zoomAll();
+    m_previewPlot->scheduleReplotIfVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
