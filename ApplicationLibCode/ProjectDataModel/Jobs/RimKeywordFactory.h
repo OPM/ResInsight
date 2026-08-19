@@ -56,6 +56,7 @@ namespace RimKeywordFactory
 {
 
 Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath );
+Opm::DeckKeyword compordKeyword( const std::string& wellName );
 Opm::DeckKeyword compdatKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName );
 Opm::DeckKeyword wpimultKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName );
 Opm::DeckKeyword complumpKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName );

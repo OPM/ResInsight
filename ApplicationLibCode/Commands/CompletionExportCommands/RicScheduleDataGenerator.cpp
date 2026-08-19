@@ -211,6 +211,9 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
         if ( auto welspecs = generateWelspecsForWell( timeline, eclipseCase, *well, date ) )
         {
             mergeKeyword( keywordBlocks, "WELSPECS", std::move( *welspecs ) );
+            mergeKeyword( keywordBlocks,
+                          "COMPORD",
+                          RimKeywordFactory::compordKeyword( well->completionSettings()->wellNameForExport().toStdString() ) );
         }
 
         generateCompletionsForWell( timeline, eclipseCase, *well, date, keywordBlocks );
