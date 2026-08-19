@@ -71,10 +71,13 @@ public:
     QString parameterBlobId( const SumoCaseId& caseId, const QString& ensembleName );
 
 private:
-    QString        vectorBlobIdUrl( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName ) const;
-    QString        parameterBlobIdUrl( const SumoCaseId& caseId, const QString& ensembleName ) const;
-    QNetworkReply* makeParameterBlobIdRequest( const SumoCaseId& caseId, const QString& ensembleName );
-    QNetworkReply* makeVectorBlobIdRequest( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
+    static QString vectorBlobIdPath( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
+    static QString parameterBlobIdPath( const SumoCaseId& caseId, const QString& ensembleName );
+
+    // Run on the transfer thread, so the base URL is resolved by the caller and passed in.
+    QNetworkReply* makeParameterBlobIdRequest( const QString& baseUrl, const SumoCaseId& caseId, const QString& ensembleName );
+    QNetworkReply*
+        makeVectorBlobIdRequest( const QString& baseUrl, const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
     static QString blobIdFromReply( QNetworkReply* reply, const QString& vectorName );
     static QString logBlobId( const QString& blobId, const QString& vectorName );
 

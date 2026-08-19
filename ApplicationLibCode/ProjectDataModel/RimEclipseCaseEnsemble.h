@@ -53,8 +53,8 @@ public:
     GridModeType                 gridMode() const override;
     QString                      ensembleName() const override;
 
-    void addCase( RimEclipseCase* reservoir );
-    void removeCase( RimEclipseCase* reservoir );
+    void addCase( RimEclipseCase* reservoir ) override;
+    void removeCase( RimEclipseCase* reservoir ) override;
     bool contains( RimEclipseCase* reservoir ) const;
 
     RimEclipseCase* findByFileName( const QString& gridFileName ) const;
@@ -67,7 +67,7 @@ public:
 
     std::vector<RimEclipseView*> allViews() const;
 
-    RimEclipseViewCollection* viewCollection() const;
+    RimEclipseViewCollection* viewCollection() const override;
 
     void                               addWellTargetMapping( RimWellTargetMapping* wellTargetMapping );
     std::vector<RimWellTargetMapping*> wellTargetMappings() const;
@@ -75,7 +75,11 @@ public:
     void                                  addStatisticsContourMap( RimStatisticsContourMap* statisticsContourMap ) override;
     std::vector<RimStatisticsContourMap*> statisticsContourMaps() const override;
 
+    bool doComputeMobileVolumeWeightedMean() const override;
+    void setDoComputeMobileVolumeWeightedMean( bool enable ) override;
+
 protected:
+    void initAfterRead() override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -86,4 +90,5 @@ private:
     caf::PdmChildArrayField<RimWellTargetMapping*>    m_wellTargetMappings;
     caf::PdmChildArrayField<RimStatisticsContourMap*> m_statisticsContourMaps;
     caf::PdmPtrField<RimEclipseCase*>                 m_selectedCase;
+    caf::PdmField<bool>                               m_doComputeMobileVolumeWeightedMean;
 };

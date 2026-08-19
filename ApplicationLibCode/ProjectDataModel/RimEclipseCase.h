@@ -57,6 +57,7 @@ class RimEclipseInputPropertyCollection;
 class RimEclipseView;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
+class RimReservoirGridEnsembleBase;
 class RimEclipseResultAddressCollection;
 class RimEclipseViewCollection;
 class RimResultNameAlias;
@@ -117,6 +118,7 @@ public:
     virtual QString locationOnDisc() const { return QString(); }
 
     RimCaseCollection*                  parentCaseCollection();
+    RimReservoirGridEnsembleBase*       parentGridEnsembleBase();
     RimEclipseContourMapViewCollection* contourMapCollection() const;
     RimEclipseInputPropertyCollection*  inputPropertyCollection() const;
     RimDataFilterCollection*            dataFilterCollection() const;
@@ -184,6 +186,7 @@ private:
 
     void buildResultChildNodes();
 
+protected:
     const RigFormationNames* effectiveFormationNames() const;
 
 protected:
