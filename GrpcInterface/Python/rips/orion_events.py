@@ -95,7 +95,7 @@ Notes on the grammar:
   attribute values, e.g. ``FILTER="SOIL > 0.8 AND PERMX > 200"``.
 * Every attribute is ``KEY=VALUE``; bare positional tokens are rejected.
 * Event types inside a WELL block are either the built-in completion events
-  ``PERFORATION``, ``TUBING``, ``VALVE``, ``STATE`` and ``WELLSPEC``, or any
+  ``PERFORATION``, ``SEGMENT``, ``VALVE``, ``STATE`` and ``WELLSPEC``, or any
   Eclipse well keyword (``WCONHIST``, ``WELTARG``, ``WRFTPLT``, ``WCONPROD``,
   ...), which
   is passed through generically with the well name injected as WELL. Event
@@ -987,8 +987,16 @@ _PERF_KNOWN = {
     "FILTER",
     "COMMENT",
 }
-_TUBING_REQUIRED = ("MDSTART", "MDEND")
-_TUBING_KNOWN = {"MDSTART", "MDEND", "INNER_DIAMETER", "ROUGHNESS", "COMMENT"}
+_SEGMENT_REQUIRED = ("MDSTART", "MDEND")
+_SEGMENT_KNOWN = {
+    "MDSTART",
+    "MDEND",
+    "INNER_DIAMETER",
+    "ROUGHNESS",
+    "PRESSURE_COMPONENTS",
+    "COMMENT",
+}
+_PRESSURE_COMPONENTS = {"H--", "HF-", "HFA"}
 _VALVE_REQUIRED = ("MD", "TYPE")
 _VALVE_KNOWN = {"MD", "TYPE", "STATE", "CV", "AREA", "COMMENT"} | {
     "AICD_STRENGTH",
@@ -1389,6 +1397,8 @@ def _materialize_filter(ctx: _FilterContext, event_filter: EventFilter) -> Any:
 
 def _suspected_typo(event_type: str) -> Optional[str]:
     """Return the built-in event type this one looks like a misspelling of."""
+    if event_type == "TUBING":
+        return "SEGMENT"
     close = difflib.get_close_matches(event_type, _EVENT_DISPATCH, n=1, cutoff=0.8)
     return close[0] if close else None
 
@@ -1573,7 +1583,7 @@ def _apply_perforation(
     report.events_applied += 1
 
 
-def _apply_tubing(
+def _apply_segment(
     event: OrionEvent,
     well_path: Any,
     timeline: Any,
@@ -1581,17 +1591,19 @@ def _apply_tubing(
     ctx: Optional[_FilterContext] = None,
 ) -> None:
     if not _check_completion_attrs(
-        event, "TUBING", _TUBING_KNOWN, _TUBING_REQUIRED, report
+        event, "SEGMENT", _SEGMENT_KNOWN, _SEGMENT_REQUIRED, report
     ):
         return
 
     attrs = event.attributes
     try:
+        start_md = float(_as_number(attrs["MDSTART"], event.loc))
+        end_md = float(_as_number(attrs["MDEND"], event.loc))
         kwargs: Dict[str, Any] = {
             "event_date": _iso_event_date(event.event_date),
             "well_path": well_path,
-            "start_md": float(_as_number(attrs["MDSTART"], event.loc)),
-            "end_md": float(_as_number(attrs["MDEND"], event.loc)),
+            "start_md": start_md,
+            "end_md": end_md,
         }
         if "INNER_DIAMETER" in attrs:
             kwargs["inner_diameter"] = float(
@@ -1599,12 +1611,26 @@ def _apply_tubing(
             )
         if "ROUGHNESS" in attrs:
             kwargs["roughness"] = float(_as_number(attrs["ROUGHNESS"], event.loc))
+        pressure_components = None
+        if "PRESSURE_COMPONENTS" in attrs:
+            pressure_components = str(attrs["PRESSURE_COMPONENTS"].value).upper()
+            if pressure_components not in _PRESSURE_COMPONENTS:
+                raise OrionParseError(
+                    "PRESSURE_COMPONENTS must be H--, HF-, or HFA", event.loc
+                )
     except OrionParseError as exc:
         report.errors.append(str(exc))
         report.events_skipped += 1
         return
 
     timeline_event = timeline.add_tubing_event(**kwargs)
+    well_path.completion_settings().add_custom_segment_interval(
+        start_md=start_md, end_md=end_md
+    )
+    if pressure_components is not None:
+        msw_settings = well_path.msw_settings()
+        msw_settings.pressure_drop = pressure_components
+        msw_settings.update()
     _apply_event_comment(event, timeline_event)
     report.events_applied += 1
 
@@ -1775,7 +1801,7 @@ _EventDispatch = Callable[
 # built-in, which is governed by the on_unknown_event policy).
 _EVENT_DISPATCH: Dict[str, _EventDispatch] = {
     "PERFORATION": _apply_perforation,
-    "TUBING": _apply_tubing,
+    "SEGMENT": _apply_segment,
     "VALVE": _apply_valve,
     "STATE": _apply_state,
     "WELLSPEC": _apply_wellspec,
@@ -1787,7 +1813,7 @@ _EVENT_DISPATCH: Dict[str, _EventDispatch] = {
 # block or be emitted as Eclipse keywords.
 _COMPLETION_EVENT_TYPES = (
     "PERFORATION",
-    "TUBING",
+    "SEGMENT",
     "VALVE",
     "STATE",
     "WELLSPEC",
