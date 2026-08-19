@@ -24,6 +24,7 @@
 #include "RiaSumoSummary.h"
 
 #include <QByteArray>
+#include <QMutex>
 #include <QNetworkAccessManager>
 #include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 
@@ -101,6 +102,9 @@ public:
     // there, otherwise the one owned by RiaCloudConnector on the GUI thread.
     QNetworkAccessManager* networkAccessManager();
 
+    // The token for a request issued from the transfer thread. token() reads objects owned by another thread.
+    QString transferToken() const;
+
     static void waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies );
 
     // Issue and collect the two round trips a blob transfer needs. Called on the transfer thread.
@@ -110,6 +114,9 @@ public slots:
     void requestFailed( const QAbstractOAuth::Error error );
 
 private:
+    // Call on the thread owning the authentication objects, before work is handed over.
+    void cacheTransferToken();
+
     static QString constructSasUri( const QString& blobStoreBaseUri, const QString& blobId, const QString& sasToken );
 
     QString           sasUriFromReply( QNetworkReply* reply, const QString& blobId );
@@ -129,4 +136,8 @@ private:
     QThread*               m_transferThread               = nullptr;
     QObject*               m_transferContext              = nullptr; // lives on the transfer thread
     QNetworkAccessManager* m_transferNetworkAccessManager = nullptr; // created on the transfer thread
+
+    // Written on the thread handing work over, read on the transfer thread running it.
+    mutable QMutex m_transferTokenMutex;
+    QString        m_transferToken;
 };

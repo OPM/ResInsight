@@ -31,6 +31,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMetaMethod>
+#include <QMutexLocker>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QSemaphore>
@@ -152,7 +153,31 @@ void RiaSumoConnector::runOnTransferThread( const std::function<void()>& work )
         return;
     }
 
+    cacheTransferToken();
+
     QMetaObject::invokeMethod( m_transferContext, work, Qt::QueuedConnection );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Read the token here, on the thread owning the authentication objects, and keep a copy for the transfer
+/// thread. Reading them from the transfer thread would touch objects belonging to this one, and could race a
+/// token being refreshed underneath it.
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::cacheTransferToken()
+{
+    const QString currentToken = token();
+
+    QMutexLocker locker( &m_transferTokenMutex );
+    m_transferToken = currentToken;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaSumoConnector::transferToken() const
+{
+    QMutexLocker locker( &m_transferTokenMutex );
+    return m_transferToken;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,7 +204,7 @@ void RiaSumoConnector::downloadBlobAsync( const QString& blobId, const std::func
 
     QNetworkRequest networkRequest;
     networkRequest.setUrl( QUrl( url ) );
-    addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
+    addStandardHeader( networkRequest, transferToken(), RiaCloudDefines::contentTypeJson() );
 
     auto accessInfoReply = networkAccessManager()->get( networkRequest );
     abortIfNotFinishedWithin( accessInfoReply, RiaSumoDefines::requestTimeoutMillis() );
@@ -245,6 +270,8 @@ void RiaSumoConnector::runOnTransferThreadBlocking( const std::function<void()>&
         work();
         return;
     }
+
+    cacheTransferToken();
 
     // Tell the user something is being loaded while this thread waits. Created only here, after the branch
     // above has returned for calls made from the transfer thread: caf::ProgressInfo hands construction to the
@@ -358,7 +385,7 @@ QByteArray RiaSumoConnector::getBlocking( const QString& url, const QString& pro
         {
             QNetworkRequest networkRequest;
             networkRequest.setUrl( QUrl( url ) );
-            addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
+            addStandardHeader( networkRequest, transferToken(), RiaCloudDefines::contentTypeJson() );
 
             auto reply = networkAccessManager()->get( networkRequest );
 
@@ -455,7 +482,7 @@ std::map<QString, QByteArray> RiaSumoConnector::downloadBlobs( const std::vector
 
         QNetworkRequest networkRequest;
         networkRequest.setUrl( QUrl( url ) );
-        addStandardHeader( networkRequest, token(), RiaCloudDefines::contentTypeJson() );
+        addStandardHeader( networkRequest, transferToken(), RiaCloudDefines::contentTypeJson() );
 
         accessInfoReplies.push_back( networkAccessManager()->get( networkRequest ) );
     }

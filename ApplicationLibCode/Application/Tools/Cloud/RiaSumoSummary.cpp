@@ -231,7 +231,7 @@ QNetworkReply* RiaSumoSummary::makeVectorBlobIdRequest( const SumoCaseId& caseId
 {
     QNetworkRequest networkRequest;
     networkRequest.setUrl( QUrl( vectorBlobIdUrl( caseId, ensembleName, vectorName ) ) );
-    m_connector.addStandardHeader( networkRequest, m_connector.token(), RiaCloudDefines::contentTypeJson() );
+    m_connector.addStandardHeader( networkRequest, m_connector.transferToken(), RiaCloudDefines::contentTypeJson() );
 
     return m_connector.networkAccessManager()->get( networkRequest );
 }
@@ -288,7 +288,7 @@ QNetworkReply* RiaSumoSummary::makeParameterBlobIdRequest( const SumoCaseId& cas
 {
     QNetworkRequest networkRequest;
     networkRequest.setUrl( QUrl( parameterBlobIdUrl( caseId, ensembleName ) ) );
-    m_connector.addStandardHeader( networkRequest, m_connector.token(), RiaCloudDefines::contentTypeJson() );
+    m_connector.addStandardHeader( networkRequest, m_connector.transferToken(), RiaCloudDefines::contentTypeJson() );
 
     return m_connector.networkAccessManager()->get( networkRequest );
 }
