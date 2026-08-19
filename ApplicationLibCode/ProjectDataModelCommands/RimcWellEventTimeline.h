@@ -24,6 +24,7 @@
 #include "RimWellEventState.h"
 #include "RimWellEventTimeline.h"
 #include "RimWellEventValve.h"
+#include "RimWellEventWellSpec.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -152,6 +153,28 @@ private:
     caf::PdmField<double>          m_endMd;
     caf::PdmField<double>          m_innerDiameter;
     caf::PdmField<double>          m_roughness;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellEventTimeline_addWellSpecEvent : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_addWellSpecEvent( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString>                                               m_eventDate;
+    caf::PdmPtrField<RimWellPath*>                                       m_wellPath;
+    caf::PdmField<QString>                                               m_groupName;
+    caf::PdmField<bool>                                                  m_allowCrossFlow;
+    caf::PdmField<std::optional<double>>                                 m_referenceDepth;
+    caf::PdmField<caf::AppEnum<RimWellPathCompletionSettings::WellType>> m_wellType;
 };
 
 //==================================================================================================

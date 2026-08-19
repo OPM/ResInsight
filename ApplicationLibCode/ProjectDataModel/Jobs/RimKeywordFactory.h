@@ -36,6 +36,7 @@ class RigMainGrid;
 class RigMswTableData;
 class RimEclipseCase;
 class RimWellPath;
+struct RimWellSpecData;
 
 namespace Opm
 {
@@ -55,7 +56,8 @@ struct BorderCellFace;
 namespace RimKeywordFactory
 {
 
-Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath );
+Opm::DeckKeyword
+    welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath, const RimWellSpecData* wellSpecData = nullptr );
 Opm::DeckKeyword compordKeyword( const std::string& wellName );
 Opm::DeckKeyword compdatKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName );
 Opm::DeckKeyword wpimultKeyword( const std::vector<RigCompletionData>& compdata, const std::string wellName );

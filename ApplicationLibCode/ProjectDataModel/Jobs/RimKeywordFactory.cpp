@@ -32,6 +32,7 @@
 #include "RigSimulationInputTool.h"
 
 #include "RimEclipseCase.h"
+#include "RimWellEventWellSpec.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
 
@@ -68,7 +69,8 @@ namespace RimKeywordFactory
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath )
+Opm::DeckKeyword
+    welspecsKeyword( const std::string wellGrpName, RimEclipseCase* eCase, RimWellPath* wellPath, const RimWellSpecData* wellSpecData )
 {
     if ( eCase == nullptr || wellPath == nullptr || wellPath->completionSettings() == nullptr || eCase->eclipseCaseData() == nullptr )
     {
@@ -85,15 +87,24 @@ Opm::DeckKeyword welspecsKeyword( const std::string wellGrpName, RimEclipseCase*
     std::vector<Opm::DeckItem> items;
 
     items.push_back( RifOpmDeckTools::item( W::WELL::itemName, wellName ) );
-    items.push_back( RifOpmDeckTools::item( W::GROUP::itemName, wellGrpName ) );
+    const std::string groupName      = wellSpecData ? ( wellSpecData->groupName.isEmpty() ? "1*" : wellSpecData->groupName.toStdString() )
+                                                    : wellGrpName;
+    const auto        referenceDepth = wellSpecData ? wellSpecData->referenceDepth : compSettings->referenceDepth();
+    const std::string phase          = wellSpecData
+                                           ? caf::AppEnum<RimWellPathCompletionSettings::WellType>( wellSpecData->wellType ).text().toStdString()
+                                           : compSettings->wellTypeNameForExport().toStdString();
+
+    items.push_back( RifOpmDeckTools::item( W::GROUP::itemName, groupName ) );
     items.push_back( RifOpmDeckTools::item( W::HEAD_I::itemName, ijPos.second.x() + 1 ) );
     items.push_back( RifOpmDeckTools::item( W::HEAD_J::itemName, ijPos.second.y() + 1 ) );
-    items.push_back( RifOpmDeckTools::optionalItem( W::REF_DEPTH::itemName, compSettings->referenceDepth() ) );
-    items.push_back( RifOpmDeckTools::item( W::PHASE::itemName, compSettings->wellTypeNameForExport().toStdString() ) );
+    items.push_back( RifOpmDeckTools::optionalItem( W::REF_DEPTH::itemName, referenceDepth ) );
+    items.push_back( RifOpmDeckTools::item( W::PHASE::itemName, phase ) );
     items.push_back( RifOpmDeckTools::optionalItem( W::D_RADIUS::itemName, compSettings->drainageRadius() ) );
     items.push_back( RifOpmDeckTools::item( W::INFLOW_EQ::itemName, compSettings->gasInflowEquationForExport().toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::AUTO_SHUTIN::itemName, compSettings->automaticWellShutInForExport().toStdString() ) );
-    items.push_back( RifOpmDeckTools::item( W::CROSSFLOW::itemName, compSettings->allowWellCrossFlowForExport().toStdString() ) );
+    const std::string crossFlow = wellSpecData ? ( wellSpecData->allowCrossFlow ? "YES" : "NO" )
+                                               : compSettings->allowWellCrossFlowForExport().toStdString();
+    items.push_back( RifOpmDeckTools::item( W::CROSSFLOW::itemName, crossFlow ) );
     items.push_back( RifOpmDeckTools::item( W::P_TABLE::itemName, compSettings->wellBoreFluidPVT() ) );
     items.push_back( RifOpmDeckTools::item( W::DENSITY_CALC::itemName, compSettings->hydrostaticDensityForExport().toStdString() ) );
     items.push_back( RifOpmDeckTools::item( W::FIP_REGION::itemName, compSettings->fluidInPlaceRegion() ) );

@@ -33,6 +33,7 @@ class RimWellEventValve;
 class RimWellEventTubing;
 class RimWellEventState;
 class RimWellEventType;
+class RimWellEventWellSpec;
 class RimWellEventControl;
 class RimWellEventKeyword;
 class RimKeywordEvent;
@@ -71,14 +72,15 @@ public:
     std::vector<RimWellPath*>  getWellPathsWithEventsUpToDate( const QDateTime& date ) const;
 
     // Add event methods (return the created event for further configuration)
-    RimWellEventPerf*    addPerforationEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventValve*   addValveEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventTubing*  addTubingEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventState*   addStateEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventType*    addTypeEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventControl* addControlEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventKeyword* addWellKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName );
-    RimKeywordEvent*     addKeywordEvent( const QDateTime& date, const QString& keywordName );
+    RimWellEventPerf*     addPerforationEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventValve*    addValveEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventTubing*   addTubingEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventState*    addStateEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventType*     addTypeEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventWellSpec* addWellSpecEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventControl*  addControlEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventKeyword*  addWellKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName );
+    RimKeywordEvent*      addKeywordEvent( const QDateTime& date, const QString& keywordName );
 
     // Generic add event method
     void addEvent( RimWellEvent* event );
@@ -110,6 +112,7 @@ private:
     bool applyTubingEvent( const RimWellEventTubing& event, RimWellPath& wellPath );
     bool applyPerfEvent( const RimWellEventPerf& event, RimWellPath& wellPath );
     bool applyValveEvent( RimWellEventValve& event, RimWellPath& wellPath );
+    bool applyWellSpecEvent( const RimWellEventWellSpec& event, RimWellPath& wellPath );
 
     std::vector<RimWellEvent*> filteredAndSortedEventsForUi() const;
     void                       updateEditorsAfterEventChange();

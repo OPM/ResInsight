@@ -27,6 +27,7 @@
 #include "RimWellEventTubing.h"
 #include "RimWellEventType.h"
 #include "RimWellEventValve.h"
+#include "RimWellEventWellSpec.h"
 
 #include "RimDiameterRoughnessInterval.h"
 #include "RimDiameterRoughnessIntervalCollection.h"
@@ -284,6 +285,26 @@ RimWellEventType* RimWellEventTimeline::addTypeEvent( RimWellPath* wellPath, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimWellEventWellSpec* RimWellEventTimeline::addWellSpecEvent( RimWellPath* wellPath, const QDateTime& date )
+{
+    auto* event = new RimWellEventWellSpec();
+    event->setWellPath( wellPath );
+    event->setEventDate( date );
+
+    if ( wellPath && wellPath->completionSettings() )
+    {
+        auto* settings = wellPath->completionSettings();
+        event->setBaselineData( { settings->groupName(), settings->allowWellCrossFlow(), settings->referenceDepth(), settings->wellType() } );
+    }
+
+    m_events.push_back( event );
+    updateEditorsAfterEventChange();
+    return event;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellEventControl* RimWellEventTimeline::addControlEvent( RimWellPath* wellPath, const QDateTime& date )
 {
     auto* event = new RimWellEventControl();
@@ -453,6 +474,14 @@ bool RimWellEventTimeline::applyEvent( RimWellPathCollection* wellPathCollection
                 }
                 break;
             }
+            case RimWellEvent::EventType::WELLSPEC:
+            {
+                if ( auto* wellSpecEvent = dynamic_cast<RimWellEventWellSpec*>( event ) )
+                {
+                    return applyWellSpecEvent( *wellSpecEvent, *wellPath );
+                }
+                break;
+            }
             case RimWellEvent::EventType::WSTATE:
             case RimWellEvent::EventType::WCONTROL:
             case RimWellEvent::EventType::WTYPE:
@@ -462,6 +491,23 @@ bool RimWellEventTimeline::applyEvent( RimWellPathCollection* wellPathCollection
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellEventTimeline::applyWellSpecEvent( const RimWellEventWellSpec& event, RimWellPath& wellPath )
+{
+    auto* settings = wellPath.completionSettings();
+    if ( !settings ) return false;
+
+    const auto data = event.wellSpecData();
+    settings->setGroupName( data.groupName );
+    settings->setAllowWellCrossFlow( data.allowCrossFlow );
+    settings->setReferenceDepth( data.referenceDepth );
+    settings->setWellType( data.wellType );
+    settings->updateConnectedEditors();
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

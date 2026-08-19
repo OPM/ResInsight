@@ -35,6 +35,7 @@ void AppEnum<RimWellEvent::EventType>::setUp()
     addItem( RimWellEvent::EventType::TUBING, "TUBING", "Tubing" );
     addItem( RimWellEvent::EventType::WSTATE, "WSTATE", "Well State" );
     addItem( RimWellEvent::EventType::WTYPE, "WTYPE", "Well Type" );
+    addItem( RimWellEvent::EventType::WELLSPEC, "WELLSPEC", "Well Specification" );
     addItem( RimWellEvent::EventType::WCONTROL, "WCONTROL", "Well Control" );
     addItem( RimWellEvent::EventType::KEYWORD, "KEYWORD", "Well Keyword" );
     addItem( RimWellEvent::EventType::SCHEDULE_KEYWORD, "SCHEDULE_KEYWORD", "Schedule Keyword" );

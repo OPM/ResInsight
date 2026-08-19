@@ -55,9 +55,21 @@ WELL "55_33-A-2"
 # ---------------------------------------------------------------------------
 
 
+class FakeCompletionSettings:
+    def __init__(self):
+        self.group_name_for_export = "FIELD"
+        self.allow_well_cross_flow = True
+        self.reference_depth_for_export = None
+        self.well_type_for_export = "OIL"
+
+
 class FakeWellPath:
     def __init__(self, name):
         self.name = name
+        self._completion_settings = FakeCompletionSettings()
+
+    def completion_settings(self):
+        return self._completion_settings
 
 
 class FakeProject:
@@ -157,6 +169,7 @@ class FakeTimeline:
         self.tubing_calls = []
         self.valve_calls = []
         self.state_calls = []
+        self.wellspec_calls = []
         self.schedule_keyword_calls = []
         self.created_events = []
 
@@ -185,6 +198,10 @@ class FakeTimeline:
 
     def add_state_event(self, **kwargs):
         self.state_calls.append(kwargs)
+        return self._new_event()
+
+    def add_wellspec_event(self, **kwargs):
+        self.wellspec_calls.append(kwargs)
         return self._new_event()
 
     def add_keyword_event(self, **kwargs):
@@ -451,6 +468,25 @@ class TestParsing:
     def test_malformed_group_line_rejected(self):
         with pytest.raises(OrionParseError, match="Malformed GROUP line"):
             parse_orion_events("ORIONEVENTS 2.0\nGROUP OP\n")
+
+    def test_duplicate_wellspec_for_well_and_date_is_rejected(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "W"\n'
+            "  @2024-01-01 WELLSPEC GROUP=A\n"
+            'WELL "W"\n'
+            "  @2024-01-01 WELLSPEC PHASE=GAS\n"
+        )
+        with pytest.raises(OrionParseError, match="WELLSPEC already defined.*line 3"):
+            parse_orion_events(text)
+
+    def test_wellspec_same_date_for_different_wells_is_allowed(self):
+        document = parse_orion_events(
+            'ORIONEVENTS 2.0\nWELL "A"\n'
+            "  @2024-01-01 WELLSPEC GROUP=GA\n"
+            'WELL "B"\n'
+            "  @2024-01-01 WELLSPEC GROUP=GB\n"
+        )
+        assert [len(well.events) for well in document.wells] == [1, 1]
 
     def test_boolean_attributes_are_typed_unless_quoted(self):
         text = (
@@ -1019,6 +1055,51 @@ class TestApplying:
         assert report.events_skipped == 1
         assert any("ZZZ" in e for e in report.errors)
 
+    def test_wellspec_partial_updates_are_cumulative_by_date(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
+            "  @2019-01-01 WELLSPEC CROSSFLOW=False PHASE=gas\n"
+            "  @2018-01-01 WELLSPEC GROUP=my_group REFDEPTH=1002 PHASE=water\n"
+        )
+        timeline, report = self._apply(text)
+
+        assert report.errors == []
+        assert report.events_applied == 2
+        # Calls retain source order, but snapshots are resolved chronologically.
+        assert timeline.wellspec_calls[0] == {
+            "event_date": "2019-01-01",
+            "well_path": timeline.wellspec_calls[0]["well_path"],
+            "group_name": "my_group",
+            "allow_cross_flow": False,
+            "reference_depth": 1002.0,
+            "well_type": "GAS",
+        }
+        assert timeline.wellspec_calls[1]["group_name"] == "my_group"
+        assert timeline.wellspec_calls[1]["allow_cross_flow"] is True
+        assert timeline.wellspec_calls[1]["well_type"] == "WATER"
+
+    @pytest.mark.parametrize(
+        "attributes,expected_error",
+        [
+            ("CROSSFLOW=YES", "CROSSFLOW must be True or False"),
+            ("REFDEPTH=deep", "REFDEPTH must be numeric"),
+            ("PHASE=steam", "PHASE must be OIL, GAS, WATER, or LIQUID"),
+            ("GROUP=1", "GROUP must be a non-empty string"),
+            ("UNKNOWN=1", "unknown WELLSPEC attribute"),
+            ("COMMENT=empty", "needs at least one setting attribute"),
+        ],
+    )
+    def test_invalid_wellspec_is_reported_and_skipped(self, attributes, expected_error):
+        text = (
+            f'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 WELLSPEC {attributes}\n'
+        )
+        timeline, report = self._apply(text)
+
+        assert report.events_applied == 0
+        assert report.events_skipped == 1
+        assert expected_error in report.errors[0]
+        assert timeline.wellspec_calls == []
+
     def test_tubing_mapping(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
@@ -1481,6 +1562,55 @@ class TestOrionEventsIntegration:
         normalized_block = " ".join(grouptree_block.split())
         assert "'WELL_A' 'PRODUCERS'" in normalized_block
         assert "'WELL_B' 'PRODUCERS'" in normalized_block
+
+    def test_wellspec_updates_settings_and_generates_cumulative_welspecs(
+        self, project_with_case_and_wells
+    ):
+        project, case, timeline = project_with_case_and_wells
+        well = next(wp for wp in project.well_paths() if "A" in wp.name)
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            "  @2018-01-01 WELLSPEC GROUP=my_group REFDEPTH=1002 PHASE=water\n"
+            "  @2019-01-01 WELLSPEC CROSSFLOW=False REFDEPTH=1000 PHASE=oil\n"
+        )
+
+        report = apply_orion_document(document, timeline, project)
+        assert report.errors == []
+        assert report.events_applied == 2
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case, first_date_as_comment=False, align_columns=True
+        )
+        assert schedule.count("WELSPECS\n") == 2
+        blocks = schedule.split("WELSPECS\n")[1:]
+        first_record = " ".join(blocks[0].split("\n/\n", 1)[0].split())
+        second_record = " ".join(blocks[1].split("\n/\n", 1)[0].split())
+
+        assert "'my_group'" in first_record
+        assert "1002" in first_record
+        assert "'WATER'" in first_record
+        assert "'YES'" in first_record
+        assert "1*" not in first_record.split("'my_group'", 1)[1].split("1002", 1)[0]
+
+        assert "'my_group'" in second_record
+        assert "1000" in second_record
+        assert "'OIL'" in second_record
+        assert "'NO'" in second_record
+
+        timeline.set_timestamp(timestamp="2018-06-01")
+        settings = well.completion_settings()
+        assert settings.group_name_for_export == "my_group"
+        assert settings.allow_well_cross_flow is True
+        assert settings.reference_depth_for_export == 1002
+        assert settings.well_type_for_export == "WATER"
+
+        timeline.set_timestamp(timestamp="2019-06-01")
+        settings = well.completion_settings()
+        assert settings.group_name_for_export == "my_group"
+        assert settings.allow_well_cross_flow is False
+        assert settings.reference_depth_for_export == 1000
+        assert settings.well_type_for_export == "OIL"
 
     def test_restart_truncates_generated_schedule(self, project_with_case_and_wells):
         project, case, timeline = project_with_case_and_wells

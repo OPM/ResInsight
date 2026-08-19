@@ -45,6 +45,7 @@ public:
         TUBING,
         WSTATE,
         WTYPE,
+        WELLSPEC,
         WCONTROL,
         KEYWORD,
         SCHEDULE_KEYWORD

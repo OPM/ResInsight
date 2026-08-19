@@ -5,6 +5,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventTubing.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventState.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventType.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellEventWellSpec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventControl.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventKeyword.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventKeywordItem.cpp
