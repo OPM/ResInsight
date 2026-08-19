@@ -53,6 +53,7 @@ RimWellEvent::RimWellEvent()
 
     CAF_PDM_InitField( &m_eventDate, "EventDate", QDateTime(), "Event Date" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
+    CAF_PDM_InitScriptableField( &m_comment, "Comment", QString(), "Comment" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,10 +110,27 @@ QString RimWellEvent::wellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellEvent::comment() const
+{
+    return m_comment();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellEvent::setComment( const QString& comment )
+{
+    m_comment = comment;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellEvent::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_wellPath );
     uiOrdering.add( &m_eventDate );
+    uiOrdering.add( &m_comment );
 }
 
 //--------------------------------------------------------------------------------------------------

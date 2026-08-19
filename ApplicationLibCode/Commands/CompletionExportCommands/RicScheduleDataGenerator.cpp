@@ -37,6 +37,7 @@
 
 #include <QLocale>
 #include <QProcessEnvironment>
+#include <QStringList>
 
 #include <algorithm>
 #include <map>
@@ -235,9 +236,50 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
         }
     }
 
+    auto appendEventComments = [&]( const QString& keywordName )
+    {
+        for ( const auto* event : events )
+        {
+            if ( event->comment().isEmpty() ) continue;
+
+            bool isRelevant = false;
+            if ( event->eventType() == RimWellEvent::EventType::PERF )
+            {
+                isRelevant = keywordName == "COMPDAT";
+            }
+            else if ( event->eventType() == RimWellEvent::EventType::TUBING )
+            {
+                isRelevant = keywordName == "WELSEGS";
+            }
+            else if ( event->eventType() == RimWellEvent::EventType::VALVE )
+            {
+                isRelevant = keywordName == "WSEGVALV" || keywordName == "WSEGAICD";
+            }
+            else if ( event->eventType() == RimWellEvent::EventType::SCHEDULE_KEYWORD )
+            {
+                const auto* keywordEvent = dynamic_cast<const RimKeywordEvent*>( event );
+                isRelevant               = keywordEvent && keywordEvent->keywordName().compare( keywordName, Qt::CaseInsensitive ) == 0;
+            }
+            else
+            {
+                auto eventKeyword = RifEventKeywordFormatter::buildWellEvent( event, event->wellName() );
+                isRelevant = eventKeyword && QString::fromStdString( eventKeyword->name() ).compare( keywordName, Qt::CaseInsensitive ) == 0;
+            }
+
+            if ( !isRelevant ) continue;
+
+            for ( QString line : event->comment().split( '\n' ) )
+            {
+                line.remove( '\r' );
+                result += line.isEmpty() ? "--\n" : QString( "-- %1\n" ).arg( line );
+            }
+        }
+    };
+
     auto appendKeywordText = [&]( const Opm::DeckKeyword& kw )
     {
         if ( kw.size() == 0 && !kw.isDataKeyword() ) return;
+        appendEventComments( QString::fromStdString( kw.name() ) );
         result += serializeKeyword( kw );
         result += "\n";
     };

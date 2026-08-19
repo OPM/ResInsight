@@ -1469,6 +1469,22 @@ class TestScheduleGeneration:
         assert lines[2].startswith("-- User: ")
         assert lines[2] != "-- User: "
 
+    def test_event_comment_lines_are_safely_emitted(self, project_with_case_and_well):
+        project, case, timeline = project_with_case_and_well
+        well_path = project.well_paths()[0]
+
+        event = timeline.add_well_keyword_event(
+            event_date="2024-01-01",
+            well_path=well_path,
+            keyword_name="WCONHIST",
+            keyword_data={"WELL": well_path.name, "STATUS": "OPEN"},
+        )
+        event.comment = "Startup target\nWELSPECS"
+        event.update()
+
+        schedule = timeline.generate_schedule_text(eclipse_case=case)
+        assert "-- Startup target\n-- WELSPECS\nWCONHIST\n" in schedule
+
     def test_align_columns_adds_headers_and_alignment(self, project_with_case_and_well):
         """align_columns=True must add a '--'-prefixed column-header comment per keyword and
         indent right-aligned data rows, while the default (align_columns=False) keeps the

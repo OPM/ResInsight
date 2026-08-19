@@ -60,6 +60,9 @@ public:
     void         setWellPath( RimWellPath* wellPath );
     QString      wellName() const; // Convenience method to get well name
 
+    QString comment() const;
+    void    setComment( const QString& comment );
+
     virtual EventType eventType() const                                        = 0;
     virtual QString   generateScheduleKeyword( const QString& wellName ) const = 0;
 
@@ -70,6 +73,7 @@ protected:
 protected:
     caf::PdmField<QDateTime>       m_eventDate;
     caf::PdmPtrField<RimWellPath*> m_wellPath;
+    caf::PdmField<QString>         m_comment;
 };
 
 namespace caf
