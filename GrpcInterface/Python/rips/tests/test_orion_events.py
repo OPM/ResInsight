@@ -25,6 +25,7 @@ from rips.orion_events import (  # noqa: E402
     OrionParseError,
     _cli,
     apply_orion_document,
+    coalesce_orion_document,
     parse_orion_events,
 )
 
@@ -785,6 +786,64 @@ class TestApplying:
         report = apply_orion_document(doc, timeline, project, **opts)
         return timeline, report
 
+    def test_same_owner_type_and_date_events_are_merged(self):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            'WELL "55_33-A-1"\n'
+            "  @2018-01-01 WCONHIST STATUS=OPEN ORAT=100\n"
+            'WELL "55_33-A-1"\n'
+            "  @2018-01-01 wconhist STATUS=SHUT CMODE=ORAT\n"
+            "  @2018-01-02 WCONHIST STATUS=OPEN\n"
+            'WELL "55_33-A-2"\n'
+            "  @2018-01-01 WCONHIST STATUS=OPEN\n"
+        )
+        document = parse_orion_events(text)
+        merged = coalesce_orion_document(document)
+
+        # Normalization does not mutate the parsed source representation.
+        assert len(document.wells) == 3
+        assert len(merged.wells) == 2
+        assert len(merged.wells[0].events) == 2
+
+        merged_event = merged.wells[0].events[0]
+        assert merged_event.event_type == "WCONHIST"
+        assert merged_event.attributes["STATUS"].value == "SHUT"
+        assert merged_event.attributes["ORAT"].value == 100
+        assert merged_event.attributes["CMODE"].value == "ORAT"
+
+        timeline, report = self._apply(text)
+        assert report.events_applied == 3
+        assert len(timeline.keyword_calls) == 3
+        assert timeline.keyword_calls[0]["keyword_data"]["STATUS"] == "SHUT"
+        assert timeline.keyword_calls[0]["keyword_data"]["ORAT"] == 100
+        assert timeline.keyword_calls[0]["keyword_data"]["CMODE"] == "ORAT"
+
+    def test_group_and_schedule_events_merge_only_within_owner(self):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            'GROUP "OP"\n'
+            "  @2018-01-01 GCONPROD CONTROL_MODE=ORAT\n"
+            'GROUP "OP"\n'
+            "  @2018-01-01 GCONPROD OIL_TARGET=100\n"
+            'GROUP "OTHER"\n'
+            "  @2018-01-01 GCONPROD OIL_TARGET=200\n"
+            "SCHEDULE\n"
+            "  @2018-01-01 RPTRST BASIC=1\n"
+            "SCHEDULE\n"
+            "  @2018-01-01 RPTRST FREQ=2\n"
+        )
+        merged = coalesce_orion_document(parse_orion_events(text))
+
+        assert len(merged.groups) == 2
+        assert len(merged.groups[0].events) == 1
+        assert set(merged.groups[0].events[0].attributes) == {
+            "CONTROL_MODE",
+            "OIL_TARGET",
+        }
+        assert len(merged.groups[1].events) == 1
+        assert len(merged.schedule_events) == 1
+        assert set(merged.schedule_events[0].attributes) == {"BASIC", "FREQ"}
+
     def test_perforation_mapping_radius_to_diameter(self):
         timeline, report = self._apply(SAMPLE)
         assert report.events_applied == 4  # 2 perfs + WCONHIST + WELTARG
@@ -1065,8 +1124,8 @@ class TestFilterApplying:
 
     def _perf_text(self, decls, *filter_values):
         events = "".join(
-            f"  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER={value}\n"
-            for value in filter_values
+            f"  @2018-01-{index:02d} PERFORATION MDSTART=1 MDEND=2 FILTER={value}\n"
+            for index, value in enumerate(filter_values, start=1)
         )
         return "ORIONEVENTS 2.0\n" + decls + 'WELL "55_33-A-1"\n' + events
 
