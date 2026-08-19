@@ -80,11 +80,26 @@ QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline& 
                       [&exportName]( const RimWellPath* a, const RimWellPath* b )
                       { return QString::compare( exportName( a ), exportName( b ) ) < 0; } );
 
-    // Generate section for each date. The first (earliest) date may be emitted as a comment
-    // instead of a DATES keyword when firstDateAsComment is set.
+    std::optional<QDateTime> restartDate;
+    for ( const auto* event : timeline.events() )
+    {
+        if ( event->eventType() != RimWellEvent::EventType::SCHEDULE_KEYWORD ) continue;
+        const auto* keywordEvent = dynamic_cast<const RimKeywordEvent*>( event );
+        if ( keywordEvent && keywordEvent->keywordName().compare( "RESTART", Qt::CaseInsensitive ) == 0 )
+        {
+            restartDate = event->eventDate();
+            break;
+        }
+    }
+
+    // Generate section for each date. The first retained date may be emitted as a comment instead
+    // of a DATES keyword when firstDateAsComment is set. A RESTART marker truncates earlier dates,
+    // including user-specified additional report dates.
     bool isFirstDate = true;
     for ( const auto& date : dates )
     {
+        if ( restartDate.has_value() && date < *restartDate ) continue;
+
         QString dateSection =
             generateDateSection( timeline, eclipseCase, sortedWellPaths, date, mswWells, isFirstDate && firstDateAsComment, alignColumns );
         if ( !dateSection.isEmpty() )
@@ -229,7 +244,7 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     {
         if ( event->eventType() != RimWellEvent::EventType::SCHEDULE_KEYWORD ) continue;
         auto* keywordEvent = dynamic_cast<RimKeywordEvent*>( event );
-        if ( !keywordEvent ) continue;
+        if ( !keywordEvent || keywordEvent->keywordName().compare( "RESTART", Qt::CaseInsensitive ) == 0 ) continue;
         if ( auto kw = keywordEvent->generateDeckKeyword( "" ) )
         {
             mergeKeyword( keywordBlocks, keywordEvent->keywordName().toUpper(), std::move( *kw ) );
