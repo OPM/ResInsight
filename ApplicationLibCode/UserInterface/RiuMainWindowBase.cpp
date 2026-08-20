@@ -43,6 +43,7 @@
 #include "DockAreaTitleBar.h"
 #include "DockAreaWidget.h"
 #include "DockManager.h"
+#include "DockSplitter.h"
 #include "DockWidget.h"
 
 #include <QAction>
@@ -882,9 +883,24 @@ void RiuMainWindowBase::tileViewWindows()
         // TODO - find correct area to dock to here
         if ( auto container = m_dockManager->centralWidget()->dockContainer() )
         {
+            auto dockArea = m_dockManager->centralWidget()->dockAreaWidget();
+
+            bool first = true;
             for ( auto view : tiledWindows )
             {
-                container->addDockWidget( ads::DockWidgetArea::LeftDockWidgetArea, view->dockWidget() );
+                if ( first )
+                {
+                    dockArea = m_dockManager->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, view->dockWidget(), dockArea );
+                }
+                else
+                {
+                    dockArea = m_dockManager->addDockWidget( ads::DockWidgetArea::RightDockWidgetArea, view->dockWidget(), dockArea );
+                }
+
+                QList<int> sizes;
+                sizes.fill( 1000, dockArea->parentSplitter()->count() );
+                dockArea->parentSplitter()->setSizes( sizes );
+                first = false;
             }
         }
     }
@@ -911,6 +927,8 @@ void RiuMainWindowBase::maximizeViewWindows()
     // add all views to the center area
     for ( auto view : activeViews )
     {
-        m_dockManager->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea, view->dockWidget() );
+        m_dockManager->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea,
+                                      view->dockWidget(),
+                                      m_dockManager->centralWidget()->dockAreaWidget() );
     }
 }
