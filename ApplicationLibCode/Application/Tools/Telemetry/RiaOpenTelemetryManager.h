@@ -28,6 +28,7 @@
 #include <mutex>
 #include <queue>
 #include <string>
+#include <vector>
 #include <version>
 
 // std::stacktrace is C++23.  libc++ shipped with Homebrew llvm@19 (and
@@ -148,8 +149,8 @@ private:
     void setupResourceAttributes();
 
     // Event processing
-    void processEvents();
-    void processEvent( const Event& event );
+    void processEvents( bool ignoreCircuitBreaker = false );
+    void sendBatch( const std::vector<Event>& events );
     void flushPendingEvents();
     void onProcessEventTimer();
 
