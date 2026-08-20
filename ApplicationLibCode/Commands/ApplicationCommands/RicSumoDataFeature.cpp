@@ -93,9 +93,11 @@ SimpleDialog::SimpleDialog( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 SimpleDialog::~SimpleDialog()
 {
+    // The connector belongs to RiaApplication and is shared with everything else reading from Sumo, so it
+    // must outlive this dialog. Only the connection made in createConnection is ours to undo.
     if ( m_sumoConnector )
     {
-        m_sumoConnector->deleteLater();
+        disconnect( m_sumoConnector, &RiaSumoConnector::tokenReady, this, &SimpleDialog::onTokenReady );
     }
 }
 
@@ -105,7 +107,10 @@ SimpleDialog::~SimpleDialog()
 void SimpleDialog::createConnection()
 {
     m_sumoConnector = RiaApplication::instance()->makeSumoConnector();
-    connect( m_sumoConnector, &RiaSumoConnector::tokenReady, this, &SimpleDialog::onTokenReady );
+
+    // Authenticating more than once would otherwise leave one connection per attempt, and onTokenReady
+    // would be called once for each of them.
+    connect( m_sumoConnector, &RiaSumoConnector::tokenReady, this, &SimpleDialog::onTokenReady, Qt::UniqueConnection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,10 +129,9 @@ void SimpleDialog::onAssetsClicked()
 {
     if ( !isTokenValid() ) return;
 
-    m_sumoConnector->requestAssetsBlocking();
-    m_sumoConnector->assets();
+    const auto assets = m_sumoConnector->explore().assets();
 
-    label->setText( "Requesting fields (see log for response" );
+    label->setText( QString( "Received %1 assets" ).arg( assets.size() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,10 +141,10 @@ void SimpleDialog::onCasesClicked()
 {
     if ( !isTokenValid() ) return;
 
-    QString fieldName = "Drogon";
-    m_sumoConnector->requestCasesForField( fieldName );
+    QString    fieldName = "Drogon";
+    const auto cases     = m_sumoConnector->explore().cases( fieldName );
 
-    label->setText( "Requesting cases (see log for response" );
+    label->setText( QString( "Received %1 cases" ).arg( cases.size() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,9 +157,9 @@ void SimpleDialog::onVectorNamesClicked()
     SumoCaseId caseId( "5b783aab-ce10-4b78-b129-baf8d8ce4baa" );
     QString    iteration = "iter-0";
 
-    m_sumoConnector->requestVectorNamesForEnsemble( caseId, iteration );
+    const auto vectorNames = m_sumoConnector->summary().vectorNames( caseId, iteration );
 
-    label->setText( "Requesting vector names (see log for response" );
+    label->setText( QString( "Received %1 vector names" ).arg( vectorNames.size() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,9 +173,9 @@ void SimpleDialog::onFindBlobIdClicked()
     QString    iteration  = "iter-0";
     QString    vectorName = "FOPT";
 
-    m_sumoConnector->requestBlobIdForEnsemble( caseId, iteration, vectorName );
+    m_blobId = m_sumoConnector->summary().vectorBlobId( caseId, iteration, vectorName );
 
-    label->setText( "Requesting blob ID for vector name (see log for response" );
+    label->setText( m_blobId.isEmpty() ? QString( "No blob ID received" ) : QString( "Blob ID: %1" ).arg( m_blobId ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,16 +185,16 @@ void SimpleDialog::onParquetClicked()
 {
     if ( !isTokenValid() ) return;
 
-    if ( m_sumoConnector->blobIds().empty() )
+    if ( m_blobId.isEmpty() )
     {
         onFindBlobIdClicked();
     }
 
-    if ( !m_sumoConnector->blobIds().empty() )
+    if ( !m_blobId.isEmpty() )
     {
-        m_sumoConnector->requestBlobDownload( m_sumoConnector->blobIds().back() );
+        m_blobContents = m_sumoConnector->downloadBlobBlocking( m_blobId );
 
-        label->setText( "Requesting blob ID for vector name (see log for response" );
+        label->setText( QString( "Downloaded blob, %1 bytes" ).arg( m_blobContents.size() ) );
     }
 }
 
@@ -199,14 +203,10 @@ void SimpleDialog::onParquetClicked()
 //--------------------------------------------------------------------------------------------------
 void SimpleDialog::onShowContentParquetClicked()
 {
-    if ( m_sumoConnector->blobContents().empty() ) return;
-
-    auto blob = m_sumoConnector->blobContents().back();
-
-    auto content = blob.contents;
+    if ( m_blobContents.isEmpty() ) return;
 
     // TODO: show content using parquet reader
-    auto tableText = RifArrowTools::readFirstRowsOfTable( content );
+    auto tableText = RifArrowTools::readFirstRowsOfTable( m_blobContents );
     RiaLogging::info( tableText.toStdString() );
 }
 
@@ -220,9 +220,7 @@ void SimpleDialog::onRealizationsClicked()
     SumoCaseId caseId( "485041ce-ad72-48a3-ac8c-484c0ed95cf8" );
     QString    iteration = "iter-0";
 
-    m_sumoConnector->requestRealizationIdsForEnsembleBlocking( caseId, iteration );
-
-    auto ids = m_sumoConnector->realizationIds();
+    auto ids = m_sumoConnector->explore().realizationIds( caseId, iteration );
     for ( const auto& id : ids )
     {
         RiaLogging::info( id.toStdString() );

@@ -243,6 +243,17 @@ void RiaLogging::appendLoggerInstance( std::unique_ptr<RiaLogger> loggerInstance
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaLogging::flushPendingMessages()
+{
+    for ( const auto& logger : sm_logger )
+    {
+        logger->flushPendingMessages();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RILogLevel RiaLogging::logLevelBasedOnPreferences()
 {
     if ( RiaApplication::enableDevelopmentFeatures() ) return RILogLevel::RI_LL_DEBUG;

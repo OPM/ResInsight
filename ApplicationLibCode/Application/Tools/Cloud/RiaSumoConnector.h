@@ -20,49 +20,22 @@
 
 #include "RiaCloudConnector.h"
 #include "RiaSumoDefines.h"
+#include "RiaSumoExplore.h"
+#include "RiaSumoSummary.h"
 
 #include <QByteArray>
+#include <QMutex>
 #include <QNetworkAccessManager>
 #include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 
 #include <functional>
+#include <list>
 #include <map>
 
 class QEventLoop;
+class QThread;
 
 using SumoObjectId = QString;
-
-struct SumoAsset
-{
-    SumoAssetId assetId;
-
-    QString kind;
-    QString name;
-};
-
-struct SumoCase
-{
-    SumoCaseId caseId;
-
-    QString kind;
-    QString name;
-};
-
-struct SumoRedirect
-{
-    SumoObjectId objectId;
-    QString      blobName;
-    QString      url;
-    QString      redirectBaseUri;
-    QString      redirectAuth;
-    QByteArray   contents;
-};
-
-struct SumoEnsemble
-{
-    SumoCaseId caseId;
-    QString    name;
-};
 
 //==================================================================================================
 ///
@@ -84,85 +57,87 @@ public:
 
     QString server() const override;
 
-    void requestAssets();
-    void requestAssetsBlocking();
+    // Download blobs by id and return their contents. Getting a blob takes two round trips, one for the
+    // pre-signed URI and one for the data, and a batch does each of those as one concurrent group.
+    QByteArray                    downloadBlobBlocking( const QString& blobId );
+    std::map<QString, QByteArray> downloadBlobsBlocking( const std::vector<QString>& blobIds );
 
-    void requestCasesForField( const QString& fieldName );
-    void requestCasesForFieldBlocking( const QString& fieldName );
+    // What Sumo holds: assets, cases, ensembles and realizations.
+    RiaSumoExplore& explore();
 
-    void requestEnsembleByCasesId( const SumoCaseId& caseId );
-    void requestEnsembleByCasesIdBlocking( const SumoCaseId& caseId );
+    // The summary data of a case.
+    RiaSumoSummary& summary();
 
-    void requestVectorNamesForEnsemble( const SumoCaseId& caseId, const QString& ensembleName );
-    void requestVectorNamesForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName );
+    // Transport used by the data specific delegates. Every request goes through the transfer thread, so
+    // the calling thread waits without dispatching events.
+    QByteArray getBlocking( const QString& url, const QString& progressText = {} );
 
-    void requestRealizationIdsForEnsemble( const SumoCaseId& caseId, const QString& ensembleName );
-    void requestRealizationIdsForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName );
+    // The REST API returns a blob id as a plain string, quoted by FastAPI.
+    static QString blobIdFromBody( const QByteArray& body );
 
-    void       requestParametersBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName );
-    void       requestParametersBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName );
-    QByteArray requestParametersParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName );
-
-    void requestBlobIdForEnsemble( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
-    void requestBlobIdForEnsembleBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
-
-    void requestBlobDownload( const QString& blobId );
-    void requestBlobBySasUri( const QString& blobId, const QString& sasUri );
-
-    QByteArray requestParquetDataBlocking( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
-
-    std::vector<SumoAsset>    assets() const;
-    std::vector<SumoCase>     cases() const;
-    std::vector<QString>      ensembleNamesForCase( const SumoCaseId& caseId ) const;
-    std::vector<QString>      vectorNames() const;
-    std::vector<QString>      realizationIds() const;
-    std::vector<QString>      blobIds() const;
-    std::vector<SumoRedirect> blobContents() const;
-
-public slots:
-    void parseAssets( QNetworkReply* reply );
-    void parseEnsembleNames( QNetworkReply* reply, const SumoCaseId& caseId );
-    void parseCases( QNetworkReply* reply );
-    void parseVectorNames( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
-    void parseRealizationNumbers( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName );
-    void parseBlobId( QNetworkReply* reply, const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName, bool isParameters );
-
-    void requestFailed( const QAbstractOAuth::Error error );
-    void parquetDownloadComplete( const QString& blobId, const QByteArray&, const QString& url );
-
-signals:
-    void fileDownloadFinished( const QString& fileId, const QString& filePath );
-    void casesFinished();
-    void wellsFinished();
-    void wellboresFinished( const QString& wellId );
-    void wellboreTrajectoryFinished( const QString& wellboreId );
-    void parquetDownloadFinished( const QByteArray& contents, const QString& url );
-    void ensembleNamesFinished();
-    void vectorNamesFinished();
-    void blobIdFinished();
-    void assetsFinished();
-    void realizationIdsFinished();
-
-private:
     void addStandardHeader( QNetworkRequest& networkRequest, const QString& token, const QString& contentType );
 
-    QNetworkReply* makeDownloadRequest( const QString& url, const QString& token, const QString& contentType );
-    void           requestParquetData( const QString& url, const QString& token );
+    // Run work on the transfer thread and wait for it. Pass progressText to show the standard progress dialog
+    // while waiting, worth doing for the transfers slow enough to be noticed and not for the small requests
+    // that would only make it flash.
+    void runOnTransferThreadBlocking( const std::function<void()>& work, const QString& progressText = {} );
+
+    // Run work on the transfer thread without waiting for it. The async data paths use this: the result is
+    // delivered by a callback rather than by returning, so the calling thread carries on immediately.
+    void runOnTransferThread( const std::function<void()>& work );
+
+    // Hand a call back to the thread the connector lives on, the one owning the user interface. Results of
+    // async work are delivered through this, so a caller never has its data handed to it on another thread.
+    void invokeOnConnectorThread( const std::function<void()>& work );
+
+    // Download one blob, calling onFinished with its contents. Call on the transfer thread, where onFinished
+    // is called as well. Empty contents mean the transfer failed.
+    void downloadBlobAsync( const QString& blobId, const std::function<void( const QByteArray& )>& onFinished );
+
+    // Abort a reply that has not finished in time, so an async chain reports a failure instead of hanging and
+    // leaving whoever waits for the data waiting forever.
+    static void abortIfNotFinishedWithin( QNetworkReply* reply, int timeoutMillis );
+
+    // The network manager belonging to the calling thread: the transfer thread manager when called from
+    // there, otherwise the one owned by RiaCloudConnector on the GUI thread.
+    QNetworkAccessManager* networkAccessManager();
+
+    // The token for a request issued from the transfer thread. token() reads objects owned by another thread.
+    QString transferToken() const;
+
+    static void waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies );
+
+    // Issue and collect the two round trips a blob transfer needs. Called on the transfer thread.
+    std::map<QString, QByteArray> downloadBlobs( const std::vector<QString>& blobIds );
+
+public slots:
+    void requestFailed( const QAbstractOAuth::Error error );
+
+private:
+    // Call on the thread owning the authentication objects, before work is handed over.
+    void cacheTransferToken();
 
     static QString constructSasUri( const QString& blobStoreBaseUri, const QString& blobId, const QString& sasToken );
 
-    void wrapAndCallNetworkRequest( std::function<void()> requestCallable, const QMetaMethod& signalMethod );
+    QString           sasUriFromReply( QNetworkReply* reply, const QString& blobId );
+    static QByteArray blobContentsFromReply( QNetworkReply* reply, const QString& sasUri );
+    static QByteArray replyBody( QNetworkReply* reply, const QString& url );
 
 private:
     std::function<QString()> m_serverUrlProvider;
 
-    std::vector<SumoAsset>    m_assets;
-    std::vector<SumoCase>     m_cases;
-    std::vector<QString>      m_vectorNames;
-    std::vector<QString>      m_realizationIds;
-    std::vector<SumoEnsemble> m_ensembleNames;
+    RiaSumoExplore m_explore;
+    RiaSumoSummary m_summary;
 
-    std::vector<QString> m_blobId;
+    // Transfers run on their own thread so the calling thread can wait without dispatching events. Waiting on
+    // a nested event loop on the GUI thread let the view update code re-enter a load that was still running,
+    // and the same grid property was downloaded twice. Authentication stays on the GUI thread: the OAuth flow
+    // opens a browser and its objects live there.
+    QThread*               m_transferThread               = nullptr;
+    QObject*               m_transferContext              = nullptr; // lives on the transfer thread
+    QNetworkAccessManager* m_transferNetworkAccessManager = nullptr; // created on the transfer thread
 
-    std::vector<SumoRedirect> m_redirectInfo;
+    // Written on the thread handing work over, read on the transfer thread running it.
+    mutable QMutex m_transferTokenMutex;
+    QString        m_transferToken;
 };

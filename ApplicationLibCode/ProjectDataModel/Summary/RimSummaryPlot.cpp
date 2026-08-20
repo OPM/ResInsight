@@ -63,6 +63,8 @@
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 #include "Tools/RimPlotAxisTools.h"
 
+#include "RiuAbstractOverlayContentFrame.h"
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotAxis.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -1806,6 +1808,109 @@ void RimSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The addresses this plot's curves are about to read, grouped by the ensemble owning them. Used to tell a
+/// source what is coming before any of it is read, see prefetchSummaryData().
+//--------------------------------------------------------------------------------------------------
+std::map<RimSummaryEnsemble*, std::vector<RifEclipseSummaryAddress>> RimSummaryPlot::summaryAddressesByEnsemble() const
+{
+    std::map<RimSummaryEnsemble*, std::vector<RifEclipseSummaryAddress>> addressesByEnsemble;
+
+    auto addAddress = []( auto& addressesByEnsemble, RimSummaryEnsemble* ensemble, const RifEclipseSummaryAddress& address )
+    {
+        if ( !ensemble || !address.isValid() ) return;
+
+        addressesByEnsemble[ensemble].push_back( address );
+    };
+
+    if ( m_summaryCurveCollection )
+    {
+        for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
+        {
+            if ( !curve ) continue;
+
+            if ( auto summaryCase = curve->summaryCaseY() )
+            {
+                addAddress( addressesByEnsemble, summaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>(), curve->summaryAddressY() );
+            }
+
+            if ( auto summaryCase = curve->summaryCaseX() )
+            {
+                addAddress( addressesByEnsemble, summaryCase->firstAncestorOrThisOfType<RimSummaryEnsemble>(), curve->summaryAddressX() );
+            }
+        }
+    }
+
+    for ( RimEnsembleCurveSet* curveSet : m_ensembleCurveSetCollection->curveSets() )
+    {
+        if ( !curveSet ) continue;
+
+        addAddress( addressesByEnsemble, curveSet->summaryEnsemble(), curveSet->summaryAddressY() );
+    }
+
+    return addressesByEnsemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Tell each ensemble in the plot which addresses its curves are about to read, before any of them read
+/// one. Curves pull their values one at a time, so a source loading data remotely would otherwise make one
+/// blocking request per curve; given the whole set up front it can load them together.
+///
+/// This is a hint only. Every curve still loads its own data, and an ensemble that does not need the hint
+/// ignores it. A plot in a plot window is usually covered by the window prefetching for all its plots at
+/// once, in which case there is nothing left for this to do.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::prefetchSummaryData()
+{
+    for ( const auto& [ensemble, addresses] : summaryAddressesByEnsemble() )
+    {
+        ensemble->prefetchSummaryData( addresses );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Say that this plot is waiting for data. A source can load without waiting, and then the curves are drawn
+/// with what has arrived so far, leaving a plot looking finished when it is not. Called after every load, so
+/// the frame appears when the data is asked for and goes away when the last of it has arrived.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateLoadingOverlayFrame()
+{
+    if ( !plotWidget() ) return;
+
+    bool isWaitingForData = false;
+    for ( const auto& [ensemble, addresses] : summaryAddressesByEnsemble() )
+    {
+        if ( ensemble->isSummaryDataPending( addresses ) )
+        {
+            isWaitingForData = true;
+            break;
+        }
+    }
+
+    if ( !isWaitingForData )
+    {
+        if ( m_loadingOverlayFrame )
+        {
+            plotWidget()->removeOverlayFrame( m_loadingOverlayFrame );
+            delete m_loadingOverlayFrame;
+            m_loadingOverlayFrame = nullptr;
+        }
+        return;
+    }
+
+    if ( !m_loadingOverlayFrame )
+    {
+        m_loadingOverlayFrame = new RiuDraggableOverlayFrame( plotWidget()->getParentForOverlay(), plotWidget()->overlayMargins() );
+        m_loadingOverlayFrame->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopLeft );
+
+        auto* spinnerFrame = new RiuSpinnerOverlayContentFrame( m_loadingOverlayFrame );
+        m_loadingOverlayFrame->setContentFrame( spinnerFrame );
+        spinnerFrame->setText( "Loading" );
+    }
+
+    plotWidget()->addOverlayFrame( m_loadingOverlayFrame );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::onLoadDataAndUpdate()
@@ -1814,6 +1919,8 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     auto plotWindow = firstAncestorOrThisOfType<RimMultiPlot>();
     if ( plotWindow == nullptr ) updateDockWindowVisibility();
+
+    prefetchSummaryData();
 
     if ( m_summaryCurveCollection )
     {
@@ -1861,6 +1968,8 @@ void RimSummaryPlot::onLoadDataAndUpdate()
     updateAxes();
 
     updateStackedCurveData();
+
+    updateLoadingOverlayFrame();
 }
 
 //--------------------------------------------------------------------------------------------------

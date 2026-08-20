@@ -30,19 +30,61 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
+#include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCaseSumo.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryPlot.h"
 #include "RimSumoDataSource.h"
 
-#include <arrow/type_fwd.h>
+#include "RiuPlotCurve.h"
 
+#include <arrow/type_fwd.h>
+#include <arrow/util/key_value_metadata.h>
+
+#include <algorithm>
 #include <map>
+#include <memory>
 #include <optional>
 
 CAF_PDM_SOURCE_INIT( RimSummaryEnsembleSumo, "RimSummaryEnsembleSumo" );
 
 namespace
 {
+//--------------------------------------------------------------------------------------------------
+/// Whether any curve of the plot holds samples. A plot with none has nothing to fit its axes to, which is the
+/// state a plot is left in when it is created for data that has not arrived yet.
+//--------------------------------------------------------------------------------------------------
+bool hasCurveSamples( const RimSummaryPlot* summaryPlot )
+{
+    for ( const RimSummaryCurve* curve : summaryPlot->summaryAndEnsembleCurves() )
+    {
+        if ( curve && curve->plotCurve() && curve->plotCurve()->numSamples() > 0 ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Whether any other plot of the same window already shows something. The plots of a window share their time
+/// axis, so a window that shows data has a range that fitting one plot would move for all of them.
+//--------------------------------------------------------------------------------------------------
+bool windowShowsData( RimSummaryPlot* summaryPlot )
+{
+    auto multiPlot = summaryPlot->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
+    if ( !multiPlot ) return false;
+
+    for ( const RimSummaryPlot* plot : multiPlot->summaryPlots() )
+    {
+        if ( plot == summaryPlot ) continue;
+
+        if ( hasCurveSamples( plot ) ) return true;
+    }
+
+    return false;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// Read an integer column of any width as int64. The bit width of a column is decided by the producer
 /// of the parquet file, and can not be assumed to be a specific type.
@@ -75,12 +117,36 @@ std::optional<std::vector<double>> readFloatingPointColumn( const std::shared_pt
 
     return {};
 }
+
+//--------------------------------------------------------------------------------------------------
+/// The unit of a summary vector, as written by the producer of the parquet file into the metadata of the
+/// column holding the values. Empty when the file carries no unit for the column.
+//--------------------------------------------------------------------------------------------------
+std::string unitFromTableColumn( const std::shared_ptr<arrow::Table>& table, const std::string& columnName )
+{
+    if ( !table || !table->schema() ) return {};
+
+    auto field = table->schema()->GetFieldByName( columnName );
+    if ( !field || !field->HasMetadata() ) return {};
+
+    auto metadata = field->metadata();
+    for ( int64_t i = 0; i < metadata->size(); i++ )
+    {
+        if ( QString::fromStdString( metadata->key( i ) ).compare( "unit", Qt::CaseInsensitive ) == 0 )
+        {
+            return metadata->value( i );
+        }
+    }
+
+    return {};
+}
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryEnsembleSumo::RimSummaryEnsembleSumo()
+    : summaryDataLoaded( this )
 {
     CAF_PDM_InitObject( "Sumo Ensemble", ":/SummaryCase.svg", "", "The Base Class for all Summary Cases" );
 
@@ -93,6 +159,8 @@ RimSummaryEnsembleSumo::RimSummaryEnsembleSumo()
     setAsEnsemble( true );
 
     m_sumoConnector = RiaApplication::instance()->makeSumoConnector();
+
+    m_lifetimeToken = std::make_shared<bool>( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,8 +176,19 @@ void RimSummaryEnsembleSumo::setSumoDataSource( RimSumoDataSource* sumoDataSourc
 //--------------------------------------------------------------------------------------------------
 std::string RimSummaryEnsembleSumo::unitName( const RifEclipseSummaryAddress& resultAddress )
 {
-    // TODO: Not implemented yet. Need to get the unit name from the Sumo data source
-    return {};
+    if ( !m_sumoDataSource() ) return {};
+
+    // Only the table already fetched for this vector is looked at. Asking for a unit must not put a request on
+    // its way: it is read while the plot axes are built, and the curves that trigger the load are drawn again
+    // once the data arrives, which is when the unit becomes available too.
+    const auto columnName = resultAddress.toEclipseTextAddress();
+    const auto parquetKey =
+        ParquetKey{ m_sumoDataSource()->caseId(), m_sumoDataSource()->ensembleName(), QString::fromStdString( columnName ), false };
+
+    auto it = m_parquetTable.find( parquetKey );
+    if ( it == m_parquetTable.end() ) return {};
+
+    return unitFromTableColumn( it->second, columnName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,53 +259,229 @@ void RimSummaryEnsembleSumo::updateName( const std::set<QString>& existingEnsemb
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsembleSumo::loadSummaryData( const RifEclipseSummaryAddress& resultAddress )
 {
-    if ( resultAddress.isStatistics() ) return;
+    loadSummaryData( std::vector<RifEclipseSummaryAddress>{ resultAddress } );
+}
 
-    // An address without a vector name has no blob to fetch. The special time address used as curve
-    // x-axis is one such address. Requesting it would produce a URL with an empty vector segment, which
-    // the service answers with 404, surfacing as a misleading "parquet file size is 0 bytes" error.
-    if ( resultAddress.vectorName().empty() ) return;
-
-    if ( !m_sumoDataSource() ) return;
-
-    auto resultText = QString::fromStdString( resultAddress.toEclipseTextAddress() );
-
-    auto sumoCaseId       = m_sumoDataSource->caseId();
-    auto sumoEnsembleName = m_sumoDataSource->ensembleName();
-
-    auto key = ParquetKey{ sumoCaseId, sumoEnsembleName, resultText, false };
-    if ( m_parquetTable.find( key ) == m_parquetTable.end() )
-    {
-        auto contents = loadParquetData( key );
-        RiaLogging::debug( std::format( "Load Summary Data. Contents size: {}", contents.size() ) );
-
-        std::shared_ptr<arrow::Table> table = readParquetTable( contents, QString::fromStdString( resultAddress.uiText() ) );
-        m_parquetTable[key]                 = table;
-
-        distributeDataToRealizations( resultAddress, table );
-    }
-
-    auto parametersKey = ParquetKey{ sumoCaseId, sumoEnsembleName, "", true };
-    if ( m_parquetTable.find( parametersKey ) == m_parquetTable.end() )
-    {
-        auto contents = m_sumoConnector->requestParametersParquetDataBlocking( sumoCaseId, sumoEnsembleName );
-        RiaLogging::debug( std::format( "Load ensemble parameter sensitivities. Contents size: {}", contents.size() ) );
-
-        std::shared_ptr<arrow::Table> table = readParquetTable( contents, QString( "%1 parameter sensitivities" ).arg( sumoEnsembleName ) );
-        m_parquetTable[parametersKey]       = table;
-
-        distributeParametersDataToRealizations( table );
-    }
+//--------------------------------------------------------------------------------------------------
+/// Load several vectors at once. Each vector is one parquet blob covering every realization, so the
+/// addresses that are not cached yet are fetched as one concurrent batch rather than one after another.
+/// That matters because a vector the service has not aggregated yet is produced on demand by the request
+/// asking for it, so fetching serially costs the sum of those aggregations.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleSumo::loadSummaryData( const std::vector<RifEclipseSummaryAddress>& resultAddresses )
+{
+    // Nothing is fetched while the caller waits. A curve asking for values it does not have yet gets none,
+    // the request is put on its way, and the curve is drawn again once it arrives. Waiting here instead
+    // stopped the application for as long as the service took, which for a vector it has not aggregated yet
+    // is a good while.
+    prefetchSummaryData( resultAddresses );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QByteArray RimSummaryEnsembleSumo::loadParquetData( const ParquetKey& parquetKey )
+void RimSummaryEnsembleSumo::loadEnsembleParameters()
 {
-    if ( !m_sumoConnector ) return {};
+    if ( !m_sumoDataSource() || !m_sumoConnector ) return;
 
-    return m_sumoConnector->requestParquetDataBlocking( SumoCaseId( parquetKey.caseId ), parquetKey.ensembleId, parquetKey.vectorName );
+    auto sumoCaseId       = m_sumoDataSource->caseId();
+    auto sumoEnsembleName = m_sumoDataSource->ensembleName();
+
+    auto parametersKey = ParquetKey{ sumoCaseId, sumoEnsembleName, "", true };
+    if ( m_parquetTable.find( parametersKey ) != m_parquetTable.end() ) return;
+    if ( m_pendingVectors.find( parametersKey ) != m_pendingVectors.end() ) return;
+
+    // Asked for without waiting, like the vectors. The service aggregates the parameters on demand too, so
+    // the first request for them can take a while, and it used to be made from inside the read of a curve
+    // value: dropping a vector into a plot stopped the application until the parameters had been fetched.
+    m_pendingVectors[parametersKey] = RifEclipseSummaryAddress();
+
+    std::weak_ptr<bool> isAlive = m_lifetimeToken;
+
+    m_sumoConnector->summary().parameterDataAsync( sumoCaseId,
+                                                   sumoEnsembleName,
+                                                   [this, isAlive, parametersKey]( const QByteArray& contents )
+                                                   {
+                                                       if ( isAlive.expired() ) return;
+
+                                                       onParameterDataReceived( parametersKey, contents );
+                                                   } );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The ensemble parameters have arrived. Called on the thread owning the user interface.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleSumo::onParameterDataReceived( const ParquetKey& parquetKey, const QByteArray& contents )
+{
+    auto it = m_pendingVectors.find( parquetKey );
+
+    // No longer wanted: the data source changed, or the cache was cleared, while this was on its way.
+    if ( it == m_pendingVectors.end() ) return;
+
+    m_pendingVectors.erase( it );
+
+    RiaLogging::debug( std::format( "Load ensemble parameter sensitivities. Contents size: {}", contents.size() ) );
+
+    std::shared_ptr<arrow::Table> table = readParquetTable( contents, QString( "%1 parameter sensitivities" ).arg( parquetKey.ensembleId ) );
+
+    m_parquetTable[parquetKey] = table;
+
+    distributeParametersDataToRealizations( table );
+
+    updatePlotsUsingThisEnsemble();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Ask for everything the plots are about to read, and return without waiting for any of it. Each vector is
+/// taken in as it arrives, so a plot shows the vectors that are ready while the rest are still on their way
+/// rather than staying blank until the slowest one is done.
+///
+/// A vector still on its way is reported as having no data, and the curves using it are drawn empty. They are
+/// redrawn when it arrives, see onVectorDataReceived.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleSumo::prefetchSummaryData( const std::vector<RifEclipseSummaryAddress>& resultAddresses )
+{
+    if ( !m_sumoDataSource() || !m_sumoConnector ) return;
+
+    auto sumoCaseId       = m_sumoDataSource->caseId();
+    auto sumoEnsembleName = m_sumoDataSource->ensembleName();
+
+    std::vector<QString> vectorNamesToFetch;
+    for ( const auto& resultAddress : resultAddresses )
+    {
+        if ( resultAddress.isStatistics() ) continue;
+        if ( resultAddress.vectorName().empty() ) continue;
+
+        auto resultText = QString::fromStdString( resultAddress.toEclipseTextAddress() );
+        auto key        = ParquetKey{ sumoCaseId, sumoEnsembleName, resultText, false };
+
+        if ( m_parquetTable.find( key ) != m_parquetTable.end() ) continue;
+        if ( m_pendingVectors.find( key ) != m_pendingVectors.end() ) continue;
+
+        m_pendingVectors[key] = resultAddress;
+        vectorNamesToFetch.push_back( resultText );
+    }
+
+    // The parameters belong to the ensemble rather than to any one vector, and are wanted as soon as
+    // anything of it is read. Asked for here so they travel alongside the vectors.
+    loadEnsembleParameters();
+
+    if ( vectorNamesToFetch.empty() ) return;
+
+    std::weak_ptr<bool> isAlive = m_lifetimeToken;
+
+    m_sumoConnector->summary().vectorDataAsync( sumoCaseId,
+                                                sumoEnsembleName,
+                                                vectorNamesToFetch,
+                                                [this, isAlive, sumoCaseId, sumoEnsembleName]( const QString&    vectorName,
+                                                                                               const QByteArray& contents )
+                                                {
+                                                    // The request outlived the ensemble that asked for it.
+                                                    if ( isAlive.expired() ) return;
+
+                                                    onVectorDataReceived( ParquetKey{ sumoCaseId, sumoEnsembleName, vectorName, false },
+                                                                          contents );
+                                                } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryEnsembleSumo::isSummaryDataPending( const std::vector<RifEclipseSummaryAddress>& resultAddresses ) const
+{
+    if ( m_pendingVectors.empty() || !m_sumoDataSource() ) return false;
+
+    auto sumoCaseId       = m_sumoDataSource()->caseId();
+    auto sumoEnsembleName = m_sumoDataSource()->ensembleName();
+
+    for ( const auto& resultAddress : resultAddresses )
+    {
+        auto resultText = QString::fromStdString( resultAddress.toEclipseTextAddress() );
+
+        if ( m_pendingVectors.contains( ParquetKey{ sumoCaseId, sumoEnsembleName, resultText, false } ) ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One requested vector has arrived. Called on the thread owning the user interface, once per vector.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleSumo::onVectorDataReceived( const ParquetKey& parquetKey, const QByteArray& contents )
+{
+    auto it = m_pendingVectors.find( parquetKey );
+
+    // No longer wanted: the data source changed, or the cache was cleared, while this was on its way.
+    if ( it == m_pendingVectors.end() ) return;
+
+    const auto resultAddress = it->second;
+    m_pendingVectors.erase( it );
+
+    RiaLogging::debug( std::format( "Load Summary Data. Contents size: {}", contents.size() ) );
+
+    // Empty contents mean the request failed. The empty result is stored like any other, so a failure is not
+    // retried on every redraw, matching what a failed blocking load does.
+    std::shared_ptr<arrow::Table> table = readParquetTable( contents, QString::fromStdString( resultAddress.uiText() ) );
+
+    m_parquetTable[parquetKey] = table;
+    distributeDataToRealizations( resultAddress, table );
+
+    loadEnsembleParameters();
+
+    updatePlotsUsingThisEnsemble();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Redraw with what has arrived so far. The curves read their values again, those still waiting for data come
+/// back empty, and the replot itself is coalesced by the redraw scheduler.
+///
+/// A plot is created and fitted to its data in one go. Fetching from Sumo does not wait, so a plot created for
+/// data still on its way was fitted while it had none, and kept that range. Such a plot is fitted here when its
+/// first data arrives, which is what creation would have done had the data been there.
+///
+/// Only a plot that is still empty is fitted. A plot that already shows something has a range the user may have
+/// chosen, and loading another vector into it must not throw that away.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryEnsembleSumo::updatePlotsUsingThisEnsemble()
+{
+    // Loading a plot can bring in the next vector, which asks for this update again. Finish the pass that is
+    // running and repeat it afterwards, rather than reloading plots from inside their own load.
+    if ( m_isUpdatingPlots )
+    {
+        m_hasMissedPlotUpdate = true;
+        return;
+    }
+
+    m_isUpdatingPlots = true;
+
+    do
+    {
+        m_hasMissedPlotUpdate = false;
+
+        for ( RimSummaryPlot* summaryPlot : RimProject::current()->descendantsOfType<RimSummaryPlot>() )
+        {
+            if ( !summaryPlot->summaryAddressesByEnsemble().contains( this ) ) continue;
+
+            // Fit only a plot that has nothing to show and sits in a window where nothing else does either.
+            // Plots of a window share their time axis, so fitting one moves them all, and a window already
+            // showing data has a range the user may have chosen and must keep. A plot added to such a window
+            // takes the shared range instead, which is what happens when its data comes from the cache.
+            const bool needsInitialFit = !hasCurveSamples( summaryPlot ) && !windowShowsData( summaryPlot );
+
+            summaryPlot->loadDataAndUpdate();
+
+            // zoomAll turns the automatic range back on, the one the fit onto an empty plot switched off.
+            if ( needsInitialFit ) summaryPlot->zoomAll();
+
+            summaryPlot->scheduleReplotIfVisible();
+        }
+    } while ( m_hasMissedPlotUpdate );
+
+    m_isUpdatingPlots = false;
+
+    // Sent after the guard is released, so a listener reloading something is not treated as a nested update.
+    // The plots of the project are already done above; this reaches the views held outside it.
+    summaryDataLoaded.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -354,6 +609,8 @@ void RimSummaryEnsembleSumo::distributeDataToRealizations( const RifEclipseSumma
             RiaLogging::warning( "Failed to find values column" );
             return;
         }
+
+        RiaLogging::debug( std::format( "Unit of '{}': '{}'", columnName, unitFromTableColumn( table, columnName ) ) );
     }
 
     // find unique realizations
@@ -654,6 +911,10 @@ void RimSummaryEnsembleSumo::clearCachedData()
 {
     m_resultAddresses.clear();
     m_parquetTable.clear();
+
+    // Anything still on its way belongs to the data just thrown away. Forgetting it here makes those replies
+    // drop their contents on arrival, and lets the vectors be requested again if they are still wanted.
+    m_pendingVectors.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

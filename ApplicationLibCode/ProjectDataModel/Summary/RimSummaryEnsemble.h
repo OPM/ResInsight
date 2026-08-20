@@ -83,6 +83,15 @@ public:
     virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
     virtual std::set<time_t>                   ensembleTimeSteps() const;
 
+    // Hint that these addresses are about to be read, given before the curves pull their values. Sources that
+    // fetch data remotely can use it to load everything in one go instead of one blocking request per address.
+    // Data is still loaded on demand, so this is an optimization only: not calling it changes nothing but speed.
+    virtual void prefetchSummaryData( const std::vector<RifEclipseSummaryAddress>& resultAddresses ) {}
+
+    // Whether any of these addresses is being loaded right now, for sources that load without waiting. A plot
+    // asks about the addresses of its own curves, so it can say it is still waiting for data.
+    virtual bool isSummaryDataPending( const std::vector<RifEclipseSummaryAddress>& resultAddresses ) const { return false; }
+
     void setEnsembleId( int ensembleId );
     int  ensembleId() const;
     bool hasEnsembleParameters() const;
