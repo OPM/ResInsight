@@ -142,7 +142,10 @@ protected:
     bool m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control
                                                // whether to select the corresponding active view or not
 
-    QAction*   m_hideTabsAction;
+    QAction* m_hideTabsAction;
+    QAction* m_tileWindowsAction;
+    QAction* m_maximizeWindowsAction;
+
     QAction*   m_undoAction;
     QAction*   m_redoAction;
     QUndoView* m_undoView;
