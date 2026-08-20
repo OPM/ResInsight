@@ -63,8 +63,8 @@ public:
     // Number of calendar years/months between two time steps. The remainder is expressed as a fraction of the calendar
     // unit it falls inside, so a time step exactly N calendar years/months after the start reports exactly N. Time
     // steps before the start time are reported as negative values.
-    static double calendarYearsBetween( time_t startTime, time_t endTime );
-    static double calendarMonthsBetween( time_t startTime, time_t endTime );
+    static double calendarYearsBetween( const QDateTime& startTime, const QDateTime& endTime );
+    static double calendarMonthsBetween( const QDateTime& startTime, const QDateTime& endTime );
 
     static QDateTime epoch();
 
@@ -107,7 +107,7 @@ public:
         getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps, const QDateTime& fromTimeStep, const QDateTime& toTimeStep );
 
 private:
-    static double calendarUnitsBetween( time_t startTime, time_t endTime, bool useMonths );
+    static double calendarUnitsBetween( const QDateTime& startTime, const QDateTime& endTime, bool useMonths );
 
     static const DateTimeSpan TIMESPAN_MINUTE;
     static const DateTimeSpan TIMESPAN_HOUR;

@@ -97,12 +97,12 @@ public:
     double                fromTimeTToDisplayUnitScale();
     double                fromDaysToDisplayUnitScale();
 
-    static double scaleFromTimeTToDisplayUnit( TimeUnitType displayUnit );
+    static double scaleFromSecondsToDisplayUnit( TimeUnitType displayUnit );
 
     // Time from simulation start expressed in the given display unit. MONTHS and YEARS are computed using calendar
     // arithmetic, so a time step exactly N calendar months/years after the start reports exactly N.
-    static double timeFromSimulationStart( time_t simulationStartTime, time_t timeStep, TimeUnitType displayUnit );
-    double        timeFromSimulationStart( time_t simulationStartTime, time_t timeStep ) const;
+    static double timeFromSimulationStart( const QDateTime& simulationStartTime, const QDateTime& timeStep, TimeUnitType displayUnit );
+    double        timeFromSimulationStart( const QDateTime& simulationStartTime, const QDateTime& timeStep ) const;
 
     RiaDefines::DateFormatComponents
         dateComponents( RiaDefines::DateFormatComponents fallback = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED ) const;

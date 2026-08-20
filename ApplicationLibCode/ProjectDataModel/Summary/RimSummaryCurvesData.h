@@ -23,6 +23,7 @@
 
 #include "RimSummaryTimeAxisProperties.h"
 
+#include <QDateTime>
 #include <QString>
 
 #include <optional>
@@ -41,8 +42,8 @@ struct CurveData
 // Used to report the time column as time from simulation start instead of date and time
 struct TimeFromSimulationStartInfo
 {
-    time_t                                     simulationStartTime = 0;
-    RimSummaryTimeAxisProperties::TimeUnitType displayUnit         = RimSummaryTimeAxisProperties::YEARS;
+    QDateTime                                  simulationStartTime;
+    RimSummaryTimeAxisProperties::TimeUnitType displayUnit = RimSummaryTimeAxisProperties::YEARS;
     QString                                    displayUnitText;
 };
 

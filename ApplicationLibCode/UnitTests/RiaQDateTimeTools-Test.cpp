@@ -6,9 +6,9 @@
 
 namespace
 {
-time_t utcTime( int year, int month, int day )
+QDateTime utcTime( int year, int month, int day )
 {
-    return RiaQDateTimeTools::createUtcDateTime( QDate( year, month, day ) ).toSecsSinceEpoch();
+    return RiaQDateTimeTools::createUtcDateTime( QDate( year, month, day ) );
 }
 } // namespace
 
@@ -18,7 +18,7 @@ time_t utcTime( int year, int month, int day )
 //--------------------------------------------------------------------------------------------------
 TEST( RiaQDateTimeToolsTest, CalendarYearsBetween )
 {
-    const time_t start = utcTime( 2000, 1, 1 );
+    const QDateTime start = utcTime( 2000, 1, 1 );
 
     for ( int i = 0; i <= 10; i++ )
     {
@@ -42,7 +42,7 @@ TEST( RiaQDateTimeToolsTest, CalendarYearsBetween )
 //--------------------------------------------------------------------------------------------------
 TEST( RiaQDateTimeToolsTest, CalendarMonthsBetween )
 {
-    const time_t start = utcTime( 2000, 1, 1 );
+    const QDateTime start = utcTime( 2000, 1, 1 );
 
     for ( int i = 0; i <= 36; i++ )
     {

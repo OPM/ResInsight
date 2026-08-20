@@ -709,10 +709,11 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     std::vector<double> timeFromSimulationStart;
                     if ( !curveTimeStepsY.empty() )
                     {
-                        time_t startDate = curveTimeStepsY[0];
+                        const QDateTime startDate = RiaQDateTimeTools::fromTime_t( curveTimeStepsY[0] );
                         for ( const auto& date : curveTimeStepsY )
                         {
-                            timeFromSimulationStart.push_back( timeAxisProperties->timeFromSimulationStart( startDate, date ) );
+                            timeFromSimulationStart.push_back(
+                                timeAxisProperties->timeFromSimulationStart( startDate, RiaQDateTimeTools::fromTime_t( date ) ) );
                         }
                     }
 

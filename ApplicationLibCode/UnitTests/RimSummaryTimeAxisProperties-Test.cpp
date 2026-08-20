@@ -8,9 +8,9 @@
 
 namespace
 {
-time_t utcTime( int year, int month, int day )
+QDateTime utcTime( int year, int month, int day )
 {
-    return RiaQDateTimeTools::createUtcDateTime( QDate( year, month, day ) ).toSecsSinceEpoch();
+    return RiaQDateTimeTools::createUtcDateTime( QDate( year, month, day ) );
 }
 } // namespace
 
@@ -20,7 +20,7 @@ time_t utcTime( int year, int month, int day )
 //--------------------------------------------------------------------------------------------------
 TEST( RimSummaryTimeAxisPropertiesTest, TimeFromSimulationStart )
 {
-    const time_t start = utcTime( 2000, 1, 1 );
+    const QDateTime start = utcTime( 2000, 1, 1 );
 
     // 2000 is a leap year, a fixed seconds per year scaling would report 1.002074 years
     EXPECT_NEAR( 1.0,

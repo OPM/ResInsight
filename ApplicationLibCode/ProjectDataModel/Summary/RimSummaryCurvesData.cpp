@@ -19,6 +19,7 @@
 #include "RimSummaryCurvesData.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "Summary/RiaSummaryTools.h"
@@ -50,7 +51,7 @@ QString timeColumnHeaderText( const std::optional<TimeFromSimulationStartInfo>& 
 //--------------------------------------------------------------------------------------------------
 /// Text for a single time step, either date and time or time from simulation start
 //--------------------------------------------------------------------------------------------------
-QString timeStepText( time_t timeStep, const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart )
+QString timeStepText( const QDateTime& timeStep, const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart )
 {
     if ( timeFromSimulationStart )
     {
@@ -61,7 +62,7 @@ QString timeStepText( time_t timeStep, const std::optional<TimeFromSimulationSta
         return QString::number( timeSinceSimulationStart, 'g', RimSummaryPlot::precision() );
     }
 
-    return QDateTime::fromSecsSinceEpoch( timeStep ).toUTC().toString( "yyyy-MM-dd hh:mm:ss " );
+    return timeStep.toString( "yyyy-MM-dd hh:mm:ss " );
 }
 } // namespace
 
@@ -375,7 +376,7 @@ void RimSummaryCurvesData::appendToExportDataForCase( QString&                  
             }
         }
         out += "\n";
-        out += timeStepText( timeSteps[j], timeFromSimulationStart );
+        out += timeStepText( RiaQDateTimeTools::fromTime_t( timeSteps[j] ), timeFromSimulationStart );
 
         for ( const auto& k : curveData ) // curves
         {
@@ -450,7 +451,7 @@ void RimSummaryCurvesData::appendToExportData( QString&                         
 
             if ( timeFromSimulationStart )
             {
-                timeText = timeStepText( timeStep, timeFromSimulationStart );
+                timeText = timeStepText( timseStepUtc, timeFromSimulationStart );
             }
             else if ( showTimeAsLongString )
             {

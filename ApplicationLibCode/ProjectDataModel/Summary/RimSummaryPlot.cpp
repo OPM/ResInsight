@@ -26,6 +26,7 @@
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaStdStringTools.h"
 #include "RiuMessageDialog.h"
@@ -109,7 +110,7 @@ std::optional<TimeFromSimulationStartInfo> createTimeFromSimulationStartInfo( Ri
     auto* timeAxisProperties = summaryPlot->timeAxisProperties();
     if ( !timeAxisProperties || timeAxisProperties->timeMode() != RimSummaryTimeAxisProperties::TIME_FROM_SIMULATION_START ) return {};
 
-    return TimeFromSimulationStartInfo{ summaryPlot->firstTimeStepOfFirstCurve(),
+    return TimeFromSimulationStartInfo{ RiaQDateTimeTools::fromTime_t( summaryPlot->firstTimeStepOfFirstCurve() ),
                                         timeAxisProperties->timeUnit(),
                                         caf::AppEnum<RimSummaryTimeAxisProperties::TimeUnitType>::uiText( timeAxisProperties->timeUnit() ) };
 }
