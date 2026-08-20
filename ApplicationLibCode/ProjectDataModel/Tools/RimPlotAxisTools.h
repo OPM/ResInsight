@@ -18,7 +18,8 @@
 
 #pragma once
 
-class RimPlotAxisProperties;
+#include "RimPlotAxisProperties.h"
+
 class RimPlotCurve;
 class RiuPlotAxis;
 class RiuPlotWidget;
@@ -39,6 +40,7 @@ void updatePlotWidgetFromAxisProperties( RiuPlotWidget*                         
 
 void        applyAxisScaleDraw( RiuPlotWidget* plotWidget, RiuPlotAxis axis, const RimPlotAxisProperties* const axisProperties );
 QString     scaleFactorText( const RimPlotAxisProperties* const axisProperties );
+QString     axisValueText( double value, double scaleFactor, int numberOfDecimals, RimPlotAxisProperties::NumberFormatType numberFormat );
 QString     axisTextForAddress( RifEclipseSummaryAddress address );
 std::string shortCalculationName( const std::string& calculationName );
 

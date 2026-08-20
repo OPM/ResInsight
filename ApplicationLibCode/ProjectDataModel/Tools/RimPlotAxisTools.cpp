@@ -58,30 +58,7 @@ public:
         m_numberFormat     = numberFormat;
     }
 
-    QwtText label( double value ) const override
-    {
-        if ( qFuzzyCompare( scaledValue( value ) + 1.0, 1.0 ) ) value = 0.0;
-
-        return QString::number( scaledValue( value ), numberFormat(), m_numberOfDecimals );
-    }
-
-private:
-    char numberFormat() const
-    {
-        switch ( m_numberFormat )
-        {
-            case RimPlotAxisProperties::NUMBER_FORMAT_AUTO:
-                return 'g';
-            case RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL:
-                return 'f';
-            case RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC:
-                return 'e';
-            default:
-                return 'g';
-        }
-    }
-
-    double scaledValue( double value ) const { return value / m_scaleFactor; }
+    QwtText label( double value ) const override { return axisValueText( value, m_scaleFactor, m_numberOfDecimals, m_numberFormat ); }
 
 private:
     double                                  m_scaleFactor;
@@ -211,6 +188,32 @@ void applyAxisScaleDraw( RiuPlotWidget* plotWidget, RiuPlotAxis axis, const RimP
                                                                               axisProperties->numberFormat() ) );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Text for a single axis value, scaled by the given scale factor and formatted using the given number format
+//--------------------------------------------------------------------------------------------------
+QString axisValueText( double value, double scaleFactor, int numberOfDecimals, RimPlotAxisProperties::NumberFormatType numberFormat )
+{
+    double displayValue = scaleFactor != 0.0 ? value / scaleFactor : value;
+    if ( qFuzzyCompare( displayValue + 1.0, 1.0 ) ) displayValue = 0.0;
+
+    char format = 'g';
+    if ( numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL ) format = 'f';
+    if ( numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC ) format = 'e';
+
+    int precision = numberOfDecimals;
+    if ( format == 'g' )
+    {
+        // The 'g' format interprets the precision as the number of significant digits, while the user specifies the
+        // number of decimals. Add the number of digits in the integer part to display the requested number of decimals.
+        const double absValue      = std::abs( displayValue );
+        const int    integerDigits = absValue >= 1.0 ? static_cast<int>( std::floor( std::log10( absValue ) ) ) + 1 : 1;
+
+        precision = integerDigits + numberOfDecimals;
+    }
+
+    return QString::number( displayValue, format, precision );
 }
 
 //--------------------------------------------------------------------------------------------------
