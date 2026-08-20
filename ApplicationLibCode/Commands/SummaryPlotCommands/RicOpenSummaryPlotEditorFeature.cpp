@@ -100,23 +100,27 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
 
     if ( sourcesToSelect.empty() && selectedGroups.empty() )
     {
-        const auto                       ensembles = project->summaryEnsembles();
-        std::vector<RimSummaryEnsemble*> allEnsembles;
-        for ( const auto ensemble : ensembles )
-            if ( ensemble->isEnsemble() ) allEnsembles.push_back( ensemble );
-
+        std::vector<RimSummaryCase*> allSingleCases;
         if ( auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection() )
         {
-            const auto allSingleCases = sumCaseMainColl->topLevelSummaryCases();
-            if ( !allSingleCases.empty() )
-            {
-                sourcesToSelect.push_back( allSingleCases.front() );
-            }
+            allSingleCases = sumCaseMainColl->topLevelSummaryCases();
         }
 
-        else if ( !allEnsembles.empty() )
+        if ( !allSingleCases.empty() )
         {
-            sourcesToSelect.push_back( allEnsembles.front() );
+            sourcesToSelect.push_back( allSingleCases.front() );
+        }
+        else
+        {
+            // No single summary cases available, select the first ensemble
+            for ( const auto ensemble : project->summaryEnsembles() )
+            {
+                if ( ensemble->isEnsemble() )
+                {
+                    sourcesToSelect.push_back( ensemble );
+                    break;
+                }
+            }
         }
     }
 

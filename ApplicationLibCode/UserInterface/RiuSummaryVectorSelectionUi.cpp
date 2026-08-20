@@ -533,33 +533,64 @@ void RiuSummaryVectorSelectionUi::setFieldChangedHandler( const std::function<vo
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::setDefaultSelection( const std::vector<SummarySource*>& defaultSources )
 {
-    RimProject* proj        = RimProject::current();
-    auto        allSumCases = proj->allSummaryCases();
-
-    if ( !allSumCases.empty() )
+    std::vector<SummarySource*> selectTheseSources = defaultSources;
+    if ( selectTheseSources.empty() )
     {
-        RifEclipseSummaryAddress defaultAddress;
+        if ( auto defaultSource = defaultSummarySource() ) selectTheseSources.push_back( defaultSource );
+    }
 
-        std::vector<SummarySource*> selectTheseSources = defaultSources;
-        if ( selectTheseSources.empty() ) selectTheseSources.push_back( allSumCases[0] );
+    if ( selectTheseSources.empty() ) return;
 
-        std::vector<RiaSummaryCurveDefinition> curveDefs;
-        for ( SummarySource* s : selectTheseSources )
+    RifEclipseSummaryAddress defaultAddress;
+
+    std::vector<RiaSummaryCurveDefinition> curveDefs;
+    for ( SummarySource* s : selectTheseSources )
+    {
+        RimSummaryCase*     sumCase  = dynamic_cast<RimSummaryCase*>( s );
+        RimSummaryEnsemble* ensemble = dynamic_cast<RimSummaryEnsemble*>( s );
+        if ( ensemble )
         {
-            RimSummaryCase*     sumCase  = dynamic_cast<RimSummaryCase*>( s );
-            RimSummaryEnsemble* ensemble = dynamic_cast<RimSummaryEnsemble*>( s );
-            if ( ensemble )
-            {
-                curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, defaultAddress ) );
-            }
-            else
-            {
-                curveDefs.push_back( RiaSummaryCurveDefinition( sumCase, defaultAddress, false ) );
-            }
+            curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, defaultAddress ) );
+        }
+        else
+        {
+            curveDefs.push_back( RiaSummaryCurveDefinition( sumCase, defaultAddress, false ) );
+        }
+    }
+
+    setSelectedCurveDefinitions( curveDefs );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The default source is the first top level summary case. If no top level cases are available, the
+/// first ensemble is used. A realization of an ensemble is never used as default source.
+//--------------------------------------------------------------------------------------------------
+SummarySource* RiuSummaryVectorSelectionUi::defaultSummarySource() const
+{
+    RimProject* proj = RimProject::current();
+    if ( !proj ) return nullptr;
+
+    for ( RimOilField* oilField : proj->allOilFields() )
+    {
+        RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
+        if ( !sumCaseMainColl ) continue;
+
+        if ( !m_hideSummaryCases )
+        {
+            const auto topLevelCases = sumCaseMainColl->topLevelSummaryCases();
+            if ( !topLevelCases.empty() ) return topLevelCases.front();
         }
 
-        setSelectedCurveDefinitions( curveDefs );
+        if ( !m_hideEnsembles )
+        {
+            for ( const auto& ensemble : sumCaseMainColl->summaryEnsembles() )
+            {
+                if ( ensemble->isEnsemble() ) return ensemble;
+            }
+        }
     }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

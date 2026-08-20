@@ -379,7 +379,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
             RimEnsembleCurveSet* curveSet = nullptr;
             for ( const auto& cs : m_previewPlot->ensembleCurveSetCollection()->curveSets() )
             {
-                if ( cs->summaryEnsemble() == curveDef.ensemble() && cs->summaryAddressY() == curveDef.summaryAddressY() )
+                if ( cs && cs->summaryEnsemble() == curveDef.ensemble() && cs->summaryAddressY() == curveDef.summaryAddressY() )
                 {
                     curveSet = cs;
                     break;
@@ -541,13 +541,9 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
 
     if ( curveDefs.empty() )
     {
-        auto sumCases = RimProject::current()->allSummaryCases();
-        if ( !sumCases.empty() )
-        {
-            RifEclipseSummaryAddress  defaultAdr;
-            RiaSummaryCurveDefinition curveDef( sumCases.front(), defaultAdr, false );
-            curveDefs.push_back( curveDef );
-        }
+        // No curves in the source plot, use the default source selection
+        setDefaultCurveSelection( {} );
+        return;
     }
 
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setSelectedCurveDefinitions( curveDefs );
