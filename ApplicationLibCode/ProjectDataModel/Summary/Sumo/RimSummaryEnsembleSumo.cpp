@@ -41,6 +41,7 @@
 #include "RiuPlotCurve.h"
 
 #include <arrow/type_fwd.h>
+#include <arrow/util/key_value_metadata.h>
 
 #include <algorithm>
 #include <map>
@@ -116,6 +117,29 @@ std::optional<std::vector<double>> readFloatingPointColumn( const std::shared_pt
 
     return {};
 }
+
+//--------------------------------------------------------------------------------------------------
+/// The unit of a summary vector, as written by the producer of the parquet file into the metadata of the
+/// column holding the values. Empty when the file carries no unit for the column.
+//--------------------------------------------------------------------------------------------------
+std::string unitFromTableColumn( const std::shared_ptr<arrow::Table>& table, const std::string& columnName )
+{
+    if ( !table || !table->schema() ) return {};
+
+    auto field = table->schema()->GetFieldByName( columnName );
+    if ( !field || !field->HasMetadata() ) return {};
+
+    auto metadata = field->metadata();
+    for ( int64_t i = 0; i < metadata->size(); i++ )
+    {
+        if ( QString::fromStdString( metadata->key( i ) ).compare( "unit", Qt::CaseInsensitive ) == 0 )
+        {
+            return metadata->value( i );
+        }
+    }
+
+    return {};
+}
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -152,8 +176,19 @@ void RimSummaryEnsembleSumo::setSumoDataSource( RimSumoDataSource* sumoDataSourc
 //--------------------------------------------------------------------------------------------------
 std::string RimSummaryEnsembleSumo::unitName( const RifEclipseSummaryAddress& resultAddress )
 {
-    // TODO: Not implemented yet. Need to get the unit name from the Sumo data source
-    return {};
+    if ( !m_sumoDataSource() ) return {};
+
+    // Only the table already fetched for this vector is looked at. Asking for a unit must not put a request on
+    // its way: it is read while the plot axes are built, and the curves that trigger the load are drawn again
+    // once the data arrives, which is when the unit becomes available too.
+    const auto columnName = resultAddress.toEclipseTextAddress();
+    const auto parquetKey =
+        ParquetKey{ m_sumoDataSource()->caseId(), m_sumoDataSource()->ensembleName(), QString::fromStdString( columnName ), false };
+
+    auto it = m_parquetTable.find( parquetKey );
+    if ( it == m_parquetTable.end() ) return {};
+
+    return unitFromTableColumn( it->second, columnName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -574,6 +609,8 @@ void RimSummaryEnsembleSumo::distributeDataToRealizations( const RifEclipseSumma
             RiaLogging::warning( "Failed to find values column" );
             return;
         }
+
+        RiaLogging::debug( std::format( "Unit of '{}': '{}'", columnName, unitFromTableColumn( table, columnName ) ) );
     }
 
     // find unique realizations
