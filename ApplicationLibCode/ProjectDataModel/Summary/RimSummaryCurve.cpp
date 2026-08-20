@@ -704,15 +704,16 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 }
                 else
                 {
-                    double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
+                    auto* timeAxisProperties = plot->timeAxisProperties();
 
                     std::vector<double> timeFromSimulationStart;
                     if ( !curveTimeStepsY.empty() )
                     {
-                        time_t startDate = curveTimeStepsY[0];
+                        const QDateTime startDate = RiaQDateTimeTools::fromTime_t( curveTimeStepsY[0] );
                         for ( const auto& date : curveTimeStepsY )
                         {
-                            timeFromSimulationStart.push_back( timeScale * ( date - startDate ) );
+                            timeFromSimulationStart.push_back(
+                                timeAxisProperties->timeFromSimulationStart( startDate, RiaQDateTimeTools::fromTime_t( date ) ) );
                         }
                     }
 

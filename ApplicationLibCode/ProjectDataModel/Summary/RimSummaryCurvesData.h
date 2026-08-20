@@ -21,7 +21,12 @@
 #include "RiaDateTimeDefines.h"
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimSummaryTimeAxisProperties.h"
+
+#include <QDateTime>
 #include <QString>
+
+#include <optional>
 
 class RimSummaryCurve;
 class RimGridTimeHistoryCurve;
@@ -32,6 +37,14 @@ struct CurveData
     QString                                    name;
     RifEclipseSummaryAddressDefines::CurveType curveType;
     std::vector<double>                        values;
+};
+
+// Used to report the time column as time from simulation start instead of date and time
+struct TimeFromSimulationStartInfo
+{
+    QDateTime                                  simulationStartTime;
+    RimSummaryTimeAxisProperties::TimeUnitType displayUnit = RimSummaryTimeAxisProperties::YEARS;
+    QString                                    displayUnitText;
 };
 
 enum class SummaryCurveType
@@ -53,11 +66,12 @@ public:
                                const std::vector<time_t>&    curvetimeSteps,
                                const std::vector<CurveData>& curveDataVector );
 
-    static QString createTextForExport( const std::vector<RimSummaryCurve*>&         curves,
-                                        const std::vector<RimAsciiDataCurve*>&       asciiCurves,
-                                        const std::vector<RimGridTimeHistoryCurve*>& gridCurves,
-                                        RiaDefines::DateTimePeriod                   resamplingPeriod,
-                                        bool                                         showTimeAsLongString );
+    static QString createTextForExport( const std::vector<RimSummaryCurve*>&              curves,
+                                        const std::vector<RimAsciiDataCurve*>&            asciiCurves,
+                                        const std::vector<RimGridTimeHistoryCurve*>&      gridCurves,
+                                        RiaDefines::DateTimePeriod                        resamplingPeriod,
+                                        bool                                              showTimeAsLongString,
+                                        const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart = {} );
 
     static QString createTextForCrossPlotCurves( const std::vector<RimSummaryCurve*>& curves );
 
@@ -70,8 +84,14 @@ private:
                                             const RimSummaryCurvesData& inputCurvesData,
                                             RimSummaryCurvesData*       resultCurvesData );
 
-    static void appendToExportDataForCase( QString& out, const std::vector<time_t>& timeSteps, const std::vector<CurveData>& curveData );
-    static void appendToExportData( QString& out, const std::vector<RimSummaryCurvesData>& curvesData, bool showTimeAsLongString );
+    static void appendToExportDataForCase( QString&                                          out,
+                                           const std::vector<time_t>&                        timeSteps,
+                                           const std::vector<CurveData>&                     curveData,
+                                           const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart );
+    static void appendToExportData( QString&                                          out,
+                                    const std::vector<RimSummaryCurvesData>&          curvesData,
+                                    bool                                              showTimeAsLongString,
+                                    const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart );
     RimSummaryCurvesData static concatCurvesData( const std::vector<RimSummaryCurvesData>& curvesData );
 
 private:

@@ -19,6 +19,7 @@
 #include "RimSummaryCurvesData.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "Summary/RiaSummaryTools.h"
@@ -34,6 +35,36 @@
 #include "cvfMath.h"
 
 #include <QMessageBox>
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Header text for the time column, either date and time or time from simulation start
+//--------------------------------------------------------------------------------------------------
+QString timeColumnHeaderText( const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart )
+{
+    if ( timeFromSimulationStart ) return QString( "Time [%1]" ).arg( timeFromSimulationStart->displayUnitText );
+
+    return "Date and time";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Text for a single time step, either date and time or time from simulation start
+//--------------------------------------------------------------------------------------------------
+QString timeStepText( const QDateTime& timeStep, const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart )
+{
+    if ( timeFromSimulationStart )
+    {
+        double timeSinceSimulationStart = RimSummaryTimeAxisProperties::timeFromSimulationStart( timeFromSimulationStart->simulationStartTime,
+                                                                                                 timeStep,
+                                                                                                 timeFromSimulationStart->displayUnit );
+
+        return QString::number( timeSinceSimulationStart, 'g', RimSummaryPlot::precision() );
+    }
+
+    return timeStep.toString( "yyyy-MM-dd hh:mm:ss " );
+}
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -135,11 +166,12 @@ void RimSummaryCurvesData::addCurveDataNoSearch( const QString&                c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryCurve*>&         curves,
-                                                   const std::vector<RimAsciiDataCurve*>&       asciiCurves,
-                                                   const std::vector<RimGridTimeHistoryCurve*>& gridCurves,
-                                                   RiaDefines::DateTimePeriod                   resamplingPeriod,
-                                                   bool                                         showTimeAsLongString )
+QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryCurve*>&              curves,
+                                                   const std::vector<RimAsciiDataCurve*>&            asciiCurves,
+                                                   const std::vector<RimGridTimeHistoryCurve*>&      gridCurves,
+                                                   RiaDefines::DateTimePeriod                        resamplingPeriod,
+                                                   bool                                              showTimeAsLongString,
+                                                   const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart )
 {
     if ( curves.empty() && asciiCurves.empty() && gridCurves.empty() ) return {};
 
@@ -152,14 +184,14 @@ QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryC
     RimSummaryCurvesData::populateSummaryCurvesData( curves, SummaryCurveType::CURVE_TYPE_OBSERVED, &summaryCurvesObsData );
     RimSummaryCurvesData::populateTimeHistoryCurvesData( gridCurves, &gridCurvesData );
 
-    RimSummaryCurvesData::appendToExportData( out, { summaryCurvesObsData }, showTimeAsLongString );
+    RimSummaryCurvesData::appendToExportData( out, { summaryCurvesObsData }, showTimeAsLongString, timeFromSimulationStart );
 
     std::vector<RimSummaryCurvesData> exportData( 2 );
 
     RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, summaryCurvesData, &exportData[0] );
     RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, gridCurvesData, &exportData[1] );
 
-    RimSummaryCurvesData::appendToExportData( out, exportData, showTimeAsLongString );
+    RimSummaryCurvesData::appendToExportData( out, exportData, showTimeAsLongString, timeFromSimulationStart );
 
     {
         // Handle observed data pasted into plot from clipboard
@@ -167,7 +199,7 @@ QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryC
         RimSummaryCurvesData asciiCurvesData;
         RimSummaryCurvesData::populateAsciiDataCurvesData( asciiCurves, &asciiCurvesData );
 
-        RimSummaryCurvesData::appendToExportData( out, { asciiCurvesData }, showTimeAsLongString );
+        RimSummaryCurvesData::appendToExportData( out, { asciiCurvesData }, showTimeAsLongString, timeFromSimulationStart );
     }
 
     return out;
@@ -328,20 +360,23 @@ void RimSummaryCurvesData::prepareCaseCurvesForExport( RiaDefines::DateTimePerio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesData::appendToExportDataForCase( QString& out, const std::vector<time_t>& timeSteps, const std::vector<CurveData>& curveData )
+void RimSummaryCurvesData::appendToExportDataForCase( QString&                                          out,
+                                                      const std::vector<time_t>&                        timeSteps,
+                                                      const std::vector<CurveData>&                     curveData,
+                                                      const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart )
 {
     for ( size_t j = 0; j < timeSteps.size(); j++ ) // time steps & data points
     {
         if ( j == 0 )
         {
-            out += "Date and time";
+            out += timeColumnHeaderText( timeFromSimulationStart );
             for ( const auto& k : curveData ) // curves
             {
                 out += "\t" + ( k.name );
             }
         }
         out += "\n";
-        out += QDateTime::fromSecsSinceEpoch( timeSteps[j] ).toUTC().toString( "yyyy-MM-dd hh:mm:ss " );
+        out += timeStepText( RiaQDateTimeTools::fromTime_t( timeSteps[j] ), timeFromSimulationStart );
 
         for ( const auto& k : curveData ) // curves
         {
@@ -358,7 +393,10 @@ void RimSummaryCurvesData::appendToExportDataForCase( QString& out, const std::v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesData::appendToExportData( QString& out, const std::vector<RimSummaryCurvesData>& curvesData, bool showTimeAsLongString )
+void RimSummaryCurvesData::appendToExportData( QString&                                          out,
+                                               const std::vector<RimSummaryCurvesData>&          curvesData,
+                                               bool                                              showTimeAsLongString,
+                                               const std::optional<TimeFromSimulationStartInfo>& timeFromSimulationStart )
 {
     RimSummaryCurvesData data = RimSummaryCurvesData::concatCurvesData( curvesData );
 
@@ -392,7 +430,7 @@ void RimSummaryCurvesData::appendToExportData( QString& out, const std::vector<R
         }
 
         out += "\n\n";
-        out += "Date and time";
+        out += timeColumnHeaderText( timeFromSimulationStart );
         for ( size_t i = 0; i < data.caseIds.size(); i++ )
         {
             for ( auto& j : data.allCurveData[i] )
@@ -411,7 +449,11 @@ void RimSummaryCurvesData::appendToExportData( QString& out, const std::vector<R
             QDateTime timseStepUtc = QDateTime::fromSecsSinceEpoch( timeStep ).toUTC();
             QString   timeText;
 
-            if ( showTimeAsLongString )
+            if ( timeFromSimulationStart )
+            {
+                timeText = timeStepText( timseStepUtc, timeFromSimulationStart );
+            }
+            else if ( showTimeAsLongString )
             {
                 timeText = timseStepUtc.toString( "yyyy-MM-dd hh:mm:ss " );
             }
@@ -502,7 +544,7 @@ void RimSummaryCurvesData::appendToExportData( QString& out, const std::vector<R
                 out += "\n";
             }
 
-            appendToExportDataForCase( out, data.timeSteps[i], data.allCurveData[i] );
+            appendToExportDataForCase( out, data.timeSteps[i], data.allCurveData[i], timeFromSimulationStart );
         }
     }
 }

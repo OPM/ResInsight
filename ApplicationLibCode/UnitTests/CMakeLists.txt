@@ -87,6 +87,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTimeAxisProperties-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDeltaSummaryEnsemble-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter-Test.cpp
@@ -96,6 +97,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaInterpolationTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellMeasurementReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaDateStringParser-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaQDateTimeTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigHexGradientTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFormationNamesReader-Test.cpp

@@ -210,6 +210,60 @@ QDateTime RiaQDateTimeTools::createDateTime( const QDate& date, Qt::TimeSpec tim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RiaQDateTimeTools::calendarYearsBetween( const QDateTime& startTime, const QDateTime& endTime )
+{
+    return calendarUnitsBetween( startTime, endTime, false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaQDateTimeTools::calendarMonthsBetween( const QDateTime& startTime, const QDateTime& endTime )
+{
+    return calendarUnitsBetween( startTime, endTime, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A calendar month or year has a varying number of seconds. Count the number of whole calendar units, and express the
+/// remainder as a fraction of the calendar unit it falls inside.
+//--------------------------------------------------------------------------------------------------
+double RiaQDateTimeTools::calendarUnitsBetween( const QDateTime& startTime, const QDateTime& endTime, bool useMonths )
+{
+    if ( startTime == endTime ) return 0.0;
+
+    auto addUnits = [&startTime, useMonths]( int unitCount )
+    { return useMonths ? startTime.addMonths( unitCount ) : startTime.addYears( unitCount ); };
+
+    const int sign = ( endTime > startTime ) ? 1 : -1;
+
+    auto isBeyondEnd = [&endTime, sign]( const QDateTime& dt ) { return sign > 0 ? dt > endTime : dt < endTime; };
+
+    // Start off with an estimate based on the average length of the calendar unit, then adjust to the exact count
+    const double averageSecondsInUnit = useMonths ? 2629746.0 : 31556952.0;
+
+    int unitCount = static_cast<int>( std::abs( static_cast<double>( startTime.secsTo( endTime ) ) ) / averageSecondsInUnit );
+
+    while ( unitCount > 0 && isBeyondEnd( addUnits( unitCount * sign ) ) )
+    {
+        unitCount--;
+    }
+    while ( !isBeyondEnd( addUnits( ( unitCount + 1 ) * sign ) ) )
+    {
+        unitCount++;
+    }
+
+    const QDateTime lower = addUnits( unitCount * sign );
+    const QDateTime upper = addUnits( ( unitCount + 1 ) * sign );
+
+    const double secondsInUnit = std::abs( static_cast<double>( lower.secsTo( upper ) ) );
+    const double fraction      = secondsInUnit > 0.0 ? std::abs( static_cast<double>( lower.secsTo( endTime ) ) ) / secondsInUnit : 0.0;
+
+    return sign * ( unitCount + fraction );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::epoch()
 {
     // NB: Not able to use QDateTime::fromMSecsSinceEpoch as this was introduced in Qt 4.7

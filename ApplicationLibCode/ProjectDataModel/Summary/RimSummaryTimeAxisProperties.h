@@ -93,8 +93,16 @@ public:
     int                   valuesFontSize() const override;
     TimeModeType          timeMode() const;
     void                  setTimeMode( TimeModeType val );
+    TimeUnitType          timeUnit() const;
     double                fromTimeTToDisplayUnitScale();
     double                fromDaysToDisplayUnitScale();
+
+    static double scaleFromSecondsToDisplayUnit( TimeUnitType displayUnit );
+
+    // Time from simulation start expressed in the given display unit. MONTHS and YEARS are computed using calendar
+    // arithmetic, so a time step exactly N calendar months/years after the start reports exactly N.
+    static double timeFromSimulationStart( const QDateTime& simulationStartTime, const QDateTime& timeStep, TimeUnitType displayUnit );
+    double        timeFromSimulationStart( const QDateTime& simulationStartTime, const QDateTime& timeStep ) const;
 
     RiaDefines::DateFormatComponents
         dateComponents( RiaDefines::DateFormatComponents fallback = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED ) const;

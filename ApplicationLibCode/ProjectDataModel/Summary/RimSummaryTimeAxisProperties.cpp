@@ -668,12 +668,43 @@ void RimSummaryTimeAxisProperties::setTimeMode( TimeModeType val )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryTimeAxisProperties::TimeUnitType RimSummaryTimeAxisProperties::timeUnit() const
+{
+    return m_timeUnit();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSummaryTimeAxisProperties::timeFromSimulationStart( const QDateTime& simulationStartTime,
+                                                              const QDateTime& timeStep,
+                                                              TimeUnitType     displayUnit )
+{
+    // A calendar month or year has a varying number of seconds, use calendar arithmetic for these units to make a time
+    // step exactly N calendar months/years after the simulation start report exactly N.
+    if ( displayUnit == MONTHS ) return RiaQDateTimeTools::calendarMonthsBetween( simulationStartTime, timeStep );
+    if ( displayUnit == YEARS ) return RiaQDateTimeTools::calendarYearsBetween( simulationStartTime, timeStep );
+
+    return scaleFromSecondsToDisplayUnit( displayUnit ) * static_cast<double>( simulationStartTime.secsTo( timeStep ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSummaryTimeAxisProperties::timeFromSimulationStart( const QDateTime& simulationStartTime, const QDateTime& timeStep ) const
+{
+    return timeFromSimulationStart( simulationStartTime, timeStep, m_timeUnit() );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// https://www.unitconverters.net/time-converter.html
 //--------------------------------------------------------------------------------------------------
-double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
+double RimSummaryTimeAxisProperties::scaleFromSecondsToDisplayUnit( TimeUnitType displayUnit )
 {
     double scale = 1.0;
-    switch ( m_timeUnit() )
+    switch ( displayUnit )
     {
         case SECONDS:
             break;
@@ -699,6 +730,14 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
     }
 
     return scale;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
+{
+    return scaleFromSecondsToDisplayUnit( m_timeUnit() );
 }
 
 //--------------------------------------------------------------------------------------------------

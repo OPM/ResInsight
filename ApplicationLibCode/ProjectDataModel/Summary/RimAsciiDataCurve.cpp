@@ -19,6 +19,7 @@
 #include "RimAsciiDataCurve.h"
 
 #include "RiaDefines.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
@@ -137,15 +138,15 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
             else
             {
-                double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
+                auto* timeAxisProperties = plot->timeAxisProperties();
 
                 std::vector<double> times;
                 if ( !dateTimes.empty() )
                 {
-                    time_t startDate = dateTimes[0];
+                    const QDateTime startDate = RiaQDateTimeTools::fromTime_t( dateTimes[0] );
                     for ( time_t& date : dateTimes )
                     {
-                        times.push_back( timeScale * ( date - startDate ) );
+                        times.push_back( timeAxisProperties->timeFromSimulationStart( startDate, RiaQDateTimeTools::fromTime_t( date ) ) );
                     }
                 }
 
