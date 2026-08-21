@@ -421,6 +421,20 @@ void RimDeltaSummaryCase::createSummaryReaderInterface()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The addresses of a delta case is the union of the addresses of the source cases. Rebuild the union to pick up calculated addresses
+/// created after the source case addresses were created, and discard cached values based on calculations that may have changed.
+//--------------------------------------------------------------------------------------------------
+void RimDeltaSummaryCase::refreshCalculatedAddresses()
+{
+    // If no addresses have been created, do nothing. The addresses will be created on demand in summaryReader().
+    if ( m_allResultAddresses.empty() ) return;
+
+    std::erase_if( m_dataCache, []( const auto& item ) { return item.first.isCalculated(); } );
+
+    createSummaryReaderInterface();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimDeltaSummaryCase::summaryReader()

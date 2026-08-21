@@ -22,6 +22,7 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include "RimDeltaSummaryEnsemble.h"
 #include "RimObservedSummaryData.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCase.h"
@@ -87,7 +88,23 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
 
     if ( auto summaryCaseCollection = RiaSummaryTools::summaryCaseMainCollection() )
     {
+        // A delta ensemble derives its addresses from the source ensembles, and must be updated after the source ensembles. The delta
+        // ensembles are stored after the source ensembles, as an ensemble must exist before it can be used as a source.
+        std::vector<RimSummaryEnsemble*> deltaEnsembles;
+
         for ( auto ensemble : summaryCaseCollection->summaryEnsembles() )
+        {
+            if ( dynamic_cast<RimDeltaSummaryEnsemble*>( ensemble ) )
+            {
+                deltaEnsembles.push_back( ensemble );
+            }
+            else
+            {
+                ensemble->onCalculationUpdated();
+            }
+        }
+
+        for ( auto ensemble : deltaEnsembles )
         {
             ensemble->onCalculationUpdated();
         }

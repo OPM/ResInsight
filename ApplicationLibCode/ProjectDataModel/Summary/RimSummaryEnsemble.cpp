@@ -1297,6 +1297,17 @@ void RimSummaryEnsemble::onCalculationUpdated()
         }
     }
 
+    // The addresses of the other cases in the ensemble are not created up front for performance reasons. If addresses have been created,
+    // the calculated addresses must be refreshed to reflect the current set of calculation objects.
+    // https://github.com/OPM/ResInsight/issues/14559
+    for ( auto summaryCase : allSummaryCases() )
+    {
+        if ( auto reader = summaryCase->summaryReader() )
+        {
+            reader->refreshCalculatedAddresses();
+        }
+    }
+
     m_dataVectorFolders->deleteCalculatedAddresses();
     m_dataVectorFolders->updateFolderStructure( ensembleSummaryAddresses(), -1, m_ensembleId );
 

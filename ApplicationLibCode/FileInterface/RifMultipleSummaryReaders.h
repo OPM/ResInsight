@@ -41,6 +41,7 @@ public:
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
     void createAndSetAddresses() override;
+    void refreshCalculatedAddresses() override;
 
 protected:
     size_t keywordCount() const override;
