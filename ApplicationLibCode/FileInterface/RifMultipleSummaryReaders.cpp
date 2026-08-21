@@ -177,6 +177,30 @@ void RifMultipleSummaryReaders::createAndSetAddresses()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Recreate the addresses of the calculated readers, and leave the addresses of the native readers untouched. Calculation objects can be
+/// created and modified after the addresses of a summary case have been created, and the addresses of the calculated readers must be
+/// updated to reflect this.
+//--------------------------------------------------------------------------------------------------
+void RifMultipleSummaryReaders::refreshCalculatedAddresses()
+{
+    // If no addresses have been created, do nothing. The calculated addresses will be created along with the addresses of the native
+    // readers in createAndSetAddresses().
+    if ( m_allResultAddresses.empty() ) return;
+
+    std::erase_if( m_allResultAddresses, []( const RifEclipseSummaryAddress& adr ) { return adr.isCalculated(); } );
+
+    for ( const auto& r : m_readers )
+    {
+        if ( dynamic_cast<RifCalculatedSummaryCurveReader*>( r.get() ) == nullptr ) continue;
+
+        r->createAndSetAddresses();
+
+        const auto& resultAddresses = r->allResultAddresses();
+        m_allResultAddresses.insert( resultAddresses.begin(), resultAddresses.end() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 size_t RifMultipleSummaryReaders::keywordCount() const

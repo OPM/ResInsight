@@ -55,6 +55,10 @@ public:
     virtual void createAndSetAddresses();
     void         createAddressesIfRequired();
 
+    // Recreate the addresses provided by calculation objects. Does nothing if no addresses have been created yet, as the calculated
+    // addresses in that case are created as part of createAddressesIfRequired().
+    virtual void refreshCalculatedAddresses();
+
     int serialNumber() const;
 
     // Returns the number of result addresses. If no addresses are present, keywordCount() is returned.

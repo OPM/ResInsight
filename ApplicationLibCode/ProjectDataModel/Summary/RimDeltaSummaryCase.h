@@ -25,6 +25,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include <map>
 #include <memory>
 
 class RifEclipseSummaryAddress;
@@ -79,6 +80,7 @@ public:
 
     void                       createSummaryReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
+    void                       refreshCalculatedAddresses() override;
 
     void updateDisplayNameFromCases();
 
