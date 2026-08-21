@@ -164,7 +164,11 @@ QList<caf::PdmOptionItemInfo> RimGridCalculationVariable::calculateValueOptions(
     }
     else if ( fieldNeedingOptions == &m_eclipseCase )
     {
-        RimTools::eclipseCaseOptionItems( &options );
+        // Include statistics cases, as a statistics result can be used as source in a grid calculation
+        for ( auto* c : RimEclipseCaseTools::allEclipseGridCases() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
+        }
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
