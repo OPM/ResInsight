@@ -43,6 +43,7 @@
 #include "DockAreaTitleBar.h"
 #include "DockAreaWidget.h"
 #include "DockManager.h"
+#include "DockSplitter.h"
 #include "DockWidget.h"
 
 #include <QAction>
@@ -54,10 +55,15 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QTextEdit>
+#include <QTimer>
 #include <QTreeView>
 #include <QUndoStack>
 #include <QUndoView>
 #include <QUuid>
+
+#include <map>
+#include <set>
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -94,6 +100,14 @@ RiuMainWindowBase::RiuMainWindowBase()
     m_hideTabsAction->setToolTip( "Show/Hide Tabs in Main Views" );
     m_hideTabsAction->setCheckable( true );
     connect( m_hideTabsAction, SIGNAL( toggled( bool ) ), SLOT( slotHideTabs( bool ) ) );
+
+    m_tileWindowsAction = new QAction( QIcon( ":/TileWindows.svg" ), "Tile Windows", this );
+    m_tileWindowsAction->setToolTip( "Tile All View Windows" );
+    connect( m_tileWindowsAction, SIGNAL( triggered() ), SLOT( tileViewWindows() ) );
+
+    m_maximizeWindowsAction = new QAction( QIcon( ":/MaximizeWindows.svg" ), "Maximize Windows", this );
+    m_maximizeWindowsAction->setToolTip( "Maximize All View Windows" );
+    connect( m_maximizeWindowsAction, SIGNAL( triggered() ), SLOT( maximizeViewWindows() ) );
 
 #ifdef Q_OS_WIN
     if ( RiaPreferences::current()->guiTheme() == RiaDefines::ThemeEnum::DARK )
@@ -775,6 +789,10 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
         QAction* exportLayoutAction = m_windowMenu->addAction( "Export Layout to Clipboard" );
         connect( exportLayoutAction, SIGNAL( triggered() ), this, SLOT( exportDockLayout() ) );
     }
+
+    m_windowMenu->addSeparator();
+    m_windowMenu->addAction( m_tileWindowsAction );
+    m_windowMenu->addAction( m_maximizeWindowsAction );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -847,5 +865,127 @@ void RiuMainWindowBase::slotHideTabs( bool hideTabs )
         {
             area->titleBar()->show();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::tileViewWindows()
+{
+    // predefined grid size map for tiling of windows: number of views -> (columns, rows) in grid, max 25 views
+    static std::map<int, std::pair<int, int>> gridSizeMap = { { 1, { 1, 1 } },  { 2, { 2, 1 } },  { 3, { 3, 1 } },  { 4, { 2, 2 } },
+                                                              { 5, { 3, 2 } },  { 6, { 3, 2 } },  { 7, { 3, 3 } },  { 8, { 3, 3 } },
+                                                              { 9, { 3, 3 } },  { 10, { 4, 3 } }, { 11, { 4, 3 } }, { 12, { 4, 3 } },
+                                                              { 13, { 4, 4 } }, { 14, { 4, 4 } }, { 15, { 4, 4 } }, { 16, { 4, 4 } },
+                                                              { 17, { 5, 4 } }, { 18, { 5, 4 } }, { 19, { 5, 4 } }, { 20, { 5, 4 } },
+                                                              { 21, { 5, 5 } }, { 22, { 5, 5 } }, { 23, { 5, 5 } }, { 24, { 5, 5 } },
+                                                              { 25, { 5, 5 } } };
+
+    // stores the views to tile
+    std::vector<RimViewWindow*> tiledWindows;
+
+    // remove all visible views from central dock area
+    for ( auto view : viewWindows() )
+    {
+        if ( !view->dockWidget() ) continue;
+        if ( !view->showWindow() ) continue;
+        tiledWindows.push_back( view );
+        m_dockManager->removeDockWidget( view->dockWidget() );
+    }
+
+    // redock views in a grid layout
+    const int nViews = (int)tiledWindows.size();
+    const int nCols  = gridSizeMap[nViews].first;
+    const int nRows  = gridSizeMap[nViews].second;
+
+    std::vector<std::vector<ads::CDockAreaWidget*>> areas( nRows, std::vector<ads::CDockAreaWidget*>( nCols ) );
+
+    int viewIndex = 0;
+
+    for ( int row = 0; row < nRows; row++ )
+    {
+        for ( int col = 0; col < nCols; col++ )
+        {
+            if ( viewIndex >= nViews ) break;
+            if ( viewIndex >= 25 ) // limit to 25 views, see map above
+            {
+                tiledWindows[viewIndex++]->removeWindowFromDock();
+                continue;
+            }
+
+            auto view = tiledWindows[viewIndex++];
+            auto dock = view->dockWidget();
+
+            if ( row == 0 && col == 0 )
+            {
+                areas[row][col] =
+                    m_dockManager->addDockWidget( ads::CenterDockWidgetArea, dock, m_dockManager->centralWidget()->dockAreaWidget() );
+            }
+            else if ( row == 0 )
+            {
+                areas[row][col] = m_dockManager->addDockWidget( ads::RightDockWidgetArea, dock, areas[row][col - 1] );
+            }
+            else
+            {
+                areas[row][col] = m_dockManager->addDockWidget( ads::BottomDockWidgetArea, dock, areas[row - 1][col] );
+            }
+        }
+    }
+
+    // build unique list of splitters used in the areas created
+    std::set<ads::CDockSplitter*> splitters;
+
+    for ( auto arealist : areas )
+    {
+        for ( auto area : arealist )
+        {
+            if ( area && area->parentSplitter() )
+            {
+                splitters.insert( area->parentSplitter() );
+            }
+        }
+    }
+
+    if ( m_dockManager->centralWidget() && m_dockManager->centralWidget()->dockAreaWidget() )
+    {
+        splitters.insert( m_dockManager->centralWidget()->dockAreaWidget()->parentSplitter() );
+    }
+
+    // rebalance splitters after a short delay to allow the layout to be updated before setting sizes
+    QTimer::singleShot( 10,
+                        this,
+                        [splitters]()
+                        {
+                            for ( QSplitter* splitter : splitters )
+                            {
+                                QList<int> sizes( splitter->count(), 1000 ); // size not important, just needs all to be equal
+                                splitter->setSizes( sizes );
+                            }
+                        } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::maximizeViewWindows()
+{
+    // remove all active views from dock manager
+    std::vector<RimViewWindow*> activeViews;
+    for ( auto view : viewWindows() )
+    {
+        if ( !view->dockWidget() ) continue;
+        if ( !view->showWindow() ) continue;
+        activeViews.push_back( view );
+
+        m_dockManager->removeDockWidget( view->dockWidget() );
+    }
+
+    // add all views to the center area
+    for ( auto view : activeViews )
+    {
+        m_dockManager->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea,
+                                      view->dockWidget(),
+                                      m_dockManager->centralWidget()->dockAreaWidget() );
     }
 }

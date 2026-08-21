@@ -96,7 +96,8 @@
         <file>Legend.png</file>
         <file>LinkView.svg</file>
         <file>MainGrid16x16.png</file>
-        <file>MasterView16x16.png</file>
+		<file>MaximizeWindows.svg</file>
+		<file>MasterView16x16.png</file>
         <file>Minus.png</file>
         <file>NorthView.svg</file>
         <file>MultiPlot16x16.png</file>

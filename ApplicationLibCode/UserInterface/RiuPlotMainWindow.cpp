@@ -537,6 +537,7 @@ void RiuPlotMainWindow::createDockPanels()
         projectTree->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
 
         dockWidget->setWidget( projectTree );
+        dockWidget->hide();
 
         projectTree->treeView()->setHeaderHidden( true );
         projectTree->treeView()->setSelectionMode( QAbstractItemView::ExtendedSelection );

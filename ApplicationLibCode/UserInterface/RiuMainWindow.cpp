@@ -638,6 +638,9 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( cmdFeatureMgr->action( "RicShowPlotWindowFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLinkVisibleViewsFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicShowGridCalculatorFeature" ) );
+        toolbar->addSeparator();
+        toolbar->addAction( m_tileWindowsAction );
+        toolbar->addAction( m_maximizeWindowsAction );
     }
 
     {
