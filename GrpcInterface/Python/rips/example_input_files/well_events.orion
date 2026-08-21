@@ -24,6 +24,17 @@ WELL A1 = "55_33-A-1"
 REPORT 2018-07-01
 REPORT A2_STARTUP + 90
 
+# Raw schedule text is preserved verbatim. This block is inserted immediately
+# after the date declaration; lower priorities are emitted first when multiple
+# blocks use the same placement.
+SCHEDULE
+  @A1_STARTUP + RAMP  RAW_TEXT  PLACEMENT=AFTER_DATE  PRIORITY=10
+-- Custom schedule text not modeled by the timeline API
+WTRACER
+  '55_33-A-1'  'ORION_TRACER'  1.0 /
+/
+END_RAW_TEXT
+
 WELL A1
   @A1_STARTUP         PERFORATION  MDSTART=1644.49  MDEND=1664.28  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=1  FILTER=POROPERM
   @A1_STARTUP         PERFORATION  MDSTART=1664.28  MDEND=1674.18  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=2  FILTER=POROPERM
