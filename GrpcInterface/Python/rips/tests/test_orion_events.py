@@ -1880,6 +1880,24 @@ class TestOrionEventsIntegration:
         assert " 300" in schedule
         assert "RESTART\n" not in schedule
 
+    def test_report_only_document_generates_schedule(self, project_with_case_and_wells):
+        project, case, timeline = project_with_case_and_wells
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\nREPORT 2024-02-01\nREPORT 2024-06-01\n"
+        )
+
+        report = apply_orion_document(document, timeline, project)
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case,
+            first_date_as_comment=False,
+            additional_dates=report.report_dates,
+        )
+
+        assert report.events_applied == 0
+        assert report.report_dates == ["2024-02-01", "2024-06-01"]
+        assert "1 'FEB' 2024" in schedule
+        assert "1 'JUN' 2024" in schedule
+
     def test_apply_creates_perforations_and_schedule(self, project_with_case_and_wells):
         """End-to-end: parse -> apply -> set_timestamp -> generate schedule."""
         project, case, timeline = project_with_case_and_wells

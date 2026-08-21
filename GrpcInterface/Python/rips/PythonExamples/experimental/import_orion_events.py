@@ -67,6 +67,7 @@ def main():
     )
     print(f"   Events applied: {report.events_applied}")
     print(f"   Events skipped: {report.events_skipped}")
+    print(f"   Report dates:   {report.report_dates}")
     for warning in report.warnings:
         print(f"   WARNING: {warning}")
     for error in report.errors:
@@ -86,11 +87,13 @@ def main():
 
     # Generate Eclipse schedule text from the timeline.
     print("\n4. Generating Eclipse schedule text...")
-    if report.events_applied == 0:
-        print("   No events applied - skipping schedule generation.")
+    if report.events_applied == 0 and not report.report_dates:
+        print("   No events or report dates found - skipping schedule generation.")
         return
     schedule_text = timeline.generate_schedule_text(
-        eclipse_case=case, export_msw_for_wells=project.well_paths()
+        eclipse_case=case,
+        export_msw_for_wells=project.well_paths(),
+        additional_dates=report.report_dates,
     )
     if schedule_text:
         print(f"   Generated schedule text ({len(schedule_text)} characters):")

@@ -816,11 +816,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
         wellPathsWithEvents = timeline->getWellPathsWithEvents();
     }
 
-    if ( dates.empty() )
-    {
-        return std::unexpected( QString( "No events found in timeline" ) );
-    }
-
     // Merge in user-specified additional dates: each becomes a DATES keyword even when no events
     // fall on it (e.g. to force a summary report). They are deliberately not filtered by the last
     // applied timestamp.
@@ -837,6 +832,11 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
             mergedDates.insert( additionalDate );
         }
         dates.assign( mergedDates.begin(), mergedDates.end() );
+    }
+
+    if ( dates.empty() )
+    {
+        return std::unexpected( QString( "No events or additional dates found in timeline" ) );
     }
 
     std::vector<RimWellPath*>    mswWellPaths = m_exportMswForWells.ptrReferencedObjectsByType();
