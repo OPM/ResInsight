@@ -77,10 +77,6 @@ bool RigSoilResultCalculator::isMatching( const RigEclipseResultAddress& resVarA
 //--------------------------------------------------------------------------------------------------
 void RigSoilResultCalculator::calculate( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex )
 {
-    // See similar function in RifReaderOpmRft::values, but the current implementation is not suitable for merging
-    // Compute SGAS based on SWAT if the simulation contains no oil
-    m_resultsData->testAndComputeSgasForTimeStep( timeStepIndex );
-
     RigEclipseResultAddress SWATAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() );
     RigEclipseResultAddress SGASAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
     RigEclipseResultAddress SSOLAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SSOL" );

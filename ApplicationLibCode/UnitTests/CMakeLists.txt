@@ -25,6 +25,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEnsembleFractureStatisticsCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMobilePoreVolumeResultCalculator-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigSgasResultCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoir-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigResdataGridConverter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridExportAdapter-Test.cpp

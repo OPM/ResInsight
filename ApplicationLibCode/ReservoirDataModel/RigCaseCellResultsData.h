@@ -199,6 +199,7 @@ private:
     friend class RimEclipseStatisticsCaseEvaluator;
     friend class RigSoilResultCalculator;
     friend class RigSwatResultCalculator;
+    friend class RigSgasResultCalculator;
     friend class RigFaultDistanceResultCalculator;
     friend class RigMobilePoreVolumeResultCalculator;
     friend class RigIndexIjkResultCalculator;
@@ -218,7 +219,7 @@ private:
     void setMustBeCalculated( size_t scalarResultIndex );
 
     void computeSOILForTimeStep( size_t timeStepIndex );
-    void testAndComputeSgasForTimeStep( size_t timeStepIndex );
+    void computeSgasForTimeStep( size_t timeStepIndex );
 
     bool hasCompleteTransmissibilityResults() const;
 
