@@ -1133,6 +1133,7 @@ class TestApplying:
         _, report = self._apply(text)
         assert report.events_skipped == 1
         assert any("MDEND" in e for e in report.errors)
+        assert 'Line 3 [WELL "55_33-A-1", date 2018-01-01]' in report.errors[0]
 
     def test_perforation_unknown_attr_is_error(self):
         text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 ZZZ=3\n'
@@ -1395,6 +1396,8 @@ class TestApplying:
         assert report.events_skipped == 1
         assert timeline.schedule_keyword_calls == []
         assert expected_error in report.errors[0]
+        expected_scope = 'GROUP "G"' if block.startswith("GROUP") else "SCHEDULE"
+        assert f"[{expected_scope}, date 2024-01-01]" in report.errors[0]
 
     def test_completion_event_in_schedule_block_is_error(self):
         text = (
@@ -1582,29 +1585,49 @@ class TestOrionEventsIntegration:
         well_path_coll = project.descendants(rips.WellPathCollection)[0]
         return project, case, well_path_coll.event_timeline()
 
-    def test_compdat_invalid_item_names_report_valid_names(
+    def test_wconhist_invalid_item_names_report_context_and_valid_names(
         self, project_with_case_and_wells
     ):
-        """Invalid COMPDAT items produce an actionable error (issue #14535)."""
         project, _case, timeline = project_with_case_and_wells
         well = project.well_paths()[0]
         document = parse_orion_events(
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            "  @2024-01-01 COMPDAT STATUS=OPEN TRANSMISSIBILITY=1.0\n"
+            "  @2024-01-01 WCONHIST STATUS=OPEN INVALID_FIELD=1.0\n"
         )
 
-        with pytest.raises(rips.RipsError) as exc_info:
-            apply_orion_document(document, timeline, project)
+        report = apply_orion_document(document, timeline, project)
 
-        error_msg = str(exc_info.value)
-        assert "Keyword 'COMPDAT' contains invalid item names" in error_msg
-        assert "STATUS, TRANSMISSIBILITY" in error_msg
+        assert report.events_applied == 0
+        assert report.events_skipped == 1
+        assert len(report.errors) == 1
+        error_msg = report.errors[0]
+        assert f'Line 3 [WELL "{well.name}", date 2024-01-01]' in error_msg
         assert (
-            "Valid item names are: WELL, I, J, K1, K2, STATE, SAT_TABLE, "
-            "CONNECTION_TRANSMISSIBILITY_FACTOR, DIAMETER, Kh, SKIN, D_FACTOR, "
-            "DIR, PR"
-        ) in error_msg
+            "Keyword 'WCONHIST' contains invalid item names: INVALID_FIELD" in error_msg
+        )
+        assert "Valid item names are:" in error_msg
+
+    def test_unknown_keyword_reports_context_and_continues(
+        self, project_with_case_and_wells
+    ):
+        project, _case, timeline = project_with_case_and_wells
+        well = project.well_paths()[0]
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            "  @2024-01-01 NOT_A_KEYWORD VALUE=1\n"
+            "  @2024-01-02 WCONHIST STATUS=OPEN\n"
+        )
+
+        report = apply_orion_document(document, timeline, project)
+
+        assert report.events_applied == 1
+        assert report.events_skipped == 1
+        assert len(report.errors) == 1
+        error_msg = report.errors[0]
+        assert f'Line 3 [WELL "{well.name}", date 2024-01-01]' in error_msg
+        assert "Keyword 'NOT_A_KEYWORD' is not recognized by opm-common" in error_msg
 
     def test_rptrst_boolean_values_emit_bare_mnemonics(
         self, project_with_case_and_wells
