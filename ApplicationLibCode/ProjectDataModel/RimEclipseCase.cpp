@@ -1406,6 +1406,13 @@ std::vector<RimEclipseView*> RimEclipseCase::reservoirViews() const
 
     addViewsFromViewCollection( views, viewCollection() );
     addViewsFromViewCollection( views, globalViewCollection() );
+
+    // A case in a grid ensemble is displayed by views in the view collection of the grid ensemble
+    if ( auto gridEnsemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>() )
+    {
+        addViewsFromViewCollection( views, gridEnsemble->viewCollection() );
+    }
+
     return views;
 }
 
