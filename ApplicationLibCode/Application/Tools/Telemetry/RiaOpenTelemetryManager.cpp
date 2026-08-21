@@ -399,11 +399,17 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
         }
     }
 
-    reportEventAsync( "crash.signal_handler", attributes );
+    // Send the crash event as its own request instead of appending it to the event queue.
+    // flushPendingEvents() drains a single batch from the front of the queue, so a crash event queued behind
+    // more than maxBatchSize events would not be part of the request the wait loop below waits for.
+    sendBatch( { Event( "crash.signal_handler", attributes ) } );
+
+    // Flush whatever regular telemetry is still queued. Issued after the crash request so the crash report
+    // gets the connection first.
     flushPendingEvents();
 
     // Wait for the pending network reply to complete before the process exits.
-    // flushPendingEvents() initiates an async HTTP POST; without pumping the event loop here
+    // The crash report is sent as an async HTTP POST; without pumping the event loop here
     // the reply never gets a chance to finish and the crash is silently dropped.
     //
     // This runs from within the crash/signal handler, so exclude user input events while pumping:
@@ -878,6 +884,11 @@ void RiaOpenTelemetryManager::handleError( TelemetryError error, const QString& 
 
     if ( failureCount >= 3 && !m_circuitBreakerOpen.exchange( true ) )
     {
+        // Start the backoff window here. m_lastReconnectAttempt is default constructed to the steady_clock
+        // epoch, so without this the first attemptReconnection() call passes the 5 minute check immediately
+        // and closes the breaker again on the next timer tick.
+        m_lastReconnectAttempt = std::chrono::steady_clock::now();
+
         // Only log the transition. Logging on every failure floods the message panel, as the failures that open the
         // breaker keep arriving after it is open.
         RiaLogging::warning( "OpenTelemetry circuit breaker opened due to consecutive failures. Telemetry is "
