@@ -55,6 +55,7 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QTextEdit>
+#include <QTimer>
 #include <QTreeView>
 #include <QUndoStack>
 #include <QUndoView>
@@ -872,7 +873,7 @@ void RiuMainWindowBase::slotHideTabs( bool hideTabs )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::tileViewWindows()
 {
-    // predefined grid size map for tiling of windows: number of views -> columns, rows in grid
+    // predefined grid size map for tiling of windows: number of views -> (columns, rows) in grid, max 25 views
     static std::map<int, std::pair<int, int>> gridSizeMap = { { 1, { 1, 1 } },  { 2, { 2, 1 } },  { 3, { 3, 1 } },  { 4, { 2, 2 } },
                                                               { 5, { 3, 2 } },  { 6, { 3, 2 } },  { 7, { 3, 3 } },  { 8, { 3, 3 } },
                                                               { 9, { 3, 3 } },  { 10, { 4, 3 } }, { 11, { 4, 3 } }, { 12, { 4, 3 } },
@@ -893,9 +894,10 @@ void RiuMainWindowBase::tileViewWindows()
         m_dockManager->removeDockWidget( view->dockWidget() );
     }
 
+    // redock views in a grid layout
     const int nViews = (int)tiledWindows.size();
-    const int nRows  = gridSizeMap[nViews].second;
     const int nCols  = gridSizeMap[nViews].first;
+    const int nRows  = gridSizeMap[nViews].second;
 
     std::vector<std::vector<ads::CDockAreaWidget*>> areas( nRows, std::vector<ads::CDockAreaWidget*>( nCols ) );
 
@@ -909,7 +911,7 @@ void RiuMainWindowBase::tileViewWindows()
             if ( viewIndex >= 25 ) // limit to 25 views, see map above
             {
                 tiledWindows[viewIndex++]->removeWindowFromDock();
-                break;
+                continue;
             }
 
             auto view = tiledWindows[viewIndex++];
@@ -931,27 +933,36 @@ void RiuMainWindowBase::tileViewWindows()
         }
     }
 
+    // build unique list of splitters used in the areas created
     std::set<ads::CDockSplitter*> splitters;
 
-    for ( auto a : areas )
+    for ( auto arealist : areas )
     {
-        for ( auto b : a )
+        for ( auto area : arealist )
         {
-            if ( b && b->parentSplitter() )
+            if ( area && area->parentSplitter() )
             {
-                splitters.insert( b->parentSplitter() );
+                splitters.insert( area->parentSplitter() );
             }
         }
     }
 
-    splitters.insert( m_dockManager->centralWidget()->dockAreaWidget()->parentSplitter() );
-
-    for ( auto splitter : splitters )
+    if ( m_dockManager->centralWidget() && m_dockManager->centralWidget()->dockAreaWidget() )
     {
-        QList<int> sizes;
-        sizes.fill( 1000, splitter->count() );
-        splitter->setSizes( sizes );
+        splitters.insert( m_dockManager->centralWidget()->dockAreaWidget()->parentSplitter() );
     }
+
+    // rebalance splitters after a short delay to allow the layout to be updated before setting sizes
+    QTimer::singleShot( 10,
+                        this,
+                        [splitters]()
+                        {
+                            for ( QSplitter* splitter : splitters )
+                            {
+                                QList<int> sizes( splitter->count(), 1000 ); // size not important, just needs all to be equal
+                                splitter->setSizes( sizes );
+                            }
+                        } );
 }
 
 //--------------------------------------------------------------------------------------------------
