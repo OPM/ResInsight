@@ -65,58 +65,58 @@ def add_well_keyword_event(
         TypeError: If keyword_data contains unsupported value types
 
     Example:
-        ```python
-        # Get the timeline
-        well_path = project.well_paths()[0]
-        timeline = well_path.event_timeline()
+        .. code-block:: python
 
-        # Add WCONHIST - Historical production data
-        timeline.add_well_keyword_event(
-            event_date="2018-04-01",
-            well_path=well_path,
-            keyword_name="WCONHIST",
-            keyword_data={
-                "WELL": well_path.name,
-                "STATUS": "OPEN",
-                "CMODE": "RESV",
-                "ORAT": 3999.98999,
-                "WRAT": 0.01,
-                "GRAT": 550678.438,
-                "VFP_TABLE": 1
-            }
-        )
+            # Get the timeline
+            well_path = project.well_paths()[0]
+            timeline = well_path.event_timeline()
 
-        # Add WELTARG - Change target
-        timeline.add_well_keyword_event(
-            event_date="2018-05-01",
-            well_path=well_path,
-            keyword_name="WELTARG",
-            keyword_data={
-                "WELL": well_path.name,
-                "CMODE": "ORAT",
-                "NEW_VALUE": 5000.0
-            }
-        )
+            # Add WCONHIST - Historical production data
+            timeline.add_well_keyword_event(
+                event_date="2018-04-01",
+                well_path=well_path,
+                keyword_name="WCONHIST",
+                keyword_data={
+                    "WELL": well_path.name,
+                    "STATUS": "OPEN",
+                    "CMODE": "RESV",
+                    "ORAT": 3999.98999,
+                    "WRAT": 0.01,
+                    "GRAT": 550678.438,
+                    "VFP_TABLE": 1,
+                },
+            )
 
-        # Add WRFTPLT - Enable RFT output
-        timeline.add_well_keyword_event(
-            event_date="2018-06-01",
-            well_path=well_path,
-            keyword_name="WRFTPLT",
-            keyword_data={
-                "WELL": well_path.name,
-                "OUTPUT_RFT": "YES",
-                "OUTPUT_PLT": "NO"
-            }
-        )
+            # Add WELTARG - Change target
+            timeline.add_well_keyword_event(
+                event_date="2018-05-01",
+                well_path=well_path,
+                keyword_name="WELTARG",
+                keyword_data={
+                    "WELL": well_path.name,
+                    "CMODE": "ORAT",
+                    "NEW_VALUE": 5000.0,
+                },
+            )
 
-        # Generate schedule
-        case = project.cases()[0]
-        schedule_text = timeline.generate_schedule_text(
-            eclipse_case=case, export_msw_for_wells=[well_path]
-        )
-        print(schedule_text)
-        ```
+            # Add WRFTPLT - Enable RFT output
+            timeline.add_well_keyword_event(
+                event_date="2018-06-01",
+                well_path=well_path,
+                keyword_name="WRFTPLT",
+                keyword_data={
+                    "WELL": well_path.name,
+                    "OUTPUT_RFT": "YES",
+                    "OUTPUT_PLT": "NO",
+                },
+            )
+
+            # Generate schedule
+            case = project.cases()[0]
+            schedule_text = timeline.generate_schedule_text(
+                eclipse_case=case, export_msw_for_wells=[well_path]
+            )
+            print(schedule_text)
     """
     # Type inference and conversion
     item_names = []
@@ -198,41 +198,41 @@ def add_keyword_event(
         TypeError: If keyword_data contains unsupported value types
 
     Example:
-        ```python
-        # Get the timeline
-        well_path_coll = project.descendants(rips.WellPathCollection)[0]
-        timeline = well_path_coll.event_timeline()
+        .. code-block:: python
 
-        # Add RPTRST - Report restart settings (schedule-level, not well-specific)
-        timeline.add_keyword_event(
-            event_date="2024-01-01",
-            keyword_name="RPTRST",
-            keyword_data={
-                "BASIC": 2,
-                "FREQ": 1,
-            }
-        )
+            # Get the timeline
+            well_path_coll = project.descendants(rips.WellPathCollection)[0]
+            timeline = well_path_coll.event_timeline()
 
-        # Add GRUPTREE - Group tree definition
-        timeline.add_keyword_event(
-            event_date="2024-01-01",
-            keyword_name="GRUPTREE",
-            keyword_data={
-                "CHILD_GROUP": "OP",
-                "PARENT_GROUP": "FIELD",
-            }
-        )
+            # Add RPTRST - Report restart settings (schedule-level, not well-specific)
+            timeline.add_keyword_event(
+                event_date="2024-01-01",
+                keyword_name="RPTRST",
+                keyword_data={
+                    "BASIC": 2,
+                    "FREQ": 1,
+                },
+            )
 
-        # Add RPTSCHED - Report schedule settings
-        timeline.add_keyword_event(
-            event_date="2024-01-01",
-            keyword_name="RPTSCHED",
-            keyword_data={
-                "FIP": 1,
-                "WELLS": 2,
-            }
-        )
-        ```
+            # Add GRUPTREE - Group tree definition
+            timeline.add_keyword_event(
+                event_date="2024-01-01",
+                keyword_name="GRUPTREE",
+                keyword_data={
+                    "CHILD_GROUP": "OP",
+                    "PARENT_GROUP": "FIELD",
+                },
+            )
+
+            # Add RPTSCHED - Report schedule settings
+            timeline.add_keyword_event(
+                event_date="2024-01-01",
+                keyword_name="RPTSCHED",
+                keyword_data={
+                    "FIP": 1,
+                    "WELLS": 2,
+                },
+            )
     """
     # Type inference and conversion
     item_names = []
@@ -330,38 +330,38 @@ def generate_schedule_text(
              for all wells in the collection.
 
     Example:
-        ```python
-        # Get the timeline (shared across all wells)
-        well_path = project.well_paths()[0]
-        timeline = well_path.event_timeline()
+        .. code-block:: python
 
-        # Add events for multiple wells
-        timeline.add_perf_event(
-            event_date="2024-01-01",
-            well_name="WELL-1",
-            start_md=1000,
-            end_md=1500,
-            diameter=0.1,
-            skin_factor=0.5,
-            state="OPEN"
-        )
+            # Get the timeline (shared across all wells)
+            well_path = project.well_paths()[0]
+            timeline = well_path.event_timeline()
 
-        timeline.add_perf_event(
-            event_date="2024-02-01",
-            well_name="WELL-2",
-            start_md=2000,
-            end_md=2500,
-            diameter=0.1,
-            state="OPEN"
-        )
+            # Add events for multiple wells
+            timeline.add_perf_event(
+                event_date="2024-01-01",
+                well_name="WELL-1",
+                start_md=1000,
+                end_md=1500,
+                diameter=0.1,
+                skin_factor=0.5,
+                state="OPEN",
+            )
 
-        # Generate schedule text, exporting MSW keywords for all wells
-        case = project.cases()[0]
-        schedule_text = timeline.generate_schedule_text(
-            eclipse_case=case, export_msw_for_wells=project.well_paths()
-        )
-        print(schedule_text)
-        ```
+            timeline.add_perf_event(
+                event_date="2024-02-01",
+                well_name="WELL-2",
+                start_md=2000,
+                end_md=2500,
+                diameter=0.1,
+                state="OPEN",
+            )
+
+            # Generate schedule text, exporting MSW keywords for all wells
+            case = project.cases()[0]
+            schedule_text = timeline.generate_schedule_text(
+                eclipse_case=case, export_msw_for_wells=project.well_paths()
+            )
+            print(schedule_text)
     """
     container = self.generate_schedule(
         eclipse_case=eclipse_case,
