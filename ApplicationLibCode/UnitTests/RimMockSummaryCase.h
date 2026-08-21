@@ -54,6 +54,9 @@ public:
 
     size_t keywordCount() const override { return m_allResultAddresses.size(); }
 
+    void refreshCalculatedAddresses() override { m_refreshCalculatedAddressesCount++; }
+    int  refreshCalculatedAddressesCount() const { return m_refreshCalculatedAddressesCount; }
+
 private:
     struct VectorData
     {
@@ -64,6 +67,7 @@ private:
 
     QString                                        m_name = "MockCase";
     std::map<RifEclipseSummaryAddress, VectorData> m_data;
+    int                                            m_refreshCalculatedAddressesCount = 0;
 };
 
 //--------------------------------------------------------------------------------------------------

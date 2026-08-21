@@ -43,4 +43,8 @@ public:
 
 private:
     void updateDataDependingOnCalculations();
+
+private:
+    // True if the last update was performed with calculations present. Used to detect deletion of the last calculation.
+    bool m_hasDataFromCalculations = false;
 };
