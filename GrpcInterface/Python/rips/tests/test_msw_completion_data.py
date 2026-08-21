@@ -5,6 +5,13 @@ import tempfile
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 
 import dataroot
+from rips import PressureDrop, ReferenceMdType, WellTypeForExport
+
+
+def test_msw_enum_types_are_importable():
+    assert PressureDrop.HF_ == "HF-"
+    assert ReferenceMdType.GridEntryPoint == "GridEntryPoint"
+    assert WellTypeForExport.OIL == "OIL"
 
 
 def test_msw_completion_data_perf_lateral(rips_instance, initialize_test):

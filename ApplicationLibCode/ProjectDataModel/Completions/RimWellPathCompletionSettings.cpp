@@ -28,6 +28,7 @@
 #include "cafPdmDoubleStringValidator.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmScriptEnumNameRegistry.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -74,6 +75,18 @@ void RimWellPathCompletionSettings::HydrostaticDensityEnum::setUp()
 }
 
 } // namespace caf
+
+namespace
+{
+struct RegisterScriptEnumNames
+{
+    RegisterScriptEnumNames()
+    {
+        caf::PdmScriptEnumNameRegistry::registerName<RimWellPathCompletionSettings::WellType>( "WellTypeForExport" );
+    }
+};
+const RegisterScriptEnumNames s_registerScriptEnumNames;
+} // namespace
 
 CAF_PDM_SOURCE_INIT( RimWellPathCompletionSettings, "WellPathCompletionSettings" );
 
