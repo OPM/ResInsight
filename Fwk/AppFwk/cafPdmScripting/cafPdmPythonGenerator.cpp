@@ -159,8 +159,10 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
         std::vector<std::pair<QString, QString>> members; // (memberName, originalText), in declaration order
         std::map<QString, QString>               memberNameByText;
     };
-    std::map<QString, EnumClassDef> enumDefByDataTypeName;
-    std::map<QString, QString>      enumClassNameByDataTypeName;
+    std::map<QString, EnumClassDef>                enumDefByDataTypeName;
+    std::map<QString, QString>                     enumClassNameByDataTypeName;
+    std::map<QString, std::pair<QString, QString>> inferredEnumNameAndFieldByDataTypeName;
+    std::set<QString>                              ambiguousEnumDataTypesReported;
     // Seed with names that are already bound at module scope in the generated file (imports
     // and module-level functions) so a generated enum cannot shadow them.
     std::set<QString> usedEnumClassNames = { "PdmObjectBase",
@@ -214,14 +216,34 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
         if ( enumTexts.empty() ) return QString();
 
         QString dataTypeName = field->capability<PdmXmlFieldHandle>()->dataTypeName();
-        auto    cached       = enumClassNameByDataTypeName.find( dataTypeName );
-        if ( cached != enumClassNameByDataTypeName.end() ) return cached->second;
 
         // Prefer an explicit override registered by application code so the Python enum class name
         // is stable independent of which field the generator visits first.
-        QString baseName = PdmScriptEnumNameRegistry::lookup( dataTypeName );
-        if ( baseName.isEmpty() ) baseName = snakeToCamelCase( camelToSnakeCase( scriptability->scriptFieldName() ) );
-        if ( baseName.isEmpty() ) baseName = "Enum";
+        QString baseName     = PdmScriptEnumNameRegistry::lookup( dataTypeName );
+        QString inferredName = snakeToCamelCase( camelToSnakeCase( scriptability->scriptFieldName() ) );
+        if ( inferredName.isEmpty() ) inferredName = "Enum";
+
+        if ( baseName.isEmpty() )
+        {
+            QString fieldName = QString( "%1.%2" ).arg( field->ownerClass() ).arg( scriptability->scriptFieldName() );
+            auto [it, inserted] =
+                inferredEnumNameAndFieldByDataTypeName.emplace( dataTypeName, std::make_pair( inferredName, fieldName ) );
+            if ( !inserted && it->second.first != inferredName && !ambiguousEnumDataTypesReported.count( dataTypeName ) )
+            {
+                errorMessages.push_back(
+                    QString( "Ambiguous Python enum class names '%1' and '%2' inferred from fields '%3' and '%4'. "
+                             "Register a canonical name with caf::PdmScriptEnumNameRegistry." )
+                        .arg( it->second.first )
+                        .arg( inferredName )
+                        .arg( it->second.second )
+                        .arg( fieldName ) );
+                ambiguousEnumDataTypesReported.insert( dataTypeName );
+            }
+            baseName = it->second.first;
+        }
+
+        auto cached = enumClassNameByDataTypeName.find( dataTypeName );
+        if ( cached != enumClassNameByDataTypeName.end() ) return cached->second;
 
         QString candidate = baseName;
         int     suffix    = 1;

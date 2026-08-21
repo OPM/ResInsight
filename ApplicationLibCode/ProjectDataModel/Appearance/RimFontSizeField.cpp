@@ -21,7 +21,17 @@
 #include "RiaPreferences.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmScriptEnumNameRegistry.h"
 #include "cafPdmUiFieldHandle.h"
+
+namespace
+{
+struct RegisterScriptEnumNames
+{
+    RegisterScriptEnumNames() { caf::PdmScriptEnumNameRegistry::registerName<caf::FontTools::RelativeSize>( "SubTitleFontSize" ); }
+};
+const RegisterScriptEnumNames s_registerScriptEnumNames;
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
