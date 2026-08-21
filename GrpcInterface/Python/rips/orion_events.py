@@ -1238,13 +1238,25 @@ def apply_orion_events_file(
     return apply_orion_document(document, timeline, project, case=case, **options)
 
 
-def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
-    """Return a copy with same-owner/type/timestamp events merged.
+_NON_COALESCING_EVENT_TYPES = {
+    "MEMBER",
+    "PERFORATION",
+    "RAW_TEXT",
+    "RESTART",
+    "SEGMENT",
+    "STATE",
+    "VALVE",
+    "WELSPECS",
+}
 
-    The first event retains its position. Attributes from later matching events
-    are applied in source order, adding missing values and overriding repeated
-    values. Owners are matched by well name, group name, or the global SCHEDULE
-    scope.
+
+def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
+    """Return a copy with matching keyword events merged.
+
+    Keyword events with the same owner, type and timestamp are merged. The first
+    event retains its position, and attributes from later matching events are
+    applied in source order. Events that create or expand domain objects are
+    kept separate so, for example, same-date perforation intervals are not lost.
     """
     result = copy.deepcopy(document)
 
@@ -1254,11 +1266,12 @@ def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
             Tuple[Union[datetime.date, datetime.datetime], str], OrionEvent
         ] = {}
         for event in events:
-            if event.event_type.upper() == "RAW_TEXT":
+            event_type = event.event_type.upper()
+            if event_type in _NON_COALESCING_EVENT_TYPES:
                 merged.append(event)
                 continue
 
-            key = (event.event_date, event.event_type.upper())
+            key = (event.event_date, event_type)
             existing = by_key.get(key)
             if existing is None:
                 by_key[key] = event

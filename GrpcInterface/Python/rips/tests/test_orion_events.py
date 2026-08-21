@@ -974,6 +974,28 @@ class TestApplying:
         assert timeline.keyword_calls[0]["keyword_data"]["ORAT"] == 100
         assert timeline.keyword_calls[0]["keyword_data"]["CMODE"] == "ORAT"
 
+    def test_same_date_perforations_are_not_merged(self):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            'WELL "55_33-A-1"\n'
+            "  @2018-01-01 PERFORATION MDSTART=1000 MDEND=1100 COMPLETION_NUMBER=1\n"
+            "  @2018-01-01 PERFORATION MDSTART=1200 MDEND=1300 COMPLETION_NUMBER=2\n"
+        )
+
+        document = parse_orion_events(text)
+        merged = coalesce_orion_document(document)
+
+        assert len(merged.wells[0].events) == 2
+
+        timeline, report = self._apply(text)
+        assert report.events_applied == 2
+        assert report.events_skipped == 0
+        assert [(call["start_md"], call["end_md"]) for call in timeline.perf_calls] == [
+            (1000.0, 1100.0),
+            (1200.0, 1300.0),
+        ]
+        assert [call["completion_number"] for call in timeline.perf_calls] == [1, 2]
+
     def test_group_and_schedule_events_merge_only_within_owner(self):
         text = (
             "ORIONEVENTS 2.0\n"
