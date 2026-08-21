@@ -11,7 +11,7 @@ applied in one go with rips.orion_events.apply_orion_document().
 It demonstrates the full event coverage of the format:
 1. SEGMENT, PERFORATION (incl. a time-of-day date), VALVE and STATE completion
    events on a well
-2. Partial WELLSPEC updates that cumulatively change completion export settings
+2. Partial WELSPECS updates that cumulatively change completion export settings
    and generate dated WELSPECS records
 3. A FILTER declaration (qualified result name) referenced by a perforation,
    materialized as a case-level combined data filter
@@ -59,10 +59,10 @@ DURATION RAMP    = 31 DAYS
 WELL W1 = "{well_name}"
 
 WELL W1
-  # WELLSPEC updates completion export settings and emits WELSPECS. Attributes
+  # WELSPECS updates completion export settings and emits WELSPECS. Attributes
   # are optional: the second event inherits GROUP from the first event.
-  @2024-01-05      WELLSPEC     GROUP="ORION_GROUP"  CROSSFLOW=True   REFDEPTH=1002  PHASE=WATER
-  @2024-04-15      WELLSPEC                          CROSSFLOW=False  REFDEPTH=1000  PHASE=OIL
+  @2024-01-05      WELSPECS     GROUP="ORION_GROUP"  CROSSFLOW=True   REFDEPTH=1002  PHASE=WATER
+  @2024-04-15      WELSPECS                          CROSSFLOW=False  REFDEPTH=1000  PHASE=OIL
 
   # COMMENT is stored on the event and safely emitted as a schedule comment.
   @STARTUP         SEGMENT      MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  PRESSURE_COMPONENTS=HFA  COMMENT="Install production segment"
@@ -155,9 +155,9 @@ def main():
     # Apply events up to a date to materialize completions
     timeline.set_timestamp(timestamp="2024-12-24")
 
-    print("\n4. Verifying created completions and WELLSPEC settings...")
+    print("\n4. Verifying created completions and WELSPECS settings...")
     completion_settings = well_path.completion_settings()
-    print("   Completion export settings after the latest WELLSPEC:")
+    print("   Completion export settings after the latest WELSPECS:")
     print(f"      Group:       {completion_settings.group_name_for_export}")
     print(f"      Cross-flow:  {completion_settings.allow_well_cross_flow}")
     print(f"      Ref. depth:  {completion_settings.reference_depth_for_export}")

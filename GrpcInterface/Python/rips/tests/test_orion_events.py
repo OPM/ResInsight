@@ -494,19 +494,19 @@ class TestParsing:
     def test_duplicate_wellspec_for_well_and_date_is_rejected(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            "  @2024-01-01 WELLSPEC GROUP=A\n"
+            "  @2024-01-01 WELSPECS GROUP=A\n"
             'WELL "W"\n'
-            "  @2024-01-01 WELLSPEC PHASE=GAS\n"
+            "  @2024-01-01 WELSPECS PHASE=GAS\n"
         )
-        with pytest.raises(OrionParseError, match="WELLSPEC already defined.*line 3"):
+        with pytest.raises(OrionParseError, match="WELSPECS already defined.*line 3"):
             parse_orion_events(text)
 
     def test_wellspec_same_date_for_different_wells_is_allowed(self):
         document = parse_orion_events(
             'ORIONEVENTS 2.0\nWELL "A"\n'
-            "  @2024-01-01 WELLSPEC GROUP=GA\n"
+            "  @2024-01-01 WELSPECS GROUP=GA\n"
             'WELL "B"\n'
-            "  @2024-01-01 WELLSPEC GROUP=GB\n"
+            "  @2024-01-01 WELSPECS GROUP=GB\n"
         )
         assert [len(well.events) for well in document.wells] == [1, 1]
 
@@ -1144,8 +1144,8 @@ class TestApplying:
     def test_wellspec_partial_updates_are_cumulative_by_date(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2019-01-01 WELLSPEC CROSSFLOW=False PHASE=gas\n"
-            "  @2018-01-01 WELLSPEC GROUP=my_group REFDEPTH=1002 PHASE=water\n"
+            "  @2019-01-01 WELSPECS CROSSFLOW=False PHASE=gas\n"
+            "  @2018-01-01 WELSPECS GROUP=my_group REFDEPTH=1002 PHASE=water\n"
         )
         timeline, report = self._apply(text)
 
@@ -1171,13 +1171,13 @@ class TestApplying:
             ("REFDEPTH=deep", "REFDEPTH must be numeric"),
             ("PHASE=steam", "PHASE must be OIL, GAS, WATER, or LIQUID"),
             ("GROUP=1", "GROUP must be a non-empty string"),
-            ("UNKNOWN=1", "unknown WELLSPEC attribute"),
+            ("UNKNOWN=1", "unknown WELSPECS attribute"),
             ("COMMENT=empty", "needs at least one setting attribute"),
         ],
     )
     def test_invalid_wellspec_is_reported_and_skipped(self, attributes, expected_error):
         text = (
-            f'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 WELLSPEC {attributes}\n'
+            f'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 WELSPECS {attributes}\n'
         )
         timeline, report = self._apply(text)
 
@@ -1230,6 +1230,14 @@ class TestApplying:
         assert report.events_skipped == 1
         assert timeline.keyword_calls == []
         assert any("did you mean 'SEGMENT'" in warning for warning in report.warnings)
+
+    def test_wellspec_is_reported_as_renamed_event(self):
+        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2024-01-01 WELLSPEC GROUP=FIELD\n'
+        timeline, report = self._apply(text)
+
+        assert report.events_skipped == 1
+        assert timeline.wellspec_calls == []
+        assert any("did you mean 'WELSPECS'" in warning for warning in report.warnings)
 
     def test_valve_mapping(self):
         text = (
@@ -1806,8 +1814,8 @@ class TestOrionEventsIntegration:
         document = parse_orion_events(
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            "  @2018-01-01 WELLSPEC GROUP=my_group REFDEPTH=1002 PHASE=water\n"
-            "  @2019-01-01 WELLSPEC CROSSFLOW=False REFDEPTH=1000 PHASE=oil\n"
+            "  @2018-01-01 WELSPECS GROUP=my_group REFDEPTH=1002 PHASE=water\n"
+            "  @2019-01-01 WELSPECS CROSSFLOW=False REFDEPTH=1000 PHASE=oil\n"
         )
 
         report = apply_orion_document(document, timeline, project)
