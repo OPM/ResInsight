@@ -49,6 +49,7 @@
 #include "RigNestedHybridGridResultTools.h"
 #include "RigOilVolumeResultCalculator.h"
 #include "RigPorvSoilSgasResultCalculator.h"
+#include "RigSgasResultCalculator.h"
 #include "RigSoilResultCalculator.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
@@ -1041,6 +1042,13 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
             RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() ) );
     }
 
+    // SGAS
+    {
+        RigSgasResultCalculator sgasCalculator( *this );
+        sgasCalculator.checkAndCreatePlaceholderEntry(
+            RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
+    }
+
     // Oil Volume
     if ( RiaPreferencesSystem::current()->isFeatureEnabled( "oil-volume-result" ) )
     {
@@ -1547,6 +1555,25 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
             return scalarResultIndex;
         }
     }
+    else if ( resultName == RiaResultNames::sgas() )
+    {
+        if ( mustBeCalculated( scalarResultIndex ) )
+        {
+            // Trigger loading of SWAT to establish time step count if no data has been loaded from file at this point
+            findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() ) );
+
+            m_cellScalarResults[scalarResultIndex].resize( maxTimeStepCount() );
+            for ( size_t timeStepIdx = 0; timeStepIdx < maxTimeStepCount(); timeStepIdx++ )
+            {
+                if ( m_cellScalarResults[scalarResultIndex][timeStepIdx].empty() )
+                {
+                    computeSgasForTimeStep( timeStepIdx );
+                }
+            }
+
+            return scalarResultIndex;
+        }
+    }
     else if ( resultName == RiaResultNames::completionTypeResultName() )
     {
         if ( type == RiaDefines::ResultCatType::STATIC_NATIVE )
@@ -1749,6 +1776,22 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
             return soilScalarResultIndex;
         }
     }
+    else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE && resultName.toUpper() == RiaResultNames::sgas() )
+    {
+        size_t sgasScalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
+
+        if ( mustBeCalculated( sgasScalarResultIndex ) )
+        {
+            m_cellScalarResults[sgasScalarResultIndex].resize( maxTimeStepCount() );
+
+            if ( m_cellScalarResults[sgasScalarResultIndex][timeStepIndex].empty() )
+            {
+                computeSgasForTimeStep( timeStepIndex );
+            }
+
+            return sgasScalarResultIndex;
+        }
+    }
     else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE && resultName == RiaResultNames::completionTypeResultName() )
     {
         size_t completionTypeScalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
@@ -1851,77 +1894,11 @@ void RigCaseCellResultsData::computeSOILForTimeStep( size_t timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::testAndComputeSgasForTimeStep( size_t timeStepIndex )
+void RigCaseCellResultsData::computeSgasForTimeStep( size_t timeStepIndex )
 {
-    size_t scalarIndexSWAT =
-        findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() ),
-                                                timeStepIndex );
-    if ( scalarIndexSWAT == cvf::UNDEFINED_SIZE_T )
-    {
-        return;
-    }
-
-    if ( m_readerInterface.isNull() ) return;
-
-    std::set<RiaDefines::PhaseType> phases = m_readerInterface->availablePhases();
-    if ( phases.count( RiaDefines::PhaseType::GAS_PHASE ) == 0 ) return;
-    if ( phases.count( RiaDefines::PhaseType::OIL_PHASE ) > 0 ) return;
-
-    // Simulation type is gas and water. No SGAS is present, compute SGAS based on SWAT
-
-    size_t scalarIndexSGAS =
-        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ), false );
-    if ( m_cellScalarResults[scalarIndexSGAS].size() > timeStepIndex )
-    {
-        std::vector<double>& values = m_cellScalarResults[scalarIndexSGAS][timeStepIndex];
-        if ( !values.empty() ) return;
-    }
-
-    size_t swatResultValueCount = 0;
-    size_t swatTimeStepCount    = 0;
-
-    {
-        std::vector<double>& swatForTimeStep = m_cellScalarResults[scalarIndexSWAT][timeStepIndex];
-        if ( !swatForTimeStep.empty() )
-        {
-            swatResultValueCount = swatForTimeStep.size();
-            swatTimeStepCount    = infoForEachResultIndex()[scalarIndexSWAT].timeStepInfos().size();
-        }
-    }
-
-    m_cellScalarResults[scalarIndexSGAS].resize( swatTimeStepCount );
-
-    if ( !m_cellScalarResults[scalarIndexSGAS][timeStepIndex].empty() )
-    {
-        return;
-    }
-
-    m_cellScalarResults[scalarIndexSGAS][timeStepIndex].resize( swatResultValueCount );
-
-    std::vector<double>* swatForTimeStep = nullptr;
-
-    {
-        swatForTimeStep = &( m_cellScalarResults[scalarIndexSWAT][timeStepIndex] );
-        if ( swatForTimeStep->empty() )
-        {
-            swatForTimeStep = nullptr;
-        }
-    }
-
-    std::vector<double>& sgasForTimeStep = m_cellScalarResults[scalarIndexSGAS][timeStepIndex];
-
-#pragma omp parallel for
-    for ( int idx = 0; idx < static_cast<int>( swatResultValueCount ); idx++ )
-    {
-        double sgasValue = 1.0;
-
-        if ( swatForTimeStep )
-        {
-            sgasValue -= swatForTimeStep->at( idx );
-        }
-
-        sgasForTimeStep[idx] = sgasValue;
-    }
+    RigEclipseResultAddress SGASAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
+    RigSgasResultCalculator calculator( *this );
+    calculator.calculate( SGASAddr, timeStepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------

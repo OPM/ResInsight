@@ -2,6 +2,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSoilResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSwatResultCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigSgasResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFaultDistanceCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFaultDistanceResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSelectedFaultDistanceResultCalculator.cpp
