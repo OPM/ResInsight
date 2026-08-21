@@ -1469,6 +1469,38 @@ class TestScheduleGeneration:
         assert lines[2].startswith("-- User: ")
         assert lines[2] != "-- User: "
 
+    def test_schedule_header_uses_platform_user_variable(self, monkeypatch):
+        """Prefer USER on Unix and USERNAME on Windows when both are set."""
+        if sys.platform == "win32":
+            monkeypatch.setenv("USERNAME", "preferred-schedule-user")
+            monkeypatch.setenv("USER", "wrong-schedule-user")
+        else:
+            monkeypatch.setenv("USER", "preferred-schedule-user")
+            monkeypatch.setenv("USERNAME", "wrong-schedule-user")
+
+        instance = rips.Instance.launch(console=True)
+        try:
+            case_root = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+            project = instance.project
+            case = project.load_case(path=case_root + "/TEST10K_FLT_LGR_NNC.EGRID")
+            project.import_well_paths(well_path_files=[case_root + "/wellpath_a.dev"])
+            well_path = project.well_paths()[0]
+            timeline = project.descendants(rips.WellPathCollection)[0].event_timeline()
+            timeline.add_perf_event(
+                event_date="2024-01-01",
+                well_path=well_path,
+                start_md=2000.0,
+                end_md=2200.0,
+                diameter=0.1,
+                state="OPEN",
+            )
+
+            schedule = timeline.generate_schedule_text(eclipse_case=case)
+            assert "-- User: preferred-schedule-user\n" in schedule
+            assert "wrong-schedule-user" not in schedule
+        finally:
+            instance.exit()
+
     def test_event_comment_lines_are_safely_emitted(self, project_with_case_and_well):
         project, case, timeline = project_with_case_and_well
         well_path = project.well_paths()[0]
