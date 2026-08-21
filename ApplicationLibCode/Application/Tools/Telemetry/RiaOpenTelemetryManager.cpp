@@ -399,11 +399,17 @@ void RiaOpenTelemetryManager::reportCrash( int signalCode, const std::stacktrace
         }
     }
 
-    reportEventAsync( "crash.signal_handler", attributes );
+    // Send the crash event as its own request instead of appending it to the event queue.
+    // flushPendingEvents() drains a single batch from the front of the queue, so a crash event queued behind
+    // more than maxBatchSize events would not be part of the request the wait loop below waits for.
+    sendBatch( { Event( "crash.signal_handler", attributes ) } );
+
+    // Flush whatever regular telemetry is still queued. Issued after the crash request so the crash report
+    // gets the connection first.
     flushPendingEvents();
 
     // Wait for the pending network reply to complete before the process exits.
-    // flushPendingEvents() initiates an async HTTP POST; without pumping the event loop here
+    // The crash report is sent as an async HTTP POST; without pumping the event loop here
     // the reply never gets a chance to finish and the crash is silently dropped.
     //
     // This runs from within the crash/signal handler, so exclude user input events while pumping:
@@ -631,17 +637,43 @@ void RiaOpenTelemetryManager::setupResourceAttributes()
 //--------------------------------------------------------------------------------------------------
 void RiaOpenTelemetryManager::onProcessEventTimer()
 {
-    if ( !m_isShuttingDown.load() )
+    if ( m_isShuttingDown.load() )
     {
-        processEvents();
+        return;
     }
+
+    if ( isCircuitBreakerOpen() )
+    {
+        // Do not drain the queue while the breaker is open. attemptReconnection() is rate limited internally, and
+        // closes the breaker so the next tick makes a single probe attempt.
+        attemptReconnection();
+        return;
+    }
+
+    processEvents();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOpenTelemetryManager::processEvents()
+void RiaOpenTelemetryManager::processEvents( bool ignoreCircuitBreaker )
 {
+    if ( !ignoreCircuitBreaker )
+    {
+        if ( isCircuitBreakerOpen() )
+        {
+            return;
+        }
+
+        // Keep at most one request in flight. Telemetry failures are only observed when the reply finishes, which for
+        // an unreachable endpoint takes the full transfer timeout. Without this, the 100 ms timer keeps launching
+        // requests during that window, and they end up aborting each other by saturating the connection pool.
+        if ( m_pendingReplies.load() > 0 )
+        {
+            return;
+        }
+    }
+
     std::unique_lock<std::mutex> lock( m_queueMutex );
 
     if ( m_eventQueue.empty() )
@@ -649,32 +681,35 @@ void RiaOpenTelemetryManager::processEvents()
         return;
     }
 
-    // Process a batch of events
-    std::queue<Event> batch;
-    auto*             prefs        = RiaPreferencesOpenTelemetry::current();
-    int               maxBatchSize = prefs ? prefs->maxBatchSize() : 100;
+    // Collect a batch of events
+    auto* prefs        = RiaPreferencesOpenTelemetry::current();
+    int   maxBatchSize = prefs ? prefs->maxBatchSize() : 100;
+
+    std::vector<Event> batch;
+    batch.reserve( std::min<size_t>( static_cast<size_t>( std::max( maxBatchSize, 0 ) ), m_eventQueue.size() ) );
 
     for ( int i = 0; i < maxBatchSize && !m_eventQueue.empty(); ++i )
     {
-        batch.push( m_eventQueue.front() );
+        batch.push_back( m_eventQueue.front() );
         m_eventQueue.pop();
     }
 
     lock.unlock();
 
-    // Process events outside of lock
-    while ( !batch.empty() )
-    {
-        processEvent( batch.front() );
-        batch.pop();
-    }
+    // Send events outside of lock
+    sendBatch( batch );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOpenTelemetryManager::processEvent( const Event& event )
+void RiaOpenTelemetryManager::sendBatch( const std::vector<Event>& events )
 {
+    if ( events.empty() )
+    {
+        return;
+    }
+
     try
     {
         auto* prefs = RiaPreferencesOpenTelemetry::current();
@@ -694,81 +729,90 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
             return;
         }
 
-        // Format timestamp - must match Application Insights format exactly
-        const auto        timestampUtc = std::chrono::floor<std::chrono::milliseconds>( event.timestamp );
-        const std::string timestamp    = std::format( "{:%Y-%m-%dT%H:%M:%SZ}", timestampUtc );
+        // Application Insights accepts an array of envelopes in a single request. Sending one request per event
+        // saturates the connection pool of QNetworkAccessManager, and the queued requests are then aborted by their
+        // own transfer timeout before they ever reach the wire.
+        QVariantList envelope;
+        envelope.reserve( static_cast<qsizetype>( events.size() ) );
 
-        // Convert attributes to JSON properties
-        QMap<QString, QVariant> properties;
-        for ( const auto& [key, value] : event.attributes )
+        for ( const Event& event : events )
         {
-            properties[QString::fromStdString( key )] = QString::fromStdString( value );
-        }
+            // Format timestamp - must match Application Insights format exactly
+            const auto        timestampUtc = std::chrono::floor<std::chrono::milliseconds>( event.timestamp );
+            const std::string timestamp    = std::format( "{:%Y-%m-%dT%H:%M:%SZ}", timestampUtc );
 
-        // Determine if this is a crash event
-        bool isCrashEvent = ( event.name == "crash.signal_handler" );
-
-        QMap<QString, QVariant> baseData;
-        QMap<QString, QVariant> data;
-        QMap<QString, QVariant> telemetryItem;
-
-        if ( isCrashEvent )
-        {
-            // Create ExceptionData for crash reports
-            QMap<QString, QVariant> exception;
-            exception["typeName"]     = QString( "ResInsightCrash" );
-            exception["message"]      = QString( "Application crash (signal: %1)" ).arg( properties["crash.signal"].toString() );
-            exception["hasFullStack"] = true;
-            exception["stack"]        = properties["crash.stack_trace"];
-
-            // Parse structured stack trace for Application Insights
-            QString parsedStackJson = properties["crash.parsed_stack_json"].toString();
-            if ( !parsedStackJson.isEmpty() )
+            // Convert attributes to JSON properties
+            QMap<QString, QVariant> properties;
+            for ( const auto& [key, value] : event.attributes )
             {
-                // Parse the JSON array of stack frames
-                QJsonDocument doc = QJsonDocument::fromJson( parsedStackJson.toUtf8() );
-                if ( doc.isArray() )
-                {
-                    exception["parsedStack"] = doc.array().toVariantList();
-                }
+                properties[QString::fromStdString( key )] = QString::fromStdString( value );
             }
 
-            QList<QVariant> exceptions;
-            exceptions.append( exception );
+            // Determine if this is a crash event
+            bool isCrashEvent = ( event.name == "crash.signal_handler" );
 
-            // Remove stack trace data from properties as it's now in the exception
-            properties.remove( "crash.stack_trace" );
-            properties.remove( "crash.parsed_stack_json" );
+            QMap<QString, QVariant> baseData;
+            QMap<QString, QVariant> data;
+            QMap<QString, QVariant> telemetryItem;
 
-            baseData["ver"]        = 2;
-            baseData["exceptions"] = exceptions;
-            baseData["properties"] = properties;
+            if ( isCrashEvent )
+            {
+                // Create ExceptionData for crash reports
+                QMap<QString, QVariant> exception;
+                exception["typeName"]     = QString( "ResInsightCrash" );
+                exception["message"]      = QString( "Application crash (signal: %1)" ).arg( properties["crash.signal"].toString() );
+                exception["hasFullStack"] = true;
+                exception["stack"]        = properties["crash.stack_trace"];
 
-            data["baseType"] = "ExceptionData";
-            data["baseData"] = baseData;
+                // Parse structured stack trace for Application Insights
+                QString parsedStackJson = properties["crash.parsed_stack_json"].toString();
+                if ( !parsedStackJson.isEmpty() )
+                {
+                    // Parse the JSON array of stack frames
+                    QJsonDocument doc = QJsonDocument::fromJson( parsedStackJson.toUtf8() );
+                    if ( doc.isArray() )
+                    {
+                        exception["parsedStack"] = doc.array().toVariantList();
+                    }
+                }
 
-            telemetryItem["name"] = "Microsoft.ApplicationInsights.Exception";
+                QList<QVariant> exceptions;
+                exceptions.append( exception );
+
+                // Remove stack trace data from properties as it's now in the exception
+                properties.remove( "crash.stack_trace" );
+                properties.remove( "crash.parsed_stack_json" );
+
+                baseData["ver"]        = 2;
+                baseData["exceptions"] = exceptions;
+                baseData["properties"] = properties;
+
+                data["baseType"] = "ExceptionData";
+                data["baseData"] = baseData;
+
+                telemetryItem["name"] = "Microsoft.ApplicationInsights.Exception";
+            }
+            else
+            {
+                // Create EventData for regular events
+                baseData["ver"]        = 2;
+                baseData["name"]       = QString::fromStdString( event.name );
+                baseData["properties"] = properties;
+
+                data["baseType"] = "EventData";
+                data["baseData"] = baseData;
+
+                telemetryItem["name"] = "Microsoft.ApplicationInsights.Event";
+            }
+
+            telemetryItem["time"] = QString::fromStdString( timestamp );
+            telemetryItem["iKey"] = connectionParams["InstrumentationKey"];
+            telemetryItem["data"] = data;
+
+            envelope.append( telemetryItem );
         }
-        else
-        {
-            // Create EventData for regular events
-            baseData["ver"]        = 2;
-            baseData["name"]       = QString::fromStdString( event.name );
-            baseData["properties"] = properties;
-
-            data["baseType"] = "EventData";
-            data["baseData"] = baseData;
-
-            telemetryItem["name"] = "Microsoft.ApplicationInsights.Event";
-        }
-
-        telemetryItem["time"] = QString::fromStdString( timestamp );
-        telemetryItem["iKey"] = connectionParams["InstrumentationKey"];
-        telemetryItem["data"] = data;
 
         // Convert to JSON string
-        QVariantList envelope;
-        envelope.append( telemetryItem );
         QString jsonPayload = ResInsightInternalJson::Json::encode( envelope, false );
 
         // Send to Application Insights using QNetworkAccessManager
@@ -780,6 +824,8 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
         request.setHeader( QNetworkRequest::KnownHeaders( QNetworkRequest::UserAgentHeader ), "ResInsight-OpenTelemetry" );
         request.setTransferTimeout( prefs->connectionTimeoutMs() );
 
+        const int eventCount = static_cast<int>( events.size() );
+
         m_pendingReplies++;
         QNetworkReply* reply = m_networkAccessManager->post( request, jsonPayload.toUtf8() );
 
@@ -787,10 +833,14 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
         connect( reply,
                  &QNetworkReply::finished,
                  this,
-                 [this, reply]()
+                 [this, reply, eventCount]()
                  {
-                     const int     statusCode   = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
-                     const QString responseBody = QString::fromUtf8( reply->readAll() );
+                     const int statusCode = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
+
+                     // An aborted reply (transfer timeout, shutdown) has a closed device. Reading from it emits
+                     // "QIODevice::read (QNetworkReplyHttpImpl): device not open" for every such reply.
+                     const QString responseBody = reply->isOpen() ? QString::fromUtf8( reply->readAll() ) : QString();
+
                      if ( reply->error() == QNetworkReply::NoError )
                      {
                          updateHealthMetrics( true );
@@ -800,7 +850,8 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
                      {
                          const QString errorMsg =
                              QString( "HTTP %1: %2 (%3)" ).arg( statusCode ).arg( reply->errorString() ).arg( responseBody );
-                         handleError( TelemetryError::NetworkError, QString( "Failed to send telemetry: %1" ).arg( errorMsg ) );
+                         handleError( TelemetryError::NetworkError,
+                                      QString( "Failed to send telemetry (%1 events): %2" ).arg( eventCount ).arg( errorMsg ) );
                          updateHealthMetrics( false );
                      }
                      m_pendingReplies--;
@@ -809,7 +860,7 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
     }
     catch ( const std::exception& e )
     {
-        handleError( TelemetryError::InternalError, QString( "Failed to process event: %1" ).arg( e.what() ) );
+        handleError( TelemetryError::InternalError, QString( "Failed to process events: %1" ).arg( e.what() ) );
         updateHealthMetrics( false );
     }
 }
@@ -819,8 +870,9 @@ void RiaOpenTelemetryManager::processEvent( const Event& event )
 //--------------------------------------------------------------------------------------------------
 void RiaOpenTelemetryManager::flushPendingEvents()
 {
-    // Process remaining events in the queue
-    processEvents();
+    // Process remaining events in the queue. This is the crash and shutdown path, so bypass the circuit breaker:
+    // a crash report must be attempted even when regular telemetry has been suspended.
+    processEvents( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -828,12 +880,19 @@ void RiaOpenTelemetryManager::flushPendingEvents()
 //--------------------------------------------------------------------------------------------------
 void RiaOpenTelemetryManager::handleError( TelemetryError error, const QString& context )
 {
-    m_consecutiveFailures++;
+    const int failureCount = m_consecutiveFailures.fetch_add( 1 ) + 1;
 
-    if ( m_consecutiveFailures >= 3 )
+    if ( failureCount >= 3 && !m_circuitBreakerOpen.exchange( true ) )
     {
-        m_circuitBreakerOpen = true;
-        RiaLogging::warning( "OpenTelemetry circuit breaker opened due to consecutive failures" );
+        // Start the backoff window here. m_lastReconnectAttempt is default constructed to the steady_clock
+        // epoch, so without this the first attemptReconnection() call passes the 5 minute check immediately
+        // and closes the breaker again on the next timer tick.
+        m_lastReconnectAttempt = std::chrono::steady_clock::now();
+
+        // Only log the transition. Logging on every failure floods the message panel, as the failures that open the
+        // breaker keep arriving after it is open.
+        RiaLogging::warning( "OpenTelemetry circuit breaker opened due to consecutive failures. Telemetry is "
+                             "suspended until the connection recovers." );
     }
 
     if ( m_errorCallback )
@@ -857,12 +916,10 @@ void RiaOpenTelemetryManager::attemptReconnection()
 
     m_lastReconnectAttempt = now;
 
-    // Try to reinitialize connection
-    if ( createExporter() )
-    {
-        resetCircuitBreaker();
-        RiaLogging::info( "OpenTelemetry reconnection successful" );
-    }
+    // Close the breaker so the next batch is attempted. If the endpoint is still unreachable the breaker reopens
+    // after a few failures, and the next probe is another 5 minutes out.
+    resetCircuitBreaker();
+    RiaLogging::debug( "OpenTelemetry circuit breaker reset, retrying telemetry" );
 }
 
 //--------------------------------------------------------------------------------------------------
