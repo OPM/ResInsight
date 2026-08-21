@@ -51,7 +51,10 @@ RimSummaryCalculation* RimSummaryCalculationCollection::createCalculation() cons
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
 {
-    if ( calculations().empty() ) return;
+    // One more update is required after the last calculation is deleted, to remove the data created by that calculation.
+    if ( calculations().empty() && !m_hasDataFromCalculations ) return;
+
+    m_hasDataFromCalculations = !calculations().empty();
 
     // Refresh data sources tree
     // Refresh meta data for all summary cases and rebuild AddressNodes in the summary tree
