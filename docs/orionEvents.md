@@ -77,7 +77,7 @@ group_block_open    = "GROUP" , quoted_string ;      (* group keyword events *)
 schedule_block_open = "SCHEDULE" ;                  (* well-less keyword events *)
 event_line          = "@" , date_expr , event_type , { attribute } ;
 event_type          = completion_event_type | eclipse_keyword ;
-completion_event_type = "PERFORATION" | "SEGMENT" | "VALVE" | "STATE" | "WELLSPEC" ;
+completion_event_type = "PERFORATION" | "SEGMENT" | "VALVE" | "STATE" | "WELSPECS" ;
 segment_attribute   = "MDSTART" | "MDEND" | "INNER_DIAMETER" | "ROUGHNESS"
                     | "PRESSURE_COMPONENTS" | "COMMENT" ;
                     (* accepted attribute names when event_type is "SEGMENT" *)
@@ -221,7 +221,7 @@ SCHEDULE
   @STARTUP  TUNING    TSINIT=1  TSMAXZ=30  NEWTMX=12
 ```
 
-Completion event types (`PERFORATION`, `SEGMENT`, `VALVE`, `STATE`, `WELLSPEC`) are rejected in a SCHEDULE block. A later `WELL` line switches back to well events; blocks can be interleaved freely.
+Completion event types (`PERFORATION`, `SEGMENT`, `VALVE`, `STATE`, `WELSPECS`) are rejected in a SCHEDULE block. A later `WELL` line switches back to well events; blocks can be interleaved freely.
 
 ## Attributes and quoting
 

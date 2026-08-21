@@ -109,14 +109,14 @@ Notes on the grammar:
   attribute values, e.g. ``FILTER="SOIL > 0.8 AND PERMX > 200"``.
 * Every attribute is ``KEY=VALUE``; bare positional tokens are rejected.
 * Event types inside a WELL block are either the built-in completion events
-  ``PERFORATION``, ``SEGMENT``, ``VALVE``, ``STATE`` and ``WELLSPEC``, or any
+  ``PERFORATION``, ``SEGMENT``, ``VALVE``, ``STATE`` and ``WELSPECS``, or any
   Eclipse well keyword (``WCONHIST``, ``WELTARG``, ``WRFTPLT``, ``WCONPROD``,
   ...), which
   is passed through generically with the well name injected as WELL. Event
-  ``WELLSPEC`` accepts partial updates to ``GROUP``, ``CROSSFLOW``, ``REFDEPTH``
+  ``WELSPECS`` accepts partial updates to ``GROUP``, ``CROSSFLOW``, ``REFDEPTH``
   and ``PHASE`` (OIL/GAS/WATER/LIQUID). Omitted values inherit the previous
-  WELLSPEC state, initially using the well's completion export settings. There
-  may be multiple WELLSPEC events for a well, but not at the same timestamp.
+  WELSPECS state, initially using the well's completion export settings. There
+  may be multiple WELSPECS events for a well, but not at the same timestamp.
   Each emits a WELSPECS record with the cumulative state. Event values are
   materialized back onto completion settings by ``timeline.set_timestamp()``.
   Event types inside a GROUP block are Eclipse group keywords with the group
@@ -273,7 +273,7 @@ class AttrValue:
 
 @dataclass
 class WellSpecState:
-    """Fully resolved cumulative state for one WELLSPEC event."""
+    """Fully resolved cumulative state for one WELSPECS event."""
 
     group: str
     crossflow: bool
@@ -592,19 +592,19 @@ def _restart_validation_issues(
 
 
 def _wellspec_validation_issues(wells: List[WellBlock]) -> List[ParseIssue]:
-    """Reject multiple WELLSPEC events for one well at the same timestamp."""
+    """Reject multiple WELSPECS events for one well at the same timestamp."""
     seen: Dict[Tuple[str, Union[datetime.date, datetime.datetime]], OrionEvent] = {}
     issues: List[ParseIssue] = []
     for well in wells:
         for event in well.events:
-            if event.event_type.upper() != "WELLSPEC":
+            if event.event_type.upper() != "WELSPECS":
                 continue
             key = (well.well_name, event.event_date)
             previous = seen.get(key)
             if previous is not None:
                 issues.append(
                     ParseIssue(
-                        f"{_event_context(event)}: WELLSPEC already defined "
+                        f"{_event_context(event)}: WELSPECS already defined "
                         f"(first definition on line {previous.loc.line})",
                         event.loc,
                     )
@@ -1315,7 +1315,7 @@ def _enum_text(value: Any) -> str:
 def _prepare_wellspec_events(
     events: List[OrionEvent], completion_settings: Any, report: ApplyReport
 ) -> None:
-    """Validate WELLSPEC attributes and resolve partial updates chronologically."""
+    """Validate WELSPECS attributes and resolve partial updates chronologically."""
     state = WellSpecState(
         group=str(completion_settings.group_name_for_export),
         crossflow=bool(completion_settings.allow_well_cross_flow),
@@ -1324,7 +1324,7 @@ def _prepare_wellspec_events(
     )
 
     wellspecs = sorted(
-        (event for event in events if event.event_type.upper() == "WELLSPEC"),
+        (event for event in events if event.event_type.upper() == "WELSPECS"),
         key=lambda event: event.event_date,
     )
     for event in wellspecs:
@@ -1334,14 +1334,14 @@ def _prepare_wellspec_events(
             report.errors.append(
                 _event_message(
                     event,
-                    f"unknown WELLSPEC attribute(s): {', '.join(sorted(unknown))}",
+                    f"unknown WELSPECS attribute(s): {', '.join(sorted(unknown))}",
                 )
             )
             report.events_skipped += 1
             continue
         if not (set(attrs) - {"COMMENT"}):
             report.errors.append(
-                _event_message(event, "WELLSPEC needs at least one setting attribute")
+                _event_message(event, "WELSPECS needs at least one setting attribute")
             )
             report.events_skipped += 1
             continue
@@ -2037,7 +2037,7 @@ _EVENT_DISPATCH: Dict[str, _EventDispatch] = {
     "SEGMENT": _apply_segment,
     "VALVE": _apply_valve,
     "STATE": _apply_state,
-    "WELLSPEC": _apply_wellspec,
+    "WELSPECS": _apply_wellspec,
     "WCONHIST": _apply_wconhist,
     "WELTARG": _apply_weltarg,
 }
@@ -2049,7 +2049,7 @@ _COMPLETION_EVENT_TYPES = (
     "SEGMENT",
     "VALVE",
     "STATE",
-    "WELLSPEC",
+    "WELSPECS",
 )
 
 
