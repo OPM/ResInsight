@@ -94,6 +94,7 @@ def main():
         eclipse_case=case,
         export_msw_for_wells=project.well_paths(),
         additional_dates=report.report_dates,
+        align_columns=True,
     )
     if schedule_text:
         print(f"   Generated schedule text ({len(schedule_text)} characters):")
