@@ -119,6 +119,8 @@ public:
 
     InheritedDemoObj();
 
+    static void setUseAmbiguousEnumField( bool useAmbiguousEnumField );
+
     caf::PdmField<std::vector<QString>>    m_texts;
     caf::PdmField<std::vector<double>>     m_numbers;
     caf::PdmField<std::optional<double>>   m_optionalNumber;
@@ -126,7 +128,11 @@ public:
     caf::PdmField<std::pair<bool, float>>  m_pairFloatField;
 
     caf::PdmField<caf::AppEnum<TestEnumType>> m_testEnumField;
+    MyAppEnumField                            m_ambiguousAppEnum;
     caf::PdmChildArrayField<SimpleObj*>       m_simpleObjectsField;
+
+private:
+    static bool s_useAmbiguousEnumField;
 };
 
 class MyPdmDocument : public caf::PdmDocument

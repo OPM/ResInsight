@@ -37,6 +37,7 @@
 #include "gtest/gtest.h"
 
 #include "cafMockObjects.h"
+#include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmPythonGenerator.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -193,4 +194,22 @@ TEST( PdmPythonGenerator, DataTypeString_ChildField )
     EXPECT_STREQ( "SimpleObj",
                   caf::PdmPythonGenerator::dataTypeString( &obj.m_simpleObjPtrField, false ).toStdString().c_str() );
     EXPECT_STREQ( "str", caf::PdmPythonGenerator::dataTypeString( &obj.m_simpleObjPtrField, true ).toStdString().c_str() );
+}
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+TEST( PdmPythonGenerator, ReportsAmbiguousEnumClassNames )
+{
+    InheritedDemoObj::setUseAmbiguousEnumField( true );
+
+    caf::PdmPythonGenerator generator;
+    std::vector<QString>    errorMessages;
+    generator.generate( caf::PdmDefaultObjectFactory::instance(), errorMessages );
+
+    InheritedDemoObj::setUseAmbiguousEnumField( false );
+
+    ASSERT_EQ( 1u, errorMessages.size() );
+    EXPECT_TRUE( errorMessages.front().contains( "MyAppEnumValue" ) );
+    EXPECT_TRUE( errorMessages.front().contains( "AlternativeEnumValue" ) );
+    EXPECT_TRUE( errorMessages.front().contains( "PdmScriptEnumNameRegistry" ) );
 }

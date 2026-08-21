@@ -130,6 +130,8 @@ DemoPdmObject::~DemoPdmObject()
 
 CAF_PDM_SOURCE_INIT( InheritedDemoObj, "InheritedDemoObj" );
 
+bool InheritedDemoObj::s_useAmbiguousEnumField = false;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -149,6 +151,10 @@ InheritedDemoObj::InheritedDemoObj()
     CAF_PDM_InitScriptableField( &m_pairFloatField, "PairFloatField", std::make_pair( false, 0.0f ), "Pair Float Field" );
     CAF_PDM_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_myAppEnum, "MyAppEnumValue", "My App Enum" );
+    if ( s_useAmbiguousEnumField )
+    {
+        CAF_PDM_InitScriptableFieldNoDefault( &m_ambiguousAppEnum, "AlternativeEnumValue", "Alternative Enum" );
+    }
 
     CAF_PDM_InitFieldNoDefault( &m_simpleObjectsField,
                                 "SimpleObjects",
@@ -156,6 +162,14 @@ InheritedDemoObj::InheritedDemoObj()
                                 "",
                                 "ToolTip SimpleObjectsField",
                                 "Whatsthis SimpleObjectsField" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void InheritedDemoObj::setUseAmbiguousEnumField( bool useAmbiguousEnumField )
+{
+    s_useAmbiguousEnumField = useAmbiguousEnumField;
 }
 
 CAF_PDM_SOURCE_INIT( MyPdmDocument, "MyPdmDocument" );

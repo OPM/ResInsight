@@ -28,6 +28,16 @@
 #include "RimWellPath.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmScriptEnumNameRegistry.h"
+
+namespace
+{
+struct RegisterScriptEnumNames
+{
+    RegisterScriptEnumNames() { caf::PdmScriptEnumNameRegistry::registerName<RigWbsParameter::Source>( "PorePressureReservoirSource" ); }
+};
+const RegisterScriptEnumNames s_registerScriptEnumNames;
+} // namespace
 
 CAF_PDM_SOURCE_INIT( RimWbsParameters, "WbsParameters" );
 
