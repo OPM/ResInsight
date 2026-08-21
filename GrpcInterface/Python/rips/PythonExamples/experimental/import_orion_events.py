@@ -5,10 +5,12 @@ Example: import an ORIONEVENTS well-event-timeline file into ResInsight.
 
 This example shows how to:
 1. Parse an ORIONEVENTS text file into a structured document
-2. Apply its events to the well event timeline (perforations, WCONHIST, WELTARG),
+2. Normalize matching keyword events while retaining same-date perforations
+3. Apply its events to the well event timeline (perforations, WCONHIST, WELTARG),
    materializing FILTER declarations as case-level combined data filters
    attached to the perforations
-3. Generate Eclipse schedule text from the resulting timeline
+4. Insert multiline RAW_TEXT at a selected position in the generated schedule
+5. Generate Eclipse schedule text from the resulting timeline
 
 The ORIONEVENTS format is a compact, human-authored description of dated well
 events. See rips/orion_events.py for the grammar. A sample input file ships at
@@ -45,6 +47,36 @@ def main():
     print(
         f"   Variables: { {k: f'{v.kind} {v.value}' for k, v in document.variables.items()} }"
     )
+
+    # Normalization merges matching keyword events, but events that create or
+    # expand domain objects remain separate. The sample has three perforations
+    # at A1_STARTUP; all three are retained.
+    normalized = rips.orion_events.coalesce_orion_document(document)
+    source_perforation_count = sum(
+        event.event_type == "PERFORATION"
+        for well in document.wells
+        for event in well.events
+    )
+    normalized_perforation_count = sum(
+        event.event_type == "PERFORATION"
+        for well in normalized.wells
+        for event in well.events
+    )
+    print(
+        "   Perforations retained during normalization: "
+        f"{source_perforation_count} -> {normalized_perforation_count}"
+    )
+
+    # RAW_TEXT bodies bypass keyword parsing and formatting. Placement and an
+    # optional anchor control where each block appears in the generated schedule.
+    raw_text_events = [
+        event for event in document.schedule_events if event.event_type == "RAW_TEXT"
+    ]
+    for event in raw_text_events:
+        print(
+            f"   RAW_TEXT: {event.raw_placement} {event.raw_anchor or ''} "
+            f"(priority {event.raw_priority})"
+        )
 
     # The sample file uses FILTER declarations, so a case is needed to resolve
     # the referenced result names and to own the created combined filters.

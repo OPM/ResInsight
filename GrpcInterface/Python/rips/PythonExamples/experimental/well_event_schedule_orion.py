@@ -17,15 +17,16 @@ It demonstrates the full event coverage of the format:
    materialized as a case-level combined data filter
 4. COMMENT attributes preserved on timeline events and emitted before their
    generated schedule keywords
-5. Same-owner/type/date WCONHIST lines merged into one event, with later
-   attributes extending or overriding earlier attributes
+5. Same-owner/type/date WCONHIST lines merged into one event, while same-date
+   perforations remain separate
 6. Well keyword events: WCONHIST and WELTARG (with attribute translation) and
    WRFTPLT (generic Eclipse well keyword pass-through)
 7. A GROUP-level MEMBER event expanded to one GRUPTREE record per member
 8. SCHEDULE-level keyword events not tied to a well: RPTRST, GRUPTREE, TUNING
-9. REPORT dates, passed to generate_schedule_text(additional_dates=...) so
+9. Multiline RAW_TEXT inserted at a chosen position without parsing its contents
+10. REPORT dates, passed to generate_schedule_text(additional_dates=...) so
    they appear as bare DATES keywords (summary-report triggers)
-10. Schedule metadata, COMPORD generation and aligned-column output
+11. Schedule metadata, COMPORD generation and aligned-column output
 
 The ORIONEVENTS text is built inline with the name of the first well path in
 the project (like well_event_schedule.py, which uses wells[0]), so the example
@@ -67,9 +68,10 @@ WELL W1
   # COMMENT is stored on the event and safely emitted as a schedule comment.
   @STARTUP         SEGMENT      MDSTART=0        MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  PRESSURE_COMPONENTS=HFA  COMMENT="Install production segment"
 
-  # Perforations; COMPLETION_NUMBER groups connections for COMPLUMP.{filter_comment}
+  # Perforations; COMPLETION_NUMBER groups connections for COMPLUMP. Same-date
+  # perforations are kept as separate events during normalization.{filter_comment}
   @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1{filter_ref}  COMMENT="Open high-priority interval"
-  @2024-04-01      PERFORATION  MDSTART=2400  MDEND=2600  RADIUS=0.05  SKIN=0.3  COMPLETION_NUMBER=2
+  @STARTUP + RAMP  PERFORATION  MDSTART=2400  MDEND=2600  RADIUS=0.05  SKIN=0.3  COMPLETION_NUMBER=2
 
   # Time-of-day is preserved and emitted as the TIME field of DATES
   @2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05  SKIN=0.4  COMPLETION_NUMBER=3
@@ -96,6 +98,15 @@ SCHEDULE
   @STARTUP  RPTRST    BASIC=2  FREQ=1
   @STARTUP  GRUPTREE  CHILD_GROUP=OP  PARENT_GROUP=FIELD
   @STARTUP  TUNING    TSINIT=1  TSMAXZ=30  TMAXWC=1  NEWTMX=12  NEWTMN=1  LITMAX=50  LITMIN=1  MXWSIT=50  MXWPIT=50
+
+  # RAW_TEXT preserves its body verbatim. This block is emitted after RPTRST;
+  # PRIORITY orders multiple raw blocks sharing the same placement and anchor.
+  @STARTUP  RAW_TEXT  PLACEMENT=AFTER_KEYWORD  ANCHOR=RPTRST  PRIORITY=10
+-- Custom schedule text not modeled by the timeline API
+WTRACER
+  '{well_name}'  'ORION_TRACER'  1.0 /
+/
+END_RAW_TEXT
 
 # Report dates: emitted as bare DATES keywords so Eclipse/Flow writes a
 # summary report at these dates even though no events fall on them.
@@ -131,10 +142,24 @@ def main():
     document = rips.orion_events.parse_orion_events(orion_text)
     print(f"   Wells: {[w.well_name for w in document.wells]}")
     source_well_event_count = sum(len(w.events) for w in document.wells)
+    source_perforation_count = sum(
+        event.event_type == "PERFORATION"
+        for well in document.wells
+        for event in well.events
+    )
     normalized = rips.orion_events.coalesce_orion_document(document)
     merged_well_event_count = sum(len(w.events) for w in normalized.wells)
+    merged_perforation_count = sum(
+        event.event_type == "PERFORATION"
+        for well in normalized.wells
+        for event in well.events
+    )
     print(f"   Source well-event lines: {source_well_event_count}")
     print(f"   Events after same-date merge: {merged_well_event_count}")
+    print(
+        "   Perforations retained during merge: "
+        f"{source_perforation_count} -> {merged_perforation_count}"
+    )
     print(f"   Groups: {[group.group_name for group in document.groups]}")
     print(f"   Schedule events: {len(document.schedule_events)}")
 
@@ -207,6 +232,7 @@ def main():
             "RPTRST",
             "GRUPTREE",
             "TUNING",
+            "WTRACER",
         ]
         found = [kw for kw in expected_keywords if kw in schedule_text]
         print(f"\n   Keywords found: {', '.join(found)}")
