@@ -39,6 +39,7 @@ void AppEnum<RimWellEvent::EventType>::setUp()
     addItem( RimWellEvent::EventType::WCONTROL, "WCONTROL", "Well Control" );
     addItem( RimWellEvent::EventType::KEYWORD, "KEYWORD", "Well Keyword" );
     addItem( RimWellEvent::EventType::SCHEDULE_KEYWORD, "SCHEDULE_KEYWORD", "Schedule Keyword" );
+    addItem( RimWellEvent::EventType::RAW_TEXT, "RAW_TEXT", "Raw Text" );
     setDefault( RimWellEvent::EventType::PERF );
 }
 } // namespace caf

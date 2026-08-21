@@ -23,7 +23,8 @@ File format grammar, version 2.0 (EBNF-ish)::
     document        = header , { statement } ;
     header          = "ORIONEVENTS" , "2.0" ;           (* first meaningful line *)
     statement       = unit_directive | declaration | report_line | well_block_open
-                    | group_block_open | schedule_block_open | event_line ;
+                    | group_block_open | schedule_block_open | event_line
+                    | raw_text_event ;
     unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
     report_line     = "REPORT" , date_expr ;            (* REPORT 2024-06-01 *)
 
@@ -42,6 +43,12 @@ File format grammar, version 2.0 (EBNF-ish)::
     group_block_open    = "GROUP" , quoted_string ;     (* group keyword events *)
     schedule_block_open = "SCHEDULE" ;                  (* well-less keyword events *)
     event_line      = "@" , date_expr , event_type , { attribute } ;
+    raw_text_event  = "@" , date_expr , "RAW_TEXT" , raw_text_attributes , newline,
+                      { raw_line , newline } , "END_RAW_TEXT" ;
+    raw_text_attributes = "PLACEMENT=" ,
+                          ( "AFTER_DATE" | "BEFORE_KEYWORD" |
+                            "AFTER_KEYWORD" | "END_OF_DATE" ) ,
+                          [ "ANCHOR=" , ident ] , [ "PRIORITY=" , integer ] ;
 
     date_expr       = ( iso_date | iso_datetime | date_ident ) , { sign , term } ;
     duration_expr   = ( integer | dur_ident ) , { sign , term } , [ "DAYS" | "days" ] ;
@@ -91,6 +98,13 @@ Notes on the grammar:
   strings on :attr:`ApplyReport.report_dates`, ready to pass to
   ``WellEventTimeline.generate_schedule_text(additional_dates=...)``. A
   ``REPORT`` line is not tied to any well and does not close an open block.
+* ``RAW_TEXT`` is valid only inside a ``SCHEDULE`` block. Its body is copied
+  without parsing or formatting through the mandatory standalone
+  ``END_RAW_TEXT`` line. ``PLACEMENT`` is ``AFTER_DATE``, ``BEFORE_KEYWORD``,
+  ``AFTER_KEYWORD`` or ``END_OF_DATE``. Before/after-keyword placement requires
+  ``ANCHOR=<Eclipse keyword>``; the other placements forbid it. ``PRIORITY`` is
+  an optional integer (default 0); lower values are emitted first and source
+  order breaks ties.
 * Double quotes are used everywhere: well names, filter expressions and
   attribute values, e.g. ``FILTER="SOIL > 0.8 AND PERMX > 200"``.
 * Every attribute is ``KEY=VALUE``; bare positional tokens are rejected.
@@ -277,6 +291,10 @@ class OrionEvent:
     loc: SourceLoc
     filter: Optional[EventFilter] = None
     well_spec: Optional[WellSpecState] = None
+    raw_text: Optional[str] = None
+    raw_placement: Optional[str] = None
+    raw_anchor: Optional[str] = None
+    raw_priority: int = 0
 
 
 @dataclass
@@ -391,9 +409,13 @@ def parse_orion_events(text: str) -> OrionDocument:
     # document-level schedule_events list.
     current_events: Optional[List[OrionEvent]] = None
 
-    for lineno, raw_line in enumerate(text.splitlines(), start=1):
-        loc = SourceLoc(line=lineno, text=raw_line)
+    source_lines = text.splitlines()
+    line_index = 0
+    while line_index < len(source_lines):
+        raw_line = source_lines[line_index]
+        loc = SourceLoc(line=line_index + 1, text=raw_line)
         line = _strip_comment(raw_line).strip()
+        line_index += 1
         if not line:
             continue
 
@@ -407,6 +429,31 @@ def parse_orion_events(text: str) -> OrionDocument:
                 )
             version = match.group("version")
             _check_version(version, loc)
+            continue
+
+        if _is_raw_text_header(line):
+            end_index = line_index
+            while (
+                end_index < len(source_lines)
+                and source_lines[end_index].strip() != "END_RAW_TEXT"
+            ):
+                end_index += 1
+            if end_index == len(source_lines):
+                errors.append(ParseIssue("Unterminated RAW_TEXT block", loc))
+                break
+
+            body_lines = source_lines[line_index:end_index]
+            line_index = end_index + 1
+            try:
+                if current_events is not schedule_events:
+                    raise OrionParseError(
+                        "RAW_TEXT is only valid in a SCHEDULE block", loc
+                    )
+                current_events.append(
+                    _parse_raw_text_event(line, body_lines, variables, loc)
+                )
+            except OrionParseError as exc:
+                errors.extend(exc.errors)
             continue
 
         try:
@@ -864,6 +911,81 @@ def _strip_comment(line: str) -> str:
     return "".join(result)
 
 
+def _is_raw_text_header(line: str) -> bool:
+    """Return whether an event line starts a multiline RAW_TEXT block."""
+    match = _EVENT_RE.match(line)
+    if match is None:
+        return False
+    return match.group("rest").split(None, 1)[0].upper() == "RAW_TEXT"
+
+
+def _parse_raw_text_event(
+    line: str,
+    body_lines: List[str],
+    variables: Dict[str, OrionValue],
+    loc: SourceLoc,
+) -> OrionEvent:
+    """Parse and validate a RAW_TEXT header and attach its unparsed body."""
+    event = _parse_event_line(line, variables, loc)
+    allowed = {"PLACEMENT", "ANCHOR", "PRIORITY"}
+    unknown = set(event.attributes) - allowed
+    if unknown:
+        raise OrionParseError(
+            f"Unknown RAW_TEXT attribute(s): {', '.join(sorted(unknown))}", loc
+        )
+    if "PLACEMENT" not in event.attributes:
+        raise OrionParseError("RAW_TEXT requires PLACEMENT", loc)
+    if not body_lines:
+        raise OrionParseError("RAW_TEXT body must not be empty", loc)
+
+    placement_value = event.attributes["PLACEMENT"].value
+    placement = placement_value.upper() if isinstance(placement_value, str) else ""
+    valid_placements = {
+        "AFTER_DATE",
+        "BEFORE_KEYWORD",
+        "AFTER_KEYWORD",
+        "END_OF_DATE",
+    }
+    if placement not in valid_placements:
+        raise OrionParseError(
+            "RAW_TEXT PLACEMENT must be AFTER_DATE, BEFORE_KEYWORD, "
+            "AFTER_KEYWORD, or END_OF_DATE",
+            loc,
+        )
+
+    anchor: Optional[str] = None
+    if "ANCHOR" in event.attributes:
+        anchor_value = event.attributes["ANCHOR"].value
+        if not isinstance(anchor_value, str) or not anchor_value.strip():
+            raise OrionParseError("RAW_TEXT ANCHOR must be a keyword name", loc)
+        anchor = anchor_value.strip().upper()
+
+    anchored = placement in {"BEFORE_KEYWORD", "AFTER_KEYWORD"}
+    if anchored and anchor is None:
+        raise OrionParseError(
+            "RAW_TEXT ANCHOR is required for BEFORE_KEYWORD and AFTER_KEYWORD",
+            loc,
+        )
+    if not anchored and anchor is not None:
+        raise OrionParseError(
+            "RAW_TEXT ANCHOR is only valid for BEFORE_KEYWORD and AFTER_KEYWORD",
+            loc,
+        )
+
+    priority = 0
+    if "PRIORITY" in event.attributes:
+        priority_value = event.attributes["PRIORITY"].value
+        if isinstance(priority_value, bool) or not isinstance(priority_value, int):
+            raise OrionParseError("RAW_TEXT PRIORITY must be an integer", loc)
+        priority = priority_value
+
+    event.raw_text = "\n".join(body_lines) + "\n"
+    event.raw_placement = placement
+    event.raw_anchor = anchor
+    event.raw_priority = priority
+    return event
+
+
 def _parse_event_line(
     line: str, variables: Dict[str, OrionValue], loc: SourceLoc
 ) -> OrionEvent:
@@ -1064,6 +1186,10 @@ def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
             Tuple[Union[datetime.date, datetime.datetime], str], OrionEvent
         ] = {}
         for event in events:
+            if event.event_type.upper() == "RAW_TEXT":
+                merged.append(event)
+                continue
+
             key = (event.event_date, event.event_type.upper())
             existing = by_key.get(key)
             if existing is None:
@@ -1459,6 +1585,16 @@ def _apply_schedule_event(
 ) -> None:
     """Apply one GROUP- or SCHEDULE-block event as an Eclipse keyword."""
     event_type = event.event_type.upper()
+    if event_type == "RAW_TEXT":
+        timeline.add_raw_text_event(
+            event_date=_iso_event_date(event.event_date),
+            text=event.raw_text,
+            placement=event.raw_placement,
+            anchor_keyword=event.raw_anchor or "",
+            priority=event.raw_priority,
+        )
+        report.events_applied += 1
+        return
     if event_type == "RESTART":
         timeline.add_keyword_event(
             event_date=_iso_event_date(event.event_date),

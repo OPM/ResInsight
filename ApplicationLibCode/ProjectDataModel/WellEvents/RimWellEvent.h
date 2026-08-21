@@ -48,7 +48,8 @@ public:
         WELLSPEC,
         WCONTROL,
         KEYWORD,
-        SCHEDULE_KEYWORD
+        SCHEDULE_KEYWORD,
+        RAW_TEXT
     };
 
     RimWellEvent();

@@ -23,6 +23,7 @@
 #include "RimWellEventControl.h"
 #include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
+#include "RimWellEventRawText.h"
 #include "RimWellEventState.h"
 #include "RimWellEventTubing.h"
 #include "RimWellEventType.h"
@@ -338,6 +339,18 @@ RimKeywordEvent* RimWellEventTimeline::addKeywordEvent( const QDateTime& date, c
     // Note: wellPath is NOT set for schedule-level keyword events
     event->setEventDate( date );
     event->setKeywordName( keywordName );
+    m_events.push_back( event );
+    updateEditorsAfterEventChange();
+    return event;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellEventRawText* RimWellEventTimeline::addRawTextEvent( const QDateTime& date )
+{
+    auto* event = new RimWellEventRawText();
+    event->setEventDate( date );
     m_events.push_back( event );
     updateEditorsAfterEventChange();
     return event;
