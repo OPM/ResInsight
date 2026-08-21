@@ -1,6 +1,7 @@
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEvent.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventPerf.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellEventRawText.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventValve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventTubing.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellEventState.cpp

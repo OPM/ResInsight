@@ -25,6 +25,7 @@
 #include "RimWellEventControl.h"
 #include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
+#include "RimWellEventRawText.h"
 #include "RimWellEventState.h"
 #include "RimWellEventTimeline.h"
 #include "RimWellEventTubing.h"
@@ -634,6 +635,73 @@ QString RimcWellEventTimeline_addKeywordEvent::classKeywordReturnedType() const
     return RimKeywordEvent::classKeywordStatic();
 }
 
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addRawTextEvent, "AddRawTextEventInternal" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellEventTimeline_addRawTextEvent::RimcWellEventTimeline_addRawTextEvent( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Add Raw Text Event", "", "", "Add raw text at a specific position in a dated schedule section" );
+
+    CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
+    CAF_PDM_InitScriptableField( &m_text, "Text", QString(), "", "", "", "Raw schedule text" );
+    CAF_PDM_InitScriptableField( &m_placement,
+                                 "Placement",
+                                 RimWellEventRawText::Placement::AFTER_DATE,
+                                 "",
+                                 "",
+                                 "",
+                                 "Position in the dated schedule section" );
+    CAF_PDM_InitScriptableField( &m_anchorKeyword, "AnchorKeyword", QString(), "", "", "", "Keyword used for before/after placement" );
+    CAF_PDM_InitScriptableField( &m_priority, "Priority", 0, "", "", "", "Ascending order among raw text events at the same position" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addRawTextEvent::execute()
+{
+    auto timeline = self<RimWellEventTimeline>();
+
+    QDateTime date = QDateTime::fromString( m_eventDate(), Qt::ISODate );
+    if ( !date.isValid() )
+    {
+        return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
+    }
+    if ( m_text().isEmpty() )
+    {
+        return std::unexpected( QString( "Raw text is required" ) );
+    }
+
+    const bool anchored = m_placement() == RimWellEventRawText::Placement::BEFORE_KEYWORD ||
+                          m_placement() == RimWellEventRawText::Placement::AFTER_KEYWORD;
+    if ( anchored && m_anchorKeyword().trimmed().isEmpty() )
+    {
+        return std::unexpected( QString( "Anchor keyword is required for BEFORE_KEYWORD and AFTER_KEYWORD placement" ) );
+    }
+    if ( !anchored && !m_anchorKeyword().trimmed().isEmpty() )
+    {
+        return std::unexpected( QString( "Anchor keyword is only valid for BEFORE_KEYWORD and AFTER_KEYWORD placement" ) );
+    }
+
+    auto* event = timeline->addRawTextEvent( date );
+    event->setText( m_text() );
+    event->setPlacement( m_placement() );
+    event->setAnchorKeyword( m_anchorKeyword().trimmed() );
+    event->setPriority( m_priority() );
+    return event;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellEventTimeline_addRawTextEvent::classKeywordReturnedType() const
+{
+    return RimWellEventRawText::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_setTimestamp, "SetTimestamp" );
 
 //--------------------------------------------------------------------------------------------------
@@ -753,11 +821,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
         return std::unexpected( QString( "No events found in timeline" ) );
     }
 
-    if ( wellPathsWithEvents.empty() )
-    {
-        return std::unexpected( QString( "No well paths with events found" ) );
-    }
-
     // Merge in user-specified additional dates: each becomes a DATES keyword even when no events
     // fall on it (e.g. to force a summary report). They are deliberately not filtered by the last
     // applied timestamp.
@@ -779,17 +842,18 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
     std::vector<RimWellPath*>    mswWellPaths = m_exportMswForWells.ptrReferencedObjectsByType();
     std::set<const RimWellPath*> mswWells( mswWellPaths.begin(), mswWellPaths.end() );
 
-    QString scheduleText = RicScheduleDataGenerator::generateSchedule( *timeline,
-                                                                       *eclipseCase,
-                                                                       wellPathsWithEvents,
-                                                                       dates,
-                                                                       mswWells,
-                                                                       m_firstDateAsComment(),
-                                                                       m_alignColumns() );
+    auto scheduleText = RicScheduleDataGenerator::generateSchedule( *timeline,
+                                                                    *eclipseCase,
+                                                                    wellPathsWithEvents,
+                                                                    dates,
+                                                                    mswWells,
+                                                                    m_firstDateAsComment(),
+                                                                    m_alignColumns() );
+    if ( !scheduleText ) return std::unexpected( scheduleText.error() );
 
     // Return the schedule text in a data container
     auto* dataObject           = new RimcDataContainerString();
-    dataObject->m_stringValues = { scheduleText };
+    dataObject->m_stringValues = { *scheduleText };
 
     return dataObject;
 }

@@ -13,6 +13,7 @@ from .pdmobject import add_method
 from .resinsight_classes import EclipseCase
 from .generated.generated_classes import (
     KeywordEvent,
+    Placement,
     WellEventKeyword,
     WellEventTimeline,
     WellPath,
@@ -280,6 +281,31 @@ def add_keyword_event(
         item_names=item_names,
         item_types=item_types,
         item_values=item_values,
+    )
+
+
+@add_method(WellEventTimeline)
+def add_raw_text_event(
+    self: WellEventTimeline,
+    event_date: str | date | datetime,
+    text: str,
+    placement: str = "AFTER_DATE",
+    anchor_keyword: str = "",
+    priority: int = 0,
+) -> Any:
+    """Add raw text at a specific position in a dated schedule section.
+
+    ``placement`` is one of ``AFTER_DATE``, ``BEFORE_KEYWORD``,
+    ``AFTER_KEYWORD``, or ``END_OF_DATE``. ``anchor_keyword`` is required for
+    before/after-keyword placement and must be empty for the other placements.
+    Lower priority values are emitted first; source order breaks ties.
+    """
+    return self.add_raw_text_event_internal(
+        event_date=_format_date(event_date),
+        text=text,
+        placement=Placement(placement),
+        anchor_keyword=anchor_keyword,
+        priority=priority,
     )
 
 

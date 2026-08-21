@@ -28,6 +28,7 @@
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
 #include "RimEclipseCase.h"
 #include "RimKeywordEvent.h"
+#include "RimWellEventRawText.h"
 #include "RimWellEventTimeline.h"
 #include "RimWellEventWellSpec.h"
 #include "RimWellPath.h"
@@ -47,13 +48,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline&         timeline,
-                                                    RimEclipseCase&                     eclipseCase,
-                                                    const std::vector<RimWellPath*>&    wellPaths,
-                                                    const std::vector<QDateTime>&       dates,
-                                                    const std::set<const RimWellPath*>& mswWells,
-                                                    bool                                firstDateAsComment,
-                                                    bool                                alignColumns )
+std::expected<QString, QString> RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline&         timeline,
+                                                                            RimEclipseCase&                     eclipseCase,
+                                                                            const std::vector<RimWellPath*>&    wellPaths,
+                                                                            const std::vector<QDateTime>&       dates,
+                                                                            const std::set<const RimWellPath*>& mswWells,
+                                                                            bool                                firstDateAsComment,
+                                                                            bool                                alignColumns )
 {
     QString result;
 
@@ -101,12 +102,10 @@ QString RicScheduleDataGenerator::generateSchedule( const RimWellEventTimeline& 
     {
         if ( restartDate.has_value() && date < *restartDate ) continue;
 
-        QString dateSection =
+        auto dateSection =
             generateDateSection( timeline, eclipseCase, sortedWellPaths, date, mswWells, isFirstDate && firstDateAsComment, alignColumns );
-        if ( !dateSection.isEmpty() )
-        {
-            result += dateSection;
-        }
+        if ( !dateSection ) return std::unexpected( dateSection.error() );
+        result += *dateSection;
         isFirstDate = false;
     }
 
@@ -159,13 +158,13 @@ void RicScheduleDataGenerator::mergeKeyword( std::map<QString, Opm::DeckKeyword>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimeline&         timeline,
-                                                       RimEclipseCase&                     eclipseCase,
-                                                       const std::vector<RimWellPath*>&    wellPaths,
-                                                       const QDateTime&                    date,
-                                                       const std::set<const RimWellPath*>& mswWells,
-                                                       bool                                dateAsComment,
-                                                       bool                                alignColumns )
+std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( const RimWellEventTimeline&         timeline,
+                                                                               RimEclipseCase&                     eclipseCase,
+                                                                               const std::vector<RimWellPath*>&    wellPaths,
+                                                                               const QDateTime&                    date,
+                                                                               const std::set<const RimWellPath*>& mswWells,
+                                                                               bool                                dateAsComment,
+                                                                               bool                                alignColumns )
 {
     // Keyword priority order for output
     static const std::vector<QString> keywordOrder = { "WELSPECS",
@@ -187,6 +186,33 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
                                                        "WSEGAICD" };
 
     QString result;
+
+    auto events = timeline.getEventsAtDate( date );
+
+    std::vector<const RimWellEventRawText*> rawTextEvents;
+    for ( const auto* event : events )
+    {
+        if ( event->eventType() != RimWellEvent::EventType::RAW_TEXT ) continue;
+        if ( const auto* rawTextEvent = dynamic_cast<const RimWellEventRawText*>( event ) )
+        {
+            rawTextEvents.push_back( rawTextEvent );
+        }
+    }
+    std::stable_sort( rawTextEvents.begin(),
+                      rawTextEvents.end(),
+                      []( const RimWellEventRawText* lhs, const RimWellEventRawText* rhs ) { return lhs->priority() < rhs->priority(); } );
+
+    auto appendRawText = [&]( RimWellEventRawText::Placement placement, const QString& anchorKeyword = QString() )
+    {
+        for ( const auto* rawTextEvent : rawTextEvents )
+        {
+            if ( rawTextEvent->placement() != placement ) continue;
+            if ( !anchorKeyword.isEmpty() && rawTextEvent->anchorKeyword().compare( anchorKeyword, Qt::CaseInsensitive ) != 0 ) continue;
+
+            result += rawTextEvent->text();
+            if ( !result.endsWith( '\n' ) ) result += '\n';
+        }
+    };
 
     auto serializeKeyword = [&]( const Opm::DeckKeyword& kw )
     { return alignColumns ? RimKeywordFactory::deckKeywordToAlignedString( kw ) : RimKeywordFactory::deckKeywordToString( kw ); };
@@ -212,6 +238,7 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     {
         result += serializeKeyword( RimKeywordFactory::datesKeyword( date ) ) + "\n";
     }
+    appendRawText( RimWellEventRawText::Placement::AFTER_DATE );
 
     // Records for each keyword name are accumulated across wells, then serialised once below.
     std::map<QString, Opm::DeckKeyword> keywordBlocks;
@@ -240,7 +267,6 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
     }
 
     // Schedule-level keyword events (not tied to a specific well)
-    auto events = timeline.getEventsAtDate( date );
     for ( auto* event : events )
     {
         if ( event->eventType() != RimWellEvent::EventType::SCHEDULE_KEYWORD ) continue;
@@ -280,6 +306,10 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
                 const auto* keywordEvent = dynamic_cast<const RimKeywordEvent*>( event );
                 isRelevant               = keywordEvent && keywordEvent->keywordName().compare( keywordName, Qt::CaseInsensitive ) == 0;
             }
+            else if ( event->eventType() == RimWellEvent::EventType::RAW_TEXT )
+            {
+                continue;
+            }
             else
             {
                 auto eventKeyword = RifEventKeywordFormatter::buildWellEvent( event, event->wellName() );
@@ -304,43 +334,76 @@ QString RicScheduleDataGenerator::generateDateSection( const RimWellEventTimelin
         result += "\n";
     };
 
-    auto appendUnmergedBlocks = [&]( const QString& name )
+    std::set<QString> availableKeywords;
+    for ( const auto& [name, keyword] : keywordBlocks )
     {
-        auto it = unmergedBlocks.find( name );
-        if ( it == unmergedBlocks.end() ) return;
-        for ( const auto& kw : it->second )
-        {
-            appendKeywordText( kw );
-        }
-    };
+        availableKeywords.insert( name );
+    }
+    for ( const auto& [name, blocks] : unmergedBlocks )
+    {
+        if ( !blocks.empty() ) availableKeywords.insert( name );
+    }
 
-    // Output keywords in priority order
-    std::set<QString> emitted;
-    for ( const auto& kw : keywordOrder )
+    for ( const auto* rawTextEvent : rawTextEvents )
     {
-        if ( auto it = keywordBlocks.find( kw ); it != keywordBlocks.end() )
+        if ( rawTextEvent->text().isEmpty() )
+        {
+            return std::unexpected( QString( "Raw text event at %1 has no text" ).arg( date.toString( Qt::ISODate ) ) );
+        }
+
+        const bool anchored = rawTextEvent->placement() == RimWellEventRawText::Placement::BEFORE_KEYWORD ||
+                              rawTextEvent->placement() == RimWellEventRawText::Placement::AFTER_KEYWORD;
+        if ( anchored && rawTextEvent->anchorKeyword().isEmpty() )
+        {
+            return std::unexpected( QString( "Raw text event at %1 requires an anchor keyword" ).arg( date.toString( Qt::ISODate ) ) );
+        }
+        if ( !anchored && !rawTextEvent->anchorKeyword().isEmpty() )
+        {
+            return std::unexpected(
+                QString( "Raw text event at %1 has an anchor keyword for a placement that does not use one" ).arg( date.toString( Qt::ISODate ) ) );
+        }
+        if ( anchored && !availableKeywords.contains( rawTextEvent->anchorKeyword() ) )
+        {
+            return std::unexpected( QString( "Raw text event at %1 references keyword '%2', which is not emitted on that date" )
+                                        .arg( date.toString( Qt::ISODate ), rawTextEvent->anchorKeyword() ) );
+        }
+    }
+
+    auto appendKeywordBlocks = [&]( const QString& name )
+    {
+        if ( !availableKeywords.contains( name ) ) return;
+
+        appendRawText( RimWellEventRawText::Placement::BEFORE_KEYWORD, name );
+        if ( auto it = keywordBlocks.find( name ); it != keywordBlocks.end() )
         {
             appendKeywordText( it->second );
         }
-        appendUnmergedBlocks( kw );
-        emitted.insert( kw );
-    }
-
-    // Output remaining keywords not in the priority list
-    for ( const auto& [kw, deckKw] : keywordBlocks )
-    {
-        if ( emitted.contains( kw ) ) continue;
-        appendKeywordText( deckKw );
-    }
-    for ( const auto& [kw, blocks] : unmergedBlocks )
-    {
-        if ( emitted.contains( kw ) ) continue;
-        for ( const auto& deckKw : blocks )
+        if ( auto it = unmergedBlocks.find( name ); it != unmergedBlocks.end() )
         {
-            appendKeywordText( deckKw );
+            for ( const auto& keyword : it->second )
+            {
+                appendKeywordText( keyword );
+            }
         }
+        appendRawText( RimWellEventRawText::Placement::AFTER_KEYWORD, name );
+    };
+
+    // Output keywords in priority order.
+    std::set<QString> emitted;
+    for ( const auto& name : keywordOrder )
+    {
+        appendKeywordBlocks( name );
+        emitted.insert( name );
     }
 
+    // Output remaining keywords alphabetically, as before.
+    for ( const auto& name : availableKeywords )
+    {
+        if ( emitted.contains( name ) ) continue;
+        appendKeywordBlocks( name );
+    }
+
+    appendRawText( RimWellEventRawText::Placement::END_OF_DATE );
     return result;
 }
 

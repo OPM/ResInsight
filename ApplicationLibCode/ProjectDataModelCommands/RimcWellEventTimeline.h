@@ -21,6 +21,7 @@
 #include "RimKeywordEvent.h"
 #include "RimWellEventControl.h"
 #include "RimWellEventPerf.h"
+#include "RimWellEventRawText.h"
 #include "RimWellEventState.h"
 #include "RimWellEventTimeline.h"
 #include "RimWellEventValve.h"
@@ -218,6 +219,27 @@ private:
     caf::PdmField<std::vector<QString>> m_itemNames;
     caf::PdmField<std::vector<QString>> m_itemTypes;
     caf::PdmField<std::vector<QString>> m_itemValues;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellEventTimeline_addRawTextEvent : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_addRawTextEvent( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString>                                      m_eventDate;
+    caf::PdmField<QString>                                      m_text;
+    caf::PdmField<caf::AppEnum<RimWellEventRawText::Placement>> m_placement;
+    caf::PdmField<QString>                                      m_anchorKeyword;
+    caf::PdmField<int>                                          m_priority;
 };
 
 //==================================================================================================
