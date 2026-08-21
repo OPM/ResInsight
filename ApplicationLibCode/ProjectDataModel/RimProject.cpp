@@ -644,9 +644,19 @@ std::vector<RimCase*> RimProject::allGridCases() const
 
             for ( RimReservoirGridEnsemble* ensemble : analysisModels->reservoirGridEnsembles.childrenByType() )
             {
+                if ( ensemble == nullptr ) continue;
+
                 for ( RimEclipseCase* acase : ensemble->cases() )
                 {
                     cases.push_back( acase );
+                }
+
+                if ( ensemble->statisticsCaseCollection() )
+                {
+                    for ( RimEclipseCase* eclipseCase : ensemble->statisticsCaseCollection()->reservoirs )
+                    {
+                        cases.push_back( eclipseCase );
+                    }
                 }
             }
 

@@ -178,6 +178,13 @@ bool RimGridCalculation::calculate()
     bool checkIfGridSizeIsEqual = ( !allSourceCasesAreEqualToDestinationCase() || m_cellFilterView != nullptr ) &&
                                   m_additionalCasesType != AdditionalCasesType::ENSEMBLE;
 
+    // Grid dimensions are required to validate the calculation, and a source case is not necessarily opened. This is the case for a
+    // statistics case with no computed statistics.
+    for ( auto inputCase : inputCases() )
+    {
+        if ( inputCase && !inputCase->eclipseCaseData() ) inputCase->ensureReservoirCaseIsOpen();
+    }
+
     for ( auto calculationCase : outputEclipseCases() )
     {
         if ( !calculationCase ) continue;
@@ -524,7 +531,11 @@ void RimGridCalculation::onVariableUpdated( const SignalEmitter* emitter )
     {
         if ( auto variableCase = variable->eclipseCase() )
         {
-            if ( !m_destinationCase || !m_destinationCase->isGridSizeEqualTo( variableCase ) )
+            // A statistics case can be used as source, but never as destination. A calculated result stored in a statistics case is
+            // interpreted as computed statistics, and will block recomputation of the statistics.
+            const bool canBeDestinationCase = dynamic_cast<RimEclipseStatisticsCase*>( variableCase ) == nullptr;
+
+            if ( canBeDestinationCase && ( !m_destinationCase || !m_destinationCase->isGridSizeEqualTo( variableCase ) ) )
             {
                 m_destinationCase = variableCase;
             }
@@ -609,6 +620,9 @@ std::vector<double> RimGridCalculation::getActiveCellValues( const QString&     
 {
     if ( !sourceCase || !destinationCase ) return {};
 
+    // A statistics case is not necessarily opened when used as source for a calculation
+    if ( !sourceCase->eclipseCaseData() && !sourceCase->ensureReservoirCaseIsOpen() ) return {};
+
     size_t timeStepToUse = tsId;
     if ( resultCategoryType == RiaDefines::ResultCatType::STATIC_NATIVE )
     {
@@ -618,7 +632,9 @@ std::vector<double> RimGridCalculation::getActiveCellValues( const QString&     
 
     RigEclipseResultAddress resAddr( resultCategoryType, resultName );
 
-    auto eclipseCaseData        = sourceCase->eclipseCaseData();
+    auto eclipseCaseData = sourceCase->eclipseCaseData();
+    if ( !eclipseCaseData ) return {};
+
     auto rigCaseCellResultsData = eclipseCaseData->results( porosityModel );
     if ( rigCaseCellResultsData->findOrLoadKnownScalarResultForTimeStep( resAddr, timeStepToUse ) == cvf::UNDEFINED_SIZE_T ) return {};
 
