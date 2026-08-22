@@ -205,8 +205,8 @@ jobs:
         shell: bash
         run: |
           echo "Content of unit test folder"
-          ls cmakebuild/ResInsight-tests
-          cmakebuild/ResInsight-tests
+          ls cmakebuild/ApplicationLibCode/UnitTests
+          cmakebuild/ApplicationLibCode/UnitTests/ResInsight-tests
 
       - name: Write macOS launch instructions
         run: |
