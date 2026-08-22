@@ -28,7 +28,6 @@ jobs:
               build-python-module: true,
               execute-unit-tests: true,
               execute-pytests: true,
-              unity-build: true,
               publish-to-pypi: false,
               enable-asserts: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
@@ -43,7 +42,6 @@ jobs:
               build-python-module: true,
               execute-unit-tests: true,
               execute-pytests: true,
-              unity-build: false,
               publish-to-pypi: true,
               enable-asserts: false,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
@@ -58,7 +56,6 @@ jobs:
               build-python-module: true,
               execute-unit-tests: true,
               execute-pytests: false,
-              unity-build: false,
               publish-to-pypi: false,
               enable-asserts: true,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
@@ -273,7 +270,7 @@ jobs:
           -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
           -DRESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
           -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=false
-          -DRESINSIGHT_ENABLE_UNITY_BUILD=${{ matrix.config.unity-build }}
+          -DRESINSIGHT_ENABLE_UNITY_BUILD=false
           -DRESINSIGHT_ENABLE_ASSERTS_IN_RELEASE=${{ matrix.config.enable-asserts }}
           -DRESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
           -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
@@ -293,7 +290,16 @@ jobs:
         # Save the cache with the current date, unless a cache for the current
         # date was already restored (cache keys are immutable and cannot be
         # overwritten)
-        if: steps.cache-buildcache.outputs.cache-hit != 'true'
+        #
+        # Only save from the default branch. GitHub scopes cache writes to the
+        # current ref, and a branch can only read its own scope plus the default
+        # branch, so a cache saved from a feature branch or PR is invisible to
+        # every other branch. Those copies bring no reuse, but they do count
+        # against the 10 GB per-repository quota and evict the shared caches on
+        # the default branch.
+        if: >-
+          steps.cache-buildcache.outputs.cache-hit != 'true' &&
+          github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         uses: actions/cache/save@v6
         with:
           path: ${{ env.BUILDCACHE_DIR }}
