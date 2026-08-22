@@ -222,7 +222,23 @@ set_property(
   TARGET ResInsightDummyTestTarget PROPERTY FOLDER "FileCopyTargetsTest"
 )
 
-# create a custom target that copies the files to the build folder
+# Keep the test executable out of the shared build root. The POST_BUILD step
+# below copies the Qt runtime DLLs next to the executable, and the build root
+# has ResInsight.exe running out of it during Python code generation with those
+# same DLLs loaded. Overwriting a mapped DLL is a sharing violation on Windows,
+# and nothing orders the two build edges relative to each other.
+set(RESINSIGHT_TESTS_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+# create a custom target that copies the files to the test output folder
+list(
+  APPEND
+  copyCommands
+  COMMAND
+  ${CMAKE_COMMAND}
+  -E
+  make_directory
+  ${RESINSIGHT_TESTS_OUTPUT_DIRECTORY}
+)
 foreach(riFileName ${RI_FILENAMES})
   list(
     APPEND
@@ -232,7 +248,7 @@ foreach(riFileName ${RI_FILENAMES})
     -E
     copy_if_different
     ${riFileName}
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    ${RESINSIGHT_TESTS_OUTPUT_DIRECTORY}
   )
 endforeach()
 add_custom_target(PreBuildFileCopyTest ${copyCommands})
@@ -242,6 +258,11 @@ qt_add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp)
 
 # Make ResInsight-tests depend on the prebuild target.
 add_dependencies(ResInsight-tests PreBuildFileCopyTest)
+
+set_target_properties(
+  ResInsight-tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                              ${RESINSIGHT_TESTS_OUTPUT_DIRECTORY}
+)
 
 configure_file(
   ${CMAKE_CURRENT_LIST_DIR}/RiaTestDataDirectory.h.cmake

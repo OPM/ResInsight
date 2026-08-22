@@ -33,7 +33,7 @@ jobs:
               enable-asserts: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
               qt-version: 6.10.1,
-              ri-unit-test-path: "ResInsight-tests",
+              ri-unit-test-path: "ApplicationLibCode/UnitTests/ResInsight-tests",
             }
           - {
               name: "Ubuntu 24.04 gcc",
@@ -48,7 +48,7 @@ jobs:
               enable-asserts: false,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
               qt-version: 6.7.0,
-              ri-unit-test-path: "ResInsight-tests",
+              ri-unit-test-path: "ApplicationLibCode/UnitTests/ResInsight-tests",
             }
           - {
               name: "Ubuntu 24.04 clang-19",
@@ -63,7 +63,7 @@ jobs:
               enable-asserts: true,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
               qt-version: 6.7.0,
-              ri-unit-test-path: "ResInsight-tests",
+              ri-unit-test-path: "ApplicationLibCode/UnitTests/ResInsight-tests",
             }
     env:
       BUILD_TYPE: Release
