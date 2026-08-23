@@ -986,12 +986,13 @@ bool RimReservoirGridEnsemble::detectGridDimensionEquality()
 void RimReservoirGridEnsemble::loadGridsInSharedMode()
 {
     auto allCases = cases();
+    if ( allCases.empty() ) return;
 
     RiaLogging::info( std::format( "Grid ensemble '{}': Loading grid in shared mode for {} cases.", name(), allCases.size() ) );
 
     // Load first case fully
     RimEclipseCase* firstCase = allCases[0];
-    if ( firstCase->openEclipseGridFile() )
+    if ( firstCase->openEclipseGridFile() && firstCase->eclipseCaseData() )
     {
         m_mainGrid = firstCase->eclipseCaseData()->mainGrid();
 
@@ -1003,7 +1004,17 @@ void RimReservoirGridEnsemble::loadGridsInSharedMode()
             {
                 resultCase->openAndReadActiveCellData( firstCase->eclipseCaseData() );
             }
-            eclipseCase->eclipseCaseData()->setMainGrid( m_mainGrid );
+
+            // Reading of active cell data can fail, and no case data is created for the case
+            if ( auto caseData = eclipseCase->eclipseCaseData() )
+            {
+                caseData->setMainGrid( m_mainGrid );
+            }
+            else
+            {
+                RiaLogging::warning(
+                    std::format( "Grid ensemble '{}': Failed to load grid data for '{}'.", name(), eclipseCase->gridFileName() ) );
+            }
         }
 
         RigCaseCellResultsData::copyResultsMetaDataFromMainCase( firstCase->eclipseCaseData(),
