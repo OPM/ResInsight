@@ -73,6 +73,7 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_blockSubWindowActivation( false )
     , m_blockSubWindowProjectTreeSelection( false )
     , m_hasBeenVisible( false )
+    , m_isBeingDestroyed( false )
     , m_windowMenu( nullptr )
 {
     ads::CDockManager::setAutoHideConfigFlags( ads::CDockManager::DefaultAutoHideConfig );
@@ -793,6 +794,22 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     m_windowMenu->addSeparator();
     m_windowMenu->addAction( m_tileWindowsAction );
     m_windowMenu->addAction( m_maximizeWindowsAction );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Called when the destructor of a main window starts. Used to avoid operations on a window being destroyed.
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::setBeingDestroyed()
+{
+    m_isBeingDestroyed = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuMainWindowBase::isBeingDestroyed() const
+{
+    return m_isBeingDestroyed;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -122,6 +122,8 @@ RiuPlotMainWindow::RiuPlotMainWindow()
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow::~RiuPlotMainWindow()
 {
+    setBeingDestroyed();
+
     m_summaryPlotManagerView->showProperties( nullptr );
     setPdmRoot( nullptr );
 }
@@ -225,6 +227,10 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 {
+    // Closing the last window can trigger a project close while this window is being destroyed. Accessing the
+    // GUI of a window being destroyed is not safe.
+    if ( isBeingDestroyed() ) return;
+
     for ( auto v : viewWindows() )
     {
         v->removeWindowFromDock();

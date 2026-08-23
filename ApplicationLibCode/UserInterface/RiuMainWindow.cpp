@@ -190,6 +190,8 @@ RiuMainWindow::RiuMainWindow()
 //--------------------------------------------------------------------------------------------------
 RiuMainWindow::~RiuMainWindow()
 {
+    setBeingDestroyed();
+
     setPdmRoot( nullptr );
 
     if ( m_pdmUiPropertyView )
@@ -329,6 +331,10 @@ void RiuMainWindow::cleanupGuiCaseClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::cleanupGuiBeforeProjectClose()
 {
+    // Closing the last window can trigger a project close while this window is being destroyed. Accessing the
+    // GUI of a window being destroyed is not safe.
+    if ( isBeingDestroyed() ) return;
+
     for ( auto v : viewWindows() )
     {
         v->removeWindowFromDock();
