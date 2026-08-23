@@ -92,6 +92,9 @@ public:
     void setBlockViewSelectionOnSubWindowActivated( bool block );
     bool isBlockingViewSelectionOnSubWindowActivated() const;
 
+    void setBeingDestroyed();
+    bool isBeingDestroyed() const;
+
     ads::CDockManager* dockManager() const;
 
     QString dockWidgetStateString() const;
@@ -167,6 +170,7 @@ private:
     bool m_blockSubWindowActivation;
     bool m_blockSubWindowProjectTreeSelection;
     bool m_hasBeenVisible;
+    bool m_isBeingDestroyed;
 
     ads::CDockManager* m_dockManager;
 };
