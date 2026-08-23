@@ -75,16 +75,19 @@ std::array<cvf::Vec3d, 8> RivFemIntersectionGrid::cellCornerVertices( size_t glo
 {
     auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
 
-    const bool useDisplacements = m_parts->isDisplacementsUsed();
-
     const std::vector<cvf::Vec3f>& nodeCoords    = part->nodes().coordinates;
     const int*                     cornerIndices = part->connectivities( elementIdx );
+
+    const std::vector<cvf::Vec3f>& displacements = m_parts->displacements( part->elementPartId() );
+
+    // Displacements are read per time step, and can be missing or incomplete. Use them only if there is one
+    // displacement per node.
+    const bool useDisplacements = m_parts->isDisplacementsUsed() && ( displacements.size() == nodeCoords.size() );
 
     std::array<cvf::Vec3d, 8> cellCorners;
     if ( useDisplacements )
     {
-        const double                   scaleFactor   = m_parts->currentDisplacementScaleFactor();
-        const std::vector<cvf::Vec3f>& displacements = m_parts->displacements( part->elementPartId() );
+        const double scaleFactor = m_parts->currentDisplacementScaleFactor();
         for ( int i = 0; i < 8; i++ )
         {
             const int idx  = cornerIndices[i];
