@@ -19,6 +19,8 @@
 #include "RifElementPropertyReader.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
+#include "RiaQStringFormatter.h"
+#include "RifFileParseTools.h"
 #include "RiuMessageDialog.h"
 
 #include "cafAssert.h"
@@ -115,7 +117,15 @@ std::map<std::string, std::vector<float>> RifElementPropertyReader::readAllEleme
     }
 
     RifElementPropertyTable table;
-    RifElementPropertyTableReader::readData( &m_fieldsMetaData[fieldName], &table );
+    try
+    {
+        RifElementPropertyTableReader::readData( &m_fieldsMetaData[fieldName], &table );
+    }
+    catch ( FileParseException& exception )
+    {
+        RiaLogging::error( std::format( "Element property import failed: '{}'.", exception.message ) );
+        return fieldAndData;
+    }
 
     CAF_ASSERT( m_fieldsMetaData[fieldName].dataColumns.size() == table.data.size() );
 
