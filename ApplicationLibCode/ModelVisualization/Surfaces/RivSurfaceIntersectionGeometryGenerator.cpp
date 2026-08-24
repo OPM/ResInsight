@@ -250,7 +250,7 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
                     std::array<double, 8> cornerWeights2 =
                         caf::HexInterpolator::vertexWeights( cellCorners, clippedTriangleVxes[triVxIdx + 2] );
 
-#pragma omp critical
+#pragma omp critical( critical_section_RivSurfaceIntersectionGeometryGenerator_computeArrays )
                     {
                         outputTriangleVertices.emplace_back( point0 );
                         outputTriangleVertices.emplace_back( point1 );

@@ -496,7 +496,7 @@ bool AABBTree::buildTree()
         {
             bThreadRes = bThreadRes && buildTree(m_previousLevelNodes[i].node, m_previousLevelNodes[i].fromIdx, m_previousLevelNodes[i].toIdx, 4);
         }
-#pragma omp critical
+#pragma omp critical(critical_section_BoundingBoxTree_buildTree)
         {
             bRes = bRes && bThreadRes;
         }
@@ -860,7 +860,7 @@ cvf::BoundingBox BoundingBoxTreeImpl::createLeaves()
             m_ppLeaves[i] = leaf;
             threadBox.addValid(m_validBoundingBoxes[i]);
         }
-#pragma omp critical
+#pragma omp critical(critical_section_BoundingBoxTree_createLeaves)
         {
             box.addValid(threadBox);
         }

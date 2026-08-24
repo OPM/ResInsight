@@ -115,7 +115,7 @@ cvf::StructGridInterface::FaceType RigCellFaceGeometryTools::calculateCellFaceOv
 
 void assignThreadConnections( RigConnectionContainer& allConnections, RigConnectionContainer& threadConnections )
 {
-#pragma omp critical
+#pragma omp critical( critical_section_RigCellFaceGeometryTools_assignThreadConnections )
     {
         allConnections.push_back( threadConnections );
     }

@@ -107,7 +107,7 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
             }
         }
 
-#pragma omp critical
+#pragma omp critical( critical_section_RifOpmSummaryTools_buildAddresses )
         {
             addresses.insert( threadAddresses.begin(), threadAddresses.end() );
             addressToKeywordMap.insert( threadAddressToKeywordMap.begin(), threadAddressToKeywordMap.end() );
