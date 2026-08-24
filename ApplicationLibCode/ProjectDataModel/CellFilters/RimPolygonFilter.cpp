@@ -18,6 +18,8 @@
 
 #include "RimPolygonFilter.h"
 
+#include "RiaOpenMPTools.h"
+
 #include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
@@ -445,35 +447,62 @@ bool RimPolygonFilter::cellInsidePolygon2D( cvf::Vec3d center, std::array<cvf::V
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Append the cells collected per thread in thread order. The default static schedule assigns
+/// contiguous chunks to the threads, so the resulting cell order is identical from run to run.
+//--------------------------------------------------------------------------------------------------
+namespace
+{
+template <typename CellContainer>
+void appendThreadCells( const std::vector<std::vector<size_t>>& threadCells, CellContainer& cells )
+{
+    for ( const auto& cellsForThread : threadCells )
+    {
+        cells.insert( cells.end(), cellsForThread.begin(), cellsForThread.end() );
+    }
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& points, const RigGridBase* grid )
 {
     // we should look in depth using Z coordinate
     const int gIdx = static_cast<int>( grid->gridIndex() );
+
+    const int                        numberOfThreads = RiaOpenMPTools::availableThreadCount();
+    std::vector<std::vector<size_t>> threadCells( numberOfThreads );
+
     // loop over all cells
-#pragma omp parallel for
-    for ( int n = 0; n < (int)grid->cellCount(); n++ )
+#pragma omp parallel
     {
-        // valid cell?
-        RigCell cell = grid->cell( n );
-        if ( cell.isInvalid() ) continue;
+        const int myThread = RiaOpenMPTools::currentThreadIndex();
 
-        // get corner coordinates
-        std::array<cvf::Vec3d, 8> hexCorners = grid->cellCornerVertices( n );
-
-        // get cell ijk for k filter
-        size_t i, j, k;
-        grid->ijkFromCellIndex( n, &i, &j, &k );
-        if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
-
-        // check if the polygon includes the cell
-        if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
+        // NB! We are inside a parallel section, do not use "parallel for" here
+#pragma omp for
+        for ( int n = 0; n < (int)grid->cellCount(); n++ )
         {
-#pragma omp critical
-            m_cells[gIdx].push_back( n );
+            // valid cell?
+            RigCell cell = grid->cell( n );
+            if ( cell.isInvalid() ) continue;
+
+            // get corner coordinates
+            std::array<cvf::Vec3d, 8> hexCorners = grid->cellCornerVertices( n );
+
+            // get cell ijk for k filter
+            size_t i, j, k;
+            grid->ijkFromCellIndex( n, &i, &j, &k );
+            if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
+
+            // check if the polygon includes the cell
+            if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
+            {
+                threadCells[myThread].push_back( n );
+            }
         }
     }
+
+    appendThreadCells( threadCells, m_cells[gIdx] );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -492,48 +521,56 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
     const bool        closedPolygon = isPolygonClosed();
     const bool        singlePoint   = ( points.size() == 1 );
 
+    const int                        numberOfThreads = RiaOpenMPTools::availableThreadCount();
+    std::vector<std::vector<size_t>> threadCells( numberOfThreads );
+
     // find all cells in the K layer that matches the polygon
-#pragma omp parallel for
-    for ( int i = 0; i < (int)grid->cellCountI(); i++ )
+#pragma omp parallel
     {
-        for ( size_t j = 0; j < grid->cellCountJ(); j++ )
+        const int myThread = RiaOpenMPTools::currentThreadIndex();
+
+        // NB! We are inside a parallel section, do not use "parallel for" here
+#pragma omp for
+        for ( int i = 0; i < (int)grid->cellCountI(); i++ )
         {
-            size_t         cellIdx = grid->cellIndexFromIJKUnguarded( i, j, K );
-            const RigCell& cell    = grid->cell( cellIdx );
-            // valid cell?
-            if ( cell.isInvalid() ) continue;
-
-            // get corner coordinates
-            std::array<cvf::Vec3d, 8> hexCorners = grid->cellCornerVertices( cellIdx );
-
-            if ( closedPolygon )
+            for ( size_t j = 0; j < grid->cellCountJ(); j++ )
             {
-                // check if the polygon includes the cell
-                if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
+                size_t         cellIdx = grid->cellIndexFromIJKUnguarded( i, j, K );
+                const RigCell& cell    = grid->cell( cellIdx );
+                // valid cell?
+                if ( cell.isInvalid() ) continue;
+
+                // get corner coordinates
+                std::array<cvf::Vec3d, 8> hexCorners = grid->cellCornerVertices( cellIdx );
+
+                if ( closedPolygon )
                 {
-#pragma omp critical
-                    foundCells.push_back( cellIdx );
-                }
-            }
-            else
-            {
-                if ( singlePoint )
-                {
-                    if ( RigCellGeometryTools::pointInsideCellNegK2D( points[0], hexCorners ) )
+                    // check if the polygon includes the cell
+                    if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
                     {
-#pragma omp critical
-                        foundCells.push_back( cellIdx );
+                        threadCells[myThread].push_back( cellIdx );
                     }
                 }
-                // check if the polyline touches the top face of the cell
-                else if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
+                else
                 {
-#pragma omp critical
-                    foundCells.push_back( cellIdx );
+                    if ( singlePoint )
+                    {
+                        if ( RigCellGeometryTools::pointInsideCellNegK2D( points[0], hexCorners ) )
+                        {
+                            threadCells[myThread].push_back( cellIdx );
+                        }
+                    }
+                    // check if the polyline touches the top face of the cell
+                    else if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
+                    {
+                        threadCells[myThread].push_back( cellIdx );
+                    }
                 }
             }
         }
     }
+
+    appendThreadCells( threadCells, foundCells );
 
     // now extend all these cells in one K layer to all K layers
     for ( const size_t cellIdx : foundCells )
@@ -593,31 +630,41 @@ void RimPolygonFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& poi
 void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid, int partId )
 {
     // we should look in depth using Z coordinate
+    const int                        numberOfThreads = RiaOpenMPTools::availableThreadCount();
+    std::vector<std::vector<size_t>> threadCells( numberOfThreads );
+
     // loop over all cells
-#pragma omp parallel for
-    for ( int i = 0; i < (int)grid->cellCountI(); i++ )
+#pragma omp parallel
     {
-        for ( size_t j = 0; j < grid->cellCountJ(); j++ )
+        const int myThread = RiaOpenMPTools::currentThreadIndex();
+
+        // NB! We are inside a parallel section, do not use "parallel for" here
+#pragma omp for
+        for ( int i = 0; i < (int)grid->cellCountI(); i++ )
         {
-            for ( size_t k = 0; k < grid->cellCountK(); k++ )
+            for ( size_t j = 0; j < grid->cellCountJ(); j++ )
             {
-                if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
-
-                size_t cellIdx = grid->cellIndexFromIJK( i, j, k );
-                if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
-
-                std::array<cvf::Vec3d, 8> vertices = grid->cellCornerVertices( cellIdx );
-                cvf::Vec3d                center   = grid->cellCentroid( cellIdx );
-
-                // check if the polygon includes the cell
-                if ( cellInsidePolygon2D( center, vertices, points ) )
+                for ( size_t k = 0; k < grid->cellCountK(); k++ )
                 {
-#pragma omp critical
-                    m_cells[partId].push_back( cellIdx );
+                    if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
+
+                    size_t cellIdx = grid->cellIndexFromIJK( i, j, k );
+                    if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
+
+                    std::array<cvf::Vec3d, 8> vertices = grid->cellCornerVertices( cellIdx );
+                    cvf::Vec3d                center   = grid->cellCentroid( cellIdx );
+
+                    // check if the polygon includes the cell
+                    if ( cellInsidePolygon2D( center, vertices, points ) )
+                    {
+                        threadCells[myThread].push_back( cellIdx );
+                    }
                 }
             }
         }
     }
+
+    appendThreadCells( threadCells, m_cells[partId] );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -681,46 +728,54 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
     // find all cells in this K layer that matches the polygon
     std::list<size_t> foundCells;
 
-#pragma omp parallel for
-    for ( int i = 0; i < (int)grid->cellCountI(); i++ )
+    const int                        numberOfThreads = RiaOpenMPTools::availableThreadCount();
+    std::vector<std::vector<size_t>> threadCells( numberOfThreads );
+
+#pragma omp parallel
     {
-        for ( size_t j = 0; j < grid->cellCountJ(); j++ )
+        const int myThread = RiaOpenMPTools::currentThreadIndex();
+
+        // NB! We are inside a parallel section, do not use "parallel for" here
+#pragma omp for
+        for ( int i = 0; i < (int)grid->cellCountI(); i++ )
         {
-            size_t cellIdx = grid->cellIndexFromIJK( i, j, nk );
-            if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
-
-            // get corner coordinates
-            std::array<cvf::Vec3d, 8> hexCorners = grid->cellCornerVertices( cellIdx );
-            cvf::Vec3d                center     = grid->cellCentroid( cellIdx );
-
-            if ( closedPolygon )
+            for ( size_t j = 0; j < grid->cellCountJ(); j++ )
             {
-                // check if the polygon includes the cell
-                if ( cellInsidePolygon2D( center, hexCorners, points ) )
+                size_t cellIdx = grid->cellIndexFromIJK( i, j, nk );
+                if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
+
+                // get corner coordinates
+                std::array<cvf::Vec3d, 8> hexCorners = grid->cellCornerVertices( cellIdx );
+                cvf::Vec3d                center     = grid->cellCentroid( cellIdx );
+
+                if ( closedPolygon )
                 {
-#pragma omp critical
-                    foundCells.push_back( cellIdx );
-                }
-            }
-            else
-            {
-                if ( singlePoint )
-                {
-                    if ( RigCellGeometryTools::pointInsideCellNegK2D( points[0], hexCorners ) )
+                    // check if the polygon includes the cell
+                    if ( cellInsidePolygon2D( center, hexCorners, points ) )
                     {
-#pragma omp critical
-                        foundCells.push_back( cellIdx );
+                        threadCells[myThread].push_back( cellIdx );
                     }
                 }
-                // check if the polyline touches the top face of the cell
-                else if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
+                else
                 {
-#pragma omp critical
-                    foundCells.push_back( cellIdx );
+                    if ( singlePoint )
+                    {
+                        if ( RigCellGeometryTools::pointInsideCellNegK2D( points[0], hexCorners ) )
+                        {
+                            threadCells[myThread].push_back( cellIdx );
+                        }
+                    }
+                    // check if the polyline touches the top face of the cell
+                    else if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
+                    {
+                        threadCells[myThread].push_back( cellIdx );
+                    }
                 }
             }
         }
     }
+
+    appendThreadCells( threadCells, foundCells );
 
     // now extend all these cells in one K layer to all K layers
     for ( const size_t cellIdx : foundCells )
