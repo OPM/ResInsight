@@ -195,7 +195,7 @@ void RiaCurveMerger<XValueType>::computeInterpolatedValues( bool includeValuesFr
 
             if ( !RiaCurveDataTools::isValidValue( interpolValue, false ) )
             {
-#pragma omp critical
+                // Each iteration writes to its own element, so no synchronization is required
                 accumulatedValidValues[valueIndex] = HUGE_VAL;
             }
 
