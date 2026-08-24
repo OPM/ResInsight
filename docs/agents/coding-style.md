@@ -180,6 +180,74 @@ void RimFoo::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 }
 ```
 
+## OpenMP
+
+ResInsight builds with MSVC `/openmp`, which is **OpenMP 2.0**. Loop indices must be a signed
+integer type, and `collapse` and min/max reductions are not available.
+
+### Never write an orphaned work-sharing construct
+
+A `#pragma omp for` must have a lexically enclosing `#pragma omp parallel` in the same function.
+An orphaned `#pragma omp for` is not merely useless - it can deadlock the application.
+
+The reason is that the OpenMP master thread is also the Qt GUI thread. When the GUI thread is
+inside a parallel region and a progress update or a repaint runs, Qt work executes directly on
+that thread, which pulls rendering code into the dynamic extent of an active parallel team. An
+orphaned `#pragma omp for` reached that way is encountered by one thread of a team whose other
+threads never reach it, and the implicit barrier at the end of the construct never completes.
+
+```cpp
+// Bad - deadlocks if this function is reached from inside an active parallel region
+void toTextureImageRegion( ... )
+{
+#pragma omp for
+    for ( int y = 0; y < sizeY; ++y )
+```
+
+### Collect per thread, merge afterwards
+
+Do not guard a `push_back` into a shared container with `#pragma omp critical` inside a hot loop.
+Give each thread its own buffer and merge once the region has ended. Merging in thread order also
+makes the result reproducible from run to run, because the default static schedule assigns
+contiguous chunks to the threads.
+
+```cpp
+// Good
+const int                        numberOfThreads = RiaOpenMPTools::availableThreadCount();
+std::vector<std::vector<size_t>> threadCells( numberOfThreads );
+
+#pragma omp parallel
+{
+    const int myThread = RiaOpenMPTools::currentThreadIndex();
+
+    // NB! We are inside a parallel section, do not use "parallel for" here
+#pragma omp for
+    for ( int i = 0; i < cellCount; i++ )
+    {
+        if ( isIncluded( i ) ) threadCells[myThread].push_back( i );
+    }
+}
+
+for ( const auto& cellsForThread : threadCells )
+{
+    cells.insert( cells.end(), cellsForThread.begin(), cellsForThread.end() );
+}
+```
+
+No synchronization is needed when each iteration writes to its own element of a container that was
+sized before the loop. Do not add `critical` for that case.
+
+### Name every critical section
+
+All unnamed `#pragma omp critical` regions share one process-wide lock, so unrelated subsystems
+serialize against each other. Use the `critical_section_<purpose>` convention instead.
+
+### Exceptions and the GUI
+
+An exception that escapes an OpenMP structured block terminates the process on MSVC instead of
+unwinding, so catch inside the loop body. Touch Qt widgets only from the thread owning them; use
+`RiaThreadSafeLogger` or a queued connection to hand data back.
+
 ## Commit Conventions
 
 When creating commits:
