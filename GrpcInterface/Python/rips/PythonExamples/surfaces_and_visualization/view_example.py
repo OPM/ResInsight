@@ -26,3 +26,12 @@ for case in cases:
     view.show_grid_box = False
     view.set_visible(False)
     view.update()
+
+# Tile all visible 3D views
+resinsight.project.tile_views()
+
+# Link the views, then unlink the last view from the group
+project_views = resinsight.project.views()
+if len(project_views) >= 2:
+    resinsight.project.link_views(views=project_views)
+    resinsight.project.unlink_views(views=[project_views[-1]])

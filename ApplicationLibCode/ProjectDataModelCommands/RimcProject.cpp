@@ -27,7 +27,10 @@
 #include "RiaResultNames.h"
 
 #include "RicImportSummaryCasesFeature.h"
+#include "ViewLink/RicLinkVisibleViewsFeature.h"
+#include "ViewLink/RicUnLinkViewFeature.h"
 
+#include "Rim3dView.h"
 #include "RimCornerPointCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -52,6 +55,7 @@
 #include <QFileInfo>
 
 #include <memory>
+#include <set>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_importSummaryCase, "importSummaryCase" );
 
@@ -355,4 +359,111 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_valveTemplates::execute
 QString RimProject_valveTemplates::classKeywordReturnedType() const
 {
     return RimValveTemplateCollection::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_tileViews, "tileViews" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_tileViews::RimProject_tileViews( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Tile Views", "", "", "Tile all visible 3D view windows" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_tileViews::execute()
+{
+    if ( !RiaGuiApplication::isRunning() )
+    {
+        return std::unexpected( "Tiling views requires ResInsight to run with the graphical user interface." );
+    }
+
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
+    if ( !mainWindow ) return std::unexpected( "No 3D main window is available." );
+
+    mainWindow->tileViewWindows();
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_linkViews, "linkViews" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_linkViews::RimProject_linkViews( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Link Views", "", "", "Link the specified 3D views" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_views, "Views", "Views to link" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_linkViews::execute()
+{
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    std::set<Rim3dView*>    seenViews;
+    std::vector<Rim3dView*> uniqueViews;
+
+    // Use the set only for duplicate detection. The vector preserves input order because the first
+    // unlinked view becomes the master view when a new view linker is created.
+    for ( Rim3dView* view : m_views.ptrReferencedObjectsByType() )
+    {
+        auto insertResult = seenViews.insert( view );
+        if ( insertResult.second ) uniqueViews.push_back( view );
+    }
+
+    if ( uniqueViews.size() < 2 ) return std::unexpected( "At least two unique views are required." );
+
+    std::vector<Rim3dView*> linkableViews;
+    for ( Rim3dView* view : uniqueViews )
+    {
+        if ( !view->assosiatedViewLinker() ) linkableViews.push_back( view );
+    }
+
+    RicLinkVisibleViewsFeature::linkViews( linkableViews );
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_unlinkViews, "unlinkViews" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_unlinkViews::RimProject_unlinkViews( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Unlink Views", "", "", "Unlink the specified 3D views" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_views, "Views", "Views to unlink" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_unlinkViews::execute()
+{
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    std::set<Rim3dView*>    seenViews;
+    std::vector<Rim3dView*> uniqueViews;
+    for ( Rim3dView* view : m_views.ptrReferencedObjectsByType() )
+    {
+        auto insertResult = seenViews.insert( view );
+        if ( insertResult.second ) uniqueViews.push_back( view );
+    }
+
+    if ( uniqueViews.empty() ) return std::unexpected( "At least one view is required." );
+
+    RicUnLinkViewFeature::unlinkViews( uniqueViews );
+    return nullptr;
 }

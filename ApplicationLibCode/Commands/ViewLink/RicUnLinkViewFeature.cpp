@@ -34,6 +34,8 @@
 
 #include <QAction>
 
+#include <set>
+
 CAF_CMD_SOURCE_INIT( RicUnLinkViewFeature, "RicUnLinkViewFeature" );
 
 //--------------------------------------------------------------------------------------------------
@@ -60,44 +62,61 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( !activeView ) return;
 
-    RimViewController* viewController = activeView->viewController();
-    RimViewLinker*     viewLinker     = activeView->assosiatedViewLinker();
+    unlinkViews( { activeView } );
+}
 
-    if ( viewController )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicUnLinkViewFeature::unlinkViews( const std::vector<Rim3dView*>& views )
+{
+    std::set<Rim3dView*> processedViews;
+
+    for ( Rim3dView* view : views )
     {
-        viewController->applyCellFilterCollectionByUserChoice();
-        delete viewController;
+        if ( !view || !processedViews.insert( view ).second ) continue;
 
-        // Remove the slots in the vector that was set to nullptr by the destructor
-        viewLinker->removeViewController( nullptr );
-    }
-    else if ( viewLinker )
-    {
-        viewLinker->applyCellFilterCollectionByUserChoice();
+        RimViewController* viewController = view->viewController();
+        RimViewLinker*     viewLinker     = view->assosiatedViewLinker();
+        if ( !viewLinker ) continue;
 
-        Rim3dView* firstControlledView = viewLinker->firstControlledView();
-
-        if ( firstControlledView )
+        if ( viewController )
         {
-            viewLinker->setMasterView( firstControlledView );
+            viewController->applyCellFilterCollectionByUserChoice();
+            delete viewController;
 
-            viewLinker->updateDependentViews();
+            // Remove the slots in the vector that was set to nullptr by the destructor
+            viewLinker->removeViewController( nullptr );
         }
         else
         {
-            // Remove the view linker object from the view linker collection
-            // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
-            RimProject::current()->viewLinkerCollection->viewLinker.removeChild( viewLinker );
+            viewLinker->applyCellFilterCollectionByUserChoice();
 
-            delete viewLinker;
+            Rim3dView* firstControlledView = viewLinker->firstControlledView();
+
+            if ( firstControlledView )
+            {
+                viewLinker->setMasterView( firstControlledView );
+                viewLinker->updateDependentViews();
+            }
+            else
+            {
+                // Remove the view linker object from the view linker collection
+                // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
+                RimProject::current()->viewLinkerCollection->viewLinker.removeChild( viewLinker );
+                delete viewLinker;
+            }
+            view->updateAutoName();
         }
-        activeView->updateAutoName();
+
+        if ( dynamic_cast<RimEclipseContourMapView*>( view ) ) view->zoomAll();
     }
 
-    if ( dynamic_cast<RimEclipseContourMapView*>( activeView ) ) activeView->zoomAll();
+    RimProject* project = RimProject::current();
+    if ( !project ) return;
 
-    RimProject::current()->viewLinkerCollection.uiCapability()->updateConnectedEditors();
-    RimProject::current()->uiCapability()->updateConnectedEditors();
+    project->viewLinkerCollection.uiCapability()->updateConnectedEditors();
+    project->uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -111,6 +111,18 @@ def test_views_and_view_lookup(rips_instance, initialize_test):
     assert project.view(999999) is None
 
 
+def test_link_and_unlink_views(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    first_view = case.create_view()
+    second_view = case.create_view()
+
+    project = rips_instance.project
+    project.link_views(views=[first_view, second_view])
+    project.unlink_views(views=[second_view])
+    project.unlink_views(views=[first_view])
+
+
 def test_well_path_by_name(rips_instance, initialize_test):
     well_files = [dataroot.PATH + "/TEST10K_FLT_LGR_NNC/wellpath_a.dev"]
     rips_instance.project.import_well_paths(well_path_files=well_files)
