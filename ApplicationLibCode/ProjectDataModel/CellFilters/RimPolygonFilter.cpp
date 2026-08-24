@@ -486,13 +486,13 @@ void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& p
             RigCell cell = grid->cell( n );
             if ( cell.isInvalid() ) continue;
 
-            // get corner coordinates
-            std::array<cvf::Vec3d, 8> hexCorners = grid->cellCornerVertices( n );
-
             // get cell ijk for k filter
             size_t i, j, k;
             grid->ijkFromCellIndex( n, &i, &j, &k );
             if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
+
+            // get corner coordinates
+            std::array<cvf::Vec3d, 8> hexCorners = grid->cellCornerVertices( n );
 
             // check if the polygon includes the cell
             if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
