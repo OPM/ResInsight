@@ -287,7 +287,7 @@ void RimCornerPointCase::buildGrid( RigEclipseCaseData&       eclipseCaseData,
     size_t numActiveCells = RifRoffFileTools::computeActiveCellMatrixIndex( activeCells );
 
     // Loop over cells and fill them with data
-#pragma omp for
+#pragma omp parallel for
     for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
     {
         RigCell& cell = mainGrid->cell( cellStartIndex + gridLocalCellIndex );
