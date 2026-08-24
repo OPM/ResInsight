@@ -21,6 +21,8 @@
 
 #include <cmath>
 
+#include "RiaOpenMPTools.h"
+
 #include "RigCell.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
@@ -86,61 +88,78 @@ void RivNNCGeometryGenerator::computeArrays()
         mainGrid = m_grid->mainGrid();
     }
 
-#pragma omp parallel for ordered
-    for ( long long nIdx = 0; nIdx < numConnections; ++nIdx )
+    int numberOfThreads = RiaOpenMPTools::availableThreadCount();
+
+    std::vector<std::vector<cvf::Vec3f>> threadVertices( numberOfThreads );
+    std::vector<std::vector<size_t>>     threadTriangleToNNC( numberOfThreads );
+
+#pragma omp parallel
     {
-        size_t conIdx = m_nncIndexes.empty() ? nIdx : m_nncIndexes[nIdx];
+        int myThread = RiaOpenMPTools::currentThreadIndex();
 
-        if ( !m_includeAllanDiagramGeometry && conIdx >= m_nncData->eclipseConnectionCount() )
+        // NB! We are inside a parallel section, do not use "parallel for" here
+#pragma omp for
+        for ( long long nIdx = 0; nIdx < numConnections; ++nIdx )
         {
-            continue;
-        }
+            size_t conIdx = m_nncIndexes.empty() ? nIdx : m_nncIndexes[nIdx];
 
-        const RigConnection& conn = m_nncData->allConnections()[conIdx];
-
-        if ( !conn.polygon().empty() )
-        {
-            bool isVisible = true;
-            if ( isVisibilityCalcActive )
+            if ( !m_includeAllanDiagramGeometry && conIdx >= m_nncData->eclipseConnectionCount() )
             {
-                bool cell1Visible = false;
-                bool cell2Visible = false;
-
-                if ( mainGrid->cell( conn.c1GlobIdx() ).hostGrid() == m_grid.p() )
-                {
-                    size_t cell1GridLocalIdx = mainGrid->cell( conn.c1GlobIdx() ).gridLocalCellIndex();
-                    cell1Visible             = ( *m_cellVisibility )[cell1GridLocalIdx];
-                }
-
-                if ( mainGrid->cell( conn.c2GlobIdx() ).hostGrid() == m_grid.p() )
-                {
-                    size_t cell2GridLocalIdx = mainGrid->cell( conn.c2GlobIdx() ).gridLocalCellIndex();
-                    cell2Visible             = ( *m_cellVisibility )[cell2GridLocalIdx];
-                }
-
-                isVisible = cell1Visible || cell2Visible;
+                continue;
             }
 
-            if ( isVisible )
-            {
-                cvf::Vec3f vx1 = conn.polygon()[0] - offset;
-                cvf::Vec3f vx2;
-                cvf::Vec3f vx3 = conn.polygon()[1] - offset;
+            const RigConnection& conn = m_nncData->allConnections()[conIdx];
 
-                for ( size_t vxIdx = 2; vxIdx < conn.polygon().size(); ++vxIdx )
+            if ( !conn.polygon().empty() )
+            {
+                bool isVisible = true;
+                if ( isVisibilityCalcActive )
                 {
-                    vx2 = vx3;
-                    vx3 = conn.polygon()[vxIdx] - offset;
-#pragma omp critical( critical_section_RivNNCGeometryGenerator_computeArrays )
+                    bool cell1Visible = false;
+                    bool cell2Visible = false;
+
+                    if ( mainGrid->cell( conn.c1GlobIdx() ).hostGrid() == m_grid.p() )
                     {
-                        vertices.push_back( vx1 );
-                        vertices.push_back( vx2 );
-                        vertices.push_back( vx3 );
-                        triangleToNNC.push_back( conIdx );
+                        size_t cell1GridLocalIdx = mainGrid->cell( conn.c1GlobIdx() ).gridLocalCellIndex();
+                        cell1Visible             = ( *m_cellVisibility )[cell1GridLocalIdx];
+                    }
+
+                    if ( mainGrid->cell( conn.c2GlobIdx() ).hostGrid() == m_grid.p() )
+                    {
+                        size_t cell2GridLocalIdx = mainGrid->cell( conn.c2GlobIdx() ).gridLocalCellIndex();
+                        cell2Visible             = ( *m_cellVisibility )[cell2GridLocalIdx];
+                    }
+
+                    isVisible = cell1Visible || cell2Visible;
+                }
+
+                if ( isVisible )
+                {
+                    cvf::Vec3f vx1 = conn.polygon()[0] - offset;
+                    cvf::Vec3f vx2;
+                    cvf::Vec3f vx3 = conn.polygon()[1] - offset;
+
+                    for ( size_t vxIdx = 2; vxIdx < conn.polygon().size(); ++vxIdx )
+                    {
+                        vx2 = vx3;
+                        vx3 = conn.polygon()[vxIdx] - offset;
+
+                        threadVertices[myThread].push_back( vx1 );
+                        threadVertices[myThread].push_back( vx2 );
+                        threadVertices[myThread].push_back( vx3 );
+                        threadTriangleToNNC[myThread].push_back( conIdx );
                     }
                 }
             }
         }
+    }
+
+    // Merge in thread order. The default static schedule assigns contiguous chunks to the threads, so the
+    // resulting geometry is identical from run to run.
+    for ( int i = 0; i < numberOfThreads; i++ )
+    {
+        vertices.insert( vertices.end(), threadVertices[i].begin(), threadVertices[i].end() );
+        triangleToNNC.insert( triangleToNNC.end(), threadTriangleToNNC[i].begin(), threadTriangleToNNC[i].end() );
     }
 
     m_vertices = new cvf::Vec3fArray;
