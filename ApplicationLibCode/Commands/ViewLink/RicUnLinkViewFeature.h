@@ -23,12 +23,17 @@
 
 #include <vector>
 
+class Rim3dView;
+
 //==================================================================================================
 ///
 //==================================================================================================
 class RicUnLinkViewFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void unlinkViews( const std::vector<Rim3dView*>& views );
 
 protected:
     bool isCommandEnabled() const override;

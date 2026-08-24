@@ -101,6 +101,9 @@ public:
     bool    restoreDockWidgetState( QString dockStateString );
     bool    restoreLastDockWidgetState();
 
+public slots:
+    void tileViewWindows();
+
 protected:
     void createTreeViews( int numberOfTrees );
     void setUpCentralDockWidget();
@@ -138,7 +141,6 @@ protected slots:
     void saveDockLayout();
     void exportDockLayout();
 
-    void tileViewWindows();
     void maximizeViewWindows();
 
 protected:

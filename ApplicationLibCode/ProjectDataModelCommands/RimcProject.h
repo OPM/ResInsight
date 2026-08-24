@@ -21,10 +21,13 @@
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
+#include "cafPdmPtrArrayField.h"
 
 #include <QString>
 
 #include <memory>
+
+class Rim3dView;
 
 //==================================================================================================
 ///
@@ -126,4 +129,49 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimProject_tileViews : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_tileViews( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimProject_linkViews : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_linkViews( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrArrayField<Rim3dView*> m_views;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimProject_unlinkViews : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_unlinkViews( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrArrayField<Rim3dView*> m_views;
 };
