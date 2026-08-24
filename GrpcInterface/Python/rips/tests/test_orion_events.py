@@ -667,6 +667,78 @@ class TestParsing:
         doc = parse_orion_events(text)
         assert doc.report_dates == [datetime.datetime(2024, 6, 1, 14, 45, 30, 500000)]
 
+    def test_daily_report_recurrence_with_inclusive_until(self):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            "DATE START = 2024-01-01\n"
+            "DATE END = 2024-01-05\n"
+            "REPORT START + 1 EVERY 2 DAYS UNTIL END\n"
+        )
+        doc = parse_orion_events(text)
+        assert doc.report_dates == [
+            datetime.date(2024, 1, 2),
+            datetime.date(2024, 1, 4),
+        ]
+
+    def test_monthly_report_recurrence_is_anchored_to_initial_day(self):
+        text = "ORIONEVENTS 2.0\nREPORT 2024-01-31 EVERY MONTH UNTIL 2024-04-30\n"
+        doc = parse_orion_events(text)
+        assert doc.report_dates == [
+            datetime.date(2024, 1, 31),
+            datetime.date(2024, 2, 29),
+            datetime.date(2024, 3, 31),
+            datetime.date(2024, 4, 30),
+        ]
+
+    def test_yearly_report_recurrence_clamps_leap_day(self):
+        text = "ORIONEVENTS 2.0\nREPORT 2024-02-29 EVERY YEAR UNTIL 2028-02-29\n"
+        doc = parse_orion_events(text)
+        assert doc.report_dates == [
+            datetime.date(2024, 2, 29),
+            datetime.date(2025, 2, 28),
+            datetime.date(2026, 2, 28),
+            datetime.date(2027, 2, 28),
+            datetime.date(2028, 2, 29),
+        ]
+
+    def test_report_recurrence_without_until_uses_last_event(self):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            "REPORT 2024-01-01 EVERY MONTH\n"
+            'WELL "W"\n'
+            "  @2024-03-15 WCONHIST STATUS=OPEN\n"
+        )
+        doc = parse_orion_events(text)
+        assert doc.report_dates == [
+            datetime.date(2024, 1, 1),
+            datetime.date(2024, 2, 1),
+            datetime.date(2024, 3, 1),
+        ]
+
+    def test_recurring_report_preserves_datetime(self):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            "REPORT 2024-06-01T14:45:30.500 EVERY DAY "
+            "UNTIL 2024-06-02T14:45:30.500\n"
+        )
+        doc = parse_orion_events(text)
+        assert doc.report_dates == [
+            datetime.datetime(2024, 6, 1, 14, 45, 30, 500000),
+            datetime.datetime(2024, 6, 2, 14, 45, 30, 500000),
+        ]
+
+    @pytest.mark.parametrize(
+        ("report_line", "message"),
+        [
+            ("REPORT 2024-01-01 EVERY 0 DAYS UNTIL 2024-01-02", "greater than zero"),
+            ("REPORT 2024-01-02 EVERY DAY UNTIL 2024-01-01", "must not precede"),
+            ("REPORT 2024-01-01 EVERY DAY", "requires at least one event"),
+        ],
+    )
+    def test_invalid_report_recurrence_rejected(self, report_line, message):
+        with pytest.raises(OrionParseError, match=message):
+            parse_orion_events(f"ORIONEVENTS 2.0\n{report_line}\n")
+
     def test_datetime_literal_event(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'

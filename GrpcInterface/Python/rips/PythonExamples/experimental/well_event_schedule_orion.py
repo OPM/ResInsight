@@ -24,8 +24,8 @@ It demonstrates the full event coverage of the format:
 7. A GROUP-level MEMBER event expanded to one GRUPTREE record per member
 8. SCHEDULE-level keyword events not tied to a well: RPTRST, GRUPTREE, TUNING
 9. Multiline RAW_TEXT inserted at a chosen position without parsing its contents
-10. REPORT dates, passed to generate_schedule_text(additional_dates=...) so
-   they appear as bare DATES keywords (summary-report triggers)
+10. Recurring REPORT dates with explicit and implicit end dates, passed to
+    generate_schedule_text(additional_dates=...) as summary-report triggers
 11. Schedule metadata, COMPORD generation and aligned-column output
 
 The ORIONEVENTS text is built inline with the name of the first well path in
@@ -108,10 +108,10 @@ WTRACER
 /
 END_RAW_TEXT
 
-# Report dates: emitted as bare DATES keywords so Eclipse/Flow writes a
-# summary report at these dates even though no events fall on them.
-REPORT 2024-07-01
-REPORT STARTUP + 365
+# Recurring report dates become bare DATES keywords. The first series ends at
+# the last @ event; the second uses an explicit inclusive end date.
+REPORT STARTUP EVERY MONTH
+REPORT 2024-07-01 EVERY 3 MONTHS UNTIL STARTUP + 365
 """
 
 
