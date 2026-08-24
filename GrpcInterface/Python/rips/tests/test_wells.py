@@ -408,3 +408,24 @@ def test_import_rmswell_with_w_extension(rips_instance, initialize_test):
     # File has 5 points from MD 0-20m, resampled at 1.0m interval gives 21 points
     result = wells[0].trajectory_properties(resampling_interval=1.0)
     assert len(result["measured_depth"]) == 21
+
+
+def test_rmswell_renamed_name_persists(rips_instance, initialize_test, tmp_path):
+    well_path_file = os.path.abspath(
+        "../../../ApplicationLibCode/UnitTests/TestData/RifRmsWellPathReader/55_33-1.rmswell"
+    )
+    project = rips_instance.project
+    project.import_well_paths([well_path_file])
+
+    well = project.well_paths()[0]
+    well.name = "Renamed RMS Well"
+    well.update()
+
+    project_file = tmp_path / "renamed-rms-well.rsp"
+    project.save(str(project_file))
+    project.close()
+
+    reopened_project = project.open(str(project_file))
+    reopened_wells = reopened_project.well_paths()
+    assert len(reopened_wells) == 1
+    assert reopened_wells[0].name == "Renamed RMS Well"
