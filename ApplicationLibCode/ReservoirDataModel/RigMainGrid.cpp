@@ -989,7 +989,7 @@ void RigMainGrid::buildCellSearchTree() const
             threadIndicesForBoundingBoxes.shrink_to_fit();
             threadBoundingBoxes.shrink_to_fit();
 
-#pragma omp critical
+#pragma omp critical( critical_section_RigMainGrid_buildCellSearchTree )
             {
                 cellIndicesForBoundingBoxes.insert( cellIndicesForBoundingBoxes.end(),
                                                     threadIndicesForBoundingBoxes.begin(),

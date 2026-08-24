@@ -100,7 +100,7 @@ size_t RifSummaryReaderInterface::dataObjectCount() const
 //--------------------------------------------------------------------------------------------------
 void RifSummaryReaderInterface::increaseSerialNumber()
 {
-#pragma omp critical
+#pragma omp critical( critical_section_RifSummaryReaderInterface_serialNumber )
     m_serialNumber = m_nextSerialNumber++;
 }
 

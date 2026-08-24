@@ -79,7 +79,7 @@ void RifOpmCommonEclipseSummary::setEnsembleImportState( RifEnsembleImportConfig
 void RifOpmCommonEclipseSummary::resetEnhancedSummaryFileCount()
 {
     // This function can be called from a parallel loop, make it thread safe
-#pragma omp critical
+#pragma omp critical( critical_section_createdEsmryFileCount )
     sm_createdEsmryFileCount = 0;
 }
 
@@ -405,6 +405,6 @@ std::string RifOpmCommonEclipseSummary::keywordForAddress( const RifEclipseSumma
 void RifOpmCommonEclipseSummary::increaseEsmryFileCount()
 {
     // This function can be called from a parallel loop, make it thread safe
-#pragma omp critical
+#pragma omp critical( critical_section_createdEsmryFileCount )
     sm_createdEsmryFileCount++;
 }
