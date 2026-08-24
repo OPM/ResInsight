@@ -129,7 +129,7 @@ void RimFileWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 /// Read JSON or ascii file containing well path data
 //--------------------------------------------------------------------------------------------------
-bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter, bool setWellNameForExport )
+bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter, bool initializeWellNamesFromFile )
 {
     if ( caf::Utils::fileExists( filePath() ) )
     {
@@ -138,13 +138,9 @@ bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImport
         RifWellPathImporter::WellMetaData wellMetaData = RifWellPathImporter::readWellMetaData( filePath(), m_wellPathIndexInFile() );
         // General well info
 
-        if ( setWellNameForExport )
+        if ( initializeWellNamesFromFile )
         {
             setName( wellData.m_name );
-        }
-        else
-        {
-            setNameNoUpdateOfExportName( wellData.m_name );
         }
 
         id           = wellMetaData.m_id;
