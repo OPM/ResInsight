@@ -177,18 +177,15 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
             if ( atLeastOneCellActive ) activeFaceIndices.push_back( faceIdx );
         }
 
-        size_t totalNumberOfConnections = 0u;
 #pragma omp parallel
         {
             RigConnectionContainer threadConnections;
-#pragma omp for schedule( guided ) reduction( + : totalNumberOfConnections )
+#pragma omp for schedule( guided )
             for ( int activeFaceIdx = 0; activeFaceIdx < static_cast<int>( activeFaceIndices.size() ); activeFaceIdx++ )
             {
                 size_t faceIdx = activeFaceIndices[activeFaceIdx];
                 extractConnectionsForFace( faultFaces[faceIdx], mainGrid, nativeCellPairs, threadConnections );
             }
-#pragma omp barrier
-            otherConnections.reserve( otherConnections.size() + totalNumberOfConnections );
 
             // Merge together connections per thread
             assignThreadConnections( otherConnections, threadConnections );
