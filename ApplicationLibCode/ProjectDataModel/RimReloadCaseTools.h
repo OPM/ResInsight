@@ -47,4 +47,5 @@ private:
     static void updateAllPlots();
 
     static bool findGridModelAndActivateFirstView( const RimSummaryCase* summaryCase );
+    static void activateFirstView( RimEclipseCase* eclipseCase );
 };
