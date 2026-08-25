@@ -65,6 +65,9 @@ public:
     virtual bool isAutoZoom() const                 = 0;
     virtual void setAutoZoom( bool enableAutoZoom ) = 0;
 
+    bool isRangeUserDefined() const;
+    void setRangeUserDefined( bool isUserDefined );
+
     virtual bool isActive() const = 0;
 
     virtual const QString objectName() const    = 0;
@@ -83,4 +86,7 @@ public:
     virtual AxisTitlePositionType titlePosition() const  = 0;
     virtual int                   titleFontSize() const  = 0;
     virtual int                   valuesFontSize() const = 0;
+
+private:
+    caf::PdmField<bool> m_isRangeUserDefined;
 };

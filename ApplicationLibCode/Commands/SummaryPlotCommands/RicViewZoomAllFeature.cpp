@@ -51,7 +51,7 @@ void RicViewZoomAllFeature::onActionTriggered( bool isChecked )
     {
         if ( auto activePlotView = plotMainWin->activeViewer() )
         {
-            activePlotView->zoomAll();
+            activePlotView->zoomAllAndReleaseUserDefinedRanges();
         }
     }
 }
