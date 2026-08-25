@@ -145,6 +145,14 @@ QString RimFilterInViewCollection::activeFiltersDisplayText() const
 }
 
 //--------------------------------------------------------------------------------------------------
+//
+//--------------------------------------------------------------------------------------------------
+void RimFilterInViewCollection::initAfterRead()
+{
+    connectSourceSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimFilterInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString /*uiConfigName*/ )
