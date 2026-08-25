@@ -34,7 +34,12 @@
 #include "DockManager.h"
 #include "DockWidget.h"
 
-CAF_PDM_XML_SOURCE_INIT( RimDockWindowController, "DockWindowController", "MdiWindowController" );
+// Keep "MdiWindowController" as the keyword written to the project file. Older versions of ResInsight depend on this
+// keyword to create the window controller for plot windows (3D windows works with both keywords). The change to dock window was introduced
+// in 2026.09. "DockWindowController" was used as the keyword name during development, and is kept for intermediate project files. Revert
+// this ordering after 2-3 major releases, so the new statement becomes
+// CAF_PDM_XML_SOURCE_INIT( RimDockWindowController, "DockWindowController", "MdiWindowController" );
+CAF_PDM_XML_SOURCE_INIT( RimDockWindowController, "MdiWindowController", "DockWindowController" );
 
 //--------------------------------------------------------------------------------------------------
 ///
