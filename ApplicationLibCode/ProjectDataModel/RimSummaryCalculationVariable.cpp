@@ -65,7 +65,12 @@ void RimSummaryCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle*
         bool updateContainingEditor = false;
 
         {
-            RiuSummaryVectorSelectionDialog dlg( RiaGuiApplication::widgetToUseAsParent() );
+            // This dialog can be opened from the summary calculator dialog. Use the active window as parent, as using
+            // a main window as parent will raise that main window in front of the calculator dialog when closing.
+            QWidget* parentWidget = RiaGuiApplication::activeWindow();
+            if ( !parentWidget ) parentWidget = RiaGuiApplication::widgetToUseAsParent();
+
+            RiuSummaryVectorSelectionDialog dlg( parentWidget );
             dlg.hideEnsembles();
             dlg.hideCalculationIncompatibleCategories();
 
