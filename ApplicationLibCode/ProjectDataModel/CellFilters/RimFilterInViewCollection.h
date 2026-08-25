@@ -57,6 +57,7 @@ public:
     QString activeFiltersDisplayText() const;
 
 protected:
+    void initAfterRead() override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
