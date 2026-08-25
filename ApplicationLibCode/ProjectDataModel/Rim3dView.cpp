@@ -1654,6 +1654,19 @@ cvf::Vec3d Rim3dView::cameraPointOfInterest() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns true if the camera is already oriented along the given view direction and up direction
+//--------------------------------------------------------------------------------------------------
+bool Rim3dView::isCameraOriented( const cvf::Vec3d& viewDirection, const cvf::Vec3d& upDirection ) const
+{
+    auto viewer = nativeOrOverrideViewer();
+    if ( !viewer || !viewer->mainCamera() ) return false;
+
+    const double tolerance = 1.0e-6;
+    return ( viewer->mainCamera()->direction() - viewDirection ).length() < tolerance &&
+           ( viewer->mainCamera()->up() - upDirection ).length() < tolerance;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimViewNameConfig* Rim3dView::nameConfig() const

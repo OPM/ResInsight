@@ -460,9 +460,18 @@ void RimGeoMechContourMapView::updateViewFollowingCellFilterUpdates()
 void RimGeoMechContourMapView::onLoadDataAndUpdate()
 {
     RimGeoMechView::onLoadDataAndUpdate();
-    if ( nativeOrOverrideViewer() )
+    if ( auto viewer = nativeOrOverrideViewer() )
     {
-        nativeOrOverrideViewer()->setView( cvf::Vec3d( 0, 0, -1 ), cvf::Vec3d( 0, 1, 0 ) );
+        const cvf::Vec3d viewDirection( 0, 0, -1 );
+        const cvf::Vec3d upDirection( 0, 1, 0 );
+
+        // setView() moves the camera to look straight at the point of interest. Panning does not move the point of
+        // interest, so calling setView() will discard the panning restored from the project file. The camera is
+        // already oriented correctly for a contour map, unless the view has been rotated by a linked 3D view.
+        if ( !isCameraOriented( viewDirection, upDirection ) )
+        {
+            viewer->setView( viewDirection, upDirection );
+        }
     }
 }
 
