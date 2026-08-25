@@ -34,7 +34,9 @@
 #include "DockManager.h"
 #include "DockWidget.h"
 
-CAF_PDM_XML_SOURCE_INIT( RimDockWindowController, "DockWindowController", "MdiWindowController" );
+// The keyword "MdiWindowController" is owned by RimMdiWindowController_OBSOLETE, used to write a compatibility
+// section readable by ResInsight 2026.06 and older. See RimViewWindow::m_legacyWindowController.
+CAF_PDM_XML_SOURCE_INIT( RimDockWindowController, "DockWindowController" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -52,6 +54,23 @@ RimDockWindowController::RimDockWindowController()
 RimDockWindowController::~RimDockWindowController()
 {
     m_viewToControl = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Project files written by ResInsight 2026.06 and older, and by development versions using the class keyword
+/// "DockWindowController" in the compatibility section, have no window controller outside that section. Restore the
+/// window controller in use from the compatibility section, see RimMdiWindowController_OBSOLETE.
+///
+/// Project files written by current versions have both sections, and they are always in sync.
+//--------------------------------------------------------------------------------------------------
+void RimDockWindowController::initAfterRead()
+{
+    if ( m_mainWindowID() == MAIN_WINDOW_ID_UNASSIGNED ) return;
+
+    auto viewWindow = firstAncestorOrThisOfType<RimViewWindow>();
+    if ( !viewWindow || viewWindow->m_legacyWindowController != this ) return;
+
+    viewWindow->dockInWindow( m_mainWindowID() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -56,6 +56,8 @@ public:
     void removeWindowFromDock();
 
 protected:
+    void initAfterRead() override;
+
     RimViewWindow*     viewPdmObject();
     QWidget*           viewWidget();
     RiuMainWindowBase* getMainWindow();

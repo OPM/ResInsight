@@ -26,6 +26,7 @@
 #include "RicfCommandObject.h"
 
 #include "RimDockWindowController.h"
+#include "RimMdiWindowController.h"
 
 #include "RiuDockWidgetTools.h"
 
@@ -51,8 +52,12 @@ RimViewWindow::RimViewWindow()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
 
-    CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "" );
+    CAF_PDM_InitFieldNoDefault( &m_windowController, "DockWindow", "" );
     m_windowController.uiCapability()->setUiTreeChildrenHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_legacyWindowController, "WindowController", "" );
+    m_legacyWindowController.uiCapability()->setUiTreeChildrenHidden( true );
+    m_legacyWindowController.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window" );
     m_showWindow.uiCapability()->setUiHidden( true );
@@ -67,6 +72,7 @@ RimViewWindow::RimViewWindow()
 RimViewWindow::~RimViewWindow()
 {
     if ( m_windowController() ) delete m_windowController();
+    if ( m_legacyWindowController() ) delete m_legacyWindowController();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -391,6 +397,13 @@ void RimViewWindow::dockInWindow( int mainWindowID )
     }
     m_windowController->setViewToControl( this );
     m_windowController->setMainWindowId( mainWindowID );
+
+    // Keep the compatibility section in sync, see RimMdiWindowController_OBSOLETE
+    if ( m_legacyWindowController == nullptr )
+    {
+        m_legacyWindowController = new RimMdiWindowController_OBSOLETE();
+    }
+    m_legacyWindowController->setMainWindowId( mainWindowID );
 }
 
 //--------------------------------------------------------------------------------------------------

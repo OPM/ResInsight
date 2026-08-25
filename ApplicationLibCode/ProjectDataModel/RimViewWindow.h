@@ -114,6 +114,10 @@ private:
 protected:
     caf::PdmChildField<RimDockWindowController*> m_windowController;
 
+    // Compatibility section making the project file readable by ResInsight 2026.06 and older, holds a
+    // RimMdiWindowController_OBSOLETE
+    caf::PdmChildField<RimDockWindowController*> m_legacyWindowController;
+
     caf::PdmField<bool>    m_showWindow;
     ads::CDockWidget*      m_dockWidget;
     caf::PdmField<QString> m_dockWindowId;
