@@ -586,14 +586,14 @@ double RimPlotAxisProperties::visibleRangeMax() const
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::enableAutoValueMinMax( bool enable )
 {
+    // Never replace a range defined by the user by an automatically computed range
+    const bool useAutoValue = enable && !isRangeUserDefined();
+
     m_visibleRangeMin.uiCapability()->enableAutoValueSupport( enable );
     m_visibleRangeMax.uiCapability()->enableAutoValueSupport( enable );
 
-    if ( enable )
-    {
-        m_visibleRangeMin.uiCapability()->enableAutoValue( enable );
-        m_visibleRangeMax.uiCapability()->enableAutoValue( enable );
-    }
+    m_visibleRangeMin.uiCapability()->enableAutoValue( useAutoValue );
+    m_visibleRangeMax.uiCapability()->enableAutoValue( useAutoValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -711,12 +711,22 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
         if ( m_visibleRangeMin > m_visibleRangeMax ) m_visibleRangeMax = oldValue.toDouble();
 
         m_isAutoZoom = false;
+
+        // The range is defined by the user unless the value comes from the auto value of the field
+        setRangeUserDefined( !m_visibleRangeMax.uiCapability()->isAutoValueEnabled() );
     }
     else if ( changedField == &m_visibleRangeMin )
     {
         if ( m_visibleRangeMin > m_visibleRangeMax ) m_visibleRangeMin = oldValue.toDouble();
 
         m_isAutoZoom = false;
+
+        // The range is defined by the user unless the value comes from the auto value of the field
+        setRangeUserDefined( !m_visibleRangeMin.uiCapability()->isAutoValueEnabled() );
+    }
+    else if ( changedField == &m_isAutoZoom )
+    {
+        setRangeUserDefined( !m_isAutoZoom() );
     }
 
     if ( changedField == &m_isLogarithmicScaleEnabled )

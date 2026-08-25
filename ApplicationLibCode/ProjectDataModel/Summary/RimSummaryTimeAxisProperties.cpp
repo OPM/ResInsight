@@ -932,6 +932,7 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
 
         updateTimeVisibleRange();
         m_isAutoZoom = false;
+        setRangeUserDefined( true );
     }
     else if ( changedField == &m_visibleTimeRangeMax )
     {
@@ -943,6 +944,7 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
 
         updateTimeVisibleRange();
         m_isAutoZoom = false;
+        setRangeUserDefined( true );
     }
     else if ( changedField == &m_visibleDateRangeMin )
     {
@@ -954,6 +956,7 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
 
         updateTimeVisibleRange();
         m_isAutoZoom = false;
+        setRangeUserDefined( true );
     }
     else if ( changedField == &m_visibleTimeRangeMin )
     {
@@ -965,11 +968,17 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
 
         updateTimeVisibleRange();
         m_isAutoZoom = false;
+        setRangeUserDefined( true );
     }
     else if ( changedField == &m_visibleTimeSinceStartRangeMin || changedField == &m_visibleTimeSinceStartRangeMax )
     {
         updateDateVisibleRange();
         m_isAutoZoom = false;
+        setRangeUserDefined( true );
+    }
+    else if ( changedField == &m_isAutoZoom )
+    {
+        setRangeUserDefined( !m_isAutoZoom() );
     }
     else if ( changedField == &m_timeMode )
     {
