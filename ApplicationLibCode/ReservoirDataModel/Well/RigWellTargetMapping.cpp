@@ -430,7 +430,7 @@ RimRegularGridCase* RigWellTargetMapping::generateEnsembleCandidates( const std:
     {
         auto task = progInfo.task( "Generating realization statistics.", 1 );
 
-        bool closeGrid = ( eclipseCase->isReservoirCaseOpen() );
+        bool closeGrid = ( !eclipseCase->isReservoirCaseOpen() );
 
         if ( closeGrid )
         {

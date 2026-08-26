@@ -141,6 +141,8 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_activeFormationNames.uiCapability()->setUiHidden( true );
 
     m_displayNameOption = RimCaseDisplayNameTools::DisplayName::CUSTOM;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -405,10 +405,9 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
         {
             RiuEclipseSelectionItem* eclipseSelItem = static_cast<RiuEclipseSelectionItem*>( items[i] );
 
-            if ( eclipseSelItem && eclipseSelItem->m_view == this && eclipseSelItem->m_resultDefinition->eclipseCase() )
+            if ( eclipseSelItem && eclipseSelItem->m_view == this && eclipseSelItem->m_resultDefinition->eclipseCase() &&
+                 eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData() )
             {
-                CAF_ASSERT( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData() );
-
                 RivSingleCellPartGenerator partGen( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData(),
                                                     eclipseSelItem->m_gridIndex,
                                                     eclipseSelItem->m_gridLocalCellIndex,
