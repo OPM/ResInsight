@@ -616,12 +616,15 @@ RimEclipseCase* RimWellTargetMapping::firstCase() const
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::initAfterRead()
 {
-    if ( RimEclipseCase* eclipseCase = firstCase() )
+    if ( firstAncestorOrThisOfType<RimReservoirGridEnsemble>() )
     {
+        return; // no need to to do anything for ensembles, as the data have been cached
+    }
+    else if ( RimEclipseCase* eclipseCase = firstCase() )
+    {
+        // Automatically generate results on project load
         m_resultDefinition->setEclipseCase( eclipseCase );
 
-        // Automatically generate results on project load
-        // Consider to also do this for ensemble cases, but this will be more expensive
         bool setTimeStepInView = false;
         generateCandidates( eclipseCase, setTimeStepInView );
     }

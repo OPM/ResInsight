@@ -64,6 +64,7 @@
 #include "RimCellFilterCollection.h"
 #include "RimCommandRouter.h"
 #include "RimCompletionTemplateCollection.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseView.h"
@@ -115,6 +116,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
+#include "RimWellTargetMapping.h"
 #include "VerticalFlowPerformance/RimVfpDataCollection.h"
 #include "VerticalFlowPerformance/RimVfpPlotCollection.h"
 
@@ -864,6 +866,15 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
                 for ( auto view : views )
                 {
                     view->loadDataAndUpdate();
+                }
+
+                for ( auto wellTargetMapping : gridEnsemble->wellTargetMappings() )
+                {
+                    if ( !wellTargetMapping->ensembleStatisticsCase() ) continue;
+                    for ( auto view : wellTargetMapping->ensembleStatisticsCase()->views() )
+                    {
+                        view->loadDataAndUpdate();
+                    }
                 }
             }
         }
