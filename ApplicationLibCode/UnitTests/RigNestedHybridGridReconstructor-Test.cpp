@@ -336,6 +336,44 @@ TEST_F( RigNestedHybridGridReconstructorTest, ReconstructFromOldIjk )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// LGR naming (#14611): a level with a single LGR keeps the bare level name, while a level with
+/// several LGRs numbers all of them 1..N with no bare-named sibling. All names are unique.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RigNestedHybridGridReconstructorTest, LgrNamesAreConsistent )
+{
+    RigMainGrid* mainGrid = grid();
+
+    std::set<QString>              uniqueNames;
+    std::map<QString, QStringList> namesByLevel;
+    for ( size_t i = 1; i < mainGrid->gridCount(); i++ )
+    {
+        const QString name = QString::fromStdString( mainGrid->gridByIndex( i )->gridName() );
+        EXPECT_TRUE( uniqueNames.insert( name ).second ) << "Duplicate LGR name: " << name.toStdString();
+        namesByLevel[name.section( '_', 0, 2 )].push_back( name ); // "LGR_NHG_L4_2" -> "LGR_NHG_L4"
+    }
+
+    for ( const auto& [levelName, names] : namesByLevel )
+    {
+        if ( names.size() == 1 )
+        {
+            EXPECT_EQ( names.front(), levelName );
+        }
+        else
+        {
+            QStringList expected;
+            for ( int n = 1; n <= names.size(); n++ )
+                expected.push_back( QString( "%1_%2" ).arg( levelName ).arg( n ) );
+            EXPECT_EQ( names, expected );
+        }
+    }
+
+    // The Drogon model has one LGR on levels 2 and 3 and several on level 4.
+    EXPECT_EQ( namesByLevel["LGR_NHG_L2"].size(), 1 );
+    EXPECT_EQ( namesByLevel["LGR_NHG_L3"].size(), 1 );
+    EXPECT_GT( namesByLevel["LGR_NHG_L4"].size(), 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Results propagate to the reconstructed LGR cells: an active-cell-indexed STATIC result and the
 /// full-length REFINE input property (both loaded before reconstruction) must both carry, on an LGR
 /// cell, the source flat cell's value.

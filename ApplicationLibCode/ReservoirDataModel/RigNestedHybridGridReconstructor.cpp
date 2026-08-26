@@ -152,7 +152,8 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
             parentsByFactor[factor].insert( parent );
         }
 
-        int componentIndex = 0;
+        // Collect the connected components first so the component count is known before naming.
+        std::vector<std::pair<Factor, std::vector<CoarseIjk>>> components;
         for ( const auto& [factor, parents] : parentsByFactor )
         {
             std::set<CoarseIjk> remaining = parents;
@@ -180,53 +181,60 @@ bool RigNestedHybridGridReconstructor::reconstruct( RigEclipseCaseData* caseData
                         }
                 }
 
-                CoarseIjk c0 = { INT_MAX, INT_MAX, INT_MAX };
-                CoarseIjk c1 = { 0, 0, 0 };
-                for ( const CoarseIjk& parent : component )
-                    for ( int axis = 0; axis < 3; axis++ )
-                    {
-                        c0[axis] = std::min( c0[axis], parent[axis] );
-                        c1[axis] = std::max( c1[axis], parent[axis] );
-                    }
+                components.push_back( { factor, std::move( component ) } );
+            }
+        }
 
-                const cvf::Vec3st   dims( (size_t)( c1[0] - c0[0] + 1 ) * factor[0],
-                                        (size_t)( c1[1] - c0[1] + 1 ) * factor[1],
-                                        (size_t)( c1[2] - c0[2] + 1 ) * factor[2] );
-                std::vector<size_t> boxToParent( dims.x() * dims.y() * dims.z(), cvf::UNDEFINED_SIZE_T );
-                for ( size_t lk = 0; lk < dims.z(); lk++ )
-                    for ( size_t lj = 0; lj < dims.y(); lj++ )
-                        for ( size_t li = 0; li < dims.x(); li++ )
-                        {
-                            size_t local       = naturalIndex( li, lj, lk, dims.x(), dims.y() );
-                            size_t oi          = (size_t)c0[0] + li / factor[0];
-                            size_t oj          = (size_t)c0[1] + lj / factor[1];
-                            size_t ok          = (size_t)c0[2] + lk / factor[2];
-                            boxToParent[local] = naturalIndex( oi - 1, oj - 1, ( ok - 1 ) * kFactor, nx, ny );
-                        }
+        for ( size_t componentIndex = 0; componentIndex < components.size(); componentIndex++ )
+        {
+            const auto& [factor, component] = components[componentIndex];
 
-                std::vector<size_t> boxToFlat( dims.x() * dims.y() * dims.z(), cvf::UNDEFINED_SIZE_T );
-                for ( const CoarseIjk& parent : component )
+            CoarseIjk c0 = { INT_MAX, INT_MAX, INT_MAX };
+            CoarseIjk c1 = { 0, 0, 0 };
+            for ( const CoarseIjk& parent : component )
+                for ( int axis = 0; axis < 3; axis++ )
                 {
-                    const auto& coordinates = coordinatesByParent[parent];
-                    for ( size_t f : cellsByParent[parent] )
-                    {
-                        const std::array<size_t, 3> flatIjk = { f % nx, ( f / nx ) % ny, f / ( nx * ny ) };
-                        size_t                      localIjk[3];
-                        for ( int axis = 0; axis < 3; axis++ )
-                        {
-                            const auto coordinateIt = std::lower_bound( coordinates[axis].begin(), coordinates[axis].end(), flatIjk[axis] );
-                            localIjk[axis]          = (size_t)( parent[axis] - c0[axis] ) * factor[axis] +
-                                             (size_t)( coordinateIt - coordinates[axis].begin() );
-                        }
-                        boxToFlat[naturalIndex( localIjk[0], localIjk[1], localIjk[2], dims.x(), dims.y() )] = f;
-                    }
+                    c0[axis] = std::min( c0[axis], parent[axis] );
+                    c1[axis] = std::max( c1[axis], parent[axis] );
                 }
 
-                QString gridName = QString( "LGR_NHG_L%1" ).arg( level );
-                if ( componentIndex > 0 ) gridName += QString( "_%1" ).arg( componentIndex );
-                componentIndex++;
-                buildLocalGrid( caseData, grid, nextGridId++, gridName, dims, boxToFlat, boxToParent, sourceCells );
+            const cvf::Vec3st   dims( (size_t)( c1[0] - c0[0] + 1 ) * factor[0],
+                                    (size_t)( c1[1] - c0[1] + 1 ) * factor[1],
+                                    (size_t)( c1[2] - c0[2] + 1 ) * factor[2] );
+            std::vector<size_t> boxToParent( dims.x() * dims.y() * dims.z(), cvf::UNDEFINED_SIZE_T );
+            for ( size_t lk = 0; lk < dims.z(); lk++ )
+                for ( size_t lj = 0; lj < dims.y(); lj++ )
+                    for ( size_t li = 0; li < dims.x(); li++ )
+                    {
+                        size_t local       = naturalIndex( li, lj, lk, dims.x(), dims.y() );
+                        size_t oi          = (size_t)c0[0] + li / factor[0];
+                        size_t oj          = (size_t)c0[1] + lj / factor[1];
+                        size_t ok          = (size_t)c0[2] + lk / factor[2];
+                        boxToParent[local] = naturalIndex( oi - 1, oj - 1, ( ok - 1 ) * kFactor, nx, ny );
+                    }
+
+            std::vector<size_t> boxToFlat( dims.x() * dims.y() * dims.z(), cvf::UNDEFINED_SIZE_T );
+            for ( const CoarseIjk& parent : component )
+            {
+                const auto& coordinates = coordinatesByParent[parent];
+                for ( size_t f : cellsByParent[parent] )
+                {
+                    const std::array<size_t, 3> flatIjk = { f % nx, ( f / nx ) % ny, f / ( nx * ny ) };
+                    size_t                      localIjk[3];
+                    for ( int axis = 0; axis < 3; axis++ )
+                    {
+                        const auto coordinateIt = std::lower_bound( coordinates[axis].begin(), coordinates[axis].end(), flatIjk[axis] );
+                        localIjk[axis]          = (size_t)( parent[axis] - c0[axis] ) * factor[axis] +
+                                         (size_t)( coordinateIt - coordinates[axis].begin() );
+                    }
+                    boxToFlat[naturalIndex( localIjk[0], localIjk[1], localIjk[2], dims.x(), dims.y() )] = f;
+                }
             }
+
+            // Single component on a level keeps the bare level name; several get 1-based suffixes.
+            QString gridName = QString( "LGR_NHG_L%1" ).arg( level );
+            if ( components.size() > 1 ) gridName += QString( "_%1" ).arg( componentIndex + 1 );
+            buildLocalGrid( caseData, grid, nextGridId++, gridName, dims, boxToFlat, boxToParent, sourceCells );
         }
     }
 
