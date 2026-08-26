@@ -1071,6 +1071,46 @@ bool RifOpmFlowDeckFile::replaceKeywordAtIndex( const Opm::FileDeck::Index& inde
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Remove all but one occurrence of the given keyword. Keeping an original occurrence in place
+/// preserves its source block, so a later in-place replace keeps the keyword in its original
+/// (possibly included) file when the deck is saved. Keep the first occurrence for cumulative
+/// keywords (e.g. FAULTS), and the last occurrence for keywords where a later occurrence
+/// overrides an earlier one (e.g. ACTNUM). Returns number of removed keywords.
+//--------------------------------------------------------------------------------------------------
+int RifOpmFlowDeckFile::removeDuplicateKeywords( const std::string& keywordName, bool keepFirstOccurrence )
+{
+    if ( m_fileDeck.get() == nullptr ) return 0;
+
+    // Find all indices where this keyword appears
+    std::vector<Opm::FileDeck::Index> indices;
+    for ( auto it = m_fileDeck->start(); it != m_fileDeck->stop(); it++ )
+    {
+        const auto& kw = m_fileDeck->operator[]( it );
+        if ( kw.name() == keywordName )
+        {
+            indices.push_back( it );
+        }
+    }
+
+    if ( indices.size() < 2 ) return 0;
+
+    // Remove in reverse order to maintain valid indices, keeping one occurrence
+    auto first = indices.rbegin();
+    auto last  = indices.rend();
+    if ( keepFirstOccurrence )
+        --last;
+    else
+        ++first;
+
+    for ( auto it = first; it != last; ++it )
+    {
+        m_fileDeck->erase( *it );
+    }
+
+    return static_cast<int>( indices.size() ) - 1;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RifOpmFlowDeckFile::removeKeywordAtIndex( const Opm::FileDeck::Index& index )

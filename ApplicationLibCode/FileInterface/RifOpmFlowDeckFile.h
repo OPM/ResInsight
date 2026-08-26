@@ -110,6 +110,7 @@ public:
     bool replaceKeywordAtIndex( const Opm::FileDeck::Index& index, const Opm::DeckKeyword& keyword );
 
     int  removeKeywords( const std::string& keywordName );
+    int  removeDuplicateKeywords( const std::string& keywordName, bool keepFirstOccurrence );
     bool removeKeywordAtIndex( const Opm::FileDeck::Index& index );
 
 private:

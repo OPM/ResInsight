@@ -41,6 +41,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QRegularExpression>
 #include <QString>
 #include <QTemporaryDir>
 
@@ -486,6 +487,93 @@ TEST( RigSimulationInputTool, ExportModel5 )
     // Verify dimensions are correct for the sector (20x15x10)
     // Max is (19,14,9) which means 20 cells in I, 15 cells in J, 10 cells in K
     EXPECT_TRUE( fileContent.contains( " 20 15 10 /" ) ) << "File does not contain expected sector dimensions 20 15 10";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Test that ACTNUM and FAULTS sourced from include files stay in their include files when
+/// exporting, instead of being written inline into the main DATA file. See issue #14622.
+//--------------------------------------------------------------------------------------------------
+TEST( RigSimulationInputTool, ExportModel5_ActnumFaultsStayInIncludeFiles )
+{
+    // Load model5 test data
+    QDir baseFolder( TEST_DATA_DIR );
+    bool subFolderExists = baseFolder.cd( "RigSimulationInputTool/model5" );
+    ASSERT_TRUE( subFolderExists );
+
+    QString egridFilename( "0_BASE_MODEL5.EGRID" );
+    QString egridFilePath = baseFolder.absoluteFilePath( egridFilename );
+    ASSERT_TRUE( QFile::exists( egridFilePath ) );
+
+    // Deck with an inline ACTNUM overridden by ACTNUM in an include file, and FAULTS in an include file
+    QString dataFilename( "3_ACTNUM_FAULTS_MODEL5.DATA" );
+    QString dataFilePath = baseFolder.absoluteFilePath( dataFilename );
+    ASSERT_TRUE( QFile::exists( dataFilePath ) );
+
+    // Create Eclipse case and load grid
+    std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
+    cvf::ref<RigEclipseCaseData>          caseData = new RigEclipseCaseData( resultCase.get() );
+
+    cvf::ref<RifReaderEclipseOutput> reader     = new RifReaderEclipseOutput;
+    bool                             loadResult = reader->open( egridFilePath, caseData.p() );
+    ASSERT_TRUE( loadResult );
+    ASSERT_TRUE( caseData->mainGrid() != nullptr );
+
+    // Create temporary directory for export
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    QString exportFilePath = tempDir.path() + "/exported_model.DATA";
+
+    // Set up export settings for sector export
+    RigSimulationInputSettings settings;
+    settings.setMin( caf::VecIjk0( 0, 0, 0 ) );
+    settings.setMax( caf::VecIjk0( 19, 14, 9 ) ); // Sector (0-based inclusive)
+    setSettingsRefinement( settings, cvf::Vec3st( 1, 1, 1 ) ); // No refinement
+    settings.setInputDeckFileName( dataFilePath );
+    settings.setOutputDeckFileName( exportFilePath );
+
+    // Create visibility from IJK bounds
+    cvf::ref<cvf::UByteArray> visibility =
+        RigEclipseCaseDataTools::createVisibilityFromIjkBounds( caseData.p(), settings.min(), settings.max() );
+
+    // Export simulation input
+    resultCase->setReservoirData( caseData.p() );
+    auto exportResult = RigSimulationInputTool::exportSimulationInput( *resultCase, settings, visibility.p() );
+    ASSERT_TRUE( exportResult.has_value() ) << "Export failed: " << exportResult.error().toStdString();
+    ASSERT_TRUE( QFile::exists( exportFilePath ) );
+
+    // The exported deck must still parse
+    RifOpmFlowDeckFile deckFile;
+    ASSERT_TRUE( deckFile.loadDeck( exportFilePath.toStdString() ).has_value() ) << "Failed to load exported deck file";
+
+    // The duplicate ACTNUM must be collapsed to a single occurrence with sector-sized data (20x15x10)
+    auto actnumKeywords = deckFile.findAllKeywords( "ACTNUM" );
+    ASSERT_EQ( 1u, actnumKeywords.size() );
+    EXPECT_EQ( 20u * 15u * 10u, actnumKeywords.front().getRecord( 0 ).getItem( 0 ).data_size() );
+
+    auto readTextFile = []( const QString& filePath ) -> QString
+    {
+        QFile file( filePath );
+        EXPECT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) ) << "Failed to open " << filePath.toStdString();
+        return file.readAll();
+    };
+
+    // The main DATA file must reference the include files instead of containing the keywords inline
+    QString                  dataContent = readTextFile( exportFilePath );
+    const QRegularExpression actnumRegex( "^ACTNUM", QRegularExpression::MultilineOption );
+    const QRegularExpression faultsRegex( "^FAULTS", QRegularExpression::MultilineOption );
+    EXPECT_FALSE( dataContent.contains( actnumRegex ) ) << "ACTNUM must not be written inline in the main DATA file";
+    EXPECT_FALSE( dataContent.contains( faultsRegex ) ) << "FAULTS must not be written inline in the main DATA file";
+    EXPECT_TRUE( dataContent.contains( "include/actnum_model5.grdecl" ) );
+    EXPECT_TRUE( dataContent.contains( "include/faults_model5.inc" ) );
+
+    // The include files must contain the transformed sector-specific keywords
+    QString actnumContent = readTextFile( tempDir.path() + "/include/actnum_model5.grdecl" );
+    EXPECT_TRUE( actnumContent.contains( actnumRegex ) ) << "ACTNUM missing from exported include file";
+
+    QString faultsContent = readTextFile( tempDir.path() + "/include/faults_model5.inc" );
+    EXPECT_TRUE( faultsContent.contains( faultsRegex ) ) << "FAULTS missing from exported include file";
+    EXPECT_FALSE( faultsContent.contains( "F1" ) ) << "Original FAULTS data should have been replaced";
 }
 
 //--------------------------------------------------------------------------------------------------
