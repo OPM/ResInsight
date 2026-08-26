@@ -210,8 +210,10 @@ std::expected<void, QString> RigSimulationInputTool::updateCornerPointGridInDeck
 
     RigResdataGridConverter::convertGridToCornerPointArrays( gridAdapter, coordArray, zcornArray, actnumArray );
 
-    // Remove ACTNUM to handle deck where it appears more than once.
-    deckFile.removeKeywords( "ACTNUM" );
+    // Collapse ACTNUM to a single occurrence so the replacement below stays in its original
+    // (possibly included) file when the deck is saved. Keep the last occurrence, as it is the
+    // effective one when ACTNUM appears more than once.
+    deckFile.removeDuplicateKeywords( "ACTNUM", false );
 
     auto keywords = deckFile.keywords( false );
 
@@ -1123,8 +1125,10 @@ std::expected<void, QString> RigSimulationInputTool::addFaultsToDeckFile( RimEcl
                                                                           const RigSimulationInputSettings& settings,
                                                                           RifOpmFlowDeckFile&               deckFile )
 {
-    // Remove FAULTS to handle deck where it appears more than once.
-    deckFile.removeKeywords( "FAULTS" );
+    // Collapse FAULTS to a single occurrence so the replacement below stays in its original
+    // (possibly included) file when the deck is saved. Keep the first occurrence so fault
+    // definitions do not move past keywords referencing them (e.g. MULTFLT).
+    deckFile.removeDuplicateKeywords( "FAULTS", true );
 
     // Create FAULTS keyword using the factory
     Opm::DeckKeyword faultsKw =
