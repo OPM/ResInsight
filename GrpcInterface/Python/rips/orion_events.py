@@ -2252,14 +2252,63 @@ _COMPLETION_EVENT_TYPES = (
 # ---------------------------------------------------------------------------
 
 
+def _apply_to_running_instance(document: OrionDocument) -> int:
+    """Apply a parsed document to the well event timeline of a running
+    ResInsight instance found through the RESINSIGHT_GRPC_PORT environment
+    variable. Returns a process exit code."""
+
+    import rips
+
+    resinsight = rips.Instance.find()
+    if resinsight is None:
+        print("Error: no running ResInsight instance found")
+        return 1
+
+    project = resinsight.project
+    well_path_collections = project.descendants(rips.WellPathCollection)
+    if not well_path_collections:
+        print("Error: the project has no well path collection")
+        return 1
+    timeline = well_path_collections[0].event_timeline()
+
+    # A case is only needed to materialize FILTER declarations; default to the
+    # first case when one is loaded.
+    cases = project.cases()
+    case = cases[0] if cases else None
+
+    try:
+        report = apply_orion_document(
+            document, timeline, project, case=case, on_unknown_well="warn"
+        )
+    except RipsError as exc:
+        print(f"Error: {exc}")
+        return 1
+
+    print(f"  Events applied: {report.events_applied}")
+    print(f"  Events skipped: {report.events_skipped}")
+    if report.report_dates:
+        print(f"  Report dates:   {', '.join(report.report_dates)}")
+    for warning in report.warnings:
+        print(f"  Warning: {warning}")
+    for error in report.errors:
+        print(f"  Error: {error}")
+    return 1 if report.errors else 0
+
+
 def _cli(argv: Optional[List[str]] = None) -> int:
     import argparse
 
     arg_parser = argparse.ArgumentParser(
         prog="python3 -m rips.orion_events",
-        description="Validate an ORIONEVENTS file (parse only; no ResInsight needed).",
+        description="Validate an ORIONEVENTS file (parse only; no ResInsight "
+        "needed), and optionally apply it to a running ResInsight instance.",
     )
     arg_parser.add_argument("file", help="path to the ORIONEVENTS file")
+    arg_parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="apply the events to a running ResInsight instance after validating",
+    )
     args = arg_parser.parse_args(argv)
 
     try:
@@ -2292,6 +2341,9 @@ def _cli(argv: Optional[List[str]] = None) -> int:
     normalized = coalesce_orion_document(document)
     for warning in normalized.warnings:
         print(f"  Warning line {warning.loc.line}: {warning.message}")
+
+    if args.apply:
+        return _apply_to_running_instance(document)
     return 0
 
 

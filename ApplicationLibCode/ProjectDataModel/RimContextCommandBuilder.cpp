@@ -354,6 +354,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
             menuBuilder << "RicImportWellMeasurementsFeature";
+            menuBuilder << "RicImportOrionEventsFeature";
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
             menuBuilder.subMenuStart( "Export Well Paths", QIcon( ":/Save.svg" ) );

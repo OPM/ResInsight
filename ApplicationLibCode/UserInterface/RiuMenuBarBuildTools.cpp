@@ -138,6 +138,7 @@ void RiuMenuBarBuildTools::addImportMenuForMainWindow( QObject* parent, QMenu* m
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellLogsImportFileFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathFormationsImportFileFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicImportWellMeasurementsFeature" ) );
+    importWellMenu->addAction( cmdFeatureMgr->action( "RicImportOrionEventsFeature" ) );
 
     importMenu->addSeparator();
     importMenu->addAction( cmdFeatureMgr->action( "RicImportFormationNamesFeature" ) );

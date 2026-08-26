@@ -1001,6 +1001,85 @@ class TestValidatorCli:
         assert "Error" in capsys.readouterr().out
 
 
+class FakeWellPathCollection:
+    def __init__(self, timeline):
+        self._timeline = timeline
+
+    def event_timeline(self):
+        return self._timeline
+
+
+class FakeCliProject(FakeProject):
+    """A project whose well path collections are discoverable via descendants."""
+
+    def __init__(self, names, cases=(), collections=()):
+        super().__init__(names, cases)
+        self._collections = list(collections)
+
+    def descendants(self, cls):
+        return self._collections
+
+
+class FakeInstance:
+    def __init__(self, project):
+        self.project = project
+
+
+class TestApplyCli:
+    def _write(self, tmp_path, text):
+        path = tmp_path / "events.orion"
+        path.write_text(text)
+        return str(path)
+
+    def test_apply_exits_zero_and_reports_applied_events(
+        self, tmp_path, capsys, monkeypatch
+    ):
+        timeline = FakeTimeline()
+        project = FakeCliProject(
+            ("55_33-A-1", "55_33-A-2"),
+            collections=[FakeWellPathCollection(timeline)],
+        )
+        monkeypatch.setattr(
+            rips.Instance, "find", staticmethod(lambda: FakeInstance(project))
+        )
+        path = self._write(tmp_path, SAMPLE)
+        assert _cli([path, "--apply"]) == 0
+        out = capsys.readouterr().out
+        assert "Events applied: 4" in out
+        assert len(timeline.perf_calls) == 2
+        assert len(timeline.keyword_calls) == 2
+
+    def test_apply_without_running_instance_exits_nonzero(
+        self, tmp_path, capsys, monkeypatch
+    ):
+        monkeypatch.setattr(rips.Instance, "find", staticmethod(lambda: None))
+        path = self._write(tmp_path, SAMPLE)
+        assert _cli([path, "--apply"]) == 1
+        assert "no running ResInsight instance" in capsys.readouterr().out
+
+    def test_apply_without_well_path_collection_exits_nonzero(
+        self, tmp_path, capsys, monkeypatch
+    ):
+        project = FakeCliProject(("55_33-A-1",), collections=[])
+        monkeypatch.setattr(
+            rips.Instance, "find", staticmethod(lambda: FakeInstance(project))
+        )
+        path = self._write(tmp_path, SAMPLE)
+        assert _cli([path, "--apply"]) == 1
+        assert "no well path collection" in capsys.readouterr().out
+
+    def test_validate_only_does_not_contact_instance(
+        self, tmp_path, capsys, monkeypatch
+    ):
+        def fail():
+            raise AssertionError("Instance.find must not be called")
+
+        monkeypatch.setattr(rips.Instance, "find", staticmethod(fail))
+        path = self._write(tmp_path, SAMPLE)
+        assert _cli([path]) == 0
+        assert "OK" in capsys.readouterr().out
+
+
 # ---------------------------------------------------------------------------
 # Layer B: applying
 # ---------------------------------------------------------------------------
