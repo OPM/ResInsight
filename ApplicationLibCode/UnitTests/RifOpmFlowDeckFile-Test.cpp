@@ -578,6 +578,85 @@ TEST( RifOpmFlowDeckFileTest, RemoveAndInsertKeywordAtSectionStart )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Issue #14620: table keywords were rewritten as one unbounded line, exceeding the 132 character
+/// line limit of Eclipse 100. Verify that saved decks wrap all lines at 132 characters and that
+/// quoted values are kept intact.
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmFlowDeckFileTest, SaveDeckLimitsLineWidthTo132Characters )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    // Build a deck with a rel. perm. table large enough to exceed 132 characters when written on a
+    // single line, and a record of quoted mnemonics that must not be split inside the quotes.
+    QString deckText;
+    deckText += "RUNSPEC\n";
+    deckText += "DIMENS\n 2 2 2 /\n";
+    deckText += "OIL\nWATER\nGAS\nMETRIC\n";
+    deckText += "START\n 01 'JAN' 2000 /\n";
+    deckText += "GRID\n";
+    deckText += "DX\n8*100.0 /\n";
+    deckText += "DY\n8*100.0 /\n";
+    deckText += "DZ\n8*10.0 /\n";
+    deckText += "TOPS\n4*2000.0 /\n";
+    deckText += "PORO\n8*0.2 /\n";
+    deckText += "PERMX\n8*100.0 /\n";
+    deckText += "PROPS\n";
+    deckText += "SWOF\n";
+    const int rowCount = 40;
+    for ( int i = 0; i < rowCount; i++ )
+    {
+        double sw   = 0.2 + 0.8 * i / rowCount;
+        double krw  = sw * sw * 0.987654321;
+        double krow = ( 1.0 - sw ) * 0.876543219;
+        deckText += QString( "%1 %2 %3 0.0\n" ).arg( sw, 0, 'g', 10 ).arg( krw, 0, 'g', 10 ).arg( krow, 0, 'g', 10 );
+    }
+    deckText += "/\n";
+    deckText += "SOLUTION\n";
+    deckText += "RPTRST\n";
+    deckText += " 'BASIC=4' 'FREQ=6' 'FLOWS' 'KRO' 'KRW' 'KRG' 'SGTRAP' 'RK' 'CONV' 'PORV' 'RPORV' 'BG' 'BO' 'BW' 'SFIP' 'PBPD' 'PCOW' /\n";
+    deckText += "SCHEDULE\n";
+    deckText += "END\n";
+
+    QString inputFileName = tempDir.filePath( "LONG_TABLES.DATA" );
+    {
+        QFile inputFile( inputFileName );
+        ASSERT_TRUE( inputFile.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        QTextStream out( &inputFile );
+        out << deckText;
+    }
+
+    RifOpmFlowDeckFile deckFile;
+    ASSERT_TRUE( deckFile.loadDeck( inputFileName.toStdString() ).has_value() );
+
+    QString outDir = tempDir.filePath( "out" );
+    ASSERT_TRUE( QDir().mkpath( outDir ) );
+    ASSERT_TRUE( deckFile.saveDeck( outDir.toStdString(), "LONG_TABLES.DATA" ) );
+
+    QString savedFileName = outDir + "/LONG_TABLES.DATA";
+    QFile   savedFile( savedFileName );
+    ASSERT_TRUE( savedFile.open( QIODevice::ReadOnly | QIODevice::Text ) );
+
+    QTextStream in( &savedFile );
+    while ( !in.atEnd() )
+    {
+        QString line = in.readLine();
+        EXPECT_LE( line.size(), 132 ) << "Line exceeds 132 characters: " << line.toStdString();
+    }
+    savedFile.close();
+
+    // Quoted values must be preserved unbroken, and the wrapped deck must still be parseable
+    ASSERT_TRUE( savedFile.open( QIODevice::ReadOnly | QIODevice::Text ) );
+    QString content = QTextStream( &savedFile ).readAll();
+    savedFile.close();
+    EXPECT_TRUE( content.contains( "'BASIC=4'" ) );
+    EXPECT_TRUE( content.contains( "'SGTRAP'" ) );
+
+    RifOpmFlowDeckFile reloadedDeckFile;
+    EXPECT_TRUE( reloadedDeckFile.loadDeck( savedFileName.toStdString() ).has_value() );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( RimKeywordFactoryTest, DeckKeywordToAlignedStringShortensLongHeaders )
