@@ -1046,6 +1046,69 @@ class TestApplying:
         assert timeline.keyword_calls[0]["keyword_data"]["ORAT"] == 100
         assert timeline.keyword_calls[0]["keyword_data"]["CMODE"] == "ORAT"
 
+    def test_well_keyword_history_is_inherited_chronologically(self):
+        text = (
+            "ORIONEVENTS 2.0\n"
+            'WELL "55_33-A-1"\n'
+            "  @2024-01-20 WCONHIST WRAT=0.03\n"
+            '  @2024-01-15 WCONHIST STATUS=OPEN CMODE=RESV GRAT=4756545.5 COMMENT="Startup"\n'
+            "  @2024-01-15 WCONHIST ORAT=3999.99 WRAT=0.01 GRAT=550678.44 VFP=1\n"
+            "  @2024-01-15 WELTARG CMODE=ORAT VALUE=5000\n"
+            'WELL "55_33-A-2"\n'
+            "  @2024-01-20 WCONHIST WRAT=0.04\n"
+        )
+        document = parse_orion_events(text)
+        merged = coalesce_orion_document(document)
+
+        first_well_events = merged.wells[0].events
+        january_15 = next(
+            event
+            for event in first_well_events
+            if event.event_type.upper() == "WCONHIST"
+            and event.event_date.isoformat() == "2024-01-15"
+        )
+        january_20 = next(
+            event
+            for event in first_well_events
+            if event.event_type.upper() == "WCONHIST"
+            and event.event_date.isoformat() == "2024-01-20"
+        )
+
+        assert january_15.attributes["GRAT"].value == 550678.44
+        assert january_15.attributes["COMMENT"].value == "Startup"
+        assert january_20.attributes["STATUS"].value == "OPEN"
+        assert january_20.attributes["CMODE"].value == "RESV"
+        assert january_20.attributes["ORAT"].value == 3999.99
+        assert january_20.attributes["WRAT"].value == 0.03
+        assert january_20.attributes["GRAT"].value == 550678.44
+        assert january_20.attributes["VFP"].value == 1
+        assert "COMMENT" not in january_20.attributes
+
+        # Historical state is isolated by owner and keyword type.
+        assert set(merged.wells[1].events[0].attributes) == {"WRAT"}
+        weltarg = next(
+            event
+            for event in first_well_events
+            if event.event_type.upper() == "WELTARG"
+        )
+        assert set(weltarg.attributes) == {"CMODE", "VALUE"}
+
+        assert len(merged.warnings) == 1
+        warning = merged.warnings[0]
+        assert warning.loc.line == 5
+        assert "conflicting WCONHIST attribute 'GRAT'" in warning.message
+        assert "previous value on line 4" in warning.message
+        assert "using '550678.44'" in warning.message
+
+        timeline, report = self._apply(text)
+        assert report.events_applied == 4
+        assert len(report.warnings) == 1
+        assert "conflicting WCONHIST attribute 'GRAT'" in report.warnings[0]
+        january_20_call = timeline.keyword_calls[0]
+        assert january_20_call["event_date"] == "2024-01-20"
+        assert january_20_call["keyword_data"]["STATUS"] == "OPEN"
+        assert january_20_call["keyword_data"]["WRAT"] == 0.03
+
     def test_same_date_perforations_are_not_merged(self):
         text = (
             "ORIONEVENTS 2.0\n"

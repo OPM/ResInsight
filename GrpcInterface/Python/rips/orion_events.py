@@ -1381,6 +1381,7 @@ _NON_COALESCING_EVENT_TYPES = {
     "VALVE",
     "WELSPECS",
 }
+_NON_HISTORICAL_KEYWORD_ATTRS = {"COMMENT", "FILTER"}
 
 
 def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
@@ -1388,15 +1389,22 @@ def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
 
     Keyword events with the same owner, type and timestamp are merged. The first
     event retains its position, and attributes from later matching events are
-    applied in source order. Events that create or expand domain objects are
-    kept separate so, for example, same-date perforation intervals are not lost.
+    applied in source order. Well keyword attributes are then carried forward
+    chronologically to later events of the same type. Events that create or
+    expand domain objects are kept separate so, for example, same-date
+    perforation intervals are not lost.
     """
     result = copy.deepcopy(document)
 
-    def merge_events(events: List[OrionEvent]) -> List[OrionEvent]:
+    def merge_events(
+        events: List[OrionEvent], *, inherit_history: bool = False
+    ) -> List[OrionEvent]:
         merged: List[OrionEvent] = []
         by_key: Dict[
             Tuple[Union[datetime.date, datetime.datetime], str], OrionEvent
+        ] = {}
+        attribute_locs: Dict[
+            Tuple[Union[datetime.date, datetime.datetime], str], Dict[str, SourceLoc]
         ] = {}
         for event in events:
             event_type = event.event_type.upper()
@@ -1408,13 +1416,50 @@ def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
             existing = by_key.get(key)
             if existing is None:
                 by_key[key] = event
+                attribute_locs[key] = {name: event.loc for name in event.attributes}
                 merged.append(event)
                 continue
 
+            repeated = (
+                set(existing.attributes)
+                & set(event.attributes) - _NON_HISTORICAL_KEYWORD_ATTRS
+            )
+            for name in sorted(repeated):
+                previous = existing.attributes[name]
+                replacement = event.attributes[name]
+                if previous.value != replacement.value:
+                    result.warnings.append(
+                        ParseWarning(
+                            f"{_event_context(event)}: conflicting {event_type} "
+                            f"attribute '{name}' (previous value on line "
+                            f"{attribute_locs[key][name].line}); using "
+                            f"{replacement.raw!r}",
+                            event.loc,
+                        )
+                    )
+
             existing.attributes.update(event.attributes)
+            attribute_locs[key].update({name: event.loc for name in event.attributes})
             if "FILTER" in event.attributes:
                 existing.filter = event.filter
             existing.loc = event.loc
+
+        if inherit_history:
+            history: Dict[str, Dict[str, AttrValue]] = {}
+            for event in sorted(merged, key=lambda item: _as_datetime(item.event_date)):
+                event_type = event.event_type.upper()
+                if event_type in _NON_COALESCING_EVENT_TYPES:
+                    continue
+
+                attributes = history.get(event_type, {}).copy()
+                attributes.update(event.attributes)
+                event.attributes = attributes
+                history[event_type] = {
+                    name: value
+                    for name, value in attributes.items()
+                    if name not in _NON_HISTORICAL_KEYWORD_ATTRS
+                }
+
         return merged
 
     def merge_well_blocks(blocks: List[WellBlock]) -> List[WellBlock]:
@@ -1429,7 +1474,7 @@ def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
                 merged_blocks.append(block)
             by_name[block.well_name].events.extend(block_events)
         for block in merged_blocks:
-            block.events = merge_events(block.events)
+            block.events = merge_events(block.events, inherit_history=True)
         return merged_blocks
 
     def merge_group_blocks(blocks: List[GroupBlock]) -> List[GroupBlock]:
@@ -1568,6 +1613,9 @@ def apply_orion_document(
     document = coalesce_orion_document(document)
     report = ApplyReport()
     report.report_dates = sorted({d.isoformat() for d in document.report_dates})
+    report.warnings.extend(
+        f"Line {warning.loc.line}: {warning.message}" for warning in document.warnings
+    )
 
     ctx = _prepare_filter_context(document, project, case)
 
@@ -2241,7 +2289,8 @@ def _cli(argv: Optional[List[str]] = None) -> int:
         f"{len(document.schedule_events)} schedule event(s), "
         f"{len(document.report_dates)} report date(s)"
     )
-    for warning in document.warnings:
+    normalized = coalesce_orion_document(document)
+    for warning in normalized.warnings:
         print(f"  Warning line {warning.loc.line}: {warning.message}")
     return 0
 
