@@ -94,10 +94,7 @@ void RigSoilResultCalculator::calculate( const RigEclipseResultAddress& resVarAd
                                                                timeStepIndex );
 
     // Early exit if none of SWAT or SGAS is present
-    if ( scalarIndexSWAT == cvf::UNDEFINED_SIZE_T && scalarIndexSGAS == cvf::UNDEFINED_SIZE_T )
-    {
-        return;
-    }
+    if ( scalarIndexSWAT == cvf::UNDEFINED_SIZE_T && scalarIndexSGAS == cvf::UNDEFINED_SIZE_T ) return;
 
     size_t soilResultValueCount = 0;
     size_t soilTimeStepCount    = 0;
@@ -124,8 +121,13 @@ void RigSoilResultCalculator::calculate( const RigEclipseResultAddress& resVarAd
         }
     }
 
+    // The result may be present in metadata but unavailable for this time step.
+    if ( soilResultValueCount == 0 ) return;
+
     // Make sure memory is allocated for the new SOIL results
     size_t soilResultScalarIndex = m_resultsData->findScalarResultIndexFromAddress( resVarAddr );
+    if ( soilResultScalarIndex == cvf::UNDEFINED_SIZE_T ) return;
+
     m_resultsData->m_cellScalarResults[soilResultScalarIndex].resize( soilTimeStepCount );
 
     if ( !m_resultsData->cellScalarResults( resVarAddr, timeStepIndex ).empty() )
@@ -143,28 +145,19 @@ void RigSoilResultCalculator::calculate( const RigEclipseResultAddress& resVarAd
     if ( scalarIndexSWAT != cvf::UNDEFINED_SIZE_T )
     {
         swatForTimeStep = &( m_resultsData->cellScalarResults( SWATAddr, timeStepIndex ) );
-        if ( swatForTimeStep->empty() )
-        {
-            swatForTimeStep = nullptr;
-        }
+        if ( swatForTimeStep->empty() ) swatForTimeStep = nullptr;
     }
 
     if ( scalarIndexSGAS != cvf::UNDEFINED_SIZE_T )
     {
         sgasForTimeStep = &( m_resultsData->cellScalarResults( SGASAddr, timeStepIndex ) );
-        if ( sgasForTimeStep->empty() )
-        {
-            sgasForTimeStep = nullptr;
-        }
+        if ( sgasForTimeStep->empty() ) sgasForTimeStep = nullptr;
     }
 
     if ( scalarIndexSSOL != cvf::UNDEFINED_SIZE_T )
     {
         ssolForTimeStep = &( m_resultsData->cellScalarResults( SSOLAddr, timeStepIndex ) );
-        if ( ssolForTimeStep->empty() )
-        {
-            ssolForTimeStep = nullptr;
-        }
+        if ( ssolForTimeStep->empty() ) ssolForTimeStep = nullptr;
     }
 
     std::vector<double>* soilForTimeStep = m_resultsData->modifiableCellScalarResult( resVarAddr, timeStepIndex );
