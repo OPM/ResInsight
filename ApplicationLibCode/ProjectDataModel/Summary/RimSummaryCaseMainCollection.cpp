@@ -755,7 +755,6 @@ std::vector<RimSummaryCase*>
                     }
 
                     newSumCase->setSummaryHeaderFileName( smspecFileName );
-                    project->assignCaseIdToSummaryCase( newSumCase );
 
                     sumCases.push_back( newSumCase );
                 }
@@ -771,6 +770,10 @@ std::vector<RimSummaryCase*>
 
         QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
     }
+
+    // Assign case ids for the complete set of new cases. The cases are not yet part of the project, so the ids must be
+    // assigned in one operation to make sure they are unique. See https://github.com/OPM/ResInsight/issues/14542
+    project->assignCaseIdsToSummaryCases( sumCases );
 
     RimSummaryCaseMainCollection::loadSummaryCaseData( sumCases, readStateFromFirstFile );
 

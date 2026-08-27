@@ -132,6 +132,7 @@ public:
     void assignViewIdToView( Rim3dView* view );
     void assignPlotIdToPlotWindow( RimPlotWindow* plotWindow );
     void assignCaseIdToSummaryCase( RimSummaryCase* summaryCase );
+    void assignCaseIdsToSummaryCases( const std::vector<RimSummaryCase*>& summaryCases );
     void assignIdToEnsemble( RimSummaryEnsemble* summaryCaseCollection );
 
     [[nodiscard]] std::vector<RimCase*> allGridCases() const;

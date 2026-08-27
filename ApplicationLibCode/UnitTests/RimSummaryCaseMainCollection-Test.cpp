@@ -4,6 +4,7 @@
 
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimMockSummaryCase.h"
+#include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCaseUpdateBatch.h"
 #include "RimSummaryEnsemble.h"
@@ -11,6 +12,7 @@
 #include "cafPdmPointer.h"
 
 #include <algorithm>
+#include <set>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -70,4 +72,29 @@ TEST( RimSummaryCaseMainCollection, RemoveCases_NoDanglingInCallerVector )
     delete deltaEnsemble;
     delete ensemble1;
     delete ensemble2;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Summary cases are created before they are added to the project. Case ids must be assigned for the
+/// complete set of new cases, as cases not yet part of the project are invisible to the id search.
+/// https://github.com/OPM/ResInsight/issues/14542
+//--------------------------------------------------------------------------------------------------
+TEST( RimSummaryCaseMainCollection, AssignUniqueCaseIdsToCasesNotInProject )
+{
+    std::vector<RimSummaryCase*> newCases = { createMockCase( 0 ), createMockCase( 1 ), createMockCase( 2 ) };
+
+    RimProject::current()->assignCaseIdsToSummaryCases( newCases );
+
+    std::set<int> caseIds;
+    for ( auto* summaryCase : newCases )
+    {
+        caseIds.insert( summaryCase->caseId() );
+    }
+
+    EXPECT_EQ( newCases.size(), caseIds.size() );
+
+    for ( auto* summaryCase : newCases )
+    {
+        delete summaryCase;
+    }
 }

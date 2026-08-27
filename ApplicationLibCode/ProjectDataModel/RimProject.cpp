@@ -555,15 +555,23 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
 //--------------------------------------------------------------------------------------------------
 void RimProject::assignCaseIdToSummaryCase( RimSummaryCase* summaryCase )
 {
-    if ( summaryCase )
-    {
-        int nextValidId = 1;
-        for ( RimSummaryCase* s : allSummaryCases() )
-        {
-            nextValidId = std::max( nextValidId, s->caseId() + 1 );
-        }
+    assignCaseIdsToSummaryCases( { summaryCase } );
+}
 
-        summaryCase->setCaseId( nextValidId );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignCaseIdsToSummaryCases( const std::vector<RimSummaryCase*>& summaryCases )
+{
+    int nextValidId = 1;
+    for ( RimSummaryCase* s : allSummaryCases() )
+    {
+        nextValidId = std::max( nextValidId, s->caseId() + 1 );
+    }
+
+    for ( RimSummaryCase* summaryCase : summaryCases )
+    {
+        if ( summaryCase ) summaryCase->setCaseId( nextValidId++ );
     }
 }
 
