@@ -82,8 +82,7 @@ void RigStatisticsMath::calculateBasicStatistics( const std::vector<double>& val
     double m_mean( HUGE_VAL );
     double m_dev( HUGE_VAL );
 
-    double m_sum      = 0.0;
-    double sumSquared = 0.0;
+    double m_sum = 0.0;
 
     size_t validValueCount = 0;
 
@@ -98,21 +97,34 @@ void RigStatisticsMath::calculateBasicStatistics( const std::vector<double>& val
         if ( val > m_max ) m_max = val;
 
         m_sum += val;
-        sumSquared += ( val * val );
     }
 
     if ( validValueCount > 0 )
     {
         m_mean = m_sum / validValueCount;
 
-        // http://en.wikipedia.org/wiki/Standard_deviation#Rapid_calculation_methods
-        // Running standard deviation
+        // Two-pass computation of the deviation. The single-pass sum-of-squares formula
+        // n*sum(x*x) - sum(x)*sum(x) subtracts two large and nearly equal numbers, and for values with a
+        // spread below the rounding noise floor the result can become negative, making sqrt() return NaN.
+        //
+        // Welford's online algorithm avoids the same cancellation in a single pass, but is only required when the
+        // values cannot be revisited. All values are available here, and centering on the exact mean is more
+        // accurate than Welford's running estimate.
+        //
+        // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm
 
-        double s0 = static_cast<double>( validValueCount );
-        double s1 = m_sum;
-        double s2 = sumSquared;
+        double sumSquaredDeviations = 0.0;
 
-        m_dev = sqrt( ( s0 * s2 ) - ( s1 * s1 ) ) / s0;
+        for ( size_t i = 0; i < values.size(); i++ )
+        {
+            double val = values[i];
+            if ( RigStatisticsTools::isInvalidNumber<double>( val ) ) continue;
+
+            double deviation = val - m_mean;
+            sumSquaredDeviations += deviation * deviation;
+        }
+
+        m_dev = sqrt( sumSquaredDeviations / validValueCount );
     }
 
     if ( min ) *min = m_min;
