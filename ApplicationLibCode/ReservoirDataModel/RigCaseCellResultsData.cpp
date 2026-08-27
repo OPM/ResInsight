@@ -1765,7 +1765,11 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
 
         if ( mustBeCalculated( soilScalarResultIndex ) )
         {
-            m_cellScalarResults[soilScalarResultIndex].resize( maxTimeStepCount() );
+            // A case in an ensemble can have fewer time steps than the case defining the time step axis
+            const size_t timeStepCount = maxTimeStepCount();
+            if ( timeStepIndex >= timeStepCount ) return cvf::UNDEFINED_SIZE_T;
+
+            m_cellScalarResults[soilScalarResultIndex].resize( timeStepCount );
 
             std::vector<double>& values = m_cellScalarResults[soilScalarResultIndex][timeStepIndex];
             if ( values.empty() )
@@ -1782,7 +1786,11 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
 
         if ( mustBeCalculated( sgasScalarResultIndex ) )
         {
-            m_cellScalarResults[sgasScalarResultIndex].resize( maxTimeStepCount() );
+            // A case in an ensemble can have fewer time steps than the case defining the time step axis
+            const size_t timeStepCount = maxTimeStepCount();
+            if ( timeStepIndex >= timeStepCount ) return cvf::UNDEFINED_SIZE_T;
+
+            m_cellScalarResults[sgasScalarResultIndex].resize( timeStepCount );
 
             if ( m_cellScalarResults[sgasScalarResultIndex][timeStepIndex].empty() )
             {
@@ -1817,6 +1825,9 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
 
         if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE && timeStepCount > 0 )
         {
+            // A case in an ensemble can have fewer time steps than the case defining the time step axis
+            if ( timeStepIndex >= timeStepCount ) return cvf::UNDEFINED_SIZE_T;
+
             m_cellScalarResults[scalarResultIndex].resize( timeStepCount );
 
             std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
