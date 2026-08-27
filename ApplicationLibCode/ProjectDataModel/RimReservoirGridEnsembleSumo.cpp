@@ -19,6 +19,7 @@
 #include "RimReservoirGridEnsembleSumo.h"
 
 #include "RiaLogging.h"
+#include "RiaStdStringTools.h"
 
 // The reference counted members of the base class need complete types here, so the destructor of this
 // class can be generated.
@@ -31,6 +32,9 @@
 #include "RimProject.h"
 #include "RimRoffCaseSumo.h"
 
+#include "cafPdmUiTreeAttributes.h"
+
+#include <algorithm>
 #include <format>
 
 CAF_PDM_SOURCE_INIT( RimReservoirGridEnsembleSumo, "RimReservoirGridEnsembleSumo" );
@@ -53,6 +57,10 @@ RimReservoirGridEnsembleSumo::RimReservoirGridEnsembleSumo()
 
     CAF_PDM_InitFieldNoDefault( &m_gridRealizations, "GridRealizations", "Grid Realizations" );
     m_gridRealizations.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_missingGridDataInfo, "MissingGridDataInfo", "Grid Data" );
+    m_missingGridDataInfo.registerGetMethod( this, &RimReservoirGridEnsembleSumo::missingGridDataText );
+    m_missingGridDataInfo.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitField( &m_gridDimensionsAreIdentical, "GridDimensionsAreIdentical", false, "Grid Dimensions Are Identical" );
     m_gridDimensionsAreIdentical.uiCapability()->setUiHidden( true );
@@ -90,6 +98,75 @@ void RimReservoirGridEnsembleSumo::setGridRealizations( const std::vector<int>& 
 std::vector<int> RimReservoirGridEnsembleSumo::gridRealizations() const
 {
     return m_gridRealizations();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RimReservoirGridEnsembleSumo::realizationsWithoutGridData() const
+{
+    // An empty list of grid realizations means they are not known, and then nothing can be reported as
+    // missing. RimSumoDataSource skips the same filtering in that situation.
+    if ( !m_sumoDataSource || m_gridRealizations().empty() ) return {};
+
+    const auto gridRealizations = m_gridRealizations();
+
+    std::vector<int> missing;
+    for ( const QString& realizationId : m_sumoDataSource->selectedRealizationIds() )
+    {
+        bool ok          = false;
+        int  realization = realizationId.toInt( &ok );
+        if ( !ok ) continue;
+
+        if ( std::ranges::find( gridRealizations, realization ) == gridRealizations.end() ) missing.push_back( realization );
+    }
+
+    std::ranges::sort( missing );
+    return missing;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimReservoirGridEnsembleSumo::missingGridDataText() const
+{
+    if ( !m_sumoDataSource ) return "No data source.";
+    if ( m_gridRealizations().empty() ) return "The realizations of the grid are not known.";
+
+    const auto missing = realizationsWithoutGridData();
+    if ( missing.empty() ) return "The grid exists for all realizations of the ensemble.";
+
+    return QString( "No grid data for %1 of the realizations of the ensemble: %2" )
+        .arg( missing.size() )
+        .arg( QString::fromStdString( RiaStdStringTools::formatRangeSelection( missing ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsembleSumo::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    RimReservoirGridEnsemble::defineUiOrdering( uiConfigName, uiOrdering );
+
+    uiOrdering.add( &m_missingGridDataInfo );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Flag an ensemble that does not cover all its realizations, so the missing ones are visible in the
+/// tree and not only in the property panel.
+//--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsembleSumo::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    RimReservoirGridEnsemble::defineObjectEditorAttribute( uiConfigName, attribute );
+
+    if ( realizationsWithoutGridData().empty() ) return;
+
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    {
+        auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
+        tag->icon = caf::IconProvider( ":/warning.svg" );
+        treeItemAttribute->tags.push_back( std::move( tag ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

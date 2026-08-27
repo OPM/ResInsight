@@ -18,6 +18,7 @@
 
 #include "RimSumoDataSource.h"
 
+#include "RiaLogging.h"
 #include "RiaStdStringTools.h"
 
 #include "Cloud/RimSummaryEnsembleSumo.h"
@@ -440,6 +441,19 @@ void RimSumoDataSource::updateGridCaseEnsembles()
             std::erase_if( realizationsToSelect,
                            [&gridRealizations]( int realization )
                            { return std::ranges::find( gridRealizations, realization ) == gridRealizations.end(); } );
+        }
+
+        // The selection can be changed after the ensemble was created, so report the realizations left out
+        // here as well, not only when the ensemble is created. The ensemble reports the current set in its
+        // property panel and marks itself in the tree, see RimReservoirGridEnsembleSumo.
+        if ( const auto missing = ensemble->realizationsWithoutGridData(); !missing.empty() )
+        {
+            RiaLogging::warning( QString( "Grid '%1' has no data for %2 of the selected realizations, no cases created "
+                                          "for them: %3" )
+                                     .arg( gridName )
+                                     .arg( missing.size() )
+                                     .arg( QString::fromStdString( RiaStdStringTools::formatRangeSelection( missing ) ) )
+                                     .toStdString() );
         }
 
         std::set<int> currentRealizations;

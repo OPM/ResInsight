@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaLogging.h"
+#include "RiaStdStringTools.h"
 
 #include "Cloud/RiaSumoConnector.h"
 
@@ -129,17 +130,58 @@ void RicCreateSumoReservoirGridEnsembleFeature::createGridEnsemble( RimSumoDataS
 
     const auto gridRealizations = gridInfo.realizationIds();
 
-    // A realization the grid does not exist for would only produce a case failing to load, so skip it here.
+    // The realizations selected on the data source are the realizations of the ensemble. That selection says
+    // nothing about which data types exist for them, so the grid can be missing for some. A realization the
+    // grid does not exist for would only produce a case failing to load, so skip it - but report it, so an
+    // ensemble holding fewer cases than the selection is visible rather than silent.
     std::vector<int> realizations;
+    std::vector<int> realizationsWithoutGrid;
     for ( const QString& realizationId : dataSource->selectedRealizationIds() )
     {
         bool ok          = false;
         int  realization = realizationId.toInt( &ok );
         if ( !ok ) continue;
 
-        if ( std::ranges::find( gridRealizations, realization ) == gridRealizations.end() ) continue;
+        if ( std::ranges::find( gridRealizations, realization ) == gridRealizations.end() )
+        {
+            realizationsWithoutGrid.push_back( realization );
+            continue;
+        }
 
         realizations.push_back( realization );
+    }
+
+    if ( !realizationsWithoutGrid.empty() )
+    {
+        std::ranges::sort( realizationsWithoutGrid );
+        RiaLogging::warning( QString( "Grid '%1' has no data for %2 of the selected realizations, no cases created for "
+                                      "them: %3" )
+                                 .arg( gridName )
+                                 .arg( realizationsWithoutGrid.size() )
+                                 .arg( QString::fromStdString( RiaStdStringTools::formatRangeSelection( realizationsWithoutGrid ) ) )
+                                 .toStdString() );
+    }
+
+    // The realizations of the data source are the realizations of the ensemble, so the grid should not report
+    // anything outside them. Leave a trace if it does, rather than reporting an inconsistency the user cannot
+    // act on. realizations holds exactly the grid realizations that are also selected, so a grid realization
+    // missing from it is one the ensemble does not have.
+    std::vector<int> realizationsNotInEnsemble;
+    for ( int gridRealization : gridRealizations )
+    {
+        if ( std::ranges::find( realizations, gridRealization ) == realizations.end() )
+        {
+            realizationsNotInEnsemble.push_back( gridRealization );
+        }
+    }
+
+    if ( !realizationsNotInEnsemble.empty() )
+    {
+        RiaLogging::debug( QString( "Grid '%1' reports %2 realization(s) that are not selected realizations of the ensemble: %3" )
+                               .arg( gridName )
+                               .arg( realizationsNotInEnsemble.size() )
+                               .arg( QString::fromStdString( RiaStdStringTools::formatRangeSelection( realizationsNotInEnsemble ) ) )
+                               .toStdString() );
     }
 
     if ( realizations.empty() )
