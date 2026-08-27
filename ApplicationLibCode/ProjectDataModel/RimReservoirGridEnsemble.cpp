@@ -934,6 +934,17 @@ void RimReservoirGridEnsemble::loadGridDataFromFiles()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::reloadMetaDataIfNeeded()
+{
+    if ( gridMode() == GridModeType::INDIVIDUAL_GRIDS ) return;
+
+    m_mainGrid = nullptr;
+    loadGridDataFromFiles();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimReservoirGridEnsemble::updateGridModeToolTip()
 {
     const bool individualGrids = ( gridMode() == GridModeType::INDIVIDUAL_GRIDS );

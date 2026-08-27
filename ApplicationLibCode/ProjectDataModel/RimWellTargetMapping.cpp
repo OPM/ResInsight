@@ -447,6 +447,8 @@ void RimWellTargetMapping::generateEnsembleStatistics()
     updateConnectedEditors();
     m_ensembleStatisticsCase->updateConnectedEditors();
 
+    ensemble->reloadMetaDataIfNeeded();
+
     if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
     {
         RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );

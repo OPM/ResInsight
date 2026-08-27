@@ -84,6 +84,7 @@ public:
     // Deferred loading control
     void loadGridDataFromFiles();
     bool isGridDataLoaded() const;
+    void reloadMetaDataIfNeeded();
 
     // Helper methods
     bool         hasSharedGrid() const;

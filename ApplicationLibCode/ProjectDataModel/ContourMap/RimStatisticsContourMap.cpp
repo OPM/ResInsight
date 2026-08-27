@@ -614,6 +614,11 @@ void RimStatisticsContourMap::onComputeStatisticsClicked()
 void RimStatisticsContourMap::computeStatistics()
 {
     computeStatisticsForMaps( { this } );
+
+    if ( auto ensemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>() )
+    {
+        ensemble->reloadMetaDataIfNeeded();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -722,12 +727,7 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
         RiaLogging::info( std::format( "Computing statistics for {} ensemble contour map(s)", contexts.size() ) );
 
         // All maps belong to the same ensemble, so the realization cases are shared
-        auto cases        = contexts.front().map->ensembleCases();
-        auto casesInViews = contexts.front().map->ensembleCasesInViews();
-
-        std::set<RimEclipseCase*> primaryCases;
-        for ( const auto& ctx : contexts )
-            primaryCases.insert( ctx.map->eclipseCase() );
+        auto cases = contexts.front().map->ensembleCases();
 
         const size_t      nCases = cases.size();
         caf::ProgressInfo progInfo( nCases, QString( "Reading Eclipse Ensemble" ) );
@@ -738,6 +738,8 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
         for ( RimEclipseCase* eCase : cases )
         {
             auto task = progInfo.task( QString( "Processing Case %1 of %2" ).arg( i++ ).arg( nCases ) );
+
+            bool closeCase = !eCase->isReservoirCaseOpen();
 
             RifReaderSettings oldSettings = eCase->readerSettings();
             eCase->setReaderSettings( readerSettings );
@@ -796,7 +798,7 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
             // Release the grid data for cases that were opened only to compute statistics. A case is kept open if it has
             // its own views, if it is the primary case of one of the contour maps, or if it is displayed in one of the
             // ensemble views.
-            if ( eCase->views().empty() && !primaryCases.contains( eCase ) && !casesInViews.contains( eCase ) )
+            if ( closeCase )
             {
                 eCase->closeReservoirCase();
             }
@@ -981,6 +983,12 @@ void RimStatisticsContourMap::ensureResultsComputed()
     }
 
     computeStatisticsForMaps( maps );
+
+    // contour map calculations on shared grids clears the ensemble meta data, reload it
+    if ( auto ensemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>() )
+    {
+        ensemble->reloadMetaDataIfNeeded();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
