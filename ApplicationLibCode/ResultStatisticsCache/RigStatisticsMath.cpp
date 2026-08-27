@@ -26,7 +26,6 @@
 #include <cassert>
 #include <cmath>
 #include <expected>
-#include <numeric>
 
 namespace
 {
@@ -443,19 +442,21 @@ std::expected<std::vector<double>, std::string>
 //--------------------------------------------------------------------------------------------------
 double RigStatisticsMath::calculateMean( const std::vector<double>& values )
 {
-    std::vector<double> validValues = values;
-    validValues.erase( std::remove_if( validValues.begin(),
-                                       validValues.end(),
-                                       []( double x ) { return !RigStatisticsTools::isValidNumber( x ); } ),
-                       validValues.end() );
+    double valueSum        = 0.0;
+    size_t validValueCount = 0;
 
-    if ( !validValues.empty() )
+    for ( size_t i = 0; i < values.size(); i++ )
     {
-        double valueSum = std::accumulate( validValues.begin(), validValues.end(), 0.0 );
-        return valueSum / validValues.size();
+        double val = values[i];
+        if ( RigStatisticsTools::isInvalidNumber<double>( val ) ) continue;
+
+        valueSum += val;
+        validValueCount++;
     }
 
-    return HUGE_VAL;
+    if ( validValueCount == 0 ) return HUGE_VAL;
+
+    return valueSum / validValueCount;
 }
 
 //--------------------------------------------------------------------------------------------------
