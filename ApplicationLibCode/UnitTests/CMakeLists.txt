@@ -137,6 +137,8 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/opm-import-well-data-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifGridCalculationIO-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculation-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationIO-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEmReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFormationNames-Test.cpp

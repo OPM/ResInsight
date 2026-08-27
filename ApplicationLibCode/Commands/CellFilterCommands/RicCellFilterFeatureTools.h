@@ -28,6 +28,7 @@
 #include "RimEclipseCase.h"
 #include "RimFilterInViewCollection.h"
 #include "RimGridView.h"
+#include "RimReservoirGridEnsemble.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -84,10 +85,10 @@ inline RimCellFilterCollection* resolveTargetCellFilterCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Resolve the case-level RimDataFilterCollection to target from the current selection: either the
-/// data-filter collection node itself, or a selected RimEclipseCase (whose "Data Filters" node is
-/// hidden while empty, so the case node is right-clicked to create the first filter). Returns
-/// nullptr if neither is selected.
+/// Resolve the RimDataFilterCollection to target from the current selection: either the data-filter
+/// collection node itself, or a selected RimEclipseCase or RimReservoirGridEnsemble (whose "Data
+/// Filters" node is hidden while empty, so the owner node is right-clicked to create the first
+/// filter). Returns nullptr if none is selected.
 //--------------------------------------------------------------------------------------------------
 inline RimDataFilterCollection* selectedDataFilterCollection()
 {
@@ -96,6 +97,9 @@ inline RimDataFilterCollection* selectedDataFilterCollection()
 
     auto cases = caf::selectedObjectsByTypeStrict<RimEclipseCase*>();
     if ( !cases.empty() && cases.front() ) return cases.front()->dataFilterCollection();
+
+    auto ensembles = caf::selectedObjectsByTypeStrict<RimReservoirGridEnsemble*>();
+    if ( !ensembles.empty() && ensembles.front() ) return ensembles.front()->dataFilterCollection();
 
     return nullptr;
 }
