@@ -58,15 +58,12 @@ bool areValidPercentiles( const std::vector<double>& percentiles )
 ///   mean = sum(x) / n
 ///
 ///   Standard deviation (population):
-///   stdev = sqrt((n * sum(x^2) - (sum(x))^2)) / n
-///
-///   Which is equivalent to: sqrt(sum((x - mean)^2) / n)
+///   stdev = sqrt(sum((x - mean)^2) / n)
 ///
 ///   range = max - min
 ///
 /// References:
 ///   Standard deviation: https://en.wikipedia.org/wiki/Standard_deviation
-///   Rapid calculation method: https://en.wikipedia.org/wiki/Standard_deviation#Rapid_calculation_methods
 //--------------------------------------------------------------------------------------------------
 
 void RigStatisticsMath::calculateBasicStatistics( const std::vector<double>& values,
