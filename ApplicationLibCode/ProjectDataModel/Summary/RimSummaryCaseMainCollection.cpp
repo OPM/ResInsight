@@ -27,12 +27,12 @@
 #include "RiaQStringFormatter.h"
 #include "Summary/RiaSummaryTools.h"
 
+#include "Cloud/RimSummaryCaseSumo.h"
 #include "RifCaseRealizationParametersReader.h"
 #include "RifEclipseSummaryTools.h"
 #include "RifOpmCommonSummary.h"
 #include "RifOpmSummaryTools.h"
 #include "RifSummaryCaseRestartSelector.h"
-#include "Sumo/RimSummaryCaseSumo.h"
 
 #ifdef USE_HDF5
 #include "RifHdf5SummaryExporter.h"

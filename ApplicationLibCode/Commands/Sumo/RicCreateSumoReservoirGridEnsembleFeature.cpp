@@ -26,6 +26,7 @@
 
 #include "RicNewViewFeature.h"
 
+#include "Cloud/RimSumoDataSource.h"
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
@@ -33,7 +34,6 @@
 #include "RimProject.h"
 #include "RimReservoirGridEnsembleSumo.h"
 #include "RimViewNameConfig.h"
-#include "Sumo/RimSumoDataSource.h"
 
 #include "cafSelectionManagerTools.h"
 

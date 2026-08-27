@@ -26,6 +26,7 @@
 
 #include "RiuSummaryCurveDefinitionKeywords.h"
 
+#include "Cloud/RimSummaryEnsembleSumo.h"
 #include "RimDeltaSummaryEnsemble.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -44,7 +45,6 @@
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "Sumo/RimSummaryEnsembleSumo.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"

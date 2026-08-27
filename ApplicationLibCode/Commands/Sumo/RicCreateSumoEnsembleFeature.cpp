@@ -21,7 +21,7 @@
 #include "RiaDefines.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
-#include "Sumo/RimSumoDataSource.h"
+#include "Cloud/RimSumoDataSource.h"
 
 #include "cafSelectionManagerTools.h"
 

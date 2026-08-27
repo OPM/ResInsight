@@ -30,13 +30,13 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
+#include "Cloud/RimSumoDataSource.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCaseSumo.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSumoDataSource.h"
 
 #include "RiuPlotCurve.h"
 

@@ -179,15 +179,14 @@ protected:
     RimEclipseViewCollection* globalViewCollection() const;
     void addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const;
 
+    const RigFormationNames* effectiveFormationNames() const;
+
 private:
     void                                   createTimeStepFormatString();
     std::vector<Rim3dView*>                allSpecialViews() const override;
     std::vector<RimEclipseContourMapView*> contourMapViews() const;
 
     void buildResultChildNodes();
-
-protected:
-    const RigFormationNames* effectiveFormationNames() const;
 
 protected:
     caf::PdmField<bool>                                    m_flipXAxis;

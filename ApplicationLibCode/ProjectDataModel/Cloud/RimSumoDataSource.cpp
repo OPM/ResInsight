@@ -20,13 +20,13 @@
 
 #include "RiaStdStringTools.h"
 
+#include "Cloud/RimSummaryEnsembleSumo.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseView.h"
 #include "RimEclipseViewCollection.h"
 #include "RimProject.h"
 #include "RimReservoirGridEnsembleSumo.h"
 #include "RimRoffCaseSumo.h"
-#include "RimSummaryEnsembleSumo.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmPointer.h"
@@ -55,6 +55,7 @@ RimSumoDataSource::RimSumoDataSource()
 
     CAF_PDM_InitFieldNoDefault( &m_availableRealizationIds, "RealizationIds", "Available Realization Ids" );
     m_availableRealizationIds.uiCapability()->setUiHidden( true );
+    m_availableRealizationIds.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_realizationFilter,
                        "RealizationFilter",
@@ -70,9 +71,11 @@ RimSumoDataSource::RimSumoDataSource()
 
     CAF_PDM_InitFieldNoDefault( &m_vectorNames, "VectorNames", "Vector Names" );
     m_vectorNames.uiCapability()->setUiHidden( true );
+    m_vectorNames.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_gridNames, "GridNames", "Grid Names" );
     m_gridNames.uiCapability()->setUiHidden( true );
+    m_gridNames.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_selectedGridName, "GridName", "Grid Name" );
 
