@@ -20,6 +20,7 @@
 
 #include "RiaEclipseFileNameTools.h"
 #include "RiaFractureDefines.h"
+#include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
@@ -48,10 +49,12 @@
 #include "RimSummaryCaseMainCollection.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuMainWindow.h"
 
 #include "cafAssert.h"
 
 #include <QFileInfo>
+#include <QTimer>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -229,6 +232,8 @@ bool RimReloadCaseTools::openOrImportGridModelFromSummaryCase( const RimSummaryC
         {
             RiaLogging::info( std::format( "Imported {}", candidateGridFileName ) );
 
+            activateFirstView( RimProject::current()->eclipseCaseFromCaseId( id ) );
+
             return true;
         }
     }
@@ -254,15 +259,35 @@ bool RimReloadCaseTools::findGridModelAndActivateFirstView( const RimSummaryCase
     auto gridCase = RimReloadCaseTools::gridModelFromSummaryCase( summaryCase );
     if ( gridCase )
     {
-        if ( !gridCase->gridViews().empty() )
-        {
-            RicShowMainWindowFeature::showMainWindow();
-
-            Riu3DMainWindowTools::selectAsCurrentItem( gridCase->gridViews().front() );
-        }
+        activateFirstView( gridCase );
 
         return true;
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Bring the 3D main window to front, and make the first view of the given case the active view
+//--------------------------------------------------------------------------------------------------
+void RimReloadCaseTools::activateFirstView( RimEclipseCase* eclipseCase )
+{
+    if ( !eclipseCase || eclipseCase->gridViews().empty() ) return;
+
+    RicShowMainWindowFeature::showMainWindow();
+
+    Riu3DMainWindowTools::selectAsCurrentItem( eclipseCase->gridViews().front() );
+
+    if ( auto mainWindow = RiaGuiApplication::isRunning() ? RiuMainWindow::instance() : nullptr )
+    {
+        // Defer the raise until the already queued events have been processed. Activating the window directly ends up
+        // with the plot window on top.
+        QTimer::singleShot( 0,
+                            mainWindow,
+                            [mainWindow]()
+                            {
+                                mainWindow->raise();
+                                mainWindow->activateWindow();
+                            } );
+    }
 }
