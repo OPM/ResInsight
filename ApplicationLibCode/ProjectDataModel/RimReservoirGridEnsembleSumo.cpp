@@ -25,11 +25,11 @@
 #include "RigActiveCellInfo.h"
 #include "RigMainGrid.h"
 
+#include "Cloud/RimSumoDataSource.h"
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimProject.h"
 #include "RimRoffCaseSumo.h"
-#include "Sumo/RimSumoDataSource.h"
 
 #include <format>
 

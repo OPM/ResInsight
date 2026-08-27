@@ -23,11 +23,11 @@
 #include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
+#include "Cloud/RimSummaryEnsembleSumo.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "Sumo/RimSummaryEnsembleSumo.h"
-#include "Sumo/RimSumoDataSource.h"
+#include "RimSumoDataSource.h"
 
 #include "RiuPlotMainWindowTools.h"
 
