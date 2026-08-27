@@ -62,7 +62,9 @@
 #include "cafProgressInfo.h"
 
 #include <QCryptographicHash>
+#include <QDateTime>
 #include <QDir>
+#include <QFileInfo>
 #include <QRegularExpression>
 #include <QUuid>
 
@@ -216,6 +218,9 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 
     CAF_PDM_InitFieldNoDefault( &m_cacheExpandedBoundingBox, "CacheExpandedBoundingBox", "Cache Expanded Bounding Box" );
     m_cacheExpandedBoundingBox.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_cacheMapSize, "CacheMapSize", "Cache Map Size" );
+    m_cacheMapSize.uiCapability()->setUiHidden( true );
 
     setDeletable( true );
 }
@@ -979,7 +984,7 @@ void RimStatisticsContourMap::ensureResultsComputed()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Hash of all settings that affect the computed statistics. Cached results are only reused when
+/// Hash of all settings and input grid files that affect the computed statistics. Cached results are only reused when
 /// the stored key matches the key computed from the current settings.
 //--------------------------------------------------------------------------------------------------
 QString RimStatisticsContourMap::computeCacheValidityKey() const
@@ -1014,10 +1019,24 @@ QString RimStatisticsContourMap::computeCacheValidityKey() const
             parts << QString( "%1,%2,%3" ).arg( point.x(), 0, 'f', 3 ).arg( point.y(), 0, 'f', 3 ).arg( point.z(), 0, 'f', 3 );
     }
 
-    if ( auto primaryCase = eclipseCase() ) parts << primaryCase->gridFileName();
+    // Identify a grid file by path, size and modification time, so that the cache is invalidated both when the
+    // ensemble is replaced or its cases are added/removed, and when a grid file is overwritten in place
+    auto gridFileFingerprint = []( const RimEclipseCase* gridCase ) -> QString
+    {
+        const QString   gridFileName = gridCase->gridFileName();
+        const QFileInfo fileInfo( gridFileName );
+        if ( !fileInfo.exists() ) return gridFileName;
 
-    for ( RimEclipseCase* eCase : ensembleCases() )
-        parts << eCase->gridFileName();
+        return QString( "%1,%2,%3" ).arg( gridFileName ).arg( fileInfo.size() ).arg( fileInfo.lastModified().toMSecsSinceEpoch() );
+    };
+
+    // Label and count the two sets of cases, so that a primary case can not be mistaken for the first ensemble case
+    parts << "primaryCase" << ( eclipseCase() != nullptr ? gridFileFingerprint( eclipseCase() ) : QString() );
+
+    const std::vector<RimEclipseCase*> cases = ensembleCases();
+    parts << "ensembleCases" << QString::number( cases.size() );
+    for ( const RimEclipseCase* eCase : cases )
+        parts << gridFileFingerprint( eCase );
 
     const QByteArray hash = QCryptographicHash::hash( parts.join( ";" ).toUtf8(), QCryptographicHash::Md5 );
     return QString::fromLatin1( hash.toHex() );
@@ -1033,15 +1052,23 @@ bool RimStatisticsContourMap::loadCachedResults()
     if ( m_cacheSampleSpacing() <= 0.0 || m_cacheOriginalBoundingBox().size() != 6 || m_cacheExpandedBoundingBox().size() != 6 )
         return false;
 
+    // The map size is stored explicitly, as recomputing it from the extent of the expanded bounding box is sensitive to
+    // the limited precision of the doubles in the project file
+    if ( m_cacheMapSize().size() != 2 || m_cacheMapSize()[0] <= 0 || m_cacheMapSize()[1] <= 0 ) return false;
+
     const QString expectedKey = computeCacheValidityKey();
     if ( m_cacheValidityKey().isEmpty() || m_cacheValidityKey() != expectedKey ) return false;
 
     auto toBoundingBox = []( const std::vector<double>& c )
     { return cvf::BoundingBox( cvf::Vec3d( c[0], c[1], c[2] ), cvf::Vec3d( c[3], c[4], c[5] ) ); };
 
-    auto contourMapGrid = std::make_unique<RigContourMapGrid>( toBoundingBox( m_cacheOriginalBoundingBox() ),
-                                                               toBoundingBox( m_cacheExpandedBoundingBox() ),
-                                                               m_cacheSampleSpacing() );
+    const cvf::BoundingBox originalBoundingBox = toBoundingBox( m_cacheOriginalBoundingBox() );
+    const cvf::BoundingBox expandedBoundingBox = toBoundingBox( m_cacheExpandedBoundingBox() );
+
+    const cvf::Vec2ui storedMapSize( static_cast<cvf::uint>( m_cacheMapSize()[0] ), static_cast<cvf::uint>( m_cacheMapSize()[1] ) );
+
+    auto contourMapGrid =
+        std::make_unique<RigContourMapGrid>( originalBoundingBox, expandedBoundingBox, m_cacheSampleSpacing(), storedMapSize );
 
     const cvf::Vec2ui& mapSize = contourMapGrid->mapSize();
 
@@ -1184,6 +1211,8 @@ void RimStatisticsContourMap::setupBeforeSave()
         m_cacheSampleSpacing       = m_contourMapGrid->sampleSpacing();
         m_cacheOriginalBoundingBox = boundingBoxCoords( m_contourMapGrid->originalBoundingBox() );
         m_cacheExpandedBoundingBox = boundingBoxCoords( m_contourMapGrid->expandedBoundingBox() );
+        m_cacheMapSize =
+            std::vector<int>{ static_cast<int>( m_contourMapGrid->mapSize().x() ), static_cast<int>( m_contourMapGrid->mapSize().y() ) };
     }
     else
     {
@@ -1242,6 +1271,7 @@ void RimStatisticsContourMap::clearCacheFields()
     m_cacheSampleSpacing       = 0.0;
     m_cacheOriginalBoundingBox = std::vector<double>();
     m_cacheExpandedBoundingBox = std::vector<double>();
+    m_cacheMapSize             = std::vector<int>();
 }
 
 //--------------------------------------------------------------------------------------------------
