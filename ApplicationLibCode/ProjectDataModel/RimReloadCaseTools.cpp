@@ -53,8 +53,8 @@
 
 #include "cafAssert.h"
 
-#include <QApplication>
 #include <QFileInfo>
+#include <QTimer>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -278,11 +278,16 @@ void RimReloadCaseTools::activateFirstView( RimEclipseCase* eclipseCase )
 
     Riu3DMainWindowTools::selectAsCurrentItem( eclipseCase->gridViews().front() );
 
-    if ( RiaGuiApplication::isRunning() && RiuMainWindow::instance() )
+    if ( auto mainWindow = RiaGuiApplication::isRunning() ? RiuMainWindow::instance() : nullptr )
     {
-        // Call process events to clear the queue. This makes sure that we are able to raise the 3D window on top of the
-        // plot window. Otherwise the event processing ends up with the plot window on top.
-        QApplication::processEvents();
-        RiuMainWindow::instance()->activateWindow();
+        // Defer the raise until the already queued events have been processed. Activating the window directly ends up
+        // with the plot window on top.
+        QTimer::singleShot( 0,
+                            mainWindow,
+                            [mainWindow]()
+                            {
+                                mainWindow->raise();
+                                mainWindow->activateWindow();
+                            } );
     }
 }
