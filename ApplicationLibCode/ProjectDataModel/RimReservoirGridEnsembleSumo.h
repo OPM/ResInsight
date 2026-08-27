@@ -21,6 +21,7 @@
 #include "RimReservoirGridEnsemble.h"
 
 #include "cafPdmField.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 #include <QString>
@@ -62,6 +63,12 @@ public:
     void             setGridRealizations( const std::vector<int>& realizations );
     std::vector<int> gridRealizations() const;
 
+    // The realizations of the data source this grid has no data for, sorted. The data source decides which
+    // realizations the ensemble has, without regard for which data types exist for them, so a grid can be
+    // missing for some of them. Computed on demand: the realization selection can change after the ensemble
+    // is created, see RimSumoDataSource.
+    std::vector<int> realizationsWithoutGridData() const;
+
     QString sumoGridName() const;
 
     void createGridCasesFromSumoSource();
@@ -70,10 +77,16 @@ public:
     void setDoComputeMobileVolumeWeightedMean( bool enable ) override;
 
 protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
     void createCaseObjects() override;
     bool detectGridDimensionEquality() override;
     void loadGridsInSharedMode() override;
     void setupBeforeSave() override;
+
+private:
+    QString missingGridDataText() const;
 
 private:
     caf::PdmPtrField<RimSumoDataSource*> m_sumoDataSource;
@@ -84,6 +97,10 @@ private:
     caf::PdmField<std::vector<int>> m_realizations;
 
     caf::PdmField<std::vector<int>> m_gridRealizations;
-    caf::PdmField<bool>             m_gridDimensionsAreIdentical;
-    caf::PdmField<bool>             m_doComputeMobileVolumeWeightedMean;
+
+    // Reports the realizations without grid data. A proxy field, so it follows a changed realization
+    // selection instead of going stale.
+    caf::PdmProxyValueField<QString> m_missingGridDataInfo;
+    caf::PdmField<bool>              m_gridDimensionsAreIdentical;
+    caf::PdmField<bool>              m_doComputeMobileVolumeWeightedMean;
 };
