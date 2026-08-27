@@ -26,6 +26,7 @@
 #include "QElapsedTimer"
 
 #include <cmath>
+#include <limits>
 #include <numeric>
 
 //--------------------------------------------------------------------------------------------------
@@ -61,6 +62,25 @@ TEST( RigStatisticsMath, BasicTest )
     EXPECT_DOUBLE_EQ( 198022.7472017490000, range );
     EXPECT_DOUBLE_EQ( 16313.8051759152000, mean );
     EXPECT_DOUBLE_EQ( 66104.391542887200, stdev );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// All outputs must report as undefined when the input holds no valid values. The sum in particular
+/// must not report the zero it was accumulated from, as that reads as a computed value.
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, NoValidValues )
+{
+    std::vector<double> values = { HUGE_VAL, -HUGE_VAL, std::numeric_limits<double>::quiet_NaN() };
+
+    double min, max, sum, range, mean, stdev;
+    RigStatisticsMath::calculateBasicStatistics( values, &min, &max, &sum, &range, &mean, &stdev );
+
+    EXPECT_FALSE( RigStatisticsTools::isValidNumber( min ) );
+    EXPECT_FALSE( RigStatisticsTools::isValidNumber( max ) );
+    EXPECT_FALSE( RigStatisticsTools::isValidNumber( sum ) );
+    EXPECT_FALSE( RigStatisticsTools::isValidNumber( range ) );
+    EXPECT_FALSE( RigStatisticsTools::isValidNumber( mean ) );
+    EXPECT_FALSE( RigStatisticsTools::isValidNumber( stdev ) );
 }
 
 //--------------------------------------------------------------------------------------------------

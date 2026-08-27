@@ -126,7 +126,8 @@ void RigStatisticsMath::calculateBasicStatistics( const std::vector<double>& val
 
     if ( min ) *min = m_min;
     if ( max ) *max = m_max;
-    if ( sum ) *sum = m_sum;
+    // Report the sum as undefined when there is nothing to sum, so it is not mistaken for a computed zero
+    if ( sum ) *sum = ( validValueCount > 0 ) ? m_sum : HUGE_VAL;
     if ( range ) *range = m_max - m_min;
 
     if ( mean ) *mean = m_mean;
