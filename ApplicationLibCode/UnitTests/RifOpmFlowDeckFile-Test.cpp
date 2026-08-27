@@ -657,6 +657,102 @@ TEST( RifOpmFlowDeckFileTest, SaveDeckLimitsLineWidthTo132Characters )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Issue #14621: include files containing only INCLUDE statements (e.g. a wrapper collecting many
+/// lift curve files) were dropped when saving the deck, and all their child includes were written
+/// directly into the main .DATA file. Verify that the include hierarchy is preserved.
+//--------------------------------------------------------------------------------------------------
+TEST( RifOpmFlowDeckFileTest, SaveDeckPreservesIncludeOnlyWrapperFiles )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+    ASSERT_TRUE( QDir().mkpath( tempDir.filePath( "include" ) ) );
+
+    auto writeTextFile = []( const QString& fileName, const QString& text )
+    {
+        QFile file( fileName );
+        ASSERT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        QTextStream out( &file );
+        out << text;
+    };
+
+    auto vfpprodText = []( int tableNumber )
+    {
+        QString text;
+        text += "VFPPROD\n";
+        text += QString( " %1 2000.0 'LIQ' 'WCT' 'GOR' 'THP' ' ' 'METRIC' 'BHP' /\n" ).arg( tableNumber );
+        text += " 100.0 /\n";
+        text += " 10.0 /\n";
+        text += " 0.0 /\n";
+        text += " 0.0 /\n";
+        text += " 0.0 /\n";
+        text += " 1 1 1 1 200.0 /\n";
+        return text;
+    };
+
+    // Main deck includes a wrapper file containing only INCLUDE statements. The wrapper includes
+    // one lift curve file directly, and a nested wrapper which includes a second lift curve file.
+    QString deckText;
+    deckText += "RUNSPEC\n";
+    deckText += "DIMENS\n 2 2 2 /\n";
+    deckText += "OIL\nWATER\nGAS\nMETRIC\n";
+    deckText += "START\n 01 'JAN' 2000 /\n";
+    deckText += "GRID\n";
+    deckText += "DX\n8*100.0 /\n";
+    deckText += "DY\n8*100.0 /\n";
+    deckText += "DZ\n8*10.0 /\n";
+    deckText += "TOPS\n4*2000.0 /\n";
+    deckText += "PORO\n8*0.2 /\n";
+    deckText += "PERMX\n8*100.0 /\n";
+    deckText += "SCHEDULE\n";
+    deckText += "INCLUDE\n 'include/lift_curves.inc' /\n";
+    deckText += "END\n";
+    writeTextFile( tempDir.filePath( "WRAPPER_INCLUDES.DATA" ), deckText );
+
+    QString wrapperText;
+    wrapperText += "INCLUDE\n 'include/vfp_curve_1.ecl' /\n";
+    wrapperText += "INCLUDE\n 'include/more_curves.inc' /\n";
+    writeTextFile( tempDir.filePath( "include/lift_curves.inc" ), wrapperText );
+
+    writeTextFile( tempDir.filePath( "include/more_curves.inc" ), "INCLUDE\n 'include/vfp_curve_2.ecl' /\n" );
+    writeTextFile( tempDir.filePath( "include/vfp_curve_1.ecl" ), vfpprodText( 1 ) );
+    writeTextFile( tempDir.filePath( "include/vfp_curve_2.ecl" ), vfpprodText( 2 ) );
+
+    RifOpmFlowDeckFile deckFile;
+    ASSERT_TRUE( deckFile.loadDeck( tempDir.filePath( "WRAPPER_INCLUDES.DATA" ).toStdString() ).has_value() );
+
+    QString outDir = tempDir.filePath( "out" );
+    ASSERT_TRUE( QDir().mkpath( outDir ) );
+    ASSERT_TRUE( deckFile.saveDeck( outDir.toStdString(), "WRAPPER_INCLUDES.DATA" ) );
+
+    auto readTextFile = []( const QString& fileName )
+    {
+        QFile file( fileName );
+        EXPECT_TRUE( file.open( QIODevice::ReadOnly | QIODevice::Text ) ) << "Missing file: " << fileName.toStdString();
+        return QTextStream( &file ).readAll();
+    };
+
+    // The main .DATA file must reference the wrapper only, not the individual lift curve files
+    QString mainText = readTextFile( outDir + "/WRAPPER_INCLUDES.DATA" );
+    EXPECT_TRUE( mainText.contains( "include/lift_curves.inc" ) );
+    EXPECT_FALSE( mainText.contains( "vfp_curve" ) );
+    EXPECT_FALSE( mainText.contains( "more_curves" ) );
+
+    // The wrapper files must be recreated with their child includes
+    QString wrapperOutText = readTextFile( outDir + "/include/lift_curves.inc" );
+    EXPECT_TRUE( wrapperOutText.contains( "include/vfp_curve_1.ecl" ) );
+    EXPECT_TRUE( wrapperOutText.contains( "include/more_curves.inc" ) );
+
+    QString nestedWrapperOutText = readTextFile( outDir + "/include/more_curves.inc" );
+    EXPECT_TRUE( nestedWrapperOutText.contains( "include/vfp_curve_2.ecl" ) );
+
+    // The exported model must still be parseable, with both lift curves present
+    RifOpmFlowDeckFile reloadedDeckFile;
+    ASSERT_TRUE( reloadedDeckFile.loadDeck( ( outDir + "/WRAPPER_INCLUDES.DATA" ).toStdString() ).has_value() );
+    auto keywords = reloadedDeckFile.keywords( false );
+    EXPECT_EQ( 2, std::count( keywords.begin(), keywords.end(), std::string( "VFPPROD" ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( RimKeywordFactoryTest, DeckKeywordToAlignedStringShortensLongHeaders )
