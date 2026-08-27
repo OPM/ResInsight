@@ -33,6 +33,13 @@ public:
     RigContourMapGrid( const cvf::BoundingBox& originalBoundingBox, double sampleSpacing );
     RigContourMapGrid( const cvf::BoundingBox& originalBoundingBox, const cvf::BoundingBox& expandedBoundingBox, double sampleSpacing );
 
+    // Use an explicit map size instead of computing it from the extent of the expanded bounding box. Intended for
+    // restoring a sample grid from a project file, where the bounding box is stored with limited precision.
+    RigContourMapGrid( const cvf::BoundingBox& originalBoundingBox,
+                       const cvf::BoundingBox& expandedBoundingBox,
+                       double                  sampleSpacing,
+                       const cvf::Vec2ui&      mapSize );
+
     // Copy constructor
     RigContourMapGrid( const RigContourMapGrid& other )
         : m_sampleSpacing( other.m_sampleSpacing )

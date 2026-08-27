@@ -165,6 +165,7 @@ private:
     caf::PdmField<double>              m_cacheSampleSpacing;
     caf::PdmField<std::vector<double>> m_cacheOriginalBoundingBox;
     caf::PdmField<std::vector<double>> m_cacheExpandedBoundingBox;
+    caf::PdmField<std::vector<int>>    m_cacheMapSize;
 
     std::unique_ptr<RigContourMapGrid>                              m_contourMapGrid;
     std::map<size_t, std::map<StatisticsType, std::vector<double>>> m_timeResults;

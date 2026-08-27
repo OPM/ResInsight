@@ -61,6 +61,22 @@ RigContourMapGrid::RigContourMapGrid( const cvf::BoundingBox& originalBoundingBo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigContourMapGrid::RigContourMapGrid( const cvf::BoundingBox& originalBoundingBox,
+                                      const cvf::BoundingBox& expandedBoundingBox,
+                                      double                  sampleSpacing,
+                                      const cvf::Vec2ui&      mapSize )
+    : m_sampleSpacing( sampleSpacing )
+    , m_mapSize( mapSize )
+    , m_originalBoundingBox( originalBoundingBox )
+    , m_expandedBoundingBox( expandedBoundingBox )
+{
+    // Re-jig max point to be an exact multiple of cell size
+    m_expandedBoundingBox = makeMaxPointMultipleOfCellSize( m_expandedBoundingBox, m_mapSize, sampleSpacing );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RigContourMapGrid::sampleSpacing() const
 {
     return m_sampleSpacing;
