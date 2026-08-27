@@ -1,3 +1,4 @@
+
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2024     Equinor ASA
@@ -25,6 +26,7 @@
 
 #include "Cloud/RiaSumoConnector.h"
 #include "Cloud/RifReaderSumoGridProperty.h"
+#include "Cloud/RimSumoDataSource.h"
 
 #include "RifRoffFileTools.h"
 
@@ -37,7 +39,6 @@
 
 #include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirGridEnsembleBase.h"
-#include "Sumo/RimSumoDataSource.h"
 
 #include "cafPdmObjectScriptingCapability.h"
 
