@@ -514,6 +514,7 @@ std::vector<double>
 {
     RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultName );
     if ( !resultsData.ensureKnownResultLoaded( address ) ) return {};
+    if ( timeStepIdx >= resultsData.timeStepCount( address ) ) return {};
     return resultsData.cellScalarResults( address, timeStepIdx );
 }
 
@@ -535,29 +536,34 @@ std::vector<double> RigWellTargetMappingTools::loadOilVectorByName( RigCaseCellR
                                                                                     volume.size() );
         if ( volumesType == VolumesType::RESERVOIR_VOLUMES_COMPUTED )
         {
-            const std::vector<double>& porvResults =
-                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::porv() ), 0 );
-
-            for ( size_t i = 0; i < volume.size(); i++ )
+            RigEclipseResultAddress porvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::porv() );
+            if ( resultsData.ensureKnownResultLoaded( porvAddress ) && resultsData.timeStepCount( porvAddress ) > 0 )
             {
-                volume[i] = std::max( volume[i] - ( porvResults[i] * residualOil[i] ), 0.0 );
+                const std::vector<double>& porvResults = resultsData.cellScalarResults( porvAddress, 0 );
+
+                for ( size_t i = 0; i < volume.size() && i < porvResults.size(); i++ )
+                {
+                    volume[i] = std::max( volume[i] - ( porvResults[i] * residualOil[i] ), 0.0 );
+                }
             }
         }
         else
         {
-            const std::vector<double>& soilResults =
-                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ),
-                                               timeStepIdx );
-
-            for ( size_t i = 0; i < volume.size(); i++ )
+            RigEclipseResultAddress soilAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
+            if ( resultsData.ensureKnownResultLoaded( soilAddress ) && timeStepIdx < resultsData.timeStepCount( soilAddress ) )
             {
-                if ( soilResults[i] != 0.0 )
+                const std::vector<double>& soilResults = resultsData.cellScalarResults( soilAddress, timeStepIdx );
+
+                for ( size_t i = 0; i < volume.size() && i < soilResults.size(); i++ )
                 {
-                    volume[i] = std::max( volume[i] * ( soilResults[i] - residualOil[i] ) / soilResults[i], 0.0 );
-                }
-                else
-                {
-                    volume[i] = 0.0;
+                    if ( soilResults[i] != 0.0 )
+                    {
+                        volume[i] = std::max( volume[i] * ( soilResults[i] - residualOil[i] ) / soilResults[i], 0.0 );
+                    }
+                    else
+                    {
+                        volume[i] = 0.0;
+                    }
                 }
             }
         }
@@ -586,29 +592,34 @@ std::vector<double> RigWellTargetMappingTools::loadGasVectorByName( RigCaseCellR
                                                                                     volume.size() );
         if ( volumesType == VolumesType::RESERVOIR_VOLUMES_COMPUTED )
         {
-            const std::vector<double>& porvResults =
-                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::porv() ), 0 );
-
-            for ( size_t i = 0; i < volume.size(); i++ )
+            RigEclipseResultAddress porvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::porv() );
+            if ( resultsData.ensureKnownResultLoaded( porvAddress ) && resultsData.timeStepCount( porvAddress ) > 0 )
             {
-                volume[i] = std::max( volume[i] - ( porvResults[i] * residualGas[i] ), 0.0 );
+                const std::vector<double>& porvResults = resultsData.cellScalarResults( porvAddress, 0 );
+
+                for ( size_t i = 0; i < volume.size() && i < porvResults.size(); i++ )
+                {
+                    volume[i] = std::max( volume[i] - ( porvResults[i] * residualGas[i] ), 0.0 );
+                }
             }
         }
         else
         {
-            const std::vector<double>& sgasResults =
-                resultsData.cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ),
-                                               timeStepIdx );
-
-            for ( size_t i = 0; i < volume.size(); i++ )
+            RigEclipseResultAddress sgasAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
+            if ( resultsData.ensureKnownResultLoaded( sgasAddress ) && timeStepIdx < resultsData.timeStepCount( sgasAddress ) )
             {
-                if ( sgasResults[i] != 0.0 )
+                const std::vector<double>& sgasResults = resultsData.cellScalarResults( sgasAddress, timeStepIdx );
+
+                for ( size_t i = 0; i < volume.size() && i < sgasResults.size(); i++ )
                 {
-                    volume[i] = std::max( volume[i] * ( sgasResults[i] - residualGas[i] ) / sgasResults[i], 0.0 );
-                }
-                else
-                {
-                    volume[i] = 0.0;
+                    if ( sgasResults[i] != 0.0 )
+                    {
+                        volume[i] = std::max( volume[i] * ( sgasResults[i] - residualGas[i] ) / sgasResults[i], 0.0 );
+                    }
+                    else
+                    {
+                        volume[i] = 0.0;
+                    }
                 }
             }
         }
@@ -642,7 +653,7 @@ std::vector<RigWellTargetMappingTools::ClusterStatistics> RigWellTargetMappingTo
     {
         RigEclipseResultAddress address( categoryType, name );
         std::vector<double>     values;
-        if ( resultsData->ensureKnownResultLoaded( address ) )
+        if ( resultsData->ensureKnownResultLoaded( address ) && timeStepIdx < resultsData->timeStepCount( address ) )
         {
             values = resultsData->cellScalarResults( address, timeStepIdx );
         }
@@ -665,8 +676,11 @@ std::vector<RigWellTargetMappingTools::ClusterStatistics> RigWellTargetMappingTo
     const std::vector<double> rfipGas = loadData( resultsData, RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RFIPGAS", timeStepIdx );
 
     RigEclipseResultAddress clusterAddress( RiaDefines::ResultCatType::GENERATED, clusterResultName );
-    resultsData->ensureKnownResultLoaded( clusterAddress );
-    const std::vector<double>& clusterIds = resultsData->cellScalarResults( clusterAddress, timeStepIdx );
+    std::vector<double>     clusterIds;
+    if ( resultsData->ensureKnownResultLoaded( clusterAddress ) && timeStepIdx < resultsData->timeStepCount( clusterAddress ) )
+    {
+        clusterIds = resultsData->cellScalarResults( clusterAddress, timeStepIdx );
+    }
 
     std::vector<RiaWeightedMeanCalculator<double>> permeabilityCalculators( numClustersFound );
     std::vector<RiaWeightedMeanCalculator<double>> pressureCalculators( numClustersFound );
@@ -791,8 +805,10 @@ void RigWellTargetMappingTools::accumulateResultsForSingleCase( RimEclipseCase& 
     if ( !activeCellInfo ) return;
 
     const RigCaseCellResultsData* targetResultsData = targetCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !targetResultsData ) return;
 
     const RigActiveCellInfo* targetActiveCellInfo = targetResultsData->activeCellInfo();
+    if ( !targetActiveCellInfo ) return;
 
     const size_t targetNumReservoirCells = targetActiveCellInfo->reservoirCellCount();
     const size_t targetNumActiveCells    = targetActiveCellInfo->reservoirActiveCellCount();
@@ -800,7 +816,10 @@ void RigWellTargetMappingTools::accumulateResultsForSingleCase( RimEclipseCase& 
     occupancy.resize( targetNumActiveCells, 0 );
 
     RigEclipseResultAddress clustersNumAddress( RiaDefines::ResultCatType::GENERATED, RigWellTargetMapping::wellTargetResultName() );
-    resultsData->ensureKnownResultLoaded( clustersNumAddress );
+    if ( !resultsData->ensureKnownResultLoaded( clustersNumAddress ) || timeStepIdx >= resultsData->timeStepCount( clustersNumAddress ) )
+    {
+        return;
+    }
     const std::vector<double>& clusterNum = resultsData->cellScalarResults( clustersNumAddress, timeStepIdx );
 
     std::map<QString, const std::vector<double>*> namedInputVector;
@@ -808,7 +827,10 @@ void RigWellTargetMappingTools::accumulateResultsForSingleCase( RimEclipseCase& 
     for ( const auto& [resultName, vec] : resultNamesAndSamples )
     {
         RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::GENERATED, resultName );
-        resultsData->ensureKnownResultLoaded( resultAddress );
+        if ( !resultsData->ensureKnownResultLoaded( resultAddress ) || timeStepIdx >= resultsData->timeStepCount( resultAddress ) )
+        {
+            continue;
+        }
         const std::vector<double>& resultVector = resultsData->cellScalarResults( resultAddress, timeStepIdx );
         namedInputVector[resultName]            = &resultVector;
     }
@@ -831,12 +853,15 @@ void RigWellTargetMappingTools::accumulateResultsForSingleCase( RimEclipseCase& 
              targetResultIndex.value() != cvf::UNDEFINED_SIZE_T )
         {
             ActiveCellIndex resultIndex = resultsData->activeCellInfo()->cellResultIndex( cellIdx );
-            if ( !std::isinf( clusterNum[resultIndex.value()] ) && clusterNum[resultIndex.value()] > 0 )
+            if ( resultIndex.value() < clusterNum.size() && !std::isinf( clusterNum[resultIndex.value()] ) &&
+                 clusterNum[resultIndex.value()] > 0 )
             {
                 occupancy[targetResultIndex.value()]++;
                 for ( const auto& [resultName, vec] : resultNamesAndSamples )
                 {
-                    namedOutputVector[resultName][targetResultIndex.value()] = namedInputVector[resultName]->at( resultIndex.value() );
+                    auto it = namedInputVector.find( resultName );
+                    if ( it == namedInputVector.end() || resultIndex.value() >= it->second->size() ) continue;
+                    namedOutputVector[resultName][targetResultIndex.value()] = it->second->at( resultIndex.value() );
                 }
             }
         }
@@ -854,13 +879,19 @@ void RigWellTargetMappingTools::accumulateResultsForSingleCase( RimEclipseCase& 
 cvf::BoundingBox
     RigWellTargetMappingTools::computeBoundingBoxForResult( RimEclipseCase& eclipseCase, const QString& resultName, size_t timeStepIndex )
 {
-    RigCaseCellResultsData*  resultsData       = eclipseCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    const RigMainGrid*       mainGrid          = eclipseCase.mainGrid();
-    const RigActiveCellInfo* activeCellInfo    = resultsData->activeCellInfo();
-    const size_t             numReservoirCells = activeCellInfo->reservoirCellCount();
+    RigCaseCellResultsData* resultsData = eclipseCase.results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !resultsData ) return {};
+    const RigMainGrid* mainGrid = eclipseCase.mainGrid();
+    if ( !mainGrid ) return {};
+    const RigActiveCellInfo* activeCellInfo = resultsData->activeCellInfo();
+    if ( !activeCellInfo ) return {};
+    const size_t numReservoirCells = activeCellInfo->reservoirCellCount();
 
     RigEclipseResultAddress clustersNumAddress( RiaDefines::ResultCatType::GENERATED, resultName );
-    resultsData->ensureKnownResultLoaded( clustersNumAddress );
+    if ( !resultsData->ensureKnownResultLoaded( clustersNumAddress ) || timeStepIndex >= resultsData->timeStepCount( clustersNumAddress ) )
+    {
+        return {};
+    }
     const std::vector<double>& clusterNum = resultsData->cellScalarResults( clustersNumAddress, timeStepIndex );
 
     cvf::BoundingBox boundingBox;
@@ -868,7 +899,8 @@ cvf::BoundingBox
     {
         ActiveCellIndex targetResultIndex = activeCellInfo->cellResultIndex( reservoirCellIdx );
         if ( activeCellInfo->isActive( reservoirCellIdx ) && targetResultIndex.value() != cvf::UNDEFINED_SIZE_T &&
-             !std::isinf( clusterNum[targetResultIndex.value()] ) && clusterNum[targetResultIndex.value()] > 0 )
+             targetResultIndex.value() < clusterNum.size() && !std::isinf( clusterNum[targetResultIndex.value()] ) &&
+             clusterNum[targetResultIndex.value()] > 0 )
         {
             const RigCell& nativeCell = mainGrid->cell( reservoirCellIdx.value() );
             boundingBox.add( nativeCell.boundingBox() );
