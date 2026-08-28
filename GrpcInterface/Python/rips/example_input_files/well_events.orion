@@ -19,10 +19,11 @@ FILTER   POROPERM   = "PORO > 0.1 AND PERMX > 100.0"
 
 WELL A1 = "55_33-A-1"
 
-# Report dates become bare DATES keywords in the generated schedule. Recurring
-# dates may use an explicit inclusive end date or default to the last  event.
-REPORT A1_STARTUP EVERY MONTH
-REPORT A2_STARTUP EVERY 30 DAYS UNTIL A2_STARTUP + 90
+# Inserted dates become bare DATES keywords in the generated schedule. Recurring
+# dates may use an explicit inclusive end date or default to the last event.
+SCHEDULE
+INSERT_DATE A1_STARTUP EVERY MONTH
+INSERT_DATE A2_STARTUP EVERY 30 DAYS UNTIL A2_STARTUP + 90
 
 # Raw schedule text is preserved verbatim. This block is inserted immediately
 # after the date declaration; lower priorities are emitted first when multiple
