@@ -33,6 +33,7 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
         { "osdu-well-logs", "OSDU Well Logs", "Enable import of well logs from OSDU." },
         { "undo-redo-view", "Undo/Redo View", "Show the command undo/redo history view." },
         { "oil-volume-result", "Oil Volume Result", "Compute the derived oil volume cell result." },
+        { "orion-events-import", "Orion Events Import", "Enable import of Orion well events from file." },
         { "remember-dialog-size",
           "Remember Dialog Size",
           "Remember the size of property and preferences dialogs between sessions and restore it the next time they "
