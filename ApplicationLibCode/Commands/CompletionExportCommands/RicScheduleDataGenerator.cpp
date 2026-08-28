@@ -45,6 +45,14 @@
 #include <map>
 #include <set>
 
+namespace
+{
+bool shouldEmitKeyword( const Opm::DeckKeyword& keyword )
+{
+    return keyword.size() > 0 || keyword.isDataKeyword() || RifEventKeywordFormatter::isRecordlessKeyword( keyword );
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -146,7 +154,7 @@ std::vector<QDateTime> RicScheduleDataGenerator::collectAllDates( const RimWellE
 //--------------------------------------------------------------------------------------------------
 void RicScheduleDataGenerator::mergeKeyword( std::map<QString, Opm::DeckKeyword>& acc, const QString& name, Opm::DeckKeyword kw )
 {
-    if ( kw.size() == 0 && !kw.isDataKeyword() ) return;
+    if ( !shouldEmitKeyword( kw ) ) return;
 
     auto it = acc.find( name );
     if ( it == acc.end() )
@@ -172,7 +180,8 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
                                                                                bool                                alignColumns )
 {
     // Keyword priority order for output
-    static const std::vector<QString> keywordOrder = { "WELSPECS",
+    static const std::vector<QString> keywordOrder = { "END",
+                                                       "WELSPECS",
                                                        "COMPORD",
                                                        "GRUPTREE",
                                                        "COMPDAT",
@@ -333,7 +342,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
 
     auto appendKeywordText = [&]( const Opm::DeckKeyword& kw )
     {
-        if ( kw.size() == 0 && !kw.isDataKeyword() ) return;
+        if ( !shouldEmitKeyword( kw ) ) return;
         appendEventComments( QString::fromStdString( kw.name() ) );
         result += serializeKeyword( kw );
         result += "\n";

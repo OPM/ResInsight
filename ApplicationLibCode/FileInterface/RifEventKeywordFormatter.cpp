@@ -59,6 +59,23 @@ QString keywordToString( const Opm::DeckKeyword& kw )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifEventKeywordFormatter::isRecordlessKeyword( const Opm::DeckKeyword& keyword )
+{
+    try
+    {
+        static const Opm::Parser parser;
+        const auto&              parserKeyword = parser.getKeyword( keyword.name() );
+        return parserKeyword.begin() == parserKeyword.end();
+    }
+    catch ( const std::exception& )
+    {
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::optional<Opm::DeckKeyword> RifEventKeywordFormatter::buildKeyword( const QString&                               keywordName,
                                                                         const std::vector<RimWellEventKeywordItem*>& items )
 {
@@ -71,7 +88,17 @@ std::optional<Opm::DeckKeyword> RifEventKeywordFormatter::buildKeyword( const QS
         const Opm::ParserKeyword& parserKw = parser.getKeyword( kwName );
         Opm::DeckKeyword          kw( parserKw );
 
-        const size_t             numRecords   = static_cast<size_t>( std::distance( parserKw.begin(), parserKw.end() ) );
+        const size_t numRecords = static_cast<size_t>( std::distance( parserKw.begin(), parserKw.end() ) );
+        if ( numRecords == 0 )
+        {
+            if ( !items.empty() )
+            {
+                RiaLogging::error( std::format( "Recordless keyword '{}' does not accept items.", keyword ) );
+                return std::nullopt;
+            }
+            return kw;
+        }
+
         const Opm::ParserRecord& parserRecord = parserKw.getRecord( 0 );
 
         auto stringValue = []( const RimWellEventKeywordItem* item ) -> std::string

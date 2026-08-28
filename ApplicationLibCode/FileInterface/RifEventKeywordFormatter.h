@@ -33,6 +33,8 @@ class RimWellEventKeywordItem;
 
 namespace RifEventKeywordFormatter
 {
+bool isRecordlessKeyword( const Opm::DeckKeyword& keyword );
+
 // build*: produce a structured Opm::DeckKeyword (used by callers that merge records across wells).
 std::optional<Opm::DeckKeyword> buildKeyword( const QString& keywordName, const std::vector<RimWellEventKeywordItem*>& items );
 std::optional<Opm::DeckKeyword> buildWconprod( const RimWellEventControl* controlEvent, const QString& wellName );
