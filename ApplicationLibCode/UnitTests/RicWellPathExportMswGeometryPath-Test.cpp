@@ -62,9 +62,19 @@ RigMswSegment makeSegment( int segNum, int outletSegNum, double length = 10.0, d
 //--------------------------------------------------------------------------------------------------
 /// Build a minimal RigMswBranch with the given branch number and segments.
 //--------------------------------------------------------------------------------------------------
-RigMswBranch makeBranch( int branchNum, std::vector<RigMswSegment> segs )
+RigMswBranch makeBranch( int branchNum, std::vector<RigMswSegment> segs, RigMswBranchSource source = RigMswBranchSource::Perforation )
 {
-    return RigMswBranch{ branchNum, std::nullopt, std::move( segs ) };
+    return RigMswBranch{ branchNum, std::nullopt, std::move( segs ), source };
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Build a branch with a single segment intersecting the given main grid cell.
+//--------------------------------------------------------------------------------------------------
+RigMswBranch makeBranchIntersectingCell( int branchNum, int segNum, size_t i, size_t j, size_t k, RigMswBranchSource source )
+{
+    RigMswSegment seg = makeSegment( segNum, 1 );
+    seg.intersections = { RigMswCellIntersection{ i, j, k, 100.0, 110.0, "" } };
+    return makeBranch( branchNum, { seg }, source );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -429,6 +439,65 @@ TEST( RicWellPathExportMswGeometryPath, HeaderFieldsPropagated )
     EXPECT_DOUBLE_EQ( 2345.6, result.welsegsHeader().topLength );
     EXPECT_EQ( "ABS", result.welsegsHeader().infoType );
     EXPECT_EQ( RiaDefines::EclipseUnitSystem::UNITS_FIELD, result.unitSystem() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A grid cell has a single COMPDAT connection and must be connected to one segment only. When two
+/// branches of the same kind intersect the cell, the branch listed first keeps it.
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, CompsegsCellIsConnectedOnlyOnce )
+{
+    RigMswWellExportData exportData;
+    exportData.header = makeHeader();
+
+    exportData.branches = { makeBranchIntersectingCell( 2, 10, 3, 5, 7, RigMswBranchSource::Fracture ),
+                            makeBranchIntersectingCell( 3, 11, 3, 5, 7, RigMswBranchSource::Fracture ) };
+
+    auto result = RicWellPathExportMswGeometryPath::collectTableData( exportData, RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+
+    ASSERT_EQ( 2u, result.welsegsData().size() );
+    ASSERT_EQ( 1u, result.compsegsData().size() );
+    EXPECT_EQ( 2, result.compsegsData()[0].branch );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The branch carrying most flow claims a shared cell: perforations before fishbones before
+/// fractures, regardless of the order the branches are listed in.
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, CompsegsCellIsClaimedByTheBranchWithMostFlow )
+{
+    RigMswWellExportData exportData;
+    exportData.header = makeHeader();
+
+    exportData.branches = { makeBranchIntersectingCell( 4, 12, 3, 5, 7, RigMswBranchSource::Fracture ),
+                            makeBranchIntersectingCell( 3, 11, 3, 5, 7, RigMswBranchSource::Fishbones ),
+                            makeBranchIntersectingCell( 2, 10, 3, 5, 7, RigMswBranchSource::Perforation ) };
+
+    auto result = RicWellPathExportMswGeometryPath::collectTableData( exportData, RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+
+    ASSERT_EQ( 1u, result.compsegsData().size() );
+    EXPECT_EQ( 2, result.compsegsData()[0].branch );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The same IJK in the main grid and in an LGR are different cells, and both are connected.
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, CompsegsSeparatesMainGridAndLgrCells )
+{
+    RigMswWellExportData exportData;
+    exportData.header = makeHeader();
+
+    RigMswSegment lgrSeg = makeSegment( 11, 1 );
+    lgrSeg.intersections = { RigMswCellIntersection{ 3, 5, 7, 100.0, 110.0, "LGR_NEAR_WELL" } };
+
+    exportData.branches = { makeBranchIntersectingCell( 2, 10, 3, 5, 7, RigMswBranchSource::Fracture ),
+                            makeBranch( 3, { lgrSeg }, RigMswBranchSource::Fracture ) };
+
+    auto result = RicWellPathExportMswGeometryPath::collectTableData( exportData, RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+
+    ASSERT_EQ( 2u, result.compsegsData().size() );
+    EXPECT_TRUE( result.compsegsData()[0].isMainGrid() );
+    EXPECT_EQ( "LGR_NEAR_WELL", result.compsegsData()[1].gridName );
 }
 
 //==================================================================================================
