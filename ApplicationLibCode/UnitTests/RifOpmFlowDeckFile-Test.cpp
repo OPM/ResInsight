@@ -2,12 +2,14 @@
 
 #include "RiaTestDataDirectory.h"
 
+#include "RifEventKeywordFormatter.h"
 #include "RifOpmDeckTools.h"
 #include "RifOpmFlowDeckFile.h"
 
 #include "RigEclipseResultTools.h"
 
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
+#include "ProjectDataModel/WellEvents/RimWellEventKeywordItem.h"
 
 #include "cvfStructGrid.h"
 
@@ -578,6 +580,22 @@ TEST( RifOpmFlowDeckFileTest, RemoveAndInsertKeywordAtSectionStart )
     auto nextIt = std::next( schedIt );
     ASSERT_NE( nextIt, keywords.end() );
     EXPECT_EQ( "BCPROP", *nextIt ) << "BCPROP should be the first keyword inside SCHEDULE";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEventKeywordFormatterTest, BuildKeywordOverridesWellName )
+{
+    RimWellEventKeywordItem wellItem;
+    wellItem.setItemName( "WELL" );
+    wellItem.setStringValue( "WellPathA" );
+
+    auto keyword = RifEventKeywordFormatter::buildKeyword( "WCONHIST", { &wellItem }, QString( "ORION_EXPORT_ALIAS" ) );
+
+    ASSERT_TRUE( keyword.has_value() );
+    ASSERT_EQ( keyword->size(), 1 );
+    EXPECT_EQ( keyword->getRecord( 0 ).getItem( "WELL" ).getTrimmedString( 0 ), "ORION_EXPORT_ALIAS" );
 }
 
 //--------------------------------------------------------------------------------------------------

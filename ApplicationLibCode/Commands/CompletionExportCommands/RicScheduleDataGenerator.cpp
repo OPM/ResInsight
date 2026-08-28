@@ -602,7 +602,8 @@ void RicScheduleDataGenerator::generateWellControlForWell( const RimWellEventTim
     {
         if ( event->wellName() != well.name() ) continue;
 
-        auto kw = RifEventKeywordFormatter::buildWellEvent( event, well.name() );
+        const QString wellName = well.completionSettings() ? well.completionSettings()->wellNameForExport() : well.name();
+        auto          kw       = RifEventKeywordFormatter::buildWellEvent( event, wellName );
         if ( !kw ) continue;
 
         const QString name = QString::fromStdString( kw->name() );
