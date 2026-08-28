@@ -43,6 +43,10 @@ void RicCreateGridStatisticsPlotFeature::onActionTriggered( bool isChecked )
 
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
     if ( activeView ) dataSource->setPropertiesFromView( activeView );
+
+    histogramPlot->loadDataAndUpdate();
+    histogramPlot->zoomAll();
+
     RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
 }
 
