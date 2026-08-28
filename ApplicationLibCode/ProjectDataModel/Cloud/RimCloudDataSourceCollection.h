@@ -47,6 +47,12 @@ public:
     static void createEnsemblesFromSelectedDataSources( const std::vector<RimSumoDataSource*>& dataSources );
 
 private:
+    void initAfterRead() override;
+
+    // Fetch the realization ids, vector names and grid names of the data sources that do not have them. They
+    // are not written to the project file, so a data source restored from one starts out without them.
+    void refreshDataSourcesFromSumo();
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;

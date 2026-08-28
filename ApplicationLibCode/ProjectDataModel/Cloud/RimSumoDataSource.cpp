@@ -164,11 +164,20 @@ std::vector<QString> RimSumoDataSource::availableRealizationIds() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSumoDataSource::hasFetchedRealizations() const
+{
+    return m_hasFetchedRealizations;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// The available realizations are the source of truth. An empty filter selects all of them.
 //--------------------------------------------------------------------------------------------------
 void RimSumoDataSource::setAvailableRealizationIds( const std::vector<QString>& realizationIds )
 {
     m_availableRealizationIds = realizationIds;
+    m_hasFetchedRealizations  = true;
 
     // Show the full range instead of an empty field. Only an empty filter is replaced, keeping a user
     // or project defined filter. Selection is unchanged, as empty and full range both select all.
@@ -396,6 +405,11 @@ void RimSumoDataSource::onRealizationFilterChanged()
 //--------------------------------------------------------------------------------------------------
 void RimSumoDataSource::updateGridCaseEnsembles()
 {
+    // Synchronizing against realizations that have not been fetched would read "not known yet" as "nothing
+    // selected" and remove the realization cases of every grid ensemble. That is what a project load followed
+    // by an edit of the realization filter would otherwise do.
+    const bool realizationsAreKnown = hasFetchedRealizations();
+
     std::set<int> selectedRealizations;
     for ( const auto& realizationId : selectedRealizationIds() )
     {
@@ -432,6 +446,10 @@ void RimSumoDataSource::updateGridCaseEnsembles()
                 }
             }
         }
+
+        // Everything above applies whether or not the realizations are known. Adding and removing cases below
+        // does not, so leave the ensemble as it is until the realizations have been fetched.
+        if ( !realizationsAreKnown ) continue;
 
         // A realization the grid does not exist for would only produce a case failing to load. An empty list
         // means the realizations of the grid are not known, then do not filter on them.
