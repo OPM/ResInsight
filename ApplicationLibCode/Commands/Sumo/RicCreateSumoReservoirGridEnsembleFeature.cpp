@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
 
@@ -35,6 +36,8 @@
 #include "RimProject.h"
 #include "RimReservoirGridEnsembleSumo.h"
 #include "RimViewNameConfig.h"
+
+#include "RiuMainWindow.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -223,6 +226,16 @@ void RicCreateSumoReservoirGridEnsembleFeature::createGridEnsemble( RimSumoDataS
     {
         view->nameConfig()->setAddCaseName( true );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicCreateSumoReservoirGridEnsembleFeature::isCommandEnabled() const
+{
+    // The context menu is raised from the window holding the tree, so the active window is the one that was
+    // right-clicked. Same discrimination as RicViewZoomAllFeature.
+    return dynamic_cast<RiuMainWindow*>( RiaGuiApplication::activeWindow() ) != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

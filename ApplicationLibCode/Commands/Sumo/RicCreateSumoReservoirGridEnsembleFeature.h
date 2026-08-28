@@ -30,6 +30,11 @@ class RicCreateSumoReservoirGridEnsembleFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
+    // A grid ensemble belongs to the 3D window, so the command is only offered there. Returning false
+    // removes the entry from the context menu rather than disabling it, see
+    // caf::CmdFeatureMenuBuilder::appendToMenu.
+    bool isCommandEnabled() const override;
+
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
