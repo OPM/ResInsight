@@ -758,6 +758,20 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Measured depth where the fracture segment starts. A fracture along the well path is centred on
+/// the fracture MD, and starts half a perforation length above it.
+//--------------------------------------------------------------------------------------------------
+double fractureStartMD( const RimWellPathFracture* fracture )
+{
+    double startMD = fracture->fractureMD();
+    if ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
+    {
+        startMD -= 0.5 * fracture->fractureTemplate()->perforationLength();
+    }
+    return startMD;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigMswBranch> buildFractureBranches( RimEclipseCase*                      eclipseCase,
@@ -772,18 +786,25 @@ std::vector<RigMswBranch> buildFractureBranches( RimEclipseCase*                
 
     const QString wellNameForExport = wellPath->completionSettings()->wellNameForExport();
 
-    for ( RimWellPathFracture* fracture : wellPath->fractureCollection()->activeFractures() )
+    // Number the fracture branches by position along the well path, so that the branch numbers follow
+    // the well no matter in what order the fractures were created. The order also decides which
+    // fracture connects a grid cell shared by two of them.
+    auto fractures = wellPath->fractureCollection()->activeFractures();
+    std::stable_sort( fractures.begin(),
+                      fractures.end(),
+                      []( const RimWellPathFracture* lhs, const RimWellPathFracture* rhs )
+                      { return fractureStartMD( lhs ) < fractureStartMD( rhs ); } );
+
+    for ( RimWellPathFracture* fracture : fractures )
     {
         fracture->ensureValidNonDarcyProperties();
 
-        double position = fracture->fractureMD();
-        double width    = fracture->fractureTemplate()->computeFractureWidth( fracture );
+        const double position = fractureStartMD( fracture );
 
+        double width = fracture->fractureTemplate()->computeFractureWidth( fracture );
         if ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
         {
-            double perforationLength = fracture->fractureTemplate()->perforationLength();
-            position -= 0.5 * perforationLength;
-            width = perforationLength;
+            width = fracture->fractureTemplate()->perforationLength();
         }
 
         const double endMD    = position + width;
