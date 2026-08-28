@@ -2,12 +2,14 @@
 
 #include "RiaTestDataDirectory.h"
 
+#include "RifEventKeywordFormatter.h"
 #include "RifOpmDeckTools.h"
 #include "RifOpmFlowDeckFile.h"
 
 #include "RigEclipseResultTools.h"
 
 #include "ProjectDataModel/Jobs/RimKeywordFactory.h"
+#include "ProjectDataModel/WellEvents/RimWellEventKeywordItem.h"
 
 #include "cvfStructGrid.h"
 
@@ -753,6 +755,22 @@ TEST( RifOpmFlowDeckFileTest, SaveDeckPreservesIncludeOnlyWrapperFiles )
     ASSERT_TRUE( reloadedDeckFile.loadDeck( ( outDir + "/WRAPPER_INCLUDES.DATA" ).toStdString() ).has_value() );
     auto keywords = reloadedDeckFile.keywords( false );
     EXPECT_EQ( 2, std::count( keywords.begin(), keywords.end(), std::string( "VFPPROD" ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEventKeywordFormatterTest, BuildKeywordOverridesWellName )
+{
+    RimWellEventKeywordItem wellItem;
+    wellItem.setItemName( "WELL" );
+    wellItem.setStringValue( "WellPathA" );
+
+    auto keyword = RifEventKeywordFormatter::buildKeyword( "WCONHIST", { &wellItem }, QString( "ORION_EXPORT_ALIAS" ) );
+
+    ASSERT_TRUE( keyword.has_value() );
+    ASSERT_EQ( keyword->size(), 1 );
+    EXPECT_EQ( keyword->getRecord( 0 ).getItem( "WELL" ).getTrimmedString( 0 ), "ORION_EXPORT_ALIAS" );
 }
 
 //--------------------------------------------------------------------------------------------------

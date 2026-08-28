@@ -1910,6 +1910,34 @@ class TestOrionEventsIntegration:
         assert f'Line 3 [WELL "{well.name}", date 2024-01-01]' in error_msg
         assert "Keyword 'NOT_A_KEYWORD' is not recognized by opm-common" in error_msg
 
+    def test_generic_well_keywords_use_export_alias(self, project_with_case_and_wells):
+        project, case, timeline = project_with_case_and_wells
+        well = project.well_paths()[0]
+
+        export_alias = "ORION_EXPORT_ALIAS"
+        settings = well.completion_settings()
+        settings.well_name_for_export = export_alias
+        settings.update()
+
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            "  2024-01-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=100\n"
+            "  2024-01-01 WELTARG CMODE=ORAT VALUE=200\n"
+            "  2024-01-01 WRFTPLT OUTPUT_RFT=YES OUTPUT_PLT=NO OUTPUT_SEGMENT=NO\n"
+        )
+        report = apply_orion_document(document, timeline, project)
+        assert report.errors == []
+
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case,
+            first_date_as_comment=False,
+        )
+        for keyword in ("WCONHIST", "WELTARG", "WRFTPLT"):
+            block = schedule.split(keyword, 1)[1].split("/", 1)[0]
+            assert f"'{export_alias}'" in block
+            assert f"'{well.name}'" not in block
+
     def test_rptrst_boolean_values_emit_bare_mnemonics(
         self, project_with_case_and_wells
     ):

@@ -77,7 +77,8 @@ bool RifEventKeywordFormatter::isRecordlessKeyword( const Opm::DeckKeyword& keyw
 ///
 //--------------------------------------------------------------------------------------------------
 std::optional<Opm::DeckKeyword> RifEventKeywordFormatter::buildKeyword( const QString&                               keywordName,
-                                                                        const std::vector<RimWellEventKeywordItem*>& items )
+                                                                        const std::vector<RimWellEventKeywordItem*>& items,
+                                                                        const std::optional<QString>&                wellNameOverride )
 {
     QString     keyword = keywordName.toUpper();
     std::string kwName  = keyword.toStdString();
@@ -187,7 +188,8 @@ std::optional<Opm::DeckKeyword> RifEventKeywordFormatter::buildKeyword( const QS
                 std::optional<size_t> lastProvidedIdx;
                 for ( size_t i = 0; i < record.size(); ++i )
                 {
-                    if ( userItemsByName.contains( record.get( i ).name() ) ) lastProvidedIdx = i;
+                    const std::string& name = record.get( i ).name();
+                    if ( userItemsByName.contains( name ) || ( name == "WELL" && wellNameOverride.has_value() ) ) lastProvidedIdx = i;
                 }
 
                 std::vector<Opm::DeckItem> deckItems;
@@ -198,7 +200,9 @@ std::optional<Opm::DeckKeyword> RifEventKeywordFormatter::buildKeyword( const QS
                     {
                         const std::string& name = record.get( i ).name();
                         auto               it   = userItemsByName.find( name );
-                        if ( it == userItemsByName.end() )
+                        if ( name == "WELL" && wellNameOverride.has_value() )
+                            deckItems.push_back( RifOpmDeckTools::item( name, wellNameOverride->toStdString() ) );
+                        else if ( it == userItemsByName.end() )
                             deckItems.push_back( RifOpmDeckTools::defaultItem( name ) );
                         else
                             appendDeckItem( deckItems, name, it->second );
@@ -361,7 +365,8 @@ std::optional<Opm::DeckKeyword> RifEventKeywordFormatter::buildWellEvent( const 
         const auto* keywordEvent = dynamic_cast<const RimWellEventKeyword*>( event );
         if ( keywordEvent )
         {
-            return buildKeyword( keywordEvent->keywordName(), keywordEvent->items() );
+            const std::optional<QString> wellNameOverride = wellName.isEmpty() ? std::nullopt : std::optional<QString>( wellName );
+            return buildKeyword( keywordEvent->keywordName(), keywordEvent->items(), wellNameOverride );
         }
     }
 
