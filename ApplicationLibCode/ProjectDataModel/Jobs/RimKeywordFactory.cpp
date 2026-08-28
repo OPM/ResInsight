@@ -57,6 +57,7 @@
 #include <QLocale>
 
 #include <algorithm>
+#include <optional>
 #include <sstream>
 
 //==================================================================================================
@@ -925,47 +926,105 @@ QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword )
 
     auto rightAlign = []( const std::string& s, size_t width ) { return std::string( width - s.size(), ' ' ) + s; };
 
-    // Emit the keyword as one or more groups of consecutive records that share the same ordered list
-    // of item names. Each group gets its own aligned column header. Tabular keywords (WCONHIST,
-    // COMPDAT, ...) form a single group; heterogeneous keywords (WELSEGS = header + segment records,
-    // TUNING = three distinct records) form one group per record shape.
+    // A keyword with one parser-record schema is tabular. Build one ordered union of item names for
+    // all its records so partially populated rows share a header. Keywords with multiple parser
+    // records (WELSEGS, TUNING, ...) retain separate groups for their heterogeneous record shapes.
+    std::vector<std::string> canonicalItemOrder;
+    try
+    {
+        Opm::Parser               parser;
+        const Opm::ParserKeyword& parserKeyword = parser.getKeyword( keyword.name() );
+        if ( std::distance( parserKeyword.begin(), parserKeyword.end() ) == 1 )
+        {
+            const Opm::ParserRecord& parserRecord = parserKeyword.getRecord( 0 );
+            for ( size_t i = 0; i < parserRecord.size(); ++i )
+            {
+                canonicalItemOrder.push_back( parserRecord.get( i ).name() );
+            }
+        }
+    }
+    catch ( ... )
+    {
+        canonicalItemOrder.clear();
+    }
+
     const size_t numRecords  = keyword.size();
     size_t       recordIndex = 0;
     while ( recordIndex < numRecords )
     {
-        // Group signature = item names of the first record in the group.
         std::vector<std::string> header;
-        for ( const auto& item : keyword.getRecord( recordIndex ) )
+        size_t                   groupEnd = recordIndex;
+
+        if ( !canonicalItemOrder.empty() )
         {
-            header.push_back( item.name() );
+            std::vector<std::string> presentItemNames;
+            for ( size_t i = recordIndex; i < numRecords; ++i )
+            {
+                for ( const auto& item : keyword.getRecord( i ) )
+                {
+                    if ( std::find( presentItemNames.begin(), presentItemNames.end(), item.name() ) == presentItemNames.end() )
+                    {
+                        presentItemNames.push_back( item.name() );
+                    }
+                }
+            }
+
+            for ( const auto& name : canonicalItemOrder )
+            {
+                if ( std::find( presentItemNames.begin(), presentItemNames.end(), name ) != presentItemNames.end() )
+                    header.push_back( name );
+            }
+            for ( const auto& name : presentItemNames )
+            {
+                if ( std::find( header.begin(), header.end(), name ) == header.end() ) header.push_back( name );
+            }
+            groupEnd = numRecords;
+        }
+        else
+        {
+            for ( const auto& item : keyword.getRecord( recordIndex ) )
+            {
+                header.push_back( item.name() );
+            }
+
+            for ( ; groupEnd < numRecords; ++groupEnd )
+            {
+                const Opm::DeckRecord& record = keyword.getRecord( groupEnd );
+                if ( record.size() != header.size() ) break;
+
+                bool   sameNames = true;
+                size_t col       = 0;
+                for ( const auto& item : record )
+                {
+                    if ( item.name() != header[col++] )
+                    {
+                        sameNames = false;
+                        break;
+                    }
+                }
+                if ( !sameNames ) break;
+            }
         }
 
-        // Collect every consecutive record matching this signature, rendering its values.
         std::vector<std::vector<std::string>> rows;
-        size_t                                groupEnd = recordIndex;
-        for ( ; groupEnd < numRecords; ++groupEnd )
+        for ( size_t i = recordIndex; i < groupEnd; ++i )
         {
-            const Opm::DeckRecord& record = keyword.getRecord( groupEnd );
-            if ( record.size() != header.size() ) break;
+            const Opm::DeckRecord& record = keyword.getRecord( i );
 
-            bool   sameNames = true;
-            size_t col       = 0;
-            for ( const auto& item : record )
+            std::optional<size_t> lastPresentColumn;
+            for ( size_t c = 0; c < header.size(); ++c )
             {
-                if ( item.name() != header[col] )
-                {
-                    sameNames = false;
-                    break;
-                }
-                ++col;
+                if ( record.hasItem( header[c] ) ) lastPresentColumn = c;
             }
-            if ( !sameNames ) break;
 
             std::vector<std::string> row;
-            row.reserve( record.size() );
-            for ( const auto& item : record )
+            if ( lastPresentColumn.has_value() )
             {
-                row.push_back( renderDeckItemValue( item ) );
+                row.reserve( *lastPresentColumn + 1 );
+                for ( size_t c = 0; c <= *lastPresentColumn; ++c )
+                {
+                    row.push_back( record.hasItem( header[c] ) ? renderDeckItemValue( record.getItem( header[c] ) ) : "1*" );
+                }
             }
             rows.push_back( std::move( row ) );
         }
@@ -973,7 +1032,7 @@ QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword )
         const size_t        numCols = header.size();
         std::vector<size_t> width( numCols, 0 );
         for ( const auto& row : rows )
-            for ( size_t c = 0; c < numCols; ++c )
+            for ( size_t c = 0; c < row.size(); ++c )
                 width[c] = std::max( width[c], row[c].size() );
 
         // Long parser item names (e.g. "CONNECTION_TRANSMISSIBILITY_FACTOR") would otherwise pad
@@ -1003,7 +1062,7 @@ QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword )
         for ( const auto& row : rows )
         {
             oss << "  ";
-            for ( size_t c = 0; c < numCols; ++c )
+            for ( size_t c = 0; c < row.size(); ++c )
             {
                 if ( c > 0 ) oss << "  ";
                 oss << rightAlign( row[c], width[c] );
