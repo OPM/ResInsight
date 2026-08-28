@@ -16,11 +16,14 @@
 #include "opm/input/eclipse/Deck/DeckRecord.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/B.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/C.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
 #include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QTemporaryDir>
+
+#include <optional>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -750,6 +753,48 @@ TEST( RifOpmFlowDeckFileTest, SaveDeckPreservesIncludeOnlyWrapperFiles )
     ASSERT_TRUE( reloadedDeckFile.loadDeck( ( outDir + "/WRAPPER_INCLUDES.DATA" ).toStdString() ).has_value() );
     auto keywords = reloadedDeckFile.keywords( false );
     EXPECT_EQ( 2, std::count( keywords.begin(), keywords.end(), std::string( "VFPPROD" ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimKeywordFactoryTest, DeckKeywordToAlignedStringPadsRecordsToCommonShape )
+{
+    using W = Opm::ParserKeywords::WCONHIST;
+
+    Opm::DeckKeyword keyword( ( W() ) );
+
+    auto makeRecord = []( const std::string&         wellName,
+                          std::optional<std::string> controlMode,
+                          std::optional<double>      oilRate,
+                          double                     waterRate,
+                          double                     gasRate,
+                          std::optional<int>         vfpTable )
+    {
+        std::vector<Opm::DeckItem> items;
+        items.push_back( RifOpmDeckTools::item( W::WELL::itemName, wellName ) );
+        items.push_back( RifOpmDeckTools::item( W::STATUS::itemName, std::string( "OPEN" ) ) );
+        if ( controlMode.has_value() ) items.push_back( RifOpmDeckTools::item( W::CMODE::itemName, *controlMode ) );
+        if ( oilRate.has_value() ) items.push_back( RifOpmDeckTools::item( W::ORAT::itemName, *oilRate ) );
+        items.push_back( RifOpmDeckTools::item( W::WRAT::itemName, waterRate ) );
+        items.push_back( RifOpmDeckTools::item( W::GRAT::itemName, gasRate ) );
+        if ( vfpTable.has_value() ) items.push_back( RifOpmDeckTools::item( W::VFP_TABLE::itemName, *vfpTable ) );
+        return Opm::DeckRecord{ std::move( items ) };
+    };
+
+    keyword.addRecord( makeRecord( "A1", "RESV", 3999.988, 0.012, 555478.9, std::nullopt ) );
+    keyword.addRecord( makeRecord( "A2", "RESV", 3998.909, 1.091449, 557876.6, 2 ) );
+    keyword.addRecord( makeRecord( "A3", std::nullopt, std::nullopt, 2.345, 558000.5, std::nullopt ) );
+
+    QString text = RimKeywordFactory::deckKeywordToAlignedString( keyword );
+
+    const QString expected = "WCONHIST\n"
+                             "--WELL  STATUS   CMODE      ORAT      WRAT      GRAT  VFP_TABL\n"
+                             "  'A1'  'OPEN'  'RESV'  3999.988     0.012  555478.9 /\n"
+                             "  'A2'  'OPEN'  'RESV'  3998.909  1.091449  557876.6         2 /\n"
+                             "  'A3'  'OPEN'      1*        1*     2.345  558000.5 /\n"
+                             "/\n";
+    EXPECT_EQ( text, expected ) << "Actual output:\n" << text.toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
