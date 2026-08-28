@@ -41,12 +41,12 @@ DURATION RAMP       = 5 DAYS
 WELL A1 = "55_33-A-1"
 
 WELL A1
-  @A1_STARTUP         PERFORATION  MDSTART=1644.49  MDEND=1664.28  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=1
-  @A1_STARTUP + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1
-  @A1_STARTUP + RAMP  WELTARG      CMODE=BHP  VALUE=50
+  A1_STARTUP         PERFORATION  MDSTART=1644.49  MDEND=1664.28  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=1
+  A1_STARTUP + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1
+  A1_STARTUP + RAMP  WELTARG      CMODE=BHP  VALUE=50
 
 WELL "55_33-A-2"
-  @A2_STARTUP  PERFORATION  MDSTART=1692.79  MDEND=1706  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=1
+  A2_STARTUP  PERFORATION  MDSTART=1692.79  MDEND=1706  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=1
 """
 
 
@@ -265,7 +265,7 @@ class TestParsing:
             "WCONHIST",
             "WELTARG",
         ]
-        # @A1_STARTUP + RAMP -> 2018-01-06
+        # A1_STARTUP + RAMP -> 2018-01-06
         assert well1.events[1].event_date == datetime.date(2018, 1, 6)
 
     def test_value_type_inference(self):
@@ -280,7 +280,7 @@ class TestParsing:
     def test_quoted_filter_value_is_single_attribute(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            '  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER="SOIL > 0.8 AND PERMX > 200"\n'
+            '  2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER="SOIL > 0.8 AND PERMX > 200"\n'
         )
         doc = parse_orion_events(text)
         filter_attr = doc.wells[0].events[0].attributes["FILTER"]
@@ -291,7 +291,7 @@ class TestParsing:
     def test_comment_attribute_is_preserved(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            '  @2018-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
+            '  2018-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
         )
         event = parse_orion_events(text).wells[0].events[0]
         assert event.attributes["COMMENT"].value == "Startup target"
@@ -300,7 +300,7 @@ class TestParsing:
     def test_trailing_comment_ignored_but_not_inside_quotes(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            '  @2018-01-01 WCONHIST NOTE="a # b" CMODE=ORAT  # trailing comment\n'
+            '  2018-01-01 WCONHIST NOTE="a # b" CMODE=ORAT  # trailing comment\n'
         )
         doc = parse_orion_events(text)
         attrs = doc.wells[0].events[0].attributes
@@ -308,29 +308,27 @@ class TestParsing:
         assert "CMODE" in attrs
 
     def test_iso_date_literal_event(self):
-        text = (
-            'ORIONEVENTS 2.0\nWELL "W"\n  @2020-12-31 PERFORATION MDSTART=1 MDEND=2\n'
-        )
+        text = 'ORIONEVENTS 2.0\nWELL "W"\n  2020-12-31 PERFORATION MDSTART=1 MDEND=2\n'
         doc = parse_orion_events(text)
         assert doc.wells[0].events[0].event_date == datetime.date(2020, 12, 31)
 
     def test_negative_offset(self):
         text = (
             "ORIONEVENTS 2.0\nDATE START = 2018-01-10\n"
-            'WELL "W"\n  @START - 5 PERFORATION MDSTART=1 MDEND=2\n'
+            'WELL "W"\n  START - 5 PERFORATION MDSTART=1 MDEND=2\n'
         )
         doc = parse_orion_events(text)
         assert doc.wells[0].events[0].event_date == datetime.date(2018, 1, 5)
 
     def test_minus_after_iso_date(self):
-        text = 'ORIONEVENTS 2.0\nWELL "W"\n  @2018-01-01 - 5 PERFORATION MDSTART=1 MDEND=2\n'
+        text = 'ORIONEVENTS 2.0\nWELL "W"\n  2018-01-01 - 5 PERFORATION MDSTART=1 MDEND=2\n'
         doc = parse_orion_events(text)
         assert doc.wells[0].events[0].event_date == datetime.date(2017, 12, 27)
 
     def test_offset_chain_with_duration_variable(self):
         text = (
             "ORIONEVENTS 2.0\nDATE START = 2018-01-01\nDURATION RAMP = 5\n"
-            'WELL "W"\n  @START + RAMP - 2 PERFORATION MDSTART=1 MDEND=2\n'
+            'WELL "W"\n  START + RAMP - 2 PERFORATION MDSTART=1 MDEND=2\n'
         )
         doc = parse_orion_events(text)
         assert doc.wells[0].events[0].event_date == datetime.date(2018, 1, 4)
@@ -379,19 +377,19 @@ class TestParsing:
     def test_event_before_well_block_raises(self):
         with pytest.raises(OrionParseError, match="before any WELL or SCHEDULE block"):
             parse_orion_events(
-                "ORIONEVENTS 2.0\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
+                "ORIONEVENTS 2.0\n  2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
             )
 
     def test_unknown_variable_raises(self):
         with pytest.raises(OrionParseError, match="Unknown variable 'NOPE'"):
             parse_orion_events(
-                'ORIONEVENTS 2.0\nWELL "W"\n  @NOPE PERFORATION MDSTART=1 MDEND=2\n'
+                'ORIONEVENTS 2.0\nWELL "W"\n  NOPE PERFORATION MDSTART=1 MDEND=2\n'
             )
 
     def test_duration_where_date_expected_raises(self):
         text = (
             "ORIONEVENTS 2.0\nDURATION RAMP = 5\n"
-            'WELL "W"\n  @RAMP WCONHIST STATUS=OPEN\n'
+            'WELL "W"\n  RAMP WCONHIST STATUS=OPEN\n'
         )
         with pytest.raises(
             OrionParseError, match=r"is a DURATION \(declared line 2\) but a DATE"
@@ -401,13 +399,13 @@ class TestParsing:
     def test_date_where_duration_expected_raises(self):
         text = (
             "ORIONEVENTS 2.0\nDATE START = 2018-01-01\nDATE OTHER = 2018-02-01\n"
-            'WELL "W"\n  @START + OTHER WCONHIST STATUS=OPEN\n'
+            'WELL "W"\n  START + OTHER WCONHIST STATUS=OPEN\n'
         )
         with pytest.raises(OrionParseError, match="is a DATE .* but a DURATION"):
             parse_orion_events(text)
 
     def test_well_variable_in_date_context_raises(self):
-        text = 'ORIONEVENTS 2.0\nWELL A1 = "X"\nWELL A1\n  @A1 WCONHIST STATUS=OPEN\n'
+        text = 'ORIONEVENTS 2.0\nWELL A1 = "X"\nWELL A1\n  A1 WCONHIST STATUS=OPEN\n'
         with pytest.raises(OrionParseError, match="is a WELL .* but a DATE"):
             parse_orion_events(text)
 
@@ -420,7 +418,7 @@ class TestParsing:
 
     def test_forward_reference_raises(self):
         text = (
-            'ORIONEVENTS 2.0\nWELL "W"\n  @START PERFORATION MDSTART=1 MDEND=2\n'
+            'ORIONEVENTS 2.0\nWELL "W"\n  START PERFORATION MDSTART=1 MDEND=2\n'
             "DATE START = 2018-01-01\n"
         )
         with pytest.raises(OrionParseError, match="Unknown variable 'START'"):
@@ -437,7 +435,7 @@ class TestParsing:
             parse_orion_events(text)
 
     def test_malformed_attribute_raises(self):
-        text = 'ORIONEVENTS 2.0\nWELL "W"\n  @2018-01-01 PERFORATION MDSTART=1 bogus MDEND=2\n'
+        text = 'ORIONEVENTS 2.0\nWELL "W"\n  2018-01-01 PERFORATION MDSTART=1 bogus MDEND=2\n'
         with pytest.raises(OrionParseError, match="Malformed attribute"):
             parse_orion_events(text)
 
@@ -450,12 +448,12 @@ class TestParsing:
     def test_schedule_block_parses(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            "  @2024-01-01 WCONHIST STATUS=OPEN\n"
+            "  2024-01-01 WCONHIST STATUS=OPEN\n"
             "SCHEDULE\n"
-            "  @2024-01-01 RPTRST BASIC=2 FREQ=1\n"
-            "  @2024-01-01 GRUPTREE CHILD_GROUP=OP PARENT_GROUP=FIELD\n"
+            "  2024-01-01 RPTRST BASIC=2 FREQ=1\n"
+            "  2024-01-01 GRUPTREE CHILD_GROUP=OP PARENT_GROUP=FIELD\n"
             'WELL "W"\n'
-            "  @2024-02-01 WELTARG CMODE=ORAT VALUE=5000\n"
+            "  2024-02-01 WELTARG CMODE=ORAT VALUE=5000\n"
         )
         doc = parse_orion_events(text)
         assert [e.event_type for e in doc.schedule_events] == ["RPTRST", "GRUPTREE"]
@@ -466,12 +464,12 @@ class TestParsing:
     def test_group_blocks_parse_and_switch_event_sink(self):
         text = (
             'ORIONEVENTS 2.0\nGROUP "OP"\n'
-            "  @2020-07-01 GEFAC FACTOR=1.0 TRANSFER=YES\n"
-            "  @2020-07-01 GCONPROD CMODE=LRAT LRAT=20000\n"
+            "  2020-07-01 GEFAC FACTOR=1.0 TRANSFER=YES\n"
+            "  2020-07-01 GCONPROD CMODE=LRAT LRAT=20000\n"
             'GROUP "WI"\n'
-            "  @2020-07-01 GCONINJE TYPE=WATER CMODE=RATE RATE=16000\n"
+            "  2020-07-01 GCONINJE TYPE=WATER CMODE=RATE RATE=16000\n"
             "SCHEDULE\n"
-            "  @2020-07-01 RPTRST BASIC=2\n"
+            "  2020-07-01 RPTRST BASIC=2\n"
         )
         doc = parse_orion_events(text)
         assert [group.group_name for group in doc.groups] == ["OP", "WI"]
@@ -494,9 +492,9 @@ class TestParsing:
     def test_duplicate_wellspec_for_well_and_date_is_rejected(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            "  @2024-01-01 WELSPECS GROUP=A\n"
+            "  2024-01-01 WELSPECS GROUP=A\n"
             'WELL "W"\n'
-            "  @2024-01-01 WELSPECS PHASE=GAS\n"
+            "  2024-01-01 WELSPECS PHASE=GAS\n"
         )
         with pytest.raises(OrionParseError, match="WELSPECS already defined.*line 3"):
             parse_orion_events(text)
@@ -504,9 +502,9 @@ class TestParsing:
     def test_wellspec_same_date_for_different_wells_is_allowed(self):
         document = parse_orion_events(
             'ORIONEVENTS 2.0\nWELL "A"\n'
-            "  @2024-01-01 WELSPECS GROUP=GA\n"
+            "  2024-01-01 WELSPECS GROUP=GA\n"
             'WELL "B"\n'
-            "  @2024-01-01 WELSPECS GROUP=GB\n"
+            "  2024-01-01 WELSPECS GROUP=GB\n"
         )
         assert [len(well.events) for well in document.wells] == [1, 1]
 
@@ -514,7 +512,7 @@ class TestParsing:
         text = (
             "ORIONEVENTS 2.0\n"
             "SCHEDULE\n"
-            '  @2024-01-01 RPTRST DEN=True ROCKC=FALSE LABEL="True"\n'
+            '  2024-01-01 RPTRST DEN=True ROCKC=FALSE LABEL="True"\n'
         )
         attributes = parse_orion_events(text).schedule_events[0].attributes
 
@@ -525,7 +523,7 @@ class TestParsing:
 
     def test_single_restart_event_parses(self):
         document = parse_orion_events(
-            "ORIONEVENTS 2.0\nSCHEDULE\n  @2024-02-01 RESTART\n"
+            "ORIONEVENTS 2.0\nSCHEDULE\n  2024-02-01 RESTART\n"
         )
         restart = document.schedule_events[0]
         assert restart.event_type == "RESTART"
@@ -535,21 +533,21 @@ class TestParsing:
         "text,expected_error",
         [
             (
-                'ORIONEVENTS 2.0\nWELL "W"\n  @2024-01-01 RESTART\n',
+                'ORIONEVENTS 2.0\nWELL "W"\n  2024-01-01 RESTART\n',
                 "only valid in a SCHEDULE block",
             ),
             (
-                'ORIONEVENTS 2.0\nGROUP "G"\n  @2024-01-01 RESTART\n',
+                'ORIONEVENTS 2.0\nGROUP "G"\n  2024-01-01 RESTART\n',
                 "only valid in a SCHEDULE block",
             ),
             (
-                "ORIONEVENTS 2.0\nSCHEDULE\n  @2024-01-01 RESTART VALUE=1\n",
+                "ORIONEVENTS 2.0\nSCHEDULE\n  2024-01-01 RESTART VALUE=1\n",
                 "takes no attributes",
             ),
             (
                 "ORIONEVENTS 2.0\nSCHEDULE\n"
-                "  @2024-01-01 RESTART\n"
-                "  @2024-02-01 RESTART\n",
+                "  2024-01-01 RESTART\n"
+                "  2024-02-01 RESTART\n",
                 "Only one RESTART event",
             ),
         ],
@@ -565,17 +563,17 @@ class TestParsing:
     def test_raw_text_block_preserves_body_and_attributes(self):
         text = (
             "ORIONEVENTS 2.0\nSCHEDULE\n"
-            "  @2024-01-01 RAW_TEXT PLACEMENT=BEFORE_KEYWORD "
+            "  2024-01-01 RAW_TEXT PLACEMENT=BEFORE_KEYWORD "
             "ANCHOR=COMPDAT PRIORITY=-2\n"
             "# not an ORION comment\n"
-            "  @this is raw too\n"
+            "  this is raw too\n"
             "END\n"
             "END_RAW_TEXT\n"
         )
         event = parse_orion_events(text).schedule_events[0]
 
         assert event.event_type == "RAW_TEXT"
-        assert event.raw_text == "# not an ORION comment\n  @this is raw too\nEND\n"
+        assert event.raw_text == "# not an ORION comment\n  this is raw too\nEND\n"
         assert event.raw_placement == "BEFORE_KEYWORD"
         assert event.raw_anchor == "COMPDAT"
         assert event.raw_priority == -2
@@ -604,14 +602,14 @@ class TestParsing:
         ],
     )
     def test_invalid_raw_text_header_rejected(self, header, error):
-        text = f"ORIONEVENTS 2.0\nSCHEDULE\n  @2024-01-01 {header}\nx\nEND_RAW_TEXT\n"
+        text = f"ORIONEVENTS 2.0\nSCHEDULE\n  2024-01-01 {header}\nx\nEND_RAW_TEXT\n"
         with pytest.raises(OrionParseError, match=error):
             parse_orion_events(text)
 
     def test_raw_text_outside_schedule_rejected(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            "  @2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE\n"
+            "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE\n"
             "x\nEND_RAW_TEXT\n"
         )
         with pytest.raises(OrionParseError, match="only valid in a SCHEDULE"):
@@ -620,7 +618,7 @@ class TestParsing:
     def test_unterminated_raw_text_rejected(self):
         text = (
             "ORIONEVENTS 2.0\nSCHEDULE\n"
-            "  @2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE\ntext\n"
+            "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE\ntext\n"
         )
         with pytest.raises(OrionParseError, match="Unterminated RAW_TEXT"):
             parse_orion_events(text)
@@ -646,9 +644,9 @@ class TestParsing:
     def test_report_inside_block_does_not_close_it(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            "  @2024-01-01 WCONHIST STATUS=OPEN\n"
+            "  2024-01-01 WCONHIST STATUS=OPEN\n"
             "REPORT 2024-06-01\n"
-            "  @2024-02-01 WELTARG CMODE=ORAT VALUE=5000\n"
+            "  2024-02-01 WELTARG CMODE=ORAT VALUE=5000\n"
         )
         doc = parse_orion_events(text)
         assert [len(w.events) for w in doc.wells] == [2]
@@ -706,7 +704,7 @@ class TestParsing:
             "ORIONEVENTS 2.0\n"
             "REPORT 2024-01-01 EVERY MONTH\n"
             'WELL "W"\n'
-            "  @2024-03-15 WCONHIST STATUS=OPEN\n"
+            "  2024-03-15 WCONHIST STATUS=OPEN\n"
         )
         doc = parse_orion_events(text)
         assert doc.report_dates == [
@@ -739,10 +737,28 @@ class TestParsing:
         with pytest.raises(OrionParseError, match=message):
             parse_orion_events(f"ORIONEVENTS 2.0\n{report_line}\n")
 
+    def test_event_dates_parse_without_prefix(self):
+        text = (
+            "ORIONEVENTS 2.0\nDATE START = 2024-05-15\n"
+            'WELL "W"\n'
+            "  START + 1 PERFORATION MDSTART=1 MDEND=2\n"
+            "  2024-05-17 WCONHIST STATUS=OPEN\n"
+        )
+        doc = parse_orion_events(text)
+        assert [event.event_date for event in doc.wells[0].events] == [
+            datetime.date(2024, 5, 16),
+            datetime.date(2024, 5, 17),
+        ]
+
+    def test_at_prefix_is_rejected(self):
+        text = 'ORIONEVENTS 2.0\nWELL "W"\n  @2024-05-17 WCONHIST STATUS=OPEN\n'
+        with pytest.raises(OrionParseError, match="Unrecognized line"):
+            parse_orion_events(text)
+
     def test_datetime_literal_event(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            "  @2024-05-15T14:45:30.500 PERFORATION MDSTART=1 MDEND=2\n"
+            "  2024-05-15T14:45:30.500 PERFORATION MDSTART=1 MDEND=2\n"
         )
         doc = parse_orion_events(text)
         assert doc.wells[0].events[0].event_date == datetime.datetime(
@@ -752,7 +768,7 @@ class TestParsing:
     def test_datetime_with_day_offset(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            "  @2024-05-15T14:45:30 + 2 PERFORATION MDSTART=1 MDEND=2\n"
+            "  2024-05-15T14:45:30 + 2 PERFORATION MDSTART=1 MDEND=2\n"
         )
         doc = parse_orion_events(text)
         assert doc.wells[0].events[0].event_date == datetime.datetime(
@@ -762,7 +778,7 @@ class TestParsing:
     def test_date_variable_with_time_of_day(self):
         text = (
             "ORIONEVENTS 2.0\nDATE T0 = 2024-05-15T14:45:30.500\n"
-            'WELL "W"\n  @T0 + 1 PERFORATION MDSTART=1 MDEND=2\n'
+            'WELL "W"\n  T0 + 1 PERFORATION MDSTART=1 MDEND=2\n'
         )
         doc = parse_orion_events(text)
         assert doc.wells[0].events[0].event_date == datetime.datetime(
@@ -776,7 +792,7 @@ class TestFilterParsing:
             "ORIONEVENTS 2.0\n"
             + decls
             + 'WELL "W"\n'
-            + f"  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER={filter_value}\n"
+            + f"  2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER={filter_value}\n"
         )
         return parse_orion_events(text)
 
@@ -863,7 +879,7 @@ class TestFilterParsing:
     def test_filter_on_non_perforation_event_is_plain_attribute(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "W"\n'
-            '  @2018-01-01 WCONHIST STATUS=OPEN FILTER="PERMX > 200"\n'
+            '  2018-01-01 WCONHIST STATUS=OPEN FILTER="PERMX > 200"\n'
         )
         doc = parse_orion_events(text)
         event = doc.wells[0].events[0]
@@ -917,7 +933,7 @@ class TestFilterParsing:
     def test_filter_variable_in_date_context_raises(self):
         text = (
             'ORIONEVENTS 2.0\nFILTER F = "poro>1"\nWELL "W"\n'
-            "  @F PERFORATION MDSTART=1 MDEND=2\n"
+            "  F PERFORATION MDSTART=1 MDEND=2\n"
         )
         with pytest.raises(OrionParseError, match="is a FILTER .* but a DATE"):
             parse_orion_events(text)
@@ -940,8 +956,8 @@ class TestDiagnostics:
             "DATE A1_STARTUP = 2018-01-01\n"
             "SET X = 2018-01-01\n"  # line 3
             'WELL "W"\n'
-            "  @A1_STRTUP PERFORATION MDSTART=1 MDEND=2\n"  # line 5
-            "  @A1_STARTUP + NOPE WCONHIST STATUS=OPEN\n"  # line 6
+            "  A1_STRTUP PERFORATION MDSTART=1 MDEND=2\n"  # line 5
+            "  A1_STARTUP + NOPE WCONHIST STATUS=OPEN\n"  # line 6
         )
         with pytest.raises(OrionParseError) as excinfo:
             parse_orion_events(text)
@@ -951,8 +967,8 @@ class TestDiagnostics:
         text = (
             "ORIONEVENTS 2.0\n"
             "WELL 55_33-A-2\n"  # malformed: unquoted special characters
-            "  @2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
-            "  @2018-01-01 WCONHIST STATUS=OPEN\n"
+            "  2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
+            "  2018-01-01 WCONHIST STATUS=OPEN\n"
         )
         with pytest.raises(OrionParseError) as excinfo:
             parse_orion_events(text)
@@ -962,7 +978,7 @@ class TestDiagnostics:
     def test_unknown_variable_hint(self):
         text = (
             "ORIONEVENTS 2.0\nDATE A1_STARTUP = 2018-01-01\n"
-            'WELL "W"\n  @A1_STRTUP PERFORATION MDSTART=1 MDEND=2\n'
+            'WELL "W"\n  A1_STRTUP PERFORATION MDSTART=1 MDEND=2\n'
         )
         with pytest.raises(OrionParseError, match="did you mean 'A1_STARTUP'"):
             parse_orion_events(text)
@@ -988,7 +1004,7 @@ class TestValidatorCli:
     def test_invalid_file_exits_nonzero_with_errors(self, tmp_path, capsys):
         path = self._write(
             tmp_path,
-            'ORIONEVENTS 2.0\nSET X = 2018-01-01\nWELL "W"\n  @NOPE WCONHIST A=1\n',
+            'ORIONEVENTS 2.0\nSET X = 2018-01-01\nWELL "W"\n  NOPE WCONHIST A=1\n',
         )
         assert _cli([path]) == 1
         out = capsys.readouterr().out
@@ -1097,12 +1113,12 @@ class TestApplying:
         text = (
             "ORIONEVENTS 2.0\n"
             'WELL "55_33-A-1"\n'
-            "  @2018-01-01 WCONHIST STATUS=OPEN ORAT=100\n"
+            "  2018-01-01 WCONHIST STATUS=OPEN ORAT=100\n"
             'WELL "55_33-A-1"\n'
-            "  @2018-01-01 wconhist STATUS=SHUT CMODE=ORAT\n"
-            "  @2018-01-02 WCONHIST STATUS=OPEN\n"
+            "  2018-01-01 wconhist STATUS=SHUT CMODE=ORAT\n"
+            "  2018-01-02 WCONHIST STATUS=OPEN\n"
             'WELL "55_33-A-2"\n'
-            "  @2018-01-01 WCONHIST STATUS=OPEN\n"
+            "  2018-01-01 WCONHIST STATUS=OPEN\n"
         )
         document = parse_orion_events(text)
         merged = coalesce_orion_document(document)
@@ -1129,12 +1145,12 @@ class TestApplying:
         text = (
             "ORIONEVENTS 2.0\n"
             'WELL "55_33-A-1"\n'
-            "  @2024-01-20 WCONHIST WRAT=0.03\n"
-            '  @2024-01-15 WCONHIST STATUS=OPEN CMODE=RESV GRAT=4756545.5 COMMENT="Startup"\n'
-            "  @2024-01-15 WCONHIST ORAT=3999.99 WRAT=0.01 GRAT=550678.44 VFP=1\n"
-            "  @2024-01-15 WELTARG CMODE=ORAT VALUE=5000\n"
+            "  2024-01-20 WCONHIST WRAT=0.03\n"
+            '  2024-01-15 WCONHIST STATUS=OPEN CMODE=RESV GRAT=4756545.5 COMMENT="Startup"\n'
+            "  2024-01-15 WCONHIST ORAT=3999.99 WRAT=0.01 GRAT=550678.44 VFP=1\n"
+            "  2024-01-15 WELTARG CMODE=ORAT VALUE=5000\n"
             'WELL "55_33-A-2"\n'
-            "  @2024-01-20 WCONHIST WRAT=0.04\n"
+            "  2024-01-20 WCONHIST WRAT=0.04\n"
         )
         document = parse_orion_events(text)
         merged = coalesce_orion_document(document)
@@ -1192,8 +1208,8 @@ class TestApplying:
         text = (
             "ORIONEVENTS 2.0\n"
             'WELL "55_33-A-1"\n'
-            "  @2018-01-01 PERFORATION MDSTART=1000 MDEND=1100 COMPLETION_NUMBER=1\n"
-            "  @2018-01-01 PERFORATION MDSTART=1200 MDEND=1300 COMPLETION_NUMBER=2\n"
+            "  2018-01-01 PERFORATION MDSTART=1000 MDEND=1100 COMPLETION_NUMBER=1\n"
+            "  2018-01-01 PERFORATION MDSTART=1200 MDEND=1300 COMPLETION_NUMBER=2\n"
         )
 
         document = parse_orion_events(text)
@@ -1214,15 +1230,15 @@ class TestApplying:
         text = (
             "ORIONEVENTS 2.0\n"
             'GROUP "OP"\n'
-            "  @2018-01-01 GCONPROD CONTROL_MODE=ORAT\n"
+            "  2018-01-01 GCONPROD CONTROL_MODE=ORAT\n"
             'GROUP "OP"\n'
-            "  @2018-01-01 GCONPROD OIL_TARGET=100\n"
+            "  2018-01-01 GCONPROD OIL_TARGET=100\n"
             'GROUP "OTHER"\n'
-            "  @2018-01-01 GCONPROD OIL_TARGET=200\n"
+            "  2018-01-01 GCONPROD OIL_TARGET=200\n"
             "SCHEDULE\n"
-            "  @2018-01-01 RPTRST BASIC=1\n"
+            "  2018-01-01 RPTRST BASIC=1\n"
             "SCHEDULE\n"
-            "  @2018-01-01 RPTRST FREQ=2\n"
+            "  2018-01-01 RPTRST FREQ=2\n"
         )
         merged = coalesce_orion_document(parse_orion_events(text))
 
@@ -1263,7 +1279,7 @@ class TestApplying:
     def test_comment_is_applied_to_timeline_event_not_keyword_data(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            '  @2018-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
+            '  2018-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
         )
         timeline, report = self._apply(text)
 
@@ -1275,7 +1291,7 @@ class TestApplying:
     def test_perforation_comment_is_applied(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 COMMENT=Interval\n"
+            "  2018-01-01 PERFORATION MDSTART=1 MDEND=2 COMMENT=Interval\n"
         )
         timeline, report = self._apply(text)
 
@@ -1297,7 +1313,7 @@ class TestApplying:
         # other attribute instead of being stripped.
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2018-01-01 WCONHIST STATUS=OPEN CMODE=ORAT DSHIFT=10\n"
+            "  2018-01-01 WCONHIST STATUS=OPEN CMODE=ORAT DSHIFT=10\n"
         )
         timeline, report = self._apply(text)
         data = timeline.keyword_calls[0]["keyword_data"]
@@ -1308,7 +1324,7 @@ class TestApplying:
     def test_report_dates_on_apply_report(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2018-01-01 WCONHIST STATUS=OPEN\n"
+            "  2018-01-01 WCONHIST STATUS=OPEN\n"
             "REPORT 2018-07-01\n"
             "REPORT 2018-03-01\n"
             "REPORT 2018-07-01\n"
@@ -1324,7 +1340,7 @@ class TestApplying:
         # unknown completion attribute.
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 PERFID=Valysar\n"
+            "  2018-01-01 PERFORATION MDSTART=1 MDEND=2 PERFID=Valysar\n"
         )
         timeline, report = self._apply(text)
         assert report.events_applied == 0
@@ -1335,7 +1351,7 @@ class TestApplying:
     def test_filter_on_keyword_event_warns_and_applies(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            '  @2018-01-01 WCONHIST STATUS=OPEN FILTER="PERMX > 200"\n'
+            '  2018-01-01 WCONHIST STATUS=OPEN FILTER="PERMX > 200"\n'
         )
         timeline, report = self._apply(text)
         assert report.events_applied == 1
@@ -1355,7 +1371,7 @@ class TestApplying:
             self._apply(SAMPLE, names=("55_33-A-1",), on_unknown_well="error")
 
     def test_unknown_event_type_warns_with_hint(self):
-        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 WCONHST STATUS=OPEN\n'
+        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  2018-01-01 WCONHST STATUS=OPEN\n'
         _, report = self._apply(text)
         assert report.events_skipped == 1
         assert any(
@@ -1363,16 +1379,14 @@ class TestApplying:
         )
 
     def test_perforation_missing_required_attr_is_error(self):
-        text = (
-            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 PERFORATION MDSTART=1\n'
-        )
+        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  2018-01-01 PERFORATION MDSTART=1\n'
         _, report = self._apply(text)
         assert report.events_skipped == 1
         assert any("MDEND" in e for e in report.errors)
         assert 'Line 3 [WELL "55_33-A-1", date 2018-01-01]' in report.errors[0]
 
     def test_perforation_unknown_attr_is_error(self):
-        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2 ZZZ=3\n'
+        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  2018-01-01 PERFORATION MDSTART=1 MDEND=2 ZZZ=3\n'
         _, report = self._apply(text)
         assert report.events_skipped == 1
         assert any("ZZZ" in e for e in report.errors)
@@ -1380,8 +1394,8 @@ class TestApplying:
     def test_wellspec_partial_updates_are_cumulative_by_date(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2019-01-01 WELSPECS CROSSFLOW=False PHASE=gas\n"
-            "  @2018-01-01 WELSPECS GROUP=my_group REFDEPTH=1002 PHASE=water\n"
+            "  2019-01-01 WELSPECS CROSSFLOW=False PHASE=gas\n"
+            "  2018-01-01 WELSPECS GROUP=my_group REFDEPTH=1002 PHASE=water\n"
         )
         timeline, report = self._apply(text)
 
@@ -1413,7 +1427,7 @@ class TestApplying:
     )
     def test_invalid_wellspec_is_reported_and_skipped(self, attributes, expected_error):
         text = (
-            f'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 WELSPECS {attributes}\n'
+            f'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  2018-01-01 WELSPECS {attributes}\n'
         )
         timeline, report = self._apply(text)
 
@@ -1425,7 +1439,7 @@ class TestApplying:
     def test_segment_mapping_creates_custom_interval_and_sets_pressure_drop(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2024-01-01 SEGMENT MDSTART=0 MDEND=2500 INNER_DIAMETER=0.15 "
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 INNER_DIAMETER=0.15 "
             "ROUGHNESS=1.0e-5 PRESSURE_COMPONENTS=HFA\n"
         )
         timeline, report = self._apply(text)
@@ -1446,7 +1460,7 @@ class TestApplying:
     def test_segment_rejects_invalid_pressure_components(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2024-01-01 SEGMENT MDSTART=0 MDEND=2500 "
+            "  2024-01-01 SEGMENT MDSTART=0 MDEND=2500 "
             "PRESSURE_COMPONENTS=INVALID\n"
         )
         timeline, report = self._apply(text)
@@ -1459,7 +1473,7 @@ class TestApplying:
     def test_tubing_is_reported_as_renamed_event(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2024-01-01 TUBING MDSTART=0 MDEND=2500\n"
+            "  2024-01-01 TUBING MDSTART=0 MDEND=2500\n"
         )
         timeline, report = self._apply(text)
 
@@ -1468,7 +1482,7 @@ class TestApplying:
         assert any("did you mean 'SEGMENT'" in warning for warning in report.warnings)
 
     def test_wellspec_is_reported_as_renamed_event(self):
-        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2024-01-01 WELLSPEC GROUP=FIELD\n'
+        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  2024-01-01 WELLSPEC GROUP=FIELD\n'
         timeline, report = self._apply(text)
 
         assert report.events_skipped == 1
@@ -1478,7 +1492,7 @@ class TestApplying:
     def test_valve_mapping(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2024-03-01 VALVE MD=2100 TYPE=ICV STATE=OPEN CV=0.7 AREA=0.0001\n"
+            "  2024-03-01 VALVE MD=2100 TYPE=ICV STATE=OPEN CV=0.7 AREA=0.0001\n"
         )
         timeline, report = self._apply(text)
         assert report.events_applied == 1
@@ -1490,13 +1504,13 @@ class TestApplying:
         assert call["area"] == pytest.approx(0.0001)
 
     def test_valve_missing_type_is_error(self):
-        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2024-03-01 VALVE MD=2100\n'
+        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  2024-03-01 VALVE MD=2100\n'
         _, report = self._apply(text)
         assert report.events_skipped == 1
         assert any("TYPE" in e for e in report.errors)
 
     def test_state_mapping(self):
-        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2024-02-15 STATE STATE=SHUT\n'
+        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  2024-02-15 STATE STATE=SHUT\n'
         timeline, report = self._apply(text)
         assert report.events_applied == 1
         assert timeline.state_calls[0]["well_state"] == "SHUT"
@@ -1504,7 +1518,7 @@ class TestApplying:
     def test_generic_well_keyword_pass_through(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2024-06-01 WRFTPLT OUTPUT_RFT=YES OUTPUT_PLT=NO OUTPUT_SEGMENT=NO\n"
+            "  2024-06-01 WRFTPLT OUTPUT_RFT=YES OUTPUT_PLT=NO OUTPUT_SEGMENT=NO\n"
         )
         timeline, report = self._apply(text)
         assert report.events_applied == 1
@@ -1517,7 +1531,7 @@ class TestApplying:
     def test_typo_of_builtin_is_not_passed_through(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2024-01-01 PERFORATIN MDSTART=1 MDEND=2\n"
+            "  2024-01-01 PERFORATIN MDSTART=1 MDEND=2\n"
         )
         timeline, report = self._apply(text)
         assert report.events_skipped == 1
@@ -1527,8 +1541,8 @@ class TestApplying:
     def test_schedule_events_applied_without_well(self):
         text = (
             "ORIONEVENTS 2.0\nSCHEDULE\n"
-            "  @2024-01-01 RPTRST BASIC=2 FREQ=1\n"
-            "  @2024-01-01 TUNING TSINIT=1 TSMAXZ=30\n"
+            "  2024-01-01 RPTRST BASIC=2 FREQ=1\n"
+            "  2024-01-01 TUNING TSINIT=1 TSMAXZ=30\n"
         )
         timeline, report = self._apply(text)
         assert report.events_applied == 2
@@ -1538,7 +1552,7 @@ class TestApplying:
         assert "WELL" not in rptrst["keyword_data"]
 
     def test_restart_event_creates_non_emitting_timeline_marker(self):
-        text = "ORIONEVENTS 2.0\nSCHEDULE\n  @2024-02-01 RESTART\n"
+        text = "ORIONEVENTS 2.0\nSCHEDULE\n  2024-02-01 RESTART\n"
         timeline, report = self._apply(text)
 
         assert report.events_applied == 1
@@ -1554,9 +1568,9 @@ class TestApplying:
     def test_raw_text_event_is_applied_without_coalescing(self):
         text = (
             "ORIONEVENTS 2.0\nSCHEDULE\n"
-            "  @2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE PRIORITY=2\n"
+            "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE PRIORITY=2\n"
             "first\nEND_RAW_TEXT\n"
-            "  @2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE PRIORITY=1\n"
+            "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE PRIORITY=1\n"
             "second\nEND_RAW_TEXT\n"
         )
         timeline, report = self._apply(text)
@@ -1577,10 +1591,10 @@ class TestApplying:
     def test_group_events_inject_group_name(self):
         text = (
             'ORIONEVENTS 2.0\nGROUP "OP"\n'
-            "  @2020-07-01 GEFAC EFFICIENCY_FACTOR=1.0 USE_GEFAC_IN_NETWORK=YES\n"
-            "  @2020-07-01 GCONPROD CONTROL_MODE=LRAT LIQUID_TARGET=20000 WATER_TARGET=20000 OIL_TARGET=20000\n"
+            "  2020-07-01 GEFAC EFFICIENCY_FACTOR=1.0 USE_GEFAC_IN_NETWORK=YES\n"
+            "  2020-07-01 GCONPROD CONTROL_MODE=LRAT LIQUID_TARGET=20000 WATER_TARGET=20000 OIL_TARGET=20000\n"
             'GROUP "WI"\n'
-            "  @2020-07-01 GCONINJE PHASE=WATER CONTROL_MODE=RATE SURFACE_TARGET=16000\n"
+            "  2020-07-01 GCONINJE PHASE=WATER CONTROL_MODE=RATE SURFACE_TARGET=16000\n"
         )
         timeline, report = self._apply(text)
         assert report.events_applied == 3
@@ -1600,7 +1614,7 @@ class TestApplying:
     def test_member_event_expands_to_unique_grouptree_events(self):
         text = (
             'ORIONEVENTS 2.0\nGROUP "PRODUCERS"\n'
-            '  @2024-01-01 MEMBER MEMBERS="WELL_A, WELL_B,WELL_A" '
+            '  2024-01-01 MEMBER MEMBERS="WELL_A, WELL_B,WELL_A" '
             'COMMENT="Group membership"\n'
         )
         timeline, report = self._apply(text)
@@ -1633,7 +1647,7 @@ class TestApplying:
         ],
     )
     def test_invalid_member_event_is_skipped(self, block, event, expected_error):
-        text = f"ORIONEVENTS 2.0\n{block}\n  @2024-01-01 {event}\n"
+        text = f"ORIONEVENTS 2.0\n{block}\n  2024-01-01 {event}\n"
         timeline, report = self._apply(text)
 
         assert report.events_applied == 0
@@ -1644,9 +1658,7 @@ class TestApplying:
         assert f"[{expected_scope}, date 2024-01-01]" in report.errors[0]
 
     def test_completion_event_in_schedule_block_is_error(self):
-        text = (
-            "ORIONEVENTS 2.0\nSCHEDULE\n  @2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
-        )
+        text = "ORIONEVENTS 2.0\nSCHEDULE\n  2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
         timeline, report = self._apply(text)
         assert report.events_skipped == 1
         assert timeline.schedule_keyword_calls == []
@@ -1655,7 +1667,7 @@ class TestApplying:
     def test_datetime_event_date_keeps_milliseconds(self):
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
-            "  @2024-05-15T14:45:30.500 PERFORATION MDSTART=1 MDEND=2\n"
+            "  2024-05-15T14:45:30.500 PERFORATION MDSTART=1 MDEND=2\n"
         )
         timeline, _ = self._apply(text)
         assert timeline.perf_calls[0]["event_date"] == "2024-05-15T14:45:30.500"
@@ -1685,7 +1697,7 @@ class TestFilterApplying:
 
     def _perf_text(self, decls, *filter_values):
         events = "".join(
-            f"  @2018-01-{index:02d} PERFORATION MDSTART=1 MDEND=2 FILTER={value}\n"
+            f"  2018-01-{index:02d} PERFORATION MDSTART=1 MDEND=2 FILTER={value}\n"
             for index, value in enumerate(filter_values, start=1)
         )
         return "ORIONEVENTS 2.0\n" + decls + 'WELL "55_33-A-1"\n' + events
@@ -1772,7 +1784,7 @@ class TestFilterApplying:
             self._apply(text, cases=[])
 
     def test_no_filter_without_case_is_fine(self):
-        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  @2018-01-01 PERFORATION MDSTART=1 MDEND=2\n'
+        text = 'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n  2018-01-01 PERFORATION MDSTART=1 MDEND=2\n'
         _, _, report = self._apply(text, cases=[])
         assert report.events_applied == 1
 
@@ -1800,7 +1812,7 @@ class TestFilterApplying:
     def test_declared_but_unused_filter_creates_nothing(self):
         text = (
             'ORIONEVENTS 2.0\nFILTER unused = "poro>0.4"\nWELL "55_33-A-1"\n'
-            "  @2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
+            "  2018-01-01 PERFORATION MDSTART=1 MDEND=2\n"
         )
         _, project, report = self._apply(text)
         assert report.events_applied == 1
@@ -1837,7 +1849,7 @@ class TestOrionEventsIntegration:
         document = parse_orion_events(
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            "  @2024-01-01 WCONHIST STATUS=OPEN INVALID_FIELD=1.0\n"
+            "  2024-01-01 WCONHIST STATUS=OPEN INVALID_FIELD=1.0\n"
         )
 
         report = apply_orion_document(document, timeline, project)
@@ -1860,8 +1872,8 @@ class TestOrionEventsIntegration:
         document = parse_orion_events(
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            "  @2024-01-01 NOT_A_KEYWORD VALUE=1\n"
-            "  @2024-01-02 WCONHIST STATUS=OPEN\n"
+            "  2024-01-01 NOT_A_KEYWORD VALUE=1\n"
+            "  2024-01-02 WCONHIST STATUS=OPEN\n"
         )
 
         report = apply_orion_document(document, timeline, project)
@@ -1881,9 +1893,9 @@ class TestOrionEventsIntegration:
         document = parse_orion_events(
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            "  @2024-01-01 WCONHIST STATUS=OPEN\n"
+            "  2024-01-01 WCONHIST STATUS=OPEN\n"
             "SCHEDULE\n"
-            "  @2024-01-01 RPTRST BASIC=2 DEN=True ROCKC=True RPORV=True "
+            "  2024-01-01 RPTRST BASIC=2 DEN=True ROCKC=True RPORV=True "
             "RFIP=True FLOWS=True FLORES=True NORST=False\n"
         )
 
@@ -1908,17 +1920,17 @@ class TestOrionEventsIntegration:
         document = parse_orion_events(
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            "  @2024-01-01 WCONHIST STATUS=OPEN\n"
+            "  2024-01-01 WCONHIST STATUS=OPEN\n"
             "SCHEDULE\n"
-            "  @2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE PRIORITY=5\n"
+            "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE PRIORITY=5\n"
             "-- after-date-late\nEND_RAW_TEXT\n"
-            "  @2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE PRIORITY=-1\n"
+            "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE PRIORITY=-1\n"
             "-- after-date-early\nEND_RAW_TEXT\n"
-            "  @2024-01-01 RAW_TEXT PLACEMENT=BEFORE_KEYWORD ANCHOR=WCONHIST\n"
+            "  2024-01-01 RAW_TEXT PLACEMENT=BEFORE_KEYWORD ANCHOR=WCONHIST\n"
             "-- before-wconhist\nEND_RAW_TEXT\n"
-            "  @2024-01-01 RAW_TEXT PLACEMENT=AFTER_KEYWORD ANCHOR=WCONHIST\n"
+            "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_KEYWORD ANCHOR=WCONHIST\n"
             "-- after-wconhist\nEND_RAW_TEXT\n"
-            "  @2024-01-01 RAW_TEXT PLACEMENT=END_OF_DATE\n"
+            "  2024-01-01 RAW_TEXT PLACEMENT=END_OF_DATE\n"
             "-- end-of-date\nEND_RAW_TEXT\n"
         )
 
@@ -1946,7 +1958,7 @@ class TestOrionEventsIntegration:
         project, case, timeline = project_with_case_and_wells
         document = parse_orion_events(
             "ORIONEVENTS 2.0\nSCHEDULE\n"
-            "  @2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE\n"
+            "  2024-01-01 RAW_TEXT PLACEMENT=AFTER_DATE\n"
             "-- raw-only\nEND_RAW_TEXT\n"
         )
 
@@ -1966,7 +1978,7 @@ class TestOrionEventsIntegration:
         project, case, timeline = project_with_case_and_wells
         document = parse_orion_events(
             "ORIONEVENTS 2.0\nSCHEDULE\n"
-            "  @2024-01-01 RAW_TEXT PLACEMENT=BEFORE_KEYWORD ANCHOR=COMPDAT\n"
+            "  2024-01-01 RAW_TEXT PLACEMENT=BEFORE_KEYWORD ANCHOR=COMPDAT\n"
             "text\nEND_RAW_TEXT\n"
         )
 
@@ -1982,7 +1994,7 @@ class TestOrionEventsIntegration:
         document = parse_orion_events(
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            '  @2024-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
+            '  2024-01-01 WCONHIST STATUS=OPEN COMMENT="Startup target"\n'
         )
 
         report = apply_orion_document(document, timeline, project)
@@ -1998,13 +2010,13 @@ class TestOrionEventsIntegration:
         document = parse_orion_events(
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            "  @2020-07-01 WCONHIST STATUS=OPEN CMODE=ORAT\n"
+            "  2020-07-01 WCONHIST STATUS=OPEN CMODE=ORAT\n"
             'GROUP "OP"\n'
-            "  @2020-07-01 GEFAC EFFICIENCY_FACTOR=1.0 USE_GEFAC_IN_NETWORK=YES\n"
-            "  @2020-07-01 GCONPROD CONTROL_MODE=LRAT LIQUID_TARGET=20000 "
+            "  2020-07-01 GEFAC EFFICIENCY_FACTOR=1.0 USE_GEFAC_IN_NETWORK=YES\n"
+            "  2020-07-01 GCONPROD CONTROL_MODE=LRAT LIQUID_TARGET=20000 "
             "WATER_TARGET=20000 OIL_TARGET=20000\n"
             'GROUP "WI"\n'
-            "  @2020-07-01 GCONINJE PHASE=WATER CONTROL_MODE=RATE "
+            "  2020-07-01 GCONINJE PHASE=WATER CONTROL_MODE=RATE "
             "SURFACE_TARGET=16000\n"
         )
 
@@ -2027,9 +2039,9 @@ class TestOrionEventsIntegration:
         document = parse_orion_events(
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            "  @2024-01-01 WCONHIST STATUS=OPEN\n"
+            "  2024-01-01 WCONHIST STATUS=OPEN\n"
             'GROUP "PRODUCERS"\n'
-            '  @2024-01-01 MEMBER MEMBERS="WELL_A,WELL_B"\n'
+            '  2024-01-01 MEMBER MEMBERS="WELL_A,WELL_B"\n'
         )
 
         report = apply_orion_document(document, timeline, project)
@@ -2050,8 +2062,8 @@ class TestOrionEventsIntegration:
         document = parse_orion_events(
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            "  @2018-01-01 WELSPECS GROUP=my_group REFDEPTH=1002 PHASE=water\n"
-            "  @2019-01-01 WELSPECS CROSSFLOW=False REFDEPTH=1000 PHASE=oil\n"
+            "  2018-01-01 WELSPECS GROUP=my_group REFDEPTH=1002 PHASE=water\n"
+            "  2019-01-01 WELSPECS CROSSFLOW=False REFDEPTH=1000 PHASE=oil\n"
         )
 
         report = apply_orion_document(document, timeline, project)
@@ -2097,13 +2109,13 @@ class TestOrionEventsIntegration:
         document = parse_orion_events(
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            "  @2024-01-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=100\n"
-            "  @2024-02-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=200\n"
-            "  @2024-03-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=300\n"
+            "  2024-01-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=100\n"
+            "  2024-02-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=200\n"
+            "  2024-03-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=300\n"
             "REPORT 2024-01-15\n"
             "REPORT 2024-04-01\n"
             "SCHEDULE\n"
-            "  @2024-02-01 RESTART\n"
+            "  2024-02-01 RESTART\n"
         )
 
         report = apply_orion_document(document, timeline, project)
@@ -2154,9 +2166,9 @@ class TestOrionEventsIntegration:
             "DATE START = 2024-01-01\n"
             "DURATION RAMP = 5 DAYS\n"
             f'WELL "{well.name}"\n'
-            "  @START         PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1\n"
-            "  @START + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1\n"
-            "  @START + RAMP  WELTARG      CMODE=BHP  VALUE=50\n"
+            "  START         PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1\n"
+            "  START + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1\n"
+            "  START + RAMP  WELTARG      CMODE=BHP  VALUE=50\n"
             "REPORT 2024-07-01\n"
         )
         document = parse_orion_events(text)
@@ -2199,18 +2211,18 @@ class TestOrionEventsIntegration:
             "DATE STARTUP = 2024-01-01\n"
             "DURATION RAMP = 31 DAYS\n"
             f'WELL "{well.name}"\n'
-            "  @STARTUP         SEGMENT      MDSTART=0  MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5 PRESSURE_COMPONENTS=HFA\n"
-            "  @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1\n"
-            "  @2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05  SKIN=0.4  COMPLETION_NUMBER=2\n"
-            "  @2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001\n"
-            "  @2024-02-15      STATE        STATE=OPEN\n"
-            "  @2024-01-15      WCONHIST     STATUS=OPEN  CMODE=RESV  ORAT=3999.99  VFP=1\n"
-            "  @2024-05-01      WELTARG      CMODE=ORAT  VALUE=5000.0\n"
-            "  @2024-06-01      WRFTPLT      OUTPUT_RFT=YES  OUTPUT_PLT=NO  OUTPUT_SEGMENT=NO\n"
+            "  STARTUP         SEGMENT      MDSTART=0  MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5 PRESSURE_COMPONENTS=HFA\n"
+            "  STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1\n"
+            "  2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05  SKIN=0.4  COMPLETION_NUMBER=2\n"
+            "  2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001\n"
+            "  2024-02-15      STATE        STATE=OPEN\n"
+            "  2024-01-15      WCONHIST     STATUS=OPEN  CMODE=RESV  ORAT=3999.99  VFP=1\n"
+            "  2024-05-01      WELTARG      CMODE=ORAT  VALUE=5000.0\n"
+            "  2024-06-01      WRFTPLT      OUTPUT_RFT=YES  OUTPUT_PLT=NO  OUTPUT_SEGMENT=NO\n"
             "SCHEDULE\n"
-            "  @STARTUP  RPTRST    BASIC=2  FREQ=1\n"
-            "  @STARTUP  GRUPTREE  CHILD_GROUP=OP  PARENT_GROUP=FIELD\n"
-            "  @STARTUP  TUNING    TSINIT=1  TSMAXZ=30  NEWTMX=12\n"
+            "  STARTUP  RPTRST    BASIC=2  FREQ=1\n"
+            "  STARTUP  GRUPTREE  CHILD_GROUP=OP  PARENT_GROUP=FIELD\n"
+            "  STARTUP  TUNING    TSINIT=1  TSMAXZ=30  NEWTMX=12\n"
         )
         document = parse_orion_events(text)
         report = apply_orion_document(document, timeline, project)
@@ -2249,7 +2261,7 @@ class TestOrionEventsIntegration:
         project, _case, timeline = project_with_case_and_wells
         text = (
             'ORIONEVENTS 2.0\nWELL "NO_SUCH_WELL"\n'
-            "  @2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
+            "  2024-01-01 PERFORATION MDSTART=1 MDEND=2\n"
         )
         document = parse_orion_events(text)
         report = apply_orion_document(document, timeline, project)
@@ -2267,7 +2279,7 @@ class TestOrionEventsIntegration:
             "ORIONEVENTS 2.0\n"
             'FILTER hiperm = "PERMX > 50.0"\n'
             f'WELL "{well.name}"\n'
-            "  @2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 RADIUS=0.05 FILTER=hiperm\n"
+            "  2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 RADIUS=0.05 FILTER=hiperm\n"
         )
         document = parse_orion_events(text)
         report = apply_orion_document(document, timeline, project, case=case)
@@ -2303,7 +2315,7 @@ class TestOrionEventsIntegration:
         text = (
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            '  @2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 FILTER="static.PERMX >= 50"\n'
+            '  2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 FILTER="static.PERMX >= 50"\n'
         )
         document = parse_orion_events(text)
         report = apply_orion_document(document, timeline, project, case=case)
@@ -2326,7 +2338,7 @@ class TestOrionEventsIntegration:
         text = (
             "ORIONEVENTS 2.0\n"
             f'WELL "{well.name}"\n'
-            '  @2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 FILTER="NO_SUCH_RESULT > 1"\n'
+            '  2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 FILTER="NO_SUCH_RESULT > 1"\n'
         )
         document = parse_orion_events(text)
         with pytest.raises(RipsError, match="NO_SUCH_RESULT"):
