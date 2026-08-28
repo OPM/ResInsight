@@ -57,6 +57,14 @@ public:
     std::vector<QString> availableRealizationIds() const;
     void                 setAvailableRealizationIds( const std::vector<QString>& realizationIds );
 
+    // Whether the realizations have been fetched from Sumo. They are not written to the project file, so a
+    // data source read back from one starts out without them, see
+    // RimCloudDataSourceCollection::refreshDataSourcesFromSumo. Ask this rather than testing
+    // availableRealizationIds() for emptiness: an empty list cannot tell "not fetched" from "fetched, and the
+    // ensemble has none", and reading the first as the second removes the realization cases of every ensemble
+    // created from this data source.
+    bool hasFetchedRealizations() const;
+
     // The subset of realizations matching the realization filter. Both summary and grid creation listen to this.
     std::vector<QString> selectedRealizationIds() const;
 
@@ -95,8 +103,12 @@ private:
     caf::PdmField<QString> m_customName;
 
     caf::PdmField<std::vector<QString>> m_availableRealizationIds;
-    caf::PdmField<QString>              m_realizationFilter;
-    caf::PdmProxyValueField<QString>    m_realizationFilterInfo;
+
+    // Runtime only, deliberately not a PdmField: it describes whether this session has fetched the
+    // realizations, which is never true for a data source just read from a project file.
+    bool                             m_hasFetchedRealizations = false;
+    caf::PdmField<QString>           m_realizationFilter;
+    caf::PdmProxyValueField<QString> m_realizationFilterInfo;
 
     caf::PdmField<std::vector<QString>> m_vectorNames;
 

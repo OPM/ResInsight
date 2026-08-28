@@ -18,6 +18,8 @@
 
 #include "RimCloudDataSourceCollection.h"
 
+#include "RiaLogging.h"
+
 #include "Cloud/RiaCloudApiService.h"
 #include "RiaApplication.h"
 #include "Summary/RiaSummaryPlotTools.h"
@@ -91,6 +93,73 @@ RimCloudDataSourceCollection* RimCloudDataSourceCollection::instance()
 std::vector<RimSumoDataSource*> RimCloudDataSourceCollection::sumoDataSources() const
 {
     return m_sumoDataSources.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCloudDataSourceCollection::initAfterRead()
+{
+    refreshDataSourcesFromSumo();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The realization ids, vector names and grid names of a data source are not written to the project file,
+/// only the identity of the ensemble and the realization filter are. A data source read back from a project
+/// therefore has none of them, which leaves the realization filter without the set it filters. Ask Sumo for
+/// them again here, so the data source is as complete as one just added.
+//--------------------------------------------------------------------------------------------------
+void RimCloudDataSourceCollection::refreshDataSourcesFromSumo()
+{
+    if ( !m_sumoConnector ) return;
+
+    for ( auto dataSource : sumoDataSources() )
+    {
+        if ( !dataSource ) continue;
+
+        const auto caseId       = dataSource->caseId();
+        const auto ensembleName = dataSource->ensembleName();
+        if ( caseId.get().isEmpty() || ensembleName.isEmpty() ) continue;
+
+        // Only what is missing is asked for, and an empty answer is not stored: a failed request must not
+        // replace values that are already there. Note that Sumo answering with nothing is indistinguishable
+        // from the request failing, so an ensemble genuinely without realizations is asked about again on the
+        // next load. That costs a request and is preferable to recording "no realizations" after a failure.
+        if ( !dataSource->hasFetchedRealizations() )
+        {
+            if ( const auto realizationIds = m_sumoConnector->explore().realizationIds( caseId, ensembleName ); !realizationIds.empty() )
+            {
+                dataSource->setAvailableRealizationIds( realizationIds );
+            }
+            else
+            {
+                // Without the realizations the realization filter has nothing to filter, and editing it
+                // cannot be told from deselecting everything. Say so once, here, rather than leaving the
+                // data source looking empty for no stated reason.
+                RiaLogging::warning( QString( "Unable to load the realizations of Sumo ensemble '%1'. Editing the "
+                                              "realization filter will have no effect until they are available." )
+                                         .arg( ensembleName )
+                                         .toStdString() );
+                continue;
+            }
+        }
+
+        if ( dataSource->vectorNames().empty() )
+        {
+            if ( const auto vectorNames = m_sumoConnector->summary().vectorNames( caseId, ensembleName ); !vectorNames.empty() )
+            {
+                dataSource->setVectorNames( vectorNames );
+            }
+        }
+
+        if ( dataSource->gridNames().empty() )
+        {
+            if ( const auto gridNames = m_sumoConnector->grid().gridNames( caseId, ensembleName ); !gridNames.empty() )
+            {
+                dataSource->setGridNames( gridNames );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
