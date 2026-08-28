@@ -27,6 +27,8 @@
 #include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 
+#include "Histogram/RimHistogramMultiPlot.h"
+#include "Histogram/RimHistogramPlot.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlot.h"
@@ -930,6 +932,25 @@ void RiuPlotMainWindow::selectedObjectsChanged( caf::PdmUiTreeView* projectTree,
                 if ( summaryPlot )
                 {
                     multiSummaryPlot->makeSureIsVisible( summaryPlot );
+                }
+            }
+            else if ( auto multiHistogramPlot = firstSelectedObject->firstAncestorOrThisOfType<RimHistogramMultiPlot>() )
+            {
+                // The toolbar shows fields from the histogram multi plot. When a child object is selected, the first
+                // ancestor view window is the sub plot, not the multi plot. Use the multi plot as active plot view
+                // window to make sure the toolbar is available for any object in the multi plot.
+                m_activePlotViewWindow = multiHistogramPlot;
+
+                setBlockViewSelectionOnSubWindowActivated( true );
+                setActiveViewer( multiHistogramPlot->dockWindowName() );
+                setBlockViewSelectionOnSubWindowActivated( false );
+
+                updateMultiPlotToolBar();
+
+                auto histogramPlot = firstSelectedObject->firstAncestorOrThisOfType<RimHistogramPlot>();
+                if ( histogramPlot )
+                {
+                    multiHistogramPlot->makeSureIsVisible( histogramPlot );
                 }
             }
             else
