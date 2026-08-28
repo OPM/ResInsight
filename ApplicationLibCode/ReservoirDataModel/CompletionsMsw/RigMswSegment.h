@@ -69,6 +69,19 @@ struct RigMswSegment
 
 
 //==================================================================================================
+/// Origin of a branch, used to decide which branch connects a grid cell when several branches
+/// intersect the same cell. The enum is ordered by priority, so the branch carrying most flow
+/// claims the cell first.
+//==================================================================================================
+enum class RigMswBranchSource
+{
+    Perforation, // Main bore and perforation valve branches
+    Fishbones,
+    Fracture
+};
+
+
+//==================================================================================================
 /// One branch in the MSW export.
 /// All segments share the same IBRANCH number, which is stored here rather than per-segment.
 /// An optional tie-in valve segment (ICV) may appear at the start of lateral branches.
@@ -78,6 +91,8 @@ struct RigMswBranch
     int                          branchNumber;  // IBRANCH for all segments in this branch
     std::optional<RigMswSegment> tieInValve;    // Optional ICV at the tie-in point (laterals only)
     std::vector<RigMswSegment>   segments;      // Segments of this branch
+
+    RigMswBranchSource source = RigMswBranchSource::Perforation;  // Decides COMPSEGS cell ownership
 };
 
 

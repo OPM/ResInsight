@@ -41,6 +41,9 @@
 #include "cafAssert.h"
 
 #include <algorithm>
+#include <numeric>
+#include <set>
+#include <tuple>
 
 namespace RicWellPathExportMswGeometryPath
 {
@@ -504,7 +507,13 @@ RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDef
     tableData.setWelsegsHeader( exportData.header );
 
     // Collected while the segments are visited, and added to the table data ordered by branch number.
-    std::vector<CompsegsRow> compsegsRows;
+    // The branch source is kept alongside the row to resolve cells claimed by several branches.
+    struct CollectedCompsegsRow
+    {
+        CompsegsRow        row;
+        RigMswBranchSource source;
+    };
+    std::vector<CollectedCompsegsRow> compsegsRows;
 
     auto emitSegment = [&]( const RigMswBranch& branch, const RigMswSegment& seg )
     {
@@ -533,7 +542,7 @@ RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDef
             compRow.distanceStart = inter.distanceStart;
             compRow.distanceEnd   = inter.distanceEnd;
             compRow.gridName      = inter.gridName;
-            compsegsRows.push_back( compRow );
+            compsegsRows.push_back( { compRow, branch.source } );
         }
 
         // WSEGVALV row
@@ -554,14 +563,37 @@ RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDef
         tableData.addMswBranch( branch );
     }
 
+    // A grid cell has a single COMPDAT connection and must be connected to exactly one segment. When
+    // several branches intersect the same cell, the branch carrying most flow claims it: perforations
+    // first, then fishbones, then fractures. Visit the rows in that order and drop the later claims.
+    std::vector<size_t> claimOrder( compsegsRows.size() );
+    std::iota( claimOrder.begin(), claimOrder.end(), size_t( 0 ) );
+    std::stable_sort( claimOrder.begin(),
+                      claimOrder.end(),
+                      [&]( size_t lhs, size_t rhs ) { return compsegsRows[lhs].source < compsegsRows[rhs].source; } );
+
+    std::set<std::tuple<std::string, size_t, size_t, size_t>> connectedCells;
+    std::vector<bool>                                         isCellOwner( compsegsRows.size(), false );
+    for ( size_t index : claimOrder )
+    {
+        const auto& row    = compsegsRows[index].row;
+        isCellOwner[index] = connectedCells.emplace( row.gridName, row.i, row.j, row.k ).second;
+    }
+
     // COMPSEGS is ordered by branch number. WELSEGS keeps the order the branches are listed in, where
     // the completion branches follow the lateral they are connected to and thus are not sorted by
     // branch number. The sort is stable, so the rows of a branch keep their order along the well path.
-    std::stable_sort( compsegsRows.begin(),
-                      compsegsRows.end(),
+    std::vector<CompsegsRow> ownedRows;
+    for ( size_t index = 0; index < compsegsRows.size(); ++index )
+    {
+        if ( isCellOwner[index] ) ownedRows.push_back( compsegsRows[index].row );
+    }
+
+    std::stable_sort( ownedRows.begin(),
+                      ownedRows.end(),
                       []( const CompsegsRow& lhs, const CompsegsRow& rhs ) { return lhs.branch < rhs.branch; } );
 
-    for ( const auto& compsegsRow : compsegsRows )
+    for ( const auto& compsegsRow : ownedRows )
     {
         tableData.addCompsegsRow( compsegsRow );
     }
