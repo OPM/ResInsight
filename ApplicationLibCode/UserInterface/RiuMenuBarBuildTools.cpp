@@ -18,6 +18,8 @@
 
 #include "RiuMenuBarBuildTools.h"
 
+#include "RiaPreferencesSystem.h"
+
 #include "RimEclipseCaseCollection.h"
 
 #include "RiuToolTipMenu.h"
@@ -138,7 +140,10 @@ void RiuMenuBarBuildTools::addImportMenuForMainWindow( QObject* parent, QMenu* m
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellLogsImportFileFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathFormationsImportFileFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicImportWellMeasurementsFeature" ) );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicImportOrionEventsFeature" ) );
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "orion-events-import" ) )
+    {
+        importWellMenu->addAction( cmdFeatureMgr->action( "RicImportOrionEventsFeature" ) );
+    }
 
     importMenu->addSeparator();
     importMenu->addAction( cmdFeatureMgr->action( "RicImportFormationNamesFeature" ) );
