@@ -45,8 +45,8 @@ File format grammar, version 2.0 (EBNF-ish)::
     well_block_open     = "WELL" , ( quoted_string | ident ) ;   (* no "=" present *)
     group_block_open    = "GROUP" , quoted_string ;     (* group keyword events *)
     schedule_block_open = "SCHEDULE" ;                  (* well-less keyword events *)
-    event_line      = "@" , date_expr , event_type , { attribute } ;
-    raw_text_event  = "@" , date_expr , "RAW_TEXT" , raw_text_attributes , newline,
+    event_line      = date_expr , event_type , { attribute } ;
+    raw_text_event  = date_expr , "RAW_TEXT" , raw_text_attributes , newline,
                       { raw_line , newline } , "END_RAW_TEXT" ;
     raw_text_attributes = "PLACEMENT=" ,
                           ( "AFTER_DATE" | "BEFORE_KEYWORD" |
@@ -68,7 +68,8 @@ Notes on the grammar:
 
 * The format is line-oriented; every non-blank line is dispatched on its first
   token: ``ORIONEVENTS`` (once), ``UNIT``, ``DATE``, ``DURATION``, ``WELL``,
-  ``GROUP``, ``SCHEDULE``, ``REPORT`` or ``@``. Anything else is an error. Keywords are
+  ``GROUP``, ``SCHEDULE``, ``REPORT`` or an event date. Anything else is an
+  error. Keywords are
   uppercase and case-sensitive (the ``DAYS`` suffix is also accepted as ``days``).
 * Comments start with ``#`` (outside of double quotes) and run to end of line.
 * Variables are **typed**: ``DATE``, ``DURATION`` (whole days), ``WELL``
@@ -78,9 +79,9 @@ Notes on the grammar:
   the declaration site. Redeclaring a name with the same type warns and the
   last value wins; redeclaring with a different type is an error.
 * Date arithmetic is a chain of signed whole-day terms, each an integer or a
-  ``DURATION`` variable: ``@START + RAMP - 2``. Whitespace around ``+``/``-``
+  ``DURATION`` variable: ``START + RAMP - 2``. Whitespace around ``+``/``-``
   is optional but conventional. An event date may carry a time-of-day
-  (``@2024-05-15T14:45:30.500``), which the schedule generator preserves as
+  (``2024-05-15T14:45:30.500``), which the schedule generator preserves as
   the optional TIME field of the DATES keyword.
 * ``WELL <ident>`` opens an event block for a declared ``WELL`` alias;
   ``WELL "<name>"`` opens a block for the literal well name and never consults
@@ -98,7 +99,7 @@ Notes on the grammar:
   events fall on it — in Eclipse/Flow a ``DATES`` entry ensures a summary
   report at that date. ``EVERY [n] DAYS|MONTHS|YEARS`` makes it recurring and
   an inclusive ``UNTIL <date_expr>`` sets the end date. When ``UNTIL`` is
-  omitted, the latest ``@`` event date is used. Monthly and yearly recurrences
+  omitted, the latest event date is used. Monthly and yearly recurrences
   stay anchored to the initial calendar day, clamping to the end of shorter
   months. The dates are collected on :attr:`OrionDocument.report_dates` and
   surfaced by the applier as sorted ISO strings on
@@ -447,7 +448,7 @@ _RESULT_TYPE_ALIASES = {
 }
 _WELL_BLOCK_RE = re.compile(rf'^WELL\s+(?:"(?P<qname>[^"]*)"|(?P<ref>{_IDENT}))$')
 _GROUP_BLOCK_RE = re.compile(r'^GROUP\s+"(?P<name>[^"]*)"$')
-_EVENT_RE = re.compile(rf"^@\s*{_DATE_BASE}{_TERMS}\s+(?P<rest>.+)$")
+_EVENT_RE = re.compile(rf"^{_DATE_BASE}{_TERMS}\s+(?P<rest>.+)$")
 _TERM_RE = re.compile(rf"([-+])\s*(\d+|{_IDENT})")
 _ATTR_RE = re.compile(r'(?P<key>[A-Za-z_]\w*)\s*=\s*(?:"(?P<qval>[^"]*)"|(?P<val>\S+))')
 
@@ -541,7 +542,7 @@ def parse_orion_events(text: str) -> OrionDocument:
         except OrionParseError as exc:
             errors.extend(exc.errors)
             if line.split(None, 1)[0] in ("WELL", "GROUP", "SCHEDULE") or (
-                line.startswith("@") and current_events is None
+                _EVENT_RE.match(line) is not None and current_events is None
             ):
                 # Suppress cascading errors from lines belonging to a broken
                 # (or missing) block: swallow them into a discarded list.
@@ -760,14 +761,6 @@ def _parse_line(
     unit_holder: List[str],
 ) -> Optional[List[OrionEvent]]:
     """Dispatch one non-header line; returns the current event sink."""
-    if line.startswith("@"):
-        if current_events is None:
-            raise OrionParseError(
-                "Event line found before any WELL or SCHEDULE block", loc
-            )
-        current_events.append(_parse_event_line(line, variables, loc))
-        return current_events
-
     first = line.split(None, 1)[0]
 
     if first == "UNIT":
@@ -911,6 +904,12 @@ def _parse_line(
         new_well = WellBlock(well_name=name, loc=loc)
         wells.append(new_well)
         return new_well.events
+
+    if current_events is not None and _EVENT_RE.match(line):
+        current_events.append(_parse_event_line(line, variables, loc))
+        return current_events
+    if first[0].isdigit() and _EVENT_RE.match(line):
+        raise OrionParseError("Event line found before any WELL or SCHEDULE block", loc)
 
     raise OrionParseError(_unrecognized_line_message(line, first), loc)
 
