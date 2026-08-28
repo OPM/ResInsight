@@ -41,12 +41,12 @@ DURATION RAMP       = 5 DAYS
 WELL A1 = "55_33-A-1"
 
 WELL A1
-  A1_STARTUP         PERFORATION  MDSTART=1644.49  MDEND=1664.28  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=1
+  A1_STARTUP         PERFORATION  MDSTART=1644.49  MDEND=1664.28  DIAMETER=0.2413  SKIN=5  COMPLETION_NUMBER=1
   A1_STARTUP + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1
   A1_STARTUP + RAMP  WELTARG      CMODE=BHP  VALUE=50
 
 WELL "55_33-A-2"
-  A2_STARTUP  PERFORATION  MDSTART=1692.79  MDEND=1706  RADIUS=0.12065  SKIN=5  COMPLETION_NUMBER=1
+  A2_STARTUP  PERFORATION  MDSTART=1692.79  MDEND=1706  DIAMETER=0.2413  SKIN=5  COMPLETION_NUMBER=1
 """
 
 
@@ -1265,13 +1265,13 @@ class TestApplying:
         assert len(merged.schedule_events) == 1
         assert set(merged.schedule_events[0].attributes) == {"BASIC", "FREQ"}
 
-    def test_perforation_mapping_radius_to_diameter(self):
+    def test_perforation_maps_diameter_directly(self):
         timeline, report = self._apply(SAMPLE)
         assert report.events_applied == 4  # 2 perfs + WCONHIST + WELTARG
         first = timeline.perf_calls[0]
         assert first["start_md"] == 1644.49
         assert first["end_md"] == 1664.28
-        assert first["diameter"] == pytest.approx(2 * 0.12065)
+        assert first["diameter"] == pytest.approx(0.2413)
         assert first["skin_factor"] == 5.0
         assert first["completion_number"] == 1
         assert first["state"] == "OPEN"
@@ -1348,6 +1348,17 @@ class TestApplying:
         # generate_schedule_text(additional_dates=...). No timeline events.
         assert report.report_dates == ["2018-03-01", "2018-07-01"]
         assert report.events_applied == 1
+
+    def test_radius_on_perforation_is_unknown_attribute_error(self):
+        text = (
+            'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
+            "  2018-01-01 PERFORATION MDSTART=1 MDEND=2 RADIUS=0.1\n"
+        )
+        timeline, report = self._apply(text)
+        assert report.events_applied == 0
+        assert report.events_skipped == 1
+        assert any("RADIUS" in error for error in report.errors)
+        assert not timeline.perf_calls
 
     def test_perfid_on_perforation_is_unknown_attribute_error(self):
         # PERFID is not part of the format; it is rejected like any other
@@ -2201,7 +2212,7 @@ class TestOrionEventsIntegration:
             "DATE START = 2024-01-01\n"
             "DURATION RAMP = 5 DAYS\n"
             f'WELL "{well.name}"\n'
-            "  START         PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1\n"
+            "  START         PERFORATION  MDSTART=2000  MDEND=2200  DIAMETER=0.1  SKIN=0.5  COMPLETION_NUMBER=1\n"
             "  START + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1\n"
             "  START + RAMP  WELTARG      CMODE=BHP  VALUE=50\n"
             "SCHEDULE\n"
@@ -2218,7 +2229,8 @@ class TestOrionEventsIntegration:
         perforations = well.completions().perforations().perforations()
         assert len(perforations) > 0, "Perforation should be created from event"
         perf = perforations[0]
-        # RADIUS=0.05 must have been mapped to diameter = 0.1.
+        # DIAMETER is passed directly to the perforation event.
+        assert perf.diameter == pytest.approx(0.1)
         assert abs(perf.start_measured_depth - 2000.0) < 1.0
         assert abs(perf.end_measured_depth - 2200.0) < 1.0
 
@@ -2248,8 +2260,8 @@ class TestOrionEventsIntegration:
             "DURATION RAMP = 31 DAYS\n"
             f'WELL "{well.name}"\n'
             "  STARTUP         SEGMENT      MDSTART=0  MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5 PRESSURE_COMPONENTS=HFA\n"
-            "  STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1\n"
-            "  2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05  SKIN=0.4  COMPLETION_NUMBER=2\n"
+            "  STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  DIAMETER=0.1  SKIN=0.5  COMPLETION_NUMBER=1\n"
+            "  2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  DIAMETER=0.1  SKIN=0.4  COMPLETION_NUMBER=2\n"
             "  2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001\n"
             "  2024-02-15      STATE        STATE=OPEN\n"
             "  2024-01-15      WCONHIST     STATUS=OPEN  CMODE=RESV  ORAT=3999.99  VFP=1\n"
@@ -2315,7 +2327,7 @@ class TestOrionEventsIntegration:
             "ORIONEVENTS 2.0\n"
             'FILTER hiperm = "PERMX > 50.0"\n'
             f'WELL "{well.name}"\n'
-            "  2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 RADIUS=0.05 FILTER=hiperm\n"
+            "  2024-01-01 PERFORATION MDSTART=2000 MDEND=2200 DIAMETER=0.1 FILTER=hiperm\n"
         )
         document = parse_orion_events(text)
         report = apply_orion_document(document, timeline, project, case=case)
