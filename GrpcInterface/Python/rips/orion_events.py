@@ -1323,7 +1323,7 @@ _PERF_REQUIRED = ("MDSTART", "MDEND")
 _PERF_KNOWN = {
     "MDSTART",
     "MDEND",
-    "RADIUS",
+    "DIAMETER",
     "SKIN",
     "COMPLETION_NUMBER",
     "FILTER",
@@ -1996,8 +1996,8 @@ def _apply_perforation(
             "end_md": float(_as_number(attrs["MDEND"], event.loc)),
             "state": "OPEN",
         }
-        if "RADIUS" in attrs:
-            kwargs["diameter"] = 2.0 * float(_as_number(attrs["RADIUS"], event.loc))
+        if "DIAMETER" in attrs:
+            kwargs["diameter"] = float(_as_number(attrs["DIAMETER"], event.loc))
         if "SKIN" in attrs:
             kwargs["skin_factor"] = float(_as_number(attrs["SKIN"], event.loc))
         if "COMPLETION_NUMBER" in attrs:
