@@ -2169,6 +2169,26 @@ class TestOrionEventsIntegration:
         assert "1 'FEB' 2024" in schedule
         assert "1 'JUN' 2024" in schedule
 
+    def test_end_is_first_keyword_after_date(self, project_with_case_and_wells):
+        project, case, timeline = project_with_case_and_wells
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\nSCHEDULE\n"
+            "2024-01-01 RPTRST BASIC=2 FREQ=1\n"
+            "2024-01-01 END\n"
+        )
+
+        report = apply_orion_document(document, timeline, project)
+        assert report.errors == []
+        schedule = timeline.generate_schedule_text(
+            eclipse_case=case,
+            first_date_as_comment=False,
+        )
+
+        date_position = schedule.index("1 'JAN' 2024")
+        end_position = schedule.index("\nEND\n", date_position)
+        rptrst_position = schedule.index("\nRPTRST\n", date_position)
+        assert date_position < end_position < rptrst_position
+
     def test_apply_creates_perforations_and_schedule(self, project_with_case_and_wells):
         """End-to-end: parse -> apply -> set_timestamp -> generate schedule."""
         project, case, timeline = project_with_case_and_wells
