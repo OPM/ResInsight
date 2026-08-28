@@ -924,6 +924,13 @@ void RimSummaryEnsembleSumo::onLoadDataAndUpdate()
 {
     if ( m_sumoDataSource() )
     {
+        // Rebuilding against realizations that have not been fetched would read "not known yet" as "nothing
+        // selected" and delete every realization case of this ensemble - and unlike the grid ensembles, these
+        // cases are written to the project file. See RimCloudDataSourceCollection::refreshDataSourcesFromSumo,
+        // which fetches them when a project is loaded, and RimSumoDataSource::updateGridCaseEnsembles, which
+        // guards the grid ensembles the same way.
+        const bool realizationsAreKnown = m_sumoDataSource->hasFetchedRealizations();
+
         std::set<int> selectedRealizations;
         for ( const auto& realizationId : m_sumoDataSource->selectedRealizationIds() )
         {
@@ -942,8 +949,10 @@ void RimSummaryEnsembleSumo::onLoadDataAndUpdate()
         }
 
         // Update the realization cases whenever the selected set changes (added, removed or swapped),
-        // so editing the realizations on the data source updates the summary plot.
-        if ( selectedRealizations != currentRealizations )
+        // so editing the realizations on the data source updates the summary plot. Cases are only ever created
+        // when something is selected, which needs the realizations to be known, so this guard cannot suppress a
+        // rebuild that would have done anything but delete.
+        if ( realizationsAreKnown && selectedRealizations != currentRealizations )
         {
             // Update incrementally: a case whose realization is still selected is kept alive and reused.
             // Widening the selection therefore deletes nothing, which keeps the curves referring to those
