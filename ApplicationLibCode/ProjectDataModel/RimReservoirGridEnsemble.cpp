@@ -108,6 +108,9 @@ RimReservoirGridEnsemble::RimReservoirGridEnsemble()
     m_statisticsCaseCollection->uiCapability()->setUiName( "Derived Statistics" );
     m_statisticsCaseCollection->uiCapability()->setUiIconFromResourceString( ":/Histograms16x16.png" );
 
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCase, "EnsembleCase", "Ensemble Grid" );
+    m_ensembleCase = nullptr;
+
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
     m_viewCollection->setEclipseCaseProvider( [this]() { return this->cases(); } );
@@ -563,6 +566,7 @@ std::set<RimEclipseCase*> RimReservoirGridEnsemble::casesInViews() const
 void RimReservoirGridEnsemble::addWellTargetMapping( RimWellTargetMapping* wellTargetMapping )
 {
     m_wellTargetMappings.push_back( wellTargetMapping );
+    wellTargetMapping->setName( QString( "Well Target Mapping #%1" ).arg( m_wellTargetMappings.size() ) );
     wellTargetMapping->updateResultDefinition();
 }
 
@@ -925,6 +929,17 @@ void RimReservoirGridEnsemble::loadGridDataFromFiles()
     updateGridModeToolTip();
     updateStatisticsVisibility();
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::reloadMetaDataIfNeeded()
+{
+    if ( gridMode() == GridModeType::INDIVIDUAL_GRIDS ) return;
+
+    m_mainGrid = nullptr;
+    loadGridDataFromFiles();
 }
 
 //--------------------------------------------------------------------------------------------------

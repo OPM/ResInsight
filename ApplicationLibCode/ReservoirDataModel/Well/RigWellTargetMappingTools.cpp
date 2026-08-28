@@ -474,6 +474,7 @@ std::vector<ReservoirCellIndex> RigWellTargetMappingTools::findCandidates( RimEc
                 double transmissibility    = data.transmissibilityNNC->at( nncResultIdx );
 
                 ActiveCellIndex otherResultIndex = resultsData->activeCellInfo()->cellResultIndex( otherCellIdx );
+                if ( otherResultIndex.value() == cvf::UNDEFINED_SIZE_T ) continue;
 
                 double permeability = data.permeabilityX[otherResultIndex.value()];
 

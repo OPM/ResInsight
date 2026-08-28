@@ -58,6 +58,8 @@ public:
     bool hasSourSimFile();
 
     bool openEclipseGridFile() override;
+
+    bool isReservoirCaseOpen() const override;
     void closeReservoirCase() override;
 
     bool importGridAndResultMetaData( bool showTimeStepFilter );

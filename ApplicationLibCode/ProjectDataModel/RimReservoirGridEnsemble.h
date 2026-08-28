@@ -84,6 +84,7 @@ public:
     // Deferred loading control
     void loadGridDataFromFiles();
     bool isGridDataLoaded() const;
+    void reloadMetaDataIfNeeded();
 
     // Helper methods
     bool         hasSharedGrid() const;
@@ -157,6 +158,7 @@ private:
     // Cases
     caf::PdmChildField<RimCaseCollection*> m_caseCollection;
     caf::PdmChildField<RimCaseCollection*> m_statisticsCaseCollection;
+    caf::PdmChildField<RimEclipseCase*>    m_ensembleCase;
 
     // Grid mode
     caf::PdmField<bool>                       m_autoDetectGridType;

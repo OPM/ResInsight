@@ -41,12 +41,14 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 #include "RimRegularGridCase.h"
 #include "RimReservoirGridEnsemble.h"
 #include "RimTools.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiSliderTools.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include <cmath>
 #include <limits>
@@ -92,6 +94,8 @@ void caf::AppEnum<RigWellTargetMapping::VolumesType>::setUp()
 RimWellTargetMapping::RimWellTargetMapping()
 {
     CAF_PDM_InitObject( "Well Target Mapping", ":/WellTargets.png" );
+
+    setName( "Well Target Mapping" );
 
     CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
 
@@ -141,6 +145,21 @@ RimWellTargetMapping::RimWellTargetMapping()
     CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 100, "Cell Count J" );
     CAF_PDM_InitField( &m_cellCountK, "CellCountK", 10, "Cell Count K" );
 
+    CAF_PDM_InitField( &m_expandBoundingBoxXYPercent,
+                       "ExpandBoundingBoxXYPercent",
+                       5.0,
+                       "Expand Bounding Box XY [%]",
+                       "",
+                       "How much to increase the bounding box of the first case to cover for any grid size differences across the "
+                       "ensemble." );
+    CAF_PDM_InitField( &m_expandBoundingBoxZPercent,
+                       "ExpandBoundingBoxZPercent",
+                       10.0,
+                       "Expand Bounding Box Z [%]",
+                       "",
+                       "How much to increase the bounding box of the first case to cover for any grid size differences across the "
+                       "ensemble." );
+
     CAF_PDM_InitFieldNoDefault( &m_filterView, "FilterView", "Filter By View" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
@@ -180,7 +199,10 @@ RimWellTargetMapping::~RimWellTargetMapping()
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    updateAllBoundaries();
+    if ( changedField != nameField() )
+    {
+        updateAllBoundaries();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -384,14 +406,15 @@ void RimWellTargetMapping::generateCandidates( RimEclipseCase* eclipseCase, bool
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::generateEnsembleStatistics()
 {
-    // See RicNewWellTargetMappingFeature::isCommandEnabled() for comment on future support for ensembles with varying geometry.
-
-    auto ensemble = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>();
+    auto ensemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>();
     if ( !ensemble ) return;
 
     const cvf::Vec3st&                     resultGridCellCount = getResultGridCellCount();
     RigWellTargetMapping::ClusteringLimits limits              = getClusteringLimits();
     RigFloodingSettings floodingSettings( m_oilFloodingType(), m_userDefinedFloodingOil(), m_gasFloodingType(), m_userDefinedFloodingGas() );
+
+    double expandXY = ensemble->hasSharedGrid() ? 0.0 : m_expandBoundingBoxXYPercent();
+    double expandZ  = ensemble->hasSharedGrid() ? 0.0 : m_expandBoundingBoxZPercent();
 
     RimRegularGridCase* regularGridCase = RigWellTargetMapping::generateEnsembleCandidates( ensemble->cases(),
                                                                                             m_timeStep(),
@@ -400,9 +423,17 @@ void RimWellTargetMapping::generateEnsembleStatistics()
                                                                                             m_volumesType(),
                                                                                             m_volumeResultType(),
                                                                                             floodingSettings,
-                                                                                            limits );
+                                                                                            limits,
+                                                                                            expandXY,
+                                                                                            expandZ );
 
     regularGridCase->setCustomCaseName( "Ensemble Grid" );
+    regularGridCase->setDeletable( false );
+
+    if ( m_ensembleStatisticsCase() != nullptr )
+    {
+        delete m_ensembleStatisticsCase();
+    }
 
     m_ensembleStatisticsCase = regularGridCase;
 
@@ -411,14 +442,17 @@ void RimWellTargetMapping::generateEnsembleStatistics()
     eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
     eclipseView->cellResult()->setResultVariable( "TOTAL_PORV_SOIL_P10" );
 
+    eclipseView->loadDataAndUpdate();
+
+    updateConnectedEditors();
+    m_ensembleStatisticsCase->updateConnectedEditors();
+
+    ensemble->reloadMetaDataIfNeeded();
+
     if ( RiaGuiApplication::isRunning() || RiuMainWindow::instance() )
     {
         RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
     }
-
-    eclipseView->loadDataAndUpdate();
-
-    m_ensembleStatisticsCase->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -426,6 +460,9 @@ void RimWellTargetMapping::generateEnsembleStatistics()
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( nameField() );
+    uiOrdering.addNewButton( "Compute", [this]() { onGenerateButtonClicked(); } );
+
     caf::PdmUiGroup* resultGroup = uiOrdering.addNewGroup( "Result" );
     resultGroup->add( &m_timeStep );
     resultGroup->add( &m_volumeType );
@@ -458,8 +495,9 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 
     resultGroup->add( &m_volumesType );
 
-    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr ||
-                             firstAncestorOrThisOfType<RimReservoirGridEnsemble>() != nullptr;
+    auto gridEnsemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>();
+
+    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr || gridEnsemble != nullptr;
     if ( !hasEnsembleParent ) uiOrdering.add( &m_filterView );
 
     caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
@@ -476,13 +514,17 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
         ensembleGridGroup->add( &m_cellCountI );
         ensembleGridGroup->add( &m_cellCountJ );
         ensembleGridGroup->add( &m_cellCountK );
+
+        if ( gridEnsemble && !gridEnsemble->hasSharedGrid() )
+        {
+            ensembleGridGroup->add( &m_expandBoundingBoxXYPercent );
+            ensembleGridGroup->add( &m_expandBoundingBoxZPercent );
+        }
     }
 
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Advanced" );
     advancedGroup->add( &m_maxNumTargets );
     advancedGroup->setCollapsedByDefault();
-
-    uiOrdering.addNewButton( "Generate", [this]() { onGenerateButtonClicked(); } );
 
     uiOrdering.skipRemainingFields();
 
@@ -490,6 +532,19 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     {
         updateAllBoundaries();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellTargetMapping::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    if ( ensembleStatisticsCase() )
+    {
+        uiTreeOrdering.add( &m_ensembleStatisticsCase );
+    }
+
+    uiTreeOrdering.skipRemainingChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -563,12 +618,15 @@ RimEclipseCase* RimWellTargetMapping::firstCase() const
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::initAfterRead()
 {
-    if ( RimEclipseCase* eclipseCase = firstCase() )
+    if ( firstAncestorOrThisOfType<RimReservoirGridEnsemble>() )
     {
+        return; // no need to to do anything for ensembles, as the data have been cached
+    }
+    else if ( RimEclipseCase* eclipseCase = firstCase() )
+    {
+        // Automatically generate results on project load
         m_resultDefinition->setEclipseCase( eclipseCase );
 
-        // Automatically generate results on project load
-        // Consider to also do this for ensemble cases, but this will be more expensive
         bool setTimeStepInView = false;
         generateCandidates( eclipseCase, setTimeStepInView );
     }
@@ -641,19 +699,9 @@ void RimWellTargetMapping::resetMinimumCellValuesToDefault()
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::onGenerateButtonClicked()
 {
-    auto hasEclipseCaseEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr;
-    auto hasGridEnsembleParent        = firstAncestorOrThisOfType<RimReservoirGridEnsemble>() != nullptr;
-    if ( hasEclipseCaseEnsembleParent )
+    if ( firstAncestorOrThisOfType<RimReservoirGridEnsemble>() != nullptr )
     {
         generateEnsembleStatistics();
-    }
-    else if ( hasGridEnsembleParent )
-    {
-        // For RimReservoirGridEnsemble implement two variants, shared grid and individual grids. Individual grids variant will require more
-        // work, and is not currently prioritized, so for now just show a warning if user tries to generate candidates for a
-        // RimReservoirGridEnsemble
-        //
-        // See RicNewWellTargetMappingFeature::isCommandEnabled() for comment on future support for ensembles with varying geometry.
     }
     else if ( auto eclipseCase = firstCase() )
     {

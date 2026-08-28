@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimNamedObject.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -34,7 +36,7 @@ class RimEclipseView;
 ///
 ///
 //==================================================================================================
-class RimWellTargetMapping : public caf::PdmObject
+class RimWellTargetMapping : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -53,9 +55,11 @@ public:
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+    void initAfterRead() override;
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          initAfterRead() override;
 
 private:
     void        generateCandidates( RimEclipseCase* eclipseCase, bool setTimeStepInView = true );
@@ -89,6 +93,9 @@ private:
     caf::PdmField<double> m_pressure;
     caf::PdmField<double> m_permeability;
     caf::PdmField<double> m_transmissibility;
+
+    caf::PdmField<double> m_expandBoundingBoxXYPercent;
+    caf::PdmField<double> m_expandBoundingBoxZPercent;
 
     caf::PdmField<int> m_maxIterations;
     caf::PdmField<int> m_maxNumTargets;
