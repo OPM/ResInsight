@@ -22,11 +22,11 @@ File format grammar, version 2.0 (EBNF-ish)::
 
     document        = header , { statement } ;
     header          = "ORIONEVENTS" , "2.0" ;           (* first meaningful line *)
-    statement       = unit_directive | declaration | report_line | well_block_open
+    statement       = unit_directive | declaration | insert_date_line | well_block_open
                     | group_block_open | schedule_block_open | event_line
                     | raw_text_event ;
     unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
-    report_line     = "REPORT" , date_expr , [ recurrence ] ;
+    insert_date_line = "INSERT_DATE" , date_expr , [ recurrence ] ;
     recurrence      = "EVERY" , [ positive_integer ] , period ,
                       [ "UNTIL" , date_expr ] ;
     period          = "DAY" | "DAYS" | "MONTH" | "MONTHS" | "YEAR" | "YEARS" ;
@@ -68,7 +68,7 @@ Notes on the grammar:
 
 * The format is line-oriented; every non-blank line is dispatched on its first
   token: ``ORIONEVENTS`` (once), ``UNIT``, ``DATE``, ``DURATION``, ``WELL``,
-  ``GROUP``, ``SCHEDULE``, ``REPORT`` or an event date. Anything else is an
+  ``GROUP``, ``SCHEDULE``, ``INSERT_DATE`` or an event date. Anything else is an
   error. Keywords are
   uppercase and case-sensitive (the ``DAYS`` suffix is also accepted as ``days``).
 * Comments start with ``#`` (outside of double quotes) and run to end of line.
@@ -94,8 +94,8 @@ Notes on the grammar:
   record per unique member, with the enclosing group as parent. A schedule may
   contain one attribute-free ``RESTART`` event; it truncates generated schedule
   output before its timestamp and is not itself emitted as a keyword.
-* ``REPORT <date_expr>`` (anywhere after the header) names a date that should
-  appear as a bare ``DATES`` keyword in the generated schedule even when no
+* ``INSERT_DATE <date_expr>`` inside a ``SCHEDULE`` block names a date that
+  should appear as a bare ``DATES`` keyword in the generated schedule even when no
   events fall on it — in Eclipse/Flow a ``DATES`` entry ensures a summary
   report at that date. ``EVERY [n] DAYS|MONTHS|YEARS`` makes it recurring and
   an inclusive ``UNTIL <date_expr>`` sets the end date. When ``UNTIL`` is
@@ -105,7 +105,7 @@ Notes on the grammar:
   surfaced by the applier as sorted ISO strings on
   :attr:`ApplyReport.report_dates`, ready to pass to
   ``WellEventTimeline.generate_schedule_text(additional_dates=...)``. A
-  ``REPORT`` line is not tied to any well and does not close an open block.
+  ``INSERT_DATE`` line is not tied to any well.
 * ``RAW_TEXT`` is valid only inside a ``SCHEDULE`` block. Its body is copied
   without parsing or formatting through the mandatory standalone
   ``END_RAW_TEXT`` line. ``PLACEMENT`` is ``AFTER_DATE``, ``BEFORE_KEYWORD``,
@@ -328,7 +328,7 @@ class GroupBlock:
 
 @dataclass(frozen=True)
 class _ReportSpec:
-    """One REPORT declaration, expanded after all event dates are known."""
+    """One INSERT_DATE declaration, expanded after all event dates are known."""
 
     start: Union[datetime.date, datetime.datetime]
     interval: Optional[int]
@@ -407,7 +407,7 @@ _KEYWORDS = (
     "FILTER",
     "GROUP",
     "SCHEDULE",
-    "REPORT",
+    "INSERT_DATE",
 )
 
 _IDENT = r"[A-Za-z_]\w*"
@@ -423,8 +423,8 @@ _DURATION_DECL_RE = re.compile(
     r"(?:\s+(?:DAYS|days))?$"
 )
 _WELL_DECL_RE = re.compile(rf'^WELL\s+(?P<name>{_IDENT})\s*=\s*"(?P<well>[^"]*)"$')
-_REPORT_RE = re.compile(
-    rf"^REPORT\s+{_DATE_BASE}{_TERMS}"
+_INSERT_DATE_RE = re.compile(
+    rf"^INSERT_DATE\s+{_DATE_BASE}{_TERMS}"
     rf"(?:\s+EVERY\s+(?:(?P<count>\d+)\s+)?"
     rf"(?P<period>DAY|DAYS|MONTH|MONTHS|YEAR|YEARS)"
     rf"(?:\s+UNTIL\s+(?P<end_base>{_ISO_DATE}|{_IDENT})"
@@ -624,7 +624,7 @@ def _expand_report_specs(
 
         if spec.interval is None or spec.interval <= 0:
             issues.append(
-                ParseIssue("REPORT interval must be greater than zero", spec.loc)
+                ParseIssue("INSERT_DATE interval must be greater than zero", spec.loc)
             )
             continue
 
@@ -632,14 +632,16 @@ def _expand_report_specs(
         if end is None:
             issues.append(
                 ParseIssue(
-                    "Recurring REPORT without UNTIL requires at least one event",
+                    "Recurring INSERT_DATE without UNTIL requires at least one event",
                     spec.loc,
                 )
             )
             continue
         if _as_datetime(end) < _as_datetime(spec.start):
             issues.append(
-                ParseIssue("REPORT end date must not precede its start date", spec.loc)
+                ParseIssue(
+                    "INSERT_DATE end date must not precede its start date", spec.loc
+                )
             )
             continue
 
@@ -790,12 +792,14 @@ def _parse_line(
             )
         return schedule_events
 
-    if first == "REPORT":
-        match = _REPORT_RE.match(line)
+    if first == "INSERT_DATE":
+        if current_events is not schedule_events:
+            raise OrionParseError("INSERT_DATE is only valid in a SCHEDULE block", loc)
+        match = _INSERT_DATE_RE.match(line)
         if match is None:
             raise OrionParseError(
-                f"Malformed REPORT line: {line!r} "
-                "(expected REPORT <date-expr> [EVERY [count] "
+                f"Malformed INSERT_DATE line: {line!r} "
+                "(expected INSERT_DATE <date-expr> [EVERY [count] "
                 "DAYS|MONTHS|YEARS [UNTIL <date-expr>]])",
                 loc,
             )
@@ -904,6 +908,13 @@ def _parse_line(
         new_well = WellBlock(well_name=name, loc=loc)
         wells.append(new_well)
         return new_well.events
+
+    if first == "REPORT":
+        raise OrionParseError(
+            "REPORT has been renamed to INSERT_DATE and is only valid in a "
+            "SCHEDULE block",
+            loc,
+        )
 
     if current_events is not None and _EVENT_RE.match(line):
         current_events.append(_parse_event_line(line, variables, loc))
@@ -1601,7 +1612,7 @@ def apply_orion_document(
             event types are passed through as generic Eclipse keywords.
 
     Returns:
-        ApplyReport: counts plus collected warnings/errors. ``REPORT`` dates
+        ApplyReport: counts plus collected warnings/errors. ``INSERT_DATE`` dates
             from the document are returned as sorted, deduplicated ISO strings
             on ``report_dates`` — they do not create timeline events; pass them
             to ``timeline.generate_schedule_text(additional_dates=...)`` to

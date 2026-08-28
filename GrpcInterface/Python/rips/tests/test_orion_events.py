@@ -627,8 +627,9 @@ class TestParsing:
         text = (
             "ORIONEVENTS 2.0\n"
             "DATE START = 2024-01-01\n"
-            "REPORT 2024-06-01\n"
-            "REPORT START + 31\n"
+            "SCHEDULE\n"
+            "INSERT_DATE 2024-06-01\n"
+            "INSERT_DATE START + 31\n"
         )
         doc = parse_orion_events(text)
         assert doc.report_dates == [
@@ -637,31 +638,31 @@ class TestParsing:
         ]
 
     def test_report_keeps_duplicates_and_file_order(self):
-        text = "ORIONEVENTS 2.0\nREPORT 2024-06-01\nREPORT 2024-06-01\n"
+        text = (
+            "ORIONEVENTS 2.0\nSCHEDULE\n"
+            "INSERT_DATE 2024-06-01\nINSERT_DATE 2024-06-01\n"
+        )
         doc = parse_orion_events(text)
         assert doc.report_dates == [datetime.date(2024, 6, 1)] * 2
 
-    def test_report_inside_block_does_not_close_it(self):
-        text = (
-            'ORIONEVENTS 2.0\nWELL "W"\n'
-            "  2024-01-01 WCONHIST STATUS=OPEN\n"
-            "REPORT 2024-06-01\n"
-            "  2024-02-01 WELTARG CMODE=ORAT VALUE=5000\n"
-        )
-        doc = parse_orion_events(text)
-        assert [len(w.events) for w in doc.wells] == [2]
-        assert doc.report_dates == [datetime.date(2024, 6, 1)]
+    def test_insert_date_is_only_valid_in_schedule_block(self):
+        with pytest.raises(OrionParseError, match="only valid in a SCHEDULE"):
+            parse_orion_events("ORIONEVENTS 2.0\nINSERT_DATE 2024-06-01\n")
+
+    def test_legacy_report_keyword_is_rejected(self):
+        with pytest.raises(OrionParseError, match="renamed to INSERT_DATE"):
+            parse_orion_events("ORIONEVENTS 2.0\nSCHEDULE\nREPORT 2024-06-01\n")
 
     def test_report_with_undeclared_variable_raises(self):
         with pytest.raises(OrionParseError, match="NOPE"):
-            parse_orion_events("ORIONEVENTS 2.0\nREPORT NOPE + 1\n")
+            parse_orion_events("ORIONEVENTS 2.0\nSCHEDULE\nINSERT_DATE NOPE + 1\n")
 
     def test_malformed_report_line_raises(self):
-        with pytest.raises(OrionParseError, match="Malformed REPORT line"):
-            parse_orion_events("ORIONEVENTS 2.0\nREPORT\n")
+        with pytest.raises(OrionParseError, match="Malformed INSERT_DATE line"):
+            parse_orion_events("ORIONEVENTS 2.0\nSCHEDULE\nINSERT_DATE\n")
 
     def test_report_with_datetime_literal(self):
-        text = "ORIONEVENTS 2.0\nREPORT 2024-06-01T14:45:30.500\n"
+        text = "ORIONEVENTS 2.0\nSCHEDULE\nINSERT_DATE 2024-06-01T14:45:30.500\n"
         doc = parse_orion_events(text)
         assert doc.report_dates == [datetime.datetime(2024, 6, 1, 14, 45, 30, 500000)]
 
@@ -670,7 +671,8 @@ class TestParsing:
             "ORIONEVENTS 2.0\n"
             "DATE START = 2024-01-01\n"
             "DATE END = 2024-01-05\n"
-            "REPORT START + 1 EVERY 2 DAYS UNTIL END\n"
+            "SCHEDULE\n"
+            "INSERT_DATE START + 1 EVERY 2 DAYS UNTIL END\n"
         )
         doc = parse_orion_events(text)
         assert doc.report_dates == [
@@ -679,7 +681,10 @@ class TestParsing:
         ]
 
     def test_monthly_report_recurrence_is_anchored_to_initial_day(self):
-        text = "ORIONEVENTS 2.0\nREPORT 2024-01-31 EVERY MONTH UNTIL 2024-04-30\n"
+        text = (
+            "ORIONEVENTS 2.0\nSCHEDULE\n"
+            "INSERT_DATE 2024-01-31 EVERY MONTH UNTIL 2024-04-30\n"
+        )
         doc = parse_orion_events(text)
         assert doc.report_dates == [
             datetime.date(2024, 1, 31),
@@ -689,7 +694,10 @@ class TestParsing:
         ]
 
     def test_yearly_report_recurrence_clamps_leap_day(self):
-        text = "ORIONEVENTS 2.0\nREPORT 2024-02-29 EVERY YEAR UNTIL 2028-02-29\n"
+        text = (
+            "ORIONEVENTS 2.0\nSCHEDULE\n"
+            "INSERT_DATE 2024-02-29 EVERY YEAR UNTIL 2028-02-29\n"
+        )
         doc = parse_orion_events(text)
         assert doc.report_dates == [
             datetime.date(2024, 2, 29),
@@ -702,7 +710,8 @@ class TestParsing:
     def test_report_recurrence_without_until_uses_last_event(self):
         text = (
             "ORIONEVENTS 2.0\n"
-            "REPORT 2024-01-01 EVERY MONTH\n"
+            "SCHEDULE\n"
+            "INSERT_DATE 2024-01-01 EVERY MONTH\n"
             'WELL "W"\n'
             "  2024-03-15 WCONHIST STATUS=OPEN\n"
         )
@@ -716,7 +725,8 @@ class TestParsing:
     def test_recurring_report_preserves_datetime(self):
         text = (
             "ORIONEVENTS 2.0\n"
-            "REPORT 2024-06-01T14:45:30.500 EVERY DAY "
+            "SCHEDULE\n"
+            "INSERT_DATE 2024-06-01T14:45:30.500 EVERY DAY "
             "UNTIL 2024-06-02T14:45:30.500\n"
         )
         doc = parse_orion_events(text)
@@ -728,14 +738,17 @@ class TestParsing:
     @pytest.mark.parametrize(
         ("report_line", "message"),
         [
-            ("REPORT 2024-01-01 EVERY 0 DAYS UNTIL 2024-01-02", "greater than zero"),
-            ("REPORT 2024-01-02 EVERY DAY UNTIL 2024-01-01", "must not precede"),
-            ("REPORT 2024-01-01 EVERY DAY", "requires at least one event"),
+            (
+                "INSERT_DATE 2024-01-01 EVERY 0 DAYS UNTIL 2024-01-02",
+                "greater than zero",
+            ),
+            ("INSERT_DATE 2024-01-02 EVERY DAY UNTIL 2024-01-01", "must not precede"),
+            ("INSERT_DATE 2024-01-01 EVERY DAY", "requires at least one event"),
         ],
     )
     def test_invalid_report_recurrence_rejected(self, report_line, message):
         with pytest.raises(OrionParseError, match=message):
-            parse_orion_events(f"ORIONEVENTS 2.0\n{report_line}\n")
+            parse_orion_events(f"ORIONEVENTS 2.0\nSCHEDULE\n{report_line}\n")
 
     def test_event_dates_parse_without_prefix(self):
         text = (
@@ -1325,9 +1338,10 @@ class TestApplying:
         text = (
             'ORIONEVENTS 2.0\nWELL "55_33-A-1"\n'
             "  2018-01-01 WCONHIST STATUS=OPEN\n"
-            "REPORT 2018-07-01\n"
-            "REPORT 2018-03-01\n"
-            "REPORT 2018-07-01\n"
+            "SCHEDULE\n"
+            "INSERT_DATE 2018-07-01\n"
+            "INSERT_DATE 2018-03-01\n"
+            "INSERT_DATE 2018-07-01\n"
         )
         timeline, report = self._apply(text)
         # Sorted, deduplicated ISO strings ready for
@@ -2112,9 +2126,9 @@ class TestOrionEventsIntegration:
             "  2024-01-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=100\n"
             "  2024-02-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=200\n"
             "  2024-03-01 WCONHIST STATUS=OPEN CMODE=ORAT ORAT=300\n"
-            "REPORT 2024-01-15\n"
-            "REPORT 2024-04-01\n"
             "SCHEDULE\n"
+            "INSERT_DATE 2024-01-15\n"
+            "INSERT_DATE 2024-04-01\n"
             "  2024-02-01 RESTART\n"
         )
 
@@ -2139,7 +2153,8 @@ class TestOrionEventsIntegration:
     def test_report_only_document_generates_schedule(self, project_with_case_and_wells):
         project, case, timeline = project_with_case_and_wells
         document = parse_orion_events(
-            "ORIONEVENTS 2.0\nREPORT 2024-02-01\nREPORT 2024-06-01\n"
+            "ORIONEVENTS 2.0\nSCHEDULE\n"
+            "INSERT_DATE 2024-02-01\nINSERT_DATE 2024-06-01\n"
         )
 
         report = apply_orion_document(document, timeline, project)
@@ -2169,7 +2184,8 @@ class TestOrionEventsIntegration:
             "  START         PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1\n"
             "  START + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1\n"
             "  START + RAMP  WELTARG      CMODE=BHP  VALUE=50\n"
-            "REPORT 2024-07-01\n"
+            "SCHEDULE\n"
+            "INSERT_DATE 2024-07-01\n"
         )
         document = parse_orion_events(text)
         report = apply_orion_document(document, timeline, project)
@@ -2187,7 +2203,7 @@ class TestOrionEventsIntegration:
         assert abs(perf.end_measured_depth - 2200.0) < 1.0
 
         # The generated schedule should carry the mapped keywords, and the
-        # REPORT date should appear as a bare DATES entry (issue #14514).
+        # INSERT_DATE date should appear as a bare DATES entry (issue #14514).
         schedule = timeline.generate_schedule_text(
             eclipse_case=case,
             export_msw_for_wells=[],
@@ -2197,7 +2213,7 @@ class TestOrionEventsIntegration:
         assert "WCONHIST" in schedule
         assert "WELTARG" in schedule
         assert "1 'JUL' 2024" in schedule, (
-            "REPORT date should be emitted as a DATES entry"
+            "INSERT_DATE date should be emitted as a DATES entry"
         )
 
     def test_apply_full_event_coverage_and_schedule(self, project_with_case_and_wells):

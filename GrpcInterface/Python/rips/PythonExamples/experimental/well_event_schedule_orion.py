@@ -25,7 +25,7 @@ It demonstrates the full event coverage of the format:
 7. A GROUP-level MEMBER event expanded to one GRUPTREE record per member
 8. SCHEDULE-level keyword events not tied to a well: RPTRST, GRUPTREE, TUNING
 9. Multiline RAW_TEXT inserted at a chosen position without parsing its contents
-10. Recurring REPORT dates with explicit and implicit end dates, passed to
+10. Recurring INSERT_DATE directives with explicit and implicit end dates, passed to
     generate_schedule_text(additional_dates=...) as summary-report triggers
 11. Schedule metadata, COMPORD generation and aligned-column output
 
@@ -114,10 +114,10 @@ WTRACER
 /
 END_RAW_TEXT
 
-# Recurring report dates become bare DATES keywords. The first series ends at
-# the last  event; the second uses an explicit inclusive end date.
-REPORT STARTUP EVERY MONTH
-REPORT 2024-07-01 EVERY 3 MONTHS UNTIL STARTUP + 365
+# Recurring inserted dates become bare DATES keywords. The first series ends at
+# the last event; the second uses an explicit inclusive end date.
+INSERT_DATE STARTUP EVERY MONTH
+INSERT_DATE 2024-07-01 EVERY 3 MONTHS UNTIL STARTUP + 365
 """
 
 
@@ -177,7 +177,7 @@ def main():
     )
     print(f"   Events applied: {report.events_applied}")
     print(f"   Events skipped: {report.events_skipped}")
-    print(f"   Report dates:   {report.report_dates}")
+    print(f"   Inserted dates: {report.report_dates}")
     for warning in report.warnings:
         print(f"   WARNING: {warning}")
     for error in report.errors:
@@ -210,7 +210,7 @@ def main():
     if case is None:
         print("   No Eclipse case loaded - skipping schedule generation.")
         return
-    # REPORT dates become bare DATES keywords via additional_dates. Aligned output
+    # INSERT_DATE values become bare DATES keywords via additional_dates. Aligned output
     # adds column-title comments; the schedule header identifies its timestamp and
     # user, and each generated WELSPECS record has a matching COMPORD INPUT record.
     schedule_text = timeline.generate_schedule_text(
