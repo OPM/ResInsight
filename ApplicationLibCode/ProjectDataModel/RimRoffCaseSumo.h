@@ -20,13 +20,21 @@
 
 #include "RimEclipseCase.h"
 
+#include "Cloud/RiaSumoGrid.h"
+
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
+
+#include "cvfObject.h"
 
 #include <QPointer>
 #include <QString>
 
+#include <optional>
+#include <utility>
+
 class RiaSumoConnector;
+class RifReaderSumoGridProperty;
 class RimSumoDataSource;
 
 //==================================================================================================
@@ -60,6 +68,8 @@ public:
 
     QString locationOnDisc() const override;
 
+    QString dataLoadingText() const override;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -75,6 +85,18 @@ private:
     // that fetches the property data on demand. Static properties only in this first version.
     void registerSumoGridProperties();
 
+    // Start the transfer of the property time step about to be displayed. Called before the grid download so
+    // the two run in parallel; only the decode needs the grid.
+    //
+    // The values go to the reader, which does not exist yet at this point. That is safe: arrivals come through
+    // the event loop, and runOnTransferThreadBlocking holds the grid download on a semaphore without
+    // dispatching events, so nothing lands before the case is set up.
+    void startPropertyFetch();
+
+    // The property and time step a view of this case is about to show. False when no view has picked one yet,
+    // leaving the on demand path to fetch whatever is asked for.
+    bool propertyToFetch( QString& propertyName, size_t& stepIndex, QString& isoDateOrInterval ) const;
+
 private:
     caf::PdmPtrField<RimSumoDataSource*> m_sumoDataSource;
     caf::PdmField<QString>               m_sumoCaseId;
@@ -83,4 +105,16 @@ private:
     caf::PdmField<int>                   m_realization;
 
     QPointer<RiaSumoConnector> m_sumoConnector;
+
+    // The same reader the cell results hold, set in registerSumoGridProperties. Time steps fetched before it
+    // existed are handed to it.
+    cvf::ref<RifReaderSumoGridProperty> m_propertyReader;
+
+    // The properties Sumo reports for this realization. Fetched before the grid and reused when they are
+    // registered, so the request is made once.
+    std::vector<SumoGridPropertyInfo> m_propertyInfos;
+
+    // The time step startPropertyFetch put in flight, until the reader exists and takes it over. Handed to
+    // the reader as pending so it is reported to the user and not requested a second time.
+    std::optional<std::pair<QString, size_t>> m_fetchInFlight;
 };

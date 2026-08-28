@@ -23,6 +23,7 @@
 #include <QByteArray>
 #include <QString>
 
+#include <functional>
 #include <map>
 #include <vector>
 
@@ -114,6 +115,17 @@ public:
                                                      int                         realization,
                                                      const QString&              propertyName,
                                                      const std::vector<QString>& isoDatesOrIntervals );
+
+    // The async twin of propertyDataBatch. All time steps are requested at once and onTimeStepReady is called
+    // for each as it arrives, on the connector thread, exactly once per requested step. Empty contents mean
+    // that step failed. The blob transfers get no deadline, only the blob id requests.
+    void propertyDataBatchAsync( const SumoCaseId&                                               caseId,
+                                 const QString&                                                  ensembleName,
+                                 const QString&                                                  gridName,
+                                 int                                                             realization,
+                                 const QString&                                                  propertyName,
+                                 const std::vector<QString>&                                     isoDatesOrIntervals,
+                                 const std::function<void( const QString&, const QByteArray& )>& onTimeStepReady );
 
 private:
     QString gridBlobId( const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );

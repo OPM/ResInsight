@@ -103,9 +103,17 @@ public:
     // async work are delivered through this, so a caller never has its data handed to it on another thread.
     void invokeOnConnectorThread( const std::function<void()>& work );
 
-    // Download one blob, calling onFinished with its contents. Call on the transfer thread, where onFinished
-    // is called as well. Empty contents mean the transfer failed.
-    void downloadBlobAsync( const QString& blobId, const std::function<void( const QByteArray& )>& onFinished );
+    // Download one blob. Call on the transfer thread, where onFinished is called as well, exactly once on
+    // every path. Empty contents mean the transfer failed.
+    //
+    // blobTimeoutMillis is a deadline on the transfer itself, not an inactivity timeout: pass noTimeout() for
+    // a blob large enough that a slow link is not a failure. The blob id request keeps its own deadline.
+    void downloadBlobAsync( const QString&                                  blobId,
+                            const std::function<void( const QByteArray& )>& onFinished,
+                            int                                             blobTimeoutMillis = RiaSumoDefines::requestTimeoutMillis() );
+
+    // Timeout value meaning "never abort on a deadline".
+    static constexpr int noTimeout() { return -1; }
 
     // Abort a reply that has not finished in time, so an async chain reports a failure instead of hanging and
     // leaving whoever waits for the data waiting forever.

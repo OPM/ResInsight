@@ -92,6 +92,11 @@ public:
     void showFilterLabel( bool enable );
     void setFilterText( const QString& text );
 
+    // A banner across the top of the view, for telling the user data is on its way. Deliberately not the
+    // info text, which is small, in a corner, and can be switched off.
+    void showLoadingLabel( bool enable );
+    void setLoadingText( const QString& text );
+
     void showHistogram( bool enable );
     void setHistogram( double min, double max, const std::vector<size_t>& histogram );
     void setHistogramPercentiles( double pmin, double pmax, double mean );
@@ -186,6 +191,9 @@ private:
 
     QLabel* m_filterLabel;
     bool    m_showFilterLabel;
+
+    QLabel* m_loadingLabel;
+    bool    m_showLoadingLabel;
 
     caf::QStyledProgressBar*  m_animationProgress;
     caf::QStyledProgressBar*  m_animationProgressCompView;
