@@ -138,8 +138,12 @@ bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImport
         RifWellPathImporter::WellMetaData wellMetaData = RifWellPathImporter::readWellMetaData( filePath(), m_wellPathIndexInFile() );
         // General well info
 
-        if ( initializeWellNamesFromFile )
+        if ( initializeWellNamesFromFile || name().isEmpty() )
         {
+            // Initialize the well path and export names from the source file during first import, or if no name
+            // has been assigned yet (e.g. projects saved before the well path name was persisted). Subsequent data
+            // reloads of a named well path preserve the name stored in the project while continuing to refresh
+            // geometry and metadata.
             setName( wellData.m_name );
         }
 
