@@ -181,6 +181,12 @@ protected:
 
     const RigFormationNames* effectiveFormationNames() const;
 
+public:
+    // What this case is transferring right now, for the 3D view overlay. Empty for a case that reads from
+    // disk and has nothing in flight; overridden by the cases backed by remote data.
+    virtual QString dataLoadingText() const { return {}; }
+
+protected:
 private:
     void                                   createTimeStepFormatString();
     std::vector<Rim3dView*>                allSpecialViews() const override;

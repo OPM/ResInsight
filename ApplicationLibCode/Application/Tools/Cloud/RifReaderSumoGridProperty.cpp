@@ -19,6 +19,7 @@
 #include "RifReaderSumoGridProperty.h"
 
 #include "RiaLogging.h"
+#include "RiaRegressionTestRunner.h"
 #include "RiaSumoConnector.h"
 #include "RiaSumoDefines.h"
 
@@ -27,9 +28,20 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigMainGrid.h"
 #include "RigNestedHybridGridResultTools.h"
 
+#include "Rim3dView.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+
+#include "RiuMainWindow.h"
+#include "RiuViewer.h"
+
+#include <QStatusBar>
+
 #include <algorithm>
+#include <cmath>
 #include <sstream>
 
 //--------------------------------------------------------------------------------------------------
@@ -46,6 +58,7 @@ RifReaderSumoGridProperty::RifReaderSumoGridProperty( RiaSumoConnector* connecto
     , m_gridName( gridName )
     , m_realization( realization )
     , m_caseData( nullptr )
+    , m_lifetimeToken( std::make_shared<bool>( true ) )
 {
 }
 
@@ -112,48 +125,267 @@ bool RifReaderSumoGridProperty::dynamicResult( const QString&                res
     const QString&              isoDateOrInterval = timestamps[stepIndex];
     if ( isoDateOrInterval.isEmpty() ) return false;
 
-    const auto stepsToFetch = timeStepsToFetch( result, timestamps, stepIndex );
-
-    if ( stepsToFetch.size() > 1 )
+    // Already on its way. Hand back blank cells and let the arrival fill them in; requesting the same time
+    // step again would only duplicate the transfer.
+    if ( m_pending.count( PendingKey{ result, stepIndex } ) > 0 )
     {
-        std::vector<QString> isoDatesOrIntervals;
-        for ( size_t step : stepsToFetch )
+        // Refresh here as well. A transfer started before the case was open was registered while the view had
+        // no viewer yet, so this is the first point at which the banner can actually be put up.
+        updateLoadingIndicators();
+
+        return fillWithUndefinedValues( values );
+    }
+
+    requestTimeStepsAsync( result, timestamps, timeStepsToFetch( result, timestamps, stepIndex ) );
+
+    // Nothing is waited for. The requested step draws blank until it arrives, which is what keeps the user
+    // interface responsive while tens of megabytes are transferred.
+    return fillWithUndefinedValues( values );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Names what is on its way, so the user is told the cells are blank because data is being fetched and not
+/// because there is none. A single time step is named outright; several are counted.
+//--------------------------------------------------------------------------------------------------
+QString RifReaderSumoGridProperty::pendingDataDescription() const
+{
+    if ( m_pending.empty() ) return {};
+
+    std::set<QString> propertyNames;
+    for ( const auto& [propertyName, stepIndex] : m_pending )
+    {
+        propertyNames.insert( propertyName );
+    }
+
+    if ( m_pending.size() == 1 )
+    {
+        const auto& [propertyName, stepIndex] = *m_pending.begin();
+
+        QString isoDateOrInterval;
+        if ( auto it = m_dynamicTimestamps.find( propertyName ); it != m_dynamicTimestamps.end() && stepIndex < it->second.size() )
         {
-            isoDatesOrIntervals.push_back( timestamps[step] );
+            isoDateOrInterval = it->second[stepIndex];
         }
 
-        const auto contentsByTimestamp =
-            m_connector->grid().propertyDataBatch( SumoCaseId( m_caseId ), m_ensembleName, m_gridName, m_realization, result, isoDatesOrIntervals );
+        if ( !isoDateOrInterval.isEmpty() ) return QString( "%1 (%2)" ).arg( propertyName, isoDateOrInterval );
 
-        // Decode the look ahead time steps into the case results. They are retained there, so this reader is
-        // not called for them again, which is what makes holding on to the downloaded bytes unnecessary.
-        for ( size_t step : stepsToFetch )
+        return propertyName;
+    }
+
+    if ( propertyNames.size() == 1 )
+    {
+        return QString( "%1 time steps of %2" ).arg( m_pending.size() ).arg( *propertyNames.begin() );
+    }
+
+    return QString( "%1 time steps" ).arg( m_pending.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The transfer was issued by the case before this reader existed, so the time step was never marked pending
+/// here. Claim it now, so the arrival handler treats it like any other.
+//--------------------------------------------------------------------------------------------------
+void RifReaderSumoGridProperty::acceptFetchedTimeStep( const QString&    propertyName,
+                                                       size_t            stepIndex,
+                                                       const QString&    isoDateOrInterval,
+                                                       const QByteArray& contents )
+{
+    // Whichever transfer arrives first wins. Claim the step if it is not already claimed, so these values
+    // are written either way; a duplicate arriving later finds nothing pending and drops itself.
+    m_pending.insert( PendingKey{ propertyName, stepIndex } );
+
+    onTimeStepArrived( propertyName, stepIndex, isoDateOrInterval, contents );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderSumoGridProperty::markTimeStepPending( const QString& propertyName, size_t stepIndex )
+{
+    if ( !m_pending.insert( PendingKey{ propertyName, stepIndex } ).second ) return;
+
+    updateLoadingIndicators();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Start a transfer for the time steps not already on their way, marking them pending before the request is
+/// issued so a redraw arriving in between does not start the same transfer twice.
+//--------------------------------------------------------------------------------------------------
+void RifReaderSumoGridProperty::requestTimeStepsAsync( const QString&              propertyName,
+                                                       const std::vector<QString>& timestamps,
+                                                       const std::vector<size_t>&  steps )
+{
+    if ( !m_connector ) return;
+
+    std::vector<QString> isoDatesOrIntervals;
+    std::vector<size_t>  requestedSteps;
+    for ( size_t step : steps )
+    {
+        if ( step >= timestamps.size() || timestamps[step].isEmpty() ) continue;
+        if ( !m_pending.insert( PendingKey{ propertyName, step } ).second ) continue;
+
+        requestedSteps.push_back( step );
+        isoDatesOrIntervals.push_back( timestamps[step] );
+    }
+
+    if ( isoDatesOrIntervals.empty() ) return;
+
+    // Maps a delivered timestamp back to the time step it was requested for. Should a property report the
+    // same timestamp twice, the first one is the step that was asked for.
+    std::map<QString, size_t> stepByTimestamp;
+    for ( size_t i = 0; i < requestedSteps.size(); i++ )
+    {
+        stepByTimestamp.try_emplace( isoDatesOrIntervals[i], requestedSteps[i] );
+    }
+
+    updateLoadingIndicators();
+
+    std::weak_ptr<bool> isAlive = m_lifetimeToken;
+
+    m_connector->grid().propertyDataBatchAsync( SumoCaseId( m_caseId ),
+                                                m_ensembleName,
+                                                m_gridName,
+                                                m_realization,
+                                                propertyName,
+                                                isoDatesOrIntervals,
+                                                [this, isAlive, propertyName, stepByTimestamp]( const QString&    isoDateOrInterval,
+                                                                                                const QByteArray& contents )
+                                                {
+                                                    // The reader may be gone: a realization can be closed while its
+                                                    // transfers are still running.
+                                                    if ( isAlive.expired() ) return;
+
+                                                    auto it = stepByTimestamp.find( isoDateOrInterval );
+                                                    if ( it == stepByTimestamp.end() ) return;
+
+                                                    onTimeStepArrived( propertyName, it->second, isoDateOrInterval, contents );
+                                                } );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One time step has arrived, on the GUI thread. Write it into the case results over the placeholder, and
+/// redraw.
+//--------------------------------------------------------------------------------------------------
+void RifReaderSumoGridProperty::onTimeStepArrived( const QString&    propertyName,
+                                                   size_t            stepIndex,
+                                                   const QString&    isoDateOrInterval,
+                                                   const QByteArray& contents )
+{
+    // No longer pending means it was abandoned while in flight, so these values are not wanted.
+    if ( m_pending.erase( PendingKey{ propertyName, stepIndex } ) == 0 ) return;
+
+    if ( contents.isEmpty() )
+    {
+        RiaLogging::warning( QString( "Failed to load '%1' (time '%2') for realization %3 from Sumo." )
+                                 .arg( propertyName, isoDateOrInterval )
+                                 .arg( m_realization )
+                                 .toStdString() );
+
+        // The placeholder is left in place. A non-empty slot is not read again, so a failed step is not
+        // retried on every redraw, which would turn one failure into a flood of requests. The cells stay
+        // blank until the case is reloaded.
+        updateLoadingIndicators();
+        return;
+    }
+
+    // Overwrite the placeholder: a non-empty slot means RigCaseCellResultsData does not ask for this time
+    // step again.
+    auto* slot = resultValueSlot( propertyName, stepIndex );
+    if ( !slot ) return;
+
+    if ( !decodeInto( contents, propertyName, slot ) ) return;
+
+    logTransfer( propertyName, isoDateOrInterval, contents.size(), true );
+
+    // The placeholder pass produced a degenerate min/max, and the legend range is built from it. Throw the
+    // cached statistics away so they are computed again from the values that just arrived.
+    if ( auto* cellResults = m_caseData ? m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) : nullptr )
+    {
+        cellResults->recalculateStatistics( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, propertyName ) );
+    }
+
+    scheduleRedrawOfViews();
+
+    updateLoadingIndicators();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderSumoGridProperty::updateLoadingIndicators() const
+{
+    // Regression tests are left alone, matching how RiuMainWindow treats its own status messages.
+    if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() ) return;
+
+    const QString pending = pendingDataDescription();
+    const QString message = pending.isEmpty() ? QString() : QString( "Loading %1 from Sumo..." ).arg( pending );
+
+    // A banner in the view itself. The status bar is easy to miss and the info text is small and can be
+    // switched off, while the wait is measured in seconds.
+    if ( auto* ownerCase = m_caseData ? m_caseData->ownerCase() : nullptr )
+    {
+        for ( auto* view : ownerCase->reservoirViews() )
         {
-            if ( step == stepIndex ) continue;
+            if ( !view || !view->viewer() ) continue;
 
-            auto contents = contentsByTimestamp.find( timestamps[step] );
-            if ( contents == contentsByTimestamp.end() ) continue;
-
-            // Never resize the time step vector here: the caller holds a reference into it, see
-            // RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep.
-            auto* slot = resultValueSlot( result, step );
-            if ( !slot ) continue;
-
-            if ( decodeInto( contents->second, result, slot ) )
-            {
-                logTransfer( result, timestamps[step], contents->second.size(), true );
-            }
-        }
-
-        if ( auto contents = contentsByTimestamp.find( isoDateOrInterval ); contents != contentsByTimestamp.end() )
-        {
-            logTransfer( result, isoDateOrInterval, contents->second.size(), true );
-
-            return decodeInto( contents->second, result, values );
+            view->viewer()->setLoadingText( message );
+            view->viewer()->showLoadingLabel( !message.isEmpty() );
         }
     }
 
-    return fetchAndDecode( result, isoDateOrInterval, values );
+    auto* mainWindow = RiuMainWindow::instance();
+    if ( !mainWindow || !mainWindow->statusBar() ) return;
+
+    if ( message.isEmpty() )
+    {
+        mainWindow->statusBar()->clearMessage();
+        return;
+    }
+
+    mainWindow->statusBar()->showMessage( message );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// HUGE_VAL is the undefined-cell value the rest of the code already uses - the same value
+/// RifRoffFileTools::propertyValuesFromStream writes for inactive cells - so a pending time step renders as
+/// blank cells. A correctly sized vector is returned rather than an empty one, which the result accessors
+/// would read out of range.
+//--------------------------------------------------------------------------------------------------
+bool RifReaderSumoGridProperty::fillWithUndefinedValues( std::vector<double>* values ) const
+{
+    if ( !values || !m_caseData || !m_caseData->mainGrid() ) return false;
+
+    values->assign( m_caseData->mainGrid()->cellCount(), HUGE_VAL );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderSumoGridProperty::scheduleRedrawOfViews()
+{
+    // Redrawing reads cell results, which can start the next transfer and arrive back here. Coalesce rather
+    // than recurse.
+    if ( m_isRedrawing )
+    {
+        m_hasMissedRedraw = true;
+        return;
+    }
+
+    m_isRedrawing = true;
+    do
+    {
+        m_hasMissedRedraw = false;
+
+        if ( auto* ownerCase = m_caseData ? m_caseData->ownerCase() : nullptr )
+        {
+            for ( auto* view : ownerCase->reservoirViews() )
+            {
+                if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+    } while ( m_hasMissedRedraw );
+    m_isRedrawing = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,11 +404,17 @@ std::vector<size_t>
     // The values already in the case results are the look ahead: a time step loaded there is served without
     // reaching this reader. Only refill when it runs low, so the batches stay full instead of trickling in
     // one or two time steps at a time.
+    //
+    // A pending step holds a placeholder, so a non-empty slot does not by itself mean loaded. Counting those
+    // as loaded would let the look ahead believe it is full while nothing has arrived; listing them as
+    // unloaded would request them twice.
     std::vector<size_t> unloadedSteps;
     size_t              loadedAhead = 0;
     for ( size_t step = stepIndex + 1; step < timestamps.size(); step++ )
     {
         if ( timestamps[step].isEmpty() ) continue; // no data at this time step for this property
+
+        if ( m_pending.count( PendingKey{ propertyName, step } ) > 0 ) continue; // on its way
 
         auto* slot = resultValueSlot( propertyName, step );
         if ( slot && !slot->empty() )
@@ -206,6 +444,8 @@ std::vector<size_t>
         precedingStep--;
 
         if ( timestamps[precedingStep].isEmpty() ) continue;
+
+        if ( m_pending.count( PendingKey{ propertyName, precedingStep } ) > 0 ) continue;
 
         auto* slot = resultValueSlot( propertyName, precedingStep );
         if ( slot && !slot->empty() ) continue;

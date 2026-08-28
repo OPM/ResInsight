@@ -37,10 +37,13 @@
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
 
+#include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirGridEnsembleBase.h"
 
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmPointer.h"
 
 #include <QDate>
 #include <QDateTime>
@@ -193,6 +196,10 @@ bool RimRoffCaseSumo::openEclipseGridFile()
 
     setReservoirData( new RigEclipseCaseData( this ) );
 
+    // Before the grid, not after: the property transfer needs no grid to start, so the two run in parallel
+    // instead of one after the other.
+    startPropertyFetch();
+
     // RifRoffFileTools::openGridFile appends into the grid it is given, so this must be a grid of our own.
     // The shared grid can only be adopted once the parsing is done.
     if ( !downloadAndParseGrid() )
@@ -334,8 +341,13 @@ void RimRoffCaseSumo::registerSumoGridProperties()
 {
     if ( !m_sumoConnector || !eclipseCaseData() ) return;
 
-    const auto gridPropertyInfos =
-        m_sumoConnector->grid().propertyInfo( SumoCaseId( m_sumoCaseId() ), m_ensembleName(), m_gridName(), m_realization() );
+    // Already fetched by startPropertyFetch in the normal case. Only ask again when it is not there, so a
+    // case opened without that step still works.
+    if ( m_propertyInfos.empty() )
+    {
+        m_propertyInfos = m_sumoConnector->grid().propertyInfo( SumoCaseId( m_sumoCaseId() ), m_ensembleName(), m_gridName(), m_realization() );
+    }
+    const auto& gridPropertyInfos = m_propertyInfos;
 
     // Properties without a timestamp are static. Properties with a single timestamp are dynamic (one time
     // step per timestamp). Time intervals (the iso string contains '/') are not supported and skipped.
@@ -438,5 +450,128 @@ void RimRoffCaseSumo::registerSumoGridProperties()
         reader->setDynamicProperties( readerDynamicTimestamps );
     }
 
+    m_propertyReader = reader;
+
+    // The transfer started before this reader existed is still on its way. Tell the reader, so it reports the
+    // wait to the user and does not issue a second request for the same time step.
+    if ( m_fetchInFlight ) reader->markTimeStepPending( m_fetchInFlight->first, m_fetchInFlight->second );
+
     cellResults->setReaderInterface( reader );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimRoffCaseSumo::dataLoadingText() const
+{
+    if ( m_propertyReader.isNull() ) return {};
+
+    const QString pending = m_propertyReader->pendingDataDescription();
+    if ( pending.isEmpty() ) return {};
+
+    return QString( "Loading %1 from Sumo" ).arg( pending );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The case wide time step list: the union of the timestamps of every dynamic property, sorted. All dynamic
+/// results share it, so it is the index space the 3D view time slider works in.
+//--------------------------------------------------------------------------------------------------
+static std::vector<QString> commonTimestampsFromPropertyInfo( const std::vector<SumoGridPropertyInfo>& infos )
+{
+    std::set<QString> allTimestamps;
+    for ( const auto& info : infos )
+    {
+        // Time intervals are not supported, and a static property has no timestamp at all.
+        if ( info.isoDateOrInterval.isEmpty() || info.isoDateOrInterval.contains( '/' ) ) continue;
+
+        allTimestamps.insert( info.isoDateOrInterval );
+    }
+
+    return { allTimestamps.begin(), allTimestamps.end() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimRoffCaseSumo::propertyToFetch( QString& propertyName, size_t& stepIndex, QString& isoDateOrInterval ) const
+{
+    // What a view of this case is about to show. Without one there is nothing to guess at, and the on demand
+    // path will fetch whatever is asked for soon enough.
+    for ( auto* view : reservoirViews() )
+    {
+        if ( !view || !view->cellResult() ) continue;
+
+        const QString candidate = view->cellResult()->resultVariable();
+        if ( candidate.isEmpty() ) continue;
+
+        const int currentStep = view->currentTimeStep();
+        if ( currentStep < 0 ) continue;
+
+        const auto timestamps = commonTimestampsFromPropertyInfo( m_propertyInfos );
+        if ( static_cast<size_t>( currentStep ) >= timestamps.size() ) continue;
+
+        // Only worth fetching when this property actually has data at that time step.
+        const QString candidateTimestamp = timestamps[currentStep];
+        const bool    hasThisTimeStep =
+            std::ranges::any_of( m_propertyInfos,
+                                 [&]( const auto& info ) { return info.name == candidate && info.isoDateOrInterval == candidateTimestamp; } );
+        if ( !hasThisTimeStep ) continue;
+
+        propertyName      = candidate;
+        stepIndex         = static_cast<size_t>( currentStep );
+        isoDateOrInterval = candidateTimestamp;
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRoffCaseSumo::startPropertyFetch()
+{
+    if ( !m_sumoConnector ) return;
+
+    // Small request, and the only thing here that needs waiting for. It also spares the later registration a
+    // second one.
+    m_propertyInfos = m_sumoConnector->grid().propertyInfo( SumoCaseId( m_sumoCaseId() ), m_ensembleName(), m_gridName(), m_realization() );
+
+    QString propertyName;
+    size_t  stepIndex = 0;
+    QString isoDateOrInterval;
+    if ( !propertyToFetch( propertyName, stepIndex, isoDateOrInterval ) ) return;
+
+    m_fetchInFlight = std::make_pair( propertyName, stepIndex );
+
+    RiaLogging::debug( std::format( "Fetching '{}' (time '{}') for realization {} in parallel with the grid.",
+                                    propertyName.toStdString(),
+                                    isoDateOrInterval.toStdString(),
+                                    m_realization() ) );
+
+    // Auto-nulls if this case is deleted while the transfer is in flight.
+    caf::PdmPointer<RimRoffCaseSumo> self( const_cast<RimRoffCaseSumo*>( this ) );
+
+    m_sumoConnector->grid().propertyDataBatchAsync( SumoCaseId( m_sumoCaseId() ),
+                                                    m_ensembleName(),
+                                                    m_gridName(),
+                                                    m_realization(),
+                                                    propertyName,
+                                                    { isoDateOrInterval },
+                                                    [self, propertyName, stepIndex]( const QString& iso, const QByteArray& contents )
+                                                    {
+                                                        if ( self.isNull() || contents.isEmpty() ) return;
+
+                                                        // The reader is attached while the grid download holds
+                                                        // this thread on a semaphore, which dispatches no
+                                                        // events, so it is here by the time this runs. If it is
+                                                        // somehow not, the values are dropped and the on demand
+                                                        // path fetches them again.
+                                                        self->m_fetchInFlight.reset();
+
+                                                        if ( self->m_propertyReader.notNull() )
+                                                        {
+                                                            self->m_propertyReader->acceptFetchedTimeStep( propertyName, stepIndex, iso, contents );
+                                                        }
+                                                    } );
 }

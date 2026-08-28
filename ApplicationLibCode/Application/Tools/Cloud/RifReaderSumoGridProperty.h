@@ -25,6 +25,9 @@
 #include <QString>
 
 #include <map>
+#include <memory>
+#include <set>
+#include <utility>
 #include <vector>
 
 class RiaSumoConnector;
@@ -50,6 +53,17 @@ public:
 
     bool open( const QString& fileName, RigEclipseCaseData* eclipseCase ) override;
 
+    // Take one time step fetched before this reader existed, see RimRoffCaseSumo::startPropertyFetch.
+    void acceptFetchedTimeStep( const QString& propertyName, size_t stepIndex, const QString& isoDateOrInterval, const QByteArray& contents );
+
+    // Record a transfer started before this reader existed as already on its way. Without this the reader
+    // reports nothing in flight, so the user is told nothing while waiting and a second, duplicate transfer
+    // is issued the first time the property is read.
+    void markTimeStepPending( const QString& propertyName, size_t stepIndex );
+
+    // What is being transferred right now, for display to the user. Empty when nothing is.
+    QString pendingDataDescription() const;
+
     bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override;
     bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
@@ -71,6 +85,27 @@ private:
     // holding on to the downloaded bytes.
     std::vector<double>* resultValueSlot( const QString& propertyName, size_t stepIndex );
 
+    // One requested time step of one dynamic property.
+    using PendingKey = std::pair<QString, size_t>;
+
+    // Request the given time steps without waiting, marking them pending. Already pending steps are skipped,
+    // so a redraw mid-transfer does not issue a second request.
+    void requestTimeStepsAsync( const QString& propertyName, const std::vector<QString>& timestamps, const std::vector<size_t>& steps );
+
+    // Called on the connector thread, which is the GUI thread, once per requested time step.
+    void onTimeStepArrived( const QString& propertyName, size_t stepIndex, const QString& isoDateOrInterval, const QByteArray& contents );
+
+    // Fill values with the undefined-cell value, sized to the grid, and report success, so a time step still
+    // on its way draws blank instead of logging a load failure on every redraw.
+    bool fillWithUndefinedValues( std::vector<double>* values ) const;
+
+    // Redraw the views of this case, so arrived values become visible.
+    void scheduleRedrawOfViews();
+
+    // Refresh every surface reporting what is on its way: the banner in the view, the status bar, and
+    // indirectly the info box via RimRoffCaseSumo::dataLoadingText.
+    void updateLoadingIndicators() const;
+
 private:
     QPointer<RiaSumoConnector> m_connector;
     QString                    m_caseId;
@@ -82,4 +117,16 @@ private:
 
     std::vector<QString>                    m_staticProperties;
     std::map<QString, std::vector<QString>> m_dynamicTimestamps; // property name -> sorted iso timestamps
+
+    // Requested and not yet arrived. Claimed before the request is issued, so it also answers "already on
+    // its way?".
+    std::set<PendingKey> m_pending;
+
+    // Dropped when this reader dies. Callbacks hold a weak_ptr and return early once it expires, so a reply
+    // outliving the reader cannot write into freed memory.
+    std::shared_ptr<bool> m_lifetimeToken;
+
+    // A redraw can read another time step and arrive back here. Coalesce instead of recursing.
+    bool m_isRedrawing     = false;
+    bool m_hasMissedRedraw = false;
 };

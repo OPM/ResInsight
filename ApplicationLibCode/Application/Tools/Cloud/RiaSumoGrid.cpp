@@ -231,6 +231,77 @@ std::map<QString, QByteArray> RiaSumoGrid::propertyDataBatch( const SumoCaseId& 
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The async twin of propertyDataBatch, built on the same blob id request. Every time step is requested at
+/// once and delivered on the connector thread as it arrives, so nothing waits for the slowest one.
+//--------------------------------------------------------------------------------------------------
+void RiaSumoGrid::propertyDataBatchAsync( const SumoCaseId&                                               caseId,
+                                          const QString&                                                  ensembleName,
+                                          const QString&                                                  gridName,
+                                          int                                                             realization,
+                                          const QString&                                                  propertyName,
+                                          const std::vector<QString>&                                     isoDatesOrIntervals,
+                                          const std::function<void( const QString&, const QByteArray& )>& onTimeStepReady )
+{
+    if ( isoDatesOrIntervals.empty() || !onTimeStepReady ) return;
+
+    // Resolved here and not on the transfer thread: requesting the token is what starts the service, and
+    // waiting for it uses the network access manager of the calling thread.
+    const QString baseUrl = m_connector.serviceBaseUrl();
+    if ( baseUrl.isEmpty() )
+    {
+        // Report every time step as failed rather than returning silently, so the caller is not left waiting
+        // for replies that will never come.
+        for ( const auto& isoDateOrInterval : isoDatesOrIntervals )
+        {
+            m_connector.invokeOnConnectorThread( [onTimeStepReady, isoDateOrInterval]() { onTimeStepReady( isoDateOrInterval, {} ); } );
+        }
+        return;
+    }
+
+    m_connector.runOnTransferThread(
+        [this, baseUrl, caseId, ensembleName, gridName, realization, propertyName, isoDatesOrIntervals, onTimeStepReady]()
+        {
+            for ( const auto& isoDateOrInterval : isoDatesOrIntervals )
+            {
+                auto deliver = [this, onTimeStepReady, isoDateOrInterval]( const QByteArray& contents )
+                {
+                    m_connector.invokeOnConnectorThread( [onTimeStepReady, isoDateOrInterval, contents]()
+                                                         { onTimeStepReady( isoDateOrInterval, contents ); } );
+                };
+
+                auto blobIdReply =
+                    makePropertyBlobIdRequest( baseUrl, caseId, ensembleName, gridName, realization, propertyName, isoDateOrInterval );
+                if ( !blobIdReply )
+                {
+                    deliver( {} );
+                    continue;
+                }
+
+                // Nothing is waiting on this one, so it is given room to finish. It is a small request, so
+                // minutes really does mean broken.
+                RiaSumoConnector::abortIfNotFinishedWithin( blobIdReply, RiaSumoDefines::asyncRequestTimeoutMillis() );
+
+                QObject::connect( blobIdReply,
+                                  &QNetworkReply::finished,
+                                  blobIdReply,
+                                  [this, blobIdReply, propertyName, deliver]()
+                                  {
+                                      const QString blobId = blobIdFromReply( blobIdReply, propertyName );
+                                      if ( blobId.isEmpty() )
+                                      {
+                                          deliver( {} );
+                                          return;
+                                      }
+
+                                      // No deadline on the transfer itself: a property blob is large and a
+                                      // slow link is not a failure.
+                                      m_connector.downloadBlobAsync( blobId, deliver, RiaSumoConnector::noTimeout() );
+                                  } );
+            }
+        } );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Resolve the blob ids of a batch of time steps and download the blobs. Always called on the transfer
 /// thread, where the event loops it waits on dispatch no GUI events. The contents are returned rather
 /// than retained, so the caller decides what to keep.

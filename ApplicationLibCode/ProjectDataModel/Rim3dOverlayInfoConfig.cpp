@@ -901,6 +901,17 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo( RimEclipseView* eclipseView )
         infoText += resultInfoText( histData );
     }
 
+    // Not behind m_showCaseInfo or m_showResultInfo: blank cells with no explanation are exactly what this
+    // is here to prevent, so it is shown whenever a transfer is running.
+    if ( auto eclipseCase = eclipseView->eclipseCase() )
+    {
+        const QString loadingText = eclipseCase->dataLoadingText();
+        if ( !loadingText.isEmpty() )
+        {
+            infoText += QString( "<p><b>%1...</b></p>" ).arg( loadingText );
+        }
+    }
+
     if ( !infoText.isEmpty() )
     {
         eclipseView->viewer()->setInfoText( infoText );

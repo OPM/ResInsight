@@ -223,10 +223,19 @@ void RiaSumoConnector::invokeOnConnectorThread( const std::function<void()>& wor
 /// A blob is fetched in two steps, first the pre-signed URI and then the data itself. Both are started here
 /// and neither is waited for: each step continues from the reply of the one before.
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::downloadBlobAsync( const QString& blobId, const std::function<void( const QByteArray& )>& onFinished )
+void RiaSumoConnector::downloadBlobAsync( const QString& blobId, const std::function<void( const QByteArray& )>& onFinished, int blobTimeoutMillis )
 {
+    if ( !onFinished ) return;
+
+    // Every exit below reports through onFinished. Returning without calling it would strand whatever is
+    // waiting for this blob, which can then never be requested again.
     const QString baseUrl = serviceBaseUrl();
-    if ( baseUrl.isEmpty() ) return;
+    if ( baseUrl.isEmpty() )
+    {
+        RiaLogging::warning( "No Sumo service address available, unable to download blob." );
+        onFinished( {} );
+        return;
+    }
 
     const QString url = QString( "%1/blobs/%2/sas_token_and_blob_base_uri" ).arg( baseUrl ).arg( blobId );
 
@@ -235,12 +244,20 @@ void RiaSumoConnector::downloadBlobAsync( const QString& blobId, const std::func
     addStandardHeader( networkRequest, transferToken(), RiaCloudDefines::contentTypeJson() );
 
     auto accessInfoReply = networkAccessManager()->get( networkRequest );
-    abortIfNotFinishedWithin( accessInfoReply, RiaSumoDefines::requestTimeoutMillis() );
+
+    // The blob id request follows the same policy as the transfer it belongs to. A caller asking for no
+    // deadline is running many of these at once, and the network manager serves only a few per host at a
+    // time, so the rest sit queued. The deadline runs from when a request is created, not from when it is
+    // served, so a short one aborts requests that never got a chance. The blocking path puts no deadline on
+    // these at all, see downloadBlobs; the generous one here is a leak guard, not a deadline.
+    const int accessInfoTimeoutMillis = ( blobTimeoutMillis == noTimeout() ) ? RiaSumoDefines::asyncRequestTimeoutMillis()
+                                                                             : RiaSumoDefines::requestTimeoutMillis();
+    abortIfNotFinishedWithin( accessInfoReply, accessInfoTimeoutMillis );
 
     QObject::connect( accessInfoReply,
                       &QNetworkReply::finished,
                       m_transferContext,
-                      [this, accessInfoReply, blobId, onFinished]()
+                      [this, accessInfoReply, blobId, onFinished, blobTimeoutMillis]()
                       {
                           const QString sasUri = sasUriFromReply( accessInfoReply, blobId );
                           if ( sasUri.isEmpty() )
@@ -259,7 +276,10 @@ void RiaSumoConnector::downloadBlobAsync( const QString& blobId, const std::func
                           blobRequest.setAttribute( QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy );
 
                           auto blobReply = networkAccessManager()->get( blobRequest );
-                          abortIfNotFinishedWithin( blobReply, RiaSumoDefines::requestTimeoutMillis() );
+
+                          // A deadline on the transfer itself, so it is only applied when the caller asked
+                          // for one. A large blob on a slow link is not a failure.
+                          if ( blobTimeoutMillis != noTimeout() ) abortIfNotFinishedWithin( blobReply, blobTimeoutMillis );
 
                           QObject::connect( blobReply,
                                             &QNetworkReply::finished,
