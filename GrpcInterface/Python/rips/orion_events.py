@@ -55,7 +55,7 @@ File format grammar, version 2.0 (EBNF-ish)::
 
     date_expr       = ( iso_date | iso_datetime | date_ident ) , { sign , term } ;
     duration_expr   = ( integer | dur_ident ) , { sign , term } , [ "DAYS" | "days" ] ;
-    term            = integer | dur_ident ;             (* whole days *)
+    term            = signed_integer | dur_ident ;      (* whole days, e.g. 2 or -2 *)
     sign            = "+" | "-" ;
     iso_date        = 4digit , "-" , 2digit , "-" , 2digit ;
     iso_datetime    = iso_date , "T" , 2digit , ":" , 2digit , ":" , 2digit ,
@@ -79,8 +79,10 @@ Notes on the grammar:
   the declaration site. Redeclaring a name with the same type warns and the
   last value wins; redeclaring with a different type is an error.
 * Date arithmetic is a chain of signed whole-day terms, each an integer or a
-  ``DURATION`` variable: ``START + RAMP - 2``. Whitespace around ``+``/``-``
-  is optional but conventional. An event date may carry a time-of-day
+  ``DURATION`` variable: ``START + RAMP - 2``. An operand may carry its own
+  sign, so ``START + -2`` is accepted and means the same as ``START - 2``.
+  Whitespace around ``+``/``-`` is optional but conventional. An event date
+  may carry a time-of-day
   (``2024-05-15T14:45:30.500``), which the schedule generator preserves as
   the optional TIME field of the DATES keyword.
 * ``WELL <ident>`` opens an event block for a declared ``WELL`` alias;
@@ -413,7 +415,10 @@ _KEYWORDS = (
 _IDENT = r"[A-Za-z_]\w*"
 _ISO_DATE = r"\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?)?"
 _DATE_BASE = rf"(?P<base>{_ISO_DATE}|{_IDENT})"
-_TERMS = rf"(?P<terms>(?:\s*[-+]\s*(?:\d+|{_IDENT}))*)"
+# A term operand may carry its own sign, so "START + -2" subtracts two days.
+_SIGNED_INT = r"[-+]?\d+"
+_TERMS_BODY = rf"(?:\s*[-+]\s*(?:{_SIGNED_INT}|{_IDENT}))*"
+_TERMS = rf"(?P<terms>{_TERMS_BODY})"
 
 _HEADER_RE = re.compile(r"^ORIONEVENTS\s+(?P<version>\d+\.\d+)$")
 _UNIT_RE = re.compile(r"^UNIT\s+(?P<unit>METRIC|FIELD|LAB)$")
@@ -428,7 +433,7 @@ _INSERT_DATE_RE = re.compile(
     rf"(?:\s+EVERY\s+(?:(?P<count>\d+)\s+)?"
     rf"(?P<period>DAY|DAYS|MONTH|MONTHS|YEAR|YEARS)"
     rf"(?:\s+UNTIL\s+(?P<end_base>{_ISO_DATE}|{_IDENT})"
-    rf"(?P<end_terms>(?:\s*[-+]\s*(?:\d+|{_IDENT}))*)"
+    rf"(?P<end_terms>{_TERMS_BODY})"
     rf")?)?$"
 )
 _FILTER_DECL_RE = re.compile(rf'^FILTER\s+(?P<name>{_IDENT})\s*=\s*"(?P<expr>[^"]*)"$')
@@ -449,7 +454,7 @@ _RESULT_TYPE_ALIASES = {
 _WELL_BLOCK_RE = re.compile(rf'^WELL\s+(?:"(?P<qname>[^"]*)"|(?P<ref>{_IDENT}))$')
 _GROUP_BLOCK_RE = re.compile(r'^GROUP\s+"(?P<name>[^"]*)"$')
 _EVENT_RE = re.compile(rf"^{_DATE_BASE}{_TERMS}\s+(?P<rest>.+)$")
-_TERM_RE = re.compile(rf"([-+])\s*(\d+|{_IDENT})")
+_TERM_RE = re.compile(rf"([-+])\s*({_SIGNED_INT}|{_IDENT})")
 _ATTR_RE = re.compile(r'(?P<key>[A-Za-z_]\w*)\s*=\s*(?:"(?P<qval>[^"]*)"|(?P<val>\S+))')
 
 
@@ -993,7 +998,9 @@ def _eval_terms(terms: str, variables: Dict[str, OrionValue], loc: SourceLoc) ->
     total = 0
     for match in _TERM_RE.finditer(terms):
         sign, term = match.groups()
-        if term.isdigit():
+        # An operand may be signed itself ("+ -2"); identifiers never start with
+        # a sign or a digit, so this stays unambiguous.
+        if term.lstrip("+-").isdigit():
             days = int(term)
         else:
             value = _lookup_var(term, "DURATION", variables, loc).value
