@@ -38,6 +38,7 @@
 #include "cvfqtUtils.h"
 
 #include <QFile>
+#include <QSurfaceFormat>
 #include <QtGlobal>
 
 #ifndef WIN32
@@ -123,6 +124,16 @@ int main( int argc, char* argv[] )
     // belonging to different top-level windows through re-parenting.
     // See test application QtTestBenchOpenGLWidget
     QApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
+
+    // The visualization framework requires desktop OpenGL with the fixed-function pipeline. Request
+    // this explicitly, as Qt may otherwise create an OpenGL ES or core profile context on some
+    // platforms (e.g. Wayland/EGL), causing all 3D rendering to fail.
+    {
+        QSurfaceFormat surfaceFormat = QSurfaceFormat::defaultFormat();
+        surfaceFormat.setRenderableType( QSurfaceFormat::OpenGL );
+        surfaceFormat.setProfile( QSurfaceFormat::CompatibilityProfile );
+        QSurfaceFormat::setDefaultFormat( surfaceFormat );
+    }
 
     // Create feature manager before the application object is created
     RiaMainTools::initializeSingletons();
