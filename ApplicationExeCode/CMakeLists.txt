@@ -497,8 +497,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
   endif()
 endif()
 
-# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
-string(REGEX MATCH "el[6,7,8]?" RESINSIGHT_RHEL_SYSTEM_NAME ${CMAKE_SYSTEM})
+# Append el6/el7/el8 when compiled on RHEL. CMAKE_SYSTEM holds the host kernel
+# release, which says nothing about the distribution when building inside a
+# container, so allow the caller to state it explicitly.
+if(NOT RESINSIGHT_RHEL_SYSTEM_NAME)
+  string(REGEX MATCH "el[6,7,8]?" RESINSIGHT_RHEL_SYSTEM_NAME ${CMAKE_SYSTEM})
+endif()
 
 set(RESINSIGHT_PACKAGE_NAME "ResInsight")
 
@@ -514,12 +518,13 @@ if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
   )
 endif()
 
-# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
+# CPACK_SYSTEM_NAME is only set for Windows above, so guard against appending a
+# bare underscore on platforms where neither name is known.
 if(NOT "${RESINSIGHT_RHEL_SYSTEM_NAME}" STREQUAL "")
   set(RESINSIGHT_PACKAGE_NAME
       "${RESINSIGHT_PACKAGE_NAME}_${RESINSIGHT_RHEL_SYSTEM_NAME}"
   )
-else()
+elseif(NOT "${CPACK_SYSTEM_NAME}" STREQUAL "")
   set(RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${CPACK_SYSTEM_NAME}")
 endif()
 
