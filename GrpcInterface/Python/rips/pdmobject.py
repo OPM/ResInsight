@@ -258,9 +258,9 @@ class PdmObjectBase:
         if isinstance(value, tuple):
             list_of_values = []
             for val in value:
-                list_of_values.append(
-                    self.__convert_to_grpc_value(val, quote_strings=True)
-                )
+                # Tuple items are not quoted, as the tuple parser on the ResInsight side does not
+                # support quoted strings.
+                list_of_values.append(self.__convert_to_grpc_value(val))
             return "(" + ", ".join(list_of_values) + ")"
         if quote_strings and isinstance(value, str) and self.__requires_quoting(value):
             # Quote and escape strings containing characters used as separators, to be able
@@ -269,7 +269,9 @@ class PdmObjectBase:
         return str(value)
 
     def __requires_quoting(self, value: str) -> bool:
-        return "," in value or '"' in value
+        # Characters used as separators by the text based parser on the ResInsight side, and
+        # leading/trailing white space, which would otherwise be stripped.
+        return any(ch in value for ch in ',"[]') or value != value.strip()
 
     def __escape_string(self, value: str) -> str:
         return value.replace("\\", "\\\\").replace('"', '\\"')
