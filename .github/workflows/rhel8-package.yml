@@ -99,6 +99,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=/src/cmakebuild/install \
             -DRESINSIGHT_ENABLE_UNITY_BUILD=false \
+            -DRESINSIGHT_RHEL_SYSTEM_NAME=el8 \
             -DRESINSIGHT_ENABLE_HDF5=false \
             -DRESINSIGHT_ENABLE_GRPC=false \
             -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
