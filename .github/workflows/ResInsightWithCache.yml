@@ -31,6 +31,7 @@ jobs:
               publish-to-pypi: false,
               enable-asserts: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
+              vcpkg-triplet: x64-windows-release,
               qt-version: 6.10.1,
               ri-unit-test-path: "ApplicationLibCode/UnitTests/ResInsight-tests",
             }
@@ -45,6 +46,7 @@ jobs:
               publish-to-pypi: true,
               enable-asserts: false,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
+              vcpkg-triplet: x64-linux-release,
               qt-version: 6.7.0,
               ri-unit-test-path: "ApplicationLibCode/UnitTests/ResInsight-tests",
             }
@@ -59,6 +61,7 @@ jobs:
               publish-to-pypi: false,
               enable-asserts: true,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
+              vcpkg-triplet: x64-linux-release,
               qt-version: 6.7.0,
               ri-unit-test-path: "ApplicationLibCode/UnitTests/ResInsight-tests",
             }
@@ -241,7 +244,7 @@ jobs:
         id: vcpkg-cache
         uses: CeetronSolutions/vcpkg-cache@copilot/optimize-cache-storage-structure
         with:
-          cache-key: ${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.image-version.outputs.version }}-${{ steps.compiler-hash.outputs.hash }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+          cache-key: ${{ runner.os }}-${{ matrix.config.cxx }}-${{ steps.image-version.outputs.version }}-${{ steps.compiler-hash.outputs.hash }}-${{ matrix.config.vcpkg-triplet }}-${{ steps.vcpkg-sha.outputs.sha }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
           prefix: vcpkg-${{ matrix.config.cxx}}/
           
       - name: Print CMake version
@@ -264,7 +267,8 @@ jobs:
           CXX: ${{ matrix.config.cxx }}
         run: >
           cmake -S . -B cmakebuild
-          -DVCPKG_BUILD_TYPE=release
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
+          -DVCPKG_HOST_TRIPLET=${{ matrix.config.vcpkg-triplet }}
           -DCMAKE_INSTALL_PREFIX=cmakebuild/install
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
