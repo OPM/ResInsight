@@ -103,6 +103,22 @@ def test_discrete_property_category_round_trip(rips_instance, initialize_test):
     assert case.discrete_property_category_colors("FACIES") == {}
 
 
+def test_discrete_property_category_names_with_comma(rips_instance, initialize_test):
+    # https://github.com/OPM/ResInsight/issues/14648
+    # A category name containing a comma must not be split into several names
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+    assert case is not None
+
+    expected_names = {0: "Coal,Calcite", 1: "Channel"}
+
+    case.set_discrete_property_category_names(
+        property_name="EXAMPLE", value_names=expected_names
+    )
+
+    assert case.discrete_property_category_names("EXAMPLE") == expected_names
+
+
 def test_discrete_property_category_no_duplicate_legend(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=case_path)

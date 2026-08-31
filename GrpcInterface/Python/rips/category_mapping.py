@@ -62,8 +62,7 @@ def set_discrete_property_category_names(
     Arguments:
         property_name (str): Name of the discrete property result.
         value_names (Dict[int, str]): Mapping from integer value to label.
-            Labels must not contain commas. An empty dict removes any
-            existing mapping for this property.
+            An empty dict removes any existing mapping for this property.
         value_colors (Optional[Dict[int, str]]): Optional per-value colors as
             strings accepted by QColor (e.g. "red", "#ff8800"). Values without
             a color entry get an auto-assigned palette color.

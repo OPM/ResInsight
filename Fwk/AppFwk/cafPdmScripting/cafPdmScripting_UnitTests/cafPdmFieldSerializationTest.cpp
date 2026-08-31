@@ -98,6 +98,54 @@ TEST( PdmFieldSerialization, StringListQuoted )
 }
 
 //--------------------------------------------------------------------------------------------------
+// https://github.com/OPM/ResInsight/issues/14648
+// A quoted string item containing a comma must not be split into multiple items
+//--------------------------------------------------------------------------------------------------
+TEST( PdmFieldSerialization, StringListWithCommaInsideString )
+{
+    QString source = R"(["Coal,Calcite", "Channel"])";
+
+    QTextStream          stream( &source );
+    std::vector<QString> destination;
+
+    caf::PdmScriptIOMessages messages;
+    bool                     stringsAreQuoted = true;
+
+    caf::PdmFieldScriptingCapabilityIOHandler<std::vector<QString>>::writeToField( destination,
+                                                                                   stream,
+                                                                                   &messages,
+                                                                                   stringsAreQuoted );
+
+    ASSERT_EQ( (size_t)2, destination.size() );
+    EXPECT_STREQ( "Coal,Calcite", destination[0].toStdString().c_str() );
+    EXPECT_STREQ( "Channel", destination[1].toStdString().c_str() );
+}
+
+//--------------------------------------------------------------------------------------------------
+// https://github.com/OPM/ResInsight/issues/14648
+// Strings coming from Python are not quoted, except when they contain separator characters
+//--------------------------------------------------------------------------------------------------
+TEST( PdmFieldSerialization, StringListPartiallyQuotedWithCommaInsideString )
+{
+    QString source = R"(["Coal,Calcite", Channel])";
+
+    QTextStream          stream( &source );
+    std::vector<QString> destination;
+
+    caf::PdmScriptIOMessages messages;
+    bool                     stringsAreQuoted = false;
+
+    caf::PdmFieldScriptingCapabilityIOHandler<std::vector<QString>>::writeToField( destination,
+                                                                                   stream,
+                                                                                   &messages,
+                                                                                   stringsAreQuoted );
+
+    ASSERT_EQ( (size_t)2, destination.size() );
+    EXPECT_STREQ( "Coal,Calcite", destination[0].toStdString().c_str() );
+    EXPECT_STREQ( "Channel", destination[1].toStdString().c_str() );
+}
+
+//--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
 TEST( PdmFieldSerialization, StringListWithBackslashes )
 {
