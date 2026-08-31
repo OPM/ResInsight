@@ -631,6 +631,7 @@ void RimReservoirGridEnsemble::createGridCasesFromEnsembleFileSet()
 void RimReservoirGridEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewViewForGridEnsembleFeature";
+    menuBuilder.addSeparator();
     menuBuilder << "RicNewStatisticsContourMapFeature";
     menuBuilder << "RicNewWellTargetMappingFeature";
 
@@ -638,6 +639,8 @@ void RimReservoirGridEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menu
     {
         menuBuilder << "RicNewStatisticsCaseFeature";
     }
+    menuBuilder.addSeparator();
+    menuBuilder << "RicNewEnsembleJobFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
