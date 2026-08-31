@@ -21,6 +21,7 @@
 #include "RiaCloudDefines.h"
 #include "RiaLogging.h"
 #include "RiaSumoConnector.h"
+#include "RiaSumoDefines.h"
 
 #include <QEventLoop>
 #include <QJsonArray>
@@ -277,9 +278,9 @@ void RiaSumoGrid::propertyDataBatchAsync( const SumoCaseId&                     
                     continue;
                 }
 
-                // Nothing is waiting on this one, so it is given room to finish. It is a small request, so
-                // minutes really does mean broken.
-                RiaSumoConnector::abortIfNotFinishedWithin( blobIdReply, RiaSumoDefines::asyncRequestTimeoutMillis() );
+                // Shorter than the transfer it precedes: this one moves almost no data, so minutes really
+                // does mean broken.
+                RiaSumoConnector::abortIfNotFinishedWithin( blobIdReply, RiaSumoDefines::blobLookupTimeoutMillis() );
 
                 QObject::connect( blobIdReply,
                                   &QNetworkReply::finished,
@@ -293,9 +294,7 @@ void RiaSumoGrid::propertyDataBatchAsync( const SumoCaseId&                     
                                           return;
                                       }
 
-                                      // No deadline on the transfer itself: a property blob is large and a
-                                      // slow link is not a failure.
-                                      m_connector.downloadBlobAsync( blobId, deliver, RiaSumoConnector::noTimeout() );
+                                      m_connector.downloadBlobAsync( blobId, deliver, RiaSumoDefines::gridPropertyTransferTimeoutMillis() );
                                   } );
             }
         } );

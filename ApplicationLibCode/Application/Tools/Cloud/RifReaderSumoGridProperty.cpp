@@ -216,10 +216,20 @@ void RifReaderSumoGridProperty::requestTimeStepsAsync( const QString&           
 {
     if ( !m_connector ) return;
 
+    // The network manager serves only a few requests per host, so transfers beyond that sit queued. Keep the
+    // look ahead from growing without limit as the user moves around the time series: each read would
+    // otherwise add another batch on top of whatever is still running.
+    const size_t maxInFlight = RiaSumoDefines::gridPropertyPrefetchBatchSize();
+
     std::vector<QString> isoDatesOrIntervals;
     std::vector<size_t>  requestedSteps;
     for ( size_t step : steps )
     {
+        // The displayed step is requested whatever the count. Skipping it would still leave a placeholder in
+        // its slot, and a non-empty slot is not read again, so those cells would stay blank for good.
+        const bool isDisplayedStep = !steps.empty() && step == steps.front();
+        if ( !isDisplayedStep && m_pending.size() >= maxInFlight ) break;
+
         if ( step >= timestamps.size() || timestamps[step].isEmpty() ) continue;
         if ( !m_pending.insert( PendingKey{ propertyName, step } ).second ) continue;
 

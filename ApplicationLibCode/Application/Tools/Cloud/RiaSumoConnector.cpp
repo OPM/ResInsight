@@ -245,14 +245,11 @@ void RiaSumoConnector::downloadBlobAsync( const QString& blobId, const std::func
 
     auto accessInfoReply = networkAccessManager()->get( networkRequest );
 
-    // The blob id request follows the same policy as the transfer it belongs to. A caller asking for no
-    // deadline is running many of these at once, and the network manager serves only a few per host at a
-    // time, so the rest sit queued. The deadline runs from when a request is created, not from when it is
-    // served, so a short one aborts requests that never got a chance. The blocking path puts no deadline on
-    // these at all, see downloadBlobs; the generous one here is a leak guard, not a deadline.
-    const int accessInfoTimeoutMillis = ( blobTimeoutMillis == noTimeout() ) ? RiaSumoDefines::asyncRequestTimeoutMillis()
-                                                                             : RiaSumoDefines::requestTimeoutMillis();
-    abortIfNotFinishedWithin( accessInfoReply, accessInfoTimeoutMillis );
+    // Deliberately not a short deadline. Several of these run at once, the network manager serves only a few
+    // per host at a time, and the timer runs from when a request is created rather than from when it is
+    // served, so a short value aborts requests that never got a chance. The blocking path puts no deadline on
+    // these at all, see downloadBlobs.
+    abortIfNotFinishedWithin( accessInfoReply, RiaSumoDefines::blobLookupTimeoutMillis() );
 
     QObject::connect( accessInfoReply,
                       &QNetworkReply::finished,
