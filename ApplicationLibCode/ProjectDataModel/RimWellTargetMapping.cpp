@@ -687,11 +687,22 @@ void RimWellTargetMapping::setDefaults()
 //--------------------------------------------------------------------------------------------------
 void RimWellTargetMapping::resetMinimumCellValuesToDefault()
 {
-    m_saturationOil    = std::clamp( m_defaultSaturationOil, m_minimumSaturationOil, m_maximumSaturationOil );
-    m_saturationGas    = std::clamp( m_defaultSaturationGas, m_minimumSaturationGas, m_maximumSaturationGas );
-    m_pressure         = std::clamp( m_defaultPressure, m_minimumPressure, m_maximumPressure );
-    m_permeability     = std::clamp( m_defaultPermeability, m_minimumPermeability, m_maximumPermeability );
-    m_transmissibility = std::clamp( m_defaultTransmissibility, std::max( m_minimumTransmissibility, 0.1 ), m_maximumTransmissibility );
+    auto clampIfValid = []( double defaultValue, double minValue, double maxValue ) -> double
+    {
+        // Only clamp if we have valid bounds (min <= max)
+        if ( minValue <= maxValue )
+        {
+            return std::clamp( defaultValue, minValue, maxValue );
+        }
+        // If bounds are invalid (no data), just return the default value
+        return defaultValue;
+    };
+
+    m_saturationOil    = clampIfValid( m_defaultSaturationOil, m_minimumSaturationOil, m_maximumSaturationOil );
+    m_saturationGas    = clampIfValid( m_defaultSaturationGas, m_minimumSaturationGas, m_maximumSaturationGas );
+    m_pressure         = clampIfValid( m_defaultPressure, m_minimumPressure, m_maximumPressure );
+    m_permeability     = clampIfValid( m_defaultPermeability, m_minimumPermeability, m_maximumPermeability );
+    m_transmissibility = clampIfValid( m_defaultTransmissibility, std::max( m_minimumTransmissibility, 0.1 ), m_maximumTransmissibility );
 }
 
 //--------------------------------------------------------------------------------------------------
