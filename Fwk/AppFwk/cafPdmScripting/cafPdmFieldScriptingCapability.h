@@ -489,39 +489,80 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
         QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
         if ( chr == QChar( '[' ) )
         {
+            // Split on commas, but ignore commas inside quoted strings and inside nested
+            // brackets/parentheses. A quoted string can contain escaped characters.
             std::vector<QString> allValues;
             QString              currentValue;
+            bool                 isInsideQuotes = false;
+            bool                 escapeNextChar = false;
+            int                  nestingDepth   = 0;
+
             while ( !inputStream.atEnd() )
             {
-                errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
-                QChar nextChar = errorMessageContainer->peekNextChar( inputStream );
-                if ( nextChar == QChar( ']' ) )
+                QChar currentChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
+
+                if ( escapeNextChar )
                 {
-                    nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                    currentValue += currentChar;
+                    escapeNextChar = false;
+                }
+                else if ( isInsideQuotes )
+                {
+                    if ( currentChar == QChar( '\\' ) ) escapeNextChar = true;
+                    if ( currentChar == QChar( '"' ) ) isInsideQuotes = false;
+                    currentValue += currentChar;
+                }
+                else if ( currentChar == QChar( '"' ) )
+                {
+                    isInsideQuotes = true;
+                    currentValue += currentChar;
+                }
+                else if ( currentChar == QChar( '[' ) || currentChar == QChar( '(' ) )
+                {
+                    nestingDepth++;
+                    currentValue += currentChar;
+                }
+                else if ( currentChar == QChar( ']' ) && nestingDepth == 0 )
+                {
                     break;
                 }
-                else if ( nextChar == QChar( ',' ) )
+                else if ( currentChar == QChar( ']' ) || currentChar == QChar( ')' ) )
                 {
-                    nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
-                    errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
-                    if ( !currentValue.isEmpty() ) allValues.push_back( currentValue );
+                    nestingDepth--;
+                    currentValue += currentChar;
+                }
+                else if ( currentChar == QChar( ',' ) && nestingDepth == 0 )
+                {
+                    QString trimmedValue = currentValue.trimmed();
+                    if ( !trimmedValue.isEmpty() ) allValues.push_back( trimmedValue );
                     currentValue = "";
+                }
+                else if ( currentChar.isSpace() && currentValue.isEmpty() )
+                {
+                    // Skip white space in front of a value
                 }
                 else
                 {
-                    currentValue += errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                    currentValue += currentChar;
                 }
             }
-            if ( !currentValue.isEmpty() ) allValues.push_back( currentValue );
+
+            QString lastValue = currentValue.trimmed();
+            if ( !lastValue.isEmpty() ) allValues.push_back( lastValue );
 
             for ( QString textValue : allValues )
             {
+                // A quoted item is always parsed as a quoted string, also when the surrounding text is
+                // unquoted. This makes it possible to transfer strings containing commas.
+                bool itemIsQuoted = stringsAreQuoted || ( textValue.size() > 1 && textValue.startsWith( QChar( '"' ) ) &&
+                                                          textValue.endsWith( QChar( '"' ) ) );
+
                 QTextStream singleValueStream( &textValue, QIODevice::ReadOnly );
                 T           singleValue;
                 PdmFieldScriptingCapabilityIOHandler<T>::writeToField( singleValue,
                                                                        singleValueStream,
                                                                        errorMessageContainer,
-                                                                       stringsAreQuoted,
+                                                                       itemIsQuoted,
                                                                        allowExtraCharacters );
                 fieldValue.push_back( singleValue );
             }
@@ -542,7 +583,7 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
         outputStream << "[";
         for ( size_t i = 0; i < fieldValue.size(); ++i )
         {
-            PdmFieldScriptingCapabilityIOHandler<T>::readFromField( fieldValue[i], outputStream, quoteNonBuiltins );
+            PdmFieldScriptingCapabilityIOHandler<T>::readFromField( fieldValue[i], outputStream, quoteStrings, quoteNonBuiltins );
             if ( i < fieldValue.size() - 1 )
             {
                 outputStream << ", ";
