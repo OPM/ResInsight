@@ -25,27 +25,27 @@ Export Settings Calculated Transmissibilities – The transmissibilities calcula
 Export Settings Calculated Transmissibilities – The transmissibilities calculated based on the case and completion data are exported directly Default Connection Factors and WPIMULT – The information about the connections for the simulator to be able to make the transmissibility calculation is exported for the COMPDAT/COMPDATL keywords. In addition, the same transmissibility calculation is performed by ResInsight, and the factor between the actual transmissibility for the connection and the simulator calculation is exported in the WPIMULT keyword. Case to Apply – Select which case to use for the export. Matrix transmissibilities will be read from this case. Use NTG Horizontally – Toggles whether NTG in I and J directions is included in the calculation Include Multi Segment Well Model – Toggles whether to also export the completions as Multi Segment Wells. File Settings File Split – Controls how ResInsight splits the export in different files Unified File – One file with all the completions. Split on Well – One file for each well [Deprecated] Split on Well and Completion Type – One file for each well and completion type (Perforation Interval, Fishbone, …) [Deprecated] Export Completion Types – Control how several completions of different type in the same cell are handled Individually – Completions of each type are exported to separate sections in the file and not combined in any way. Combined – Connection factors from different completion types are added together producing one number for each cell. Export Folder – Folder for the exported COMPDAT file(s). The folder will be created when performing the export and the names of the exported file(s) will be auto generated.~~ Completions Export Selection Perforations – Option to include or exclude perforation intervals in the export. Time step – Which timestep to export. This option is included since perforation intervals have a start time, and thus not all perforations need be present at all time steps. Fractures – Option to include or exclude fracture completions from the export. Pressure Differential Depletion Scaling – Options to scale transmissibilities based on the well drawdown. This allows the simulation to more accurately model cases with high differential depletion. Fishbones – Option to include or exclude fishbone completions from the export. The direction reported in the COMPDAT/COMPDATL keywords is computed based on the orientation of the main bore cell the fishbone is connected to. Exclude Main Bore Transmissibility – If this options is checked on, only the transmissibilities for the fishbone laterals will be included in the export, and transmissibility along the main bore will not contribute. Transmissibility CalculationsThe transmissibility calculation is performed for each direction, X, Y and Z, in an orthogonal coordinate system local to the cell.">
     <meta itemprop="wordCount" content="3150">
     <title>Completions :: ResInsight</title>
-    <link href="/images/favicon.png?1781533153" rel="icon" type="image/png">
-    <link href="/css/auto-complete/auto-complete.min.css?1781533153" rel="stylesheet">
-    <script src="/js/auto-complete/auto-complete.min.js?1781533153" defer></script>
-    <script src="/js/search-lunr.min.js?1781533153" defer></script>
-    <script src="/js/search.min.js?1781533153" defer></script>
+    <link href="/images/favicon.png?1788197767" rel="icon" type="image/png">
+    <link href="/css/auto-complete/auto-complete.min.css?1788197767" rel="stylesheet">
+    <script src="/js/auto-complete/auto-complete.min.js?1788197767" defer></script>
+    <script src="/js/search-lunr.min.js?1788197767" defer></script>
+    <script src="/js/search.min.js?1788197767" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/searchindex.en.js?1781533153";
+      window.relearn.index_js_url="/searchindex.en.js?1788197767";
     </script>
-    <script src="/js/lunr/lunr.min.js?1781533153" defer></script>
-    <script src="/js/lunr/lunr.stemmer.support.min.js?1781533153" defer></script>
-    <script src="/js/lunr/lunr.multi.min.js?1781533153" defer></script>
-    <script src="/js/lunr/lunr.en.min.js?1781533153" defer></script>
+    <script src="/js/lunr/lunr.min.js?1788197767" defer></script>
+    <script src="/js/lunr/lunr.stemmer.support.min.js?1788197767" defer></script>
+    <script src="/js/lunr/lunr.multi.min.js?1788197767" defer></script>
+    <script src="/js/lunr/lunr.en.min.js?1788197767" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/fonts/fontawesome/css/all.min.css?1781533153" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1781533153" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1781533153" rel="stylesheet">
-    <link href="/css/theme.min.css?1781533153" rel="stylesheet">
-    <link href="/css/format-html.min.css?1781533153" rel="stylesheet" id="R-format-style">
+    <link href="/fonts/fontawesome/css/all.min.css?1788197767" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1788197767" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1788197767" rel="stylesheet">
+    <link href="/css/theme.min.css?1788197767" rel="stylesheet">
+    <link href="/css/format-html.min.css?1788197767" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -206,8 +206,8 @@ Export Settings Calculated Transmissibilities – The transmissibilities calcula
 <h1 id="completions">Completions</h1>
 
 <p>The completions defined in ResInsight can be exported for use in new simulation runs. The commands <strong>Export Completion Data For Visible Wells</strong> and <strong>Export Completion Data For Selected Wells</strong> can be used to invoke the export. The commands are available by right clicking Well Paths in the <strong>Project Tree</strong>. The first command is available from the <strong>File-&gt;Import</strong> menu as well.</p>
-<p><a href="#R-image-9ef79420ee46187109236a64805353be" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-9ef79420ee46187109236a64805353be"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png"></a></p>
+<p><a href="#R-image-14c45393c5354a1402a825e790bfc2f4" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-14c45393c5354a1402a825e790bfc2f4"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_ExportCompletionData.png"></a></p>
 <ul>
 <li><strong>Export Settings</strong>
 <ul>
@@ -259,30 +259,30 @@ Export Settings Calculated Transmissibilities – The transmissibilities calcula
 <h3 id="transmissibility-calculations">Transmissibility Calculations<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>The transmissibility calculation is performed for each direction, X, Y and Z, in an orthogonal coordinate system local to the cell.</p>
 <p>Taking the X direction as an example, we first calculate the relevant permeability <em>K</em> from the reservoir simulation properties <em>PERMY</em> (K<sub>y</sub>) and PERMZ (K<sub>z</sub>):</p>
-<p><a href="#R-image-e303a32c0e3bc55c00549224a34e0aa1" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-e303a32c0e3bc55c00549224a34e0aa1"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png"></a></p>
+<p><a href="#R-image-b40933ee3c3ccd58eb2b4d4f3afc7f2e" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-b40933ee3c3ccd58eb2b4d4f3afc7f2e"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_K.png"></a></p>
 <p>The Peacman radius (pressure equivalent radius) for the cell is then calculated, using permeabilities and cell sizes (D<sub>y</sub> and D<sub>z</sub>):</p>
-<p><a href="#R-image-21e408cd805d66c2ca3f8c9bcfbaa808" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-21e408cd805d66c2ca3f8c9bcfbaa808"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png"></a></p>
+<p><a href="#R-image-d359b93101cb85c83fdc405efaa2d249" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-d359b93101cb85c83fdc405efaa2d249"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Peaceman.png"></a></p>
 <p>The x-component of the transmissibility vector is calculated, using the length of the perforation in the x direction (l<sub>x</sub>), the well radius (r<sub>w</sub>) and skin factor (S):</p>
-<p><a href="#R-image-ff865878f2fe3ec2fe2cdb4383b072c0" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-ff865878f2fe3ec2fe2cdb4383b072c0"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png"></a></p>
+<p><a href="#R-image-9a5828cca376eeba6186879384d63b68" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-9a5828cca376eeba6186879384d63b68"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_Trans.png"></a></p>
 <p>The y and z component of the transmissibility are calculated in the same manner, and the total transmissibility is then calculated as:</p>
-<p><a href="#R-image-3450f2ed8eafc49f48f35f16427d6be1" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-3450f2ed8eafc49f48f35f16427d6be1"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png"></a></p>
+<p><a href="#R-image-87de04d7ec66ee7a1b10b92fe7827f59" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-87de04d7ec66ee7a1b10b92fe7827f59"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Equation_PerfInterval_TotalT.png"></a></p>
 <p>If the <em>Export Calculated Transmissibilities</em> is chosen in the export setting, this value is exported in the COMPDAT/COMPDATL keywords directly. If the <em>Export Default Connection Factors and WPIMULT</em> the transmissibility is chosen, the transmissibility is calculated as above, and in addition the transmissibility is calculated as the simulator would compute it using values other than transmissibility in the COMPDAT/COMPDATL keywords (perforation length, well radius etc). The ratio between these transmissibilities is then exported as the WPIMULT value.</p>
 <p>For an example of <em>COMPDAT</em> files exported with calculated transmissibilities and with defaults and WPIMULT values, see export of Fishbones® completion data below.</p>
 <h3 id="fracture-export">Fracture Export<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <h4 id="pressure-differential-depletion-scaling">Pressure Differential Depletion Scaling<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>For cases with high differential depletion, it is possible to scale the transmissibilities from the grid cells into the well (via the fracture) by the well drawdown. This enables the simulation to take into account that the flow will take different paths into the well as the pressure differential between the surrounding grid cells increases. If enabled, a time step for the grid pressures have to be selected. The list of time steps will also show the time step in which the wells first show a <strong>Well Bore Hole Pressure</strong> (<strong>WBHP</strong>) larger than zero in the Summary Case information.</p>
-<p><a href="#R-image-7fb0f872f8e603a9cb91b43ed5781559" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-7fb0f872f8e603a9cb91b43ed5781559"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png"></a></p>
+<p><a href="#R-image-2c04c685aa36e049a1683aa30d666ee4" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-2c04c685aa36e049a1683aa30d666ee4"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_TimeStep.png"></a></p>
 <p>Having chosen a time step for differential depletion scaling a source for the well pressures can be chosen. If <strong>WBHP From Summary Case</strong> is picked, the <strong>WBHP</strong> value in the summary case for the chosen time step is used. However, if the chosen time step precedes the production start of a well, the value set in <strong>WBHP Before Production Start</strong> is used.</p>
-<p><a href="#R-image-93b8a236d0da4b6450edd1798235c47e" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-93b8a236d0da4b6450edd1798235c47e"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png"></a></p>
+<p><a href="#R-image-f0d8866e272b2346d87b0e9ac13f4b38" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-f0d8866e272b2346d87b0e9ac13f4b38"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_WBHP.png"></a></p>
 <p>If, however, a <strong>Fixed User Defined WBHP</strong> is chosen, the provided <strong>WBHP</strong> value is used for all wells.</p>
-<p><a href="#R-image-1ad4c57f522d24788e6e4cbd52e565b0" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-1ad4c57f522d24788e6e4cbd52e565b0"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png"></a></p>
+<p><a href="#R-image-ec23e6f9343ed0992e04d6fc0f481043" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-ec23e6f9343ed0992e04d6fc0f481043"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/export/Completions_Export_PDD_User_WBHP.png"></a></p>
 <h4 id="fracture-report-header">Fracture Report Header<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>At the top of the exported transmissibilities for fractures, a fracture report summary is displayed. This section displays the different properties for the fractures used to compute the transmissibility values.</p>
 <h5 id="description-of-derived-data">Description of Derived Data<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h5>
@@ -555,8 +555,10 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
           <ul class="enlarge morespace collapsible-menu">
             <li class="" data-nav-id="/releases/index.html"><input type="checkbox" id="R-section-a71c2f29677ba690c1b8bf454f228c9c" aria-controls="R-subsections-a71c2f29677ba690c1b8bf454f228c9c"><label for="R-section-a71c2f29677ba690c1b8bf454f228c9c"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Releases</span></label><a class="padding default-animation" href="/releases/index.html">Releases</a><ul id="R-subsections-a71c2f29677ba690c1b8bf454f228c9c" class="collapsible-menu">
             <li class="" data-nav-id="/releases/linux-installation/index.html"><a class="padding" href="/releases/linux-installation/index.html">Linux Installation</a></li>
+            <li class="" data-nav-id="/releases/mac-installation/index.html"><a class="padding" href="/releases/mac-installation/index.html">Mac Installation</a></li>
             <li class="" data-nav-id="/releases/windows-installation/index.html"><a class="padding" href="/releases/windows-installation/index.html">Windows Installation</a></li>
             <li class="alwaysopen " data-nav-id="/releases/release-notes/index.html"><input type="checkbox" id="R-section-6c62b7535d3731275e6a11584d530c55" aria-controls="R-subsections-6c62b7535d3731275e6a11584d530c55" checked><label for="R-section-6c62b7535d3731275e6a11584d530c55"><i class="fa-fw fas fa-chevron-right"></i><span class="a11y-only">Submenu Release Notes</span></label><a class="padding default-animation" href="/releases/release-notes/index.html">Release Notes</a><ul id="R-subsections-6c62b7535d3731275e6a11584d530c55" class="collapsible-menu">
+            <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_09/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_09/index.html">What&#39;s New in 2026.09</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_06/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_06/index.html">What&#39;s New in 2026.06</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2026_02/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2026_02/index.html">What&#39;s New in 2026.02</a></li>
             <li class="" data-nav-id="/releases/release-notes/releasenotes_2025_12/index.html"><a class="padding" href="/releases/release-notes/releasenotes_2025_12/index.html">What&#39;s New in 2025.12</a></li>
@@ -728,6 +730,7 @@ keywords needed to represent the completions as a Multi Segment Well. This is do
             <li class="" data-nav-id="/workflows/biotcoefficient/index.html"><a class="padding" href="/workflows/biotcoefficient/index.html">Biot Coefficient</a></li>
             <li class="" data-nav-id="/workflows/ensemblesurface/index.html"><a class="padding" href="/workflows/ensemblesurface/index.html">Ensemble Surface</a></li>
             <li class="" data-nav-id="/workflows/ensemblewelllog/index.html"><a class="padding" href="/workflows/ensemblewelllog/index.html">Ensemble Well Log</a></li>
+            <li class="" data-nav-id="/workflows/nestedhybridgrid/index.html"><a class="padding" href="/workflows/nestedhybridgrid/index.html">Nested Hybrid Grid</a></li>
             <li class="" data-nav-id="/workflows/welltargetmapping/index.html"><a class="padding" href="/workflows/welltargetmapping/index.html">Well Target Mapping</a></li></ul></li>
           </ul>
         </div>
@@ -755,8 +758,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 </div>
       </div>
     </aside>
-    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1781533153" defer></script>
-    <script src="/js/theme.min.js?1781533153" defer></script>
+    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1788197767" defer></script>
+    <script src="/js/theme.min.js?1788197767" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

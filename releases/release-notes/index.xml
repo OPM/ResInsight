@@ -8,6 +8,13 @@
     <language>en-us</language>
     <atom:link href="https://resinsight.org/releases/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>What&#39;s New in 2026.09</title>
+      <link>https://resinsight.org/releases/release-notes/releasenotes_2026_09/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/release-notes/releasenotes_2026_09/index.html</guid>
+      <description>Window Management&#xD;3D and plot windows now use a modern docking framework, making it easier to organize multiple views and combine 3D and 2D plot views on the same screen. Tiling operations are now updated and a tiling button is available from the toolbar Window Tiling&#xA;Grid Ensemble&#xD;Ensemble contour maps are now supported, with improved performance for large data sets. Contour maps are cached locally to improve project import performance.</description>
+    </item>
+    <item>
       <title>What&#39;s New in 2026.06</title>
       <link>https://resinsight.org/releases/release-notes/releasenotes_2026_06/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

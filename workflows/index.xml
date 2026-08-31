@@ -29,6 +29,13 @@
       <description>Introduction&#xD;To study the uncertainty for well log extraction curves, ResInsight enables the user to import an ensemble of well logs and compute the statistical distribution in this ensemble.&#xA;Workflow&#xD;From the right-click menu of Wells, select Create Ensemble Well Log</description>
     </item>
     <item>
+      <title>Nested Hybrid Grid</title>
+      <link>https://resinsight.org/workflows/nestedhybridgrid/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/workflows/nestedhybridgrid/index.html</guid>
+      <description>ResInsight can import nested hybrid grids (NHG) as produced by xtgeo/fmu-tools, and present them as a proper LGR hierarchy.&#xA;A nested hybrid grid is a single flat EGRID file in which a refined region is appended to the end of the I axis at higher resolution and connected to the coarse grid through NNCs. In IJK space the refined cells are far from their coarse parent cells, but their geometry (COORD/ZCORN) places them inside the coarse region. The coarse parent cells are collapsed to zero volume, and the parent of each refined cell is supplied by sidecar files next to the grid file.</description>
+    </item>
+    <item>
       <title>Well Target Mapping</title>
       <link>https://resinsight.org/workflows/welltargetmapping/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

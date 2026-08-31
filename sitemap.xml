@@ -88,6 +88,9 @@
     <loc>https://resinsight.org/import/lasfile/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/releases/mac-installation/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/best-practices/performancehints/index.html</loc>
   </url>
   <url>
@@ -388,6 +391,9 @@
     <loc>https://resinsight.org/3d-main-window/faults/index.html</loc>
   </url>
   <url>
+    <loc>https://resinsight.org/workflows/nestedhybridgrid/index.html</loc>
+  </url>
+  <url>
     <loc>https://resinsight.org/opm-flow-integration/index.html</loc>
   </url>
   <url>
@@ -401,6 +407,9 @@
   </url>
   <url>
     <loc>https://resinsight.org/3d-main-window/allandiagrams/index.html</loc>
+  </url>
+  <url>
+    <loc>https://resinsight.org/releases/release-notes/releasenotes_2026_09/index.html</loc>
   </url>
   <url>
     <loc>https://resinsight.org/3d-main-window/formations/index.html</loc>

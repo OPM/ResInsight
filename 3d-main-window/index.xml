@@ -54,7 +54,7 @@
       <link>https://resinsight.org/3d-main-window/ensemblecontourmap/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/3d-main-window/ensemblecontourmap/index.html</guid>
-      <description>ResInsight can create contour maps from an ensemble of grid models based on different forms of aggregation of 3D reservoir simulation data onto a 2D plane.&#xA;Video Tutorial: Ensemble Contour Map&#xA;Creating Contour Maps&#xD;Import grid models using the Import-&gt;Eclipse Cases-&gt;Create Grid Case Ensemble. The grid models can have individually specified geometry. For grids with equal geometry, consider using Grid Case Group. The formation information is imported for each grid.</description>
+      <description>ResInsight can create contour maps from an ensemble of grid models based on different forms of aggregation of 3D reservoir simulation data onto a 2D plane.&#xA;Video Tutorial: Ensemble Contour Map&#xA;Creating Contour Maps&#xD;Use Import Grid and Summary Ensemble to import the grid ensemble. Select Create Grid Ensemble, choose the realizations to import, and click OK. See Grid and Summary Ensemble for details.</description>
     </item>
     <item>
       <title>Result Inspection</title>

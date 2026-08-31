@@ -40,7 +40,7 @@
       <link>https://resinsight.org/misc/windowmanagement/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/misc/windowmanagement/index.html</guid>
-      <description>Window Tiling&#xD;Tiling of windows can be accessed from the tool bar. The default tiling will organize the windows in a grid pattern. It is also possible perform tiling of the windows horizontally or vertically. This feature is available from the Windows menu at the main menbu bar.&#xA;Default Horizontally Vertically</description>
+      <description>Window Tiling&#xD;Tiling of windows can be accessed from the tool bar. The default tiling will organize the windows in a grid pattern. The window management feature is available from the Windows menu at the main menu bar.&#xA;Window Management&#xD;The window management system was updated in release 2022.06.1. ResInsight stores application window visibility and location between sessions.</description>
     </item>
     <item>
       <title>Linux User Interface</title>

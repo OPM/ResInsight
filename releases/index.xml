@@ -3,7 +3,7 @@
   <channel>
     <title>Releases :: ResInsight</title>
     <link>https://resinsight.org/releases/index.html</link>
-    <description>Installation&#xD;See the following for common install procedures and options:&#xA;Linux Installation Windows Installation Release Notes&#xD;What’s New - Latest Release&#xA;Sign up to be notified of new releases</description>
+    <description>Installation&#xD;See the following for common install procedures and options:&#xA;Linux Installation Mac Installation Windows Installation Release Notes&#xD;What’s New - Latest Release&#xA;Sign up to be notified of new releases</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="https://resinsight.org/releases/index.xml" rel="self" type="application/rss+xml" />
@@ -13,6 +13,13 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/releases/linux-installation/index.html</guid>
       <description>Install From Binary Packages on Linux&#xD;Info&#xD;Please not that the distribution by the OPM Project will be updated some time after the release of a new version on GitHub.&#xA;Ubuntu (no Python support)&#xD;The apt-get package does not contain Python support due to build server issues.</description>
+    </item>
+    <item>
+      <title>Mac Installation</title>
+      <link>https://resinsight.org/releases/mac-installation/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://resinsight.org/releases/mac-installation/index.html</guid>
+      <description>ResInsight Installation&#xD;Download the ZIP binary distribution from https://github.com/OPM/ResInsight/releases&#xA;Unzip the file to extract the ResInsight.app application bundle&#xA;Remove the Gatekeeper quarantine attribute before the first launch:&#xA;sudo xattr -r -d com.apple.quarantine ResInsight.app&#xD;Launch the application by double-clicking ResInsight.app in Finder, or from a terminal:&#xA;open ResInsight.app&#xD;Info&#xD;The application bundle is not code-signed and not notarized, so macOS Gatekeeper quarantines it on download. Removing the quarantine attribute as shown above is required before the first launch. The distribution requires macOS 15 (Sequoia) or newer and is built with Qt 6.7.0.</description>
     </item>
     <item>
       <title>Windows Installation</title>
