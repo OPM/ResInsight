@@ -9,6 +9,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimKeywordWconinje.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimJobMonitor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimKeywordBcprop.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleJob.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSingleJob.cpp
+
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

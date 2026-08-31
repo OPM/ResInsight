@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimGenericJob.h"
+#include "RimSingleJob.h"
 
 #include "cafPdmPtrField.h"
 
@@ -37,7 +37,7 @@ class RimOpmFlowJobSettings;
 ///
 ///
 //==================================================================================================
-class RimOpmFlowJob : public RimGenericJob
+class RimOpmFlowJob : public RimSingleJob
 {
     CAF_PDM_HEADER_INIT;
 
