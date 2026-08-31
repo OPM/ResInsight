@@ -201,6 +201,8 @@ constexpr bool isCamelCase( std::string_view str )
 
 namespace caf
 {
+class FilePath;
+
 template <typename DataType>
 struct PdmFieldScriptingCapabilityIOHandler
 {
@@ -489,8 +491,14 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
         QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
         if ( chr == QChar( '[' ) )
         {
-            // Split on commas, but ignore commas inside quoted strings and inside nested
-            // brackets/parentheses. A quoted string can contain escaped characters.
+            // Split on commas, but ignore commas inside quoted strings and inside nested brackets or
+            // parentheses. A quote or an opening bracket is only given special meaning when it is the
+            // first character of an item, as text values are allowed to contain any character.
+            //
+            // Nested containers are not possible for text based values, and brackets and parentheses are
+            // treated as ordinary characters for these types.
+            const bool nestedContainersAreSupported = !std::is_same<T, QString>::value && !std::is_same<T, FilePath>::value;
+
             std::vector<QString> allValues;
             QString              currentValue;
             bool                 isInsideQuotes = false;
@@ -500,6 +508,8 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
             while ( !inputStream.atEnd() )
             {
                 QChar currentChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
+
+                const bool isStartOfValue = currentValue.isEmpty();
 
                 if ( escapeNextChar )
                 {
@@ -512,24 +522,26 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
                     if ( currentChar == QChar( '"' ) ) isInsideQuotes = false;
                     currentValue += currentChar;
                 }
-                else if ( currentChar == QChar( '"' ) )
+                else if ( currentChar == QChar( '"' ) && isStartOfValue )
                 {
                     isInsideQuotes = true;
                     currentValue += currentChar;
                 }
-                else if ( currentChar == QChar( '[' ) || currentChar == QChar( '(' ) )
+                else if ( ( currentChar == QChar( '[' ) || currentChar == QChar( '(' ) ) &&
+                          nestedContainersAreSupported && ( isStartOfValue || nestingDepth > 0 ) )
                 {
                     nestingDepth++;
                     currentValue += currentChar;
                 }
-                else if ( currentChar == QChar( ']' ) && nestingDepth == 0 )
-                {
-                    break;
-                }
-                else if ( currentChar == QChar( ']' ) || currentChar == QChar( ')' ) )
+                else if ( nestingDepth > 0 && ( currentChar == QChar( ']' ) || currentChar == QChar( ')' ) ) )
                 {
                     nestingDepth--;
                     currentValue += currentChar;
+                }
+                else if ( currentChar == QChar( ']' ) )
+                {
+                    // End of the array
+                    break;
                 }
                 else if ( currentChar == QChar( ',' ) && nestingDepth == 0 )
                 {
@@ -537,7 +549,7 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
                     if ( !trimmedValue.isEmpty() ) allValues.push_back( trimmedValue );
                     currentValue = "";
                 }
-                else if ( currentChar.isSpace() && currentValue.isEmpty() )
+                else if ( currentChar.isSpace() && isStartOfValue )
                 {
                     // Skip white space in front of a value
                 }
