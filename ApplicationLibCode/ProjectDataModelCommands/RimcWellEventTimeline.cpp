@@ -74,6 +74,12 @@ std::expected<void, QString> validateKeywordItems( const QString& keywordName, c
         validNames.push_back( itemName );
     }
 
+    // COMMENT is accepted on all keywords. It is stored on the event and emitted as a schedule comment instead of being
+    // passed as keyword data, so it is not part of the item names reported by opm-common. Include it in the list of
+    // valid names to help spot typos like COMMENTS.
+    const QString commentItemName( "COMMENT" );
+    if ( !validNames.contains( commentItemName ) ) validNames.push_back( commentItemName );
+
     return std::unexpected( QString( "Keyword '%1' contains invalid item names: %2. Valid item names are: %3." )
                                 .arg( keywordName.toUpper(), invalidNames.join( ", " ), validNames.join( ", " ) ) );
 }

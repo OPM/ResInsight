@@ -1889,6 +1889,49 @@ class TestOrionEventsIntegration:
         )
         assert "Valid item names are:" in error_msg
 
+    def test_comment_is_listed_as_valid_item_name(self, project_with_case_and_wells):
+        """COMMENT is accepted on every keyword, so it must be suggested when the user
+        mistypes it, e.g. as COMMENTS (issue #14636)."""
+        project, _case, timeline = project_with_case_and_wells
+        well = project.well_paths()[0]
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            "  2018-06-08 WTRACER TRACER=T1 CONCENTRATION=1.0 COMMENTS=typo\n"
+        )
+
+        report = apply_orion_document(document, timeline, project)
+
+        assert report.events_applied == 0
+        assert report.events_skipped == 1
+        assert len(report.errors) == 1
+        error_msg = report.errors[0]
+        assert "Keyword 'WTRACER' contains invalid item names: COMMENTS" in error_msg
+
+        valid_names = error_msg.split("Valid item names are:")[1]
+        assert "COMMENT" in valid_names
+        # COMMENT must be listed once, in addition to the opm-common item names.
+        assert [name.strip(" .") for name in valid_names.split(",")].count(
+            "COMMENT"
+        ) == 1
+
+    def test_comment_attribute_is_accepted_on_keyword_event(
+        self, project_with_case_and_wells
+    ):
+        """COMMENT must stay event metadata and not be rejected as an invalid item name."""
+        project, _case, timeline = project_with_case_and_wells
+        well = project.well_paths()[0]
+        document = parse_orion_events(
+            "ORIONEVENTS 2.0\n"
+            f'WELL "{well.name}"\n'
+            '  2018-06-08 WTRACER TRACER=T1 CONCENTRATION=1.0 COMMENT="Tracer start"\n'
+        )
+
+        report = apply_orion_document(document, timeline, project)
+
+        assert report.errors == []
+        assert report.events_applied == 1
+
     def test_unknown_keyword_reports_context_and_continues(
         self, project_with_case_and_wells
     ):
