@@ -325,6 +325,52 @@ class TestParsing:
         doc = parse_orion_events(text)
         assert doc.wells[0].events[0].event_date == datetime.date(2017, 12, 27)
 
+    def test_signed_operand_in_date_declaration(self):
+        """An operand may carry its own sign: '+ -2' subtracts (issue #14639)."""
+        text = "ORIONEVENTS 2.0\nDATE STARTUP = 2026-08-28 + -2\n"
+        doc = parse_orion_events(text)
+        assert doc.variables["STARTUP"].value == datetime.date(2026, 8, 26)
+
+    def test_signed_operand_sign_combinations(self):
+        for expr, expected in (
+            ("+ -2", datetime.date(2026, 8, 26)),
+            ("- -2", datetime.date(2026, 8, 30)),
+            ("+ +2", datetime.date(2026, 8, 30)),
+            ("+-2", datetime.date(2026, 8, 26)),
+            # Unsigned operands keep their previous meaning.
+            ("+ 2", datetime.date(2026, 8, 30)),
+            ("- 2", datetime.date(2026, 8, 26)),
+        ):
+            doc = parse_orion_events(f"ORIONEVENTS 2.0\nDATE S = 2026-08-28 {expr}\n")
+            assert doc.variables["S"].value == expected, expr
+
+    def test_signed_operand_on_event_line_and_duration(self):
+        text = (
+            "ORIONEVENTS 2.0\nDATE START = 2018-01-01\nDURATION RAMP = 5 + -2\n"
+            'WELL "W"\n  START + RAMP + -1 PERFORATION MDSTART=1 MDEND=2\n'
+        )
+        doc = parse_orion_events(text)
+        assert doc.variables["RAMP"].value == 3
+        assert doc.wells[0].events[0].event_date == datetime.date(2018, 1, 3)
+
+    def test_signed_operand_in_insert_date_until(self):
+        text = (
+            "ORIONEVENTS 2.0\nSCHEDULE\n"
+            "INSERT_DATE 2024-01-01 + -1 EVERY DAY UNTIL 2024-01-05 + -2\n"
+        )
+        doc = parse_orion_events(text)
+        assert doc.report_dates == [
+            datetime.date(2023, 12, 31),
+            datetime.date(2024, 1, 1),
+            datetime.date(2024, 1, 2),
+            datetime.date(2024, 1, 3),
+        ]
+
+    def test_signed_operand_does_not_accept_fractional_days(self):
+        """Fractional day offsets remain unsupported."""
+        with pytest.raises(OrionParseError, match="Malformed DATE declaration"):
+            parse_orion_events("ORIONEVENTS 2.0\nDATE S = 2026-08-28 + -2.5\n")
+
     def test_offset_chain_with_duration_variable(self):
         text = (
             "ORIONEVENTS 2.0\nDATE START = 2018-01-01\nDURATION RAMP = 5\n"
