@@ -50,40 +50,19 @@ public:
     RimGenericJob();
     ~RimGenericJob() override;
 
-    bool execute();
-    bool setFinished( bool runOk );
-    void setStarted();
+    virtual bool              execute()                                                         = 0;
+    virtual bool              stop()                                                            = 0;
+    virtual double            percentageDone() const                                            = 0;
+    virtual const QStringList jobLog() const                                                    = 0;
+    virtual bool              matchesKeyValue( const QString& key, const QString& value ) const = 0;
+    virtual void              processLogOutput( const QString& logLine ) {};
 
-    bool isRunning() const;
-    bool stop();
+    virtual bool setFinished( bool runOk ) = 0;
+    virtual void setStarted()              = 0;
 
+    bool     isRunning() const;
     JobState state() const;
 
-    double            percentageDone() const;
-    const QStringList jobLog() const;
-
-    virtual bool matchesKeyValue( const QString& key, const QString& value ) const;
-
-    virtual void processLogOutput( const QString& logLine ) = 0;
-
 protected:
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
-    virtual QStringList                command()     = 0;
-    virtual std::map<QString, QString> environment() = 0;
-    virtual QString                    workingDirectory() const;
-    virtual bool                       onPrepare()                         = 0;
-    virtual bool                       onRun()                             = 0;
-    virtual void                       onCompleted( bool success )         = 0;
-    virtual void                       onProgress( double percentageDone ) = 0;
-
-protected:
-    double m_percentageDone;
-    int    m_warningsDetected;
-    int    m_errorsDetected;
-
-private:
-    JobState                    m_jobState;
-    caf::PdmPointer<RimProcess> m_process;
+    JobState m_jobState;
 };
