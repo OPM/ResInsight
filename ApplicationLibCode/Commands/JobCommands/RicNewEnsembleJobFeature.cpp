@@ -27,8 +27,8 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
 
-#include "Jobs/RimJobCollection.h"
 #include "Jobs/RimEnsembleJob.h"
+#include "Jobs/RimJobCollection.h"
 
 #include "cafSelectionManager.h"
 
@@ -73,4 +73,3 @@ void RicNewEnsembleJobFeature::setupActionLook( QAction* actionToSetup )
     actionToSetup->setIcon( QIcon( ":/opm.png" ) );
     actionToSetup->setText( "New Ensemble Job... " );
 }
-
