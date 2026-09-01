@@ -66,6 +66,8 @@ public:
 
     bool openEclipseGridFile() override;
 
+    void closeReservoirCase() override;
+
     QString locationOnDisc() const override;
 
     QString dataLoadingText() const override;
