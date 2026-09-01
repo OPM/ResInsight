@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewEnsembleJobFeature: public caf::CmdFeature
+class RicNewEnsembleJobFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
