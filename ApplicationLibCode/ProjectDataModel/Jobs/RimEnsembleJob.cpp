@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2025 Equinor ASA
+//  Copyright (C) 2026 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,6 +18,13 @@
 
 #include "RimEnsembleJob.h"
 
+#include "RimEclipseCase.h"
+#include "RimProject.h"
+#include "RimReservoirGridEnsemble.h"
+#include "RimTools.h"
+
+#include "cafPdmUiTreeSelectionEditor.h"
+
 CAF_PDM_SOURCE_INIT( RimEnsembleJob, "EnsembleJob" );
 
 //--------------------------------------------------------------------------------------------------
@@ -26,6 +33,14 @@ CAF_PDM_SOURCE_INIT( RimEnsembleJob, "EnsembleJob" );
 RimEnsembleJob::RimEnsembleJob()
 {
     CAF_PDM_InitObject( "Ensemble Job", ":/opm.png" );
+
+    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
+    m_ensemble = nullptr;
+    m_ensemble.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedRealizations, "SelectedRealizations", "Selected Realizations" );
+    m_selectedRealizations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedRealizations.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,4 +110,27 @@ void RimEnsembleJob::setStarted()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::setEnsemble( RimReservoirGridEnsemble* ensemble )
 {
+    m_ensemble = ensemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEnsembleJob::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_selectedRealizations )
+    {
+        for ( auto* realization : m_ensemble->cases() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( realization->uiName(), realization ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_ensemble )
+    {
+        RimTools::reservoirGridEnsembleOptionItems( &options );
+    }
+
+    return options;
 }

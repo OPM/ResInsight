@@ -45,6 +45,7 @@ class RimFaultInViewCollection;
 class RimPolygonCollection;
 class RimAutomationSettings;
 class RimJobCollection;
+class RimReservoirGridEnsemble;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -71,6 +72,7 @@ public:
     static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox, bool basicDataOnly = false );
     static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void polygonOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void reservoirGridEnsembleOptionItems( QList<caf::PdmOptionItemInfo>* options );
 
     static void faultOptionItems( QList<caf::PdmOptionItemInfo>* options, RimFaultInViewCollection* coll );
 
