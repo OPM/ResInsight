@@ -31,6 +31,7 @@
 #include "RimEclipseView.h"
 #include "RimGridView.h"
 #include "RimRegularLegendConfig.h"
+#include "RimViewNameConfig.h"
 #include "Surfaces/RimSurface.h"
 #include "Surfaces/RimSurfaceInView.h"
 #include "Surfaces/RimSurfaceInViewCollection.h"
@@ -38,6 +39,7 @@
 #include "RivContourMapElevationProvider.h"
 #include "RivContourMapProjectionPartMgr.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
 
 #include "cvfCamera.h"
@@ -153,7 +155,10 @@ QString RimContourMapInView::name() const
 {
     if ( !m_contourMapView() ) return "Contour Map";
 
-    return m_contourMapView()->name();
+    // Use the auto-generated name (custom name part plus generated tags) instead of only the custom name part.
+    // Some contour map view types (e.g. RimStatisticsContourMapView) intentionally leave the custom name part
+    // empty and rely fully on the generated tags, which would otherwise result in an empty name here.
+    return m_contourMapView()->nameConfig()->name();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -452,6 +457,11 @@ void RimContourMapInView::updateLegendRangesTextAndVisibility( RiuViewer* native
 void RimContourMapInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_nameProxy );
+
+    if ( m_contourMapView() )
+    {
+        uiOrdering.addNewButton( "Go to Contour Map", [this]() { Riu3DMainWindowTools::selectAsCurrentItem( m_contourMapView() ); } );
+    }
 
     caf::PdmUiGroup* positionGroup = uiOrdering.addNewGroup( "Position" );
     positionGroup->add( &m_mapPosition );
