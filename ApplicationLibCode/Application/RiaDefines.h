@@ -268,10 +268,11 @@ enum class View3dContent
 
 enum class ItemIn3dView
 {
-    NONE    = 0b00000000,
-    SURFACE = 0b00000001,
-    POLYGON = 0b00000010,
-    ALL     = 0b00000011
+    NONE        = 0b00000000,
+    SURFACE     = 0b00000001,
+    POLYGON     = 0b00000010,
+    CONTOUR_MAP = 0b00000100,
+    ALL         = 0b00000111
 };
 
 QString betaFeaturePostfix();
