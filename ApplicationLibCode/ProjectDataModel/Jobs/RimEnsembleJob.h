@@ -20,7 +20,10 @@
 
 #include "RimGenericJob.h"
 
+#include "cafPdmPtrField.h"
+
 class RimReservoirGridEnsemble;
+class RimEclipseCase;
 
 //==================================================================================================
 ///
@@ -45,5 +48,9 @@ public:
     void setStarted() override;
 
 protected:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
 private:
+    caf::PdmPtrField<RimReservoirGridEnsemble*> m_ensemble;
+    caf::PdmPtrArrayField<RimEclipseCase*>      m_selectedRealizations;
 };
