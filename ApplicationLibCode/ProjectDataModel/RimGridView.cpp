@@ -45,6 +45,8 @@
 #include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPathCollection.h"
 
+#include "ContourMap/RimContourMapInViewCollection.h"
+
 #include "Polygons/RimPolygonInView.h"
 #include "Polygons/RimPolygonInViewCollection.h"
 
@@ -106,6 +108,9 @@ RimGridView::RimGridView()
     CAF_PDM_InitFieldNoDefault( &m_polygonInViewCollection, "PolygonInViewCollection", "Polygon Collection Field" );
     m_polygonInViewCollection = new RimPolygonInViewCollection();
     m_polygonInViewCollection->uiCapability()->setUiIcon( caf::IconProvider( ":/PolylinesFromFile16x16.png" ) );
+
+    CAF_PDM_InitFieldNoDefault( &m_contourMapInViewCollection, "ContourMapInViewCollection", "Contour Map Collection Field" );
+    m_contourMapInViewCollection = new RimContourMapInViewCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field" );
     m_cellFilterCollection = new RimCellFilterCollection();
@@ -181,6 +186,14 @@ RimSeismicSectionCollection* RimGridView::seismicSectionCollection() const
 RimPolygonInViewCollection* RimGridView::polygonInViewCollection() const
 {
     return m_polygonInViewCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimContourMapInViewCollection* RimGridView::contourMapInViewCollection() const
+{
+    return m_contourMapInViewCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -555,6 +568,12 @@ void RimGridView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
     if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::POLYGON ) )
     {
         m_polygonInViewCollection->updateFromPolygonCollection();
+    }
+
+    if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::CONTOUR_MAP ) )
+    {
+        // Null for views that do not show contour maps, the 2d contour map views in particular
+        if ( auto contourMaps = contourMapInViewCollection() ) contourMaps->updateFromContourMapCollection();
     }
 
     updateConnectedEditors();

@@ -77,6 +77,8 @@ public:
 
     const RimPropertyFilterCollection* propertyFilterCollection() const override;
 
+    RimContourMapInViewCollection* contourMapInViewCollection() const override;
+
     const RimGeoMechPartCollection* partsCollection() const;
 
     RimGeoMechPropertyFilterCollection*       geoMechPropertyFilterCollection();
