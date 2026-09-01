@@ -23,6 +23,7 @@
 #include "RiuViewer.h"
 #include "RivContourMapProjectionPartMgr.h"
 
+#include "ContourMap/RimContourMapInViewCollection.h"
 #include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
@@ -302,6 +303,11 @@ void RimEclipseContourMapView::updateGeometry()
     appendWellsAndFracturesToModel();
 
     m_overlayInfoConfig()->update3DInfo();
+
+    // The results and the geometry are ready only now, so this is where the 3d views showing this
+    // contour map can pick them up. Doing it when the view is loaded is too early, that only schedules
+    // the rebuild that ends up here.
+    RimContourMapInViewCollection::scheduleRedrawOfViewsShowing( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -650,6 +656,16 @@ void RimEclipseContourMapView::onLegendConfigChanged( const caf::SignalEmitter* 
 RimSurfaceInViewCollection* RimEclipseContourMapView::surfaceInViewCollection() const
 {
     // Surfaces should not be shown in contour map.
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimContourMapInViewCollection* RimEclipseContourMapView::contourMapInViewCollection() const
+{
+    // A contour map view shows its own contour map, and should not offer to show the other contour maps
+    // of the project.
     return nullptr;
 }
 

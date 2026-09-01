@@ -1,7 +1,10 @@
 #include "RimEclipseContourMapViewCollection.h"
 
+#include "ContourMap/RimContourMapInViewCollection.h"
+#include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseContourMapView.h"
+#include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT( RimEclipseContourMapViewCollection, "Eclipse2dViewCollection" );
 
@@ -36,6 +39,8 @@ std::vector<RimEclipseContourMapView*> RimEclipseContourMapViewCollection::views
 void RimEclipseContourMapViewCollection::addView( RimEclipseContourMapView* contourMap )
 {
     addItem( contourMap );
+
+    RimContourMapInViewCollection::updateViewTreeItemsInAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,6 +51,17 @@ void RimEclipseContourMapViewCollection::onChildDeleted( caf::PdmChildArrayField
 {
     auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase ) eclipseCase->updateConnectedEditors();
+
+    RimContourMapInViewCollection::updateViewTreeItemsInAllViews();
+
+    // A deleted contour map may have been visible in a 3d view
+    if ( RimProject* project = RimProject::current() )
+    {
+        for ( Rim3dView* view : project->allViews() )
+        {
+            if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

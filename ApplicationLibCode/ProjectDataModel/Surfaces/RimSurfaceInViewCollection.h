@@ -78,6 +78,9 @@ public:
 
     std::vector<RimRegularLegendConfig*> legendConfigs();
 
+    // The surfaces this collection contributes to the scene, recursing into the checked sub collections
+    std::vector<RimSurfaceInView*> visibleSurfacesInView() const;
+
     std::vector<const RivIntersectionGeometryGeneratorInterface*> intersectionGeometryGenerators() const;
 
 protected:

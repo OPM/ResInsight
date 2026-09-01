@@ -109,6 +109,7 @@ protected:
     void setupBeforeSave() override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void switchToSelectedSourceCase();
 

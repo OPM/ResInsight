@@ -29,6 +29,8 @@
 
 #include "HoloLensCommands/RicExportToSharingServerScheduler.h"
 
+#include "ContourMap/RimContourMapInViewCollection.h"
+
 #include "RicfCommandObject.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -850,6 +852,10 @@ void RimEclipseView::onCreateDisplayModel()
     }
     else
     {
+        // onUpdateDisplayModelForCurrentTimeStep is not called for a view showing only static results,
+        // so the contour maps have to be appended here to be shown at all
+        appendContourMapsToModel();
+
         m_overlayInfoConfig()->update3DInfo();
         onUpdateLegends();
     }
@@ -957,6 +963,7 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
     appendWellsAndFracturesToModel();
     appendElementVectorResultToModel();
     appendStreamlinesToModel();
+    appendContourMapsToModel();
 
     m_overlayInfoConfig()->update3DInfo();
 
@@ -1232,6 +1239,35 @@ void RimEclipseView::appendStreamlinesToModel()
             frameScene->addModel( frameParts.p() );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::appendContourMapsToModel()
+{
+    if ( !nativeOrOverrideViewer() ) return;
+    if ( !contourMapInViewCollection() ) return;
+
+    // A contour map draped on the geometry follows the cell visibility, which is time step dependent, so
+    // the parts belong to the frame scene rather than to a static model. A view showing only static
+    // results has no frame scenes at all, and everything it shows lives in the main scene.
+    cvf::Scene* scene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+    if ( !scene ) scene = nativeOrOverrideViewer()->mainScene( isUsingOverrideViewer() );
+    if ( !scene ) return;
+
+    cvf::String name = "ContourMapsInView";
+    RimEclipseView::removeModelByName( scene, name );
+
+    cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+    frameParts->setName( name );
+
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
+
+    contourMapInViewCollection()->appendPartsToModel( frameParts.p(), transform.p(), nativeOrOverrideViewer()->mainCamera() );
+
+    frameParts->updateBoundingBoxesRecursive();
+    scene->addModel( frameParts.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1679,6 +1715,11 @@ void RimEclipseView::onUpdateLegends()
     if ( m_seismicSectionCollection->isChecked() )
     {
         m_seismicSectionCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+    }
+
+    if ( auto contourMaps = contourMapInViewCollection() )
+    {
+        contourMaps->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
     }
 
     if ( m_streamlineCollection )
@@ -2141,6 +2182,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( m_polygonInViewCollection );
 
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
+    if ( contourMapInViewCollection() ) uiTreeOrdering.add( contourMapInViewCollection() );
     if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
 
     uiTreeOrdering.add( annotationCollection() );
@@ -2536,6 +2578,14 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
     if ( surfaceInViewCollection() )
     {
         for ( auto legendConfig : surfaceInViewCollection()->legendConfigs() )
+        {
+            absLegends.push_back( legendConfig );
+        }
+    }
+
+    if ( auto contourMaps = contourMapInViewCollection() )
+    {
+        for ( auto legendConfig : contourMaps->legendConfigs() )
         {
             absLegends.push_back( legendConfig );
         }

@@ -603,6 +603,31 @@ std::vector<RimRegularLegendConfig*> RimSurfaceInViewCollection::legendConfigs()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSurfaceInView*> RimSurfaceInViewCollection::visibleSurfacesInView() const
+{
+    if ( !isChecked() ) return {};
+
+    std::vector<RimSurfaceInView*> surfaces;
+
+    for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
+    {
+        if ( !coll ) continue;
+
+        std::vector<RimSurfaceInView*> collSurfaces = coll->visibleSurfacesInView();
+        surfaces.insert( surfaces.end(), collSurfaces.begin(), collSurfaces.end() );
+    }
+
+    for ( RimSurfaceInView* surf : m_surfacesInView )
+    {
+        if ( surf && surf->isActive() ) surfaces.push_back( surf );
+    }
+
+    return surfaces;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<const RivIntersectionGeometryGeneratorInterface*> RimSurfaceInViewCollection::intersectionGeometryGenerators() const
 {
     std::vector<const RivIntersectionGeometryGeneratorInterface*> generators;

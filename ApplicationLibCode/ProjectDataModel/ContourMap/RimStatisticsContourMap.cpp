@@ -39,14 +39,17 @@
 #include "RigPolyLinesData.h"
 #include "RigStatisticsMath.h"
 
+#include "ContourMap/RimContourMapInViewCollection.h"
 #include "Formations/RimFormationNames.h"
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
+#include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimProject.h"
 #include "RimReservoirGridEnsemble.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStatisticsContourMapProjection.h"
@@ -1342,4 +1345,26 @@ void RimStatisticsContourMap::addView( RimStatisticsContourMapView* view )
         view->scheduleCreateDisplayModelAndRedraw();
     }
     m_views.push_back( view );
+
+    // The 3d views mirror every contour map of the project, these included
+    RimContourMapInViewCollection::updateViewTreeItemsInAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsContourMap::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    if ( childArray != &m_views ) return;
+
+    RimContourMapInViewCollection::updateViewTreeItemsInAllViews();
+
+    // A deleted contour map may have been visible in a 3d view
+    if ( RimProject* project = RimProject::current() )
+    {
+        for ( Rim3dView* view : project->allViews() )
+        {
+            if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
 }

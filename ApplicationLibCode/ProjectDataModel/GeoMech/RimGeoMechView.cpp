@@ -1080,6 +1080,16 @@ const RimPropertyFilterCollection* RimGeoMechView::propertyFilterCollection() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimContourMapInViewCollection* RimGeoMechView::contourMapInViewCollection() const
+{
+    // Only Eclipse contour maps exist, and this view has no way of rendering them. Mirroring them here
+    // would fill the view, and the project file, with entries that can never be shown.
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimGeoMechView::activeFiltersDisplayText() const
 {
     QStringList parts;

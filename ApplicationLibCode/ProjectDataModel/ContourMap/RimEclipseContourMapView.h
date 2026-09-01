@@ -23,6 +23,7 @@
 #include "cafPdmProxyValueField.h"
 
 enum class RimLegendConfigChangeType;
+class RimContourMapInViewCollection;
 class RimEclipseContourMapProjection;
 class RimRegularLegendConfig;
 class RimViewNameConfig;
@@ -44,9 +45,10 @@ public:
     void    setDefaultCustomName();
     void    updatePickPointAndRedraw();
 
-    RimSurfaceInViewCollection* surfaceInViewCollection() const override;
-    void                        zoomAll() override;
-    bool                        isScaleZEditable() const override;
+    RimSurfaceInViewCollection*    surfaceInViewCollection() const override;
+    RimContourMapInViewCollection* contourMapInViewCollection() const override;
+    void                           zoomAll() override;
+    bool                           isScaleZEditable() const override;
 
     void setCompatibleDrawStyle();
 
