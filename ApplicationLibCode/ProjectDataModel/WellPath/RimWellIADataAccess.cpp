@@ -131,6 +131,7 @@ double RimWellIADataAccess::interpolatedResultValue( const RigFemPart*         f
                                                      const cvf::Vec3d&         position )
 {
     int elmIdx = elementIndex( position );
+    if ( elmIdx < 0 ) return 0.0;
 
     RigElementType elmType      = femPart->elementType( elmIdx );
     const int*     elementConn  = femPart->connectivities( elmIdx );
