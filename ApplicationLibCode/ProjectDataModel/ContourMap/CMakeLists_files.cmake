@@ -1,5 +1,7 @@
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimContourMapResolutionTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimContourMapInView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimContourMapInViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.cpp
