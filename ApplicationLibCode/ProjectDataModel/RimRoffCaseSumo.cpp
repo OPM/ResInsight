@@ -261,6 +261,20 @@ bool RimRoffCaseSumo::openEclipseGridFile()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The case can be closed and reopened many times while this object stays alive, e.g. when statistics for an
+/// ensemble contour map release each realization's memory after processing it. m_propertyReader is a second
+/// reference to the reader alongside the one held by the cell results: releasing it here is what lets the
+/// reader (and its lifetime token) actually be destroyed when the case data is, instead of surviving with a
+/// dangling m_caseData pointer that a Sumo transfer arriving later would write into.
+//--------------------------------------------------------------------------------------------------
+void RimRoffCaseSumo::closeReservoirCase()
+{
+    m_propertyReader = nullptr;
+
+    RimEclipseCase::closeReservoirCase();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Download the roff grid blob for this realization and parse it into the case data.
 //--------------------------------------------------------------------------------------------------
 bool RimRoffCaseSumo::downloadAndParseGrid()
