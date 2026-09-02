@@ -119,13 +119,14 @@ architecture-beta
 ```mermaid
 flowchart LR
     Ensemble[RimReservoirGridEnsembleSumo] --> Case[RimRoffCaseSumo]
+    Case -- "requests grid blob (sync)" --> Connector[RiaSumoConnector]
+    Connector -- "roff blobs" --> Case
+    Case -- "parses roff blob, creates" --> CaseData[RigEclipseCaseData]
     Case -- attaches reader --> Reader[RifReaderSumoGridProperty]
-    Case -- "downloads + parses roff grid" --> Connector[RiaSumoConnector]
-    Case -- creates --> CaseData[RigEclipseCaseData]
     Reader -- "fetches property time steps (async)" --> Connector
     Reader -- registered as reader for --> Results[RigCaseCellResultsData]
     CaseData --> Results
-    Connector --> Sumo[(ri-cloud-api / Azure Blob Storage)]
+    Connector -- "downloads blob (SAS token)" --> Sumo[(ri-cloud-api / Azure Blob Storage)]
 ```
 
 ## `RimSummaryEnsembleSumo` (summary ensemble)
@@ -133,7 +134,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     Ensemble[RimSummaryEnsembleSumo] -- "requests vectors / parameters (async)" --> Connector[RiaSumoConnector]
-    Connector --> Sumo[(ri-cloud-api / Azure Blob Storage)]
+    Connector -- "downloads blob (SAS token)" --> Sumo[(ri-cloud-api / Azure Blob Storage)]
     Connector -- parquet blobs --> Ensemble
     Ensemble -- "decodes via Arrow, distributes" --> Realizations[Per-realization summary readers]
     Realizations --> Plots[Summary Plots]
