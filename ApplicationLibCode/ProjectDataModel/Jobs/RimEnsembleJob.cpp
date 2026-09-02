@@ -18,12 +18,18 @@
 
 #include "RimEnsembleJob.h"
 
+#include "RiaFilePathTools.h"
+#include "RiaLogging.h"
+
+#include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "RimEclipseCase.h"
 #include "RimProject.h"
 #include "RimReservoirGridEnsemble.h"
 #include "RimTools.h"
 
 #include "cafPdmUiTreeSelectionEditor.h"
+
+#include <QFile>
 
 CAF_PDM_SOURCE_INIT( RimEnsembleJob, "EnsembleJob" );
 
@@ -41,6 +47,8 @@ RimEnsembleJob::RimEnsembleJob()
     CAF_PDM_InitFieldNoDefault( &m_selectedRealizations, "SelectedRealizations", "Selected Realizations" );
     m_selectedRealizations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedRealizations.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
+
+    CAF_PDM_InitField( &m_outputIterationNumber, "OutputIterationNumber", 0, "Output Iteration Number" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,14 +56,6 @@ RimEnsembleJob::RimEnsembleJob()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleJob::~RimEnsembleJob()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimEnsembleJob::execute()
-{
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,4 +133,85 @@ QList<caf::PdmOptionItemInfo> RimEnsembleJob::calculateValueOptions( const caf::
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RimEnsembleJob::getSelectedRealizationFileNames() const
+{
+    std::vector<std::string> fileNames;
+    for ( auto realization : m_selectedRealizations.value() )
+    {
+        if ( realization.notNull() )
+        {
+            auto locationOnDisk = realization->gridFileName().toStdString();
+            if ( QFile::exists( QString::fromStdString( locationOnDisk ) ) ) fileNames.push_back( locationOnDisk );
+        }
+    }
+    return fileNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleJob::execute()
+{
+    auto realizations = getSelectedRealizations();
+
+    for ( auto real : realizations )
+    {
+        qDebug() << real.inputCase->uiName() << "Input Deck: " << QString::fromStdString( real.realizationInputDeckName )
+                 << "Output Dir: " << QString::fromStdString( real.realizationOutputDir );
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleJob::RealizationInfo> RimEnsembleJob::getSelectedRealizations() const
+{
+    if ( !m_ensemble() || !m_ensemble()->ensembleFileSet() ) return {};
+
+    auto [key1, key2] = m_ensemble()->ensembleFileSet()->nameKeys();
+
+    std::vector<RealizationInfo> realizationInfos;
+    for ( RimEclipseCase* realization : m_selectedRealizations.value() )
+    {
+        RealizationInfo info;
+
+        // the case to use for well data extraction
+        info.inputCase = realization;
+        // the deck file to use as input when creating new input deck for job
+        info.realizationInputDeckName = RiaFilePathTools::replaceFileExtension( realization->gridFileName().toStdString(), "DATA" );
+        if ( !QFile::exists( QString::fromStdString( info.realizationInputDeckName ) ) )
+        {
+            RiaLogging::error( std::format( "Deck file {} does not exist, skipping realization.", info.realizationInputDeckName ) );
+            continue;
+        }
+
+        // replace the output iteration folder (key2 for FMU) with the well planning iteration folder
+        auto outputFileName = RiaFilePathTools::replaceSubFolderInPath( info.realizationInputDeckName, key2, outputIteration() );
+        std::filesystem::path outputPath( outputFileName );
+        info.realizationOutputDir = outputPath.parent_path().string();
+
+        // make sure the output folder exists
+        if ( !std::filesystem::exists( info.realizationOutputDir ) )
+        {
+            std::filesystem::create_directories( outputPath );
+        }
+
+        realizationInfos.push_back( info );
+    }
+    return realizationInfos;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimEnsembleJob::outputIteration() const
+{
+    return std::format( "wp-{}", m_outputIterationNumber.value() );
 }

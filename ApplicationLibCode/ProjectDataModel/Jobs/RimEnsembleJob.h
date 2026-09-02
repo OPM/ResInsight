@@ -48,9 +48,24 @@ public:
     void setStarted() override;
 
 protected:
+    struct RealizationInfo
+    {
+        RimEclipseCase* inputCase;
+        std::string     realizationInputDeckName;
+        std::string     realizationOutputDir;
+        std::string     outputDeckName;
+    };
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+    std::vector<RealizationInfo> getSelectedRealizations() const;
+    std::string                  outputIteration() const;
+
+private:
+    std::vector<std::string> getSelectedRealizationFileNames() const;
 
 private:
     caf::PdmPtrField<RimReservoirGridEnsemble*> m_ensemble;
     caf::PdmPtrArrayField<RimEclipseCase*>      m_selectedRealizations;
+    caf::PdmField<int>                          m_outputIterationNumber;
 };

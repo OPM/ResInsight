@@ -64,5 +64,7 @@ public:
     JobState state() const;
 
 protected:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
     JobState m_jobState;
 };

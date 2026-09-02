@@ -42,10 +42,12 @@ QString                     removeDuplicatePathSeparators( const QString& path )
 QString                     rootSearchPathFromSearchFilter( const QString& searchFilter );
 QString                     removeFileExtension( const QString& filePath );
 QString                     commonRootOfFileNames( const QStringList& filePaths );
-std::string                 makeSuitableAsFileName( const std::string candidateName );
-std::string                 normalizePath( std::string path );
+QStringList                 splitPathIntoComponents( const QString& path, bool splitExtensionIntoSeparateEntry = false );
 
-QStringList splitPathIntoComponents( const QString& path, bool splitExtensionIntoSeparateEntry = false );
+std::string makeSuitableAsFileName( const std::string candidateName );
+std::string normalizePath( std::string path );
+std::string replaceSubFolderInPath( const std::string& path, const std::string& subFolderToReplace, const std::string& newSubFolder );
+std::string replaceFileExtension( const std::string& filePath, const std::string& newExtension );
 
 std::map<QString, QStringList> keyPathComponentsForEachFilePath( const QStringList& filePaths );
 
