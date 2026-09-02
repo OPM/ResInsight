@@ -51,7 +51,6 @@ public:
     void setStarted() override;
 
 protected:
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     virtual QStringList                command()     = 0;

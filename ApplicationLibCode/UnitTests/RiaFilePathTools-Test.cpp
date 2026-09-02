@@ -193,3 +193,46 @@ TEST( RiaFilePathTools, removeFileExtension )
     // Empty path
     EXPECT_EQ( QString( "" ), RiaFilePathTools::removeFileExtension( "" ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaFilePathTools, replaceSubFolderInPath )
+{
+    {
+        std::string testPath0( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-0/iter-3/eclipse/model/DROGON-0.SMSPEC" );
+        std::string testPath1( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-1/iter-3/eclipse/model/DROGON-1.SMSPEC" );
+
+        std::string expPath0( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-0/wp-0/eclipse/model/DROGON-0.SMSPEC" );
+        std::string expPath1( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-1/wp-0/eclipse/model/DROGON-1.SMSPEC" );
+
+        auto newPath0 = RiaFilePathTools::replaceSubFolderInPath( testPath0, "iter-3", "wp-0" );
+        auto newPath1 = RiaFilePathTools::replaceSubFolderInPath( testPath1, "iter-3", "wp-0" );
+
+        EXPECT_EQ( expPath0, newPath0 );
+        EXPECT_EQ( expPath1, newPath1 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaFilePathTools, replaceExtension )
+{
+    // A folder name can contain a dot. Only a file extension is removed, the folder name is left untouched.
+    const std::string pathWithExtension = "/scratch/fmu/user/drogon.2024/realization-$(INDEX)/iter-0/eclipse/model/DROGON-$(INDEX).ESMRY";
+    EXPECT_EQ( std::string( "/scratch/fmu/user/drogon.2024/realization-$(INDEX)/iter-0/eclipse/model/DROGON-$(INDEX).DATA" ),
+               RiaFilePathTools::replaceFileExtension( pathWithExtension, "DATA" ) );
+
+    // A path without a file extension must be returned unmodified, see https://github.com/OPM/ResInsight/issues/14470
+    const std::string pathWithoutExtension = "/scratch/fmu/user/drogon.2024/realization-$(INDEX)/iter-0/eclipse/model/DROGON-$(INDEX).DATA";
+    EXPECT_EQ( pathWithoutExtension, RiaFilePathTools::replaceFileExtension( pathWithoutExtension, "DATA" ) );
+
+#ifdef WIN32
+    // A backslash is only recognized as a path separator on Windows
+    const std::string windowsPath = "d:\\scratch\\drogon.2024\\realization-0\\DROGON-0.DATA";
+    EXPECT_EQ( windowsPath, RiaFilePathTools::replaceFileExtension( windowsPath, "DATA" ) );
+#endif
+
+    // No folder part
+    EXPECT_EQ( std::string( "DROGON-0.DATA" ), RiaFilePathTools::replaceFileExtension( "DROGON-0.SMSPEC", "DATA" ) );
+
+    // Empty path
+    EXPECT_EQ( std::string( "" ), RiaFilePathTools::replaceFileExtension( "", "DATA" ) );
+}
