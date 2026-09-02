@@ -29,7 +29,6 @@
 
 #include "RiuGuiTheme.h"
 
-#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafProgressInfo.h"
 
@@ -62,23 +61,6 @@ RimSingleJob::~RimSingleJob()
 double RimSingleJob::percentageDone() const
 {
     return m_percentageDone;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSingleJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
-{
-    if ( isRunning() )
-    {
-        menuBuilder << "RicStopJobFeature";
-    }
-    else
-    {
-        menuBuilder << "RicRunJobFeature";
-    }
-    menuBuilder << "RicDuplicateJobFeature";
-    menuBuilder << "RicViewJobLogFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

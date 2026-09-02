@@ -18,6 +18,8 @@
 
 #include "RimGenericJob.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
+
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGenericJob, "GenericJob" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
@@ -50,4 +52,21 @@ bool RimGenericJob::isRunning() const
 RimGenericJob::JobState RimGenericJob::state() const
 {
     return m_jobState;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericJob::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    if ( isRunning() )
+    {
+        menuBuilder << "RicStopJobFeature";
+    }
+    else
+    {
+        menuBuilder << "RicRunJobFeature";
+    }
+    menuBuilder << "RicDuplicateJobFeature";
+    menuBuilder << "RicViewJobLogFeature";
 }

@@ -20,15 +20,16 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferencesOpm.h"
+#include "Summary/RiaSummaryDefines.h"
 
+#include "EnsembleFileSet/RimEnsembleFileSet.h"
+#include "Jobs/RimEnsembleJob.h"
+#include "Jobs/RimJobCollection.h"
 #include "RimReservoirGridEnsemble.h"
 #include "RimTools.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
-
-#include "Jobs/RimEnsembleJob.h"
-#include "Jobs/RimJobCollection.h"
 
 #include "cafSelectionManager.h"
 
@@ -44,7 +45,8 @@ CAF_CMD_SOURCE_INIT( RicNewEnsembleJobFeature, "RicNewEnsembleJobFeature" );
 bool RicNewEnsembleJobFeature::isCommandEnabled() const
 {
     std::vector<RimReservoirGridEnsemble*> selectedEnsembles = caf::SelectionManager::instance()->objectsByType<RimReservoirGridEnsemble>();
-    return RiaPreferencesOpm::current()->validateFlowSettings() && selectedEnsembles.size() == 1;
+    return RiaPreferencesOpm::current()->validateFlowSettings() && selectedEnsembles.size() == 1 &&
+           selectedEnsembles[0]->ensembleFileSet()->groupingMode() == RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
 }
 
 //--------------------------------------------------------------------------------------------------
