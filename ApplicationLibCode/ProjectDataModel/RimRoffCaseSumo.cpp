@@ -37,6 +37,7 @@
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
 
+#include "RimCaseCollection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -213,7 +214,8 @@ bool RimRoffCaseSumo::openEclipseGridFile()
     RigMainGrid* gridToUse     = parsedGrid;
     QString      gridOwnership = "own grid (case is not in a reservoir grid ensemble)";
 
-    if ( auto* gridEnsemble = parentGridEnsembleBase() )
+    RimReservoirGridEnsembleBase* gridEnsemble = parentCaseCollection() ? parentCaseCollection()->parentGridEnsembleBase() : nullptr;
+    if ( gridEnsemble )
     {
         gridToUse     = gridEnsemble->shareOrAdoptMainGrid( parsedGrid );
         gridOwnership = ( gridToUse != parsedGrid ) ? "shared grid"

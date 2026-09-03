@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2024     Equinor ASA
+//  Copyright (C) 2026     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
-#include "RigNestedHybridGridResultTools.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
@@ -259,21 +258,21 @@ void RifReaderSumoGridProperty::requestTimeStepsAsync( const QString&           
 
     std::weak_ptr<bool> isAlive = m_lifetimeToken;
 
-    m_connector->grid().propertyDataBatchAsync( SumoCaseId( m_caseId ),
-                                                m_ensembleName,
-                                                m_gridName,
-                                                m_realization,
-                                                propertyName,
-                                                isoDatesOrIntervals,
-                                                [this, isAlive, propertyName, stepByTimestamp]( const QString&    isoDateOrInterval,
-                                                                                                const QByteArray& contents )
-                                                {
-                                                    // The reader may be gone: a realization can be closed while its
-                                                    // transfers are still running.
-                                                    if ( isAlive.expired() ) return;
+    m_connector->grid().propertyDataBatchAsync(
+        SumoCaseId( m_caseId ),
+        m_ensembleName,
+        m_gridName,
+        m_realization,
+        propertyName,
+        isoDatesOrIntervals,
+        [this, isAlive, propertyName, stepByTimestamp]( const QString& isoDateOrInterval, const QByteArray& contents )
+        {
+            // The reader may be gone: a realization can be closed while its
+            // transfers are still running.
+            if ( isAlive.expired() ) return;
 
-                                                    auto it = stepByTimestamp.find( isoDateOrInterval );
-                                                    if ( it == stepByTimestamp.end() ) return;
+            auto it = stepByTimestamp.find( isoDateOrInterval );
+            if ( it == stepByTimestamp.end() ) return;
 
                                                     onTimeStepArrived( propertyName, it->second, isoDateOrInterval, contents );
                                                 } );
@@ -534,8 +533,6 @@ bool RifReaderSumoGridProperty::decodeInto( const QByteArray& contents, const QS
     std::istringstream stream( buffer, std::ios::binary );
 
     if ( !RifRoffFileTools::propertyValuesFromStream( stream, m_caseData, propertyName, values ) ) return false;
-
-    RigNestedHybridGridResultTools::assignValuesToLgrs( m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ), *values );
 
     return true;
 }
