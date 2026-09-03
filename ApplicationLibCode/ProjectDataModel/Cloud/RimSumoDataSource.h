@@ -77,6 +77,7 @@ public:
     void                 setGridNames( const std::vector<QString>& gridNames );
 
     QString selectedGridName() const;
+    void    setSelectedGridName( const QString& gridName );
 
     bool doComputeMobileVolumeWeightedMean() const;
 

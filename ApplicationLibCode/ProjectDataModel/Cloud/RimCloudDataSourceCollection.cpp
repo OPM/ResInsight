@@ -544,6 +544,12 @@ std::vector<RimSumoDataSource*> RimCloudDataSourceCollection::addDataSources()
         dataSource->setAvailableRealizationIds( availableRealizationIds );
         dataSource->setVectorNames( vectorNames );
         dataSource->setGridNames( gridNames );
+
+        if ( !gridNames.empty() )
+        {
+            dataSource->setSelectedGridName( gridNames.front() );
+        }
+
         dataSource->updateName();
 
         objectToSelect = dataSource;
