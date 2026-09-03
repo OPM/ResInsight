@@ -572,6 +572,10 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
         useIntegerSelection = true;
     }
 
+    // Computed once outside the per-case loop below: it scans the time steps of every case in the
+    // ensemble, so recomputing it for each case turned applyFilter() into an O(caseCount^2) operation.
+    const auto timeConfig = curveSet->objectiveFunctionTimeConfig();
+
     std::set<RimSummaryCase*> casesToRemove;
     for ( const auto& sumCase : allSumCases )
     {
@@ -618,7 +622,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
                 addresses.push_back( address->address() );
             }
 
-            double value = m_objectiveFunction->value( sumCase, addresses, curveSet->objectiveFunctionTimeConfig(), &hasWarning );
+            double value = m_objectiveFunction->value( sumCase, addresses, timeConfig, &hasWarning );
             if ( hasWarning ) continue;
 
             if ( !RiaNumericalTools::isValueInRange( value, m_valueRange() ) )
@@ -647,8 +651,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
 
                 if ( isValid && !values.empty() )
                 {
-                    auto timeConfig = curveSet->objectiveFunctionTimeConfig();
-                    auto timeSteps  = reader->timeSteps( m_addressSelector->summaryAddress() );
+                    auto timeSteps = reader->timeSteps( m_addressSelector->summaryAddress() );
 
                     for ( size_t i = 0; i < std::min( timeSteps.size(), values.size() ); i++ )
                     {
