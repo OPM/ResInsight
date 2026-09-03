@@ -68,6 +68,7 @@ void RicNewStatisticsContourMapFeature::addStatisticsContourMap( RimReservoirGri
     }
 
     statisticsContourMap->setEclipseCase( cases[0] );
+    statisticsContourMap->switchToSelectedSourceCase();
     ensemble->addStatisticsContourMap( statisticsContourMap );
 
     if ( auto* pdmObject = dynamic_cast<caf::PdmObject*>( ensemble ) ) pdmObject->updateConnectedEditors();
