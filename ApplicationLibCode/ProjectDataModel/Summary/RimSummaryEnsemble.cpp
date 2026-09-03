@@ -22,6 +22,8 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
+#include "RiaOpenMPTools.h"
+#include "RiaPreferencesSummary.h"
 #include "RiaQStringFormatter.h"
 #include "RiaStdStringTools.h"
 #include "RiaTextStringTools.h"
@@ -859,22 +861,42 @@ void RimSummaryEnsemble::computeMinMax( const RifEclipseSummaryAddress& address 
 {
     if ( m_minMaxValues.count( address ) > 0 ) return;
 
-    double minimumValue( std::numeric_limits<double>::infinity() );
-    double maximumValue( -std::numeric_limits<double>::infinity() );
+    const auto& cases = m_cases();
 
-    for ( const auto& s : m_cases() )
+    // Reading summary values for each case is independent, and can be a slow operation for large ensembles (many
+    // realizations and/or long time series). Use multiple threads to speed up the initial computation of min/max
+    // values. The HDF5-backed reader is not thread safe, so multi-threading is disabled for that reader type.
+    // https://github.com/OPM/ResInsight/issues/14669
+    const bool canUseMultipleThreads =
+        RiaPreferencesSummary::current()->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON;
+
+    const int numberOfThreads = canUseMultipleThreads ? RiaOpenMPTools::availableThreadCount() : 1;
+
+    std::vector<double> minimumValuePerThread( numberOfThreads, std::numeric_limits<double>::infinity() );
+    std::vector<double> maximumValuePerThread( numberOfThreads, -std::numeric_limits<double>::infinity() );
+
+#pragma omp parallel num_threads( numberOfThreads ) if ( canUseMultipleThreads )
     {
-        if ( auto reader = s->summaryReader() )
+        int myThread = RiaOpenMPTools::currentThreadIndex();
+
+#pragma omp for schedule( dynamic )
+        for ( int i = 0; i < static_cast<int>( cases.size() ); i++ )
         {
-            auto [isOk, values] = reader->values( address );
-            if ( values.empty() ) continue;
+            if ( auto reader = cases[i]->summaryReader() )
+            {
+                auto [isOk, values] = reader->values( address );
+                if ( values.empty() ) continue;
 
-            const auto [min, max] = std::minmax_element( values.begin(), values.end() );
+                const auto [min, max] = std::minmax_element( values.begin(), values.end() );
 
-            minimumValue = std::min( *min, minimumValue );
-            maximumValue = std::max( *max, maximumValue );
+                minimumValuePerThread[myThread] = std::min( *min, minimumValuePerThread[myThread] );
+                maximumValuePerThread[myThread] = std::max( *max, maximumValuePerThread[myThread] );
+            }
         }
     }
+
+    double minimumValue = *std::min_element( minimumValuePerThread.begin(), minimumValuePerThread.end() );
+    double maximumValue = *std::max_element( maximumValuePerThread.begin(), maximumValuePerThread.end() );
 
     if ( minimumValue != std::numeric_limits<double>::infinity() && maximumValue != -std::numeric_limits<double>::infinity() )
     {
