@@ -235,6 +235,14 @@ void RifReaderSumoGridProperty::requestTimeStepsAsync( const QString&           
 
         requestedSteps.push_back( step );
         isoDatesOrIntervals.push_back( timestamps[step] );
+
+        // Placeholder for every requested step, not just the displayed one: a failed prefetch step would
+        // otherwise leave its slot empty and no longer pending, indistinguishable from never requested, and
+        // get re-fetched on the next nearby redraw.
+        if ( auto* slot = resultValueSlot( propertyName, step ); slot && slot->empty() )
+        {
+            fillWithUndefinedValues( slot );
+        }
     }
 
     if ( isoDatesOrIntervals.empty() ) return;
