@@ -32,6 +32,7 @@ jobs:
               enable-asserts: false,
               vcpkg-bootstrap: bootstrap-vcpkg.bat,
               vcpkg-triplet: x64-windows-release,
+              buildcache-max-size: 1610612736,
               qt-version: 6.10.1,
               ri-unit-test-path: "ApplicationLibCode/UnitTests/ResInsight-tests",
             }
@@ -47,6 +48,7 @@ jobs:
               enable-asserts: false,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
               vcpkg-triplet: x64-linux-release,
+              buildcache-max-size: 524288000,
               qt-version: 6.7.0,
               ri-unit-test-path: "ApplicationLibCode/UnitTests/ResInsight-tests",
             }
@@ -62,6 +64,7 @@ jobs:
               enable-asserts: true,
               vcpkg-bootstrap: bootstrap-vcpkg.sh,
               vcpkg-triplet: x64-linux-release,
+              buildcache-max-size: 524288000,
               qt-version: 6.7.0,
               ri-unit-test-path: "ApplicationLibCode/UnitTests/ResInsight-tests",
             }
@@ -69,8 +72,12 @@ jobs:
       BUILD_TYPE: Release
       BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
       BUILDCACHE_ACCURACY: SLOPPY
-      # 500 MB, in bytes
-      BUILDCACHE_MAX_CACHE_SIZE: 524288000
+      # Per-configuration size limit, in bytes. The cache must hold a full
+      # build with room to spare; at the limit buildcache evicts entries the
+      # same build still needs and the hit ratio collapses. MSVC objects are
+      # roughly twice the size of the gcc/clang ones, so Windows gets 1.5 GiB
+      # while Linux stays at 500 MB.
+      BUILDCACHE_MAX_CACHE_SIZE: ${{ matrix.config.buildcache-max-size }}
       VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
       # Supply-chain hardening: never install Python packages published within
       # the last week, to avoid pulling freshly published (potentially
