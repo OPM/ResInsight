@@ -80,6 +80,7 @@ RimRoffCaseSumo::RimRoffCaseSumo()
     m_realization.uiCapability()->setUiReadOnly( true );
 
     m_sumoConnector = RiaApplication::instance()->makeSumoConnector();
+    m_lifetimeToken = std::make_shared<bool>( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,6 +273,13 @@ bool RimRoffCaseSumo::openEclipseGridFile()
 void RimRoffCaseSumo::closeReservoirCase()
 {
     m_propertyReader = nullptr;
+
+    // Aborts the speculative fetch startPropertyFetch issues before the reader exists, see its cancelGroup
+    // argument below. Without this, closing (or switching away from) this realization while that transfer is
+    // still on its way leaves it running to completion, consuming a connection and bandwidth that a
+    // newly selected realization's grid download needs.
+    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( m_lifetimeToken.get() );
+    m_lifetimeToken = std::make_shared<bool>( true );
 
     RimEclipseCase::closeReservoirCase();
 }
@@ -568,6 +576,8 @@ void RimRoffCaseSumo::startPropertyFetch()
     // Auto-nulls if this case is deleted while the transfer is in flight.
     caf::PdmPointer<RimRoffCaseSumo> self( const_cast<RimRoffCaseSumo*>( this ) );
 
+    // Tied to m_lifetimeToken so closeReservoirCase can abort this transfer, e.g. when the view switches away
+    // from this realization while it is still on its way, see closeReservoirCase.
     m_sumoConnector->grid().propertyDataBatchAsync( SumoCaseId( m_sumoCaseId() ),
                                                     m_ensembleName(),
                                                     m_gridName(),
@@ -589,5 +599,6 @@ void RimRoffCaseSumo::startPropertyFetch()
                                                         {
                                                             self->m_propertyReader->acceptFetchedTimeStep( propertyName, stepIndex, iso, contents );
                                                         }
-                                                    } );
+                                                    },
+                                                    m_lifetimeToken.get() );
 }

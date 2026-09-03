@@ -88,6 +88,7 @@
 #include "RimRefinementRegionCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimRoffCaseSumo.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
 #include "RimSimWellInView.h"
@@ -518,6 +519,17 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 
     if ( changedField == &m_eclipseCase )
     {
+        // The field is already updated to the new case at this point. Close the realization just switched
+        // away from, so its still in-flight grid and property downloads are cancelled instead of competing
+        // with the newly selected realization's transfers for bandwidth and connections, which could
+        // otherwise make the new realization's grid download fail. Skipped when another view still shows it.
+        auto* previousCase  = dynamic_cast<RimEclipseCase*>( oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr() );
+        auto* previousSumoCase = dynamic_cast<RimRoffCaseSumo*>( previousCase );
+        if ( previousSumoCase && previousSumoCase->reservoirViews().empty() )
+        {
+            previousSumoCase->closeReservoirCase();
+        }
+
         propagateEclipseCaseToChildObjects();
 
         // Sync with RimReloadCaseTools::updateAll3dViews

@@ -62,6 +62,14 @@ RifReaderSumoGridProperty::RifReaderSumoGridProperty( RiaSumoConnector* connecto
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Aborts any transfers this reader still has in flight, see RiaSumoConnector::cancelGroup.
+//--------------------------------------------------------------------------------------------------
+RifReaderSumoGridProperty::~RifReaderSumoGridProperty()
+{
+    if ( m_connector ) m_connector->cancelGroup( m_lifetimeToken.get() );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RifReaderSumoGridProperty::setStaticProperties( const std::vector<QString>& propertyNames )
@@ -274,8 +282,9 @@ void RifReaderSumoGridProperty::requestTimeStepsAsync( const QString&           
             auto it = stepByTimestamp.find( isoDateOrInterval );
             if ( it == stepByTimestamp.end() ) return;
 
-                                                    onTimeStepArrived( propertyName, it->second, isoDateOrInterval, contents );
-                                                } );
+            onTimeStepArrived( propertyName, it->second, isoDateOrInterval, contents );
+        },
+        m_lifetimeToken.get() );
 }
 
 //--------------------------------------------------------------------------------------------------

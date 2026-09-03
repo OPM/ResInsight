@@ -103,7 +103,8 @@ std::map<QString, QByteArray>
             std::vector<QNetworkReply*> blobIdReplies;
             for ( const auto& vectorName : namesToFetch )
             {
-                blobIdReplies.push_back( makeVectorBlobIdRequest( baseUrl, caseId, ensembleName, vectorName ) );
+                blobIdReplies.push_back(
+                    makeVectorBlobIdRequest( baseUrl, caseId, ensembleName, vectorName, m_connector.networkAccessManager() ) );
             }
 
             RiaSumoConnector::waitForRepliesToFinish( blobIdReplies );
@@ -150,7 +151,8 @@ std::map<QString, QByteArray>
 void RiaSumoSummary::vectorDataAsync( const SumoCaseId&                                               caseId,
                                       const QString&                                                  ensembleName,
                                       const std::vector<QString>&                                     vectorNames,
-                                      const std::function<void( const QString&, const QByteArray& )>& onVectorReady )
+                                      const std::function<void( const QString&, const QByteArray& )>& onVectorReady,
+                                      const void*                                                     cancelGroup )
 {
     if ( vectorNames.empty() || !onVectorReady ) return;
 
@@ -158,7 +160,7 @@ void RiaSumoSummary::vectorDataAsync( const SumoCaseId&                         
     if ( baseUrl.isEmpty() ) return;
 
     m_connector.runOnTransferThread(
-        [this, baseUrl, caseId, ensembleName, vectorNames, onVectorReady]()
+        [this, baseUrl, caseId, ensembleName, vectorNames, onVectorReady, cancelGroup]()
         {
             for ( const auto& vectorName : vectorNames )
             {
@@ -167,12 +169,15 @@ void RiaSumoSummary::vectorDataAsync( const SumoCaseId&                         
                     m_connector.invokeOnConnectorThread( [onVectorReady, vectorName, contents]() { onVectorReady( vectorName, contents ); } );
                 };
 
-                auto blobIdReply = makeVectorBlobIdRequest( baseUrl, caseId, ensembleName, vectorName );
+                auto blobIdReply =
+                    makeVectorBlobIdRequest( baseUrl, caseId, ensembleName, vectorName, m_connector.backgroundNetworkAccessManager() );
                 if ( !blobIdReply )
                 {
                     deliver( {} );
                     continue;
                 }
+
+                m_connector.trackReply( cancelGroup, blobIdReply );
 
                 // A vector that has not been aggregated yet is produced on demand by this request, which can
                 // take a good while. Nothing is waiting on it, so it is given room to finish.
@@ -181,7 +186,7 @@ void RiaSumoSummary::vectorDataAsync( const SumoCaseId&                         
                 QObject::connect( blobIdReply,
                                   &QNetworkReply::finished,
                                   blobIdReply,
-                                  [this, blobIdReply, vectorName, deliver]()
+                                  [this, blobIdReply, vectorName, deliver, cancelGroup]()
                                   {
                                       const QString blobId = blobIdFromReply( blobIdReply, vectorName );
                                       if ( blobId.isEmpty() )
@@ -190,7 +195,7 @@ void RiaSumoSummary::vectorDataAsync( const SumoCaseId&                         
                                           return;
                                       }
 
-                                      m_connector.downloadBlobAsync( blobId, deliver );
+                                      m_connector.downloadBlobAsync( blobId, deliver, RiaSumoDefines::requestTimeoutMillis(), cancelGroup );
                                   } );
             }
         } );
@@ -232,16 +237,17 @@ QString RiaSumoSummary::vectorBlobIdPath( const SumoCaseId& caseId, const QStrin
 /// Issue the blob id request for one vector. The reply is returned unfinished, so the caller decides how
 /// to wait for it: one at a time, or several at once when batching.
 //--------------------------------------------------------------------------------------------------
-QNetworkReply* RiaSumoSummary::makeVectorBlobIdRequest( const QString&    baseUrl,
-                                                        const SumoCaseId& caseId,
-                                                        const QString&    ensembleName,
-                                                        const QString&    vectorName )
+QNetworkReply* RiaSumoSummary::makeVectorBlobIdRequest( const QString&          baseUrl,
+                                                        const SumoCaseId&       caseId,
+                                                        const QString&          ensembleName,
+                                                        const QString&          vectorName,
+                                                        QNetworkAccessManager* networkManager )
 {
     QNetworkRequest networkRequest;
     networkRequest.setUrl( QUrl( baseUrl + vectorBlobIdPath( caseId, ensembleName, vectorName ) ) );
     m_connector.addStandardHeader( networkRequest, m_connector.transferToken(), RiaCloudDefines::contentTypeJson() );
 
-    return m_connector.networkAccessManager()->get( networkRequest );
+    return networkManager->get( networkRequest );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -292,13 +298,14 @@ QString RiaSumoSummary::parameterBlobIdPath( const SumoCaseId& caseId, const QSt
 /// Issue the blob id request for the ensemble parameters. The reply is returned unfinished, so the caller
 /// decides how to wait for it.
 //--------------------------------------------------------------------------------------------------
-QNetworkReply* RiaSumoSummary::makeParameterBlobIdRequest( const QString& baseUrl, const SumoCaseId& caseId, const QString& ensembleName )
+QNetworkReply*
+    RiaSumoSummary::makeParameterBlobIdRequest( const QString& baseUrl, const SumoCaseId& caseId, const QString& ensembleName, QNetworkAccessManager* networkManager )
 {
     QNetworkRequest networkRequest;
     networkRequest.setUrl( QUrl( baseUrl + parameterBlobIdPath( caseId, ensembleName ) ) );
     m_connector.addStandardHeader( networkRequest, m_connector.transferToken(), RiaCloudDefines::contentTypeJson() );
 
-    return m_connector.networkAccessManager()->get( networkRequest );
+    return networkManager->get( networkRequest );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,7 +314,8 @@ QNetworkReply* RiaSumoSummary::makeParameterBlobIdRequest( const QString& baseUr
 //--------------------------------------------------------------------------------------------------
 void RiaSumoSummary::parameterDataAsync( const SumoCaseId&                               caseId,
                                          const QString&                                  ensembleName,
-                                         const std::function<void( const QByteArray& )>& onParametersReady )
+                                         const std::function<void( const QByteArray& )>& onParametersReady,
+                                         const void*                                     cancelGroup )
 {
     if ( !onParametersReady ) return;
 
@@ -315,24 +323,26 @@ void RiaSumoSummary::parameterDataAsync( const SumoCaseId&                      
     if ( baseUrl.isEmpty() ) return;
 
     m_connector.runOnTransferThread(
-        [this, baseUrl, caseId, ensembleName, onParametersReady]()
+        [this, baseUrl, caseId, ensembleName, onParametersReady, cancelGroup]()
         {
             auto deliver = [this, onParametersReady]( const QByteArray& contents )
             { m_connector.invokeOnConnectorThread( [onParametersReady, contents]() { onParametersReady( contents ); } ); };
 
-            auto blobIdReply = makeParameterBlobIdRequest( baseUrl, caseId, ensembleName );
+            auto blobIdReply = makeParameterBlobIdRequest( baseUrl, caseId, ensembleName, m_connector.backgroundNetworkAccessManager() );
             if ( !blobIdReply )
             {
                 deliver( {} );
                 return;
             }
 
+            m_connector.trackReply( cancelGroup, blobIdReply );
+
             RiaSumoConnector::abortIfNotFinishedWithin( blobIdReply, RiaSumoDefines::asyncRequestTimeoutMillis() );
 
             QObject::connect( blobIdReply,
                               &QNetworkReply::finished,
                               blobIdReply,
-                              [this, blobIdReply, deliver]()
+                              [this, blobIdReply, deliver, cancelGroup]()
                               {
                                   const QString blobId = blobIdFromReply( blobIdReply, "parameters" );
                                   if ( blobId.isEmpty() )
@@ -341,7 +351,7 @@ void RiaSumoSummary::parameterDataAsync( const SumoCaseId&                      
                                       return;
                                   }
 
-                                  m_connector.downloadBlobAsync( blobId, deliver );
+                                  m_connector.downloadBlobAsync( blobId, deliver, RiaSumoDefines::requestTimeoutMillis(), cancelGroup );
                               } );
         } );
 }

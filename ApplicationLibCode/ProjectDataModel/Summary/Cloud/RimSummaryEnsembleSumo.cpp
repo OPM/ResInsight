@@ -164,6 +164,14 @@ RimSummaryEnsembleSumo::RimSummaryEnsembleSumo()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Aborts any transfers this ensemble still has in flight, see RiaSumoConnector::cancelGroup.
+//--------------------------------------------------------------------------------------------------
+RimSummaryEnsembleSumo::~RimSummaryEnsembleSumo()
+{
+    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( m_lifetimeToken.get() );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryEnsembleSumo::setSumoDataSource( RimSumoDataSource* sumoDataSource )
@@ -305,7 +313,8 @@ void RimSummaryEnsembleSumo::loadEnsembleParameters()
                                                        if ( isAlive.expired() ) return;
 
                                                        onParameterDataReceived( parametersKey, contents );
-                                                   } );
+                                                   },
+                                                   m_lifetimeToken.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,7 +390,8 @@ void RimSummaryEnsembleSumo::prefetchSummaryData( const std::vector<RifEclipseSu
 
                                                     onVectorDataReceived( ParquetKey{ sumoCaseId, sumoEnsembleName, vectorName, false },
                                                                           contents );
-                                                } );
+                                                },
+                                                m_lifetimeToken.get() );
 }
 
 //--------------------------------------------------------------------------------------------------

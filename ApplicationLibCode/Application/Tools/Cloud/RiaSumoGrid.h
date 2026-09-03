@@ -29,6 +29,7 @@
 
 class RiaSumoConnector;
 class QNetworkReply;
+class QNetworkAccessManager;
 
 struct SumoGridDimensions
 {
@@ -120,13 +121,16 @@ public:
     // for each as it arrives, on the connector thread, exactly once per requested step. Empty contents mean
     // that step failed. Transfers get a generous deadline, see
     // RiaSumoDefines::gridPropertyTransferTimeoutMillis.
+    //
+    // cancelGroup is passed on to RiaSumoConnector::downloadBlobAsync, see its documentation.
     void propertyDataBatchAsync( const SumoCaseId&                                               caseId,
                                  const QString&                                                  ensembleName,
                                  const QString&                                                  gridName,
                                  int                                                             realization,
                                  const QString&                                                  propertyName,
                                  const std::vector<QString>&                                     isoDatesOrIntervals,
-                                 const std::function<void( const QString&, const QByteArray& )>& onTimeStepReady );
+                                 const std::function<void( const QString&, const QByteArray& )>& onTimeStepReady,
+                                 const void*                                                     cancelGroup = nullptr );
 
 private:
     QString gridBlobId( const SumoCaseId& caseId, const QString& ensembleName, const QString& gridName, int realization );
@@ -138,14 +142,17 @@ private:
                             const QString&    propertyName,
                             const QString&    isoDateOrInterval );
 
-    // Runs on the transfer thread, so the base URL is resolved by the caller and passed in.
-    QNetworkReply* makePropertyBlobIdRequest( const QString&    baseUrl,
-                                              const SumoCaseId& caseId,
-                                              const QString&    ensembleName,
-                                              const QString&    gridName,
-                                              int               realization,
-                                              const QString&    propertyName,
-                                              const QString&    isoDateOrInterval );
+    // Runs on the transfer thread, so the base URL is resolved by the caller and passed in. networkManager
+    // lets the caller choose the connection pool: the shared one for a blocking fetch waited on directly, or
+    // the background one for a prefetch batch, see RiaSumoConnector::backgroundNetworkAccessManager.
+    QNetworkReply* makePropertyBlobIdRequest( const QString&          baseUrl,
+                                              const SumoCaseId&       caseId,
+                                              const QString&          ensembleName,
+                                              const QString&          gridName,
+                                              int                     realization,
+                                              const QString&          propertyName,
+                                              const QString&          isoDateOrInterval,
+                                              QNetworkAccessManager* networkManager );
 
     std::map<QString, QByteArray> fetchPropertyBatch( const QString&              baseUrl,
                                                       const SumoCaseId&           caseId,

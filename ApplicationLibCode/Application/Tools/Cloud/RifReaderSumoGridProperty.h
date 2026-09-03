@@ -48,6 +48,10 @@ public:
                                const QString&    gridName,
                                int               realization );
 
+    // Aborts any transfers still in flight for this reader, see RiaSumoConnector::cancelGroup, so they stop
+    // consuming connections and logging results for a reader that is no longer there.
+    ~RifReaderSumoGridProperty() override;
+
     void setStaticProperties( const std::vector<QString>& propertyNames );
     void setDynamicProperties( const std::map<QString, std::vector<QString>>& propertyNameToTimestamps );
 

@@ -241,7 +241,8 @@ void RiaSumoGrid::propertyDataBatchAsync( const SumoCaseId&                     
                                           int                                                             realization,
                                           const QString&                                                  propertyName,
                                           const std::vector<QString>&                                     isoDatesOrIntervals,
-                                          const std::function<void( const QString&, const QByteArray& )>& onTimeStepReady )
+                                          const std::function<void( const QString&, const QByteArray& )>& onTimeStepReady,
+                                          const void*                                                     cancelGroup )
 {
     if ( isoDatesOrIntervals.empty() || !onTimeStepReady ) return;
 
@@ -260,7 +261,7 @@ void RiaSumoGrid::propertyDataBatchAsync( const SumoCaseId&                     
     }
 
     m_connector.runOnTransferThread(
-        [this, baseUrl, caseId, ensembleName, gridName, realization, propertyName, isoDatesOrIntervals, onTimeStepReady]()
+        [this, baseUrl, caseId, ensembleName, gridName, realization, propertyName, isoDatesOrIntervals, onTimeStepReady, cancelGroup]()
         {
             for ( const auto& isoDateOrInterval : isoDatesOrIntervals )
             {
@@ -270,13 +271,21 @@ void RiaSumoGrid::propertyDataBatchAsync( const SumoCaseId&                     
                                                          { onTimeStepReady( isoDateOrInterval, contents ); } );
                 };
 
-                auto blobIdReply =
-                    makePropertyBlobIdRequest( baseUrl, caseId, ensembleName, gridName, realization, propertyName, isoDateOrInterval );
+                auto blobIdReply = makePropertyBlobIdRequest( baseUrl,
+                                                              caseId,
+                                                              ensembleName,
+                                                              gridName,
+                                                              realization,
+                                                              propertyName,
+                                                              isoDateOrInterval,
+                                                              m_connector.backgroundNetworkAccessManager() );
                 if ( !blobIdReply )
                 {
                     deliver( {} );
                     continue;
                 }
+
+                m_connector.trackReply( cancelGroup, blobIdReply );
 
                 // Shorter than the transfer it precedes: this one moves almost no data, so minutes really
                 // does mean broken.
@@ -285,7 +294,7 @@ void RiaSumoGrid::propertyDataBatchAsync( const SumoCaseId&                     
                 QObject::connect( blobIdReply,
                                   &QNetworkReply::finished,
                                   blobIdReply,
-                                  [this, blobIdReply, propertyName, deliver]()
+                                  [this, blobIdReply, propertyName, deliver, cancelGroup]()
                                   {
                                       const QString blobId = blobIdFromReply( blobIdReply, propertyName );
                                       if ( blobId.isEmpty() )
@@ -294,7 +303,10 @@ void RiaSumoGrid::propertyDataBatchAsync( const SumoCaseId&                     
                                           return;
                                       }
 
-                                      m_connector.downloadBlobAsync( blobId, deliver, RiaSumoDefines::gridPropertyTransferTimeoutMillis() );
+                                      m_connector.downloadBlobAsync( blobId,
+                                                                     deliver,
+                                                                     RiaSumoDefines::gridPropertyTransferTimeoutMillis(),
+                                                                     cancelGroup );
                                   } );
             }
         } );
@@ -317,8 +329,14 @@ std::map<QString, QByteArray> RiaSumoGrid::fetchPropertyBatch( const QString&   
     std::vector<QNetworkReply*> blobIdReplies;
     for ( const auto& isoDateOrInterval : timestampsToFetch )
     {
-        blobIdReplies.push_back(
-            makePropertyBlobIdRequest( baseUrl, caseId, ensembleName, gridName, realization, propertyName, isoDateOrInterval ) );
+        blobIdReplies.push_back( makePropertyBlobIdRequest( baseUrl,
+                                                            caseId,
+                                                            ensembleName,
+                                                            gridName,
+                                                            realization,
+                                                            propertyName,
+                                                            isoDateOrInterval,
+                                                            m_connector.networkAccessManager() ) );
     }
 
     RiaSumoConnector::waitForRepliesToFinish( blobIdReplies );
@@ -400,15 +418,17 @@ QString RiaSumoGrid::propertyBlobId( const SumoCaseId& caseId,
 
 //--------------------------------------------------------------------------------------------------
 /// Issue the blob id request for one grid property time step. The reply is returned unfinished, so the
-/// caller decides how to wait for it: one at a time, or several at once when prefetching.
+/// caller decides how to wait for it: one at a time, or several at once when prefetching. networkManager
+/// picks the connection pool, see the header comment.
 //--------------------------------------------------------------------------------------------------
-QNetworkReply* RiaSumoGrid::makePropertyBlobIdRequest( const QString&    baseUrl,
-                                                       const SumoCaseId& caseId,
-                                                       const QString&    ensembleName,
-                                                       const QString&    gridName,
-                                                       int               realization,
-                                                       const QString&    propertyName,
-                                                       const QString&    isoDateOrInterval )
+QNetworkReply* RiaSumoGrid::makePropertyBlobIdRequest( const QString&          baseUrl,
+                                                       const SumoCaseId&       caseId,
+                                                       const QString&          ensembleName,
+                                                       const QString&          gridName,
+                                                       int                     realization,
+                                                       const QString&          propertyName,
+                                                       const QString&          isoDateOrInterval,
+                                                       QNetworkAccessManager* networkManager )
 {
     const QString url = baseUrl + propertyBlobIdPath( caseId, ensembleName, gridName, realization, propertyName, isoDateOrInterval );
 
@@ -416,7 +436,7 @@ QNetworkReply* RiaSumoGrid::makePropertyBlobIdRequest( const QString&    baseUrl
     networkRequest.setUrl( QUrl( url ) );
     m_connector.addStandardHeader( networkRequest, m_connector.transferToken(), RiaCloudDefines::contentTypeJson() );
 
-    return m_connector.networkAccessManager()->get( networkRequest );
+    return networkManager->get( networkRequest );
 }
 
 //--------------------------------------------------------------------------------------------------

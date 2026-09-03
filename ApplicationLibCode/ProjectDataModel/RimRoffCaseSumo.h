@@ -30,6 +30,7 @@
 #include <QPointer>
 #include <QString>
 
+#include <memory>
 #include <optional>
 #include <utility>
 
@@ -119,4 +120,9 @@ private:
     // The time step startPropertyFetch put in flight, until the reader exists and takes it over. Handed to
     // the reader as pending so it is reported to the user and not requested a second time.
     std::optional<std::pair<QString, size_t>> m_fetchInFlight;
+
+    // Identifies the transfer startPropertyFetch issues before the reader (and its own lifetime token) exists,
+    // so it can still be cancelled from closeReservoirCase. Recreated on every close, so a transfer left over
+    // from a previous open is never cancelled by a later one.
+    std::shared_ptr<bool> m_lifetimeToken;
 };
