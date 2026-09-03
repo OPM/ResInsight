@@ -5,6 +5,8 @@ on:
       - closed
 jobs:
   label_issues:
+    # Skip issues closed as "not planned" or "duplicate"
+    if: github.event.issue.state_reason == 'completed'
     runs-on: ubuntu-latest
     permissions:
       issues: write
