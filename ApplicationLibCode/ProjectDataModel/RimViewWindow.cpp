@@ -229,6 +229,14 @@ QImage RimViewWindow::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimViewWindow::zoomAllAndReleaseUserDefinedRanges()
+{
+    zoomAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QImage RimViewWindow::captureSnapshot( int width, int height )
 {
     return internalCaptureSnapshot( m_dockWidget, viewWidget(), width, height );

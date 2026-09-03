@@ -470,6 +470,15 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_axisRangeAggregation )
     {
+        // The user has asked for a new computation of the Y axis range, release any user defined ranges
+        for ( auto p : summaryPlots() )
+        {
+            for ( auto axis : p->plotAxes( RimPlotAxisProperties::Orientation::VERTICAL ) )
+            {
+                axis->setRangeUserDefined( false );
+            }
+        }
+
         setAutoValueStates();
         syncAxisRanges();
         analyzePlotsAndAdjustAppearanceSettings();
@@ -796,6 +805,19 @@ void RimSummaryMultiPlot::zoomAll()
             onSubPlotAxisChanged( nullptr, summaryPlots().front() );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::zoomAllAndReleaseUserDefinedRanges()
+{
+    for ( auto p : summaryPlots() )
+    {
+        p->releaseUserDefinedAxisRanges();
+    }
+
+    zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------

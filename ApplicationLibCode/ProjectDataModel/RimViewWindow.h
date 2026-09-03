@@ -72,6 +72,9 @@ public:
     virtual QImage snapshotWindowContent();
     virtual void   zoomAll() = 0;
 
+    // Zoom all triggered explicitly by the user. This will also release any axis ranges defined by the user.
+    virtual void zoomAllAndReleaseUserDefinedRanges();
+
     void viewNavigationChanged();
 
     virtual void updateWindowTitle();

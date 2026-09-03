@@ -1407,6 +1407,28 @@ void RimSummaryPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::zoomAllAndReleaseUserDefinedRanges()
+{
+    releaseUserDefinedAxisRanges();
+
+    zoomAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Axis ranges defined by the user are kept when the data source of the plot is changed. Release the user defined
+/// ranges to make the axes follow the data again.
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::releaseUserDefinedAxisRanges()
+{
+    for ( const auto& ap : m_axisPropertiesArray )
+    {
+        ap->setRangeUserDefined( false );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::addCurveAndUpdate( RimSummaryCurve* curve, bool autoAssignPlotAxis )
 {
     if ( curve )
@@ -1602,7 +1624,7 @@ void RimSummaryPlot::zoomAllForMultiPlot()
 {
     if ( auto multiPlot = firstAncestorOrThisOfType<RimMultiPlot>() )
     {
-        multiPlot->zoomAll();
+        multiPlot->zoomAllAndReleaseUserDefinedRanges();
     }
 }
 
@@ -2628,6 +2650,13 @@ void RimSummaryPlot::onPlotZoomed()
     setAutoScaleXEnabled( false );
     setAutoScaleYEnabled( false );
 
+    // The user has defined the visible range by interactive zoom, and the range is kept when the data source of the
+    // plot is changed
+    for ( const auto& ap : m_axisPropertiesArray )
+    {
+        ap->setRangeUserDefined( true );
+    }
+
     // Disable auto value for min/max fields
     for ( auto p : plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
     {
@@ -2998,6 +3027,8 @@ void RimSummaryPlot::setAutoScaleXEnabled( bool enabled )
     {
         if ( ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_TOP || ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
         {
+            if ( enabled && ap->isRangeUserDefined() ) continue;
+
             ap->setAutoZoom( enabled );
         }
     }
@@ -3012,6 +3043,8 @@ void RimSummaryPlot::setAutoScaleYEnabled( bool enabled )
     {
         if ( ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT || ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
         {
+            if ( enabled && ap->isRangeUserDefined() ) continue;
+
             ap->setAutoZoom( enabled );
         }
     }

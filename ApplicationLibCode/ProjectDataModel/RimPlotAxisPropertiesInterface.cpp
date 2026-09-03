@@ -51,6 +51,26 @@ RimPlotAxisPropertiesInterface::RimPlotAxisPropertiesInterface()
     : settingsChanged( this )
 {
     CAF_PDM_InitObject( "Plot Axis Properties Interface" );
+
+    CAF_PDM_InitField( &m_isRangeUserDefined, "IsRangeUserDefined", false, "Is Range Defined by User" );
+    m_isRangeUserDefined.uiCapability()->setUiHidden( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A user defined axis range is kept when the data source of a plot is changed, and is released when the user asks for
+/// automatic range computation (Zoom All or "Set Range Automatically").
+//--------------------------------------------------------------------------------------------------
+bool RimPlotAxisPropertiesInterface::isRangeUserDefined() const
+{
+    return m_isRangeUserDefined();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisPropertiesInterface::setRangeUserDefined( bool isUserDefined )
+{
+    m_isRangeUserDefined = isUserDefined;
 }
 
 //--------------------------------------------------------------------------------------------------
