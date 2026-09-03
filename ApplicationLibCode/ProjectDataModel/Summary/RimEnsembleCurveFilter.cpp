@@ -546,6 +546,11 @@ void RimEnsembleCurveFilter::defineEditorAttribute( const caf::PdmFieldHandle* f
 
             attr->m_minimum = m_lowerLimit;
             attr->m_maximum = m_upperLimit;
+
+            // Avoid updating the filter and re-computing/redrawing all curves for every slider drag event, as this can be a
+            // very slow operation for large ensembles. Only update when the slider is released.
+            // https://github.com/OPM/ResInsight/issues/14669
+            attr->m_delaySliderUpdateUntilRelease = true;
         }
     }
 }
