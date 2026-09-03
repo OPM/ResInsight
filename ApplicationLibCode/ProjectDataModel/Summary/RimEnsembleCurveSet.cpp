@@ -449,10 +449,11 @@ void RimEnsembleCurveSet::setSummaryAddressX( RifEclipseSummaryAddress address )
 //--------------------------------------------------------------------------------------------------
 std::pair<time_t, time_t> RimEnsembleCurveSet::fullTimeStepRange() const
 {
-    if ( !allAvailableTimeSteps().empty() )
+    auto availableTimeSteps = allAvailableTimeSteps();
+    if ( !availableTimeSteps.empty() )
     {
-        auto min = *allAvailableTimeSteps().begin();
-        auto max = *allAvailableTimeSteps().rbegin();
+        auto min = *availableTimeSteps.begin();
+        auto max = *availableTimeSteps.rbegin();
 
         return { min, max };
     }
@@ -1615,21 +1616,14 @@ std::set<time_t> RimEnsembleCurveSet::allAvailableTimeSteps() const
     {
         if ( auto reader = sumCase->summaryReader() )
         {
-            std::vector<time_t> timeSteps;
             for ( auto address : m_objectiveValuesSummaryAddresses() )
             {
-                for ( auto timeStep : reader->timeSteps( address->address() ) )
-                {
-                    timeSteps.push_back( timeStep );
-                }
-            }
-
-            for ( time_t t : timeSteps )
-            {
-                timeStepUnion.insert( t );
+                auto timeSteps = reader->timeSteps( address->address() );
+                timeStepUnion.insert( timeSteps.begin(), timeSteps.end() );
             }
         }
     }
+
     return timeStepUnion;
 }
 
