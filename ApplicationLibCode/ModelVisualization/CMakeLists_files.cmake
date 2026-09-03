@@ -36,6 +36,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivSimWellConnectionSourceInfo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogDrawSurfaceGenerator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivMeshLinesSourceInfo.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RivContourMapElevationProvider.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivContourMapProjectionPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationsPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivTextAnnotationPartMgr.cpp

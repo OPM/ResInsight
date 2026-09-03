@@ -20,10 +20,13 @@
 
 #include "ContourMap/RigContourMapProjection.h"
 
+#include "ContourMap/RimContourMapInView.h"
+#include "ContourMap/RimContourMapInViewCollection.h"
 #include "ContourMap/RimContourMapProjection.h"
 #include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 #include "RimGeoMechContourMapView.h"
+#include "RimGridView.h"
 
 #include "RiuMainWindow.h"
 
@@ -60,10 +63,37 @@ bool RicContourMapPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
         RimContourMapProjection* contourMap = dynamic_cast<RimContourMapProjection*>( sourceInfo->object() );
         if ( contourMap )
         {
-            RiuMainWindow::instance()->selectAsCurrentItem( contourMap );
-
-            RimGridView* view = contourMap->firstAncestorOrThisOfTypeAsserted<RimGridView>();
+            // The RimContourMapProjection displayed inside a regular 3d view is owned by an internal, hidden
+            // RimEclipseContourMapView/RimGeoMechContourMapView, so climbing its own ancestor chain would find that
+            // hidden view rather than the visible one. Use the view the pick actually happened in instead.
+            RimGridView* view = dynamic_cast<RimGridView*>( eventObject.m_view );
             if ( !view ) return false;
+
+            // When the contour map is shown inside a regular 3d view, keep the project tree selection on the
+            // RimContourMapInView object rather than jumping to the internal RimContourMapProjection object.
+            RimContourMapInViewCollection* contourMapCollection = view->contourMapInViewCollection();
+            RimContourMapInView*           contourMapInView     = nullptr;
+            if ( contourMapCollection )
+            {
+                for ( RimContourMapInView* candidate : contourMapCollection->allContourMapsInView() )
+                {
+                    RimEclipseContourMapView* candidateSourceView = candidate->sourceItem();
+                    if ( candidateSourceView && candidateSourceView->contourMapProjection() == contourMap )
+                    {
+                        contourMapInView = candidate;
+                        break;
+                    }
+                }
+            }
+
+            if ( contourMapInView )
+            {
+                RiuMainWindow::instance()->selectAsCurrentItem( contourMapInView );
+            }
+            else
+            {
+                RiuMainWindow::instance()->selectAsCurrentItem( contourMap );
+            }
 
             const auto& firstPickItem       = eventObject.m_pickItemInfos.front();
             auto        targetPointInDomain = view->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
