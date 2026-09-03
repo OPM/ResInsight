@@ -260,6 +260,14 @@ QString RimSumoDataSource::selectedGridName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSumoDataSource::setSelectedGridName( const QString& gridName )
+{
+    m_selectedGridName = gridName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimSumoDataSource::doComputeMobileVolumeWeightedMean() const
 {
     return m_doComputeMobileVolumeWeightedMean();
