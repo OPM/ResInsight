@@ -30,6 +30,8 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
+#include "RifSummaryReaderInterface.h"
+
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -62,7 +64,15 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSummaryPlotCollection_newSumma
     {
         if ( !addressStrings.empty() )
         {
-            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( std::vector<RimSummaryCase*>(), m_ensemble, addressStrings );
+            auto summaryCases = m_ensemble->allSummaryCases();
+
+            // Summary addresses are created on demand, make sure they are available before applying address filters
+            for ( auto summaryCase : summaryCases )
+            {
+                if ( auto reader = summaryCase ? summaryCase->summaryReader() : nullptr ) reader->createAddressesIfRequired();
+            }
+
+            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( summaryCases, m_ensemble, addressStrings );
         }
         else
         {
