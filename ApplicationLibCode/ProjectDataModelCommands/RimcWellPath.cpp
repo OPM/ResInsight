@@ -33,9 +33,9 @@
 #include "RimFishbonesDefines.h"
 #include "RimImportedWellLog.h"
 #include "RimImportedWellLogData.h"
-#include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimSegmentCollection.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimStimPlanModel.h"
 #include "RimThermalFractureTemplate.h"
@@ -222,44 +222,32 @@ QString RimcWellPath_appendPerforationInterval::classKeywordReturnedType() const
     return RimPerforationInterval::classKeywordStatic();
 }
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_multiSegmentWellSettings, "MswSettings" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_segmentCollection, "SegmentCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcWellPath_multiSegmentWellSettings::RimcWellPath_multiSegmentWellSettings( caf::PdmObjectHandle* self )
+RimcWellPath_segmentCollection::RimcWellPath_segmentCollection( caf::PdmObjectHandle* self )
     : PdmObjectMethod( self, PdmObjectMethod::NullPointerType::NULL_IS_VALID, PdmObjectMethod::ResultType::PERSISTENT_TRUE )
 {
-    CAF_PDM_InitObject( "MSW Settings", "", "", "Multi Segment Well Settings" );
+    CAF_PDM_InitObject( "Segment Collection", "", "", "Segment Collection" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_multiSegmentWellSettings::execute()
+std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_segmentCollection::execute()
 {
-    auto wellPath = self<RimWellPath>();
-
-    // RimMswCompletionParameters is a child object of RimWellPathCompletionSettings. To simplify the Python API, we return
-    // RimMswCompletionParameters directly from a well path object in Python. Two parameters are already exposed as part of the completion
-    // settings object, see RimWellPathCompletionSettings and the proxy fields liner_diameter and roughness. These fields are kept to
-    // ensure backward compatibility with existing scripts.
-    //
-    // https://github.com/OPM/ResInsight/issues/11901
-
-    if ( auto completionSettings = wellPath->completionSettings() )
-    {
-        return completionSettings->mswCompletionParameters();
-    }
-    return nullptr;
+    auto* wellPath = self<RimWellPath>();
+    return wellPath ? wellPath->segmentCollection() : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimcWellPath_multiSegmentWellSettings::classKeywordReturnedType() const
+QString RimcWellPath_segmentCollection::classKeywordReturnedType() const
 {
-    return RimMswCompletionParameters::classKeywordStatic();
+    return RimSegmentCollection::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_appendFishbones, "AppendFishbones" );

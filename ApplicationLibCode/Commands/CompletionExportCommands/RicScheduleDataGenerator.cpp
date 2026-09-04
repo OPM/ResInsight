@@ -522,8 +522,8 @@ void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&              
         return;
     }
 
-    auto* mswParams = wellPath.mswCompletionParameters();
-    if ( !mswParams )
+    auto* segmentCollection = wellPath.segmentCollection();
+    if ( !segmentCollection )
     {
         return;
     }

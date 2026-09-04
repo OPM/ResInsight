@@ -20,7 +20,6 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmProxyValueField.h"
 
 #include <QRegularExpression>
 
@@ -107,16 +106,10 @@ public:
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
 
 private:
     QString formatStringForExport( const QString& text, const QString& defaultText = "" ) const;
-
-    void   setMswRoughness( const double& roughness );
-    double mswRoughness() const;
-    void   setMswLinerDiameter( const double& diameter );
-    double mswLinerDiameter() const;
 
 private:
     friend class RimWellPathCompletions;
@@ -135,11 +128,6 @@ private:
     caf::PdmField<int>                     m_fluidInPlaceRegion;
 
     caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
-
-    // Use proxy fields for selected parameters in RimMswCompletionParameters, so it is possible to modify these values from the same
-    // scripting object
-    caf::PdmProxyValueField<double> m_mswLinerDiameter;
-    caf::PdmProxyValueField<double> m_mswRoughness;
 
     // OBSOLETE fields - kept for backward compatibility when reading old files
     caf::PdmField<QString> m_referenceDepth_OBSOLETE;
