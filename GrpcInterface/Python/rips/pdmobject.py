@@ -239,7 +239,7 @@ class PdmObjectBase:
                     return self.__maketuple(value)
                 return self.__unescape_string(value)
 
-    def __convert_to_grpc_value(self, value: Any) -> str:
+    def __convert_to_grpc_value(self, value: Any, quote_strings: bool = False) -> str:
         if isinstance(value, bool):
             if value:
                 return "true"
@@ -251,14 +251,30 @@ class PdmObjectBase:
         if isinstance(value, list):
             list_of_values = []
             for val in value:
-                list_of_values.append(self.__convert_to_grpc_value(val))
+                list_of_values.append(
+                    self.__convert_to_grpc_value(val, quote_strings=True)
+                )
             return "[" + ", ".join(list_of_values) + "]"
         if isinstance(value, tuple):
             list_of_values = []
             for val in value:
+                # Tuple items are not quoted, as the tuple parser on the ResInsight side does not
+                # support quoted strings.
                 list_of_values.append(self.__convert_to_grpc_value(val))
             return "(" + ", ".join(list_of_values) + ")"
+        if quote_strings and isinstance(value, str) and self.__requires_quoting(value):
+            # Quote and escape strings containing characters used as separators, to be able
+            # to transfer strings containing commas inside a list or tuple.
+            return '"' + self.__escape_string(value) + '"'
         return str(value)
+
+    def __requires_quoting(self, value: str) -> bool:
+        # Characters used as separators by the text based parser on the ResInsight side, and
+        # leading/trailing white space, which would otherwise be stripped.
+        return any(ch in value for ch in ',"[]') or value != value.strip()
+
+    def __escape_string(self, value: str) -> str:
+        return value.replace("\\", "\\\\").replace('"', '\\"')
 
     def __get_grpc_value(self, camel_keyword: str) -> Value:
         return self.__convert_from_grpc_value(

@@ -201,6 +201,8 @@ constexpr bool isCamelCase( std::string_view str )
 
 namespace caf
 {
+class FilePath;
+
 template <typename DataType>
 struct PdmFieldScriptingCapabilityIOHandler
 {
@@ -489,39 +491,90 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
         QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
         if ( chr == QChar( '[' ) )
         {
+            // Split on commas, but ignore commas inside quoted strings and inside nested brackets or
+            // parentheses. A quote or an opening bracket is only given special meaning when it is the
+            // first character of an item, as text values are allowed to contain any character.
+            //
+            // Nested containers are not possible for text based values, and brackets and parentheses are
+            // treated as ordinary characters for these types.
+            const bool nestedContainersAreSupported = !std::is_same<T, QString>::value && !std::is_same<T, FilePath>::value;
+
             std::vector<QString> allValues;
             QString              currentValue;
+            bool                 isInsideQuotes = false;
+            bool                 escapeNextChar = false;
+            int                  nestingDepth   = 0;
+
             while ( !inputStream.atEnd() )
             {
-                errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
-                QChar nextChar = errorMessageContainer->peekNextChar( inputStream );
-                if ( nextChar == QChar( ']' ) )
+                QChar currentChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
+
+                const bool isStartOfValue = currentValue.isEmpty();
+
+                if ( escapeNextChar )
                 {
-                    nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                    currentValue += currentChar;
+                    escapeNextChar = false;
+                }
+                else if ( isInsideQuotes )
+                {
+                    if ( currentChar == QChar( '\\' ) ) escapeNextChar = true;
+                    if ( currentChar == QChar( '"' ) ) isInsideQuotes = false;
+                    currentValue += currentChar;
+                }
+                else if ( currentChar == QChar( '"' ) && isStartOfValue )
+                {
+                    isInsideQuotes = true;
+                    currentValue += currentChar;
+                }
+                else if ( ( currentChar == QChar( '[' ) || currentChar == QChar( '(' ) ) &&
+                          nestedContainersAreSupported && ( isStartOfValue || nestingDepth > 0 ) )
+                {
+                    nestingDepth++;
+                    currentValue += currentChar;
+                }
+                else if ( nestingDepth > 0 && ( currentChar == QChar( ']' ) || currentChar == QChar( ')' ) ) )
+                {
+                    nestingDepth--;
+                    currentValue += currentChar;
+                }
+                else if ( currentChar == QChar( ']' ) )
+                {
+                    // End of the array
                     break;
                 }
-                else if ( nextChar == QChar( ',' ) )
+                else if ( currentChar == QChar( ',' ) && nestingDepth == 0 )
                 {
-                    nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
-                    errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
-                    if ( !currentValue.isEmpty() ) allValues.push_back( currentValue );
+                    QString trimmedValue = currentValue.trimmed();
+                    if ( !trimmedValue.isEmpty() ) allValues.push_back( trimmedValue );
                     currentValue = "";
+                }
+                else if ( currentChar.isSpace() && isStartOfValue )
+                {
+                    // Skip white space in front of a value
                 }
                 else
                 {
-                    currentValue += errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                    currentValue += currentChar;
                 }
             }
-            if ( !currentValue.isEmpty() ) allValues.push_back( currentValue );
+
+            QString lastValue = currentValue.trimmed();
+            if ( !lastValue.isEmpty() ) allValues.push_back( lastValue );
 
             for ( QString textValue : allValues )
             {
+                // A quoted item is always parsed as a quoted string, also when the surrounding text is
+                // unquoted. This makes it possible to transfer strings containing commas.
+                bool itemIsQuoted = stringsAreQuoted || ( textValue.size() > 1 && textValue.startsWith( QChar( '"' ) ) &&
+                                                          textValue.endsWith( QChar( '"' ) ) );
+
                 QTextStream singleValueStream( &textValue, QIODevice::ReadOnly );
                 T           singleValue;
                 PdmFieldScriptingCapabilityIOHandler<T>::writeToField( singleValue,
                                                                        singleValueStream,
                                                                        errorMessageContainer,
-                                                                       stringsAreQuoted,
+                                                                       itemIsQuoted,
                                                                        allowExtraCharacters );
                 fieldValue.push_back( singleValue );
             }
@@ -542,7 +595,7 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
         outputStream << "[";
         for ( size_t i = 0; i < fieldValue.size(); ++i )
         {
-            PdmFieldScriptingCapabilityIOHandler<T>::readFromField( fieldValue[i], outputStream, quoteNonBuiltins );
+            PdmFieldScriptingCapabilityIOHandler<T>::readFromField( fieldValue[i], outputStream, quoteStrings, quoteNonBuiltins );
             if ( i < fieldValue.size() - 1 )
             {
                 outputStream << ", ";
