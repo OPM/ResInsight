@@ -25,6 +25,8 @@
 #include "JobCommands/RicRunJobFeature.h"
 #include "JobCommands/RicStopJobFeature.h"
 
+#include "RifOpmDeckFileTools.h"
+
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "RimEclipseCase.h"
 #include "RimJobWellSettings.h"
@@ -65,6 +67,13 @@ RimEnsembleJob::RimEnsembleJob()
 
     CAF_PDM_InitFieldNoDefault( &m_jobWellSettings, "JobWellSettings", "Job Well Settings" );
     m_jobWellSettings = new RimJobWellSettings();
+    m_jobWellSettings.uiCapability()->setUiTreeChildrenHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellGroupsInInputDeck, "WellGroupsInInputDeck", "Well Groups in Input Deck" );
+    m_wellGroupsInInputDeck.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_datesInInputDeck, "DatesInInputDeck", "Dates in Input Deck" );
+    m_datesInInputDeck.uiCapability()->setUiHidden( true );
 
     setDeletable( true );
 }
@@ -129,6 +138,20 @@ void RimEnsembleJob::setStarted()
 void RimEnsembleJob::setEnsemble( RimReservoirGridEnsemble* ensemble )
 {
     m_ensemble = ensemble;
+
+    if ( ensemble == nullptr ) return;
+    if ( ensemble->cases().empty() ) return;
+
+    auto deckName = RiaFilePathTools::replaceFileExtension( ensemble->cases()[0]->gridFileName().toStdString(), "DATA" );
+
+    m_datesInInputDeck = RifOpmDeckFileTools::datesInDeckFile( deckName );
+
+    std::vector<QString> newWellGroups;
+    for ( auto grp : RifOpmDeckFileTools::wellGroupsInFileDeck( deckName ) )
+    {
+        newWellGroups.push_back( QString::fromStdString( grp ) );
+    }
+    m_wellGroupsInInputDeck = newWellGroups;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,7 +182,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleJob::calculateValueOptions( const caf::
 std::vector<std::string> RimEnsembleJob::getSelectedRealizationFileNames() const
 {
     std::vector<std::string> fileNames;
-    for ( auto realization : m_selectedRealizations.value() )
+    for ( auto& realization : m_selectedRealizations.value() )
     {
         if ( realization.notNull() )
         {
@@ -189,13 +212,20 @@ bool RimEnsembleJob::execute()
         subJob->setEclipseCase( real.inputCase );
         subJob->setInputDataFile( QString::fromStdString( real.realizationInputDeckName ) );
         subJob->setWorkingDirectory( QString::fromStdString( real.realizationOutputDir ) );
-        subJob->setName( real.inputCase->uiName() + " - " + QString::fromStdString( outputIteration() ) );
+        subJob->setName( real.inputCase->uiName() );
+        subJob->setJobWellSettings( m_jobWellSettings.value() );
+        subJob->setAutoLoadResults( false );
         m_subJobs.push_back( subJob );
     }
 
     updateAllRequiredEditors();
 
-    return false;
+    for ( auto& subJob : m_subJobs() )
+    {
+        RicRunJobFeature::runJob( subJob );
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,7 +260,7 @@ std::vector<RimEnsembleJob::RealizationInfo> RimEnsembleJob::getSelectedRealizat
         // make sure the output folder exists
         if ( !std::filesystem::exists( info.realizationOutputDir ) )
         {
-            std::filesystem::create_directories( outputPath );
+            std::filesystem::create_directories( info.realizationOutputDir );
         }
 
         realizationInfos.push_back( info );
@@ -268,6 +298,8 @@ void RimEnsembleJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     auto realGrp = uiOrdering.addNewGroup( "Realizations" );
     realGrp->add( &m_selectedRealizations );
 
+    m_jobWellSettings->useDateStrings( dateStrings() );
+    m_jobWellSettings->useWellGroups( m_wellGroupsInInputDeck.value() );
     m_jobWellSettings->uiOrdering( realGrp );
 
     auto opmGrp = uiOrdering.addNewGroup( "OPM Flow" );
@@ -283,4 +315,17 @@ void RimEnsembleJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     advGrp->add( &m_outputIterationNumber );
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimEnsembleJob::dateStrings() const
+{
+    std::vector<QString> dates;
+    for ( auto& dt : m_datesInInputDeck.value() )
+    {
+        dates.push_back( dt.toString( "yyyy-MM-dd" ) );
+    }
+    return dates;
 }
