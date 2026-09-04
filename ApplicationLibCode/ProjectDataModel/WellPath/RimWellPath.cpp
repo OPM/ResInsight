@@ -39,10 +39,10 @@
 #include "RimFishbonesCollection.h"
 #include "RimImportedWellLog.h"
 #include "RimMainPlotCollection.h"
-#include "RimMswCompletionParameters.h"
 #include "RimOsduWellLog.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
+#include "RimSegmentCollection.h"
 #include "RimStimPlanModelCollection.h"
 #include "RimValveCollection.h"
 #include "RimWellEventTimeline.h"
@@ -334,35 +334,27 @@ RimWellPathCompletionSettings* RimWellPath::completionSettings()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMswCompletionParameters* RimWellPath::mswCompletionParameters()
+RimSegmentCollection* RimWellPath::segmentCollection()
 {
-    auto params = m_completionSettings->mswCompletionParameters();
-    if ( !isTopLevelWellPath() )
+    auto* collection = m_completions->segmentCollection();
+    if ( const auto* topLevelWell = topLevelWellPath(); topLevelWell && topLevelWell != this )
     {
-        auto topMsw = topLevelWellPath()->mswCompletionParameters();
-
-        // Propagate most settings from top level well into lateral parameters
-        params->updateFromTopLevelWell( topMsw );
+        collection->updateFromTopLevelWell( topLevelWell->segmentCollection() );
     }
-
-    return params;
+    return collection;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimMswCompletionParameters* RimWellPath::mswCompletionParameters() const
+const RimSegmentCollection* RimWellPath::segmentCollection() const
 {
-    auto params = m_completionSettings->mswCompletionParameters();
-    if ( !isTopLevelWellPath() )
+    auto* collection = m_completions->segmentCollection();
+    if ( const auto* topLevelWell = topLevelWellPath(); topLevelWell && topLevelWell != this )
     {
-        auto topMsw = topLevelWellPath()->mswCompletionParameters();
-
-        // Propagate most settings from top level well into lateral parameters
-        params->updateFromTopLevelWell( topMsw );
+        collection->updateFromTopLevelWell( topLevelWell->segmentCollection() );
     }
-
-    return params;
+    return collection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -557,6 +549,8 @@ void RimWellPath::initAfterRead()
             m_completionSettings->setWellNameForExport( name() );
         }
     }
+
+    m_completions->segmentCollection()->importLegacyData( m_completionSettings->mswCompletionParameters() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -785,9 +779,10 @@ void RimWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, 
         uiTreeOrdering.add( m_wellIASettingsCollection() );
     }
 
-    if ( m_completionSettings() && !allCompletionsRecursively().empty() )
+    if ( m_completionSettings() && ( !allCompletionsRecursively().empty() || m_completions->segmentCollection()->hasIntervals() ) )
     {
         uiTreeOrdering.add( m_completionSettings() );
+        uiTreeOrdering.add( m_completions->segmentCollection() );
     }
     if ( m_completions->valveCollection()->hasValves() )
     {
@@ -886,10 +881,10 @@ void RimWellPath::setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem )
 
     m_completions->setUnitSystemSpecificDefaults();
 
-    std::vector<RimMswCompletionParameters*> mswParameters = descendantsOfType<RimMswCompletionParameters>();
-    for ( auto mswParams : mswParameters )
+    std::vector<RimSegmentCollection*> segmentCollections = descendantsOfType<RimSegmentCollection>();
+    for ( auto* segmentCollection : segmentCollections )
     {
-        mswParams->setUnitSystemSpecificDefaults();
+        segmentCollection->setUnitSystemSpecificDefaults();
     }
 }
 

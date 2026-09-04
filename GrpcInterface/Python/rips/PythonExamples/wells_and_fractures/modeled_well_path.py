@@ -61,34 +61,25 @@ perforation.update()
 
 # Optionally update the completion settings
 completions_settings = well_path.completion_settings()
-completions_settings.msw_roughness = 12.34
-completions_settings.msw_liner_diameter = 0.2222
 completions_settings.well_name_for_export = "file name"
 completions_settings.group_name_for_export = "msj"
 completions_settings.well_type_for_export = "GAS"
 completions_settings.update()  # Commit updates back to ResInsight
 
-# Add diameter roughness intervals for interval-specific configuration
-interval1 = completions_settings.add_diameter_roughness_interval(
-    start_md=3200, end_md=3300, diameter=0.18, roughness_factor=1.5e-5
+# Add segment intervals. Each interval defines explicit MSW segment boundaries
+# and its diameter and roughness.
+segment1 = well_path.segment_collection().add_segment_interval(
+    start_md=3200, end_md=3250, diameter=0.18, roughness_factor=1.5e-5
 )
-interval2 = completions_settings.add_diameter_roughness_interval(
-    start_md=3300, end_md=3400, diameter=0.16, roughness_factor=2.0e-5
+segment2 = well_path.segment_collection().add_segment_interval(
+    start_md=3250, end_md=3320, diameter=0.16, roughness_factor=2.0e-5
 )
 print(
-    f"Added diameter roughness intervals: {interval1.start_md}-{interval1.end_md}m and {interval2.start_md}-{interval2.end_md}m"
+    f"Added segment intervals: {segment1.start_md}-{segment1.end_md}m and {segment2.start_md}-{segment2.end_md}m"
 )
 
-# Add custom segment intervals to define explicit segment boundaries for MSW export
-segment1 = completions_settings.add_custom_segment_interval(start_md=3200, end_md=3250)
-segment2 = completions_settings.add_custom_segment_interval(start_md=3250, end_md=3320)
-segment3 = completions_settings.add_custom_segment_interval(start_md=3320, end_md=3400)
-print(
-    f"Added custom segment intervals: {segment1.start_md}-{segment1.end_md}m, {segment2.start_md}-{segment2.end_md}m, {segment3.start_md}-{segment3.end_md}m"
-)
-
-# Optionally update the MSW settings
-msw_settings = well_path.msw_settings()
+# Optionally update the segment settings
+msw_settings = well_path.segment_collection()
 msw_settings.custom_values_for_lateral = False
 msw_settings.enforce_max_segment_length = False
 msw_settings.liner_diameter = 0.152

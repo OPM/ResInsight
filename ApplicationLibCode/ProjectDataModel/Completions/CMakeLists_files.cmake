@@ -35,6 +35,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimDiameterRoughnessIntervalCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomSegmentInterval.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomSegmentIntervalCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSegmentCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSegmentInterval.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatistics.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMswSegment.cpp

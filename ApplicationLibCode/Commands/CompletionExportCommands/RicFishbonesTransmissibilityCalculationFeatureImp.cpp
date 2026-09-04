@@ -32,7 +32,7 @@
 
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimMswCompletionParameters.h"
+#include "RimSegmentCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 

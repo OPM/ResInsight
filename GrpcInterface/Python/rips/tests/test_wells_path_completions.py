@@ -41,8 +41,6 @@ def test_add_well_path_completions(rips_instance, initialize_test):
     completions_settings.gas_inflow_eq = "R-G"
     completions_settings.group_name_for_export = "TestGroup"
     completions_settings.hydrostatic_density = "AVG"
-    completions_settings.msw_liner_diameter = 0.12
-    completions_settings.msw_roughness = 4.66
     completions_settings.reference_depth_for_export = 1234
     completions_settings.well_bore_fluid_pvt_table = 33
     completions_settings.well_name_for_export = "TestWellName"
@@ -57,33 +55,31 @@ def test_add_well_path_completions(rips_instance, initialize_test):
     assert completions_settings_updated.gas_inflow_eq == "R-G"
     assert completions_settings_updated.group_name_for_export == "TestGroup"
     assert completions_settings_updated.hydrostatic_density == "AVG"
-    assert completions_settings_updated.msw_liner_diameter == 0.12
-    assert completions_settings_updated.msw_roughness == 4.66
     assert completions_settings_updated.reference_depth_for_export == 1234
     assert completions_settings_updated.well_bore_fluid_pvt_table == 33
     assert completions_settings_updated.well_name_for_export == "TestWellName"
     assert completions_settings_updated.well_type_for_export == "LIQUID"
 
-    msw_settings = well_path.msw_settings()
-    msw_settings.custom_values_for_lateral = True
-    msw_settings.enforce_max_segment_length = True
-    msw_settings.liner_diameter = 20.0
-    msw_settings.max_segment_length = 123.05
-    msw_settings.pressure_drop = "HFA"
-    msw_settings.reference_md_type = "UserDefined"
-    msw_settings.roughness_factor = 1.3
-    msw_settings.user_defined_reference_md = 1234.56
-    msw_settings.update()
+    segment_collection = well_path.segment_collection()
+    segment_collection.custom_values_for_lateral = True
+    segment_collection.enforce_max_segment_length = True
+    segment_collection.liner_diameter = 20.0
+    segment_collection.max_segment_length = 123.05
+    segment_collection.pressure_drop = "HFA"
+    segment_collection.reference_md_type = "UserDefined"
+    segment_collection.roughness_factor = 1.3
+    segment_collection.user_defined_reference_md = 1234.56
+    segment_collection.update()
 
-    msw_settings_updated = well_path.msw_settings()
-    assert msw_settings_updated.custom_values_for_lateral
-    assert msw_settings_updated.enforce_max_segment_length
-    assert msw_settings_updated.liner_diameter == 20.0
-    assert msw_settings_updated.max_segment_length == 123.05
-    assert msw_settings_updated.pressure_drop == "HFA"
-    assert msw_settings_updated.reference_md_type == "UserDefined"
-    assert msw_settings_updated.roughness_factor == 1.3
-    assert msw_settings_updated.user_defined_reference_md == 1234.56
+    segment_collection_updated = well_path.segment_collection()
+    assert segment_collection_updated.custom_values_for_lateral
+    assert segment_collection_updated.enforce_max_segment_length
+    assert segment_collection_updated.liner_diameter == 20.0
+    assert segment_collection_updated.max_segment_length == 123.05
+    assert segment_collection_updated.pressure_drop == "HFA"
+    assert segment_collection_updated.reference_md_type == "UserDefined"
+    assert segment_collection_updated.roughness_factor == 1.3
+    assert segment_collection_updated.user_defined_reference_md == 1234.56
 
 
 def test_add_well_path_fracture_template(rips_instance, initialize_test):
