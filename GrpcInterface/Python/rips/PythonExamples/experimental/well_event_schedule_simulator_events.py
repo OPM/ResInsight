@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 """
-Example: the well_event_schedule.py timeline expressed as an ORIONEVENTS file.
+Example: the well_event_schedule.py timeline expressed as a SIMEVENTS file.
 
-This is the ORIONEVENTS counterpart to well_event_schedule.py: instead of
+This is the SIMEVENTS counterpart to well_event_schedule.py: instead of
 calling the WellEventTimeline API methods one by one, the same events are
-written as ORIONEVENTS 2.0 text (see rips/orion_events.py for the grammar) and
-applied in one go with rips.orion_events.apply_orion_document().
+written as SIMEVENTS 1.0 text (see rips/simulator_events.py for the grammar) and
+applied in one go with rips.simulator_events.apply_simulator_events_document().
 
 It demonstrates the full event coverage of the format:
 1. SEGMENT, PERFORATION (incl. a time-of-day date), VALVE and STATE completion
@@ -29,7 +29,7 @@ It demonstrates the full event coverage of the format:
     generate_schedule_text(additional_dates=...) as summary-report triggers
 11. Schedule metadata, COMPORD generation and aligned-column output
 
-The ORIONEVENTS text is built inline with the name of the first well path in
+The SIMEVENTS text is built inline with the name of the first well path in
 the project (like well_event_schedule.py, which uses wells[0]), so the example
 works with any project that has at least one well path. Applying a FILTER needs
 a loaded Eclipse case (to resolve the result name and own the created filter),
@@ -37,10 +37,10 @@ so the FILTER parts are included only when the project has a case.
 """
 
 import rips
-import rips.orion_events
+import rips.simulator_events
 
 
-def build_orion_text(well_name, with_filter):
+def build_simulator_events_text(well_name, with_filter):
     # 'static.PORO' restricts the result lookup to STATIC_NATIVE results; an
     # unqualified name would search STATIC_NATIVE, DYNAMIC_NATIVE, GENERATED.
     filter_decl = 'FILTER   HIPORO  = "static.PORO > 0.15"\n' if with_filter else ""
@@ -51,7 +51,7 @@ def build_orion_text(well_name, with_filter):
     )
     filter_ref = "  FILTER=HIPORO" if with_filter else ""
     return f"""\
-ORIONEVENTS 2.0
+SIMEVENTS 1.0
 UNIT METRIC
 
 # Typed declarations
@@ -63,7 +63,7 @@ WELL W1 = "{well_name}"
 WELL W1
   # WELSPECS updates completion export settings and emits WELSPECS. Attributes
   # are optional: the second event inherits GROUP from the first event.
-  2024-01-05      WELSPECS     GROUP="ORION_GROUP"  CROSSFLOW=True   REFDEPTH=1002  PHASE=WATER
+  2024-01-05      WELSPECS     GROUP="SIMULATOR_EVENTS_GROUP"  CROSSFLOW=True   REFDEPTH=1002  PHASE=WATER
   2024-04-15      WELSPECS                          CROSSFLOW=False  REFDEPTH=1000  PHASE=OIL
 
   # COMMENT is stored on the event and safely emitted as a schedule comment.
@@ -110,7 +110,7 @@ SCHEDULE
   STARTUP  RAW_TEXT  PLACEMENT=AFTER_KEYWORD  ANCHOR=RPTRST  PRIORITY=10
 -- Custom schedule text not modeled by the timeline API
 WTRACER
-  '{well_name}'  'ORION_TRACER'  1.0 /
+  '{well_name}'  'SIMULATOR_EVENTS_TRACER'  1.0 /
 /
 END_RAW_TEXT
 
@@ -125,7 +125,7 @@ def main():
     resinsight = rips.Instance.find()
     project = resinsight.project
 
-    print("Well Event Schedule (ORIONEVENTS) Example")
+    print("Well Event Schedule (SIMEVENTS) Example")
     print("=" * 50)
 
     print("\n1. Finding well")
@@ -142,10 +142,12 @@ def main():
     if case is None:
         print("   No Eclipse case loaded - FILTER parts are left out.")
 
-    print("\n2. Parsing ORIONEVENTS text...")
-    orion_text = build_orion_text(well_path.name, with_filter=case is not None)
-    print(orion_text)
-    document = rips.orion_events.parse_orion_events(orion_text)
+    print("\n2. Parsing SIMEVENTS text...")
+    simulator_events_text = build_simulator_events_text(
+        well_path.name, with_filter=case is not None
+    )
+    print(simulator_events_text)
+    document = rips.simulator_events.parse_simulator_events(simulator_events_text)
     print(f"   Wells: {[w.well_name for w in document.wells]}")
     source_well_event_count = sum(len(w.events) for w in document.wells)
     source_perforation_count = sum(
@@ -153,7 +155,7 @@ def main():
         for well in document.wells
         for event in well.events
     )
-    normalized = rips.orion_events.coalesce_orion_document(document)
+    normalized = rips.simulator_events.coalesce_simulator_events_document(document)
     merged_well_event_count = sum(len(w.events) for w in normalized.wells)
     merged_perforation_count = sum(
         event.event_type == "PERFORATION"
@@ -172,7 +174,7 @@ def main():
     print("\n3. Applying events to the timeline...")
     well_path_coll = project.descendants(rips.WellPathCollection)[0]
     timeline = well_path_coll.event_timeline()
-    report = rips.orion_events.apply_orion_document(
+    report = rips.simulator_events.apply_simulator_events_document(
         document, timeline, project, case=case
     )
     print(f"   Events applied: {report.events_applied}")
