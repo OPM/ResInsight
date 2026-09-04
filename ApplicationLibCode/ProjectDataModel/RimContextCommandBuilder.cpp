@@ -354,9 +354,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
             menuBuilder << "RicImportWellMeasurementsFeature";
-            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "orion-events-import" ) )
+            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events-import" ) )
             {
-                menuBuilder << "RicImportOrionEventsFeature";
+                menuBuilder << "RicImportSimulatorEventsFeature";
             }
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();

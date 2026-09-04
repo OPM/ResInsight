@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicImportOrionEventsFeature.h"
+#include "RicImportSimulatorEventsFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
@@ -30,12 +30,12 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT( RicImportOrionEventsFeature, "RicImportOrionEventsFeature" );
+CAF_CMD_SOURCE_INIT( RicImportSimulatorEventsFeature, "RicImportSimulatorEventsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportOrionEventsFeature::onActionTriggered( bool isChecked )
+void RicImportSimulatorEventsFeature::onActionTriggered( bool isChecked )
 {
     // The import runs as a Python child process which applies the events to this instance through
     // gRPC, so both the script server and a Python interpreter must be available.
@@ -43,7 +43,7 @@ void RicImportOrionEventsFeature::onActionTriggered( bool isChecked )
     if ( !app->activeGrpcPortNumber() )
     {
         QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
-                              "Import Orion Events",
+                              "Import Simulator Events",
                               "The Python script server is not running. Enable it in Preferences -> Scripting and restart ResInsight." );
         return;
     }
@@ -51,19 +51,19 @@ void RicImportOrionEventsFeature::onActionTriggered( bool isChecked )
     if ( app->pythonPath().isEmpty() )
     {
         QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
-                              "Import Orion Events",
+                              "Import Simulator Events",
                               "No Python executable is configured in Preferences -> Scripting." );
         return;
     }
 
-    QString defaultDir = app->lastUsedDialogDirectory( "ORION_EVENTS_DIR" );
+    QString defaultDir = app->lastUsedDialogDirectory( "SIMULATOR_EVENTS_DIR" );
     QString fileName   = RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
-                                                            "Import Orion Events",
+                                                            "Import Simulator Events",
                                                             defaultDir,
-                                                            "Orion Events Files (*.orion);;All Files (*.*)" );
+                                                            "Simulator Events Files (*.events);;All Files (*.*)" );
     if ( fileName.isEmpty() ) return;
 
-    app->setLastUsedDialogDirectory( "ORION_EVENTS_DIR", QFileInfo( fileName ).absolutePath() );
+    app->setLastUsedDialogDirectory( "SIMULATOR_EVENTS_DIR", QFileInfo( fileName ).absolutePath() );
 
     // Show the process monitor so the report and any errors from the child process are visible.
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
@@ -75,7 +75,7 @@ void RicImportOrionEventsFeature::onActionTriggered( bool isChecked )
 
     // Unbuffered output ("-u") so the report streams into the process monitor promptly. The child
     // process finds this instance through the RESINSIGHT_GRPC_PORT environment variable.
-    QStringList arguments = { "-u", "-m", "rips.orion_events", "--apply", fileName };
+    QStringList arguments = { "-u", "-m", "rips.simulator_events", "--apply", fileName };
     if ( !app->launchProcess( app->pythonPath(), arguments, app->pythonProcessEnvironment() ) )
     {
         RiaLogging::error( "Failed to launch the Python interpreter. Another script may already be running." );
@@ -85,8 +85,8 @@ void RicImportOrionEventsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportOrionEventsFeature::setupActionLook( QAction* actionToSetup )
+void RicImportSimulatorEventsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Import Orion Events" );
+    actionToSetup->setText( "Import Simulator Events" );
     actionToSetup->setIcon( QIcon( ":/Well.svg" ) );
 }

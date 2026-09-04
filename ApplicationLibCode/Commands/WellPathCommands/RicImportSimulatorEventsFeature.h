@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicImportOrionEventsFeature : public caf::CmdFeature
+class RicImportSimulatorEventsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

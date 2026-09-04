@@ -766,11 +766,11 @@ TEST( RifEventKeywordFormatterTest, BuildKeywordOverridesWellName )
     wellItem.setItemName( "WELL" );
     wellItem.setStringValue( "WellPathA" );
 
-    auto keyword = RifEventKeywordFormatter::buildKeyword( "WCONHIST", { &wellItem }, QString( "ORION_EXPORT_ALIAS" ) );
+    auto keyword = RifEventKeywordFormatter::buildKeyword( "WCONHIST", { &wellItem }, QString( "SIMULATOR_EVENTS_EXPORT_ALIAS" ) );
 
     ASSERT_TRUE( keyword.has_value() );
     ASSERT_EQ( keyword->size(), 1 );
-    EXPECT_EQ( keyword->getRecord( 0 ).getItem( "WELL" ).getTrimmedString( 0 ), "ORION_EXPORT_ALIAS" );
+    EXPECT_EQ( keyword->getRecord( 0 ).getItem( "WELL" ).getTrimmedString( 0 ), "SIMULATOR_EVENTS_EXPORT_ALIAS" );
 }
 
 //--------------------------------------------------------------------------------------------------
