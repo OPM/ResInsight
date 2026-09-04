@@ -20,6 +20,8 @@
 
 #include "RimSingleJob.h"
 
+#include "RimJobWellSettings.h"
+
 #include "cafPdmPtrField.h"
 
 #include <string>
@@ -42,12 +44,6 @@ class RimOpmFlowJob : public RimSingleJob
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class WellOpenType
-    {
-        OPEN_BY_POSITION,
-        OPEN_AT_DATE
-    };
-
     enum class DateAppendType
     {
         ADD_DAYS,
@@ -62,8 +58,11 @@ public:
     void setEclipseCase( RimEclipseCase* eCase );
     void setInputDataFile( QString filename );
     void setJobSettings( RimOpmFlowJobSettings* jobSettings );
+    void setJobWellSettings( RimJobWellSettings* jobWellSettings );
 
     void initAfterCopy();
+
+    void setAutoLoadResults( bool autoLoad );
 
     QString deckName();
     QString mainWorkingDirectory() const;
@@ -126,13 +125,13 @@ private:
     caf::PdmPtrField<RimEclipseCaseEnsemble*> m_gridEnsemble;
     caf::PdmPtrField<RimSummaryEnsemble*>     m_summaryEnsemble;
 
-    caf::PdmField<int>                        m_openTimeStep;
-    caf::PdmField<bool>                       m_endTimeStepEnabled;
-    caf::PdmField<int>                        m_endTimeStep;
-    caf::PdmField<bool>                       m_addNewWell;
-    caf::PdmField<caf::AppEnum<WellOpenType>> m_wellOpenType;
-    caf::PdmField<bool>                       m_includeMSWData;
-    caf::PdmField<QString>                    m_wellGroupName;
+    caf::PdmField<int>                                            m_openTimeStep;
+    caf::PdmField<bool>                                           m_endTimeStepEnabled;
+    caf::PdmField<int>                                            m_endTimeStep;
+    caf::PdmField<bool>                                           m_addNewWell;
+    caf::PdmField<caf::AppEnum<RimJobWellSettings::WellOpenType>> m_wellOpenType;
+    caf::PdmField<bool>                                           m_includeMSWData;
+    caf::PdmField<QString>                                        m_wellGroupName;
 
     caf::PdmField<bool>                         m_appendNewDates;
     caf::PdmField<int>                          m_newDatesInterval;
@@ -142,6 +141,8 @@ private:
     caf::PdmChildField<RimKeywordWconprod*>    m_wconprodKeyword;
     caf::PdmChildField<RimKeywordWconinje*>    m_wconinjeKeyword;
     caf::PdmChildField<RimOpmFlowJobSettings*> m_jobSettings;
+
+    caf::PdmField<bool> m_autoLoadResults;
 
     caf::PdmField<QString> m_wellOpenKeyword;
 

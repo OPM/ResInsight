@@ -22,6 +22,8 @@
 
 #include "cafPdmPtrField.h"
 
+#include <QDateTime>
+
 class RimReservoirGridEnsemble;
 class RimEclipseCase;
 class RimOpmFlowJob;
@@ -65,6 +67,8 @@ protected:
     std::vector<RealizationInfo> getSelectedRealizations() const;
     std::string                  outputIteration() const;
 
+    std::vector<QString> dateStrings() const;
+
 private:
     std::vector<std::string> getSelectedRealizationFileNames() const;
 
@@ -75,4 +79,7 @@ private:
     caf::PdmChildArrayField<RimOpmFlowJob*>     m_subJobs;
     caf::PdmChildField<RimOpmFlowJobSettings*>  m_jobSettings;
     caf::PdmChildField<RimJobWellSettings*>     m_jobWellSettings;
+
+    caf::PdmField<std::vector<QDateTime>> m_datesInInputDeck;
+    caf::PdmField<std::vector<QString>>   m_wellGroupsInInputDeck;
 };
