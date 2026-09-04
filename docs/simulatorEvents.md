@@ -1,28 +1,28 @@
-# ORIONEVENTS File Format — Version 2.0
+# SIMEVENTS File Format — Version 1.0
 
 ## Overview
 
-ORIONEVENTS is a compact, human-authored text format describing dated well events (completions and Eclipse schedule keywords) over time. ResInsight reads it through the pure-Python parser in `GrpcInterface/Python/rips/orion_events.py` and applies the events to a project via the `WellEventTimeline` API, from which Eclipse schedule text (COMPDAT, WELSEGS, WCONHIST, ...) can be generated.
+SIMEVENTS is a compact, human-authored text format describing dated well events (completions and Eclipse schedule keywords) over time. ResInsight reads it through the pure-Python parser in `GrpcInterface/Python/rips/simulator_events.py` and applies the events to a project via the `WellEventTimeline` API, from which Eclipse schedule text (COMPDAT, WELSEGS, WCONHIST, ...) can be generated.
 
 The implementation has two independent layers:
 
 | Layer | Entry points | Needs ResInsight? |
 |---|---|---|
-| A — parser | `rips.orion_events.parse_orion_events(text)` / `parse_orion_events_file(path)` | No |
-| B — applier | `rips.orion_events.apply_orion_document(document, timeline, project)` / `apply_orion_events_file(path, timeline, project)` | Yes |
+| A — parser | `rips.simulator_events.parse_simulator_events(text)` / `parse_simulator_events_file(path)` | No |
+| B — applier | `rips.simulator_events.apply_simulator_events_document(document, timeline, project)` / `apply_simulator_events_file(path, timeline, project)` | Yes |
 
 A standalone validator runs Layer A only:
 
 ```
-python3 -m rips.orion_events myfile.orion
+python3 -m rips.simulator_events myfile.events
 ```
 
-Runnable examples: `rips/PythonExamples/experimental/import_orion_events.py` (reads the shipped sample `rips/example_input_files/well_events.orion`) and `well_event_schedule_orion.py` (full event coverage, generates schedule text).
+Runnable examples: `rips/PythonExamples/experimental/import_simulator_events.py` (reads the shipped sample `rips/example_input_files/simulator_events.events`) and `well_event_schedule_simulator_events.py` (full event coverage, generates schedule text).
 
 ## Quick example
 
 ```
-ORIONEVENTS 2.0
+SIMEVENTS 1.0
 UNIT METRIC
 
 # Typed declarations
@@ -55,7 +55,7 @@ SCHEDULE                         # schedule-level keywords, not tied to a well
 
 ```
 document        = header , { statement } ;
-header          = "ORIONEVENTS" , "2.0" ;           (* first meaningful line *)
+header          = "SIMEVENTS" , "1.0" ;           (* first meaningful line *)
 statement       = unit_directive | declaration | report_line | well_block_open
                 | group_block_open | schedule_block_open | event_line ;
 unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
@@ -100,7 +100,7 @@ The format is line-oriented. Every non-blank line is dispatched on its first tok
 
 | First token | Meaning |
 |---|---|
-| `ORIONEVENTS` | Header with version; must be the first meaningful line, exactly once |
+| `SIMEVENTS` | Header with version; must be the first meaningful line, exactly once |
 | `UNIT` | Unit system: `METRIC`, `FIELD` or `LAB` (default `METRIC`) |
 | `DATE` | Declare a typed date variable |
 | `DURATION` | Declare a typed whole-day duration variable |
@@ -251,10 +251,10 @@ When applied, each used filter becomes a case-level **combined data filter** (un
 
 ## Diagnostics
 
-The parser recovers per line and reports **all** errors in one pass. The raised `OrionParseError` carries one `ParseIssue` (message + source line) per problem, and unknown names get difflib-based "did you mean" suggestions:
+The parser recovers per line and reports **all** errors in one pass. The raised `SimulatorEventsParseError` carries one `ParseIssue` (message + source line) per problem, and unknown names get difflib-based "did you mean" suggestions:
 
 ```
-Line 3:  SET is ORIONEVENTS 1.x syntax; declare a typed variable instead, e.g. DATE NAME = 2018-01-01
+Line 3:  SET is not supported; declare a typed variable instead, e.g. DATE NAME = 2018-01-01
 Line 5:  Malformed WELL line: 'WELL 55_33-A-2' (well names containing special characters must be double-quoted, e.g. WELL "55_33-A-1")
 Line 6:  Unknown variable 'A1_STRTUP'; did you mean 'A1_STARTUP'?
 Line 7:  Variable 'RAMP' is a DURATION (declared line 3) but a DATE is required here
@@ -263,8 +263,8 @@ Line 7:  Variable 'RAMP' is a DURATION (declared line 3) but a DATE is required 
 The validator CLI prints these and exits non-zero:
 
 ```
-$ python3 -m rips.orion_events well_events.orion
-well_events.orion: OK (ORIONEVENTS 2.0, units METRIC)
+$ python3 -m rips.simulator_events simulator_events.events
+simulator_events.events: OK (SIMEVENTS 1.0, units METRIC)
   4 variable(s), 2 well block(s), 8 well event(s), 0 schedule event(s)
 ```
 
@@ -279,8 +279,8 @@ project = resinsight.project
 well_path_coll = project.descendants(rips.WellPathCollection)[0]
 timeline = well_path_coll.event_timeline()
 
-report = rips.orion_events.apply_orion_events_file(
-    "well_events.orion", timeline, project, case=case, on_unknown_well="warn"
+report = rips.simulator_events.apply_simulator_events_file(
+    "simulator_events.events", timeline, project, case=case, on_unknown_well="warn"
 )
 print(report.events_applied, report.events_skipped, report.warnings, report.errors)
 
@@ -290,7 +290,7 @@ schedule_text = timeline.generate_schedule_text(
 )
 ```
 
-`apply_orion_document` / `apply_orion_events_file` accept an optional `case` — the `rips.Case` used to resolve filter result names and to own the created combined filters. It is only needed when the document uses `FILTER` and defaults to the project's first case; a `RipsError` is raised if a filter is used and no case is available, or if a filter references a result missing from the case (checked before any event is applied).
+`apply_simulator_events_document` / `apply_simulator_events_file` accept an optional `case` — the `rips.Case` used to resolve filter result names and to own the created combined filters. It is only needed when the document uses `FILTER` and defaults to the project's first case; a `RipsError` is raised if a filter is used and no case is available, or if a filter references a result missing from the case (checked before any event is applied).
 
 They also accept two policies, each `"warn"` (default), `"error"` or `"skip"`:
 
@@ -303,5 +303,4 @@ The returned `ApplyReport` carries `events_applied`, `events_skipped`, `warnings
 
 ## Version history
 
-- **2.0** — current: typed `DATE`/`DURATION`/`WELL`/`FILTER` declarations, `WELL`/`SCHEDULE` blocks, signed day-offset chains, ISO datetimes, built-in completion events (including `SEGMENT` custom intervals and pressure components) plus generic keyword pass-through, perforation data filters, multi-error diagnostics, validator CLI.
-- **1.x** — unsupported. Files using `SET` variables and single-quoted well names are rejected with a migration message pointing at this grammar.
+- **1.0** — current: typed `DATE`/`DURATION`/`WELL`/`FILTER` declarations, `WELL`/`SCHEDULE` blocks, signed day-offset chains, ISO datetimes, built-in completion events (including `SEGMENT` custom intervals and pressure components) plus generic keyword pass-through, perforation data filters, multi-error diagnostics, validator CLI.

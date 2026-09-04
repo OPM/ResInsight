@@ -1,8 +1,8 @@
-# Example ORIONEVENTS well-event-timeline file (version 2.0).
-# Parsed by rips.orion_events; see that module's docstring for the grammar.
-# Validate with: python3 -m rips.orion_events well_events.orion
+# Example SIMEVENTS well-event-timeline file (version 1.0).
+# Parsed by rips.simulator_events; see that module's docstring for the grammar.
+# Validate with: python3 -m rips.simulator_events simulator_events.events
 
-ORIONEVENTS 2.0
+SIMEVENTS 1.0
 UNIT METRIC
 
 # Typed declarations: dates, whole-day durations, well-name aliases, and
@@ -32,7 +32,7 @@ SCHEDULE
   A1_STARTUP + RAMP  RAW_TEXT  PLACEMENT=AFTER_DATE  PRIORITY=10
 -- Custom schedule text not modeled by the timeline API
 WTRACER
-  '55_33-A-1'  'ORION_TRACER'  1.0 /
+  '55_33-A-1'  'SIMULATOR_EVENTS_TRACER'  1.0 /
 /
 END_RAW_TEXT
 

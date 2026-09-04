@@ -1,27 +1,27 @@
 """
-ORIONEVENTS well-event-timeline parser and applier.
+SIMEVENTS well-event-timeline parser and applier.
 
-This module reads an ORIONEVENTS text file describing well completion and
+This module reads a SIMEVENTS text file describing well completion and
 control events over time, and applies them to a ResInsight project through the
 existing :class:`WellEventTimeline` API (``add_perf_event``,
 ``add_well_keyword_event``, ...).
 
 It is split into two independent layers:
 
-* **Layer A - parser** (:func:`parse_orion_events` / :func:`parse_orion_events_file`):
+* **Layer A - parser** (:func:`parse_simulator_events` / :func:`parse_simulator_events_file`):
   a pure-Python tokenizer that turns the text into an intermediate
-  representation (:class:`OrionDocument`). It has no dependency on a running
+  representation (:class:`SimulatorEventsDocument`). It has no dependency on a running
   ResInsight instance and can be unit-tested standalone. It doubles as a
-  standalone validator: ``python3 -m rips.orion_events <file.orion>``.
-* **Layer B - applier** (:func:`apply_orion_document` / :func:`apply_orion_events_file`):
+  standalone validator: ``python3 -m rips.simulator_events <file.events>``.
+* **Layer B - applier** (:func:`apply_simulator_events_document` / :func:`apply_simulator_events_file`):
   takes the intermediate representation plus a live ``rips`` project/timeline and
   calls the ``WellEventTimeline`` API, performing all semantic mapping and
   validation.
 
-File format grammar, version 2.0 (EBNF-ish)::
+File format grammar, version 1.0 (EBNF-ish)::
 
     document        = header , { statement } ;
-    header          = "ORIONEVENTS" , "2.0" ;           (* first meaningful line *)
+    header          = "SIMEVENTS" , "1.0" ;           (* first meaningful line *)
     statement       = unit_directive | declaration | insert_date_line | well_block_open
                     | group_block_open | schedule_block_open | event_line
                     | raw_text_event ;
@@ -67,7 +67,7 @@ File format grammar, version 2.0 (EBNF-ish)::
 Notes on the grammar:
 
 * The format is line-oriented; every non-blank line is dispatched on its first
-  token: ``ORIONEVENTS`` (once), ``UNIT``, ``DATE``, ``DURATION``, ``WELL``,
+  token: ``SIMEVENTS`` (once), ``UNIT``, ``DATE``, ``DURATION``, ``WELL``,
   ``GROUP``, ``SCHEDULE``, ``INSERT_DATE`` or an event date. Anything else is an
   error. Keywords are
   uppercase and case-sensitive (the ``DAYS`` suffix is also accepted as ``days``).
@@ -103,7 +103,7 @@ Notes on the grammar:
   an inclusive ``UNTIL <date_expr>`` sets the end date. When ``UNTIL`` is
   omitted, the latest event date is used. Monthly and yearly recurrences
   stay anchored to the initial calendar day, clamping to the end of shorter
-  months. The dates are collected on :attr:`OrionDocument.report_dates` and
+  months. The dates are collected on :attr:`SimulatorEventsDocument.report_dates` and
   surfaced by the applier as sorted ISO strings on
   :attr:`ApplyReport.report_dates`, ready to pass to
   ``WellEventTimeline.generate_schedule_text(additional_dates=...)``. A
@@ -146,10 +146,9 @@ Notes on the grammar:
 * Any other attribute key parses; ``FILTER`` on events other than
   PERFORATION is ignored with a warning when applied.
 * The parser recovers per line and reports **all** errors in one pass: the
-  raised :class:`OrionParseError` carries one :class:`ParseIssue` per problem.
+  raised :class:`SimulatorEventsParseError` carries one :class:`ParseIssue` per problem.
   Unknown names come with "did you mean" suggestions where possible.
-* ORIONEVENTS 1.x files (``SET`` variables, single-quoted well names) are not
-  supported; the header version is rejected with a pointer to this grammar.
+* Legacy ``SET`` variables and single-quoted well names are not supported.
 """
 
 from __future__ import annotations
@@ -189,7 +188,7 @@ class ParseIssue:
     loc: Optional[SourceLoc]
 
 
-class OrionParseError(Exception):
+class SimulatorEventsParseError(Exception):
     """Raised for structural or type errors while parsing.
 
     ``errors`` holds one :class:`ParseIssue` per problem; a single parse pass
@@ -260,7 +259,7 @@ class EventFilter:
 
 
 @dataclass(frozen=True)
-class OrionValue:
+class SimulatorEventValue:
     """A typed variable: kind is ``DATE``, ``DURATION``, ``WELL`` or ``FILTER``.
 
     A ``DATE`` value is a :class:`datetime.date`, or a :class:`datetime.datetime`
@@ -293,7 +292,7 @@ class WellSpecState:
 
 
 @dataclass
-class OrionEvent:
+class SimulatorEvent:
     """One event line in an enclosing WELL, GROUP or SCHEDULE block."""
 
     event_type: str
@@ -315,7 +314,7 @@ class WellBlock:
     """A ``WELL`` block header followed by its events."""
 
     well_name: str
-    events: List[OrionEvent] = field(default_factory=list)
+    events: List[SimulatorEvent] = field(default_factory=list)
     loc: SourceLoc = SourceLoc(0, "")
 
 
@@ -324,7 +323,7 @@ class GroupBlock:
     """A ``GROUP`` block header followed by its keyword events."""
 
     group_name: str
-    events: List[OrionEvent] = field(default_factory=list)
+    events: List[SimulatorEvent] = field(default_factory=list)
     loc: SourceLoc = SourceLoc(0, "")
 
 
@@ -340,15 +339,15 @@ class _ReportSpec:
 
 
 @dataclass
-class OrionDocument:
-    """Parsed, lossless representation of an ORIONEVENTS file."""
+class SimulatorEventsDocument:
+    """Parsed, lossless representation of a SIMEVENTS file."""
 
     version: str
     unit_system: str = "METRIC"
-    variables: Dict[str, OrionValue] = field(default_factory=dict)
+    variables: Dict[str, SimulatorEventValue] = field(default_factory=dict)
     wells: List[WellBlock] = field(default_factory=list)
     groups: List[GroupBlock] = field(default_factory=list)
-    schedule_events: List[OrionEvent] = field(default_factory=list)
+    schedule_events: List[SimulatorEvent] = field(default_factory=list)
     report_dates: List[Union[datetime.date, datetime.datetime]] = field(
         default_factory=list
     )
@@ -364,7 +363,7 @@ def _iso_event_date(event_date: Union[datetime.date, datetime.datetime]) -> str:
     return event_date.isoformat()
 
 
-def _event_context(event: OrionEvent) -> str:
+def _event_context(event: SimulatorEvent) -> str:
     """Return the source scope and timestamp identifying an event."""
     scope = event.scope
     if event.scope_name is not None:
@@ -372,7 +371,7 @@ def _event_context(event: OrionEvent) -> str:
     return f"[{scope}, date {_iso_event_date(event.event_date)}]"
 
 
-def _event_message(event: OrionEvent, message: str) -> str:
+def _event_message(event: SimulatorEvent, message: str) -> str:
     """Add source line, scope and timestamp to an event-level message."""
     return f"Line {event.loc.line} {_event_context(event)}: {message}"
 
@@ -380,7 +379,7 @@ def _event_message(event: OrionEvent, message: str) -> str:
 def _set_event_scopes(
     wells: List[WellBlock],
     groups: List[GroupBlock],
-    schedule_events: List[OrionEvent],
+    schedule_events: List[SimulatorEvent],
 ) -> None:
     """Attach enclosing block information to parsed events."""
     for well in wells:
@@ -401,7 +400,7 @@ def _set_event_scopes(
 # ---------------------------------------------------------------------------
 
 _KEYWORDS = (
-    "ORIONEVENTS",
+    "SIMEVENTS",
     "UNIT",
     "DATE",
     "DURATION",
@@ -420,7 +419,7 @@ _SIGNED_INT = r"[-+]?\d+"
 _TERMS_BODY = rf"(?:\s*[-+]\s*(?:{_SIGNED_INT}|{_IDENT}))*"
 _TERMS = rf"(?P<terms>{_TERMS_BODY})"
 
-_HEADER_RE = re.compile(r"^ORIONEVENTS\s+(?P<version>\d+\.\d+)$")
+_HEADER_RE = re.compile(r"^SIMEVENTS\s+(?P<version>\d+\.\d+)$")
 _UNIT_RE = re.compile(r"^UNIT\s+(?P<unit>METRIC|FIELD|LAB)$")
 _DATE_DECL_RE = re.compile(rf"^DATE\s+(?P<name>{_IDENT})\s*=\s*{_DATE_BASE}{_TERMS}$")
 _DURATION_DECL_RE = re.compile(
@@ -458,31 +457,33 @@ _TERM_RE = re.compile(rf"([-+])\s*({_SIGNED_INT}|{_IDENT})")
 _ATTR_RE = re.compile(r'(?P<key>[A-Za-z_]\w*)\s*=\s*(?:"(?P<qval>[^"]*)"|(?P<val>\S+))')
 
 
-def parse_orion_events_file(path: Union[str, "os.PathLike[str]"]) -> OrionDocument:
-    """Parse an ORIONEVENTS file from disk into an :class:`OrionDocument`."""
+def parse_simulator_events_file(
+    path: Union[str, "os.PathLike[str]"],
+) -> SimulatorEventsDocument:
+    """Parse a SIMEVENTS file from disk into an :class:`SimulatorEventsDocument`."""
     with open(path, "r", encoding="utf-8") as handle:
-        return parse_orion_events(handle.read())
+        return parse_simulator_events(handle.read())
 
 
-def parse_orion_events(text: str) -> OrionDocument:
-    """Parse ORIONEVENTS 2.0 text into an :class:`OrionDocument`.
+def parse_simulator_events(text: str) -> SimulatorEventsDocument:
+    """Parse SIMEVENTS 1.0 text into an :class:`SimulatorEventsDocument`.
 
     Raises:
-        OrionParseError: carrying every error found in the file. A missing or
-            unsupported ``ORIONEVENTS`` header aborts immediately.
+        SimulatorEventsParseError: carrying every error found in the file. A missing or
+            unsupported ``SIMEVENTS`` header aborts immediately.
     """
     version: Optional[str] = None
     unit_holder = ["METRIC"]  # mutable so _parse_line can update it
-    variables: Dict[str, OrionValue] = {}
+    variables: Dict[str, SimulatorEventValue] = {}
     wells: List[WellBlock] = []
     groups: List[GroupBlock] = []
-    schedule_events: List[OrionEvent] = []
+    schedule_events: List[SimulatorEvent] = []
     report_specs: List[_ReportSpec] = []
     warnings: List[ParseWarning] = []
     errors: List[ParseIssue] = []
     # Event lines append to the current sink: a WellBlock's event list or the
     # document-level schedule_events list.
-    current_events: Optional[List[OrionEvent]] = None
+    current_events: Optional[List[SimulatorEvent]] = None
 
     source_lines = text.splitlines()
     line_index = 0
@@ -499,8 +500,8 @@ def parse_orion_events(text: str) -> OrionDocument:
         if version is None:
             match = _HEADER_RE.match(line)
             if match is None:
-                raise OrionParseError(
-                    "File must start with 'ORIONEVENTS <version>'", loc
+                raise SimulatorEventsParseError(
+                    "File must start with 'SIMEVENTS <version>'", loc
                 )
             version = match.group("version")
             _check_version(version, loc)
@@ -521,13 +522,13 @@ def parse_orion_events(text: str) -> OrionDocument:
             line_index = end_index + 1
             try:
                 if current_events is not schedule_events:
-                    raise OrionParseError(
+                    raise SimulatorEventsParseError(
                         "RAW_TEXT is only valid in a SCHEDULE block", loc
                     )
                 current_events.append(
                     _parse_raw_text_event(line, body_lines, variables, loc)
                 )
-            except OrionParseError as exc:
+            except SimulatorEventsParseError as exc:
                 errors.extend(exc.errors)
             continue
 
@@ -544,7 +545,7 @@ def parse_orion_events(text: str) -> OrionDocument:
                 current_events,
                 unit_holder,
             )
-        except OrionParseError as exc:
+        except SimulatorEventsParseError as exc:
             errors.extend(exc.errors)
             if line.split(None, 1)[0] in ("WELL", "GROUP", "SCHEDULE") or (
                 _EVENT_RE.match(line) is not None and current_events is None
@@ -554,7 +555,7 @@ def parse_orion_events(text: str) -> OrionDocument:
                 current_events = []
 
     if version is None:
-        raise OrionParseError("Empty file: missing 'ORIONEVENTS' header")
+        raise SimulatorEventsParseError("Empty file: missing 'SIMEVENTS' header")
 
     _set_event_scopes(wells, groups, schedule_events)
     errors.extend(_restart_validation_issues(wells, groups, schedule_events))
@@ -564,9 +565,9 @@ def parse_orion_events(text: str) -> OrionDocument:
     )
     errors.extend(report_errors)
     if errors:
-        raise OrionParseError(errors=errors)
+        raise SimulatorEventsParseError(errors=errors)
 
-    return OrionDocument(
+    return SimulatorEventsDocument(
         version=version,
         unit_system=unit_holder[0],
         variables=variables,
@@ -610,7 +611,7 @@ def _expand_report_specs(
     report_specs: List[_ReportSpec],
     wells: List[WellBlock],
     groups: List[GroupBlock],
-    schedule_events: List[OrionEvent],
+    schedule_events: List[SimulatorEvent],
 ) -> Tuple[
     List[Union[datetime.date, datetime.datetime]],
     List[ParseIssue],
@@ -669,7 +670,7 @@ def _expand_report_specs(
 def _restart_validation_issues(
     wells: List[WellBlock],
     groups: List[GroupBlock],
-    schedule_events: List[OrionEvent],
+    schedule_events: List[SimulatorEvent],
 ) -> List[ParseIssue]:
     """Validate placement, cardinality and shape of RESTART events."""
     issues: List[ParseIssue] = []
@@ -717,7 +718,7 @@ def _restart_validation_issues(
 
 def _wellspec_validation_issues(wells: List[WellBlock]) -> List[ParseIssue]:
     """Reject multiple WELSPECS events for one well at the same timestamp."""
-    seen: Dict[Tuple[str, Union[datetime.date, datetime.datetime]], OrionEvent] = {}
+    seen: Dict[Tuple[str, Union[datetime.date, datetime.datetime]], SimulatorEvent] = {}
     issues: List[ParseIssue] = []
     for well in wells:
         for event in well.events:
@@ -739,41 +740,32 @@ def _wellspec_validation_issues(wells: List[WellBlock]) -> List[ParseIssue]:
 
 
 def _check_version(version: str, loc: SourceLoc) -> None:
-    major = version.split(".")[0]
-    if major == "2":
+    if version == "1.0":
         return
-    if major == "1":
-        raise OrionParseError(
-            "ORIONEVENTS 1.x files are no longer supported; this parser requires "
-            "version 2.0 (typed DATE/DURATION/WELL declarations, WELL event "
-            "blocks, double-quoted names). See the rips.orion_events docstring "
-            "for the 2.0 grammar",
-            loc,
-        )
-    raise OrionParseError(
-        f"Unsupported ORIONEVENTS version '{version}'; expected 2.0", loc
+    raise SimulatorEventsParseError(
+        f"Unsupported SIMEVENTS version '{version}'; expected 1.0", loc
     )
 
 
 def _parse_line(
     line: str,
     loc: SourceLoc,
-    variables: Dict[str, OrionValue],
+    variables: Dict[str, SimulatorEventValue],
     wells: List[WellBlock],
     groups: List[GroupBlock],
-    schedule_events: List[OrionEvent],
+    schedule_events: List[SimulatorEvent],
     report_specs: List[_ReportSpec],
     warnings: List[ParseWarning],
-    current_events: Optional[List[OrionEvent]],
+    current_events: Optional[List[SimulatorEvent]],
     unit_holder: List[str],
-) -> Optional[List[OrionEvent]]:
+) -> Optional[List[SimulatorEvent]]:
     """Dispatch one non-header line; returns the current event sink."""
     first = line.split(None, 1)[0]
 
     if first == "UNIT":
         match = _UNIT_RE.match(line)
         if match is None:
-            raise OrionParseError(
+            raise SimulatorEventsParseError(
                 f"Malformed UNIT line: {line!r} (expected UNIT METRIC|FIELD|LAB)", loc
             )
         unit_holder[0] = match.group("unit")
@@ -782,7 +774,7 @@ def _parse_line(
     if first == "GROUP":
         match = _GROUP_BLOCK_RE.match(line)
         if match is None:
-            raise OrionParseError(
+            raise SimulatorEventsParseError(
                 f'Malformed GROUP line: {line!r} (expected GROUP "<group-name>")',
                 loc,
             )
@@ -792,17 +784,19 @@ def _parse_line(
 
     if first == "SCHEDULE":
         if line != "SCHEDULE":
-            raise OrionParseError(
+            raise SimulatorEventsParseError(
                 f"Malformed SCHEDULE line: {line!r} (SCHEDULE takes no arguments)", loc
             )
         return schedule_events
 
     if first == "INSERT_DATE":
         if current_events is not schedule_events:
-            raise OrionParseError("INSERT_DATE is only valid in a SCHEDULE block", loc)
+            raise SimulatorEventsParseError(
+                "INSERT_DATE is only valid in a SCHEDULE block", loc
+            )
         match = _INSERT_DATE_RE.match(line)
         if match is None:
-            raise OrionParseError(
+            raise SimulatorEventsParseError(
                 f"Malformed INSERT_DATE line: {line!r} "
                 "(expected INSERT_DATE <date-expr> [EVERY [count] "
                 "DAYS|MONTHS|YEARS [UNTIL <date-expr>]])",
@@ -832,7 +826,7 @@ def _parse_line(
     if first == "DATE":
         match = _DATE_DECL_RE.match(line)
         if match is None:
-            raise OrionParseError(
+            raise SimulatorEventsParseError(
                 f"Malformed DATE declaration: {line!r} "
                 "(expected DATE NAME = <iso-date|DATE-var> [+|- <days|DURATION-var> ...])",
                 loc,
@@ -842,7 +836,7 @@ def _parse_line(
         )
         _declare(
             match.group("name"),
-            OrionValue("DATE", value, loc),
+            SimulatorEventValue("DATE", value, loc),
             variables,
             warnings,
             loc,
@@ -852,7 +846,7 @@ def _parse_line(
     if first == "DURATION":
         match = _DURATION_DECL_RE.match(line)
         if match is None:
-            raise OrionParseError(
+            raise SimulatorEventsParseError(
                 f"Malformed DURATION declaration: {line!r} "
                 "(expected DURATION NAME = <days|DURATION-var> [+|- ...] [DAYS])",
                 loc,
@@ -862,7 +856,7 @@ def _parse_line(
         )
         _declare(
             match.group("name"),
-            OrionValue("DURATION", days, loc),
+            SimulatorEventValue("DURATION", days, loc),
             variables,
             warnings,
             loc,
@@ -872,7 +866,7 @@ def _parse_line(
     if first == "FILTER":
         match = _FILTER_DECL_RE.match(line)
         if match is None:
-            raise OrionParseError(
+            raise SimulatorEventsParseError(
                 f"Malformed FILTER declaration: {line!r} "
                 '(expected FILTER NAME = "<result> <op> <number> [AND|OR ...]")',
                 loc,
@@ -880,7 +874,7 @@ def _parse_line(
         expr = _parse_filter_expr(match.group("expr"), loc)
         _declare(
             match.group("name"),
-            OrionValue("FILTER", expr, loc),
+            SimulatorEventValue("FILTER", expr, loc),
             variables,
             warnings,
             loc,
@@ -892,7 +886,7 @@ def _parse_line(
         if decl_match is not None:
             _declare(
                 decl_match.group("name"),
-                OrionValue("WELL", decl_match.group("well"), loc),
+                SimulatorEventValue("WELL", decl_match.group("well"), loc),
                 variables,
                 warnings,
                 loc,
@@ -900,7 +894,7 @@ def _parse_line(
             return current_events
         block_match = _WELL_BLOCK_RE.match(line)
         if block_match is None:
-            raise OrionParseError(
+            raise SimulatorEventsParseError(
                 f"Malformed WELL line: {line!r} (well names containing special "
                 'characters must be double-quoted, e.g. WELL "55_33-A-1")',
                 loc,
@@ -915,7 +909,7 @@ def _parse_line(
         return new_well.events
 
     if first == "REPORT":
-        raise OrionParseError(
+        raise SimulatorEventsParseError(
             "REPORT has been renamed to INSERT_DATE and is only valid in a "
             "SCHEDULE block",
             loc,
@@ -925,24 +919,23 @@ def _parse_line(
         current_events.append(_parse_event_line(line, variables, loc))
         return current_events
     if first[0].isdigit() and _EVENT_RE.match(line):
-        raise OrionParseError("Event line found before any WELL or SCHEDULE block", loc)
+        raise SimulatorEventsParseError(
+            "Event line found before any WELL or SCHEDULE block", loc
+        )
 
-    raise OrionParseError(_unrecognized_line_message(line, first), loc)
+    raise SimulatorEventsParseError(_unrecognized_line_message(line, first), loc)
 
 
 def _unrecognized_line_message(line: str, first: str) -> str:
-    if first == "ORIONEVENTS":
-        return "Duplicate ORIONEVENTS header"
+    if first == "SIMEVENTS":
+        return "Duplicate SIMEVENTS header"
     if first == "SET":
         return (
-            "SET is ORIONEVENTS 1.x syntax; declare a typed variable instead, "
+            "SET is not supported; declare a typed variable instead, "
             "e.g. DATE NAME = 2018-01-01"
         )
     if line.startswith("'"):
-        return (
-            "Single-quoted well names are ORIONEVENTS 1.x syntax; open a well "
-            'block with WELL "name"'
-        )
+        return 'Single-quoted well names are not supported; open a well block with WELL "name"'
     message = f"Unrecognized line: {line!r}"
     close = difflib.get_close_matches(first, _KEYWORDS, n=1, cutoff=0.6)
     if close:
@@ -952,15 +945,15 @@ def _unrecognized_line_message(line: str, first: str) -> str:
 
 def _declare(
     name: str,
-    value: OrionValue,
-    variables: Dict[str, OrionValue],
+    value: SimulatorEventValue,
+    variables: Dict[str, SimulatorEventValue],
     warnings: List[ParseWarning],
     loc: SourceLoc,
 ) -> None:
     existing = variables.get(name)
     if existing is not None:
         if existing.kind != value.kind:
-            raise OrionParseError(
+            raise SimulatorEventsParseError(
                 f"'{name}' is already declared as {existing.kind} "
                 f"(line {existing.loc.line}); cannot redeclare as {value.kind}",
                 loc,
@@ -972,9 +965,9 @@ def _declare(
 def _lookup_var(
     name: str,
     expected_kind: str,
-    variables: Dict[str, OrionValue],
+    variables: Dict[str, SimulatorEventValue],
     loc: SourceLoc,
-) -> OrionValue:
+) -> SimulatorEventValue:
     """Resolve a typed variable reference; the single typed-error site."""
     value = variables.get(name)
     if value is None:
@@ -983,9 +976,9 @@ def _lookup_var(
             name, same_kind or list(variables), n=1, cutoff=0.6
         )
         hint = f"; did you mean '{close[0]}'?" if close else ""
-        raise OrionParseError(f"Unknown variable '{name}'{hint}", loc)
+        raise SimulatorEventsParseError(f"Unknown variable '{name}'{hint}", loc)
     if value.kind != expected_kind:
-        raise OrionParseError(
+        raise SimulatorEventsParseError(
             f"Variable '{name}' is a {value.kind} (declared line {value.loc.line}) "
             f"but a {expected_kind} is required here",
             loc,
@@ -993,7 +986,9 @@ def _lookup_var(
     return value
 
 
-def _eval_terms(terms: str, variables: Dict[str, OrionValue], loc: SourceLoc) -> int:
+def _eval_terms(
+    terms: str, variables: Dict[str, SimulatorEventValue], loc: SourceLoc
+) -> int:
     """Evaluate a signed chain of whole-day terms to a net day count."""
     total = 0
     for match in _TERM_RE.finditer(terms):
@@ -1011,7 +1006,7 @@ def _eval_terms(terms: str, variables: Dict[str, OrionValue], loc: SourceLoc) ->
 
 
 def _eval_date_expr(
-    base: str, terms: str, variables: Dict[str, OrionValue], loc: SourceLoc
+    base: str, terms: str, variables: Dict[str, SimulatorEventValue], loc: SourceLoc
 ) -> Union[datetime.date, datetime.datetime]:
     """Evaluate an ISO date(time) or DATE variable plus optional signed day terms."""
     result: Union[datetime.date, datetime.datetime]
@@ -1022,7 +1017,7 @@ def _eval_date_expr(
             else:
                 result = datetime.date.fromisoformat(base)
         except ValueError as exc:
-            raise OrionParseError(f"Invalid date '{base}': {exc}", loc)
+            raise SimulatorEventsParseError(f"Invalid date '{base}': {exc}", loc)
     else:
         value = _lookup_var(base, "DATE", variables, loc).value
         assert isinstance(value, datetime.date)
@@ -1031,7 +1026,7 @@ def _eval_date_expr(
 
 
 def _eval_duration_expr(
-    base: str, terms: str, variables: Dict[str, OrionValue], loc: SourceLoc
+    base: str, terms: str, variables: Dict[str, SimulatorEventValue], loc: SourceLoc
 ) -> int:
     """Evaluate an integer or DURATION variable plus optional signed day terms."""
     if base.isdigit():
@@ -1047,13 +1042,13 @@ def _parse_filter_expr(text: str, loc: SourceLoc) -> FilterExpr:
     """Parse a filter expression into typed comparison terms."""
     stripped = text.strip()
     if not stripped:
-        raise OrionParseError("Empty filter expression", loc)
+        raise SimulatorEventsParseError("Empty filter expression", loc)
 
     parts = _FILTER_SPLIT_RE.split(stripped)
     chunks = parts[0::2]
     connectors = parts[1::2]
     if len(set(connectors)) > 1:
-        raise OrionParseError(
+        raise SimulatorEventsParseError(
             "Filter expression mixes AND and OR; a combined filter has a "
             "single combine mode",
             loc,
@@ -1068,7 +1063,7 @@ def _parse_filter_term(chunk: str, loc: SourceLoc) -> FilterTerm:
     chunk = chunk.strip()
     match = _FILTER_TERM_RE.match(chunk)
     if match is None:
-        raise OrionParseError(_malformed_filter_term_message(chunk), loc)
+        raise SimulatorEventsParseError(_malformed_filter_term_message(chunk), loc)
 
     qual = match.group("qual")
     result_type: Optional[str] = None
@@ -1079,7 +1074,7 @@ def _parse_filter_term(chunk: str, loc: SourceLoc) -> FilterTerm:
                 qual.upper(), sorted(set(_RESULT_TYPE_ALIASES)), n=1, cutoff=0.6
             )
             hint = f"; did you mean '{close[0]}'?" if close else ""
-            raise OrionParseError(
+            raise SimulatorEventsParseError(
                 f"Unknown result type '{qual}' in filter term {chunk!r}{hint}", loc
             )
     return FilterTerm(
@@ -1132,21 +1127,21 @@ def _is_raw_text_header(line: str) -> bool:
 def _parse_raw_text_event(
     line: str,
     body_lines: List[str],
-    variables: Dict[str, OrionValue],
+    variables: Dict[str, SimulatorEventValue],
     loc: SourceLoc,
-) -> OrionEvent:
+) -> SimulatorEvent:
     """Parse and validate a RAW_TEXT header and attach its unparsed body."""
     event = _parse_event_line(line, variables, loc)
     allowed = {"PLACEMENT", "ANCHOR", "PRIORITY"}
     unknown = set(event.attributes) - allowed
     if unknown:
-        raise OrionParseError(
+        raise SimulatorEventsParseError(
             f"Unknown RAW_TEXT attribute(s): {', '.join(sorted(unknown))}", loc
         )
     if "PLACEMENT" not in event.attributes:
-        raise OrionParseError("RAW_TEXT requires PLACEMENT", loc)
+        raise SimulatorEventsParseError("RAW_TEXT requires PLACEMENT", loc)
     if not body_lines:
-        raise OrionParseError("RAW_TEXT body must not be empty", loc)
+        raise SimulatorEventsParseError("RAW_TEXT body must not be empty", loc)
 
     placement_value = event.attributes["PLACEMENT"].value
     placement = placement_value.upper() if isinstance(placement_value, str) else ""
@@ -1157,7 +1152,7 @@ def _parse_raw_text_event(
         "END_OF_DATE",
     }
     if placement not in valid_placements:
-        raise OrionParseError(
+        raise SimulatorEventsParseError(
             "RAW_TEXT PLACEMENT must be AFTER_DATE, BEFORE_KEYWORD, "
             "AFTER_KEYWORD, or END_OF_DATE",
             loc,
@@ -1167,17 +1162,19 @@ def _parse_raw_text_event(
     if "ANCHOR" in event.attributes:
         anchor_value = event.attributes["ANCHOR"].value
         if not isinstance(anchor_value, str) or not anchor_value.strip():
-            raise OrionParseError("RAW_TEXT ANCHOR must be a keyword name", loc)
+            raise SimulatorEventsParseError(
+                "RAW_TEXT ANCHOR must be a keyword name", loc
+            )
         anchor = anchor_value.strip().upper()
 
     anchored = placement in {"BEFORE_KEYWORD", "AFTER_KEYWORD"}
     if anchored and anchor is None:
-        raise OrionParseError(
+        raise SimulatorEventsParseError(
             "RAW_TEXT ANCHOR is required for BEFORE_KEYWORD and AFTER_KEYWORD",
             loc,
         )
     if not anchored and anchor is not None:
-        raise OrionParseError(
+        raise SimulatorEventsParseError(
             "RAW_TEXT ANCHOR is only valid for BEFORE_KEYWORD and AFTER_KEYWORD",
             loc,
         )
@@ -1186,7 +1183,7 @@ def _parse_raw_text_event(
     if "PRIORITY" in event.attributes:
         priority_value = event.attributes["PRIORITY"].value
         if isinstance(priority_value, bool) or not isinstance(priority_value, int):
-            raise OrionParseError("RAW_TEXT PRIORITY must be an integer", loc)
+            raise SimulatorEventsParseError("RAW_TEXT PRIORITY must be an integer", loc)
         priority = priority_value
 
     event.raw_text = "\n".join(body_lines) + "\n"
@@ -1197,11 +1194,11 @@ def _parse_raw_text_event(
 
 
 def _parse_event_line(
-    line: str, variables: Dict[str, OrionValue], loc: SourceLoc
-) -> OrionEvent:
+    line: str, variables: Dict[str, SimulatorEventValue], loc: SourceLoc
+) -> SimulatorEvent:
     match = _EVENT_RE.match(line)
     if match is None:
-        raise OrionParseError(f"Malformed event line: {line!r}", loc)
+        raise SimulatorEventsParseError(f"Malformed event line: {line!r}", loc)
 
     event_date = _eval_date_expr(
         match.group("base"), match.group("terms"), variables, loc
@@ -1216,7 +1213,7 @@ def _parse_event_line(
     if event_type.upper() == "PERFORATION" and "FILTER" in attributes:
         event_filter = _resolve_event_filter(attributes["FILTER"], variables, loc)
 
-    return OrionEvent(
+    return SimulatorEvent(
         event_type=event_type,
         event_date=event_date,
         attributes=attributes,
@@ -1226,13 +1223,13 @@ def _parse_event_line(
 
 
 def _resolve_event_filter(
-    attr: AttrValue, variables: Dict[str, OrionValue], loc: SourceLoc
+    attr: AttrValue, variables: Dict[str, SimulatorEventValue], loc: SourceLoc
 ) -> EventFilter:
     """Resolve a PERFORATION FILTER attribute to a declared or inline filter."""
     if attr.quoted:
         return EventFilter(name=None, expr=_parse_filter_expr(attr.raw, loc))
     if re.fullmatch(_IDENT, attr.raw) is None:
-        raise OrionParseError(
+        raise SimulatorEventsParseError(
             "FILTER must name a declared FILTER variable or be a quoted "
             f"expression, got {attr.raw!r}",
             loc,
@@ -1248,7 +1245,9 @@ def _parse_attributes(attr_str: str, loc: SourceLoc) -> Dict[str, AttrValue]:
     for match in _ATTR_RE.finditer(attr_str):
         gap = attr_str[pos : match.start()]
         if gap.strip():
-            raise OrionParseError(f"Malformed attribute near {gap.strip()!r}", loc)
+            raise SimulatorEventsParseError(
+                f"Malformed attribute near {gap.strip()!r}", loc
+            )
         key = match.group("key").upper()
 
         qval = match.group("qval")
@@ -1261,7 +1260,9 @@ def _parse_attributes(attr_str: str, loc: SourceLoc) -> Dict[str, AttrValue]:
 
     trailing = attr_str[pos:]
     if trailing.strip():
-        raise OrionParseError(f"Malformed attribute near {trailing.strip()!r}", loc)
+        raise SimulatorEventsParseError(
+            f"Malformed attribute near {trailing.strip()!r}", loc
+        )
     return attributes
 
 
@@ -1291,7 +1292,7 @@ def _infer_value(raw: str) -> AttrScalar:
 
 @dataclass
 class ApplyReport:
-    """Summary of applying an :class:`OrionDocument` to a timeline."""
+    """Summary of applying an :class:`SimulatorEventsDocument` to a timeline."""
 
     events_applied: int = 0
     events_skipped: int = 0
@@ -1301,15 +1302,15 @@ class ApplyReport:
 
 
 def _record_event_exception(
-    event: OrionEvent, error: Exception, report: ApplyReport
+    event: SimulatorEvent, error: Exception, report: ApplyReport
 ) -> None:
-    """Record an event failure with its Orion source context."""
+    """Record an event failure with its Simulator Events source context."""
     report.errors.append(_event_message(event, str(error)))
     report.events_skipped += 1
 
 
 def _record_event_parse_error(
-    event: OrionEvent, error: OrionParseError, report: ApplyReport
+    event: SimulatorEvent, error: SimulatorEventsParseError, report: ApplyReport
 ) -> None:
     """Record parser-style event failures without duplicating their line number."""
     for issue in error.errors:
@@ -1361,12 +1362,12 @@ _WELLSPEC_PHASES = {"OIL", "GAS", "WATER", "LIQUID"}
 _COMPLETION_IGNORED = {"FILTER"}
 _PERF_IGNORED = _COMPLETION_IGNORED  # backwards-compatible alias
 
-# ORIONEVENTS -> Eclipse item-name translations per keyword.
+# SIMEVENTS -> Eclipse item-name translations per keyword.
 _WCONHIST_FIELD_MAP = {"VFP": "VFP_TABLE"}
 _WELTARG_FIELD_MAP = {"VALUE": "NEW_VALUE"}
 
 
-def _apply_event_comment(event: OrionEvent, timeline_event: Any) -> None:
+def _apply_event_comment(event: SimulatorEvent, timeline_event: Any) -> None:
     """Copy an optional COMMENT attribute to the created timeline event."""
     comment = event.attributes.get("COMMENT")
     if comment is None:
@@ -1375,7 +1376,7 @@ def _apply_event_comment(event: OrionEvent, timeline_event: Any) -> None:
     timeline_event.update()
 
 
-def apply_orion_events_file(
+def apply_simulator_events_file(
     path: Union[str, "os.PathLike[str]"],
     timeline: Any,
     project: Any,
@@ -1383,9 +1384,11 @@ def apply_orion_events_file(
     case: Any = None,
     **options: str,
 ) -> ApplyReport:
-    """Parse an ORIONEVENTS file and apply it to ``timeline``."""
-    document = parse_orion_events_file(path)
-    return apply_orion_document(document, timeline, project, case=case, **options)
+    """Parse a SIMEVENTS file and apply it to ``timeline``."""
+    document = parse_simulator_events_file(path)
+    return apply_simulator_events_document(
+        document, timeline, project, case=case, **options
+    )
 
 
 _NON_COALESCING_EVENT_TYPES = {
@@ -1401,7 +1404,9 @@ _NON_COALESCING_EVENT_TYPES = {
 _NON_HISTORICAL_KEYWORD_ATTRS = {"COMMENT", "FILTER"}
 
 
-def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
+def coalesce_simulator_events_document(
+    document: SimulatorEventsDocument,
+) -> SimulatorEventsDocument:
     """Return a copy with matching keyword events merged.
 
     Keyword events with the same owner, type and timestamp are merged. The first
@@ -1414,11 +1419,11 @@ def coalesce_orion_document(document: OrionDocument) -> OrionDocument:
     result = copy.deepcopy(document)
 
     def merge_events(
-        events: List[OrionEvent], *, inherit_history: bool = False
-    ) -> List[OrionEvent]:
-        merged: List[OrionEvent] = []
+        events: List[SimulatorEvent], *, inherit_history: bool = False
+    ) -> List[SimulatorEvent]:
+        merged: List[SimulatorEvent] = []
         by_key: Dict[
-            Tuple[Union[datetime.date, datetime.datetime], str], OrionEvent
+            Tuple[Union[datetime.date, datetime.datetime], str], SimulatorEvent
         ] = {}
         attribute_locs: Dict[
             Tuple[Union[datetime.date, datetime.datetime], str], Dict[str, SourceLoc]
@@ -1521,7 +1526,7 @@ def _enum_text(value: Any) -> str:
 
 
 def _prepare_wellspec_events(
-    events: List[OrionEvent], completion_settings: Any, report: ApplyReport
+    events: List[SimulatorEvent], completion_settings: Any, report: ApplyReport
 ) -> None:
     """Validate WELSPECS attributes and resolve partial updates chronologically."""
     state = WellSpecState(
@@ -1591,8 +1596,8 @@ def _prepare_wellspec_events(
         event.well_spec = copy.copy(state)
 
 
-def apply_orion_document(
-    document: OrionDocument,
+def apply_simulator_events_document(
+    document: SimulatorEventsDocument,
     timeline: Any,
     project: Any,
     *,
@@ -1600,10 +1605,10 @@ def apply_orion_document(
     on_unknown_well: str = "warn",
     on_unknown_event: str = "warn",
 ) -> ApplyReport:
-    """Apply a parsed :class:`OrionDocument` to a ``WellEventTimeline``.
+    """Apply a parsed :class:`SimulatorEventsDocument` to a ``WellEventTimeline``.
 
     Arguments:
-        document: The parsed document (see :func:`parse_orion_events`).
+        document: The parsed document (see :func:`parse_simulator_events`).
         timeline: A ``rips.WellEventTimeline`` object.
         project: A ``rips.Project`` used to resolve well names to well paths.
         case: The ``rips.Case`` used to resolve filter result names and to own
@@ -1627,7 +1632,7 @@ def apply_orion_document(
     """
     _validate_policy(on_unknown_well, "on_unknown_well")
     _validate_policy(on_unknown_event, "on_unknown_event")
-    document = coalesce_orion_document(document)
+    document = coalesce_simulator_events_document(document)
     report = ApplyReport()
     report.report_dates = sorted({d.isoformat() for d in document.report_dates})
     report.warnings.extend(
@@ -1705,14 +1710,14 @@ class _FilterContext:
 
 
 def _prepare_filter_context(
-    document: OrionDocument, project: Any, case: Any
+    document: SimulatorEventsDocument, project: Any, case: Any
 ) -> Optional[_FilterContext]:
     """Build a filter context when the document uses filters; else None.
 
     Resolves every filter term's result type up front so a missing result
     raises before any event has been applied.
     """
-    filtered_events: List[Tuple[OrionEvent, EventFilter]] = []
+    filtered_events: List[Tuple[SimulatorEvent, EventFilter]] = []
     for well in document.wells:
         for event in well.events:
             if event.filter is not None:
@@ -1816,7 +1821,7 @@ def _suspected_typo(event_type: str) -> Optional[str]:
 
 
 def _apply_member_event(
-    event: OrionEvent,
+    event: SimulatorEvent,
     timeline: Any,
     report: ApplyReport,
     group_name: Optional[str],
@@ -1867,7 +1872,7 @@ def _apply_member_event(
 
 
 def _apply_schedule_event(
-    event: OrionEvent,
+    event: SimulatorEvent,
     timeline: Any,
     report: ApplyReport,
     group_name: Optional[str] = None,
@@ -1941,7 +1946,7 @@ def _validate_policy(value: str, name: str) -> None:
 
 
 def _check_completion_attrs(
-    event: OrionEvent,
+    event: SimulatorEvent,
     type_name: str,
     known: Set[str],
     required: Tuple[str, ...],
@@ -1983,7 +1988,7 @@ def _check_completion_attrs(
 
 
 def _apply_perforation(
-    event: OrionEvent,
+    event: SimulatorEvent,
     well_path: Any,
     timeline: Any,
     report: ApplyReport,
@@ -2011,7 +2016,7 @@ def _apply_perforation(
             kwargs["completion_number"] = int(
                 _as_number(attrs["COMPLETION_NUMBER"], event.loc)
             )
-    except OrionParseError as exc:
+    except SimulatorEventsParseError as exc:
         _record_event_parse_error(event, exc, report)
         return
 
@@ -2023,7 +2028,7 @@ def _apply_perforation(
 
 
 def _apply_segment(
-    event: OrionEvent,
+    event: SimulatorEvent,
     well_path: Any,
     timeline: Any,
     report: ApplyReport,
@@ -2054,10 +2059,10 @@ def _apply_segment(
         if "PRESSURE_COMPONENTS" in attrs:
             pressure_components = str(attrs["PRESSURE_COMPONENTS"].value).upper()
             if pressure_components not in _PRESSURE_COMPONENTS:
-                raise OrionParseError(
+                raise SimulatorEventsParseError(
                     "PRESSURE_COMPONENTS must be H--, HF-, or HFA", event.loc
                 )
-    except OrionParseError as exc:
+    except SimulatorEventsParseError as exc:
         _record_event_parse_error(event, exc, report)
         return
 
@@ -2086,7 +2091,7 @@ _VALVE_NUMERIC_KWARGS = {
 
 
 def _apply_valve(
-    event: OrionEvent,
+    event: SimulatorEvent,
     well_path: Any,
     timeline: Any,
     report: ApplyReport,
@@ -2110,7 +2115,7 @@ def _apply_valve(
         for attr_name, kwarg_name in _VALVE_NUMERIC_KWARGS.items():
             if attr_name in attrs:
                 kwargs[kwarg_name] = float(_as_number(attrs[attr_name], event.loc))
-    except OrionParseError as exc:
+    except SimulatorEventsParseError as exc:
         _record_event_parse_error(event, exc, report)
         return
 
@@ -2120,7 +2125,7 @@ def _apply_valve(
 
 
 def _apply_state(
-    event: OrionEvent,
+    event: SimulatorEvent,
     well_path: Any,
     timeline: Any,
     report: ApplyReport,
@@ -2141,7 +2146,7 @@ def _apply_state(
 
 
 def _apply_wellspec(
-    event: OrionEvent,
+    event: SimulatorEvent,
     well_path: Any,
     timeline: Any,
     report: ApplyReport,
@@ -2164,7 +2169,7 @@ def _apply_wellspec(
 
 
 def _apply_keyword(
-    event: OrionEvent,
+    event: SimulatorEvent,
     well_path: Any,
     timeline: Any,
     report: ApplyReport,
@@ -2201,7 +2206,7 @@ def _apply_keyword(
 
 
 def _apply_wconhist(
-    event: OrionEvent,
+    event: SimulatorEvent,
     well_path: Any,
     timeline: Any,
     report: ApplyReport,
@@ -2211,7 +2216,7 @@ def _apply_wconhist(
 
 
 def _apply_weltarg(
-    event: OrionEvent,
+    event: SimulatorEvent,
     well_path: Any,
     timeline: Any,
     report: ApplyReport,
@@ -2222,12 +2227,14 @@ def _apply_weltarg(
 
 def _as_number(attr: AttrValue, loc: SourceLoc) -> Union[int, float]:
     if isinstance(attr.value, bool) or not isinstance(attr.value, (int, float)):
-        raise OrionParseError(f"Expected a numeric value, got {attr.raw!r}", loc)
+        raise SimulatorEventsParseError(
+            f"Expected a numeric value, got {attr.raw!r}", loc
+        )
     return attr.value
 
 
 def _apply_generic_well_keyword(
-    event: OrionEvent,
+    event: SimulatorEvent,
     well_path: Any,
     timeline: Any,
     report: ApplyReport,
@@ -2237,7 +2244,7 @@ def _apply_generic_well_keyword(
 
 
 _EventDispatch = Callable[
-    [OrionEvent, Any, Any, ApplyReport, Optional[_FilterContext]], None
+    [SimulatorEvent, Any, Any, ApplyReport, Optional[_FilterContext]], None
 ]
 
 # Built-in event types. Any other event type inside a WELL block is passed
@@ -2265,11 +2272,11 @@ _COMPLETION_EVENT_TYPES = (
 
 
 # ---------------------------------------------------------------------------
-# Standalone validator CLI: python3 -m rips.orion_events <file.orion>
+# Standalone validator CLI: python3 -m rips.simulator_events <file.events>
 # ---------------------------------------------------------------------------
 
 
-def _apply_to_running_instance(document: OrionDocument) -> int:
+def _apply_to_running_instance(document: SimulatorEventsDocument) -> int:
     """Apply a parsed document to the well event timeline of a running
     ResInsight instance found through the RESINSIGHT_GRPC_PORT environment
     variable. Returns a process exit code."""
@@ -2294,7 +2301,7 @@ def _apply_to_running_instance(document: OrionDocument) -> int:
     case = cases[0] if cases else None
 
     try:
-        report = apply_orion_document(
+        report = apply_simulator_events_document(
             document, timeline, project, case=case, on_unknown_well="warn"
         )
     except RipsError as exc:
@@ -2316,11 +2323,11 @@ def _cli(argv: Optional[List[str]] = None) -> int:
     import argparse
 
     arg_parser = argparse.ArgumentParser(
-        prog="python3 -m rips.orion_events",
-        description="Validate an ORIONEVENTS file (parse only; no ResInsight "
+        prog="python3 -m rips.simulator_events",
+        description="Validate a SIMEVENTS file (parse only; no ResInsight "
         "needed), and optionally apply it to a running ResInsight instance.",
     )
-    arg_parser.add_argument("file", help="path to the ORIONEVENTS file")
+    arg_parser.add_argument("file", help="path to the SIMEVENTS file")
     arg_parser.add_argument(
         "--apply",
         action="store_true",
@@ -2329,11 +2336,11 @@ def _cli(argv: Optional[List[str]] = None) -> int:
     args = arg_parser.parse_args(argv)
 
     try:
-        document = parse_orion_events_file(args.file)
+        document = parse_simulator_events_file(args.file)
     except OSError as exc:
         print(f"Error: {exc}")
         return 1
-    except OrionParseError as exc:
+    except SimulatorEventsParseError as exc:
         for issue in exc.errors:
             if issue.loc is not None:
                 print(f"Line {issue.loc.line}: {issue.message}")
@@ -2345,8 +2352,7 @@ def _cli(argv: Optional[List[str]] = None) -> int:
     event_count = sum(len(well.events) for well in document.wells)
     group_event_count = sum(len(group.events) for group in document.groups)
     print(
-        f"{args.file}: OK (ORIONEVENTS {document.version}, "
-        f"units {document.unit_system})"
+        f"{args.file}: OK (SIMEVENTS {document.version}, units {document.unit_system})"
     )
     print(
         f"  {len(document.variables)} variable(s), {len(document.wells)} "
@@ -2355,7 +2361,7 @@ def _cli(argv: Optional[List[str]] = None) -> int:
         f"{len(document.schedule_events)} schedule event(s), "
         f"{len(document.report_dates)} report date(s)"
     )
-    normalized = coalesce_orion_document(document)
+    normalized = coalesce_simulator_events_document(document)
     for warning in normalized.warnings:
         print(f"  Warning line {warning.loc.line}: {warning.message}")
 
