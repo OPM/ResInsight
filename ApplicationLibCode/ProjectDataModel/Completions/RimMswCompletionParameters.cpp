@@ -23,6 +23,7 @@
 #include "RimCustomSegmentIntervalCollection.h"
 #include "RimDiameterRoughnessIntervalCollection.h"
 
+#include "RimSegmentCollection.h"
 #include "RimWellPath.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -175,7 +176,7 @@ double RimMswCompletionParameters::linerDiameter( RiaDefines::EclipseUnitSystem 
     double diameter = m_linerDiameter();
     if ( !wellPath->isTopLevelWellPath() && !m_customValuesForLateral )
     {
-        diameter = wellPath->topLevelWellPath()->mswCompletionParameters()->m_linerDiameter();
+        diameter = wellPath->topLevelWellPath()->segmentCollection()->linerDiameter();
     }
 
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -220,7 +221,7 @@ double RimMswCompletionParameters::roughnessFactor( RiaDefines::EclipseUnitSyste
     double rFactor = m_roughnessFactor();
     if ( !wellPath->isTopLevelWellPath() && !m_customValuesForLateral )
     {
-        rFactor = wellPath->topLevelWellPath()->mswCompletionParameters()->m_roughnessFactor();
+        rFactor = wellPath->topLevelWellPath()->segmentCollection()->roughnessFactor();
     }
 
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )

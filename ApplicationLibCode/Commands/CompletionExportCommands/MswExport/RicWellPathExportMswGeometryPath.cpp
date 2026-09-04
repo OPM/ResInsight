@@ -29,9 +29,9 @@
 #include "Well/RigWellPath.h"
 
 #include "RimEclipseCase.h"
-#include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimSegmentCollection.h"
 #include "RimValveCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
@@ -80,7 +80,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                 RicMswBranchBuilder::FishbonesExportContext& fishbonesContext )
 {
     std::vector<RigMswBranch> result;
-    auto                      mswParameters = wellPath->mswCompletionParameters();
+    auto                      mswParameters = wellPath->segmentCollection();
     if ( !mswParameters ) return result;
 
     const std::string infoType          = mswParameters->lengthAndDepth().text().toStdString();
@@ -306,7 +306,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                              CompletionType                                completionType,
                                              const std::optional<QDateTime>&               exportDate )
 {
-    auto mswParameters = wellPath->mswCompletionParameters();
+    auto mswParameters = wellPath->segmentCollection();
     CAF_ASSERT( mswParameters );
 
     const RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();

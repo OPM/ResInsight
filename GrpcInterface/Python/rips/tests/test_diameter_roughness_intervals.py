@@ -13,7 +13,7 @@ def test_diameter_roughness_intervals(rips_instance, initialize_test):
     assert completions_settings is not None, "Completion settings should not be None"
 
     # Test our new method - create first interval
-    interval1 = completions_settings.add_diameter_roughness_interval(
+    interval1 = well_path.segment_collection().add_segment_interval(
         start_md=100, end_md=200, diameter=0.15, roughness_factor=1e-5
     )
 
@@ -25,7 +25,7 @@ def test_diameter_roughness_intervals(rips_instance, initialize_test):
     assert interval1.roughness_factor == 1e-5
 
     # Test creating a second interval with different values
-    interval2 = completions_settings.add_diameter_roughness_interval(
+    interval2 = well_path.segment_collection().add_segment_interval(
         start_md=200, end_md=300, diameter=0.12, roughness_factor=2e-5
     )
 
@@ -37,7 +37,7 @@ def test_diameter_roughness_intervals(rips_instance, initialize_test):
     assert interval2.roughness_factor == 2e-5
 
     # Test default values
-    interval3 = completions_settings.add_diameter_roughness_interval()
+    interval3 = well_path.segment_collection().add_segment_interval()
 
     assert interval3 is not None, "Third interval with defaults should not be None"
     assert interval3.start_md == 0.0

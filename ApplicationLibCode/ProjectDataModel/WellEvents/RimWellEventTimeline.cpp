@@ -30,12 +30,11 @@
 #include "RimWellEventValve.h"
 #include "RimWellEventWellSpec.h"
 
-#include "RimDiameterRoughnessInterval.h"
-#include "RimDiameterRoughnessIntervalCollection.h"
-#include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimSegmentCollection.h"
+#include "RimSegmentInterval.h"
 #include "RimTools.h"
 #include "RimValveTemplate.h"
 #include "RimValveTemplateCollection.h"
@@ -528,23 +527,28 @@ bool RimWellEventTimeline::applyWellSpecEvent( const RimWellEventWellSpec& event
 //--------------------------------------------------------------------------------------------------
 bool RimWellEventTimeline::applyTubingEvent( const RimWellEventTubing& event, RimWellPath& wellPath )
 {
-    auto* mswParams = wellPath.mswCompletionParameters();
+    auto* mswParams = wellPath.segmentCollection();
     if ( !mswParams )
     {
         return false;
     }
 
-    auto* intervalCollection = mswParams->diameterRoughnessIntervals();
-    if ( !intervalCollection )
-    {
-        return false;
-    }
-
     // Set the diameter roughness mode to intervals
-    mswParams->setDiameterRoughnessMode( RimMswCompletionParameters::DiameterRoughnessMode::INTERVALS );
+    mswParams->setDiameterRoughnessMode( RimSegmentCollection::DiameterRoughnessMode::INTERVALS );
 
-    // Create a new interval
-    auto* interval = intervalCollection->createInterval( event.startMD(), event.endMD(), event.innerDiameter(), event.roughness() );
+    RimSegmentInterval* interval = nullptr;
+    for ( auto* existingInterval : mswParams->intervals() )
+    {
+        if ( std::abs( existingInterval->startMD() - event.startMD() ) <= 1.0e-6 &&
+             std::abs( existingInterval->endMD() - event.endMD() ) <= 1.0e-6 )
+        {
+            interval = existingInterval;
+            interval->setDiameter( event.innerDiameter() );
+            interval->setRoughnessFactor( event.roughness() );
+            break;
+        }
+    }
+    if ( !interval ) interval = mswParams->createInterval( event.startMD(), event.endMD(), event.innerDiameter(), event.roughness() );
 
     if ( interval )
     {

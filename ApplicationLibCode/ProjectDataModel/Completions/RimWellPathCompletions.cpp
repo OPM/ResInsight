@@ -27,6 +27,8 @@
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimSegmentCollection.h"
+#include "RimSegmentInterval.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCollection.h"
 #include "RimValveCollection.h"
@@ -73,6 +75,9 @@ RimWellPathCompletions::RimWellPathCompletions()
 
     CAF_PDM_InitFieldNoDefault( &m_mswSegmentCollection, "MswSegments", "MSW Segments" );
     m_mswSegmentCollection = new RimMswSegmentCollection;
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_segmentCollection, "Segments", "Segments" );
+    m_segmentCollection = new RimSegmentCollection;
 
     CAF_PDM_InitField( &m_wellNameForExport_OBSOLETE, "WellNameForExport", QString(), "Well Name" );
     m_wellNameForExport_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -159,6 +164,14 @@ RimMswSegmentCollection* RimWellPathCompletions::mswSegmentCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSegmentCollection* RimWellPathCompletions::segmentCollection() const
+{
+    return m_segmentCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimWellPathValve*> RimWellPathCompletions::valves() const
 {
     return descendantsIncludingThisOfType<RimWellPathValve>();
@@ -221,6 +234,10 @@ std::vector<RimWellPathComponentInterface*> RimWellPathCompletions::allCompletio
             completions.push_back( const_cast<RimMswSegment*>( segment ) );
         }
     }
+    for ( auto* interval : m_segmentCollection->intervals() )
+    {
+        completions.push_back( interval );
+    }
 
     return completions;
 }
@@ -258,6 +275,10 @@ std::vector<const RimWellPathComponentInterface*> RimWellPathCompletions::allCom
             completions.push_back( segment );
         }
     }
+    for ( const auto* interval : m_segmentCollection->intervals() )
+    {
+        completions.push_back( interval );
+    }
 
     return completions;
 }
@@ -273,7 +294,7 @@ bool RimWellPathCompletions::hasCompletions() const
     }
 
     return !m_fishbonesCollection->allFishbonesSubs().empty() || !m_perforationCollection->perforations().empty() ||
-           m_valveCollection->hasValves();
+           m_valveCollection->hasValves() || m_segmentCollection->hasIntervals();
 }
 
 //--------------------------------------------------------------------------------------------------

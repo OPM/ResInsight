@@ -15,7 +15,7 @@ def test_custom_segment_intervals(rips_instance, initialize_test):
     assert completions_settings is not None, "Completion settings should not be None"
 
     # Test creating first interval
-    interval1 = completions_settings.add_custom_segment_interval(
+    interval1 = well_path.segment_collection().add_segment_interval(
         start_md=100, end_md=200
     )
 
@@ -25,7 +25,7 @@ def test_custom_segment_intervals(rips_instance, initialize_test):
     assert interval1.end_md == 200
 
     # Test creating a second interval with different values
-    interval2 = completions_settings.add_custom_segment_interval(
+    interval2 = well_path.segment_collection().add_segment_interval(
         start_md=250, end_md=350
     )
 
@@ -35,7 +35,7 @@ def test_custom_segment_intervals(rips_instance, initialize_test):
     assert interval2.end_md == 350
 
     # Test default values
-    interval3 = completions_settings.add_custom_segment_interval()
+    interval3 = well_path.segment_collection().add_segment_interval()
 
     assert interval3 is not None, "Third interval with defaults should not be None"
     assert interval3.start_md == 0.0
@@ -50,10 +50,8 @@ def test_custom_segment_interval_properties(rips_instance, initialize_test):
     well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
     well_path.name = "Test Well for Property Modification"
 
-    completions_settings = well_path.completion_settings()
-
     # Create an interval
-    interval1 = completions_settings.add_custom_segment_interval(
+    interval1 = well_path.segment_collection().add_segment_interval(
         start_md=100, end_md=200
     )
 
@@ -73,12 +71,10 @@ def test_custom_segment_interval_invalid_range(rips_instance, initialize_test):
     well_path = well_path_coll.add_new_object(rips.ModeledWellPath)
     well_path.name = "Test Well for Invalid Range"
 
-    completions_settings = well_path.completion_settings()
-
     # Attempt to create an interval with start_md > end_md. Should fail.
     with pytest.raises(rips.RipsError, match="End MD must be greater than Start MD"):
-        completions_settings.add_custom_segment_interval(start_md=200, end_md=100)
+        well_path.segment_collection().add_segment_interval(start_md=200, end_md=100)
 
     # Also test equal values (start_md == end_md), which should also fail
     with pytest.raises(rips.RipsError, match="End MD must be greater than Start MD"):
-        completions_settings.add_custom_segment_interval(start_md=150, end_md=150)
+        well_path.segment_collection().add_segment_interval(start_md=150, end_md=150)
