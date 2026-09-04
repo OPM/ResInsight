@@ -58,6 +58,8 @@ RimJobWellSettings::RimJobWellSettings()
     m_wellGroupName.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_wellOpenType, "WellOpenType", caf::AppEnum<WellOpenType>( WellOpenType::OPEN_AT_DATE ), "Open Well" );
+    m_wellOpenType.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitField( &m_wellOpenKeyword, "WellOpenKeyword", QString( "WCONPROD" ), "Open Well Keyword" );
     m_wellOpenKeyword.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_wellOpenKeyword.xmlCapability()->disableIO();
@@ -202,7 +204,8 @@ QString RimJobWellSettings::wellOpenKeyword() const
 //--------------------------------------------------------------------------------------------------
 RimKeywordWconprod* RimJobWellSettings::wconprodKeyword() const
 {
-    return m_wconprodKeyword();
+    auto copy = m_wconprodKeyword()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() );
+    return dynamic_cast<RimKeywordWconprod*>( copy );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,7 +213,8 @@ RimKeywordWconprod* RimJobWellSettings::wconprodKeyword() const
 //--------------------------------------------------------------------------------------------------
 RimKeywordWconinje* RimJobWellSettings::wconinjeKeyword() const
 {
-    return m_wconinjeKeyword();
+    auto copy = m_wconinjeKeyword()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() );
+    return dynamic_cast<RimKeywordWconinje*>( copy );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,13 +268,7 @@ void RimJobWellSettings::uiOrdering( caf::PdmUiGroup* uiGroup )
         }
 
         wellGrp->add( &m_wellOpenType );
-
-        if ( m_wellOpenType() == WellOpenType::OPEN_AT_DATE )
-        {
-            wellGrp->add( &m_openTimeStep );
-        }
-        m_wellOpenType.uiCapability()->setUiReadOnly( false );
-
+        wellGrp->add( &m_openTimeStep );
         wellGrp->add( &m_includeMSWData );
     }
 }
