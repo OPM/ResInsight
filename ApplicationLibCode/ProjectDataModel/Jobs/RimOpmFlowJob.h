@@ -61,6 +61,8 @@ public:
     void setWorkingDirectory( QString workDir );
     void setEclipseCase( RimEclipseCase* eCase );
     void setInputDataFile( QString filename );
+    void setJobSettings( RimOpmFlowJobSettings* jobSettings );
+
     void initAfterCopy();
 
     QString deckName();
