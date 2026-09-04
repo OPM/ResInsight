@@ -61,16 +61,16 @@ class FakeCompletionSettings:
         self.allow_well_cross_flow = True
         self.reference_depth_for_export = None
         self.well_type_for_export = "OIL"
-        self.custom_segment_calls = []
-
-    def add_custom_segment_interval(self, **kwargs):
-        self.custom_segment_calls.append(kwargs)
 
 
-class FakeMswSettings:
+class FakeSegmentCollection:
     def __init__(self):
         self.pressure_drop = "HF-"
+        self.segment_interval_calls = []
         self.update_calls = 0
+
+    def add_segment_interval(self, **kwargs):
+        self.segment_interval_calls.append(kwargs)
 
     def update(self):
         self.update_calls += 1
@@ -80,13 +80,13 @@ class FakeWellPath:
     def __init__(self, name):
         self.name = name
         self._completion_settings = FakeCompletionSettings()
-        self._msw_settings = FakeMswSettings()
+        self._segment_collection = FakeSegmentCollection()
 
     def completion_settings(self):
         return self._completion_settings
 
-    def msw_settings(self):
-        return self._msw_settings
+    def segment_collection(self):
+        return self._segment_collection
 
 
 class FakeProject:
@@ -1522,11 +1522,16 @@ class TestApplying:
         assert call["roughness"] == pytest.approx(1.0e-5)
 
         well = call["well_path"]
-        assert well.completion_settings().custom_segment_calls == [
-            {"start_md": 0.0, "end_md": 2500.0}
+        assert well.segment_collection().segment_interval_calls == [
+            {
+                "start_md": 0.0,
+                "end_md": 2500.0,
+                "diameter": 0.15,
+                "roughness_factor": pytest.approx(1.0e-5),
+            }
         ]
-        assert well.msw_settings().pressure_drop == "HFA"
-        assert well.msw_settings().update_calls == 1
+        assert well.segment_collection().pressure_drop == "HFA"
+        assert well.segment_collection().update_calls == 1
 
     def test_segment_rejects_invalid_pressure_components(self):
         text = (
@@ -2395,12 +2400,12 @@ class TestOrionEventsIntegration:
         assert report.warnings == []
         assert report.events_applied == 11
 
-        custom_segments = well.descendants(rips.CustomSegmentInterval)
+        segment_intervals = well.descendants(rips.SegmentInterval)
         assert any(
             segment.start_md == 0.0 and segment.end_md == 2500.0
-            for segment in custom_segments
+            for segment in segment_intervals
         )
-        assert well.msw_settings().pressure_drop == "HFA"
+        assert well.segment_collection().pressure_drop == "HFA"
 
         timeline.set_timestamp(timestamp="2024-12-24")
         schedule = timeline.generate_schedule_text(

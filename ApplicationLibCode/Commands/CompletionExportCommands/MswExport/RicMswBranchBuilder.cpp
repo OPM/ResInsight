@@ -34,9 +34,9 @@
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimFractureTemplate.h"
-#include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimSegmentCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
@@ -413,13 +413,13 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
             double roughness = 0.0;
             if ( exportDate.has_value() )
             {
-                diameter  = wellPath->mswCompletionParameters()->getDiameterAtMD( midPointMD, unitSystem, *exportDate );
-                roughness = wellPath->mswCompletionParameters()->getRoughnessAtMD( midPointMD, unitSystem, *exportDate );
+                diameter  = wellPath->segmentCollection()->getDiameterAtMD( midPointMD, unitSystem, *exportDate );
+                roughness = wellPath->segmentCollection()->getRoughnessAtMD( midPointMD, unitSystem, *exportDate );
             }
             else
             {
-                diameter  = wellPath->mswCompletionParameters()->getDiameterAtMD( midPointMD, unitSystem );
-                roughness = wellPath->mswCompletionParameters()->getRoughnessAtMD( midPointMD, unitSystem );
+                diameter  = wellPath->segmentCollection()->getDiameterAtMD( midPointMD, unitSystem );
+                roughness = wellPath->segmentCollection()->getRoughnessAtMD( midPointMD, unitSystem );
             }
 
             RigMswSegment seg;
@@ -483,8 +483,8 @@ std::vector<RigMswBranch> buildValveBranches( const RimWellPath*                
 {
     std::vector<RigMswBranch> result;
 
-    const auto linerDiameter   = wellPath->mswCompletionParameters()->linerDiameter( unitSystem );
-    const auto roughnessFactor = wellPath->mswCompletionParameters()->roughnessFactor( unitSystem );
+    const auto linerDiameter   = wellPath->segmentCollection()->linerDiameter( unitSystem );
+    const auto roughnessFactor = wellPath->segmentCollection()->roughnessFactor( unitSystem );
 
     for ( const auto* perf : perforationIntervals )
     {

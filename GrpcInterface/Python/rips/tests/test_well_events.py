@@ -192,7 +192,7 @@ class TestWellEventScheduleApplication:
         timeline.set_timestamp(timestamp="2024-01-15")
 
         # Verify MSW settings were updated
-        msw_settings = well_path_b.msw_settings()
+        msw_settings = well_path_b.segment_collection()
         assert msw_settings is not None, "MSW settings should be available"
         # Check that diameter roughness mode was set to intervals
         assert msw_settings.diameter_roughness_mode == "Intervals", (

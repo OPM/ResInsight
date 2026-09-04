@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicDeleteCustomSegmentIntervalFeature : public caf::CmdFeature
+class RicNewSegmentIntervalFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

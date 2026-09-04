@@ -525,7 +525,7 @@ void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&  
         return;
     }
 
-    auto* mswParams = wellPath.mswCompletionParameters();
+    auto* mswParams = wellPath.segmentCollection();
     if ( !mswParams )
     {
         return;
