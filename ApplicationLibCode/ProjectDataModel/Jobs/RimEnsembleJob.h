@@ -24,6 +24,9 @@
 
 class RimReservoirGridEnsemble;
 class RimEclipseCase;
+class RimOpmFlowJob;
+class RimOpmFlowJobSettings;
+class RimJobWellSettings;
 
 //==================================================================================================
 ///
@@ -57,6 +60,7 @@ protected:
     };
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     std::vector<RealizationInfo> getSelectedRealizations() const;
     std::string                  outputIteration() const;
@@ -68,4 +72,7 @@ private:
     caf::PdmPtrField<RimReservoirGridEnsemble*> m_ensemble;
     caf::PdmPtrArrayField<RimEclipseCase*>      m_selectedRealizations;
     caf::PdmField<int>                          m_outputIterationNumber;
+    caf::PdmChildArrayField<RimOpmFlowJob*>     m_subJobs;
+    caf::PdmChildField<RimOpmFlowJobSettings*>  m_jobSettings;
+    caf::PdmChildField<RimJobWellSettings*>     m_jobWellSettings;
 };

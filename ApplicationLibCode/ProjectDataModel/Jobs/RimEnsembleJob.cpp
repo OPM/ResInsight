@@ -20,13 +20,21 @@
 
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesOpm.h"
+
+#include "JobCommands/RicRunJobFeature.h"
+#include "JobCommands/RicStopJobFeature.h"
 
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "RimEclipseCase.h"
+#include "RimJobWellSettings.h"
+#include "RimOpmFlowJob.h"
+#include "RimOpmFlowJobSettings.h"
 #include "RimProject.h"
 #include "RimReservoirGridEnsemble.h"
 #include "RimTools.h"
 
+#include "cafPdmUiButton.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QFile>
@@ -49,6 +57,16 @@ RimEnsembleJob::RimEnsembleJob()
     m_selectedRealizations.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::HIDDEN );
 
     CAF_PDM_InitField( &m_outputIterationNumber, "OutputIterationNumber", 0, "Output Iteration Number" );
+    CAF_PDM_InitFieldNoDefault( &m_subJobs, "SubJobs", "Jobs" );
+
+    CAF_PDM_InitFieldNoDefault( &m_jobSettings, "JobSettings", "Opm Flow Settings" );
+    m_jobSettings = RiaPreferencesOpm::current()->createDefaultJobSettings();
+    m_jobSettings.uiCapability()->setUiTreeChildrenHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_jobWellSettings, "JobWellSettings", "Job Well Settings" );
+    m_jobWellSettings = new RimJobWellSettings();
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,11 +177,23 @@ bool RimEnsembleJob::execute()
 {
     auto realizations = getSelectedRealizations();
 
-    for ( auto real : realizations )
+    m_subJobs.deleteChildren();
+    updateAllRequiredEditors();
+
+    for ( auto& real : realizations )
     {
         qDebug() << real.inputCase->uiName() << "Input Deck: " << QString::fromStdString( real.realizationInputDeckName )
                  << "Output Dir: " << QString::fromStdString( real.realizationOutputDir );
+
+        RimOpmFlowJob* subJob = new RimOpmFlowJob();
+        subJob->setEclipseCase( real.inputCase );
+        subJob->setInputDataFile( QString::fromStdString( real.realizationInputDeckName ) );
+        subJob->setWorkingDirectory( QString::fromStdString( real.realizationOutputDir ) );
+        subJob->setName( real.inputCase->uiName() + " - " + QString::fromStdString( outputIteration() ) );
+        m_subJobs.push_back( subJob );
     }
+
+    updateAllRequiredEditors();
 
     return false;
 }
@@ -214,4 +244,43 @@ std::vector<RimEnsembleJob::RealizationInfo> RimEnsembleJob::getSelectedRealizat
 std::string RimEnsembleJob::outputIteration() const
 {
     return std::format( "wp-{}", m_outputIterationNumber.value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    if ( isRunning() )
+    {
+        auto runGrp     = uiOrdering.addNewGroup( "Running" );
+        auto stopButton = runGrp->addNewButton( "Stop", [this]() { RicStopJobFeature::stopJob( this ); } );
+        stopButton->setUiIconFromResourceString( ":/stop.svg" );
+        stopButton->setAlignment( Qt::AlignCenter );
+        uiOrdering.skipRemainingFields();
+        return;
+    }
+
+    auto genGrp = uiOrdering.addNewGroup( "General" );
+    genGrp->add( nameField() );
+    genGrp->add( &m_ensemble );
+
+    auto realGrp = uiOrdering.addNewGroup( "Realizations" );
+    realGrp->add( &m_selectedRealizations );
+
+    m_jobWellSettings->uiOrdering( realGrp );
+
+    auto opmGrp = uiOrdering.addNewGroup( "OPM Flow" );
+
+    auto runButton = opmGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
+    runButton->setUiIconFromResourceString( ":/Play.svg" );
+    runButton->setAlignment( Qt::AlignCenter );
+
+    m_jobSettings->uiOrdering( opmGrp, false /* expand by default */ );
+
+    auto advGrp = uiOrdering.addNewGroup( "Advanced" );
+    advGrp->setCollapsedByDefault();
+    advGrp->add( &m_outputIterationNumber );
+
+    uiOrdering.skipRemainingFields();
 }
