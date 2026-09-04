@@ -30,7 +30,7 @@ class RigActiveCellInfo;
 class RimEclipseCase;
 class RimWellPath;
 class RigMswTableData;
-class RimMswCompletionParameters;
+class RimSegmentCollection;
 class RigWellPath;
 
 struct WellPathCellIntersectionInfo;
@@ -77,7 +77,7 @@ public:
 
     static double computeIntitialMeasuredDepth( const RimEclipseCase*                            eclipseCase,
                                                 const RimWellPath*                               wellPath,
-                                                const RimMswCompletionParameters*                mswParameters,
+                                                const RimSegmentCollection*                      segmentCollection,
                                                 const std::vector<WellPathCellIntersectionInfo>& allIntersections );
 };
 

@@ -142,23 +142,24 @@ QString RimcClassName_method::classKeywordReturnedType() const
 }
 ```
 
-### Example: DiameterRoughnessInterval
+### Example: SegmentInterval
 
 **Before (not scriptable):**
 ```cpp
-CAF_PDM_InitObject("Diameter Roughness Interval", ":/Icon.png");
+CAF_PDM_InitObject("Segment Interval", ":/Icon.png");
 CAF_PDM_InitField(&m_startMD, "StartMD", 0.0, "Start MD");
 ```
 
 **After (scriptable):**
 ```cpp
-CAF_PDM_InitScriptableObject("Diameter Roughness Interval", ":/Icon.png", "", "DiameterRoughnessInterval");
+CAF_PDM_InitScriptableObject("Segment Interval", ":/Icon.png", "", "SegmentInterval");
 CAF_PDM_InitScriptableField(&m_startMD, "StartMd", 0.0, "Start MD");
 ```
 
 This enables the class to be used from Python:
 ```python
-interval = completions_settings.add_diameter_roughness_interval(start_md=100, end_md=200)
+segments = well_path.segment_collection()
+interval = segments.add_segment_interval(start_md=100, end_md=200)
 print(f"Start: {interval.start_md}, End: {interval.end_md}")
 ```
 

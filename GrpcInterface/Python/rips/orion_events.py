@@ -2062,11 +2062,14 @@ def _apply_segment(
         return
 
     timeline_event = timeline.add_tubing_event(**kwargs)
-    well_path.completion_settings().add_custom_segment_interval(
-        start_md=start_md, end_md=end_md
+    well_path.segment_collection().add_segment_interval(
+        start_md=start_md,
+        end_md=end_md,
+        diameter=kwargs.get("inner_diameter", 0.152),
+        roughness_factor=kwargs.get("roughness", 1.0e-5),
     )
     if pressure_components is not None:
-        msw_settings = well_path.msw_settings()
+        msw_settings = well_path.segment_collection()
         msw_settings.pressure_drop = pressure_components
         msw_settings.update()
     _apply_event_comment(event, timeline_event)

@@ -212,7 +212,7 @@ def test_msw_settings_read(rips_instance, initialize_test):
     assert well_y1 is not None, "Well-1 Y1 should exist in project"
 
     # Get MSW settings
-    msw_settings = well_y1.msw_settings()
+    msw_settings = well_y1.segment_collection()
 
     # Verify MSW settings values from the project file
     # According to the project analysis, the liner diameter is 0.152m
