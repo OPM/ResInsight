@@ -1945,7 +1945,15 @@ RiaSumoConnector* RiaApplication::makeSumoConnector()
         // The Sumo data is read through the local ri_cloud_api service, so the connector asks that service
         // for its address before every request. The authentication parameters still come from the Sumo
         // configuration.
-        auto serverUrlProvider = [this]() { return cloudApiService()->serverUrl(); };
+        // The address is only usable once the service is actually answering, so make sure it is before
+        // handing it out. Requests are composed from this, see RiaSumoConnector::server().
+        auto serverUrlProvider = [this]() -> QString
+        {
+            auto* service = cloudApiService();
+            if ( !service->waitUntilResponding( RiaSumoDefines::serviceReadyTimeoutMillis() ) ) return {};
+
+            return service->serverUrl();
+        };
 
         m_sumoConnector = new RiaSumoConnector( RiuMainWindow::instance(), serverUrlProvider, authority, scopes, clientId, port );
         m_sumoConnector->setTokenDataFilePath( RiaSumoDefines::tokenPath() );

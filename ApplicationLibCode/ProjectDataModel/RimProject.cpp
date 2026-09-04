@@ -1500,6 +1500,10 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
         if ( oilField )
         {
             if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
+
+            // Also shown in the plot window, see "PlotWindow.Cloud". A data source serves both windows: summary
+            // ensembles are created from it there, grid ensembles here, where the grid is going to be used.
+            if ( oilField->cloudDataCollection() ) uiTreeOrdering.add( oilField->cloudDataCollection() );
         }
         uiTreeOrdering.add( &m_ensembleFileSetCollection );
     }

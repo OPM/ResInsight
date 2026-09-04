@@ -53,6 +53,7 @@ RiaSumoConnector::RiaSumoConnector( QObject*                 parent,
     : RiaCloudConnector( parent, {}, authority, scopes, clientId, port )
     , m_serverUrlProvider( std::move( serverUrlProvider ) )
     , m_explore( *this )
+    , m_grid( *this )
     , m_summary( *this )
 {
     // The transfer thread runs the network requests issued by the blocking wrappers, so the calling thread can
@@ -65,7 +66,11 @@ RiaSumoConnector::RiaSumoConnector( QObject*                 parent,
     QObject::connect( m_transferThread,
                       &QThread::started,
                       m_transferContext,
-                      [this]() { m_transferNetworkAccessManager = new QNetworkAccessManager( m_transferContext ); } );
+                      [this]()
+                      {
+                          m_transferNetworkAccessManager           = new QNetworkAccessManager( m_transferContext );
+                          m_transferBackgroundNetworkAccessManager = new QNetworkAccessManager( m_transferContext );
+                      } );
 
     // The context object lives on the transfer thread, so let that thread delete it when it stops.
     QObject::connect( m_transferThread, &QThread::finished, m_transferContext, &QObject::deleteLater );
@@ -79,6 +84,14 @@ RiaSumoConnector::RiaSumoConnector( QObject*                 parent,
 RiaSumoExplore& RiaSumoConnector::explore()
 {
     return m_explore;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSumoGrid& RiaSumoConnector::grid()
+{
+    return m_grid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,6 +112,22 @@ QString RiaSumoConnector::server() const
     if ( !m_serverUrlProvider ) return {};
 
     return m_serverUrlProvider();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The service is started when the access token is granted, and needs a moment before it answers. Ask for
+/// the address only once a request is about to be made, so the wait for the service is done here rather
+/// than producing a request without a host.
+//--------------------------------------------------------------------------------------------------
+QString RiaSumoConnector::serviceBaseUrl()
+{
+    const QString baseUrl = server();
+    if ( baseUrl.isEmpty() )
+    {
+        RiaLogging::error( "The local cloud API service is not available, unable to request data from Sumo." );
+    }
+
+    return baseUrl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,6 +160,20 @@ QNetworkAccessManager* RiaSumoConnector::networkAccessManager()
     if ( m_transferThread && QThread::currentThread() == m_transferThread && m_transferNetworkAccessManager )
     {
         return m_transferNetworkAccessManager;
+    }
+
+    return m_networkAccessManager;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A separate connection pool for background prefetch, see the header comment. Falls back to the ordinary
+/// manager off the transfer thread, matching networkAccessManager(), though prefetch always runs there.
+//--------------------------------------------------------------------------------------------------
+QNetworkAccessManager* RiaSumoConnector::backgroundNetworkAccessManager()
+{
+    if ( m_transferThread && QThread::currentThread() == m_transferThread && m_transferBackgroundNetworkAccessManager )
+    {
+        return m_transferBackgroundNetworkAccessManager;
     }
 
     return m_networkAccessManager;
@@ -198,21 +241,41 @@ void RiaSumoConnector::invokeOnConnectorThread( const std::function<void()>& wor
 /// A blob is fetched in two steps, first the pre-signed URI and then the data itself. Both are started here
 /// and neither is waited for: each step continues from the reply of the one before.
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::downloadBlobAsync( const QString& blobId, const std::function<void( const QByteArray& )>& onFinished )
+void RiaSumoConnector::downloadBlobAsync( const QString&                                  blobId,
+                                          const std::function<void( const QByteArray& )>& onFinished,
+                                          int                                             blobTimeoutMillis,
+                                          const void*                                     cancelGroup )
 {
-    const QString url = QString( "%1/blobs/%2/sas_token_and_blob_base_uri" ).arg( server() ).arg( blobId );
+    if ( !onFinished ) return;
+
+    // Every exit below reports through onFinished. Returning without calling it would strand whatever is
+    // waiting for this blob, which can then never be requested again.
+    const QString baseUrl = serviceBaseUrl();
+    if ( baseUrl.isEmpty() )
+    {
+        RiaLogging::warning( "No Sumo service address available, unable to download blob." );
+        onFinished( {} );
+        return;
+    }
+
+    const QString url = QString( "%1/blobs/%2/sas_token_and_blob_base_uri" ).arg( baseUrl ).arg( blobId );
 
     QNetworkRequest networkRequest;
     networkRequest.setUrl( QUrl( url ) );
     addStandardHeader( networkRequest, transferToken(), RiaCloudDefines::contentTypeJson() );
 
-    auto accessInfoReply = networkAccessManager()->get( networkRequest );
-    abortIfNotFinishedWithin( accessInfoReply, RiaSumoDefines::requestTimeoutMillis() );
+    auto accessInfoReply = getAndTrackReply( backgroundNetworkAccessManager(), networkRequest, cancelGroup );
+
+    // Deliberately not a short deadline. Several of these run at once, the network manager serves only a few
+    // per host at a time, and the timer runs from when a request is created rather than from when it is
+    // served, so a short value aborts requests that never got a chance. The blocking path puts no deadline on
+    // these at all, see downloadBlobs.
+    abortIfNotFinishedWithin( accessInfoReply, RiaSumoDefines::blobLookupTimeoutMillis() );
 
     QObject::connect( accessInfoReply,
                       &QNetworkReply::finished,
                       m_transferContext,
-                      [this, accessInfoReply, blobId, onFinished]()
+                      [this, accessInfoReply, blobId, onFinished, blobTimeoutMillis, cancelGroup]()
                       {
                           const QString sasUri = sasUriFromReply( accessInfoReply, blobId );
                           if ( sasUri.isEmpty() )
@@ -230,14 +293,63 @@ void RiaSumoConnector::downloadBlobAsync( const QString& blobId, const std::func
                           // added. Do NOT forward the bearer token to the storage host.
                           blobRequest.setAttribute( QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy );
 
-                          auto blobReply = networkAccessManager()->get( blobRequest );
-                          abortIfNotFinishedWithin( blobReply, RiaSumoDefines::requestTimeoutMillis() );
+                          auto blobReply = getAndTrackReply( backgroundNetworkAccessManager(), blobRequest, cancelGroup );
+
+                          // A deadline on the transfer itself, so it is only applied when the caller asked
+                          // for one. A large blob on a slow link is not a failure.
+                          if ( blobTimeoutMillis != noTimeout() ) abortIfNotFinishedWithin( blobReply, blobTimeoutMillis );
 
                           QObject::connect( blobReply,
                                             &QNetworkReply::finished,
                                             m_transferContext,
                                             [blobReply, sasUri, onFinished]() { onFinished( blobContentsFromReply( blobReply, sasUri ) ); } );
                       } );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Create a reply and register it for cancelGroup as one atomic step. Held under the same mutex cancelGroup
+/// locks, so a cancelGroup call from another thread either completes fully before this reply exists (in
+/// which case it correctly leaves this new, later request alone) or fully after it is tracked (in which case
+/// it finds and aborts it as usual): there is no gap in between where the reply exists but is not yet
+/// visible to cancelGroup.
+//--------------------------------------------------------------------------------------------------
+QNetworkReply* RiaSumoConnector::getAndTrackReply( QNetworkAccessManager* networkManager, const QNetworkRequest& networkRequest, const void* groupId )
+{
+    QMutexLocker locker( &m_activeRepliesMutex );
+
+    QNetworkReply* reply = networkManager->get( networkRequest );
+    if ( groupId && reply ) m_activeReplies.emplace( groupId, reply );
+
+    return reply;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Abort every reply still tracked under groupId. Replies already finished (and thus removed from the
+/// registry by their QPointer clearing) are not touched, only the ones still in flight.
+//--------------------------------------------------------------------------------------------------
+void RiaSumoConnector::cancelGroup( const void* groupId )
+{
+    if ( !groupId ) return;
+
+    std::vector<QPointer<QNetworkReply>> repliesToAbort;
+    {
+        QMutexLocker locker( &m_activeRepliesMutex );
+        auto         range = m_activeReplies.equal_range( groupId );
+        for ( auto it = range.first; it != range.second; ++it )
+        {
+            if ( it->second ) repliesToAbort.push_back( it->second );
+        }
+        m_activeReplies.erase( range.first, range.second );
+    }
+
+    for ( auto& reply : repliesToAbort )
+    {
+        if ( !reply ) continue;
+
+        // abort() must run on the thread the reply lives on. QMetaObject::invokeMethod with the default auto
+        // connection marshals the call there when this is a different thread, and calls it directly otherwise.
+        QMetaObject::invokeMethod( reply, &QNetworkReply::abort );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,7 +428,7 @@ void RiaSumoConnector::runOnTransferThreadBlocking( const std::function<void()>&
 //--------------------------------------------------------------------------------------------------
 /// Wait until every reply has finished, or the timeout expires.
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies )
+void RiaSumoConnector::waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies, int perReplyTimeoutMillis )
 {
     if ( replies.empty() ) return;
 
@@ -348,7 +460,7 @@ void RiaSumoConnector::waitForRepliesToFinish( const std::vector<QNetworkReply*>
         // given on its own. A batch must not be more likely to time out than the same requests made one
         // by one, and the server can take a while to answer: a summary vector that has not been
         // aggregated yet is produced on demand by the first request that asks for it.
-        timer.start( static_cast<int>( replies.size() ) * RiaSumoDefines::requestTimeoutMillis() );
+        timer.start( static_cast<int>( replies.size() ) * perReplyTimeoutMillis );
         eventLoop.exec();
     }
 
@@ -361,9 +473,9 @@ void RiaSumoConnector::waitForRepliesToFinish( const std::vector<QNetworkReply*>
 //--------------------------------------------------------------------------------------------------
 /// Download one blob and return its contents. The download and the wait for it run on the transfer thread.
 //--------------------------------------------------------------------------------------------------
-QByteArray RiaSumoConnector::downloadBlobBlocking( const QString& blobId )
+QByteArray RiaSumoConnector::downloadBlobBlocking( const QString& blobId, const QString& description )
 {
-    const auto contentsByBlobId = downloadBlobsBlocking( { blobId } );
+    const auto contentsByBlobId = downloadBlobsBlocking( { blobId }, description );
 
     if ( auto it = contentsByBlobId.find( blobId ); it != contentsByBlobId.end() ) return it->second;
 
@@ -374,9 +486,17 @@ QByteArray RiaSumoConnector::downloadBlobBlocking( const QString& blobId )
 /// Issue a GET and return the response body, waiting on the transfer thread. Returns an empty array when
 /// the request fails. This is the primitive the data specific requests are built from.
 //--------------------------------------------------------------------------------------------------
-QByteArray RiaSumoConnector::getBlocking( const QString& url, const QString& progressText )
+QByteArray RiaSumoConnector::getBlocking( const QString& path, const QString& progressText )
 {
     requestTokenBlocking();
+
+    // Resolved here and not at the call site: requesting the token is what starts the service, so the
+    // address only exists from this point on. Done before the work is handed to the transfer thread, as
+    // waiting for the service uses the network access manager of the calling thread.
+    const QString baseUrl = serviceBaseUrl();
+    if ( baseUrl.isEmpty() ) return {};
+
+    const QString url = baseUrl + path;
 
     QByteArray body;
 
@@ -447,16 +567,21 @@ QByteArray RiaSumoConnector::replyBody( QNetworkReply* reply, const QString& url
 /// the calling thread dispatches no events while the transfers are in flight. See downloadBlobs for what
 /// the transfers actually are.
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QByteArray> RiaSumoConnector::downloadBlobsBlocking( const std::vector<QString>& blobIds )
+std::map<QString, QByteArray> RiaSumoConnector::downloadBlobsBlocking( const std::vector<QString>& blobIds, const QString& description )
 {
     if ( blobIds.empty() ) return {};
 
     requestTokenBlocking();
 
+    const QString baseUrl = serviceBaseUrl();
+    if ( baseUrl.isEmpty() ) return {};
+
     std::map<QString, QByteArray> contentsByBlobId;
 
-    runOnTransferThreadBlocking( [&]() { contentsByBlobId = downloadBlobs( blobIds ); },
-                                 QString( "Downloading %1 file(s) from Sumo" ).arg( blobIds.size() ) );
+    const QString progressText = description.isEmpty() ? QString( "Downloading %1 file(s) from Sumo" ).arg( blobIds.size() )
+                                                       : QString( "Downloading %1 from Sumo" ).arg( description );
+
+    runOnTransferThreadBlocking( [&]() { contentsByBlobId = downloadBlobs( baseUrl, blobIds ); }, progressText );
 
     return contentsByBlobId;
 }
@@ -469,7 +594,7 @@ std::map<QString, QByteArray> RiaSumoConnector::downloadBlobsBlocking( const std
 ///
 /// Always called on the transfer thread, where the event loops it waits on dispatch no GUI events.
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QByteArray> RiaSumoConnector::downloadBlobs( const std::vector<QString>& blobIds )
+std::map<QString, QByteArray> RiaSumoConnector::downloadBlobs( const QString& baseUrl, const std::vector<QString>& blobIds )
 {
     std::map<QString, QByteArray> contentsByBlobId;
     if ( blobIds.empty() ) return contentsByBlobId;
@@ -478,7 +603,7 @@ std::map<QString, QByteArray> RiaSumoConnector::downloadBlobs( const std::vector
     std::vector<QNetworkReply*> accessInfoReplies;
     for ( const auto& blobId : blobIds )
     {
-        QString url = QString( "%1/blobs/%2/sas_token_and_blob_base_uri" ).arg( server() ).arg( blobId );
+        QString url = QString( "%1/blobs/%2/sas_token_and_blob_base_uri" ).arg( baseUrl ).arg( blobId );
 
         QNetworkRequest networkRequest;
         networkRequest.setUrl( QUrl( url ) );
@@ -516,7 +641,11 @@ std::map<QString, QByteArray> RiaSumoConnector::downloadBlobs( const std::vector
         blobIndices.push_back( i );
     }
 
-    waitForRepliesToFinish( blobReplies );
+    // Phase 2 moves the blob data itself, potentially a large grid or property array, and must not share the
+    // short deadline sized for the metadata lookup above: under load from other concurrent transfers (e.g.
+    // another realization's property prefetch), a real transfer can easily take longer than that. Give it the
+    // same generous deadline the async grid property path uses for its own blob transfer.
+    waitForRepliesToFinish( blobReplies, RiaSumoDefines::gridPropertyTransferTimeoutMillis() );
 
     for ( size_t i = 0; i < blobReplies.size(); i++ )
     {

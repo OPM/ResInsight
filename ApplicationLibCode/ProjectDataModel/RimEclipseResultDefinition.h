@@ -103,6 +103,7 @@ public:
     QString additionalResultText() const;
 
     virtual void            loadResult();
+    void                    setEagerResultLoadingEnabled( bool enabled );
     RigEclipseResultAddress eclipseResultAddress() const;
     void                    setFromEclipseResultAddress( const RigEclipseResultAddress& resultAddress );
     bool                    hasStaticResult() const;
@@ -199,6 +200,10 @@ private:
     caf::PdmPtrField<RimEclipseCase*> m_differenceCase;
     caf::PdmField<bool>               m_divideByCellFaceArea;
     caf::PdmField<bool>               m_showDualPorosityLabel;
+
+    // Off for definitions that only pick settings and never display a result, so a selection does not
+    // eagerly load every time step of a result (expensive for cloud-backed cases).
+    bool m_eagerResultLoadingEnabled;
 
 private:
     void assignFlowSolutionFromCase();

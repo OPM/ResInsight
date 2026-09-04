@@ -21,6 +21,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
 #include "RiaQStringFormatter.h"
+#include "Cloud/RiaSumoDefines.h"
 #include "RigStatisticsTools.h"
 
 #include "RicNewStatisticsContourMapViewFeature.h"
@@ -64,8 +65,10 @@
 #include <QCryptographicHash>
 #include <QDateTime>
 #include <QDir>
+#include <QEventLoop>
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QTimer>
 #include <QUuid>
 
 #include <algorithm>
@@ -89,6 +92,47 @@ std::optional<std::set<int>>
     if ( !fData ) return std::nullopt;
 
     return fData->findKLayers( selectedFormations );
+}
+
+// Prefetches exactly the one time step about to be read, via RimEclipseCase::prefetchDynamicResult, so a
+// cloud-backed reader has the value ready before extractCaseResults reads it below. This case has no view of
+// its own to pick up an async arrival, so without prefetching the transfer would be cancelled by closing the
+// case before it arrives. Narrower than RigCaseCellResultsData::ensureKnownResultLoaded(), which would load
+// every time step of the result - the whole time series over the network, for a cloud-backed case - just to
+// read one. A no-op for a case that reads from disk.
+void warmUpDynamicResult( RimEclipseCase* eCase, const RigEclipseResultAddress& resultAddress, int localTs )
+{
+    eCase->prefetchDynamicResult( resultAddress.resultName(), static_cast<size_t>( localTs ) );
+}
+
+// Pumps the event loop until eCase has nothing left pending (RimEclipseCase::dataLoadingText), so a transfer
+// still in flight for reasons other than the warm up above - e.g. one started by a live view of the same
+// realization - gets a chance to arrive before the case is closed again. Bounded, so a stalled transfer does
+// not hang the computation forever.
+void waitForPendingCaseData( RimEclipseCase* eCase )
+{
+    // Same timeout Sumo applies to a grid property transfer; a no-op for a case that reads from disk.
+    const int timeoutMillis = RiaSumoDefines::gridPropertyTransferTimeoutMillis();
+
+    if ( !eCase || eCase->dataLoadingText().isEmpty() ) return;
+
+    QEventLoop loop;
+
+    QTimer pollTimer;
+    QObject::connect( &pollTimer,
+                      &QTimer::timeout,
+                      [&]()
+                      {
+                          if ( eCase->dataLoadingText().isEmpty() ) loop.quit();
+                      } );
+    pollTimer.start( 50 );
+
+    QTimer giveUpTimer;
+    giveUpTimer.setSingleShot( true );
+    QObject::connect( &giveUpTimer, &QTimer::timeout, &loop, &QEventLoop::quit );
+    giveUpTimer.start( timeoutMillis );
+
+    loop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
 }
 
 void extractCaseResults( RigEclipseContourMapProjection&                     projection,
@@ -182,6 +226,8 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     m_resultDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Result" );
     m_resultDefinition->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
     m_resultDefinition->setResultVariable( "SOIL" );
+    // Only a settings picker here; actual results are read per realization in computeStatisticsForMaps().
+    m_resultDefinition->setEagerResultLoadingEnabled( false );
 
     CAF_PDM_InitFieldNoDefault( &m_primaryCase,
                                 "PrimaryEclipseCase",
@@ -751,6 +797,19 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                 auto eclipseCaseData = eCase->eclipseCaseData();
                 auto activeCellInfo  = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
                 auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+                // Prefetch every dynamic result time step this case needs before reading any of it for real;
+                // see warmUpDynamicResult and waitForPendingCaseData.
+                for ( auto& ctx : contexts )
+                {
+                    if ( !ctx.active || !ctx.map->m_resultDefinition()->hasDynamicResult() ) continue;
+
+                    for ( auto [localTs, globalTs] : ctx.map->mapLocalToGlobalTimeSteps( eCase->timeStepDates() ) )
+                    {
+                        warmUpDynamicResult( eCase, ctx.map->m_resultDefinition()->eclipseResultAddress(), localTs );
+                    }
+                }
+                waitForPendingCaseData( eCase );
 
                 for ( auto& ctx : contexts )
                 {

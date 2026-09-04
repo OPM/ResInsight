@@ -29,6 +29,7 @@
 
 class RiaSumoConnector;
 class QNetworkReply;
+class QNetworkAccessManager;
 
 //==================================================================================================
 /// The summary data of a Sumo case: the vectors an ensemble has, their values, and the ensemble
@@ -53,10 +54,13 @@ public:
     // The same again, but without waiting: all vectors are requested at once and onVectorReady is called for
     // each as it arrives, on the thread the connector lives on. Empty contents mean that vector failed, and
     // the callback is called exactly once per requested vector.
+    //
+    // cancelGroup is passed on to RiaSumoConnector::downloadBlobAsync, see its documentation.
     void vectorDataAsync( const SumoCaseId&                                               caseId,
                           const QString&                                                  ensembleName,
                           const std::vector<QString>&                                     vectorNames,
-                          const std::function<void( const QString&, const QByteArray& )>& onVectorReady );
+                          const std::function<void( const QString&, const QByteArray& )>& onVectorReady,
+                          const void*                                                     cancelGroup = nullptr );
 
     // The ensemble parameters, as a parquet blob.
     QByteArray parameterData( const SumoCaseId& caseId, const QString& ensembleName );
@@ -65,16 +69,32 @@ public:
     // the first request for them can take a while and is not something to hold the user interface for.
     void parameterDataAsync( const SumoCaseId&                               caseId,
                              const QString&                                  ensembleName,
-                             const std::function<void( const QByteArray& )>& onParametersReady );
+                             const std::function<void( const QByteArray& )>& onParametersReady,
+                             const void*                                     cancelGroup = nullptr );
 
     QString vectorBlobId( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
     QString parameterBlobId( const SumoCaseId& caseId, const QString& ensembleName );
 
 private:
-    QString        vectorBlobIdUrl( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName ) const;
-    QString        parameterBlobIdUrl( const SumoCaseId& caseId, const QString& ensembleName ) const;
-    QNetworkReply* makeParameterBlobIdRequest( const SumoCaseId& caseId, const QString& ensembleName );
-    QNetworkReply* makeVectorBlobIdRequest( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
+    static QString vectorBlobIdPath( const SumoCaseId& caseId, const QString& ensembleName, const QString& vectorName );
+    static QString parameterBlobIdPath( const SumoCaseId& caseId, const QString& ensembleName );
+
+    // Run on the transfer thread, so the base URL is resolved by the caller and passed in. networkManager
+    // lets the caller choose the connection pool: the shared one for a blocking fetch waited on directly, or
+    // the background one for a prefetch batch, see RiaSumoConnector::backgroundNetworkAccessManager.
+    // cancelGroup is passed on to RiaSumoConnector::getAndTrackReply, see its documentation; defaults to
+    // untracked for the batch path, which has no owner to cancel it early.
+    QNetworkReply* makeParameterBlobIdRequest( const QString&          baseUrl,
+                                               const SumoCaseId&       caseId,
+                                               const QString&          ensembleName,
+                                               QNetworkAccessManager* networkManager,
+                                               const void*             cancelGroup = nullptr );
+    QNetworkReply* makeVectorBlobIdRequest( const QString&          baseUrl,
+                                            const SumoCaseId&       caseId,
+                                            const QString&          ensembleName,
+                                            const QString&          vectorName,
+                                            QNetworkAccessManager* networkManager,
+                                            const void*             cancelGroup = nullptr );
     static QString blobIdFromReply( QNetworkReply* reply, const QString& vectorName );
     static QString logBlobId( const QString& blobId, const QString& vectorName );
 

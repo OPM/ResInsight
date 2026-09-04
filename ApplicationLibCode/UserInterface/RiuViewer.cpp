@@ -157,6 +157,13 @@ RiuViewer::RiuViewer( QWidget* parent )
     m_filterLabel->setFont( font );
     m_showFilterLabel = false;
 
+    m_loadingLabel = new QLabel();
+    m_loadingLabel->setFrameShape( QFrame::NoFrame );
+    m_loadingLabel->setAlignment( Qt::AlignCenter );
+    m_loadingLabel->setObjectName( "LoadingLabel" );
+    m_loadingLabel->setFont( font );
+    m_showLoadingLabel = false;
+
     // Animation progress bar
     m_animationProgress = new caf::QStyledProgressBar( "AnimationProgress" );
     m_animationProgress->setFormat( "Time Step: %v/%m" );
@@ -193,6 +200,7 @@ RiuViewer::RiuViewer( QWidget* parent )
         m_histogramWidget->setFont( regTestFont );
         m_zScaleLabel->setFont( regTestFont );
         m_filterLabel->setFont( regTestFont );
+        m_loadingLabel->setFont( regTestFont );
     }
 
     // When a context menu is created in the viewer is, and the action triggered is displaying a dialog,
@@ -566,6 +574,14 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
         m_filterLabel->render( painter, pos );
     }
 
+    if ( m_showLoadingLabel ) // Loading banner, centered across the top where it cannot be missed
+    {
+        QSize  size( m_loadingLabel->sizeHint().width(), m_loadingLabel->sizeHint().height() );
+        QPoint pos( ( trueWidth - size.width() ) / 2, margin + edgeAxisFrameBorderHeight );
+        m_loadingLabel->resize( size.width(), size.height() );
+        m_loadingLabel->render( painter, pos );
+    }
+
     if ( !m_cursorPositionDomainCoords.isUndefined() )
     {
         if ( mainCamera() )
@@ -652,6 +668,31 @@ void RiuViewer::showFilterLabel( bool enable )
 void RiuViewer::setFilterText( const QString& text )
 {
     m_filterLabel->setText( text );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showLoadingLabel( bool enable )
+{
+    if ( m_showLoadingLabel == enable ) return;
+
+    m_showLoadingLabel = enable;
+
+    // Nothing else is redrawing while data is on its way, so ask for it here.
+    update();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setLoadingText( const QString& text )
+{
+    if ( m_loadingLabel->text() == text ) return;
+
+    m_loadingLabel->setText( text );
+
+    if ( m_showLoadingLabel ) update();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1524,6 +1565,8 @@ void RiuViewer::updateOverlayItemsStyle()
         caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "ZScaleLabel", contrastColor, backgroundColor, backgroundColor ) );
     m_filterLabel->setStyleSheet(
         caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "FilterLabel", contrastColor, backgroundColor, backgroundColor ) );
+    m_loadingLabel->setStyleSheet(
+        caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "LoadingLabel", contrastColor, backgroundColor, backgroundColor ) );
     m_histogramWidget->setStyleSheet(
         caf::StyleSheetTools::createFrameStyleSheet( "QWidget", "HistogramWidget", contrastColor, backgroundColor, backgroundFrameColor ) );
 

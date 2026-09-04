@@ -69,8 +69,8 @@ public:
     void setGroupId( int id );
 
     // Case management
-    void                         addCase( RimEclipseCase* reservoir );
-    void                         removeCase( RimEclipseCase* reservoir );
+    void                         addCase( RimEclipseCase* reservoir ) override;
+    void                         removeCase( RimEclipseCase* reservoir ) override;
     bool                         contains( RimEclipseCase* reservoir ) const;
     std::vector<RimEclipseCase*> cases() const;
     RimEclipseCase*              mainCase() override;
@@ -79,7 +79,12 @@ public:
 
     // Grid detection and shared grid
     RigMainGrid* mainGrid() override;
+    RigMainGrid* shareOrAdoptMainGrid( RigMainGrid* candidate ) override;
     void         setupSharedGrid();
+
+    // Open every realization. Needed by the operations that read them all, as realizations can otherwise
+    // be opened lazily, see RimReservoirGridEnsembleSumo.
+    void ensureAllCasesAreOpen();
 
     // Deferred loading control
     void loadGridDataFromFiles();
@@ -107,7 +112,7 @@ public:
     RimEclipseView*              addViewForCase( RimEclipseCase* eclipseCase );
     std::vector<RimEclipseView*> allViews() const;
     std::set<RimEclipseCase*>    casesInViews() const override;
-    RimEclipseViewCollection*    viewCollection() const;
+    RimEclipseViewCollection*    viewCollection() const override;
 
     // Well target mapping
     void                               addWellTargetMapping( RimWellTargetMapping* wellTargetMapping );
@@ -132,6 +137,24 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
+    // Drop the existing realization cases and rebuild them from the current source.
+    void recreateCaseObjects();
+
+    // Build the realization case objects, without loading the grids. The base implementation derives them
+    // from the ensemble file set; a subclass with another source of realizations overrides this.
+    virtual void createCaseObjects();
+
+    // Decide whether all realizations have the same grid dimensions. Overridden by a subclass that can
+    // answer this without reading the grids.
+    virtual bool detectGridDimensionEquality();
+
+    // Establish the grid shared by the ensemble. The base implementation opens every realization eagerly;
+    // a subclass where opening a realization is expensive can open only the first and leave the rest to be
+    // opened on demand.
+    virtual void loadGridsInSharedMode();
+
+    RimCaseCollection* caseCollection() const;
+
 private:
     void onFileSetChanged( const caf::SignalEmitter* emitter );
     void clearActiveCellUnions();
@@ -139,11 +162,10 @@ private:
     void updateMainGridAndActiveCellsForStatisticsCases();
     void updateStatisticsVisibility();
 
-    void createCaseObjectsFromEnsembleFileSet();
-    bool detectGridDimensionEquality();
-    void loadGridsInSharedMode();
     void loadGridsInIndividualMode();
     void updateGridModeToolTip();
+
+    static bool hasMatchingDimensions( const RigMainGrid* lhs, const RigMainGrid* rhs );
 
 private:
     // File set reference
@@ -170,8 +192,9 @@ private:
     caf::PdmChildArrayField<RimWellTargetMapping*>    m_wellTargetMappings;
     caf::PdmChildArrayField<RimStatisticsContourMap*> m_statisticsContourMaps;
 
-    // Shared grid data (for identical grids)
-    RigMainGrid*                m_mainGrid;
+    // Shared grid data (for identical grids). Reference counted: with realizations opened lazily this can
+    // be the only owner of the grid, e.g. after the realization that loaded it has been deselected.
+    cvf::ref<RigMainGrid>       m_mainGrid;
     cvf::ref<RigActiveCellInfo> m_unionOfMatrixActiveCells;
     cvf::ref<RigActiveCellInfo> m_unionOfFractureActiveCells;
 };

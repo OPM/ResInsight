@@ -101,6 +101,8 @@ public:
     std::vector<QString>                 selectedFormations() const;
     std::vector<std::vector<cvf::Vec3d>> selectedPolygons() const;
 
+    void switchToSelectedSourceCase();
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -109,8 +111,6 @@ protected:
     void setupBeforeSave() override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-
-    void switchToSelectedSourceCase();
 
 private:
     using TimestepResultsMap = std::map<size_t, std::vector<std::vector<double>>>;

@@ -21,11 +21,13 @@
 #include "RiaCloudConnector.h"
 #include "RiaSumoDefines.h"
 #include "RiaSumoExplore.h"
+#include "RiaSumoGrid.h"
 #include "RiaSumoSummary.h"
 
 #include <QByteArray>
 #include <QMutex>
 #include <QNetworkAccessManager>
+#include <QPointer>
 #include <QtNetworkAuth/QOAuth2AuthorizationCodeFlow>
 
 #include <functional>
@@ -59,18 +61,30 @@ public:
 
     // Download blobs by id and return their contents. Getting a blob takes two round trips, one for the
     // pre-signed URI and one for the data, and a batch does each of those as one concurrent group.
-    QByteArray                    downloadBlobBlocking( const QString& blobId );
-    std::map<QString, QByteArray> downloadBlobsBlocking( const std::vector<QString>& blobIds );
+    // The description names what is being fetched in the progress dialog, e.g. "grid DROGON realization 1".
+    // Falls back to a plain file count when it is empty.
+    QByteArray                    downloadBlobBlocking( const QString& blobId, const QString& description = {} );
+    std::map<QString, QByteArray> downloadBlobsBlocking( const std::vector<QString>& blobIds, const QString& description = {} );
 
     // What Sumo holds: assets, cases, ensembles and realizations.
     RiaSumoExplore& explore();
+
+    // The grid data of a case. Owned here so its blob cache lives as long as the connection.
+    RiaSumoGrid& grid();
 
     // The summary data of a case.
     RiaSumoSummary& summary();
 
     // Transport used by the data specific delegates. Every request goes through the transfer thread, so
     // the calling thread waits without dispatching events.
-    QByteArray getBlocking( const QString& url, const QString& progressText = {} );
+    // Issue a GET against the local cloud API service and return the response body. Takes the path only,
+    // e.g. "/cases/{id}/ensembles": the base URL is prepended here, once the service is known to answer.
+    // Composing the full URL at the call site would capture the address before the service has one.
+    QByteArray getBlocking( const QString& path, const QString& progressText = {} );
+
+    // The base URL of the local cloud API service, empty when it could not be made ready. May block while
+    // the service starts, so call it from the calling thread and not from the transfer thread.
+    QString serviceBaseUrl();
 
     // The REST API returns a blob id as a plain string, quoted by FastAPI.
     static QString blobIdFromBody( const QByteArray& body );
@@ -90,25 +104,64 @@ public:
     // async work are delivered through this, so a caller never has its data handed to it on another thread.
     void invokeOnConnectorThread( const std::function<void()>& work );
 
-    // Download one blob, calling onFinished with its contents. Call on the transfer thread, where onFinished
-    // is called as well. Empty contents mean the transfer failed.
-    void downloadBlobAsync( const QString& blobId, const std::function<void( const QByteArray& )>& onFinished );
+    // Download one blob. Call on the transfer thread, where onFinished is called as well, exactly once on
+    // every path. Empty contents mean the transfer failed.
+    //
+    // blobTimeoutMillis is a deadline on the transfer itself, not an inactivity timeout: pass noTimeout() for
+    // a blob large enough that a slow link is not a failure. The blob id request keeps its own deadline.
+    //
+    // cancelGroup lets the owner of the async request abort it early, see getAndTrackReply/cancelGroup: pass
+    // the requesting object's lifetime token so its transfers are aborted, not just ignored, once it is gone.
+    void downloadBlobAsync( const QString&                                  blobId,
+                            const std::function<void( const QByteArray& )>& onFinished,
+                            int                                             blobTimeoutMillis = RiaSumoDefines::requestTimeoutMillis(),
+                            const void*                                     cancelGroup       = nullptr );
+
+    // Issue a GET request and register the reply for cancelGroup in one atomic step, guarded by the same
+    // mutex cancelGroup locks. Creating the reply and tracking it as two separate calls left a gap in which
+    // a cancelGroup call landing on another thread in between would not find the reply yet, and miss it.
+    // groupId identifies the owner requesting the transfer, typically its m_lifetimeToken.get(); a null
+    // groupId tracks nothing. The reply is dropped from the registry automatically once it is deleted.
+    QNetworkReply* getAndTrackReply( QNetworkAccessManager* networkManager, const QNetworkRequest& networkRequest, const void* groupId );
+
+    // Abort every reply still tracked under groupId. Called when the owner of an async request (a reader or
+    // an ensemble) is destroyed, so its in-flight transfers stop consuming connections and logging results
+    // for an object that is no longer there, instead of running until their own timeout.
+    void cancelGroup( const void* groupId );
+
+    // Timeout value meaning "never abort on a deadline".
+    static constexpr int noTimeout() { return -1; }
 
     // Abort a reply that has not finished in time, so an async chain reports a failure instead of hanging and
     // leaving whoever waits for the data waiting forever.
     static void abortIfNotFinishedWithin( QNetworkReply* reply, int timeoutMillis );
 
     // The network manager belonging to the calling thread: the transfer thread manager when called from
-    // there, otherwise the one owned by RiaCloudConnector on the GUI thread.
+    // there, otherwise the one owned by RiaCloudConnector on the GUI thread. Used for interactive requests:
+    // opening a case, the grid geometry and metadata, and any request the user is waiting on.
     QNetworkAccessManager* networkAccessManager();
+
+    // A second network manager on the transfer thread, used only by the background prefetch paths
+    // (downloadBlobAsync and the blob id requests feeding it). Qt limits concurrent connections per host
+    // separately for each QNetworkAccessManager, so giving prefetch its own manager keeps a burst of
+    // look-ahead property transfers from starving an interactive request for a different realization or
+    // case, which would otherwise queue behind them and fail on its own short deadline.
+    QNetworkAccessManager* backgroundNetworkAccessManager();
 
     // The token for a request issued from the transfer thread. token() reads objects owned by another thread.
     QString transferToken() const;
 
-    static void waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies );
+    // perReplyTimeoutMillis is the deadline given to each individual reply were it waited on alone; the group
+    // as a whole is allowed replies.size() times that, see the implementation. Defaults to requestTimeoutMillis,
+    // right for the small metadata requests (e.g. the SAS token lookup); pass a longer value for a phase that
+    // moves real data, such as the blob transfer itself, so it is not cut off by a deadline sized for a lookup.
+    static void waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies,
+                                       int perReplyTimeoutMillis = RiaSumoDefines::requestTimeoutMillis() );
 
     // Issue and collect the two round trips a blob transfer needs. Called on the transfer thread.
-    std::map<QString, QByteArray> downloadBlobs( const std::vector<QString>& blobIds );
+    // Runs on the transfer thread, so the base URL is resolved by the caller and passed in: waiting for the
+    // service must not happen here.
+    std::map<QString, QByteArray> downloadBlobs( const QString& baseUrl, const std::vector<QString>& blobIds );
 
 public slots:
     void requestFailed( const QAbstractOAuth::Error error );
@@ -127,6 +180,7 @@ private:
     std::function<QString()> m_serverUrlProvider;
 
     RiaSumoExplore m_explore;
+    RiaSumoGrid    m_grid;
     RiaSumoSummary m_summary;
 
     // Transfers run on their own thread so the calling thread can wait without dispatching events. Waiting on
@@ -137,7 +191,16 @@ private:
     QObject*               m_transferContext              = nullptr; // lives on the transfer thread
     QNetworkAccessManager* m_transferNetworkAccessManager = nullptr; // created on the transfer thread
 
+    // A second manager on the transfer thread, dedicated to background prefetch transfers, see
+    // backgroundNetworkAccessManager().
+    QNetworkAccessManager* m_transferBackgroundNetworkAccessManager = nullptr; // created on the transfer thread
+
     // Written on the thread handing work over, read on the transfer thread running it.
     mutable QMutex m_transferTokenMutex;
     QString        m_transferToken;
+
+    // Replies tracked so cancelGroup can abort them, keyed by the owner's group id. QPointer clears itself
+    // when a reply is deleted, so a finished transfer needs no explicit removal beyond that.
+    QMutex                                              m_activeRepliesMutex;
+    std::multimap<const void*, QPointer<QNetworkReply>> m_activeReplies;
 };

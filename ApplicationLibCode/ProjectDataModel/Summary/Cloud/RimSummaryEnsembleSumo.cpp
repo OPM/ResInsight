@@ -30,13 +30,13 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "Cloud/RimCloudDataSourceCollection.h"
+#include "Cloud/RimSumoDataSource.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCaseSumo.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSumoDataSource.h"
 
 #include "RiuPlotCurve.h"
 
@@ -161,6 +161,14 @@ RimSummaryEnsembleSumo::RimSummaryEnsembleSumo()
     m_sumoConnector = RiaApplication::instance()->makeSumoConnector();
 
     m_lifetimeToken = std::make_shared<bool>( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Aborts any transfers this ensemble still has in flight, see RiaSumoConnector::cancelGroup.
+//--------------------------------------------------------------------------------------------------
+RimSummaryEnsembleSumo::~RimSummaryEnsembleSumo()
+{
+    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( m_lifetimeToken.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,7 +313,8 @@ void RimSummaryEnsembleSumo::loadEnsembleParameters()
                                                        if ( isAlive.expired() ) return;
 
                                                        onParameterDataReceived( parametersKey, contents );
-                                                   } );
+                                                   },
+                                                   m_lifetimeToken.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,7 +390,8 @@ void RimSummaryEnsembleSumo::prefetchSummaryData( const std::vector<RifEclipseSu
 
                                                     onVectorDataReceived( ParquetKey{ sumoCaseId, sumoEnsembleName, vectorName, false },
                                                                           contents );
-                                                } );
+                                                },
+                                                m_lifetimeToken.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -924,6 +934,13 @@ void RimSummaryEnsembleSumo::onLoadDataAndUpdate()
 {
     if ( m_sumoDataSource() )
     {
+        // Rebuilding against realizations that have not been fetched would read "not known yet" as "nothing
+        // selected" and delete every realization case of this ensemble - and unlike the grid ensembles, these
+        // cases are written to the project file. See RimCloudDataSourceCollection::refreshDataSourcesFromSumo,
+        // which fetches them when a project is loaded, and RimSumoDataSource::updateGridCaseEnsembles, which
+        // guards the grid ensembles the same way.
+        const bool realizationsAreKnown = m_sumoDataSource->hasFetchedRealizations();
+
         std::set<int> selectedRealizations;
         for ( const auto& realizationId : m_sumoDataSource->selectedRealizationIds() )
         {
@@ -942,8 +959,10 @@ void RimSummaryEnsembleSumo::onLoadDataAndUpdate()
         }
 
         // Update the realization cases whenever the selected set changes (added, removed or swapped),
-        // so editing the realizations on the data source updates the summary plot.
-        if ( selectedRealizations != currentRealizations )
+        // so editing the realizations on the data source updates the summary plot. Cases are only ever created
+        // when something is selected, which needs the realizations to be known, so this guard cannot suppress a
+        // rebuild that would have done anything but delete.
+        if ( realizationsAreKnown && selectedRealizations != currentRealizations )
         {
             // Update incrementally: a case whose realization is still selected is kept alive and reused.
             // Widening the selection therefore deletes nothing, which keeps the curves referring to those

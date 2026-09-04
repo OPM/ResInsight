@@ -80,8 +80,9 @@ public:
     RimEclipseCase();
     ~RimEclipseCase() override;
 
-    std::vector<RimEclipseView*> reservoirViews() const;
-    RimEclipseViewCollection*    viewCollection() const;
+    std::vector<RimEclipseView*>           reservoirViews() const;
+    std::vector<RimEclipseContourMapView*> contourMapViews() const;
+    RimEclipseViewCollection*              viewCollection() const;
 
     std::vector<QString> filesContainingFaults() const;
     void                 setFilesContainingFaults( const std::vector<QString>& val );
@@ -177,14 +178,25 @@ protected:
     RimEclipseViewCollection* globalViewCollection() const;
     void addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const;
 
+    const RigFormationNames* effectiveFormationNames() const;
+
+public:
+    // What this case is transferring right now, for the 3D view overlay. Empty for a case that reads from
+    // disk and has nothing in flight; overridden by the cases backed by remote data.
+    virtual QString dataLoadingText() const { return {}; }
+
+    // Fetches and stores exactly one time step of a dynamic property, synchronously, without loading any
+    // other time step. A no-op returning false for a case that reads from disk; overridden by cases backed
+    // by remote data, where normal on-demand loading would otherwise pull the whole time series over the
+    // network just to read one time step.
+    virtual bool prefetchDynamicResult( const QString& resultName, size_t stepIndex ) { return false; }
+
+protected:
 private:
-    void                                   createTimeStepFormatString();
-    std::vector<Rim3dView*>                allSpecialViews() const override;
-    std::vector<RimEclipseContourMapView*> contourMapViews() const;
+    void                     createTimeStepFormatString();
+    std::vector<Rim3dView*> allSpecialViews() const override;
 
     void buildResultChildNodes();
-
-    const RigFormationNames* effectiveFormationNames() const;
 
 protected:
     caf::PdmField<bool>                                    m_flipXAxis;
