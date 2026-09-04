@@ -120,8 +120,6 @@ RimEnsembleCurveSet* RicNewSummaryEnsembleCurveSetFeature::addCurveSet( RimSumma
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( std::vector<RimSummaryEnsemble*> ensembles )
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
     if ( prefs->defaultSummaryCurvesTextFilter().isEmpty() ) return nullptr;
@@ -140,11 +138,13 @@ RimSummaryPlot* RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndU
     plot->loadDataAndUpdate();
     multiPlot->updateConnectedEditors();
 
-    RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-    if ( mainPlotWindow )
+    if ( RiaGuiApplication::isRunning() )
     {
-        mainPlotWindow->selectAsCurrentItem( firstCurveSetCreated );
-        mainPlotWindow->updateMultiPlotToolBar();
+        if ( RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow() )
+        {
+            mainPlotWindow->selectAsCurrentItem( firstCurveSetCreated );
+            mainPlotWindow->updateMultiPlotToolBar();
+        }
     }
     return plot;
 }
