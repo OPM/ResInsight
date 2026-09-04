@@ -71,6 +71,12 @@ public:
     bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override;
     bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
+    // Fetches and stores exactly one time step of a dynamic property, synchronously and without pulling in any
+    // other time step. Meant for a caller with no redraw loop of its own that needs exactly one time step, e.g.
+    // RimStatisticsContourMap: having the time step already present keeps ensureKnownResultLoaded() from
+    // falling back to loading the whole time series.
+    bool prefetchDynamicResult( const QString& propertyName, size_t stepIndex );
+
 private:
     bool fetchAndDecode( const QString& propertyName, const QString& isoDateOrInterval, std::vector<double>* values );
     bool decodeInto( const QByteArray& contents, const QString& propertyName, std::vector<double>* values );

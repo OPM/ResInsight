@@ -94,28 +94,26 @@ std::optional<std::set<int>>
     return fData->findKLayers( selectedFormations );
 }
 
-// Triggers the on-demand load of a dynamic result (RigCaseCellResultsData::ensureKnownResultLoaded loads all
-// time steps of the result in one pass the first time it is touched), so a cloud-backed reader (e.g.
-// RifReaderSumoGridProperty) starts whatever transfer it needs. Note that plain accessors such as
-// cellScalarResults() do NOT trigger loading - they just index into whatever storage already exists - so this
-// must go through ensureKnownResultLoaded to actually kick off the fetch.
-void warmUpDynamicResult( RigCaseCellResultsData* resultData, const RigEclipseResultAddress& resultAddress )
+// Prefetches exactly the one time step about to be read, via RimEclipseCase::prefetchDynamicResult, so a
+// cloud-backed reader has the value ready before extractCaseResults reads it below. This case has no view of
+// its own to pick up an async arrival, so without prefetching the transfer would be cancelled by closing the
+// case before it arrives. Narrower than RigCaseCellResultsData::ensureKnownResultLoaded(), which would load
+// every time step of the result - the whole time series over the network, for a cloud-backed case - just to
+// read one. A no-op for a case that reads from disk.
+void warmUpDynamicResult( RimEclipseCase* eCase, const RigEclipseResultAddress& resultAddress, int localTs )
 {
-    if ( !resultData ) return;
-
-    resultData->ensureKnownResultLoaded( resultAddress );
+    eCase->prefetchDynamicResult( resultAddress.resultName(), static_cast<size_t>( localTs ) );
 }
 
-// Pumps the event loop until eCase has nothing left pending (RimEclipseCase::dataLoadingText, driven by
-// RifReaderSumoGridProperty for a cloud-backed case), so the warm up above actually gets to arrive before the
-// case is read for real. A case with no view of its own - the only way a realization is opened here - has no
-// redraw loop that would otherwise pick up an async arrival, so without this wait the placeholder from the
-// warm up read would be all statistics ever sees, right before the transfer producing the real values is
-// cancelled by closing the case. Bounded by timeoutMillis, so a stalled transfer does not hang the
-// computation forever; a case that never finishes loading simply contributes whatever it has when the wait
-// gives up, same as before this wait existed.
-void waitForPendingCaseData( RimEclipseCase* eCase, int timeoutMillis )
+// Pumps the event loop until eCase has nothing left pending (RimEclipseCase::dataLoadingText), so a transfer
+// still in flight for reasons other than the warm up above - e.g. one started by a live view of the same
+// realization - gets a chance to arrive before the case is closed again. Bounded, so a stalled transfer does
+// not hang the computation forever.
+void waitForPendingCaseData( RimEclipseCase* eCase )
 {
+    // Same timeout Sumo applies to a grid property transfer; a no-op for a case that reads from disk.
+    const int timeoutMillis = RiaSumoDefines::gridPropertyTransferTimeoutMillis();
+
     if ( !eCase || eCase->dataLoadingText().isEmpty() ) return;
 
     QEventLoop loop;
@@ -228,6 +226,8 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     m_resultDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Result" );
     m_resultDefinition->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
     m_resultDefinition->setResultVariable( "SOIL" );
+    // Only a settings picker here; actual results are read per realization in computeStatisticsForMaps().
+    m_resultDefinition->setEagerResultLoadingEnabled( false );
 
     CAF_PDM_InitFieldNoDefault( &m_primaryCase,
                                 "PrimaryEclipseCase",
@@ -798,17 +798,18 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                 auto activeCellInfo  = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
                 auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-                // Touch every dynamic result this case needs before reading any of it for real. This case has
-                // no view of its own, so it is the only chance a cloud-backed reader gets to start its
-                // transfers before the results below are read; see warmUpDynamicResult and
-                // waitForPendingCaseData.
+                // Prefetch every dynamic result time step this case needs before reading any of it for real;
+                // see warmUpDynamicResult and waitForPendingCaseData.
                 for ( auto& ctx : contexts )
                 {
                     if ( !ctx.active || !ctx.map->m_resultDefinition()->hasDynamicResult() ) continue;
 
-                    warmUpDynamicResult( resultData, ctx.map->m_resultDefinition()->eclipseResultAddress() );
+                    for ( auto [localTs, globalTs] : ctx.map->mapLocalToGlobalTimeSteps( eCase->timeStepDates() ) )
+                    {
+                        warmUpDynamicResult( eCase, ctx.map->m_resultDefinition()->eclipseResultAddress(), localTs );
+                    }
                 }
-                waitForPendingCaseData( eCase, RiaSumoDefines::gridPropertyTransferTimeoutMillis() );
+                waitForPendingCaseData( eCase );
 
                 for ( auto& ctx : contexts )
                 {

@@ -294,6 +294,16 @@ void RimRoffCaseSumo::cancelPendingTransfers()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// See header and RifReaderSumoGridProperty::prefetchDynamicResult.
+//--------------------------------------------------------------------------------------------------
+bool RimRoffCaseSumo::prefetchDynamicResult( const QString& resultName, size_t stepIndex )
+{
+    if ( m_propertyReader.isNull() ) return false;
+
+    return m_propertyReader->prefetchDynamicResult( resultName, stepIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Download the roff grid blob for this realization and parse it into the case data.
 //--------------------------------------------------------------------------------------------------
 bool RimRoffCaseSumo::downloadAndParseGrid()
