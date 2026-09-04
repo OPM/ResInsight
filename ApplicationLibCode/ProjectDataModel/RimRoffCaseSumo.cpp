@@ -84,10 +84,11 @@ RimRoffCaseSumo::RimRoffCaseSumo()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Aborts any transfers this case still has in flight, see RiaSumoConnector::cancelGroup.
 //--------------------------------------------------------------------------------------------------
 RimRoffCaseSumo::~RimRoffCaseSumo()
 {
+    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( m_lifetimeToken.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,14 +275,22 @@ void RimRoffCaseSumo::closeReservoirCase()
 {
     m_propertyReader = nullptr;
 
-    // Aborts the speculative fetch startPropertyFetch issues before the reader exists, see its cancelGroup
-    // argument below. Without this, closing (or switching away from) this realization while that transfer is
-    // still on its way leaves it running to completion, consuming a connection and bandwidth that a
-    // newly selected realization's grid download needs.
-    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( m_lifetimeToken.get() );
-    m_lifetimeToken = std::make_shared<bool>( true );
+    cancelPendingTransfers();
 
     RimEclipseCase::closeReservoirCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Aborts the speculative fetch startPropertyFetch issues before the reader exists, see its cancelGroup
+/// argument below. Without this, closing (or switching away from) this realization while that transfer is
+/// still on its way leaves it running to completion, consuming a connection and bandwidth that a
+/// newly selected realization's grid download needs. Unlike closeReservoirCase, this keeps already loaded
+/// grid and result data intact, so switching back to this realization does not force a full reload.
+//--------------------------------------------------------------------------------------------------
+void RimRoffCaseSumo::cancelPendingTransfers()
+{
+    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( m_lifetimeToken.get() );
+    m_lifetimeToken = std::make_shared<bool>( true );
 }
 
 //--------------------------------------------------------------------------------------------------

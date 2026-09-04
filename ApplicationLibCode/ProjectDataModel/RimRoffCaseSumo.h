@@ -69,6 +69,12 @@ public:
 
     void closeReservoirCase() override;
 
+    // Aborts any transfers still in flight for this realization, without discarding already loaded grid and
+    // result data. Used when switching away from this case in a view while it may still be shown elsewhere,
+    // so a still loading realization does not keep competing for bandwidth with a newly selected one, while a
+    // fully loaded realization is not forced through a full reload if switched back to.
+    void cancelPendingTransfers();
+
     QString locationOnDisc() const override;
 
     QString dataLoadingText() const override;

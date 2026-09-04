@@ -519,15 +519,16 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 
     if ( changedField == &m_eclipseCase )
     {
-        // The field is already updated to the new case at this point. Close the realization just switched
-        // away from, so its still in-flight grid and property downloads are cancelled instead of competing
-        // with the newly selected realization's transfers for bandwidth and connections, which could
-        // otherwise make the new realization's grid download fail. Skipped when another view still shows it.
+        // The field is already updated to the new case at this point. Cancel any in-flight grid and property
+        // downloads for the realization just switched away from, so they stop competing with the newly
+        // selected realization's transfers for bandwidth and connections, which could otherwise make the new
+        // realization's grid download fail. Already loaded data is kept, so switching back later does not
+        // force a full reload. Skipped when another view still shows it.
         auto* previousCase  = dynamic_cast<RimEclipseCase*>( oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr() );
         auto* previousSumoCase = dynamic_cast<RimRoffCaseSumo*>( previousCase );
-        if ( previousSumoCase && previousSumoCase->reservoirViews().empty() )
+        if ( previousSumoCase && previousSumoCase->reservoirViews().empty() && previousSumoCase->contourMapViews().empty() )
         {
-            previousSumoCase->closeReservoirCase();
+            previousSumoCase->cancelPendingTransfers();
         }
 
         propagateEclipseCaseToChildObjects();

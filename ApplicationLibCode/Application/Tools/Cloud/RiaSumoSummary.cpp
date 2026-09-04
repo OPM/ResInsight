@@ -170,14 +170,12 @@ void RiaSumoSummary::vectorDataAsync( const SumoCaseId&                         
                 };
 
                 auto blobIdReply =
-                    makeVectorBlobIdRequest( baseUrl, caseId, ensembleName, vectorName, m_connector.backgroundNetworkAccessManager() );
+                    makeVectorBlobIdRequest( baseUrl, caseId, ensembleName, vectorName, m_connector.backgroundNetworkAccessManager(), cancelGroup );
                 if ( !blobIdReply )
                 {
                     deliver( {} );
                     continue;
                 }
-
-                m_connector.trackReply( cancelGroup, blobIdReply );
 
                 // A vector that has not been aggregated yet is produced on demand by this request, which can
                 // take a good while. Nothing is waiting on it, so it is given room to finish.
@@ -241,13 +239,14 @@ QNetworkReply* RiaSumoSummary::makeVectorBlobIdRequest( const QString&          
                                                         const SumoCaseId&       caseId,
                                                         const QString&          ensembleName,
                                                         const QString&          vectorName,
-                                                        QNetworkAccessManager* networkManager )
+                                                        QNetworkAccessManager* networkManager,
+                                                        const void*             cancelGroup )
 {
     QNetworkRequest networkRequest;
     networkRequest.setUrl( QUrl( baseUrl + vectorBlobIdPath( caseId, ensembleName, vectorName ) ) );
     m_connector.addStandardHeader( networkRequest, m_connector.transferToken(), RiaCloudDefines::contentTypeJson() );
 
-    return networkManager->get( networkRequest );
+    return m_connector.getAndTrackReply( networkManager, networkRequest, cancelGroup );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,13 +298,13 @@ QString RiaSumoSummary::parameterBlobIdPath( const SumoCaseId& caseId, const QSt
 /// decides how to wait for it.
 //--------------------------------------------------------------------------------------------------
 QNetworkReply*
-    RiaSumoSummary::makeParameterBlobIdRequest( const QString& baseUrl, const SumoCaseId& caseId, const QString& ensembleName, QNetworkAccessManager* networkManager )
+    RiaSumoSummary::makeParameterBlobIdRequest( const QString& baseUrl, const SumoCaseId& caseId, const QString& ensembleName, QNetworkAccessManager* networkManager, const void* cancelGroup )
 {
     QNetworkRequest networkRequest;
     networkRequest.setUrl( QUrl( baseUrl + parameterBlobIdPath( caseId, ensembleName ) ) );
     m_connector.addStandardHeader( networkRequest, m_connector.transferToken(), RiaCloudDefines::contentTypeJson() );
 
-    return networkManager->get( networkRequest );
+    return m_connector.getAndTrackReply( networkManager, networkRequest, cancelGroup );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -328,14 +327,13 @@ void RiaSumoSummary::parameterDataAsync( const SumoCaseId&                      
             auto deliver = [this, onParametersReady]( const QByteArray& contents )
             { m_connector.invokeOnConnectorThread( [onParametersReady, contents]() { onParametersReady( contents ); } ); };
 
-            auto blobIdReply = makeParameterBlobIdRequest( baseUrl, caseId, ensembleName, m_connector.backgroundNetworkAccessManager() );
+            auto blobIdReply =
+                makeParameterBlobIdRequest( baseUrl, caseId, ensembleName, m_connector.backgroundNetworkAccessManager(), cancelGroup );
             if ( !blobIdReply )
             {
                 deliver( {} );
                 return;
             }
-
-            m_connector.trackReply( cancelGroup, blobIdReply );
 
             RiaSumoConnector::abortIfNotFinishedWithin( blobIdReply, RiaSumoDefines::asyncRequestTimeoutMillis() );
 

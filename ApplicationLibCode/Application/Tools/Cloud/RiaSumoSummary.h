@@ -82,13 +82,19 @@ private:
     // Run on the transfer thread, so the base URL is resolved by the caller and passed in. networkManager
     // lets the caller choose the connection pool: the shared one for a blocking fetch waited on directly, or
     // the background one for a prefetch batch, see RiaSumoConnector::backgroundNetworkAccessManager.
-    QNetworkReply*
-        makeParameterBlobIdRequest( const QString& baseUrl, const SumoCaseId& caseId, const QString& ensembleName, QNetworkAccessManager* networkManager );
+    // cancelGroup is passed on to RiaSumoConnector::getAndTrackReply, see its documentation; defaults to
+    // untracked for the batch path, which has no owner to cancel it early.
+    QNetworkReply* makeParameterBlobIdRequest( const QString&          baseUrl,
+                                               const SumoCaseId&       caseId,
+                                               const QString&          ensembleName,
+                                               QNetworkAccessManager* networkManager,
+                                               const void*             cancelGroup = nullptr );
     QNetworkReply* makeVectorBlobIdRequest( const QString&          baseUrl,
                                             const SumoCaseId&       caseId,
                                             const QString&          ensembleName,
                                             const QString&          vectorName,
-                                            QNetworkAccessManager* networkManager );
+                                            QNetworkAccessManager* networkManager,
+                                            const void*             cancelGroup = nullptr );
     static QString blobIdFromReply( QNetworkReply* reply, const QString& vectorName );
     static QString logBlobId( const QString& blobId, const QString& vectorName );
 

@@ -110,17 +110,19 @@ public:
     // blobTimeoutMillis is a deadline on the transfer itself, not an inactivity timeout: pass noTimeout() for
     // a blob large enough that a slow link is not a failure. The blob id request keeps its own deadline.
     //
-    // cancelGroup lets the owner of the async request abort it early, see trackReply/cancelGroup: pass the
-    // requesting object's lifetime token so its transfers are aborted, not just ignored, once it is gone.
+    // cancelGroup lets the owner of the async request abort it early, see getAndTrackReply/cancelGroup: pass
+    // the requesting object's lifetime token so its transfers are aborted, not just ignored, once it is gone.
     void downloadBlobAsync( const QString&                                  blobId,
                             const std::function<void( const QByteArray& )>& onFinished,
                             int                                             blobTimeoutMillis = RiaSumoDefines::requestTimeoutMillis(),
                             const void*                                     cancelGroup       = nullptr );
 
-    // Track a reply so cancelGroup can abort it later. Called on the transfer thread, right after a reply is
-    // created. groupId identifies the owner requesting the transfer, typically its m_lifetimeToken.get(); a
-    // null groupId tracks nothing. The reply is dropped from the registry automatically once it is deleted.
-    void trackReply( const void* groupId, QNetworkReply* reply );
+    // Issue a GET request and register the reply for cancelGroup in one atomic step, guarded by the same
+    // mutex cancelGroup locks. Creating the reply and tracking it as two separate calls left a gap in which
+    // a cancelGroup call landing on another thread in between would not find the reply yet, and miss it.
+    // groupId identifies the owner requesting the transfer, typically its m_lifetimeToken.get(); a null
+    // groupId tracks nothing. The reply is dropped from the registry automatically once it is deleted.
+    QNetworkReply* getAndTrackReply( QNetworkAccessManager* networkManager, const QNetworkRequest& networkRequest, const void* groupId );
 
     // Abort every reply still tracked under groupId. Called when the owner of an async request (a reader or
     // an ensemble) is destroyed, so its in-flight transfers stop consuming connections and logging results

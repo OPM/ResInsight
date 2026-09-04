@@ -278,14 +278,13 @@ void RiaSumoGrid::propertyDataBatchAsync( const SumoCaseId&                     
                                                               realization,
                                                               propertyName,
                                                               isoDateOrInterval,
-                                                              m_connector.backgroundNetworkAccessManager() );
+                                                              m_connector.backgroundNetworkAccessManager(),
+                                                              cancelGroup );
                 if ( !blobIdReply )
                 {
                     deliver( {} );
                     continue;
                 }
-
-                m_connector.trackReply( cancelGroup, blobIdReply );
 
                 // Shorter than the transfer it precedes: this one moves almost no data, so minutes really
                 // does mean broken.
@@ -428,7 +427,8 @@ QNetworkReply* RiaSumoGrid::makePropertyBlobIdRequest( const QString&          b
                                                        int                     realization,
                                                        const QString&          propertyName,
                                                        const QString&          isoDateOrInterval,
-                                                       QNetworkAccessManager* networkManager )
+                                                       QNetworkAccessManager* networkManager,
+                                                       const void*             cancelGroup )
 {
     const QString url = baseUrl + propertyBlobIdPath( caseId, ensembleName, gridName, realization, propertyName, isoDateOrInterval );
 
@@ -436,7 +436,7 @@ QNetworkReply* RiaSumoGrid::makePropertyBlobIdRequest( const QString&          b
     networkRequest.setUrl( QUrl( url ) );
     m_connector.addStandardHeader( networkRequest, m_connector.transferToken(), RiaCloudDefines::contentTypeJson() );
 
-    return networkManager->get( networkRequest );
+    return m_connector.getAndTrackReply( networkManager, networkRequest, cancelGroup );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -264,8 +264,7 @@ void RiaSumoConnector::downloadBlobAsync( const QString&                        
     networkRequest.setUrl( QUrl( url ) );
     addStandardHeader( networkRequest, transferToken(), RiaCloudDefines::contentTypeJson() );
 
-    auto accessInfoReply = backgroundNetworkAccessManager()->get( networkRequest );
-    trackReply( cancelGroup, accessInfoReply );
+    auto accessInfoReply = getAndTrackReply( backgroundNetworkAccessManager(), networkRequest, cancelGroup );
 
     // Deliberately not a short deadline. Several of these run at once, the network manager serves only a few
     // per host at a time, and the timer runs from when a request is created rather than from when it is
@@ -294,8 +293,7 @@ void RiaSumoConnector::downloadBlobAsync( const QString&                        
                           // added. Do NOT forward the bearer token to the storage host.
                           blobRequest.setAttribute( QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy );
 
-                          auto blobReply = backgroundNetworkAccessManager()->get( blobRequest );
-                          trackReply( cancelGroup, blobReply );
+                          auto blobReply = getAndTrackReply( backgroundNetworkAccessManager(), blobRequest, cancelGroup );
 
                           // A deadline on the transfer itself, so it is only applied when the caller asked
                           // for one. A large blob on a slow link is not a failure.
@@ -309,15 +307,20 @@ void RiaSumoConnector::downloadBlobAsync( const QString&                        
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Track a reply so cancelGroup can abort it later. A null groupId tracks nothing, which keeps callers that
-/// have no owner to associate with (e.g. blocking requests) free of any registry overhead.
+/// Create a reply and register it for cancelGroup as one atomic step. Held under the same mutex cancelGroup
+/// locks, so a cancelGroup call from another thread either completes fully before this reply exists (in
+/// which case it correctly leaves this new, later request alone) or fully after it is tracked (in which case
+/// it finds and aborts it as usual): there is no gap in between where the reply exists but is not yet
+/// visible to cancelGroup.
 //--------------------------------------------------------------------------------------------------
-void RiaSumoConnector::trackReply( const void* groupId, QNetworkReply* reply )
+QNetworkReply* RiaSumoConnector::getAndTrackReply( QNetworkAccessManager* networkManager, const QNetworkRequest& networkRequest, const void* groupId )
 {
-    if ( !groupId || !reply ) return;
-
     QMutexLocker locker( &m_activeRepliesMutex );
-    m_activeReplies.emplace( groupId, reply );
+
+    QNetworkReply* reply = networkManager->get( networkRequest );
+    if ( groupId && reply ) m_activeReplies.emplace( groupId, reply );
+
+    return reply;
 }
 
 //--------------------------------------------------------------------------------------------------

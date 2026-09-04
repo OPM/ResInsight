@@ -145,6 +145,8 @@ private:
     // Runs on the transfer thread, so the base URL is resolved by the caller and passed in. networkManager
     // lets the caller choose the connection pool: the shared one for a blocking fetch waited on directly, or
     // the background one for a prefetch batch, see RiaSumoConnector::backgroundNetworkAccessManager.
+    // cancelGroup is passed on to RiaSumoConnector::getAndTrackReply, see its documentation; defaults to
+    // untracked for the batch path, which has no owner to cancel it early.
     QNetworkReply* makePropertyBlobIdRequest( const QString&          baseUrl,
                                               const SumoCaseId&       caseId,
                                               const QString&          ensembleName,
@@ -152,7 +154,8 @@ private:
                                               int                     realization,
                                               const QString&          propertyName,
                                               const QString&          isoDateOrInterval,
-                                              QNetworkAccessManager* networkManager );
+                                              QNetworkAccessManager* networkManager,
+                                              const void*             cancelGroup = nullptr );
 
     std::map<QString, QByteArray> fetchPropertyBatch( const QString&              baseUrl,
                                                       const SumoCaseId&           caseId,
