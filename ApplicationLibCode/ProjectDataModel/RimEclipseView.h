@@ -212,6 +212,7 @@ protected:
 
     void                             onCreateDisplayModel() override;
     RimPropertyFilterCollection*     nativePropertyFilterCollection();
+    RimFilterInViewCollection*       filterInViewCollection() const;
     virtual std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
