@@ -35,6 +35,7 @@
 class RigActiveCellInfo;
 class RigMainGrid;
 class RimCaseCollection;
+class RimDataFilterCollection;
 class RimEclipseCase;
 class RimEclipseStatisticsCase;
 class RimEclipseView;
@@ -98,6 +99,9 @@ public:
     // Formation names
     RimFormationNames* activeFormationNames() const override;
 
+    // Data filters
+    RimDataFilterCollection* dataFilterCollection() const;
+
     // Statistics
     RimCaseCollection*        statisticsCaseCollection() const override;
     RimEclipseStatisticsCase* createAndAppendStatisticsCase() override;
@@ -144,6 +148,7 @@ private:
     void loadGridsInSharedMode();
     void loadGridsInIndividualMode();
     void updateGridModeToolTip();
+    void updateDataFilterCollectionCase();
 
 private:
     // File set reference
@@ -159,6 +164,9 @@ private:
     caf::PdmChildField<RimCaseCollection*> m_caseCollection;
     caf::PdmChildField<RimCaseCollection*> m_statisticsCaseCollection;
     caf::PdmChildField<RimEclipseCase*>    m_ensembleCase;
+
+    // Data filters
+    caf::PdmChildField<RimDataFilterCollection*> m_dataFilterCollection;
 
     // Grid mode
     caf::PdmField<bool>                       m_autoDetectGridType;
