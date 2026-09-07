@@ -629,6 +629,7 @@ void RimReservoirGridEnsemble::createGridCasesFromEnsembleFileSet()
 
     // Create case objects without loading grids
     createCaseObjectsFromEnsembleFileSet();
+    updateDataFilterCollectionCase();
 
     updateConnectedEditors();
 }
