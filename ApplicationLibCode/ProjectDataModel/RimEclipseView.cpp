@@ -2640,3 +2640,11 @@ RimPropertyFilterCollection* RimEclipseView::nativePropertyFilterCollection()
 {
     return m_propertyFilterCollection();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFilterInViewCollection* RimEclipseView::filterInViewCollection() const
+{
+    return m_filterInViewCollection();
+}

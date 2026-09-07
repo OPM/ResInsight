@@ -33,6 +33,7 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFilterInViewCollection.h"
 #include "RimGridCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
@@ -247,8 +248,7 @@ void RimEclipseContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
     cellResult()->uiCapability()->setUiReadOnly( m_contourMapProjection->isColumnResult() );
     uiTreeOrdering.add( wellCollection() );
     uiTreeOrdering.add( faultCollection() );
-    uiTreeOrdering.add( m_cellFilterCollection() );
-    uiTreeOrdering.add( nativePropertyFilterCollection() );
+    uiTreeOrdering.add( filterInViewCollection() );
     uiTreeOrdering.add( m_polygonInViewCollection );
     uiTreeOrdering.add( annotationCollection() );
 
