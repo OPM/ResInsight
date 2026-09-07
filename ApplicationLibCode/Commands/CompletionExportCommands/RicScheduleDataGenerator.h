@@ -76,33 +76,35 @@ private:
                                                                 bool                                dateAsComment = false,
                                                                 bool                                alignColumns  = false );
 
-    static std::optional<Opm::DeckKeyword>
-        generateWelspecsForWell( const RimWellEventTimeline& timeline, RimEclipseCase& eclipseCase, RimWellPath& well, const QDateTime& date );
+    static std::optional<Opm::DeckKeyword> generateWelspecsForWell( const RimWellEventTimeline&       timeline,
+                                                                    RimEclipseCase&                   eclipseCase,
+                                                                    RimWellPath&                      well,
+                                                                    const QDateTime&                  date,
+                                                                    const std::vector<RimWellEvent*>& eventsAtDate );
 
     // Generate COMPDAT (and COMPLUMP, when perforations carry a completion number) for a well at a
     // specific date based on events, merging both into the accumulator.
-    static void generateCompletionsForWell( const RimWellEventTimeline&          timeline,
-                                            RimEclipseCase&                      eclipseCase,
+    static void generateCompletionsForWell( RimEclipseCase&                      eclipseCase,
                                             RimWellPath&                         well,
                                             const QDateTime&                     date,
+                                            const std::vector<RimWellEvent*>&    eventsAtDate,
                                             std::map<QString, Opm::DeckKeyword>& keywordBlocks );
 
     // Generate WELSEGS / COMPSEGS / WSEGVALV / WSEGAICD for a well at a specific date.
     // WSEGVALV / WSEGAICD are merged into keywordBlocks; WELSEGS / COMPSEGS cannot be merged across
     // wells and are appended as separate per-well blocks in unmergedBlocks.
     // All four keywords are emitted only when the well is present in mswWells; otherwise none are.
-    static void generateMswForWell( const RimWellEventTimeline&                       timeline,
-                                    RimEclipseCase&                                   eclipseCase,
+    static void generateMswForWell( RimEclipseCase&                                   eclipseCase,
                                     RimWellPath&                                      well,
                                     const QDateTime&                                  date,
+                                    const std::vector<RimWellEvent*>&                 eventsAtDate,
                                     std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
                                     std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
                                     const std::set<const RimWellPath*>&               mswWells );
 
     // Generate well control / well keyword event keywords for a well at a specific date, merging into the accumulator
-    static void generateWellControlForWell( const RimWellEventTimeline&          timeline,
-                                            const RimWellPath&                   well,
-                                            const QDateTime&                     date,
+    static void generateWellControlForWell( const RimWellPath&                   well,
+                                            const std::vector<RimWellEvent*>&    eventsAtDate,
                                             std::map<QString, Opm::DeckKeyword>& keywordBlocks );
 
     // Append records of `kw` into the entry for `name`, creating it from `kw` if absent
