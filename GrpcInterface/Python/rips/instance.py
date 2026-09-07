@@ -418,8 +418,8 @@ class Instance:
         interval_sec: float = 5.0,
         deadline_sec: float = 5.0,
         failure_threshold: int = 3,
-        busy_warning_sec: float = 60.0,
         on_failure: Optional[Callable[["RipsError"], None]] = None,
+        busy_warning_sec: float = 60.0,
     ) -> None:
         """Start a background thread that periodically pings ResInsight.
 
@@ -452,12 +452,12 @@ class Instance:
             failure_threshold: Number of consecutive *connection* failures
                 required before the connection is declared lost.
                 Must be >= 1.
-            busy_warning_sec: Log a warning when the server has been unable
-                to answer pings for this many seconds in a row. The pending
-                call is still allowed to run to completion.
             on_failure: Optional callback invoked once when the
                 heartbeat detects a lost connection. Receives a
                 :class:`RipsError`.
+            busy_warning_sec: Log a warning when the server has been unable
+                to answer pings for this many seconds in a row. The pending
+                call is still allowed to run to completion.
         """
         if failure_threshold < 1:
             raise RipsError("failure_threshold must be >= 1")
