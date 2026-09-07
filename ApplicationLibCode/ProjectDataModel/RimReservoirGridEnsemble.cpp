@@ -18,6 +18,8 @@
 
 #include "RimReservoirGridEnsemble.h"
 
+#include "cafPdmUiTreeOrdering.h"
+
 #include "RiaLogging.h"
 #include "RiaQStringFormatter.h"
 #include "RiaResultNames.h"
@@ -37,6 +39,7 @@
 #include "Formations/RimFormationNamesCollection.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
+#include "RimDataFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
@@ -110,6 +113,9 @@ RimReservoirGridEnsemble::RimReservoirGridEnsemble()
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCase, "EnsembleCase", "Ensemble Grid" );
     m_ensembleCase = nullptr;
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_dataFilterCollection, "DataFilterCollection", "Data Filters" );
+    m_dataFilterCollection = new RimDataFilterCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
     m_viewCollection = new RimEclipseViewCollection;
@@ -195,6 +201,7 @@ void RimReservoirGridEnsemble::addCase( RimEclipseCase* reservoir )
     clearActiveCellUnions();
     clearStatisticsResults();
     updateMainGridAndActiveCellsForStatisticsCases();
+    updateDataFilterCollectionCase();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,6 +221,7 @@ void RimReservoirGridEnsemble::removeCase( RimEclipseCase* reservoir )
     clearActiveCellUnions();
     clearStatisticsResults();
     updateMainGridAndActiveCellsForStatisticsCases();
+    updateDataFilterCollectionCase();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -648,6 +656,13 @@ void RimReservoirGridEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menu
     {
         menuBuilder << "RicNewStatisticsCaseFeature";
     }
+
+    // The "Data Filters" collection node is hidden while empty, so expose the filter creation
+    // commands on the ensemble node to allow creating the first filter.
+    menuBuilder << "Separator";
+    menuBuilder.subMenuStart( "Data Filters", QIcon( ":/CellFilter.png" ) );
+    m_dataFilterCollection->appendMenuItems( menuBuilder );
+    menuBuilder.subMenuEnd();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -657,6 +672,24 @@ RimFormationNames* RimReservoirGridEnsemble::activeFormationNames() const
 {
     if ( !hasSharedGrid() ) return nullptr;
     return m_activeFormationNames();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimDataFilterCollection* RimReservoirGridEnsemble::dataFilterCollection() const
+{
+    return m_dataFilterCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The filters in the collection need a source case for configuration (result meta data, grid
+/// geometry). Use the main case of the ensemble. Evaluation of the filters is done per case, see
+/// RimCellFilterTools::computeReservoirCellVisibility.
+//--------------------------------------------------------------------------------------------------
+void RimReservoirGridEnsemble::updateDataFilterCollectionCase()
+{
+    if ( m_dataFilterCollection() ) m_dataFilterCollection->setCase( mainCase() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -725,6 +758,12 @@ void RimReservoirGridEnsemble::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 
     uiTreeOrdering.add( &m_caseCollection );
     uiTreeOrdering.add( &m_statisticsCaseCollection );
+
+    if ( m_dataFilterCollection() && m_dataFilterCollection()->shouldBeVisibleInTree() )
+    {
+        uiTreeOrdering.add( m_dataFilterCollection() );
+    }
+
     uiTreeOrdering.add( &m_viewCollection );
 
     for ( auto eclipseCase : cases() )
@@ -793,6 +832,7 @@ void RimReservoirGridEnsemble::initAfterRead()
         m_viewCollection->setEclipseCaseProvider( [this]() { return this->cases(); } );
     }
 
+    updateDataFilterCollectionCase();
     updateStatisticsVisibility();
 }
 
