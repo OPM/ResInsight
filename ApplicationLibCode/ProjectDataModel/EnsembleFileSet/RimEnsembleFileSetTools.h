@@ -34,6 +34,9 @@ namespace RimEnsembleFileSetTools
 {
 std::vector<RimSummaryEnsemble*> createSummaryEnsemblesFromFileSets( const std::vector<RimEnsembleFileSet*> fileSets );
 std::vector<RimEnsembleFileSet*> createEnsembleFileSets( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode groupingMode );
+std::vector<RimEnsembleFileSet*>
+    createEnsembleFileSets( const std::vector<std::string>   fileNames,
+                            RiaDefines::EnsembleGroupingMode groupingMode = RiaDefines::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
 
 std::vector<RimReservoirGridEnsemble*> createGridEnsemblesFromFileSets( const std::vector<RimEnsembleFileSet*> fileSets );
 

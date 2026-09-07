@@ -61,6 +61,19 @@ std::vector<RimSummaryEnsemble*> createSummaryEnsemblesFromFileSets( const std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleFileSet*> createEnsembleFileSets( const std::vector<std::string> fileNames, RiaDefines::EnsembleGroupingMode groupingMode )
+{
+    QStringList qFileNames;
+    for ( const auto& fileName : fileNames )
+    {
+        qFileNames.push_back( QString::fromStdString( fileName ) );
+    }
+    return createEnsembleFileSets( qFileNames, groupingMode );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleFileSet*> createEnsembleFileSets( const QStringList& fileNames, RiaDefines::EnsembleGroupingMode groupingMode )
 {
     std::vector<RimEnsembleFileSet*> fileSets;

@@ -23,6 +23,7 @@
 #include "RimJobWellSettings.h"
 
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 #include <string>
 
@@ -49,6 +50,9 @@ public:
         ADD_DAYS,
         ADD_MONTHS
     };
+
+    caf::Signal<>       jobCompleted;
+    caf::Signal<double> progressUpdate;
 
 public:
     RimOpmFlowJob();

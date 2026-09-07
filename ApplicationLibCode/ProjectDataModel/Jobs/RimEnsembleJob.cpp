@@ -28,6 +28,7 @@
 #include "RifOpmDeckFileTools.h"
 
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
+#include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "RimEclipseCase.h"
 #include "RimJobWellSettings.h"
 #include "RimOpmFlowJob.h"
@@ -120,14 +121,6 @@ bool RimEnsembleJob::matchesKeyValue( const QString& key, const QString& value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleJob::setFinished( bool runOk )
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::setStarted()
 {
 }
@@ -200,7 +193,9 @@ bool RimEnsembleJob::execute()
 {
     auto realizations = getSelectedRealizations();
 
+    m_expectedOutputFiles.clear();
     m_subJobs.deleteChildren();
+
     updateAllRequiredEditors();
 
     for ( auto& real : realizations )
@@ -216,6 +211,8 @@ bool RimEnsembleJob::execute()
         subJob->setJobWellSettings( m_jobWellSettings.value() );
         subJob->setAutoLoadResults( false );
         m_subJobs.push_back( subJob );
+
+        m_expectedOutputFiles.push_back( real.realizationOutputDir + "/" + real.outputDeckName + ".DATA" );
     }
 
     updateAllRequiredEditors();
@@ -224,6 +221,21 @@ bool RimEnsembleJob::execute()
     {
         RicRunJobFeature::runJob( subJob );
     }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleJob::setFinished( bool runOk )
+{
+    if ( !runOk ) return false;
+
+    auto fileSets = RimEnsembleFileSetTools::createEnsembleFileSets( m_expectedOutputFiles );
+
+    RimEnsembleFileSetTools::createGridEnsemblesFromFileSets( fileSets );
+    RimEnsembleFileSetTools::createSummaryEnsemblesFromFileSets( fileSets );
 
     return true;
 }

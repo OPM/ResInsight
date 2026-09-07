@@ -24,6 +24,8 @@
 
 #include <QDateTime>
 
+#include <string>
+
 class RimReservoirGridEnsemble;
 class RimEclipseCase;
 class RimOpmFlowJob;
@@ -82,4 +84,6 @@ private:
 
     caf::PdmField<std::vector<QDateTime>> m_datesInInputDeck;
     caf::PdmField<std::vector<QString>>   m_wellGroupsInInputDeck;
+
+    std::vector<std::string> m_expectedOutputFiles;
 };
