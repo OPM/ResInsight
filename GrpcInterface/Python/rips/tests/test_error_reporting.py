@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 import grpc
 import pytest
@@ -70,3 +71,104 @@ def test_heartbeat_starts_and_stops(rips_instance, initialize_test):
     rips_instance.start_heartbeat(interval_sec=0.5, deadline_sec=1.0)
     rips_instance.stop_heartbeat()
     rips_instance.check_alive()
+
+
+class _FakeApp:
+    """Stub App stub whose GetVersion always fails with a given status code."""
+
+    def __init__(self, code, details=""):
+        self.calls = 0
+        self._code = code
+        self._details = details
+
+    def GetVersion(self, _request, timeout=None):
+        self.calls += 1
+        raise _FakeRpcError(self._code, self._details)
+
+
+class _FakeChannel:
+    def __init__(self):
+        self.closed = False
+
+    def close(self):
+        self.closed = True
+
+
+class _FakeInstance:
+    """Duck-typed stand-in that exercises Instance.start_heartbeat without a
+    running ResInsight."""
+
+    def __init__(self, code, exit_code=None):
+        self.location = "localhost:50051"
+        self.app = _FakeApp(code)
+        self.channel = _FakeChannel()
+        self._connection_lost = False
+        self._connection_lost_message = None
+        self._heartbeat_thread = None
+        self._heartbeat_stop = None
+        self._exit_code = exit_code
+
+    def _process_exit_code(self):
+        return self._exit_code
+
+    start_heartbeat = rips.Instance.start_heartbeat
+    stop_heartbeat = rips.Instance.stop_heartbeat
+    check_alive = rips.Instance.check_alive
+
+
+def _run_heartbeat(instance, seconds=0.5):
+    failures = []
+    instance.start_heartbeat(
+        interval_sec=0.02,
+        deadline_sec=0.02,
+        failure_threshold=2,
+        busy_warning_sec=0.05,
+        on_failure=failures.append,
+    )
+    time.sleep(seconds)
+    instance.stop_heartbeat()
+    return failures
+
+
+def test_heartbeat_tolerates_busy_server():
+    """A busy-but-alive server leaves pings unanswered (DEADLINE_EXCEEDED).
+    The connection must not be declared lost: closing the channel would abort
+    the long-running call the user is waiting for (issue #14683)."""
+    instance = _FakeInstance(grpc.StatusCode.DEADLINE_EXCEEDED)
+
+    failures = _run_heartbeat(instance)
+
+    assert instance.app.calls > 2, "heartbeat should keep pinging a busy server"
+    assert not instance._connection_lost
+    assert not instance.channel.closed
+    assert failures == []
+    instance.check_alive()
+
+
+def test_heartbeat_detects_dead_server():
+    """A gone server fails pings with UNAVAILABLE, which must close the
+    channel so pending calls unblock instead of hanging."""
+    instance = _FakeInstance(grpc.StatusCode.UNAVAILABLE)
+
+    failures = _run_heartbeat(instance)
+
+    assert instance._connection_lost
+    assert instance.channel.closed
+    assert len(failures) == 1
+    with pytest.raises(RipsError):
+        instance.check_alive()
+
+
+def test_heartbeat_reports_exited_process_with_diagnostic():
+    """When the launched process has exited, say so explicitly instead of
+    surfacing a bare 'Channel closed!'."""
+    instance = _FakeInstance(grpc.StatusCode.DEADLINE_EXCEEDED, exit_code=-11)
+
+    _run_heartbeat(instance)
+
+    assert instance._connection_lost
+    with pytest.raises(RipsError) as excinfo:
+        instance.check_alive()
+    message = str(excinfo.value)
+    assert "exited unexpectedly" in message
+    assert "-11" in message
