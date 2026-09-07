@@ -31,15 +31,6 @@
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
-#include "Rim3dView.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseView.h"
-
-#include "RiuMainWindow.h"
-#include "RiuViewer.h"
-
-#include <QStatusBar>
-
 #include <algorithm>
 #include <cmath>
 #include <sstream>
@@ -68,6 +59,22 @@ RifReaderSumoGridProperty::RifReaderSumoGridProperty( RiaSumoConnector* connecto
 RifReaderSumoGridProperty::~RifReaderSumoGridProperty()
 {
     if ( m_connector ) m_connector->cancelGroup( m_lifetimeToken.get() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderSumoGridProperty::setPendingChangedCallback( PendingChangedCallback callback )
+{
+    m_onPendingChanged = std::move( callback );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderSumoGridProperty::setTimeStepArrivedCallback( TimeStepArrivedCallback callback )
+{
+    m_onTimeStepArrived = std::move( callback );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,8 +145,8 @@ bool RifReaderSumoGridProperty::dynamicResult( const QString&                res
     if ( m_pending.count( PendingKey{ result, stepIndex } ) > 0 )
     {
         // Refresh here as well. A transfer started before the case was open was registered while the view had
-        // no viewer yet, so this is the first point at which the banner can actually be put up.
-        updateLoadingIndicators();
+        // no viewer yet, so this is the first point at which the owner can actually show it.
+        notifyPendingChanged();
 
         return fillWithUndefinedValues( values );
     }
@@ -249,7 +256,7 @@ void RifReaderSumoGridProperty::markTimeStepPending( const QString& propertyName
 {
     if ( !m_pending.insert( PendingKey{ propertyName, stepIndex } ).second ) return;
 
-    updateLoadingIndicators();
+    notifyPendingChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -301,25 +308,25 @@ void RifReaderSumoGridProperty::requestTimeStepsAsync( const QString&           
         stepByTimestamp.try_emplace( isoDatesOrIntervals[i], requestedSteps[i] );
     }
 
-    updateLoadingIndicators();
+    notifyPendingChanged();
 
     std::weak_ptr<bool> isAlive = m_lifetimeToken;
 
-    m_connector->grid().propertyDataBatchAsync(
-        SumoCaseId( m_caseId ),
-        m_ensembleName,
-        m_gridName,
-        m_realization,
-        propertyName,
-        isoDatesOrIntervals,
-        [this, isAlive, propertyName, stepByTimestamp]( const QString& isoDateOrInterval, const QByteArray& contents )
-        {
-            // The reader may be gone: a realization can be closed while its
-            // transfers are still running.
-            if ( isAlive.expired() ) return;
+    m_connector->grid().propertyDataBatchAsync( SumoCaseId( m_caseId ),
+                                                m_ensembleName,
+                                                m_gridName,
+                                                m_realization,
+                                                propertyName,
+                                                isoDatesOrIntervals,
+                                                [this, isAlive, propertyName, stepByTimestamp]( const QString&    isoDateOrInterval,
+                                                                                                const QByteArray& contents )
+                                                {
+                                                    // The reader may be gone: a realization can be closed while its
+                                                    // transfers are still running.
+                                                    if ( isAlive.expired() ) return;
 
-            auto it = stepByTimestamp.find( isoDateOrInterval );
-            if ( it == stepByTimestamp.end() ) return;
+                                                    auto it = stepByTimestamp.find( isoDateOrInterval );
+                                                    if ( it == stepByTimestamp.end() ) return;
 
             onTimeStepArrived( propertyName, it->second, isoDateOrInterval, contents );
         },
@@ -327,8 +334,8 @@ void RifReaderSumoGridProperty::requestTimeStepsAsync( const QString&           
 }
 
 //--------------------------------------------------------------------------------------------------
-/// One time step has arrived, on the GUI thread. Write it into the case results over the placeholder, and
-/// redraw.
+/// One time step has arrived, on the GUI thread. Write it into the case results over the placeholder, then
+/// tell the owner via m_onTimeStepArrived, successfully or not, so it can redraw.
 //--------------------------------------------------------------------------------------------------
 void RifReaderSumoGridProperty::onTimeStepArrived( const QString&    propertyName,
                                                    size_t            stepIndex,
@@ -348,7 +355,8 @@ void RifReaderSumoGridProperty::onTimeStepArrived( const QString&    propertyNam
         // The placeholder is left in place. A non-empty slot is not read again, so a failed step is not
         // retried on every redraw, which would turn one failure into a flood of requests. The cells stay
         // blank until the case is reloaded.
-        updateLoadingIndicators();
+        notifyPendingChanged();
+        notifyTimeStepArrived( propertyName, stepIndex, false );
         return;
     }
 
@@ -368,45 +376,23 @@ void RifReaderSumoGridProperty::onTimeStepArrived( const QString&    propertyNam
         cellResults->recalculateStatistics( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, propertyName ) );
     }
 
-    scheduleRedrawOfViews();
-
-    updateLoadingIndicators();
+    notifyPendingChanged();
+    notifyTimeStepArrived( propertyName, stepIndex, true );
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Builds the "Loading X from Sumo..." message from pendingDataDescription() and reports it via
+/// m_onPendingChanged. No GUI code here: the owner decides where and how to show it.
 //--------------------------------------------------------------------------------------------------
-void RifReaderSumoGridProperty::updateLoadingIndicators() const
+void RifReaderSumoGridProperty::notifyPendingChanged() const
 {
     // Regression tests are left alone, matching how RiuMainWindow treats its own status messages.
-    if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() ) return;
+    if ( !m_onPendingChanged || RiaRegressionTestRunner::instance()->isRunningRegressionTests() ) return;
 
     const QString pending = pendingDataDescription();
     const QString message = pending.isEmpty() ? QString() : QString( "Loading %1 from Sumo..." ).arg( pending );
 
-    // A banner in the view itself. The status bar is easy to miss and the info text is small and can be
-    // switched off, while the wait is measured in seconds.
-    if ( auto* ownerCase = m_caseData ? m_caseData->ownerCase() : nullptr )
-    {
-        for ( auto* view : ownerCase->reservoirViews() )
-        {
-            if ( !view || !view->viewer() ) continue;
-
-            view->viewer()->setLoadingText( message );
-            view->viewer()->showLoadingLabel( !message.isEmpty() );
-        }
-    }
-
-    auto* mainWindow = RiuMainWindow::instance();
-    if ( !mainWindow || !mainWindow->statusBar() ) return;
-
-    if ( message.isEmpty() )
-    {
-        mainWindow->statusBar()->clearMessage();
-        return;
-    }
-
-    mainWindow->statusBar()->showMessage( message );
+    m_onPendingChanged( message );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -425,32 +411,12 @@ bool RifReaderSumoGridProperty::fillWithUndefinedValues( std::vector<double>* va
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Simply forwards to m_onTimeStepArrived. No redraw logic here: the owner decides what showing this data
+/// means and how to guard against re-entrancy from a redraw that reads cell results and arrives back here.
 //--------------------------------------------------------------------------------------------------
-void RifReaderSumoGridProperty::scheduleRedrawOfViews()
+void RifReaderSumoGridProperty::notifyTimeStepArrived( const QString& propertyName, size_t stepIndex, bool ok ) const
 {
-    // Redrawing reads cell results, which can start the next transfer and arrive back here. Coalesce rather
-    // than recurse.
-    if ( m_isRedrawing )
-    {
-        m_hasMissedRedraw = true;
-        return;
-    }
-
-    m_isRedrawing = true;
-    do
-    {
-        m_hasMissedRedraw = false;
-
-        if ( auto* ownerCase = m_caseData ? m_caseData->ownerCase() : nullptr )
-        {
-            for ( auto* view : ownerCase->reservoirViews() )
-            {
-                if ( view ) view->scheduleCreateDisplayModelAndRedraw();
-            }
-        }
-    } while ( m_hasMissedRedraw );
-    m_isRedrawing = false;
+    if ( m_onTimeStepArrived ) m_onTimeStepArrived( propertyName, stepIndex, ok );
 }
 
 //--------------------------------------------------------------------------------------------------

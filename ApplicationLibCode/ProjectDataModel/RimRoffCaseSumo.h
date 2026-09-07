@@ -110,6 +110,14 @@ private:
     // leaving the on demand path to fetch whatever is asked for.
     bool propertyToFetch( QString& propertyName, size_t& stepIndex, QString& isoDateOrInterval ) const;
 
+    // Callbacks handed to m_propertyReader, so the reader itself stays free of GUI code. Shows the loading
+    // banner and status bar message, and redraws the views once a time step has arrived.
+    void onPropertyPendingChanged( const QString& message );
+    void onPropertyTimeStepArrived( const QString& propertyName, size_t stepIndex, bool ok );
+
+    // Redraw the views of this case, so arrived values become visible.
+    void scheduleRedrawOfViews();
+
 private:
     caf::PdmPtrField<RimSumoDataSource*> m_sumoDataSource;
     caf::PdmField<QString>               m_sumoCaseId;
@@ -135,4 +143,9 @@ private:
     // so it can still be cancelled from closeReservoirCase. Recreated on every close, so a transfer left over
     // from a previous open is never cancelled by a later one.
     std::shared_ptr<bool> m_lifetimeToken;
+
+    // A redraw can read another time step and arrive back here through the reader's callback. Coalesce
+    // rather than recurse.
+    bool m_isRedrawingViews    = false;
+    bool m_hasMissedViewRedraw = false;
 };

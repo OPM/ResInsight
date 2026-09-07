@@ -24,6 +24,7 @@
 #include <QPointer>
 #include <QString>
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <set>
@@ -42,6 +43,14 @@ class RiaSumoConnector;
 class RifReaderSumoGridProperty : public RifReaderInterface
 {
 public:
+    // Called whenever what is pending changes, with a user-facing message describing it (empty when nothing
+    // is pending). No GUI code lives here: the owner decides where and how to show it.
+    using PendingChangedCallback = std::function<void( const QString& )>;
+
+    // Called once a requested time step is done, successfully or not, so the owner can redraw whatever
+    // shows this data.
+    using TimeStepArrivedCallback = std::function<void( const QString&, size_t, bool )>;
+
     RifReaderSumoGridProperty( RiaSumoConnector* connector,
                                const QString&    caseId,
                                const QString&    ensembleName,
@@ -51,6 +60,9 @@ public:
     // Aborts any transfers still in flight for this reader, see RiaSumoConnector::cancelGroup, so they stop
     // consuming connections and logging results for a reader that is no longer there.
     ~RifReaderSumoGridProperty() override;
+
+    void setPendingChangedCallback( PendingChangedCallback callback );
+    void setTimeStepArrivedCallback( TimeStepArrivedCallback callback );
 
     void setStaticProperties( const std::vector<QString>& propertyNames );
     void setDynamicProperties( const std::map<QString, std::vector<QString>>& propertyNameToTimestamps );
@@ -109,12 +121,11 @@ private:
     // on its way draws blank instead of logging a load failure on every redraw.
     bool fillWithUndefinedValues( std::vector<double>* values ) const;
 
-    // Redraw the views of this case, so arrived values become visible.
-    void scheduleRedrawOfViews();
+    // Reports the time step is done via m_onTimeStepArrived, successfully or not, so the owner can redraw.
+    void notifyTimeStepArrived( const QString& propertyName, size_t stepIndex, bool ok ) const;
 
-    // Refresh every surface reporting what is on its way: the banner in the view, the status bar, and
-    // indirectly the info box via RimRoffCaseSumo::dataLoadingText.
-    void updateLoadingIndicators() const;
+    // Reports what is pending via m_onPendingChanged, built from pendingDataDescription().
+    void notifyPendingChanged() const;
 
 private:
     QPointer<RiaSumoConnector> m_connector;
@@ -136,7 +147,6 @@ private:
     // outliving the reader cannot write into freed memory.
     std::shared_ptr<bool> m_lifetimeToken;
 
-    // A redraw can read another time step and arrive back here. Coalesce instead of recursing.
-    bool m_isRedrawing     = false;
-    bool m_hasMissedRedraw = false;
+    PendingChangedCallback  m_onPendingChanged;
+    TimeStepArrivedCallback m_onTimeStepArrived;
 };

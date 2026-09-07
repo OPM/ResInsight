@@ -43,11 +43,15 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirGridEnsembleBase.h"
 
+#include "RiuMainWindow.h"
+#include "RiuViewer.h"
+
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmPointer.h"
 
 #include <QDate>
 #include <QDateTime>
+#include <QStatusBar>
 
 #include <algorithm>
 #include <map>
@@ -495,6 +499,10 @@ void RimRoffCaseSumo::registerSumoGridProperties()
 
     m_propertyReader = reader;
 
+    reader->setPendingChangedCallback( [this]( const QString& message ) { onPropertyPendingChanged( message ); } );
+    reader->setTimeStepArrivedCallback( [this]( const QString& propertyName, size_t stepIndex, bool ok )
+                                        { onPropertyTimeStepArrived( propertyName, stepIndex, ok ); } );
+
     // The transfer started before this reader existed is still on its way. Tell the reader, so it reports the
     // wait to the user and does not issue a second request for the same time step.
     if ( m_fetchInFlight ) reader->markTimeStepPending( m_fetchInFlight->first, m_fetchInFlight->second );
@@ -620,4 +628,68 @@ void RimRoffCaseSumo::startPropertyFetch()
                                                         }
                                                     },
                                                     m_lifetimeToken.get() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A banner in the view itself, and the status bar. The status bar is easy to miss and the info text is
+/// small and can be switched off, while the wait is measured in seconds.
+//--------------------------------------------------------------------------------------------------
+void RimRoffCaseSumo::onPropertyPendingChanged( const QString& message )
+{
+    for ( auto* view : reservoirViews() )
+    {
+        if ( !view || !view->viewer() ) continue;
+
+        view->viewer()->setLoadingText( message );
+        view->viewer()->showLoadingLabel( !message.isEmpty() );
+    }
+
+    auto* mainWindow = RiuMainWindow::instance();
+    if ( !mainWindow || !mainWindow->statusBar() ) return;
+
+    if ( message.isEmpty() )
+    {
+        mainWindow->statusBar()->clearMessage();
+    }
+    else
+    {
+        mainWindow->statusBar()->showMessage( message );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRoffCaseSumo::onPropertyTimeStepArrived( const QString& /*propertyName*/, size_t /*stepIndex*/, bool ok )
+{
+    // A failed transfer leaves its placeholder in place; nothing new to show, so no redraw.
+    if ( !ok ) return;
+
+    scheduleRedrawOfViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRoffCaseSumo::scheduleRedrawOfViews()
+{
+    // Redrawing reads cell results, which can start the next transfer and arrive back here through the
+    // reader's callback. Coalesce rather than recurse.
+    if ( m_isRedrawingViews )
+    {
+        m_hasMissedViewRedraw = true;
+        return;
+    }
+
+    m_isRedrawingViews = true;
+    do
+    {
+        m_hasMissedViewRedraw = false;
+
+        for ( auto* view : reservoirViews() )
+        {
+            if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+        }
+    } while ( m_hasMissedViewRedraw );
+    m_isRedrawingViews = false;
 }
