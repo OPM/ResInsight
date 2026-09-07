@@ -25,6 +25,7 @@
 #include "RimWellEventKeywordItem.h"
 
 #include "RiaLogging.h"
+#include "RiaOpmKeywordTools.h"
 #include "RiaQStringFormatter.h"
 
 #include "cafAppEnum.h"
@@ -46,16 +47,6 @@
 
 namespace
 {
-// Constructing an Opm::Parser builds the complete keyword database (several thousand keywords) and
-// costs milliseconds. The parser is stateless once constructed, so a single shared instance is used
-// for all keyword lookups. Building one per keyword made schedule generation scale linearly in the
-// number of events with a very large constant (see issue: GenerateSchedule does not scale).
-const Opm::Parser& sharedParser()
-{
-    static const Opm::Parser parser;
-    return parser;
-}
-
 QString keywordToString( const Opm::DeckKeyword& kw )
 {
     if ( kw.name().empty() ) return {};
@@ -73,7 +64,7 @@ bool RifEventKeywordFormatter::isRecordlessKeyword( const Opm::DeckKeyword& keyw
 {
     try
     {
-        const auto& parserKeyword = sharedParser().getKeyword( keyword.name() );
+        const auto& parserKeyword = RiaOpmKeywordTools::defaultParser().getKeyword( keyword.name() );
         return parserKeyword.begin() == parserKeyword.end();
     }
     catch ( const std::exception& )
@@ -94,7 +85,7 @@ std::optional<Opm::DeckKeyword> RifEventKeywordFormatter::buildKeyword( const QS
 
     try
     {
-        const Opm::ParserKeyword& parserKw = sharedParser().getKeyword( kwName );
+        const Opm::ParserKeyword& parserKw = RiaOpmKeywordTools::defaultParser().getKeyword( kwName );
         Opm::DeckKeyword          kw( parserKw );
 
         const size_t numRecords = static_cast<size_t>( std::distance( parserKw.begin(), parserKw.end() ) );

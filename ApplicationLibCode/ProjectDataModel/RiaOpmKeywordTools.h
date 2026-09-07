@@ -23,6 +23,11 @@
 #include <optional>
 #include <vector>
 
+namespace Opm
+{
+class Parser;
+}
+
 struct RiaOpmKeywordInfo
 {
     QString              name;
@@ -32,5 +37,6 @@ struct RiaOpmKeywordInfo
 
 namespace RiaOpmKeywordTools
 {
+const Opm::Parser&               defaultParser();
 std::optional<RiaOpmKeywordInfo> keywordInfo( const QString& keywordName );
 } // namespace RiaOpmKeywordTools

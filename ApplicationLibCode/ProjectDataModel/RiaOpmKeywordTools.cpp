@@ -26,14 +26,16 @@
 #include <iterator>
 #include <set>
 
-namespace
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const Opm::Parser& RiaOpmKeywordTools::defaultParser()
 {
-const Opm::Parser& sharedParser()
-{
+    // Constructing an Opm::Parser builds the complete keyword database. Keep one shared instance
+    // for all keyword schema lookups.
     static const Opm::Parser parser( true );
     return parser;
 }
-} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -41,7 +43,7 @@ const Opm::Parser& sharedParser()
 std::optional<RiaOpmKeywordInfo> RiaOpmKeywordTools::keywordInfo( const QString& keywordName )
 {
     const QString keyword  = keywordName.toUpper();
-    const auto&   parser   = sharedParser();
+    const auto&   parser   = defaultParser();
     const auto    deckName = keyword.toStdString();
 
     if ( !parser.isRecognizedKeyword( deckName ) ) return std::nullopt;
