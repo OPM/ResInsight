@@ -539,6 +539,16 @@ std::vector<RimEclipseView*> RimReservoirGridEnsemble::allViews() const
         }
     }
 
+    for ( auto wellTargetMapping : m_wellTargetMappings.childrenByType() )
+    {
+        if ( !wellTargetMapping->ensembleStatisticsCase() ) continue;
+
+        for ( auto view : wellTargetMapping->ensembleStatisticsCase()->reservoirViews() )
+        {
+            views.push_back( view );
+        }
+    }
+
     return views;
 }
 
