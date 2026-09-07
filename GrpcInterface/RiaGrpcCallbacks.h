@@ -125,7 +125,10 @@ public:
     using MethodRequestT  = std::function<
          void( ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void* )>;
 
-    RiaGrpcUnaryCallback( ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, bool runsOnServerThread = false );
+    RiaGrpcUnaryCallback( ServiceT*      service,
+                          MethodImplT    methodImpl,
+                          MethodRequestT methodRequest,
+                          bool           runsOnServerThread = false );
 
     RiaGrpcCallbackInterface* createNewFromThis() const override;
     void                      createRequestHandler( ServerCompletionQueue* completionQueue ) override;

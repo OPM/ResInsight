@@ -109,7 +109,10 @@ RiaGrpcUnaryCallback<ServiceT, RequestT, ReplyT>::RiaGrpcUnaryCallback( ServiceT
 template <typename ServiceT, typename RequestT, typename ReplyT>
 RiaGrpcCallbackInterface* RiaGrpcUnaryCallback<ServiceT, RequestT, ReplyT>::createNewFromThis() const
 {
-    return new RiaGrpcUnaryCallback<ServiceT, RequestT, ReplyT>( this->m_service, this->m_methodImpl, this->m_methodRequest, m_runsOnServerThread );
+    return new RiaGrpcUnaryCallback<ServiceT, RequestT, ReplyT>( this->m_service,
+                                                                 this->m_methodImpl,
+                                                                 this->m_methodRequest,
+                                                                 m_runsOnServerThread );
 }
 
 //--------------------------------------------------------------------------------------------------
