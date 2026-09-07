@@ -67,6 +67,18 @@
 namespace RimKeywordFactory
 {
 
+namespace
+{
+// A single shared parser instance is used for all keyword schema lookups. Constructing an
+// Opm::Parser populates the complete keyword database and costs milliseconds, which is far too
+// expensive to repeat for every keyword being serialised.
+const Opm::Parser& sharedParser()
+{
+    static const Opm::Parser parser;
+    return parser;
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -932,8 +944,7 @@ QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword )
     std::vector<std::string> canonicalItemOrder;
     try
     {
-        Opm::Parser               parser;
-        const Opm::ParserKeyword& parserKeyword = parser.getKeyword( keyword.name() );
+        const Opm::ParserKeyword& parserKeyword = sharedParser().getKeyword( keyword.name() );
         if ( std::distance( parserKeyword.begin(), parserKeyword.end() ) == 1 )
         {
             const Opm::ParserRecord& parserRecord = parserKeyword.getRecord( 0 );
@@ -1078,8 +1089,7 @@ QString deckKeywordToAlignedString( const Opm::DeckKeyword& keyword )
     bool slashTerminated = true;
     try
     {
-        Opm::Parser parser;
-        slashTerminated = !parser.getKeyword( keyword.name() ).hasFixedSize();
+        slashTerminated = !sharedParser().getKeyword( keyword.name() ).hasFixedSize();
     }
     catch ( ... )
     {

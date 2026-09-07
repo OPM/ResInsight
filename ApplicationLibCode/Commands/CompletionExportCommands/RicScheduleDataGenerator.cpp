@@ -266,7 +266,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
     {
         if ( !well ) continue;
 
-        if ( auto welspecs = generateWelspecsForWell( timeline, eclipseCase, *well, date ) )
+        if ( auto welspecs = generateWelspecsForWell( timeline, eclipseCase, *well, date, events ) )
         {
             mergeKeyword( keywordBlocks, "WELSPECS", std::move( *welspecs ) );
             mergeKeyword( keywordBlocks,
@@ -274,10 +274,10 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
                           RimKeywordFactory::compordKeyword( well->completionSettings()->wellNameForExport().toStdString() ) );
         }
 
-        generateCompletionsForWell( timeline, eclipseCase, *well, date, keywordBlocks );
+        generateCompletionsForWell( eclipseCase, *well, date, events, keywordBlocks );
 
-        generateMswForWell( timeline, eclipseCase, *well, date, keywordBlocks, unmergedBlocks, mswWells );
-        generateWellControlForWell( timeline, *well, date, keywordBlocks );
+        generateMswForWell( eclipseCase, *well, date, events, keywordBlocks, unmergedBlocks, mswWells );
+        generateWellControlForWell( *well, events, keywordBlocks );
     }
 
     // Schedule-level keyword events (not tied to a specific well)
@@ -424,15 +424,14 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWell( const RimWellEventTimeline& timeline,
-                                                                                   RimEclipseCase&             eclipseCase,
-                                                                                   RimWellPath&                well,
-                                                                                   const QDateTime&            date )
+std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWell( const RimWellEventTimeline&       timeline,
+                                                                                   RimEclipseCase&                   eclipseCase,
+                                                                                   RimWellPath&                      well,
+                                                                                   const QDateTime&                  date,
+                                                                                   const std::vector<RimWellEvent*>& eventsAtDate )
 {
-    auto events = timeline.getEventsAtDate( date );
-
     bool hasEvents = false;
-    for ( auto* event : events )
+    for ( auto* event : eventsAtDate )
     {
         if ( ( event->eventType() == RimWellEvent::EventType::PERF || event->eventType() == RimWellEvent::EventType::VALVE ||
                event->eventType() == RimWellEvent::EventType::TUBING || event->eventType() == RimWellEvent::EventType::WELLSPEC ) &&
@@ -479,16 +478,14 @@ std::optional<Opm::DeckKeyword> RicScheduleDataGenerator::generateWelspecsForWel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicScheduleDataGenerator::generateCompletionsForWell( const RimWellEventTimeline&          timeline,
-                                                           RimEclipseCase&                      eclipseCase,
+void RicScheduleDataGenerator::generateCompletionsForWell( RimEclipseCase&                      eclipseCase,
                                                            RimWellPath&                         well,
                                                            const QDateTime&                     date,
+                                                           const std::vector<RimWellEvent*>&    eventsAtDate,
                                                            std::map<QString, Opm::DeckKeyword>& keywordBlocks )
 {
-    auto events = timeline.getEventsAtDate( date );
-
     bool hasPerfEvents = false;
-    for ( auto* event : events )
+    for ( auto* event : eventsAtDate )
     {
         if ( event->eventType() == RimWellEvent::EventType::PERF && event->wellName() == well.name() )
         {
@@ -511,10 +508,10 @@ void RicScheduleDataGenerator::generateCompletionsForWell( const RimWellEventTim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&                       timeline,
-                                                   RimEclipseCase&                                   eclipseCase,
+void RicScheduleDataGenerator::generateMswForWell( RimEclipseCase&                                   eclipseCase,
                                                    RimWellPath&                                      wellPath,
                                                    const QDateTime&                                  date,
+                                                   const std::vector<RimWellEvent*>&                 eventsAtDate,
                                                    std::map<QString, Opm::DeckKeyword>&              keywordBlocks,
                                                    std::map<QString, std::vector<Opm::DeckKeyword>>& unmergedBlocks,
                                                    const std::set<const RimWellPath*>&               mswWells )
@@ -532,10 +529,9 @@ void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&  
     }
 
     // MSW is generated only when there are valve/tubing/perforation events at this exact date.
-    auto events        = timeline.getEventsAtDate( date );
     bool hasMswEvents  = false;
     bool hasPerfEvents = false;
-    for ( auto* event : events )
+    for ( auto* event : eventsAtDate )
     {
         if ( event->wellName() != wellPath.name() ) continue;
 
@@ -591,14 +587,11 @@ void RicScheduleDataGenerator::generateMswForWell( const RimWellEventTimeline&  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicScheduleDataGenerator::generateWellControlForWell( const RimWellEventTimeline&          timeline,
-                                                           const RimWellPath&                   well,
-                                                           const QDateTime&                     date,
+void RicScheduleDataGenerator::generateWellControlForWell( const RimWellPath&                   well,
+                                                           const std::vector<RimWellEvent*>&    eventsAtDate,
                                                            std::map<QString, Opm::DeckKeyword>& keywordBlocks )
 {
-    auto events = timeline.getEventsAtDate( date );
-
-    for ( auto* event : events )
+    for ( auto* event : eventsAtDate )
     {
         if ( event->wellName() != well.name() ) continue;
 
