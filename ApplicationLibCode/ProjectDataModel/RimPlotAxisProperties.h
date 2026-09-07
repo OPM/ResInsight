@@ -32,6 +32,11 @@
 
 #include <QString>
 
+namespace caf
+{
+class SignalEmitter;
+}
+
 class RimPlotAxisAnnotation;
 
 //==================================================================================================
@@ -140,6 +145,8 @@ public:
 
     void enableAutoValueForAllFields( bool enable );
 
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -153,6 +160,7 @@ private:
     void                     updateOptionSensitivity();
     caf::FontTools::FontSize plotFontSize() const;
     void                     defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void                     onPinnedTagClicked( const caf::SignalEmitter* emitter, size_t index );
 
 private:
     caf::PdmField<bool> m_isActive;

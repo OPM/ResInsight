@@ -64,5 +64,5 @@ void RicToggleXAxisLinkingFeature::setupActionLook( QAction* actionToSetup )
     }
 
     actionToSetup->setText( text + " Time Axis" );
-    actionToSetup->setIcon( QIcon( ":/chain.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SharedAxis.svg" ) );
 }
