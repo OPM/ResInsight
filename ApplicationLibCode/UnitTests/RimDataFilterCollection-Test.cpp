@@ -18,10 +18,15 @@
 
 #include "gtest/gtest.h"
 
+#include "RigActiveCellInfo.h"
 #include "RimCellFilter.h"
 #include "RimCellRangeFilter.h"
 #include "RimCombinedFilter.h"
 #include "RimDataFilterCollection.h"
+#include "RimDataFilterInViewCollection.h"
+#include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
+#include "RimReservoirGridEnsemble.h"
 
 #include "cafSignal.h"
 
@@ -224,4 +229,20 @@ TEST( RimDataFilterCollection, pdmRoundTripPreservesFilters )
     ASSERT_EQ( size_t{ 2 }, items.size() );
     EXPECT_NE( nullptr, dynamic_cast<RimCellRangeFilter*>( items[0] ) );
     EXPECT_NE( nullptr, dynamic_cast<RimCombinedFilter*>( items[1] ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimDataFilterCollection, ensembleViewUsesEnsembleDataFilters )
+{
+    auto  eclipseCase = std::make_unique<RimEclipseResultCase>();
+    auto  ensemble    = std::make_unique<RimReservoirGridEnsemble>();
+    auto* view        = new RimEclipseView();
+
+    view->setEclipseCase( eclipseCase.get() );
+    EXPECT_EQ( eclipseCase->dataFilterCollection(), view->dataFiltersInView()->sourceCollection() );
+
+    ensemble->addView( view );
+    EXPECT_EQ( ensemble->dataFilterCollection(), view->dataFiltersInView()->sourceCollection() );
 }

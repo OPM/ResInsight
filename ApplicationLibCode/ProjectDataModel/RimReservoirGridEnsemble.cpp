@@ -40,6 +40,7 @@
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimDataFilterCollection.h"
+#include "RimDataFilterInViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
@@ -491,6 +492,7 @@ RimEclipseStatisticsCase* RimReservoirGridEnsemble::createAndAppendStatisticsCas
 void RimReservoirGridEnsemble::addView( RimEclipseView* view )
 {
     m_viewCollection->addView( view );
+    view->dataFiltersInView()->setSourceCollection( m_dataFilterCollection() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -498,7 +500,9 @@ void RimReservoirGridEnsemble::addView( RimEclipseView* view )
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimReservoirGridEnsemble::addViewForCase( RimEclipseCase* eclipseCase )
 {
-    return m_viewCollection->addView( eclipseCase );
+    auto* view = m_viewCollection->addView( eclipseCase );
+    view->dataFiltersInView()->setSourceCollection( m_dataFilterCollection() );
+    return view;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -685,8 +689,8 @@ RimDataFilterCollection* RimReservoirGridEnsemble::dataFilterCollection() const
 
 //--------------------------------------------------------------------------------------------------
 /// The filters in the collection need a source case for configuration (result meta data, grid
-/// geometry). Use the main case of the ensemble. Evaluation of the filters is done per case, see
-/// RimCellFilterTools::computeReservoirCellVisibility.
+/// geometry). Use the main case of the ensemble. Ensemble views evaluate the filters using their
+/// current case.
 //--------------------------------------------------------------------------------------------------
 void RimReservoirGridEnsemble::updateDataFilterCollectionCase()
 {

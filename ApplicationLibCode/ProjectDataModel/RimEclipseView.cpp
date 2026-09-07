@@ -90,6 +90,7 @@
 #include "RimRefinementRegionCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
 #include "RimSimWellInView.h"
@@ -451,7 +452,12 @@ void RimEclipseView::propagateEclipseCaseToChildObjects()
 
     if ( m_dataFiltersInView() )
     {
-        m_dataFiltersInView()->setSourceCollection( currentEclipseCase ? currentEclipseCase->dataFilterCollection() : nullptr );
+        auto* sourceCollection = currentEclipseCase ? currentEclipseCase->dataFilterCollection() : nullptr;
+        if ( auto* gridEnsemble = firstAncestorOfType<RimReservoirGridEnsemble>() )
+        {
+            sourceCollection = gridEnsemble->dataFilterCollection();
+        }
+        m_dataFiltersInView()->setSourceCollection( sourceCollection );
     }
 
     // Update grids node
