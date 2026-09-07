@@ -151,6 +151,14 @@ void RiaGrpcServerImpl::initialize()
     QString requestedServerAddress = QString( "localhost:%1" ).arg( m_portNumber );
     builder.AddListeningPort( requestedServerAddress.toStdString(), grpc::InsecureServerCredentials(), &m_portNumber );
 
+    // A single request or reply can be large, e.g. the schedule text generated from a full
+    // production history or a raw text block imported into the event timeline. The gRPC default
+    // limit of 4 MB is easily exceeded by such payloads, so raise it well above any realistic deck
+    // size. The client uses a matching limit (see rips/instance.py).
+    const int maxMessageSize = 128 * 1024 * 1024;
+    builder.SetMaxReceiveMessageSize( maxMessageSize );
+    builder.SetMaxSendMessageSize( maxMessageSize );
+
     for ( auto key : RiaGrpcServiceFactory::instance()->allKeys() )
     {
         std::shared_ptr<RiaGrpcServiceInterface> service( RiaGrpcServiceFactory::instance()->create( key ) );
