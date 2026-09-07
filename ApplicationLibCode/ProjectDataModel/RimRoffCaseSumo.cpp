@@ -25,9 +25,9 @@
 #include "RiaResultNames.h"
 
 #include "Cloud/RiaSumoConnector.h"
-#include "Cloud/RifReaderSumoGridProperty.h"
 #include "Cloud/RimSumoDataSource.h"
 
+#include "RifReaderSumoGridProperty.h"
 #include "RifRoffFileTools.h"
 
 #include "RigActiveCellInfo.h"

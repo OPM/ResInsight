@@ -20,8 +20,9 @@
 
 #include "RiaLogging.h"
 #include "RiaRegressionTestRunner.h"
-#include "RiaSumoConnector.h"
-#include "RiaSumoDefines.h"
+
+#include "Cloud/RiaSumoConnector.h"
+#include "Cloud/RiaSumoDefines.h"
 
 #include "RifRoffFileTools.h"
 
