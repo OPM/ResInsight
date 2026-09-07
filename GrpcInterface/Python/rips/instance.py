@@ -38,6 +38,24 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+# gRPC status codes that mean "the server did not answer in time" rather than
+# "the server is gone". ResInsight serves gRPC requests from its main thread, so
+# any long-running request (large exports, schedule generation on a big event
+# timeline, heavy grid computations) makes pings time out while the process is
+# perfectly healthy. Tearing down the connection in that situation aborts the
+# very call the user is waiting for (see issue #14683).
+_BUSY_STATUS_CODES = (
+    grpc.StatusCode.DEADLINE_EXCEEDED,
+    grpc.StatusCode.RESOURCE_EXHAUSTED,
+)
+
+
+def _is_server_busy_error(rpc_error: grpc.RpcError) -> bool:
+    """True when a failed ping indicates a busy server, not a dead one."""
+    code_fn = getattr(rpc_error, "code", None)
+    code = code_fn() if callable(code_fn) else None
+    return code in _BUSY_STATUS_CODES
+
 
 class Instance:
     """The ResInsight Instance class. Use to launch or find existing ResInsight instances
@@ -132,8 +150,9 @@ class Instance:
             init_timeout: Number of seconds to wait for initialization before timing out.
             command_line_parameters(list): Additional parameters as string entries in the list.
             enable_heartbeat(bool): If True (default), a background thread pings the
-                server periodically and aborts pending RPCs if it dies. Disable on
-                slow boxes where false positives matter (long GC pauses, debugger).
+                server periodically and aborts pending RPCs if the process dies.
+                Pings left unanswered by a busy server are not treated as a
+                failure, so long-running calls are never aborted.
         Returns:
             Instance: a connected instance object. Raises :class:`RipsError` on failure.
         """
@@ -202,6 +221,7 @@ class Instance:
                 port=port,
                 launched=True,
                 enable_heartbeat=enable_heartbeat,
+                process=process,
             )
 
     @staticmethod
@@ -220,8 +240,9 @@ class Instance:
             start_port (int): start searching from this port
             end_port (int): search up to but not including this port
             enable_heartbeat(bool): If True (default), a background thread pings the
-                server periodically and aborts pending RPCs if it dies. Disable on
-                slow boxes where false positives matter (long GC pauses, debugger).
+                server periodically and aborts pending RPCs if the process dies.
+                Pings left unanswered by a busy server are not treated as a
+                failure, so long-running calls are never aborted.
         """
         port_env = os.environ.get("RESINSIGHT_GRPC_PORT")
         if port_env:
@@ -262,6 +283,7 @@ class Instance:
         port: int = 50051,
         launched: bool = False,
         enable_heartbeat: bool = True,
+        process: Optional["subprocess.Popen[bytes]"] = None,
     ) -> None:
         """Attempts to connect to ResInsight at a specific port on localhost
 
@@ -272,13 +294,18 @@ class Instance:
                 pings the server periodically. On detection of a dead server
                 the channel is closed so any in-flight RPC unblocks
                 immediately with a :class:`RipsError`.
+            process: The ResInsight process handle when this Python process
+                launched it. Used by the heartbeat to tell a crashed server
+                apart from one that is merely busy.
         """
         self.location: str = "localhost:" + str(port)
         self.port: int = port
         self._last_version_check_error = None
         self._connection_lost = False
+        self._connection_lost_message: Optional[str] = None
         self._heartbeat_thread = None
         self._heartbeat_stop = None
+        self._process = process
 
         self.channel = grpc.insecure_channel(
             self.location, options=[("grpc.enable_http_proxy", False)]
@@ -382,32 +409,43 @@ class Instance:
         interval_sec: float = 5.0,
         deadline_sec: float = 5.0,
         failure_threshold: int = 3,
+        busy_warning_sec: float = 60.0,
         on_failure: Optional[Callable[["RipsError"], None]] = None,
     ) -> None:
         """Start a background thread that periodically pings ResInsight.
 
-        A single missed ping is not fatal: the heartbeat tolerates up
-        to ``failure_threshold - 1`` consecutive failures (e.g.
+        The heartbeat detects a *dead* server, not a *busy* one. ResInsight
+        serves gRPC requests from its main thread, so a long-running call
+        (e.g. ``generate_schedule`` on a large event timeline) leaves pings
+        unanswered for as long as that call runs. Such pings fail with
+        ``DEADLINE_EXCEEDED`` while the process is perfectly healthy, so they
+        are reported as "busy" and never counted towards
+        ``failure_threshold``. Only failures that indicate a broken
+        connection (``UNAVAILABLE`` and friends), or an exited process when
+        this Python process launched ResInsight, declare the connection lost.
+
+        A single connection failure is not fatal either: the heartbeat
+        tolerates up to ``failure_threshold - 1`` consecutive failures (e.g.
         transient slowness on a loaded CI box) before declaring the
         connection lost. A successful ping resets the counter.
 
-        Once the threshold is reached, the instance is marked as
+        Once the connection is declared lost, the instance is marked as
         ``connection_lost``, the underlying gRPC channel is closed so
         any in-flight calls fail fast with ``UNAVAILABLE``, and the
         retry interceptor is told to stop retrying. Subsequent API
         calls that go through :meth:`check_alive` raise
         :class:`RipsError` with the captured cause.
 
-        Heartbeat is opt-in. Existing scripts are unaffected unless
-        they call this method.
-
         Args:
             interval_sec: Seconds between pings.
-            deadline_sec: Per-ping deadline. Pings exceeding this are
-                treated as failures.
-            failure_threshold: Number of consecutive failed pings
+            deadline_sec: Per-ping deadline. A ping exceeding this deadline
+                means the server is busy, not that it is gone.
+            failure_threshold: Number of consecutive *connection* failures
                 required before the connection is declared lost.
                 Must be >= 1.
+            busy_warning_sec: Log a warning when the server has been unable
+                to answer pings for this many seconds in a row. The pending
+                call is still allowed to run to completion.
             on_failure: Optional callback invoked once when the
                 heartbeat detects a lost connection. Receives a
                 :class:`RipsError`.
@@ -421,13 +459,69 @@ class Instance:
         stop_event = threading.Event()
         self._heartbeat_stop = stop_event
 
+        def _declare_lost(err: RipsError) -> None:
+            self._connection_lost = True
+            self._connection_lost_message = str(err)
+            # Close the channel so any pending RPC unblocks
+            # immediately with UNAVAILABLE instead of waiting
+            # for TCP keepalive (which can take many minutes).
+            try:
+                self.channel.close()
+            except Exception:
+                logger.exception("Failed to close gRPC channel from heartbeat")
+            if on_failure is not None:
+                try:
+                    on_failure(err)
+                except Exception:
+                    logger.exception("Heartbeat on_failure callback raised")
+
         def _run() -> None:
             consecutive_failures = 0
+            busy_since: Optional[float] = None
+            busy_warned = False
             while not stop_event.is_set():
                 try:
                     self.app.GetVersion(Empty(), timeout=deadline_sec)
                     consecutive_failures = 0
+                    busy_since = None
+                    busy_warned = False
                 except grpc.RpcError as exc:
+                    exit_code = self._process_exit_code()
+                    if exit_code is not None:
+                        _declare_lost(
+                            RipsError(
+                                f"ResInsight at {self.location} exited unexpectedly "
+                                f"(process exit code {exit_code})",
+                                location=self.location,
+                            )
+                        )
+                        return
+
+                    if _is_server_busy_error(exc):
+                        # The server is alive, but its main thread is occupied by a
+                        # long-running request. Never tear down the connection for
+                        # this: that would kill the very call we are waiting for.
+                        now = time.monotonic()
+                        if busy_since is None:
+                            busy_since = now
+                        busy_elapsed = now - busy_since
+                        if not busy_warned and busy_elapsed >= busy_warning_sec:
+                            busy_warned = True
+                            logger.warning(
+                                "ResInsight at %s has not answered heartbeat pings for "
+                                "%.0f s. It is most likely busy with a long-running "
+                                "request; still waiting.",
+                                self.location,
+                                busy_elapsed,
+                            )
+                        else:
+                            logger.debug(
+                                "Heartbeat ping timed out after %.1f s (server busy)",
+                                deadline_sec,
+                            )
+                        stop_event.wait(interval_sec)
+                        continue
+
                     consecutive_failures += 1
                     if consecutive_failures < failure_threshold:
                         logger.warning(
@@ -439,20 +533,7 @@ class Instance:
                         stop_event.wait(interval_sec)
                         continue
 
-                    self._connection_lost = True
-                    # Close the channel so any pending RPC unblocks
-                    # immediately with UNAVAILABLE instead of waiting
-                    # for TCP keepalive (which can take many minutes).
-                    try:
-                        self.channel.close()
-                    except Exception:
-                        logger.exception("Failed to close gRPC channel from heartbeat")
-                    err = RipsError.from_rpc_error(exc, location=self.location)
-                    if on_failure is not None:
-                        try:
-                            on_failure(err)
-                        except Exception:
-                            logger.exception("Heartbeat on_failure callback raised")
+                    _declare_lost(RipsError.from_rpc_error(exc, location=self.location))
                     return
                 stop_event.wait(interval_sec)
 
@@ -469,15 +550,25 @@ class Instance:
         self._heartbeat_thread = None
         self._heartbeat_stop = None
 
+    def _process_exit_code(self) -> Optional[int]:
+        """Exit code of the ResInsight process we launched, or None when the
+        process is still running (or was not launched by this client)."""
+        if self._process is None:
+            return None
+        try:
+            return self._process.poll()
+        except Exception:
+            return None
+
     def check_alive(self) -> None:
         """Raise :class:`RipsError` if the heartbeat has flagged a
         lost connection. Cheap to call before issuing API requests."""
         if self._connection_lost:
-            raise RipsError(
+            message = self._connection_lost_message or (
                 f"ResInsight at {self.location} is no longer responding "
-                "(detected by heartbeat)",
-                location=self.location,
+                "(detected by heartbeat)"
             )
+            raise RipsError(message, location=self.location)
 
     def __del__(self):
         try:
