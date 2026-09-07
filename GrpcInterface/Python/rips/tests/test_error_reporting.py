@@ -160,6 +160,17 @@ def test_heartbeat_detects_dead_server():
         instance.check_alive()
 
 
+def test_heartbeat_preserves_positional_on_failure_argument():
+    instance = _FakeInstance(grpc.StatusCode.UNAVAILABLE)
+    failures = []
+
+    instance.start_heartbeat(0.02, 0.02, 1, failures.append)
+    instance._heartbeat_thread.join(timeout=0.5)
+    instance.stop_heartbeat()
+
+    assert len(failures) == 1
+
+
 def test_heartbeat_reports_exited_process_with_diagnostic():
     """When the launched process has exited, say so explicitly instead of
     surfacing a bare 'Channel closed!'."""
