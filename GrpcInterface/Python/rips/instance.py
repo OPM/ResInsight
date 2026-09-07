@@ -57,6 +57,19 @@ def _is_server_busy_error(rpc_error: grpc.RpcError) -> bool:
     return code in _BUSY_STATUS_CODES
 
 
+# A single PDM method call may return a large payload, e.g. the schedule text
+# generated from a full production history. The gRPC default of 4 MB is easily
+# exceeded by such results, so raise it well above any realistic deck size
+# while still keeping a bound against runaway allocations.
+_MAX_MESSAGE_LENGTH = 128 * 1024 * 1024
+
+_CHANNEL_OPTIONS = [
+    ("grpc.enable_http_proxy", False),
+    ("grpc.max_receive_message_length", _MAX_MESSAGE_LENGTH),
+    ("grpc.max_send_message_length", _MAX_MESSAGE_LENGTH),
+]
+
+
 class Instance:
     """The ResInsight Instance class. Use to launch or find existing ResInsight instances
 
@@ -83,9 +96,7 @@ class Instance:
     @staticmethod
     def __is_valid_port(port: int) -> bool:
         location = "localhost:" + str(port)
-        channel = grpc.insecure_channel(
-            location, options=[("grpc.enable_http_proxy", False)]
-        )
+        channel = grpc.insecure_channel(location, options=_CHANNEL_OPTIONS)
         app = App_pb2_grpc.AppStub(channel)
         try:
             app.GetVersion(Empty(), timeout=1)
@@ -307,9 +318,7 @@ class Instance:
         self._heartbeat_stop = None
         self._process = process
 
-        self.channel = grpc.insecure_channel(
-            self.location, options=[("grpc.enable_http_proxy", False)]
-        )
+        self.channel = grpc.insecure_channel(self.location, options=_CHANNEL_OPTIONS)
         self.launched = launched
         self.commands = Commands_pb2_grpc.CommandsStub(self.channel)
 
