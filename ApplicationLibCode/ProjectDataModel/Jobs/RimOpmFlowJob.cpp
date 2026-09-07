@@ -97,6 +97,8 @@ RimOpmFlowJob::RimOpmFlowJob()
     : m_fileDeckHasDates( false )
     , m_fileDeckIsRestart( false )
     , m_startStepForProgress( -1 )
+    , jobCompleted( this )
+    , progressUpdate( this )
 {
     CAF_PDM_InitObject( "Opm Flow Simulation", ":/opm.png" );
 
