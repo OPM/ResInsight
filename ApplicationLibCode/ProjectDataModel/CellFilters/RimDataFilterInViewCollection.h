@@ -29,10 +29,10 @@ class RimDataFilterCollection;
 class RimDataFilterInView;
 
 //==================================================================================================
-/// View-level collection of RimDataFilterInView wrappers, one per case-level filter. Auto-syncs
-/// with the case-level RimDataFilterCollection (mirroring RimSurfaceInViewCollection's pattern):
-/// new wrappers default to checked, removed source filters drop their wrappers, and the wrapper
-/// list follows the case order.
+/// View-level collection of RimDataFilterInView wrappers, one per source filter. Auto-syncs with
+/// the case- or ensemble-level RimDataFilterCollection (mirroring RimSurfaceInViewCollection's
+/// pattern): new wrappers default to checked, removed source filters drop their wrappers, and the
+/// wrapper list follows the source order.
 //==================================================================================================
 class RimDataFilterInViewCollection : public RimCheckableNamedObject
 {

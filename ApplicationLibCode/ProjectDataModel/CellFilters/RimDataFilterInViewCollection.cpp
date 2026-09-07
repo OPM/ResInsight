@@ -24,6 +24,7 @@
 #include "RimDataFilterInView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimReservoirGridEnsemble.h"
 
 #include "cafPdmUiTreeOrdering.h"
 
@@ -159,13 +160,16 @@ bool RimDataFilterInViewCollection::hasActiveFilters() const
 //--------------------------------------------------------------------------------------------------
 void RimDataFilterInViewCollection::initAfterRead()
 {
-    // Old project files (predating this branch) don't persist a SourceCollection reference, and
-    // setSourceCollection() is normally invoked from RimEclipseView::propagateEclipseCaseToChildObjects
-    // — which only runs when the case is assigned via the setter, not on plain XML load. Resolve the
-    // case-level data filter collection through the PDM ancestry so wrappers always sync on load.
-    if ( !m_sourceCollection() )
+    // setSourceCollection() is normally invoked from RimEclipseView::propagateEclipseCaseToChildObjects,
+    // which only runs when the case is assigned via the setter, not on plain XML load. Resolve the
+    // data filter collection through the PDM ancestry so wrappers always sync with the correct owner.
+    if ( auto* view = firstAncestorOrThisOfType<RimEclipseView>() )
     {
-        if ( auto* view = firstAncestorOrThisOfType<RimEclipseView>() )
+        if ( auto* gridEnsemble = view->firstAncestorOfType<RimReservoirGridEnsemble>() )
+        {
+            m_sourceCollection = gridEnsemble->dataFilterCollection();
+        }
+        else if ( !m_sourceCollection() )
         {
             if ( auto* eclCase = view->eclipseCase() ) m_sourceCollection = eclCase->dataFilterCollection();
         }
