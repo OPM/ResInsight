@@ -68,7 +68,17 @@ grpc::Status
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcAppService::createCallbacks()
 {
     using Self = RiaGrpcAppService;
-    return { new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Version>( this, &Self::GetVersion, &Self::RequestGetVersion ),
+
+    // GetVersion reads compile-time constants only. It is flagged to run directly on the gRPC
+    // completion queue thread so that clients can check liveness even while the main thread is
+    // busy with a long-running request (see issue #14683). All other methods touch application
+    // state and must be processed on the main thread.
+    const bool runsOnServerThread = true;
+
+    return { new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Version>( this,
+                                                                         &Self::GetVersion,
+                                                                         &Self::RequestGetVersion,
+                                                                         runsOnServerThread ),
              new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Empty>( this, &Self::Exit, &Self::RequestExit ),
              new RiaGrpcUnaryCallback<Self, rips::Empty, rips::RuntimeInfo>( this,
                                                                              &Self::GetRuntimeInfo,

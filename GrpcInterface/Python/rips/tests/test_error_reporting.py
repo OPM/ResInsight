@@ -1,5 +1,6 @@
 import sys
 import os
+import threading
 import time
 
 import grpc
@@ -172,3 +173,51 @@ def test_heartbeat_reports_exited_process_with_diagnostic():
     message = str(excinfo.value)
     assert "exited unexpectedly" in message
     assert "-11" in message
+
+
+def test_server_answers_pings_while_main_thread_is_busy(rips_instance, initialize_test):
+    """ResInsight processes API requests on its main thread, so a long request
+    used to leave liveness pings unanswered for as long as it ran, making a busy
+    server look like a dead one to the client heartbeat (issue #14683).
+
+    Pings must be answered promptly while a blocking request is in flight."""
+    from Definitions_pb2 import Empty
+
+    stop = threading.Event()
+    latencies = []
+    errors = []
+
+    def ping_loop():
+        while not stop.is_set():
+            started = time.monotonic()
+            try:
+                rips_instance.app.GetVersion(Empty(), timeout=30.0)
+                latencies.append(time.monotonic() - started)
+            except grpc.RpcError as exc:  # pragma: no cover - failure diagnostics
+                errors.append(exc)
+            time.sleep(0.02)
+
+    thread = threading.Thread(target=ping_loop, daemon=True)
+    thread.start()
+    try:
+        # A case load blocks the main thread for as long as it takes to read the grid.
+        case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+        started = time.monotonic()
+        rips_instance.project.load_case(path=case_path)
+        elapsed = time.monotonic() - started
+    finally:
+        stop.set()
+        thread.join(timeout=10.0)
+
+    if elapsed < 0.2:
+        pytest.skip(f"blocking call was too short to be meaningful ({elapsed:.3f} s)")
+
+    assert not errors, f"pings failed while the server was busy: {errors}"
+
+    # A ping issued just after the blocking call starts would previously only be
+    # answered once that call finished, i.e. a latency of roughly `elapsed`.
+    assert max(latencies) < 0.5 * elapsed, (
+        f"pings were starved by the busy main thread: max latency "
+        f"{max(latencies):.3f} s for a {elapsed:.3f} s blocking call"
+    )
+    assert len(latencies) >= 3, "expected several pings during the blocking call"

@@ -62,6 +62,13 @@ public:
     virtual void                      onProcessRequest() = 0;
     virtual void                      onFinishRequest() {}
 
+    // Callbacks that touch no application state can be served directly on the gRPC completion
+    // queue thread, instead of being queued for the main thread. This keeps liveness requests
+    // answerable while the main thread is occupied by a long-running request. Only override for
+    // methods that read no project/PDM data - anything touching the data model must be processed
+    // on the main thread.
+    virtual bool runsOnServerThread() const { return false; }
+
     inline CallState     callState() const;
     inline const Status& status() const;
     inline void          setNextCallState( CallState state );
@@ -118,11 +125,15 @@ public:
     using MethodRequestT  = std::function<
          void( ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void* )>;
 
-    RiaGrpcUnaryCallback( ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest );
+    RiaGrpcUnaryCallback( ServiceT*      service,
+                          MethodImplT    methodImpl,
+                          MethodRequestT methodRequest,
+                          bool           runsOnServerThread = false );
 
     RiaGrpcCallbackInterface* createNewFromThis() const override;
     void                      createRequestHandler( ServerCompletionQueue* completionQueue ) override;
     void                      onProcessRequest() override;
+    bool                      runsOnServerThread() const override { return m_runsOnServerThread; }
 
 protected:
     QString methodType() const override;
@@ -132,6 +143,7 @@ private:
     ResponseWriterT m_responder;
     MethodImplT     m_methodImpl;
     MethodRequestT  m_methodRequest;
+    bool            m_runsOnServerThread;
 };
 
 //==================================================================================================

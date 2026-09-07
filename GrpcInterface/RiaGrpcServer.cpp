@@ -38,6 +38,8 @@
 
 #include <QTcpServer>
 
+#include <atomic>
+#include <mutex>
 #include <thread>
 
 using grpc::CompletionQueue;
@@ -78,7 +80,14 @@ private:
     std::list<RiaGrpcCallbackInterface*>                m_unprocessedRequests;
     std::list<RiaGrpcCallbackInterface*>                m_allocatedCallbakcs;
     std::mutex                                          m_requestMutex;
-    std::thread                                         m_thread;
+    // Guards m_allocatedCallbakcs, which is touched both from the main thread and from the
+    // completion queue thread when serving callbacks flagged as runsOnServerThread().
+    std::mutex m_allocatedCallbackMutex;
+    // Serializes shutdown against an in-flight dispatch on the completion queue thread, so that
+    // no request handler can be registered on a queue that is about to be shut down.
+    std::mutex        m_shutdownMutex;
+    std::atomic<bool> m_isShuttingDown{ false };
+    std::thread       m_thread;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -222,6 +231,14 @@ void RiaGrpcServerImpl::quit()
     {
         RiaLogging::info( "Shutting down gRPC server" );
 
+        // Stop serving callbacks on the completion queue thread before shutting the queue down.
+        // Once the queue is shut down, no new request handler may be registered on it. Taking the
+        // lock also waits for any dispatch already in progress on that thread.
+        {
+            std::lock_guard<std::mutex> shutdownLock( m_shutdownMutex );
+            m_isShuttingDown = true;
+        }
+
         // See the following link for details on how to shut down a GRPC server
         // https://github.com/grpc/grpc/blob/master/include/grpcpp/server_builder.h#L147
 
@@ -282,12 +299,31 @@ void RiaGrpcServerImpl::waitForNextRequest()
 
     while ( m_completionQueue->Next( &tag, &ok ) )
     {
-        std::lock_guard<std::mutex> requestLock( m_requestMutex );
-        RiaGrpcCallbackInterface*   method = static_cast<RiaGrpcCallbackInterface*>( tag );
+        RiaGrpcCallbackInterface* method = static_cast<RiaGrpcCallbackInterface*>( tag );
         if ( !ok )
         {
             method->setNextCallState( RiaGrpcCallbackInterface::FINISH_REQUEST );
         }
+
+        // Callbacks that read no application state are served here instead of being queued for
+        // the main thread. ResInsight processes queued requests from the main thread, so a
+        // long-running request (large export, schedule generation, heavy grid computation) or an
+        // open progress dialog would otherwise leave liveness requests unanswered for as long as
+        // that operation runs, making a busy ResInsight look like a dead one (issue #14683).
+        //
+        // During shutdown the completion queue is draining and no new request handlers may be
+        // registered on it, so fall back to queueing (those callbacks are deleted in quit()).
+        if ( method->runsOnServerThread() )
+        {
+            std::lock_guard<std::mutex> shutdownLock( m_shutdownMutex );
+            if ( !m_isShuttingDown )
+            {
+                process( method );
+                continue;
+            }
+        }
+
+        std::lock_guard<std::mutex> requestLock( m_requestMutex );
         m_unprocessedRequests.push_back( method );
     }
 }
@@ -303,6 +339,7 @@ void RiaGrpcServerImpl::process( RiaGrpcCallbackInterface* method )
     {
         method->createRequestHandler( m_completionQueue.get() );
 
+        std::lock_guard<std::mutex> callbackLock( m_allocatedCallbackMutex );
         m_allocatedCallbakcs.push_back( method );
     }
     else if ( method->callState() == RiaGrpcCallbackInterface::INIT_REQUEST_STARTED )
@@ -323,7 +360,10 @@ void RiaGrpcServerImpl::process( RiaGrpcCallbackInterface* method )
 
         process( method->createNewFromThis() );
 
-        m_allocatedCallbakcs.remove( method );
+        {
+            std::lock_guard<std::mutex> callbackLock( m_allocatedCallbackMutex );
+            m_allocatedCallbakcs.remove( method );
+        }
 
         delete method;
     }
