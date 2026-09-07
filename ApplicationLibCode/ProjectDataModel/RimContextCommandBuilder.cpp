@@ -95,8 +95,6 @@
 #include "RimParameterResultCrossPlot.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
-#include "RimPlotAxisProperties.h"
-#include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotDataFilterCollection.h"
 #include "RimPlotDataFilterItem.h"
 #include "RimPltPlotCollection.h"
@@ -130,7 +128,6 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryTable.h"
 #include "RimSummaryTableCollection.h"
-#include "RimSummaryTimeAxisProperties.h"
 #include "RimValveCollection.h"
 #include "RimValveTemplate.h"
 #include "RimValveTemplateCollection.h"
@@ -969,18 +966,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
             menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
             menuBuilder << "RicCreateCrossPlotFeature";
-        }
-        else if ( dynamic_cast<RimPlotAxisPropertiesInterface*>( firstUiItem ) )
-        {
-            if ( dynamic_cast<RimPlotAxisProperties*>( firstUiItem ) )
-            {
-                menuBuilder << "RicToggleYAxisLinkingFeature";
-            }
-            if ( dynamic_cast<RimSummaryTimeAxisProperties*>( firstUiItem ) )
-            {
-                menuBuilder << "RicToggleXAxisLinkingFeature";
-            }
-            menuBuilder << "RicNewPlotAxisPropertiesFeature";
         }
         else if ( dynamic_cast<RimRftCase*>( firstUiItem ) )
         {

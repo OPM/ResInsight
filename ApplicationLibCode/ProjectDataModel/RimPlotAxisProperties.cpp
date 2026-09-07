@@ -27,6 +27,7 @@
 #include "RimPlotAxisAnnotation.h"
 #include "RimSummaryMultiPlot.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
@@ -415,7 +416,13 @@ bool RimPlotAxisProperties::isAutoZoom() const
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::setAutoZoom( bool enableAutoZoom )
 {
+    if ( m_isAutoZoom() == enableAutoZoom ) return;
+
     m_isAutoZoom = enableAutoZoom;
+
+    // Make sure the project tree tag reflecting the auto-zoom state is updated immediately, also when this method
+    // is called from code paths other than the UI.
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -763,22 +770,55 @@ caf::FontTools::FontSize RimPlotAxisProperties::plotFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicToggleYAxisLinkingFeature";
+    menuBuilder << "RicToggleAxisAutoZoomFeature";
+    menuBuilder << "RicNewPlotAxisPropertiesFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    auto summaryMultiPlot = firstAncestorOfType<RimSummaryMultiPlot>();
+    auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
+    if ( !treeItemAttribute ) return;
 
+    treeItemAttribute->tags.clear();
+
+    auto summaryMultiPlot = firstAncestorOfType<RimSummaryMultiPlot>();
     if ( summaryMultiPlot && summaryMultiPlot->isSubPlotAxesLinked() )
     {
-        auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-        if ( treeItemAttribute )
-        {
-            treeItemAttribute->tags.clear();
-            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-            tag->icon = caf::IconProvider( ":/chain.png" );
+        auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
+        tag->icon = caf::IconProvider( ":/SharedAxis.svg" );
 
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
+        treeItemAttribute->tags.push_back( std::move( tag ) );
     }
+
+    if ( isRangeUserDefined() )
+    {
+        // Indicate that the axis range is fixed by the user, and will not be updated by auto-zoom.
+        // Clicking the tag releases the user-defined range, so the axis follows the data again.
+        auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
+        tag->icon = caf::IconProvider( ":/pinned.svg" );
+
+        tag->clicked.connect( this, &RimPlotAxisProperties::onPinnedTagClicked );
+
+        treeItemAttribute->tags.push_back( std::move( tag ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::onPinnedTagClicked( const caf::SignalEmitter* emitter, size_t index )
+{
+    // Release the user-defined range and let the axis follow the data again, same as re-enabling
+    // "Set Range Automatically" from the property editor.
+    setAutoZoom( true );
+    setRangeUserDefined( false );
+    settingsChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -33,6 +33,11 @@
 #include <QDateTime>
 #include <QString>
 
+namespace caf
+{
+class SignalEmitter;
+}
+
 //==================================================================================================
 ///
 ///
@@ -151,6 +156,8 @@ public:
     const QString objectName() const override;
     const QString axisTitleText() const override;
 
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -166,6 +173,7 @@ protected:
 
 private:
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void onPinnedTagClicked( const caf::SignalEmitter* emitter, size_t index );
 
 private:
     caf::PdmField<QString> m_title;

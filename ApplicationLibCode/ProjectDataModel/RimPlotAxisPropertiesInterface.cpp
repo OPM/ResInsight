@@ -70,7 +70,14 @@ bool RimPlotAxisPropertiesInterface::isRangeUserDefined() const
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisPropertiesInterface::setRangeUserDefined( bool isUserDefined )
 {
+    if ( m_isRangeUserDefined() == isUserDefined ) return;
+
     m_isRangeUserDefined = isUserDefined;
+
+    // Make sure the project tree tag reflecting the range state (see defineObjectEditorAttribute() in derived
+    // classes) is updated immediately, also when this method is called from code paths other than the UI (e.g.
+    // zoom-all, data source changes, axis linking).
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

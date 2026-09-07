@@ -2171,10 +2171,18 @@ void RimSummaryPlot::timeAxisSettingsChanged( const caf::SignalEmitter* emitter 
         return;
     }
 
-    if ( !timeAxisProps->isAutoZoom() && plotWidget() )
+    if ( plotWidget() )
     {
-        // If not auto zoom - the new date and time ranges must be set and axes updated
-        plotWidget()->setAxisScale( RimSummaryPlot::plotAxisForTime(), timeAxisProps->visibleRangeMin(), timeAxisProps->visibleRangeMax() );
+        if ( timeAxisProps->isAutoZoom() )
+        {
+            // Auto zoom (re-)enabled - let the plot widget recompute the visible range from the data
+            updateZoomForTimeAxis( timeAxisProps );
+        }
+        else
+        {
+            // If not auto zoom - the new date and time ranges must be set and axes updated
+            plotWidget()->setAxisScale( RimSummaryPlot::plotAxisForTime(), timeAxisProps->visibleRangeMin(), timeAxisProps->visibleRangeMax() );
+        }
         plotWidget()->updateAxes();
     }
 

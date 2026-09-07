@@ -72,5 +72,5 @@ void RicToggleYAxisLinkingFeature::setupActionLook( QAction* actionToSetup )
     }
 
     actionToSetup->setText( text + " Y Axis" );
-    actionToSetup->setIcon( QIcon( ":/chain.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SharedAxis.svg" ) );
 }
