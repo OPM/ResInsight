@@ -885,7 +885,8 @@ void RimMultiPlot::updateZoom()
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlot::recreatePlotWidgets()
 {
-    CAF_ASSERT( m_viewer );
+    // No viewer exists in console mode (e.g. when a sub plot is deleted from Python)
+    if ( !m_viewer ) return;
 
     m_viewer->removeAllPlots();
 
