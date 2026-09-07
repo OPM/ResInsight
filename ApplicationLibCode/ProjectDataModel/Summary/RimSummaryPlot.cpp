@@ -1407,28 +1407,6 @@ void RimSummaryPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::zoomAllAndReleaseUserDefinedRanges()
-{
-    releaseUserDefinedAxisRanges();
-
-    zoomAll();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Axis ranges defined by the user are kept when the data source of the plot is changed. Release the user defined
-/// ranges to make the axes follow the data again.
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::releaseUserDefinedAxisRanges()
-{
-    for ( const auto& ap : m_axisPropertiesArray )
-    {
-        ap->setRangeUserDefined( false );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::addCurveAndUpdate( RimSummaryCurve* curve, bool autoAssignPlotAxis )
 {
     if ( curve )

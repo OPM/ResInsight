@@ -46,9 +46,8 @@ void RicToggleAxisAutoZoomFeature::onActionTriggered( bool isChecked )
     bool enableAutoZoom = !axisProperties->isAutoZoom();
     axisProperties->setAutoZoom( enableAutoZoom );
 
-    // The range is defined by the user unless auto-zoom is (re-)enabled, matching the behavior of the
-    // "Set Range Automatically" checkbox in the property editor. This also makes sure the pinned tag
-    // in the project tree is updated to reflect the new state.
+    // Re-enabling auto zoom releases the user-defined range, so the axis follows the data again. This also updates
+    // the pinned tag in the project tree.
     axisProperties->setRangeUserDefined( !enableAutoZoom );
 
     axisProperties->settingsChanged.send();

@@ -420,9 +420,9 @@ void RimPlotAxisProperties::setAutoZoom( bool enableAutoZoom )
 
     m_isAutoZoom = enableAutoZoom;
 
-    // Make sure the project tree tag reflecting the auto-zoom state is updated immediately, also when this method
-    // is called from code paths other than the UI.
-    updateConnectedEditors();
+    // Update the project tree tag reflecting the auto-zoom state. Scheduled for the same reasons as in
+    // RimPlotAxisPropertiesInterface::setRangeUserDefined().
+    scheduleUpdateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -731,10 +731,6 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
         // The range is defined by the user unless the value comes from the auto value of the field
         setRangeUserDefined( !m_visibleRangeMin.uiCapability()->isAutoValueEnabled() );
     }
-    else if ( changedField == &m_isAutoZoom )
-    {
-        setRangeUserDefined( !m_isAutoZoom() );
-    }
 
     if ( changedField == &m_isLogarithmicScaleEnabled )
     {
@@ -801,7 +797,7 @@ void RimPlotAxisProperties::defineObjectEditorAttribute( QString uiConfigName, c
         // Indicate that the axis range is fixed by the user, and will not be updated by auto-zoom.
         // Clicking the tag releases the user-defined range, so the axis follows the data again.
         auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-        tag->icon = caf::IconProvider( ":/pinned.svg" );
+        tag->icon = caf::IconProvider( ":/PinnedAxisRange.svg" );
 
         tag->clicked.connect( this, &RimPlotAxisProperties::onPinnedTagClicked );
 
@@ -814,8 +810,7 @@ void RimPlotAxisProperties::defineObjectEditorAttribute( QString uiConfigName, c
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::onPinnedTagClicked( const caf::SignalEmitter* emitter, size_t index )
 {
-    // Release the user-defined range and let the axis follow the data again, same as re-enabling
-    // "Set Range Automatically" from the property editor.
+    // Release the user-defined range and let the axis follow the data again, same as the Auto Zoom command.
     setAutoZoom( true );
     setRangeUserDefined( false );
     settingsChanged.send();

@@ -186,8 +186,6 @@ public:
     RiuPlotWidget*  plotWidget() override;
     RiuSummaryPlot* summaryPlotWidget() const;
     void            zoomAll() override;
-    void            zoomAllAndReleaseUserDefinedRanges() override;
-    void            releaseUserDefinedAxisRanges();
     void            updatePlotWidgetFromAxisRanges() override;
     void            updateAxisRangesFromPlotWidget() override;
 

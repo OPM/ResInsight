@@ -98,7 +98,6 @@ public:
     std::pair<int, int> gridLayoutInfoForSubPlot( RimSummaryPlot* summaryPlot ) const;
 
     void zoomAll() override;
-    void zoomAllAndReleaseUserDefinedRanges() override;
 
     void setDefaultRangeAggregationSteppingDimension();
     void analyzePlotsAndAdjustAppearanceSettings();

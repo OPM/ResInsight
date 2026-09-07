@@ -252,7 +252,7 @@ void RimSummaryTimeAxisProperties::defineObjectEditorAttribute( QString uiConfig
         // Indicate that the axis range is fixed by the user, and will not be updated by auto-zoom.
         // Clicking the tag releases the user-defined range, so the axis follows the data again.
         auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
-        tag->icon = caf::IconProvider( ":/pinned.svg" );
+        tag->icon = caf::IconProvider( ":/PinnedAxisRange.svg" );
 
         tag->clicked.connect( this, &RimSummaryTimeAxisProperties::onPinnedTagClicked );
 
@@ -265,8 +265,7 @@ void RimSummaryTimeAxisProperties::defineObjectEditorAttribute( QString uiConfig
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::onPinnedTagClicked( const caf::SignalEmitter* emitter, size_t index )
 {
-    // Release the user-defined range and let the axis follow the data again, same as re-enabling
-    // "Set Range Automatically" from the property editor.
+    // Release the user-defined range and let the axis follow the data again, same as the Auto Zoom command.
     setAutoZoom( true );
     setRangeUserDefined( false );
     settingsChanged.send();
@@ -353,9 +352,9 @@ void RimSummaryTimeAxisProperties::setAutoZoom( bool enableAutoZoom )
 
     m_isAutoZoom = enableAutoZoom;
 
-    // Make sure the project tree tag reflecting the auto-zoom state is updated immediately, also when this method
-    // is called from code paths other than the UI.
-    updateConnectedEditors();
+    // Update the project tree tag reflecting the auto-zoom state. Scheduled for the same reasons as in
+    // RimPlotAxisPropertiesInterface::setRangeUserDefined().
+    scheduleUpdateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1016,10 +1015,6 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
         updateDateVisibleRange();
         m_isAutoZoom = false;
         setRangeUserDefined( true );
-    }
-    else if ( changedField == &m_isAutoZoom )
-    {
-        setRangeUserDefined( !m_isAutoZoom() );
     }
     else if ( changedField == &m_timeMode )
     {
