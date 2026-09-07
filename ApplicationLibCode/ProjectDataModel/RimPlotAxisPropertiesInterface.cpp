@@ -58,7 +58,7 @@ RimPlotAxisPropertiesInterface::RimPlotAxisPropertiesInterface()
 
 //--------------------------------------------------------------------------------------------------
 /// A user defined axis range is kept when the data source of a plot is changed, and is released when the user asks for
-/// automatic range computation (Zoom All or "Set Range Automatically").
+/// automatic range computation (Zoom All, the Auto Zoom command, or clicking the pinned tag in the project tree).
 //--------------------------------------------------------------------------------------------------
 bool RimPlotAxisPropertiesInterface::isRangeUserDefined() const
 {
@@ -74,10 +74,11 @@ void RimPlotAxisPropertiesInterface::setRangeUserDefined( bool isUserDefined )
 
     m_isRangeUserDefined = isUserDefined;
 
-    // Make sure the project tree tag reflecting the range state (see defineObjectEditorAttribute() in derived
-    // classes) is updated immediately, also when this method is called from code paths other than the UI (e.g.
-    // zoom-all, data source changes, axis linking).
-    updateConnectedEditors();
+    // Update the project tree tag reflecting the range state (see defineObjectEditorAttribute() in derived classes).
+    // Scheduled rather than immediate: zoom-all and axis linking call this once per axis per subplot, and every
+    // immediate update rebuilds the tags of the entire project tree. The tag click handler also ends up here, where an
+    // immediate update would delete the tag whose signal is being emitted.
+    scheduleUpdateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

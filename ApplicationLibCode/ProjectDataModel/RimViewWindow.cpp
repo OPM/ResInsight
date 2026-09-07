@@ -26,6 +26,7 @@
 #include "RicfCommandObject.h"
 
 #include "RimDockWindowController.h"
+#include "RimPlotAxisPropertiesInterface.h"
 
 #include "RiuDockWidgetTools.h"
 
@@ -231,6 +232,13 @@ QImage RimViewWindow::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::zoomAllAndReleaseUserDefinedRanges()
 {
+    // Zoom All is an explicit request for automatic ranges, so release the user defined range of every axis owned by
+    // this window before zooming. Several plot types share RimPlotAxisProperties, so this is done for all of them.
+    for ( auto axisProperties : descendantsOfType<RimPlotAxisPropertiesInterface>() )
+    {
+        axisProperties->setRangeUserDefined( false );
+    }
+
     zoomAll();
 }
 

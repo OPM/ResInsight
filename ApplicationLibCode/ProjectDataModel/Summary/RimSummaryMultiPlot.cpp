@@ -810,19 +810,6 @@ void RimSummaryMultiPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::zoomAllAndReleaseUserDefinedRanges()
-{
-    for ( auto p : summaryPlots() )
-    {
-        p->releaseUserDefinedAxisRanges();
-    }
-
-    zoomAll();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::updateTimeAxisRangesFromFirstTimePlot()
 {
     if ( m_linkTimeAxis )
