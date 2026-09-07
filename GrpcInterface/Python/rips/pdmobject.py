@@ -60,7 +60,7 @@ def _rips_error_from_rpc_error(exc: grpc.RpcError) -> RipsError:
             "running (the server may have crashed or been shut down)"
         )
     elif exc.code() == grpc.StatusCode.RESOURCE_EXHAUSTED:
-        message = f"{details}: the gRPC message size limit was exceeded"
+        message = f"{details}: a gRPC resource limit was exceeded"
 
     return RipsError(message, code=exc.code(), details=details or None)
 
