@@ -45,15 +45,33 @@ def _is_closed_channel_error(exc: BaseException) -> bool:
     return isinstance(exc, ValueError) and "closed channel" in str(exc)
 
 
+def _rips_error_from_rpc_error(exc: grpc.RpcError) -> RipsError:
+    """Translate a gRPC failure into a RipsError, adding context for the
+    failure modes whose raw gRPC text says nothing useful."""
+    details = exc.details() or ""
+    message = "%s" % details
+
+    if "Channel closed" in details or exc.code() == grpc.StatusCode.UNAVAILABLE:
+        # The connection to ResInsight went away mid-call. This is either a
+        # crashed/closed server, or the local channel being closed by the
+        # heartbeat. Say so instead of surfacing a bare "Channel closed!".
+        message = (
+            f"{details}: lost the connection to ResInsight while the call was "
+            "running (the server may have crashed or been shut down)"
+        )
+    elif exc.code() == grpc.StatusCode.RESOURCE_EXHAUSTED:
+        message = f"{details}: the gRPC message size limit was exceeded"
+
+    return RipsError(message, code=exc.code(), details=details or None)
+
+
 def add_method(cls: C) -> Callable[[F], F]:
     def decorator(func: F) -> F:
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
             except grpc.RpcError as e:
-                raise RipsError(
-                    e.details(), code=e.code(), details=e.details()
-                ) from None
+                raise _rips_error_from_rpc_error(e) from None
             except ValueError as e:
                 if _is_closed_channel_error(e):
                     raise RipsError(
@@ -578,9 +596,7 @@ class PdmObjectBase:
         try:
             self._pdm_object_stub.CallPdmObjectMethod(request)
         except grpc.RpcError as exc:
-            raise RipsError(
-                "%s" % exc.details(), code=exc.code(), details=exc.details()
-            ) from None
+            raise _rips_error_from_rpc_error(exc) from None
         except ValueError as exc:
             if _is_closed_channel_error(exc):
                 raise RipsError(
@@ -615,9 +631,7 @@ class PdmObjectBase:
 
             return class_definition(pb2_object=pb2_object, channel=self.channel())
         except grpc.RpcError as exc:
-            raise RipsError(
-                "%s" % exc.details(), code=exc.code(), details=exc.details()
-            ) from None
+            raise _rips_error_from_rpc_error(exc) from None
         except ValueError as exc:
             if _is_closed_channel_error(exc):
                 raise RipsError(
@@ -654,9 +668,7 @@ class PdmObjectBase:
             return pdm_object
 
         except grpc.RpcError as exc:
-            raise RipsError(
-                "%s" % exc.details(), code=exc.code(), details=exc.details()
-            ) from None
+            raise _rips_error_from_rpc_error(exc) from None
         except ValueError as exc:
             if _is_closed_channel_error(exc):
                 raise RipsError(
