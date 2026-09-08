@@ -569,7 +569,7 @@ std::vector<std::pair<RigEnsembleParameter, double>>
                 }
             }
         }
-        if ( closestValue != std::numeric_limits<double>::infinity() )
+        if ( std::isfinite( closestValue ) )
         {
             caseValuesAtTimestep.push_back( closestValue );
 
@@ -591,7 +591,7 @@ std::vector<std::pair<RigEnsembleParameter, double>>
     {
         double correlation = 0.0;
         double pearson     = RigStatisticsTools::pearsonCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
-        if ( pearson != std::numeric_limits<double>::infinity() ) correlation = pearson;
+        if ( std::isfinite( pearson ) ) correlation = pearson;
         correlationResults.push_back( std::make_pair( parameterValuesPair.first, correlation ) );
     }
     return correlationResults;

@@ -58,7 +58,16 @@ double RigEnsembleParameter::normalizedStdDeviation() const
     }
 
     double normalisedStdDev = stdDeviation() / maxAbs;
-    if ( normalisedStdDev < eps )
+    if ( !std::isfinite( normalisedStdDev ) )
+    {
+        // stdDeviation() sums squared values, which can overflow to NaN/Inf for parameter values with
+        // extreme (but finite) magnitudes. Fall back to a range-based variation estimate so the
+        // parameter is not silently treated as having no variation and dropped from correlation
+        // analysis.
+        normalisedStdDev = ( maxValue - minValue ) / maxAbs;
+    }
+
+    if ( !std::isfinite( normalisedStdDev ) || normalisedStdDev < eps )
     {
         return 0.0;
     }
