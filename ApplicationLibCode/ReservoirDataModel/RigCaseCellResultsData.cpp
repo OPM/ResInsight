@@ -1846,9 +1846,12 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
 
         bool resultLoadingSuccess = true;
 
-        if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE && timeStepCount > 0 )
+        if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
         {
-            // A case in an ensemble can have fewer time steps than the case defining the time step axis
+            // A case in an ensemble can have fewer time steps than the case defining the time step axis.
+            // This also catches the case where timeStepCount is zero, i.e. no time steps are known for
+            // this result on this case, which previously fell through and returned scalarResultIndex as
+            // if it were valid without ever resizing m_cellScalarResults for it.
             if ( timeStepIndex >= timeStepCount ) return cvf::UNDEFINED_SIZE_T;
 
             m_cellScalarResults[scalarResultIndex].resize( timeStepCount );
