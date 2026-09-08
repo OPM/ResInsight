@@ -159,6 +159,7 @@ std::vector<double>* RigFlowDiagResults::findScalarResultFrame( const RigFlowDia
 RigFlowDiagSolverInterface* RigFlowDiagResults::solverInterface()
 {
     auto eclCase = m_flowDiagSolution->firstAncestorOrThisOfType<RimEclipseResultCase>();
+    if ( !eclCase ) return nullptr;
 
     return eclCase->flowDiagSolverInterface();
 }
@@ -862,7 +863,10 @@ RigFlowDiagDefines::FlowCharacteristicsResultFrame RigFlowDiagResults::flowChara
         }
     }
 
-    return solverInterface()->calculateFlowCharacteristics( &injectorResults, &producerResults, selectedCellIndices, max_pv_fraction );
+    auto* solver = solverInterface();
+    if ( !solver ) return RigFlowDiagDefines::FlowCharacteristicsResultFrame();
+
+    return solver->calculateFlowCharacteristics( &injectorResults, &producerResults, selectedCellIndices, max_pv_fraction );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -913,7 +917,10 @@ RigFlowDiagDefines::FlowCharacteristicsResultFrame
         }
     }
 
-    return solverInterface()->calculateFlowCharacteristics( &injectorResults, &producerResults, selectedCellIndices, max_pv_fraction );
+    auto* solver = solverInterface();
+    if ( !solver ) return RigFlowDiagDefines::FlowCharacteristicsResultFrame();
+
+    return solver->calculateFlowCharacteristics( &injectorResults, &producerResults, selectedCellIndices, max_pv_fraction );
 }
 
 //--------------------------------------------------------------------------------------------------
