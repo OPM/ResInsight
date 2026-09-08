@@ -97,11 +97,16 @@ void RiuSelectionChangedHandler::handleSelectionDeleted() const
     RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
     RiuMainWindow::instance()->depthPlot()->deleteAllCurves();
 
-    RiuRelativePermeabilityPlotUpdater* relPermPlotUpdater = RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
-    relPermPlotUpdater->updateOnSelectionChanged( nullptr );
+    // The plot panels are created lazily and may not exist yet.
+    if ( auto relPermPlotPanel = RiuMainWindow::instance()->relativePermeabilityPlotPanel() )
+    {
+        relPermPlotPanel->plotUpdater()->updateOnSelectionChanged( nullptr );
+    }
 
-    RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
-    pvtPlotUpdater->updateOnSelectionChanged( nullptr );
+    if ( auto pvtPlotPanel = RiuMainWindow::instance()->pvtPlotPanel() )
+    {
+        pvtPlotPanel->plotUpdater()->updateOnSelectionChanged( nullptr );
+    }
 
     RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
     if ( mohrsCirclePlot ) mohrsCirclePlot->clearPlot();
@@ -122,11 +127,16 @@ void RiuSelectionChangedHandler::handleItemAppended( const RiuSelectionItem* ite
 
     addDepthCurveFromSelectionItem( item );
 
-    RiuRelativePermeabilityPlotUpdater* relPermUpdater = RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
-    relPermUpdater->updateOnSelectionChanged( item );
+    // The plot panels are created lazily and may not exist yet.
+    if ( auto relPermPlotPanel = RiuMainWindow::instance()->relativePermeabilityPlotPanel() )
+    {
+        relPermPlotPanel->plotUpdater()->updateOnSelectionChanged( item );
+    }
 
-    RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
-    pvtPlotUpdater->updateOnSelectionChanged( item );
+    if ( auto pvtPlotPanel = RiuMainWindow::instance()->pvtPlotPanel() )
+    {
+        pvtPlotPanel->plotUpdater()->updateOnSelectionChanged( item );
+    }
 
     RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
     if ( mohrsCirclePlot ) mohrsCirclePlot->appendSelection( item );
