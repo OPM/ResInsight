@@ -104,7 +104,9 @@ void RimNameConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 QString RimNameConfig::autoName() const
 {
-    RimNameConfigHolderInterface* plotHolder = firstAncestorOrThisOfTypeAsserted<RimNameConfigHolderInterface>();
+    RimNameConfigHolderInterface* plotHolder = firstAncestorOrThisOfType<RimNameConfigHolderInterface>();
+    if ( !plotHolder ) return {};
+
     return plotHolder->createAutoName();
 }
 
@@ -132,10 +134,12 @@ void RimNameConfig::updateAllSettings()
     m_autoName.uiCapability()->updateConnectedEditors();
     m_customName.uiCapability()->updateConnectedEditors();
 
-    RimNameConfigHolderInterface* holder = firstAncestorOrThisOfTypeAsserted<RimNameConfigHolderInterface>();
+    RimNameConfigHolderInterface* holder = firstAncestorOrThisOfType<RimNameConfigHolderInterface>();
+    if ( !holder ) return;
+
     holder->updateAutoName();
-    caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( holder );
-    if ( pdmObject )
+
+    if ( caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( holder ) )
     {
         pdmObject->updateConnectedEditors();
     }
