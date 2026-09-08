@@ -51,7 +51,7 @@ public:
     const QStringList jobLog() const override;
     bool              matchesKeyValue( const QString& key, const QString& value ) const override;
 
-    bool setFinished( bool runOk ) override;
+    void setFinished( bool runOk ) override;
     void setStarted() override;
 
 protected:
@@ -64,12 +64,16 @@ protected:
     };
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     std::vector<RealizationInfo> getSelectedRealizations() const;
     std::string                  outputIteration() const;
 
     std::vector<QString> dateStrings() const;
+
+    void subJobCompleted( const caf::SignalEmitter* emitter, bool runOk );
 
 private:
     std::vector<std::string> getSelectedRealizationFileNames() const;
@@ -86,4 +90,6 @@ private:
     caf::PdmField<std::vector<QString>>   m_wellGroupsInInputDeck;
 
     std::vector<std::string> m_expectedOutputFiles;
+
+    int m_subJobsCompleted;
 };

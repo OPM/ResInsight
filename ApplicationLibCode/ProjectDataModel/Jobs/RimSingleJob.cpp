@@ -96,7 +96,7 @@ bool RimSingleJob::execute()
     m_warningsDetected = 0;
     m_percentageDone   = 0.0;
     m_process          = nullptr;
-    m_jobState         = JobState::Idle;
+    setState( JobState::Idle );
 
     onProgress( m_percentageDone );
 
@@ -108,7 +108,7 @@ bool RimSingleJob::execute()
 
         if ( !onPrepare() )
         {
-            m_jobState = JobState::Failed;
+            setState( JobState::Failed );
             onProgress( m_percentageDone );
             return false;
         }
@@ -120,14 +120,14 @@ bool RimSingleJob::execute()
     QStringList cmdLine = command();
     if ( cmdLine.isEmpty() )
     {
-        m_jobState = JobState::Failed;
+        setState( JobState::Failed );
         onProgress( m_percentageDone );
         return false;
     }
 
     // cannot delete job while running
     setDeletable( false );
-    m_jobState = JobState::Queued;
+    setState( JobState::Queued );
 
     m_process = new RimProcess( true, new RimJobMonitor( this ) );
 
@@ -150,17 +150,15 @@ bool RimSingleJob::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSingleJob::setFinished( bool runOk )
+void RimSingleJob::setFinished( bool runOk )
 {
-    m_jobState = runOk ? JobState::Completed : JobState::Failed;
+    setState( runOk ? JobState::Completed : JobState::Failed );
 
     m_percentageDone = 100.0;
     onProgress( m_percentageDone );
     setDeletable( true );
 
     onCompleted( runOk );
-
-    return runOk;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,7 +166,7 @@ bool RimSingleJob::setFinished( bool runOk )
 //--------------------------------------------------------------------------------------------------
 void RimSingleJob::setStarted()
 {
-    m_jobState = RimSingleJob::JobState::Running;
+    setState( RimSingleJob::JobState::Running );
     onProgress( m_percentageDone );
 }
 
@@ -187,14 +185,14 @@ void RimSingleJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUi
 
     if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
-        if ( m_jobState == JobState::Failed )
+        if ( state() == JobState::Failed )
         {
             auto txt = m_errorsDetected > 0 ? QString( "[%1]" ).arg( m_errorsDetected ) : "!!!";
             auto tag =
                 caf::PdmUiTreeViewItemAttribute::createTag( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), txt );
             treeItemAttribute->tags.push_back( std::move( tag ) );
         }
-        else if ( m_jobState == JobState::Queued )
+        else if ( state() == JobState::Queued )
         {
             auto tag     = caf::PdmUiTreeViewItemAttribute::createTag();
             tag->text    = "Waiting...";
@@ -202,11 +200,11 @@ void RimSingleJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUi
             tag->fgColor = contrastWaitColor;
             treeItemAttribute->tags.push_back( std::move( tag ) );
         }
-        else if ( ( m_jobState == JobState::Running ) || ( m_jobState == JobState::Completed ) )
+        else if ( ( state() == JobState::Running ) || ( state() == JobState::Completed ) )
         {
             auto tag = caf::PdmUiTreeViewItemAttribute::createTag();
 
-            if ( m_jobState == JobState::Running )
+            if ( state() == JobState::Running )
             {
                 tag->text = QString( "%1 %" ).arg( m_percentageDone, 0, 'f', 1 );
             }
