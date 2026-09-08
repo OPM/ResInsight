@@ -21,6 +21,8 @@
 #include "RigStatisticsTools.h"
 
 #include <QDebug>
+
+#include <cmath>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -82,6 +84,20 @@ TEST( RigStatisticsTools, NegativeCorrelation )
     }
     double correlation = RigStatisticsTools::pearsonCorrelation( a, b );
     EXPECT_NEAR( correlation, -1.0, 1.0e-2 );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Extremely large but finite magnitudes can overflow the sum-of-squares to +Inf, and the final
+/// Inf/Inf division then yields NaN even though every individual input value is finite. Callers of
+/// pearsonCorrelation() (e.g. RimSummaryEnsemble::parameterCorrelations()) must guard against this.
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsTools, OverflowProducesNan )
+{
+    std::vector<double> a = { 1.0e200, 2.0e200, 3.0e200 };
+    std::vector<double> b = { 1.0e200, 2.0e200, 3.0e200 };
+
+    double correlation = RigStatisticsTools::pearsonCorrelation( a, b );
+    EXPECT_TRUE( std::isnan( correlation ) );
 }
 
 //--------------------------------------------------------------------------------------------------
