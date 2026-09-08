@@ -155,6 +155,9 @@ RimOpmFlowJob::RimOpmFlowJob()
     CAF_PDM_InitField( &m_autoLoadResults, "AutoLoadResults", true, "Automatic loading of results from job" );
     m_autoLoadResults.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_isChildJob, "IsChildJob", false, "Is Child Job" );
+    m_isChildJob.uiCapability()->setUiHidden( true );
+
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_addToEnsemble );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_pauseBeforeRun );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useRestart );
@@ -280,8 +283,8 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 {
     if ( isRunning() )
     {
-        auto runGrp = uiOrdering.addNewGroup( "Running" );
         m_workDir.uiCapability()->setUiReadOnly( true );
+        auto runGrp = uiOrdering.addNewGroup( "Running" );
         runGrp->add( &m_workDir );
         auto stopButton = runGrp->addNewButton( "Stop", [this]() { RicStopJobFeature::stopJob( this ); } );
         stopButton->setUiIconFromResourceString( ":/stop.svg" );
@@ -289,8 +292,16 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
         uiOrdering.skipRemainingFields();
         return;
     }
-    m_workDir.uiCapability()->setUiReadOnly( false );
 
+    if ( m_isChildJob() )
+    {
+        m_workDir.uiCapability()->setUiReadOnly( true );
+        uiOrdering.add( &m_workDir );
+        uiOrdering.skipRemainingFields();
+        return;
+    }
+
+    m_workDir.uiCapability()->setUiReadOnly( false );
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( nameField() );
     genGrp->add( &m_deckFileName );
@@ -919,6 +930,7 @@ void RimOpmFlowJob::onProgress( double percentageDone )
 {
     m_percentageDone = percentageDone;
     updateConnectedEditors();
+    progressUpdate.send( percentageDone );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -926,10 +938,19 @@ void RimOpmFlowJob::onProgress( double percentageDone )
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::onCompleted( bool success )
 {
-    if ( !success ) return;
+    if ( success && m_autoLoadResults() )
+    {
+        loadResults();
+    }
 
-    if ( !m_autoLoadResults() ) return;
+    jobCompleted.send( success );
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::loadResults()
+{
     QString outputEgridFileName = workingDirectory() + "/" + deckName() + ".EGRID";
     if ( !QFile::exists( outputEgridFileName ) ) return;
 
@@ -1317,4 +1338,12 @@ void RimOpmFlowJob::setJobWellSettings( RimJobWellSettings* jobWellSettings )
 void RimOpmFlowJob::setAutoLoadResults( bool autoLoadResults )
 {
     m_autoLoadResults = autoLoadResults;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOpmFlowJob::setIsChildJob( bool isChildJob )
+{
+    m_isChildJob = isChildJob;
 }

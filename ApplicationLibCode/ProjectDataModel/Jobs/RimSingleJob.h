@@ -47,7 +47,7 @@ public:
     const QStringList jobLog() const override;
     bool              matchesKeyValue( const QString& key, const QString& value ) const override;
 
-    bool setFinished( bool runOk ) override;
+    void setFinished( bool runOk ) override;
     void setStarted() override;
 
 protected:

@@ -18,6 +18,7 @@
 
 #include "RimEnsembleJob.h"
 
+#include "RiaColorTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesOpm.h"
@@ -37,7 +38,10 @@
 #include "RimReservoirGridEnsemble.h"
 #include "RimTools.h"
 
+#include "RiuGuiTheme.h"
+
 #include "cafPdmUiButton.h"
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QFile>
@@ -48,6 +52,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleJob, "EnsembleJob" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleJob::RimEnsembleJob()
+    : m_subJobsCompleted( 0 )
 {
     CAF_PDM_InitObject( "Ensemble Job", ":/opm.png" );
 
@@ -91,7 +96,13 @@ RimEnsembleJob::~RimEnsembleJob()
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleJob::stop()
 {
-    return false;
+    if ( !isRunning() ) return false;
+
+    for ( auto& subJob : m_subJobs() )
+    {
+        subJob->stop();
+    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,6 +206,7 @@ bool RimEnsembleJob::execute()
 
     m_expectedOutputFiles.clear();
     m_subJobs.deleteChildren();
+    m_subJobsCompleted = 0;
 
     updateAllRequiredEditors();
 
@@ -210,6 +222,7 @@ bool RimEnsembleJob::execute()
         subJob->setName( real.inputCase->uiName() );
         subJob->setJobWellSettings( m_jobWellSettings.value() );
         subJob->setAutoLoadResults( false );
+        subJob->setIsChildJob( true );
         m_subJobs.push_back( subJob );
 
         m_expectedOutputFiles.push_back( real.realizationOutputDir + "/" + real.outputDeckName + ".DATA" );
@@ -219,8 +232,12 @@ bool RimEnsembleJob::execute()
 
     for ( auto& subJob : m_subJobs() )
     {
+        subJob->jobCompleted.connect( this, &RimEnsembleJob::subJobCompleted );
         RicRunJobFeature::runJob( subJob );
     }
+
+    setState( RimGenericJob::Running );
+    updateConnectedEditors();
 
     return true;
 }
@@ -228,16 +245,29 @@ bool RimEnsembleJob::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleJob::setFinished( bool runOk )
+void RimEnsembleJob::subJobCompleted( const caf::SignalEmitter* emitter, bool runOk )
 {
-    if ( !runOk ) return false;
+    m_subJobsCompleted++;
+    if ( m_subJobsCompleted >= m_subJobs.size() )
+    {
+        setFinished( true );
+    }
+}
 
-    auto fileSets = RimEnsembleFileSetTools::createEnsembleFileSets( m_expectedOutputFiles );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::setFinished( bool runOk )
+{
+    if ( runOk )
+    {
+        auto fileSets = RimEnsembleFileSetTools::createEnsembleFileSets( m_expectedOutputFiles );
 
-    RimEnsembleFileSetTools::createGridEnsemblesFromFileSets( fileSets );
-    RimEnsembleFileSetTools::createSummaryEnsemblesFromFileSets( fileSets );
-
-    return true;
+        RimEnsembleFileSetTools::createGridEnsemblesFromFileSets( fileSets );
+        RimEnsembleFileSetTools::createSummaryEnsemblesFromFileSets( fileSets );
+    }
+    setState( RimGenericJob::Completed );
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,6 +298,7 @@ std::vector<RimEnsembleJob::RealizationInfo> RimEnsembleJob::getSelectedRealizat
         auto outputFileName = RiaFilePathTools::replaceSubFolderInPath( info.realizationInputDeckName, key2, outputIteration() );
         std::filesystem::path outputPath( outputFileName );
         info.realizationOutputDir = outputPath.parent_path().string();
+        info.outputDeckName       = outputPath.stem().string();
 
         // make sure the output folder exists
         if ( !std::filesystem::exists( info.realizationOutputDir ) )
@@ -340,4 +371,48 @@ std::vector<QString> RimEnsembleJob::dateStrings() const
         dates.push_back( dt.toString( "yyyy-MM-dd" ) );
     }
     return dates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    static auto warnColor = QColor( RiaColorTools::toQColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) );
+    static auto contrastWarnColor =
+        QColor( RiaColorTools::toQColor( RiaColorTools::contrastColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) ) );
+
+    static auto waitColor = QColor( RiaColorTools::toQColor( cvf::Color3f( cvf::Color3f::LIGHT_GRAY ) ) );
+    static auto contrastWaitColor =
+        QColor( RiaColorTools::toQColor( RiaColorTools::contrastColor( cvf::Color3f( cvf::Color3f::LIGHT_GRAY ) ) ) );
+
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    {
+        if ( state() == JobState::Failed )
+        {
+            auto txt = "Failed";
+            auto tag =
+                caf::PdmUiTreeViewItemAttribute::createTag( QColor( Qt::red ), RiuGuiTheme::getColorByVariableName( "backgroundColor1" ), txt );
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+        else if ( ( state() == JobState::Running ) || ( state() == JobState::Completed ) )
+        {
+            auto tag = caf::PdmUiTreeViewItemAttribute::createTag();
+
+            if ( state() == JobState::Running )
+            {
+                tag->text = "Running";
+            }
+            else
+            {
+                tag->text = "Done";
+            }
+
+            cvf::Color3f viewColor     = cvf::Color3f( cvf::Color3f::GREEN );
+            cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
+            tag->bgColor               = QColor( RiaColorTools::toQColor( viewColor ) );
+            tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+    }
 }

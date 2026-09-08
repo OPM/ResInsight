@@ -57,14 +57,16 @@ public:
     virtual bool              matchesKeyValue( const QString& key, const QString& value ) const = 0;
     virtual void              processLogOutput( const QString& logLine ) {};
 
-    virtual bool setFinished( bool runOk ) = 0;
+    virtual void setFinished( bool runOk ) = 0;
     virtual void setStarted()              = 0;
 
     bool     isRunning() const;
     JobState state() const;
+    void     setState( JobState state );
 
 protected:
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
+private:
     JobState m_jobState;
 };
