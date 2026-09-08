@@ -111,7 +111,13 @@ ecl_rsthead_type * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_typ
 
 
 ecl_rsthead_type * ecl_rsthead_alloc( const ecl_file_view_type * rst_view, int report_step) {
+  if (!ecl_file_view_has_kw(rst_view, INTEHEAD_KW))
+    return NULL;
+
   const ecl_kw_type * intehead_kw = ecl_file_view_iget_named_kw( rst_view , INTEHEAD_KW , 0);
+  if (!intehead_kw)
+    return NULL;
+
   const ecl_kw_type * doubhead_kw = NULL;
   const ecl_kw_type * logihead_kw = NULL;
 

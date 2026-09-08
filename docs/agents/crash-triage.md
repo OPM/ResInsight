@@ -42,6 +42,9 @@ are done by `registry.py` / `link_issues.py` in the system-doc repo.
 - Commit messages are a short description with no issue number (there is no
   issue); no AI attribution; no `## Test plan` section in the PR.
 - Keep all comments and descriptions (PR, notes, code) short and concise.
+- **Never update previous week reports.** Always run
+  `registry.py render --date <latest-week>` for the current week only — never
+  `render --all`, which rewrites and collapses every historical week's report.
 
 ## Status lifecycle
 
