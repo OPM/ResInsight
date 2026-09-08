@@ -89,7 +89,12 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
     int height = m_height();
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    CAF_ASSERT( mainWnd );
+    if ( !mainWnd )
+    {
+        QString error( "RicfExportSnapshot: No main window available" );
+        RiaLogging::error( error.toStdString() );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+    }
 
     QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::SNAPSHOTS );
 
