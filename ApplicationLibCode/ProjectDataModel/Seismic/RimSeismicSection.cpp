@@ -1065,6 +1065,8 @@ std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath*
         currentXline  = xline;
     }
 
+    if ( points.empty() ) return points;
+
     // make sure we include the last point
     if ( points.back() != wellpoints.back() ) points.push_back( wellpoints.back() );
 
