@@ -159,8 +159,8 @@ PdmUiTreeViewEditor::PdmUiTreeViewEditor()
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeViewEditor::~PdmUiTreeViewEditor()
 {
-    m_treeView->removeEventFilter( this );
-    m_treeViewModel->setPdmItemRoot( nullptr );
+    if ( m_treeView ) m_treeView->removeEventFilter( this );
+    if ( m_treeViewModel ) m_treeViewModel->setPdmItemRoot( nullptr );
 
     delete m_mainWidget;
     m_mainWidget = nullptr;
@@ -404,25 +404,19 @@ void PdmUiTreeViewEditor::customMenuRequested( QPoint pos )
 //--------------------------------------------------------------------------------------------------
 PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 {
-    PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem( SelectionManager::FIRST_LEVEL );
+    auto* currentSelectedItem = SelectionManager::instance()->selectedItem( SelectionManager::FIRST_LEVEL );
 
-    PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>( currentSelectedItem );
-    if ( uiFieldHandle )
+    if ( auto* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>( currentSelectedItem ) )
     {
-        PdmFieldHandle* fieldHandle = uiFieldHandle->fieldHandle();
-
-        if ( dynamic_cast<PdmChildArrayFieldHandle*>( fieldHandle ) )
+        if ( auto* childArrayField = dynamic_cast<PdmChildArrayFieldHandle*>( uiFieldHandle->fieldHandle() ) )
         {
-            return dynamic_cast<PdmChildArrayFieldHandle*>( fieldHandle );
+            return childArrayField;
         }
     }
 
-    PdmObjectHandle* pdmObject = dynamic_cast<caf::PdmObjectHandle*>( currentSelectedItem );
-    if ( pdmObject )
+    if ( auto* pdmObject = dynamic_cast<PdmObjectHandle*>( currentSelectedItem ) )
     {
-        PdmChildArrayFieldHandle* parentChildArray = dynamic_cast<PdmChildArrayFieldHandle*>( pdmObject->parentField() );
-
-        if ( parentChildArray )
+        if ( auto* parentChildArray = dynamic_cast<PdmChildArrayFieldHandle*>( pdmObject->parentField() ) )
         {
             return parentChildArray;
         }
@@ -436,6 +430,8 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::selectAsCurrentItem( const PdmUiItem* uiItem )
 {
+    if ( !m_treeView || !m_treeViewModel || !m_filterModel ) return;
+
     QModelIndex index        = m_treeViewModel->findModelIndex( uiItem );
     QModelIndex indexForItem = m_filterModel->mapFromSource( index );
 
@@ -454,6 +450,8 @@ void PdmUiTreeViewEditor::selectAsCurrentItem( const PdmUiItem* uiItem )
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::selectItems( std::vector<const PdmUiItem*> uiItems )
 {
+    if ( !m_treeView ) return;
+
     m_treeView->clearSelection();
 
     if ( uiItems.empty() )
@@ -487,6 +485,8 @@ void PdmUiTreeViewEditor::slotOnSelectionChanged( const QItemSelection& selected
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::setExpanded( const PdmUiItem* uiItem, bool doExpand ) const
 {
+    if ( !m_treeView || !m_treeViewModel || !m_filterModel ) return;
+
     QModelIndex index       = m_treeViewModel->findModelIndex( uiItem );
     QModelIndex filterIndex = m_filterModel->mapFromSource( index );
 
@@ -508,13 +508,12 @@ QModelIndex PdmUiTreeViewEditor::mapIndexIfNecessary( QModelIndex index ) const
 {
     const QAbstractProxyModel* proxyModel = dynamic_cast<const QAbstractProxyModel*>( index.model() );
 
-    QModelIndex returnIndex = index;
     if ( proxyModel )
     {
-        returnIndex = proxyModel->mapToSource( index );
+        return proxyModel->mapToSource( index );
     }
 
-    return returnIndex;
+    return index;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -541,6 +540,8 @@ PdmUiTreeOrdering* PdmUiTreeViewEditor::uiTreeOrderingFromModelIndex( const QMod
 //--------------------------------------------------------------------------------------------------
 QModelIndex PdmUiTreeViewEditor::findModelIndex( const PdmUiItem* object ) const
 {
+    if ( !m_treeViewModel || !m_filterModel ) return {};
+
     QModelIndex index = m_treeViewModel->findModelIndex( object );
     return m_filterModel->mapFromSource( index );
 }
