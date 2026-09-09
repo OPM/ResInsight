@@ -154,6 +154,12 @@ OpenGLWidget::~OpenGLWidget()
         }
     }
 
+    // shutdownCvfOpenGLContext() no longer makes the context current itself, so do it here
+    if (m_cvfForwardingOpenGlContext.notNull())
+    {
+        makeCurrent();
+    }
+
     shutdownCvfOpenGLContext();
 }
 
@@ -238,10 +244,11 @@ void OpenGLWidget::initializeGL()
             onWidgetOpenGLReady();
         }
 
-        // Trigger a repaint if we're being re-initialized
+        // Notify that we've been re-initialized with a new OpenGL context
+        // Qt guarantees that myQtOpenGLContext is current at this point
         if (prevInitState == PENDING_REINITIALIZATION)
         {
-            update();
+            onWidgetOpenGLReinitialized();
         }
     }
 }
@@ -296,6 +303,35 @@ void OpenGLWidget::onWidgetOpenGLReady()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Notification function that will be called just before the CVF OpenGL context is shut down as a
+/// consequence of Qt's underlying OpenGL context being about to be destroyed.
+///
+/// This is called with the *old* Qt OpenGL context current and cvfOpenGLContext() still non-null,
+/// so any OpenGL resources tied to that context can still be released/queried here.
+///
+/// Can be re-implemented in derived classes to take any needed actions.
+//--------------------------------------------------------------------------------------------------
+void OpenGLWidget::onWidgetOpenGLAboutToBeShutdown()
+{
+    // Base implementation does nothing
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Notification function that will be called after the widget has been re-initialized with a new
+/// Qt OpenGL context, i.e. after a previous call to onWidgetOpenGLAboutToBeShutdown().
+///
+/// This is called from initializeGL(), so Qt guarantees that the *new* OpenGL context is current.
+///
+/// Can be re-implemented in derived classes to take any needed actions. Note that overrides must
+/// call the base class implementation (or otherwise trigger a repaint) since the default
+/// implementation is responsible for scheduling a repaint of the widget.
+//--------------------------------------------------------------------------------------------------
+void OpenGLWidget::onWidgetOpenGLReinitialized()
+{
+    update();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void OpenGLWidget::qtOpenGLContextAboutToBeDestroyed()
@@ -304,6 +340,14 @@ void OpenGLWidget::qtOpenGLContextAboutToBeDestroyed()
 
     if (m_cvfForwardingOpenGlContext.notNull())
     {
+        // Make sure the (still valid) Qt OpenGL context is current before notifying and tearing down,
+        // so that onWidgetOpenGLAboutToBeShutdown() overrides can safely release OpenGL resources.
+        makeCurrent();
+
+        // Notify derived classes so they get a chance to release OpenGL resources while the
+        // CVF OpenGL context is still valid.
+        onWidgetOpenGLAboutToBeShutdown();
+
         CVF_LOG_DEBUG(m_logger, cvf::String("OpenGLWidget[%1]: Shutting down CVF OpenGL context since Qt context is about to be destroyed").arg(m_instanceNumber));
         shutdownCvfOpenGLContext();
     }
@@ -321,8 +365,6 @@ void OpenGLWidget::shutdownCvfOpenGLContext()
 {
     if (m_cvfForwardingOpenGlContext.notNull())
     {
-        makeCurrent();
-
         m_cvfOpenGlContextGroup->contextAboutToBeShutdown(m_cvfForwardingOpenGlContext.p());
         m_cvfForwardingOpenGlContext = NULL;
     }

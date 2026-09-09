@@ -196,6 +196,8 @@ protected:
     virtual void paintOverlayItems( QPainter* painter ) {};
 
     void onWidgetOpenGLReady() override;
+    void onWidgetOpenGLAboutToBeShutdown() override;
+    void onWidgetOpenGLReinitialized() override;
 
     // Overridable methods to setup the render system
     virtual void optimizeClippingPlanes();

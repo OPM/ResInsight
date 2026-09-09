@@ -270,13 +270,14 @@ void caf::Viewer::setupRenderingSequence()
 void caf::Viewer::deleteFboOpenGLResources()
 {
     // The OpenGL resources can be deleted at any time. CeeViz does not delete resources for FBOs, so delete them manually
+    //
+    // Callers (onWidgetOpenGLAboutToBeShutdown()/onWidgetOpenGLReinitialized()) are responsible for making sure the
+    // correct OpenGL context is current before calling this function, so we don't do it here.
 
     if ( m_offscreenFbo.notNull() )
     {
         if ( auto context = cvfOpenGLContext() )
         {
-            context->makeCurrent();
-
             m_offscreenFbo->deleteOrReleaseOpenGLResources( context );
         }
     }
@@ -932,13 +933,27 @@ void caf::Viewer::onWidgetOpenGLReady()
 {
     setupMainRendering();
     setupRenderingSequence();
+}
 
-    QOpenGLContext* myQtOpenGLContext = context();
-    CVF_ASSERT( myQtOpenGLContext );
-    CVF_ASSERT( myQtOpenGLContext->isValid() );
+//--------------------------------------------------------------------------------------------------
+/// Release the offscreen FBO's OpenGL resources while the (old) Qt OpenGL context is still current
+/// and valid, so the cached OpenGL ids don't end up referring to a destroyed context.
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::onWidgetOpenGLAboutToBeShutdown()
+{
+    deleteFboOpenGLResources();
+}
 
-    // Connect to signal so we get notified when Qt's OpenGL context is about to be destroyed
-    connect( myQtOpenGLContext, &QOpenGLContext::aboutToBeDestroyed, this, &Viewer::deleteFboOpenGLResources );
+//--------------------------------------------------------------------------------------------------
+/// Called after the widget has been re-initialized with a new Qt OpenGL context. Make sure the
+/// offscreen FBO's cached OpenGL ids (which belong to the destroyed context) are reset to 0 so
+/// they get rebuilt, then let the base class trigger a repaint.
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::onWidgetOpenGLReinitialized()
+{
+    deleteFboOpenGLResources();
+
+    cvfqt::OpenGLWidget::onWidgetOpenGLReinitialized();
 }
 
 //--------------------------------------------------------------------------------------------------

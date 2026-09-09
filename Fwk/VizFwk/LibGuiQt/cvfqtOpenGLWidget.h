@@ -72,6 +72,8 @@ protected:
     int                     instanceNumber() const;
 
     virtual void            onWidgetOpenGLReady();
+    virtual void            onWidgetOpenGLAboutToBeShutdown();
+    virtual void            onWidgetOpenGLReinitialized();
 
 private:
     void                    qtOpenGLContextAboutToBeDestroyed();
