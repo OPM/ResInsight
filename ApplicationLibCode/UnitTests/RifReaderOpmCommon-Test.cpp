@@ -21,6 +21,12 @@
 #include "RifReaderOpmCommon.h"
 
 #include "RiaEclipseUnitTools.h"
+#include "RiaTestDataDirectory.h"
+
+#include "opm/io/eclipse/ERst.hpp"
+
+#include <filesystem>
+#include <stdexcept>
 
 //--------------------------------------------------------------------------------------------------
 /// opm-common scales MAPAXES to meter based on MAPUNITS, while the cell corner coordinates are left in the units
@@ -54,4 +60,34 @@ TEST( RifReaderOpmCommon, MapAxesScaleFactor )
     // Unknown grid unit, undo the scaling applied by opm-common
     EXPECT_DOUBLE_EQ( 1.0 / feetToMeter, RifReaderOpmCommon::mapAxesScaleFactor( "FEET", gridUnitUnknown ) );
     EXPECT_DOUBLE_EQ( 1.0, RifReaderOpmCommon::mapAxesScaleFactor( "METRES", gridUnitUnknown ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifReaderOpmCommon, RestartDataSize )
+{
+    const auto testFile = std::filesystem::path( TEST_MODEL_DIR ) / "TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.UNRST";
+
+    Opm::EclIO::ERst restartFile( testFile.string() );
+    const int        reportStep = 0;
+
+    // PRESSURE is stored once for the global grid and once for the LGR, with 8517 and 2608 elements.
+    const int pressureOccurrences = restartFile.occurrence_count( "PRESSURE", reportStep );
+    EXPECT_EQ( 2, pressureOccurrences );
+
+    std::int64_t pressureSize = 0;
+    for ( int occurrence = 0; occurrence < pressureOccurrences; ++occurrence )
+    {
+        pressureSize += restartFile.getRestartData<float>( "PRESSURE", reportStep, occurrence ).size();
+    }
+
+    EXPECT_EQ( 8517 + 2608, pressureSize );
+    EXPECT_EQ( pressureSize, RifReaderOpmCommon::restartDataSize( restartFile, "PRESSURE", reportStep ) );
+
+    // SEQNUM exists in the global grid only.
+    EXPECT_EQ( 1, RifReaderOpmCommon::restartDataSize( restartFile, "SEQNUM", reportStep ) );
+
+    EXPECT_EQ( 0, RifReaderOpmCommon::restartDataSize( restartFile, "XXXX", reportStep ) );
+    EXPECT_THROW( RifReaderOpmCommon::restartDataSize( restartFile, "PRESSURE", 99 ), std::invalid_argument );
 }
