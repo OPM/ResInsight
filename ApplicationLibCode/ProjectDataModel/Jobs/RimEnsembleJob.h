@@ -31,6 +31,7 @@ class RimEclipseCase;
 class RimOpmFlowJob;
 class RimOpmFlowJobSettings;
 class RimJobWellSettings;
+class RimEnsembleFileSet;
 
 //==================================================================================================
 ///
@@ -43,7 +44,7 @@ public:
     RimEnsembleJob();
     ~RimEnsembleJob() override;
 
-    void setEnsemble( RimReservoirGridEnsemble* ensemble );
+    void setInputEnsemble( RimReservoirGridEnsemble* ensemble );
 
     bool              execute() override;
     bool              stop() override;
@@ -79,15 +80,19 @@ private:
     std::vector<std::string> getSelectedRealizationFileNames() const;
 
 private:
-    caf::PdmPtrField<RimReservoirGridEnsemble*> m_ensemble;
+    caf::PdmPtrField<RimReservoirGridEnsemble*> m_inputEnsemble;
     caf::PdmPtrArrayField<RimEclipseCase*>      m_selectedRealizations;
     caf::PdmField<int>                          m_outputIterationNumber;
     caf::PdmChildArrayField<RimOpmFlowJob*>     m_subJobs;
     caf::PdmChildField<RimOpmFlowJobSettings*>  m_jobSettings;
     caf::PdmChildField<RimJobWellSettings*>     m_jobWellSettings;
+    caf::PdmPtrField<RimEnsembleFileSet*>       m_outputEnsembleFileSet;
 
     caf::PdmField<std::vector<QDateTime>> m_datesInInputDeck;
     caf::PdmField<std::vector<QString>>   m_wellGroupsInInputDeck;
+
+    caf::PdmField<bool> m_createGridEnsemble;
+    caf::PdmField<bool> m_createSummaryEnsemble;
 
     std::vector<std::string> m_expectedOutputFiles;
 
