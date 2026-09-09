@@ -30,6 +30,7 @@
 #include <QPointer>
 #include <QString>
 
+#include <memory>
 #include <optional>
 #include <utility>
 
@@ -67,6 +68,12 @@ public:
     bool openEclipseGridFile() override;
 
     void closeReservoirCase() override;
+
+    // Aborts any transfers still in flight for this realization, without discarding already loaded grid and
+    // result data. Used when switching away from this case in a view while it may still be shown elsewhere,
+    // so a still loading realization does not keep competing for bandwidth with a newly selected one, while a
+    // fully loaded realization is not forced through a full reload if switched back to.
+    void cancelPendingTransfers();
 
     QString locationOnDisc() const override;
 
@@ -119,4 +126,9 @@ private:
     // The time step startPropertyFetch put in flight, until the reader exists and takes it over. Handed to
     // the reader as pending so it is reported to the user and not requested a second time.
     std::optional<std::pair<QString, size_t>> m_fetchInFlight;
+
+    // Identifies the transfer startPropertyFetch issues before the reader (and its own lifetime token) exists,
+    // so it can still be cancelled from closeReservoirCase. Recreated on every close, so a transfer left over
+    // from a previous open is never cancelled by a later one.
+    std::shared_ptr<bool> m_lifetimeToken;
 };

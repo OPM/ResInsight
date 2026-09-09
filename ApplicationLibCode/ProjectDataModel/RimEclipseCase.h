@@ -80,8 +80,9 @@ public:
     RimEclipseCase();
     ~RimEclipseCase() override;
 
-    std::vector<RimEclipseView*> reservoirViews() const;
-    RimEclipseViewCollection*    viewCollection() const;
+    std::vector<RimEclipseView*>           reservoirViews() const;
+    std::vector<RimEclipseContourMapView*> contourMapViews() const;
+    RimEclipseViewCollection*              viewCollection() const;
 
     std::vector<QString> filesContainingFaults() const;
     void                 setFilesContainingFaults( const std::vector<QString>& val );
@@ -186,9 +187,8 @@ public:
 
 protected:
 private:
-    void                                   createTimeStepFormatString();
-    std::vector<Rim3dView*>                allSpecialViews() const override;
-    std::vector<RimEclipseContourMapView*> contourMapViews() const;
+    void                     createTimeStepFormatString();
+    std::vector<Rim3dView*> allSpecialViews() const override;
 
     void buildResultChildNodes();
 

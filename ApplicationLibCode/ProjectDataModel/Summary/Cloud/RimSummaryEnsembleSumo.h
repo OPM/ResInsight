@@ -64,6 +64,9 @@ public:
 public:
     RimSummaryEnsembleSumo();
 
+    // Aborts any transfers this ensemble still has in flight, see RiaSumoConnector::cancelGroup.
+    ~RimSummaryEnsembleSumo() override;
+
     void setSumoDataSource( RimSumoDataSource* sumoDataSource );
 
     void onRealizationSelectionChanged();

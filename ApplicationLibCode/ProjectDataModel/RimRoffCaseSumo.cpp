@@ -80,13 +80,15 @@ RimRoffCaseSumo::RimRoffCaseSumo()
     m_realization.uiCapability()->setUiReadOnly( true );
 
     m_sumoConnector = RiaApplication::instance()->makeSumoConnector();
+    m_lifetimeToken = std::make_shared<bool>( true );
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Aborts any transfers this case still has in flight, see RiaSumoConnector::cancelGroup.
 //--------------------------------------------------------------------------------------------------
 RimRoffCaseSumo::~RimRoffCaseSumo()
 {
+    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( m_lifetimeToken.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -273,7 +275,22 @@ void RimRoffCaseSumo::closeReservoirCase()
 {
     m_propertyReader = nullptr;
 
+    cancelPendingTransfers();
+
     RimEclipseCase::closeReservoirCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Aborts the speculative fetch startPropertyFetch issues before the reader exists, see its cancelGroup
+/// argument below. Without this, closing (or switching away from) this realization while that transfer is
+/// still on its way leaves it running to completion, consuming a connection and bandwidth that a
+/// newly selected realization's grid download needs. Unlike closeReservoirCase, this keeps already loaded
+/// grid and result data intact, so switching back to this realization does not force a full reload.
+//--------------------------------------------------------------------------------------------------
+void RimRoffCaseSumo::cancelPendingTransfers()
+{
+    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( m_lifetimeToken.get() );
+    m_lifetimeToken = std::make_shared<bool>( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,6 +585,8 @@ void RimRoffCaseSumo::startPropertyFetch()
     // Auto-nulls if this case is deleted while the transfer is in flight.
     caf::PdmPointer<RimRoffCaseSumo> self( const_cast<RimRoffCaseSumo*>( this ) );
 
+    // Tied to m_lifetimeToken so closeReservoirCase can abort this transfer, e.g. when the view switches away
+    // from this realization while it is still on its way, see closeReservoirCase.
     m_sumoConnector->grid().propertyDataBatchAsync( SumoCaseId( m_sumoCaseId() ),
                                                     m_ensembleName(),
                                                     m_gridName(),
@@ -589,5 +608,6 @@ void RimRoffCaseSumo::startPropertyFetch()
                                                         {
                                                             self->m_propertyReader->acceptFetchedTimeStep( propertyName, stepIndex, iso, contents );
                                                         }
-                                                    } );
+                                                    },
+                                                    m_lifetimeToken.get() );
 }
