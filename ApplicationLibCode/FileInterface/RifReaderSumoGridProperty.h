@@ -51,6 +51,12 @@ public:
     // shows this data.
     using TimeStepArrivedCallback = std::function<void( const QString&, size_t, bool )>;
 
+    // Called whenever how many of a batch's time steps are done changes: completed, total, and a description
+    // of what is currently being transferred (matches pendingDataDescription()). total is 0 once nothing is
+    // pending, meaning the batch is over. No GUI code lives here: the owner decides whether and how to show a
+    // progress bar from these numbers.
+    using BatchProgressChangedCallback = std::function<void( size_t /*completed*/, size_t /*total*/, const QString& /*description*/ )>;
+
     RifReaderSumoGridProperty( RiaSumoConnector* connector,
                                const QString&    caseId,
                                const QString&    ensembleName,
@@ -63,6 +69,7 @@ public:
 
     void setPendingChangedCallback( PendingChangedCallback callback );
     void setTimeStepArrivedCallback( TimeStepArrivedCallback callback );
+    void setBatchProgressChangedCallback( BatchProgressChangedCallback callback );
 
     void setStaticProperties( const std::vector<QString>& propertyNames );
     void setDynamicProperties( const std::map<QString, std::vector<QString>>& propertyNameToTimestamps );
@@ -83,11 +90,15 @@ public:
     bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override;
     bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
-    // Fetches and stores exactly one time step of a dynamic property, synchronously and without pulling in any
-    // other time step. Meant for a caller with no redraw loop of its own that needs exactly one time step, e.g.
-    // RimStatisticsContourMap: having the time step already present keeps ensureKnownResultLoaded() from
-    // falling back to loading the whole time series.
-    bool prefetchDynamicResult( const QString& propertyName, size_t stepIndex );
+    // Fetches and stores exactly the given time steps of a dynamic property - no other time step of it is
+    // pulled in. Meant for a caller with no redraw loop of its own that needs a specific set of time steps,
+    // e.g. RimStatisticsContourMap: having them already present keeps
+    // RigCaseCellResultsData::ensureKnownResultLoaded() from falling back to loading the whole time series.
+    // The given steps are requested together as one async batch (so the transfers run in parallel, the same
+    // as dynamicResult()'s own look-ahead batch), and this call blocks until every one of them has either
+    // arrived or timed out before returning - so by the time it returns, nothing requested by this call is
+    // left in flight. Returns false if any requested step never got a value (missing, failed, or timed out).
+    bool prefetchDynamicResult( const QString& propertyName, const std::vector<size_t>& stepIndices );
 
 private:
     bool fetchAndDecode( const QString& propertyName, const QString& isoDateOrInterval, std::vector<double>* values );
@@ -98,8 +109,10 @@ private:
     // requests from several readers is indistinguishable from one reader fetching the same steps twice.
     void logTransfer( const QString& propertyName, const QString& isoDateOrInterval, size_t byteCount, bool fromBatch ) const;
 
-    // The time steps to download together with stepIndex: none when enough of the following time steps are
-    // already loaded, otherwise the next batch of unloaded ones. Always contains stepIndex itself.
+    // The time steps to download together with stepIndex: stepIndex itself, plus every other unloaded step
+    // of this property not already pending or loaded, so the whole property can be requested in one batch.
+    // Which of these actually run at once is left to QNetworkAccessManager - this reader does not throttle
+    // the batch itself.
     std::vector<size_t> timeStepsToFetch( const QString& propertyName, const std::vector<QString>& timestamps, size_t stepIndex );
 
     // Where the case keeps the values of one time step of a dynamic property, or null when the property is
@@ -111,8 +124,18 @@ private:
     using PendingKey = std::pair<QString, size_t>;
 
     // Request the given time steps without waiting, marking them pending. Already pending steps are skipped,
-    // so a redraw mid-transfer does not issue a second request.
+    // so a redraw mid-transfer does not issue a second request. Not capped: every given step not already
+    // pending is requested in the same batch, relying on QNetworkAccessManager to bound how many actually
+    // run at once and queue the rest.
     void requestTimeStepsAsync( const QString& propertyName, const std::vector<QString>& timestamps, const std::vector<size_t>& steps );
+
+    // Blocks the calling thread until the given time step is no longer pending or the transfer times out
+    // (RiaSumoDefines::gridPropertyTransferTimeoutMillis()). Lets dynamicResult() hand back the real values
+    // instead of a placeholder, so callers never see partially-loaded data - the same blocking contract a
+    // disk-based reader already has. No GUI code here: whatever progress bar the owner shows via
+    // m_onBatchProgressChanged runs independently, driven by requestTimeStepsAsync/onTimeStepArrived. A no-op
+    // if the step is not currently pending.
+    void waitForTimeStepToArrive( const QString& propertyName, size_t stepIndex );
 
     // Called on the connector thread, which is the GUI thread, once per requested time step.
     void onTimeStepArrived( const QString& propertyName, size_t stepIndex, const QString& isoDateOrInterval, const QByteArray& contents );
@@ -126,6 +149,13 @@ private:
 
     // Reports what is pending via m_onPendingChanged, built from pendingDataDescription().
     void notifyPendingChanged() const;
+
+    // Reports how many of a batch's time steps are done via m_onBatchProgressChanged: opens/grows the count
+    // the first time something becomes pending (called from requestTimeStepsAsync/markTimeStepPending/
+    // acceptFetchedTimeStep) and ticks it as each step arrives (called from onTimeStepArrived), reporting
+    // total 0 once m_pending is empty again so the owner knows the batch is over. No GUI code here: the
+    // owner decides whether and how to show a progress bar from these numbers.
+    void updateBatchProgress();
 
 private:
     QPointer<RiaSumoConnector> m_connector;
@@ -147,6 +177,13 @@ private:
     // outliving the reader cannot write into freed memory.
     std::shared_ptr<bool> m_lifetimeToken;
 
-    PendingChangedCallback  m_onPendingChanged;
-    TimeStepArrivedCallback m_onTimeStepArrived;
+    PendingChangedCallback       m_onPendingChanged;
+    TimeStepArrivedCallback      m_onTimeStepArrived;
+    BatchProgressChangedCallback m_onBatchProgressChanged;
+
+    // Bookkeeping only, no GUI: how many time steps have been added to the current batch and how many of
+    // those have arrived (successfully or not), reported to the owner via m_onBatchProgressChanged. Both
+    // reset to 0 once m_pending empties again.
+    size_t m_batchProgressTotal     = 0;
+    size_t m_batchProgressCompleted = 0;
 };

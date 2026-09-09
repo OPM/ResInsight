@@ -165,10 +165,16 @@ RimSummaryEnsembleSumo::RimSummaryEnsembleSumo()
 
 //--------------------------------------------------------------------------------------------------
 /// Aborts any transfers this ensemble still has in flight, see RiaSumoConnector::cancelGroup.
+///
+/// Rotate m_lifetimeToken before calling cancelGroup(), not after: see
+/// RifReaderSumoGridProperty::~RifReaderSumoGridProperty() for why a reentrant, synchronous delivery
+/// during cancelGroup() must observe an already-invalidated token, not the one about to be cancelled.
 //--------------------------------------------------------------------------------------------------
 RimSummaryEnsembleSumo::~RimSummaryEnsembleSumo()
 {
-    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( m_lifetimeToken.get() );
+    void* lifetimeTokenKey = m_lifetimeToken.get();
+    m_lifetimeToken.reset();
+    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( lifetimeTokenKey );
 }
 
 //--------------------------------------------------------------------------------------------------

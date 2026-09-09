@@ -38,6 +38,11 @@ class RiaSumoConnector;
 class RifReaderSumoGridProperty;
 class RimSumoDataSource;
 
+namespace caf
+{
+class ProgressInfo;
+}
+
 //==================================================================================================
 //
 // Eclipse grid case backed by a roff grid stored on Sumo. The grid geometry is downloaded as a
@@ -75,9 +80,9 @@ public:
     // fully loaded realization is not forced through a full reload if switched back to.
     void cancelPendingTransfers();
 
-    // Fetches and stores one time step of a dynamic property, synchronously, without pulling in the whole
-    // time series. See RifReaderSumoGridProperty::prefetchDynamicResult.
-    bool prefetchDynamicResult( const QString& resultName, size_t stepIndex ) override;
+    // Fetches and stores exactly the given time steps of a dynamic property, in parallel, without pulling in
+    // the rest of the time series. See RifReaderSumoGridProperty::prefetchDynamicResult.
+    bool prefetchDynamicResult( const QString& resultName, const std::vector<size_t>& stepIndices ) override;
 
     QString locationOnDisc() const override;
 
@@ -115,6 +120,12 @@ private:
     void onPropertyPendingChanged( const QString& message );
     void onPropertyTimeStepArrived( const QString& propertyName, size_t stepIndex, bool ok );
 
+    // Turns the reader's plain completed/total/description numbers into an actual progress dialog: opens one
+    // the first time total is non-zero (or replaces it with a freshly-sized one if total grew while a dialog
+    // was already open - caf::ProgressInfo's maximum cannot change after construction), ticks it as completed
+    // grows, and closes it once total is reported back as 0.
+    void onPropertyBatchProgressChanged( size_t completed, size_t total, const QString& description );
+
     // Redraw the views of this case, so arrived values become visible.
     void scheduleRedrawOfViews();
 
@@ -148,4 +159,11 @@ private:
     // rather than recurse.
     bool m_isRedrawingViews    = false;
     bool m_hasMissedViewRedraw = false;
+
+    // One single dialog for however many time steps the reader currently has pending, so waiting for a run
+    // of single steps in a row does not pop open and close a new dialog for each one. Owned here rather than
+    // in the reader itself, which reports only plain numbers via onPropertyBatchProgressChanged - no GUI code
+    // lives in RifReaderSumoGridProperty. Null when nothing is pending.
+    std::unique_ptr<caf::ProgressInfo> m_batchProgress;
+    size_t                             m_batchProgressShownTotal = 0; // What m_batchProgress was actually constructed with.
 };

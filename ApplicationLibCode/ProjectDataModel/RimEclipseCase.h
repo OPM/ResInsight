@@ -185,11 +185,12 @@ public:
     // disk and has nothing in flight; overridden by the cases backed by remote data.
     virtual QString dataLoadingText() const { return {}; }
 
-    // Fetches and stores exactly one time step of a dynamic property, synchronously, without loading any
-    // other time step. A no-op returning false for a case that reads from disk; overridden by cases backed
-    // by remote data, where normal on-demand loading would otherwise pull the whole time series over the
-    // network just to read one time step.
-    virtual bool prefetchDynamicResult( const QString& resultName, size_t stepIndex ) { return false; }
+    // Fetches and stores exactly the given time steps of a dynamic property, in parallel, without pulling in
+    // any other time step. A no-op returning false for a case that reads from disk; overridden by a
+    // cloud-backed case (e.g. RimRoffCaseSumo) so a caller with no view/redraw loop of its own - such as
+    // ensemble statistics - can warm up precisely the time steps it needs before reading results, without
+    // downloading anything else.
+    virtual bool prefetchDynamicResult( const QString& /*resultName*/, const std::vector<size_t>& /*stepIndices*/ ) { return false; }
 
 protected:
 private:

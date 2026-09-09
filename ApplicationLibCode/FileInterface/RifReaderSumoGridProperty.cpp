@@ -31,6 +31,9 @@
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
+#include <QEventLoop>
+#include <QTimer>
+
 #include <algorithm>
 #include <cmath>
 #include <sstream>
@@ -55,10 +58,18 @@ RifReaderSumoGridProperty::RifReaderSumoGridProperty( RiaSumoConnector* connecto
 
 //--------------------------------------------------------------------------------------------------
 /// Aborts any transfers this reader still has in flight, see RiaSumoConnector::cancelGroup.
+///
+/// cancelGroup() can make Qt deliver an aborted reply's finished() synchronously, re-entering this
+/// reader's own completion lambdas while this destructor is still on the stack. Those lambdas bail
+/// out once m_lifetimeToken has expired, so it must be invalidated *before* calling cancelGroup(),
+/// not left to expire implicitly afterwards - otherwise a reentrant callback could still touch this
+/// or m_caseData while both are mid-destruction.
 //--------------------------------------------------------------------------------------------------
 RifReaderSumoGridProperty::~RifReaderSumoGridProperty()
 {
-    if ( m_connector ) m_connector->cancelGroup( m_lifetimeToken.get() );
+    void* lifetimeTokenKey = m_lifetimeToken.get();
+    m_lifetimeToken.reset();
+    if ( m_connector ) m_connector->cancelGroup( lifetimeTokenKey );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,6 +86,14 @@ void RifReaderSumoGridProperty::setPendingChangedCallback( PendingChangedCallbac
 void RifReaderSumoGridProperty::setTimeStepArrivedCallback( TimeStepArrivedCallback callback )
 {
     m_onTimeStepArrived = std::move( callback );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderSumoGridProperty::setBatchProgressChangedCallback( BatchProgressChangedCallback callback )
+{
+    m_onBatchProgressChanged = std::move( callback );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,12 +136,10 @@ bool RifReaderSumoGridProperty::staticResult( const QString& result, RiaDefines:
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-/// A displayed dynamic property is read one time step at a time, and each read is a blocking round trip to
-/// Sumo. Download a batch of the following time steps together with the requested one, and decode them
-/// straight into the case results, so the reads that follow find the values already loaded and never reach
-/// this reader. Nothing is kept in a downloaded form: the decoded values are the only copy.
+/// A displayed dynamic property is read one time step at a time. Fires a batch request for every missing
+/// time step of this property alongside the one asked for, then blocks the calling thread - showing a
+/// progress bar - until the requested step itself has arrived (or the transfer times out), so the caller
+/// gets back real values instead of a placeholder, the same contract a disk-based reader already has.
 //--------------------------------------------------------------------------------------------------
 bool RifReaderSumoGridProperty::dynamicResult( const QString&                result,
                                                RiaDefines::PorosityModelType matrixOrFracture,
@@ -140,37 +157,52 @@ bool RifReaderSumoGridProperty::dynamicResult( const QString&                res
     const QString&              isoDateOrInterval = timestamps[stepIndex];
     if ( isoDateOrInterval.isEmpty() ) return false;
 
-    // Already on its way. Hand back blank cells and let the arrival fill them in; requesting the same time
-    // step again would only duplicate the transfer.
-    if ( m_pending.count( PendingKey{ result, stepIndex } ) > 0 )
-    {
-        // Refresh here as well. A transfer started before the case was open was registered while the view had
-        // no viewer yet, so this is the first point at which the owner can actually show it.
-        notifyPendingChanged();
+    // Skip straight to the result if this exact step is already resolved (loaded, or permanently failed) and
+    // nothing is in flight for it: requestTimeStepsAsync marks its primary stepIndex pending unconditionally,
+    // with no "already loaded" check of its own (only the other look-ahead steps get that check), so without
+    // this guard a later call for an already-resolved step - e.g. from a redraw after a sibling step arrives -
+    // would mark it pending again and re-fetch it from the network every time.
+    const bool stepAlreadyPending  = m_pending.count( PendingKey{ result, stepIndex } ) > 0;
+    auto*      preExistingSlot     = resultValueSlot( result, stepIndex );
+    const bool stepAlreadyResolved = !stepAlreadyPending && preExistingSlot && !preExistingSlot->empty();
 
-        return fillWithUndefinedValues( values );
+    if ( !stepAlreadyResolved )
+    {
+        // Always try to fold in the rest of this property's missing time steps alongside the one asked for -
+        // requestTimeStepsAsync/timeStepsToFetch already skip whatever is already pending or loaded, so this
+        // is safe to call whenever this step itself is not resolved yet.
+        requestTimeStepsAsync( result, timestamps, timeStepsToFetch( result, timestamps, stepIndex ) );
     }
 
-    requestTimeStepsAsync( result, timestamps, timeStepsToFetch( result, timestamps, stepIndex ) );
+    // Block on the requested step: the caller (a view, calculation, contour map, etc.) is not designed to
+    // cope with partially-loaded Sumo data, so the simplest correct contract is to make this call behave
+    // like a disk-based reader and hand back real values once they exist, at the cost of blocking the GUI
+    // behind a progress bar while they arrive.
+    waitForTimeStepToArrive( result, stepIndex );
 
-    // Nothing is waited for. The requested step draws blank until it arrives, which is what keeps the user
-    // interface responsive while tens of megabytes are transferred.
+    // Either the wait above delivered the values, or the transfer timed out / is still pending: read
+    // whatever is in the slot now (the real values, or still the placeholder), so a stalled transfer draws
+    // blank instead of hanging the GUI forever.
+    if ( auto* slot = resultValueSlot( result, stepIndex ); slot && !slot->empty() )
+    {
+        *values = *slot;
+        return true;
+    }
+
     return fillWithUndefinedValues( values );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// See header. Writes the fetched values directly into the case's result storage, as an arrived async time
-/// step would, so a later normal read finds it already there.
+/// See header. Writes into the case's result storage the same way an arrived async time step would, so a
+/// later normal read finds it already there.
 //--------------------------------------------------------------------------------------------------
-bool RifReaderSumoGridProperty::prefetchDynamicResult( const QString& propertyName, size_t stepIndex )
+bool RifReaderSumoGridProperty::prefetchDynamicResult( const QString& propertyName, const std::vector<size_t>& stepIndices )
 {
-    if ( !m_caseData ) return false;
+    if ( !m_caseData || stepIndices.empty() ) return false;
 
     auto it = m_dynamicTimestamps.find( propertyName );
-    if ( it == m_dynamicTimestamps.end() || stepIndex >= it->second.size() ) return false;
-
-    const QString& isoDateOrInterval = it->second[stepIndex];
-    if ( isoDateOrInterval.isEmpty() ) return false;
+    if ( it == m_dynamicTimestamps.end() ) return false;
+    const std::vector<QString>& timestamps = it->second;
 
     auto* cellResults = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( !cellResults ) return false;
@@ -182,18 +214,58 @@ bool RifReaderSumoGridProperty::prefetchDynamicResult( const QString& propertyNa
     if ( !timeStepValues ) return false;
 
     // Size to the full time series, matching normal on-demand loading, so other time steps stay in bounds.
-    if ( timeStepValues->size() < it->second.size() ) timeStepValues->resize( it->second.size() );
+    if ( timeStepValues->size() < timestamps.size() ) timeStepValues->resize( timestamps.size() );
 
-    if ( !( *timeStepValues )[stepIndex].empty() ) return true; // Already there.
+    // Only ask for what is not already there. requestTimeStepsAsync() itself skips whatever is already
+    // pending (e.g. requested by a live view of the same realization), so this is safe to call even when
+    // some of these steps are already on their way.
+    std::vector<size_t> stepsToRequest;
+    for ( size_t step : stepIndices )
+    {
+        if ( step >= timestamps.size() || timestamps[step].isEmpty() ) continue; // No data at this step.
+        if ( !( *timeStepValues )[step].empty() ) continue;                      // Already there.
 
-    // Already on its way through the async path (e.g. requested by a view): let that arrival fill it in.
-    if ( m_pending.count( PendingKey{ propertyName, stepIndex } ) > 0 ) return false;
+        stepsToRequest.push_back( step );
+    }
 
-    std::vector<double> values;
-    if ( !fetchAndDecode( propertyName, isoDateOrInterval, &values ) ) return false;
+    if ( !stepsToRequest.empty() ) requestTimeStepsAsync( propertyName, timestamps, stepsToRequest );
 
-    ( *timeStepValues )[stepIndex] = std::move( values );
-    return true;
+    // Block until every requested step is resolved. All of them are already in flight together (or were
+    // already pending/loaded before this call), so waiting on them one at a time here does not serialize the
+    // transfers themselves - only this call's return.
+    bool allResolved = true;
+    for ( size_t step : stepIndices )
+    {
+        if ( step >= timestamps.size() || timestamps[step].isEmpty() ) continue;
+
+        waitForTimeStepToArrive( propertyName, step );
+
+        if ( ( *timeStepValues )[step].empty() ) allResolved = false;
+    }
+
+    // None of the requested steps has any Sumo data at all for this property (e.g. this realization's own
+    // reporting dates do not include any of the statistics' selected global dates for it), so nothing above
+    // was requested or written. Leaving every slot genuinely empty would leave
+    // RigCaseCellResultsData::isDataPresent() seeing this property as never having been looked at, so the
+    // next read of it (e.g. RigEclipseContourMapProjection::generateResults()'s own
+    // ensureKnownResultLoaded() call right after this) falls back to eagerly loading this property's entire
+    // time series instead of accepting "no data at the steps that were asked for" - exactly the unbounded
+    // fetch this function exists to avoid. Record that this property was genuinely looked at for this case by
+    // placing one real (if blank) placeholder, the same one an arrived-but-empty transfer would leave behind.
+    if ( stepsToRequest.empty() &&
+         std::none_of( timeStepValues->begin(), timeStepValues->end(), []( const std::vector<double>& v ) { return !v.empty(); } ) )
+    {
+        for ( size_t step : stepIndices )
+        {
+            if ( step < timeStepValues->size() )
+            {
+                fillWithUndefinedValues( &( *timeStepValues )[step] );
+                break;
+            }
+        }
+    }
+
+    return allResolved;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,8 +315,10 @@ void RifReaderSumoGridProperty::acceptFetchedTimeStep( const QString&    propert
                                                        const QByteArray& contents )
 {
     // Whichever transfer arrives first wins. Claim the step if it is not already claimed, so these values
-    // are written either way; a duplicate arriving later finds nothing pending and drops itself.
-    m_pending.insert( PendingKey{ propertyName, stepIndex } );
+    // are written either way; a duplicate arriving later finds nothing pending and drops itself. Only bump
+    // the batch total when this call is the one actually claiming it, so a duplicate arrival does not count
+    // the same step twice.
+    if ( m_pending.insert( PendingKey{ propertyName, stepIndex } ).second ) m_batchProgressTotal++;
 
     onTimeStepArrived( propertyName, stepIndex, isoDateOrInterval, contents );
 }
@@ -256,6 +330,8 @@ void RifReaderSumoGridProperty::markTimeStepPending( const QString& propertyName
 {
     if ( !m_pending.insert( PendingKey{ propertyName, stepIndex } ).second ) return;
 
+    m_batchProgressTotal++;
+    updateBatchProgress();
     notifyPendingChanged();
 }
 
@@ -269,22 +345,15 @@ void RifReaderSumoGridProperty::requestTimeStepsAsync( const QString&           
 {
     if ( !m_connector ) return;
 
-    // The network manager serves only a few requests per host, so transfers beyond that sit queued. Keep the
-    // look ahead from growing without limit as the user moves around the time series: each read would
-    // otherwise add another batch on top of whatever is still running.
-    const size_t maxInFlight = RiaSumoDefines::gridPropertyPrefetchBatchSize();
-
+    // No cap on how many are requested together: QNetworkAccessManager already limits how many of these
+    // actually run at once per host and queues the rest, so this reader only needs to avoid asking for the
+    // same step twice, not throttle the batch itself.
     std::vector<QString> isoDatesOrIntervals;
     std::vector<size_t>  requestedSteps;
     for ( size_t step : steps )
     {
-        // The displayed step is requested whatever the count. Skipping it would still leave a placeholder in
-        // its slot, and a non-empty slot is not read again, so those cells would stay blank for good.
-        const bool isDisplayedStep = !steps.empty() && step == steps.front();
-        if ( !isDisplayedStep && m_pending.size() >= maxInFlight ) break;
-
         if ( step >= timestamps.size() || timestamps[step].isEmpty() ) continue;
-        if ( !m_pending.insert( PendingKey{ propertyName, step } ).second ) continue;
+        if ( !m_pending.insert( PendingKey{ propertyName, step } ).second ) continue; // Already on its way.
 
         requestedSteps.push_back( step );
         isoDatesOrIntervals.push_back( timestamps[step] );
@@ -299,6 +368,11 @@ void RifReaderSumoGridProperty::requestTimeStepsAsync( const QString&           
     }
 
     if ( isoDatesOrIntervals.empty() ) return;
+
+    // One dialog for the whole batch instead of one per waited-for step: grow the running total by however
+    // many genuinely new steps this call just added, then let updateBatchProgress open or resize the dialog.
+    m_batchProgressTotal += requestedSteps.size();
+    updateBatchProgress();
 
     // Maps a delivered timestamp back to the time step it was requested for. Should a property report the
     // same timestamp twice, the first one is the step that was asked for.
@@ -334,6 +408,41 @@ void RifReaderSumoGridProperty::requestTimeStepsAsync( const QString&           
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Blocks the calling thread until the given time step is no longer pending or the transfer times out
+/// (RiaSumoDefines::gridPropertyTransferTimeoutMillis()), pumping a local QEventLoop so the transfer itself
+/// (which runs through Qt's own event loop on this same thread) can still make progress while this call
+/// waits for it. A no-op if the step is not pending, e.g. it already arrived or failed before this call.
+//--------------------------------------------------------------------------------------------------
+void RifReaderSumoGridProperty::waitForTimeStepToArrive( const QString& propertyName, size_t stepIndex )
+{
+    // Refresh here as well: a transfer started before the case was open (see markTimeStepPending) was
+    // registered while the view had no viewer yet, so this is the first point at which the owner can
+    // actually show it.
+    notifyPendingChanged();
+
+    if ( m_pending.count( PendingKey{ propertyName, stepIndex } ) == 0 ) return;
+
+    QEventLoop          loop;
+    std::weak_ptr<bool> isAlive = m_lifetimeToken;
+
+    QTimer pollTimer;
+    QObject::connect( &pollTimer,
+                      &QTimer::timeout,
+                      [&]()
+                      {
+                          if ( isAlive.expired() || m_pending.count( PendingKey{ propertyName, stepIndex } ) == 0 ) loop.quit();
+                      } );
+    pollTimer.start( 20 );
+
+    QTimer giveUpTimer;
+    giveUpTimer.setSingleShot( true );
+    QObject::connect( &giveUpTimer, &QTimer::timeout, &loop, &QEventLoop::quit );
+    giveUpTimer.start( RiaSumoDefines::gridPropertyTransferTimeoutMillis() );
+
+    loop.exec( QEventLoop::ProcessEventsFlag::ExcludeUserInputEvents );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// One time step has arrived, on the GUI thread. Write it into the case results over the placeholder, then
 /// tell the owner via m_onTimeStepArrived, successfully or not, so it can redraw.
 //--------------------------------------------------------------------------------------------------
@@ -344,6 +453,11 @@ void RifReaderSumoGridProperty::onTimeStepArrived( const QString&    propertyNam
 {
     // No longer pending means it was abandoned while in flight, so these values are not wanted.
     if ( m_pending.erase( PendingKey{ propertyName, stepIndex } ) == 0 ) return;
+
+    // Counts toward the single shared batch dialog whether this step succeeded or failed, and closes it once
+    // nothing is left pending.
+    m_batchProgressCompleted++;
+    updateBatchProgress();
 
     if ( contents.isEmpty() )
     {
@@ -396,6 +510,30 @@ void RifReaderSumoGridProperty::notifyPendingChanged() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Reports how many of a batch's time steps are done via m_onBatchProgressChanged, instead of owning any
+/// progress bar itself: called after requestTimeStepsAsync/markTimeStepPending/acceptFetchedTimeStep grow
+/// the batch total, and after onTimeStepArrived counts one more step done. Reports total 0 once m_pending is
+/// empty, so the owner knows the whole batch is over and can close whatever it is showing for it.
+//--------------------------------------------------------------------------------------------------
+void RifReaderSumoGridProperty::updateBatchProgress()
+{
+    if ( m_pending.empty() )
+    {
+        // Whole batch done: tell the owner nothing is left, and reset the counters so the next batch starts
+        // counting from zero instead of continuing this one's total.
+        m_batchProgressTotal     = 0;
+        m_batchProgressCompleted = 0;
+        if ( m_onBatchProgressChanged ) m_onBatchProgressChanged( 0, 0, QString() );
+        return;
+    }
+
+    if ( m_onBatchProgressChanged )
+    {
+        m_onBatchProgressChanged( m_batchProgressCompleted, m_batchProgressTotal, pendingDataDescription() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// HUGE_VAL is the undefined-cell value the rest of the code already uses - the same value
 /// RifRoffFileTools::propertyValuesFromStream writes for inactive cells - so a pending time step renders as
 /// blank cells. A correctly sized vector is returned rather than an empty one, which the result accessors
@@ -429,59 +567,20 @@ std::vector<size_t>
 
     if ( !m_connector ) return steps;
 
-    const size_t batchSize    = RiaSumoDefines::gridPropertyPrefetchBatchSize();
-    const size_t lowWaterMark = RiaSumoDefines::gridPropertyPrefetchLowWaterMark();
-
-    // The values already in the case results are the look ahead: a time step loaded there is served without
-    // reaching this reader. Only refill when it runs low, so the batches stay full instead of trickling in
-    // one or two time steps at a time.
-    //
-    // A pending step holds a placeholder, so a non-empty slot does not by itself mean loaded. Counting those
-    // as loaded would let the look ahead believe it is full while nothing has arrived; listing them as
-    // unloaded would request them twice.
-    std::vector<size_t> unloadedSteps;
-    size_t              loadedAhead = 0;
-    for ( size_t step = stepIndex + 1; step < timestamps.size(); step++ )
+    // Request every other time step of this property not already loaded or on its way, alongside the one
+    // asked for, in the same batch transfer. QNetworkAccessManager caps how many of these actually run at
+    // once per host and queues the rest, so there is no need for this reader to also throttle how much is
+    // asked for - it only needs to avoid asking for the same step twice.
+    for ( size_t step = 0; step < timestamps.size(); step++ )
     {
-        if ( timestamps[step].isEmpty() ) continue; // no data at this time step for this property
-
-        if ( m_pending.count( PendingKey{ propertyName, step } ) > 0 ) continue; // on its way
+        if ( step == stepIndex ) continue;
+        if ( timestamps[step].isEmpty() ) continue;                             // no data at this time step for this property
+        if ( m_pending.count( PendingKey{ propertyName, step } ) > 0 ) continue; // already on its way
 
         auto* slot = resultValueSlot( propertyName, step );
-        if ( slot && !slot->empty() )
-        {
-            loadedAhead++;
-            continue;
-        }
-
-        unloadedSteps.push_back( step );
-    }
-
-    if ( loadedAhead >= lowWaterMark ) return steps;
-
-    for ( size_t step : unloadedSteps )
-    {
-        if ( steps.size() >= batchSize ) break;
+        if ( slot && !slot->empty() ) continue; // already loaded
 
         steps.push_back( step );
-    }
-
-    // Near the end of the series there is little or nothing left ahead, and a batch of one degrades to a
-    // blocking round trip per time step. Fill the rest of the batch with the time steps just behind,
-    // nearest first: those are the ones a view is most likely to be asked for next.
-    size_t precedingStep = stepIndex;
-    while ( precedingStep > 0 && steps.size() < batchSize )
-    {
-        precedingStep--;
-
-        if ( timestamps[precedingStep].isEmpty() ) continue;
-
-        if ( m_pending.count( PendingKey{ propertyName, precedingStep } ) > 0 ) continue;
-
-        auto* slot = resultValueSlot( propertyName, precedingStep );
-        if ( slot && !slot->empty() ) continue;
-
-        steps.push_back( precedingStep );
     }
 
     return steps;

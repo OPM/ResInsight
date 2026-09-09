@@ -46,15 +46,6 @@ int blobLookupTimeoutMillis();
 // the session. A failed step is not retried, so erring on the generous side is the cheaper mistake.
 int gridPropertyTransferTimeoutMillis();
 
-// The number of grid property time steps in flight at once. Bounds the concurrent transfers, and with them
-// the data pulled in for time steps that may not be needed. The step being displayed is always fetched, so
-// this caps the look ahead rather than the total.
-size_t gridPropertyPrefetchBatchSize();
-
-// Prefetch a new batch of grid property time steps when fewer than this many of the following time steps
-// are loaded. Keeps the look ahead full instead of trickling in one or two time steps at a time.
-size_t gridPropertyPrefetchLowWaterMark();
-
 // How long to wait for the local cloud API service to answer before giving up on a request. Long enough
 // to cover a cold uvicorn boot, short enough that a service that will never come up does not hang the UI.
 int serviceReadyTimeoutMillis();

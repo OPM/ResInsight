@@ -48,6 +48,7 @@
 
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmPointer.h"
+#include "cafProgressInfo.h"
 
 #include <QDate>
 #include <QDateTime>
@@ -89,10 +90,20 @@ RimRoffCaseSumo::RimRoffCaseSumo()
 
 //--------------------------------------------------------------------------------------------------
 /// Aborts any transfers this case still has in flight, see RiaSumoConnector::cancelGroup.
+///
+/// Rotate m_lifetimeToken before calling cancelGroup(), not after: an abort can make Qt deliver a
+/// reply's finished() synchronously, re-entering this case's own completion lambdas while this
+/// destructor is still on the stack. Those lambdas key off m_lifetimeToken.get() only to identify
+/// which cancelGroup() call this transfer belongs to, not for an aliveness check (they rely on a
+/// caf::PdmPointer for that) - but see RifReaderSumoGridProperty::~RifReaderSumoGridProperty() for
+/// why this ordering still matters wherever a lifetime token is involved. Reset first, capture the
+/// old raw pointer for the call, matching that fix for consistency/defense in depth.
 //--------------------------------------------------------------------------------------------------
 RimRoffCaseSumo::~RimRoffCaseSumo()
 {
-    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( m_lifetimeToken.get() );
+    void* lifetimeTokenKey = m_lifetimeToken.get();
+    m_lifetimeToken.reset();
+    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( lifetimeTokenKey );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,18 +304,23 @@ void RimRoffCaseSumo::closeReservoirCase()
 //--------------------------------------------------------------------------------------------------
 void RimRoffCaseSumo::cancelPendingTransfers()
 {
-    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( m_lifetimeToken.get() );
-    m_lifetimeToken = std::make_shared<bool>( true );
+    m_fetchInFlight.reset();
+
+    // Rotate the token before cancelling, not after: see ~RimRoffCaseSumo for why a reentrant delivery
+    // during cancelGroup() must observe an already-superseded token, not the one about to be cancelled.
+    void* oldLifetimeTokenKey = m_lifetimeToken.get();
+    m_lifetimeToken           = std::make_shared<bool>( true );
+    if ( m_sumoConnector ) m_sumoConnector->cancelGroup( oldLifetimeTokenKey );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// See header and RifReaderSumoGridProperty::prefetchDynamicResult.
 //--------------------------------------------------------------------------------------------------
-bool RimRoffCaseSumo::prefetchDynamicResult( const QString& resultName, size_t stepIndex )
+bool RimRoffCaseSumo::prefetchDynamicResult( const QString& resultName, const std::vector<size_t>& stepIndices )
 {
     if ( m_propertyReader.isNull() ) return false;
 
-    return m_propertyReader->prefetchDynamicResult( resultName, stepIndex );
+    return m_propertyReader->prefetchDynamicResult( resultName, stepIndices );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -502,6 +518,8 @@ void RimRoffCaseSumo::registerSumoGridProperties()
     reader->setPendingChangedCallback( [this]( const QString& message ) { onPropertyPendingChanged( message ); } );
     reader->setTimeStepArrivedCallback( [this]( const QString& propertyName, size_t stepIndex, bool ok )
                                         { onPropertyTimeStepArrived( propertyName, stepIndex, ok ); } );
+    reader->setBatchProgressChangedCallback( [this]( size_t completed, size_t total, const QString& description )
+                                             { onPropertyBatchProgressChanged( completed, total, description ); } );
 
     // The transfer started before this reader existed is still on its way. Tell the reader, so it reports the
     // wait to the user and does not issue a second request for the same time step.
@@ -666,6 +684,36 @@ void RimRoffCaseSumo::onPropertyTimeStepArrived( const QString& /*propertyName*/
     if ( !ok ) return;
 
     scheduleRedrawOfViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Blocks the GUI with a single progress dialog for as long as the reader has something pending, instead of
+/// one per time step waited for in RifReaderSumoGridProperty::waitForTimeStepToArrive. The reader itself only
+/// reports plain completed/total/description numbers via this callback - no GUI code lives there.
+//--------------------------------------------------------------------------------------------------
+void RimRoffCaseSumo::onPropertyBatchProgressChanged( size_t completed, size_t total, const QString& description )
+{
+    if ( total == 0 )
+    {
+        // Whole batch done (or nothing was ever pending): close the dialog rather than leaving a "100%" one
+        // lingering, and forget what it was constructed with so the next batch starts a fresh dialog.
+        m_batchProgress.reset();
+        m_batchProgressShownTotal = 0;
+        return;
+    }
+
+    if ( !m_batchProgress || m_batchProgressShownTotal != total )
+    {
+        // Either nothing is open yet, or the total grew while a dialog was already open (e.g. a redraw
+        // reached a time step outside the original request): caf::ProgressInfo's maximum is fixed at
+        // construction, so a growing total needs a fresh dialog rather than resizing the existing one.
+        const bool delayShowingProgress = false;
+        m_batchProgress           = std::make_unique<caf::ProgressInfo>( total, "Downloading Sumo grid property data", delayShowingProgress );
+        m_batchProgressShownTotal = total;
+    }
+
+    m_batchProgress->setProgress( completed );
+    m_batchProgress->setProgressDescription( QString( "Downloaded %1 of %2 time steps - %3" ).arg( completed ).arg( total ).arg( description ) );
 }
 
 //--------------------------------------------------------------------------------------------------
