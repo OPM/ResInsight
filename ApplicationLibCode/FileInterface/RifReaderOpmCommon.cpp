@@ -54,7 +54,9 @@
 
 #include <QStringList>
 
+#include <algorithm>
 #include <iostream>
+#include <stdexcept>
 
 using namespace Opm;
 
@@ -860,6 +862,31 @@ void RifReaderOpmCommon::locateInitAndRestartFiles( QString gridFileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::int64_t RifReaderOpmCommon::restartDataSize( const Opm::EclIO::ERst& restartFile, const std::string& keyword, int reportStepNumber )
+{
+    const auto& reportSteps = restartFile.listOfReportStepNumbers();
+    const auto  reportIt    = std::find( reportSteps.begin(), reportSteps.end(), reportStepNumber );
+    if ( reportIt == reportSteps.end() ) throw std::invalid_argument( "Report step does not exist" );
+
+    const auto reportIndex = std::distance( reportSteps.begin(), reportIt );
+    const auto entries     = restartFile.getList();
+    const bool isUnified   = std::ranges::any_of( entries, []( const auto& entry ) { return std::get<0>( entry ) == "SEQNUM"; } );
+
+    std::int64_t dataSize           = 0;
+    std::int64_t currentReportIndex = isUnified ? -1 : 0;
+    for ( const auto& entry : entries )
+    {
+        if ( std::get<0>( entry ) == "SEQNUM" ) ++currentReportIndex;
+        if ( currentReportIndex > reportIndex ) break;
+        if ( currentReportIndex == reportIndex && std::get<0>( entry ) == keyword ) dataSize += std::get<2>( entry );
+    }
+
+    return dataSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifReaderOpmCommon::setupInitAndRestartAccess()
 {
     if ( ( m_initFile == nullptr ) && !m_initFileName.empty() )
@@ -977,7 +1004,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCaseData, caf
 
             for ( auto& [keyName, resType] : keyNames )
             {
-                auto dataSize = m_restartFile->dataSize( keyName, reportNumber );
+                auto dataSize = restartDataSize( *m_restartFile, keyName, reportNumber );
 
                 entries.emplace_back( keyName, resType, dataSize );
             }
