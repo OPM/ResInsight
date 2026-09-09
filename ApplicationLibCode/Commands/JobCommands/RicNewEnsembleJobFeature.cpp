@@ -60,7 +60,7 @@ void RicNewEnsembleJobFeature::onActionTriggered( bool isChecked )
 
     auto job = new RimEnsembleJob();
     job->setName( selectedEnsembles[0]->name() );
-    job->setEnsemble( selectedEnsembles[0] );
+    job->setInputEnsemble( selectedEnsembles[0] );
     auto jobColl = RimTools::jobCollection();
     jobColl->addNewJob( job );
 

@@ -22,25 +22,33 @@
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesOpm.h"
+#include "Summary/RiaSummaryTools.h"
 
 #include "JobCommands/RicRunJobFeature.h"
 #include "JobCommands/RicStopJobFeature.h"
 
 #include "RifOpmDeckFileTools.h"
 
+#include "Ensemble/RimSummaryFileSetEnsemble.h"
 #include "EnsembleFileSet/RimEnsembleFileSet.h"
 #include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimJobWellSettings.h"
+#include "RimOilField.h"
 #include "RimOpmFlowJob.h"
 #include "RimOpmFlowJobSettings.h"
 #include "RimProject.h"
 #include "RimReservoirGridEnsemble.h"
+#include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryEnsemble.h"
+#include "RimSummaryEnsembleTools.h"
 #include "RimTools.h"
 
 #include "RiuGuiTheme.h"
 
 #include "cafPdmUiButton.h"
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -56,9 +64,9 @@ RimEnsembleJob::RimEnsembleJob()
 {
     CAF_PDM_InitObject( "Ensemble Job", ":/opm.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
-    m_ensemble = nullptr;
-    m_ensemble.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitFieldNoDefault( &m_inputEnsemble, "Ensemble", "Input Ensemble" );
+    m_inputEnsemble = nullptr;
+    m_inputEnsemble.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedRealizations, "SelectedRealizations", "Selected Realizations" );
     m_selectedRealizations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -80,6 +88,16 @@ RimEnsembleJob::RimEnsembleJob()
 
     CAF_PDM_InitFieldNoDefault( &m_datesInInputDeck, "DatesInInputDeck", "Dates in Input Deck" );
     m_datesInInputDeck.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_createGridEnsemble, "CreateGridEnsemble", false, "Create Grid Ensemble (if missing)" );
+    CAF_PDM_InitField( &m_createSummaryEnsemble, "CreateSummaryEnsemble", true, "Create Summary Ensemble (if missing)" );
+
+    CAF_PDM_InitFieldNoDefault( &m_outputEnsembleFileSet, "OutputEnsembleFileSet", "Output Ensemble File Set" );
+    m_outputEnsembleFileSet = nullptr;
+    m_outputEnsembleFileSet.uiCapability()->setUiTreeChildrenHidden( true );
+
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createGridEnsemble );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createSummaryEnsemble );
 
     setDeletable( true );
 }
@@ -139,9 +157,9 @@ void RimEnsembleJob::setStarted()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleJob::setEnsemble( RimReservoirGridEnsemble* ensemble )
+void RimEnsembleJob::setInputEnsemble( RimReservoirGridEnsemble* ensemble )
 {
-    m_ensemble = ensemble;
+    m_inputEnsemble = ensemble;
 
     if ( ensemble == nullptr ) return;
     if ( ensemble->cases().empty() ) return;
@@ -167,12 +185,12 @@ QList<caf::PdmOptionItemInfo> RimEnsembleJob::calculateValueOptions( const caf::
 
     if ( fieldNeedingOptions == &m_selectedRealizations )
     {
-        for ( auto* realization : m_ensemble->cases() )
+        for ( auto* realization : m_inputEnsemble->cases() )
         {
             options.push_back( caf::PdmOptionItemInfo( realization->uiName(), realization ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_ensemble )
+    else if ( fieldNeedingOptions == &m_inputEnsemble )
     {
         RimTools::reservoirGridEnsembleOptionItems( &options );
     }
@@ -259,15 +277,33 @@ void RimEnsembleJob::subJobCompleted( const caf::SignalEmitter* emitter, bool ru
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::setFinished( bool runOk )
 {
-    if ( runOk )
-    {
-        auto fileSets = RimEnsembleFileSetTools::createEnsembleFileSets( m_expectedOutputFiles );
-
-        RimEnsembleFileSetTools::createGridEnsemblesFromFileSets( fileSets );
-        RimEnsembleFileSetTools::createSummaryEnsemblesFromFileSets( fileSets );
-    }
     setState( RimGenericJob::Completed );
     updateConnectedEditors();
+
+    if ( runOk )
+    {
+        if ( m_outputEnsembleFileSet() == nullptr )
+        {
+            auto fileSets = RimEnsembleFileSetTools::createEnsembleFileSets( m_expectedOutputFiles );
+            if ( fileSets.empty() ) return;
+            m_outputEnsembleFileSet = fileSets[0];
+
+            if ( m_createGridEnsemble() )
+            {
+                RimEnsembleFileSetTools::createGridEnsemblesFromFileSets( { m_outputEnsembleFileSet() } );
+            }
+
+            if ( m_createSummaryEnsemble() )
+            {
+                RimEnsembleFileSetTools::createSummaryEnsemblesFromFileSets( { m_outputEnsembleFileSet() } );
+            }
+        }
+        else
+        {
+            m_outputEnsembleFileSet()->setRealizationSubSet( "*" );
+            m_outputEnsembleFileSet()->reload();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,9 +311,9 @@ void RimEnsembleJob::setFinished( bool runOk )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleJob::RealizationInfo> RimEnsembleJob::getSelectedRealizations() const
 {
-    if ( !m_ensemble() || !m_ensemble()->ensembleFileSet() ) return {};
+    if ( !m_inputEnsemble() || !m_inputEnsemble()->ensembleFileSet() ) return {};
 
-    auto [key1, key2] = m_ensemble()->ensembleFileSet()->nameKeys();
+    auto [key1, key2] = m_inputEnsemble()->ensembleFileSet()->nameKeys();
 
     std::vector<RealizationInfo> realizationInfos;
     for ( RimEclipseCase* realization : m_selectedRealizations.value() )
@@ -336,7 +372,9 @@ void RimEnsembleJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( nameField() );
-    genGrp->add( &m_ensemble );
+    genGrp->add( &m_inputEnsemble );
+    genGrp->add( &m_createSummaryEnsemble );
+    genGrp->add( &m_createGridEnsemble );
 
     auto realGrp = uiOrdering.addNewGroup( "Realizations" );
     realGrp->add( &m_selectedRealizations );

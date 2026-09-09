@@ -28,6 +28,7 @@ class RimSummaryCase;
 class RimFileSummaryCase;
 class RimEclipseResultCase;
 class RimSummaryEnsemble;
+class RimSummaryFileSetEnsemble;
 class RifSummaryCaseFileResultInfo;
 
 //==================================================================================================
@@ -47,9 +48,10 @@ public:
     RimSummaryCase* summaryCase( size_t idx );
     size_t          summaryCaseCount() const;
 
-    std::vector<RimSummaryCase*>     allSummaryCases() const;
-    std::vector<RimSummaryCase*>     topLevelSummaryCases() const;
-    std::vector<RimSummaryEnsemble*> summaryEnsembles() const;
+    std::vector<RimSummaryCase*>            allSummaryCases() const;
+    std::vector<RimSummaryCase*>            topLevelSummaryCases() const;
+    std::vector<RimSummaryEnsemble*>        summaryEnsembles() const;
+    std::vector<RimSummaryFileSetEnsemble*> summaryFileSetEnsembles() const;
 
     std::vector<RimSummaryCase*> createSummaryCasesFromFileInfos( const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
                                                                   bool                                             readStateFromFirstFile,

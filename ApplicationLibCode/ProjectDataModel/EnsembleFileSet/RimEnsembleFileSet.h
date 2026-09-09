@@ -59,6 +59,8 @@ public:
     void                             setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode );
     RiaDefines::EnsembleGroupingMode groupingMode() const;
 
+    void setRealizationSubSet( QString filterText );
+
     void reload();
 
 private:
