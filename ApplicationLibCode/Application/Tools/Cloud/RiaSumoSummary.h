@@ -84,17 +84,17 @@ private:
     // the background one for a prefetch batch, see RiaSumoConnector::backgroundNetworkAccessManager.
     // cancelGroup is passed on to RiaSumoConnector::getAndTrackReply, see its documentation; defaults to
     // untracked for the batch path, which has no owner to cancel it early.
-    QNetworkReply* makeParameterBlobIdRequest( const QString&          baseUrl,
-                                               const SumoCaseId&       caseId,
-                                               const QString&          ensembleName,
+    QNetworkReply* makeParameterBlobIdRequest( const QString&         baseUrl,
+                                               const SumoCaseId&      caseId,
+                                               const QString&         ensembleName,
                                                QNetworkAccessManager* networkManager,
-                                               const void*             cancelGroup = nullptr );
-    QNetworkReply* makeVectorBlobIdRequest( const QString&          baseUrl,
-                                            const SumoCaseId&       caseId,
-                                            const QString&          ensembleName,
-                                            const QString&          vectorName,
+                                               const void*            cancelGroup = nullptr );
+    QNetworkReply* makeVectorBlobIdRequest( const QString&         baseUrl,
+                                            const SumoCaseId&      caseId,
+                                            const QString&         ensembleName,
+                                            const QString&         vectorName,
                                             QNetworkAccessManager* networkManager,
-                                            const void*             cancelGroup = nullptr );
+                                            const void*            cancelGroup = nullptr );
     static QString blobIdFromReply( QNetworkReply* reply, const QString& vectorName );
     static QString logBlobId( const QString& blobId, const QString& vectorName );
 

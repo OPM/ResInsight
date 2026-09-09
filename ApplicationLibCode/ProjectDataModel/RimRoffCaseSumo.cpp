@@ -623,29 +623,30 @@ void RimRoffCaseSumo::startPropertyFetch()
 
     // Tied to m_lifetimeToken so closeReservoirCase can abort this transfer, e.g. when the view switches away
     // from this realization while it is still on its way, see closeReservoirCase.
-    m_sumoConnector->grid().propertyDataBatchAsync( SumoCaseId( m_sumoCaseId() ),
-                                                    m_ensembleName(),
-                                                    m_gridName(),
-                                                    m_realization(),
-                                                    propertyName,
-                                                    { isoDateOrInterval },
-                                                    [self, propertyName, stepIndex]( const QString& iso, const QByteArray& contents )
-                                                    {
-                                                        if ( self.isNull() || contents.isEmpty() ) return;
+    m_sumoConnector->grid().propertyDataBatchAsync(
+        SumoCaseId( m_sumoCaseId() ),
+        m_ensembleName(),
+        m_gridName(),
+        m_realization(),
+        propertyName,
+        { isoDateOrInterval },
+        [self, propertyName, stepIndex]( const QString& iso, const QByteArray& contents )
+        {
+            if ( self.isNull() || contents.isEmpty() ) return;
 
-                                                        // The reader is attached while the grid download holds
-                                                        // this thread on a semaphore, which dispatches no
-                                                        // events, so it is here by the time this runs. If it is
-                                                        // somehow not, the values are dropped and the on demand
-                                                        // path fetches them again.
-                                                        self->m_fetchInFlight.reset();
+            // The reader is attached while the grid download holds
+            // this thread on a semaphore, which dispatches no
+            // events, so it is here by the time this runs. If it is
+            // somehow not, the values are dropped and the on demand
+            // path fetches them again.
+            self->m_fetchInFlight.reset();
 
-                                                        if ( self->m_propertyReader.notNull() )
-                                                        {
-                                                            self->m_propertyReader->acceptFetchedTimeStep( propertyName, stepIndex, iso, contents );
-                                                        }
-                                                    },
-                                                    m_lifetimeToken.get() );
+            if ( self->m_propertyReader.notNull() )
+            {
+                self->m_propertyReader->acceptFetchedTimeStep( propertyName, stepIndex, iso, contents );
+            }
+        },
+        m_lifetimeToken.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -708,7 +709,7 @@ void RimRoffCaseSumo::onPropertyBatchProgressChanged( size_t completed, size_t t
         // reached a time step outside the original request): caf::ProgressInfo's maximum is fixed at
         // construction, so a growing total needs a fresh dialog rather than resizing the existing one.
         const bool delayShowingProgress = false;
-        m_batchProgress           = std::make_unique<caf::ProgressInfo>( total, "Downloading Sumo grid property data", delayShowingProgress );
+        m_batchProgress = std::make_unique<caf::ProgressInfo>( total, "Downloading Sumo grid property data", delayShowingProgress );
         m_batchProgressShownTotal = total;
     }
 

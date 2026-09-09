@@ -194,7 +194,7 @@ public:
 
 protected:
 private:
-    void                     createTimeStepFormatString();
+    void                    createTimeStepFormatString();
     std::vector<Rim3dView*> allSpecialViews() const override;
 
     void buildResultChildNodes();

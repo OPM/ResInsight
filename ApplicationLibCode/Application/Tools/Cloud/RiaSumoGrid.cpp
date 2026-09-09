@@ -420,15 +420,15 @@ QString RiaSumoGrid::propertyBlobId( const SumoCaseId& caseId,
 /// caller decides how to wait for it: one at a time, or several at once when prefetching. networkManager
 /// picks the connection pool, see the header comment.
 //--------------------------------------------------------------------------------------------------
-QNetworkReply* RiaSumoGrid::makePropertyBlobIdRequest( const QString&          baseUrl,
-                                                       const SumoCaseId&       caseId,
-                                                       const QString&          ensembleName,
-                                                       const QString&          gridName,
-                                                       int                     realization,
-                                                       const QString&          propertyName,
-                                                       const QString&          isoDateOrInterval,
+QNetworkReply* RiaSumoGrid::makePropertyBlobIdRequest( const QString&         baseUrl,
+                                                       const SumoCaseId&      caseId,
+                                                       const QString&         ensembleName,
+                                                       const QString&         gridName,
+                                                       int                    realization,
+                                                       const QString&         propertyName,
+                                                       const QString&         isoDateOrInterval,
                                                        QNetworkAccessManager* networkManager,
-                                                       const void*             cancelGroup )
+                                                       const void*            cancelGroup )
 {
     const QString url = baseUrl + propertyBlobIdPath( caseId, ensembleName, gridName, realization, propertyName, isoDateOrInterval );
 

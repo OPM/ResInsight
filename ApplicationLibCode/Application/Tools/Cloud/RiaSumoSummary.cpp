@@ -235,12 +235,12 @@ QString RiaSumoSummary::vectorBlobIdPath( const SumoCaseId& caseId, const QStrin
 /// Issue the blob id request for one vector. The reply is returned unfinished, so the caller decides how
 /// to wait for it: one at a time, or several at once when batching.
 //--------------------------------------------------------------------------------------------------
-QNetworkReply* RiaSumoSummary::makeVectorBlobIdRequest( const QString&          baseUrl,
-                                                        const SumoCaseId&       caseId,
-                                                        const QString&          ensembleName,
-                                                        const QString&          vectorName,
+QNetworkReply* RiaSumoSummary::makeVectorBlobIdRequest( const QString&         baseUrl,
+                                                        const SumoCaseId&      caseId,
+                                                        const QString&         ensembleName,
+                                                        const QString&         vectorName,
                                                         QNetworkAccessManager* networkManager,
-                                                        const void*             cancelGroup )
+                                                        const void*            cancelGroup )
 {
     QNetworkRequest networkRequest;
     networkRequest.setUrl( QUrl( baseUrl + vectorBlobIdPath( caseId, ensembleName, vectorName ) ) );
@@ -297,8 +297,11 @@ QString RiaSumoSummary::parameterBlobIdPath( const SumoCaseId& caseId, const QSt
 /// Issue the blob id request for the ensemble parameters. The reply is returned unfinished, so the caller
 /// decides how to wait for it.
 //--------------------------------------------------------------------------------------------------
-QNetworkReply*
-    RiaSumoSummary::makeParameterBlobIdRequest( const QString& baseUrl, const SumoCaseId& caseId, const QString& ensembleName, QNetworkAccessManager* networkManager, const void* cancelGroup )
+QNetworkReply* RiaSumoSummary::makeParameterBlobIdRequest( const QString&         baseUrl,
+                                                           const SumoCaseId&      caseId,
+                                                           const QString&         ensembleName,
+                                                           QNetworkAccessManager* networkManager,
+                                                           const void*            cancelGroup )
 {
     QNetworkRequest networkRequest;
     networkRequest.setUrl( QUrl( baseUrl + parameterBlobIdPath( caseId, ensembleName ) ) );

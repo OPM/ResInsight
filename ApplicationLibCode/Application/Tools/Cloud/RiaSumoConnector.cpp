@@ -313,7 +313,8 @@ void RiaSumoConnector::downloadBlobAsync( const QString&                        
 /// it finds and aborts it as usual): there is no gap in between where the reply exists but is not yet
 /// visible to cancelGroup.
 //--------------------------------------------------------------------------------------------------
-QNetworkReply* RiaSumoConnector::getAndTrackReply( QNetworkAccessManager* networkManager, const QNetworkRequest& networkRequest, const void* groupId )
+QNetworkReply*
+    RiaSumoConnector::getAndTrackReply( QNetworkAccessManager* networkManager, const QNetworkRequest& networkRequest, const void* groupId )
 {
     QMutexLocker locker( &m_activeRepliesMutex );
 

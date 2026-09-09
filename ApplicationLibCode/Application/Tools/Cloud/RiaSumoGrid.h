@@ -147,15 +147,15 @@ private:
     // the background one for a prefetch batch, see RiaSumoConnector::backgroundNetworkAccessManager.
     // cancelGroup is passed on to RiaSumoConnector::getAndTrackReply, see its documentation; defaults to
     // untracked for the batch path, which has no owner to cancel it early.
-    QNetworkReply* makePropertyBlobIdRequest( const QString&          baseUrl,
-                                              const SumoCaseId&       caseId,
-                                              const QString&          ensembleName,
-                                              const QString&          gridName,
-                                              int                     realization,
-                                              const QString&          propertyName,
-                                              const QString&          isoDateOrInterval,
+    QNetworkReply* makePropertyBlobIdRequest( const QString&         baseUrl,
+                                              const SumoCaseId&      caseId,
+                                              const QString&         ensembleName,
+                                              const QString&         gridName,
+                                              int                    realization,
+                                              const QString&         propertyName,
+                                              const QString&         isoDateOrInterval,
                                               QNetworkAccessManager* networkManager,
-                                              const void*             cancelGroup = nullptr );
+                                              const void*            cancelGroup = nullptr );
 
     std::map<QString, QByteArray> fetchPropertyBatch( const QString&              baseUrl,
                                                       const SumoCaseId&           caseId,

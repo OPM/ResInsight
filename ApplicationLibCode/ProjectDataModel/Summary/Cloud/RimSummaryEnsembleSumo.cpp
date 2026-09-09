@@ -312,15 +312,16 @@ void RimSummaryEnsembleSumo::loadEnsembleParameters()
 
     std::weak_ptr<bool> isAlive = m_lifetimeToken;
 
-    m_sumoConnector->summary().parameterDataAsync( sumoCaseId,
-                                                   sumoEnsembleName,
-                                                   [this, isAlive, parametersKey]( const QByteArray& contents )
-                                                   {
-                                                       if ( isAlive.expired() ) return;
+    m_sumoConnector->summary().parameterDataAsync(
+        sumoCaseId,
+        sumoEnsembleName,
+        [this, isAlive, parametersKey]( const QByteArray& contents )
+        {
+            if ( isAlive.expired() ) return;
 
-                                                       onParameterDataReceived( parametersKey, contents );
-                                                   },
-                                                   m_lifetimeToken.get() );
+            onParameterDataReceived( parametersKey, contents );
+        },
+        m_lifetimeToken.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -385,19 +386,18 @@ void RimSummaryEnsembleSumo::prefetchSummaryData( const std::vector<RifEclipseSu
 
     std::weak_ptr<bool> isAlive = m_lifetimeToken;
 
-    m_sumoConnector->summary().vectorDataAsync( sumoCaseId,
-                                                sumoEnsembleName,
-                                                vectorNamesToFetch,
-                                                [this, isAlive, sumoCaseId, sumoEnsembleName]( const QString&    vectorName,
-                                                                                               const QByteArray& contents )
-                                                {
-                                                    // The request outlived the ensemble that asked for it.
-                                                    if ( isAlive.expired() ) return;
+    m_sumoConnector->summary().vectorDataAsync(
+        sumoCaseId,
+        sumoEnsembleName,
+        vectorNamesToFetch,
+        [this, isAlive, sumoCaseId, sumoEnsembleName]( const QString& vectorName, const QByteArray& contents )
+        {
+            // The request outlived the ensemble that asked for it.
+            if ( isAlive.expired() ) return;
 
-                                                    onVectorDataReceived( ParquetKey{ sumoCaseId, sumoEnsembleName, vectorName, false },
-                                                                          contents );
-                                                },
-                                                m_lifetimeToken.get() );
+            onVectorDataReceived( ParquetKey{ sumoCaseId, sumoEnsembleName, vectorName, false }, contents );
+        },
+        m_lifetimeToken.get() );
 }
 
 //--------------------------------------------------------------------------------------------------

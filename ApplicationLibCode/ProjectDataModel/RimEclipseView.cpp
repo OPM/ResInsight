@@ -532,7 +532,7 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
         // selected realization's transfers for bandwidth and connections, which could otherwise make the new
         // realization's grid download fail. Already loaded data is kept, so switching back later does not
         // force a full reload. Skipped when another view still shows it.
-        auto* previousCase  = dynamic_cast<RimEclipseCase*>( oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr() );
+        auto* previousCase     = dynamic_cast<RimEclipseCase*>( oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr() );
         auto* previousSumoCase = dynamic_cast<RimRoffCaseSumo*>( previousCase );
         if ( previousSumoCase && previousSumoCase->reservoirViews().empty() && previousSumoCase->contourMapViews().empty() )
         {

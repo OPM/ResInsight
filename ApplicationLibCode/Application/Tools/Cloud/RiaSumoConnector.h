@@ -156,7 +156,7 @@ public:
     // right for the small metadata requests (e.g. the SAS token lookup); pass a longer value for a phase that
     // moves real data, such as the blob transfer itself, so it is not cut off by a deadline sized for a lookup.
     static void waitForRepliesToFinish( const std::vector<QNetworkReply*>& replies,
-                                       int perReplyTimeoutMillis = RiaSumoDefines::requestTimeoutMillis() );
+                                        int                                perReplyTimeoutMillis = RiaSumoDefines::requestTimeoutMillis() );
 
     // Issue and collect the two round trips a blob transfer needs. Called on the transfer thread.
     // Runs on the transfer thread, so the base URL is resolved by the caller and passed in: waiting for the

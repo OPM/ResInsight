@@ -223,7 +223,7 @@ bool RifReaderSumoGridProperty::prefetchDynamicResult( const QString& propertyNa
     for ( size_t step : stepIndices )
     {
         if ( step >= timestamps.size() || timestamps[step].isEmpty() ) continue; // No data at this step.
-        if ( !( *timeStepValues )[step].empty() ) continue;                      // Already there.
+        if ( !( *timeStepValues )[step].empty() ) continue; // Already there.
 
         stepsToRequest.push_back( step );
     }
@@ -386,21 +386,21 @@ void RifReaderSumoGridProperty::requestTimeStepsAsync( const QString&           
 
     std::weak_ptr<bool> isAlive = m_lifetimeToken;
 
-    m_connector->grid().propertyDataBatchAsync( SumoCaseId( m_caseId ),
-                                                m_ensembleName,
-                                                m_gridName,
-                                                m_realization,
-                                                propertyName,
-                                                isoDatesOrIntervals,
-                                                [this, isAlive, propertyName, stepByTimestamp]( const QString&    isoDateOrInterval,
-                                                                                                const QByteArray& contents )
-                                                {
-                                                    // The reader may be gone: a realization can be closed while its
-                                                    // transfers are still running.
-                                                    if ( isAlive.expired() ) return;
+    m_connector->grid().propertyDataBatchAsync(
+        SumoCaseId( m_caseId ),
+        m_ensembleName,
+        m_gridName,
+        m_realization,
+        propertyName,
+        isoDatesOrIntervals,
+        [this, isAlive, propertyName, stepByTimestamp]( const QString& isoDateOrInterval, const QByteArray& contents )
+        {
+            // The reader may be gone: a realization can be closed while its
+            // transfers are still running.
+            if ( isAlive.expired() ) return;
 
-                                                    auto it = stepByTimestamp.find( isoDateOrInterval );
-                                                    if ( it == stepByTimestamp.end() ) return;
+            auto it = stepByTimestamp.find( isoDateOrInterval );
+            if ( it == stepByTimestamp.end() ) return;
 
             onTimeStepArrived( propertyName, it->second, isoDateOrInterval, contents );
         },
@@ -574,7 +574,7 @@ std::vector<size_t>
     for ( size_t step = 0; step < timestamps.size(); step++ )
     {
         if ( step == stepIndex ) continue;
-        if ( timestamps[step].isEmpty() ) continue;                             // no data at this time step for this property
+        if ( timestamps[step].isEmpty() ) continue; // no data at this time step for this property
         if ( m_pending.count( PendingKey{ propertyName, step } ) > 0 ) continue; // already on its way
 
         auto* slot = resultValueSlot( propertyName, step );
