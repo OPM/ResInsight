@@ -185,6 +185,12 @@ public:
     // disk and has nothing in flight; overridden by the cases backed by remote data.
     virtual QString dataLoadingText() const { return {}; }
 
+    // Fetches and stores exactly one time step of a dynamic property, synchronously, without loading any
+    // other time step. A no-op returning false for a case that reads from disk; overridden by cases backed
+    // by remote data, where normal on-demand loading would otherwise pull the whole time series over the
+    // network just to read one time step.
+    virtual bool prefetchDynamicResult( const QString& resultName, size_t stepIndex ) { return false; }
+
 protected:
 private:
     void                     createTimeStepFormatString();

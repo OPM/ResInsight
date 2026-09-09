@@ -151,6 +151,44 @@ bool RifReaderSumoGridProperty::dynamicResult( const QString&                res
 }
 
 //--------------------------------------------------------------------------------------------------
+/// See header. Writes the fetched values directly into the case's result storage, as an arrived async time
+/// step would, so a later normal read finds it already there.
+//--------------------------------------------------------------------------------------------------
+bool RifReaderSumoGridProperty::prefetchDynamicResult( const QString& propertyName, size_t stepIndex )
+{
+    if ( !m_caseData ) return false;
+
+    auto it = m_dynamicTimestamps.find( propertyName );
+    if ( it == m_dynamicTimestamps.end() || stepIndex >= it->second.size() ) return false;
+
+    const QString& isoDateOrInterval = it->second[stepIndex];
+    if ( isoDateOrInterval.isEmpty() ) return false;
+
+    auto* cellResults = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !cellResults ) return false;
+
+    const RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, propertyName );
+    if ( !cellResults->hasResultEntry( resultAddress ) ) return false;
+
+    auto* timeStepValues = cellResults->modifiableCellScalarResultTimesteps( resultAddress );
+    if ( !timeStepValues ) return false;
+
+    // Size to the full time series, matching normal on-demand loading, so other time steps stay in bounds.
+    if ( timeStepValues->size() < it->second.size() ) timeStepValues->resize( it->second.size() );
+
+    if ( !( *timeStepValues )[stepIndex].empty() ) return true; // Already there.
+
+    // Already on its way through the async path (e.g. requested by a view): let that arrival fill it in.
+    if ( m_pending.count( PendingKey{ propertyName, stepIndex } ) > 0 ) return false;
+
+    std::vector<double> values;
+    if ( !fetchAndDecode( propertyName, isoDateOrInterval, &values ) ) return false;
+
+    ( *timeStepValues )[stepIndex] = std::move( values );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Names what is on its way, so the user is told the cells are blank because data is being fetched and not
 /// because there is none. A single time step is named outright; several are counted.
 //--------------------------------------------------------------------------------------------------

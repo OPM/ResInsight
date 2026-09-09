@@ -75,6 +75,10 @@ public:
     // fully loaded realization is not forced through a full reload if switched back to.
     void cancelPendingTransfers();
 
+    // Fetches and stores one time step of a dynamic property, synchronously, without pulling in the whole
+    // time series. See RifReaderSumoGridProperty::prefetchDynamicResult.
+    bool prefetchDynamicResult( const QString& resultName, size_t stepIndex ) override;
+
     QString locationOnDisc() const override;
 
     QString dataLoadingText() const override;
