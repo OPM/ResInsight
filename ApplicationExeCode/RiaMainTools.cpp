@@ -40,16 +40,19 @@
 #include <typeinfo>
 #include <version>
 
-// std::stacktrace is C++23; libc++ in Homebrew llvm@19 (and older) does not
-// ship it.  Without it we skip stack-trace capture in the crash path but
-// still log the signal.  Use the feature-test macro from <version> rather
-// than __has_include, since the header may be present without a usable
-// implementation.  See #14045.
+// std::stacktrace is C++23 and not usable on all toolchains.  The build system
+// probes it by linking and may force it off via RIA_HAS_STD_STACKTRACE=0, see
+// cmake/StdStacktrace.cmake and #14045.
+#ifndef RIA_HAS_STD_STACKTRACE
 #if defined( __cpp_lib_stacktrace ) && __cpp_lib_stacktrace >= 202011L
-#include <stacktrace>
 #define RIA_HAS_STD_STACKTRACE 1
 #else
 #define RIA_HAS_STD_STACKTRACE 0
+#endif
+#endif
+
+#if RIA_HAS_STD_STACKTRACE
+#include <stacktrace>
 #endif
 
 #ifndef WIN32
