@@ -39,6 +39,7 @@
 #include "cafCadNavigation.h"
 #include "cafFrameAnimationControl.h"
 #include "cafNavigationPolicy.h"
+#include "cafPdmLogging.h"
 #include "cafPointOfInterestVisualizer.h"
 
 #include "cvfCamera.h"
@@ -141,6 +142,17 @@ caf::Viewer::Viewer( QWidget* parent )
 
     setAutoFillBackground( false );
     setMouseTracking( true );
+
+    // A non-native widget is composited into the top-level backing store, and that composition is not
+    // refreshed when the dock system switches tabs, leaving the shown view black. A native surface
+    // skips compositing, but becomes a subsurface on Wayland, so keep it opt-in.
+    if ( qEnvironmentVariableIntValue( "RESINSIGHT_ENABLE_NATIVE_GL_WIDGET" ) > 0 )
+    {
+        setAttribute( Qt::WA_NativeWindow );
+
+        CAF_PDM_LOG_INFO(
+            QString( "RESINSIGHT_ENABLE_NATIVE_GL_WIDGET is set, using a native window for the 3D viewer" ) );
+    }
 
     // Needed to get keystrokes
     setFocusPolicy( Qt::ClickFocus );
