@@ -80,6 +80,16 @@ RiuMainWindowBase::RiuMainWindowBase()
     m_dockManager = new ads::CDockManager( this );
     m_dockManager->setStyleSheet( "" );
 
+    // TEMPORARY (#14714 investigation): whenever any dock widget is added to this window's dock
+    // manager (e.g. a "Messages" log panel, property view, etc.), also listen for its visibility
+    // changes so we can force a repaint of all 3D viewers when that happens. See
+    // slotForceUpdateAllViewers() for details on the suspected Qt/ADS compositing bug this targets.
+    connect( m_dockManager,
+             &ads::CDockManager::dockWidgetAdded,
+             this,
+             [this]( ads::CDockWidget* dockWidget )
+             { connect( dockWidget, &ads::CDockWidget::visibilityChanged, this, &RiuMainWindowBase::slotForceUpdateAllViewers ); } );
+
     if ( RiaPreferences::current()->useUndoRedo() && RiaPreferencesSystem::current()->isFeatureEnabled( "undo-redo-view" ) )
     {
         m_undoView = new QUndoView( this );
@@ -473,6 +483,27 @@ void RiuMainWindowBase::slotDockViewerClosed()
             viewWindow->setShowWindow( false );
             viewWindow->removeWindowFromDock();
             viewWindow->updateConnectedEditors();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// TEMPORARY (#14714 investigation): forces a repaint of all currently visible 3D viewer widgets.
+/// Connected to the visibilityChanged() signal of every dock widget in this main window (see
+/// constructor), so this runs whenever ANY dock widget (e.g. the "Messages" log panel) is shown or
+/// hidden -- not just the 3D-view dock widgets themselves. This is a workaround experiment for a
+/// suspected Qt/ADS widget-compositing bug where sibling QOpenGLWidgets can go black after a
+/// neighboring dock widget's visibility changes.
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::slotForceUpdateAllViewers()
+{
+    for ( auto view : viewWindows() )
+    {
+        QWidget* widget = view->viewWidget();
+        if ( widget && widget->isVisible() )
+        {
+            widget->update();
+            widget->repaint();
         }
     }
 }

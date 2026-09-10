@@ -131,6 +131,13 @@ protected slots:
     void slotHideTabs( bool hideTabs );
     void slotCentralWidgetContextMenu( const QPoint& pos );
 
+    // TEMPORARY (#14714 investigation): forces a repaint of all currently visible 3D viewer widgets
+    // whenever any dock widget in this main window changes visibility (e.g. is closed/hidden). This
+    // is a workaround experiment for a suspected Qt/ADS widget-compositing bug where sibling
+    // QOpenGLWidgets can go black after a neighboring dock widget is closed, even though our own
+    // OpenGL rendering pipeline (verified via debug logging) keeps rendering correctly.
+    void slotForceUpdateAllViewers();
+
     void slotRedo();
     void slotUndo();
     void slotRefreshUndoRedoActions();

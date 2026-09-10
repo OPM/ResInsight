@@ -37,6 +37,13 @@ public:
             auto fileName = filePathForLogFiles + "/resinsight.log";
             m_spdlogger   = spdlog::rotating_logger_mt( "rotating_logger", fileName, 1024 * 1024 * 5, 3 );
 
+            // spdlog::logger has its own internal severity filter, defaulting to spdlog::level::info,
+            // independent of RiaFileLogger::m_logLevel/RiaLogging's own level gating. Without lowering
+            // it here, calls to debug() below are silently dropped by spdlog itself, so debug-level
+            // messages never reach the log file even when the RiaLogging-side level checks pass them
+            // through (#14714 investigation).
+            m_spdlogger->set_level( spdlog::level::debug );
+
             auto flushInterval = 500;
             spdlog::flush_every( std::chrono::milliseconds( flushInterval ) );
         }
