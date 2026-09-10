@@ -44,6 +44,7 @@
 #include "RiaSocketServer.h"
 #include "RiaTextStringTools.h"
 #include "RiaToCafLogging.h"
+#include "RiaToCvfLogging.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 #include "RiaWellNameComparer.h"
@@ -217,6 +218,8 @@ RiaApplication::~RiaApplication()
 
     // Shutdown CAF logging bridge
     RiaCafLoggingManager::shutdownCafLogging();
+
+    RiaCvfLoggingManager::shutdownCvfLogging();
 
     caf::SelectionManager::instance()->setPdmRootObject( nullptr );
 
@@ -1720,6 +1723,9 @@ void RiaApplication::initialize()
     // Create loggers before reading the cloud configuration, to make sure the messages from the config file search
     // are reported
     initializeLoggers();
+
+    // Initialize cvf logging bridge to forward cvf framework messages to ResInsight logging
+    RiaCvfLoggingManager::initializeCvfLogging();
 
     RiaConnectorTools::configureCloudServices();
 
