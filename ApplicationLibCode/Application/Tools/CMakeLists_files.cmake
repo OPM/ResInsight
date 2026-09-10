@@ -61,6 +61,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaAngleUtils.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaAngleUtils.inl
     ${CMAKE_CURRENT_LIST_DIR}/RiaToCafLogging.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaToCvfLogging.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaZScaleTools.h
 )
 
@@ -117,6 +118,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaQuantityInfoTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaAngleUtils.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaToCafLogging.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaToCvfLogging.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaZScaleTools.cpp
 )
 
