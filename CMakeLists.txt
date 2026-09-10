@@ -140,6 +140,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
 endif()
 
+include(cmake/StdStacktrace.cmake)
+
 # ##############################################################################
 # Asserts
 # ##############################################################################
