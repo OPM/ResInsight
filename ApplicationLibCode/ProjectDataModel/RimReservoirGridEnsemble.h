@@ -60,6 +60,7 @@ class RimReservoirGridEnsemble : public RimNamedObject, public RimReservoirGridE
 
 public:
     RimReservoirGridEnsemble();
+    ~RimReservoirGridEnsemble() override;
 
     // Ensemble file set connection
     void                setEnsembleFileSet( RimEnsembleFileSet* ensembleFileSet );

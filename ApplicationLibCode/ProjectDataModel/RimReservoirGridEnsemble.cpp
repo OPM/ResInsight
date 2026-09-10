@@ -131,6 +131,14 @@ RimReservoirGridEnsemble::RimReservoirGridEnsemble()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Defined here (rather than defaulted in the header) so that the cvf::ref<RigMainGrid> member is
+/// destroyed where RigMainGrid is a complete type.
+//--------------------------------------------------------------------------------------------------
+RimReservoirGridEnsemble::~RimReservoirGridEnsemble()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 int RimReservoirGridEnsemble::groupId() const
