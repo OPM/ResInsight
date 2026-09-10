@@ -182,6 +182,19 @@ caf::Viewer::Viewer( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 caf::Viewer::~Viewer()
 {
+    // The offscreen FBO owns textures and renderbuffers that live in the shared context group (AA_ShareOpenGLContexts),
+    // so they outlive our own context unless we release them here. onWidgetOpenGLAboutToBeShutdown() is not called
+    // during widget destruction, since the base class disconnects from aboutToBeDestroyed first.
+    if ( auto context = cvfOpenGLContext() )
+    {
+        makeCurrent();
+
+        if ( context->isCurrent() )
+        {
+            deleteFboOpenGLResources();
+        }
+    }
+
     if ( m_layoutWidget ) m_layoutWidget->deleteLater();
 }
 
@@ -271,8 +284,8 @@ void caf::Viewer::deleteFboOpenGLResources()
 {
     // The OpenGL resources can be deleted at any time. CeeViz does not delete resources for FBOs, so delete them manually
     //
-    // Callers (onWidgetOpenGLAboutToBeShutdown()/onWidgetOpenGLReinitialized()) are responsible for making sure the
-    // correct OpenGL context is current before calling this function, so we don't do it here.
+    // Callers are responsible for making sure the OpenGL context owning the resources is current before calling this
+    // function, so we don't do it here.
 
     if ( m_offscreenFbo.notNull() )
     {
@@ -948,10 +961,15 @@ void caf::Viewer::onWidgetOpenGLAboutToBeShutdown()
 /// Called after the widget has been re-initialized with a new Qt OpenGL context. Make sure the
 /// offscreen FBO's cached OpenGL ids (which belong to the destroyed context) are reset to 0 so
 /// they get rebuilt, then let the base class trigger a repaint.
+///
+/// The ids must be dropped, not deleted, since they are only meaningful in the destroyed context.
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::onWidgetOpenGLReinitialized()
 {
-    deleteFboOpenGLResources();
+    if ( m_offscreenFbo.notNull() )
+    {
+        m_offscreenFbo->forgetCurrentOpenGLResources();
+    }
 
     cvfqt::OpenGLWidget::onWidgetOpenGLReinitialized();
 }

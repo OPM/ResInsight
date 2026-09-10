@@ -157,6 +157,22 @@ void RenderbufferObject::deleteRenderbuffer(OpenGLContext* oglContext)
 
 
 //--------------------------------------------------------------------------------------------------
+/// Release our reference to the OpenGL renderbuffer without deleting it.
+/// 
+/// Use this when the context the renderbuffer belongs to is already gone, in which case the OpenGL
+/// name is meaningless and must not be passed to glDeleteRenderbuffers() on another context.
+//--------------------------------------------------------------------------------------------------
+void RenderbufferObject::forgetCurrentOglRenderbuffer()
+{
+    // Just release our reference
+    CVF_ASSERT(OglRc::isSafeToRelease(m_oglRcBuffer.p()));
+    m_oglRcBuffer = NULL;
+
+    m_versionTick++;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 cvfGLenum RenderbufferObject::intenalFormatOpenGL() const

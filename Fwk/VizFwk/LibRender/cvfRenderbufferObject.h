@@ -71,6 +71,7 @@ public:
 
     bool    create(OpenGLContext* oglContext);
     void    deleteRenderbuffer(OpenGLContext* oglContext);
+    void    forgetCurrentOglRenderbuffer();
 
     OglId   renderbufferOglId() const;
     uint    versionTick() const;

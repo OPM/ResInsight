@@ -82,6 +82,7 @@ public:
     bool        isFramebufferComplete(OpenGLContext* oglContext, String* failReason) const;
 
     void        deleteOrReleaseOpenGLResources(OpenGLContext* oglContext);
+    void        forgetCurrentOpenGLResources();
 
     static bool supportedOpenGL(OpenGLContext* oglContext);
 

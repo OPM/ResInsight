@@ -117,6 +117,7 @@ public:
     bool            setupTexture(OpenGLContext* oglContext);
     void            setupTextureParamsFromSampler(OpenGLContext* oglContext, const Sampler& sampler) const;
     void            deleteTexture(OpenGLContext* oglContext);
+    void            forgetCurrentOglTexture();
 
     OglId           textureOglId() const;
     uint            versionTick() const;
@@ -124,7 +125,6 @@ public:
     static bool     supportedOpenGL(OpenGLContext* oglContext);
 
 private:
-    void            forgetCurrentOglTexture();
     cvfGLenum       textureTypeOpenGL() const;
     cvfGLint        internalFormatOpenGL() const;
 

@@ -514,7 +514,66 @@ void FramebufferObject::deleteFramebuffer(OpenGLContext* oglContext)
         CVF_ASSERT(OglRc::isSafeToRelease(m_oglRcBuffer.p()));
         m_oglRcBuffer = NULL;
 
-        m_colorAttachmentVersionTicks.clear();
+        // Reset the version ticks to force reattachment, but keep the size in sync with the number of color
+        // attachments since applyOpenGL() indexes this array directly
+        m_colorAttachmentVersionTicks.assign(m_colorAttachmentVersionTicks.size(), 0);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void FramebufferObject::forgetCurrentOpenGLResources()
+{
+    // Just release our reference. Framebuffer names are per context, so once the owning context is gone the cached
+    // ids must be dropped rather than deleted, since deleting them through another context would hit an unrelated
+    // framebuffer that happens to have been given the same name
+    CVF_ASSERT(OglRc::isSafeToRelease(m_oglRcBuffer.p()));
+    m_oglRcBuffer = NULL;
+
+    m_colorAttachmentVersionTicks.assign(m_colorAttachmentVersionTicks.size(), 0);
+    m_depthAttachmentVersionTick = 0;
+
+    size_t i;
+    for (i = 0; i < m_colorRenderBuffers.size(); i++)
+    {
+        RenderbufferObject* buffer = m_colorRenderBuffers[i].p();
+
+        if (buffer)
+        {
+            buffer->forgetCurrentOglRenderbuffer();
+        }
+    }
+
+    for (i = 0; i < m_colorTextures.size(); i++)
+    {
+        Texture* texture = m_colorTextures[i].p();
+
+        if (texture)
+        {
+            texture->forgetCurrentOglTexture();
+        }
+    }
+
+    if (m_depthRenderBuffer.notNull())
+    {
+        m_depthRenderBuffer->forgetCurrentOglRenderbuffer();
+    }
+
+    if (m_depthTexture2d.notNull())
+    {
+        m_depthTexture2d->forgetCurrentOglTexture();
+    }
+
+    if (m_depthStencilRenderBuffer.notNull())
+    {
+        m_depthStencilRenderBuffer->forgetCurrentOglRenderbuffer();
+    }
+
+    if (m_depthStencilTexture2d.notNull())
+    {
+        m_depthStencilTexture2d->forgetCurrentOglTexture();
     }
 }
 

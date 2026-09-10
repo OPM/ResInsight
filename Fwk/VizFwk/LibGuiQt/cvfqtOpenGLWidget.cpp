@@ -344,9 +344,19 @@ void OpenGLWidget::qtOpenGLContextAboutToBeDestroyed()
         // so that onWidgetOpenGLAboutToBeShutdown() overrides can safely release OpenGL resources.
         makeCurrent();
 
-        // Notify derived classes so they get a chance to release OpenGL resources while the
-        // CVF OpenGL context is still valid.
-        onWidgetOpenGLAboutToBeShutdown();
+        // makeCurrent() silently does nothing if the widget's surface is already gone. Issuing OpenGL calls in that
+        // case would either dereference a NULL current context or hit some other context that happens to be current,
+        // so only notify derived classes if our context really did become current.
+        if (m_cvfForwardingOpenGlContext->isCurrent())
+        {
+            // Notify derived classes so they get a chance to release OpenGL resources while the
+            // CVF OpenGL context is still valid.
+            onWidgetOpenGLAboutToBeShutdown();
+        }
+        else
+        {
+            CVF_LOG_WARNING(m_logger, cvf::String("OpenGLWidget[%1]: Could not make OpenGL context current, skipping shutdown notification").arg(m_instanceNumber));
+        }
 
         CVF_LOG_DEBUG(m_logger, cvf::String("OpenGLWidget[%1]: Shutting down CVF OpenGL context since Qt context is about to be destroyed").arg(m_instanceNumber));
         shutdownCvfOpenGLContext();
