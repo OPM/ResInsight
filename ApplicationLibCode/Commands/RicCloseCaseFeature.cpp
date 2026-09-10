@@ -182,8 +182,8 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
                     for ( size_t i = children.size(); i-- > 0; )
                     {
                         caf::PdmObjectHandle* obj = children[i];
-                        delete obj;
                         caseGroup->statisticsCaseCollection()->reservoirs.erase( i );
+                        delete obj;
                     }
 
                     caseGroup->statisticsCaseCollection()->uiCapability()->updateConnectedEditors();
