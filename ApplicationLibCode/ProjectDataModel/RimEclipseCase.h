@@ -80,8 +80,9 @@ public:
     RimEclipseCase();
     ~RimEclipseCase() override;
 
-    std::vector<RimEclipseView*> reservoirViews() const;
-    RimEclipseViewCollection*    viewCollection() const;
+    std::vector<RimEclipseView*>           reservoirViews() const;
+    std::vector<RimEclipseContourMapView*> contourMapViews() const;
+    RimEclipseViewCollection*              viewCollection() const;
 
     std::vector<QString> filesContainingFaults() const;
     void                 setFilesContainingFaults( const std::vector<QString>& val );
@@ -177,14 +178,26 @@ protected:
     RimEclipseViewCollection* globalViewCollection() const;
     void addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const;
 
+    const RigFormationNames* effectiveFormationNames() const;
+
+public:
+    // What this case is transferring right now, for the 3D view overlay. Empty for a case that reads from
+    // disk and has nothing in flight; overridden by the cases backed by remote data.
+    virtual QString dataLoadingText() const { return {}; }
+
+    // Fetches and stores exactly the given time steps of a dynamic property, in parallel, without pulling in
+    // any other time step. A no-op returning false for a case that reads from disk; overridden by a
+    // cloud-backed case (e.g. RimRoffCaseSumo) so a caller with no view/redraw loop of its own - such as
+    // ensemble statistics - can warm up precisely the time steps it needs before reading results, without
+    // downloading anything else.
+    virtual bool prefetchDynamicResult( const QString& /*resultName*/, const std::vector<size_t>& /*stepIndices*/ ) { return false; }
+
+protected:
 private:
-    void                                   createTimeStepFormatString();
-    std::vector<Rim3dView*>                allSpecialViews() const override;
-    std::vector<RimEclipseContourMapView*> contourMapViews() const;
+    void                    createTimeStepFormatString();
+    std::vector<Rim3dView*> allSpecialViews() const override;
 
     void buildResultChildNodes();
-
-    const RigFormationNames* effectiveFormationNames() const;
 
 protected:
     caf::PdmField<bool>                                    m_flipXAxis;

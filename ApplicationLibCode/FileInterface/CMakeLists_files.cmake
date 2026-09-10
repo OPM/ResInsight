@@ -2,6 +2,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifTextDataTableFormatter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffFileTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderSumoGridProperty.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseOutputFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartFilesetAccess.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseUnifiedRestartFileAccess.cpp

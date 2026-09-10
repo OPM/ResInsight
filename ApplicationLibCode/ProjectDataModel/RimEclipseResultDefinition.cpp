@@ -95,6 +95,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     : m_isDeltaResultEnabled( false )
     , m_labelPosition( labelPosition )
     , m_ternaryEnabled( true )
+    , m_eagerResultLoadingEnabled( true )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Result Definition", "", "", "", "EclipseResult", "An eclipse result definition" );
 
@@ -1098,9 +1099,19 @@ int RimEclipseResultDefinition::caseDiffIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::setEagerResultLoadingEnabled( bool enabled )
+{
+    m_eagerResultLoadingEnabled = enabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::loadResult()
 {
     if ( isFlowDiagOrInjectionFlooding() ) return; // Will load automatically on access
+
+    if ( !m_eagerResultLoadingEnabled ) return; // Settings-only picker with no result ever displayed: nothing to load yet.
 
     if ( m_eclipseCase )
     {

@@ -185,6 +185,8 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     m_resultDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Result" );
     m_resultDefinition->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
     m_resultDefinition->setResultVariable( "SOIL" );
+    // Only a settings picker here; actual results are read per realization in computeStatisticsForMaps().
+    m_resultDefinition->setEagerResultLoadingEnabled( false );
 
     CAF_PDM_InitFieldNoDefault( &m_primaryCase,
                                 "PrimaryEclipseCase",
@@ -754,6 +756,34 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                 auto eclipseCaseData = eCase->eclipseCaseData();
                 auto activeCellInfo  = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
                 auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+                // Prefetch every dynamic result time step this case needs before reading any of it for real.
+                // This case has no view of its own, so it is the only chance a cloud-backed reader gets to
+                // fetch exactly the time steps needed before the case is closed again - see
+                // RimEclipseCase::prefetchDynamicResult. A no-op for a case that reads from disk. Grouped by
+                // result name so every time step a property needs is requested together as one parallel
+                // batch (rather than one blocking round trip per time step); prefetchDynamicResult() itself
+                // blocks until that whole batch has arrived before returning, so nothing it requested is
+                // left in flight when this case is closed again below - no separate wait is needed here.
+                std::map<QString, std::vector<size_t>> stepsToPrefetchByResult;
+                for ( auto& ctx : contexts )
+                {
+                    if ( !ctx.active || !ctx.map->m_resultDefinition()->hasDynamicResult() ) continue;
+
+                    auto& steps = stepsToPrefetchByResult[ctx.map->m_resultDefinition()->eclipseResultAddress().resultName()];
+                    for ( auto [localTs, globalTs] : ctx.map->mapLocalToGlobalTimeSteps( eCase->timeStepDates() ) )
+                    {
+                        steps.push_back( static_cast<size_t>( localTs ) );
+                    }
+                }
+
+                for ( auto& [resultName, steps] : stepsToPrefetchByResult )
+                {
+                    std::sort( steps.begin(), steps.end() );
+                    steps.erase( std::unique( steps.begin(), steps.end() ), steps.end() );
+
+                    eCase->prefetchDynamicResult( resultName, steps );
+                }
 
                 for ( auto& ctx : contexts )
                 {

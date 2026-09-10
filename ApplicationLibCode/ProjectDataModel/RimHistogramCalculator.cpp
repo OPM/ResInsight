@@ -75,6 +75,7 @@ void caf::AppEnum<RimHistogramCalculator::StatisticsCellRangeType>::setUp()
 RimHistogramCalculator::RimHistogramCalculator()
     : m_isVisCellStatUpToDate( false )
     , m_numBins( RigStatisticsDataCache::defaultNumBins() )
+    , m_doComputeMobileVolumeWeightedMean( true )
 {
 }
 
@@ -139,6 +140,14 @@ void RimHistogramCalculator::applyCustomBinning( RigStatisticsDataCache* statist
         histData.min = binMin;
         histData.max = binMax;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCalculator::setDoComputeMobileVolumeWeightedMean( bool enable )
+{
+    m_doComputeMobileVolumeWeightedMean = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,7 +281,8 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 fldResults->p10p90ScalarValues( resAddr, timeStep, &histData.p10, &histData.p90 );
                 fldResults->meanScalarValue( resAddr, timeStep, &histData.mean );
                 fldResults->sumScalarValue( resAddr, timeStep, &histData.sum );
-                fldResults->mobileVolumeWeightedMean( resAddr, timeStep, &histData.weightedMean );
+                if ( m_doComputeMobileVolumeWeightedMean )
+                    fldResults->mobileVolumeWeightedMean( resAddr, timeStep, &histData.weightedMean );
 
                 histData.histogram = fldResults->scalarValuesHistogram( resAddr, timeStep );
 
@@ -290,7 +300,8 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 m_visibleCellStatistics->minMaxCellScalarValues( timeStep, histData.min, histData.max );
                 m_visibleCellStatistics->p10p90CellScalarValues( timeStep, histData.p10, histData.p90 );
                 m_visibleCellStatistics->sumCellScalarValues( timeStep, histData.sum );
-                m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
+                if ( m_doComputeMobileVolumeWeightedMean )
+                    m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
 
                 histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram( timeStep );
 
@@ -310,7 +321,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 fldResults->p10p90ScalarValues( resAddr, &histData.p10, &histData.p90 );
                 fldResults->meanScalarValue( resAddr, &histData.mean );
                 fldResults->sumScalarValue( resAddr, &histData.sum );
-                fldResults->mobileVolumeWeightedMean( resAddr, &histData.weightedMean );
+                if ( m_doComputeMobileVolumeWeightedMean ) fldResults->mobileVolumeWeightedMean( resAddr, &histData.weightedMean );
 
                 histData.histogram = fldResults->scalarValuesHistogram( resAddr );
 
@@ -327,7 +338,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 m_visibleCellStatistics->minMaxCellScalarValues( histData.min, histData.max );
                 m_visibleCellStatistics->p10p90CellScalarValues( histData.p10, histData.p90 );
                 m_visibleCellStatistics->sumCellScalarValues( histData.sum );
-                m_visibleCellStatistics->mobileVolumeWeightedMean( histData.weightedMean );
+                if ( m_doComputeMobileVolumeWeightedMean ) m_visibleCellStatistics->mobileVolumeWeightedMean( histData.weightedMean );
 
                 histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram();
 
@@ -348,7 +359,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 cellResults->p10p90CellScalarValues( eclResAddr, histData.p10, histData.p90 );
                 cellResults->meanCellScalarValues( eclResAddr, histData.mean );
                 cellResults->sumCellScalarValues( eclResAddr, histData.sum );
-                cellResults->mobileVolumeWeightedMean( eclResAddr, histData.weightedMean );
+                if ( m_doComputeMobileVolumeWeightedMean ) cellResults->mobileVolumeWeightedMean( eclResAddr, histData.weightedMean );
                 histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr );
 
                 statisticsCache = cellResults->statistics( eclResAddr );
@@ -360,7 +371,8 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 cellResults->p10p90CellScalarValues( eclResAddr, timeStep, histData.p10, histData.p90 );
                 cellResults->meanCellScalarValues( eclResAddr, timeStep, histData.mean );
                 cellResults->sumCellScalarValues( eclResAddr, timeStep, histData.sum );
-                cellResults->mobileVolumeWeightedMean( eclResAddr, timeStep, histData.weightedMean );
+                if ( m_doComputeMobileVolumeWeightedMean )
+                    cellResults->mobileVolumeWeightedMean( eclResAddr, timeStep, histData.weightedMean );
                 histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr, timeStep );
 
                 statisticsCache = cellResults->statistics( eclResAddr );
@@ -380,7 +392,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             m_visibleCellStatistics->minMaxCellScalarValues( histData.min, histData.max );
             m_visibleCellStatistics->p10p90CellScalarValues( histData.p10, histData.p90 );
             m_visibleCellStatistics->sumCellScalarValues( histData.sum );
-            m_visibleCellStatistics->mobileVolumeWeightedMean( histData.weightedMean );
+            if ( m_doComputeMobileVolumeWeightedMean ) m_visibleCellStatistics->mobileVolumeWeightedMean( histData.weightedMean );
 
             histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram();
 
@@ -393,7 +405,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             m_visibleCellStatistics->minMaxCellScalarValues( timeStep, histData.min, histData.max );
             m_visibleCellStatistics->p10p90CellScalarValues( timeStep, histData.p10, histData.p90 );
             m_visibleCellStatistics->sumCellScalarValues( timeStep, histData.sum );
-            m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
+            if ( m_doComputeMobileVolumeWeightedMean ) m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
 
             histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram( timeStep );
 

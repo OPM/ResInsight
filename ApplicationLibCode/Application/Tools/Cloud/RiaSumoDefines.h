@@ -36,4 +36,17 @@ int     requestTimeoutMillis();
 // given up on, and generous because a summary vector that has not been aggregated yet is produced on demand
 // by the request asking for it. Nothing is blocked while it runs, so waiting longer costs nothing.
 int asyncRequestTimeoutMillis();
+
+// Deadline for the small requests that resolve which blob to fetch and where it lives. Shorter than the
+// transfer that follows: they move almost no data, so taking minutes means the answer is not coming.
+int blobLookupTimeoutMillis();
+
+// Deadline for one grid property transfer. Long enough that a large blob on a slow link is not cut off,
+// and short enough that a stalled transfer fails instead of leaving the time step blank for the rest of
+// the session. A failed step is not retried, so erring on the generous side is the cheaper mistake.
+int gridPropertyTransferTimeoutMillis();
+
+// How long to wait for the local cloud API service to answer before giving up on a request. Long enough
+// to cover a cold uvicorn boot, short enough that a service that will never come up does not hang the UI.
+int serviceReadyTimeoutMillis();
 }; // namespace RiaSumoDefines

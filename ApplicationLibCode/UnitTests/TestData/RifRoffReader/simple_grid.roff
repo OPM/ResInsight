@@ -1,0 +1,56 @@
+roff-asc
+#ROFF file with a minimal 2x2x2 grid, hand written for unit tests#
+tag filedata
+int byteswaptest 1
+char filetype  "grid"
+char creationDate  "01/01/2026 00:00:00"
+endtag
+tag version
+int major 2
+int minor 0
+endtag
+tag dimensions
+int nX 2
+int nY 2
+int nZ 2
+endtag
+tag translate
+float xoffset 1000.0
+float yoffset 2000.0
+float zoffset 0.0
+endtag
+tag scale
+float xscale 1.0
+float yscale 1.0
+float zscale 1.0
+endtag
+tag cornerLines
+array float data 54
+  0 0 0 0 0 1000
+  0 100 0 0 100 1000
+  0 200 0 0 200 1000
+  100 0 0 100 0 1000
+  100 100 0 100 100 1000
+  100 200 0 100 200 1000
+  200 0 0 200 0 1000
+  200 100 0 200 100 1000
+  200 200 0 200 200 1000
+endtag
+tag zvalues
+array byte splitEnz 27
+  1 1 1 1 1 1 1 1 1
+  1 1 1 1 1 1 1 1 1
+  1 1 1 1 1 1 1 1 1
+array float data 27
+  0 50 100 0 50 100
+  0 50 100 0 50 100
+  0 50 100 0 50 100
+  0 50 100 0 50 100
+  0 50 100
+endtag
+tag active
+array byte data 8
+  1 1 1 1 1 1 0 0
+endtag
+tag eof
+endtag
