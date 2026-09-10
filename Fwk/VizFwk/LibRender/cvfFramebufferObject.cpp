@@ -39,11 +39,14 @@
 #include "cvfFramebufferObject.h"
 #include "cvfRenderbufferObject.h"
 #include "cvfTexture.h"
+#include "cvfLogManager.h"
 #include "cvfOpenGL.h"
 #include "cvfString.h"
 #include "cvfOglRc.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfOpenGLCapabilities.h"
+
+#include <cstdint>
 
 namespace cvf {
 
@@ -249,6 +252,13 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
         m_oglRcBuffer = oglContext->resourceManager()->createOglRcFramebuffer(oglContext);
         createdNewFrameBuffer = true;
     }
+
+    CVF_LOG_DEBUG(CVF_GET_LOGGER("cee.cvf.render.fbo"),
+                  String("FramebufferObject::applyOpenGL() this=%1 oglContext=%2 fboOglId=%3 createdNewFrameBuffer=%4")
+                      .arg((int64)(intptr_t)this)
+                      .arg((int64)(intptr_t)oglContext)
+                      .arg((int64)OglRc::safeOglId(m_oglRcBuffer.p()))
+                      .arg(createdNewFrameBuffer ? "true" : "false"));
 
     bind(oglContext);
 
@@ -463,6 +473,12 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
         }
     }
 
+    CVF_LOG_DEBUG(CVF_GET_LOGGER("cee.cvf.render.fbo"),
+                  String("FramebufferObject::applyOpenGL() DONE this=%1 fboOglId=%2 attachmentsModified=%3")
+                      .arg((int64)(intptr_t)this)
+                      .arg((int64)OglRc::safeOglId(m_oglRcBuffer.p()))
+                      .arg(attachmentsModified ? "true" : "false"));
+
     CVF_CHECK_OGL(oglContext);
 }
 
@@ -505,6 +521,12 @@ void FramebufferObject::useDefaultWindowFramebuffer(OpenGLContext* oglContext)
 void FramebufferObject::deleteFramebuffer(OpenGLContext* oglContext)
 {
     CVF_ASSERT(oglContext);
+
+    CVF_LOG_DEBUG(CVF_GET_LOGGER("cee.cvf.render.fbo"),
+                  String("FramebufferObject::deleteFramebuffer() this=%1 oglContext=%2 fboOglId=%3")
+                      .arg((int64)(intptr_t)this)
+                      .arg((int64)(intptr_t)oglContext)
+                      .arg((int64)OglRc::safeOglId(m_oglRcBuffer.p())));
 
     if (m_oglRcBuffer.notNull())
     {

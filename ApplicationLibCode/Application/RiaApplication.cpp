@@ -44,6 +44,7 @@
 #include "RiaSocketServer.h"
 #include "RiaTextStringTools.h"
 #include "RiaToCafLogging.h"
+#include "RiaToCvfLogging.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 #include "RiaWellNameComparer.h"
@@ -217,6 +218,9 @@ RiaApplication::~RiaApplication()
 
     // Shutdown CAF logging bridge
     RiaCafLoggingManager::shutdownCafLogging();
+
+    // TEMPORARY investigation logging for the "black 3D view" issue (#14714). Remove once concluded.
+    RiaCvfLoggingManager::shutdownCvfLogging();
 
     caf::SelectionManager::instance()->setPdmRootObject( nullptr );
 
@@ -1720,6 +1724,9 @@ void RiaApplication::initialize()
     // Create loggers before reading the cloud configuration, to make sure the messages from the config file search
     // are reported
     initializeLoggers();
+
+    // TEMPORARY investigation logging for the "black 3D view" issue (#14714). Remove once concluded.
+    RiaCvfLoggingManager::initializeCvfLogging();
 
     RiaConnectorTools::configureCloudServices();
 

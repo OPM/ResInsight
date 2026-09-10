@@ -46,6 +46,7 @@
 #include "cvfDynamicUniformSet.h"
 #include "cvfFramebufferObject.h"
 #include "cvfHitItemCollection.h"
+#include "cvfLogManager.h"
 #include "cvfModel.h"
 #include "cvfOpenGLCapabilities.h"
 #include "cvfOpenGLUtils.h"
@@ -77,6 +78,7 @@
 #include <QPainter>
 
 #include <cmath>
+#include <cstdint>
 
 namespace caf
 {
@@ -182,6 +184,11 @@ caf::Viewer::Viewer( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 caf::Viewer::~Viewer()
 {
+    CVF_LOG_DEBUG( CVF_GET_LOGGER( "cee.caf.viewer" ),
+                    cvf::String( "Viewer::~Viewer() this=%1 cvfOpenGLContext=%2" )
+                        .arg( (cvf::int64)(intptr_t)this )
+                        .arg( (cvf::int64)(intptr_t)cvfOpenGLContext() ) );
+
     if ( m_layoutWidget ) m_layoutWidget->deleteLater();
 }
 
@@ -270,6 +277,11 @@ void caf::Viewer::setupRenderingSequence()
 void caf::Viewer::deleteFboOpenGLResources()
 {
     // The OpenGL resources can be deleted at any time. CeeViz does not delete resources for FBOs, so delete them manually
+
+    CVF_LOG_DEBUG( CVF_GET_LOGGER( "cee.caf.viewer" ),
+                    cvf::String( "Viewer::deleteFboOpenGLResources() this=%1 cvfOpenGLContext=%2" )
+                        .arg( (cvf::int64)(intptr_t)this )
+                        .arg( (cvf::int64)(intptr_t)cvfOpenGLContext() ) );
 
     if ( m_offscreenFbo.notNull() )
     {
@@ -936,6 +948,12 @@ void caf::Viewer::onWidgetOpenGLReady()
     QOpenGLContext* myQtOpenGLContext = context();
     CVF_ASSERT( myQtOpenGLContext );
     CVF_ASSERT( myQtOpenGLContext->isValid() );
+
+    CVF_LOG_DEBUG( CVF_GET_LOGGER( "cee.caf.viewer" ),
+                    cvf::String( "Viewer::onWidgetOpenGLReady() this=%1 cvfOpenGLContext=%2 qtOpenGLContext=%3" )
+                        .arg( (cvf::int64)(intptr_t)this )
+                        .arg( (cvf::int64)(intptr_t)cvfOpenGLContext() )
+                        .arg( (cvf::int64)(intptr_t)myQtOpenGLContext ) );
 
     // Connect to signal so we get notified when Qt's OpenGL context is about to be destroyed
     connect( myQtOpenGLContext, &QOpenGLContext::aboutToBeDestroyed, this, &Viewer::deleteFboOpenGLResources );
