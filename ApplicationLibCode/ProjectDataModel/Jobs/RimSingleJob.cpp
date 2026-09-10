@@ -108,8 +108,7 @@ bool RimSingleJob::execute()
 
         if ( !onPrepare() )
         {
-            setState( JobState::Failed );
-            onProgress( m_percentageDone );
+            setFinished( false );
             return false;
         }
     }
@@ -120,8 +119,7 @@ bool RimSingleJob::execute()
     QStringList cmdLine = command();
     if ( cmdLine.isEmpty() )
     {
-        setState( JobState::Failed );
-        onProgress( m_percentageDone );
+        setFinished( false );
         return false;
     }
 
