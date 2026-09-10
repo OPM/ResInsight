@@ -501,23 +501,23 @@ void RimReservoirGridEnsemble::computeUnionOfActiveCells()
             const auto* matrixActiveCells   = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
             const auto* fractureActiveCells = caseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
-        for ( size_t gridLocalCellIndex = 0; gridLocalCellIndex < grid->cellCount(); gridLocalCellIndex++ )
-        {
+            for ( size_t gridLocalCellIndex = 0; gridLocalCellIndex < grid->cellCount(); gridLocalCellIndex++ )
+            {
                 size_t reservoirCellIndex = grid->reservoirCellIndex( gridLocalCellIndex );
 
                 if ( activeM[gridLocalCellIndex] == 0 && matrixActiveCells &&
                      matrixActiveCells->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                 {
-                        activeM[gridLocalCellIndex] = 1;
-                    }
+                    activeM[gridLocalCellIndex] = 1;
+                }
 
                 if ( activeF[gridLocalCellIndex] == 0 && fractureActiveCells &&
                      fractureActiveCells->isActive( ReservoirCellIndex( reservoirCellIndex ) ) )
                 {
-                        activeF[gridLocalCellIndex] = 1;
-                    }
+                    activeF[gridLocalCellIndex] = 1;
                 }
             }
+        }
 
         size_t activeMatrixIndex   = 0;
         size_t activeFractureIndex = 0;
