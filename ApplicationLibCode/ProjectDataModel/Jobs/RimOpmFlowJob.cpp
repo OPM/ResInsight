@@ -830,9 +830,17 @@ bool RimOpmFlowJob::onPrepare()
         }
         m_wellPath->completionSettings()->setGroupName( m_wellGroupName() );
 
+        // well data needs the case to be open, this is not necessarily true for ensemble
+        bool needToOpenCase = !m_eclipseCase->isReservoirCaseOpen();
+        if ( needToOpenCase )
+        {
+            m_eclipseCase->ensureReservoirCaseIsOpen();
+        }
+
         int mergePosition = mergeBasicWellSettings();
         if ( mergePosition < 0 )
         {
+            if ( needToOpenCase ) m_eclipseCase->closeReservoirCase();
             RiaLogging::error( "Unable to merge new well data into DATA file. Please check file format." );
             return false;
         }
@@ -842,10 +850,14 @@ bool RimOpmFlowJob::onPrepare()
             mergePosition = mergeMswData( mergePosition );
             if ( mergePosition < 0 )
             {
+                if ( needToOpenCase ) m_eclipseCase->closeReservoirCase();
                 RiaLogging::error( "Failed to merge MSW data into file deck." );
                 return false;
             }
         }
+
+        // close cases that was previously closed to save memory
+        if ( needToOpenCase ) m_eclipseCase->closeReservoirCase();
 
         Opm::DeckKeyword openKeyword = ( m_wellOpenKeyword() == "WCONPROD" ) ? m_wconprodKeyword->keyword( wellNameInDeck )
                                                                              : m_wconinjeKeyword->keyword( wellNameInDeck );
@@ -1075,9 +1087,14 @@ int RimOpmFlowJob::mergeBasicWellSettings()
     auto complumpKw = RimKeywordFactory::complumpKeyword( compdata, wellName );
     auto welspecsKw = RimKeywordFactory::welspecsKeyword( m_wellGroupName().toStdString(), m_eclipseCase(), m_wellPath() );
 
-    if ( welspecsKw.empty() || compdatKw.empty() )
+    if ( compdatKw.empty() )
     {
-        RiaLogging::error( "Failed to create WELSPECS and COMPDAT keywords for selected well path. Do you have a valid case selected?" );
+        RiaLogging::warning( "Failed to create COMPDAT keyword for selected well path. Do you have a valid case selected?" );
+    }
+
+    if ( welspecsKw.empty() )
+    {
+        RiaLogging::error( "Failed to create WELSPECS keyword for selected well path. Do you have a valid case selected?" );
         return failure;
     }
 
@@ -1153,13 +1170,18 @@ int RimOpmFlowJob::mergeMswData( int mergePosition )
     auto wsegaicdKw  = RimKeywordFactory::wsegaicdKeyword( mswDataResult.value() );
     auto wsegsicdKw  = RimKeywordFactory::wsegsicdKeyword( mswDataResult.value() );
 
-    if ( welsegsKw.empty() || compsegsKw.empty() )
+    if ( compsegsKw.empty() )
     {
-        RiaLogging::error( "Failed to create WELSEGS or COMPSEGS keyword from MSW data." );
-        return failure;
+        RiaLogging::warning( "Unable to create COMPSEGS keyword from MSW data, skipping MSW export. Is the wellpath outside the grid?" );
+        return ( m_wellOpenType() == RimJobWellSettings::WellOpenType::OPEN_AT_DATE ) ? 0 : mergePosition;
     }
 
-    if ( m_wellOpenType == RimJobWellSettings::WellOpenType::OPEN_AT_DATE )
+    if ( welsegsKw.empty() )
+    {
+        RiaLogging::warning( "Unable to create WELSEGS keyword from MSW data. Is the wellpath outside the grid?" );
+    }
+
+    if ( m_wellOpenType() == RimJobWellSettings::WellOpenType::OPEN_AT_DATE )
     {
         // make sure we insert after COMPDAT kw
         if ( !m_deckFile->addKeywordAtTimeStep( m_openTimeStep(), welsegsKw, "COMPDAT" ) ) return failure;

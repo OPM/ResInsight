@@ -254,6 +254,8 @@ bool RimEnsembleJob::execute()
         RicRunJobFeature::runJob( subJob );
     }
 
+    m_inputEnsemble->reloadMetaDataIfNeeded();
+
     setState( RimGenericJob::Running );
     updateConnectedEditors();
 
