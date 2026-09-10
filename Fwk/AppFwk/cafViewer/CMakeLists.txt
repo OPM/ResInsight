@@ -42,6 +42,7 @@ target_link_libraries(
   LibRender
   LibGuiQt
   cafAnimControl
+  cafPdmCore
   ${QT_LIBRARIES}
 )
 
