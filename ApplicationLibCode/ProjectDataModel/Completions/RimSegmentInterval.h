@@ -33,7 +33,8 @@ class RimWellPath;
 namespace caf
 {
 class CmdFeatureMenuBuilder;
-}
+class PdmUiTreeOrdering;
+} // namespace caf
 
 //==================================================================================================
 ///
@@ -98,6 +99,7 @@ public:
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
 private:
     friend class RimSegmentCollection;

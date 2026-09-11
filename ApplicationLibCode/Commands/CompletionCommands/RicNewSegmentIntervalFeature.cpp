@@ -32,7 +32,6 @@ void RicNewSegmentIntervalFeature::onActionTriggered( bool isChecked )
     auto* collection = caf::SelectionManager::instance()->selectedItemOfType<RimSegmentCollection>();
     if ( !collection ) return;
 
-    collection->setDiameterRoughnessMode( RimSegmentCollection::DiameterRoughnessMode::INTERVALS );
     auto* interval = collection->createInterval( 0.0, 2000.0, collection->linerDiameter(), collection->roughnessFactor() );
     collection->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( interval );

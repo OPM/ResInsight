@@ -533,9 +533,6 @@ bool RimWellEventTimeline::applyTubingEvent( const RimWellEventTubing& event, Ri
         return false;
     }
 
-    // Set the diameter roughness mode to intervals
-    mswParams->setDiameterRoughnessMode( RimSegmentCollection::DiameterRoughnessMode::INTERVALS );
-
     RimSegmentInterval* interval = nullptr;
     for ( auto* existingInterval : mswParams->intervals() )
     {

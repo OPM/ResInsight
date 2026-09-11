@@ -23,12 +23,14 @@
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 #include "RimSegmentCollection.h"
+#include "RimWellPath.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include <cmath>
 
@@ -91,11 +93,14 @@ double RimSegmentInterval::diameter() const
 //--------------------------------------------------------------------------------------------------
 double RimSegmentInterval::diameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
-    {
-        return RiaEclipseUnitTools::meterToInch( m_diameter );
-    }
-    return m_diameter; // METRIC units - already in meters
+    auto* wellPath         = firstAncestorOrThisOfType<RimWellPath>();
+    auto  sourceUnitSystem = wellPath ? wellPath->unitSystem() : RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+
+    if ( sourceUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+        return RiaEclipseUnitTools::feetToMeter( m_diameter );
+    if ( sourceUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+        return RiaEclipseUnitTools::meterToFeet( m_diameter );
+    return m_diameter;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,11 +116,14 @@ double RimSegmentInterval::roughnessFactor() const
 //--------------------------------------------------------------------------------------------------
 double RimSegmentInterval::roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
-    {
+    auto* wellPath         = firstAncestorOrThisOfType<RimWellPath>();
+    auto  sourceUnitSystem = wellPath ? wellPath->unitSystem() : RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+
+    if ( sourceUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+        return RiaEclipseUnitTools::feetToMeter( m_roughnessFactor );
+    if ( sourceUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         return RiaEclipseUnitTools::meterToFeet( m_roughnessFactor );
-    }
-    return m_roughnessFactor; // METRIC units - already in meters
+    return m_roughnessFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,6 +299,8 @@ void RimSegmentInterval::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     if ( changedField == &m_startMD || changedField == &m_endMD )
     {
+        uiCapability()->setUiName( QString( "%1 - %2" ).arg( m_startMD() ).arg( m_endMD() ) );
+
         // Validate interval
         if ( m_startMD >= m_endMD )
         {
@@ -313,10 +323,28 @@ void RimSegmentInterval::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimSegmentInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    auto* wellPath = firstAncestorOrThisOfType<RimWellPath>();
+    if ( wellPath )
+    {
+        const bool isMetric = wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+        m_startMD.uiCapability()->setUiName( isMetric ? "Start MD [m]" : "Start MD [ft]" );
+        m_endMD.uiCapability()->setUiName( isMetric ? "End MD [m]" : "End MD [ft]" );
+        m_diameter.uiCapability()->setUiName( isMetric ? "Diameter [m]" : "Diameter [ft]" );
+        m_roughnessFactor.uiCapability()->setUiName( isMetric ? "Roughness Factor [m]" : "Roughness Factor [ft]" );
+    }
+
     uiOrdering.add( &m_startMD );
     uiOrdering.add( &m_endMD );
     uiOrdering.add( &m_diameter );
     uiOrdering.add( &m_roughnessFactor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentInterval::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    uiCapability()->setUiName( QString( "%1 - %2" ).arg( m_startMD() ).arg( m_endMD() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
