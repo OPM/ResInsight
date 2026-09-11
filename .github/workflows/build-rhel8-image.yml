@@ -15,6 +15,7 @@ on:
       - ".dockerignore"
       - "vcpkg.json"
       - "vcpkg-configuration-rhel8.json"
+      - "ThirdParty/vcpkg-overlay-ports/**"
       - ".gitmodules"
   workflow_dispatch:
     inputs:

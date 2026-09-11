@@ -110,17 +110,21 @@ ENV VCPKG_DEFAULT_BINARY_CACHE=/opt/vcpkg-cache
 # ordinary source commits -- nightly rebuilds reuse the previously compiled
 # vcpkg binaries instead of recompiling every port.
 COPY ThirdParty/vcpkg /src/ThirdParty/vcpkg
+COPY ThirdParty/vcpkg-overlay-ports /src/ThirdParty/vcpkg-overlay-ports
 COPY vcpkg.json /src/vcpkg.json
 COPY vcpkg-configuration-rhel8.json /src/vcpkg-configuration.json
 
 # A direct manifest install compiles every dependency into
-# VCPKG_DEFAULT_BINARY_CACHE. The dependency set has no manifest features or
-# overlay ports, and CC/CXX below match the ResInsight configure in the
-# warmup stage and in CI, so the vcpkg ABI hashes match and the cache is
-# reused there. x64-linux-release matches the triplet the CI workflows and the
-# warmup stage below pass via VCPKG_TARGET_TRIPLET/VCPKG_HOST_TRIPLET -- using
-# the plain (debug+release) x64-linux triplet here would populate the cache
-# under different ABI hashes and none of it would be reused downstream.
+# VCPKG_DEFAULT_BINARY_CACHE. vcpkg-configuration-rhel8.json's overlay-ports
+# entry ("ThirdParty/vcpkg-overlay-ports") is resolved relative to the
+# directory vcpkg-configuration.json lives in, i.e. /src here, so that
+# directory must be copied in too, not just ThirdParty/vcpkg. CC/CXX below
+# match the ResInsight configure in the warmup stage and in CI, so the vcpkg
+# ABI hashes match and the cache is reused there. x64-linux-release matches
+# the triplet the CI workflows and the warmup stage below pass via
+# VCPKG_TARGET_TRIPLET/VCPKG_HOST_TRIPLET -- using the plain (debug+release)
+# x64-linux triplet here would populate the cache under different ABI hashes
+# and none of it would be reused downstream.
 #
 # After the install, verify the cache contains a plausible number of entries.
 # vcpkg's `files` binary provider stores one .zip per package under
