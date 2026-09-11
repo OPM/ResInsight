@@ -284,7 +284,7 @@ QList<caf::PdmOptionItemInfo> RimJobWellSettings::calculateValueOptions( const c
     {
         RimTools::wellPathOptionItems( &options );
     }
-    else if ( ( fieldNeedingOptions == &m_openTimeStep ) )
+    else if ( fieldNeedingOptions == &m_openTimeStep )
     {
         auto timeStepNames = m_dateStrings;
         for ( int i = 0; i < static_cast<int>( timeStepNames.size() - 1 ); i++ )
