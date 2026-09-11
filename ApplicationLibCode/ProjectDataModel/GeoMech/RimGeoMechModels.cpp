@@ -29,6 +29,8 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 
+#include "cafPdmFieldReorderCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimGeoMechModels, "ResInsightGeoMechModels" );
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,6 +40,7 @@ RimGeoMechModels::RimGeoMechModels()
     CAF_PDM_InitObject( "Geomechanical Models", ":/GeoMechCases48x48.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_cases, "Cases", "" );
+    caf::PdmFieldReorderCapability::addToField( &m_cases );
 }
 
 //--------------------------------------------------------------------------------------------------

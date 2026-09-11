@@ -24,6 +24,8 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirGridEnsemble.h"
 
+#include "cafPdmFieldReorderCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimCaseCollection, "RimCaseCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -34,6 +36,7 @@ RimCaseCollection::RimCaseCollection()
     CAF_PDM_InitObject( "Derived Statistics" );
 
     CAF_PDM_InitFieldNoDefault( &reservoirs, "Reservoirs", "Reservoirs ChildArrayField" );
+    caf::PdmFieldReorderCapability::addToField( &reservoirs );
 }
 
 //--------------------------------------------------------------------------------------------------

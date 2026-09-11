@@ -35,6 +35,7 @@
 #include "RimReservoirGridEnsemble.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmFieldReorderCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimEclipseCaseCollection, "ResInsightAnalysisModels" );
 //--------------------------------------------------------------------------------------------------
@@ -45,6 +46,7 @@ RimEclipseCaseCollection::RimEclipseCaseCollection()
     CAF_PDM_InitObject( "Grid Models", ":/Cases16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &cases, "Reservoirs", "" );
+    caf::PdmFieldReorderCapability::addToField( &cases );
 
     CAF_PDM_InitFieldNoDefault( &caseGroups, "CaseGroups", "" );
 
