@@ -268,7 +268,7 @@ bool RimEnsembleJob::execute()
 void RimEnsembleJob::subJobCompleted( const caf::SignalEmitter* emitter, bool runOk )
 {
     m_subJobsCompleted++;
-    if ( m_subJobsCompleted >= m_subJobs.size() )
+    if ( m_subJobsCompleted >= (int)m_subJobs.size() )
     {
         setFinished( true );
     }
