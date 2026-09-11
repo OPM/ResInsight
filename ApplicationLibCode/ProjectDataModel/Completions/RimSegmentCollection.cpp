@@ -73,13 +73,6 @@ void RimSegmentCollection::LengthAndDepthEnum::setUp()
     setDefault( RimSegmentCollection::LengthAndDepthType::ABS );
 }
 
-template <>
-void RimSegmentCollection::DiameterRoughnessModeEnum::setUp()
-{
-    addItem( RimSegmentCollection::DiameterRoughnessMode::UNIFORM, "Uniform", "Uniform" );
-    addItem( RimSegmentCollection::DiameterRoughnessMode::INTERVALS, "Intervals", "Intervals" );
-    setDefault( RimSegmentCollection::DiameterRoughnessMode::UNIFORM );
-}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimSegmentCollection, "SegmentCollection" );
@@ -98,7 +91,6 @@ RimSegmentCollection::RimSegmentCollection()
     const auto unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
     CAF_PDM_InitScriptableField( &m_linerDiameter, "LinerDiameter", defaultLinerDiameter( unitSystem ), "Liner Inner Diameter" );
     CAF_PDM_InitScriptableField( &m_roughnessFactor, "RoughnessFactor", defaultRoughnessFactor( unitSystem ), "Roughness Factor" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_diameterRoughnessMode, "DiameterRoughnessMode", "Diameter Roughness Mode" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_segmentIntervals, "Intervals", "Segment Intervals" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
@@ -257,21 +249,6 @@ void RimSegmentCollection::setLengthAndDepth( LengthAndDepthType lengthAndDepthT
     m_lengthAndDepth = lengthAndDepthType;
 }
 
-RimSegmentCollection::DiameterRoughnessMode RimSegmentCollection::diameterRoughnessMode() const
-{
-    return m_diameterRoughnessMode();
-}
-
-void RimSegmentCollection::setDiameterRoughnessMode( DiameterRoughnessMode mode )
-{
-    m_diameterRoughnessMode = mode;
-}
-
-bool RimSegmentCollection::isUsingIntervalSpecificValues() const
-{
-    return m_diameterRoughnessMode() == DiameterRoughnessMode::INTERVALS;
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -290,11 +267,7 @@ RimSegmentInterval* RimSegmentCollection::findIntervalAtMD( double md, const std
 //--------------------------------------------------------------------------------------------------
 double RimSegmentCollection::getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    if ( isUsingIntervalSpecificValues() )
-    {
-        if ( auto* interval = findIntervalAtMD( md, std::nullopt ) ) return interval->diameter( unitSystem );
-        return defaultLinerDiameter( unitSystem );
-    }
+    if ( auto* interval = findIntervalAtMD( md, std::nullopt ) ) return interval->diameter( unitSystem );
     return linerDiameter( unitSystem );
 }
 
@@ -303,11 +276,7 @@ double RimSegmentCollection::getDiameterAtMD( double md, RiaDefines::EclipseUnit
 //--------------------------------------------------------------------------------------------------
 double RimSegmentCollection::getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    if ( isUsingIntervalSpecificValues() )
-    {
-        if ( auto* interval = findIntervalAtMD( md, std::nullopt ) ) return interval->roughnessFactor( unitSystem );
-        return defaultRoughnessFactor( unitSystem );
-    }
+    if ( auto* interval = findIntervalAtMD( md, std::nullopt ) ) return interval->roughnessFactor( unitSystem );
     return roughnessFactor( unitSystem );
 }
 
@@ -316,11 +285,7 @@ double RimSegmentCollection::getRoughnessAtMD( double md, RiaDefines::EclipseUni
 //--------------------------------------------------------------------------------------------------
 double RimSegmentCollection::getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const
 {
-    if ( isUsingIntervalSpecificValues() )
-    {
-        if ( auto* interval = findIntervalAtMD( md, exportDate ) ) return interval->diameter( unitSystem );
-        return defaultLinerDiameter( unitSystem );
-    }
+    if ( auto* interval = findIntervalAtMD( md, exportDate ) ) return interval->diameter( unitSystem );
     return linerDiameter( unitSystem );
 }
 
@@ -329,11 +294,7 @@ double RimSegmentCollection::getDiameterAtMD( double md, RiaDefines::EclipseUnit
 //--------------------------------------------------------------------------------------------------
 double RimSegmentCollection::getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const
 {
-    if ( isUsingIntervalSpecificValues() )
-    {
-        if ( auto* interval = findIntervalAtMD( md, exportDate ) ) return interval->roughnessFactor( unitSystem );
-        return defaultRoughnessFactor( unitSystem );
-    }
+    if ( auto* interval = findIntervalAtMD( md, exportDate ) ) return interval->roughnessFactor( unitSystem );
     return roughnessFactor( unitSystem );
 }
 
@@ -478,32 +439,32 @@ void RimSegmentCollection::importLegacyData( const RimMswCompletionParameters* l
                                !legacyParameters->customSegmentIntervals()->intervals().empty();
     if ( !hasLegacyData ) return;
 
-    m_refMDType = static_cast<ReferenceMDType>(
-        static_cast<int>( static_cast<RimMswCompletionParameters::ReferenceMDType>( legacyParameters->m_refMDType() ) ) );
-    m_refMD                  = legacyParameters->m_refMD();
-    m_customValuesForLateral = legacyParameters->m_customValuesForLateral();
-    m_linerDiameter          = legacyParameters->m_linerDiameter();
-    m_roughnessFactor        = legacyParameters->m_roughnessFactor();
-    m_diameterRoughnessMode  = static_cast<DiameterRoughnessMode>(
-        static_cast<int>( static_cast<RimMswCompletionParameters::DiameterRoughnessMode>( legacyParameters->m_diameterRoughnessMode() ) ) );
-    m_pressureDrop = static_cast<PressureDropType>(
-        static_cast<int>( static_cast<RimMswCompletionParameters::PressureDropType>( legacyParameters->m_pressureDrop() ) ) );
+    m_refMDType              = static_cast<ReferenceMDType>( static_cast<int>( legacyParameters->referenceMDType() ) );
+    m_refMD                  = legacyParameters->storedReferenceMD();
+    m_customValuesForLateral = legacyParameters->customValuesForLateral();
+    m_linerDiameter          = legacyParameters->linerDiameter();
+    m_roughnessFactor        = legacyParameters->roughnessFactor();
+    m_pressureDrop           = static_cast<PressureDropType>(
+        static_cast<int>( static_cast<RimMswCompletionParameters::PressureDropType>( legacyParameters->pressureDrop() ) ) );
+    m_lengthAndDepth = static_cast<LengthAndDepthType>(
         static_cast<int>( static_cast<RimMswCompletionParameters::LengthAndDepthType>( legacyParameters->lengthAndDepth() ) ) );
     m_enforceMaxSegmentLength = legacyParameters->enforceMaxSegmentLength();
     m_maxSegmentLength        = legacyParameters->storedMaxSegmentLength();
-    m_maxSegmentLength        = legacyParameters->m_maxSegmentLength();
 
     removeAllIntervals();
-    for ( auto* oldInterval : legacyParameters->m_diameterRoughnessIntervals->intervals() )
+    if ( legacyParameters->diameterRoughnessMode() == RimMswCompletionParameters::DiameterRoughnessMode::INTERVALS )
     {
-        auto* interval =
-            createInterval( oldInterval->startMD(), oldInterval->endMD(), oldInterval->diameter(), oldInterval->roughnessFactor() );
-        interval->m_useCustomStartDate = oldInterval->m_useCustomStartDate();
-        interval->m_startDate          = oldInterval->m_startDate();
+        for ( auto* oldInterval : legacyParameters->diameterRoughnessIntervals()->intervals() )
+        {
+            auto* interval =
+                createInterval( oldInterval->startMD(), oldInterval->endMD(), oldInterval->diameter(), oldInterval->roughnessFactor() );
+            interval->enableCustomStartDate( oldInterval->useCustomStartDate() );
+            interval->setCustomStartDate( oldInterval->customStartDate() );
+        }
     }
 
+    constexpr double boundTolerance = 1.0e-6;
     for ( auto* oldInterval : legacyParameters->customSegmentIntervals()->intervals() )
-    for ( auto* oldInterval : legacyParameters->m_customSegmentIntervals->intervals() )
     {
         const auto currentIntervals = intervals();
         const auto matchingInterval =
@@ -514,53 +475,53 @@ void RimSegmentCollection::importLegacyData( const RimMswCompletionParameters* l
                                              std::abs( interval->endMD() - oldInterval->endMD() ) <= boundTolerance;
                                   } );
         if ( matchingInterval == currentIntervals.end() )
+        {
             createInterval( oldInterval->startMD(), oldInterval->endMD(), legacyParameters->linerDiameter(), legacyParameters->roughnessFactor() );
-                            legacyParameters->m_roughnessFactor() );
         }
     }
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 double RimSegmentCollection::defaultLinerDiameter( RiaDefines::EclipseUnitSystem unitSystem )
 {
     return unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC ? 0.152 : 0.5;
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 double RimSegmentCollection::defaultRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem )
 {
     return unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC ? 1.0e-5 : 3.28e-5;
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 void RimSegmentCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_refMDType || changedField == &m_diameterRoughnessMode ) updateAllRequiredEditors();
+    if ( changedField == &m_refMDType ) updateAllRequiredEditors();
     if ( changedField == &m_enforceMaxSegmentLength )
     {
         m_maxSegmentLength.uiCapability()->setUiHidden( !m_enforceMaxSegmentLength() );
         caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
     }
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 void RimSegmentCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewSegmentIntervalFeature";
     if ( hasIntervals() ) menuBuilder << "RicDeleteSegmentIntervalFeature";
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 void RimSegmentCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto*      wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
@@ -580,12 +541,8 @@ void RimSegmentCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     }
 
     auto* diameterGroup = uiOrdering.addNewGroup( "Diameter and Roughness" );
-    diameterGroup->add( &m_diameterRoughnessMode );
-    if ( m_diameterRoughnessMode() == DiameterRoughnessMode::UNIFORM )
-    {
-        diameterGroup->add( &m_linerDiameter );
-        diameterGroup->add( &m_roughnessFactor );
-    }
+    diameterGroup->add( &m_linerDiameter );
+    diameterGroup->add( &m_roughnessFactor );
 
     if ( wellPath->isTopLevelWellPath() )
     {
@@ -598,24 +555,23 @@ void RimSegmentCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     const bool readOnly = !wellPath->isTopLevelWellPath() && !m_customValuesForLateral();
     m_linerDiameter.uiCapability()->setUiReadOnly( readOnly );
     m_roughnessFactor.uiCapability()->setUiReadOnly( readOnly );
-    m_diameterRoughnessMode.uiCapability()->setUiReadOnly( readOnly );
     m_segmentIntervals.uiCapability()->setUiReadOnly( readOnly );
     uiOrdering.skipRemainingFields( true );
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 void RimSegmentCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     for ( auto* interval : intervals() )
         uiTreeOrdering.add( interval );
     uiTreeOrdering.skipRemainingChildren( true );
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 void RimSegmentCollection::initAfterRead()
 {
     if ( m_linerDiameter() == std::numeric_limits<double>::infinity() && m_roughnessFactor() == std::numeric_limits<double>::infinity() )

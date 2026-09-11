@@ -57,9 +57,11 @@ public:
     void setRoughnessFactor( double roughness );
 
     // Date tracking
-    void enableCustomStartDate( bool enable );
-    void setCustomStartDate( const QDate& date );
-    bool isActiveOnDate( const QDateTime& date ) const;
+    bool      useCustomStartDate() const;
+    QDateTime customStartDate() const;
+    void      enableCustomStartDate( bool enable );
+    void      setCustomStartDate( const QDate& date );
+    bool      isActiveOnDate( const QDateTime& date ) const;
 
     // Validation
     bool isValidInterval() const;
