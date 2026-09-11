@@ -313,6 +313,13 @@ jobs:
           ls cmakebuild/${{ matrix.config.ri-unit-test-path }}
           cmakebuild/${{ matrix.config.ri-unit-test-path }}
 
+      - name: (Python) Verify protobuf gencode compatibility
+        if: matrix.config.build-python-module
+        shell: bash
+        run: |
+          cd GrpcInterface/Python
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} check_gencode_compatibility.py
+
       - name: (Python) Build Python module
         if: matrix.config.build-python-module
         shell: bash

@@ -13,13 +13,29 @@ requires-python = ">=3.11"
 authors = [{name = "Ceetron Solutions", email = "info@ceetronsolutions.com"}]
 dependencies = [
     "grpcio",
-    "protobuf",
+    # Floor must match the gencode version emitted by the pinned grpcio-tools
+    # below: the protobuf runtime refuses to load gencode newer than itself.
+    # No upper bound: protobuf runtimes stay backward compatible with older
+    # gencode, so nothing here caps how new a runtime a user can install.
+    "protobuf>=6.33.5",
     "typing_extensions",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "grpcio-tools",
+    # 1.82.x bundles a protoc that emits protobuf 7.35.x gencode, which no
+    # protobuf 6 runtime can load - including its 1.82.0 pre-releases, which
+    # is why the bound goes below ".dev0" rather than just "<1.82": a plain
+    # "<1.82" bound already let a 1.82.0 release candidate slip through in
+    # CI once (pre-release versions sort below their final release).
+    # No lower bound: the resolver already prefers the newest version
+    # satisfying the upper bound, so ">=1.81" wasn't changing what gets
+    # installed, only guarding against a future resolver picking something
+    # much older if 1.81.x ever became unavailable.
+    # Generating 6.x gencode keeps rips importable on both 6.x and 7.x
+    # runtimes, so it stays installable next to packages that cap protobuf
+    # below 7 (ortools and friends).
+    "grpcio-tools<1.82.0.dev0",
     "pytest",
     "mypy",
     "types-protobuf",
