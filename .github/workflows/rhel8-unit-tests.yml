@@ -102,6 +102,8 @@ jobs:
             -DRESINSIGHT_ENABLE_GRPC=false \
             -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
             -DRESINSIGHT_VCPKG_PROFILE=rhel8 \
+            -DVCPKG_TARGET_TRIPLET=x64-linux-release \
+            -DVCPKG_HOST_TRIPLET=x64-linux-release \
             -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
 
       - name: Build
