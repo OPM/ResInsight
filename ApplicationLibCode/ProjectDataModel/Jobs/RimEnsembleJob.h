@@ -20,6 +20,7 @@
 
 #include "RimGenericJob.h"
 
+#include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
 #include <QDateTime>
