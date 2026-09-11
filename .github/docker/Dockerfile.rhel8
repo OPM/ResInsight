@@ -110,15 +110,21 @@ ENV VCPKG_DEFAULT_BINARY_CACHE=/opt/vcpkg-cache
 # ordinary source commits -- nightly rebuilds reuse the previously compiled
 # vcpkg binaries instead of recompiling every port.
 COPY ThirdParty/vcpkg /src/ThirdParty/vcpkg
+COPY ThirdParty/vcpkg-overlay-ports /src/ThirdParty/vcpkg-overlay-ports
 COPY vcpkg.json /src/vcpkg.json
 COPY vcpkg-configuration-rhel8.json /src/vcpkg-configuration.json
 
 # A direct manifest install compiles every dependency into
-# VCPKG_DEFAULT_BINARY_CACHE. The dependency set has no manifest features or
-# overlay ports, and CC/CXX below match the ResInsight configure in the
-# warmup stage and in CI, so the vcpkg ABI hashes match and the cache is
-# reused there. x64-linux is the triplet the vcpkg CMake toolchain defaults
-# to on Linux.
+# VCPKG_DEFAULT_BINARY_CACHE. vcpkg-configuration-rhel8.json's overlay-ports
+# entry ("ThirdParty/vcpkg-overlay-ports") is resolved relative to the
+# directory vcpkg-configuration.json lives in, i.e. /src here, so that
+# directory must be copied in too, not just ThirdParty/vcpkg. CC/CXX below
+# match the ResInsight configure in the warmup stage and in CI, so the vcpkg
+# ABI hashes match and the cache is reused there. x64-linux-release matches
+# the triplet the CI workflows and the warmup stage below pass via
+# VCPKG_TARGET_TRIPLET/VCPKG_HOST_TRIPLET -- using the plain (debug+release)
+# x64-linux triplet here would populate the cache under different ABI hashes
+# and none of it would be reused downstream.
 #
 # After the install, verify the cache contains a plausible number of entries.
 # vcpkg's `files` binary provider stores one .zip per package under
@@ -132,7 +138,7 @@ RUN git config --global --add safe.directory '*' \
  && ( cd /src/ThirdParty/vcpkg && ./bootstrap-vcpkg.sh ) \
  && export CC=/opt/rh/gcc-toolset-14/root/usr/bin/gcc \
  && export CXX=/opt/rh/gcc-toolset-14/root/usr/bin/g++ \
- && ( cd /src && ./ThirdParty/vcpkg/vcpkg install --triplet x64-linux ) \
+ && ( cd /src && ./ThirdParty/vcpkg/vcpkg install --triplet x64-linux-release --host-triplet x64-linux-release ) \
  && vcpkg_zip_count=$(find "${VCPKG_DEFAULT_BINARY_CACHE}" -type f -name '*.zip' | wc -l) \
  && echo "vcpkg binary cache entries: ${vcpkg_zip_count}" \
  && test "${vcpkg_zip_count}" -ge 20 \
@@ -167,7 +173,6 @@ COPY . /src
 # (the command line is part of the hash).
 RUN --mount=type=cache,id=ri-rhel8-buildcache,target=/var/cache/buildcache,sharing=locked \
     git config --global --add safe.directory '*' \
- && cp /src/vcpkg-configuration-rhel8.json /src/vcpkg-configuration.json \
  && source /opt/rh/gcc-toolset-14/enable \
  && ( cd /src/ThirdParty/vcpkg && ./bootstrap-vcpkg.sh ) \
  && export CC=/opt/rh/gcc-toolset-14/root/usr/bin/gcc \
@@ -182,6 +187,9 @@ RUN --mount=type=cache,id=ri-rhel8-buildcache,target=/var/cache/buildcache,shari
       -DRESINSIGHT_ENABLE_HDF5=false \
       -DRESINSIGHT_ENABLE_GRPC=false \
       -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
+      -DRESINSIGHT_VCPKG_PROFILE=rhel8 \
+      -DVCPKG_TARGET_TRIPLET=x64-linux-release \
+      -DVCPKG_HOST_TRIPLET=x64-linux-release \
       -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
  && cmake --build /src/cmakebuild --target ResInsight-tests -- -j"$(nproc)" \
  && buildcache -s \
