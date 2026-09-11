@@ -418,14 +418,6 @@ std::vector<QString> RimEnsembleJob::dateStrings() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    static auto warnColor = QColor( RiaColorTools::toQColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) );
-    static auto contrastWarnColor =
-        QColor( RiaColorTools::toQColor( RiaColorTools::contrastColor( cvf::Color3f( cvf::Color3f::DARK_YELLOW ) ) ) );
-
-    static auto waitColor = QColor( RiaColorTools::toQColor( cvf::Color3f( cvf::Color3f::LIGHT_GRAY ) ) );
-    static auto contrastWaitColor =
-        QColor( RiaColorTools::toQColor( RiaColorTools::contrastColor( cvf::Color3f( cvf::Color3f::LIGHT_GRAY ) ) ) );
-
     if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
         if ( state() == JobState::Failed )
