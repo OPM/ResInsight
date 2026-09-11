@@ -35,6 +35,7 @@
 #include "EnsembleFileSet/RimEnsembleFileSetTools.h"
 #include "Formations/RimFormationNames.h"
 #include "Formations/RimFormationNamesCollection.h"
+#include "Formations/RimFormationTools.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
@@ -889,6 +890,13 @@ void RimReservoirGridEnsemble::createCaseObjectsFromEnsembleFileSet()
         RimEclipseResultCase* resultCase = new RimEclipseResultCase();
         resultCase->setGridFileName( gridFile );
         // DO NOT call openEclipseGridFile() here - deferred loading
+
+        // Auto-import per-realization formation zone file (.lyr), if present next to the grid file.
+        auto folderNames = RimFormationTools::formationFoldersFromCaseFileName( gridFile );
+        if ( RimFormationNames* formations = RimFormationTools::loadFormationNamesFromFolder( folderNames ) )
+        {
+            resultCase->setFormationNames( formations );
+        }
 
         RimProject::current()->assignCaseIdToCase( resultCase );
         m_caseCollection->reservoirs().push_back( resultCase );
