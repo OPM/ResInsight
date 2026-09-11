@@ -191,13 +191,19 @@ class TestWellEventScheduleApplication:
         # Apply events up to the date
         timeline.set_timestamp(timestamp="2024-01-15")
 
-        # Verify MSW settings were updated
-        msw_settings = well_path_b.segment_collection()
-        assert msw_settings is not None, "MSW settings should be available"
-        # Check that diameter roughness mode was set to intervals
-        assert msw_settings.diameter_roughness_mode == "Intervals", (
-            "Diameter roughness mode should be set to Intervals"
-        )
+        # Verify a segment interval was created from the tubing event
+        segment_collection = well_path_b.segment_collection()
+        assert segment_collection is not None, "Segment collection should be available"
+
+        matching_intervals = [
+            interval
+            for interval in segment_collection.intervals()
+            if interval.start_md == pytest.approx(1000.0)
+            and interval.end_md == pytest.approx(2000.0)
+        ]
+        assert len(matching_intervals) == 1
+        assert matching_intervals[0].diameter == pytest.approx(0.15)
+        assert matching_intervals[0].roughness_factor == pytest.approx(1.0e-5)
 
     def test_set_timestamp_ignores_future_events(self, project_with_wells):
         """Test that events after the timestamp are not applied."""
