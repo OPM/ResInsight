@@ -52,6 +52,10 @@ RimCase::RimCase()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Case", ":/Case48x48.png", "", "", "Case", "The ResInsight base class for Cases" );
 
+    // Cases are deletable ("Close") by default. Cases that should not be closed by the user directly
+    // (e.g. generated ensemble statistics cases) must opt out by calling setDeletable( false ).
+    setDeletable( true );
+
     CAF_PDM_InitScriptableField( &m_caseUserDescription, "Name", QString(), "Case Name" );
     m_caseUserDescription.registerKeywordAlias( "CaseUserDescription" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting" );
