@@ -645,7 +645,5 @@ bool RifReaderSumoGridProperty::decodeInto( const QByteArray& contents, const QS
     std::string        buffer = contents.toStdString();
     std::istringstream stream( buffer, std::ios::binary );
 
-    if ( !RifRoffFileTools::propertyValuesFromStream( stream, m_caseData, propertyName, values ) ) return false;
-
-    return true;
+    return RifRoffFileTools::propertyValuesFromStream( stream, m_caseData, propertyName, values );
 }
