@@ -78,9 +78,6 @@ jobs:
           cd ThirdParty/vcpkg
           ./bootstrap-vcpkg.sh
 
-      - name: Use RHEL8 vcpkg configuration
-        run: cp vcpkg-configuration-rhel8.json vcpkg-configuration.json
-
       - name: Configure CMake
         env:
           CC: /opt/rh/gcc-toolset-14/root/usr/bin/gcc
@@ -103,6 +100,7 @@ jobs:
             -DRESINSIGHT_ENABLE_HDF5=false \
             -DRESINSIGHT_ENABLE_GRPC=false \
             -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
+            -DRESINSIGHT_VCPKG_PROFILE=rhel8 \
             -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
 
       - name: Build install target

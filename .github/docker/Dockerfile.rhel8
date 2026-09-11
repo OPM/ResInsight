@@ -167,7 +167,6 @@ COPY . /src
 # (the command line is part of the hash).
 RUN --mount=type=cache,id=ri-rhel8-buildcache,target=/var/cache/buildcache,sharing=locked \
     git config --global --add safe.directory '*' \
- && cp /src/vcpkg-configuration-rhel8.json /src/vcpkg-configuration.json \
  && source /opt/rh/gcc-toolset-14/enable \
  && ( cd /src/ThirdParty/vcpkg && ./bootstrap-vcpkg.sh ) \
  && export CC=/opt/rh/gcc-toolset-14/root/usr/bin/gcc \
@@ -182,6 +181,7 @@ RUN --mount=type=cache,id=ri-rhel8-buildcache,target=/var/cache/buildcache,shari
       -DRESINSIGHT_ENABLE_HDF5=false \
       -DRESINSIGHT_ENABLE_GRPC=false \
       -DRESINSIGHT_GCC_STDCPP_EXP_PATH=/opt/libstdcxx-exp/lib \
+      -DRESINSIGHT_VCPKG_PROFILE=rhel8 \
       -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
  && cmake --build /src/cmakebuild --target ResInsight-tests -- -j"$(nproc)" \
  && buildcache -s \

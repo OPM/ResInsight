@@ -23,6 +23,10 @@ include(FetchContent)
 # subdirectory CMakeLists.txt files pull in via their own find_package().
 set(CMAKE_FIND_PACKAGE_TARGETS_GLOBAL TRUE)
 
+# Must be include()'d before project() -- see cmake/ResInsightVcpkgProfile.cmake
+# for why.
+include(cmake/ResInsightVcpkgProfile.cmake)
+
 project(ResInsight)
 
 # Include common settings
