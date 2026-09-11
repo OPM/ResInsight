@@ -60,16 +60,9 @@ public:
         INC
     };
 
-    enum class DiameterRoughnessMode
-    {
-        UNIFORM,
-        INTERVALS
-    };
-
-    using ReferenceMDEnum           = caf::AppEnum<ReferenceMDType>;
-    using PressureDropEnum          = caf::AppEnum<PressureDropType>;
-    using LengthAndDepthEnum        = caf::AppEnum<LengthAndDepthType>;
-    using DiameterRoughnessModeEnum = caf::AppEnum<DiameterRoughnessMode>;
+    using ReferenceMDEnum    = caf::AppEnum<ReferenceMDType>;
+    using PressureDropEnum   = caf::AppEnum<PressureDropType>;
+    using LengthAndDepthEnum = caf::AppEnum<LengthAndDepthType>;
 
     RimSegmentCollection();
 
@@ -89,10 +82,6 @@ public:
     void setRoughnessFactor( double roughnessFactor );
     void setPressureDrop( PressureDropType pressureDropType );
     void setLengthAndDepth( LengthAndDepthType lengthAndDepthType );
-
-    DiameterRoughnessMode diameterRoughnessMode() const;
-    void                  setDiameterRoughnessMode( DiameterRoughnessMode mode );
-    bool                  isUsingIntervalSpecificValues() const;
 
     double getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
     double getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
@@ -137,7 +126,6 @@ private:
     caf::PdmField<double> m_linerDiameter;
     caf::PdmField<double> m_roughnessFactor;
 
-    caf::PdmField<DiameterRoughnessModeEnum>     m_diameterRoughnessMode;
     caf::PdmChildArrayField<RimSegmentInterval*> m_segmentIntervals;
 
     caf::PdmField<PressureDropEnum>   m_pressureDrop;
