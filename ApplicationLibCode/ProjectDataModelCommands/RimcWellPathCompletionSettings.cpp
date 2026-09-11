@@ -41,7 +41,6 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSegmentCollection_addSegmentIn
     if ( !segmentCollection ) return std::unexpected( "Segment collection is null. Cannot add segment interval." );
     if ( m_endMD() <= m_startMD() ) return std::unexpected( "End MD must be greater than Start MD." );
 
-    segmentCollection->setDiameterRoughnessMode( RimSegmentCollection::DiameterRoughnessMode::INTERVALS );
     auto* interval = segmentCollection->createInterval( m_startMD(), m_endMD(), m_diameter(), m_roughnessFactor() );
     segmentCollection->updateAllRequiredEditors();
     return interval;

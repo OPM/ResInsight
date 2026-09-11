@@ -153,6 +153,22 @@ void RimDiameterRoughnessInterval::setRoughnessFactor( double roughness )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimDiameterRoughnessInterval::useCustomStartDate() const
+{
+    return m_useCustomStartDate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RimDiameterRoughnessInterval::customStartDate() const
+{
+    return m_startDate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimDiameterRoughnessInterval::enableCustomStartDate( bool enable )
 {
     m_useCustomStartDate = enable;

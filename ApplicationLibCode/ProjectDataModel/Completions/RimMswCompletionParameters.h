@@ -79,6 +79,12 @@ public:
     LengthAndDepthEnum lengthAndDepth() const;
     double             maxSegmentLength() const;
 
+    // Stored values for legacy migration, including settings currently disabled in the UI.
+    double storedReferenceMD() const;
+    bool   customValuesForLateral() const;
+    bool   enforceMaxSegmentLength() const;
+    double storedMaxSegmentLength() const;
+
     void setReferenceMDType( ReferenceMDType refType );
     void setManualReferenceMD( double manualRefMD );
     void setLinerDiameter( double diameter );

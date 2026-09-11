@@ -100,7 +100,7 @@ RimMswCompletionParameters::RimMswCompletionParameters()
                                  "Roughness Factor" );
 
     // New interval-based fields
-    CAF_PDM_InitScriptableFieldNoDefault( &m_diameterRoughnessMode, "DiameterRoughnessMode", "Diameter Roughness Mode" );
+    CAF_PDM_InitFieldNoDefault( &m_diameterRoughnessMode, "DiameterRoughnessMode", "Diameter Roughness Mode" );
     CAF_PDM_InitFieldNoDefault( &m_diameterRoughnessIntervals, "DiameterRoughnessIntervals", "Diameter Roughness Intervals" );
     m_diameterRoughnessIntervals = new RimDiameterRoughnessIntervalCollection();
     m_diameterRoughnessIntervals->intervalsField().uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -373,6 +373,38 @@ RimMswCompletionParameters::LengthAndDepthEnum RimMswCompletionParameters::lengt
 double RimMswCompletionParameters::maxSegmentLength() const
 {
     return m_enforceMaxSegmentLength ? m_maxSegmentLength : std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::storedReferenceMD() const
+{
+    return m_refMD();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMswCompletionParameters::customValuesForLateral() const
+{
+    return m_customValuesForLateral();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMswCompletionParameters::enforceMaxSegmentLength() const
+{
+    return m_enforceMaxSegmentLength();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::storedMaxSegmentLength() const
+{
+    return m_maxSegmentLength();
 }
 
 //--------------------------------------------------------------------------------------------------
