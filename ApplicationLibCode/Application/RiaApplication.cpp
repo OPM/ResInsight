@@ -219,7 +219,7 @@ RiaApplication::~RiaApplication()
     // Shutdown CAF logging bridge
     RiaCafLoggingManager::shutdownCafLogging();
 
-    RiaCvfLoggingManager::shutdownCvfLogging();
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "cvf-logging" ) ) RiaCvfLoggingManager::shutdownCvfLogging();
 
     caf::SelectionManager::instance()->setPdmRootObject( nullptr );
 
@@ -1725,7 +1725,7 @@ void RiaApplication::initialize()
     initializeLoggers();
 
     // Initialize cvf logging bridge to forward cvf framework messages to ResInsight logging
-    RiaCvfLoggingManager::initializeCvfLogging();
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "cvf-logging" ) ) RiaCvfLoggingManager::initializeCvfLogging();
 
     RiaConnectorTools::configureCloudServices();
 

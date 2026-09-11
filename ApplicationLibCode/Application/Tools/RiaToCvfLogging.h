@@ -21,6 +21,21 @@
 // Forwards the cvf framework's own logging (cee.cvf, cee.cvf.qt, cee.cvf.OpenGL) to ResInsight's
 // RiaLogging system, so messages end up in the log file and the message panel alongside the rest of
 // the application's log output. Without this, cvf logs to a console destination nobody reads.
+//
+// How to use:
+// 1. Enable the "CVF Logging" experimental feature (keyword "cvf-logging") in
+//    Preferences -> System -> Experimental Features, or add "cvf-logging" to the legacy
+//    "Keywords to enable experimental features" field, and restart ResInsight. This is required
+//    because RiaCvfLoggingManager::initializeCvfLogging()/shutdownCvfLogging() are only called
+//    when RiaPreferencesSystem::isFeatureEnabled("cvf-logging") returns true (see RiaApplication.cpp).
+// 2. Start ResInsight with debug-level logging, e.g. `ResInsight --loglevel debug`, or enable it via
+//    preferences, to actually see cvf's debug output; at the default INFO level only cvf
+//    info/warning/error messages are forwarded.
+// 3. Look for lines prefixed "cvf[<logger-name>]: " in the message panel/log file, e.g.
+//    "cvf[cee.cvf.qt]: OpenGLWidget[0]::initializeGL()".
+// Note: at debug level, cvf::Rendering/cvf::RenderEngine log one message per rendering pass and one
+// more per part in that pass, every frame, so the log can grow very quickly. Disable the feature
+// again (and restart) once done troubleshooting.
 
 #include "cvfLogDestination.h"
 

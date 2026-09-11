@@ -38,6 +38,13 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
           "Remember Dialog Size",
           "Remember the size of property and preferences dialogs between sessions and restore it the next time they "
           "open." },
+        { "cvf-logging",
+          "CVF Logging",
+          "Forward log messages from the cvf visualization framework to the ResInsight log (message panel and log "
+          "file), prefixed 'cvf[<logger-name>]: '. Restart required. Combine with --loglevel debug (or the Debug "
+          "log level in preferences) to also see cvf's debug-level messages, e.g. OpenGL context and widget "
+          "lifecycle events; note that debug level also logs one message per rendering pass and per part, every "
+          "frame, so the log can grow quickly." },
     };
 
     return features;
