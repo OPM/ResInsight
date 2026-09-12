@@ -47,13 +47,14 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult( RigCaseCellResultsData* 
                                                         const QString&            resultName,
                                                         size_t                    activeUnionCellCount )
 {
-    // Use time step dates from first result in first source case
+    // Use time step dates from the source result with the most time steps
     CAF_ASSERT( !m_sourceCases.empty() );
 
-    std::vector<RigEclipseResultAddress> resAddresses =
-        m_sourceCases[0]->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->existingResults();
-    std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos =
-        m_sourceCases[0]->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepInfos( resAddresses[0] );
+    RigCaseCellResultsData* sourceCellResults = m_sourceCases[0]->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    RigEclipseResultAddress resultAddressWithMostTimeSteps;
+    sourceCellResults->maxTimeStepCount( &resultAddressWithMostTimeSteps );
+    std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos = sourceCellResults->timeStepInfos( resultAddressWithMostTimeSteps );
 
     RigEclipseResultAddress resAddr( resultType, resultName );
     destinationCellResults->createResultEntry( resAddr, true );
@@ -61,6 +62,11 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult( RigCaseCellResultsData* 
     destinationCellResults->setTimeStepInfos( resAddr, sourceTimeStepInfos );
     std::vector<std::vector<double>>* dataValues = destinationCellResults->modifiableCellScalarResultTimesteps( resAddr );
 
+    // The destination time step count must match the number of time steps actually evaluated by
+    // evaluateForResults() (m_timeStepIndices), not the time step count of an arbitrary source result.
+    // Results computed by ResInsight (e.g. riPORV*SOIL) do not have their own time step info populated on
+    // the source case until they are computed, so picking an arbitrary result here can end up being an
+    // unrelated result, including a static one with only a single time step.
     size_t timeStepCount = std::max( size_t( 1 ), sourceTimeStepInfos.size() );
 
     // Limit to one time step for static native results
