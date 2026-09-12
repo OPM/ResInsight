@@ -49,7 +49,10 @@ public:
     bool isFilterEnabled() const override;
     void onGridChanged() override;
 
-    void applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex ) override;
+    void applyToCellVisibility( cvf::UByteArray*   cellVisibility,
+                                const RigGridBase* grid,
+                                size_t             timeStepIndex,
+                                RimEclipseCase*    sourceCaseOverride = nullptr ) override;
 
     // Bridge from legacy collection dispatch: combined filter is declared INDEX-type, so the cell
     // filter collection's evaluation path (if ever called) would route through updateCellIndexFilter.
