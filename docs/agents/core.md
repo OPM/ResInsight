@@ -75,6 +75,7 @@ ResInsight includes Python integration via gRPC when `RESINSIGHT_ENABLE_GRPC=ON`
 - When creating a git commit for a feature request use the issue number at the start of the title, e.g "#12773 Python: Add API for creating valve templates"
 - When creating a commit use git conventions
 - Always run python formatting/check on changed files before commits
+- When you change a CMake file and `cmakelang` is available, run `cmake-format -c cmake/cmake-format.py -i <file>` before committing (see `docs/agents/coding-style.md`)
 
 ### PR Conventions
 - Do not include a test plan in the PR description

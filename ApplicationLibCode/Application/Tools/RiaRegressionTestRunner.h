@@ -41,6 +41,7 @@ public:
     void executeRegressionTests();
 
     bool isRunningRegressionTests() const;
+    void setRunningRegressionTests( bool enabled );
     bool useOpenMPForGeometryCreation() const;
 
     static void updateRegressionTest( const QString& testRootPath );
