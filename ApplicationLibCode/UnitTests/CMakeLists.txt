@@ -169,7 +169,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigCompletionDataGridCell-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafVecIjk-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressCollectionTools-Test.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimMockSummaryCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/../TestModels/RimMockSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMockSummaryCase-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifMultipleSummaryReaders-Test.cpp
@@ -282,6 +282,7 @@ target_include_directories(
          ${RI_PRIVATE_INCLUDES}
          ${PROJECT_SOURCE_DIR}/Commands
          ${PROJECT_SOURCE_DIR}/Commands/CompletionExportCommands
+         ${CMAKE_CURRENT_LIST_DIR}/../TestModels
 )
 
 target_compile_features(ResInsight-tests PRIVATE cxx_std_20)
