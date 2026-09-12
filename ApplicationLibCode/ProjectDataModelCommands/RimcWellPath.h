@@ -95,12 +95,12 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellPath_multiSegmentWellSettings : public caf::PdmObjectMethod
+class RimcWellPath_segmentCollection : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcWellPath_multiSegmentWellSettings( caf::PdmObjectHandle* self );
+    RimcWellPath_segmentCollection( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;

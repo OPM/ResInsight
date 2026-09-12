@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2025     Equinor ASA
+//  Copyright (C) 2026-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,18 +30,24 @@
 class RimSegmentCollection;
 class RimWellPath;
 
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+class PdmUiTreeOrdering;
+} // namespace caf
+
 //==================================================================================================
 ///
-/// Represents a diameter and roughness interval for a specific measured depth range
+/// Represents a segment interval for a specific measured depth range
 ///
 //==================================================================================================
-class RimDiameterRoughnessInterval : public caf::PdmObject, public RimWellPathComponentInterface
+class RimSegmentInterval : public caf::PdmObject, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimDiameterRoughnessInterval();
-    ~RimDiameterRoughnessInterval() override;
+    RimSegmentInterval();
+    ~RimSegmentInterval() override;
 
     // Getters
     double startMD() const override;
@@ -64,7 +70,7 @@ public:
 
     // Validation
     bool isValidInterval() const;
-    bool overlaps( const RimDiameterRoughnessInterval* other ) const;
+    bool overlaps( const RimSegmentInterval* other ) const;
     bool containsMD( double md ) const;
 
     // Display
@@ -72,7 +78,7 @@ public:
     QString roughnessLabel() const;
 
     // Comparison for sorting
-    bool operator<( const RimDiameterRoughnessInterval& rhs ) const;
+    bool operator<( const RimSegmentInterval& rhs ) const;
 
     // Overrides from RimWellPathComponentInterface
     bool                              isEnabled() const override;
@@ -81,6 +87,7 @@ public:
     QString                           componentTypeLabel() const override;
     cvf::Color3f                      defaultComponentColor() const override;
     void                              applyOffset( double offsetMD ) override;
+    void                              appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
     // Public static methods for default values
     static double defaultDiameter( RiaDefines::EclipseUnitSystem unitSystem );
@@ -92,6 +99,7 @@ public:
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
 private:
     friend class RimSegmentCollection;

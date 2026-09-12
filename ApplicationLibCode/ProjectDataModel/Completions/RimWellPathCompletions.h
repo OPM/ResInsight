@@ -27,6 +27,7 @@
 class RimFishbonesCollection;
 class RimMswSegmentCollection;
 class RimPerforationCollection;
+class RimSegmentCollection;
 class RimValveCollection;
 class RimStimPlanModelCollection;
 class RimWellPathComponentInterface;
@@ -51,6 +52,7 @@ public:
     RimWellPathFractureCollection* fractureCollection() const;
     RimStimPlanModelCollection*    stimPlanModelCollection() const;
     RimMswSegmentCollection*       mswSegmentCollection() const;
+    RimSegmentCollection*          segmentCollection() const;
 
     std::vector<RimWellPathComponentInterface*>       allCompletionsNoConst() const;
     std::vector<const RimWellPathComponentInterface*> allCompletions() const;
@@ -76,6 +78,7 @@ private:
     caf::PdmChildField<RimWellPathFractureCollection*> m_fractureCollection;
     caf::PdmChildField<RimStimPlanModelCollection*>    m_stimPlanModelCollection;
     caf::PdmChildField<RimMswSegmentCollection*>       m_mswSegmentCollection;
+    caf::PdmChildField<RimSegmentCollection*>          m_segmentCollection;
 
 private:
     /////////////////////

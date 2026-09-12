@@ -123,14 +123,7 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
     CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters" );
     m_mswParameters = new RimMswCompletionParameters;
     m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
-
-    CAF_PDM_InitScriptableFieldNoDefault( &m_mswLinerDiameter, "MswLinerDiameter", "MSW Liner Diameter" );
-    m_mswLinerDiameter.registerGetMethod( this, &RimWellPathCompletionSettings::mswLinerDiameter );
-    m_mswLinerDiameter.registerSetMethod( this, &RimWellPathCompletionSettings::setMswLinerDiameter );
-
-    CAF_PDM_InitScriptableFieldNoDefault( &m_mswRoughness, "MswRoughness", "MSW Roughness" );
-    m_mswRoughness.registerGetMethod( this, &RimWellPathCompletionSettings::mswRoughness );
-    m_mswRoughness.registerSetMethod( this, &RimWellPathCompletionSettings::setMswRoughness );
+    m_mswParameters.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_referenceDepth_OBSOLETE, "ReferenceDepthForExport", QString(), "Reference Depth for BHP" );
     CAF_PDM_InitField( &m_drainageRadiusForPI_OBSOLETE, "DrainageRadiusForPI", QString( "0.0" ), "Drainage Radius for PI" );
@@ -473,18 +466,7 @@ void RimWellPathCompletionSettings::defineUiOrdering( QString uiConfigName, caf:
         compExportGroup->add( &m_fluidInPlaceRegion );
     }
 
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Well Options" );
-    m_mswParameters->uiOrdering( uiConfigName, *mswGroup );
-
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathCompletionSettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
-{
-    m_mswParameters->fieldChangedByUi( changedField, oldValue, newValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -495,36 +477,4 @@ QString RimWellPathCompletionSettings::formatStringForExport( const QString& tex
     if ( text.isEmpty() ) return defaultValue;
     if ( text.contains( ' ' ) ) return QString( "'%1'" ).arg( text );
     return text;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathCompletionSettings::setMswRoughness( const double& roughness )
-{
-    m_mswParameters->setRoughnessFactor( roughness );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimWellPathCompletionSettings::mswRoughness() const
-{
-    return m_mswParameters->roughnessFactor();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathCompletionSettings::setMswLinerDiameter( const double& diameter )
-{
-    m_mswParameters->setLinerDiameter( diameter );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimWellPathCompletionSettings::mswLinerDiameter() const
-{
-    return m_mswParameters->linerDiameter();
 }

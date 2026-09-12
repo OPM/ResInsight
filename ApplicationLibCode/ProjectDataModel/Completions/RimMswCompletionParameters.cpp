@@ -23,6 +23,7 @@
 #include "RimCustomSegmentIntervalCollection.h"
 #include "RimDiameterRoughnessIntervalCollection.h"
 
+#include "RimSegmentCollection.h"
 #include "RimWellPath.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -99,7 +100,7 @@ RimMswCompletionParameters::RimMswCompletionParameters()
                                  "Roughness Factor" );
 
     // New interval-based fields
-    CAF_PDM_InitScriptableFieldNoDefault( &m_diameterRoughnessMode, "DiameterRoughnessMode", "Diameter Roughness Mode" );
+    CAF_PDM_InitFieldNoDefault( &m_diameterRoughnessMode, "DiameterRoughnessMode", "Diameter Roughness Mode" );
     CAF_PDM_InitFieldNoDefault( &m_diameterRoughnessIntervals, "DiameterRoughnessIntervals", "Diameter Roughness Intervals" );
     m_diameterRoughnessIntervals = new RimDiameterRoughnessIntervalCollection();
     m_diameterRoughnessIntervals->intervalsField().uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -175,7 +176,7 @@ double RimMswCompletionParameters::linerDiameter( RiaDefines::EclipseUnitSystem 
     double diameter = m_linerDiameter();
     if ( !wellPath->isTopLevelWellPath() && !m_customValuesForLateral )
     {
-        diameter = wellPath->topLevelWellPath()->mswCompletionParameters()->m_linerDiameter();
+        diameter = wellPath->topLevelWellPath()->segmentCollection()->linerDiameter();
     }
 
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -220,7 +221,7 @@ double RimMswCompletionParameters::roughnessFactor( RiaDefines::EclipseUnitSyste
     double rFactor = m_roughnessFactor();
     if ( !wellPath->isTopLevelWellPath() && !m_customValuesForLateral )
     {
-        rFactor = wellPath->topLevelWellPath()->mswCompletionParameters()->m_roughnessFactor();
+        rFactor = wellPath->topLevelWellPath()->segmentCollection()->roughnessFactor();
     }
 
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )

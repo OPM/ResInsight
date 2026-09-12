@@ -33,8 +33,8 @@
 #include "Well/RigWellPathIntersectionTools.h"
 
 #include "RimEclipseCase.h"
-#include "RimMswCompletionParameters.h"
 #include "RimProject.h"
+#include "RimSegmentCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 #include "RimWellPathTieIn.h"
@@ -72,7 +72,7 @@ std::expected<RigMswTableData, std::string> RicWellPathExportMswTableData::extra
     if ( !eclipseCase || !wellPath || eclipseCase->eclipseCaseData() == nullptr )
         return std::unexpected( "Invalid eclipse case or well path provided" );
 
-    auto mswParameters = wellPath->mswCompletionParameters();
+    auto mswParameters = wellPath->segmentCollection();
     if ( !mswParameters ) return std::unexpected( "Missing MSW completion parameters" );
 
     const std::vector<std::pair<double, double>> customSegmentIntervals = mswParameters->getSegmentIntervals();
@@ -143,7 +143,7 @@ std::vector<WellPathCellIntersectionInfo> RicWellPathExportMswTableData::generat
 //--------------------------------------------------------------------------------------------------
 double RicWellPathExportMswTableData::computeIntitialMeasuredDepth( const RimEclipseCase*                            eclipseCase,
                                                                     const RimWellPath*                               wellPath,
-                                                                    const RimMswCompletionParameters*                mswParameters,
+                                                                    const RimSegmentCollection*                      mswParameters,
                                                                     const std::vector<WellPathCellIntersectionInfo>& allIntersections )
 {
     if ( allIntersections.empty() ) return 0.0;
@@ -151,7 +151,7 @@ double RicWellPathExportMswTableData::computeIntitialMeasuredDepth( const RimEcl
     const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     double candidateMeasuredDepth = 0.0;
-    if ( mswParameters->referenceMDType() == RimMswCompletionParameters::ReferenceMDType::MANUAL_REFERENCE_MD )
+    if ( mswParameters->referenceMDType() == RimSegmentCollection::ReferenceMDType::MANUAL_REFERENCE_MD )
     {
         candidateMeasuredDepth = mswParameters->manualReferenceMD();
     }

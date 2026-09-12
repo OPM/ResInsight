@@ -41,8 +41,6 @@ def test_add_well_path_completions(rips_instance, initialize_test):
     completions_settings.gas_inflow_eq = "R-G"
     completions_settings.group_name_for_export = "TestGroup"
     completions_settings.hydrostatic_density = "AVG"
-    completions_settings.msw_liner_diameter = 0.12
-    completions_settings.msw_roughness = 4.66
     completions_settings.reference_depth_for_export = 1234
     completions_settings.well_bore_fluid_pvt_table = 33
     completions_settings.well_name_for_export = "TestWellName"
@@ -57,14 +55,12 @@ def test_add_well_path_completions(rips_instance, initialize_test):
     assert completions_settings_updated.gas_inflow_eq == "R-G"
     assert completions_settings_updated.group_name_for_export == "TestGroup"
     assert completions_settings_updated.hydrostatic_density == "AVG"
-    assert completions_settings_updated.msw_liner_diameter == 0.12
-    assert completions_settings_updated.msw_roughness == 4.66
     assert completions_settings_updated.reference_depth_for_export == 1234
     assert completions_settings_updated.well_bore_fluid_pvt_table == 33
     assert completions_settings_updated.well_name_for_export == "TestWellName"
     assert completions_settings_updated.well_type_for_export == "LIQUID"
 
-    msw_settings = well_path.msw_settings()
+    msw_settings = well_path.segment_collection()
     msw_settings.custom_values_for_lateral = True
     msw_settings.enforce_max_segment_length = True
     msw_settings.liner_diameter = 20.0
@@ -75,7 +71,7 @@ def test_add_well_path_completions(rips_instance, initialize_test):
     msw_settings.user_defined_reference_md = 1234.56
     msw_settings.update()
 
-    msw_settings_updated = well_path.msw_settings()
+    msw_settings_updated = well_path.segment_collection()
     assert msw_settings_updated.custom_values_for_lateral
     assert msw_settings_updated.enforce_max_segment_length
     assert msw_settings_updated.liner_diameter == 20.0
