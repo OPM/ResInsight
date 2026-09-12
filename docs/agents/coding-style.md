@@ -22,6 +22,27 @@ python -m ruff format test_polygons.py
 python -m ruff check --fix test_polygons.py
 ```
 
+### CMake Formatting
+
+CMake files (`CMakeLists.txt`, `*.cmake`) are formatted with `cmake-format` from the
+[`cmakelang`](https://pypi.org/project/cmakelang/) package, using the repository configuration
+`cmake/cmake-format.py`. The `cmake-format` GitHub workflow enforces this on every push and opens a
+"Fixes by cmake-format" pull request when a file is not formatted.
+
+- **If `cmakelang` is available**, run `cmake-format` in place on any CMake file you changed, so the
+  formatting fix lands in your commit instead of a follow-up bot PR:
+
+  ```bash
+  cmake-format -c cmake/cmake-format.py -i ApplicationLibCode/FeatureTests/CMakeLists.txt
+  ```
+
+  Always pass `-c cmake/cmake-format.py` (the repo config) and `-i` (edit in place). Install with
+  `python -m pip install --user cmakelang` if it is missing; if installing is not possible, skip this
+  step and rely on the CI workflow.
+- On Windows, `cmake-format` writes LF line endings, so `git status` may show a formatted file as
+  modified even when the content is unchanged. Use `git diff --quiet -- <file>` to confirm whether
+  there is any real formatting drift.
+
 ## Copyright Headers
 
 - New files must use the **current year** (the year the file is created) in the copyright header
@@ -254,3 +275,4 @@ When creating commits:
 - Use issue number at the start of the title: `#12773 Python: Add API for creating valve templates`
 - Follow git conventions for commit messages
 - Always run python formatting/check on changed files before commits
+- When you change a CMake file and `cmakelang` is available, run `cmake-format` on it before committing (see [CMake Formatting](#cmake-formatting))
