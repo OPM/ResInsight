@@ -21,6 +21,7 @@
 #include "RiaDefines.h"
 #include "RifReaderInterface.h"
 
+#include <cstdint>
 #include <memory>
 #include <set>
 #include <string>
@@ -76,7 +77,8 @@ public:
 
     // opm-common scales MAPAXES to meter based on the MAPUNITS keyword, while the cell corner coordinates are left in
     // the units given by GRIDUNIT. Returns the factor required to bring the map axes into grid units.
-    static double mapAxesScaleFactor( const std::string& mapUnits, int gridUnit );
+    static double       mapAxesScaleFactor( const std::string& mapUnits, int gridUnit );
+    static std::int64_t restartDataSize( const Opm::EclIO::ERst& restartFile, const std::string& keyword, int reportStepNumber );
 
 protected:
     virtual bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
