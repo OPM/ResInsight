@@ -151,7 +151,7 @@ QString RiuFemResultTextBuilder::geometrySelectionText( QString itemSeparator )
                 text += QString( ", ijk[%1, %2, %3]" ).arg( i ).arg( j ).arg( k ) + itemSeparator;
 
                 QString formattedText;
-                if ( m_2dIntersectionView )
+                if ( m_2dIntersectionView && m_2dIntersectionView->flatIntersectionPartMgr() )
                 {
                     formattedText = QString( "Horizontal length from well start: %1" ).arg( m_intersectionPointInDisplay.x(), 5, 'f', 2 );
                     text += formattedText + itemSeparator;
