@@ -79,11 +79,11 @@ struct VfpTableSelection
 
 struct VfpValueSelection
 {
-    double flowRateValue;
-    double thpValue;
-    double artificialLiftQuantityValue;
-    double waterCutValue;
-    double gasLiquidRatioValue;
+    double flowRateValue               = 0.0;
+    double thpValue                    = 0.0;
+    double artificialLiftQuantityValue = 0.0;
+    double waterCutValue               = 0.0;
+    double gasLiquidRatioValue         = 0.0;
 
     std::vector<double> familyValues;
 };
