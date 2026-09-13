@@ -74,6 +74,13 @@ void AppEnumMapperBase::addItem( int enumVal, const QString& text, QString uiTex
     // https://github.com/OPM/ResInsight/issues/14404
     CAF_ASSERT( !containsWhitespace( text.trimmed() ) );
 
+    // Make sure the serialization text is unique for the enum, otherwise two enum values would read back
+    // as the same value from XML (see https://github.com/OPM/ResInsight/issues/14654)
+    for ( const auto& enumData : m_mapping )
+    {
+        CAF_ASSERT( !enumData.isMatching( text.trimmed() ) );
+    }
+
     // Make sure the alias text is unique for enum
     for ( const auto& alias : aliases )
     {
