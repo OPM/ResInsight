@@ -653,11 +653,19 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
                 {
                     auto timeSteps = reader->timeSteps( m_addressSelector->summaryAddress() );
 
+                    // A case is excluded if any time step inside the selected time range has a value outside the
+                    // selected value range. This makes the filter behave consistently for both monotonically
+                    // increasing vectors (e.g. FOPT) and fluctuating vectors (e.g. FOPR).
                     for ( size_t i = 0; i < std::min( timeSteps.size(), values.size() ); i++ )
                     {
                         if ( timeSteps[i] < timeConfig.m_startTimeStep || timeSteps[i] > timeConfig.m_endTimeStep ) continue;
 
-                        isInsideFilter = RiaNumericalTools::isValueInRange( values[i], m_valueRange() );
+                        if ( !RiaNumericalTools::isValueInRange( values[i], m_valueRange() ) )
+                        {
+                            isInsideFilter = false;
+                            break;
+                        }
+                        isInsideFilter = true;
                     }
                 }
                 if ( !isInsideFilter )
