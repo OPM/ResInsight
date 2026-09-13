@@ -48,6 +48,7 @@
 
 class RimCase;
 class RimLegendConfig;
+class RimWellPath;
 class RimWellPathCollection;
 class RimAnnotationInViewCollection;
 class RiuViewer;
@@ -210,6 +211,11 @@ public:
 
     RimAnnotationInViewCollection* annotationCollection() const;
     void                           synchronizeLocalAnnotationsFromGlobal();
+
+    // Per-view well path visibility hook. Default implementation returns true for all well paths,
+    // preserving existing behavior. Overridden by views (e.g. RimDataView) that maintain their own
+    // per-view well path visibility collection, following the same pattern as polygons/surfaces.
+    virtual bool isWellPathVisibleInView( const RimWellPath* wellPath ) const;
 
     void dockInMainWindow();
     void dockInPlotWindow();

@@ -273,7 +273,8 @@ enum class ItemIn3dView
     SURFACE     = 0b00000001,
     POLYGON     = 0b00000010,
     CONTOUR_MAP = 0b00000100,
-    ALL         = 0b00000111
+    WELL_PATH   = 0b00001000,
+    ALL         = 0b00001111
 };
 
 QString betaFeaturePostfix();

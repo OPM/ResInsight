@@ -28,6 +28,7 @@
 class Rim3dOverlayInfoConfig;
 class RimSurfaceInViewCollection;
 class RimPolygonInViewCollection;
+class RimWellPathInViewCollection;
 
 class RimDataView : public Rim3dView
 {
@@ -37,8 +38,9 @@ public:
     RimDataView();
     ~RimDataView() override;
 
-    RimSurfaceInViewCollection* surfaceInViewCollection() const;
-    RimPolygonInViewCollection* polygonInViewCollection() const;
+    RimSurfaceInViewCollection*  surfaceInViewCollection() const;
+    RimPolygonInViewCollection*  polygonInViewCollection() const;
+    RimWellPathInViewCollection* wellPathInViewCollection() const;
 
     RimCase*                      ownerCase() const override;
     RiaDefines::View3dContent     viewContent() const override;
@@ -50,6 +52,8 @@ public:
     cvf::BoundingBox domainBoundingBox() override;
     void             updateGridBoxData() override;
     double           characteristicCellSize() const override;
+
+    bool isWellPathVisibleInView( const RimWellPath* wellPath ) const override;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -82,9 +86,10 @@ private:
     void             invalidateDomainBoundingBox();
 
 private:
-    caf::PdmChildField<RimSurfaceInViewCollection*> m_surfaceCollection;
-    caf::PdmChildField<RimPolygonInViewCollection*> m_polygonInViewCollection;
-    caf::PdmChildField<Rim3dOverlayInfoConfig*>     m_overlayInfoConfig;
+    caf::PdmChildField<RimSurfaceInViewCollection*>  m_surfaceCollection;
+    caf::PdmChildField<RimPolygonInViewCollection*>  m_polygonInViewCollection;
+    caf::PdmChildField<RimWellPathInViewCollection*> m_wellPathInViewCollection;
+    caf::PdmChildField<Rim3dOverlayInfoConfig*>      m_overlayInfoConfig;
 
     cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
     cvf::ref<cvf::ModelBasicList> m_polygonVizModel;

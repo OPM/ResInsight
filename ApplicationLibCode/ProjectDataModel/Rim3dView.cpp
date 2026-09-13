@@ -861,6 +861,14 @@ RimWellPathCollection* Rim3dView::wellPathCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool Rim3dView::isWellPathVisibleInView( const RimWellPath* wellPath ) const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool Rim3dView::hasVisibleTimeStepDependent3dWellLogCurves() const
 {
     if ( wellPathCollection() )

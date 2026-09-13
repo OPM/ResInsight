@@ -424,6 +424,14 @@ cvf::BoundingBox RimWellPathCollection::wellPathsBoundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellPathCollection::collectionName() const
+{
+    return "Well Paths";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray )
 {
     caf::ProgressInfo progress( wellPathArray.size(), "Reading well paths from file" );

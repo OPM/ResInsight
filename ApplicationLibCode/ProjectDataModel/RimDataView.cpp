@@ -40,6 +40,9 @@
 #include "Polygons/RimPolygonInView.h"
 #include "Polygons/RimPolygonInViewCollection.h"
 
+#include "WellPath/RimWellPathInView.h"
+#include "WellPath/RimWellPathInViewCollection.h"
+
 #include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
 
@@ -70,6 +73,9 @@ RimDataView::RimDataView()
     CAF_PDM_InitFieldNoDefault( &m_polygonInViewCollection, "PolygonInViewCollection", "Polygon Collection Field" );
     m_polygonInViewCollection = new RimPolygonInViewCollection();
     m_polygonInViewCollection->uiCapability()->setUiIcon( caf::IconProvider( ":/PolylinesFromFile16x16.png" ) );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellPathInViewCollection, "WellPathInViewCollection", "Well Path Collection Field" );
+    m_wellPathInViewCollection = new RimWellPathInViewCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations" );
     m_annotationCollection = new RimAnnotationInViewCollection;
@@ -114,6 +120,24 @@ RimSurfaceInViewCollection* RimDataView::surfaceInViewCollection() const
 RimPolygonInViewCollection* RimDataView::polygonInViewCollection() const
 {
     return m_polygonInViewCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathInViewCollection* RimDataView::wellPathInViewCollection() const
+{
+    return m_wellPathInViewCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDataView::isWellPathVisibleInView( const RimWellPath* wellPath ) const
+{
+    if ( !m_wellPathInViewCollection() ) return true;
+
+    return m_wellPathInViewCollection->isWellPathVisible( wellPath );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,6 +331,7 @@ void RimDataView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, 
     uiTreeOrdering.add( m_overlayInfoConfig() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
     uiTreeOrdering.add( polygonInViewCollection() );
+    uiTreeOrdering.add( wellPathInViewCollection() );
     uiTreeOrdering.add( annotationCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
@@ -547,6 +572,11 @@ void RimDataView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
     if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::POLYGON ) )
     {
         m_polygonInViewCollection->updateFromPolygonCollection();
+    }
+
+    if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::WELL_PATH ) )
+    {
+        m_wellPathInViewCollection->updateFromWellPathCollection();
     }
 
     invalidateDomainBoundingBox();
