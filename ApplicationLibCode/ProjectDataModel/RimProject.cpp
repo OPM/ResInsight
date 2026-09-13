@@ -49,6 +49,8 @@
 #include "RimCompletionTemplateCollection.h"
 #include "RimContextCommandBuilder.h"
 #include "RimCorrelationPlotCollection.h"
+#include "RimDataView.h"
+#include "RimDataViewCollection.h"
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
@@ -899,6 +901,14 @@ std::vector<Rim3dView*> RimProject::allViews() const
             }
         }
 
+        if ( oilField->dataViewCollection() )
+        {
+            for ( auto dataView : oilField->dataViewCollection()->views() )
+            {
+                views.push_back( dataView );
+            }
+        }
+
         if ( oilField->analysisModels() )
         {
             for ( auto ensemble : oilField->analysisModels()->caseEnsembles.childrenByType() )
@@ -1517,6 +1527,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
         {
             if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
             if ( oilField->eclipseViewCollection() ) uiTreeOrdering.add( oilField->eclipseViewCollection() );
+            if ( oilField->dataViewCollection() ) uiTreeOrdering.add( oilField->dataViewCollection() );
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
             if ( oilField->polygonCollection() ) uiTreeOrdering.add( oilField->polygonCollection() );
