@@ -67,7 +67,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 set(VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
-message(STATUS "Set CEE_USE_QT6 to ON")
+# Instruct cvf to use Qt6
 set(CEE_USE_QT5 OFF)
 set(CEE_USE_QT6 ON)
 
@@ -141,7 +141,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
   endif()
   set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
 endif()
 
 include(cmake/StdStacktrace.cmake)

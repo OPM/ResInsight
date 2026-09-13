@@ -19,14 +19,9 @@ if(MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
-# Qt
-if(NOT DEFINED (CEE_USE_QT5))
-  option(CEE_USE_QT5 "Use Qt5" ON)
-endif(NOT DEFINED (CEE_USE_QT5))
-
-if(NOT DEFINED (CEE_USE_QT6))
-  option(CEE_USE_QT6 "Use Qt6" OFF)
-endif(NOT DEFINED (CEE_USE_QT6))
+# Instruct cvf to use Qt6
+set(CEE_USE_QT5 OFF)
+set(CEE_USE_QT6 ON)
 
 # CeeViz is not available here, exclude it from the build
 set(CAF_EXCLUDE_CVF ON)
