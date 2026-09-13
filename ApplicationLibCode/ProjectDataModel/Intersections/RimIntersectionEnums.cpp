@@ -28,7 +28,7 @@ void caf::AppEnum<RimIntersectionFilterEnum>::setUp()
     addItem( RimIntersectionFilterEnum::INTERSECT_FILTER_NONE, "INTERSECT_SHOW_ALL", "Disabled" );
     addItem( RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE, "INTERSECT_SHOW_ABOVE", "Above" );
     addItem( RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW, "INTERSECT_SHOW_BELOW", "Below" );
-    addItem( RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN, "INTERSECT_SHOW_BELOW", "Between" );
+    addItem( RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN, "INTERSECT_SHOW_BETWEEN", "Between" );
     setDefault( RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN );
 }
 

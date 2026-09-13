@@ -80,7 +80,7 @@ void caf::AppEnum<RimGridCalculation::AdditionalCasesType>::setUp()
     addItem( RimGridCalculation::AdditionalCasesType::NONE, "NONE", "None" );
     addItem( RimGridCalculation::AdditionalCasesType::GRID_CASE_GROUP, "GRID_CASE_GROUP", "Case Group" );
     addItem( RimGridCalculation::AdditionalCasesType::ENSEMBLE, "ENSEMBLE", "Ensemble" );
-    addItem( RimGridCalculation::AdditionalCasesType::ALL_CASES, "NONE", "All Cases" );
+    addItem( RimGridCalculation::AdditionalCasesType::ALL_CASES, "ALL_CASES", "All Cases" );
     setDefault( RimGridCalculation::AdditionalCasesType::NONE );
 }
 }; // namespace caf
