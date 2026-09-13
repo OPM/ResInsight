@@ -108,10 +108,14 @@ TEST_P( RimEnsembleCurveFilterPerformanceTest, DISABLED_ApplyFilterBySummaryValu
     auto* filter = curveSet->filterCollection()->addFilter();
     filter->setSummaryAddresses( { RifEclipseSummaryAddress::fieldAddress( "FOPT" ) } );
 
-    // The SUMMARY_VALUE filter compares against the value at the last time step inside the selected
-    // time range, i.e. the last synthetic value of each case: value(i) = i + (timeStepCount-1)*0.001.
-    // Split exactly in the middle of that value range so about half of the realizations are filtered
-    // out, forcing applyFilter() to read and scan the full summary vector of every case.
+    // The SUMMARY_VALUE filter excludes a case if any time step inside the selected time range has a value
+    // outside the selected value range, i.e. it requires all time steps to be inside the value range. Each
+    // case's synthetic values increase monotonically from i (t=0) to i + (timeStepCount-1)*0.001 (last time
+    // step), so a case is kept only if its full value span [i, i + (timeStepCount-1)*0.001] fits inside the
+    // selected value range. Using a lower bound of 0.0 (which always covers the minimum value i) together
+    // with an upper bound at the midpoint of the final values still filters out about half of the
+    // realizations (those whose maximum value exceeds the upper bound), forcing applyFilter() to read and
+    // scan the full summary vector of every case.
     double lastStepOffset = static_cast<double>( timeStepCount - 1 ) * 0.001;
     double minFinalValue  = 0.0 + lastStepOffset;
     double maxFinalValue  = static_cast<double>( caseCount - 1 ) + lastStepOffset;
@@ -120,7 +124,7 @@ TEST_P( RimEnsembleCurveFilterPerformanceTest, DISABLED_ApplyFilterBySummaryValu
     {
         auto* valueRangeField = dynamic_cast<caf::PdmField<std::pair<double, double>>*>( filter->findField( "ValueRange" ) );
         ASSERT_TRUE( valueRangeField != nullptr );
-        valueRangeField->setValue( { midValue, maxFinalValue } );
+        valueRangeField->setValue( { 0.0, midValue } );
     }
 
     std::vector<RimSummaryCase*> filteredCases;
@@ -201,4 +205,70 @@ TEST_F( RimEnsembleCurveFilterPerformanceTest, DISABLED_ApplyFilterByEnsemblePar
 
     EXPECT_GT( filteredCases.size(), size_t( 0 ) );
     EXPECT_LT( filteredCases.size(), allCases.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Regression test for #14727: a SUMMARY_VALUE filter must consider every time step inside the
+/// selected time range, not just the last one, and must exclude a realization if any of those time
+/// steps has a value outside the selected value range. This matters for rate vectors (e.g. FOPR)
+/// that fluctuate at high frequency between zero and a non-zero value, unlike cumulative vectors
+/// (e.g. FOPT) that increase monotonically. Two cases are created:
+///   - Case 0 is constant at 1.0, i.e. inside the filter range for every time step.
+///   - Case 1 oscillates between 0.0 and 1.0, but happens to be 1.0 (inside the filter range) at the
+///     last time step, even though most time steps are 0.0 (outside the filter range).
+/// Filtering on the range [0.5, 1.5] must keep only case 0: with only the last time step considered,
+/// case 1 would incorrectly pass because its last value happens to be inside the range.
+//--------------------------------------------------------------------------------------------------
+TEST_F( RimEnsembleCurveFilterPerformanceTest, ApplyFilterBySummaryValueOscillatingRate )
+{
+    const size_t timeStepCount = 10;
+
+    std::vector<RimSummaryCase*> cases;
+    for ( int i = 0; i < 2; i++ )
+    {
+        auto* summaryCase = static_cast<RimMockSummaryCase*>( createMockCase( i ) );
+
+        std::vector<time_t> timeSteps;
+        std::vector<double> values;
+        for ( size_t t = 0; t < timeStepCount; t++ )
+        {
+            timeSteps.push_back( static_cast<time_t>( t * 86400 ) );
+
+            if ( i == 0 )
+            {
+                // Case 0: constant 1.0, always inside the filter range.
+                values.push_back( 1.0 );
+            }
+            else
+            {
+                // Case 1: 0, 0, 0, ..., 0, 1 (only the last time step is inside the filter range).
+                bool isLastTimeStep = t == timeStepCount - 1;
+                values.push_back( isLastTimeStep ? 1.0 : 0.0 );
+            }
+        }
+        summaryCase->addVector( RifEclipseSummaryAddress::fieldAddress( "FOPR" ), timeSteps, values );
+
+        cases.push_back( summaryCase );
+    }
+
+    auto* ensemble = mainCollection()->addEnsemble( cases, "OscillatingRateEnsemble", true );
+    auto  allCases = ensemble->allSummaryCases();
+
+    auto curveSet = std::make_unique<RimEnsembleCurveSet>();
+    curveSet->setSummaryEnsemble( ensemble );
+    curveSet->setSummaryAddressY( RifEclipseSummaryAddress::fieldAddress( "FOPR" ) );
+
+    auto* filter = curveSet->filterCollection()->addFilter();
+    filter->setSummaryAddresses( { RifEclipseSummaryAddress::fieldAddress( "FOPR" ) } );
+
+    {
+        auto* valueRangeField = dynamic_cast<caf::PdmField<std::pair<double, double>>*>( filter->findField( "ValueRange" ) );
+        ASSERT_TRUE( valueRangeField != nullptr );
+        valueRangeField->setValue( { 0.5, 1.5 } );
+    }
+
+    auto filteredCases = filter->applyFilter( allCases );
+
+    ASSERT_EQ( size_t( 1 ), filteredCases.size() );
+    EXPECT_EQ( cases[0], filteredCases[0] );
 }
