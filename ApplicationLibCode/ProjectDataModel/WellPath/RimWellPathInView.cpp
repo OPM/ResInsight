@@ -30,22 +30,10 @@ RimWellPathInView::RimWellPathInView()
 {
     CAF_PDM_InitObject( "Well Path", ":/Well.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name" );
-    m_name.registerGetMethod( this, &RimWellPathInView::name );
-    m_name.uiCapability()->setUiReadOnly( true );
+    nameField()->uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
     m_wellPath.uiCapability()->setUiHidden( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimWellPathInView::name() const
-{
-    if ( m_wellPath() ) return m_wellPath->name();
-
-    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,14 +58,8 @@ RimWellPath* RimWellPathInView::sourceItem() const
 void RimWellPathInView::setWellPath( RimWellPath* wellPath )
 {
     m_wellPath = wellPath;
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellPathInView::userDescriptionField()
-{
-    return &m_name;
+    if ( wellPath ) setName( wellPath->name() );
 }
 
 //--------------------------------------------------------------------------------------------------

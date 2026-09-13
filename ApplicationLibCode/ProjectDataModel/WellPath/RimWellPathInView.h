@@ -19,7 +19,6 @@
 
 #include "RimCheckableNamedObject.h"
 
-#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 class RimWellPath;
@@ -28,6 +27,10 @@ class RimWellPath;
 ///
 /// Per-view visibility wrapper around a global RimWellPath, following the same in-view
 /// mirroring pattern as RimPolygonInView/RimSurfaceInView.
+///
+/// Reuses the "Name" field inherited from RimNamedObject (via RimCheckableNamedObject) rather
+/// than declaring a separate name field, since a derived class field cannot reuse the same PDM
+/// keyword as an inherited field.
 //==================================================================================================
 class RimWellPathInView : public RimCheckableNamedObject
 {
@@ -38,17 +41,14 @@ public:
 
     RimWellPathInView();
 
-    QString      name() const;
     RimWellPath* wellPath() const;
     RimWellPath* sourceItem() const;
     void         setWellPath( RimWellPath* wellPath );
 
 protected:
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 initAfterRead() override;
+    void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    caf::PdmProxyValueField<QString> m_name;
-    caf::PdmPtrField<RimWellPath*>   m_wellPath;
+    caf::PdmPtrField<RimWellPath*> m_wellPath;
 };
