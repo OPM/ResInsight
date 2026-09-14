@@ -20,6 +20,7 @@
 
 #include "Rim3dView.h"
 #include "RimCellFilter.h"
+#include "RimEclipseView.h"
 #include "RimGridView.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -88,7 +89,9 @@ bool RimDataFilterInView::isEvaluatable() const
 void RimDataFilterInView::applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex )
 {
     if ( !isEvaluatable() ) return;
-    m_sourceFilter()->applyToCellVisibility( cellVisibility, grid, timeStepIndex );
+
+    auto* view = firstAncestorOrThisOfType<RimEclipseView>();
+    m_sourceFilter()->applyToCellVisibility( cellVisibility, grid, timeStepIndex, view ? view->eclipseCase() : nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

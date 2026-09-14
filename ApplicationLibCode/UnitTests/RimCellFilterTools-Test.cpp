@@ -31,9 +31,12 @@
 #include "RimCellFilterTools.h"
 #include "RimCellRangeFilter.h"
 #include "RimDataFilterCollection.h"
+#include "RimDataFilterInView.h"
+#include "RimDataFilterInViewCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
 #include "RimReservoirGridEnsemble.h"
 
 #include "cafPdmField.h"
@@ -175,6 +178,67 @@ TEST( RimCellFilterToolsTest, GridEnsembleDataFilterCollection )
         if ( visibility->val( i ) ) visibleCount++;
     }
     EXPECT_EQ( size_t( 10 * 10 * 1 ), visibleCount );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimCellFilterToolsTest, EnsembleDataFilterInViewUsesViewCase )
+{
+    auto caseA = openBruggeCase( "Real0", "BRUGGE_0000.EGRID" );
+    auto caseB = openBruggeCase( "Real40", "BRUGGE_0040.EGRID" );
+    ASSERT_TRUE( caseA != nullptr );
+    ASSERT_TRUE( caseB != nullptr );
+
+    auto ensemble = std::make_unique<RimReservoirGridEnsemble>();
+
+    RimEclipseResultCase* mainCase = caseA.release();
+    RimEclipseResultCase* viewCase = caseB.release();
+    ensemble->addCase( mainCase );
+    ensemble->addCase( viewCase );
+
+    auto* view = new RimEclipseView();
+    view->setEclipseCase( viewCase );
+    ensemble->addView( view );
+
+    auto* propertyFilter = ensemble->dataFilterCollection()->addNewPropertyFilter();
+    ASSERT_TRUE( propertyFilter != nullptr );
+    EXPECT_EQ( mainCase, propertyFilter->resultDefinition()->eclipseCase() );
+
+    propertyFilter->resultDefinition()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+    propertyFilter->resultDefinition()->setResultVariable( RiaResultNames::swat() );
+
+    auto* lowerField = dynamic_cast<caf::PdmField<double>*>( propertyFilter->findField( "LowerBound" ) );
+    auto* upperField = dynamic_cast<caf::PdmField<double>*>( propertyFilter->findField( "UpperBound" ) );
+    ASSERT_TRUE( lowerField && upperField );
+    lowerField->setValue( 0.3 );
+    upperField->setValue( 0.6 );
+
+    auto wrappers = view->dataFiltersInView()->wrappers();
+    ASSERT_EQ( 1u, wrappers.size() );
+    wrappers.front()->setCheckState( true );
+
+    const size_t timeStepIndex              = 5;
+    auto         expectedViewCaseVisibility = RimCellFilterTools::computeReservoirCellVisibility( propertyFilter, viewCase, timeStepIndex );
+    auto         mainCaseVisibility         = RimCellFilterTools::computeReservoirCellVisibility( propertyFilter, mainCase, timeStepIndex );
+    ASSERT_TRUE( expectedViewCaseVisibility.notNull() );
+    ASSERT_TRUE( mainCaseVisibility.notNull() );
+
+    const RigMainGrid* viewGrid = viewCase->eclipseCaseData()->mainGrid();
+    cvf::UByteArray    viewVisibility( viewGrid->cellCount() );
+    viewVisibility.setAll( true );
+    wrappers.front()->applyToCellVisibility( &viewVisibility, viewGrid, timeStepIndex );
+
+    ASSERT_EQ( expectedViewCaseVisibility->size(), viewVisibility.size() );
+    ASSERT_EQ( mainCaseVisibility->size(), viewVisibility.size() );
+
+    size_t differingFromMainCase = 0;
+    for ( size_t i = 0; i < viewVisibility.size(); i++ )
+    {
+        EXPECT_EQ( expectedViewCaseVisibility->val( i ), viewVisibility.val( i ) );
+        if ( mainCaseVisibility->val( i ) != viewVisibility.val( i ) ) differingFromMainCase++;
+    }
+    EXPECT_GT( differingFromMainCase, 0u );
 }
 
 //--------------------------------------------------------------------------------------------------
