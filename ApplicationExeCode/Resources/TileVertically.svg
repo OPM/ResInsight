@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 24 24"
+     width="24"
+     height="24">
+
+  <defs>
+    <linearGradient id="topGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+
+    <linearGradient id="bottomGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer frame -->
+  <rect x="2" y="3" width="20" height="18" rx="3"
+        fill="#ffffff"
+        stroke="#cbd5e1"
+        stroke-width="1"/>
+
+  <!-- Top window -->
+  <rect x="4" y="5" width="16" height="6.5" rx="1.5"
+        fill="url(#topGrad)"/>
+
+  <!-- Bottom window -->
+  <rect x="4" y="12.5" width="16" height="6.5" rx="1.5"
+        fill="url(#bottomGrad)"/>
+
+  <!-- Title bars -->
+  <rect x="5" y="6" width="3" height="1" rx="0.5"
+        fill="white" opacity="0.9"/>
+  <rect x="5" y="13.5" width="3" height="1" rx="0.5"
+        fill="white" opacity="0.9"/>
+</svg>
