@@ -19,7 +19,6 @@
 #pragma once
 
 #include "RiaPorosityModel.h"
-#include "RimEclipseCaseEnsemble.h"
 #include "RimGridCalculationVariable.h"
 #include "RimUserDefinedCalculation.h"
 
@@ -163,7 +162,7 @@ private:
 
     caf::PdmField<caf::AppEnum<AdditionalCasesType>> m_additionalCasesType;
     caf::PdmPtrField<RimIdenticalGridCaseGroup*>     m_additionalCaseGroup;
-    caf::PdmPtrField<RimEclipseCaseEnsemble*>        m_additionalEnsemble;
+    caf::PdmPtrField<RimReservoirGridEnsemble*>      m_additionalEnsemble;
 
     caf::PdmField<std::vector<int>> m_selectedTimeSteps;
 

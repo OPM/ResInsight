@@ -88,3 +88,31 @@ TEST( RimGridCalculationTest, DestinationEnsembleCasesAreOutputs )
     EXPECT_EQ( firstCase, outputCases[0] );
     EXPECT_EQ( secondCase, outputCases[1] );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimGridCalculationTest, AdditionalEnsembleCasesAreOutputs )
+{
+    RimReservoirGridEnsemble ensemble;
+    auto*                    firstCase  = new RimEclipseResultCase;
+    auto*                    secondCase = new RimEclipseResultCase;
+    ensemble.addCase( firstCase );
+    ensemble.addCase( secondCase );
+
+    RimGridCalculation calculation;
+    auto*              additionalCasesTypeField = dynamic_cast<caf::PdmField<caf::AppEnum<RimGridCalculation::AdditionalCasesType>>*>(
+        calculation.findField( "AdditionalCasesType" ) );
+    auto* additionalEnsembleField =
+        dynamic_cast<caf::PdmPtrField<RimReservoirGridEnsemble*>*>( calculation.findField( "AdditionalEnsemble" ) );
+    ASSERT_TRUE( additionalCasesTypeField != nullptr );
+    ASSERT_TRUE( additionalEnsembleField != nullptr );
+
+    additionalCasesTypeField->setValue( RimGridCalculation::AdditionalCasesType::ENSEMBLE );
+    additionalEnsembleField->setValue( &ensemble );
+
+    const auto outputCases = calculation.outputEclipseCases();
+    ASSERT_EQ( 2u, outputCases.size() );
+    EXPECT_EQ( firstCase, outputCases[0] );
+    EXPECT_EQ( secondCase, outputCases[1] );
+}
