@@ -919,7 +919,6 @@ void RiuMainWindowBase::slotHideTabs( bool hideTabs )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimViewWindow*> RiuMainWindowBase::removeActiveViewWindows()
 {
-    // stores the views to tile
     std::vector<RimViewWindow*> activeWindows;
 
     // remove all visible views from central dock area
@@ -949,10 +948,10 @@ void RiuMainWindowBase::tileViewWindows()
                                                               { 25, { 5, 5 } } };
 
     // stores the views to tile
-    std::vector<RimViewWindow*> tiledWindows = removeActiveViewWindows();
+    std::vector<RimViewWindow*> windowsToTile = removeActiveViewWindows();
 
     // redock views in a grid layout
-    const int nViews = (int)tiledWindows.size();
+    const int nViews = (int)windowsToTile.size();
     const int nCols  = gridSizeMap[nViews].first;
     const int nRows  = gridSizeMap[nViews].second;
 
@@ -967,11 +966,11 @@ void RiuMainWindowBase::tileViewWindows()
             if ( viewIndex >= nViews ) break;
             if ( viewIndex >= 25 ) // limit to 25 views, see map above
             {
-                tiledWindows[viewIndex++]->removeWindowFromDock();
+                windowsToTile[viewIndex++]->removeWindowFromDock();
                 continue;
             }
 
-            auto view = tiledWindows[viewIndex++];
+            auto view = windowsToTile[viewIndex++];
             auto dock = view->dockWidget();
 
             if ( row == 0 && col == 0 )
@@ -1051,9 +1050,9 @@ void RiuMainWindowBase::tileWindowsVertically()
 void RiuMainWindowBase::tileWindows( ads::DockWidgetArea whereToDock )
 {
     // stores the views to tile
-    std::vector<RimViewWindow*> tiledWindows = removeActiveViewWindows();
+    std::vector<RimViewWindow*> windowsToTile = removeActiveViewWindows();
 
-    const int nViews = (int)tiledWindows.size();
+    const int nViews = (int)windowsToTile.size();
 
     std::vector<ads::CDockAreaWidget*> areas( nViews );
 
@@ -1061,7 +1060,7 @@ void RiuMainWindowBase::tileWindows( ads::DockWidgetArea whereToDock )
 
     for ( int i = 0; i < nViews; i++ )
     {
-        auto view = tiledWindows[viewIndex++];
+        auto view = windowsToTile[viewIndex++];
         auto dock = view->dockWidget();
 
         if ( i == 0 )
