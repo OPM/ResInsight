@@ -20,6 +20,11 @@
 
 #include "RimGridCalculation.h"
 
+#include "RimEclipseResultCase.h"
+#include "RimReservoirGridEnsemble.h"
+
+#include "cafPdmPtrField.h"
+
 #include <cmath>
 #include <limits>
 
@@ -59,4 +64,27 @@ TEST( RimGridCalculationTest, ReplaceInvalidValuesWithDefaultValueNoInvalidValue
 
     std::vector<double> emptyValues;
     EXPECT_EQ( 0u, RimGridCalculation::replaceInvalidValuesWithDefaultValue( 42.0, emptyValues ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimGridCalculationTest, DestinationEnsembleCasesAreOutputs )
+{
+    RimReservoirGridEnsemble ensemble;
+    auto*                    firstCase  = new RimEclipseResultCase;
+    auto*                    secondCase = new RimEclipseResultCase;
+    ensemble.addCase( firstCase );
+    ensemble.addCase( secondCase );
+
+    RimGridCalculation calculation;
+    auto*              destinationEnsembleField =
+        dynamic_cast<caf::PdmPtrField<RimReservoirGridEnsemble*>*>( calculation.findField( "DestinationEnsemble" ) );
+    ASSERT_TRUE( destinationEnsembleField != nullptr );
+    destinationEnsembleField->setValue( &ensemble );
+
+    const auto outputCases = calculation.outputEclipseCases();
+    ASSERT_EQ( 2u, outputCases.size() );
+    EXPECT_EQ( firstCase, outputCases[0] );
+    EXPECT_EQ( secondCase, outputCases[1] );
 }
