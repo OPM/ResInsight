@@ -148,6 +148,7 @@ RimGridCalculation::RimGridCalculation()
     CAF_PDM_InitFieldNoDefault( &m_dataFilter, "DataFilter", "Data Filter" );
     CAF_PDM_InitFieldNoDefault( &m_defaultValueType, "DefaultValueType", "Non-visible Cell Value" );
     CAF_PDM_InitField( &m_defaultValue, "DefaultValue", 0.0, "Custom Value" );
+    CAF_PDM_InitFieldNoDefault( &m_destinationEnsemble, "DestinationEnsemble", "Destination Ensemble" );
     CAF_PDM_InitFieldNoDefault( &m_destinationCase, "DestinationCase", "Destination Case" );
 
     CAF_PDM_InitField( &m_applyToAllCases_OBSOLETE, "AllDestinationCase", false, "Apply to All Cases" );
@@ -240,8 +241,8 @@ bool RimGridCalculation::calculate()
 
     // Equal grid size is required if there is more than one grid case in the expression. If a cell filter view is active, the visibility is
     // based on one view and reused for all other grid models, and requires equal grid size. A data filter is evaluated per case.
-    bool checkIfGridSizeIsEqual = ( !allSourceCasesAreEqualToDestinationCase() || useCellFilterView ) &&
-                                  m_additionalCasesType != AdditionalCasesType::ENSEMBLE;
+    const bool calculateForEnsemble   = m_destinationEnsemble() || m_additionalCasesType == AdditionalCasesType::ENSEMBLE;
+    bool       checkIfGridSizeIsEqual = ( !allSourceCasesAreEqualToDestinationCase() || useCellFilterView ) && !calculateForEnsemble;
 
     // Grid dimensions are required to validate the calculation, and a source case is not necessarily opened. This is the case for a
     // statistics case with no computed statistics.
@@ -363,6 +364,8 @@ std::vector<RimEclipseCase*> RimGridCalculation::outputEclipseCases() const
         if ( m_additionalEnsemble() ) return m_additionalEnsemble()->cases();
     }
 
+    if ( m_destinationEnsemble() ) return m_destinationEnsemble()->cases();
+
     return { m_destinationCase };
 }
 
@@ -415,7 +418,9 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     RimUserDefinedCalculation::defineUiOrdering( uiConfigName, uiOrdering );
 
+    uiOrdering.add( &m_destinationEnsemble );
     uiOrdering.add( &m_destinationCase );
+    m_destinationCase.uiCapability()->setUiHidden( m_destinationEnsemble() != nullptr );
 
     uiOrdering.add( &m_additionalCasesType );
     uiOrdering.add( &m_additionalCaseGroup );
@@ -473,7 +478,7 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
         {
             // If no input cases are defined, use the destination case to determine the grid size. This will enable use of expressions
             // with no input cases like "calculation := 1.0"
-            firstEclipseCase = m_destinationCase();
+            firstEclipseCase = destinationCase();
         }
 
         if ( firstEclipseCase )
@@ -493,9 +498,9 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
     {
         options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-        if ( m_destinationCase() )
+        if ( auto* destination = destinationCase() )
         {
-            if ( auto dataFilterCollection = m_destinationCase()->dataFilterCollection() )
+            if ( auto dataFilterCollection = destination->dataFilterCollection() )
             {
                 for ( RimCellFilter* filter : dataFilterCollection->filters() )
                 {
@@ -505,7 +510,7 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
             }
 
             // Also offer the data filters of the grid ensemble the destination case belongs to, if any
-            if ( auto gridEnsemble = m_destinationCase()->firstAncestorOfType<RimReservoirGridEnsemble>() )
+            if ( auto gridEnsemble = destination->firstAncestorOfType<RimReservoirGridEnsemble>() )
             {
                 if ( auto dataFilterCollection = gridEnsemble->dataFilterCollection() )
                 {
@@ -518,6 +523,19 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
                                                                    filter->uiIconProvider() ) );
                     }
                 }
+            }
+        }
+    }
+    else if ( fieldNeedingOptions == &m_destinationEnsemble )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        RimProject* project = RimProject::current();
+        if ( project->activeOilField() && project->activeOilField()->analysisModels() )
+        {
+            for ( auto* ensemble : project->activeOilField()->analysisModels()->reservoirGridEnsembles.childrenByType() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( ensemble->name(), ensemble, false, ensemble->uiIconProvider() ) );
             }
         }
     }
@@ -600,7 +618,7 @@ void RimGridCalculation::initAfterRead()
         {
             gridVar->eclipseResultChanged.connect( this, &RimGridCalculation::onVariableUpdated );
 
-            if ( m_destinationCase == nullptr ) m_destinationCase = gridVar->eclipseCase();
+            if ( !m_destinationEnsemble() && m_destinationCase == nullptr ) m_destinationCase = gridVar->eclipseCase();
         }
     }
 
@@ -623,7 +641,10 @@ void RimGridCalculation::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     {
         if ( m_filterType() != FilterType::CELL_FILTER_VIEW ) m_cellFilterView = nullptr;
         if ( m_filterType() != FilterType::DATA_FILTER ) m_dataFilter = nullptr;
+    }
 
+    if ( changedField == &m_filterType || changedField == &m_destinationEnsemble )
+    {
         updateConnectedEditors();
     }
 }
@@ -634,7 +655,7 @@ void RimGridCalculation::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 void RimGridCalculation::onEditNonVisibleResultAddressButtonPressed()
 {
     auto eclipseCase = m_nonVisibleResultAddress->eclipseCase();
-    if ( !eclipseCase ) eclipseCase = m_destinationCase;
+    if ( !eclipseCase ) eclipseCase = destinationCase();
 
     RimResultSelectionUi selectionUi;
     selectionUi.setEclipseResultAddress( eclipseCase, m_nonVisibleResultAddress->resultType(), m_nonVisibleResultAddress->resultName() );
@@ -661,7 +682,8 @@ void RimGridCalculation::onVariableUpdated( const SignalEmitter* emitter )
             // interpreted as computed statistics, and will block recomputation of the statistics.
             const bool canBeDestinationCase = dynamic_cast<RimEclipseStatisticsCase*>( variableCase ) == nullptr;
 
-            if ( canBeDestinationCase && ( !m_destinationCase || !m_destinationCase->isGridSizeEqualTo( variableCase ) ) )
+            if ( canBeDestinationCase && !m_destinationEnsemble() &&
+                 ( !m_destinationCase || !m_destinationCase->isGridSizeEqualTo( variableCase ) ) )
             {
                 m_destinationCase = variableCase;
             }
@@ -676,16 +698,27 @@ void RimGridCalculation::onVariableUpdated( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimGridCalculation::destinationCase() const
+{
+    if ( m_destinationEnsemble() ) return m_destinationEnsemble()->mainCase();
+
+    return m_destinationCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::allSourceCasesAreEqualToDestinationCase() const
 {
-    if ( m_destinationCase() == nullptr ) return false;
+    auto* destination = destinationCase();
+    if ( destination == nullptr ) return false;
 
     for ( const auto& variable : m_variables )
     {
         auto gridVar = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
         if ( gridVar )
         {
-            if ( gridVar->eclipseCase() != m_destinationCase() ) return false;
+            if ( gridVar->eclipseCase() != destination ) return false;
         }
     }
 
@@ -1091,7 +1124,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
                 CAF_ASSERT( v != nullptr );
 
-                bool useDataFromSourceCase = ( v->eclipseCase() == m_destinationCase ) ||
+                bool useDataFromSourceCase = ( v->eclipseCase() == destinationCase() ) || m_destinationEnsemble() ||
                                              m_additionalCasesType == AdditionalCasesType::ENSEMBLE;
                 auto sourceCase = useDataFromSourceCase ? calculationCase : v->eclipseCase();
 
@@ -1276,7 +1309,7 @@ void RimGridCalculation::findAndEvaluateDependentCalculations( const std::vector
 //--------------------------------------------------------------------------------------------------
 void RimGridCalculation::assignEclipseCaseForNullPointers( RimEclipseCase* eclipseCase )
 {
-    if ( m_destinationCase() == nullptr )
+    if ( destinationCase() == nullptr )
     {
         m_destinationCase = eclipseCase;
     }

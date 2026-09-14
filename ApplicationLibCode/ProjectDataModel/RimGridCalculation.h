@@ -36,6 +36,7 @@ class RimGridView;
 class RigEclipseResultAddress;
 class RimEclipseResultAddress;
 class RimIdenticalGridCaseGroup;
+class RimReservoirGridEnsemble;
 class RigActiveCellInfo;
 
 //==================================================================================================
@@ -144,9 +145,10 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    void onVariableUpdated( const SignalEmitter* emitter );
-    bool allSourceCasesAreEqualToDestinationCase() const;
-    void onEditNonVisibleResultAddressButtonPressed();
+    void            onVariableUpdated( const SignalEmitter* emitter );
+    RimEclipseCase* destinationCase() const;
+    bool            allSourceCasesAreEqualToDestinationCase() const;
+    void            onEditNonVisibleResultAddressButtonPressed();
 
     static std::pair<bool, QStringList> createStatisticsText( const std::vector<std::vector<double>>& values );
 
@@ -156,6 +158,7 @@ private:
     caf::PdmPtrField<RimCellFilter*>              m_dataFilter;
     caf::PdmField<caf::AppEnum<DefaultValueType>> m_defaultValueType;
     caf::PdmField<double>                         m_defaultValue;
+    caf::PdmPtrField<RimReservoirGridEnsemble*>   m_destinationEnsemble;
     caf::PdmPtrField<RimEclipseCase*>             m_destinationCase;
 
     caf::PdmField<caf::AppEnum<AdditionalCasesType>> m_additionalCasesType;
