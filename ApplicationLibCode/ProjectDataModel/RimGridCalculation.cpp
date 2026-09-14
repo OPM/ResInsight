@@ -43,7 +43,6 @@
 #include "RimDataFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
-#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultAddress.h"
@@ -596,9 +595,9 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
         if ( proj->activeOilField() && proj->activeOilField()->analysisModels() )
         {
             auto analysisModels = proj->activeOilField()->analysisModels();
-            for ( RimEclipseCaseEnsemble* e : analysisModels->caseEnsembles() )
+            for ( auto* ensemble : analysisModels->reservoirGridEnsembles.childrenByType() )
             {
-                options.push_back( caf::PdmOptionItemInfo( e->name(), e, false, e->uiIconProvider() ) );
+                options.push_back( caf::PdmOptionItemInfo( ensemble->name(), ensemble, false, ensemble->uiIconProvider() ) );
             }
         }
     }
