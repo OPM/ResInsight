@@ -27,6 +27,7 @@
 #include "RimDataFilterCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimReservoirGridEnsemble.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -75,7 +76,11 @@ void RicEclipsePropertyFilterNewFeature::onActionTriggered( bool isChecked )
         {
             // Case-level combined filter: setCase propagation (via parent->addFilter →
             // child->setCase) binds the new filter's result definition to the eclipse case.
-            auto* created = parent->addNewFilter<RimEclipsePropertyFilter>( []( RimEclipsePropertyFilter* /*f*/ ) {} );
+            auto* created = parent->addNewFilter<RimEclipsePropertyFilter>(
+                [parent]( RimEclipsePropertyFilter* filter )
+                {
+                    if ( parent->firstAncestorOfType<RimReservoirGridEnsemble>() ) filter->setToDefaultValues();
+                } );
             parent->updateConnectedEditors();
             if ( created ) Riu3DMainWindowTools::selectAsCurrentItem( created );
         }

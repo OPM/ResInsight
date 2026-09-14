@@ -86,6 +86,8 @@ private:
     void updateActiveState();
     void updateReadOnlyStateOfAllFields();
     void updateRangeLabel();
+    void updateBoundEditorTypes();
+    bool isEnsembleDataFilter() const;
     bool isPropertyFilterControlled();
     void setCategoriesFromTracerNames( const std::vector<QString>& tracerNames );
 

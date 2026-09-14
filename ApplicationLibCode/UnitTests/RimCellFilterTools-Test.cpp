@@ -37,6 +37,10 @@
 #include "RimReservoirGridEnsemble.h"
 
 #include "cafPdmField.h"
+#include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiLineEditor.h"
+#include "cafPdmUiObjectHandle.h"
+#include "cafPdmUiOrdering.h"
 
 #include <QDir>
 #include <QFile>
@@ -128,6 +132,31 @@ TEST( RimCellFilterToolsTest, GridEnsembleDataFilterCollection )
     ASSERT_TRUE( propertyFilter != nullptr );
     EXPECT_EQ( mainCase, propertyFilter->resultDefinition()->eclipseCase() );
 
+    auto* lowerField = dynamic_cast<caf::PdmField<double>*>( propertyFilter->findField( "LowerBound" ) );
+    auto* upperField = dynamic_cast<caf::PdmField<double>*>( propertyFilter->findField( "UpperBound" ) );
+    ASSERT_TRUE( lowerField && upperField );
+
+    caf::PdmUiOrdering uiOrdering;
+    propertyFilter->uiCapability()->uiOrdering( "", uiOrdering );
+
+    EXPECT_DOUBLE_EQ( 0.0, lowerField->value() );
+    EXPECT_DOUBLE_EQ( 1.0, upperField->value() );
+    EXPECT_EQ( caf::PdmUiLineEditor::uiEditorTypeName(), lowerField->uiCapability()->uiEditorTypeName( "" ) );
+    EXPECT_EQ( caf::PdmUiLineEditor::uiEditorTypeName(), upperField->uiCapability()->uiEditorTypeName( "" ) );
+
+    lowerField->setValue( -100.0 );
+    upperField->setValue( 100.0 );
+    propertyFilter->resultDefinition()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+    propertyFilter->resultDefinition()->setResultVariable( RiaResultNames::swat() );
+    propertyFilter->computeResultValueRange();
+    EXPECT_DOUBLE_EQ( -100.0, lowerField->value() );
+    EXPECT_DOUBLE_EQ( 100.0, upperField->value() );
+
+    propertyFilter->resultDefinition()->setResultVariable( "DX" );
+    propertyFilter->setToDefaultValues();
+    EXPECT_DOUBLE_EQ( 0.0, lowerField->value() );
+    EXPECT_DOUBLE_EQ( 1.0, upperField->value() );
+
     auto* rangeFilter = ensemble->dataFilterCollection()->addNewRangeFilter();
     ASSERT_TRUE( rangeFilter != nullptr );
     rangeFilter->startIndexI = 1;
@@ -171,6 +200,14 @@ TEST( RimCellFilterToolsTest, PropertyFilterVisibilityPerCase )
     auto* lowerField = dynamic_cast<caf::PdmField<double>*>( propertyFilter.findField( "LowerBound" ) );
     auto* upperField = dynamic_cast<caf::PdmField<double>*>( propertyFilter.findField( "UpperBound" ) );
     ASSERT_TRUE( lowerField && upperField );
+
+    propertyFilter.setToDefaultValues();
+    caf::PdmUiOrdering uiOrdering;
+    propertyFilter.uiCapability()->uiOrdering( "", uiOrdering );
+    EXPECT_LE( lowerField->value(), upperField->value() );
+    EXPECT_EQ( caf::PdmUiDoubleSliderEditor::uiEditorTypeName(), lowerField->uiCapability()->uiEditorTypeName( "" ) );
+    EXPECT_EQ( caf::PdmUiDoubleSliderEditor::uiEditorTypeName(), upperField->uiCapability()->uiEditorTypeName( "" ) );
+
     lowerField->setValue( lowerBound );
     upperField->setValue( upperBound );
 
