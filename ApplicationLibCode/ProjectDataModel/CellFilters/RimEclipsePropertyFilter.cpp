@@ -34,12 +34,14 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
+#include "RimDataFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimViewController.h"
 
 #include "RiuMainWindow.h"
@@ -48,12 +50,14 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
 #include "cafAssert.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
+#include <limits>
 
 CAF_PDM_SOURCE_INIT( RimEclipsePropertyFilter, "CellPropertyFilter" );
 
@@ -234,8 +238,16 @@ void RimEclipsePropertyFilter::setToDefaultValues()
 {
     computeResultValueRange();
 
-    m_lowerBound.setValueWithFieldChanged( m_minimumResultValue );
-    m_upperBound.setValueWithFieldChanged( m_maximumResultValue );
+    if ( isEnsembleDataFilter() )
+    {
+        m_lowerBound.setValueWithFieldChanged( 0.0 );
+        m_upperBound.setValueWithFieldChanged( 1.0 );
+    }
+    else
+    {
+        m_lowerBound.setValueWithFieldChanged( m_minimumResultValue );
+        m_upperBound.setValueWithFieldChanged( m_maximumResultValue );
+    }
 
     m_selectedCategoryValues = m_categoryValues;
     m_useCategorySelection   = true;
@@ -246,6 +258,8 @@ void RimEclipsePropertyFilter::setToDefaultValues()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    updateBoundEditorTypes();
+
     // Fields declared in RimCellFilter
     uiOrdering.add( nameField() );
 
@@ -361,6 +375,35 @@ void RimEclipsePropertyFilter::updateRangeLabel()
     {
         m_rangeLabelText = "All Timesteps";
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::updateBoundEditorTypes()
+{
+    if ( isEnsembleDataFilter() )
+    {
+        m_lowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+        m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+        m_integerLowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+        m_integerUpperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+    }
+    else
+    {
+        m_lowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+        m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+        m_integerLowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+        m_integerUpperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipsePropertyFilter::isEnsembleDataFilter() const
+{
+    return firstAncestorOfType<RimDataFilterCollection>() && firstAncestorOfType<RimReservoirGridEnsemble>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -499,6 +542,15 @@ void RimEclipsePropertyFilter::setLowerBound( const int& lowerBound )
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::computeResultValueRange()
 {
+    if ( isEnsembleDataFilter() && !m_resultDefinition->hasCategoryResult() )
+    {
+        m_minimumResultValue = -std::numeric_limits<double>::max();
+        m_maximumResultValue = std::numeric_limits<double>::max();
+        m_lowerBound.uiCapability()->setUiName( "Min" );
+        m_upperBound.uiCapability()->setUiName( "Max" );
+        return;
+    }
+
     double min = HUGE_VAL;
     double max = -HUGE_VAL;
 

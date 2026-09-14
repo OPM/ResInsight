@@ -26,6 +26,7 @@
 #include "RimCombinedFilter.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -94,6 +95,7 @@ RimEclipsePropertyFilter* RimDataFilterCollection::addNewPropertyFilter()
 {
     auto* propertyFilter = new RimEclipsePropertyFilter();
     addFilter( propertyFilter );
+    if ( firstAncestorOfType<RimReservoirGridEnsemble>() ) propertyFilter->setToDefaultValues();
     return propertyFilter;
 }
 
