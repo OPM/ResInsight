@@ -67,6 +67,45 @@
 #include <QCheckBox>
 #include <QMessageBox>
 
+#include <set>
+
+namespace
+{
+class CloseCasesOpenedForCalculation
+{
+public:
+    explicit CloseCasesOpenedForCalculation( const std::vector<RimEclipseCase*>& cases )
+    {
+        for ( auto* eclipseCase : cases )
+        {
+            if ( eclipseCase && !eclipseCase->isReservoirCaseOpen() ) m_casesToClose.insert( eclipseCase );
+        }
+    }
+
+    ~CloseCasesOpenedForCalculation()
+    {
+        for ( auto* eclipseCase : m_casesToClose )
+        {
+            if ( eclipseCase->isReservoirCaseOpen() && eclipseCase->reservoirViews().empty() && eclipseCase->contourMapViews().empty() )
+            {
+                eclipseCase->closeReservoirCase();
+            }
+        }
+    }
+
+private:
+    std::set<RimEclipseCase*> m_casesToClose;
+};
+
+std::vector<RimEclipseCase*> sourceAndDestinationCases( const RimGridCalculation&           calculation,
+                                                        const std::vector<RimEclipseCase*>& destinationCases )
+{
+    auto cases = calculation.inputCases();
+    cases.insert( cases.end(), destinationCases.begin(), destinationCases.end() );
+    return cases;
+}
+} // namespace
+
 CAF_PDM_SOURCE_INIT( RimGridCalculation, "RimGridCalculation" );
 
 namespace caf
@@ -188,6 +227,8 @@ RimGridCalculationVariable* RimGridCalculation::createVariable()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::calculate()
 {
+    CloseCasesOpenedForCalculation closeCasesWhenFinished( sourceAndDestinationCases( *this, outputEclipseCases() ) );
+
     const bool useCellFilterView = ( m_filterType() == FilterType::CELL_FILTER_VIEW ) && m_cellFilterView() != nullptr;
     const bool useDataFilter     = ( m_filterType() == FilterType::DATA_FILTER );
 
@@ -932,6 +973,8 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                                             std::optional<std::vector<size_t>>  timeSteps,
                                             bool                                evaluateDependentCalculations )
 {
+    CloseCasesOpenedForCalculation closeCasesWhenFinished( sourceAndDestinationCases( *this, calculationCases ) );
+
     if ( calculationCases.empty() ) return true;
 
     if ( evaluateDependentCalculations ) findAndEvaluateDependentCalculations( calculationCases, inputValueVisibilityFilter, timeSteps );
