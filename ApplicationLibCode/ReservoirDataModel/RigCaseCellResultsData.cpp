@@ -1800,6 +1800,30 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
             return sgasScalarResultIndex;
         }
     }
+    else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
+              ( resultName == RiaResultNames::riPorvSoil() || resultName == RiaResultNames::riPorvSgas() ||
+                resultName == RiaResultNames::riPorvSoilSgas() ) )
+    {
+        // riPORV*SOIL, riPORV*SGAS and riPORV*SOIL*SGAS are computed results not read from file. Unlike SOIL/SGAS
+        // they are not flagged mustBeCalculated(), so detect them by name instead. computePorvSoilSgas() always
+        // computes all time steps for all three results in one call (see RigPorvSoilSgasResultCalculator), so it
+        // is safe to call unconditionally here; repeated calls for other time steps are no-ops once computed.
+        size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
+        if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T ) return cvf::UNDEFINED_SIZE_T;
+
+        // A case in an ensemble can have fewer time steps than the case defining the time step axis
+        const size_t timeStepCount = maxTimeStepCount();
+        if ( timeStepIndex >= timeStepCount ) return cvf::UNDEFINED_SIZE_T;
+
+        m_cellScalarResults[scalarResultIndex].resize( timeStepCount );
+
+        if ( m_cellScalarResults[scalarResultIndex][timeStepIndex].empty() )
+        {
+            computePorvSoilSgas();
+        }
+
+        return scalarResultIndex;
+    }
     else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE && resultName == RiaResultNames::completionTypeResultName() )
     {
         size_t completionTypeScalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
