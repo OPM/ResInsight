@@ -123,6 +123,8 @@ protected:
 
     virtual void onCentralWidgetContextMenu( QMenu& menu ) {};
 
+    std::vector<RimViewWindow*> removeActiveViewWindows();
+
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void slotDockViewerVisibilityChanged( bool visible );
@@ -142,6 +144,11 @@ protected slots:
     void exportDockLayout();
 
     void maximizeViewWindows();
+    void tileWindowsVertically();
+    void tileWindowsHorizontally();
+
+private:
+    void tileWindows( ads::DockWidgetArea whereToDock );
 
 protected:
     bool m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control
@@ -150,6 +157,8 @@ protected:
     QAction* m_hideTabsAction;
     QAction* m_tileWindowsAction;
     QAction* m_maximizeWindowsAction;
+    QAction* m_tileHorizontallyAction;
+    QAction* m_tileVerticallyAction;
 
     QAction*   m_undoAction;
     QAction*   m_redoAction;
