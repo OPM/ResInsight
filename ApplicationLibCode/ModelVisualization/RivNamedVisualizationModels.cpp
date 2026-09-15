@@ -26,13 +26,23 @@
 //--------------------------------------------------------------------------------------------------
 cvf::ModelBasicList* RivNamedVisualizationModels::findOrCreate( const cvf::String& modelName )
 {
-    if ( auto* existing = find( modelName ) ) return existing;
+    auto it = m_models.find( modelName );
+    if ( it != m_models.end() ) return it->second.p();
 
     cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
     model->setName( modelName );
-    m_models.push_back( model.p() );
 
-    return model.p();
+    return m_models.emplace( modelName, model ).first->second.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ModelBasicList* RivNamedVisualizationModels::findOrCreateAndClear( const cvf::String& modelName )
+{
+    auto* model = findOrCreate( modelName );
+    model->removeAllParts();
+    return model;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,12 +50,8 @@ cvf::ModelBasicList* RivNamedVisualizationModels::findOrCreate( const cvf::Strin
 //--------------------------------------------------------------------------------------------------
 cvf::ModelBasicList* RivNamedVisualizationModels::find( const cvf::String& modelName ) const
 {
-    for ( size_t i = 0; i < m_models.size(); i++ )
-    {
-        if ( m_models.at( i )->name() == modelName ) return const_cast<cvf::ModelBasicList*>( m_models.at( i ) );
-    }
-
-    return nullptr;
+    auto it = m_models.find( modelName );
+    return it != m_models.end() ? const_cast<cvf::ModelBasicList*>( it->second.p() ) : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,9 +60,9 @@ cvf::ModelBasicList* RivNamedVisualizationModels::find( const cvf::String& model
 std::vector<cvf::ModelBasicList*> RivNamedVisualizationModels::allModels() const
 {
     std::vector<cvf::ModelBasicList*> models;
-    for ( size_t i = 0; i < m_models.size(); i++ )
+    for ( const auto& [name, model] : m_models )
     {
-        models.push_back( const_cast<cvf::ModelBasicList*>( m_models.at( i ) ) );
+        models.push_back( const_cast<cvf::ModelBasicList*>( model.p() ) );
     }
 
     return models;

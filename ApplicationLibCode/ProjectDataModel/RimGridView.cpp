@@ -432,8 +432,7 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
 //--------------------------------------------------------------------------------------------------
 void RimGridView::appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox )
 {
-    auto* polygonVizModel = m_vizModels.findOrCreate( "PolygonModel" );
-    polygonVizModel->removeAllParts();
+    auto* polygonVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::polygonModelName() );
 
     std::vector<RimPolygonInView*> polygonsInView;
     if ( m_polygonInViewCollection )
@@ -578,7 +577,7 @@ void RimGridView::appendIntersectionsForCurrentTimeStep()
 {
     // Remove previous intersection parts for static geometry. This is required to avoid the static parts to be rendered
     // in front of the dynamic geometry added in this function. Note that a new model is created for the dynamic geometry
-    m_vizModels.findOrCreate( "CrossSectionModel" )->removeAllParts();
+    m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::crossSectionModelName() );
 
     m_intersectionCollection->clearGeometry();
 
@@ -614,8 +613,7 @@ void RimGridView::appendIntersectionsForCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool propertyFiltersActive )
 {
-    auto* intersectionVizModel = m_vizModels.findOrCreate( "CrossSectionModel" );
-    intersectionVizModel->removeAllParts();
+    auto* intersectionVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::crossSectionModelName() );
     if ( m_intersectionCollection->isActive() )
     {
         m_intersectionCollection->clearGeometry();

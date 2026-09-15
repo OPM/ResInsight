@@ -1406,7 +1406,7 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
 {
     if ( !nativeOrOverrideViewer() ) return;
 
-    auto* highlightVizModel = m_vizModels.findOrCreate( "HighlightModel" );
+    auto* highlightVizModel = m_vizModels.findOrCreate( RivNamedVisualizationModels::highlightModelName() );
 
     nativeOrOverrideViewer()->removeStaticModel( highlightVizModel );
 
@@ -1766,8 +1766,7 @@ void Rim3dView::updateScreenSpaceModel()
 {
     if ( !m_viewer || !m_viewer->mainCamera() ) return;
 
-    auto* screenSpaceModel = m_vizModels.findOrCreate( "ScreenSpaceModel" );
-    screenSpaceModel->removeAllParts();
+    auto* screenSpaceModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::screenSpaceModelName() );
 
     // Build annotation parts and put into screen space model
     cvf::Collection<cvf::Part> partCollection;

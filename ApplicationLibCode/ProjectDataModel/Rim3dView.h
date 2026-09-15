@@ -97,10 +97,6 @@ public:
 
     int id() const final;
 
-    // Names for models in m_vizModels
-    static const char* wellPathPipeModelName() { return "WellPathPipeModel"; }
-    static const char* seismicSectionModelName() { return "SeismicSectionModel"; }
-
     // Public fields:
 
     caf::PdmField<bool> isPerspectiveView;

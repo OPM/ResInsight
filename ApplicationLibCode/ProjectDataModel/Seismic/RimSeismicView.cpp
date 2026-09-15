@@ -244,9 +244,8 @@ void RimSeismicView::onCreateDisplayModel()
 
     // Seismic sections
 
-    cvf::ref<caf::DisplayCoordTransform> transform       = displayCoordTransform();
-    auto*                                seismicVizModel = m_vizModels.findOrCreate( Rim3dView::seismicSectionModelName() );
-    seismicVizModel->removeAllParts();
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
+    auto* seismicVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::seismicSectionModelName() );
 
     if ( m_polylinePartMgr.isNull() ) m_polylinePartMgr = new RivPolylinePartMgr( this, this, this );
     m_polylinePartMgr->appendDynamicGeometryPartsToModel( seismicVizModel, transform.p(), domainBoundingBox() );
@@ -257,15 +256,13 @@ void RimSeismicView::onCreateDisplayModel()
 
     // Well path model
 
-    auto* wellPathPipeVizModel = m_vizModels.findOrCreate( Rim3dView::wellPathPipeModelName() );
-    wellPathPipeVizModel->removeAllParts();
+    auto* wellPathPipeVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::wellPathPipeModelName() );
     addWellPathsToModel( wellPathPipeVizModel, domainBoundingBox(), m_seismicData->inlineSpacing() );
     nativeOrOverrideViewer()->addStaticModelOnce( wellPathPipeVizModel, isUsingOverrideViewer() );
 
     // Surfaces
 
-    auto* surfaceVizModel = m_vizModels.findOrCreate( "SurfaceModel" );
-    surfaceVizModel->removeAllParts();
+    auto* surfaceVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::surfaceModelName() );
     if ( m_surfaceCollection )
     {
         bool nativeOnly = true;

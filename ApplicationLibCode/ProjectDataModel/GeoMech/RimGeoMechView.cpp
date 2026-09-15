@@ -306,8 +306,7 @@ void RimGeoMechView::onCreateDisplayModel()
 
     cvf::BoundingBox femBBox = femParts()->boundingBox();
 
-    auto* wellPathPipeVizModel = m_vizModels.findOrCreate( Rim3dView::wellPathPipeModelName() );
-    wellPathPipeVizModel->removeAllParts();
+    auto* wellPathPipeVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::wellPathPipeModelName() );
     addWellPathsToModel( wellPathPipeVizModel, femBBox, ownerCase()->characteristicCellSize() );
 
     nativeOrOverrideViewer()->addStaticModelOnce( wellPathPipeVizModel, isUsingOverrideViewer() );
@@ -318,9 +317,8 @@ void RimGeoMechView::onCreateDisplayModel()
 
     // Seismic sections
 
-    cvf::ref<caf::DisplayCoordTransform> transform       = displayCoordTransform();
-    auto*                                seismicVizModel = m_vizModels.findOrCreate( Rim3dView::seismicSectionModelName() );
-    seismicVizModel->removeAllParts();
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
+    auto* seismicVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::seismicSectionModelName() );
     m_seismicSectionCollection->appendPartsToModel( this, seismicVizModel, transform.p(), femBBox );
     nativeOrOverrideViewer()->addStaticModelOnce( seismicVizModel, isUsingOverrideViewer() );
 
@@ -329,8 +327,7 @@ void RimGeoMechView::onCreateDisplayModel()
 
     // Surfaces
 
-    auto* surfaceVizModel = m_vizModels.findOrCreate( "SurfaceModel" );
-    surfaceVizModel->removeAllParts();
+    auto* surfaceVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::surfaceModelName() );
     if ( m_surfaceCollection )
     {
         m_surfaceCollection->appendPartsToModel( surfaceVizModel, scaleTransform() );

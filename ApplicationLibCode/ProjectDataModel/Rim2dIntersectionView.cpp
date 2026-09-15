@@ -537,16 +537,18 @@ void Rim2dIntersectionView::onCreateDisplayModel()
         if ( settingsView && ownerCase() )
         {
             m_flatWellpathPartMgr = new RivWellPathPartMgr( m_intersection->wellPath(), settingsView );
-            m_flatWellpathPartMgr->appendFlattenedStaticGeometryPartsToModel( m_vizModels.findOrCreate( "IntersectionModel" ),
+            m_flatWellpathPartMgr->appendFlattenedStaticGeometryPartsToModel( m_vizModels.findOrCreate(
+                                                                                  RivNamedVisualizationModels::intersectionModelName() ),
                                                                               displayCoordTransform().p(),
                                                                               ownerCase()->characteristicCellSize(),
                                                                               ownerCase()->activeCellsBoundingBox() );
         }
     }
 
-    nativeOrOverrideViewer()->addStaticModelOnce( m_vizModels.findOrCreate( "IntersectionModel" ), isUsingOverrideViewer() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_vizModels.findOrCreate( RivNamedVisualizationModels::intersectionModelName() ),
+                                                  isUsingOverrideViewer() );
 
-    m_vizModels.findOrCreate( "IntersectionModel" )->updateBoundingBoxesRecursive();
+    m_vizModels.findOrCreate( RivNamedVisualizationModels::intersectionModelName() )->updateBoundingBoxesRecursive();
 
     if ( viewer() )
     {
@@ -828,8 +830,7 @@ void Rim2dIntersectionView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTree
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::appendIntersectionToModel( bool cellFiltersActive, bool propertyFiltersActive )
 {
-    auto* intersectionVizModel = m_vizModels.findOrCreate( "IntersectionModel" );
-    intersectionVizModel->removeAllParts();
+    auto* intersectionVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::intersectionModelName() );
 
     RimEclipseView* eclView = m_intersection->firstAncestorOrThisOfType<RimEclipseView>();
     RimGeoMechView* geoView = m_intersection->firstAncestorOrThisOfType<RimGeoMechView>();

@@ -796,21 +796,18 @@ void RimEclipseView::onCreateDisplayModel()
     appendIntersectionsToModel( cellFiltersActive, propertyFiltersActive );
 
     // Seismic sections
-    cvf::ref<caf::DisplayCoordTransform> transform       = displayCoordTransform();
-    auto*                                seismicVizModel = m_vizModels.findOrCreate( Rim3dView::seismicSectionModelName() );
-    seismicVizModel->removeAllParts();
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
+    auto* seismicVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::seismicSectionModelName() );
     m_seismicSectionCollection->appendPartsToModel( this, seismicVizModel, transform.p(), ownerCase()->allCellsBoundingBox() );
     nativeOrOverrideViewer()->addStaticModelOnce( seismicVizModel, isUsingOverrideViewer() );
 
     // Fault reactivation models
-    auto* faultReactVizModel = m_vizModels.findOrCreate( "FaultReactModel" );
-    faultReactVizModel->removeAllParts();
+    auto* faultReactVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::faultReactivationModelName() );
     m_faultReactivationModelCollection->appendPartsToModel( this, faultReactVizModel, transform.p(), ownerCase()->allCellsBoundingBox() );
     nativeOrOverrideViewer()->addStaticModelOnce( faultReactVizModel, isUsingOverrideViewer() );
 
     // Refinement region preview boxes
-    auto* refinementRegionsVizModel = m_vizModels.findOrCreate( "RefinementRegionsModel" );
-    refinementRegionsVizModel->removeAllParts();
+    auto* refinementRegionsVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::refinementRegionsModelName() );
     m_refinementRegionPartManager->buildGeometry( refinementRegionCollection(), eclipseCase(), transform.p() );
     m_refinementRegionPartManager->appendStaticPartsToModel( refinementRegionsVizModel );
     m_refinementRegionPartManager->updateCellResultColor( m_currentTimeStep, cellResult() );
@@ -818,8 +815,7 @@ void RimEclipseView::onCreateDisplayModel()
     nativeOrOverrideViewer()->addStaticModelOnce( refinementRegionsVizModel, isUsingOverrideViewer() );
 
     // Surfaces
-    auto* surfaceVizModel = m_vizModels.findOrCreate( "SurfaceModel" );
-    surfaceVizModel->removeAllParts();
+    auto* surfaceVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::surfaceModelName() );
     if ( surfaceInViewCollection() )
     {
         surfaceInViewCollection()->appendPartsToModel( surfaceVizModel, m_reservoirGridPartManager->scaleTransform() );
@@ -830,8 +826,7 @@ void RimEclipseView::onCreateDisplayModel()
     appendPolygonPartsToModel( transform.p(), ownerCase()->allCellsBoundingBox() );
 
     // Well path model
-    auto* wellPathPipeVizModel = m_vizModels.findOrCreate( Rim3dView::wellPathPipeModelName() );
-    wellPathPipeVizModel->removeAllParts();
+    auto* wellPathPipeVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::wellPathPipeModelName() );
 
     // NB! StimPlan legend colors must be updated before well path geometry is added to the model
     // as the fracture geometry depends on the StimPlan legend colors
@@ -965,8 +960,7 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     if ( surfaceInViewCollection() )
     {
-        auto* surfaceVizModel = m_vizModels.findOrCreate( "SurfaceModel" );
-        surfaceVizModel->removeAllParts();
+        auto* surfaceVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::surfaceModelName() );
 
         surfaceInViewCollection()->loadData( currentTimeStep() );
         surfaceInViewCollection()->appendPartsToModel( surfaceVizModel, m_reservoirGridPartManager->scaleTransform() );
