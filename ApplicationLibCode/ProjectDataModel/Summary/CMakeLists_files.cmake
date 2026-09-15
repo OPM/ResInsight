@@ -57,6 +57,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryEnsembleTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseUpdateBatch.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotReadOut.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotTools.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

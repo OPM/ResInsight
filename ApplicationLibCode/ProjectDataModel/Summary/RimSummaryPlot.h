@@ -207,6 +207,9 @@ public:
     RimPlotAxisProperties*          addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
     RimPlotAxisProperties*          addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name );
     void                            findOrAssignPlotAxisX( RimSummaryCurve* curve );
+    void                            assignPlotAxis( RimEnsembleCurveSet* curveSet );
+
+    static RiuPlotAxis plotAxisForTime();
 
     std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
 
@@ -303,8 +306,6 @@ private:
 
     void ensureRequiredAxisObjectsForCurves();
     void assignPlotAxis( RimSummaryCurve* curve );
-    void assignYPlotAxis( RimSummaryCurve* curve );
-    void assignXPlotAxis( RimSummaryCurve* curve );
 
     RimSummaryCurve* addNewCurve( const RifEclipseSummaryAddress& address,
                                   RimSummaryCase*                 summaryCase,
@@ -323,8 +324,6 @@ private:
     CurveInfo handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
 
     bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
-
-    static RiuPlotAxis plotAxisForTime();
 
 private:
     caf::PdmField<bool> m_normalizeCurveYValues;

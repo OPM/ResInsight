@@ -163,11 +163,17 @@ RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findCurveSetFromPlotCurve( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::addCurveSet( RimEnsembleCurveSet* curveSet )
+void RimEnsembleCurveSetCollection::addCurveSet( RimEnsembleCurveSet* curveSet, bool autoAssignPlotAxis )
 {
     if ( curveSet )
     {
         m_curveSets.push_back( curveSet );
+
+        if ( autoAssignPlotAxis )
+        {
+            auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
+            if ( plot ) plot->assignPlotAxis( curveSet );
+        }
     }
 }
 

@@ -50,7 +50,7 @@ public:
     RimSummaryCurve*     findRimCurveFromPlotCurve( const RiuPlotCurve* qwtCurve ) const;
     RimEnsembleCurveSet* findCurveSetFromPlotCurve( const RiuPlotCurve* qwtCurve ) const;
 
-    void addCurveSet( RimEnsembleCurveSet* curveSet );
+    void addCurveSet( RimEnsembleCurveSet* curveSet, bool autoAssignPlotAxis = true );
     void deleteCurveSet( RimEnsembleCurveSet* curveSet );
     void deleteCurveSets( const std::vector<RimEnsembleCurveSet*> curveSets );
 

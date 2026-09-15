@@ -54,6 +54,7 @@
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryPlotTextProvider.h"
+#include "RimSummaryPlotTools.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "Summary/RiaSummaryAddressCollectionTools.h"
 #include "Summary/RiaSummaryCurveDefinition.h"
@@ -61,7 +62,6 @@
 #include "Summary/RiaSummaryPlotTools.h"
 #include "Summary/RiaSummaryTools.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
-#include "Tools/RimPlotAxisTools.h"
 
 #include "RiuAbstractOverlayContentFrame.h"
 #include "RiuDraggableOverlayFrame.h"
@@ -3092,265 +3092,16 @@ std::vector<RimPlotAxisProperties*> RimSummaryPlot::plotAxes( RimPlotAxisPropert
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
 {
-    assignXPlotAxis( destinationCurve );
-    assignYPlotAxis( destinationCurve );
+    RimSummaryPlotTools::assignXPlotAxis( this, allPlotAxes(), destinationCurve );
+    RimSummaryPlotTools::assignYPlotAxis( this, allPlotAxes(), destinationCurve );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-auto countAxes = []( const std::vector<RimPlotAxisPropertiesInterface*>& axes, RiaDefines::PlotAxis axis )
-{ return std::count_if( axes.begin(), axes.end(), [axis]( const auto& ap ) { return ap->plotAxis().axis() == axis; } ); };
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
+void RimSummaryPlot::assignPlotAxis( RimEnsembleCurveSet* curveSet )
 {
-    enum class AxisAssignmentStrategy
-    {
-        ALTERNATING,
-        USE_MATCHING_UNIT,
-        USE_MATCHING_VECTOR
-    };
-
-    auto strategy = AxisAssignmentStrategy::USE_MATCHING_UNIT;
-
-    auto destinationUnit = RiaStdStringTools::toUpper( curve->unitNameY() );
-    if ( destinationUnit.empty() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
-
-    auto anyCurveWithUnitText = [this, curve]
-    {
-        for ( auto c : summaryCurves() )
-        {
-            if ( c == curve ) continue;
-
-            if ( !c->unitNameY().empty() ) return true;
-        }
-
-        return false;
-    };
-
-    if ( !anyCurveWithUnitText() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
-
-    if ( strategy == AxisAssignmentStrategy::USE_MATCHING_VECTOR )
-    {
-        // Special handling if curve unit is matching. Try to match on summary vector name to avoid creation of new axis
-
-        for ( auto c : summaryCurves() )
-        {
-            if ( c == curve ) continue;
-
-            auto incomingAxisText = RimPlotAxisTools::axisTextForAddress( curve->summaryAddressY() );
-            auto currentAxisText  = RimPlotAxisTools::axisTextForAddress( c->summaryAddressY() );
-            if ( incomingAxisText == currentAxisText )
-            {
-                curve->setLeftOrRightAxisY( c->axisY() );
-                return;
-            }
-        }
-    }
-    else if ( strategy == AxisAssignmentStrategy::USE_MATCHING_UNIT )
-    {
-        for ( auto c : summaryCurves() )
-        {
-            if ( c == curve ) continue;
-
-            auto currentUnit = RiaStdStringTools::toUpper( c->unitNameY() );
-            if ( currentUnit == destinationUnit )
-            {
-                for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
-                {
-                    if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
-                         axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-                    {
-                        curve->setLeftOrRightAxisY( c->axisY() );
-
-                        return;
-                    }
-                }
-            }
-        }
-
-        strategy = AxisAssignmentStrategy::ALTERNATING;
-    }
-
-    auto isDefaultLeftAndRightUsed = [this]( RimSummaryCurve* currentCurve ) -> std::pair<bool, bool>
-    {
-        bool defaultLeftUsed  = false;
-        bool defaultRightUsed = false;
-
-        for ( auto c : summaryCurves() )
-        {
-            if ( c == currentCurve ) continue;
-
-            if ( c->axisY() == RiuPlotAxis::defaultLeft() ) defaultLeftUsed = true;
-            if ( c->axisY() == RiuPlotAxis::defaultRight() ) defaultRightUsed = true;
-        }
-
-        return std::make_pair( defaultLeftUsed, defaultRightUsed );
-    };
-
-    auto [defaultLeftUsed, defaultRightUsed] = isDefaultLeftAndRightUsed( curve );
-    if ( !defaultLeftUsed )
-    {
-        curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
-        return;
-    }
-
-    if ( !defaultRightUsed )
-    {
-        curve->setLeftOrRightAxisY( RiuPlotAxis::defaultRight() );
-        return;
-    }
-
-    RiaDefines::PlotAxis plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
-    if ( strategy == AxisAssignmentStrategy::ALTERNATING )
-    {
-        size_t axisCountLeft  = countAxes( m_axisPropertiesArray.childrenByType(), RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-        size_t axisCountRight = countAxes( m_axisPropertiesArray.childrenByType(), RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
-
-        if ( axisCountLeft > axisCountRight ) plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
-    }
-
-    if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
-    {
-        auto newPlotAxis = plotWidget()->createNextPlotAxis( plotAxisType );
-        addNewAxisProperties( newPlotAxis, "New Axis" );
-
-        curve->setLeftOrRightAxisY( newPlotAxis );
-        return;
-    }
-
-    // If we get here, we have no more axes to assign to, use left axis as fallback
-    curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::assignXPlotAxis( RimSummaryCurve* curve )
-{
-    RiuPlotAxis newPlotAxis = RimSummaryPlot::plotAxisForTime();
-
-    if ( curve->axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
-    {
-        enum class AxisAssignmentStrategy
-        {
-            ALL_TOP,
-            ALL_BOTTOM,
-            ALTERNATING,
-            USE_MATCHING_UNIT,
-            USE_MATCHING_VECTOR
-        };
-
-        auto strategy = AxisAssignmentStrategy::USE_MATCHING_UNIT;
-
-        auto destinationUnit = RiaStdStringTools::toUpper( curve->unitNameX() );
-        if ( destinationUnit.empty() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
-
-        auto anyCurveWithUnitText = [this, curve]
-        {
-            for ( auto c : summaryCurves() )
-            {
-                if ( c == curve ) continue;
-
-                if ( !c->unitNameX().empty() ) return true;
-            }
-
-            return false;
-        };
-
-        if ( !anyCurveWithUnitText() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
-
-        if ( strategy == AxisAssignmentStrategy::USE_MATCHING_VECTOR )
-        {
-            // Special handling if curve unit is matching. Try to match on summary vector name to avoid creation of new axis
-
-            for ( auto c : summaryCurves() )
-            {
-                if ( c == curve ) continue;
-
-                auto incomingAxisText = RimPlotAxisTools::axisTextForAddress( curve->summaryAddressY() );
-                auto currentAxisText  = RimPlotAxisTools::axisTextForAddress( c->summaryAddressY() );
-                if ( incomingAxisText == currentAxisText )
-                {
-                    curve->setTopOrBottomAxisX( c->axisX() );
-                    return;
-                }
-            }
-        }
-        else if ( strategy == AxisAssignmentStrategy::USE_MATCHING_UNIT )
-        {
-            bool isTopUsed    = false;
-            bool isBottomUsed = false;
-
-            for ( auto c : summaryCurves() )
-            {
-                if ( c == curve ) continue;
-
-                if ( c->axisX() == RiuPlotAxis::defaultTop() ) isTopUsed = true;
-                if ( c->axisX() == RiuPlotAxis::defaultBottomForSummaryVectors() ) isBottomUsed = true;
-
-                auto currentUnit = RiaStdStringTools::toUpper( c->unitNameX() );
-
-                if ( currentUnit == destinationUnit )
-                {
-                    for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
-                    {
-                        if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_TOP ||
-                             axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
-                        {
-                            curve->setTopOrBottomAxisX( c->axisX() );
-
-                            return;
-                        }
-                    }
-                }
-            }
-
-            if ( !isTopUsed )
-            {
-                curve->setTopOrBottomAxisX( RiuPlotAxis::defaultTop() );
-                return;
-            }
-
-            if ( !isBottomUsed )
-            {
-                curve->setTopOrBottomAxisX( RiuPlotAxis::defaultBottomForSummaryVectors() );
-                return;
-            }
-
-            strategy = AxisAssignmentStrategy::ALTERNATING;
-        }
-
-        RiaDefines::PlotAxis plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_TOP;
-
-        if ( strategy == AxisAssignmentStrategy::ALTERNATING )
-        {
-            size_t axisCountTop = countAxes( m_axisPropertiesArray.childrenByType(), RiaDefines::PlotAxis::PLOT_AXIS_TOP );
-            size_t axisCountBot = countAxes( m_axisPropertiesArray.childrenByType(), RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
-
-            if ( axisCountTop > axisCountBot ) plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
-        }
-        else if ( strategy == AxisAssignmentStrategy::ALL_TOP )
-        {
-            plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_TOP;
-        }
-        else if ( strategy == AxisAssignmentStrategy::ALL_BOTTOM )
-        {
-            plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
-        }
-
-        RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultBottomForSummaryVectors();
-        if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
-        {
-            newPlotAxis = plotWidget()->createNextPlotAxis( plotAxisType );
-            addNewAxisProperties( newPlotAxis, "New Axis" );
-        }
-    }
-
-    curve->setTopOrBottomAxisX( newPlotAxis );
+    RimSummaryPlotTools::assignYPlotAxis( this, allPlotAxes(), curveSet );
 }
 
 //--------------------------------------------------------------------------------------------------
