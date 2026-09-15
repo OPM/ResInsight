@@ -71,9 +71,6 @@ RimSeismicView::RimSeismicView()
 
     m_scaleTransform = new cvf::Transform();
 
-    m_surfaceVizModel = new cvf::ModelBasicList;
-    m_surfaceVizModel->setName( "SurfaceModel" );
-
     setDeletable( true );
 }
 
@@ -247,30 +244,33 @@ void RimSeismicView::onCreateDisplayModel()
 
     // Seismic sections
 
-    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
-    m_seismicVizModel->removeAllParts();
+    cvf::ref<caf::DisplayCoordTransform> transform       = displayCoordTransform();
+    auto*                                seismicVizModel = m_vizModels.findOrCreate( Rim3dView::seismicSectionModelName() );
+    seismicVizModel->removeAllParts();
 
     if ( m_polylinePartMgr.isNull() ) m_polylinePartMgr = new RivPolylinePartMgr( this, this, this );
-    m_polylinePartMgr->appendDynamicGeometryPartsToModel( m_seismicVizModel.p(), transform.p(), domainBoundingBox() );
+    m_polylinePartMgr->appendDynamicGeometryPartsToModel( seismicVizModel, transform.p(), domainBoundingBox() );
 
-    m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), domainBoundingBox() );
-    mainScene->addModel( m_seismicVizModel.p() );
+    m_seismicSectionCollection->appendPartsToModel( this, seismicVizModel, transform.p(), domainBoundingBox() );
+    mainScene->addModel( seismicVizModel );
     nativeOrOverrideViewer()->setMainScene( mainScene.p(), isUsingOverrideViewer() );
 
     // Well path model
 
-    m_wellPathPipeVizModel->removeAllParts();
-    addWellPathsToModel( m_wellPathPipeVizModel.p(), domainBoundingBox(), m_seismicData->inlineSpacing() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_wellPathPipeVizModel.p(), isUsingOverrideViewer() );
+    auto* wellPathPipeVizModel = m_vizModels.findOrCreate( Rim3dView::wellPathPipeModelName() );
+    wellPathPipeVizModel->removeAllParts();
+    addWellPathsToModel( wellPathPipeVizModel, domainBoundingBox(), m_seismicData->inlineSpacing() );
+    nativeOrOverrideViewer()->addStaticModelOnce( wellPathPipeVizModel, isUsingOverrideViewer() );
 
     // Surfaces
 
-    m_surfaceVizModel->removeAllParts();
+    auto* surfaceVizModel = m_vizModels.findOrCreate( "SurfaceModel" );
+    surfaceVizModel->removeAllParts();
     if ( m_surfaceCollection )
     {
         bool nativeOnly = true;
-        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), scaleTransform(), nativeOnly );
-        nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
+        m_surfaceCollection->appendPartsToModel( surfaceVizModel, scaleTransform(), nativeOnly );
+        nativeOrOverrideViewer()->addStaticModelOnce( surfaceVizModel, isUsingOverrideViewer() );
     }
 
     // Annotations

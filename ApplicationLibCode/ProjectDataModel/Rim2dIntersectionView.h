@@ -116,7 +116,6 @@ private:
     cvf::ref<RivSimWellPipesPartMgr>              m_flatSimWellPipePartMgr;
     cvf::ref<RivWellHeadPartMgr>                  m_flatWellHeadPartMgr;
     cvf::ref<RivWellPathPartMgr>                  m_flatWellpathPartMgr;
-    cvf::ref<cvf::ModelBasicList>                 m_intersectionVizModel;
     cvf::ref<cvf::Transform>                      m_scaleTransform;
 
     caf::PdmProxyValueField<QString> m_nameProxy;

@@ -92,8 +92,7 @@ private:
 
     caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData;
 
-    cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
-    cvf::ref<RivPolylinePartMgr>  m_polylinePartMgr;
+    cvf::ref<RivPolylinePartMgr> m_polylinePartMgr;
 
     cvf::ref<cvf::Transform> m_scaleTransform;
 };

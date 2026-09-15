@@ -110,10 +110,6 @@ protected:
     virtual void calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep = 0 ) = 0;
 
 protected:
-    cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
-    cvf::ref<cvf::ModelBasicList> m_intersectionVizModel;
-    cvf::ref<cvf::ModelBasicList> m_polygonVizModel;
-
     // Fields
     caf::PdmChildField<RimIntersectionCollection*> m_intersectionCollection;
 
