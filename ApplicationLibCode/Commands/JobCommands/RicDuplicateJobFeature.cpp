@@ -20,6 +20,7 @@
 
 #include "RicNewOpmFlowJobFeature.h"
 
+#include "Jobs/RimEnsembleJob.h"
 #include "Jobs/RimJobCollection.h"
 #include "Jobs/RimOpmFlowJob.h"
 #include "RimTools.h"
@@ -52,12 +53,27 @@ void RicDuplicateJobFeature::onActionTriggered( bool isChecked )
         {
             copiedJob->setWorkingDirectory( workDir );
             copiedJob->setName( job->name() + " (copy)" );
-            copiedJob->initAfterCopy();
 
             auto jobColl = RimTools::jobCollection();
             jobColl->addNewJob( copiedJob );
 
             copiedJob->resolveReferencesRecursively();
+            copiedJob->initAfterCopy();
+
+            Riu3DMainWindowTools::selectAsCurrentItem( copiedJob );
+        }
+    }
+    else if ( auto job = dynamic_cast<RimEnsembleJob*>( caf::SelectionManager::instance()->selectedItem() ) )
+    {
+        if ( auto copiedJob = job->copyObject<RimEnsembleJob>() )
+        {
+            copiedJob->setName( job->name() + " (copy)" );
+
+            auto jobColl = RimTools::jobCollection();
+            jobColl->addNewJob( copiedJob );
+
+            copiedJob->resolveReferencesRecursively();
+            copiedJob->initAfterCopy();
 
             Riu3DMainWindowTools::selectAsCurrentItem( copiedJob );
         }

@@ -74,6 +74,7 @@ RimEnsembleJob::RimEnsembleJob()
 
     CAF_PDM_InitField( &m_outputIterationNumber, "OutputIterationNumber", 0, "Output Iteration Number" );
     CAF_PDM_InitFieldNoDefault( &m_subJobs, "SubJobs", "Jobs" );
+    m_subJobs.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_jobSettings, "JobSettings", "Opm Flow Settings" );
     m_jobSettings = RiaPreferencesOpm::current()->createDefaultJobSettings();
@@ -107,6 +108,16 @@ RimEnsembleJob::RimEnsembleJob()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleJob::~RimEnsembleJob()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleJob::initAfterCopy()
+{
+    m_outputEnsembleFileSet = nullptr;
+    m_subJobs.deleteChildren();
+    m_expectedOutputFiles.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,8 +241,11 @@ bool RimEnsembleJob::execute()
 
     for ( auto& real : realizations )
     {
-        qDebug() << real.inputCase->uiName() << "Input Deck: " << QString::fromStdString( real.realizationInputDeckName )
-                 << "Output Dir: " << QString::fromStdString( real.realizationOutputDir );
+        std::string infoText = std::format( "Case {}: Input deck {} to output folder: {} ",
+                                            real.inputCase->uiName().toStdString(),
+                                            real.realizationInputDeckName,
+                                            real.realizationOutputDir );
+        RiaLogging::info( infoText );
 
         RimOpmFlowJob* subJob = new RimOpmFlowJob();
         subJob->setEclipseCase( real.inputCase );

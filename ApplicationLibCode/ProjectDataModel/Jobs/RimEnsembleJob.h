@@ -56,6 +56,8 @@ public:
     void setFinished( bool runOk ) override;
     void setStarted() override;
 
+    void initAfterCopy();
+
 protected:
     struct RealizationInfo
     {
