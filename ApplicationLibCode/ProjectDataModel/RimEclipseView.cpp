@@ -266,12 +266,6 @@ RimEclipseView::RimEclipseView()
     setDeletable( true );
 
     updateAnimations.connect( this, &RimEclipseView::onAnimationsUpdate );
-
-    m_faultReactVizModel = new cvf::ModelBasicList;
-    m_faultReactVizModel->setName( "FaultReactModel" );
-
-    m_refinementRegionsVizModel = new cvf::ModelBasicList;
-    m_refinementRegionsVizModel->setName( "RefinementRegionsModel" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -803,47 +797,46 @@ void RimEclipseView::onCreateDisplayModel()
 
     // Seismic sections
     cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
-    m_seismicVizModel->removeAllParts();
-    m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), ownerCase()->allCellsBoundingBox() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
+    auto* seismicVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::seismicSectionModelName() );
+    m_seismicSectionCollection->appendPartsToModel( this, seismicVizModel, transform.p(), ownerCase()->allCellsBoundingBox() );
+    nativeOrOverrideViewer()->addStaticModelOnce( seismicVizModel, isUsingOverrideViewer() );
 
     // Fault reactivation models
-
-    m_faultReactVizModel->removeAllParts();
-    m_faultReactivationModelCollection->appendPartsToModel( this, m_faultReactVizModel.p(), transform.p(), ownerCase()->allCellsBoundingBox() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_faultReactVizModel.p(), isUsingOverrideViewer() );
+    auto* faultReactVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::faultReactivationModelName() );
+    m_faultReactivationModelCollection->appendPartsToModel( this, faultReactVizModel, transform.p(), ownerCase()->allCellsBoundingBox() );
+    nativeOrOverrideViewer()->addStaticModelOnce( faultReactVizModel, isUsingOverrideViewer() );
 
     // Refinement region preview boxes
-    m_refinementRegionsVizModel->removeAllParts();
+    auto* refinementRegionsVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::refinementRegionsModelName() );
     m_refinementRegionPartManager->buildGeometry( refinementRegionCollection(), eclipseCase(), transform.p() );
-    m_refinementRegionPartManager->appendStaticPartsToModel( m_refinementRegionsVizModel.p() );
+    m_refinementRegionPartManager->appendStaticPartsToModel( refinementRegionsVizModel );
     m_refinementRegionPartManager->updateCellResultColor( m_currentTimeStep, cellResult() );
-    m_refinementRegionsVizModel->updateBoundingBoxesRecursive();
-    nativeOrOverrideViewer()->addStaticModelOnce( m_refinementRegionsVizModel.p(), isUsingOverrideViewer() );
+    refinementRegionsVizModel->updateBoundingBoxesRecursive();
+    nativeOrOverrideViewer()->addStaticModelOnce( refinementRegionsVizModel, isUsingOverrideViewer() );
 
     // Surfaces
-    m_surfaceVizModel->removeAllParts();
+    auto* surfaceVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::surfaceModelName() );
     if ( surfaceInViewCollection() )
     {
-        surfaceInViewCollection()->appendPartsToModel( m_surfaceVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
-        nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
+        surfaceInViewCollection()->appendPartsToModel( surfaceVizModel, m_reservoirGridPartManager->scaleTransform() );
+        nativeOrOverrideViewer()->addStaticModelOnce( surfaceVizModel, isUsingOverrideViewer() );
     }
 
     // Polygons
     appendPolygonPartsToModel( transform.p(), ownerCase()->allCellsBoundingBox() );
 
     // Well path model
-    m_wellPathPipeVizModel->removeAllParts();
+    auto* wellPathPipeVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::wellPathPipeModelName() );
 
     // NB! StimPlan legend colors must be updated before well path geometry is added to the model
     // as the fracture geometry depends on the StimPlan legend colors
     fractureColors()->updateLegendData();
 
-    addWellPathsToModel( m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox(), ownerCase()->characteristicCellSize() );
+    addWellPathsToModel( wellPathPipeVizModel, currentActiveCellInfo()->geometryBoundingBox(), ownerCase()->characteristicCellSize() );
 
-    m_wellPathsPartManager->appendStaticFracturePartsToModel( m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox() );
-    m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
-    nativeOrOverrideViewer()->addStaticModelOnce( m_wellPathPipeVizModel.p(), isUsingOverrideViewer() );
+    m_wellPathsPartManager->appendStaticFracturePartsToModel( wellPathPipeVizModel, currentActiveCellInfo()->geometryBoundingBox() );
+    wellPathPipeVizModel->updateBoundingBoxesRecursive();
+    nativeOrOverrideViewer()->addStaticModelOnce( wellPathPipeVizModel, isUsingOverrideViewer() );
 
     // Create Scenes from the frameModels
     // Animation frames for results display, starts from frame 1
@@ -967,10 +960,10 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     if ( surfaceInViewCollection() )
     {
-        m_surfaceVizModel->removeAllParts();
+        auto* surfaceVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::surfaceModelName() );
 
         surfaceInViewCollection()->loadData( currentTimeStep() );
-        surfaceInViewCollection()->appendPartsToModel( m_surfaceVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
+        surfaceInViewCollection()->appendPartsToModel( surfaceVizModel, m_reservoirGridPartManager->scaleTransform() );
     }
 
     updateVisibleCellColors();
