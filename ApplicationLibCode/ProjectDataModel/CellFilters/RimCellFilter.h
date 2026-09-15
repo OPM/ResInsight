@@ -79,6 +79,7 @@ public:
     virtual bool isFilterEnabled() const;
 
     caf::AppEnum<FilterModeType> filterMode() const;
+    void                         setFilterMode( FilterModeType filterMode );
     QString                      modeString() const;
 
     bool propagateToSubGrids() const;
@@ -97,7 +98,13 @@ public:
     // Unified evaluation: take an incoming per-cell visibility mask and hide the cells that
     // this filter rejects (respecting its own INCLUDE/EXCLUDE mode). The default implementation
     // bridges the legacy range/index dispatch so existing subclasses do not need to override.
-    virtual void applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex );
+    // When sourceCaseOverride is set, property filters evaluate against that case's results instead
+    // of the case the filter is bound to, allowing the same filter definition to be evaluated
+    // against each case in an ensemble.
+    virtual void applyToCellVisibility( cvf::UByteArray*   cellVisibility,
+                                        const RigGridBase* grid,
+                                        size_t             timeStepIndex,
+                                        RimEclipseCase*    sourceCaseOverride = nullptr );
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;

@@ -19,7 +19,6 @@
 #pragma once
 
 #include "RiaPorosityModel.h"
-#include "RimEclipseCaseEnsemble.h"
 #include "RimGridCalculationVariable.h"
 #include "RimUserDefinedCalculation.h"
 
@@ -30,11 +29,13 @@
 
 #include <optional>
 
+class RimCellFilter;
 class RimEclipseCase;
 class RimGridView;
 class RigEclipseResultAddress;
 class RimEclipseResultAddress;
 class RimIdenticalGridCaseGroup;
+class RimReservoirGridEnsemble;
 class RigActiveCellInfo;
 
 //==================================================================================================
@@ -59,6 +60,13 @@ public:
         GRID_CASE_GROUP,
         ENSEMBLE,
         ALL_CASES
+    };
+
+    enum class FilterType
+    {
+        NO_FILTER,
+        CELL_FILTER_VIEW,
+        DATA_FILTER
     };
 
     RimGridCalculation();
@@ -86,6 +94,8 @@ public:
 
     RimGridCalculationVariable* createVariable() override;
 
+    static size_t replaceInvalidValuesWithDefaultValue( double defaultValue, std::vector<double>& values );
+
 protected:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
@@ -104,7 +114,7 @@ protected:
                                              RimEclipseCase*                 sourceCase,
                                              RimEclipseCase*                 destinationCase ) const;
 
-    void filterResults( RimGridView*                            cellFilterView,
+    void filterResults( cvf::UByteArray*                        visibility,
                         const std::vector<std::vector<double>>& values,
                         size_t                                  timeStep,
                         RimGridCalculation::DefaultValueType    defaultValueType,
@@ -118,10 +128,10 @@ protected:
                                                  std::vector<double>&       resultValues,
                                                  RigActiveCellInfo*         activeCellInfo );
 
-    static void replaceFilteredValuesWithDefaultValue( double                    defaultValue,
-                                                       cvf::ref<cvf::UByteArray> visibility,
-                                                       std::vector<double>&      resultValues,
-                                                       RigActiveCellInfo*        activeCellInfo );
+    static size_t replaceFilteredValuesWithDefaultValue( double                    defaultValue,
+                                                         cvf::ref<cvf::UByteArray> visibility,
+                                                         std::vector<double>&      resultValues,
+                                                         RigActiveCellInfo*        activeCellInfo );
 
     using DefaultValueConfig = std::pair<RimGridCalculation::DefaultValueType, double>;
     DefaultValueConfig defaultValueConfiguration() const;
@@ -131,23 +141,28 @@ protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    void onVariableUpdated( const SignalEmitter* emitter );
-    bool allSourceCasesAreEqualToDestinationCase() const;
-    void onEditNonVisibleResultAddressButtonPressed();
+    void            onVariableUpdated( const SignalEmitter* emitter );
+    RimEclipseCase* destinationCase() const;
+    bool            allSourceCasesAreEqualToDestinationCase() const;
+    void            onEditNonVisibleResultAddressButtonPressed();
 
     static std::pair<bool, QStringList> createStatisticsText( const std::vector<std::vector<double>>& values );
 
 private:
+    caf::PdmField<caf::AppEnum<FilterType>>       m_filterType;
     caf::PdmPtrField<RimGridView*>                m_cellFilterView;
+    caf::PdmPtrField<RimCellFilter*>              m_dataFilter;
     caf::PdmField<caf::AppEnum<DefaultValueType>> m_defaultValueType;
     caf::PdmField<double>                         m_defaultValue;
+    caf::PdmPtrField<RimReservoirGridEnsemble*>   m_destinationEnsemble;
     caf::PdmPtrField<RimEclipseCase*>             m_destinationCase;
 
     caf::PdmField<caf::AppEnum<AdditionalCasesType>> m_additionalCasesType;
     caf::PdmPtrField<RimIdenticalGridCaseGroup*>     m_additionalCaseGroup;
-    caf::PdmPtrField<RimEclipseCaseEnsemble*>        m_additionalEnsemble;
+    caf::PdmPtrField<RimReservoirGridEnsemble*>      m_additionalEnsemble;
 
     caf::PdmField<std::vector<int>> m_selectedTimeSteps;
 

@@ -59,7 +59,10 @@ public:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
 
-    void applyToCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex ) override;
+    void applyToCellVisibility( cvf::UByteArray*   cellVisibility,
+                                const RigGridBase* grid,
+                                size_t             timeStepIndex,
+                                RimEclipseCase*    sourceCaseOverride = nullptr ) override;
 
     void updateUiFieldsFromActiveResult();
 
@@ -83,6 +86,8 @@ private:
     void updateActiveState();
     void updateReadOnlyStateOfAllFields();
     void updateRangeLabel();
+    void updateBoundEditorTypes();
+    bool isEnsembleDataFilter() const;
     bool isPropertyFilterControlled();
     void setCategoriesFromTracerNames( const std::vector<QString>& tracerNames );
 

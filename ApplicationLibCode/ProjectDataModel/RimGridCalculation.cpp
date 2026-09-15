@@ -35,11 +35,14 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigStatisticsMath.h"
+#include "RigStatisticsTools.h"
 
 #include "RimCaseCollection.h"
+#include "RimCellFilter.h"
+#include "RimCellFilterTools.h"
+#include "RimDataFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
-#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultAddress.h"
@@ -51,6 +54,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
+#include "RimReservoirGridEnsemble.h"
 #include "RimResultSelectionUi.h"
 #include "RimTools.h"
 
@@ -61,6 +65,45 @@
 
 #include <QCheckBox>
 #include <QMessageBox>
+
+#include <set>
+
+namespace
+{
+class CloseCasesOpenedForCalculation
+{
+public:
+    explicit CloseCasesOpenedForCalculation( const std::vector<RimEclipseCase*>& cases )
+    {
+        for ( auto* eclipseCase : cases )
+        {
+            if ( eclipseCase && !eclipseCase->isReservoirCaseOpen() ) m_casesToClose.insert( eclipseCase );
+        }
+    }
+
+    ~CloseCasesOpenedForCalculation()
+    {
+        for ( auto* eclipseCase : m_casesToClose )
+        {
+            if ( eclipseCase->isReservoirCaseOpen() && eclipseCase->reservoirViews().empty() && eclipseCase->contourMapViews().empty() )
+            {
+                eclipseCase->closeReservoirCase();
+            }
+        }
+    }
+
+private:
+    std::set<RimEclipseCase*> m_casesToClose;
+};
+
+std::vector<RimEclipseCase*> sourceAndDestinationCases( const RimGridCalculation&           calculation,
+                                                        const std::vector<RimEclipseCase*>& destinationCases )
+{
+    auto cases = calculation.inputCases();
+    cases.insert( cases.end(), destinationCases.begin(), destinationCases.end() );
+    return cases;
+}
+} // namespace
 
 CAF_PDM_SOURCE_INIT( RimGridCalculation, "RimGridCalculation" );
 
@@ -83,6 +126,14 @@ void caf::AppEnum<RimGridCalculation::AdditionalCasesType>::setUp()
     addItem( RimGridCalculation::AdditionalCasesType::ALL_CASES, "ALL_CASES", "All Cases" );
     setDefault( RimGridCalculation::AdditionalCasesType::NONE );
 }
+template <>
+void caf::AppEnum<RimGridCalculation::FilterType>::setUp()
+{
+    addItem( RimGridCalculation::FilterType::NO_FILTER, "NO_FILTER", "None" );
+    addItem( RimGridCalculation::FilterType::CELL_FILTER_VIEW, "CELL_FILTER_VIEW", "Cell Filter View" );
+    addItem( RimGridCalculation::FilterType::DATA_FILTER, "DATA_FILTER", "Data Filter" );
+    setDefault( RimGridCalculation::FilterType::NO_FILTER );
+}
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -91,9 +142,12 @@ void caf::AppEnum<RimGridCalculation::AdditionalCasesType>::setUp()
 RimGridCalculation::RimGridCalculation()
 {
     CAF_PDM_InitObject( "RimGridCalculation", ":/octave.png", "Calculation", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterType, "FilterType", "Filter Type" );
     CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility" );
+    CAF_PDM_InitFieldNoDefault( &m_dataFilter, "DataFilter", "Data Filter" );
     CAF_PDM_InitFieldNoDefault( &m_defaultValueType, "DefaultValueType", "Non-visible Cell Value" );
     CAF_PDM_InitField( &m_defaultValue, "DefaultValue", 0.0, "Custom Value" );
+    CAF_PDM_InitFieldNoDefault( &m_destinationEnsemble, "DestinationEnsemble", "Destination Ensemble" );
     CAF_PDM_InitFieldNoDefault( &m_destinationCase, "DestinationCase", "Destination Case" );
 
     CAF_PDM_InitField( &m_applyToAllCases_OBSOLETE, "AllDestinationCase", false, "Apply to All Cases" );
@@ -173,10 +227,21 @@ RimGridCalculationVariable* RimGridCalculation::createVariable()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::calculate()
 {
+    CloseCasesOpenedForCalculation closeCasesWhenFinished( sourceAndDestinationCases( *this, outputEclipseCases() ) );
+
+    const bool useCellFilterView = ( m_filterType() == FilterType::CELL_FILTER_VIEW ) && m_cellFilterView() != nullptr;
+    const bool useDataFilter     = ( m_filterType() == FilterType::DATA_FILTER );
+
+    if ( useDataFilter && m_dataFilter() == nullptr )
+    {
+        RiuMessageDialog::showError( nullptr, "Grid Property Calculator", "The filter type is 'Data Filter', but no data filter is selected." );
+        return false;
+    }
+
     // Equal grid size is required if there is more than one grid case in the expression. If a cell filter view is active, the visibility is
-    // based on one view and reused for all other grid models, and requires equal grid size.
-    bool checkIfGridSizeIsEqual = ( !allSourceCasesAreEqualToDestinationCase() || m_cellFilterView != nullptr ) &&
-                                  m_additionalCasesType != AdditionalCasesType::ENSEMBLE;
+    // based on one view and reused for all other grid models, and requires equal grid size. A data filter is evaluated per case.
+    const bool calculateForEnsemble   = m_destinationEnsemble() || m_additionalCasesType == AdditionalCasesType::ENSEMBLE;
+    bool       checkIfGridSizeIsEqual = ( !allSourceCasesAreEqualToDestinationCase() || useCellFilterView ) && !calculateForEnsemble;
 
     // Grid dimensions are required to validate the calculation, and a source case is not necessarily opened. This is the case for a
     // statistics case with no computed statistics.
@@ -191,7 +256,7 @@ bool RimGridCalculation::calculate()
 
         if ( !calculationCase->eclipseCaseData() )
         {
-            if ( m_additionalCasesType == AdditionalCasesType::ENSEMBLE )
+            if ( m_additionalCasesType == AdditionalCasesType::ENSEMBLE || m_destinationEnsemble() )
             {
                 calculationCase->ensureReservoirCaseIsOpen();
             }
@@ -249,10 +314,13 @@ bool RimGridCalculation::calculate()
         }
     }
 
-    cvf::UByteArray* inputValueVisibilityFilter = nullptr;
-    if ( m_cellFilterView() )
+    // The visible cells of the view, including the effect of property filters evaluated on the view's
+    // case. Cells inside the filters that are inactive in the view's case are not part of the mask; use
+    // the data filter type to evaluate filters per calculation case.
+    cvf::ref<cvf::UByteArray> inputValueVisibilityFilter;
+    if ( useCellFilterView )
     {
-        inputValueVisibilityFilter = m_cellFilterView()->currentTotalCellVisibility().p();
+        inputValueVisibilityFilter = m_cellFilterView()->currentTotalCellVisibility();
     }
 
     std::optional<std::vector<size_t>> timeSteps = std::nullopt;
@@ -269,7 +337,7 @@ bool RimGridCalculation::calculate()
     }
 
     bool evaluateDependentCalculations = true;
-    return calculateForCases( outputEclipseCases(), inputValueVisibilityFilter, timeSteps, evaluateDependentCalculations );
+    return calculateForCases( outputEclipseCases(), inputValueVisibilityFilter.p(), timeSteps, evaluateDependentCalculations );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,6 +362,8 @@ std::vector<RimEclipseCase*> RimGridCalculation::outputEclipseCases() const
     {
         if ( m_additionalEnsemble() ) return m_additionalEnsemble()->cases();
     }
+
+    if ( m_destinationEnsemble() ) return m_destinationEnsemble()->cases();
 
     return { m_destinationCase };
 }
@@ -347,7 +417,9 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     RimUserDefinedCalculation::defineUiOrdering( uiConfigName, uiOrdering );
 
+    uiOrdering.add( &m_destinationEnsemble );
     uiOrdering.add( &m_destinationCase );
+    m_destinationCase.uiCapability()->setUiHidden( m_destinationEnsemble() != nullptr );
 
     uiOrdering.add( &m_additionalCasesType );
     uiOrdering.add( &m_additionalCaseGroup );
@@ -358,9 +430,14 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Cell Filter" );
     filterGroup->setCollapsedByDefault();
-    filterGroup->add( &m_cellFilterView );
+    filterGroup->add( &m_filterType );
 
-    if ( m_cellFilterView() != nullptr )
+    if ( m_filterType() == FilterType::CELL_FILTER_VIEW ) filterGroup->add( &m_cellFilterView );
+    if ( m_filterType() == FilterType::DATA_FILTER ) filterGroup->add( &m_dataFilter );
+
+    const bool hasFilter = ( m_filterType() == FilterType::CELL_FILTER_VIEW && m_cellFilterView() != nullptr ) ||
+                           ( m_filterType() == FilterType::DATA_FILTER && m_dataFilter() != nullptr );
+    if ( hasFilter )
     {
         filterGroup->add( &m_defaultValueType );
 
@@ -400,7 +477,7 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
         {
             // If no input cases are defined, use the destination case to determine the grid size. This will enable use of expressions
             // with no input cases like "calculation := 1.0"
-            firstEclipseCase = m_destinationCase();
+            firstEclipseCase = destinationCase();
         }
 
         if ( firstEclipseCase )
@@ -413,6 +490,51 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
                 if ( !firstEclipseCase->isGridSizeEqualTo( eclipseView->eclipseCase() ) ) continue;
 
                 options.push_back( caf::PdmOptionItemInfo( view->autoName(), view, false, view->uiIconProvider() ) );
+            }
+        }
+    }
+    else if ( fieldNeedingOptions == &m_dataFilter )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        if ( auto* destination = destinationCase() )
+        {
+            if ( auto dataFilterCollection = destination->dataFilterCollection() )
+            {
+                for ( RimCellFilter* filter : dataFilterCollection->filters() )
+                {
+                    if ( !filter ) continue;
+                    options.push_back( caf::PdmOptionItemInfo( filter->fullName(), filter, false, filter->uiIconProvider() ) );
+                }
+            }
+
+            // Also offer the data filters of the grid ensemble the destination case belongs to, if any
+            if ( auto gridEnsemble = destination->firstAncestorOfType<RimReservoirGridEnsemble>() )
+            {
+                if ( auto dataFilterCollection = gridEnsemble->dataFilterCollection() )
+                {
+                    for ( RimCellFilter* filter : dataFilterCollection->filters() )
+                    {
+                        if ( !filter ) continue;
+                        options.push_back( caf::PdmOptionItemInfo( QString( "%1 : %2" ).arg( gridEnsemble->name(), filter->fullName() ),
+                                                                   filter,
+                                                                   false,
+                                                                   filter->uiIconProvider() ) );
+                    }
+                }
+            }
+        }
+    }
+    else if ( fieldNeedingOptions == &m_destinationEnsemble )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        RimProject* project = RimProject::current();
+        if ( project->activeOilField() && project->activeOilField()->analysisModels() )
+        {
+            for ( auto* ensemble : project->activeOilField()->analysisModels()->reservoirGridEnsembles.childrenByType() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( ensemble->name(), ensemble, false, ensemble->uiIconProvider() ) );
             }
         }
     }
@@ -473,9 +595,9 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
         if ( proj->activeOilField() && proj->activeOilField()->analysisModels() )
         {
             auto analysisModels = proj->activeOilField()->analysisModels();
-            for ( RimEclipseCaseEnsemble* e : analysisModels->caseEnsembles() )
+            for ( auto* ensemble : analysisModels->reservoirGridEnsembles.childrenByType() )
             {
-                options.push_back( caf::PdmOptionItemInfo( e->name(), e, false, e->uiIconProvider() ) );
+                options.push_back( caf::PdmOptionItemInfo( ensemble->name(), ensemble, false, ensemble->uiIconProvider() ) );
             }
         }
     }
@@ -495,11 +617,35 @@ void RimGridCalculation::initAfterRead()
         {
             gridVar->eclipseResultChanged.connect( this, &RimGridCalculation::onVariableUpdated );
 
-            if ( m_destinationCase == nullptr ) m_destinationCase = gridVar->eclipseCase();
+            if ( !m_destinationEnsemble() && m_destinationCase == nullptr ) m_destinationCase = gridVar->eclipseCase();
         }
     }
 
     if ( m_applyToAllCases_OBSOLETE ) m_additionalCasesType = RimGridCalculation::AdditionalCasesType::ALL_CASES;
+
+    // Projects from before the filter type field was introduced only have the cell filter view. The view
+    // pointer is cleared when the filter type is changed away from CELL_FILTER_VIEW, so a set view pointer
+    // implies the cell filter view mode.
+    if ( m_cellFilterView() != nullptr ) m_filterType = FilterType::CELL_FILTER_VIEW;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    RimUserDefinedCalculation::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == &m_filterType )
+    {
+        if ( m_filterType() != FilterType::CELL_FILTER_VIEW ) m_cellFilterView = nullptr;
+        if ( m_filterType() != FilterType::DATA_FILTER ) m_dataFilter = nullptr;
+    }
+
+    if ( changedField == &m_filterType || changedField == &m_destinationEnsemble )
+    {
+        updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -508,7 +654,7 @@ void RimGridCalculation::initAfterRead()
 void RimGridCalculation::onEditNonVisibleResultAddressButtonPressed()
 {
     auto eclipseCase = m_nonVisibleResultAddress->eclipseCase();
-    if ( !eclipseCase ) eclipseCase = m_destinationCase;
+    if ( !eclipseCase ) eclipseCase = destinationCase();
 
     RimResultSelectionUi selectionUi;
     selectionUi.setEclipseResultAddress( eclipseCase, m_nonVisibleResultAddress->resultType(), m_nonVisibleResultAddress->resultName() );
@@ -535,7 +681,8 @@ void RimGridCalculation::onVariableUpdated( const SignalEmitter* emitter )
             // interpreted as computed statistics, and will block recomputation of the statistics.
             const bool canBeDestinationCase = dynamic_cast<RimEclipseStatisticsCase*>( variableCase ) == nullptr;
 
-            if ( canBeDestinationCase && ( !m_destinationCase || !m_destinationCase->isGridSizeEqualTo( variableCase ) ) )
+            if ( canBeDestinationCase && !m_destinationEnsemble() &&
+                 ( !m_destinationCase || !m_destinationCase->isGridSizeEqualTo( variableCase ) ) )
             {
                 m_destinationCase = variableCase;
             }
@@ -550,16 +697,27 @@ void RimGridCalculation::onVariableUpdated( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimGridCalculation::destinationCase() const
+{
+    if ( m_destinationEnsemble() ) return m_destinationEnsemble()->mainCase();
+
+    return m_destinationCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::allSourceCasesAreEqualToDestinationCase() const
 {
-    if ( m_destinationCase() == nullptr ) return false;
+    auto* destination = destinationCase();
+    if ( destination == nullptr ) return false;
 
     for ( const auto& variable : m_variables )
     {
         auto gridVar = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
         if ( gridVar )
         {
-            if ( gridVar->eclipseCase() != m_destinationCase() ) return false;
+            if ( gridVar->eclipseCase() != destination ) return false;
         }
     }
 
@@ -697,12 +855,13 @@ void RimGridCalculation::replaceFilteredValuesWithVector( const std::vector<doub
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Replace values for non-visible cells with the given default value. Returns the number of replaced
+/// values.
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double                    defaultValue,
-                                                                cvf::ref<cvf::UByteArray> visibility,
-                                                                std::vector<double>&      resultValues,
-                                                                RigActiveCellInfo*        activeCellInfo )
+size_t RimGridCalculation::replaceFilteredValuesWithDefaultValue( double                    defaultValue,
+                                                                  cvf::ref<cvf::UByteArray> visibility,
+                                                                  std::vector<double>&      resultValues,
+                                                                  RigActiveCellInfo*        activeCellInfo )
 
 {
     auto activeReservoirCellIndices = activeCellInfo->activeReservoirCellIndices();
@@ -710,21 +869,47 @@ void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double          
 
     CAF_ASSERT( numActiveCells == (int)resultValues.size() );
 
-#pragma omp parallel for
+    size_t replacedCount = 0;
+
+#pragma omp parallel for reduction( + : replacedCount )
     for ( int i = 0; i < numActiveCells; i++ )
     {
         const auto reservoirCellIndex = activeReservoirCellIndices[i];
         if ( !visibility->val( reservoirCellIndex.value() ) )
         {
             resultValues[i] = defaultValue;
+            replacedCount++;
         }
     }
+
+    return replacedCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Replace undefined values (infinity and NaN) with the given default value. Returns the number of
+/// replaced values.
+//--------------------------------------------------------------------------------------------------
+size_t RimGridCalculation::replaceInvalidValuesWithDefaultValue( double defaultValue, std::vector<double>& values )
+{
+    size_t replacedCount = 0;
+
+#pragma omp parallel for reduction( + : replacedCount )
+    for ( int i = 0; i < static_cast<int>( values.size() ); i++ )
+    {
+        if ( RigStatisticsTools::isInvalidNumber( values[i] ) )
+        {
+            values[i] = defaultValue;
+            replacedCount++;
+        }
+    }
+
+    return replacedCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::filterResults( RimGridView*                            cellFilterView,
+void RimGridCalculation::filterResults( cvf::UByteArray*                        visibility,
                                         const std::vector<std::vector<double>>& values,
                                         size_t                                  timeStep,
                                         RimGridCalculation::DefaultValueType    defaultValueType,
@@ -734,8 +919,6 @@ void RimGridCalculation::filterResults( RimGridView*                            
                                         RimEclipseCase*                         outputEclipseCase ) const
 
 {
-    auto visibility = cellFilterView->currentTotalCellVisibility();
-
     auto activeCellInfo = outputEclipseCase->eclipseCaseData()->activeCellInfo( porosityModel );
 
     if ( defaultValueType == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
@@ -822,6 +1005,8 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                                             std::optional<std::vector<size_t>>  timeSteps,
                                             bool                                evaluateDependentCalculations )
 {
+    CloseCasesOpenedForCalculation closeCasesWhenFinished( sourceAndDestinationCases( *this, calculationCases ) );
+
     if ( calculationCases.empty() ) return true;
 
     if ( evaluateDependentCalculations ) findAndEvaluateDependentCalculations( calculationCases, inputValueVisibilityFilter, timeSteps );
@@ -915,11 +1100,22 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
         scalarResultFrames->resize( timeStepCount );
 
         std::vector<double> aggregatedValuesOneTimeStep;
+        std::vector<size_t> invalidValueCountPerVariable( m_variables.size(), 0 );
 
         for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
         {
             // Skip time steps that are not in the list of time steps to calculate
             if ( timeSteps && std::find( timeSteps->begin(), timeSteps->end(), tsId ) == timeSteps->end() ) continue;
+
+            // A data filter is evaluated per calculation case and time step, using the case's own active
+            // cells and result values. The visibility filter provided by the caller is used as-is.
+            cvf::ref<cvf::UByteArray> dataFilterVisibility;
+            cvf::UByteArray*          visibilityFilter = inputValueVisibilityFilter;
+            if ( m_filterType() == FilterType::DATA_FILTER && m_dataFilter() )
+            {
+                dataFilterVisibility = RimCellFilterTools::computeReservoirCellVisibility( m_dataFilter(), calculationCase, tsId );
+                visibilityFilter     = dataFilterVisibility.p();
+            }
 
             std::vector<std::vector<double>> dataForAllVariables;
             for ( size_t i = 0; i < m_variables.size(); i++ )
@@ -927,7 +1123,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
                 CAF_ASSERT( v != nullptr );
 
-                bool useDataFromSourceCase = ( v->eclipseCase() == m_destinationCase ) ||
+                bool useDataFromSourceCase = ( v->eclipseCase() == destinationCase() ) || m_destinationEnsemble() ||
                                              m_additionalCasesType == AdditionalCasesType::ENSEMBLE;
                 auto sourceCase = useDataFromSourceCase ? calculationCase : v->eclipseCase();
 
@@ -936,11 +1132,32 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 {
                     RiaLogging::error( std::format( "  No data found for variable '{}'.", v->name() ) );
                 }
-                else if ( inputValueVisibilityFilter && hasAggregationExpression )
+                else if ( hasAggregationExpression )
                 {
-                    const double defaultValue   = 0.0;
-                    auto         activeCellInfo = calculationCase->eclipseCaseData()->activeCellInfo( porosityModel );
-                    replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, dataForVariable, activeCellInfo );
+                    const double defaultValue    = 0.0;
+                    size_t       nonVisibleCount = 0;
+                    if ( visibilityFilter )
+                    {
+                        auto activeCellInfo = calculationCase->eclipseCaseData()->activeCellInfo( porosityModel );
+                        nonVisibleCount =
+                            replaceFilteredValuesWithDefaultValue( defaultValue, visibilityFilter, dataForVariable, activeCellInfo );
+                    }
+
+                    // Aggregation functions include all values in the vector. Replace undefined values with the
+                    // default value to avoid contaminating aggregated values like sum() with infinity. Undefined
+                    // values are ignored by other statistics computations, like the histogram in the 3d view.
+                    const size_t invalidCount = replaceInvalidValuesWithDefaultValue( defaultValue, dataForVariable );
+                    invalidValueCountPerVariable[i] += invalidCount;
+
+                    RiaLogging::debug( std::format( "  Case '{}', time step {}: variable '{}': {} of {} values used in aggregation "
+                                                    "({} non-visible and {} undefined values replaced with 0.0)",
+                                                    calculationCase->caseUserDescription().toStdString(),
+                                                    tsId,
+                                                    v->name().toStdString(),
+                                                    dataForVariable.size() - nonVisibleCount - invalidCount,
+                                                    dataForVariable.size(),
+                                                    nonVisibleCount,
+                                                    invalidCount ) );
                 }
 
                 dataForAllVariables.push_back( dataForVariable );
@@ -984,9 +1201,9 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                     }
                 }
 
-                if ( m_cellFilterView() && !resultValues.empty() )
+                if ( visibilityFilter && !resultValues.empty() )
                 {
-                    filterResults( m_cellFilterView(),
+                    filterResults( visibilityFilter,
                                    dataForAllVariables,
                                    tsId,
                                    m_defaultValueType(),
@@ -1010,6 +1227,18 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             }
 
             calculationCase->updateResultAddressCollection();
+        }
+
+        for ( size_t i = 0; i < m_variables.size(); i++ )
+        {
+            if ( invalidValueCountPerVariable[i] > 0 )
+            {
+                RiaLogging::warning( std::format( "  Variable '{}': {} undefined input values were replaced with 0.0 for case '{}'. The "
+                                                  "input result may be missing data for some cells or time steps.",
+                                                  m_variables[i]->name().toStdString(),
+                                                  invalidValueCountPerVariable[i],
+                                                  calculationCase->caseUserDescription().toStdString() ) );
+            }
         }
 
         if ( hasAggregationExpression )
@@ -1079,7 +1308,7 @@ void RimGridCalculation::findAndEvaluateDependentCalculations( const std::vector
 //--------------------------------------------------------------------------------------------------
 void RimGridCalculation::assignEclipseCaseForNullPointers( RimEclipseCase* eclipseCase )
 {
-    if ( m_destinationCase() == nullptr )
+    if ( destinationCase() == nullptr )
     {
         m_destinationCase = eclipseCase;
     }
