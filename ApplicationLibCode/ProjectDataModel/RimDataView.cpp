@@ -86,12 +86,6 @@ RimDataView::RimDataView()
 
     m_scaleTransform = new cvf::Transform();
 
-    m_surfaceVizModel = new cvf::ModelBasicList;
-    m_surfaceVizModel->setName( "SurfaceModel" );
-
-    m_polygonVizModel = new cvf::ModelBasicList;
-    m_polygonVizModel->setName( "PolygonModel" );
-
     meshMode.uiCapability()->setUiHidden( true );
     surfaceMode.uiCapability()->setUiHidden( true );
     hideComparisonViewField();
@@ -160,14 +154,6 @@ RiaDefines::View3dContent RimDataView::viewContent() const
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimDataView::isGridVisualizationMode() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimDataView::isUsingFormationNames() const
 {
     return false;
 }
@@ -357,32 +343,35 @@ void RimDataView::onCreateDisplayModel()
 
     // Well path model
 
-    m_wellPathPipeVizModel->removeAllParts();
-    addWellPathsToModel( m_wellPathPipeVizModel.p(), bb, characteristicCellSize() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_wellPathPipeVizModel.p(), isUsingOverrideViewer() );
+    auto* wellPathPipeVizModel = m_vizModels.findOrCreate( Rim3dView::wellPathPipeModelName() );
+    wellPathPipeVizModel->removeAllParts();
+    addWellPathsToModel( wellPathPipeVizModel, bb, characteristicCellSize() );
+    nativeOrOverrideViewer()->addStaticModelOnce( wellPathPipeVizModel, isUsingOverrideViewer() );
 
     // Surfaces
 
-    m_surfaceVizModel->removeAllParts();
+    auto* surfaceVizModel = m_vizModels.findOrCreate( "SurfaceModel" );
+    surfaceVizModel->removeAllParts();
     if ( m_surfaceCollection )
     {
         bool nativeOnly = true;
-        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), scaleTransform(), nativeOnly );
-        nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
+        m_surfaceCollection->appendPartsToModel( surfaceVizModel, scaleTransform(), nativeOnly );
+        nativeOrOverrideViewer()->addStaticModelOnce( surfaceVizModel, isUsingOverrideViewer() );
     }
 
     // Polygons
 
-    m_polygonVizModel->removeAllParts();
+    auto* polygonVizModel = m_vizModels.findOrCreate( "PolygonModel" );
+    polygonVizModel->removeAllParts();
     if ( m_polygonInViewCollection )
     {
         cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
         for ( auto* polygonInView : m_polygonInViewCollection->visiblePolygonsInView() )
         {
-            if ( polygonInView ) polygonInView->appendPartsToModel( m_polygonVizModel.p(), transform.p(), bb );
+            if ( polygonInView ) polygonInView->appendPartsToModel( polygonVizModel, transform.p(), bb );
         }
-        nativeOrOverrideViewer()->addStaticModelOnce( m_polygonVizModel.p(), isUsingOverrideViewer() );
-        m_polygonVizModel->updateBoundingBoxesRecursive();
+        nativeOrOverrideViewer()->addStaticModelOnce( polygonVizModel, isUsingOverrideViewer() );
+        polygonVizModel->updateBoundingBoxesRecursive();
     }
 
     // Annotations
@@ -406,58 +395,11 @@ void RimDataView::onCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDataView::onUpdateDisplayModelForCurrentTimeStep()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDataView::onClampCurrentTimestep()
-{
-    m_currentTimeStep = 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RimDataView::onTimeStepCountRequested()
-{
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimDataView::isTimeStepDependentDataVisible() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimDataView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
 {
     *xLabel = "E(x)";
     *yLabel = "N(y)";
     *zLabel = "Z";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDataView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
-{
-    // no action needed, might be needed if we want to hilite something later
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDataView::onUpdateStaticCellColors()
-{
-    // no action needed
 }
 
 //--------------------------------------------------------------------------------------------------

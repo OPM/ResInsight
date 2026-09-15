@@ -45,7 +45,6 @@ public:
     RimCase*                      ownerCase() const override;
     RiaDefines::View3dContent     viewContent() const override;
     bool                          isGridVisualizationMode() const override;
-    bool                          isUsingFormationNames() const override;
     std::vector<RimLegendConfig*> legendConfigs() const override;
     void                          scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
 
@@ -59,15 +58,9 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
-    void   onCreateDisplayModel() override;
-    void   onUpdateDisplayModelForCurrentTimeStep() override;
-    void   onClampCurrentTimestep() override;
-    size_t onTimeStepCountRequested() override;
-    bool   isTimeStepDependentDataVisible() const override;
-    void   defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
-    void   onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
-    void   onUpdateStaticCellColors() override;
-    void   onUpdateLegends() override;
+    void onCreateDisplayModel() override;
+    void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
+    void onUpdateLegends() override;
 
     void onLoadDataAndUpdate() override;
     void selectOverlayInfoConfig() override;
@@ -91,9 +84,7 @@ private:
     caf::PdmChildField<RimWellPathInViewCollection*> m_wellPathInViewCollection;
     caf::PdmChildField<Rim3dOverlayInfoConfig*>      m_overlayInfoConfig;
 
-    cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
-    cvf::ref<cvf::ModelBasicList> m_polygonVizModel;
-    cvf::ref<cvf::Transform>      m_scaleTransform;
+    cvf::ref<cvf::Transform> m_scaleTransform;
 
     mutable cvf::BoundingBox m_domainBoundingBox;
     mutable bool             m_isDomainBoundingBoxCached;
