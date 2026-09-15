@@ -45,6 +45,7 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
           "log level in preferences) to also see cvf's debug-level messages, e.g. OpenGL context and widget "
           "lifecycle events; note that debug level also logs one message per rendering pass and per part, every "
           "frame, so the log can grow quickly." },
+        { "workflows", "Workflows", "Discover and run taskmaestro workflows from the project tree." },
     };
 
     return features;
