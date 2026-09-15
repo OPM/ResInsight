@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Equinor ASA
+//  Copyright (C) 2026-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,17 +19,24 @@
 
 #include "RiaDefines.h"
 
-#include "cafPdmChildField.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmUiGroup.h"
 
 #include <QDateTime>
 
-class RimDiameterRoughnessIntervalCollection;
-class RimCustomSegmentIntervalCollection;
+#include <optional>
 
-class RimMswCompletionParameters : public caf::PdmObject
+class RimMswCompletionParameters;
+class RimSegmentInterval;
+
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+class PdmUiTreeOrdering;
+} // namespace caf
+
+class RimSegmentCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -53,21 +60,11 @@ public:
         INC
     };
 
-    enum class DiameterRoughnessMode
-    {
-        UNIFORM,
-        INTERVALS
-    };
+    using ReferenceMDEnum    = caf::AppEnum<ReferenceMDType>;
+    using PressureDropEnum   = caf::AppEnum<PressureDropType>;
+    using LengthAndDepthEnum = caf::AppEnum<LengthAndDepthType>;
 
-    using ReferenceMDEnum           = caf::AppEnum<ReferenceMDType>;
-    using PressureDropEnum          = caf::AppEnum<PressureDropType>;
-    using LengthAndDepthEnum        = caf::AppEnum<LengthAndDepthType>;
-    using DiameterRoughnessModeEnum = caf::AppEnum<DiameterRoughnessMode>;
-
-    RimMswCompletionParameters();
-    ~RimMswCompletionParameters() override;
-
-    RimMswCompletionParameters& operator=( const RimMswCompletionParameters& rhs );
+    RimSegmentCollection();
 
     ReferenceMDType    referenceMDType() const;
     double             manualReferenceMD() const;
@@ -79,12 +76,6 @@ public:
     LengthAndDepthEnum lengthAndDepth() const;
     double             maxSegmentLength() const;
 
-    // Stored values for legacy migration, including settings currently disabled in the UI.
-    double storedReferenceMD() const;
-    bool   customValuesForLateral() const;
-    bool   enforceMaxSegmentLength() const;
-    double storedMaxSegmentLength() const;
-
     void setReferenceMDType( ReferenceMDType refType );
     void setManualReferenceMD( double manualRefMD );
     void setLinerDiameter( double diameter );
@@ -92,39 +83,40 @@ public:
     void setPressureDrop( PressureDropType pressureDropType );
     void setLengthAndDepth( LengthAndDepthType lengthAndDepthType );
 
-    // New interval-based methods
-    DiameterRoughnessMode diameterRoughnessMode() const;
-    void                  setDiameterRoughnessMode( DiameterRoughnessMode mode );
-    bool                  isUsingIntervalSpecificValues() const;
-
     double getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
     double getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem ) const;
-
-    // Date-aware overloads (only returns values from intervals active on the given date)
     double getDiameterAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const;
     double getRoughnessAtMD( double md, RiaDefines::EclipseUnitSystem unitSystem, const QDateTime& exportDate ) const;
 
-    RimDiameterRoughnessIntervalCollection* diameterRoughnessIntervals() const;
+    std::vector<RimSegmentInterval*>              intervals() const;
+    caf::PdmChildArrayField<RimSegmentInterval*>& intervalsField();
+    RimSegmentInterval*                           createInterval( double startMD, double endMD, double diameter, double roughness );
+    void                                          addInterval( RimSegmentInterval* interval );
+    void                                          removeInterval( RimSegmentInterval* interval );
+    void                                          removeAllIntervals();
+    bool                                          hasIntervals() const;
+    void                                          updateOverlapVisualFeedback();
 
-    // Custom segment intervals
-    RimCustomSegmentIntervalCollection*    customSegmentIntervals() const;
     std::vector<std::pair<double, double>> getSegmentIntervals() const;
     bool                                   hasCustomSegmentIntervals() const;
 
     void setUnitSystemSpecificDefaults();
+    void updateFromTopLevelWell( const RimSegmentCollection* topLevelWellParameters );
+    void importLegacyData( const RimMswCompletionParameters* legacyParameters );
 
-    void updateFromTopLevelWell( const RimMswCompletionParameters* topLevelWellParameters );
-
-    // Public static methods for default values - used by interval classes
     static double defaultLinerDiameter( RiaDefines::EclipseUnitSystem unitSystem );
     static double defaultRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
     void initAfterRead() override;
-    void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
+
+private:
+    RimSegmentInterval* findIntervalAtMD( double md, const std::optional<QDateTime>& exportDate ) const;
 
 private:
     caf::PdmField<ReferenceMDEnum> m_refMDType;
@@ -134,15 +126,10 @@ private:
     caf::PdmField<double> m_linerDiameter;
     caf::PdmField<double> m_roughnessFactor;
 
-    // New interval-based fields
-    caf::PdmField<DiameterRoughnessModeEnum>                    m_diameterRoughnessMode;
-    caf::PdmChildField<RimDiameterRoughnessIntervalCollection*> m_diameterRoughnessIntervals;
+    caf::PdmChildArrayField<RimSegmentInterval*> m_segmentIntervals;
 
     caf::PdmField<PressureDropEnum>   m_pressureDrop;
     caf::PdmField<LengthAndDepthEnum> m_lengthAndDepth;
-
-    caf::PdmField<bool>   m_enforceMaxSegmentLength;
-    caf::PdmField<double> m_maxSegmentLength;
-
-    caf::PdmChildField<RimCustomSegmentIntervalCollection*> m_customSegmentIntervals;
+    caf::PdmField<bool>               m_enforceMaxSegmentLength;
+    caf::PdmField<double>             m_maxSegmentLength;
 };

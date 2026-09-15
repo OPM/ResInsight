@@ -23,6 +23,7 @@
 #include "RimCustomSegmentIntervalCollection.h"
 #include "RimDiameterRoughnessIntervalCollection.h"
 
+#include "RimSegmentCollection.h"
 #include "RimWellPath.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -99,7 +100,7 @@ RimMswCompletionParameters::RimMswCompletionParameters()
                                  "Roughness Factor" );
 
     // New interval-based fields
-    CAF_PDM_InitScriptableFieldNoDefault( &m_diameterRoughnessMode, "DiameterRoughnessMode", "Diameter Roughness Mode" );
+    CAF_PDM_InitFieldNoDefault( &m_diameterRoughnessMode, "DiameterRoughnessMode", "Diameter Roughness Mode" );
     CAF_PDM_InitFieldNoDefault( &m_diameterRoughnessIntervals, "DiameterRoughnessIntervals", "Diameter Roughness Intervals" );
     m_diameterRoughnessIntervals = new RimDiameterRoughnessIntervalCollection();
     m_diameterRoughnessIntervals->intervalsField().uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -175,7 +176,10 @@ double RimMswCompletionParameters::linerDiameter( RiaDefines::EclipseUnitSystem 
     double diameter = m_linerDiameter();
     if ( !wellPath->isTopLevelWellPath() && !m_customValuesForLateral )
     {
-        diameter = wellPath->topLevelWellPath()->mswCompletionParameters()->m_linerDiameter();
+        if ( const auto* topLevelWell = wellPath->topLevelWellPath() )
+        {
+            diameter = topLevelWell->segmentCollection()->linerDiameter();
+        }
     }
 
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -220,7 +224,10 @@ double RimMswCompletionParameters::roughnessFactor( RiaDefines::EclipseUnitSyste
     double rFactor = m_roughnessFactor();
     if ( !wellPath->isTopLevelWellPath() && !m_customValuesForLateral )
     {
-        rFactor = wellPath->topLevelWellPath()->mswCompletionParameters()->m_roughnessFactor();
+        if ( const auto* topLevelWell = wellPath->topLevelWellPath() )
+        {
+            rFactor = topLevelWell->segmentCollection()->roughnessFactor();
+        }
     }
 
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -366,6 +373,38 @@ RimMswCompletionParameters::LengthAndDepthEnum RimMswCompletionParameters::lengt
 double RimMswCompletionParameters::maxSegmentLength() const
 {
     return m_enforceMaxSegmentLength ? m_maxSegmentLength : std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::storedReferenceMD() const
+{
+    return m_refMD();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMswCompletionParameters::customValuesForLateral() const
+{
+    return m_customValuesForLateral();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMswCompletionParameters::enforceMaxSegmentLength() const
+{
+    return m_enforceMaxSegmentLength();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::storedMaxSegmentLength() const
+{
+    return m_maxSegmentLength();
 }
 
 //--------------------------------------------------------------------------------------------------

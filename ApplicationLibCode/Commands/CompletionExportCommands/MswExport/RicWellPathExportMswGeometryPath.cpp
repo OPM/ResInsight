@@ -29,9 +29,9 @@
 #include "Well/RigWellPath.h"
 
 #include "RimEclipseCase.h"
-#include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimSegmentCollection.h"
 #include "RimValveCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
@@ -80,13 +80,14 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                 RicMswBranchBuilder::FishbonesExportContext& fishbonesContext )
 {
     std::vector<RigMswBranch> result;
-    auto                      mswParameters = wellPath->mswCompletionParameters();
+    auto                      mswParameters = wellPath->segmentCollection();
     if ( !mswParameters ) return result;
 
-    const std::string infoType          = mswParameters->lengthAndDepth().text().toStdString();
-    const double      tieInMD           = wellPath->wellPathTieIn()->tieInMeasuredDepth();
-    const double      tieInTVD          = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( tieInMD ).z();
-    const std::string wellNameForExport = wellPath->completionSettings()->wellNameForExport().toStdString();
+    const std::string                            infoType         = mswParameters->lengthAndDepth().text().toStdString();
+    const std::vector<std::pair<double, double>> segmentIntervals = mswParameters->getSegmentIntervals();
+    const double                                 tieInMD          = wellPath->wellPathTieIn()->tieInMeasuredDepth();
+    const double                                 tieInTVD = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( tieInMD ).z();
+    const std::string                            wellNameForExport = wellPath->completionSettings()->wellNameForExport().toStdString();
 
     const int lateralBranchNum = ++lateralBranchNumber;
     int       childOutletSeg   = outletSegNum;
@@ -188,7 +189,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                    segmentNumber,
                                                                    childOutletSeg,
                                                                    mswParameters->maxSegmentLength(),
-                                                                   {},
+                                                                   segmentIntervals,
                                                                    exportDate,
                                                                    unitSystem,
                                                                    &childCellSegMap,
@@ -236,7 +237,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                   segmentNumber,
                                                                   completionBranchNumber,
                                                                   mswParameters->maxSegmentLength(),
-                                                                  {},
+                                                                  segmentIntervals,
                                                                   exportDate,
                                                                   unitSystem );
     result.insert( result.end(), std::make_move_iterator( valveBranches.begin() ), std::make_move_iterator( valveBranches.end() ) );
@@ -265,7 +266,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                          segmentNumber,
                                                                          completionBranchNumber,
                                                                          mswParameters->maxSegmentLength(),
-                                                                         {},
+                                                                         segmentIntervals,
                                                                          unitSystem,
                                                                          fishbonesContext );
         result.insert( result.end(), std::make_move_iterator( fishBranches.begin() ), std::make_move_iterator( fishBranches.end() ) );
@@ -306,7 +307,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                              CompletionType                                completionType,
                                              const std::optional<QDateTime>&               exportDate )
 {
-    auto mswParameters = wellPath->mswCompletionParameters();
+    auto mswParameters = wellPath->segmentCollection();
     CAF_ASSERT( mswParameters );
 
     const RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();

@@ -15,7 +15,6 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
 #include "cafPdmField.h"
@@ -24,15 +23,12 @@
 
 #include <QString>
 
-//==================================================================================================
-///
-//==================================================================================================
-class RimcWellPathCompletionSettings_addDiameterRoughnessInterval : public caf::PdmObjectCreationMethod
+class RimcSegmentCollection_addSegmentInterval : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcWellPathCompletionSettings_addDiameterRoughnessInterval( caf::PdmObjectHandle* self );
+    RimcSegmentCollection_addSegmentInterval( caf::PdmObjectHandle* self );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
@@ -42,22 +38,4 @@ private:
     caf::PdmField<double> m_endMD;
     caf::PdmField<double> m_diameter;
     caf::PdmField<double> m_roughnessFactor;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
-class RimcWellPathCompletionSettings_addCustomSegmentInterval : public caf::PdmObjectCreationMethod
-{
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimcWellPathCompletionSettings_addCustomSegmentInterval( caf::PdmObjectHandle* self );
-
-    std::expected<caf::PdmObjectHandle*, QString> execute() override;
-    QString                                       classKeywordReturnedType() const override;
-
-private:
-    caf::PdmField<double> m_startMD;
-    caf::PdmField<double> m_endMD;
 };

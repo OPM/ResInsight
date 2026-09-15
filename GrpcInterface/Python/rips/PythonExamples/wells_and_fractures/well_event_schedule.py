@@ -236,7 +236,7 @@ def main():
             print(f"        Valves: {len(valves)}")
 
     # Check MSW settings (tubing intervals)
-    msw_settings = well_path.msw_settings()
+    msw_settings = well_path.segment_collection()
     if msw_settings:
         print(f"   MSW diameter/roughness mode: {msw_settings.diameter_roughness_mode}")
 
