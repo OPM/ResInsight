@@ -3093,7 +3093,21 @@ std::vector<RimPlotAxisProperties*> RimSummaryPlot::plotAxes( RimPlotAxisPropert
 void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
 {
     assignXPlotAxis( destinationCurve );
-    assignYPlotAxis( destinationCurve );
+    assignYPlotAxis( destinationCurve->unitNameY(),
+                     destinationCurve->summaryAddressY(),
+                     destinationCurve,
+                     [destinationCurve]( RiuPlotAxis axis ) { destinationCurve->setLeftOrRightAxisY( axis ); } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::assignPlotAxis( RimEnsembleCurveSet* curveSet )
+{
+    assignYPlotAxis( curveSet->unitNameY(),
+                     curveSet->summaryAddressY(),
+                     curveSet,
+                     [curveSet]( RiuPlotAxis axis ) { curveSet->setLeftOrRightAxisY( axis ); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3102,10 +3116,52 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
 auto countAxes = []( const std::vector<RimPlotAxisPropertiesInterface*>& axes, RiaDefines::PlotAxis axis )
 { return std::count_if( axes.begin(), axes.end(), [axis]( const auto& ap ) { return ap->plotAxis().axis() == axis; } ); };
 
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+// Small helper used to compare the unit/vector/axis of curves and ensemble curve sets already
+// present in the plot, so a newly added curve or curve set can be auto-assigned to a matching or
+// unused Y-axis.
+//--------------------------------------------------------------------------------------------------
+struct AxisCandidateInfo
+{
+    std::string unitName;
+    QString     vectorAxisText;
+    RiuPlotAxis axis;
+};
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
+static std::vector<AxisCandidateInfo> axisCandidateInfoForOtherCurvesAndCurveSets( const RimSummaryPlot* plot, const void* objectToExclude )
+{
+    std::vector<AxisCandidateInfo> result;
+
+    for ( auto c : plot->summaryCurves() )
+    {
+        if ( c == objectToExclude ) continue;
+
+        result.push_back( { c->unitNameY(), RimPlotAxisTools::axisTextForAddress( c->summaryAddressY() ), c->axisY() } );
+    }
+
+    for ( auto cs : plot->ensembleCurveSetCollection()->curveSets() )
+    {
+        if ( cs == objectToExclude ) continue;
+
+        result.push_back( { cs->unitNameY(), RimPlotAxisTools::axisTextForAddress( cs->summaryAddressY() ), cs->axisY() } );
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::assignYPlotAxis( const std::string&                        unitNameY,
+                                      const RifEclipseSummaryAddress&           addressY,
+                                      const void*                               objectToExclude,
+                                      const std::function<void( RiuPlotAxis )>& applyAxis )
 {
     enum class AxisAssignmentStrategy
     {
@@ -3114,49 +3170,35 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
         USE_MATCHING_VECTOR
     };
 
+    auto others = axisCandidateInfoForOtherCurvesAndCurveSets( this, objectToExclude );
+
     auto strategy = AxisAssignmentStrategy::USE_MATCHING_UNIT;
 
-    auto destinationUnit = RiaStdStringTools::toUpper( curve->unitNameY() );
+    auto destinationUnit = RiaStdStringTools::toUpper( unitNameY );
     if ( destinationUnit.empty() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
 
-    auto anyCurveWithUnitText = [this, curve]
-    {
-        for ( auto c : summaryCurves() )
-        {
-            if ( c == curve ) continue;
-
-            if ( !c->unitNameY().empty() ) return true;
-        }
-
-        return false;
-    };
-
-    if ( !anyCurveWithUnitText() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
+    bool anyOtherWithUnitText = std::any_of( others.begin(), others.end(), []( const auto& o ) { return !o.unitName.empty(); } );
+    if ( !anyOtherWithUnitText ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
 
     if ( strategy == AxisAssignmentStrategy::USE_MATCHING_VECTOR )
     {
         // Special handling if curve unit is matching. Try to match on summary vector name to avoid creation of new axis
 
-        for ( auto c : summaryCurves() )
+        auto incomingAxisText = RimPlotAxisTools::axisTextForAddress( addressY );
+        for ( const auto& o : others )
         {
-            if ( c == curve ) continue;
-
-            auto incomingAxisText = RimPlotAxisTools::axisTextForAddress( curve->summaryAddressY() );
-            auto currentAxisText  = RimPlotAxisTools::axisTextForAddress( c->summaryAddressY() );
-            if ( incomingAxisText == currentAxisText )
+            if ( incomingAxisText == o.vectorAxisText )
             {
-                curve->setLeftOrRightAxisY( c->axisY() );
+                applyAxis( o.axis );
                 return;
             }
         }
     }
     else if ( strategy == AxisAssignmentStrategy::USE_MATCHING_UNIT )
     {
-        for ( auto c : summaryCurves() )
+        for ( const auto& o : others )
         {
-            if ( c == curve ) continue;
-
-            auto currentUnit = RiaStdStringTools::toUpper( c->unitNameY() );
+            auto currentUnit = RiaStdStringTools::toUpper( o.unitName );
             if ( currentUnit == destinationUnit )
             {
                 for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
@@ -3164,7 +3206,7 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
                     if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
                          axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
                     {
-                        curve->setLeftOrRightAxisY( c->axisY() );
+                        applyAxis( o.axis );
 
                         return;
                     }
@@ -3175,32 +3217,18 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
         strategy = AxisAssignmentStrategy::ALTERNATING;
     }
 
-    auto isDefaultLeftAndRightUsed = [this]( RimSummaryCurve* currentCurve ) -> std::pair<bool, bool>
-    {
-        bool defaultLeftUsed  = false;
-        bool defaultRightUsed = false;
+    bool defaultLeftUsed = std::any_of( others.begin(), others.end(), []( const auto& o ) { return o.axis == RiuPlotAxis::defaultLeft(); } );
+    bool defaultRightUsed = std::any_of( others.begin(), others.end(), []( const auto& o ) { return o.axis == RiuPlotAxis::defaultRight(); } );
 
-        for ( auto c : summaryCurves() )
-        {
-            if ( c == currentCurve ) continue;
-
-            if ( c->axisY() == RiuPlotAxis::defaultLeft() ) defaultLeftUsed = true;
-            if ( c->axisY() == RiuPlotAxis::defaultRight() ) defaultRightUsed = true;
-        }
-
-        return std::make_pair( defaultLeftUsed, defaultRightUsed );
-    };
-
-    auto [defaultLeftUsed, defaultRightUsed] = isDefaultLeftAndRightUsed( curve );
     if ( !defaultLeftUsed )
     {
-        curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
+        applyAxis( RiuPlotAxis::defaultLeft() );
         return;
     }
 
     if ( !defaultRightUsed )
     {
-        curve->setLeftOrRightAxisY( RiuPlotAxis::defaultRight() );
+        applyAxis( RiuPlotAxis::defaultRight() );
         return;
     }
 
@@ -3218,12 +3246,12 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
         auto newPlotAxis = plotWidget()->createNextPlotAxis( plotAxisType );
         addNewAxisProperties( newPlotAxis, "New Axis" );
 
-        curve->setLeftOrRightAxisY( newPlotAxis );
+        applyAxis( newPlotAxis );
         return;
     }
 
     // If we get here, we have no more axes to assign to, use left axis as fallback
-    curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
+    applyAxis( RiuPlotAxis::defaultLeft() );
 }
 
 //--------------------------------------------------------------------------------------------------

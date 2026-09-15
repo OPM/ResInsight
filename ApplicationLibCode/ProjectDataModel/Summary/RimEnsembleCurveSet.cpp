@@ -28,6 +28,8 @@
 #include "Summary/RiaSummaryCurveDefinition.h"
 #include "Summary/RiaSummaryPlotTools.h"
 
+#include "RifSummaryReaderInterface.h"
+
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "RimCustomObjectiveFunction.h"
@@ -613,6 +615,31 @@ void RimEnsembleCurveSet::findOrAssignBottomAxisX( RiuPlotAxis plotAxis )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Assign the given Y-axis to this curve set, creating a new axis on the parent plot if the plot
+/// does not already have an axis of the given type. Used to preserve an explicitly selected axis
+/// when a curve set is copied between plots (e.g. the summary plot editor preview/target plots).
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::findOrAssignLeftOrRightAxisY( RiuPlotAxis plotAxis )
+{
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
+    if ( !plot ) return;
+
+    auto axis = plot->axisPropertiesForPlotAxis( plotAxis );
+    if ( !axis )
+    {
+        axis = plot->addNewAxisProperties( plotAxis, "New Axis" );
+        plot->updateConnectedEditors();
+    }
+
+    m_yPlotAxisProperties = axis;
+
+    for ( RimSummaryCurve* curve : curves() )
+    {
+        curve->setLeftOrRightAxisY( axisY() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setSummaryAddressYAndStatisticsFlag( RifEclipseSummaryAddress address )
@@ -628,6 +655,25 @@ void RimEnsembleCurveSet::setSummaryAddressYAndStatisticsFlag( RifEclipseSummary
 RifEclipseSummaryAddress RimEnsembleCurveSet::summaryAddressY() const
 {
     return m_yValuesSummaryAddress->address();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimEnsembleCurveSet::unitNameY() const
+{
+    auto ensemble = summaryEnsemble();
+    if ( !ensemble ) return "";
+
+    for ( auto summaryCase : ensemble->allSummaryCases() )
+    {
+        if ( !summaryCase ) continue;
+
+        auto reader = summaryCase->summaryReader();
+        if ( reader ) return reader->unitName( summaryAddressY() );
+    }
+
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
