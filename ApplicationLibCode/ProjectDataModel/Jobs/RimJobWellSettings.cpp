@@ -286,10 +286,9 @@ QList<caf::PdmOptionItemInfo> RimJobWellSettings::calculateValueOptions( const c
     }
     else if ( fieldNeedingOptions == &m_openTimeStep )
     {
-        auto timeStepNames = m_dateStrings;
-        for ( int i = 0; i < static_cast<int>( timeStepNames.size() - 1 ); i++ )
+        for ( int i = 0; i < static_cast<int>( m_dateStrings.size() - 1 ); i++ )
         {
-            options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], QVariant::fromValue( i ) ) );
+            options.push_back( caf::PdmOptionItemInfo( m_dateStrings[i], QVariant::fromValue( i ) ) );
         }
     }
     else if ( fieldNeedingOptions == &m_wellOpenKeyword )
