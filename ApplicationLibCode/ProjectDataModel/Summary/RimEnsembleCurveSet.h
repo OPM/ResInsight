@@ -47,6 +47,8 @@
 #include <QDate>
 #include <QPointer>
 
+#include <string>
+
 class RimSummaryCase;
 class RimSummaryEnsemble;
 class RimSummaryCurve;
@@ -114,6 +116,7 @@ public:
     void                          setCurveAddress( RiaSummaryCurveAddress address );
     void                          setSummaryAddressYAndStatisticsFlag( RifEclipseSummaryAddress address );
     RifEclipseSummaryAddress      summaryAddressY() const;
+    std::string                   unitNameY() const;
     RiaSummaryCurveAddress        curveAddress() const;
     std::vector<RimSummaryCurve*> curves() const;
 
@@ -189,6 +192,7 @@ public:
     bool                           isXAxisSummaryVector() const;
     RiaDefines::HorizontalAxisType xAxisType() const;
     void                           findOrAssignBottomAxisX( RiuPlotAxis plotAxis );
+    void                           findOrAssignLeftOrRightAxisY( RiuPlotAxis plotAxis );
 
     std::vector<RimTimeAxisAnnotation*> createTimeAnnotations() const;
 

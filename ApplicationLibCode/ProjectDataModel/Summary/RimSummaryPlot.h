@@ -36,6 +36,7 @@
 
 #include <QPointer>
 
+#include <functional>
 #include <memory>
 #include <set>
 #include <vector>
@@ -207,6 +208,7 @@ public:
     RimPlotAxisProperties*          addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
     RimPlotAxisProperties*          addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name );
     void                            findOrAssignPlotAxisX( RimSummaryCurve* curve );
+    void                            assignPlotAxis( RimEnsembleCurveSet* curveSet );
 
     std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
 
@@ -303,8 +305,11 @@ private:
 
     void ensureRequiredAxisObjectsForCurves();
     void assignPlotAxis( RimSummaryCurve* curve );
-    void assignYPlotAxis( RimSummaryCurve* curve );
     void assignXPlotAxis( RimSummaryCurve* curve );
+    void assignYPlotAxis( const std::string&                        unitNameY,
+                          const RifEclipseSummaryAddress&           addressY,
+                          const void*                               objectToExclude,
+                          const std::function<void( RiuPlotAxis )>& applyAxis );
 
     RimSummaryCurve* addNewCurve( const RifEclipseSummaryAddress& address,
                                   RimSummaryCase*                 summaryCase,
