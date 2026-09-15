@@ -256,7 +256,7 @@ bool RimGridCalculation::calculate()
 
         if ( !calculationCase->eclipseCaseData() )
         {
-            if ( m_additionalCasesType == AdditionalCasesType::ENSEMBLE )
+            if ( m_additionalCasesType == AdditionalCasesType::ENSEMBLE || m_destinationEnsemble() )
             {
                 calculationCase->ensureReservoirCaseIsOpen();
             }
