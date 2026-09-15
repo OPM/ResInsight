@@ -46,7 +46,7 @@ python -m ruff check --fix test_polygons.py
 
 1. **Minimal Changes**: Make the smallest possible changes to achieve the goal
 2. **Preserve Formatting**: Do not reformat unrelated code
-3. **Comments**: Match the style of existing comments in the file
+3. **Comments**: Match the style of existing comments in the file, keep them concise and as short as possible while still being clear
 4. **Libraries**: Use existing libraries whenever possible; only add new libraries or update versions if absolutely necessary
 
 ### Code Quality
@@ -69,15 +69,25 @@ python -m ruff check --fix test_polygons.py
 Put function bodies in the `.cpp` file, not inline in the header.
 
 - Declare member functions in the header; define them in the matching `.cpp`.
-- This applies even to one-line bodies (`return false;`, `return m_field;`, trivial forwarders).
-- Exceptions: function templates that must stay in the header, and `constexpr` functions where the compiler requires the definition to be visible.
+- Exceptions: function templates that must stay in the header, `constexpr` functions where the compiler requires the definition to be visible, and functions with an empty body (`{}`) or a short initializer list.
 
 ```cpp
-// Bad – inline body in the header
+// OK – short one-line body allowed inline
 class RimFoo
 {
 public:
     bool canAddSubCollection() const override { return false; }
+};
+
+// Bad – multi-statement body inline in the header
+class RimFoo
+{
+public:
+    bool canAddSubCollection() const override
+    {
+        if ( m_locked ) return false;
+        return m_children.empty();
+    }
 };
 
 // Good – declared in the header, defined in the .cpp
@@ -91,8 +101,23 @@ public:
 // RimFoo.cpp
 bool RimFoo::canAddSubCollection() const
 {
-    return false;
+    if ( m_locked ) return false;
+    return m_children.empty();
 }
+
+// OK – empty body / short initializer list allowed inline
+class RimBar
+{
+public:
+    void reset() {}
+    RimBar( int value )
+        : m_value( value )
+    {
+    }
+
+private:
+    int m_value = 0;
+};
 ```
 
 Why: keeps headers light (faster builds, smaller include surface), keeps the implementation file as the single source of truth for behavior, and matches the existing style across `ApplicationLibCode`.
