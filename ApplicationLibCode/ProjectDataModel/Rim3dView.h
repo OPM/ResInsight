@@ -27,6 +27,7 @@
 
 #include "RivAnnotationTools.h"
 #include "RivCellSetEnum.h"
+#include "RivNamedVisualizationModels.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -95,6 +96,10 @@ public:
     ~Rim3dView() override;
 
     int id() const final;
+
+    // Names for models in m_vizModels
+    static const char* wellPathPipeModelName() { return "WellPathPipeModel"; }
+    static const char* seismicSectionModelName() { return "SeismicSectionModel"; }
 
     // Public fields:
 
@@ -294,12 +299,9 @@ protected:
     // Timestep Field. Children clamps this differently
     caf::PdmField<int> m_currentTimeStep;
 
-    // 3D display model data
-    cvf::ref<cvf::ModelBasicList> m_wellPathPipeVizModel;
-    cvf::ref<cvf::ModelBasicList> m_seismicVizModel;
+    // Named viz models (well path pipes, surfaces, intersections, etc.) - see RivNamedVisualizationModels.
+    RivNamedVisualizationModels   m_vizModels;
     cvf::ref<RivWellPathsPartMgr> m_wellPathsPartManager;
-    cvf::ref<cvf::ModelBasicList> m_highlightVizModel;
-    cvf::ref<cvf::ModelBasicList> m_screenSpaceModel;
 
     caf::PdmField<double> m_scaleZ;
 
