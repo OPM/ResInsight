@@ -51,10 +51,8 @@ public:
     RimSurfaceInViewCollection*  surfaceInViewCollection() const;
     RimSeismicSectionCollection* seismicSectionCollection() const;
 
-    RimCase*                      ownerCase() const override;
     RiaDefines::View3dContent     viewContent() const override;
     bool                          isGridVisualizationMode() const override;
-    bool                          isUsingFormationNames() const override;
     std::vector<RimLegendConfig*> legendConfigs() const override;
     void                          scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
 
@@ -71,15 +69,9 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void   onCreateDisplayModel() override;
-    void   onUpdateDisplayModelForCurrentTimeStep() override;
-    void   onClampCurrentTimestep() override;
-    size_t onTimeStepCountRequested() override;
-    bool   isTimeStepDependentDataVisible() const override;
-    void   defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
-    void   onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
-    void   onUpdateStaticCellColors() override;
-    void   onUpdateLegends() override;
+    void onCreateDisplayModel() override;
+    void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
+    void onUpdateLegends() override;
 
     void onLoadDataAndUpdate() override;
     void selectOverlayInfoConfig() override;

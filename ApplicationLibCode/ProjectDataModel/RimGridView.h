@@ -42,6 +42,9 @@ class RimGridView : public Rim3dView
 public:
     RimGridView();
 
+    // Grid views are always owned by a real case
+    RimCase* ownerCase() const override = 0;
+
     caf::Signal<> cellVisibilityChanged;
 
     void showGridCells( bool enableGridCells );
@@ -82,10 +85,21 @@ protected:
     virtual void updateViewFollowingCellFilterUpdates();
     void         onClearReservoirCellVisibilitiesIfNecessary() override;
     virtual void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) = 0;
-    void         selectOverlayInfoConfig() override;
-    void         clearReservoirCellVisibilities();
-    void         addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering );
-    void         appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
+
+    // Grid views have genuine per-time-step data
+    void   onUpdateDisplayModelForCurrentTimeStep() override = 0;
+    void   onClampCurrentTimestep() override                 = 0;
+    size_t onTimeStepCountRequested() override               = 0;
+    bool   isTimeStepDependentDataVisible() const override   = 0;
+
+    // Grid views have genuine per-cell data
+    bool isUsingFormationNames() const override = 0;
+    void onUpdateStaticCellColors() override    = 0;
+
+    void selectOverlayInfoConfig() override;
+    void clearReservoirCellVisibilities();
+    void addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering );
+    void appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
