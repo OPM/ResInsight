@@ -526,9 +526,12 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
     RimEnsembleCurveSetCollection* previewCurveSetColl = m_previewPlot->ensembleCurveSetCollection();
     for ( const auto& curveSet : sourceSummaryPlot.ensembleCurveSetCollection()->curveSets() )
     {
+        auto sourceAxis = curveSet->axisY();
+
         RimEnsembleCurveSet* newCurveSet = curveSet->clone();
         newCurveSet->disableStatisticCurves();
-        previewCurveSetColl->addCurveSet( newCurveSet );
+        previewCurveSetColl->addCurveSet( newCurveSet, false );
+        newCurveSet->findOrAssignLeftOrRightAxisY( sourceAxis );
 
         RimSummaryEnsemble* ensemble = curveSet->summaryEnsemble();
         curveDefs.emplace_back( ensemble, curveSet->summaryAddressY() );
@@ -576,8 +579,11 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
             continue;
         }
 
+        auto sourceAxis = editedCurveSet->axisY();
+
         RimEnsembleCurveSet* newCurveSet = editedCurveSet->clone();
-        m_targetPlot->ensembleCurveSetCollection()->addCurveSet( newCurveSet );
+        m_targetPlot->ensembleCurveSetCollection()->addCurveSet( newCurveSet, false );
+        newCurveSet->findOrAssignLeftOrRightAxisY( sourceAxis );
         newCurveSet->setParentPlotNoReplot( m_targetPlot->plotWidget() );
     }
 

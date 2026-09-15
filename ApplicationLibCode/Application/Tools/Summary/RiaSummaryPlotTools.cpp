@@ -503,7 +503,6 @@ void appendCurvesToPlot( RimSummaryPlot*                           summaryPlot,
         {
             auto curveSet = createCurveSet( ensemble, addr );
             summaryPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
-            curveSet->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
         }
 
         for ( const auto summaryCase : summaryCases )
@@ -536,7 +535,6 @@ RimEnsembleCurveSet* addNewEnsembleCurve( RimSummaryPlot* summaryPlot, const Ria
 
     summaryPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
 
-    curveSet->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
     curveSet->setBottomOrTopAxisX( RiuPlotAxis::defaultBottomForSummaryVectors() );
 
     summaryPlot->curvesChanged.send();
