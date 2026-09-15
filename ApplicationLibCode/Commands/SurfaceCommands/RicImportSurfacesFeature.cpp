@@ -18,6 +18,8 @@
 
 #include "RicImportSurfacesFeature.h"
 
+#include "RicNewDataViewFeature.h"
+
 #include "RiaApplication.h"
 
 #include "RimSurface.h"
@@ -82,6 +84,8 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
 
     if ( lastCreatedOrUpdated )
     {
+        RicNewDataViewFeature::createInitialViewIfNeeded();
+
         Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
     }
 }

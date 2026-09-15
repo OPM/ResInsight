@@ -33,6 +33,7 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
+#include "RimDataView.h"
 #include "RimDockWindowController.h"
 #include "RimGridView.h"
 #include "RimLegendConfig.h"
@@ -176,15 +177,6 @@ Rim3dView::Rim3dView()
                        false,
                        "Use Custom Annotation Strategy",
                        "Specify the strategy to be applied on all screen space annotations." );
-
-    m_seismicVizModel = new cvf::ModelBasicList;
-    m_seismicVizModel->setName( "SeismicSectionModel" );
-
-    m_highlightVizModel = new cvf::ModelBasicList;
-    m_highlightVizModel->setName( "HighlightModel" );
-
-    m_wellPathPipeVizModel = new cvf::ModelBasicList;
-    m_wellPathPipeVizModel->setName( "WellPathPipeModel" );
 
     m_wellPathsPartManager   = new RivWellPathsPartMgr( this );
     m_annotationsPartManager = new RivAnnotationsPartMgr( this );
@@ -609,6 +601,7 @@ std::vector<Rim3dView*> Rim3dView::validComparisonViews() const
         for ( auto view : project->allViews() )
         {
             if ( dynamic_cast<RimSeismicView*>( view ) ) continue;
+            if ( dynamic_cast<RimDataView*>( view ) ) continue;
 
             bool isSameViewType = isIntersectionView( this ) == isIntersectionView( view );
 
@@ -863,6 +856,14 @@ caf::PdmObjectHandle* Rim3dView::implementingPdmObject()
 RimWellPathCollection* Rim3dView::wellPathCollection() const
 {
     return RimWellPathCollection::instance();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim3dView::isWellPathVisibleInView( const RimWellPath* wellPath ) const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1415,9 +1416,11 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
 {
     if ( !nativeOrOverrideViewer() ) return;
 
-    nativeOrOverrideViewer()->removeStaticModel( m_highlightVizModel.p() );
+    auto* highlightVizModel = m_vizModels.findOrCreate( "HighlightModel" );
 
-    m_highlightVizModel->removeAllParts();
+    nativeOrOverrideViewer()->removeStaticModel( highlightVizModel );
+
+    highlightVizModel->removeAllParts();
 
     cvf::Collection<cvf::Part> parts;
     onCreatePartCollectionFromSelection( &parts );
@@ -1425,11 +1428,11 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
     {
         for ( size_t i = 0; i < parts.size(); i++ )
         {
-            m_highlightVizModel->addPart( parts[i].p() );
+            highlightVizModel->addPart( parts[i].p() );
         }
 
-        m_highlightVizModel->updateBoundingBoxesRecursive();
-        nativeOrOverrideViewer()->addStaticModelOnce( m_highlightVizModel.p(), isUsingOverrideViewer() );
+        highlightVizModel->updateBoundingBoxesRecursive();
+        nativeOrOverrideViewer()->addStaticModelOnce( highlightVizModel, isUsingOverrideViewer() );
     }
 
     updateGridBoxData();
@@ -1773,12 +1776,8 @@ void Rim3dView::updateScreenSpaceModel()
 {
     if ( !m_viewer || !m_viewer->mainCamera() ) return;
 
-    if ( m_screenSpaceModel.isNull() )
-    {
-        m_screenSpaceModel = new cvf::ModelBasicList;
-        m_screenSpaceModel->setName( "ScreenSpaceModel" );
-    }
-    m_screenSpaceModel->removeAllParts();
+    auto* screenSpaceModel = m_vizModels.findOrCreate( "ScreenSpaceModel" );
+    screenSpaceModel->removeAllParts();
 
     // Build annotation parts and put into screen space model
     cvf::Collection<cvf::Part> partCollection;
@@ -1793,9 +1792,9 @@ void Rim3dView::updateScreenSpaceModel()
 
     // The scaling factor is computed using the camera, and this does not work for the flat intersection view
     bool computeScalingFactor = ( viewContent() != RiaDefines::View3dContent::FLAT_INTERSECTION );
-    annoTool.addAnnotationLabels( partCollection, m_viewer->mainCamera(), m_screenSpaceModel.p(), computeScalingFactor );
+    annoTool.addAnnotationLabels( partCollection, m_viewer->mainCamera(), screenSpaceModel, computeScalingFactor );
 
-    nativeOrOverrideViewer()->addStaticModelOnce( m_screenSpaceModel.p(), isUsingOverrideViewer() );
+    nativeOrOverrideViewer()->addStaticModelOnce( screenSpaceModel, isUsingOverrideViewer() );
 }
 
 //--------------------------------------------------------------------------------------------------

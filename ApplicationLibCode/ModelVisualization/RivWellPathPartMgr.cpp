@@ -164,6 +164,8 @@ bool RivWellPathPartMgr::isWellPathEnabled( const cvf::BoundingBox& wellPathClip
 
     if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return false;
 
+    if ( !m_rimView.isNull() && !m_rimView->isWellPathVisibleInView( m_rimWellPath ) ) return false;
+
     return true;
 }
 

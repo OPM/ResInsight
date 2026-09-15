@@ -89,9 +89,8 @@ Rim2dIntersectionView::Rim2dIntersectionView()
     m_nameProxy.registerGetMethod( this, &Rim2dIntersectionView::getName );
     m_nameProxy.registerSetMethod( this, &Rim2dIntersectionView::setName );
 
-    m_showWindow           = false;
-    m_scaleTransform       = new cvf::Transform();
-    m_intersectionVizModel = new cvf::ModelBasicList;
+    m_showWindow     = false;
+    m_scaleTransform = new cvf::Transform();
 
     ( (RiuViewerToViewInterface*)this )->setCameraPosition( sm_defaultViewMatrix );
 
@@ -145,16 +144,6 @@ void Rim2dIntersectionView::setIntersection( RimExtrudedCurveIntersection* inter
 RimExtrudedCurveIntersection* Rim2dIntersectionView::intersection() const
 {
     return m_intersection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Rim2dIntersectionView::isUsingFormationNames() const
-{
-    // Todo:
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -548,16 +537,16 @@ void Rim2dIntersectionView::onCreateDisplayModel()
         if ( settingsView && ownerCase() )
         {
             m_flatWellpathPartMgr = new RivWellPathPartMgr( m_intersection->wellPath(), settingsView );
-            m_flatWellpathPartMgr->appendFlattenedStaticGeometryPartsToModel( m_intersectionVizModel.p(),
+            m_flatWellpathPartMgr->appendFlattenedStaticGeometryPartsToModel( m_vizModels.findOrCreate( "IntersectionModel" ),
                                                                               displayCoordTransform().p(),
                                                                               ownerCase()->characteristicCellSize(),
                                                                               ownerCase()->activeCellsBoundingBox() );
         }
     }
 
-    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_vizModels.findOrCreate( "IntersectionModel" ), isUsingOverrideViewer() );
 
-    m_intersectionVizModel->updateBoundingBoxesRecursive();
+    m_vizModels.findOrCreate( "IntersectionModel" )->updateBoundingBoxesRecursive();
 
     if ( viewer() )
     {
@@ -763,21 +752,7 @@ void Rim2dIntersectionView::onResetLegendsInViewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::onClampCurrentTimestep()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::onUpdateStaticCellColors()
 {
 }
 
@@ -853,7 +828,8 @@ void Rim2dIntersectionView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTree
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::appendIntersectionToModel( bool cellFiltersActive, bool propertyFiltersActive )
 {
-    m_intersectionVizModel->removeAllParts();
+    auto* intersectionVizModel = m_vizModels.findOrCreate( "IntersectionModel" );
+    intersectionVizModel->removeAllParts();
 
     RimEclipseView* eclView = m_intersection->firstAncestorOrThisOfType<RimEclipseView>();
     RimGeoMechView* geoView = m_intersection->firstAncestorOrThisOfType<RimGeoMechView>();
@@ -866,7 +842,7 @@ void Rim2dIntersectionView::appendIntersectionToModel( bool cellFiltersActive, b
             {
                 cvf::UByteArray visibleCells;
                 eclView->calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED }, m_currentTimeStep );
-                appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), &visibleCells );
+                appendDynamicPartsToModel( intersectionVizModel, scaleTransform(), &visibleCells );
             }
         }
         else if ( geoView )
@@ -875,24 +851,24 @@ void Rim2dIntersectionView::appendIntersectionToModel( bool cellFiltersActive, b
             {
                 cvf::UByteArray visibleCells;
                 geoView->calculateCurrentTotalCellVisibility( &visibleCells, m_currentTimeStep );
-                appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), &visibleCells );
+                appendDynamicPartsToModel( intersectionVizModel, scaleTransform(), &visibleCells );
             }
         }
 
         // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
         // appendPartsToModel() after appendDynamicPartsToModel()
-        appendPartsToModel( m_intersectionVizModel.p(), scaleTransform() );
+        appendPartsToModel( intersectionVizModel, scaleTransform() );
     }
     else
     {
-        appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), nullptr );
+        appendDynamicPartsToModel( intersectionVizModel, scaleTransform(), nullptr );
 
         // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
         // appendPartsToModel() after appendDynamicPartsToModel()
-        appendPartsToModel( m_intersectionVizModel.p(), scaleTransform() );
+        appendPartsToModel( intersectionVizModel, scaleTransform() );
     }
-    m_intersectionVizModel->updateBoundingBoxesRecursive();
-    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+    intersectionVizModel->updateBoundingBoxesRecursive();
+    nativeOrOverrideViewer()->addStaticModelOnce( intersectionVizModel, isUsingOverrideViewer() );
 }
 
 //--------------------------------------------------------------------------------------------------

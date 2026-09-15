@@ -114,15 +114,6 @@ RimGridView::RimGridView()
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field" );
     m_cellFilterCollection = new RimCellFilterCollection();
-
-    m_surfaceVizModel = new cvf::ModelBasicList;
-    m_surfaceVizModel->setName( "SurfaceModel" );
-
-    m_intersectionVizModel = new cvf::ModelBasicList;
-    m_intersectionVizModel->setName( "CrossSectionModel" );
-
-    m_polygonVizModel = new cvf::ModelBasicList;
-    m_polygonVizModel->setName( "PolygonModel" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -441,7 +432,8 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
 //--------------------------------------------------------------------------------------------------
 void RimGridView::appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox )
 {
-    m_polygonVizModel->removeAllParts();
+    auto* polygonVizModel = m_vizModels.findOrCreate( "PolygonModel" );
+    polygonVizModel->removeAllParts();
 
     std::vector<RimPolygonInView*> polygonsInView;
     if ( m_polygonInViewCollection )
@@ -459,13 +451,13 @@ void RimGridView::appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTr
     {
         if ( polygonInView )
         {
-            polygonInView->appendPartsToModel( m_polygonVizModel.p(), scaleTransform, boundingBox );
+            polygonInView->appendPartsToModel( polygonVizModel, scaleTransform, boundingBox );
         }
     }
 
-    nativeOrOverrideViewer()->addStaticModelOnce( m_polygonVizModel.p(), isUsingOverrideViewer() );
+    nativeOrOverrideViewer()->addStaticModelOnce( polygonVizModel, isUsingOverrideViewer() );
 
-    m_polygonVizModel->updateBoundingBoxesRecursive();
+    polygonVizModel->updateBoundingBoxesRecursive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -586,7 +578,7 @@ void RimGridView::appendIntersectionsForCurrentTimeStep()
 {
     // Remove previous intersection parts for static geometry. This is required to avoid the static parts to be rendered
     // in front of the dynamic geometry added in this function. Note that a new model is created for the dynamic geometry
-    m_intersectionVizModel->removeAllParts();
+    m_vizModels.findOrCreate( "CrossSectionModel" )->removeAllParts();
 
     m_intersectionCollection->clearGeometry();
 
@@ -622,7 +614,8 @@ void RimGridView::appendIntersectionsForCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool propertyFiltersActive )
 {
-    m_intersectionVizModel->removeAllParts();
+    auto* intersectionVizModel = m_vizModels.findOrCreate( "CrossSectionModel" );
+    intersectionVizModel->removeAllParts();
     if ( m_intersectionCollection->isActive() )
     {
         m_intersectionCollection->clearGeometry();
@@ -633,30 +626,30 @@ void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool prope
             {
                 cvf::UByteArray visibleCells;
                 calculateCellVisibility( &visibleCells, { PROPERTY_FILTERED, PROPERTY_FILTERED_WELL_CELLS } );
-                m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep(), &visibleCells );
+                m_intersectionCollection->appendDynamicPartsToModel( intersectionVizModel, scaleTransform(), currentTimeStep(), &visibleCells );
             }
             else
             {
                 cvf::UByteArray visibleCells;
                 calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } );
-                m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep(), &visibleCells );
+                m_intersectionCollection->appendDynamicPartsToModel( intersectionVizModel, scaleTransform(), currentTimeStep(), &visibleCells );
             }
 
             // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
             // appendPartsToModel() after appendDynamicPartsToModel()
-            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
+            m_intersectionCollection->appendPartsToModel( *this, intersectionVizModel, scaleTransform() );
         }
         else
         {
-            m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep() );
+            m_intersectionCollection->appendDynamicPartsToModel( intersectionVizModel, scaleTransform(), currentTimeStep() );
 
             // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
             // appendPartsToModel() after appendDynamicPartsToModel()
-            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
+            m_intersectionCollection->appendPartsToModel( *this, intersectionVizModel, scaleTransform() );
         }
 
-        nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+        nativeOrOverrideViewer()->addStaticModelOnce( intersectionVizModel, isUsingOverrideViewer() );
 
-        m_intersectionVizModel->updateBoundingBoxesRecursive();
+        intersectionVizModel->updateBoundingBoxesRecursive();
     }
 }

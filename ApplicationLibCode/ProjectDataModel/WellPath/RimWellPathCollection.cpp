@@ -78,6 +78,8 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
+#include "cvfBoundingBox.h"
+
 #include <QCollator>
 #include <QFile>
 #include <QFileInfo>
@@ -399,6 +401,32 @@ void RimWellPathCollection::addWellPath( RimWellPath* wellPath )
 std::vector<RimWellPath*> RimWellPathCollection::allWellPaths() const
 {
     return m_wellPaths.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimWellPathCollection::wellPathsBoundingBox() const
+{
+    cvf::BoundingBox bb;
+
+    for ( const auto wellPath : allWellPaths() )
+    {
+        if ( !wellPath || !wellPath->wellPathGeometry() ) continue;
+
+        for ( const auto& point : wellPath->wellPathGeometry()->wellPathPoints() )
+            bb.add( point );
+    }
+
+    return bb;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCollection::collectionName() const
+{
+    return "Well Paths";
 }
 
 //--------------------------------------------------------------------------------------------------

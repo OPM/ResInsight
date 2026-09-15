@@ -52,6 +52,7 @@
 #include "RimCorrelationPlotCollection.h"
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"
+#include "RimDataViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
@@ -337,6 +338,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimWellPathCollection*>( firstUiItem ) )
         {
+            menuBuilder << "RicNewDataViewFeature";
             menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder << "RicPasteModeledWellPathFeature";
             menuBuilder << "RicCreateEnsembleWellLogFeature";
@@ -894,6 +896,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSeismicViewCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewSeismicViewFeature";
+        }
+        else if ( dynamic_cast<RimDataViewCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewDataViewFeature";
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) || dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
         {

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2023     Equinor ASA
+//  Copyright (C) 2026     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,51 +16,66 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSeismicView.h"
-
-#include "RigPolyLinesData.h"
+#include "RimDataView.h"
 
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimAnnotationCollection.h"
+#include "Rim3dPropertiesInterface.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimLegendConfig.h"
+#include "RimNameConfig.h"
+#include "RimReachCircleAnnotation.h"
+#include "RimReachCircleAnnotationInView.h"
 #include "RimRegularLegendConfig.h"
-#include "RimSeismicDataInterface.h"
-#include "RimSeismicSection.h"
-#include "RimSeismicSectionCollection.h"
+#include "RimSurface.h"
 #include "RimSurfaceCollection.h"
+#include "RimSurfaceInView.h"
 #include "RimSurfaceInViewCollection.h"
+#include "RimTextAnnotation.h"
+#include "RimTextAnnotationInView.h"
 #include "RimTools.h"
+#include "RimViewNameConfig.h"
+#include "RimWellPathCollection.h"
+
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonInView.h"
+#include "Polygons/RimPolygonInViewCollection.h"
+
+#include "WellPath/RimWellPathInView.h"
+#include "WellPath/RimWellPathInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
 
-#include "RivPolylinePartMgr.h"
-
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cafDisplayCoordTransform.h"
+#include "cvfBoundingBox.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
 #include "cvfString.h"
 #include "cvfTransform.h"
 
-CAF_PDM_SOURCE_INIT( RimSeismicView, "RimSeismicView", "SeismicView" );
+#include <algorithm>
+
+CAF_PDM_SOURCE_INIT( RimDataView, "RimDataView", "DataView" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSeismicView::RimSeismicView()
+RimDataView::RimDataView()
+    : m_isDomainBoundingBoxCached( false )
 {
-    CAF_PDM_InitObject( "Seismic View", ":/SeismicView24x24.png" );
-
-    CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
+    CAF_PDM_InitObject( "Data View", ":/3DWindow.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field" );
 
-    CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
-    m_seismicSectionCollection = new RimSeismicSectionCollection();
+    CAF_PDM_InitFieldNoDefault( &m_polygonInViewCollection, "PolygonInViewCollection", "Polygon Collection Field" );
+    m_polygonInViewCollection = new RimPolygonInViewCollection();
+    m_polygonInViewCollection->uiCapability()->setUiIcon( caf::IconProvider( ":/PolylinesFromFile16x16.png" ) );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellPathInViewCollection, "WellPathInViewCollection", "Well Path Collection Field" );
+    m_wellPathInViewCollection = new RimWellPathInViewCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations" );
     m_annotationCollection = new RimAnnotationInViewCollection;
@@ -71,45 +86,24 @@ RimSeismicView::RimSeismicView()
 
     m_scaleTransform = new cvf::Transform();
 
+    meshMode.uiCapability()->setUiHidden( true );
+    surfaceMode.uiCapability()->setUiHidden( true );
+    hideComparisonViewField();
+
     setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSeismicView::~RimSeismicView()
+RimDataView::~RimDataView()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::setSeismicData( RimSeismicDataInterface* data )
-{
-    m_seismicData = data;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSeismicDataInterface* RimSeismicView::seismicData() const
-{
-    return m_seismicData;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicView::addSlice( RiaDefines::SeismicSectionType sectionType )
-{
-    auto section = m_seismicSectionCollection->addNewSection( sectionType );
-    section->setSeismicData( m_seismicData );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSurfaceInViewCollection* RimSeismicView::surfaceInViewCollection() const
+RimSurfaceInViewCollection* RimDataView::surfaceInViewCollection() const
 {
     return m_surfaceCollection;
 }
@@ -117,23 +111,49 @@ RimSurfaceInViewCollection* RimSeismicView::surfaceInViewCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSeismicSectionCollection* RimSeismicView::seismicSectionCollection() const
+RimPolygonInViewCollection* RimDataView::polygonInViewCollection() const
 {
-    return m_seismicSectionCollection;
+    return m_polygonInViewCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::View3dContent RimSeismicView::viewContent() const
+RimWellPathInViewCollection* RimDataView::wellPathInViewCollection() const
 {
-    return RiaDefines::View3dContent::SEISMIC;
+    return m_wellPathInViewCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSeismicView::isGridVisualizationMode() const
+bool RimDataView::isWellPathVisibleInView( const RimWellPath* wellPath ) const
+{
+    if ( !m_wellPathInViewCollection() ) return true;
+
+    return m_wellPathInViewCollection->isWellPathVisible( wellPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCase* RimDataView::ownerCase() const
+{
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::View3dContent RimDataView::viewContent() const
+{
+    return RiaDefines::View3dContent::DATA_OBJECTS;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDataView::isGridVisualizationMode() const
 {
     return false;
 }
@@ -141,7 +161,7 @@ bool RimSeismicView::isGridVisualizationMode() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimLegendConfig*> RimSeismicView::legendConfigs() const
+std::vector<RimLegendConfig*> RimDataView::legendConfigs() const
 {
     std::vector<RimLegendConfig*> legends;
 
@@ -153,11 +173,6 @@ std::vector<RimLegendConfig*> RimSeismicView::legendConfigs() const
         }
     }
 
-    for ( auto section : seismicSectionCollection()->seismicSections() )
-    {
-        legends.push_back( section->legendConfig() );
-    }
-
     legends.erase( std::remove( legends.begin(), legends.end(), nullptr ), legends.end() );
 
     return legends;
@@ -166,62 +181,143 @@ std::vector<RimLegendConfig*> RimSeismicView::legendConfigs() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::scheduleGeometryRegen( RivCellSetEnum geometryType )
+void RimDataView::scheduleGeometryRegen( RivCellSetEnum geometryType )
 {
-    // no need do do anything here
+    // no need to do anything here, there are no cell based geometry sets in a case-less view
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RimSeismicView::domainBoundingBox()
+cvf::BoundingBox RimDataView::computeDomainBoundingBox() const
 {
     cvf::BoundingBox bb;
 
-    if ( m_seismicData )
+    if ( auto* wellPathColl = RimWellPathCollection::instance() ) bb.add( wellPathColl->wellPathsBoundingBox() );
+
+    if ( m_surfaceCollection() )
     {
-        bb.add( *m_seismicData->boundingBox() );
+        for ( auto* surfaceInView : m_surfaceCollection->visibleSurfacesInView() )
+        {
+            if ( auto* surface = surfaceInView->surface() )
+            {
+                if ( auto* propsInterface = dynamic_cast<Rim3dPropertiesInterface*>( surface ) )
+                {
+                    bb.add( propsInterface->boundingBoxInDomainCoords() );
+                }
+            }
+        }
     }
+
+    if ( m_polygonInViewCollection() )
+    {
+        for ( auto* polygonInView : m_polygonInViewCollection->visiblePolygonsInView() )
+        {
+            if ( auto* polygon = polygonInView->polygon() )
+            {
+                for ( const auto& point : polygon->pointsInDomainCoords() )
+                    bb.add( point );
+            }
+        }
+    }
+
+    if ( m_annotationCollection() )
+    {
+        // Annotation part managers reject an invalid box, so annotations must widen it themselves
+        for ( auto* inView : m_annotationCollection->globalTextAnnotations() )
+        {
+            if ( auto* annotation = inView->sourceAnnotation() )
+            {
+                bb.add( annotation->anchorPoint() );
+                bb.add( annotation->labelPoint() );
+            }
+        }
+
+        for ( auto* inView : m_annotationCollection->globalReachCircleAnnotations() )
+        {
+            if ( auto* annotation = inView->sourceAnnotation() ) bb.add( annotation->centerPoint() );
+        }
+    }
+
     return bb;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+cvf::BoundingBox RimDataView::cachedDomainBoundingBox() const
 {
-    if ( changedField == &m_seismicData )
+    if ( !m_isDomainBoundingBoxCached )
     {
-        updateGridBoxData();
-        scheduleCreateDisplayModelAndRedraw();
+        m_domainBoundingBox         = computeDomainBoundingBox();
+        m_isDomainBoundingBoxCached = true;
     }
-    else
+
+    return m_domainBoundingBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDataView::invalidateDomainBoundingBox()
+{
+    m_isDomainBoundingBoxCached = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimDataView::domainBoundingBox()
+{
+    return cachedDomainBoundingBox();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimDataView::characteristicCellSize() const
+{
+    // No case to ask, so derive a length scale from the extent of the visualized data. The well pipe radius is
+    // 0.1 (RimWellPathCollection::wellPathRadiusScaleFactor) times this value, so 1/100 of the horizontal extent
+    // gives a pipe radius of ~1/1000 of the scene, which reads well on screen. Clamped to the same interval
+    // RimEclipseCase::characteristicCellSize() uses.
+    const auto bb = cachedDomainBoundingBox();
+    if ( !bb.isValid() ) return 10.0;
+
+    return std::clamp( 0.01 * std::max( bb.extent().x(), bb.extent().y() ), 10.0, 200.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDataView::updateGridBoxData()
+{
+    if ( viewer() )
     {
-        Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
+        viewer()->updateGridBoxData( m_scaleZ(), cvf::Vec3d::ZERO, backgroundColor(), domainBoundingBox(), fontSize() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimDataView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto genGrp = uiOrdering.addNewGroup( "General" );
-
     genGrp->add( userDescriptionField() );
-    genGrp->add( &m_seismicData );
 
-    uiOrdering.skipRemainingFields( true );
+    Rim3dView::defineUiOrdering( uiConfigName, uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
+void RimDataView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.add( m_overlayInfoConfig() );
-    uiTreeOrdering.add( seismicSectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
+    uiTreeOrdering.add( polygonInViewCollection() );
+    uiTreeOrdering.add( wellPathInViewCollection() );
     uiTreeOrdering.add( annotationCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
@@ -230,36 +326,26 @@ void RimSeismicView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::onCreateDisplayModel()
+void RimDataView::onCreateDisplayModel()
 {
     if ( nativeOrOverrideViewer() == nullptr ) return;
 
-    if ( !m_seismicData ) return;
+    invalidateDomainBoundingBox();
+    const auto bb = domainBoundingBox();
 
     // Remove all existing frames from the viewer.
     nativeOrOverrideViewer()->removeAllFrames( isUsingOverrideViewer() );
 
-    // Set the Main scene in the viewer.
+    // Set the main scene in the viewer before adding the static models, since addStaticModelOnce() appends to the
+    // frames of the existing scene.
     cvf::ref<cvf::Scene> mainScene = new cvf::Scene;
-
-    // Seismic sections
-
-    cvf::ref<caf::DisplayCoordTransform> transform       = displayCoordTransform();
-    auto*                                seismicVizModel = m_vizModels.findOrCreate( Rim3dView::seismicSectionModelName() );
-    seismicVizModel->removeAllParts();
-
-    if ( m_polylinePartMgr.isNull() ) m_polylinePartMgr = new RivPolylinePartMgr( this, this, this );
-    m_polylinePartMgr->appendDynamicGeometryPartsToModel( seismicVizModel, transform.p(), domainBoundingBox() );
-
-    m_seismicSectionCollection->appendPartsToModel( this, seismicVizModel, transform.p(), domainBoundingBox() );
-    mainScene->addModel( seismicVizModel );
     nativeOrOverrideViewer()->setMainScene( mainScene.p(), isUsingOverrideViewer() );
 
     // Well path model
 
     auto* wellPathPipeVizModel = m_vizModels.findOrCreate( Rim3dView::wellPathPipeModelName() );
     wellPathPipeVizModel->removeAllParts();
-    addWellPathsToModel( wellPathPipeVizModel, domainBoundingBox(), m_seismicData->inlineSpacing() );
+    addWellPathsToModel( wellPathPipeVizModel, bb, characteristicCellSize() );
     nativeOrOverrideViewer()->addStaticModelOnce( wellPathPipeVizModel, isUsingOverrideViewer() );
 
     // Surfaces
@@ -273,12 +359,27 @@ void RimSeismicView::onCreateDisplayModel()
         nativeOrOverrideViewer()->addStaticModelOnce( surfaceVizModel, isUsingOverrideViewer() );
     }
 
+    // Polygons
+
+    auto* polygonVizModel = m_vizModels.findOrCreate( "PolygonModel" );
+    polygonVizModel->removeAllParts();
+    if ( m_polygonInViewCollection )
+    {
+        cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
+        for ( auto* polygonInView : m_polygonInViewCollection->visiblePolygonsInView() )
+        {
+            if ( polygonInView ) polygonInView->appendPartsToModel( polygonVizModel, transform.p(), bb );
+        }
+        nativeOrOverrideViewer()->addStaticModelOnce( polygonVizModel, isUsingOverrideViewer() );
+        polygonVizModel->updateBoundingBoxesRecursive();
+    }
+
     // Annotations
 
-    cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
-    model->setName( "Annotations" );
-    addAnnotationsToModel( model.p() );
-    mainScene->addModel( model.p() );
+    cvf::ref<cvf::ModelBasicList> annotationModel = new cvf::ModelBasicList;
+    annotationModel->setName( "Annotations" );
+    addAnnotationsToModel( annotationModel.p() );
+    mainScene->addModel( annotationModel.p() );
 
     onUpdateLegends();
     if ( m_surfaceCollection )
@@ -286,7 +387,7 @@ void RimSeismicView::onCreateDisplayModel()
         m_surfaceCollection->applySingleColorEffect();
     }
 
-    if ( m_seismicData ) nativeOrOverrideViewer()->setPointOfInterest( m_seismicData->boundingBox()->center() );
+    if ( bb.isValid() ) nativeOrOverrideViewer()->setPointOfInterest( bb.center() );
 
     m_overlayInfoConfig()->update3DInfo();
 }
@@ -294,7 +395,7 @@ void RimSeismicView::onCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
+void RimDataView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
 {
     *xLabel = "E(x)";
     *yLabel = "N(y)";
@@ -304,45 +405,32 @@ void RimSeismicView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::onUpdateLegends()
+void RimDataView::onUpdateLegends()
 {
-    if ( nativeOrOverrideViewer() )
-    {
-        if ( !isUsingOverrideViewer() )
-        {
-            nativeOrOverrideViewer()->removeAllColorLegends();
-        }
-        else
-        {
-            std::vector<RimLegendConfig*> legendConfs = this->legendConfigs();
+    if ( !nativeOrOverrideViewer() ) return;
 
-            for ( auto legendConf : legendConfs )
-            {
-                nativeOrOverrideViewer()->removeColorLegend( legendConf->titledOverlayFrame() );
-            }
-        }
+    if ( !isUsingOverrideViewer() )
+    {
+        nativeOrOverrideViewer()->removeAllColorLegends();
     }
-
-    if ( !nativeOrOverrideViewer() )
+    else
     {
-        return;
+        for ( auto legendConf : legendConfigs() )
+        {
+            nativeOrOverrideViewer()->removeColorLegend( legendConf->titledOverlayFrame() );
+        }
     }
 
     if ( m_surfaceCollection && m_surfaceCollection->isChecked() )
     {
         m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
     }
-
-    if ( m_seismicSectionCollection->isChecked() )
-    {
-        m_seismicSectionCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::onLoadDataAndUpdate()
+void RimDataView::onLoadDataAndUpdate()
 {
     updateViewTreeItems( RiaDefines::ItemIn3dView::ALL );
     synchronizeLocalAnnotationsFromGlobal();
@@ -350,7 +438,11 @@ void RimSeismicView::onLoadDataAndUpdate()
 
     updateDockWindowVisibility();
 
+    // Surface data must load before the bounding box is computed, or boundingBoxInDomainCoords() returns an
+    // empty box because the surface data has not been fetched yet.
     if ( m_surfaceCollection ) m_surfaceCollection->loadData( m_currentTimeStep );
+
+    invalidateDomainBoundingBox();
 
     scheduleCreateDisplayModelAndRedraw();
 }
@@ -358,7 +450,7 @@ void RimSeismicView::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::selectOverlayInfoConfig()
+void RimDataView::selectOverlayInfoConfig()
 {
     Riu3DMainWindowTools::selectAsCurrentItem( m_overlayInfoConfig );
 }
@@ -366,7 +458,7 @@ void RimSeismicView::selectOverlayInfoConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Transform* RimSeismicView::scaleTransform()
+cvf::Transform* RimDataView::scaleTransform()
 {
     return m_scaleTransform.p();
 }
@@ -374,31 +466,28 @@ cvf::Transform* RimSeismicView::scaleTransform()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSeismicView::createAutoName() const
+QString RimDataView::createAutoName() const
 {
-    if ( m_seismicData != nullptr )
-    {
-        return QString::fromStdString( m_seismicData->userDescription() );
-    }
+    if ( !nameConfig()->customName().isEmpty() ) return nameConfig()->customName();
 
-    return "Seismic View";
+    return "Data View";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::updateGridBoxData()
+void RimDataView::setDefaultView()
 {
     if ( viewer() )
     {
-        viewer()->updateGridBoxData( m_scaleZ(), cvf::Vec3d::ZERO, backgroundColor(), domainBoundingBox(), fontSize() );
+        viewer()->setDefaultView( cvf::Vec3d::Y_AXIS, cvf::Vec3d::Z_AXIS );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
+void RimDataView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
 {
     auto bitmaskEnum = BitmaskEnum( itemType );
 
@@ -422,95 +511,17 @@ void RimSeismicView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
         }
     }
 
+    if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::POLYGON ) )
+    {
+        m_polygonInViewCollection->updateFromPolygonCollection();
+    }
+
+    if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::WELL_PATH ) )
+    {
+        m_wellPathInViewCollection->updateFromWellPathCollection();
+    }
+
+    invalidateDomainBoundingBox();
+
     updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RigPolyLinesData> RimSeismicView::polyLinesData() const
-{
-    cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
-
-    if ( m_seismicData != nullptr )
-    {
-        m_seismicData->addSeismicOutline( pld.p() );
-        pld->setLineAppearance( 1, { 255, 255, 255 }, false );
-        pld->setZPlaneLock( false, 0.0 );
-        pld->setVisibility( true, false );
-    }
-    else
-    {
-        pld->setVisibility( false, false );
-    }
-
-    return pld;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicView::setDefaultView()
-{
-    if ( viewer() )
-    {
-        viewer()->setDefaultView( cvf::Vec3d::Y_AXIS, cvf::Vec3d::Z_AXIS );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSeismicView::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    if ( fieldNeedingOptions == &m_seismicData )
-    {
-        RimTools::seismicDataOptionItems( &options, domainBoundingBox() );
-    }
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimSeismicView::characteristicCellSize() const
-{
-    if ( m_seismicData != nullptr )
-    {
-        return m_seismicData->inlineSpacing();
-    }
-
-    return Rim3dView::characteristicCellSize();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigHistogramData RimSeismicView::histogramData()
-{
-    RigHistogramData histData;
-
-    if ( m_seismicData )
-    {
-        auto xvals = m_seismicData->histogramXvalues();
-        auto yvals = m_seismicData->histogramYvalues();
-        if ( xvals.empty() || yvals.empty() ) return histData;
-
-        histData.min  = xvals.front();
-        histData.max  = xvals.back();
-        histData.mean = 0.0;
-        histData.sum  = 0.0;
-
-        histData.histogram.resize( yvals.size() );
-
-        int i = 0;
-        for ( auto val : yvals )
-        {
-            histData.histogram[i++] = (size_t)val;
-        }
-    }
-    return histData;
 }
