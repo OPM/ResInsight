@@ -212,7 +212,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleJob::calculateValueOptions( const caf::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RimEnsembleJob::getSelectedRealizationFileNames() const
+std::vector<std::string> RimEnsembleJob::selectedRealizationFileNames() const
 {
     std::vector<std::string> fileNames;
     for ( auto& realization : m_selectedRealizations.value() )
@@ -231,7 +231,7 @@ std::vector<std::string> RimEnsembleJob::getSelectedRealizationFileNames() const
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleJob::execute()
 {
-    auto realizations = getSelectedRealizations();
+    auto realizations = setUpSelectedRealizations();
 
     m_expectedOutputFiles.clear();
     m_subJobs.deleteChildren();
@@ -325,7 +325,7 @@ void RimEnsembleJob::setFinished( bool runOk )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEnsembleJob::RealizationInfo> RimEnsembleJob::getSelectedRealizations() const
+std::vector<RimEnsembleJob::RealizationInfo> RimEnsembleJob::setUpSelectedRealizations() const
 {
     if ( !m_inputEnsemble() || !m_inputEnsemble()->ensembleFileSet() ) return {};
 

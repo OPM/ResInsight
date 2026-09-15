@@ -72,7 +72,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    std::vector<RealizationInfo> getSelectedRealizations() const;
+    std::vector<RealizationInfo> setUpSelectedRealizations() const;
     std::string                  outputIteration() const;
 
     std::vector<QString> dateStrings() const;
@@ -80,7 +80,7 @@ protected:
     void subJobCompleted( const caf::SignalEmitter* emitter, bool runOk );
 
 private:
-    std::vector<std::string> getSelectedRealizationFileNames() const;
+    std::vector<std::string> selectedRealizationFileNames() const;
 
 private:
     caf::PdmPtrField<RimReservoirGridEnsemble*> m_inputEnsemble;
