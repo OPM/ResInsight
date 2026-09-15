@@ -113,7 +113,8 @@ public:
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>> meshMode;
     caf::PdmField<caf::AppEnum<SurfaceModeType>>          surfaceMode;
 
-    virtual RimCase* ownerCase() const = 0;
+    // Default: no owner case. Grid views (RimGridView) re-abstract this.
+    virtual RimCase* ownerCase() const { return nullptr; }
     RiuViewer*       viewer() const;
 
     void               setName( const QString& name );
@@ -143,7 +144,7 @@ public:
     void disableLighting( bool disable );
     bool isLightingDisabled() const;
 
-    virtual bool                          isUsingFormationNames() const = 0;
+    virtual bool                          isUsingFormationNames() const { return false; }
     cvf::ref<caf::DisplayCoordTransform>  displayCoordTransform() const override;
     virtual std::vector<RimLegendConfig*> legendConfigs() const = 0;
 
@@ -247,16 +248,21 @@ protected:
     virtual void onResetLegendsInViewer();
     virtual void onUpdateScaleTransform();
 
-    virtual void   onCreateDisplayModel()                   = 0;
-    virtual void   onUpdateDisplayModelForCurrentTimeStep() = 0;
-    virtual void   onClampCurrentTimestep()                 = 0;
-    virtual size_t onTimeStepCountRequested()               = 0;
+    virtual void onCreateDisplayModel() = 0;
 
-    virtual bool isTimeStepDependentDataVisible() const                                            = 0;
+    // Time step control. Default: no time step (single static frame). Grid views re-abstract these.
+    virtual void   onUpdateDisplayModelForCurrentTimeStep() {}
+    virtual void   onClampCurrentTimestep() { m_currentTimeStep = 0; }
+    virtual size_t onTimeStepCountRequested() { return 1; }
+    virtual bool   isTimeStepDependentDataVisible() const { return false; }
+
     virtual void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
-    virtual void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )          = 0;
-    virtual void onUpdateStaticCellColors()                                                        = 0;
-    virtual void onUpdateLegends()                                                                 = 0;
+
+    // Default: no-op. Grid views (per-cell data) re-abstract these.
+    virtual void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) {}
+    virtual void onUpdateStaticCellColors() {}
+
+    virtual void onUpdateLegends() = 0;
 
     virtual cvf::Transform* scaleTransform() = 0;
 

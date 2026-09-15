@@ -55,7 +55,6 @@ public:
     void                          setIntersection( RimExtrudedCurveIntersection* intersection );
     RimExtrudedCurveIntersection* intersection() const;
 
-    bool     isUsingFormationNames() const override;
     void     scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
     RimCase* ownerCase() const override;
     void     selectOverlayInfoConfig() override {}
@@ -82,10 +81,8 @@ protected:
     bool            isGridVisualizationMode() const override;
     void            defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
     void            onCreateDisplayModel() override;
-    void            onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
     void            onClampCurrentTimestep() override;
     void            onUpdateDisplayModelForCurrentTimeStep() override;
-    void            onUpdateStaticCellColors() override;
     cvf::Transform* scaleTransform() override;
     void            onResetLegendsInViewer() override;
     void            onLoadDataAndUpdate() override;
