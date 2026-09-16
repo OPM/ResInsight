@@ -451,3 +451,11 @@ def test_10k_result_alias(rips_instance, initialize_test):
 
     with pytest.raises(rips.RipsError, match="No such result"):
         case.grid_property(rips.PropertyType.DYNAMIC_NATIVE, "SPOIL", 3)
+
+
+def test_create_saturation_pressure_plots_requires_data(rips_instance, initialize_test):
+    # None of the test models carry EQUIL/PBUB/PDEW data, so the method must report a clear error
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    with pytest.raises(rips.RipsError):
+        case.create_saturation_pressure_plots()

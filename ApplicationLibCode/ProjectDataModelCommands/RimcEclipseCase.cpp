@@ -29,6 +29,7 @@
 #include "ExportCommands/RicExportLgrFeature.h"
 #include "FractureCommands/RicCreateMultipleFracturesOptionItemUi.h"
 #include "FractureCommands/RicCreateMultipleFracturesUi.h"
+#include "GridCrossPlotCommands/RicCreateSaturationPressurePlotsFeature.h"
 #include "RicCreateTemporaryLgrFeature.h"
 #include "RicDeleteTemporaryLgrsFeature.h"
 
@@ -59,6 +60,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRoffCase.h"
+#include "RimSaturationPressurePlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -1447,6 +1449,59 @@ std::expected<caf::PdmObjectHandle*, QString> RimEclipseResultCase_exportFlowCha
 
     QTextStream textstream( &file );
     textstream << plot->curveDataAsText();
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseResultCase, RimEclipseResultCase_createSaturationPressurePlots, "createSaturationPressurePlots" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultCase_createSaturationPressurePlots::RimEclipseResultCase_createSaturationPressurePlots( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Create Saturation Pressure Plots",
+                        "",
+                        "",
+                        "Create saturation pressure plots (PRESSURE vs PBUB/PDEW per EQUIL region) for the case" );
+
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "Zero-based time step index" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_createSaturationPressurePlots::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseResultCase_createSaturationPressurePlots::execute()
+{
+    auto* eclipseCase = self<RimEclipseResultCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    auto plots = RicCreateSaturationPressurePlotsFeature::createPlots( eclipseCase, m_timeStep() );
+    if ( plots.empty() )
+    {
+        return std::unexpected( QString( "No saturation pressure plots created for case '%1'. The case must have EQUIL data and the "
+                                         "PRESSURE, PBUB and PDEW results." )
+                                    .arg( eclipseCase->caseUserDescription() ) );
+    }
+
+    if ( auto* collection = RimMainPlotCollection::current()->saturationPressurePlotCollection() )
+    {
+        collection->updateAllRequiredEditors();
+    }
+
+    if ( RiaGuiApplication::isRunning() )
+    {
+        RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    }
 
     return nullptr;
 }
