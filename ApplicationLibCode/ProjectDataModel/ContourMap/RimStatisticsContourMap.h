@@ -36,6 +36,7 @@
 #include <vector>
 
 class RigContourMapGrid;
+class RimCellFilter;
 class RimEclipseCase;
 class RimEclipseResultDefinition;
 class RimEclipseCaseEnsemble;
@@ -147,6 +148,7 @@ private:
     caf::PdmField<std::vector<QString>>                       m_selectedFormations;
     caf::PdmPtrField<RimEclipseCase*>                         m_primaryCase;
     caf::PdmPtrArrayField<RimPolygon*>                        m_selectedPolygons;
+    caf::PdmPtrField<RimCellFilter*>                          m_dataFilter;
 
     caf::PdmField<caf::AppEnum<GridImportMode>>                                   m_gridImportMode;
     caf::PdmField<caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>> m_resolution;
