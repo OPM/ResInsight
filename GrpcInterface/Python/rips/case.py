@@ -507,52 +507,6 @@ def export_msw(self, well_path: str) -> Any:
 
 
 @add_method(Case)
-def create_multiple_fractures(
-    self,
-    template_id: int,
-    well_path_names: Union[str, List[str]],
-    min_dist_from_well_td: float,
-    max_fractures_per_well: int,
-    top_layer: int,
-    base_layer: int,
-    spacing: float,
-    action: str,
-) -> Any:
-    """
-    Create Multiple Fractures in one go
-
-    **Parameters**::
-
-        Parameter              | Description                               | Type
-        -----------------------| ----------------------------------------- | -----
-        template_id            | Id of the template                        | Integer
-        well_path_names        | List of well path names                   | List of Strings
-        min_dist_from_well_td  | Minimum distance from well TD             | Double
-        max_fractures_per_well | Max number of fractures per well          | Integer
-        top_layer              | Top grid k-level for fractures            | Integer
-        base_layer             | Base grid k-level for fractures           | Integer
-        spacing                | Spacing between fractures                 | Double
-        action                 | 'APPEND_FRACTURES' or 'REPLACE_FRACTURES' | String enum
-
-    """
-    if isinstance(well_path_names, str):
-        well_path_names = [well_path_names]
-    return self._execute_command(
-        createMultipleFractures=Cmd.CreateMultipleFracRequest(
-            caseId=self.id,
-            templateId=template_id,
-            wellPathNames=well_path_names,
-            minDistFromWellTd=min_dist_from_well_td,
-            maxFracturesPerWell=max_fractures_per_well,
-            topLayer=top_layer,
-            baseLayer=base_layer,
-            spacing=spacing,
-            action=action,
-        )
-    )
-
-
-@add_method(Case)
 def create_lgr_for_completion(
     self,
     time_step: int,

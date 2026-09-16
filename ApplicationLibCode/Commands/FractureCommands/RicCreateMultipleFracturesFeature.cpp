@@ -17,9 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicCreateMultipleFracturesFeature.h"
+
 #include "RicFractureNameGenerator.h"
 
 #include "RiaApplication.h"
+
+#include "cafAppEnum.h"
+#include "cafPdmScriptEnumNameRegistry.h"
 
 #include "RicCreateMultipleFracturesUi.h"
 
@@ -44,6 +48,28 @@
 #include "RiaPorosityModel.h"
 #include <QAction>
 #include <QPushButton>
+
+namespace caf
+{
+template <>
+void AppEnum<MultipleFractures::Action>::setUp()
+{
+    addItem( MultipleFractures::Action::APPEND_FRACTURES, "APPEND_FRACTURES", "Append Fractures" );
+    addItem( MultipleFractures::Action::REPLACE_FRACTURES, "REPLACE_FRACTURES", "Replace Fractures" );
+
+    setDefault( MultipleFractures::Action::NONE );
+}
+} // namespace caf
+
+namespace
+{
+// Pin the Python StrEnum class name for the action used by RimEclipseCase_createMultipleFractures
+struct RegisterScriptEnumNames
+{
+    RegisterScriptEnumNames() { caf::PdmScriptEnumNameRegistry::registerName<MultipleFractures::Action>( "MultipleFracturesAction" ); }
+};
+const RegisterScriptEnumNames s_registerScriptEnumNames;
+} // namespace
 
 CAF_CMD_SOURCE_INIT( RicCreateMultipleFracturesFeature, "RicCreateMultipleFracturesFeature" );
 

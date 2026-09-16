@@ -23,6 +23,7 @@
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimFractureTemplate.h"
 #include "RimProject.h"
 
 #include "cafPdmObjectHandle.h"
@@ -83,6 +84,22 @@ std::expected<Rim3dView*, QString> RicfForwarding::findView( int viewId )
     }
 
     return std::unexpected( QString( "Could not find view with ID %1" ).arg( viewId ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RimFractureTemplate*, QString> RicfForwarding::findFractureTemplate( int templateId )
+{
+    RimProject* project = RimProject::current();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    for ( RimFractureTemplate* fractureTemplate : project->allFractureTemplates() )
+    {
+        if ( fractureTemplate && fractureTemplate->id() == templateId ) return fractureTemplate;
+    }
+
+    return std::unexpected( QString( "Could not find fracture template with ID %1" ).arg( templateId ) );
 }
 
 //--------------------------------------------------------------------------------------------------

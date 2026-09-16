@@ -29,6 +29,16 @@
 class RiuCreateMultipleFractionsUi;
 class RimEclipseCase;
 
+namespace MultipleFractures
+{
+enum class Action
+{
+    NONE,
+    APPEND_FRACTURES,
+    REPLACE_FRACTURES
+};
+}
+
 namespace caf
 {
 class PdmUiPropertyViewDialog;

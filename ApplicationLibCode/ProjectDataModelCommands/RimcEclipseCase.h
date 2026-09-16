@@ -23,6 +23,7 @@
 
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "ExportCommands/RicLgrSplitType.h"
+#include "FractureCommands/RicCreateMultipleFracturesFeature.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -34,6 +35,7 @@
 #include <QString>
 
 class RimCellFilter;
+class RimFractureTemplate;
 class RimWellPath;
 
 //==================================================================================================
@@ -340,4 +342,36 @@ private:
     caf::PdmField<Lgr::SplitTypeEnum>   m_splitType;
 
     QStringList m_wellsIntersectingOtherLgrs;
+};
+
+//==================================================================================================
+/// Create multiple fractures along the given well paths using a fracture template.
+//==================================================================================================
+class RimEclipseCase_createMultipleFractures : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_createMultipleFractures( caf::PdmObjectHandle* self );
+
+    void setWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void setFractureTemplate( RimFractureTemplate* fractureTemplate );
+    void setMinDistFromWellTd( double minDist );
+    void setMaxFracturesPerWell( int maxFractures );
+    void setTopLayer( int topLayer );
+    void setBaseLayer( int baseLayer );
+    void setSpacing( double spacing );
+    void setAction( MultipleFractures::Action action );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrArrayField<RimWellPath*>                    m_wellPaths;
+    caf::PdmPtrField<RimFractureTemplate*>                 m_fractureTemplate;
+    caf::PdmField<double>                                  m_minDistFromWellTd;
+    caf::PdmField<int>                                     m_maxFracturesPerWell;
+    caf::PdmField<int>                                     m_topLayer;
+    caf::PdmField<int>                                     m_baseLayer;
+    caf::PdmField<double>                                  m_spacing;
+    caf::PdmField<caf::AppEnum<MultipleFractures::Action>> m_action;
 };
