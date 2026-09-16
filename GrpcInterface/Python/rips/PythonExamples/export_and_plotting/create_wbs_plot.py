@@ -31,12 +31,14 @@ for case in cases:
     case_path = case.file_path
     folder_name = os.path.dirname(case_path)
 
-    # Import formation names
-    case.import_formation_names(
+    # Import formation names and assign them to this case
+    formation_names = resInsight.project.import_formation_names(
         formation_files=[
             "D:/Projects/ResInsight-regression-test/ModelData/norne/Norne_ATW2013.lyr"
-        ]
+        ],
+        apply_to_all_cases=False,
     )
+    case.set_formation_names(formation_names=formation_names)
 
     # create a folder to hold the snapshots
     dirname = os.path.join(folder_name, "snapshots")
@@ -45,5 +47,5 @@ for case in cases:
     for well_path in well_paths[0:4]:  # Loop through the first five well paths
         # Create plot with parameters
         wbsplot = case.create_well_bore_stability_plot(
-            well_path=well_path.name, time_step=0, parameters=params
+            well_path=well_path, time_step=0, parameters=params
         )
