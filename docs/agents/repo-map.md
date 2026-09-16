@@ -92,6 +92,12 @@ Domain-specific functionality including:
 - Grid and geometry processing
 - Result statistics and caching
 
+Scripting-related folders:
+- `ProjectDataModelCommands/` - `Rimc*` object methods exposed to Python (`caf::PdmObjectMethod`).
+  This is where new scriptable functionality goes.
+- `CommandFileInterface/` - legacy `Ricf*` command file commands. Thin id-to-object forwarders to
+  the `Rimc*` methods; see `RicfCommandForwarding.h`. Keywords are frozen for backward compatibility.
+
 #### Python Integration (GrpcInterface/Python/)
 - gRPC server implementation
 - Python API (rips package)
