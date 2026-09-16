@@ -26,6 +26,7 @@
 
 class RigCaseCellResultsData;
 class RimEclipseCase;
+class RimCellFilter;
 class RimRegularGridCase;
 class RigFloodingSettings;
 
@@ -67,7 +68,7 @@ public:
         int                     maxNumTargets;
         int                     maxIterations;
         RigEclipseResultAddress filterAddress;
-        std::vector<double>     filter;
+        RimCellFilter*          dataFilter = nullptr;
     };
 
     static void generateCandidates( RimEclipseCase*            eclipseCase,

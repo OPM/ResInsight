@@ -40,6 +40,7 @@
 #include "RigNNCData.h"
 #include "RigStatisticsMath.h"
 
+#include "RimCellFilterTools.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimProject.h"
@@ -146,9 +147,32 @@ void RigWellTargetMapping::generateCandidates( RimEclipseCase*            eclips
     }
 
     std::vector<double> filterVector;
-    if ( !limits.filter.empty() )
+    if ( limits.dataFilter )
     {
-        filterVector = limits.filter;
+        // Evaluate for each realization after opening its grid, using the mapping's time step.
+        auto visibility = RimCellFilterTools::computeReservoirCellVisibility( limits.dataFilter, eclipseCase, timeStepIdx );
+        if ( visibility.notNull() )
+        {
+            auto activeReservoirCellIndices =
+                caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
+            const int numActiveCells = static_cast<int>( activeReservoirCellIndices.size() );
+            filterVector.resize( numActiveCells );
+
+            // Convert reservoir visibility to the active-cell indexing used by clustering.
+#pragma omp parallel for
+            for ( int i = 0; i < numActiveCells; i++ )
+            {
+                filterVector[i] = visibility->val( activeReservoirCellIndices[i].value() ) ? 1.0 : 0.0;
+            }
+        }
+        else
+        {
+            // Fall through to the unfiltered path below so all realizations in an ensemble get a result,
+            // consistent with how an invalid filterAddress is handled.
+            RiaLogging::warning(
+                std::format( "Unable to evaluate well target mapping data filter for case '{}'. Continuing without filter.",
+                             eclipseCase->caseUserDescription().toStdString() ) );
+        }
     }
     else if ( limits.filterAddress.isValid() )
     {

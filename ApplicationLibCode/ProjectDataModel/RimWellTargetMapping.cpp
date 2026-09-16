@@ -20,11 +20,9 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
-#include "RiaOptionItemFactory.h"
 #include "RiaPorosityModel.h"
 #include "RiaResultNames.h"
 
-#include "RigActiveCellInfo.h"
 #include "RiuMainWindow.h"
 
 #include "RigCaseCellResultsData.h"
@@ -34,6 +32,8 @@
 #include "RigStatisticsMath.h"
 #include "Well/RigWellTargetMapping.h"
 
+#include "RimCellFilter.h"
+#include "RimDataFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
@@ -160,7 +160,7 @@ RimWellTargetMapping::RimWellTargetMapping()
                        "How much to increase the bounding box of the first case to cover for any grid size differences across the "
                        "ensemble." );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterView, "FilterView", "Filter By View" );
+    CAF_PDM_InitFieldNoDefault( &m_dataFilter, "DataFilter", "Data Filter" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleStatisticsCase, "EnsembleStatisticsCase", "Ensemble Statistics Case" );
 
@@ -226,15 +226,15 @@ QList<caf::PdmOptionItemInfo> RimWellTargetMapping::calculateValueOptions( const
             caf::AppEnum<RigWellTargetMapping::VolumesType>::setEnumSubset( &m_volumesType, findAvailableVolumesTypes( fc ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_filterView )
+    else if ( fieldNeedingOptions == &m_dataFilter )
     {
         options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-        if ( auto fc = firstCase() )
+        if ( auto collection = dataFilterCollection() )
         {
-            for ( const auto& view : fc->views() )
+            for ( auto filter : collection->filters() )
             {
-                RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( view, &options );
+                options.push_back( caf::PdmOptionItemInfo( filter->name(), filter ) );
             }
         }
     }
@@ -498,7 +498,7 @@ void RimWellTargetMapping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     auto gridEnsemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>();
 
     auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr || gridEnsemble != nullptr;
-    if ( !hasEnsembleParent ) uiOrdering.add( &m_filterView );
+    uiOrdering.add( &m_dataFilter );
 
     caf::PdmUiGroup* minimumCellValuesGroup = uiOrdering.addNewGroup( "Minimum Cell Values" );
     if ( showOilOptions ) minimumCellValuesGroup->add( &m_saturationOil );
@@ -560,43 +560,25 @@ RigWellTargetMapping::ClusteringLimits RimWellTargetMapping::getClusteringLimits
              .maxNumTargets    = m_maxNumTargets,
              .maxIterations    = m_maxIterations,
              .filterAddress    = m_resultDefinition->eclipseResultAddress(),
-             .filter           = getVisibilityFilter() };
+             .dataFilter       = m_dataFilter() };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellTargetMapping::getVisibilityFilter() const
+RimDataFilterCollection* RimWellTargetMapping::dataFilterCollection() const
 {
-    std::vector<double> filter = {};
-
-    // Visibility filter is only valid in the single case setting
-    auto hasEnsembleParent = firstAncestorOrThisOfType<RimEclipseCaseEnsemble>() != nullptr ||
-                             firstAncestorOrThisOfType<RimReservoirGridEnsemble>() != nullptr;
-    if ( !hasEnsembleParent )
+    if ( auto ensemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>() )
     {
-        auto fc = firstCase();
-        if ( m_filterView() && fc && fc->eclipseCaseData() )
-        {
-            cvf::ref<cvf::UByteArray> visibility = m_filterView->currentTotalCellVisibility();
-
-            auto activeReservoirCellIndices =
-                fc->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeReservoirCellIndices();
-            int numActiveCells = static_cast<int>( activeReservoirCellIndices.size() );
-
-            filter.resize( numActiveCells, std::numeric_limits<double>::infinity() );
-
-            // Create binary filter for active cells: 1.0 can be used, 0.0 is filtered out.
-#pragma omp parallel for
-            for ( int i = 0; i < numActiveCells; i++ )
-            {
-                const auto reservoirCellIndex = activeReservoirCellIndices[i];
-                filter[i]                     = visibility->val( reservoirCellIndex.value() ) ? 1.0 : 0.0;
-            }
-        }
+        return ensemble->dataFilterCollection();
     }
 
-    return filter;
+    if ( auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>() )
+    {
+        return eclipseCase->dataFilterCollection();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

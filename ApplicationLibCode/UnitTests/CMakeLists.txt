@@ -90,6 +90,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellRftPlot-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetMapping-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFilterInViewCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection-Test.cpp

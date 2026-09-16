@@ -30,7 +30,8 @@
 
 class RimEclipseResultDefinition;
 class RimEclipseCase;
-class RimEclipseView;
+class RimCellFilter;
+class RimDataFilterCollection;
 
 //==================================================================================================
 ///
@@ -67,12 +68,12 @@ private:
     void        generateEnsembleStatistics();
     cvf::Vec3st getResultGridCellCount() const;
 
-    RimEclipseCase* firstCase() const;
+    RimEclipseCase*          firstCase() const;
+    RimDataFilterCollection* dataFilterCollection() const;
 
     static std::vector<RigWellTargetMapping::VolumesType> findAvailableVolumesTypes( RimEclipseCase* eclipseCase );
 
     RigWellTargetMapping::ClusteringLimits getClusteringLimits() const;
-    std::vector<double>                    getVisibilityFilter() const;
 
     void resetMinimumCellValuesToDefault();
     void onGenerateButtonClicked();
@@ -106,7 +107,7 @@ private:
     caf::PdmField<int> m_cellCountJ;
     caf::PdmField<int> m_cellCountK;
 
-    caf::PdmPtrField<RimEclipseView*> m_filterView;
+    caf::PdmPtrField<RimCellFilter*> m_dataFilter;
 
     caf::PdmChildField<RimEclipseCase*> m_ensembleStatisticsCase;
 
