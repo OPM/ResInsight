@@ -42,6 +42,7 @@
 
 #include "Formations/RimFormationNames.h"
 #include "Rim3dView.h"
+#include "RimCalcScript.h"
 #include "RimCase.h"
 #include "RimCornerPointCase.h"
 #include "RimEclipseCaseCollection.h"
@@ -808,4 +809,78 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_importFormationNames::e
 QString RimProject_importFormationNames::classKeywordReturnedType() const
 {
     return RimFormationNames::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_runOctaveScript, "runOctaveScript" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_runOctaveScript::RimProject_runOctaveScript( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Run Octave Script", "", "", "Run an Octave script once per case. Empty case list means all Eclipse cases." );
+
+    CAF_PDM_InitScriptableField( &m_path, "Path", QString(), "Path", "", "", "Path to the Octave script" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_cases, "Cases", "Cases", "", "", "Cases to run the script for. Empty means all Eclipse cases." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_runOctaveScript::setPath( const QString& path )
+{
+    m_path = path;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_runOctaveScript::setCases( const std::vector<RimCase*>& cases )
+{
+    m_cases.setValue( cases );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_runOctaveScript::execute()
+{
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    if ( m_path().isEmpty() ) return std::unexpected( "No script path specified." );
+    if ( !QFileInfo::exists( m_path() ) ) return std::unexpected( QString( "Script %1 does not exist" ).arg( m_path() ) );
+
+    std::vector<int> caseIds;
+    for ( RimCase* rimCase : m_cases.ptrReferencedObjectsByType() )
+    {
+        if ( rimCase ) caseIds.push_back( rimCase->caseId() );
+    }
+    if ( caseIds.empty() )
+    {
+        for ( RimEclipseCase* eclipseCase : project->eclipseCases() )
+        {
+            caseIds.push_back( eclipseCase->caseId() );
+        }
+    }
+
+    RiaApplication* app              = RiaApplication::instance();
+    QString         octavePath       = app->octavePath();
+    QStringList     processArguments = RimCalcScript::createCommandLineArguments( m_path() );
+
+    bool ok = false;
+    if ( caseIds.empty() )
+    {
+        ok = app->launchProcess( octavePath, processArguments, app->octaveProcessEnvironment() );
+    }
+    else
+    {
+        ok = app->launchProcessForMultipleCases( octavePath, processArguments, caseIds, app->octaveProcessEnvironment() );
+    }
+
+    if ( !ok ) return std::unexpected( QString( "Could not execute script %1" ).arg( m_path() ) );
+
+    app->waitForProcess();
+    return nullptr;
 }

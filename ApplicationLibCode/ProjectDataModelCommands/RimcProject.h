@@ -33,6 +33,7 @@
 class Rim3dView;
 class RimIdenticalGridCaseGroup;
 class RimFormationNames;
+class RimCase;
 
 //==================================================================================================
 ///
@@ -267,4 +268,25 @@ public:
 
 private:
     caf::PdmField<std::vector<QString>> m_formationFiles;
+};
+
+//==================================================================================================
+/// Run an Octave script for a set of cases. The script is run once per case with the case set as
+/// current. Empty case list means all Eclipse cases in the project.
+//==================================================================================================
+class RimProject_runOctaveScript : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_runOctaveScript( caf::PdmObjectHandle* self );
+
+    void setPath( const QString& path );
+    void setCases( const std::vector<RimCase*>& cases );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<QString>          m_path;
+    caf::PdmPtrArrayField<RimCase*> m_cases;
 };

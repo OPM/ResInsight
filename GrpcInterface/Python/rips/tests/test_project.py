@@ -468,3 +468,11 @@ def test_export_snapshots_content_type(rips_instance, initialize_test):
             rips_instance.project.export_snapshots(
                 snapshot_type="VIEWS", export_folder=tmpdirname, prefix="old_"
             )
+
+
+def test_run_octave_script_missing_file(rips_instance, initialize_test):
+    # Octave is not necessarily installed; verify argument validation only
+    with pytest.raises(rips.RipsError):
+        rips_instance.project.run_octave_script(path="/does/not/exist.m")
+    with pytest.raises(rips.RipsError):
+        rips_instance.project.run_octave_script()
