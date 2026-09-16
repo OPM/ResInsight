@@ -59,6 +59,7 @@ from .resinsight_classes import (
     PropertyType as PropertyType,
     Reservoir as Reservoir,
     WellBoreStabilityPlot as WellBoreStabilityPlot,
+    WellPath as WellPath,
     WbsParameters as WbsParameters,
 )
 
@@ -892,37 +893,55 @@ def set_grid_property(
         raise IndexError
 
 
-@add_method(Case)
+@add_method(GeoMechCase)
 def create_well_bore_stability_plot(
     self,
-    well_path: str,
+    well_path: Union[str, WellPath],
     time_step: int,
     parameters: Optional[WbsParameters] = None,
-) -> Optional[WellBoreStabilityPlot]:
+) -> WellBoreStabilityPlot:
     """Create a new well bore stability plot
 
     Arguments:
-        well_path(str): well path name
+        well_path(WellPath or str): well path object or well path name
         time_step(int): time step
+        parameters(WbsParameters): optional parameters copied into the created plot
 
     Returns:
         :class:`rips.generated.generated_classes.WellBoreStabilityPlot`
     """
-    pb2_parameters = None
+    if isinstance(well_path, str):
+        warnings.warn(
+            "GeoMechCase.create_well_bore_stability_plot(well_path=<name>) is deprecated, pass a WellPath object instead",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        project = self.ancestor(rips.project.Project)
+        well_path_object = project.well_path_by_name(well_path)
+        if well_path_object is None:
+            raise RipsError(f"Could not find well path '{well_path}'")
+        well_path = well_path_object
+
+    plot = self._call_pdm_method_return_value(
+        "createWellBoreStabilityPlot",
+        WellBoreStabilityPlot,
+        well_path=well_path,
+        time_step=time_step,
+    )
+
     if parameters is not None:
         assert isinstance(parameters, WbsParameters)
-        pb2_parameters = parameters.pb2_object()
+        plot_parameters = plot.parameters()
+        if plot_parameters is not None:
+            # Copy the public field values only; private members hold the gRPC connection
+            for attribute in dir(parameters):
+                if attribute.startswith("_"):
+                    continue
+                value = getattr(parameters, attribute)
+                if not callable(value):
+                    setattr(plot_parameters, attribute, value)
+            plot_parameters.update()
 
-    plot_result = self._execute_command(
-        createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(
-            caseId=self.id,
-            wellPath=well_path,
-            timeStep=time_step,
-            wbsParameters=pb2_parameters,
-        )
-    )
-    project = self.ancestor(rips.project.Project)
-    plot = project.plot(view_id=plot_result.createWbsPlotResult.viewId)
     return plot
 
 
