@@ -244,34 +244,38 @@ std::expected<caf::PdmObjectHandle*, QString> RimSummaryCase_setSummaryVectorVal
 {
     auto* summaryCase     = self<RimSummaryCase>();
     auto* fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( summaryCase );
-    if ( fileSummaryCase )
+    if ( !fileSummaryCase )
     {
-        bool rebuildUserInterface = true;
+        return std::unexpected( QString( "Setting summary values is not supported for summary case type '%1'. "
+                                         "Only file-backed summary cases support user-defined vectors." )
+                                    .arg( summaryCase->classKeyword() ) );
+    }
 
-        if ( auto reader = fileSummaryCase->summaryReader() )
+    bool rebuildUserInterface = true;
+
+    if ( auto reader = fileSummaryCase->summaryReader() )
+    {
+        auto allAddr = reader->allResultAddresses();
+        for ( const auto& adr : allAddr )
         {
-            auto allAddr = reader->allResultAddresses();
-            for ( auto adr : allAddr )
+            if ( adr.uiText() == m_addressString().toStdString() )
             {
-                if ( adr.uiText() == m_addressString().toStdString() )
-                {
-                    rebuildUserInterface = false;
-                    break;
-                }
+                rebuildUserInterface = false;
+                break;
             }
         }
+    }
 
-        auto result = fileSummaryCase->setSummaryData( m_addressString().toStdString(), m_unitString().toStdString(), m_values() );
-        if ( !result.has_value() )
-        {
-            return std::unexpected( result.error() );
-        }
+    auto result = fileSummaryCase->setSummaryData( m_addressString().toStdString(), m_unitString().toStdString(), m_values() );
+    if ( !result.has_value() )
+    {
+        return std::unexpected( result.error() );
+    }
 
-        if ( rebuildUserInterface )
-        {
-            fileSummaryCase->buildTreeNodesIfRequired();
-            fileSummaryCase->updateConnectedEditors();
-        }
+    if ( rebuildUserInterface )
+    {
+        fileSummaryCase->buildTreeNodesIfRequired();
+        fileSummaryCase->updateConnectedEditors();
     }
 
     return nullptr;
