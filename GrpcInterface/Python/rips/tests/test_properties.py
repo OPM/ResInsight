@@ -287,3 +287,19 @@ def test_export_property(rips_instance, initialize_test):
             )
         with pytest.raises(rips.RipsError):
             case.export_property(time_step=0, property_name="PORO")
+
+
+def test_export_current_property(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    view = case.create_view()
+    view.set_time_step(1)
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        export_file = os.path.join(tmpdirname, "current.grdecl")
+        view.export_current_property(export_file=export_file)
+        assert os.path.exists(export_file)
+        with open(export_file) as f:
+            assert "SOIL" in f.read(200)
+
+        with pytest.raises(rips.RipsError):
+            view.export_current_property()

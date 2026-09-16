@@ -5,6 +5,7 @@ ResInsight 3d view module
 import Commands_pb2 as Cmd
 
 import uuid
+import warnings
 import rips.project
 
 import rips.case  # Circular import of Case, which already imports View. Use full name.
@@ -162,9 +163,17 @@ def export_visible_cells(
 def export_property(self, undefined_value=0.0):
     """Export the current Eclipse property from the view
 
+    Deprecated: use EclipseView.export_current_property(export_file=...) instead, which requires
+    an explicit file. This method writes to the PROPERTIES folder set by Instance.set_export_folder().
+
     Arguments:
         undefined_value (double): Value to use for undefined values. Defaults to 0.0
     """
+    warnings.warn(
+        "View.export_property() is deprecated, use EclipseView.export_current_property() with an explicit export_file instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
     case_id = self.case().id
     return self._execute_command(
         exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(
