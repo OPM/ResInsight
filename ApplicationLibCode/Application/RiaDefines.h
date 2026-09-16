@@ -275,6 +275,19 @@ enum class ItemIn3dView
     ALL         = 0b00000111
 };
 
+enum class SnapshotFileFormat
+{
+    PNG,
+    PDF
+};
+
+enum class SnapshotContentType
+{
+    ALL,
+    VIEWS,
+    PLOTS
+};
+
 QString betaFeaturePostfix();
 }; // namespace RiaDefines
 

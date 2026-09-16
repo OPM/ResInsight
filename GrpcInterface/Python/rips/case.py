@@ -384,7 +384,8 @@ def views(self) -> List[View]:
     views = project.views()
     views_for_case = []
     for view_object in views:
-        if view_object.id == self.id:
+        view_case = view_object.case()
+        if view_case is not None and view_case.id == self.id:
             views_for_case.append(view_object)
     return views_for_case
 
@@ -392,23 +393,23 @@ def views(self) -> List[View]:
 @add_method(Case)
 def export_snapshots_of_all_views(
     self, prefix: str = "", export_folder: str = ""
-) -> Any:
+) -> None:
     """Export snapshots for all views in the case
+
+    Deprecated: loop over views() and call View.export_snapshot() instead.
 
     Arguments:
         prefix (str): Exported file name prefix
-        export_folder(str): The path to export to. By default will use the global export folder
+        export_folder(str): The path to export to. By default will use the 'snapshots' folder next to the project file.
 
     """
-    return self._execute_command(
-        exportSnapshots=Cmd.ExportSnapshotsRequest(
-            type="VIEWS",
-            prefix=prefix,
-            caseId=self.id,
-            viewId=-1,
-            exportFolder=export_folder,
-        )
+    warnings.warn(
+        "Case.export_snapshots_of_all_views() is deprecated, use View.export_snapshot() on each view instead",
+        DeprecationWarning,
+        stacklevel=3,
     )
+    for view in self.views():
+        view.export_snapshot(export_folder=export_folder, prefix=prefix)
 
 
 @add_method(Case)

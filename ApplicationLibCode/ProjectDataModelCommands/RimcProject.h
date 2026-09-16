@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -174,4 +177,32 @@ public:
 
 private:
     caf::PdmPtrArrayField<Rim3dView*> m_views;
+};
+
+//==================================================================================================
+/// Export snapshots of all 3D views and/or plots in the project.
+//==================================================================================================
+class RimProject_exportSnapshots : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_exportSnapshots( caf::PdmObjectHandle* self );
+
+    void setContentType( RiaDefines::SnapshotContentType contentType );
+    void setExportFolder( const QString& exportFolder );
+    void setPrefix( const QString& prefix );
+    void setWidth( int width );
+    void setHeight( int height );
+    void setPlotFileFormat( RiaDefines::SnapshotFileFormat fileFormat );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<caf::AppEnum<RiaDefines::SnapshotContentType>> m_contentType;
+    caf::PdmField<QString>                                       m_exportFolder;
+    caf::PdmField<QString>                                       m_prefix;
+    caf::PdmField<int>                                           m_width;
+    caf::PdmField<int>                                           m_height;
+    caf::PdmField<caf::AppEnum<RiaDefines::SnapshotFileFormat>>  m_plotFileFormat;
 };

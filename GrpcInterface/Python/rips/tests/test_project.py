@@ -279,3 +279,49 @@ def test_exportSnapshots(rips_instance, initialize_test):
         #        assert(len(os.listdir(tmpdirname)) > 0)
         for fileName in os.listdir(tmpdirname):
             assert os.path.splitext(fileName)[1] == ".png"
+
+
+def test_export_snapshot_of_view(rips_instance, initialize_test):
+    if not rips_instance.is_gui():
+        pytest.skip("Cannot run test without a GUI")
+
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    view = case.create_view()
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        # Note: the export is a no-op when the view has no OpenGL viewer (e.g. offscreen Qt platform),
+        # so the number of files is not asserted. The call itself must succeed.
+        view.export_snapshot(
+            export_folder=tmpdirname, prefix="test_", width=320, height=240
+        )
+        for file_name in os.listdir(tmpdirname):
+            assert file_name.startswith("test_")
+            assert os.path.splitext(file_name)[1] == ".png"
+
+        # Case.views() must find the view through its case
+        assert len(case.views()) == 1
+        with pytest.warns(DeprecationWarning):
+            case.export_snapshots_of_all_views(export_folder=tmpdirname, prefix="all_")
+
+
+def test_export_snapshots_content_type(rips_instance, initialize_test):
+    if not rips_instance.is_gui():
+        pytest.skip("Cannot run test without a GUI")
+
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    case.create_view()
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        rips_instance.project.export_snapshots(
+            content_type=rips.SnapshotContentType.VIEWS,
+            export_folder=tmpdirname,
+            width=320,
+            height=240,
+        )
+        for file_name in os.listdir(tmpdirname):
+            assert os.path.splitext(file_name)[1] == ".png"
+
+        with pytest.warns(DeprecationWarning):
+            rips_instance.project.export_snapshots(
+                snapshot_type="VIEWS", export_folder=tmpdirname, prefix="old_"
+            )
