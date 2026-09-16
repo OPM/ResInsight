@@ -19,15 +19,13 @@
 
 #include "RicfCreateSaturationPressurePlots.h"
 
-#include "GridCrossPlotCommands/RicCreateSaturationPressurePlotsFeature.h"
-
-#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
+#include "RicfCommandForwarding.h"
+
 #include "RimEclipseResultCase.h"
-#include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "RimSaturationPressurePlotCollection.h"
+#include "RimcEclipseCase.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -46,54 +44,48 @@ RicfCreateSaturationPressurePlots::RicfCreateSaturationPressurePlots()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCreateSaturationPressurePlots::execute()
 {
-    std::vector<int> caseIds = m_caseIds();
-    if ( caseIds.empty() )
-    {
-        RimProject* project = RimProject::current();
-        if ( project )
-        {
-            auto eclipeCases = project->eclipseCases();
-            for ( auto c : eclipeCases )
-            {
-                caseIds.push_back( c->caseId() );
-            }
-        }
-    }
-
-    if ( caseIds.empty() )
-    {
-        QString error( "createSaturationPressurePlots: No cases found" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
+    const QString commandName = classKeyword();
 
     RimProject* project = RimProject::current();
-    if ( !project )
-    {
-        QString error( "No project loaded" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
+    if ( !project ) return RicfForwarding::errorResponse( "No project loaded", commandName );
 
-    auto eclipeCases = project->eclipseCases();
-    for ( auto c : eclipeCases )
+    // Collect the result cases. No ids means all Eclipse result cases in the project.
+    std::vector<RimEclipseResultCase*> resultCases;
+    if ( m_caseIds().empty() )
     {
-        auto eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( c );
-        if ( !eclipseResultCase ) continue;
-
-        for ( auto caseId : caseIds )
+        for ( RimEclipseCase* c : project->eclipseCases() )
         {
-            if ( c->caseId() == caseId )
-            {
-                int timeStep = 0;
-                RicCreateSaturationPressurePlotsFeature::createPlots( eclipseResultCase, timeStep );
-            }
+            if ( auto* resultCase = dynamic_cast<RimEclipseResultCase*>( c ) ) resultCases.push_back( resultCase );
+        }
+    }
+    else
+    {
+        for ( int caseId : m_caseIds() )
+        {
+            auto rimCase = RicfForwarding::findCase( caseId );
+            if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
+
+            if ( auto* resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase.value() ) ) resultCases.push_back( resultCase );
         }
     }
 
-    RimSaturationPressurePlotCollection* collection = RimMainPlotCollection::current()->saturationPressurePlotCollection();
-    collection->updateAllRequiredEditors();
-    RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    if ( resultCases.empty() ) return RicfForwarding::errorResponse( "No cases found", commandName );
 
-    return caf::PdmScriptResponse();
+    caf::PdmScriptResponse response;
+    for ( RimEclipseResultCase* resultCase : resultCases )
+    {
+        RimEclipseResultCase_createSaturationPressurePlots method( resultCase );
+        method.setTimeStep( 0 );
+
+        auto result = method.execute();
+        if ( !result )
+        {
+            // Legacy behavior: a case without the required data is skipped, not an error
+            QString warning = QString( "%1: %2" ).arg( commandName ).arg( result.error() );
+            RiaLogging::warning( warning.toStdString() );
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
+        }
+    }
+
+    return response;
 }

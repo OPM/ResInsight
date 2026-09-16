@@ -562,17 +562,6 @@ def create_lgr_for_completion(
 
 
 @add_method(Case)
-def create_saturation_pressure_plots(self) -> Any:
-    """
-    Create saturation pressure plots for the current case
-    """
-    case_ids = [self.id]
-    return self._execute_command(
-        createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(caseIds=case_ids)
-    )
-
-
-@add_method(Case)
 def available_properties(
     self,
     property_type: PropertyType,

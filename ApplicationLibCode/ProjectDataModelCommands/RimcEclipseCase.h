@@ -404,3 +404,21 @@ private:
     caf::PdmField<double>               m_minimumCommunication;
     caf::PdmField<double>               m_aquiferCellThreshold;
 };
+
+//==================================================================================================
+/// Create saturation pressure plots (PRESSURE vs PBUB/PDEW per EQUIL region) for the case.
+//==================================================================================================
+class RimEclipseResultCase_createSaturationPressurePlots : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseResultCase_createSaturationPressurePlots( caf::PdmObjectHandle* self );
+
+    void setTimeStep( int timeStep );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<int> m_timeStep;
+};
