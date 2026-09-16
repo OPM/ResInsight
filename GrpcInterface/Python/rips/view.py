@@ -84,52 +84,6 @@ def apply_flow_diagnostics_cell_result(
 
 
 @add_method(View)
-def export_sim_well_fracture_completions(
-    self, time_step, simulation_well_names, file_split, compdat_export
-):
-    """Export fracture completions for simulation wells
-
-    **Parameters**::
-
-        Parameter                   | Description                                      | Type
-        ----------------------------| ------------------------------------------------ | -----
-        time_step                   | Time step to export for                          | Integer
-        simulation_well_names       | List of simulation well names                    | List
-        file_split                  | Controls how export data is split into files     | String enum
-        compdat_export              | Compdat export type                              | String enum
-
-    **Enum file_split**::
-
-        Option                              | Description
-        ----------------------------------- | ------------
-        "UNIFIED_FILE" <b>Default Option</b>| A single file with all transmissibilities
-        "SPLIT_ON_WELL"                     | One file for each well transmissibilities
-
-    **Enum compdat_export**::
-
-        Option                                   | Description
-        -----------------------------------------| ------------
-        "TRANSMISSIBILITIES"<b>Default Option</b>| Direct export of transmissibilities
-        "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS" | Include export of WPIMULT
-
-    """
-    if isinstance(simulation_well_names, str):
-        simulation_well_names = [simulation_well_names]
-
-    case_id = self.case().id
-    return self._execute_command(
-        exportSimWellFractureCompletions=Cmd.ExportSimWellPathFracRequest(
-            caseId=case_id,
-            viewId=self.id,
-            timeStep=time_step,
-            simulationWellNames=simulation_well_names,
-            fileSplit=file_split,
-            compdatExport=compdat_export,
-        )
-    )
-
-
-@add_method(View)
 def export_property(self, undefined_value=0.0):
     """Export the current Eclipse property from the view
 
