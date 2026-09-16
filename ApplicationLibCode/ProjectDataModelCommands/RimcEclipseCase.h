@@ -21,15 +21,19 @@
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
+#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
+#include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
 #include <QString>
 
 class RimCellFilter;
+class RimWellPath;
 
 //==================================================================================================
 ///
@@ -186,4 +190,60 @@ private:
     caf::PdmField<QString> m_eclipseKeyword;
     caf::PdmField<double>  m_undefinedValue;
     caf::PdmField<QString> m_exportFile;
+};
+
+//==================================================================================================
+/// Export completion data (COMPDAT, WELSPECS, MSW keywords etc.) for well paths in this case.
+//==================================================================================================
+class RimEclipseCase_exportCompletions : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_exportCompletions( caf::PdmObjectHandle* self );
+
+    void setWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void setTimeStep( int timeStep );
+    void setExportFolder( const QString& exportFolder );
+    void setCustomFileName( const QString& customFileName );
+    void setFileSplit( RicExportCompletionDataSettingsUi::ExportSplit fileSplit );
+    void setCompdatExport( RicExportCompletionDataSettingsUi::CompdatExport compdatExport );
+    void setIncludeMsw( bool enable );
+    void setUseNtgHorizontally( bool enable );
+    void setIncludePerforations( bool enable );
+    void setIncludeFishbones( bool enable );
+    void setIncludeFractures( bool enable );
+    void setExcludeMainBoreForFishbones( bool enable );
+    void setPerformTransScaling( bool enable );
+    void setTransScalingTimeStep( int timeStep );
+    void setTransScalingWbhpSource( RicExportFractureCompletionsImpl::PressureDepletionWBHPSource source );
+    void setTransScalingWbhp( double wbhp );
+    void setExportComments( bool enable );
+    void setExportWelspec( bool enable );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrArrayField<RimWellPath*> m_wellPaths;
+    caf::PdmField<int>                  m_timeStep;
+    caf::PdmField<QString>              m_exportFolder;
+    caf::PdmField<QString>              m_customFileName;
+
+    caf::PdmField<RicExportCompletionDataSettingsUi::ExportSplitType>   m_fileSplit;
+    caf::PdmField<RicExportCompletionDataSettingsUi::CompdatExportType> m_compdatExport;
+
+    caf::PdmField<bool> m_includeMsw;
+    caf::PdmField<bool> m_useNtgHorizontally;
+    caf::PdmField<bool> m_includePerforations;
+    caf::PdmField<bool> m_includeFishbones;
+    caf::PdmField<bool> m_includeFractures;
+    caf::PdmField<bool> m_excludeMainBoreForFishbones;
+
+    caf::PdmField<bool>                                                      m_performTransScaling;
+    caf::PdmField<int>                                                       m_transScalingTimeStep;
+    caf::PdmField<RicExportCompletionDataSettingsUi::TransScalingWBHPSource> m_transScalingWbhpSource;
+    caf::PdmField<double>                                                    m_transScalingWbhp;
+
+    caf::PdmField<bool> m_exportComments;
+    caf::PdmField<bool> m_exportWelspec;
 };

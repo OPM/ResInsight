@@ -22,6 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaKeyValueStoreUtil.h"
 
+#include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 #include "ExportCommands/RicEclipseCellResultToFileImpl.h"
 
 #include "RifInputPropertyLoader.h"
@@ -42,8 +43,11 @@
 #include "RimCellFilter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRoffCase.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "RimcDataContainerString.h"
 
@@ -556,6 +560,271 @@ std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportProperty::exe
     {
         return std::unexpected( errorMessage );
     }
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_exportCompletions, "exportCompletions" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_exportCompletions::RimEclipseCase_exportCompletions( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Completions", "", "", "Export completion data (COMPDAT, WELSPECS, MSW keywords etc.) for well paths in this case" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths,
+                                          "WellPaths",
+                                          "Well Paths",
+                                          "",
+                                          "",
+                                          "Well paths to export. Empty list exports all visible well paths." );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "Zero-based time step index" );
+    CAF_PDM_InitScriptableField( &m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "Folder to write the export files to" );
+    CAF_PDM_InitScriptableField( &m_customFileName,
+                                 "CustomFileName",
+                                 QString(),
+                                 "Custom File Name",
+                                 "",
+                                 "",
+                                 "Optional file name (without folder) used when FileSplit is UNIFIED_FILE" );
+
+    CAF_PDM_InitScriptableField( &m_fileSplit,
+                                 "FileSplit",
+                                 RicExportCompletionDataSettingsUi::ExportSplitType(),
+                                 "File Split",
+                                 "",
+                                 "",
+                                 "Controls how export data is split into files" );
+    CAF_PDM_InitScriptableField( &m_compdatExport,
+                                 "CompdatExport",
+                                 RicExportCompletionDataSettingsUi::CompdatExportType(),
+                                 "Compdat Export",
+                                 "",
+                                 "",
+                                 "Compdat export type" );
+
+    CAF_PDM_InitScriptableField( &m_includeMsw, "IncludeMsw", true, "Include MSW", "", "", "Export Multi Segment Well model" );
+    CAF_PDM_InitScriptableField( &m_useNtgHorizontally, "UseNtgHorizontally", false, "Use NTG Horizontally" );
+    CAF_PDM_InitScriptableField( &m_includePerforations, "IncludePerforations", true, "Include Perforations" );
+    CAF_PDM_InitScriptableField( &m_includeFishbones, "IncludeFishbones", true, "Include Fishbones" );
+    CAF_PDM_InitScriptableField( &m_includeFractures, "IncludeFractures", true, "Include Fractures" );
+    CAF_PDM_InitScriptableField( &m_excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "Exclude Main Bore for Fishbones" );
+
+    CAF_PDM_InitScriptableField( &m_performTransScaling, "PerformTransScaling", false, "Perform Transmissibility Scaling" );
+    CAF_PDM_InitScriptableField( &m_transScalingTimeStep, "TransScalingTimeStep", 0, "Transmissibility Scaling Pressure Time Step" );
+    CAF_PDM_InitScriptableField( &m_transScalingWbhpSource,
+                                 "TransScalingWbhpSource",
+                                 RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
+                                 "Transmissibility Scaling WBHP Source" );
+    CAF_PDM_InitScriptableField( &m_transScalingWbhp, "TransScalingWbhp", 200.0, "Transmissibility Scaling Constant WBHP Value" );
+
+    CAF_PDM_InitScriptableField( &m_exportComments, "ExportComments", true, "Export Comments", "", "", "Export data source as comments" );
+    CAF_PDM_InitScriptableField( &m_exportWelspec, "ExportWelspec", true, "Export WELSPEC", "", "", "Export WELSPEC keyword" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setWellPaths( const std::vector<RimWellPath*>& wellPaths )
+{
+    m_wellPaths.setValue( wellPaths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setExportFolder( const QString& exportFolder )
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setCustomFileName( const QString& customFileName )
+{
+    m_customFileName = customFileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setFileSplit( RicExportCompletionDataSettingsUi::ExportSplit fileSplit )
+{
+    m_fileSplit = fileSplit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setCompdatExport( RicExportCompletionDataSettingsUi::CompdatExport compdatExport )
+{
+    m_compdatExport = compdatExport;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setIncludeMsw( bool enable )
+{
+    m_includeMsw = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setUseNtgHorizontally( bool enable )
+{
+    m_useNtgHorizontally = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setIncludePerforations( bool enable )
+{
+    m_includePerforations = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setIncludeFishbones( bool enable )
+{
+    m_includeFishbones = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setIncludeFractures( bool enable )
+{
+    m_includeFractures = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setExcludeMainBoreForFishbones( bool enable )
+{
+    m_excludeMainBoreForFishbones = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setPerformTransScaling( bool enable )
+{
+    m_performTransScaling = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setTransScalingTimeStep( int timeStep )
+{
+    m_transScalingTimeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setTransScalingWbhpSource( RicExportFractureCompletionsImpl::PressureDepletionWBHPSource source )
+{
+    m_transScalingWbhpSource = source;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setTransScalingWbhp( double wbhp )
+{
+    m_transScalingWbhp = wbhp;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setExportComments( bool enable )
+{
+    m_exportComments = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setExportWelspec( bool enable )
+{
+    m_exportWelspec = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportCompletions::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    if ( m_exportFolder().isEmpty() ) return std::unexpected( "No export folder specified." );
+
+    QDir folder( m_exportFolder() );
+    if ( !folder.exists() ) return std::unexpected( QString( "The export folder '%1' does not exist." ).arg( m_exportFolder() ) );
+
+    eclipseCase->ensureReservoirCaseIsOpen();
+    if ( !eclipseCase->eclipseCaseData() )
+    {
+        return std::unexpected( QString( "No data available for case '%1'" ).arg( eclipseCase->caseUserDescription() ) );
+    }
+
+    std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
+    if ( wellPaths.empty() )
+    {
+        RimProject* project = RimProject::current();
+        for ( RimWellPath* wellPath : project->activeOilField()->wellPathCollection->allWellPaths() )
+        {
+            if ( wellPath->showWellPath() ) wellPaths.push_back( wellPath );
+        }
+    }
+
+    if ( wellPaths.empty() ) return std::unexpected( "No well paths to export." );
+
+    RicExportCompletionDataSettingsUi exportSettings;
+    exportSettings.caseToApply = eclipseCase;
+    exportSettings.folder      = m_exportFolder();
+    exportSettings.timeStep    = std::max( 0, m_timeStep() );
+
+    exportSettings.fileSplit     = m_fileSplit();
+    exportSettings.compdatExport = m_compdatExport();
+
+    exportSettings.performTransScaling    = m_performTransScaling();
+    exportSettings.transScalingTimeStep   = m_transScalingTimeStep();
+    exportSettings.transScalingWBHPSource = m_transScalingWbhpSource();
+    exportSettings.transScalingWBHP       = m_transScalingWbhp();
+
+    exportSettings.includeMsw                  = m_includeMsw();
+    exportSettings.useLateralNTG               = m_useNtgHorizontally();
+    exportSettings.includePerforations         = m_includePerforations();
+    exportSettings.includeFishbones            = m_includeFishbones();
+    exportSettings.excludeMainBoreForFishbones = m_excludeMainBoreForFishbones();
+    exportSettings.includeFractures            = m_includeFractures();
+
+    exportSettings.setExportDataSourceAsComment( m_exportComments() );
+    exportSettings.setExportWelspec( m_exportWelspec() );
+
+    if ( !m_customFileName().isEmpty() ) exportSettings.setCustomFileName( m_customFileName() );
+
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, exportSettings );
 
     return nullptr;
 }
