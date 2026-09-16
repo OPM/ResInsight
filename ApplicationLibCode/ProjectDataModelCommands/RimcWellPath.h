@@ -248,3 +248,23 @@ public:
 private:
     caf::PdmField<double> m_measuredDepth;
 };
+
+//==================================================================================================
+/// Export the well path geometry to a .dev file named after the well path in the given folder.
+//==================================================================================================
+class RimWellPath_exportGeometry : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimWellPath_exportGeometry( caf::PdmObjectHandle* self );
+
+    void setExportFolder( const QString& exportFolder );
+    void setMdStepSize( double mdStepSize );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<QString> m_exportFolder;
+    caf::PdmField<double>  m_mdStepSize;
+};

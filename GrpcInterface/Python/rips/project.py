@@ -320,10 +320,18 @@ def export_snapshots(
 def export_well_paths(self, well_paths=None, md_step_size=5.0):
     """Export a set of well paths
 
+    Deprecated: use WellPath.export_geometry(export_folder=..., md_step_size=...) on each well path
+    instead. This method writes to the WELLPATHS folder set by Instance.set_export_folder().
+
     Arguments:
         well_paths(list): List of strings of well paths. If none, export all.
         md_step_size(double): resolution of the exported well path
     """
+    warnings.warn(
+        "Project.export_well_paths() is deprecated, use WellPath.export_geometry() with an explicit export_folder instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
     if well_paths is None:
         well_paths = []
     elif isinstance(well_paths, str):
