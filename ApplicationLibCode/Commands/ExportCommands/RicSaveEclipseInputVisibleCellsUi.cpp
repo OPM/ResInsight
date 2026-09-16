@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "cafPdmScriptEnumNameRegistry.h"
 #include "cafPdmUiFilePathEditor.h"
 
 #include <QDir>
@@ -36,6 +37,19 @@ void RicSaveEclipseInputVisibleCellsUi::ExportKeywordEnum::setUp()
     setDefault( RicSaveEclipseInputVisibleCellsUi::FLUXNUM );
 }
 } // namespace caf
+
+namespace
+{
+// Pin the Python StrEnum class name for the export keyword used by RimEclipseView_exportVisibleCells
+struct RegisterScriptEnumNames
+{
+    RegisterScriptEnumNames()
+    {
+        caf::PdmScriptEnumNameRegistry::registerName<RicSaveEclipseInputVisibleCellsUi::ExportKeyword>( "VisibleCellsExportKeyword" );
+    }
+};
+const RegisterScriptEnumNames s_registerScriptEnumNames;
+} // namespace
 
 CAF_PDM_SOURCE_INIT( RicSaveEclipseInputVisibleCellsUi, "RicSaveEclipseInputVisibleCellsUi" );
 
