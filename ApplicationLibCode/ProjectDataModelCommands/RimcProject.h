@@ -32,6 +32,7 @@
 
 class Rim3dView;
 class RimIdenticalGridCaseGroup;
+class RimFormationNames;
 
 //==================================================================================================
 ///
@@ -246,4 +247,24 @@ public:
 
 private:
     caf::PdmField<std::vector<QString>> m_casePaths;
+};
+
+//==================================================================================================
+/// Import formation names from one or more files (.lyr, .fmu, ...). Returns the created formation names
+/// object, which can be assigned to cases with Case.set_formation_names().
+//==================================================================================================
+class RimProject_importFormationNames : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_importFormationNames( caf::PdmObjectHandle* self );
+
+    void setFormationFiles( const std::vector<QString>& formationFiles );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<std::vector<QString>> m_formationFiles;
 };

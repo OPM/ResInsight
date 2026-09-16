@@ -932,20 +932,23 @@ def import_formation_names(
 ) -> None:
     """Import formation names into project and apply it to the current case
 
+    Deprecated: use Project.import_formation_names(apply_to_all_cases=False) followed by
+    Case.set_formation_names() instead.
+
     Arguments:
         formation_files(list): list of files to import
 
     """
-    if formation_files is None:
-        formation_files = []
-    elif isinstance(formation_files, str):
-        formation_files = [formation_files]
-
-    self._execute_command(
-        importFormationNames=Cmd.ImportFormationNamesRequest(
-            formationFiles=formation_files, applyToCaseId=self.id
-        )
+    warnings.warn(
+        "Case.import_formation_names() is deprecated, use Project.import_formation_names() and Case.set_formation_names() instead",
+        DeprecationWarning,
+        stacklevel=3,
     )
+    project = self.ancestor(rips.project.Project)
+    formation_names = project.import_formation_names(
+        formation_files=formation_files, apply_to_all_cases=False
+    )
+    self.set_formation_names(formation_names=formation_names)
 
 
 @add_method(Case)

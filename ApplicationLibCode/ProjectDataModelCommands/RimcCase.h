@@ -21,10 +21,12 @@
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
+#include "cafPdmPtrField.h"
 
 #include <QString>
 
 class Rim3dView;
+class RimFormationNames;
 
 //==================================================================================================
 /// Replace the grid file of a case (Eclipse result case or GeoMech case) and reload the project.
@@ -62,4 +64,22 @@ public:
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
+};
+
+//==================================================================================================
+/// Set the active formation names of the case.
+//==================================================================================================
+class RimCase_setFormationNames : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimCase_setFormationNames( caf::PdmObjectHandle* self );
+
+    void setFormationNames( RimFormationNames* formationNames );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrField<RimFormationNames*> m_formationNames;
 };
