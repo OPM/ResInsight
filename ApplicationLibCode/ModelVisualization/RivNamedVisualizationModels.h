@@ -30,7 +30,6 @@
 ///
 /// The names of the well-known models shared across several 3D view types are centralized here as
 /// static accessors, so the string literals identifying a given model are defined in a single place
-/// instead of being repeated (and potentially mistyped) at each call site.
 ///
 //==================================================================================================
 class RivNamedVisualizationModels
