@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 
+#include "RifEclipseSummaryAddress.h"
 #include "RifEclipseSummaryTools.h"
 #include "RifMultipleSummaryReaders.h"
 #include "RifOpmCommonSummary.h"
@@ -354,6 +355,17 @@ std::expected<void, QString>
                                .arg( QString::fromStdString( keyword ) )
                                .arg( MAX_KEYWORD_LENGTH )
                                .arg( keyword.length() );
+        RiaLogging::error( errorMsg.toStdString() );
+        return std::unexpected( errorMsg );
+    }
+
+    auto address    = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( keyword );
+    auto fileReader = m_multiSummaryReader->findReader( m_fileSummaryReaderId );
+    if ( fileReader && fileReader->hasAddress( address ) )
+    {
+        QString errorMsg = QString( "Cannot set summary values for '%1' because the vector comes from the source summary file. "
+                                    "Use a new summary vector address instead." )
+                               .arg( QString::fromStdString( keyword ) );
         RiaLogging::error( errorMsg.toStdString() );
         return std::unexpected( errorMsg );
     }
