@@ -24,6 +24,7 @@
 #include "Formations/RimFormationNamesCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimCompletionTemplateCollection.h"
+#include "RimDataViewCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
@@ -80,6 +81,9 @@ RimOilField::RimOilField()
 
     CAF_PDM_InitFieldNoDefault( &eclipseViewCollection, "EclipseViewCollection", "Eclipse Views", ":/3DView16x16.png" );
     eclipseViewCollection = new RimEclipseViewCollection();
+
+    CAF_PDM_InitFieldNoDefault( &dataViewCollection, "DataViewCollection", "Data Views" );
+    dataViewCollection = new RimDataViewCollection();
 
     CAF_PDM_InitFieldNoDefault( &eclipseContourMapCollection, "ContourMaps", "2d Contour Maps" );
     eclipseContourMapCollection = new RimEclipseContourMapViewCollection;

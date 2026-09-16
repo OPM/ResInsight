@@ -19,6 +19,8 @@
 
 #include "RicImportWellPaths.h"
 
+#include "RicNewDataViewFeature.h"
+
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
@@ -175,6 +177,8 @@ std::vector<RimWellPath*> RicImportWellPaths::importWellPaths( const QStringList
 
         if ( oilField && !oilField->wellPathCollection->allWellPaths().empty() )
         {
+            RicNewDataViewFeature::createInitialViewIfNeeded();
+
             RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
             if ( wellPath )
             {
