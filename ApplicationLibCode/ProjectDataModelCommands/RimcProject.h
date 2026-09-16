@@ -31,6 +31,7 @@
 #include <memory>
 
 class Rim3dView;
+class RimIdenticalGridCaseGroup;
 
 //==================================================================================================
 ///
@@ -226,4 +227,23 @@ public:
 private:
     caf::PdmField<QString> m_path;
     caf::PdmField<bool>    m_gridOnly;
+};
+
+//==================================================================================================
+/// Create a grid case group (for statistics) from a list of grid files with identical grids.
+//==================================================================================================
+class RimProject_createGridCaseGroup : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_createGridCaseGroup( caf::PdmObjectHandle* self );
+
+    void setCasePaths( const std::vector<QString>& casePaths );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<std::vector<QString>> m_casePaths;
 };

@@ -23,6 +23,7 @@
 #include "KeyValueStore/RiaKeyValueStoreUtil.h"
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
+#include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesGrid.h"
 #include "RiaQStringFormatter.h"
@@ -45,6 +46,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
+#include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -677,4 +679,64 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_loadCase::execute()
 QString RimProject_loadCase::classKeywordReturnedType() const
 {
     return RimCase::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createGridCaseGroup, "createGridCaseGroup" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_createGridCaseGroup::RimProject_createGridCaseGroup( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Create Grid Case Group", "", "", "Create a grid case group from a list of grid files with identical grids" );
+
+    CAF_PDM_InitScriptableField( &m_casePaths, "CasePaths", std::vector<QString>(), "Case Paths", "", "", "Paths to the grid files" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_createGridCaseGroup::setCasePaths( const std::vector<QString>& casePaths )
+{
+    m_casePaths = casePaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridCaseGroup::execute()
+{
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    if ( m_casePaths().empty() ) return std::unexpected( "No case paths specified." );
+
+    QStringList casePaths;
+    for ( QString casePath : m_casePaths() )
+    {
+        QFileInfo casePathInfo( casePath );
+        if ( !casePathInfo.exists() )
+        {
+            QDir startDir( RiaApplication::instance()->startDir() );
+            casePath = startDir.absoluteFilePath( casePath );
+        }
+        casePaths.push_back( casePath );
+    }
+
+    RimIdenticalGridCaseGroup* caseGroup = nullptr;
+    if ( !RiaImportEclipseCaseTools::addEclipseCases( casePaths, &caseGroup ) || !caseGroup )
+    {
+        return std::unexpected( "Could not load grid case group" );
+    }
+
+    return caseGroup;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_createGridCaseGroup::classKeywordReturnedType() const
+{
+    return RimIdenticalGridCaseGroup::classKeywordStatic();
 }

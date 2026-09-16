@@ -147,23 +147,6 @@ def replace_source_cases(self, grid_list_file, case_group_id=0):
 
 
 @add_method(Project)
-def create_grid_case_group(self, case_paths):
-    """Create a Grid Case Group from a list of cases
-
-    Arguments:
-        case_paths (list): list of file path strings
-    Returns:
-        :class:`rips.generated.resinsight_classes.GridCaseGroup`
-    """
-    command_reply = self._execute_command(
-        createGridCaseGroup=Commands_pb2.CreateGridCaseGroupRequest(
-            casePaths=case_paths
-        )
-    )
-    return self.grid_case_group(command_reply.createGridCaseGroupResult.groupId)
-
-
-@add_method(Project)
 def summary_cases(self):
     """Get a list of all summary cases in the Project
 
