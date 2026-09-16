@@ -52,7 +52,10 @@
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimFlowCharacteristicsPlot.h"
+#include "RimFlowPlotCollection.h"
 #include "RimFractureTemplate.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRoffCase.h"
@@ -67,7 +70,9 @@
 #include "cvfArray.h"
 
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
+#include <QTextStream>
 
 #include <algorithm>
 #include <expected>
@@ -1321,6 +1326,127 @@ std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_createMultipleFract
 
     if ( m_action() == MultipleFractures::Action::APPEND_FRACTURES ) feature->appendFractures();
     if ( m_action() == MultipleFractures::Action::REPLACE_FRACTURES ) feature->replaceFractures();
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseResultCase, RimEclipseResultCase_exportFlowCharacteristics, "exportFlowCharacteristics" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultCase_exportFlowCharacteristics::RimEclipseResultCase_exportFlowCharacteristics( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Flow Characteristics", "", "", "Export flow characteristics computed by flow diagnostics to a text file" );
+
+    CAF_PDM_InitScriptableField( &m_timeSteps, "TimeSteps", std::vector<int>(), "Time Steps", "", "", "Zero-based time step indices" );
+    CAF_PDM_InitScriptableField( &m_injectors, "Injectors", std::vector<QString>(), "Injectors", "", "", "Injector well names" );
+    CAF_PDM_InitScriptableField( &m_producers, "Producers", std::vector<QString>(), "Producers", "", "", "Producer well names" );
+    CAF_PDM_InitScriptableField( &m_fileName,
+                                 "FileName",
+                                 QString(),
+                                 "File Name",
+                                 "",
+                                 "",
+                                 "File to write. Relative paths are resolved against the project folder." );
+    CAF_PDM_InitScriptableField( &m_minimumCommunication, "MinimumCommunication", 0.0, "Minimum Communication" );
+    CAF_PDM_InitScriptableField( &m_aquiferCellThreshold, "AquiferCellThreshold", 0.1, "Aquifer Cell Threshold" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setTimeSteps( const std::vector<int>& timeSteps )
+{
+    m_timeSteps = timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setInjectors( const std::vector<QString>& injectors )
+{
+    m_injectors = injectors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setProducers( const std::vector<QString>& producers )
+{
+    m_producers = producers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setFileName( const QString& fileName )
+{
+    m_fileName = fileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setMinimumCommunication( double minimumCommunication )
+{
+    m_minimumCommunication = minimumCommunication;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setAquiferCellThreshold( double aquiferCellThreshold )
+{
+    m_aquiferCellThreshold = aquiferCellThreshold;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseResultCase_exportFlowCharacteristics::execute()
+{
+    auto* eclipseCase = self<RimEclipseResultCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    if ( m_fileName().isEmpty() ) return std::unexpected( "No file name specified." );
+
+    QString   exportFileName = m_fileName();
+    QFileInfo fi( exportFileName );
+    if ( !fi.isAbsolute() )
+    {
+        QString exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( fi.path() );
+
+        QDir exportDir( exportFolder );
+        if ( !exportDir.exists() && !exportDir.mkpath( "." ) )
+        {
+            return std::unexpected( QString( "Failed to create folder - %1" ).arg( exportFolder ) );
+        }
+
+        exportFileName = exportFolder + "/" + fi.fileName();
+    }
+
+    RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
+    if ( !flowPlotColl ) return std::unexpected( "No flow plot collection is available." );
+
+    RimFlowCharacteristicsPlot* plot = flowPlotColl->defaultFlowCharacteristicsPlot();
+    plot->setFromFlowSolution( eclipseCase->defaultFlowDiagSolution() );
+    plot->setTimeSteps( m_timeSteps() );
+    plot->setInjectorsAndProducers( m_injectors(), m_producers() );
+    plot->setAquiferCellThreshold( m_aquiferCellThreshold() );
+    plot->setMinimumCommunication( m_minimumCommunication() );
+
+    plot->loadDataAndUpdate();
+
+    QFile file( exportFileName );
+    if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )
+    {
+        return std::unexpected( QString( "Failed to export file - %1" ).arg( exportFileName ) );
+    }
+
+    QTextStream textstream( &file );
+    textstream << plot->curveDataAsText();
 
     return nullptr;
 }

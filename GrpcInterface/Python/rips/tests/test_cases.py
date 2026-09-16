@@ -220,8 +220,14 @@ def test_exportFlowCharacteristics(rips_instance, initialize_test):
         print("Temporary folder: ", tmpdirname)
         file_name = tmpdirname + "/exportFlowChar.txt"
         case.export_flow_characteristics(
-            time_steps=8, producers=[], injectors="I01", file_name=file_name
+            time_steps=[8], producers=[], injectors=["I01"], file_name=file_name
         )
+        assert os.path.exists(file_name)
+        with open(file_name) as f:
+            assert len(f.read()) > 0
+
+        with pytest.raises(rips.RipsError):
+            case.export_flow_characteristics(time_steps=[8])
 
 
 def test_selected_cells(rips_instance, initialize_test):
