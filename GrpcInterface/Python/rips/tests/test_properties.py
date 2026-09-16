@@ -256,3 +256,34 @@ def test_exportPropertyInView(rips_instance, initialize_test):
         expected_file_name = case.name + "-" + str("3D_View") + "-" + "T0" + "-SOIL"
         full_path = tmpdirname + "/" + expected_file_name
         assert os.path.exists(full_path)
+
+
+def test_export_property(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        export_file = os.path.join(tmpdirname, "soil_t1.grdecl")
+        case.export_property(time_step=1, property_name="SOIL", export_file=export_file)
+        assert os.path.exists(export_file)
+        with open(export_file) as f:
+            assert "SOIL" in f.read(200)
+
+        # Keyword override and static property
+        export_file = os.path.join(tmpdirname, "poro.grdecl")
+        case.export_property(
+            time_step=0,
+            property_name="PORO",
+            eclipse_keyword="MYPORO",
+            export_file=export_file,
+        )
+        with open(export_file) as f:
+            assert "MYPORO" in f.read(200)
+
+        with pytest.raises(rips.RipsError):
+            case.export_property(
+                time_step=0,
+                property_name="NOT_A_PROPERTY",
+                export_file=os.path.join(tmpdirname, "x"),
+            )
+        with pytest.raises(rips.RipsError):
+            case.export_property(time_step=0, property_name="PORO")
