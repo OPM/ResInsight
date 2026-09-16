@@ -971,36 +971,6 @@ def set_grid_property(
 
 
 @add_method(Case)
-def export_property(
-    self,
-    time_step: int,
-    property_name: str,
-    eclipse_keyword: Any = property,
-    undefined_value: float = 0.0,
-    export_file: Any = property,
-) -> Any:
-    """Export an Eclipse property
-
-    Arguments:
-        time_step (int): time step index
-        property_name (str): property to export
-        eclipse_keyword (str): Keyword used in export header. Defaults: value of property
-        undefined_value (double): Value to use for undefined values. Defaults to 0.0
-        export_file (str): File name for export. Defaults to the value of property parameter
-    """
-    return self._execute_command(
-        exportProperty=Cmd.ExportPropertyRequest(
-            caseId=self.id,
-            timeStep=time_step,
-            property=property_name,
-            eclipseKeyword=eclipse_keyword,
-            undefinedValue=undefined_value,
-            exportFile=export_file,
-        )
-    )
-
-
-@add_method(Case)
 def create_well_bore_stability_plot(
     self,
     well_path: str,

@@ -18,23 +18,11 @@
 
 #include "RicfExportProperty.h"
 
-#include "RiaLogging.h"
-
-#include "ExportCommands/RicEclipseCellResultToFileImpl.h"
-#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
-
-#include "RifEclipseInputFileTools.h"
-
-#include "RigCaseCellResultsData.h"
-#include "RigEclipseCaseData.h"
-#include "RigEclipseResultAddress.h"
+#include "RicfCommandForwarding.h"
 
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseView.h"
-#include "RimProject.h"
+#include "RimcEclipseCase.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafUtils.h"
@@ -61,67 +49,33 @@ RicfExportProperty::RicfExportProperty()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfExportProperty::execute()
 {
-    using TOOLS = RicfApplicationTools;
+    const QString commandName = classKeyword();
 
-    RimEclipseCase* eclipseCase = TOOLS::caseFromId( m_caseId() );
+    auto rimCase = RicfForwarding::findCase( m_caseId() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
+
+    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase.value() );
+    if ( !eclipseCase )
     {
-        if ( !eclipseCase )
-        {
-            QString error = QString( "exportProperty: Could not find case with ID %1" ).arg( m_caseId() );
-            RiaLogging::error( error.toStdString() );
-            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-        }
-
-        if ( !eclipseCase->eclipseCaseData() )
-        {
-            if ( !eclipseCase->openReservoirCase() )
-            {
-                QString error = QString( "exportProperty: Could not find eclipseCaseData with ID %1" ).arg( m_caseId() );
-                RiaLogging::error( error.toStdString() );
-                return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-            }
-        }
+        return RicfForwarding::errorResponse( QString( "Case with ID %1 is not an Eclipse case" ).arg( m_caseId() ), commandName );
     }
 
-    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
-
-    RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-    if ( !cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( m_propertyName ) ) )
-    {
-        QString error = QString( "exportProperty: Could not find result property : %1" ).arg( m_propertyName() );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
-
-    QString filePath = m_exportFileName;
+    // Resolve the default export file from the command file executor state. The Rimc method requires an explicit file.
+    QString filePath = m_exportFileName();
     if ( filePath.isNull() )
     {
         QDir    propertiesDir( RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::PROPERTIES ) );
-        QString fileName = QString( "%1-%2" ).arg( eclipseCase->caseUserDescription() ).arg( m_propertyName );
+        QString fileName = QString( "%1-%2" ).arg( eclipseCase->caseUserDescription() ).arg( m_propertyName() );
         fileName         = caf::Utils::makeValidFileBasename( fileName );
         filePath         = propertiesDir.filePath( fileName );
     }
 
-    QString eclipseKeyword = m_eclipseKeyword;
-    if ( eclipseKeyword.isNull() )
-    {
-        eclipseKeyword = m_propertyName;
-    }
+    RimEclipseCase_exportProperty method( eclipseCase );
+    method.setTimeStep( m_timeStepIndex() );
+    method.setPropertyName( m_propertyName() );
+    method.setEclipseKeyword( m_eclipseKeyword() );
+    method.setUndefinedValue( m_undefinedValue() );
+    method.setExportFile( filePath );
 
-    bool    writeEchoKeywords = false;
-    QString errMsg;
-    if ( !RicEclipseCellResultToFileImpl::writePropertyToTextFile( filePath,
-                                                                   eclipseCase->eclipseCaseData(),
-                                                                   m_timeStepIndex,
-                                                                   m_propertyName,
-                                                                   eclipseKeyword,
-                                                                   m_undefinedValue,
-                                                                   writeEchoKeywords,
-                                                                   &errMsg ) )
-    {
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
-    }
-
-    return caf::PdmScriptResponse();
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
 }

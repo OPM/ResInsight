@@ -22,6 +22,8 @@
 #include "RiaGuiApplication.h"
 #include "RiaKeyValueStoreUtil.h"
 
+#include "ExportCommands/RicEclipseCellResultToFileImpl.h"
+
 #include "RifInputPropertyLoader.h"
 
 #include "RigActiveCellInfo.h"
@@ -449,4 +451,111 @@ std::expected<RiaDefines::ResultDataType, QString> RimcEclipseCase_propertyDataT
     }
 
     return std::unexpected( QString( "Property not found: %1" ).arg( m_propertyName() ) );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_exportProperty, "exportProperty" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_exportProperty::RimEclipseCase_exportProperty( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Property", "", "", "Export a cell property of the case to a GRDECL style text file" );
+
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", -1, "Time Step", "", "", "Zero-based time step index. Ignored for static properties." );
+    CAF_PDM_InitScriptableField( &m_propertyName, "PropertyName", QString(), "Property Name", "", "", "Name of the property to export" );
+    CAF_PDM_InitScriptableField( &m_eclipseKeyword,
+                                 "EclipseKeyword",
+                                 QString(),
+                                 "Eclipse Keyword",
+                                 "",
+                                 "",
+                                 "Keyword written to the file header. Defaults to the property name." );
+    CAF_PDM_InitScriptableField( &m_undefinedValue, "UndefinedValue", 0.0, "Undefined Value", "", "", "Value written for undefined cells" );
+    CAF_PDM_InitScriptableField( &m_exportFile, "ExportFile", QString(), "Export File", "", "", "Full path of the file to write" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportProperty::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportProperty::setPropertyName( const QString& propertyName )
+{
+    m_propertyName = propertyName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportProperty::setEclipseKeyword( const QString& eclipseKeyword )
+{
+    m_eclipseKeyword = eclipseKeyword;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportProperty::setUndefinedValue( double undefinedValue )
+{
+    m_undefinedValue = undefinedValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportProperty::setExportFile( const QString& exportFile )
+{
+    m_exportFile = exportFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportProperty::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    if ( m_propertyName().isEmpty() ) return std::unexpected( "No property name specified." );
+    if ( m_exportFile().isEmpty() ) return std::unexpected( "No export file specified." );
+
+    if ( !eclipseCase->eclipseCaseData() && !eclipseCase->openReservoirCase() )
+    {
+        return std::unexpected( QString( "Could not open case '%1'" ).arg( eclipseCase->caseUserDescription() ) );
+    }
+
+    RigEclipseCaseData*     eclipseCaseData = eclipseCase->eclipseCaseData();
+    RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    if ( !cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( m_propertyName() ) ) )
+    {
+        return std::unexpected( QString( "Could not find result property '%1'" ).arg( m_propertyName() ) );
+    }
+
+    QString eclipseKeyword = m_eclipseKeyword();
+    if ( eclipseKeyword.isEmpty() ) eclipseKeyword = m_propertyName();
+
+    const bool writeEchoKeywords = false;
+    QString    errorMessage;
+    if ( !RicEclipseCellResultToFileImpl::writePropertyToTextFile( m_exportFile(),
+                                                                   eclipseCaseData,
+                                                                   m_timeStep(),
+                                                                   m_propertyName(),
+                                                                   eclipseKeyword,
+                                                                   m_undefinedValue(),
+                                                                   writeEchoKeywords,
+                                                                   &errorMessage ) )
+    {
+        return std::unexpected( errorMessage );
+    }
+
+    return nullptr;
 }

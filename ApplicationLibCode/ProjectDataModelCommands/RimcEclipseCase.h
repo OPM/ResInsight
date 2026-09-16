@@ -161,3 +161,29 @@ private:
     caf::PdmField<int>               m_timeStep;
     caf::PdmField<int>               m_gridIndex;
 };
+
+//==================================================================================================
+/// Export a cell property (static or dynamic, matrix model) of the case to a GRDECL style text file.
+//==================================================================================================
+class RimEclipseCase_exportProperty : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_exportProperty( caf::PdmObjectHandle* self );
+
+    void setTimeStep( int timeStep );
+    void setPropertyName( const QString& propertyName );
+    void setEclipseKeyword( const QString& eclipseKeyword );
+    void setUndefinedValue( double undefinedValue );
+    void setExportFile( const QString& exportFile );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<int>     m_timeStep;
+    caf::PdmField<QString> m_propertyName;
+    caf::PdmField<QString> m_eclipseKeyword;
+    caf::PdmField<double>  m_undefinedValue;
+    caf::PdmField<QString> m_exportFile;
+};
