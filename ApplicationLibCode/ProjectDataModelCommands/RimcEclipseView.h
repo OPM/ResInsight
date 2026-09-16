@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "ExportCommands/RicSaveEclipseInputVisibleCellsUi.h"
+
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -67,4 +70,31 @@ public:
 private:
     caf::PdmField<QString> m_exportFile;
     caf::PdmField<double>  m_undefinedValue;
+};
+
+//==================================================================================================
+/// Export a GRDECL keyword (FLUXNUM, MULTNUM or ACTNUM) with one value per cell based on the cell
+/// visibility in the view at the current time step.
+//==================================================================================================
+class RimEclipseView_exportVisibleCells : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseView_exportVisibleCells( caf::PdmObjectHandle* self );
+
+    void setExportFile( const QString& exportFile );
+    void setExportKeyword( RicSaveEclipseInputVisibleCellsUi::ExportKeyword exportKeyword );
+    void setVisibleActiveCellsValue( int value );
+    void setHiddenActiveCellsValue( int value );
+    void setInactiveCellsValue( int value );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<QString>                                                        m_exportFile;
+    caf::PdmField<caf::AppEnum<RicSaveEclipseInputVisibleCellsUi::ExportKeyword>> m_exportKeyword;
+    caf::PdmField<int>                                                            m_visibleActiveCellsValue;
+    caf::PdmField<int>                                                            m_hiddenActiveCellsValue;
+    caf::PdmField<int>                                                            m_inactiveCellsValue;
 };

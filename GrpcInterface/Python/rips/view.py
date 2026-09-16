@@ -130,36 +130,6 @@ def export_sim_well_fracture_completions(
 
 
 @add_method(View)
-def export_visible_cells(
-    self,
-    export_keyword="FLUXNUM",
-    visible_active_cells_value=1,
-    hidden_active_cells_value=0,
-    inactive_cells_value=0,
-):
-    """Export special properties for all visible cells.
-
-    Arguments:
-        export_keyword (string): The keyword to export.
-        Choices: 'FLUXNUM' or 'MULTNUM'. Default: 'FLUXNUM'
-        visible_active_cells_value (int): Value to export forvisible active cells. Default: 1
-        hidden_active_cells_value (int): Value to export for hidden active cells. Default: 0
-        inactive_cells_value (int): Value to export for inactive cells. Default: 0
-    """
-    case_id = self.case().id
-    return self._execute_command(
-        exportVisibleCells=Cmd.ExportVisibleCellsRequest(
-            caseId=case_id,
-            viewId=self.id,
-            exportKeyword=export_keyword,
-            visibleActiveCellsValue=visible_active_cells_value,
-            hiddenActiveCellsValue=hidden_active_cells_value,
-            inactiveCellsValue=inactive_cells_value,
-        )
-    )
-
-
-@add_method(View)
 def export_property(self, undefined_value=0.0):
     """Export the current Eclipse property from the view
 

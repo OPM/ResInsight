@@ -303,3 +303,31 @@ def test_export_current_property(rips_instance, initialize_test):
 
         with pytest.raises(rips.RipsError):
             view.export_current_property()
+
+
+def test_export_visible_cells(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    view = case.create_view()
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        export_file = os.path.join(tmpdirname, "fluxnum.grdecl")
+        view.export_visible_cells(export_file=export_file)
+        assert os.path.exists(export_file)
+        with open(export_file) as f:
+            assert "FLUXNUM" in f.read(200)
+
+        export_file = os.path.join(tmpdirname, "actnum.grdecl")
+        view.export_visible_cells(
+            export_file=export_file,
+            export_keyword=rips.VisibleCellsExportKeyword.ACTNUM,
+            visible_active_cells_value=2,
+        )
+        with open(export_file) as f:
+            content = f.read()
+            assert "ACTNUM" in content[:200]
+            # Note: without a GUI no cells are visible, so the exported values are not asserted
+            values = content.split("ACTNUM")[1].split("/")[0].split()
+            assert len(values) > 0
+
+        with pytest.raises(rips.RipsError):
+            view.export_visible_cells()
