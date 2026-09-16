@@ -37,16 +37,16 @@ class RigEclipseNativeStatCalc : public RigStatisticsCalculator
 public:
     RigEclipseNativeStatCalc( RigCaseCellResultsData* cellResultsData, const RigEclipseResultAddress& eclipseResultAddress );
 
-    bool   hasPreciseP10p90() const override;
-    void   p10p90CellScalarValues( double& min, double& max ) override;
-    void   p10p90CellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
-    void   minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
-    void   posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg ) override;
-    void   valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount ) override;
-    void   addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator ) override;
-    void   uniqueValues( size_t timeStepIndex, std::set<int>& values ) override;
-    size_t timeStepCount() override;
-    void   mobileVolumeWeightedMean( size_t timeStepIndex, double& mean ) override;
+    bool                  hasPreciseP10p90() const override;
+    void                  p10p90CellScalarValues( double& min, double& max ) override;
+    void                  p10p90CellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
+    void                  minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
+    void                  posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg ) override;
+    void                  valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount ) override;
+    void                  addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator ) override;
+    void                  uniqueValues( size_t timeStepIndex, std::set<int>& values ) override;
+    size_t                timeStepCount() override;
+    std::optional<double> mobileVolumeWeightedMean( size_t timeStepIndex ) override;
 
 private:
     RigCaseCellResultsData* m_resultsData;
