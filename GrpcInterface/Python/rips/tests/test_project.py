@@ -229,11 +229,21 @@ def test_export_well_paths(rips_instance, initialize_test):
 
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
         rips_instance.set_export_folder(export_type="WELLPATHS", path=tmpdirname)
-        rips_instance.project.export_well_paths(
-            well_paths="Well Path A", md_step_size=10.0
-        )
+        with pytest.warns(DeprecationWarning):
+            rips_instance.project.export_well_paths(
+                well_paths="Well Path A", md_step_size=10.0
+            )
         exported = os.listdir(tmpdirname)
         assert any(name.endswith(".dev") for name in exported)
+
+    well_path = rips_instance.project.well_path_by_name("Well Path A")
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        export_folder = os.path.join(tmpdirname, "new_folder")
+        well_path.export_geometry(export_folder=export_folder, md_step_size=10.0)
+        assert os.listdir(export_folder) == ["Well_Path_A.dev"]
+
+    with pytest.raises(rips.RipsError):
+        well_path.export_geometry()
 
 
 def test_scale_fracture_template_and_set_containment(rips_instance, initialize_test):
