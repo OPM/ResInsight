@@ -27,8 +27,10 @@
 #include <QStringList>
 
 #include <map>
+#include <memory>
 
 class RimProcess;
+class RimBatchQueue;
 
 //==================================================================================================
 ///
@@ -43,7 +45,7 @@ public:
     ~RimSingleJob() override;
 
     bool              execute() override;
-    bool              stop() override;
+    void              stop() override;
     double            percentageDone() const override;
     const QStringList jobLog() const override;
     bool              matchesKeyValue( const QString& key, const QString& value ) const override = 0;
@@ -61,6 +63,8 @@ protected:
     virtual bool                       onRun()                             = 0;
     virtual void                       onCompleted( bool success )         = 0;
     virtual void                       onProgress( double percentageDone ) = 0;
+    virtual bool                       shouldUseWsl()                      = 0;
+    virtual int                        numberOfProcesses()                 = 0;
 
 protected:
     double m_percentageDone;
@@ -68,5 +72,6 @@ protected:
     int    m_errorsDetected;
 
 private:
-    caf::PdmPointer<RimProcess> m_process;
+    std::shared_ptr<RimProcess>    m_process;
+    std::shared_ptr<RimBatchQueue> m_queue;
 };
