@@ -7,7 +7,7 @@ import warnings
 from .pdmobject import add_method
 from .resinsight_classes import WellLogPlot
 
-from typing import List
+from typing import List, Optional
 
 
 @add_method(WellLogPlot)
@@ -19,7 +19,7 @@ def export_data_as_las(
     capitalize_file_names: bool = False,
     resample_interval: float = 0.0,
     convert_to_standard_units: bool = False,
-    export_tvd_rkb: bool = None,
+    export_tvd_rkb: Optional[bool] = None,
 ) -> List[str]:
     """Export LAS file(s) for the current plot
 

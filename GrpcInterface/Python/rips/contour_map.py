@@ -8,12 +8,12 @@ from .resinsight_classes import EclipseContourMap, GeoMechContourMap
 
 
 def export_to_text(
-    self,
+    self: View,
     export_file_name: str = "",
     export_local_coordinates: bool = False,
     undefined_value_label: str = "NaN",
     exclude_undefined_values: bool = False,
-):
+) -> None:
     """Export the contour map to a text file
 
     Alias of View.export_contour_map_to_text().
