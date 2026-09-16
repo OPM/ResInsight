@@ -311,6 +311,33 @@ def test_import_formation_names(rips_instance, initialize_test):
     assert "Active Formation Names" in available
 
 
+def test_import_and_set_formation_names_object_methods(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+
+    formation_names = rips_instance.project.import_formation_names(
+        formation_files=[dataroot.PATH + "/20Layers.lyr"], apply_to_all_cases=False
+    )
+    assert isinstance(formation_names, rips.FormationNames)
+    assert formation_names.formation_names_file_name.endswith("20Layers.lyr")
+    # No formation names assigned to the case yet
+    with pytest.raises(rips.RipsError):
+        case.available_properties(rips.PropertyType.FORMATION_NAMES)
+
+    case.set_formation_names(formation_names=formation_names)
+    assert "Active Formation Names" in case.available_properties(
+        rips.PropertyType.FORMATION_NAMES
+    )
+
+    with pytest.raises(rips.RipsError):
+        rips_instance.project.import_formation_names(formation_files=["/no/such.lyr"])
+    with pytest.raises(rips.RipsError):
+        case.set_formation_names()
+
+    with pytest.warns(DeprecationWarning):
+        case.import_formation_names(formation_files=dataroot.PATH + "/20Layers.lyr")
+
+
 _MINIMAL_LAS = """~Version Information
  VERS.                 2.0 : CWLS log ASCII Standard - VERSION 2.0
  WRAP.                 NO  : One line per depth step

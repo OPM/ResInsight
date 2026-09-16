@@ -23,6 +23,7 @@ import KeyValueStore_pb2
 from .exception import RipsError
 from .resinsight_classes import (
     ColorLegendCollection,
+    FormationNames,
     FractureTemplate,
     PlotWindow,
     Project,
@@ -458,23 +459,29 @@ def import_well_log_files(self, well_log_files=None, well_log_folder=""):
 
 
 @add_method(Project)
-def import_formation_names(self, formation_files=None):
-    """Import formation names into project
+def import_formation_names(self, formation_files=None, apply_to_all_cases=True):
+    """Import formation names into project and apply it to all grid cases in the project
 
     Arguments:
         formation_files(list): list of files to import
+        apply_to_all_cases(bool): assign the imported formation names to all grid cases.
+            Use Case.set_formation_names() for finer control.
 
+    Returns:
+        :class:`rips.generated.generated_classes.FormationNames`
     """
     if formation_files is None:
         formation_files = []
     elif isinstance(formation_files, str):
         formation_files = [formation_files]
 
-    self._execute_command(
-        importFormationNames=Commands_pb2.ImportFormationNamesRequest(
-            formationFiles=formation_files, applyToCaseId=-1
-        )
+    formation_names = self._call_pdm_method_return_value(
+        "importFormationNames", FormationNames, formation_files=formation_files
     )
+    if apply_to_all_cases:
+        for case in self.descendants(Case):
+            case.set_formation_names(formation_names=formation_names)
+    return formation_names
 
 
 @add_method(Project)

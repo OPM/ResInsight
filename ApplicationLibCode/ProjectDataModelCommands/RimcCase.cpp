@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaProjectModifier.h"
 
+#include "Formations/RimFormationNames.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
@@ -166,4 +167,48 @@ std::expected<caf::PdmObjectHandle*, QString> RimCase_createView::execute()
 QString RimCase_createView::classKeywordReturnedType() const
 {
     return Rim3dView::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimCase, RimCase_setFormationNames, "setFormationNames" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCase_setFormationNames::RimCase_setFormationNames( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Formation Names", "", "", "Set the active formation names of the case" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_formationNames,
+                                          "FormationNames",
+                                          "Formation Names",
+                                          "",
+                                          "",
+                                          "Formation names object, e.g. from Project.import_formation_names()" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase_setFormationNames::setFormationNames( RimFormationNames* formationNames )
+{
+    m_formationNames = formationNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimCase_setFormationNames::execute()
+{
+    auto* rimCase = self<RimCase>();
+    if ( !rimCase ) return std::unexpected( "No case is available." );
+
+    RimFormationNames* formationNames = m_formationNames();
+    if ( !formationNames ) return std::unexpected( "No formation names specified." );
+
+    rimCase->setFormationNames( formationNames );
+    rimCase->updateFormationNamesData();
+    rimCase->updateConnectedEditors();
+
+    return nullptr;
 }

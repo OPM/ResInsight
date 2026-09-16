@@ -32,6 +32,7 @@
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
+#include "RicImportFormationNamesFeature.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 #include "ViewLink/RicLinkVisibleViewsFeature.h"
@@ -39,6 +40,7 @@
 
 #include "RifReaderSettings.h"
 
+#include "Formations/RimFormationNames.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCornerPointCase.h"
@@ -739,4 +741,71 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridCaseGroup::ex
 QString RimProject_createGridCaseGroup::classKeywordReturnedType() const
 {
     return RimIdenticalGridCaseGroup::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_importFormationNames, "importFormationNames" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_importFormationNames::RimProject_importFormationNames( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Import Formation Names", "", "", "Import formation names from files and return the formation names object" );
+
+    CAF_PDM_InitScriptableField( &m_formationFiles,
+                                 "FormationFiles",
+                                 std::vector<QString>(),
+                                 "Formation Files",
+                                 "",
+                                 "",
+                                 "Formation files to import (.lyr, .fmu, ...)" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_importFormationNames::setFormationFiles( const std::vector<QString>& formationFiles )
+{
+    m_formationFiles = formationFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_importFormationNames::execute()
+{
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    if ( m_formationFiles().empty() ) return std::unexpected( "No formation files provided" );
+
+    QStringList formationFileList;
+    QStringList missingFiles;
+    for ( const QString& formationFile : m_formationFiles() )
+    {
+        if ( QFileInfo::exists( formationFile ) )
+        {
+            formationFileList.push_back( formationFile );
+        }
+        else
+        {
+            missingFiles.push_back( formationFile );
+        }
+    }
+
+    if ( !missingFiles.empty() ) return std::unexpected( QString( "%1 does not exist" ).arg( missingFiles.join( ", " ) ) );
+
+    RimFormationNames* formationNames = RicImportFormationNamesFeature::importFormationFiles( formationFileList );
+    if ( !formationNames ) return std::unexpected( "Could not import formation names" );
+
+    return formationNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_importFormationNames::classKeywordReturnedType() const
+{
+    return RimFormationNames::classKeywordStatic();
 }
