@@ -83,17 +83,6 @@ def apply_flow_diagnostics_cell_result(
 
 
 @add_method(View)
-def set_time_step(self, time_step):
-    """Set the time step for current view"""
-    case_id = self.case().id
-    return self._execute_command(
-        setTimeStep=Cmd.SetTimeStepParams(
-            caseId=case_id, viewId=self.id, timeStep=time_step
-        )
-    )
-
-
-@add_method(View)
 def export_sim_well_fracture_completions(
     self, time_step, simulation_well_names, file_split, compdat_export
 ):

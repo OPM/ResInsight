@@ -24,6 +24,7 @@
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dView.h"
+#include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
@@ -263,4 +264,51 @@ std::expected<caf::PdmObjectHandle*, QString> Rim3dView_clone::execute()
 QString Rim3dView_clone::classKeywordReturnedType() const
 {
     return Rim3dView::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_setTimeStep, "setTimeStep" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dView_setTimeStep::Rim3dView_setTimeStep( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Time Step", "", "", "Set the current time step of the view" );
+
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "Zero-based time step index" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView_setTimeStep::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> Rim3dView_setTimeStep::execute()
+{
+    auto* view = self<Rim3dView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    RimCase* rimCase = view->ownerCase();
+    if ( !rimCase ) return std::unexpected( "The view has no case." );
+
+    const int maxTimeStep = static_cast<int>( rimCase->timeStepStrings().size() ) - 1;
+    if ( m_timeStep() < 0 || m_timeStep() > maxTimeStep )
+    {
+        return std::unexpected( QString( "Time step %1 is out of range [0, %2] for case '%3'" )
+                                    .arg( m_timeStep() )
+                                    .arg( maxTimeStep )
+                                    .arg( rimCase->caseUserDescription() ) );
+    }
+
+    view->setCurrentTimeStepAndUpdate( m_timeStep() );
+    view->createDisplayModelAndRedraw();
+
+    return nullptr;
 }
