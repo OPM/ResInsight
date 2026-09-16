@@ -92,7 +92,6 @@ public:
     virtual std::vector<std::vector<std::pair<size_t, double>>>
         generateGridMapping( RigContourMapCalculator::ResultAggregationType resultAggregation,
                              const std::vector<double>&                     weights,
-                             const std::set<int>&                           kLayers,
                              const std::vector<std::vector<cvf::Vec3d>>&    limitToPolygons );
 
     double interpolateValue( const cvf::Vec2d& gridPosition2d ) const;

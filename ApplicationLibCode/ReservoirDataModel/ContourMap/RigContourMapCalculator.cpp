@@ -309,7 +309,6 @@ std::vector<std::vector<std::pair<size_t, double>>>
                                                   const RigContourMapGrid&                    contourMapGrid,
                                                   ResultAggregationType                       resultAggregation,
                                                   const std::vector<double>&                  weightingResultValues,
-                                                  const std::set<int>&                        kLayers,
                                                   const std::vector<std::vector<cvf::Vec3d>>& limitToPolygons )
 {
     int                                                 nCells = contourMapGrid.numberOfCells();
@@ -337,12 +336,12 @@ std::vector<std::vector<std::pair<size_t, double>>>
         if ( isSummationResult )
         {
             projected3dGridIndices[index] =
-                cellRayIntersectionAndResults( contourMapProjection, contourMapGrid, globalPos, weightingResultValues, kLayers );
+                cellRayIntersectionAndResults( contourMapProjection, contourMapGrid, globalPos, weightingResultValues );
         }
         else
         {
             projected3dGridIndices[index] =
-                cellOverlapVolumesAndResults( contourMapProjection, contourMapGrid, globalPos, weightingResultValues, kLayers );
+                cellOverlapVolumesAndResults( contourMapProjection, contourMapGrid, globalPos, weightingResultValues );
         }
     }
     return projected3dGridIndices;
@@ -355,8 +354,7 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
     RigContourMapCalculator::cellOverlapVolumesAndResults( const RigContourMapProjection& contourMapProjection,
                                                            const RigContourMapGrid&       contourMapGrid,
                                                            const cvf::Vec2d&              globalPos2d,
-                                                           const std::vector<double>&     weightingResultValues,
-                                                           const std::set<int>&           kLayers )
+                                                           const std::vector<double>&     weightingResultValues )
 {
     const cvf::BoundingBox& expandedBoundingBox = contourMapGrid.expandedBoundingBox();
     cvf::Vec3d              top2dElementCentroid( globalPos2d, expandedBoundingBox.max().z() );
@@ -390,11 +388,6 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
     {
         if ( cellGridIdxVisibility.isNull() || ( *cellGridIdxVisibility )[globalCellIdx] )
         {
-            auto k = contourMapProjection.kLayer( globalCellIdx );
-            if ( !kLayers.empty() )
-            {
-                if ( !kLayers.contains( (int)k ) ) continue;
-            }
             kLayerCellIndexVector[contourMapProjection.kLayer( globalCellIdx )].push_back( globalCellIdx );
         }
     }
@@ -427,8 +420,7 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
     RigContourMapCalculator::cellRayIntersectionAndResults( const RigContourMapProjection& contourMapProjection,
                                                             const RigContourMapGrid&       contourMapGrid,
                                                             const cvf::Vec2d&              globalPos2d,
-                                                            const std::vector<double>&     weightingResultValues,
-                                                            const std::set<int>&           kLayers )
+                                                            const std::vector<double>&     weightingResultValues )
 {
     std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
 
@@ -458,12 +450,7 @@ std::vector<RigContourMapCalculator::CellIndexAndResult>
 
         if ( cellGridIdxVisibility.isNull() || ( *cellGridIdxVisibility )[globalCellIdx] )
         {
-            auto k = contourMapProjection.kLayer( globalCellIdx );
-            if ( !kLayers.empty() )
-            {
-                if ( !kLayers.contains( (int)k ) ) continue;
-            }
-            kLayerIndexMap[k].push_back( globalCellIdx );
+            kLayerIndexMap[contourMapProjection.kLayer( globalCellIdx )].push_back( globalCellIdx );
         }
     }
 

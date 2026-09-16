@@ -34,13 +34,11 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
-#include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigPolyLinesData.h"
 #include "RigStatisticsMath.h"
 
 #include "ContourMap/RimContourMapInViewCollection.h"
-#include "Formations/RimFormationNames.h"
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "Rim3dView.h"
@@ -77,26 +75,10 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include <optional>
 #include <set>
 
 namespace
 {
-std::optional<std::set<int>>
-    findKLayersForFormations( RimEclipseCase* eCase, const std::vector<QString>& selectedFormations, RimFormationNames* fallbackFormationNames )
-{
-    if ( selectedFormations.empty() ) return std::set<int>{};
-
-    auto formationNames = eCase->activeFormationNames();
-    if ( !formationNames ) formationNames = fallbackFormationNames;
-    if ( !formationNames ) return std::nullopt;
-
-    auto fData = formationNames->formationNamesData();
-    if ( !fData ) return std::nullopt;
-
-    return fData->findKLayers( selectedFormations );
-}
-
 //--------------------------------------------------------------------------------------------------
 /// Restrict the grid mapping to the cells accepted by the data filter, evaluated against the given
 /// realization. The filter is evaluated at the first time step, as the grid mapping is shared by all
@@ -212,11 +194,6 @@ RimStatisticsContourMap::RimStatisticsContourMap()
 
     CAF_PDM_InitFieldNoDefault( &m_views, "ContourMapViews", "Contour Maps", ":/CrossSection16x16.png" );
 
-    CAF_PDM_InitField( &m_enableFormationFilter, "EnableFormationFilter", false, "Enable Formation Filter" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedFormations, "Formations", "Select Formations" );
-    m_selectedFormations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedFormations.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
-
     CAF_PDM_InitFieldNoDefault( &m_selectedPolygons, "Polygons", "Select Polygons" );
     m_selectedPolygons.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedPolygons.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosition::TOP );
@@ -258,14 +235,13 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
         setEclipseCase( selCase );
     }
 
-    bool computeOK = !( m_enableFormationFilter && m_selectedFormations().empty() );
-    computeOK      = computeOK && !selectedTimeSteps().empty();
+    bool computeOK = !selectedTimeSteps().empty();
 
     uiOrdering.add( nameField() );
 
     {
         auto* btn = uiOrdering.addNewButton( "Compute", [this]() { onComputeStatisticsClicked(); } );
-        btn->setUiToolTip( computeOK ? "Start statistics computations." : "Please check your time step and/or formation filter selections." );
+        btn->setUiToolTip( computeOK ? "Start statistics computations." : "Please check your time step selection." );
         btn->setUiReadOnly( !computeOK );
     }
 
@@ -306,14 +282,6 @@ void RimStatisticsContourMap::defineUiOrdering( QString uiConfigName, caf::PdmUi
     auto tsGroup = uiOrdering.addNewGroup( "Time Step Selection" );
     tsGroup->setCollapsedByDefault();
     tsGroup->add( &m_selectedTimeSteps );
-
-    if ( activeFormationNames() )
-    {
-        auto formationGrp = uiOrdering.addNewGroup( "Formation Selection" );
-        if ( !m_enableFormationFilter ) formationGrp->setCollapsedByDefault();
-        formationGrp->add( &m_enableFormationFilter );
-        if ( m_enableFormationFilter ) formationGrp->add( &m_selectedFormations );
-    }
 
     if ( auto* gridEnsemble = firstAncestorOrThisOfType<RimReservoirGridEnsemble>() )
     {
@@ -386,22 +354,6 @@ QString RimStatisticsContourMap::ensembleName() const
 {
     if ( auto* ens = firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>() ) return ens->ensembleName();
     return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimFormationNames* RimStatisticsContourMap::activeFormationNames() const
-{
-    if ( auto* gridCase = eclipseCase() )
-    {
-        if ( auto* formationNames = gridCase->activeFormationNames() ) return formationNames;
-    }
-    if ( auto* ensemble = firstAncestorOrThisOfType<RimReservoirGridEnsembleBase>() )
-    {
-        return ensemble->activeFormationNames();
-    }
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -491,19 +443,6 @@ QList<caf::PdmOptionItemInfo> RimStatisticsContourMap::calculateValueOptions( co
             options.push_back( caf::PdmOptionItemInfo( eCase->caseUserDescription(), eCase, false, eCase->uiIconProvider() ) );
         }
         return options;
-    }
-    else if ( &m_selectedFormations == fieldNeedingOptions )
-    {
-        if ( auto formations = activeFormationNames() )
-        {
-            if ( formations->formationNamesData() )
-            {
-                for ( auto& f : formations->formationNamesData()->formationNames() )
-                {
-                    options.push_back( caf::PdmOptionItemInfo( f, f, false ) );
-                }
-            }
-        }
     }
     else if ( &m_selectedPolygons == fieldNeedingOptions )
     {
@@ -692,7 +631,6 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
         TimestepResultsMap                              timestepResults;
         bool                                            useSharedGrid = false;
         std::unique_ptr<RigEclipseContourMapProjection> sharedProjection;
-        std::set<int>                                   kLayers;
         bool                                            active = false;
     };
 
@@ -746,24 +684,13 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
         {
             if ( ctx.useSharedGrid )
             {
-                if ( auto kLayers = findKLayersForFormations( primaryCase, map->selectedFormations(), map->activeFormationNames() ) )
-                {
-                    ctx.kLayers = *kLayers;
+                auto primaryCaseData   = primaryCase->eclipseCaseData();
+                auto primaryResultData = primaryCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-                    auto primaryCaseData   = primaryCase->eclipseCaseData();
-                    auto primaryResultData = primaryCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-                    ctx.sharedProjection =
-                        std::make_unique<RigEclipseContourMapProjection>( ctx.contourMapGrid.get(), primaryCaseData, primaryResultData );
-                    // With a data filter the mapping is generated per realization
-                    if ( !map->m_dataFilter() )
-                        ctx.sharedProjection->generateGridMapping( ctx.resultAggregation, {}, ctx.kLayers, map->selectedPolygons() );
-                }
-                else
-                {
-                    RiaLogging::warning( "Formation names are missing for primary case, skipping statistics computation." );
-                    ctx.active = false;
-                }
+                ctx.sharedProjection =
+                    std::make_unique<RigEclipseContourMapProjection>( ctx.contourMapGrid.get(), primaryCaseData, primaryResultData );
+                // With a data filter the mapping is generated per realization
+                if ( !map->m_dataFilter() ) ctx.sharedProjection->generateGridMapping( ctx.resultAggregation, {}, map->selectedPolygons() );
             }
         }
 
@@ -846,7 +773,7 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                         if ( map->m_dataFilter() )
                         {
                             applyDataFilterVisibility( *ctx.sharedProjection, map->m_dataFilter(), eCase );
-                            ctx.sharedProjection->generateGridMapping( ctx.resultAggregation, {}, ctx.kLayers, map->selectedPolygons() );
+                            ctx.sharedProjection->generateGridMapping( ctx.resultAggregation, {}, map->selectedPolygons() );
                         }
 
                         extractCaseResults( *ctx.sharedProjection,
@@ -859,24 +786,16 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                     }
                     else
                     {
-                        if ( auto kLayers = findKLayersForFormations( eCase, map->selectedFormations(), map->activeFormationNames() ) )
-                        {
-                            RigEclipseContourMapProjection contourMapProjection( ctx.contourMapGrid.get(), eclipseCaseData, resultData );
-                            applyDataFilterVisibility( contourMapProjection, map->m_dataFilter(), eCase );
-                            contourMapProjection.generateGridMapping( ctx.resultAggregation, {}, *kLayers, map->selectedPolygons() );
-                            extractCaseResults( contourMapProjection,
-                                                map->m_resultDefinition()->eclipseResultAddress(),
-                                                map->m_resultDefinition()->hasDynamicResult(),
-                                                ctx.resultAggregation,
-                                                ctx.floodSettings,
-                                                localToGlobalTimeSteps,
-                                                ctx.timestepResults );
-                        }
-                        else
-                        {
-                            RiaLogging::warning(
-                                std::format( "Formation names are missing for case {}, skipping case.", eCase->caseUserDescription() ) );
-                        }
+                        RigEclipseContourMapProjection contourMapProjection( ctx.contourMapGrid.get(), eclipseCaseData, resultData );
+                        applyDataFilterVisibility( contourMapProjection, map->m_dataFilter(), eCase );
+                        contourMapProjection.generateGridMapping( ctx.resultAggregation, {}, map->selectedPolygons() );
+                        extractCaseResults( contourMapProjection,
+                                            map->m_resultDefinition()->eclipseResultAddress(),
+                                            map->m_resultDefinition()->hasDynamicResult(),
+                                            ctx.resultAggregation,
+                                            ctx.floodSettings,
+                                            localToGlobalTimeSteps,
+                                            ctx.timestepResults );
                     }
                 }
             }
@@ -1006,15 +925,6 @@ std::vector<std::pair<int, int>> RimStatisticsContourMap::mapLocalToGlobalTimeSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimStatisticsContourMap::selectedFormations() const
-{
-    if ( !m_enableFormationFilter ) return {};
-    return m_selectedFormations();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<std::vector<cvf::Vec3d>> RimStatisticsContourMap::selectedPolygons() const
 {
     std::vector<std::vector<cvf::Vec3d>> allLines;
@@ -1104,10 +1014,6 @@ QString RimStatisticsContourMap::computeCacheValidityKey() const
 
     for ( int timeStep : selectedTimeSteps() )
         parts << QString::number( timeStep );
-
-    parts << ( m_enableFormationFilter() ? "formationFilter" : "noFormationFilter" );
-    for ( const QString& formation : m_selectedFormations() )
-        parts << formation;
 
     // Include the filter configuration, so that editing the filter invalidates the cache
     if ( m_dataFilter() ) parts << m_dataFilter()->writeObjectToXmlString();
