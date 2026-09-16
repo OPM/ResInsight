@@ -390,20 +390,6 @@ def views(self) -> List[View]:
 
 
 @add_method(Case)
-def create_view(self) -> Optional[View]:
-    """Create a new view in the current case
-
-    Returns:
-        :class:`rips.generated.generated_classes.View`
-    """
-    return self.view(
-        self._execute_command(
-            createView=Cmd.CreateViewRequest(caseId=self.id)
-        ).createViewResult.viewId
-    )
-
-
-@add_method(Case)
 def export_snapshots_of_all_views(
     self, prefix: str = "", export_folder: str = ""
 ) -> Any:

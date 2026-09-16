@@ -21,8 +21,15 @@
 #include "RiaApplication.h"
 #include "RiaProjectModifier.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
 #include "RimProject.h"
+
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -103,4 +110,53 @@ std::expected<caf::PdmObjectHandle*, QString> RimCase_replaceGrid::execute()
     }
 
     return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimCase, RimCase_createView, "createView" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCase_createView::RimCase_createView( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Create View", "", "", "Create a new 3D view in the case" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimCase_createView::execute()
+{
+    auto* rimCase = self<RimCase>();
+    if ( !rimCase ) return std::unexpected( "No case is available." );
+
+    Rim3dView* view = nullptr;
+    if ( auto* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase ) )
+    {
+        RimEclipseView* eclipseView = eclipseCase->createAndAddReservoirView();
+        eclipseView->loadDataAndUpdate();
+        eclipseCase->updateConnectedEditors();
+        view = eclipseView;
+    }
+    else if ( auto* geoMechCase = dynamic_cast<RimGeoMechCase*>( rimCase ) )
+    {
+        RimGeoMechView* geoMechView = geoMechCase->createAndAddReservoirView();
+        geoMechView->loadDataAndUpdate();
+        geoMechCase->updateConnectedEditors();
+        view = geoMechView;
+    }
+
+    if ( !view ) return std::unexpected( QString( "Could not create view for case '%1'" ).arg( rimCase->caseUserDescription() ) );
+
+    Riu3DMainWindowTools::setExpanded( view );
+    return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCase_createView::classKeywordReturnedType() const
+{
+    return Rim3dView::classKeywordStatic();
 }
