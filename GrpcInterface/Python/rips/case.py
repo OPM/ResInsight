@@ -458,7 +458,14 @@ def export_well_path_completions(
         "TRANSMISSIBILITIES"                        | Direct export of transmissibilities
         "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS"    | Include WPIMULT in addition to transmissibilities
 
+    Deprecated: use Reservoir.export_completions(well_paths=[...], export_folder=...) instead,
+    which takes WellPath objects and an explicit export folder.
     """
+    warnings.warn(
+        "Case.export_well_path_completions() is deprecated, use Reservoir.export_completions() instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
     if isinstance(well_path_names, str):
         well_path_names = [well_path_names]
     return self._execute_command(

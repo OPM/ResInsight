@@ -1,5 +1,6 @@
 import sys
 import os
+import pytest
 import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
@@ -23,6 +24,42 @@ def test_10k(rips_instance, initialize_test):
         well_path_names=["Well-1"],
         file_split="UNIFIED_FILE",
     )
+
+
+def test_export_completions(rips_instance, initialize_test):
+    case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    project_path = case_root_path + "/well_completions_pytest.rsp"
+    project = rips_instance.project.open(path=project_path)
+
+    case = project.cases()[0]
+    well_path = project.well_path_by_name("Well-1")
+    assert well_path is not None
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        case.export_completions(
+            well_paths=[well_path],
+            time_step=1,
+            export_folder=tmpdirname,
+            file_split=rips.CompletionExportSplit.UNIFIED_FILE,
+            custom_file_name="my_completions.sch",
+        )
+        files = os.listdir(tmpdirname)
+        assert "my_completions.sch" in files
+        with open(os.path.join(tmpdirname, "my_completions.sch")) as f:
+            content = f.read()
+            assert "COMPDAT" in content
+            assert "WELSPECS" in content
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        # Empty list exports all visible well paths, split on well
+        case.export_completions(time_step=1, export_folder=tmpdirname)
+        files = os.listdir(tmpdirname)
+        assert len(files) >= 1
+
+    with pytest.raises(rips.RipsError):
+        case.export_completions(well_paths=[well_path])
+    with pytest.raises(rips.RipsError):
+        case.export_completions(well_paths=[well_path], export_folder="/does/not/exist")
 
 
 def test_add_well_path_completions(rips_instance, initialize_test):
