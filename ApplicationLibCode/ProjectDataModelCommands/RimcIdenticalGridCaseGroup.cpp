@@ -20,6 +20,7 @@
 
 #include "RimEclipseStatisticsCase.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimProject.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -32,6 +33,24 @@ RimcIdenticalGridCaseGroup_createStatisticsCase::RimcIdenticalGridCaseGroup_crea
     : caf::PdmObjectCreationMethod( self )
 
 {
+    CAF_PDM_InitObject( "Create Statistics Case", "", "", "Create a new statistics case in the grid case group" );
+
+    CAF_PDM_InitScriptableField( &m_populateResultSelection,
+                                 "PopulateResultSelection",
+                                 false,
+                                 "Populate Result Selection",
+                                 "",
+                                 "",
+                                 "Select all available source properties for statistics. When false, no properties are selected "
+                                 "and set_source_properties() must be called before compute_statistics()." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimcIdenticalGridCaseGroup_createStatisticsCase::setPopulateResultSelection( bool populate )
+{
+    m_populateResultSelection = populate;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,8 +59,13 @@ RimcIdenticalGridCaseGroup_createStatisticsCase::RimcIdenticalGridCaseGroup_crea
 std::expected<caf::PdmObjectHandle*, QString> RimcIdenticalGridCaseGroup_createStatisticsCase::execute()
 {
     auto gridCaseGroup = self<RimIdenticalGridCaseGroup>();
-    auto statCase      = gridCaseGroup->createAndAppendEmptyStatisticsCase();
+    if ( !gridCaseGroup ) return std::unexpected( "No grid case group is available." );
 
+    RimEclipseStatisticsCase* statCase = m_populateResultSelection() ? gridCaseGroup->createAndAppendStatisticsCase()
+                                                                     : gridCaseGroup->createAndAppendEmptyStatisticsCase();
+    if ( !statCase ) return std::unexpected( "Could not create statistics case." );
+
+    RimProject::current()->assignCaseIdToCase( statCase );
     gridCaseGroup->updateConnectedEditors();
 
     return statCase;

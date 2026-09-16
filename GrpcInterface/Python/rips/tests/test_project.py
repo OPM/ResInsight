@@ -75,6 +75,32 @@ def test_loadGridCaseGroup(rips_instance, initialize_test):
     assert project.grid_case_group(9999) is None
 
 
+def test_statistics_case_object_methods(rips_instance, initialize_test):
+    case_paths = [
+        dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID",
+        dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID",
+    ]
+    grid_case_group = rips_instance.project.create_grid_case_group(
+        case_paths=case_paths
+    )
+    # create_grid_case_group creates one populated statistics case by default
+    initial_count = len(grid_case_group.statistics_cases())
+
+    stat_case = grid_case_group.create_statistics_case(populate_result_selection=True)
+    assert stat_case is not None
+    assert len(grid_case_group.statistics_cases()) == initial_count + 1
+    assert stat_case.id >= 0
+
+    stat_case.set_source_properties("DYNAMIC_NATIVE", ["PRESSURE"])
+    stat_case.compute_statistics(update_views=True)
+    assert "PRESSURE_MEAN" in stat_case.available_properties(
+        rips.PropertyType.DYNAMIC_NATIVE
+    )
+
+    with pytest.warns(DeprecationWarning):
+        grid_case_group.compute_statistics(case_ids=[stat_case.id])
+
+
 def test_save_project_round_trip(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     project = rips_instance.project

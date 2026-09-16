@@ -36,6 +36,11 @@ class RimcIdenticalGridCaseGroup_createStatisticsCase : public caf::PdmObjectCre
 public:
     RimcIdenticalGridCaseGroup_createStatisticsCase( caf::PdmObjectHandle* self );
 
+    void setPopulateResultSelection( bool populate );
+
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<bool> m_populateResultSelection;
 };

@@ -22,8 +22,13 @@
 
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseStatisticsCase.h"
+#include "RimEclipseStatisticsCaseCollection.h"
 #include "RimFractureTemplate.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 
 #include "cafPdmObjectHandle.h"
@@ -84,6 +89,55 @@ std::expected<Rim3dView*, QString> RicfForwarding::findView( int viewId )
     }
 
     return std::unexpected( QString( "Could not find view with ID %1" ).arg( viewId ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RimIdenticalGridCaseGroup*, QString> RicfForwarding::findCaseGroup( int groupId )
+{
+    RimProject* project = RimProject::current();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    std::vector<RimIdenticalGridCaseGroup*> caseGroups;
+    for ( RimOilField* oilField : project->oilFields() )
+    {
+        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : nullptr;
+        if ( !analysisModels ) continue;
+        for ( RimIdenticalGridCaseGroup* caseGroup : analysisModels->caseGroups )
+        {
+            if ( caseGroup ) caseGroups.push_back( caseGroup );
+        }
+    }
+
+    if ( groupId < 0 )
+    {
+        if ( caseGroups.empty() ) return std::unexpected( "No grid case groups found in project." );
+        return caseGroups.front();
+    }
+
+    for ( RimIdenticalGridCaseGroup* caseGroup : caseGroups )
+    {
+        if ( caseGroup->groupId() == groupId ) return caseGroup;
+    }
+
+    return std::unexpected( QString( "Could not find grid case group with ID %1" ).arg( groupId ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RimEclipseStatisticsCase*, QString> RicfForwarding::findStatisticsCase( int caseId )
+{
+    RimProject* project = RimProject::current();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    for ( RimEclipseStatisticsCase* statsCase : project->descendantsIncludingThisOfType<RimEclipseStatisticsCase>() )
+    {
+        if ( statsCase && statsCase->caseId() == caseId ) return statsCase;
+    }
+
+    return std::unexpected( QString( "Could not find statistics case with ID %1" ).arg( caseId ) );
 }
 
 //--------------------------------------------------------------------------------------------------
