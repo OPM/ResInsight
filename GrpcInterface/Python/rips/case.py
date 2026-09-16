@@ -37,6 +37,7 @@ result
 
 import grpc
 import uuid
+import warnings
 from typing import Any, Iterable, Iterator, List, Optional, Tuple, Union
 
 import Case_pb2
@@ -170,13 +171,18 @@ def grids(self) -> List[Grid]:
 def replace(self, new_grid_file: str) -> None:
     """Replace the current case grid with a new grid loaded from file
 
+    Deprecated: use replace_grid(new_grid_file) instead.
+
     Arguments:
-        new_egrid_file (str): Path to EGRID file
+        new_grid_file (str): Path to EGRID file
     """
-    project = self.ancestor(rips.project.Project)
-    self._execute_command(
-        replaceCase=Cmd.ReplaceCaseRequest(newGridFile=new_grid_file, caseId=self.id)
+    warnings.warn(
+        "Case.replace() is deprecated, use Case.replace_grid() instead",
+        DeprecationWarning,
+        stacklevel=3,
     )
+    project = self.ancestor(rips.project.Project)
+    self.replace_grid(new_grid_file=new_grid_file)
     new_case = project.case(self.id)
     self.copy_from(new_case)
 
