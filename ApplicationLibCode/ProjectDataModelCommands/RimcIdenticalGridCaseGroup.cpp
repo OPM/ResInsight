@@ -18,6 +18,9 @@
 
 #include "RimcIdenticalGridCaseGroup.h"
 
+#include "RiaApplication.h"
+#include "RiaProjectModifier.h"
+
 #include "RimEclipseStatisticsCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
@@ -77,4 +80,73 @@ std::expected<caf::PdmObjectHandle*, QString> RimcIdenticalGridCaseGroup_createS
 QString RimcIdenticalGridCaseGroup_createStatisticsCase::classKeywordReturnedType() const
 {
     return RimEclipseStatisticsCase::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimIdenticalGridCaseGroup, RimIdenticalGridCaseGroup_replaceSourceCases, "replaceSourceCases" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIdenticalGridCaseGroup_replaceSourceCases::RimIdenticalGridCaseGroup_replaceSourceCases( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Replace Source Cases", "", "", "Replace all source cases of the group with the given grid files and reload the project" );
+
+    CAF_PDM_InitScriptableField( &m_gridFiles, "GridFiles", std::vector<QString>(), "Grid Files", "", "", "Paths to the new grid files" );
+    CAF_PDM_InitScriptableField( &m_projectFile,
+                                 "ProjectFile",
+                                 QString(),
+                                 "Project File",
+                                 "",
+                                 "",
+                                 "Optional project file to reload. Defaults to the current project file." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIdenticalGridCaseGroup_replaceSourceCases::setGridFiles( const std::vector<QString>& gridFiles )
+{
+    m_gridFiles = gridFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIdenticalGridCaseGroup_replaceSourceCases::setProjectFile( const QString& projectFile )
+{
+    m_projectFile = projectFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimIdenticalGridCaseGroup_replaceSourceCases::execute()
+{
+    auto* caseGroup = self<RimIdenticalGridCaseGroup>();
+    if ( !caseGroup ) return std::unexpected( "No grid case group is available." );
+
+    if ( m_gridFiles().empty() ) return std::unexpected( "No grid files specified." );
+
+    QString projectPath = m_projectFile();
+    if ( projectPath.isEmpty() )
+    {
+        RimProject* project = RimProject::current();
+        if ( project ) projectPath = project->fileName();
+    }
+
+    if ( projectPath.isEmpty() )
+    {
+        return std::unexpected( "The project must be saved as a file before replacing the source cases of a group." );
+    }
+
+    cvf::ref<RiaProjectModifier> projectModifier = cvf::make_ref<RiaProjectModifier>();
+    projectModifier->setReplaceSourceCasesById( caseGroup->groupId(), m_gridFiles() );
+
+    if ( !RiaApplication::instance()->loadProject( projectPath, RiaApplication::ProjectLoadAction::PLA_CALCULATE_STATISTICS, projectModifier.p() ) )
+    {
+        return std::unexpected( "Could not reload project" );
+    }
+
+    return nullptr;
 }

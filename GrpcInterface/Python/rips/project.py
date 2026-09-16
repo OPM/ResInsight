@@ -142,10 +142,18 @@ def case(self: Project, case_id: int) -> Optional[Reservoir]:
 def replace_source_cases(self, grid_list_file, case_group_id=0):
     """Replace all source grid cases within a case group
 
+    Deprecated: use GridCaseGroup.replace_source_cases(grid_files=[...]) on the group object instead,
+    which takes the grid file paths directly.
+
     Arguments:
         grid_list_file (str): path to file containing a list of cases
         case_group_id (int): id of the case group to replace
     """
+    warnings.warn(
+        "Project.replace_source_cases() is deprecated, use GridCaseGroup.replace_source_cases(grid_files=[...]) instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
     return self._execute_command(
         replaceSourceCases=Commands_pb2.ReplaceSourceCasesRequest(
             gridListFile=grid_list_file, caseGroupId=case_group_id

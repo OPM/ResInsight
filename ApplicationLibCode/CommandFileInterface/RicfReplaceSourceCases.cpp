@@ -19,10 +19,12 @@
 #include "RicfReplaceSourceCases.h"
 
 #include "RicfCommandFileExecutor.h"
+#include "RicfCommandForwarding.h"
 
 #include "RiaApplication.h"
-#include "RiaLogging.h"
-#include "RiaProjectModifier.h"
+
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimcIdenticalGridCaseGroup.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -42,41 +44,25 @@ RicfReplaceSourceCases::RicfReplaceSourceCases()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfReplaceSourceCases::execute()
 {
-    if ( m_gridListFile().isNull() )
-    {
-        QString error( "replaceSourceCases: Required parameter gridListFile." );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
+    const QString commandName = classKeyword();
 
+    if ( m_gridListFile().isNull() ) return RicfForwarding::errorResponse( "Required parameter gridListFile.", commandName );
+
+    // The legacy command reloads the project opened by 'openProject', which is not necessarily saved.
     QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
     if ( lastProjectPath.isNull() )
     {
-        QString error( "replaceSourceCases: 'openProject' must be called before 'replaceSourceCases' to specify "
-                       "project file to replace cases in." );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+        return RicfForwarding::errorResponse( "'openProject' must be called before 'replaceSourceCases' to specify project file to replace "
+                                              "cases in.",
+                                              commandName );
     }
 
-    cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
+    auto caseGroup = RicfForwarding::findCaseGroup( m_caseGroupId() );
+    if ( !caseGroup ) return RicfForwarding::errorResponse( caseGroup.error(), commandName );
 
-    std::vector<QString> listFileNames = RiaApplication::readFileListFromTextFile( m_gridListFile() );
-    if ( m_caseGroupId() == -1 )
-    {
-        projectModifier->setReplaceSourceCasesFirstOccurrence( listFileNames );
-    }
-    else
-    {
-        projectModifier->setReplaceSourceCasesById( m_caseGroupId(), listFileNames );
-    }
+    RimIdenticalGridCaseGroup_replaceSourceCases method( caseGroup.value() );
+    method.setGridFiles( RiaApplication::readFileListFromTextFile( m_gridListFile() ) );
+    method.setProjectFile( lastProjectPath );
 
-    if ( !RiaApplication::instance()->loadProject( lastProjectPath,
-                                                   RiaApplication::ProjectLoadAction::PLA_CALCULATE_STATISTICS,
-                                                   projectModifier.p() ) )
-    {
-        QString error( "Could not reload project" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
-    return caf::PdmScriptResponse();
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
 }
