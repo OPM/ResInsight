@@ -26,6 +26,7 @@
 
 class RimCase;
 class Rim3dView;
+class RimFractureTemplate;
 
 namespace caf
 {
@@ -47,6 +48,9 @@ std::expected<Rim3dView*, QString> findView( RimCase* rimCase, int viewId );
 
 /// Find a 3D view by id anywhere in the project. A negative id is not accepted.
 std::expected<Rim3dView*, QString> findView( int viewId );
+
+/// Find a fracture template by id.
+std::expected<RimFractureTemplate*, QString> findFractureTemplate( int templateId );
 
 /// Convert the result of a Rimc method execution to a script response, logging errors with the command name.
 caf::PdmScriptResponse toScriptResponse( const std::expected<caf::PdmObjectHandle*, QString>& result, const QString& commandName );

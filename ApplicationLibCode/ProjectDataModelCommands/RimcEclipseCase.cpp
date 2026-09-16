@@ -27,6 +27,8 @@
 #include "CompletionExportCommands/RicWellPathExportMswCompletionsImpl.h"
 #include "ExportCommands/RicEclipseCellResultToFileImpl.h"
 #include "ExportCommands/RicExportLgrFeature.h"
+#include "FractureCommands/RicCreateMultipleFracturesOptionItemUi.h"
+#include "FractureCommands/RicCreateMultipleFracturesUi.h"
 #include "RicCreateTemporaryLgrFeature.h"
 #include "RicDeleteTemporaryLgrsFeature.h"
 
@@ -47,8 +49,10 @@
 
 #include "RimCase.h"
 #include "RimCellFilter.h"
+#include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimFractureTemplate.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRoffCase.h"
@@ -1163,6 +1167,160 @@ std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportLgrForComplet
                                  .arg( m_wellsIntersectingOtherLgrs.join( ", " ) )
                                  .toStdString() );
     }
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_createMultipleFractures, "createMultipleFractures" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_createMultipleFractures::RimEclipseCase_createMultipleFractures( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Create Multiple Fractures", "", "", "Create multiple fractures along the given well paths using a fracture template" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "Well paths to create fractures for" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureTemplate, "FractureTemplate", "Fracture Template", "", "", "Template used for the created fractures" );
+    CAF_PDM_InitScriptableField( &m_minDistFromWellTd,
+                                 "MinDistFromWellTd",
+                                 100.0,
+                                 "Min Distance From Well TD",
+                                 "",
+                                 "",
+                                 "Minimum distance from the well total depth" );
+    CAF_PDM_InitScriptableField( &m_maxFracturesPerWell, "MaxFracturesPerWell", 100, "Max Fractures per Well" );
+    CAF_PDM_InitScriptableField( &m_topLayer, "TopLayer", -1, "Top Layer", "", "", "Zero-based K index of the top layer. -1 uses the top of the grid." );
+    CAF_PDM_InitScriptableField( &m_baseLayer,
+                                 "BaseLayer",
+                                 -1,
+                                 "Base Layer",
+                                 "",
+                                 "",
+                                 "Zero-based K index of the base layer. -1 uses the bottom of the grid." );
+    CAF_PDM_InitScriptableField( &m_spacing, "Spacing", 300.0, "Spacing", "", "", "Distance between fractures" );
+    CAF_PDM_InitScriptableField( &m_action,
+                                 "Action",
+                                 caf::AppEnum<MultipleFractures::Action>( MultipleFractures::Action::APPEND_FRACTURES ),
+                                 "Action",
+                                 "",
+                                 "",
+                                 "Append to or replace the existing fractures on the well paths" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setWellPaths( const std::vector<RimWellPath*>& wellPaths )
+{
+    m_wellPaths.setValue( wellPaths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setFractureTemplate( RimFractureTemplate* fractureTemplate )
+{
+    m_fractureTemplate = fractureTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setMinDistFromWellTd( double minDist )
+{
+    m_minDistFromWellTd = minDist;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setMaxFracturesPerWell( int maxFractures )
+{
+    m_maxFracturesPerWell = maxFractures;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setTopLayer( int topLayer )
+{
+    m_topLayer = topLayer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setBaseLayer( int baseLayer )
+{
+    m_baseLayer = baseLayer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setSpacing( double spacing )
+{
+    m_spacing = spacing;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setAction( MultipleFractures::Action action )
+{
+    m_action = action;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_createMultipleFractures::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
+    if ( wellPaths.empty() ) return std::unexpected( "No well paths specified." );
+
+    RimFractureTemplate* fractureTemplate = m_fractureTemplate();
+    if ( !fractureTemplate ) return std::unexpected( "No fracture template specified." );
+
+    if ( m_action() == MultipleFractures::Action::NONE ) return std::unexpected( "Action must be APPEND_FRACTURES or REPLACE_FRACTURES." );
+
+    auto* feature = dynamic_cast<RicCreateMultipleFracturesFeature*>(
+        caf::CmdFeatureManager::instance()->getCommandFeature( "RicCreateMultipleFracturesFeature" ) );
+    if ( !feature ) return std::unexpected( "The create multiple fractures feature is not available." );
+
+    RimProject*                   project  = RimProject::current();
+    RiuCreateMultipleFractionsUi* settings = project->dialogData()->multipleFractionsData();
+
+    // Default layers
+    int topLayer  = m_topLayer();
+    int baseLayer = m_baseLayer();
+    if ( topLayer < 0 || baseLayer < 0 )
+    {
+        auto ijkRange = feature->ijkRangeForGrid( eclipseCase );
+        if ( topLayer < 0 ) topLayer = static_cast<int>( ijkRange.min().z() );
+        if ( baseLayer < 0 ) baseLayer = static_cast<int>( ijkRange.max().z() );
+    }
+
+    auto* options = new RicCreateMultipleFracturesOptionItemUi();
+    options->setValues( topLayer, baseLayer, fractureTemplate, m_spacing() );
+
+    settings->clearWellPaths();
+    for ( RimWellPath* wellPath : wellPaths )
+    {
+        settings->addWellPath( wellPath );
+    }
+
+    settings->setValues( eclipseCase, m_minDistFromWellTd(), m_maxFracturesPerWell() );
+    settings->clearOptions();
+    settings->insertOptionItem( nullptr, options );
+
+    if ( m_action() == MultipleFractures::Action::APPEND_FRACTURES ) feature->appendFractures();
+    if ( m_action() == MultipleFractures::Action::REPLACE_FRACTURES ) feature->replaceFractures();
 
     return nullptr;
 }
