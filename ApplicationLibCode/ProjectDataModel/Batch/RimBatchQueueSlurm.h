@@ -1,0 +1,59 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2026 Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "RimBatchQueue.h"
+
+class RimProcessMonitor;
+
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RimBatchQueueSlurm : public RimBatchQueue
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimBatchQueueSlurm( RiaDefines::BatchSchedulerType schedulerType = RiaDefines::BatchSchedulerType::SLURM );
+    ~RimBatchQueueSlurm();
+
+    void queueProcess( std::shared_ptr<RimProcess> process, int nProcessesPerTask ) override;
+    void stopProcess() override;
+
+protected:
+    void setFinished( bool runOk ) override;
+
+    virtual QString jobId() const;
+
+    virtual QStringList generateCommand( QString script,
+                                         QString jobName,
+                                         QString workDir,
+                                         QString stdOutLog,
+                                         QString stdErrLog,
+                                         QString queueName,
+                                         bool    exclusive,
+                                         int     numberOfProcesses );
+
+    QString launchScriptDirective() const override;
+
+protected:
+    std::shared_ptr<RimProcessMonitor> m_monitor;
+    std::unique_ptr<RimProcess>        m_batchProcess;
+};

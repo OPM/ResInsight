@@ -50,8 +50,7 @@ void RimJobMonitor::readyReadStandardOutput()
             line         = line.trimmed();
             if ( line.size() == 0 ) continue;
 
-            m_job->processLogOutput( line );
-            m_stdOut.append( line );
+            appendStdOut( line );
         }
     }
 }
@@ -80,4 +79,16 @@ void RimJobMonitor::started()
     }
 
     RimProcessMonitor::started();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimJobMonitor::appendStdOut( QString line )
+{
+    if ( m_job != nullptr )
+    {
+        m_job->processLogOutput( line );
+    }
+    m_stdOut.append( line );
 }

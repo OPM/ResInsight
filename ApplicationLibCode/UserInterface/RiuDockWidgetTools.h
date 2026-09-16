@@ -57,6 +57,7 @@ public:
     static QString mainWindowPropertyEditorName();
     static QString mainWindowResultInfoName();
     static QString mainWindowProcessMonitorName();
+    static QString mainWindowBatchQueueMonitorName();
     static QString mainWindowResultPlotName();
     static QString mainWindowDepthPlotName();
     static QString mainWindowRelPermPlotName();
