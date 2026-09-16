@@ -247,3 +247,31 @@ private:
     caf::PdmField<bool> m_exportComments;
     caf::PdmField<bool> m_exportWelspec;
 };
+
+//==================================================================================================
+/// Export the Multi Segment Well (MSW) model keywords (WELSEGS, COMPSEGS, ...) for well paths in this case.
+//==================================================================================================
+class RimEclipseCase_exportMswCompletions : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_exportMswCompletions( caf::PdmObjectHandle* self );
+
+    void setWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void setExportFolder( const QString& exportFolder );
+    void setFileSplit( RicExportCompletionDataSettingsUi::ExportSplit fileSplit );
+    void setIncludePerforations( bool enable );
+    void setIncludeFishbones( bool enable );
+    void setIncludeFractures( bool enable );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrArrayField<RimWellPath*>                               m_wellPaths;
+    caf::PdmField<QString>                                            m_exportFolder;
+    caf::PdmField<RicExportCompletionDataSettingsUi::ExportSplitType> m_fileSplit;
+    caf::PdmField<bool>                                               m_includePerforations;
+    caf::PdmField<bool>                                               m_includeFishbones;
+    caf::PdmField<bool>                                               m_includeFractures;
+};

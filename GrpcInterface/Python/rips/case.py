@@ -490,9 +490,17 @@ def export_msw(self, well_path: str) -> Any:
     """
     Export Eclipse Multi-segment-well model to file
 
+    Deprecated: use Reservoir.export_msw_completions(well_paths=[...], export_folder=...) instead,
+    which takes WellPath objects and an explicit export folder.
+
     Arguments:
         well_path(str): Well path name
     """
+    warnings.warn(
+        "Case.export_msw() is deprecated, use Reservoir.export_msw_completions() instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
     return self._execute_command(
         exportMsw=Cmd.ExportMswRequest(caseId=self.id, wellPath=well_path)
     )
