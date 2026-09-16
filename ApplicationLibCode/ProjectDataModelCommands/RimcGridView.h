@@ -95,3 +95,17 @@ private:
     caf::PdmPtrField<RimSurface*> m_surface;
     caf::PdmField<QString>        m_propertyName;
 };
+
+//==================================================================================================
+/// Clone the view and add the copy to the same case. Supports Eclipse and GeoMech views.
+//==================================================================================================
+class Rim3dView_clone : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    Rim3dView_clone( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+};

@@ -72,6 +72,22 @@ std::expected<Rim3dView*, QString> RicfForwarding::findView( RimCase* rimCase, i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::expected<Rim3dView*, QString> RicfForwarding::findView( int viewId )
+{
+    RimProject* project = RimProject::current();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    for ( Rim3dView* view : project->allViews() )
+    {
+        if ( view && view->id() == viewId ) return view;
+    }
+
+    return std::unexpected( QString( "Could not find view with ID %1" ).arg( viewId ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfForwarding::toScriptResponse( const std::expected<caf::PdmObjectHandle*, QString>& result, const QString& commandName )
 {
     if ( !result.has_value() ) return errorResponse( result.error(), commandName );
