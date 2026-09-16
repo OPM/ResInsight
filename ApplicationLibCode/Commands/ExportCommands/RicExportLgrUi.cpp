@@ -23,9 +23,20 @@
 #include "RimEclipseCase.h"
 #include "RimTools.h"
 
+#include "cafPdmScriptEnumNameRegistry.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafVecIjk.h"
+
+namespace
+{
+// Pin the Python StrEnum class name for the LGR split type used by RimEclipseCase_createLgrForCompletions
+struct RegisterScriptEnumNames
+{
+    RegisterScriptEnumNames() { caf::PdmScriptEnumNameRegistry::registerName<Lgr::SplitType>( "LgrSplitType" ); }
+};
+const RegisterScriptEnumNames s_registerScriptEnumNames;
+} // namespace
 
 CAF_PDM_SOURCE_INIT( RicExportLgrUi, "RicExportLgrUi" );
 

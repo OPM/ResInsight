@@ -22,6 +22,7 @@
 #include "RiaPorosityModel.h"
 
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
+#include "ExportCommands/RicLgrSplitType.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -274,4 +275,69 @@ private:
     caf::PdmField<bool>                                               m_includePerforations;
     caf::PdmField<bool>                                               m_includeFishbones;
     caf::PdmField<bool>                                               m_includeFractures;
+};
+
+//==================================================================================================
+/// Create temporary local grid refinements (LGRs) around the completions of the given well paths.
+/// Existing temporary LGRs in the case are deleted first.
+//==================================================================================================
+class RimEclipseCase_createLgrForCompletions : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_createLgrForCompletions( caf::PdmObjectHandle* self );
+
+    void setWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void setTimeStep( int timeStep );
+    void setRefinement( int refinementI, int refinementJ, int refinementK );
+    void setSplitType( Lgr::SplitType splitType );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+    /// Wells skipped because they intersect existing LGRs. Valid after execute().
+    QStringList wellsIntersectingOtherLgrs() const;
+
+private:
+    caf::PdmPtrArrayField<RimWellPath*> m_wellPaths;
+    caf::PdmField<int>                  m_timeStep;
+    caf::PdmField<int>                  m_refinementI;
+    caf::PdmField<int>                  m_refinementJ;
+    caf::PdmField<int>                  m_refinementK;
+    caf::PdmField<Lgr::SplitTypeEnum>   m_splitType;
+
+    QStringList m_wellsIntersectingOtherLgrs;
+};
+
+//==================================================================================================
+/// Export local grid refinements (LGRs) around the completions of the given well paths to CARFIN files.
+//==================================================================================================
+class RimEclipseCase_exportLgrForCompletions : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_exportLgrForCompletions( caf::PdmObjectHandle* self );
+
+    void setWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void setTimeStep( int timeStep );
+    void setExportFolder( const QString& exportFolder );
+    void setRefinement( int refinementI, int refinementJ, int refinementK );
+    void setSplitType( Lgr::SplitType splitType );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+    /// Wells skipped because they intersect existing LGRs. Valid after execute().
+    QStringList wellsIntersectingOtherLgrs() const;
+
+private:
+    caf::PdmPtrArrayField<RimWellPath*> m_wellPaths;
+    caf::PdmField<int>                  m_timeStep;
+    caf::PdmField<QString>              m_exportFolder;
+    caf::PdmField<int>                  m_refinementI;
+    caf::PdmField<int>                  m_refinementJ;
+    caf::PdmField<int>                  m_refinementK;
+    caf::PdmField<Lgr::SplitTypeEnum>   m_splitType;
+
+    QStringList m_wellsIntersectingOtherLgrs;
 };

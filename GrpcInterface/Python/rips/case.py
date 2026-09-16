@@ -584,7 +584,14 @@ def create_lgr_for_completion(
         "LGR_PER_COMPLETION"    | One LGR for each completion (fracture, perforation, ...)
         "LGR_PER_WELL"          | One LGR for each well
 
+    Deprecated: use Reservoir.create_lgr_for_completions(well_paths=[...], ...) instead, which takes
+    WellPath objects.
     """
+    warnings.warn(
+        "Case.create_lgr_for_completion() is deprecated, use Reservoir.create_lgr_for_completions() instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
     if isinstance(well_path_names, str):
         well_path_names = [well_path_names]
     return self._execute_command(

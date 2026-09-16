@@ -21,10 +21,14 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaKeyValueStoreUtil.h"
+#include "RiaLogging.h"
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 #include "CompletionExportCommands/RicWellPathExportMswCompletionsImpl.h"
 #include "ExportCommands/RicEclipseCellResultToFileImpl.h"
+#include "ExportCommands/RicExportLgrFeature.h"
+#include "RicCreateTemporaryLgrFeature.h"
+#include "RicDeleteTemporaryLgrsFeature.h"
 
 #include "RifInputPropertyLoader.h"
 
@@ -37,6 +41,7 @@
 #include "RigMainGrid.h"
 #include "RigNoRefinement.h"
 #include "RigResdataGridConverter.h"
+#include "RigReservoirGridTools.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
@@ -52,6 +57,7 @@
 
 #include "RimcDataContainerString.h"
 
+#include "cafCmdFeatureManager.h"
 #include "cafPdmFieldScriptingCapability.h"
 
 #include "cvfArray.h"
@@ -933,6 +939,230 @@ std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportMswCompletion
     exportSettings.includeFractures    = m_includeFractures();
 
     RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( exportSettings, wellPaths );
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_createLgrForCompletions, "createLgrForCompletions" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_createLgrForCompletions::RimEclipseCase_createLgrForCompletions( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Create LGR for Completions",
+                        "",
+                        "",
+                        "Create temporary local grid refinements around the completions of the given well paths" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "Well paths to create LGRs for" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "Zero-based time step index" );
+    CAF_PDM_InitScriptableField( &m_refinementI, "RefinementI", 1, "Refinement I", "", "", "Number of refined cells in I direction" );
+    CAF_PDM_InitScriptableField( &m_refinementJ, "RefinementJ", 1, "Refinement J", "", "", "Number of refined cells in J direction" );
+    CAF_PDM_InitScriptableField( &m_refinementK, "RefinementK", 1, "Refinement K", "", "", "Number of refined cells in K direction" );
+    CAF_PDM_InitScriptableField( &m_splitType, "SplitType", Lgr::SplitTypeEnum(), "Split Type", "", "", "Defines how to split the LGRs" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createLgrForCompletions::setWellPaths( const std::vector<RimWellPath*>& wellPaths )
+{
+    m_wellPaths.setValue( wellPaths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createLgrForCompletions::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createLgrForCompletions::setRefinement( int refinementI, int refinementJ, int refinementK )
+{
+    m_refinementI = refinementI;
+    m_refinementJ = refinementJ;
+    m_refinementK = refinementK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createLgrForCompletions::setSplitType( Lgr::SplitType splitType )
+{
+    m_splitType = splitType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimEclipseCase_createLgrForCompletions::wellsIntersectingOtherLgrs() const
+{
+    return m_wellsIntersectingOtherLgrs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_createLgrForCompletions::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
+    if ( wellPaths.empty() ) return std::unexpected( "No well paths specified." );
+
+    if ( m_refinementI() < 1 || m_refinementJ() < 1 || m_refinementK() < 1 )
+    {
+        return std::unexpected( "Refinement must be at least 1 in all directions." );
+    }
+
+    auto* feature = dynamic_cast<RicCreateTemporaryLgrFeature*>(
+        caf::CmdFeatureManager::instance()->getCommandFeature( "RicCreateTemporaryLgrFeature" ) );
+    if ( !feature ) return std::unexpected( "The create LGR feature is not available." );
+
+    RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs( eclipseCase );
+
+    cvf::Vec3st lgrCellCounts( m_refinementI(), m_refinementJ(), m_refinementK() );
+    m_wellsIntersectingOtherLgrs.clear();
+
+    feature->createLgrsForWellPaths( wellPaths,
+                                     eclipseCase,
+                                     m_timeStep(),
+                                     lgrCellCounts,
+                                     m_splitType(),
+                                     { RigCompletionData::CompletionType::PERFORATION,
+                                       RigCompletionData::CompletionType::FRACTURE,
+                                       RigCompletionData::CompletionType::FISHBONES },
+                                     &m_wellsIntersectingOtherLgrs );
+
+    RigReservoirGridTools::refreshEclipseCaseDataAndViews( eclipseCase );
+
+    if ( !m_wellsIntersectingOtherLgrs.empty() )
+    {
+        RiaLogging::warning( QString( "No LGRs created for some wells due to existing intersecting LGR(s). Affected wells: %1" )
+                                 .arg( m_wellsIntersectingOtherLgrs.join( ", " ) )
+                                 .toStdString() );
+    }
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_exportLgrForCompletions, "exportLgrForCompletions" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_exportLgrForCompletions::RimEclipseCase_exportLgrForCompletions( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export LGR for Completions",
+                        "",
+                        "",
+                        "Export local grid refinements around the completions of the given well paths to CARFIN files" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "Well paths to export LGRs for" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "Zero-based time step index" );
+    CAF_PDM_InitScriptableField( &m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "Folder to write the export files to" );
+    CAF_PDM_InitScriptableField( &m_refinementI, "RefinementI", 1, "Refinement I", "", "", "Number of refined cells in I direction" );
+    CAF_PDM_InitScriptableField( &m_refinementJ, "RefinementJ", 1, "Refinement J", "", "", "Number of refined cells in J direction" );
+    CAF_PDM_InitScriptableField( &m_refinementK, "RefinementK", 1, "Refinement K", "", "", "Number of refined cells in K direction" );
+    CAF_PDM_InitScriptableField( &m_splitType, "SplitType", Lgr::SplitTypeEnum(), "Split Type", "", "", "Defines how to split the LGRs" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportLgrForCompletions::setWellPaths( const std::vector<RimWellPath*>& wellPaths )
+{
+    m_wellPaths.setValue( wellPaths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportLgrForCompletions::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportLgrForCompletions::setExportFolder( const QString& exportFolder )
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportLgrForCompletions::setRefinement( int refinementI, int refinementJ, int refinementK )
+{
+    m_refinementI = refinementI;
+    m_refinementJ = refinementJ;
+    m_refinementK = refinementK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportLgrForCompletions::setSplitType( Lgr::SplitType splitType )
+{
+    m_splitType = splitType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimEclipseCase_exportLgrForCompletions::wellsIntersectingOtherLgrs() const
+{
+    return m_wellsIntersectingOtherLgrs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportLgrForCompletions::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
+    if ( wellPaths.empty() ) return std::unexpected( "No well paths specified." );
+
+    if ( m_exportFolder().isEmpty() ) return std::unexpected( "No export folder specified." );
+
+    if ( m_refinementI() < 1 || m_refinementJ() < 1 || m_refinementK() < 1 )
+    {
+        return std::unexpected( "Refinement must be at least 1 in all directions." );
+    }
+
+    cvf::Vec3st lgrCellCounts( m_refinementI(), m_refinementJ(), m_refinementK() );
+    m_wellsIntersectingOtherLgrs.clear();
+
+    RicExportLgrFeature::exportLgrsForWellPaths( m_exportFolder(),
+                                                 wellPaths,
+                                                 eclipseCase,
+                                                 m_timeStep(),
+                                                 lgrCellCounts,
+                                                 m_splitType(),
+                                                 { RigCompletionData::CompletionType::PERFORATION,
+                                                   RigCompletionData::CompletionType::FRACTURE,
+                                                   RigCompletionData::CompletionType::FISHBONES },
+                                                 &m_wellsIntersectingOtherLgrs );
+
+    if ( !m_wellsIntersectingOtherLgrs.empty() )
+    {
+        RiaLogging::warning( QString( "No export for some wells due to existing intersecting LGR(s). Affected wells: %1" )
+                                 .arg( m_wellsIntersectingOtherLgrs.join( ", " ) )
+                                 .toStdString() );
+    }
 
     return nullptr;
 }
