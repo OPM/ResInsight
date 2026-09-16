@@ -244,9 +244,8 @@ void RimJobWellSettings::useWellGroups( const std::vector<QString>& wellGroups )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimJobWellSettings::uiOrdering( caf::PdmUiGroup* uiGroup )
+void RimJobWellSettings::uiOrdering( caf::PdmUiGroup* wellGrp )
 {
-    auto wellGrp = uiGroup->addNewGroup( "New Well Settings" );
     wellGrp->add( &m_addNewWell );
 
     if ( m_addNewWell() )

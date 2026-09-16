@@ -414,18 +414,21 @@ void RimEnsembleJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     genGrp->add( &m_createSummaryEnsemble );
     genGrp->add( &m_createGridEnsemble );
 
+    auto runButton = genGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
+    runButton->setUiIconFromResourceString( ":/Play.svg" );
+    runButton->setAlignment( Qt::AlignCenter );
+
     auto realGrp = uiOrdering.addNewGroup( "Realizations" );
     realGrp->add( &m_selectedRealizations );
 
     m_jobWellSettings->useDateStrings( dateStrings() );
     m_jobWellSettings->useWellGroups( m_wellGroupsInInputDeck.value() );
-    m_jobWellSettings->uiOrdering( realGrp );
+
+    auto wellGrp = uiOrdering.addNewGroup( "New Well Settings" );
+    m_jobWellSettings->uiOrdering( wellGrp );
 
     auto opmGrp = uiOrdering.addNewGroup( "OPM Flow" );
-
-    auto runButton = opmGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
-    runButton->setUiIconFromResourceString( ":/Play.svg" );
-    runButton->setAlignment( Qt::AlignCenter );
+    opmGrp->setCollapsedByDefault();
 
     m_jobSettings->uiOrdering( opmGrp, false /* expand by default */ );
 

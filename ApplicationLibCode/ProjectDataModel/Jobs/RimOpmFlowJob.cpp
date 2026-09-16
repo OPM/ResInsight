@@ -308,6 +308,10 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     genGrp->add( &m_workDir );
     genGrp->add( &m_addToEnsemble );
 
+    auto runButton = genGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
+    runButton->setUiIconFromResourceString( ":/Play.svg" );
+    runButton->setAlignment( Qt::AlignCenter );
+
     if ( m_eclipseCase() == nullptr )
     {
         m_addNewWell = false;
@@ -397,11 +401,7 @@ void RimOpmFlowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     }
 
     auto opmGrp = uiOrdering.addNewGroup( "OPM Flow" );
-
-    auto runButton = opmGrp->addNewButton( "Run", [this]() { RicRunJobFeature::runJob( this ); } );
-    runButton->setUiIconFromResourceString( ":/Play.svg" );
-    runButton->setAlignment( Qt::AlignCenter );
-
+    opmGrp->setCollapsedByDefault();
     opmGrp->add( &m_pauseBeforeRun );
 
     m_jobSettings->uiOrdering( opmGrp, false /* expand by default */ );
