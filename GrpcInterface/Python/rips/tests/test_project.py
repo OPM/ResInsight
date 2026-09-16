@@ -101,6 +101,41 @@ def test_statistics_case_object_methods(rips_instance, initialize_test):
         grid_case_group.compute_statistics(case_ids=[stat_case.id])
 
 
+def test_replace_source_cases(rips_instance, initialize_test):
+    case_paths = [
+        dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID",
+        dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID",
+    ]
+    project = rips_instance.project
+    grid_case_group = project.create_grid_case_group(case_paths=case_paths)
+    group_id = grid_case_group.group_id
+    assert len(grid_case_group.descendants(rips.EclipseCase)) == 2
+
+    # Reload requires a saved project
+    with pytest.raises(rips.RipsError):
+        grid_case_group.replace_source_cases(grid_files=case_paths[:1])
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        project.save(os.path.join(tmpdirname, "group.rsp"))
+        project = rips_instance.project
+        grid_case_group = project.grid_case_group(group_id)
+
+        new_paths = [
+            dataroot.PATH + "/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID",
+            dataroot.PATH + "/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID",
+            dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID",
+        ]
+        grid_case_group.replace_source_cases(grid_files=new_paths)
+
+        # The project is reloaded, so retrieve the group again
+        project = rips_instance.project
+        grid_case_group = project.grid_case_group(group_id)
+        assert grid_case_group is not None
+        source_cases = grid_case_group.descendants(rips.EclipseCase)
+        names = sorted(c.name for c in source_cases)
+        assert names == ["BRUGGE_0000", "BRUGGE_0030", "BRUGGE_0040"]
+
+
 def test_save_project_round_trip(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     project = rips_instance.project
