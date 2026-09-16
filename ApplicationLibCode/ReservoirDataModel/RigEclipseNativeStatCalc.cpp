@@ -160,7 +160,7 @@ size_t RigEclipseNativeStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseNativeStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double& mean )
+std::optional<double> RigEclipseNativeStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex )
 {
     RigEclipseResultAddress mobPorvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::mobilePoreVolumeName() );
 
@@ -168,7 +168,7 @@ void RigEclipseNativeStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, d
     // RigCaseCellResultsData::createPlaceholderResultEntries has not been executed
     if ( !m_resultsData->ensureKnownResultLoaded( mobPorvAddress ) )
     {
-        return;
+        return {};
     }
 
     const std::vector<double>& weights = m_resultsData->cellScalarResults( mobPorvAddress, 0 );
@@ -176,11 +176,10 @@ void RigEclipseNativeStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, d
 
     const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo();
 
-    RigWeightedMeanCalc::weightedMeanOverCells( &weights,
-                                                &values,
-                                                nullptr,
-                                                false,
-                                                actCellInfo,
-                                                m_resultsData->isUsingGlobalActiveIndex( m_eclipseResultAddress ),
-                                                &mean );
+    return RigWeightedMeanCalc::weightedMeanOverCells( &weights,
+                                                       &values,
+                                                       nullptr,
+                                                       false,
+                                                       actCellInfo,
+                                                       m_resultsData->isUsingGlobalActiveIndex( m_eclipseResultAddress ) );
 }

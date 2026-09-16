@@ -331,7 +331,11 @@ void RigStatisticsDataCache::mobileVolumeWeightedMean( size_t timeStepIndex, dou
 
     if ( !m_statsPrTs[timeStepIndex].m_isVolumeWeightedMeanCalculated )
     {
-        m_statisticsCalculator->mobileVolumeWeightedMean( timeStepIndex, m_statsPrTs[timeStepIndex].m_volumeWeightedMean );
+        // HUGE_VAL is the "not available" marker used by the public statistics API
+        m_statsPrTs[timeStepIndex].m_volumeWeightedMean =
+            m_statisticsCalculator->mobileVolumeWeightedMean( timeStepIndex ).value_or( HUGE_VAL );
+
+        m_statsPrTs[timeStepIndex].m_isVolumeWeightedMeanCalculated = true;
     }
 
     mean = m_statsPrTs[timeStepIndex].m_volumeWeightedMean;
@@ -344,7 +348,7 @@ void RigStatisticsDataCache::mobileVolumeWeightedMean( double& mean )
 {
     if ( !m_statsAllTimesteps.m_isVolumeWeightedMeanCalculated )
     {
-        m_statisticsCalculator->mobileVolumeWeightedMean( m_statsAllTimesteps.m_volumeWeightedMean );
+        m_statsAllTimesteps.m_volumeWeightedMean = m_statisticsCalculator->mobileVolumeWeightedMean().value_or( HUGE_VAL );
 
         m_statsAllTimesteps.m_isVolumeWeightedMeanCalculated = true;
     }
