@@ -30,6 +30,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimWellLogPlot.h"
 
 #include "cafPdmObjectHandle.h"
 
@@ -138,6 +139,22 @@ std::expected<RimEclipseStatisticsCase*, QString> RicfForwarding::findStatistics
     }
 
     return std::unexpected( QString( "Could not find statistics case with ID %1" ).arg( caseId ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RimWellLogPlot*, QString> RicfForwarding::findWellLogPlot( int viewId )
+{
+    RimProject* project = RimProject::current();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    for ( RimWellLogPlot* plot : project->descendantsIncludingThisOfType<RimWellLogPlot>() )
+    {
+        if ( plot && plot->id() == viewId ) return plot;
+    }
+
+    return std::unexpected( QString( "Could not find well log plot with ID %1" ).arg( viewId ) );
 }
 
 //--------------------------------------------------------------------------------------------------

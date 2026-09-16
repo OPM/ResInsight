@@ -29,6 +29,7 @@ class Rim3dView;
 class RimFractureTemplate;
 class RimIdenticalGridCaseGroup;
 class RimEclipseStatisticsCase;
+class RimWellLogPlot;
 
 namespace caf
 {
@@ -56,6 +57,9 @@ std::expected<RimIdenticalGridCaseGroup*, QString> findCaseGroup( int groupId );
 
 /// Find a statistics case by case id in any grid case group.
 std::expected<RimEclipseStatisticsCase*, QString> findStatisticsCase( int caseId );
+
+/// Find a well log plot by view id.
+std::expected<RimWellLogPlot*, QString> findWellLogPlot( int viewId );
 
 /// Find a fracture template by id.
 std::expected<RimFractureTemplate*, QString> findFractureTemplate( int templateId );
