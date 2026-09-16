@@ -83,15 +83,6 @@ def apply_flow_diagnostics_cell_result(
 
 
 @add_method(View)
-def clone(self):
-    """Clone the current view"""
-    view_id = self._execute_command(
-        cloneView=Cmd.CloneViewRequest(viewId=self.id)
-    ).createViewResult.viewId
-    return self.case().view(view_id)
-
-
-@add_method(View)
 def set_time_step(self, time_step):
     """Set the time step for current view"""
     case_id = self.case().id

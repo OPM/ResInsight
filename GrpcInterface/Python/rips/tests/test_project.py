@@ -111,6 +111,20 @@ def test_views_and_view_lookup(rips_instance, initialize_test):
     assert project.view(999999) is None
 
 
+def test_clone_view(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    view = case.create_view()
+    project = rips_instance.project
+    view_count = len(project.views())
+
+    cloned = view.clone()
+    assert cloned is not None
+    assert cloned.id != view.id
+    assert cloned.case().id == case.id
+    assert len(project.views()) == view_count + 1
+
+
 def test_link_and_unlink_views(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(case_path)

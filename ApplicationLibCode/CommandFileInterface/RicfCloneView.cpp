@@ -1,22 +1,12 @@
 #include "RicfCloneView.h"
 
-#include "RiaLogging.h"
-
+#include "RicfCommandForwarding.h"
 #include "RicfCreateView.h"
 
 #include "Rim3dView.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseView.h"
-#include "RimGeoMechCase.h"
-#include "RimGeoMechView.h"
-#include "RimProject.h"
-
-#include "Riu3DMainWindowTools.h"
+#include "RimcGridView.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-#include "cafSelectionManager.h"
-
-#include <QAction>
 
 CAF_PDM_SOURCE_INIT( RicfCloneView, "cloneView" );
 
@@ -33,46 +23,20 @@ RicfCloneView::RicfCloneView()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCloneView::execute()
 {
-    RimProject*             project  = RimProject::current();
-    std::vector<Rim3dView*> allViews = project->descendantsIncludingThisOfType<Rim3dView>();
+    const QString commandName = classKeyword();
 
-    for ( Rim3dView* view : allViews )
-    {
-        if ( view->id() == m_viewId() )
-        {
-            const RimEclipseView* eclipseView = dynamic_cast<const RimEclipseView*>( view );
-            const RimGeoMechView* geoMechView = dynamic_cast<const RimGeoMechView*>( view );
+    auto view = RicfForwarding::findView( m_viewId() );
+    if ( !view ) return RicfForwarding::errorResponse( view.error(), commandName );
 
-            int newViewId = -1;
-            if ( eclipseView )
-            {
-                RimEclipseCase* eclipseCase    = eclipseView->eclipseCase();
-                RimEclipseView* newEclipseView = eclipseCase->createCopyAndAddView( eclipseView );
-                newEclipseView->loadDataAndUpdate();
-                newViewId = newEclipseView->id();
-                eclipseCase->updateConnectedEditors();
-                Riu3DMainWindowTools::setExpanded( newEclipseView );
-            }
-            else if ( geoMechView )
-            {
-                RimGeoMechCase* geoMechCase    = geoMechView->geoMechCase();
-                RimGeoMechView* newGeoMechView = geoMechCase->createCopyAndAddView( geoMechView );
-                newGeoMechView->loadDataAndUpdate();
-                newViewId = newGeoMechView->id();
-                geoMechCase->updateConnectedEditors();
-                Riu3DMainWindowTools::setExpanded( view );
-            }
+    Rim3dView_clone method( view.value() );
 
-            if ( newViewId >= 0 )
-            {
-                caf::PdmScriptResponse response;
-                response.setResult( new RicfCreateViewResult( newViewId ) );
-                return response;
-            }
-        }
-    }
+    auto result = method.execute();
+    if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
 
-    QString error = QString( "cloneView: Could not clone view with id %1" ).arg( m_viewId() );
-    RiaLogging::error( error.toStdString() );
-    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+    auto* newView = dynamic_cast<Rim3dView*>( result.value() );
+    if ( !newView ) return RicfForwarding::errorResponse( "Cloned object is not a view", commandName );
+
+    caf::PdmScriptResponse response;
+    response.setResult( new RicfCreateViewResult( newView->id() ) );
+    return response;
 }

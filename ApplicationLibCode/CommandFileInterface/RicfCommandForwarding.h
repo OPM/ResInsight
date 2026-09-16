@@ -45,6 +45,9 @@ std::expected<RimCase*, QString> findCase( int caseId );
 /// Find a view by id in the given case. A negative id is not accepted.
 std::expected<Rim3dView*, QString> findView( RimCase* rimCase, int viewId );
 
+/// Find a 3D view by id anywhere in the project. A negative id is not accepted.
+std::expected<Rim3dView*, QString> findView( int viewId );
+
 /// Convert the result of a Rimc method execution to a script response, logging errors with the command name.
 caf::PdmScriptResponse toScriptResponse( const std::expected<caf::PdmObjectHandle*, QString>& result, const QString& commandName );
 
