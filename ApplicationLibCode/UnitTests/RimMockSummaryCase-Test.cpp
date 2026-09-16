@@ -4,6 +4,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 #include "RigCaseRealizationParameters.h"
+#include "RimcSummaryCase.h"
 
 //--------------------------------------------------------------------------------------------------
 // RimSummaryCase interface tests
@@ -31,6 +32,21 @@ TEST( RimMockSummaryCase, SummaryReaderReturnsSelf )
 {
     RimMockSummaryCase mockCase;
     EXPECT_EQ( static_cast<RifSummaryReaderInterface*>( &mockCase ), mockCase.summaryReader() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimMockSummaryCase, SetSummaryValuesReturnsErrorForUnsupportedCaseType )
+{
+    RimMockSummaryCase                    mockCase;
+    RimSummaryCase_setSummaryVectorValues method( &mockCase );
+
+    auto result = method.execute();
+
+    ASSERT_FALSE( result.has_value() );
+    EXPECT_TRUE( result.error().contains( "not supported" ) );
+    EXPECT_TRUE( result.error().contains( "Only file-backed summary cases" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
