@@ -48,6 +48,7 @@ class RiaPreferencesGrid;
 class RiaPreferencesSumo;
 class RiaPreferencesOpm;
 class RiaPreferencesOpenTelemetry;
+class RiaPreferencesHpc;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -132,6 +133,7 @@ public:
     RiaPreferencesGrid*          gridPreferences() const;
     RiaPreferencesOpm*           opmPreferences() const;
     RiaPreferencesOpenTelemetry* openTelemetryPreferences() const;
+    RiaPreferencesHpc*           hpcPreferences() const;
 
     void importPreferenceValuesFromFile( const QString& fileName );
     void exportPreferenceValuesToFile( const QString& fileName );
@@ -175,6 +177,7 @@ private:
     static QString tabNameImportExport();
     static QString tabNameOpmFlow();
     static QString tabNameExperimental();
+    static QString tabNameHpc();
 
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
@@ -244,6 +247,9 @@ private:
 
     // OpenTelemetry settings
     caf::PdmChildField<RiaPreferencesOpenTelemetry*> m_openTelemetryPreferences;
+
+    // HPC settings
+    caf::PdmChildField<RiaPreferencesHpc*> m_hpcPreferences;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;

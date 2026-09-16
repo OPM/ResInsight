@@ -27,6 +27,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
+#include "RiaPreferencesHpc.h"
 #include "RiaPreferencesOpenTelemetry.h"
 #include "RiaPreferencesOpm.h"
 #include "RiaPreferencesOsdu.h"
@@ -277,6 +278,9 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &m_opmPreferences, "opmPreferences", "opmPreferences" );
     m_opmPreferences = new RiaPreferencesOpm();
 
+    CAF_PDM_InitFieldNoDefault( &m_hpcPreferences, "hpcPreferences", "hpcPreferences" );
+    m_hpcPreferences = new RiaPreferencesHpc();
+
     CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences" );
     m_systemPreferences = new RiaPreferencesSystem;
 
@@ -486,6 +490,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     {
         m_opmPreferences()->appendItems( uiOrdering );
     }
+    else if ( uiConfigName == RiaPreferences::tabNameHpc() )
+    {
+        m_hpcPreferences()->appendItems( uiOrdering );
+    }
 #ifdef USE_ODB_API
     else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
     {
@@ -658,6 +666,14 @@ QString RiaPreferences::tabNameOpmFlow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameHpc()
+{
+    return "HPC";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::tabNameSystem()
 {
     return "System";
@@ -708,6 +724,7 @@ QStringList RiaPreferences::tabNames()
     names << tabNamePlotting();
     names << tabNameScripting();
     names << tabNameOpmFlow();
+    names << tabNameHpc();
 #ifdef USE_ODB_API
     names << tabNameGeomech();
 #endif
@@ -1058,6 +1075,14 @@ RiaPreferencesGeoMech* RiaPreferences::geoMechPreferences() const
 RiaPreferencesOpm* RiaPreferences::opmPreferences() const
 {
     return m_opmPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesHpc* RiaPreferences::hpcPreferences() const
+{
+    return m_hpcPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------
