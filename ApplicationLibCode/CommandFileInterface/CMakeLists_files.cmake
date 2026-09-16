@@ -36,6 +36,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicfImportWellLogFiles.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfImportFormationNames.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellLogPlotData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicfCommandForwarding.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
