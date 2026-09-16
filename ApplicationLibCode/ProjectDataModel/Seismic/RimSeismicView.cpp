@@ -71,9 +71,6 @@ RimSeismicView::RimSeismicView()
 
     m_scaleTransform = new cvf::Transform();
 
-    m_surfaceVizModel = new cvf::ModelBasicList;
-    m_surfaceVizModel->setName( "SurfaceModel" );
-
     setDeletable( true );
 }
 
@@ -128,14 +125,6 @@ RimSeismicSectionCollection* RimSeismicView::seismicSectionCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCase* RimSeismicView::ownerCase() const
-{
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiaDefines::View3dContent RimSeismicView::viewContent() const
 {
     return RiaDefines::View3dContent::SEISMIC;
@@ -145,14 +134,6 @@ RiaDefines::View3dContent RimSeismicView::viewContent() const
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimSeismicView::isGridVisualizationMode() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSeismicView::isUsingFormationNames() const
 {
     return false;
 }
@@ -264,29 +245,29 @@ void RimSeismicView::onCreateDisplayModel()
     // Seismic sections
 
     cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
-    m_seismicVizModel->removeAllParts();
+    auto* seismicVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::seismicSectionModelName() );
 
     if ( m_polylinePartMgr.isNull() ) m_polylinePartMgr = new RivPolylinePartMgr( this, this, this );
-    m_polylinePartMgr->appendDynamicGeometryPartsToModel( m_seismicVizModel.p(), transform.p(), domainBoundingBox() );
+    m_polylinePartMgr->appendDynamicGeometryPartsToModel( seismicVizModel, transform.p(), domainBoundingBox() );
 
-    m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), domainBoundingBox() );
-    mainScene->addModel( m_seismicVizModel.p() );
+    m_seismicSectionCollection->appendPartsToModel( this, seismicVizModel, transform.p(), domainBoundingBox() );
+    mainScene->addModel( seismicVizModel );
     nativeOrOverrideViewer()->setMainScene( mainScene.p(), isUsingOverrideViewer() );
 
     // Well path model
 
-    m_wellPathPipeVizModel->removeAllParts();
-    addWellPathsToModel( m_wellPathPipeVizModel.p(), domainBoundingBox(), m_seismicData->inlineSpacing() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_wellPathPipeVizModel.p(), isUsingOverrideViewer() );
+    auto* wellPathPipeVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::wellPathPipeModelName() );
+    addWellPathsToModel( wellPathPipeVizModel, domainBoundingBox(), m_seismicData->inlineSpacing() );
+    nativeOrOverrideViewer()->addStaticModelOnce( wellPathPipeVizModel, isUsingOverrideViewer() );
 
     // Surfaces
 
-    m_surfaceVizModel->removeAllParts();
+    auto* surfaceVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::surfaceModelName() );
     if ( m_surfaceCollection )
     {
         bool nativeOnly = true;
-        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), scaleTransform(), nativeOnly );
-        nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
+        m_surfaceCollection->appendPartsToModel( surfaceVizModel, scaleTransform(), nativeOnly );
+        nativeOrOverrideViewer()->addStaticModelOnce( surfaceVizModel, isUsingOverrideViewer() );
     }
 
     // Annotations
@@ -310,58 +291,11 @@ void RimSeismicView::onCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::onUpdateDisplayModelForCurrentTimeStep()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicView::onClampCurrentTimestep()
-{
-    m_currentTimeStep = 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RimSeismicView::onTimeStepCountRequested()
-{
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSeismicView::isTimeStepDependentDataVisible() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSeismicView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
 {
     *xLabel = "E(x)";
     *yLabel = "N(y)";
     *zLabel = "Z";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
-{
-    // no action needed, might be needed if we want to hilite something later
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicView::onUpdateStaticCellColors()
-{
-    // no action needed
 }
 
 //--------------------------------------------------------------------------------------------------

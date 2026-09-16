@@ -306,10 +306,10 @@ void RimGeoMechView::onCreateDisplayModel()
 
     cvf::BoundingBox femBBox = femParts()->boundingBox();
 
-    m_wellPathPipeVizModel->removeAllParts();
-    addWellPathsToModel( m_wellPathPipeVizModel.p(), femBBox, ownerCase()->characteristicCellSize() );
+    auto* wellPathPipeVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::wellPathPipeModelName() );
+    addWellPathsToModel( wellPathPipeVizModel, femBBox, ownerCase()->characteristicCellSize() );
 
-    nativeOrOverrideViewer()->addStaticModelOnce( m_wellPathPipeVizModel.p(), isUsingOverrideViewer() );
+    nativeOrOverrideViewer()->addStaticModelOnce( wellPathPipeVizModel, isUsingOverrideViewer() );
 
     // Intersections
 
@@ -318,20 +318,20 @@ void RimGeoMechView::onCreateDisplayModel()
     // Seismic sections
 
     cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
-    m_seismicVizModel->removeAllParts();
-    m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), femBBox );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
+    auto* seismicVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::seismicSectionModelName() );
+    m_seismicSectionCollection->appendPartsToModel( this, seismicVizModel, transform.p(), femBBox );
+    nativeOrOverrideViewer()->addStaticModelOnce( seismicVizModel, isUsingOverrideViewer() );
 
     // Polygons
     appendPolygonPartsToModel( transform.p(), ownerCase()->allCellsBoundingBox() );
 
     // Surfaces
 
-    m_surfaceVizModel->removeAllParts();
+    auto* surfaceVizModel = m_vizModels.findOrCreateAndClear( RivNamedVisualizationModels::surfaceModelName() );
     if ( m_surfaceCollection )
     {
-        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), scaleTransform() );
-        nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
+        m_surfaceCollection->appendPartsToModel( surfaceVizModel, scaleTransform() );
+        nativeOrOverrideViewer()->addStaticModelOnce( surfaceVizModel, isUsingOverrideViewer() );
     }
 
     // If the animation was active before recreating everything, make viewer view current frame

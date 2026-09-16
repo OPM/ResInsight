@@ -255,9 +255,6 @@ private:
     void storeCurrentAndApplyNewCameraPosition( RimEclipseCase* previousCase, RimEclipseCase* newCase );
 
 protected:
-    cvf::ref<cvf::ModelBasicList> m_faultReactVizModel;
-    cvf::ref<cvf::ModelBasicList> m_refinementRegionsVizModel;
-
     caf::PdmPtrField<RimEclipseCase*>                   m_eclipseCase;
     caf::PdmField<caf::AppEnum<RimCaseChangeBehaviour>> m_caseChangeBehaviour;
 

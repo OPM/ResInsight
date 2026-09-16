@@ -55,6 +55,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivRefinementRegionPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationSourceInfo.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RivNamedVisualizationModels.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
