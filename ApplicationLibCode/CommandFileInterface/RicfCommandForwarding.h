@@ -27,6 +27,8 @@
 class RimCase;
 class Rim3dView;
 class RimFractureTemplate;
+class RimIdenticalGridCaseGroup;
+class RimEclipseStatisticsCase;
 
 namespace caf
 {
@@ -48,6 +50,12 @@ std::expected<Rim3dView*, QString> findView( RimCase* rimCase, int viewId );
 
 /// Find a 3D view by id anywhere in the project. A negative id is not accepted.
 std::expected<Rim3dView*, QString> findView( int viewId );
+
+/// Find a grid case group by id. A negative id resolves to the first case group in the project.
+std::expected<RimIdenticalGridCaseGroup*, QString> findCaseGroup( int groupId );
+
+/// Find a statistics case by case id in any grid case group.
+std::expected<RimEclipseStatisticsCase*, QString> findStatisticsCase( int caseId );
 
 /// Find a fracture template by id.
 std::expected<RimFractureTemplate*, QString> findFractureTemplate( int templateId );
