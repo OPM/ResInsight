@@ -343,7 +343,7 @@ def export_well_paths(self, well_paths=None, md_step_size=5.0):
     )
 
 
-def _fracture_template_by_id(project, template_id):
+def _fracture_template_by_id(project: Project, template_id: int) -> FractureTemplate:
     for template in project.descendants(FractureTemplate):
         if template.id == template_id:
             return template
