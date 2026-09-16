@@ -102,16 +102,31 @@ def test_summary_set_values(rips_instance, initialize_test):
     summary_data = summary_case.summary_vector_values("FOPT")
     assert len(summary_data.values) == 60
 
-    summary_case.set_summary_values("FOPT_1", "", summary_data.values)
-    generated_summary_data = summary_case.summary_vector_values("FOPT_1")
-    assert len(generated_summary_data.values) == 60
+    # Vectors from the source summary file cannot be overwritten
+    original_values = list(summary_data.values)
+    with pytest.raises(Exception) as exc_info:
+        summary_case.set_summary_values("FOPT", "", [1.0] * len(original_values))
+    assert "source summary file" in str(exc_info.value).lower()
+    assert summary_case.summary_vector_values("FOPT").values == pytest.approx(
+        original_values
+    )
+
+    generated_values = [value + 1.0 for value in original_values]
+    summary_case.set_summary_values("FOPT_1", "", generated_values)
+    assert summary_case.summary_vector_values("FOPT_1").values == pytest.approx(
+        generated_values
+    )
 
     addresses = summary_case.available_addresses()
     current_keyword_count = len(addresses.values)
     assert current_keyword_count == original_keyword_count + 1
 
-    # Using existing keyword will overwrite existing data
-    summary_case.set_summary_values("FOPT_1", "", summary_data.values)
+    # A previously generated vector can be overwritten
+    overwritten_values = [value + 2.0 for value in original_values]
+    summary_case.set_summary_values("FOPT_1", "", overwritten_values)
+    assert summary_case.summary_vector_values("FOPT_1").values == pytest.approx(
+        overwritten_values
+    )
     addresses = summary_case.available_addresses()
     current_keyword_count = len(addresses.values)
     assert current_keyword_count == original_keyword_count + 1
