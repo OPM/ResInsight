@@ -395,7 +395,7 @@ def import_well_paths(self, well_path_files=None, well_path_folder=""):
     """Import well paths into project
 
     Arguments:
-        well_path_files(list): List of file paths to import
+        well_path_files(list): list of file paths to import
         well_path_folder(str): A folder path containing files to import
 
     Returns:
@@ -404,13 +404,11 @@ def import_well_paths(self, well_path_files=None, well_path_folder=""):
     if well_path_files is None:
         well_path_files = []
 
-    res = self._execute_command(
-        importWellPaths=Commands_pb2.ImportWellPathsRequest(
-            wellPathFolder=well_path_folder, wellPathFiles=well_path_files
-        )
+    names = self.well_path_collection().import_well_paths(
+        well_path_files=well_path_files, well_path_folder=well_path_folder
     )
     well_paths = []
-    for well_path_name in res.importWellPathsResult.wellPathNames:
+    for well_path_name in names.values:
         well_paths.append(self.well_path_by_name(well_path_name))
     return well_paths
 
@@ -444,21 +442,19 @@ def import_well_log_files(self, well_log_files=None, well_log_folder=""):
     """Import well log files into project
 
     Arguments:
-        well_log_files(list): List of file paths to import
+        well_log_files(list): list of file paths to import
         well_log_folder(str): A folder path containing files to import
 
     Returns:
-        A list of well path names (strings) that had logs imported
+        A list of well path names (strings)
     """
-
     if well_log_files is None:
         well_log_files = []
-    res = self._execute_command(
-        importWellLogFiles=Commands_pb2.ImportWellLogFilesRequest(
-            wellLogFolder=well_log_folder, wellLogFiles=well_log_files
-        )
+
+    names = self.well_path_collection().import_well_log_files(
+        well_log_files=well_log_files, well_log_folder=well_log_folder
     )
-    return res.importWellLogFilesResult.wellPathNames
+    return list(names.values)
 
 
 @add_method(Project)

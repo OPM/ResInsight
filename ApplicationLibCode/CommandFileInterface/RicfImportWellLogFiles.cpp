@@ -17,16 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfImportWellLogFiles.h"
 
-#include "WellLogCommands/RicWellLogsImportFileFeature.h"
+#include "RicfCommandForwarding.h"
 
-#include "RiaApplication.h"
-#include "RimWellLogLasFile.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimWellPathCollection.h"
+#include "RimcDataContainerString.h"
+#include "RimcWellPathCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-
-#include <QDir>
-#include <QFileInfo>
-#include <QStringList>
 
 CAF_PDM_SOURCE_INIT( RicfImportWellLogFilesResult, "importWellLogFilesResult" );
 
@@ -52,80 +51,48 @@ RicfImportWellLogFiles::RicfImportWellLogFiles()
 
 caf::PdmScriptResponse RicfImportWellLogFiles::execute()
 {
-    QStringList errorMessages, warningMessages;
-    QStringList wellLogFilePaths;
+    const QString commandName = classKeyword();
 
-    QDir wellLogDir;
-    if ( m_wellLogFileFolder().isEmpty() )
+    RimProject* project = RimProject::current();
+    if ( !project || !project->activeOilField() || !project->activeOilField()->wellPathCollection() )
     {
-        wellLogDir = QDir( RiaApplication::instance()->startDir() );
-    }
-    else
-    {
-        wellLogDir = QDir( m_wellLogFileFolder );
+        return RicfForwarding::errorResponse( "No well path collection available", commandName );
     }
 
-    if ( !m_wellLogFileFolder().isEmpty() )
-    {
-        QStringList nameFilters;
-        nameFilters << RicWellLogsImportFileFeature::wellLogFileNameFilters();
-        QStringList relativePaths = wellLogDir.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
-        for ( QString relativePath : relativePaths )
-        {
-            wellLogFilePaths.push_back( wellLogDir.absoluteFilePath( relativePath ) );
-        }
-    }
-    else
-    {
-        errorMessages << ( m_wellLogFileFolder() + " doesn't exist" );
-    }
+    RimWellPathCollection_importWellLogFiles method( project->activeOilField()->wellPathCollection() );
+    method.setWellLogFiles( m_wellLogFilePaths() );
+    method.setWellLogFolder( m_wellLogFileFolder() );
 
-    for ( QString wellLogFilePath : m_wellLogFilePaths() )
-    {
-        if ( QFileInfo::exists( wellLogFilePath ) )
-        {
-            wellLogFilePaths.push_back( wellLogFilePath );
-        }
-        else if ( QFileInfo::exists( wellLogDir.absoluteFilePath( wellLogFilePath ) ) )
-        {
-            wellLogFilePaths.push_back( wellLogDir.absoluteFilePath( wellLogFilePath ) );
-        }
-        else
-        {
-            errorMessages << ( wellLogFilePath + " doesn't exist" );
-        }
-    }
+    auto result = method.execute();
 
     caf::PdmScriptResponse response;
-
-    if ( !wellLogFilePaths.empty() )
-    {
-        std::vector<RimWellLogLasFile*> importedWellLogFiles =
-            RicWellLogsImportFileFeature::importWellLogFiles( wellLogFilePaths, &warningMessages );
-        if ( !importedWellLogFiles.empty() )
-        {
-            RicfImportWellLogFilesResult* result = new RicfImportWellLogFilesResult;
-            for ( RimWellLogLasFile* wellLogFile : importedWellLogFiles )
-            {
-                result->wellPathNames.v().push_back( wellLogFile->wellName() );
-            }
-            response.setResult( result );
-        }
-    }
-    else
-    {
-        warningMessages << "No well log files found";
-    }
-
-    for ( QString warningMessage : warningMessages )
+    for ( const QString& warningMessage : method.warnings() )
     {
         response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warningMessage );
     }
 
-    for ( QString errorMessage : errorMessages )
+    if ( !result )
     {
-        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
+        // Legacy behavior: "no files found" is a warning, missing files are errors
+        if ( result.error() == "No well log files found" )
+        {
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, result.error() );
+        }
+        else
+        {
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, result.error() );
+        }
+        return response;
     }
+
+    auto* names = dynamic_cast<RimcDataContainerString*>( result.value() );
+    if ( names && !names->m_stringValues().empty() )
+    {
+        auto* filesResult          = new RicfImportWellLogFilesResult;
+        filesResult->wellPathNames = names->m_stringValues();
+        response.setResult( filesResult );
+    }
+    delete names;
 
     return response;
 }
