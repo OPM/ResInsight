@@ -344,6 +344,33 @@ def test_import_well_log_files(rips_instance, initialize_test):
         assert "RIPS_TEST" in well_path_names
 
 
+def test_import_well_paths_and_logs_object_methods(rips_instance, initialize_test):
+    collection = rips_instance.project.well_path_collection()
+
+    # Import by folder: both .dev files in the test model folder
+    names = collection.import_well_paths(
+        well_path_folder=dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    )
+    assert sorted(names.values) == ["Well Path A", "Well Path B"]
+    assert len(rips_instance.project.well_paths()) == 2
+
+    with pytest.raises(rips.RipsError):
+        collection.import_well_paths(well_path_files=["/does/not/exist.dev"])
+    with pytest.raises(rips.RipsError):
+        collection.import_well_paths()
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        las_path = os.path.join(tmpdirname, "rips_test.las")
+        with open(las_path, "w") as las_file:
+            las_file.write(_MINIMAL_LAS)
+
+        names = collection.import_well_log_files(well_log_files=[las_path])
+        assert list(names.values) == ["RIPS_TEST"]
+
+    with pytest.raises(rips.RipsError):
+        collection.import_well_log_files()
+
+
 def test_exportSnapshots(rips_instance, initialize_test):
     if not rips_instance.is_gui():
         pytest.skip("Cannot run test without a GUI")
