@@ -19,16 +19,13 @@
 
 #include "RicfRunOctaveScript.h"
 
-#include "RiaApplication.h"
-#include "RiaLogging.h"
+#include "RicfCommandForwarding.h"
 
-#include "RimCalcScript.h"
-#include "RimEclipseCase.h"
+#include "RimCase.h"
 #include "RimProject.h"
+#include "RimcProject.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-
-#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RicfRunOctaveScript, "runOctaveScript" );
 
@@ -46,47 +43,19 @@ RicfRunOctaveScript::RicfRunOctaveScript()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfRunOctaveScript::execute()
 {
-    QString octavePath = RiaApplication::instance()->octavePath();
+    const QString commandName = classKeyword();
 
-    QStringList processArguments = RimCalcScript::createCommandLineArguments( m_path() );
-
-    std::vector<int> caseIds = m_caseIds();
-    if ( caseIds.empty() )
+    std::vector<RimCase*> cases;
+    for ( int caseId : m_caseIds() )
     {
-        RimProject* project = RimProject::current();
-        if ( project )
-        {
-            auto eclipeCases = project->eclipseCases();
-            for ( auto c : eclipeCases )
-            {
-                caseIds.push_back( c->caseId() );
-            }
-        }
+        auto rimCase = RicfForwarding::findCase( caseId );
+        if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
+        cases.push_back( rimCase.value() );
     }
 
-    bool ok;
-    if ( caseIds.empty() )
-    {
-        ok = RiaApplication::instance()->launchProcess( octavePath, processArguments, RiaApplication::instance()->octaveProcessEnvironment() );
-    }
-    else
-    {
-        ok = RiaApplication::instance()->launchProcessForMultipleCases( octavePath,
-                                                                        processArguments,
-                                                                        caseIds,
-                                                                        RiaApplication::instance()->octaveProcessEnvironment() );
-    }
+    RimProject_runOctaveScript method( RimProject::current() );
+    method.setPath( m_path() );
+    method.setCases( cases );
 
-    caf::PdmScriptResponse response;
-    if ( !ok )
-    {
-        QString error = QString( "runOctaveScript: Could not execute script %1" ).arg( m_path() );
-        RiaLogging::error( error.toStdString() );
-        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
-    else
-    {
-        RiaApplication::instance()->waitForProcess();
-    }
-    return response;
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
 }
