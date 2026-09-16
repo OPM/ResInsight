@@ -557,7 +557,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( const std::vector<Ri
                 QFileInfo fi( headerFileName );
 
                 // NB! Use canonicalPath to make sure any symlinks are resolved to absolute file paths
-                QString h5FilenameCandidate = fi.canonicalPath() + "/" + fi.baseName() + ".h5";
+                QString h5FilenameCandidate = fi.canonicalPath() + "/" + fi.completeBaseName() + ".h5";
 
                 headerFileNames.push_back( headerFileName.toStdString() );
                 h5FileNames.push_back( h5FilenameCandidate.toStdString() );

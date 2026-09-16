@@ -97,7 +97,7 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
     // summary reader. The query methods report empty data when no underlying reader has been created.
     {
         QFileInfo fi( headerFileName );
-        QString   basenameNoExtension = fi.absolutePath() + "/" + fi.baseName();
+        QString   basenameNoExtension = fi.absolutePath() + "/" + fi.completeBaseName();
 
         bool hasEnhancedSummaryFile = QFile::exists( basenameNoExtension + ".ESMRY" );
         bool hasHdf5File            = QFile::exists( basenameNoExtension + ".h5" );
@@ -116,7 +116,7 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
          prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
     {
         QFileInfo fi( headerFileName );
-        QString   basenameNoExtension = fi.absolutePath() + "/" + fi.baseName();
+        QString   basenameNoExtension = fi.absolutePath() + "/" + fi.completeBaseName();
         QString   h5FileName          = basenameNoExtension + ".h5";
 
         bool h5FileFound = QFile::exists( h5FileName );
