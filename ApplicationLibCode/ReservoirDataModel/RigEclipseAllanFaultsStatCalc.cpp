@@ -98,6 +98,7 @@ size_t RigEclipseAllanFaultsStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseAllanFaultsStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double& result )
+std::optional<double> RigEclipseAllanFaultsStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex )
 {
+    return {};
 }

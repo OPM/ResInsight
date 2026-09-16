@@ -22,6 +22,7 @@
 #include "cvfCollection.h"
 #include "cvfObject.h"
 
+#include <optional>
 #include <vector>
 
 class RigHistogramCalculator;
@@ -52,8 +53,10 @@ public:
 
     virtual size_t timeStepCount() = 0;
 
-    void         mobileVolumeWeightedMean( double& mean );
-    virtual void mobileVolumeWeightedMean( size_t timeStepIndex, double& mean );
+    // Returns the mobile volume weighted mean, or an empty optional if it can not be computed, ie. when the
+    // mobile pore volume result is not available. Implementations must not return a value in that case.
+    std::optional<double>         mobileVolumeWeightedMean();
+    virtual std::optional<double> mobileVolumeWeightedMean( size_t timeStepIndex );
 
     static void posNegClosestToZero( const std::vector<double>& values, double& pos, double& neg );
 };
