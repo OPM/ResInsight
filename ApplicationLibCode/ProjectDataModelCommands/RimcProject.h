@@ -206,3 +206,24 @@ private:
     caf::PdmField<int>                                           m_height;
     caf::PdmField<caf::AppEnum<RiaDefines::SnapshotFileFormat>>  m_plotFileFormat;
 };
+
+//==================================================================================================
+/// Load a grid case (EGRID, GRID, GRDECL, ROFF) from file and add it to the project.
+//==================================================================================================
+class RimProject_loadCase : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_loadCase( caf::PdmObjectHandle* self );
+
+    void setPath( const QString& path );
+    void setGridOnly( bool gridOnly );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_path;
+    caf::PdmField<bool>    m_gridOnly;
+};

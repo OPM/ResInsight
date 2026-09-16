@@ -24,17 +24,22 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesGrid.h"
 #include "RiaQStringFormatter.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaResultNames.h"
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
+#include "RicImportGeneralDataFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 #include "ViewLink/RicLinkVisibleViewsFeature.h"
 #include "ViewLink/RicUnLinkViewFeature.h"
 
+#include "RifReaderSettings.h"
+
 #include "Rim3dView.h"
+#include "RimCase.h"
 #include "RimCornerPointCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -594,4 +599,82 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_exportSnapshots::execut
     }
 
     return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_loadCase, "loadCase" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_loadCase::RimProject_loadCase( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Load Case", "", "", "Load a grid case from file and add it to the project" );
+
+    CAF_PDM_InitScriptableField( &m_path, "Path", QString(), "Path", "", "", "Path to the grid file (EGRID, GRID, GRDECL or ROFF)" );
+    CAF_PDM_InitScriptableField( &m_gridOnly, "GridOnly", false, "Grid Only", "", "", "Load the grid geometry only, without results" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_loadCase::setPath( const QString& path )
+{
+    m_path = path;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_loadCase::setGridOnly( bool gridOnly )
+{
+    m_gridOnly = gridOnly;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_loadCase::execute()
+{
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    if ( m_path().isEmpty() ) return std::unexpected( "No path specified." );
+
+    QString   absolutePath = m_path();
+    QFileInfo pathInfo( absolutePath );
+    if ( !pathInfo.exists() )
+    {
+        QDir startDir( RiaApplication::instance()->startDir() );
+        absolutePath = startDir.absoluteFilePath( m_path() );
+    }
+
+    RifReaderSettings readerSettings = m_gridOnly() ? RiaPreferencesGrid::gridOnlyReaderSettings()
+                                                    : RiaPreferencesGrid::current()->readerSettings();
+
+    const bool createPlot = false;
+    const bool createView = false;
+    auto       fileOpenMetaData =
+        RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ absolutePath }, createPlot, createView, readerSettings );
+
+    if ( fileOpenMetaData.createdCaseIds.empty() )
+    {
+        return std::unexpected( QString( "Unable to load case from %1" ).arg( absolutePath ) );
+    }
+
+    const int caseId = fileOpenMetaData.createdCaseIds.front();
+    for ( RimCase* rimCase : project->allGridCases() )
+    {
+        if ( rimCase && rimCase->caseId() == caseId ) return rimCase;
+    }
+
+    return std::unexpected( QString( "Case loaded from %1 was not found in the project" ).arg( absolutePath ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_loadCase::classKeywordReturnedType() const
+{
+    return RimCase::classKeywordStatic();
 }
