@@ -112,6 +112,7 @@ public:
     std::vector<RimWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
     std::vector<RimWellPath*> allWellPaths() const;
     cvf::BoundingBox          wellPathsBoundingBox() const;
+    QString                   collectionName() const;
     void                      removeWellPath( RimWellPath* wellPath );
 
     void deleteAllWellPaths();
