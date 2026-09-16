@@ -20,8 +20,10 @@ import Project_pb2_grpc
 import KeyValueStore_pb2_grpc
 import KeyValueStore_pb2
 
+from .exception import RipsError
 from .resinsight_classes import (
     ColorLegendCollection,
+    FractureTemplate,
     PlotWindow,
     Project,
     Reservoir,
@@ -356,11 +358,20 @@ def export_well_paths(self, well_paths=None, md_step_size=5.0):
     )
 
 
+def _fracture_template_by_id(project, template_id):
+    for template in project.descendants(FractureTemplate):
+        if template.id == template_id:
+            return template
+    raise RipsError(f"Could not find fracture template with ID {template_id}")
+
+
 @add_method(Project)
 def scale_fracture_template(
     self, template_id, half_length, height, d_factor, conductivity
 ):
     """Scale fracture template parameters
+
+    Deprecated: use FractureTemplate.set_scale_factors(...) on the template object instead.
 
     Arguments:
         template_id(int): ID of fracture template
@@ -369,14 +380,17 @@ def scale_fracture_template(
         d_factor (double): D-factor scale factor
         conductivity (double): Conductivity scale factor
     """
-    return self._execute_command(
-        scaleFractureTemplate=Commands_pb2.ScaleFractureTemplateRequest(
-            id=template_id,
-            halfLength=half_length,
-            height=height,
-            dFactor=d_factor,
-            conductivity=conductivity,
-        )
+    warnings.warn(
+        "Project.scale_fracture_template(template_id=...) is deprecated, use FractureTemplate.set_scale_factors() instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
+    template = _fracture_template_by_id(self, template_id)
+    template.set_scale_factors(
+        half_length=half_length,
+        height=height,
+        d_factor=d_factor,
+        conductivity=conductivity,
     )
 
 
@@ -384,16 +398,20 @@ def scale_fracture_template(
 def set_fracture_containment(self, template_id, top_layer, base_layer):
     """Set fracture template containment parameters
 
+    Deprecated: use FractureTemplate.set_containment(...) on the template object instead.
+
     Arguments:
         template_id(int): ID of fracture template
         top_layer (int): Top layer containment
         base_layer (int): Base layer containment
     """
-    return self._execute_command(
-        setFractureContainment=Commands_pb2.SetFracContainmentRequest(
-            id=template_id, topLayer=top_layer, baseLayer=base_layer
-        )
+    warnings.warn(
+        "Project.set_fracture_containment(template_id=...) is deprecated, use FractureTemplate.set_containment() instead",
+        DeprecationWarning,
+        stacklevel=3,
     )
+    template = _fracture_template_by_id(self, template_id)
+    template.set_containment(top_layer=top_layer, base_layer=base_layer)
 
 
 @add_method(Project)

@@ -36,6 +36,8 @@ class RimcFractureTemplate_setScaleFactors : public caf::PdmVoidObjectMethod
 public:
     RimcFractureTemplate_setScaleFactors( caf::PdmObjectHandle* self );
 
+    void setScaleFactors( double halfLength, double height, double dFactor, double conductivity );
+
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
 
 private:
@@ -43,4 +45,23 @@ private:
     caf::PdmField<double> m_height;
     caf::PdmField<double> m_dFactor;
     caf::PdmField<double> m_conductivity;
+};
+
+//==================================================================================================
+/// Set the K layer range the fractures created from this template are contained within.
+//==================================================================================================
+class RimFractureTemplate_setContainment : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimFractureTemplate_setContainment( caf::PdmObjectHandle* self );
+
+    void setLayers( int topLayer, int baseLayer );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<int> m_topLayer;
+    caf::PdmField<int> m_baseLayer;
 };
