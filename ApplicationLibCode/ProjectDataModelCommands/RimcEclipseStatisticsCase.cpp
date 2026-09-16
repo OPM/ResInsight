@@ -70,6 +70,23 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseStatisticsCase, RimcEclipseStatisti
 RimcEclipseStatisticsCase_computeStatistics::RimcEclipseStatisticsCase_computeStatistics( caf::PdmObjectHandle* self )
     : caf::PdmVoidObjectMethod( self )
 {
+    CAF_PDM_InitObject( "Compute Statistics", "", "", "Compute statistics for the selected source properties" );
+
+    CAF_PDM_InitScriptableField( &m_updateViews,
+                                 "UpdateViews",
+                                 false,
+                                 "Update Views",
+                                 "",
+                                 "",
+                                 "Update the 3D views of the case after computing, and create a view if none exists" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimcEclipseStatisticsCase_computeStatistics::setUpdateViews( bool updateViews )
+{
+    m_updateViews = updateViews;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +95,16 @@ RimcEclipseStatisticsCase_computeStatistics::RimcEclipseStatisticsCase_computeSt
 std::expected<caf::PdmObjectHandle*, QString> RimcEclipseStatisticsCase_computeStatistics::execute()
 {
     auto eclipseCase = self<RimEclipseStatisticsCase>();
-    eclipseCase->computeStatistics();
+    if ( !eclipseCase ) return std::unexpected( "No statistics case is available." );
+
+    if ( m_updateViews() )
+    {
+        eclipseCase->computeStatisticsAndUpdateViews();
+    }
+    else
+    {
+        eclipseCase->computeStatistics();
+    }
 
     return nullptr;
 }
