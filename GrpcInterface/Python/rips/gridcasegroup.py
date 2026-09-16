@@ -6,7 +6,7 @@ from .pdmobject import add_method
 from .view import View as View
 from .case import Case as Case
 
-import Commands_pb2
+import warnings
 from .resinsight_classes import GridCaseGroup
 from .resinsight_classes import EclipseView
 from .resinsight_classes import RimStatisticalCalculation
@@ -60,14 +60,18 @@ def view(self, view_id):
 def compute_statistics(self, case_ids=None):
     """Compute statistics for the given case ids
 
+    Deprecated: use RimStatisticalCalculation.compute_statistics(update_views=True) on each
+    statistics case (see statistics_cases()) instead.
+
     Arguments:
         case_ids(list of integers): List of case ids. If this is None all cases in group are included
 
     """
-    if case_ids is None:
-        case_ids = []
-    return self._execute_command(
-        computeCaseGroupStatistics=Commands_pb2.ComputeCaseGroupStatRequest(
-            caseIds=case_ids, caseGroupId=self.group_id
-        )
+    warnings.warn(
+        "GridCaseGroup.compute_statistics() is deprecated, use compute_statistics() on each statistics case instead",
+        DeprecationWarning,
+        stacklevel=3,
     )
+    for statistics_case in self.statistics_cases():
+        if case_ids is None or statistics_case.id in case_ids:
+            statistics_case.compute_statistics(update_views=True)
