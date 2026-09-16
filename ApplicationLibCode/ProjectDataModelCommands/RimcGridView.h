@@ -127,3 +127,22 @@ public:
 private:
     caf::PdmField<int> m_timeStep;
 };
+
+//==================================================================================================
+/// Export the contour map of a contour map view (Eclipse or GeoMech) to a text file.
+//==================================================================================================
+class Rim3dView_exportContourMapToText : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    Rim3dView_exportContourMapToText( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<QString> m_exportFileName;
+    caf::PdmField<bool>    m_exportLocalCoordinates;
+    caf::PdmField<QString> m_undefinedValueLabel;
+    caf::PdmField<bool>    m_excludeUndefinedValues;
+};

@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaKeyValueStoreUtil.h"
 
+#include "RicExportContourMapToTextFeature.h"
+
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dView.h"
@@ -309,6 +311,54 @@ std::expected<caf::PdmObjectHandle*, QString> Rim3dView_setTimeStep::execute()
 
     view->setCurrentTimeStepAndUpdate( m_timeStep() );
     view->createDisplayModelAndRedraw();
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_exportContourMapToText, "exportContourMapToText" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dView_exportContourMapToText::Rim3dView_exportContourMapToText( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Contour Map To Text", "", "", "Export the contour map of a contour map view to a text file" );
+
+    CAF_PDM_InitScriptableField( &m_exportFileName, "ExportFileName", QString(), "Export File Name", "", "", "Full path of the file to write" );
+    CAF_PDM_InitScriptableField( &m_exportLocalCoordinates,
+                                 "ExportLocalCoordinates",
+                                 false,
+                                 "Export Local Coordinates",
+                                 "",
+                                 "",
+                                 "Export local coordinates instead of UTM" );
+    CAF_PDM_InitScriptableField( &m_undefinedValueLabel,
+                                 "UndefinedValueLabel",
+                                 QString( "NaN" ),
+                                 "Undefined Value Label",
+                                 "",
+                                 "",
+                                 "Text written for undefined values" );
+    CAF_PDM_InitScriptableField( &m_excludeUndefinedValues, "ExcludeUndefinedValues", false, "Exclude Undefined Values", "", "", "Skip undefined values" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> Rim3dView_exportContourMapToText::execute()
+{
+    auto* view = self<Rim3dView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    if ( m_exportFileName().isEmpty() ) return std::unexpected( "No export file name specified." );
+
+    auto result = RicExportContourMapToTextFeature::exportContourMapToText( view,
+                                                                            m_exportFileName(),
+                                                                            m_exportLocalCoordinates(),
+                                                                            m_undefinedValueLabel(),
+                                                                            m_excludeUndefinedValues() );
+    if ( !result ) return std::unexpected( result.error() );
 
     return nullptr;
 }
