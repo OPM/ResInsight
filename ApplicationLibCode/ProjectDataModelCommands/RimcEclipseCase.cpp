@@ -23,6 +23,7 @@
 #include "RiaKeyValueStoreUtil.h"
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
+#include "CompletionExportCommands/RicWellPathExportMswCompletionsImpl.h"
 #include "ExportCommands/RicEclipseCellResultToFileImpl.h"
 
 #include "RifInputPropertyLoader.h"
@@ -825,6 +826,113 @@ std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportCompletions::
     if ( !m_customFileName().isEmpty() ) exportSettings.setCustomFileName( m_customFileName() );
 
     RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, exportSettings );
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_exportMswCompletions, "exportMswCompletions" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_exportMswCompletions::RimEclipseCase_exportMswCompletions( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export MSW Completions", "", "", "Export the Multi Segment Well model keywords for well paths in this case" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "Well paths to export" );
+    CAF_PDM_InitScriptableField( &m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "Folder to write the export files to" );
+    CAF_PDM_InitScriptableField( &m_fileSplit,
+                                 "FileSplit",
+                                 RicExportCompletionDataSettingsUi::ExportSplitType(),
+                                 "File Split",
+                                 "",
+                                 "",
+                                 "Controls how export data is split into files" );
+    CAF_PDM_InitScriptableField( &m_includePerforations, "IncludePerforations", true, "Include Perforations" );
+    CAF_PDM_InitScriptableField( &m_includeFishbones, "IncludeFishbones", true, "Include Fishbones" );
+    CAF_PDM_InitScriptableField( &m_includeFractures, "IncludeFractures", true, "Include Fractures" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setWellPaths( const std::vector<RimWellPath*>& wellPaths )
+{
+    m_wellPaths.setValue( wellPaths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setExportFolder( const QString& exportFolder )
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setFileSplit( RicExportCompletionDataSettingsUi::ExportSplit fileSplit )
+{
+    m_fileSplit = fileSplit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setIncludePerforations( bool enable )
+{
+    m_includePerforations = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setIncludeFishbones( bool enable )
+{
+    m_includeFishbones = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setIncludeFractures( bool enable )
+{
+    m_includeFractures = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportMswCompletions::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    if ( m_exportFolder().isEmpty() ) return std::unexpected( "No export folder specified." );
+
+    QDir folder( m_exportFolder() );
+    if ( !folder.exists() ) return std::unexpected( QString( "The export folder '%1' does not exist." ).arg( m_exportFolder() ) );
+
+    std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
+    if ( wellPaths.empty() ) return std::unexpected( "No well paths specified." );
+
+    eclipseCase->ensureReservoirCaseIsOpen();
+    if ( !eclipseCase->eclipseCaseData() )
+    {
+        return std::unexpected( QString( "No data available for case '%1'" ).arg( eclipseCase->caseUserDescription() ) );
+    }
+
+    RicExportCompletionDataSettingsUi exportSettings;
+    exportSettings.caseToApply         = eclipseCase;
+    exportSettings.folder              = m_exportFolder();
+    exportSettings.fileSplit           = m_fileSplit();
+    exportSettings.includePerforations = m_includePerforations();
+    exportSettings.includeFishbones    = m_includeFishbones();
+    exportSettings.includeFractures    = m_includeFractures();
+
+    RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( exportSettings, wellPaths );
 
     return nullptr;
 }

@@ -18,23 +18,15 @@
 
 #include "RicfExportMsw.h"
 
-#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
+#include "RicfCommandForwarding.h"
 
 #include "RiaApplication.h"
-#include "RiaLogging.h"
 
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimFishbones.h"
-#include "RimFishbonesCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-
-#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
-#include "CompletionExportCommands/RicWellPathExportMswCompletionsImpl.h"
+#include "RimcEclipseCase.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -58,39 +50,37 @@ RicfExportMsw::RicfExportMsw()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfExportMsw::execute()
 {
-    using TOOLS = RicfApplicationTools;
+    const QString commandName = classKeyword();
 
-    RicExportCompletionDataSettingsUi exportSettings;
+    auto rimCase = RicfForwarding::findCase( m_caseId() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
 
-    auto eclipseCase = TOOLS::caseFromId( m_caseId() );
+    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase.value() );
     if ( !eclipseCase )
     {
-        QString error = QString( "exportMsw: Could not find case with ID %1." ).arg( m_caseId() );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+        return RicfForwarding::errorResponse( QString( "Case with ID %1 is not an Eclipse case" ).arg( m_caseId() ), commandName );
     }
 
+    RimWellPath* wellPath = RimProject::current()->wellPathByName( m_wellPathName() );
+    if ( !wellPath )
+    {
+        return RicfForwarding::errorResponse( QString( "Could not find well path with name %1" ).arg( m_wellPathName() ), commandName );
+    }
+
+    // Resolve the export folder from the command file executor state. The Rimc method requires an explicit folder.
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::COMPLETIONS );
     if ( exportFolder.isNull() )
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "completions" );
     }
-    exportSettings.caseToApply         = eclipseCase;
-    exportSettings.folder              = exportFolder;
-    exportSettings.includePerforations = m_includePerforations;
-    exportSettings.includeFishbones    = m_includeFishbones;
-    exportSettings.includeFractures    = m_includeFractures;
-    exportSettings.fileSplit           = m_fileSplit;
 
-    RimWellPath* wellPath = RimProject::current()->wellPathByName( m_wellPathName );
-    if ( !wellPath )
-    {
-        QString error = QString( "exportMsw: Could not find well path with name %1" ).arg( m_wellPathName() );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
+    RimEclipseCase_exportMswCompletions method( eclipseCase );
+    method.setWellPaths( { wellPath } );
+    method.setExportFolder( exportFolder );
+    method.setFileSplit( m_fileSplit() );
+    method.setIncludePerforations( m_includePerforations() );
+    method.setIncludeFishbones( m_includeFishbones() );
+    method.setIncludeFractures( m_includeFractures() );
 
-    RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( exportSettings, { wellPath } );
-
-    return caf::PdmScriptResponse();
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
 }
