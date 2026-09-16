@@ -21,6 +21,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QTemporaryDir>
 
 static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
 
@@ -519,4 +520,54 @@ TEST( OpmSummaryHeaderSearch, OnlySmspecFiles )
     // check that the file exists
     QFile file( restartFileName );
     EXPECT_TRUE( file.exists() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Summary file names can contain multiple dots. The ESMRY data file must be found when opening the
+/// SMSPEC file name, see https://github.com/OPM/ResInsight/issues/14761
+//--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, OpenEsmryWithMultipleDotsInFileName )
+{
+    QString SUMMARY_TEST_DATA_DIRECTORY = QString( "%1/summary-header-search/only-esmry/" ).arg( TEST_DATA_DIR );
+    QString sourceFilePath              = SUMMARY_TEST_DATA_DIRECTORY + "/realization-18/pred_ref/eclipse/model/DROGON-18.ESMRY";
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    const QString esmryFilePath = tempDir.path() + "/DROGON.V2.1-18.ESMRY";
+    ASSERT_TRUE( QFile::copy( sourceFilePath, esmryFilePath ) );
+
+    // Ensemble import opens the realization using the SMSPEC file name
+    const QString smspecFilePath = tempDir.path() + "/DROGON.V2.1-18.SMSPEC";
+
+    RifReaderEclipseSummary reader;
+    EXPECT_TRUE( reader.open( smspecFilePath, nullptr ) );
+
+    reader.createAndSetAddresses();
+    EXPECT_FALSE( reader.allResultAddresses().empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Open SMSPEC and UNSMRY files with multiple dots in the file name, see https://github.com/OPM/ResInsight/issues/14761
+//--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, OpenSmspecAndUnsmryWithMultipleDotsInFileName )
+{
+    QString SUMMARY_TEST_DATA_DIRECTORY = QString( "%1/SummaryData/Reek/" ).arg( TEST_DATA_DIR );
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    const QString rootPath = tempDir.path() + "/3_R001.V2.1_REEK-1";
+    ASSERT_TRUE( QFile::copy( SUMMARY_TEST_DATA_DIRECTORY + "3_R001_REEK-1.SMSPEC", rootPath + ".SMSPEC" ) );
+    ASSERT_TRUE( QFile::copy( SUMMARY_TEST_DATA_DIRECTORY + "3_R001_REEK-1.UNSMRY", rootPath + ".UNSMRY" ) );
+
+    RifReaderEclipseSummary reader;
+    EXPECT_TRUE( reader.open( rootPath + ".SMSPEC", nullptr ) );
+
+    reader.createAndSetAddresses();
+    EXPECT_FALSE( reader.allResultAddresses().empty() );
+
+    auto [ok, values] = reader.values( RifEclipseSummaryAddress::fieldAddress( "FOPT" ) );
+    EXPECT_TRUE( ok );
+    EXPECT_FALSE( values.empty() );
 }
