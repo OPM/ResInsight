@@ -24,6 +24,8 @@
 
 #include <QString>
 
+class Rim3dView;
+
 //==================================================================================================
 /// Replace the grid file of a case (Eclipse result case or GeoMech case) and reload the project.
 ///
@@ -46,4 +48,18 @@ public:
 private:
     caf::PdmField<QString> m_newGridFile;
     caf::PdmField<QString> m_projectFile;
+};
+
+//==================================================================================================
+/// Create a new 3D view in the case. Supports Eclipse cases and GeoMech cases.
+//==================================================================================================
+class RimCase_createView : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimCase_createView( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
 };
