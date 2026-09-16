@@ -46,11 +46,18 @@ RimCase_replaceGrid::RimCase_replaceGrid( caf::PdmObjectHandle* self )
 {
     CAF_PDM_InitObject( "Replace Grid", "", "", "Replace the grid file of the case and reload the project" );
 
-    CAF_PDM_InitScriptableField( &m_newGridFile, "NewGridFile", QString(), "New Grid File", "", "Path to the new grid file (EGRID, GRID, GRDECL or ODB)" );
+    CAF_PDM_InitScriptableField( &m_newGridFile,
+                                 "NewGridFile",
+                                 QString(),
+                                 "New Grid File",
+                                 "",
+                                 "",
+                                 "Path to the new grid file (EGRID, GRID, GRDECL or ODB)" );
     CAF_PDM_InitScriptableField( &m_projectFile,
                                  "ProjectFile",
                                  QString(),
                                  "Project File",
+                                 "",
                                  "",
                                  "Optional project file to reload. Defaults to the current project file." );
 }

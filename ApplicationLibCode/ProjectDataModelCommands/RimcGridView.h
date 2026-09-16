@@ -109,3 +109,21 @@ public:
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
     QString                                       classKeywordReturnedType() const override;
 };
+
+//==================================================================================================
+/// Set the current time step of the view and redraw.
+//==================================================================================================
+class Rim3dView_setTimeStep : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    Rim3dView_setTimeStep( caf::PdmObjectHandle* self );
+
+    void setTimeStep( int timeStep );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<int> m_timeStep;
+};
