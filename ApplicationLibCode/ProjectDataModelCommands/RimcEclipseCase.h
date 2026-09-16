@@ -375,3 +375,32 @@ private:
     caf::PdmField<double>                                  m_spacing;
     caf::PdmField<caf::AppEnum<MultipleFractures::Action>> m_action;
 };
+
+//==================================================================================================
+/// Export flow characteristics (Lorenz coefficient, flow capacity/storage capacity and sweep
+/// efficiency) computed by flow diagnostics to a text file.
+//==================================================================================================
+class RimEclipseResultCase_exportFlowCharacteristics : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseResultCase_exportFlowCharacteristics( caf::PdmObjectHandle* self );
+
+    void setTimeSteps( const std::vector<int>& timeSteps );
+    void setInjectors( const std::vector<QString>& injectors );
+    void setProducers( const std::vector<QString>& producers );
+    void setFileName( const QString& fileName );
+    void setMinimumCommunication( double minimumCommunication );
+    void setAquiferCellThreshold( double aquiferCellThreshold );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<std::vector<int>>     m_timeSteps;
+    caf::PdmField<std::vector<QString>> m_injectors;
+    caf::PdmField<std::vector<QString>> m_producers;
+    caf::PdmField<QString>              m_fileName;
+    caf::PdmField<double>               m_minimumCommunication;
+    caf::PdmField<double>               m_aquiferCellThreshold;
+};

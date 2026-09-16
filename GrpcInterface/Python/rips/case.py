@@ -573,49 +573,6 @@ def create_saturation_pressure_plots(self) -> Any:
 
 
 @add_method(Case)
-def export_flow_characteristics(
-    self,
-    time_steps: Union[int, List[int]],
-    injectors: Union[str, List[str]],
-    producers: Union[str, List[str]],
-    file_name: str,
-    minimum_communication: float = 0.0,
-    aquifer_cell_threshold: float = 0.1,
-) -> Any:
-    """Export Flow Characteristics data to text file in CSV format
-
-    **Parameters**::
-
-        Parameter                 | Description                                   | Type
-        ------------------------- | --------------------------------------------- | -----
-        time_steps                | Time step indices                             | List of Integer
-        injectors                 | Injector names                                | List of Strings
-        producers                 | Producer names                                | List of Strings
-        file_name                 | Export file name                              | Integer
-        minimum_communication     | Minimum Communication, defaults to 0.0        | Integer
-        aquifer_cell_threshold    | Aquifer Cell Threshold, defaults to 0.1       | Integer
-
-    """
-    if isinstance(time_steps, int):
-        time_steps = [time_steps]
-    if isinstance(injectors, str):
-        injectors = [injectors]
-    if isinstance(producers, str):
-        producers = [producers]
-    return self._execute_command(
-        exportFlowCharacteristics=Cmd.ExportFlowInfoRequest(
-            caseId=self.id,
-            timeSteps=time_steps,
-            injectors=injectors,
-            producers=producers,
-            fileName=file_name,
-            minimumCommunication=minimum_communication,
-            aquiferCellThreshold=aquifer_cell_threshold,
-        )
-    )
-
-
-@add_method(Case)
 def available_properties(
     self,
     property_type: PropertyType,
