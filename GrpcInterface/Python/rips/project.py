@@ -84,21 +84,6 @@ def close(self) -> None:
 
 
 @add_method(Project)
-def load_case(self: Project, path: str, grid_only: bool = False) -> Reservoir:
-    """Load a new grid case from the given file path
-
-    Arguments:
-        path(str): file path to case
-    Returns:
-        :class:`rips.generated.generated_classes.Case`
-    """
-    command_reply = self._execute_command(
-        loadCase=Commands_pb2.FilePathRequest(path=path, gridOnly=grid_only)
-    )
-    return self.case(command_reply.loadCaseResult.id)
-
-
-@add_method(Project)
 def selected_cases(self) -> List[Case]:
     """Get a list of all grid cases selected in the project tree
 
