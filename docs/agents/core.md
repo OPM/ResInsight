@@ -163,6 +163,82 @@ interval = completions_settings.add_diameter_roughness_interval(start_md=100, en
 print(f"Start: {interval.start_md}, End: {interval.end_md}")
 ```
 
+## Scriptable Object Methods (Rimc) and the Legacy Command File Interface (Ricf)
+
+ResInsight has two command systems. New functionality goes into **object methods**; the legacy
+command file interface is a thin forwarding layer kept for backward compatibility.
+
+### Object methods (`ApplicationLibCode/ProjectDataModelCommands/Rimc*.{h,cpp}`)
+
+- Subclass `caf::PdmVoidObjectMethod` (no return), `caf::PdmObjectCreationMethod` (returns a new
+  persistent object) or `caf::PdmObjectMethod` (returns a transient container such as
+  `RimcDataContainerString`).
+- Register with `CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimTargetClass, RimTargetClass_methodName, "methodName" )`.
+  Use **camelCase** keywords; the Python generator converts them to snake_case.
+- Name the class `<TargetClass>_<methodName>`, e.g. `RimCase_replaceGrid`, `RimEclipseView_exportVisibleCells`.
+- Parameters are `CAF_PDM_InitScriptableField` fields. Pass **objects, not ids**: use
+  `caf::PdmPtrField<T*>` / `caf::PdmPtrArrayField<T*>` (generated as `T` / `List[T]` in Python).
+  Enum parameters use `caf::PdmField<caf::AppEnum<E>>` and are generated as Python `StrEnum`s; pin the
+  Python class name with `caf::PdmScriptEnumNameRegistry::registerName<E>( "Name" )`.
+- Set the `whatsThis` text (third variadic argument of `CAF_PDM_InitScriptableField`) - it becomes the
+  argument description in the generated Python docstring.
+- Paths are **explicit parameters**. Object methods must not read `RicfCommandFileExecutor` state
+  (`getExportPath()`, `getLastProjectPath()`) or depend on `CommandFileInterface/` at all.
+- Return errors with `std::unexpected( QString )`; do not log-and-return-nullptr.
+- Provide typed public setters (`setExportFolder( const QString& )` ...) so C++ callers (in particular
+  the Ricf forwarders) can populate the method without going through gRPC.
+- Guard GUI-only code with `RiaGuiApplication::isRunning()`; methods must work in headless mode.
+- Child objects (`PdmChildField`) are **not** supported as method parameters over gRPC.
+
+### Legacy command file commands (`ApplicationLibCode/CommandFileInterface/Ricf*.{h,cpp}`)
+
+`RicfCommandObject` subclasses are the command-file syntax (`--commandFile`) and the handlers for the
+legacy `Commands.proto` gRPC service. Their keywords, fields and `Commands.proto` **must not change**.
+
+A Ricf `execute()` should only:
+1. Resolve ids to objects with the helpers in `RicfCommandForwarding.h`
+   (`findCase`, `findView`, `findCaseGroup`, `findFractureTemplate`, `findWellLogPlot`, ...).
+2. Resolve executor state (export folders, last project path) into explicit values.
+3. Construct the Rimc method, call its setters, call `execute()`, and convert the result with
+   `RicfForwarding::toScriptResponse()` / `errorResponse()`.
+4. Loop when the legacy command accepts multiple ids and the object method is single-object.
+
+```cpp
+caf::PdmScriptResponse RicfExportMsw::execute()
+{
+    const QString commandName = classKeyword();
+
+    auto rimCase = RicfForwarding::findCase( m_caseId() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
+
+    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase.value() );
+    if ( !eclipseCase ) return RicfForwarding::errorResponse( "Not an Eclipse case", commandName );
+
+    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::COMPLETIONS );
+
+    RimEclipseCase_exportMswCompletions method( eclipseCase );
+    method.setWellPaths( { wellPath } );
+    method.setExportFolder( exportFolder );
+
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
+}
+```
+
+Commands that only manipulate application or executor state (`openProject`, `closeProject`,
+`saveProject`, `setStartDir`, `setExportFolder`, `setMainWindowSize`, `setPlotWindowSize`,
+`exportMultiCaseSnapshots`, `replaceMultipleCases`) intentionally remain Ricf-only.
+
+### Python wrappers (`GrpcInterface/Python/rips/*.py`)
+
+- Prefer the generated method. Remove a hand-written wrapper when the generated method has the same
+  name and a compatible signature.
+- A generated method on a **subclass** (e.g. `Reservoir`) shadows a hand-written wrapper on the base
+  class (`Case`) through normal attribute lookup. A deprecation shim on the base class is then never
+  reached; either remove the wrapper or give the object method a different keyword.
+- When the old wrapper must stay (different argument names, id-based lookups, client-side
+  conveniences), keep it thin, forward to the generated method, and emit
+  `warnings.warn( "...", DeprecationWarning, stacklevel=3 )` (`add_method` adds one frame).
+
 ## Field Validation in Python GRPC Interface
 
 Python field updates are automatically validated when calling `obj.update()`. This ensures data integrity by preventing invalid values from being set.
