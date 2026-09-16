@@ -459,3 +459,13 @@ def test_create_saturation_pressure_plots_requires_data(rips_instance, initializ
     case = rips_instance.project.load_case(case_path)
     with pytest.raises(rips.RipsError):
         case.create_saturation_pressure_plots()
+
+
+def test_create_well_bore_stability_plot_is_geomech_only(
+    rips_instance, initialize_test
+):
+    # No GeoMech test data is available; verify the method is exposed on the right class
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    assert not hasattr(case, "create_well_bore_stability_plot")
+    assert hasattr(rips.GeoMechCase, "create_well_bore_stability_plot")
