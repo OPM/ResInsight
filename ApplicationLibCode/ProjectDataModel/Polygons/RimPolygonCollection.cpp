@@ -26,6 +26,8 @@
 #include "RimPolygonFile.h"
 #include "RimProject.h"
 
+#include "Polygons/Cloud/RimPolygonCloudAddress.h"
+
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
@@ -152,10 +154,26 @@ void RimPolygonCollection::addPolygonFile( RimPolygonFile* polygonFile )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::addPolygonCloudAddress( RimPolygonCloudAddress* polygonCloudAddress )
+{
+    if ( !polygonCloudAddress ) return;
+
+    addSubCollection( polygonCloudAddress );
+    RiaNameUniquenessTools::ensureUniqueAmongSiblings( polygonCloudAddress );
+    connectPolygonCloudAddressSignals( polygonCloudAddress );
+
+    updateViewTreeItems();
+    scheduleRedrawViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder )
 {
     menuBuilder << "RicCreatePolygonFeature";
     menuBuilder << "RicImportPolygonFileFeature";
+    menuBuilder << "RicCreateSumoPolygonAddressFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,6 +263,17 @@ void RimPolygonCollection::connectPolygonFileSignals( RimPolygonFile* polygonFil
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::connectPolygonCloudAddressSignals( RimPolygonCloudAddress* polygonCloudAddress )
+{
+    if ( polygonCloudAddress )
+    {
+        polygonCloudAddress->objectChanged.connect( this, &RimPolygonCollection::onPolygonCloudAddressChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::onPolygonChanged( const caf::SignalEmitter* emitter )
 {
     scheduleRedrawViews();
@@ -254,6 +283,15 @@ void RimPolygonCollection::onPolygonChanged( const caf::SignalEmitter* emitter )
 ///
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::onPolygonFileChanged( const caf::SignalEmitter* emitter )
+{
+    updateViewTreeItems();
+    scheduleRedrawViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::onPolygonCloudAddressChanged( const caf::SignalEmitter* emitter )
 {
     updateViewTreeItems();
     scheduleRedrawViews();
@@ -285,6 +323,10 @@ void RimPolygonCollection::connectSignalsForContainer( RimPolygonContainer* cont
         if ( auto* file = dynamic_cast<RimPolygonFile*>( sub ) )
         {
             connectPolygonFileSignals( file );
+        }
+        else if ( auto* cloudAddress = dynamic_cast<RimPolygonCloudAddress*>( sub ) )
+        {
+            connectPolygonCloudAddressSignals( cloudAddress );
         }
         connectSignalsForContainer( sub );
     }

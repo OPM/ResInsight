@@ -22,6 +22,7 @@
 
 class RimPolygon;
 class RimPolygonFile;
+class RimPolygonCloudAddress;
 
 //==================================================================================================
 ///
@@ -53,6 +54,9 @@ public:
     // be triggered another way (e.g., during initAfterRead).
     void addPolygonFile( RimPolygonFile* polygonFile );
 
+    // Same as addPolygonFile, for a cloud-backed polygon address.
+    void addPolygonCloudAddress( RimPolygonCloudAddress* polygonCloudAddress );
+
     static void appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder );
 
 private:
@@ -68,6 +72,9 @@ private:
     void connectPolygonFileSignals( RimPolygonFile* polygonFile );
     void onPolygonChanged( const caf::SignalEmitter* emitter );
     void onPolygonFileChanged( const caf::SignalEmitter* emitter );
+
+    void connectPolygonCloudAddressSignals( RimPolygonCloudAddress* polygonCloudAddress );
+    void onPolygonCloudAddressChanged( const caf::SignalEmitter* emitter );
 
     void connectSignalsRecursively();
     void connectSignalsForContainer( RimPolygonContainer* container );

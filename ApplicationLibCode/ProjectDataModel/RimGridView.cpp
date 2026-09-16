@@ -33,6 +33,7 @@
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
+#include "RimRoffCaseSumo.h"
 #include "RimSeismicSectionCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceInView.h"
@@ -558,7 +559,16 @@ void RimGridView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
 
     if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::POLYGON ) )
     {
-        m_polygonInViewCollection->updateFromPolygonCollection();
+        // A Sumo grid case is fixed to one realization per case/view, so that is "the realization this
+        // view is showing" for a cloud-backed polygon address to follow. -1 (no override) for every
+        // other case type, which leaves cloud-backed addresses on their own stored realization field.
+        int realization = -1;
+        if ( auto* sumoCase = dynamic_cast<RimRoffCaseSumo*>( ownerCase() ) )
+        {
+            realization = sumoCase->realization();
+        }
+
+        m_polygonInViewCollection->updateFromPolygonCollection( realization );
     }
 
     if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::CONTOUR_MAP ) )

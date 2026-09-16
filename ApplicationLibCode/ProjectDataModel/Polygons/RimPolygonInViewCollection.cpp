@@ -47,12 +47,18 @@ RimPolygonInViewCollection::RimPolygonInViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::updateFromPolygonCollection()
+void RimPolygonInViewCollection::updateFromPolygonCollection( int realization )
 {
     if ( !sourceCollection() )
     {
         setSourceCollection( RimTools::polygonCollection() );
     }
+
+    if ( auto* src = sourceCollection() )
+    {
+        src->prepareItemsForRealization( realization );
+    }
+
     updateFromSource();
 }
 

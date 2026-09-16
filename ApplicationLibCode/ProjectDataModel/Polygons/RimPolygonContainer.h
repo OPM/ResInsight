@@ -49,6 +49,14 @@ public:
     // override to load their own data; folder containers inherit the recursion.
     virtual void loadData();
 
+    // Called from a view's polygon-in-view mirroring update, before its items() are read, so a
+    // container whose content depends on which realization is being shown (e.g. a cloud-backed
+    // address) can (re)fetch for that realization first. realization is -1 when the view has none
+    // (or the caller has no view context), in which case a container should keep using its own
+    // stored default. Default implementation recurses into sub-collections; folders need no
+    // override, only containers whose items() actually depend on realization do.
+    virtual void prepareItemsForRealization( int realization );
+
     // Renames the polygon if another polygon in this container already carries the same name.
     void ensureUniquePolygonName( RimPolygon* polygon );
 

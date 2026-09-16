@@ -35,7 +35,10 @@ class RimPolygonInViewCollection : public RimNestedMirrorCollectionInView<RimPol
 public:
     RimPolygonInViewCollection();
 
-    void updateFromPolygonCollection();
+    // realization is the realization the owning 3D view is currently showing (-1 when the view has
+    // none, e.g. a non-Sumo case), threaded down to RimPolygonContainer::prepareItemsForRealization
+    // so a cloud-backed polygon address can (re)fetch for that realization before its items are read.
+    void updateFromPolygonCollection( int realization = -1 );
 
     std::vector<RimPolygonInView*> visiblePolygonsInView() const;
     std::vector<RimPolygonInView*> allPolygonsInView() const;

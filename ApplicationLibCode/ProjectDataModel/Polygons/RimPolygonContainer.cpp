@@ -74,6 +74,17 @@ void RimPolygonContainer::loadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonContainer::prepareItemsForRealization( int realization )
+{
+    for ( auto* sub : subCollections() )
+    {
+        if ( sub ) sub->prepareItemsForRealization( realization );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonContainer::ensureUniquePolygonName( RimPolygon* polygon )
 {
     if ( !polygon ) return;
