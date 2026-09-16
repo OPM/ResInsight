@@ -186,9 +186,10 @@ def test_scale_fracture_template_and_set_containment(rips_instance, initialize_t
     assert template.d_factor_scale_factor == 1.0
     assert template.conductivity_factor == 1.0
 
-    project.scale_fracture_template(
-        template_id=0, half_length=2.0, height=3.0, d_factor=4.0, conductivity=5.0
-    )
+    with pytest.warns(DeprecationWarning):
+        project.scale_fracture_template(
+            template_id=0, half_length=2.0, height=3.0, d_factor=4.0, conductivity=5.0
+        )
 
     after_scale = project.descendants(rips.FractureTemplate)[0]
     assert after_scale.width_scale_factor == 2.0
@@ -196,7 +197,24 @@ def test_scale_fracture_template_and_set_containment(rips_instance, initialize_t
     assert after_scale.d_factor_scale_factor == 4.0
     assert after_scale.conductivity_factor == 5.0
 
-    project.set_fracture_containment(template_id=0, top_layer=5, base_layer=10)
+    # Object method
+    template.set_scale_factors(
+        half_length=1.5, height=2.5, d_factor=3.5, conductivity=4.5
+    )
+    after_scale = project.descendants(rips.FractureTemplate)[0]
+    assert after_scale.width_scale_factor == 1.5
+    assert after_scale.conductivity_factor == 4.5
+
+    with pytest.raises(rips.RipsError):
+        project.scale_fracture_template(
+            template_id=999, half_length=1, height=1, d_factor=1, conductivity=1
+        )
+
+    with pytest.warns(DeprecationWarning):
+        project.set_fracture_containment(template_id=0, top_layer=5, base_layer=10)
+
+    with pytest.raises(rips.RipsError):
+        template.set_containment(top_layer=10, base_layer=5)
 
     # RimFractureContainment fields are not scriptable, so verify the change
     # made it through by saving the project and inspecting the .rsp XML.
