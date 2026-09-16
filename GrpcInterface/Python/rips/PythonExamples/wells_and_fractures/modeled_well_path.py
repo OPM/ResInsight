@@ -112,11 +112,12 @@ for case in cases:
     print("Case name: ", case.name)
     print("Case id: ", case.id)
 
-    case.export_well_path_completions(
+    case.export_completions(
+        well_paths=[well_path],
         time_step=0,
-        well_path_names=["Test Well-1 Y1"],
-        file_split="UNIFIED_FILE",
-        include_perforations=True,
         # Replace the following with a valid path
-        custom_file_name="f:/scratch/2023-11-02/myfile.myext",
+        export_folder="f:/scratch/2023-11-02",
+        file_split=rips.CompletionExportSplit.UNIFIED_FILE,
+        include_perforations=True,
+        custom_file_name="myfile.myext",
     )
