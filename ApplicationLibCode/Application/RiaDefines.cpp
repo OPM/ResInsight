@@ -188,6 +188,23 @@ void caf::AppEnum<RiaDefines::NameConflictPolicy>::setUp()
     setDefault( RiaDefines::NameConflictPolicy::FAIL );
 }
 
+template <>
+void caf::AppEnum<RiaDefines::SnapshotFileFormat>::setUp()
+{
+    addItem( RiaDefines::SnapshotFileFormat::PNG, "PNG", "PNG" );
+    addItem( RiaDefines::SnapshotFileFormat::PDF, "PDF", "PDF" );
+    setDefault( RiaDefines::SnapshotFileFormat::PNG );
+}
+
+template <>
+void caf::AppEnum<RiaDefines::SnapshotContentType>::setUp()
+{
+    addItem( RiaDefines::SnapshotContentType::ALL, "ALL", "All" );
+    addItem( RiaDefines::SnapshotContentType::VIEWS, "VIEWS", "Views" );
+    addItem( RiaDefines::SnapshotContentType::PLOTS, "PLOTS", "Plots" );
+    setDefault( RiaDefines::SnapshotContentType::ALL );
+}
+
 } // namespace caf
 
 namespace
@@ -202,6 +219,8 @@ struct RegisterScriptEnumNames
         caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::ResultCatType>( "PropertyType" );
         caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::PorosityModelType>( "PorosityModelType" );
         caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::NameConflictPolicy>( "NameConflictPolicy" );
+        caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::SnapshotFileFormat>( "SnapshotFileFormat" );
+        caf::PdmScriptEnumNameRegistry::registerName<RiaDefines::SnapshotContentType>( "SnapshotContentType" );
     }
 };
 const RegisterScriptEnumNames s_registerScriptEnumNames;

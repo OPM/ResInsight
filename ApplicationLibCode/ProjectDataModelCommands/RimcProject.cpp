@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimcProject.h"
+#include "RimcViewWindow.h"
 
 #include "Ensemble/RiaEnsembleImportTools.h"
 #include "KeyValueStore/RiaKeyValueStoreUtil.h"
@@ -24,8 +25,11 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaQStringFormatter.h"
+#include "RiaRegressionTestRunner.h"
 #include "RiaResultNames.h"
 
+#include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
+#include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 #include "ViewLink/RicLinkVisibleViewsFeature.h"
 #include "ViewLink/RicUnLinkViewFeature.h"
@@ -465,5 +469,129 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_unlinkViews::execute()
     if ( uniqueViews.empty() ) return std::unexpected( "At least one view is required." );
 
     RicUnLinkViewFeature::unlinkViews( uniqueViews );
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_exportSnapshots, "exportSnapshots" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_exportSnapshots::RimProject_exportSnapshots( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Snapshots", "", "", "Export snapshots of all 3D views and/or plots in the project" );
+
+    CAF_PDM_InitScriptableField( &m_contentType,
+                                 "ContentType",
+                                 RiaDefines::SnapshotContentType::ALL,
+                                 "Content Type",
+                                 "",
+                                 "",
+                                 "Export 3D views, plots or both" );
+    CAF_PDM_InitScriptableField( &m_exportFolder,
+                                 "ExportFolder",
+                                 QString(),
+                                 "Export Folder",
+                                 "",
+                                 "",
+                                 "Folder to export to. Defaults to the 'snapshots' folder next to the project file." );
+    CAF_PDM_InitScriptableField( &m_prefix, "Prefix", QString(), "Prefix", "", "", "Prefix for the generated file names" );
+    CAF_PDM_InitScriptableField( &m_width, "Width", -1, "Width", "", "", "Image width in pixels. Use -1 for the current size." );
+    CAF_PDM_InitScriptableField( &m_height, "Height", -1, "Height", "", "", "Image height in pixels. Use -1 for the current size." );
+    CAF_PDM_InitScriptableField( &m_plotFileFormat,
+                                 "PlotFileFormat",
+                                 RiaDefines::SnapshotFileFormat::PNG,
+                                 "Plot File Format",
+                                 "",
+                                 "",
+                                 "Output file format for plots. 3D views are always exported as PNG." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setContentType( RiaDefines::SnapshotContentType contentType )
+{
+    m_contentType = contentType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setExportFolder( const QString& exportFolder )
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setPrefix( const QString& prefix )
+{
+    m_prefix = prefix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setWidth( int width )
+{
+    m_width = width;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setHeight( int height )
+{
+    m_height = height;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject_exportSnapshots::setPlotFileFormat( RiaDefines::SnapshotFileFormat fileFormat )
+{
+    m_plotFileFormat = fileFormat;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_exportSnapshots::execute()
+{
+    if ( !RiaGuiApplication::isRunning() ) return std::unexpected( "Snapshots cannot be exported without a GUI." );
+
+    auto* project = self<RimProject>();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    const QString exportFolder = RimViewWindow_exportSnapshot::resolveExportFolder( m_exportFolder() );
+
+    int width  = m_width();
+    int height = m_height();
+    if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+    {
+        QSize defaultSize = RiaRegressionTestRunner::regressionDefaultImageSize();
+        width             = defaultSize.width();
+        height            = defaultSize.height();
+    }
+
+    const bool exportViews = m_contentType() != RiaDefines::SnapshotContentType::PLOTS;
+    const bool exportPlots = m_contentType() != RiaDefines::SnapshotContentType::VIEWS;
+
+    if ( exportViews )
+    {
+        RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( exportFolder, width, height, m_prefix() );
+    }
+
+    if ( exportPlots )
+    {
+        const bool    activateWidget = !RiaRegressionTestRunner::instance()->isRunningRegressionTests();
+        const QString fileSuffix     = m_plotFileFormat() == RiaDefines::SnapshotFileFormat::PDF ? ".pdf" : ".png";
+
+        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( exportFolder, width, height, activateWidget, m_prefix(), -1, fileSuffix );
+    }
+
     return nullptr;
 }

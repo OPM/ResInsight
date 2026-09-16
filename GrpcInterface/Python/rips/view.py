@@ -222,25 +222,3 @@ def visible_cells(self, time_step=0):
     finally:
         # Clean up temporary key from key-value store
         project.remove_key_values(visibility_key)
-
-
-@add_method(ViewWindow)
-def export_snapshot(self, prefix="", export_folder="", width=-1, height=-1):
-    """Export snapshot for the current view
-
-    Arguments:
-        prefix (str): Exported file name prefix
-        export_folder(str): The path to export to. By default will use the global export folder
-    """
-    case_id = self.case().id
-    return self._execute_command(
-        exportSnapshots=Cmd.ExportSnapshotsRequest(
-            type="VIEWS",
-            prefix=prefix,
-            caseId=case_id,
-            viewId=self.id,
-            exportFolder=export_folder,
-            width=width,
-            height=height,
-        )
-    )

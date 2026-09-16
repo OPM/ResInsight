@@ -6,6 +6,7 @@ The ResInsight project module
 
 import grpc
 import uuid
+import warnings
 
 from .case import Case
 from .gridcasegroup import GridCaseGroup
@@ -24,6 +25,8 @@ from .resinsight_classes import (
     PlotWindow,
     Project,
     Reservoir,
+    SnapshotContentType,
+    SnapshotFileFormat,
     SummaryCase,
     WellPath,
 )
@@ -284,25 +287,53 @@ def export_multi_case_snapshots(self, grid_list_file):
 
 @add_method(Project)
 def export_snapshots(
-    self, snapshot_type="ALL", prefix="", plot_format="PNG", width=-1, height=-1
+    self,
+    snapshot_type="ALL",
+    prefix="",
+    plot_format="PNG",
+    width=-1,
+    height=-1,
+    content_type=None,
+    export_folder="",
+    plot_file_format=None,
 ):
     """Export all snapshots of a given type
 
     Arguments:
-        snapshot_type (str): Enum string ('ALL', 'VIEWS' or 'PLOTS')
+        snapshot_type (str): Deprecated, use content_type. Enum string ('ALL', 'VIEWS' or 'PLOTS')
         prefix (str): Exported file name prefix
-        plot_format(str): Enum string, 'PNG' or 'PDF'
+        plot_format(str): Deprecated, use plot_file_format. Enum string, 'PNG' or 'PDF'
+        width (int): The width of the exported snapshots. By default will use the existing size.
+        height (int): The height of the exported snapshots. By default will use the existing size.
+        content_type (SnapshotContentType): 'ALL', 'VIEWS' or 'PLOTS'
+        export_folder (str): The path to export to. By default will use the 'snapshots' folder next to the project file.
+        plot_file_format (SnapshotFileFormat): 'PNG' or 'PDF'
     """
-    return self._execute_command(
-        exportSnapshots=Commands_pb2.ExportSnapshotsRequest(
-            type=snapshot_type,
-            prefix=prefix,
-            caseId=-1,
-            viewId=-1,
-            plotOutputFormat=plot_format,
-            width=width,
-            height=height,
+    if snapshot_type != "ALL":
+        warnings.warn(
+            "Project.export_snapshots(snapshot_type=...) is deprecated, use content_type=...",
+            DeprecationWarning,
+            stacklevel=3,
         )
+    if plot_format != "PNG":
+        warnings.warn(
+            "Project.export_snapshots(plot_format=...) is deprecated, use plot_file_format=...",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+    if content_type is None:
+        content_type = SnapshotContentType(snapshot_type)
+    if plot_file_format is None:
+        plot_file_format = SnapshotFileFormat(plot_format)
+
+    self._call_pdm_method_void(
+        "exportSnapshots",
+        content_type=content_type,
+        export_folder=export_folder,
+        prefix=prefix,
+        width=width,
+        height=height,
+        plot_file_format=plot_file_format,
     )
 
 
