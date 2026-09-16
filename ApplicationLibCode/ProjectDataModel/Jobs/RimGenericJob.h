@@ -58,7 +58,7 @@ public:
     virtual void              processLogOutput( const QString& logLine ) {};
 
     virtual void setFinished( bool runOk ) = 0;
-    virtual void setStarted()              = 0;
+    virtual void setStarted() {};
 
     bool     isRunning() const;
     JobState state() const;

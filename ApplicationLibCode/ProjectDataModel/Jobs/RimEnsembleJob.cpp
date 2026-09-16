@@ -113,11 +113,20 @@ RimEnsembleJob::~RimEnsembleJob()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimEnsembleJob::jobInputFileKey()
+{
+    return "OpmFlowInputEnsemble";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::initAfterCopy()
 {
     m_outputEnsembleFileSet = nullptr;
     m_subJobs.deleteChildren();
     m_expectedOutputFiles.clear();
+    m_jobLog.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +148,9 @@ bool RimEnsembleJob::stop()
 //--------------------------------------------------------------------------------------------------
 double RimEnsembleJob::percentageDone() const
 {
-    return 0.0;
+    if ( m_subJobs().size() == 0 ) return 0.0;
+
+    return 100.0 * m_subJobsCompleted / (int)m_subJobs.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,7 +158,12 @@ double RimEnsembleJob::percentageDone() const
 //--------------------------------------------------------------------------------------------------
 const QStringList RimEnsembleJob::jobLog() const
 {
-    return QStringList();
+    QStringList log;
+    for ( auto& line : m_jobLog )
+    {
+        log.append( QString::fromStdString( line ) );
+    }
+    return log;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,14 +171,11 @@ const QStringList RimEnsembleJob::jobLog() const
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleJob::matchesKeyValue( const QString& key, const QString& value ) const
 {
+    if ( key == jobInputFileKey() )
+    {
+        return ( m_inputEnsemble()->ensembleName() == value );
+    }
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleJob::setStarted()
-{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,6 +249,7 @@ bool RimEnsembleJob::execute()
     m_expectedOutputFiles.clear();
     m_subJobs.deleteChildren();
     m_subJobsCompleted = 0;
+    m_jobLog.clear();
 
     updateAllRequiredEditors();
 
@@ -246,6 +260,7 @@ bool RimEnsembleJob::execute()
                                             real.realizationInputDeckName,
                                             real.realizationOutputDir );
         RiaLogging::info( infoText );
+        m_jobLog.push_back( infoText );
 
         RimOpmFlowJob* subJob = new RimOpmFlowJob();
         subJob->setEclipseCase( real.inputCase );
@@ -281,9 +296,16 @@ bool RimEnsembleJob::execute()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::subJobCompleted( const caf::SignalEmitter* emitter, bool runOk )
 {
+    if ( const RimOpmFlowJob* job = dynamic_cast<const RimOpmFlowJob*>( emitter ) )
+    {
+        std::string resultText = runOk ? std::string( "successfully." ) : std::string( "with errors." );
+        std::string logText    = std::format( "Job {} completed {}", job->name().toStdString(), resultText );
+        m_jobLog.push_back( logText );
+    }
     m_subJobsCompleted++;
     if ( m_subJobsCompleted >= (int)m_subJobs.size() )
     {
+        m_jobLog.push_back( "All jobs completed!" );
         setFinished( true );
     }
 }

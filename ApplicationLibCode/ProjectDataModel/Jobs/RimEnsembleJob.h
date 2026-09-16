@@ -26,6 +26,7 @@
 #include <QDateTime>
 
 #include <string>
+#include <vector>
 
 class RimReservoirGridEnsemble;
 class RimEclipseCase;
@@ -53,8 +54,9 @@ public:
     const QStringList jobLog() const override;
     bool              matchesKeyValue( const QString& key, const QString& value ) const override;
 
+    static QString jobInputFileKey();
+
     void setFinished( bool runOk ) override;
-    void setStarted() override;
 
     void initAfterCopy();
 
@@ -99,5 +101,6 @@ private:
 
     std::vector<std::string> m_expectedOutputFiles;
 
-    int m_subJobsCompleted;
+    std::vector<std::string> m_jobLog;
+    int                      m_subJobsCompleted;
 };
