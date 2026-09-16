@@ -29,6 +29,8 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimcDataContainerString.h"
+#include "RimcWellPathCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
@@ -74,82 +76,46 @@ RicImportWellPaths::RicImportWellPaths()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicImportWellPaths::execute()
 {
-    QStringList errorMessages, warningMessages;
-    QStringList wellPathFiles;
-
-    QDir wellPathDir;
-    if ( m_wellPathFolder().isEmpty() )
+    RimProject* project = RimProject::current();
+    if ( !project || !project->activeOilField() || !project->activeOilField()->wellPathCollection() )
     {
-        wellPathDir = QDir( RiaApplication::instance()->startDir() );
-    }
-    else
-    {
-        wellPathDir = QDir( m_wellPathFolder );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, "importWellPaths: No well path collection available" );
     }
 
-    if ( !m_wellPathFolder().isEmpty() )
-    {
-        if ( wellPathDir.exists() )
-        {
-            QStringList nameFilters;
-            nameFilters << RicImportWellPaths::wellPathNameFilters();
-            QStringList relativePaths = wellPathDir.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
-            for ( const QString& relativePath : relativePaths )
-            {
-                wellPathFiles.push_back( wellPathDir.absoluteFilePath( relativePath ) );
-            }
-        }
-        else
-        {
-            errorMessages << ( wellPathDir.absolutePath() + " does not exist" );
-        }
-    }
+    RimWellPathCollection_importWellPaths method( project->activeOilField()->wellPathCollection() );
+    method.setWellPathFiles( m_wellPathFiles() );
+    method.setWellPathFolder( m_wellPathFolder() );
 
-    for ( const QString& wellPathFile : m_wellPathFiles() )
-    {
-        if ( QFileInfo::exists( wellPathFile ) )
-        {
-            wellPathFiles.push_back( wellPathFile );
-        }
-        else if ( QFileInfo::exists( wellPathDir.absoluteFilePath( wellPathFile ) ) )
-        {
-            wellPathFiles.push_back( wellPathDir.absoluteFilePath( wellPathFile ) );
-        }
-        else
-        {
-            errorMessages << ( wellPathFile + " does not exist" );
-        }
-    }
+    auto result = method.execute();
 
     caf::PdmScriptResponse response;
-    if ( !wellPathFiles.empty() )
-    {
-        std::vector<RimWellPath*> importedWellPaths = importWellPaths( wellPathFiles, &warningMessages );
-        if ( !importedWellPaths.empty() )
-        {
-            RicImportWellPathsResult* wellPathsResult = new RicImportWellPathsResult;
-            for ( RimWellPath* wellPath : importedWellPaths )
-            {
-                wellPathsResult->wellPathNames.v().push_back( wellPath->name() );
-            }
-
-            response.setResult( wellPathsResult );
-        }
-    }
-    else
-    {
-        warningMessages << "No well paths found";
-    }
-
-    for ( const QString& warningMessage : warningMessages )
+    for ( const QString& warningMessage : method.warnings() )
     {
         response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warningMessage );
     }
 
-    for ( const QString& errorMessage : errorMessages )
+    if ( !result )
     {
-        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
+        // Legacy behavior: "no files found" is a warning, missing files are errors
+        if ( result.error() == "No well path files found" )
+        {
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, "No well paths found" );
+        }
+        else
+        {
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, result.error() );
+        }
+        return response;
     }
+
+    auto* names = dynamic_cast<RimcDataContainerString*>( result.value() );
+    if ( names && !names->m_stringValues().empty() )
+    {
+        auto* wellPathsResult          = new RicImportWellPathsResult;
+        wellPathsResult->wellPathNames = names->m_stringValues();
+        response.setResult( wellPathsResult );
+    }
+    delete names;
 
     return response;
 }
