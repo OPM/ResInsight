@@ -2,7 +2,7 @@
 ResInsight Well Log Plot plot module
 """
 
-import Commands_pb2
+import warnings
 
 from .pdmobject import add_method
 from .resinsight_classes import WellLogPlot
@@ -19,32 +19,44 @@ def export_data_as_las(
     capitalize_file_names: bool = False,
     resample_interval: float = 0.0,
     convert_to_standard_units: bool = False,
+    export_tvd_rkb: bool = None,
 ) -> List[str]:
     """Export LAS file(s) for the current plot
 
     Arguments:
-        export_folder(str): The path to export to. By default will use the global export folder
+        export_folder(str): The path to export to. Must exist.
         file_prefix (str): Exported file name prefix
-        export_tvdrkb(bool): Export in TVD-RKB format
+        export_tvdrkb(bool): Deprecated spelling of export_tvd_rkb
         capitalize_file_names(bool): Make all file names upper case
         resample_interval(double): if > 0.0 the files will be resampled
+        convert_to_standard_units(bool): Convert curve units to standard units
+        export_tvd_rkb(bool): Export in TVD-RKB format
 
     Returns:
         A list of files exported
     """
-    res = self._execute_command(
-        exportWellLogPlotData=Commands_pb2.ExportWellLogPlotDataRequest(
-            exportFormat="LAS",
-            viewId=self.id,
-            exportFolder=export_folder,
-            filePrefix=file_prefix,
-            exportTvdRkb=export_tvdrkb,
-            capitalizeFileNames=capitalize_file_names,
-            resampleInterval=resample_interval,
-            convertCurveUnits=convert_to_standard_units,
+    if export_tvdrkb:
+        warnings.warn(
+            "WellLogPlot.export_data_as_las(export_tvdrkb=...) is deprecated, use export_tvd_rkb=...",
+            DeprecationWarning,
+            stacklevel=3,
         )
+    if export_tvd_rkb is None:
+        export_tvd_rkb = export_tvdrkb
+
+    from .resinsight_classes import DataContainerString
+
+    res = self._call_pdm_method_return_value(
+        "exportDataAsLas",
+        DataContainerString,
+        export_folder=export_folder,
+        file_prefix=file_prefix,
+        export_tvd_rkb=export_tvd_rkb,
+        capitalize_file_names=capitalize_file_names,
+        resample_interval=resample_interval,
+        convert_to_standard_units=convert_to_standard_units,
     )
-    return res.exportWellLogPlotDataResult.exportedFiles
+    return list(res.values)
 
 
 @add_method(WellLogPlot)
@@ -54,25 +66,23 @@ def export_data_as_ascii(
     file_prefix: str = "",
     capitalize_file_names: bool = False,
 ) -> List[str]:
-    """Export LAS file(s) for the current plot
+    """Export ASCII file for the current plot
 
     Arguments:
-        export_folder(str): The path to export to. By default will use the global export folder
+        export_folder(str): The path to export to. Must exist.
         file_prefix (str): Exported file name prefix
         capitalize_file_names(bool): Make all file names upper case
 
     Returns:
         A list of files exported
     """
-    res = self._execute_command(
-        exportWellLogPlotData=Commands_pb2.ExportWellLogPlotDataRequest(
-            exportFormat="ASCII",
-            viewId=self.id,
-            exportFolder=export_folder,
-            filePrefix=file_prefix,
-            exportTvdRkb=False,
-            capitalizeFileNames=capitalize_file_names,
-            resampleInterval=0.0,
-        )
+    from .resinsight_classes import DataContainerString
+
+    res = self._call_pdm_method_return_value(
+        "exportDataAsAscii",
+        DataContainerString,
+        export_folder=export_folder,
+        file_prefix=file_prefix,
+        capitalize_file_names=capitalize_file_names,
     )
-    return res.exportWellLogPlotDataResult.exportedFiles
+    return list(res.values)
