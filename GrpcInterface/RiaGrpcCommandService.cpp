@@ -55,7 +55,7 @@ grpc::Status RiaGrpcCommandService::Execute( grpc::ServerContext* context, const
         auto grpcOneOfMessage = requestDescriptor->FindFieldByNumber( (int)paramsCase );
         CAF_ASSERT( grpcOneOfMessage->type() == FieldDescriptor::TYPE_MESSAGE );
 
-        QString grpcOneOfMessageName = QString::fromStdString( grpcOneOfMessage->name() );
+        QString grpcOneOfMessageName = QString::fromStdString( std::string( grpcOneOfMessage->name() ) );
 
         // Prepare telemetry attributes
         std::map<std::string, std::string> telemetryAttributes;
@@ -293,7 +293,7 @@ std::expected<void, QString>
         auto parameter = messageDescriptor->field( i );
         if ( parameter )
         {
-            QString parameterName = QString::fromStdString( parameter->name() );
+            QString parameterName = QString::fromStdString( std::string( parameter->name() ) );
             auto    pdmChildFieldHandle =
                 dynamic_cast<caf::PdmChildFieldHandle*>( pdmObjectHandle->findField( parameterName ) );
             auto pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>( pdmObjectHandle->findField( parameterName ) );
@@ -445,7 +445,7 @@ void RiaGrpcCommandService::assignResultToReply( const caf::PdmObject* result, C
     {
         auto       fieldDescriptor = resultDescriptor->field( fieldIndex );
         const auto pdmField        = dynamic_cast<const caf::PdmValueField*>(
-            result->findField( QString::fromStdString( fieldDescriptor->name() ) ) );
+            result->findField( QString::fromStdString( std::string( fieldDescriptor->name() ) ) ) );
         assignGrpcFieldValue( message, fieldDescriptor, pdmField );
     }
 }
