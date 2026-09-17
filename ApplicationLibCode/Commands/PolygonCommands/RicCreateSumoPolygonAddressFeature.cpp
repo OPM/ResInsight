@@ -48,6 +48,10 @@ void RicCreateSumoPolygonAddressFeature::onActionTriggered( bool isChecked )
 
     auto newCloudAddress = new RimPolygonCloudAddress();
 
+    // Data source and a default realization are pre-selected as a convenience, but the actual
+    // fetch is left to the user via the "Apply" button in the property panel -- creating this via
+    // the context menu should let the user finish choosing polygon result/name/contact type before
+    // any request is made to ri-cloud-api.
     auto dataSources = RimCloudDataSourceCollection::instance()->sumoDataSources();
     if ( !dataSources.empty() )
     {
@@ -62,13 +66,6 @@ void RicCreateSumoPolygonAddressFeature::onActionTriggered( bool isChecked )
             if ( ok ) newCloudAddress->setRealization( realization );
         }
     }
-
-    // The default polygon result (field outline) does not require a name/contact type, so this is
-    // already a complete selection once a data source is set -- fetch immediately, since there is
-    // no "Apply" step in this property panel and setDataSource()/setRealization() do not trigger a
-    // fetch on their own (they are also used from fieldChangedByUi, where loadData() is called
-    // separately once per field-change instead).
-    newCloudAddress->loadData();
 
     polygonCollection->addPolygonCloudAddress( newCloudAddress );
 

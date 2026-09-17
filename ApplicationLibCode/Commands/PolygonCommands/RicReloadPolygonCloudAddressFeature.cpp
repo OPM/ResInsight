@@ -38,7 +38,7 @@ void RicReloadPolygonCloudAddressFeature::onActionTriggered( bool isChecked )
     {
         p->loadData();
         p->objectChanged.send();
-        p->updateConnectedEditors();
+        p->updateAllRequiredEditors();
     }
 }
 
