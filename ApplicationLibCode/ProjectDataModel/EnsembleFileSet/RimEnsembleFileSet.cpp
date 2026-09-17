@@ -458,6 +458,14 @@ QString RimEnsembleFileSet::nameTemplateText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleFileSet::setRealizationSubSet( QString filterText )
+{
+    m_realizationSubSet = filterText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleFileSet::setGroupingMode( RiaDefines::EnsembleGroupingMode groupingMode )
 {
     m_groupingMode = groupingMode;

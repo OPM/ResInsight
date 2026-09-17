@@ -373,6 +373,7 @@ bool RifOpmFlowDeckFile::saveDeckInline( std::string folder, std::string filenam
 int RifOpmFlowDeckFile::addKeywordAtPosition( int position, const Opm::DeckKeyword& keyword )
 {
     if ( m_fileDeck.get() == nullptr ) return -1;
+    if ( keyword.empty() ) return position;
 
     // locate position
     auto insertIdx = internal::positionToIndex( position, m_fileDeck );
@@ -395,6 +396,7 @@ int RifOpmFlowDeckFile::addKeywordAtPosition( int position, const Opm::DeckKeywo
 int RifOpmFlowDeckFile::mergeKeywordAtPosition( int position, const Opm::DeckKeyword& keyword )
 {
     if ( m_fileDeck.get() == nullptr ) return -1;
+    if ( keyword.empty() ) return position;
 
     // locate position
     auto insertIdx = internal::positionToIndex( position, m_fileDeck );
@@ -438,6 +440,7 @@ int RifOpmFlowDeckFile::mergeKeywordAtPosition( int position, const Opm::DeckKey
 bool RifOpmFlowDeckFile::addKeywordAtTimeStep( int timeStep, const Opm::DeckKeyword& keyword, std::string insertAfterKeyword )
 {
     if ( m_fileDeck.get() == nullptr ) return false;
+    if ( keyword.empty() ) return true;
 
     auto dateIdx = internal::locateTimeStep( m_fileDeck, timeStep );
     if ( dateIdx.has_value() )
@@ -472,6 +475,7 @@ bool RifOpmFlowDeckFile::addKeywordAtTimeStep( int timeStep, const Opm::DeckKeyw
 bool RifOpmFlowDeckFile::mergeKeywordAtTimeStep( int timeStep, const Opm::DeckKeyword& keyword, std::string insertAfterKeyword )
 {
     if ( m_fileDeck.get() == nullptr ) return false;
+    if ( keyword.empty() ) return true;
 
     auto dateIdx = internal::locateTimeStep( m_fileDeck, timeStep );
     if ( dateIdx.has_value() )

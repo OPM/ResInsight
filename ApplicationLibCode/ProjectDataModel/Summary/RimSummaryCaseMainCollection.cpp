@@ -38,6 +38,7 @@
 #include "RifHdf5SummaryExporter.h"
 #endif
 
+#include "Ensemble/RimSummaryFileSetEnsemble.h"
 #include "RimCaseDisplayNameTools.h"
 #include "RimCsvSummaryCase.h"
 #include "RimDeltaSummaryEnsemble.h"
@@ -403,6 +404,22 @@ std::vector<RimSummaryEnsemble*> RimSummaryCaseMainCollection::summaryEnsembles(
     for ( const auto& ensemble : m_ensembles )
     {
         ensembles.push_back( ensemble );
+    }
+    return ensembles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryFileSetEnsemble*> RimSummaryCaseMainCollection::summaryFileSetEnsembles() const
+{
+    std::vector<RimSummaryFileSetEnsemble*> ensembles;
+    for ( auto ensemble : m_ensembles.childrenByType() )
+    {
+        if ( auto fileSetEnsemble = dynamic_cast<RimSummaryFileSetEnsemble*>( ensemble ) )
+        {
+            ensembles.push_back( fileSetEnsemble );
+        }
     }
     return ensembles;
 }

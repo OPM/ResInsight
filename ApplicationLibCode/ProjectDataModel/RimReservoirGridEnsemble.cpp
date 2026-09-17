@@ -756,6 +756,7 @@ RimCaseCollection* RimReservoirGridEnsemble::caseCollection() const
 void RimReservoirGridEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewViewForGridEnsembleFeature";
+    menuBuilder.addSeparator();
     menuBuilder << "RicNewStatisticsContourMapFeature";
     menuBuilder << "RicNewWellTargetMappingFeature";
 
@@ -770,6 +771,8 @@ void RimReservoirGridEnsemble::appendMenuItems( caf::CmdFeatureMenuBuilder& menu
     menuBuilder.subMenuStart( "Data Filters", QIcon( ":/CellFilter.png" ) );
     m_dataFilterCollection->appendMenuItems( menuBuilder );
     menuBuilder.subMenuEnd();
+    menuBuilder.addSeparator();
+    menuBuilder << "RicNewEnsembleJobFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
