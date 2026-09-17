@@ -246,10 +246,18 @@ bool RimEnsembleJob::execute()
 {
     auto realizations = setUpSelectedRealizations();
 
+    if ( realizations.empty() )
+    {
+        RiaLogging::warning( "Ensemble Job: No realizations selected, nothing to do!" );
+        return false;
+    }
+
     m_expectedOutputFiles.clear();
     m_subJobs.deleteChildren();
     m_subJobsCompleted = 0;
     m_jobLog.clear();
+
+    setDeletable( false );
 
     updateAllRequiredEditors();
 
@@ -315,6 +323,7 @@ void RimEnsembleJob::subJobCompleted( const caf::SignalEmitter* emitter, bool ru
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleJob::setFinished( bool runOk )
 {
+    setDeletable( true );
     setState( RimGenericJob::Completed );
     updateConnectedEditors();
 
