@@ -578,7 +578,7 @@ void RimOpmFlowJob::setInputDataFile( QString filename )
 //--------------------------------------------------------------------------------------------------
 void RimOpmFlowJob::setJobSettings( RimOpmFlowJobSettings* jobSettings )
 {
-    m_jobSettings = jobSettings;
+    m_jobSettings = jobSettings->copyObject<RimOpmFlowJobSettings>();
 }
 
 //--------------------------------------------------------------------------------------------------

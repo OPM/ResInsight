@@ -61,6 +61,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleJob, "EnsembleJob" );
 //--------------------------------------------------------------------------------------------------
 RimEnsembleJob::RimEnsembleJob()
     : m_subJobsCompleted( 0 )
+    , m_subJobsStarted( 0 )
 {
     CAF_PDM_InitObject( "Ensemble Job", ":/opm.png" );
 
@@ -173,7 +174,7 @@ bool RimEnsembleJob::matchesKeyValue( const QString& key, const QString& value )
 {
     if ( key == jobInputFileKey() )
     {
-        return ( m_inputEnsemble()->ensembleName() == value );
+        return ( ( m_inputEnsemble() != nullptr ) && ( m_inputEnsemble()->ensembleName() == value ) );
     }
     return false;
 }
@@ -255,6 +256,7 @@ bool RimEnsembleJob::execute()
     m_expectedOutputFiles.clear();
     m_subJobs.deleteChildren();
     m_subJobsCompleted = 0;
+    m_subJobsStarted   = 0;
     m_jobLog.clear();
 
     setDeletable( false );
@@ -274,8 +276,9 @@ bool RimEnsembleJob::execute()
         subJob->setEclipseCase( real.inputCase );
         subJob->setInputDataFile( QString::fromStdString( real.realizationInputDeckName ) );
         subJob->setWorkingDirectory( QString::fromStdString( real.realizationOutputDir ) );
-        subJob->setName( real.inputCase->uiName() );
+        subJob->setName( QString::fromStdString( real.outputDeckName ) );
         subJob->setJobWellSettings( m_jobWellSettings.value() );
+        subJob->setJobSettings( m_jobSettings.value() );
         subJob->setAutoLoadResults( false );
         subJob->setIsChildJob( true );
         m_subJobs.push_back( subJob );
@@ -285,18 +288,23 @@ bool RimEnsembleJob::execute()
 
     updateAllRequiredEditors();
 
+    bool anyJobsStarted = false;
     for ( auto& subJob : m_subJobs() )
     {
         subJob->jobCompleted.connect( this, &RimEnsembleJob::subJobCompleted );
-        RicRunJobFeature::runJob( subJob );
+        if ( RicRunJobFeature::runJob( subJob ) )
+        {
+            m_subJobsStarted++;
+            anyJobsStarted = true;
+        }
     }
 
     m_inputEnsemble->reloadMetaDataIfNeeded();
 
-    setState( RimGenericJob::Running );
+    setState( anyJobsStarted ? RimGenericJob::Running : RimGenericJob::Failed );
     updateConnectedEditors();
 
-    return true;
+    return anyJobsStarted;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -311,7 +319,7 @@ void RimEnsembleJob::subJobCompleted( const caf::SignalEmitter* emitter, bool ru
         m_jobLog.push_back( logText );
     }
     m_subJobsCompleted++;
-    if ( m_subJobsCompleted >= (int)m_subJobs.size() )
+    if ( m_subJobsCompleted >= m_subJobsStarted )
     {
         m_jobLog.push_back( "All jobs completed!" );
         setFinished( true );

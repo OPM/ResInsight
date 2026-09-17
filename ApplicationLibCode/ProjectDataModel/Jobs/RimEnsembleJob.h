@@ -103,4 +103,5 @@ private:
 
     std::vector<std::string> m_jobLog;
     int                      m_subJobsCompleted;
+    int                      m_subJobsStarted;
 };
