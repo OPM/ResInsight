@@ -29,10 +29,13 @@
 #include <QPointer>
 
 #include <limits>
+#include <map>
 
 class RimPolygon;
+class RimCloudPolygon;
 class RimSumoDataSource;
 class RiaSumoConnector;
+class Rim3dView;
 
 //==================================================================================================
 ///
@@ -67,6 +70,7 @@ public:
 
 public:
     RimPolygonCloudAddress();
+    ~RimPolygonCloudAddress() override;
 
     void setDataSource( RimSumoDataSource* dataSource );
     void setRealization( int realization );
@@ -76,16 +80,35 @@ public:
 
     void loadData() override;
 
-    // Called before a view reads this container's items(), see
-    // RimPolygonContainer::prepareItemsForRealization. Switches to and (re)loads the given
-    // realization when it differs from the one currently loaded; a negative realization (no view
-    // context) leaves whatever is currently loaded untouched.
-    //
-    // NOTE: the fetched RimPolygon children are shared by every view showing this address, so two
-    // views following different realizations of the same address will keep re-triggering each
-    // other's reload. Acceptable for now since one address is expected to be used from one
-    // realization context at a time; revisit (e.g. per-realization caching) if that stops holding.
-    void prepareItemsForRealization( int realization ) override;
+    // Returns the items a view following the given realization should show. -1 (or the currently
+    // Applied realization) returns items() directly -- the tree/property-panel-visible set, no
+    // extra fetch. Any other realization is looked up in (and lazily populated into) a per-
+    // realization cache of RimCloudPolygon objects, without ever mutating this container's own
+    // Applied selection/items() as a side effect -- so two views picking different realization
+    // overrides for the same address never interfere with each other. See RimPolygonContainer::
+    // itemsForRealization. Realization is now always an explicit, per-view choice (see
+    // RimPolygonInViewCollection::m_realizationOverride) -- never derived automatically from a
+    // view's own case, since a view's grid case may belong to an entirely different field/
+    // ensemble than this address.
+    std::vector<RimPolygon*> itemsForRealization( int realization ) const override;
+
+    // A cloud-backed address is the only container whose content genuinely depends on realization
+    // -- so it is the only one that offers a per-view realization override, sourced from the
+    // Applied data source's available realizations.
+    bool              supportsRealizationOverride() const override;
+    std::vector<int>  availableRealizationIdsForOverride() const override;
+
+    // Only follows a view's own case realization automatically when that view's case is a
+    // RimRoffCaseSumo created from this address's own Applied data source (same case/ensemble) --
+    // otherwise returns -1 so the view falls back to this address's Applied realization. See
+    // RimPolygonContainer::resolveViewMatchingRealization.
+    int resolveViewMatchingRealization( const Rim3dView* view ) const override;
+
+    // Deletes every cached RimCloudPolygon (see itemsForRealization()/m_polygonsByRealization) and
+    // clears the cache. Called whenever the applied spec changes (applyPendingSelection()) or on a
+    // manual Reload (RicReloadPolygonCloudAddressFeature), since cache entries are keyed by
+    // realization only and would otherwise silently keep reflecting the previous spec.
+    void clearRealizationCache();
 
     std::vector<RimPolygon*> polygons() const;
 
@@ -119,17 +142,18 @@ private:
     void applyPendingSelection();
     void resetPendingSelectionFromApplied();
 
-    // Resolves the realization that any currently-open 3D view showing a Sumo grid case
-    // (RimRoffCaseSumo) is following, mirroring RimGridView's own resolution logic. Returns -1 if
-    // no such view is open. Used by onApplyClicked() to fetch once with the correct realization
-    // instead of the pending one, avoiding a redundant second fetch (and visible flicker) when the
-    // view immediately re-syncs afterward via prepareItemsForRealization().
-    int resolveViewOverriddenRealization() const;
-
     // Picks a first-available name/contact-type option whenever one is required (per
     // m_polygonResult) but currently empty, so the pending selection always has a valid,
     // ready-to-apply default rather than an empty-looking dropdown. See fieldChangedByUi.
     void selectDefaultPendingValues();
+
+    // Used from fieldChangedByUi() when the data source changes: detects whether the pending
+    // m_polygonResult category carried over from the previous data source (e.g. a different
+    // field's ensemble) is actually offered by the new one, and if not, falls back to the first
+    // available category -- so switching to an ensemble with different available polygon results
+    // never leaves an invalid/empty-selection category silently stuck in the dropdown.
+    bool    isPolygonResultAvailable( const QString& polygonResultKey ) const;
+    QString firstAvailablePolygonResultKey() const;
 
     // True once the current data source/polygon result/name/contact-type combination is complete
     // enough to fetch (e.g. a name is required for every result category except field outline, and
@@ -139,7 +163,7 @@ private:
     bool hasCompleteSelection() const;
     static QString polygonResultLabel( SumoPolygonResult polygonResult );
 
-    std::vector<RimPolygon*> fetchPolygonsFromSumo();
+    std::vector<RimPolygon*> fetchPolygonsFromSumo( int realization );
 
 private:
     // "Pending" selection: bound to the property panel, freely editable, not acted upon until
@@ -161,19 +185,26 @@ private:
 
     // True once Apply has been clicked (or the address was restored from a saved project that had
     // already been applied before saving) -- i.e. there is a deliberately-committed selection to
-    // fetch. Gates loadData() (including the automatic reload on project open and the view's
-    // realization-follow in prepareItemsForRealization()), so a freshly created address with only
-    // default/pre-selected fields (see RicCreateSumoPolygonAddressFeature) never fetches on its
-    // own; the very first fetch always requires an explicit Apply click.
+    // fetch. Gates loadData() (including the automatic reload on project open), so a freshly
+    // created address with only default/pre-selected fields (see
+    // RicCreateSumoPolygonAddressFeature) never fetches on its own; the very first fetch always
+    // requires an explicit Apply click.
     caf::PdmField<bool> m_hasAppliedSelection;
 
     // Runtime only, not persisted: the result directory of the current data source's case/ensemble,
     // fetched on demand when the property editor asks for name/contact-type options, and the
-    // realization this container's current RimPolygon children were fetched for (used by
-    // prepareItemsForRealization to avoid refetching when nothing changed).
+    // realization this container's current RimPolygon children (items()) were fetched for (used by
+    // loadData() to decide whether to update existing polygons in place vs. replace them).
     SumoPolygonDirectory m_cachedDirectory;
     bool                 m_hasCachedDirectory = false;
     int                  m_loadedRealization   = std::numeric_limits<int>::min();
+
+    // Per-realization cache of RimCloudPolygon objects for every realization other than the
+    // Applied one that some view has asked for (see itemsForRealization()). These are plain heap
+    // objects, not registered as PDM children of m_items -- they exist purely to be pointed at by
+    // RimPolygonInView mirrors in whichever view resolved that realization, and are owned/deleted
+    // by this map (see clearRealizationCache() and the destructor).
+    std::map<int, std::vector<RimCloudPolygon*>> m_polygonsByRealization;
 
     QPointer<RiaSumoConnector> m_sumoConnector;
 };

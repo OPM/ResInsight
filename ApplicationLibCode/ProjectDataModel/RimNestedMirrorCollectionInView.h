@@ -63,9 +63,9 @@ protected:
     ~RimNestedMirrorCollectionInView() override;
 
     // Pure virtual hooks - derived class adapts to its source type.
-    virtual std::vector<SourceT*>     sourceSubCollections() const         = 0;
-    virtual std::vector<SourceItemT*> sourceItems() const                  = 0;
-    virtual ItemViewT*                createItemInView( SourceItemT* src ) = 0;
+    virtual std::vector<SourceT*>     sourceSubCollections() const                        = 0;
+    virtual std::vector<SourceItemT*> sourceItems() const                                 = 0;
+    virtual ItemViewT*                createItemInView( SourceItemT* src )                = 0;
 
     // Default impl: new SelfT() + setSourceCollection(src). Override for extra wiring.
     virtual SelfT* createSubCollectionInView( SourceT* src );

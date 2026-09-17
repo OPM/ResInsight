@@ -18,6 +18,8 @@
 
 #include "RimPolygonInViewCollection.h"
 
+#include "RiaDefines.h"
+
 #include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 #include "RimPolygon.h"
@@ -26,6 +28,7 @@
 #include "RimTools.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimPolygonInViewCollection, "RimPolygonInViewCollection" );
 
@@ -41,22 +44,19 @@ RimPolygonInViewCollection::RimPolygonInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_sourceCollection, "SourceCollection", "Source Collection" );
     m_sourceCollection.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_useAutoRealization, "UseAutoRealization", true, "Auto (Follow View / Applied)" );
+
     nameField()->uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::updateFromPolygonCollection( int realization )
+void RimPolygonInViewCollection::updateFromPolygonCollection()
 {
     if ( !sourceCollection() )
     {
         setSourceCollection( RimTools::polygonCollection() );
-    }
-
-    if ( auto* src = sourceCollection() )
-    {
-        src->prepareItemsForRealization( realization );
     }
 
     updateFromSource();
@@ -150,6 +150,16 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
             view->scheduleCreateDisplayModelAndRedraw();
         }
     }
+    else if ( changedField == &m_useAutoRealization )
+    {
+        updateFromPolygonCollection();
+
+        if ( auto view = firstAncestorOfType<Rim3dView>() )
+        {
+            view->updateViewTreeItems( RiaDefines::ItemIn3dView::POLYGON );
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,6 +177,41 @@ void RimPolygonInViewCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& me
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    if ( auto* src = sourceCollection(); src && src->supportsRealizationOverride() )
+    {
+        if ( viewMatchingRealizationOrMinusOne() == -1 )
+        {
+            m_useAutoRealization.uiCapability()->setUiReadOnly( true );
+            m_useAutoRealization.uiCapability()->setUiToolTip(
+                "This view's case belongs to a different Sumo case/ensemble than this polygon "
+                "address -- realization cannot be followed automatically. Using the address's own "
+                "Applied realization instead." );
+        }
+        else
+        {
+            m_useAutoRealization.uiCapability()->setUiReadOnly( false );
+            m_useAutoRealization.uiCapability()->setUiToolTip( "" );
+        }
+
+        uiOrdering.add( &m_useAutoRealization );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimPolygonInViewCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    // No option-driven fields left: m_useAutoRealization is a plain checkbox, and there is
+    // deliberately no per-view realization override dropdown (see its declaration comment).
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimPolygonContainer*> RimPolygonInViewCollection::sourceSubCollections() const
 {
     if ( auto* src = sourceCollection() ) return src->subCollections();
@@ -174,12 +219,42 @@ std::vector<RimPolygonContainer*> RimPolygonInViewCollection::sourceSubCollectio
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Resolves the realization the owning 3D view's own case matches for the current source
+/// container (see RimPolygonContainer::resolveViewMatchingRealization), or -1 if there is no view
+/// ancestor or the view's case belongs to a different case/ensemble than the source's Applied data
+/// source.
+//--------------------------------------------------------------------------------------------------
+int RimPolygonInViewCollection::viewMatchingRealizationOrMinusOne() const
+{
+    auto* src = sourceCollection();
+    if ( !src ) return -1;
+
+    auto* view = firstAncestorOfType<Rim3dView>();
+    if ( !view ) return -1;
+
+    return src->resolveViewMatchingRealization( view );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Resolves the realization to show in this view: when m_useAutoRealization is checked and the
+/// source container can safely match this view's own case (see
+/// RimPolygonContainer::resolveViewMatchingRealization -- only true for a cloud-backed address
+/// whose Applied data source matches the view's own Sumo case), follow that; otherwise (unchecked,
+/// or the view's case does not match) fall back to the source's own Applied/default items (-1) --
+/// there is no separate per-view realization override.
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolygon*> RimPolygonInViewCollection::sourceItems() const
 {
-    if ( auto* src = sourceCollection() ) return src->items();
-    return {};
+    auto* src = sourceCollection();
+    if ( !src ) return {};
+
+    int realization = -1;
+    if ( src->supportsRealizationOverride() && m_useAutoRealization() )
+    {
+        realization = viewMatchingRealizationOrMinusOne();
+    }
+
+    return src->itemsForRealization( realization );
 }
 
 //--------------------------------------------------------------------------------------------------

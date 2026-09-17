@@ -26,10 +26,10 @@
 #include "Cloud/RimCloudDataSourceCollection.h"
 #include "Cloud/RimSumoDataSource.h"
 
+#include "Polygons/Cloud/RimCloudPolygon.h"
 #include "Polygons/RimPolygon.h"
 
 #include "Rim3dView.h"
-#include "RimProject.h"
 #include "RimRoffCaseSumo.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -85,6 +85,14 @@ RimPolygonCloudAddress::RimPolygonCloudAddress()
     m_hasAppliedSelection.uiCapability()->setUiHidden( true );
 
     setDeletable( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygonCloudAddress::~RimPolygonCloudAddress()
+{
+    clearRealizationCache();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,7 +180,7 @@ void RimPolygonCloudAddress::loadData()
         return;
     }
 
-    auto fetchedPolygons = fetchPolygonsFromSumo();
+    auto fetchedPolygons = fetchPolygonsFromSumo( m_appliedRealization() );
 
     auto existingPolygons = items();
     if ( !fetchedPolygons.empty() && existingPolygons.size() == fetchedPolygons.size() )
@@ -191,6 +199,21 @@ void RimPolygonCloudAddress::loadData()
             existingPolygon->setPointsInDomainCoords( fetchedPolygon->pointsInDomainCoords() );
             existingPolygon->coordinatesChanged.send();
             existingPolygon->objectChanged.send();
+
+            // Keep the Sumo identity stamped on the (persisted) RimCloudPolygon in sync, so a
+            // stale realization/spec is never left behind after an in-place update.
+            if ( auto* existingCloudPolygon = dynamic_cast<RimCloudPolygon*>( existingPolygon ) )
+            {
+                if ( auto* fetchedCloudPolygon = dynamic_cast<RimCloudPolygon*>( fetchedPolygon ) )
+                {
+                    existingCloudPolygon->setSumoIdentity( fetchedCloudPolygon->caseId(),
+                                                           fetchedCloudPolygon->ensembleName(),
+                                                           fetchedCloudPolygon->realization(),
+                                                           fetchedCloudPolygon->polygonResult(),
+                                                           fetchedCloudPolygon->sumoName(),
+                                                           fetchedCloudPolygon->contactType() );
+                }
+            }
 
             delete fetchedPolygon;
         }
@@ -226,18 +249,6 @@ void RimPolygonCloudAddress::onApplyClicked()
 {
     applyPendingSelection();
 
-    // If a 3D view is already showing this address (following its own Sumo case's realization,
-    // see prepareItemsForRealization()), fetch directly for that realization instead of whatever
-    // happens to be pending in the property panel. Otherwise Apply would fetch once for the
-    // pending realization and the view would immediately fetch again for its own -- visible as a
-    // brief flash of the wrong polygon count right after clicking Apply.
-    int viewRealization = resolveViewOverriddenRealization();
-    if ( viewRealization >= 0 )
-    {
-        m_realization        = viewRealization;
-        m_appliedRealization = viewRealization;
-    }
-
     updateName();
     loadData();
 
@@ -250,7 +261,10 @@ void RimPolygonCloudAddress::onApplyClicked()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Commits the pending selection into the applied fields. Also clears the per-realization cache
+/// (see itemsForRealization()): cache entries are keyed by realization only, so if the spec
+/// (data source/result/name/contact type) changes, stale entries would otherwise silently keep
+/// reflecting the previous spec.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudAddress::applyPendingSelection()
 {
@@ -260,6 +274,8 @@ void RimPolygonCloudAddress::applyPendingSelection()
     m_appliedName          = m_name();
     m_appliedContactType   = m_contactType();
     m_hasAppliedSelection  = true;
+
+    clearRealizationCache();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -287,47 +303,109 @@ void RimPolygonCloudAddress::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Mirrors the realization-resolution logic in RimGridView::updateViewTreeItems(): if any open 3D
-/// view's case is a RimRoffCaseSumo, that case's realization is "the realization to show" for a
-/// cloud-backed polygon address, taking priority over whatever is currently pending in the
-/// property panel. Returns -1 if no such view exists (e.g. no 3D view open yet, or the address is
-/// only used from the project tree), in which case the caller should fall back to the pending
-/// selection.
+/// Deletes every cached RimCloudPolygon and clears the cache map. See m_polygonsByRealization.
 //--------------------------------------------------------------------------------------------------
-int RimPolygonCloudAddress::resolveViewOverriddenRealization() const
+void RimPolygonCloudAddress::clearRealizationCache()
 {
-    auto* project = RimProject::current();
-    if ( !project ) return -1;
-
-    for ( auto* view : project->allViews() )
+    for ( auto& [realization, polygons] : m_polygonsByRealization )
     {
-        if ( auto* sumoCase = dynamic_cast<RimRoffCaseSumo*>( view->ownerCase() ) )
+        for ( auto* polygon : polygons )
+        {
+            delete polygon;
+        }
+    }
+    m_polygonsByRealization.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// See RimPolygonContainer::itemsForRealization.
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygon*> RimPolygonCloudAddress::itemsForRealization( int realization ) const
+{
+    if ( !m_hasAppliedSelection() ) return {};
+
+    if ( realization < 0 || realization == m_appliedRealization() )
+    {
+        // No view context, or the view's realization already matches the Applied one: return the
+        // Applied/tree-displayed items directly, no extra fetch/cache entry needed.
+        return items();
+    }
+
+    auto it = m_polygonsByRealization.find( realization );
+    if ( it != m_polygonsByRealization.end() )
+    {
+        return std::vector<RimPolygon*>( it->second.begin(), it->second.end() );
+    }
+
+    // Not cached yet: fetch for this realization (reusing the Applied data source/result/name/
+    // contact type, only substituting realization) and cache the result. These RimCloudPolygon
+    // objects are plain heap objects, not added as children of m_items / not part of the PDM child
+    // hierarchy -- they exist purely to be pointed at by RimPolygonInView mirrors in whichever view
+    // resolved this realization, and are owned/deleted by m_polygonsByRealization (see
+    // clearRealizationCache() and the destructor).
+    auto* mutableThis      = const_cast<RimPolygonCloudAddress*>( this );
+    auto  fetchedPolygons  = mutableThis->fetchPolygonsFromSumo( realization );
+    auto& cachedForCasting = mutableThis->m_polygonsByRealization[realization];
+    for ( auto* polygon : fetchedPolygons )
+    {
+        if ( auto* cloudPolygon = dynamic_cast<RimCloudPolygon*>( polygon ) )
+        {
+            cachedForCasting.push_back( cloudPolygon );
+        }
+    }
+
+    return std::vector<RimPolygon*>( cachedForCasting.begin(), cachedForCasting.end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonCloudAddress::supportsRealizationOverride() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Realizations available to pick from for a per-view override: the Applied data source's
+// selected realizations, i.e. the same set the "Realization" dropdown in the property panel
+// offers -- not tied in any way to any 3D view's own case.
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RimPolygonCloudAddress::availableRealizationIdsForOverride() const
+{
+    std::vector<int> realizations;
+
+    if ( auto* dataSource = m_appliedDataSource() )
+    {
+        for ( const auto& realizationId : dataSource->selectedRealizationIds() )
+        {
+            bool ok    = false;
+            int  value = realizationId.toInt( &ok );
+            if ( ok ) realizations.push_back( value );
+        }
+    }
+
+    return realizations;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Only follows a view's own case realization when that case is a RimRoffCaseSumo created from
+/// this address's own Applied data source -- i.e. the same Sumo case/ensemble. A view whose case
+/// belongs to a different field/data source (e.g. a Johan Sverdrup grid case in an otherwise
+/// Drogon-configured project) must never have its realization silently applied to this address.
+//--------------------------------------------------------------------------------------------------
+int RimPolygonCloudAddress::resolveViewMatchingRealization( const Rim3dView* view ) const
+{
+    if ( !view || !m_appliedDataSource() ) return -1;
+
+    if ( auto* sumoCase = dynamic_cast<const RimRoffCaseSumo*>( view->ownerCase() ) )
+    {
+        if ( sumoCase->dataSource() == m_appliedDataSource() )
         {
             return sumoCase->realization();
         }
     }
 
     return -1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolygonCloudAddress::prepareItemsForRealization( int realization )
-{
-    if ( realization < 0 ) return;
-    if ( !m_hasAppliedSelection() ) return;
-    if ( realization == m_loadedRealization ) return;
-
-    // Driven by the owning 3D view following its case's realization, not a user edit in the
-    // property panel: keep both the pending and applied realization fields in sync and fetch
-    // immediately, without requiring a separate Apply click. Only relevant once a selection has
-    // already been applied at least once (m_hasAppliedSelection) -- a freshly created, not-yet-
-    // applied address should not start fetching just because a view happens to update.
-    m_realization        = realization;
-    m_appliedRealization = realization;
-    loadData();
-    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,6 +480,13 @@ void RimPolygonCloudAddress::fieldChangedByUi( const caf::PdmFieldHandle* change
     if ( changedField == &m_dataSource )
     {
         invalidateDirectory();
+        ensureDirectoryFetched();
+
+        if ( !isPolygonResultAvailable( m_polygonResult() ) )
+        {
+            m_polygonResult = firstAvailablePolygonResultKey();
+        }
+
         m_name        = "";
         m_contactType = "";
         selectDefaultPendingValues();
@@ -457,6 +542,47 @@ void RimPolygonCloudAddress::selectDefaultPendingValues()
             break;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// True if the given polygon result category has at least one entry in the currently cached
+/// directory (see ensureDirectoryFetched()) -- i.e. it is actually offered by the current data
+/// source's ensemble. Used when the data source changes to detect a stale m_polygonResult
+/// selection carried over from a previous (e.g. different field's) ensemble.
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonCloudAddress::isPolygonResultAvailable( const QString& polygonResultKey ) const
+{
+    if ( polygonResultKey == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FieldOutline ) )
+    {
+        return !m_cachedDirectory.fieldOutline.empty();
+    }
+    if ( polygonResultKey == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::StructureDepthFaultLines ) )
+    {
+        return !m_cachedDirectory.structureDepthFaultLines.empty();
+    }
+    if ( polygonResultKey == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FluidContactOutline ) )
+    {
+        return !m_cachedDirectory.fluidContactOutline.empty();
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// First polygon result category (field outline / structure depth fault lines / fluid contact
+/// outline, in that order) that has at least one entry in the currently cached directory. Falls
+/// back to field outline if the directory is empty/not yet fetched, matching the constructor's
+/// default.
+//--------------------------------------------------------------------------------------------------
+QString RimPolygonCloudAddress::firstAvailablePolygonResultKey() const
+{
+    if ( !m_cachedDirectory.fieldOutline.empty() ) return RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FieldOutline );
+    if ( !m_cachedDirectory.structureDepthFaultLines.empty() )
+        return RiaSumoPolygons::polygonResultKey( SumoPolygonResult::StructureDepthFaultLines );
+    if ( !m_cachedDirectory.fluidContactOutline.empty() )
+        return RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FluidContactOutline );
+
+    return RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FieldOutline );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -690,9 +816,12 @@ bool RimPolygonCloudAddress::hasCompleteSelection() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Fetches from Sumo for the given realization (reusing the Applied data source/result/name/
+/// contact type, only substituting realization) -- not necessarily m_appliedRealization(), so
+/// this can be used both for the Applied realization itself (loadData()) and for any other
+/// realization a view resolves (itemsForRealization()).
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPolygon*> RimPolygonCloudAddress::fetchPolygonsFromSumo()
+std::vector<RimPolygon*> RimPolygonCloudAddress::fetchPolygonsFromSumo( int realization )
 {
     std::vector<RimPolygon*> polygons;
 
@@ -712,7 +841,7 @@ std::vector<RimPolygon*> RimPolygonCloudAddress::fetchPolygonsFromSumo()
 
     auto polygonDataList = connector->polygons().polygonsData( dataSource->caseId(),
                                                                dataSource->ensembleName(),
-                                                               m_appliedRealization(),
+                                                               realization,
                                                                polygonResult,
                                                                m_appliedName(),
                                                                m_appliedContactType() );
@@ -721,10 +850,16 @@ std::vector<RimPolygon*> RimPolygonCloudAddress::fetchPolygonsFromSumo()
 
     for ( const auto& data : polygonDataList )
     {
-        auto* polygon = new RimPolygon();
+        auto* polygon = new RimCloudPolygon();
         polygon->disableStorageOfPolygonPoints();
         polygon->setReadOnly( true );
         polygon->setDeletable( false );
+        polygon->setSumoIdentity( dataSource->caseId().get(),
+                                  dataSource->ensembleName(),
+                                  realization,
+                                  m_appliedPolygonResult(),
+                                  m_appliedName(),
+                                  m_appliedContactType() );
 
         QString polygonName = data.name.isEmpty() ? name() : data.name;
         if ( nameGroupsAreDistinct ) polygonName = QString( "%1 (%2)" ).arg( polygonName ).arg( data.polyId );

@@ -21,6 +21,7 @@
 #include "cafPdmNestedCollection.h"
 
 class RimPolygon;
+class Rim3dView;
 
 //==================================================================================================
 ///
@@ -49,13 +50,38 @@ public:
     // override to load their own data; folder containers inherit the recursion.
     virtual void loadData();
 
-    // Called from a view's polygon-in-view mirroring update, before its items() are read, so a
-    // container whose content depends on which realization is being shown (e.g. a cloud-backed
-    // address) can (re)fetch for that realization first. realization is -1 when the view has none
-    // (or the caller has no view context), in which case a container should keep using its own
-    // stored default. Default implementation recurses into sub-collections; folders need no
-    // override, only containers whose items() actually depend on realization do.
-    virtual void prepareItemsForRealization( int realization );
+    // Returns the items a view following the given realization should mirror. realization is -1
+    // when the view has none (or the caller has no view context), in which case a container
+    // should return its own default items() (its "Applied"/tree-displayed set). Containers whose
+    // content is realization-independent (folders, files) can ignore the parameter entirely --
+    // the default implementation does exactly that. Only containers whose content genuinely
+    // depends on which realization is being shown (e.g. a cloud-backed address) need to override
+    // this, and must do so without mutating this container's own persisted/displayed state as a
+    // side effect of a view merely asking for its items (multiple views may ask for different
+    // realizations of the same container).
+    virtual std::vector<RimPolygon*> itemsForRealization( int realization ) const;
+
+    // Whether this container's content genuinely varies per realization (only a cloud-backed
+    // address does) -- used by RimPolygonInViewCollection to decide whether to show a per-view
+    // realization override field at all. Default: false (folders/files have no such concept).
+    virtual bool supportsRealizationOverride() const;
+
+    // The realizations available to pick from for the override above (e.g. the data source's
+    // selected realizations for a cloud-backed address). Default: empty.
+    virtual std::vector<int> availableRealizationIdsForOverride() const;
+
+    // When no explicit per-view realization override is set (see
+    // RimPolygonInViewCollection::m_realizationOverride, sentinel -1), this lets a container
+    // resolve an automatic "follow the view's own case" realization, but only when that is
+    // clearly safe -- i.e. the view's own case genuinely corresponds to this container's own
+    // data source/case/ensemble. Returns -1 (=> fall back to this container's own Applied/
+    // default items) whenever the view's case does not match or the concept does not apply.
+    // Default: always -1 -- only a cloud-backed address (RimPolygonCloudAddress) overrides
+    // this, since only it has a notion of "its own case" to compare the view's case against.
+    // A view whose case belongs to a completely different field/ensemble (e.g. a Johan
+    // Sverdrup grid case in a mainly-Drogon project) must never have its realization applied
+    // to an unrelated address -- that is exactly the bug this matching guards against.
+    virtual int resolveViewMatchingRealization( const Rim3dView* view ) const;
 
     // Renames the polygon if another polygon in this container already carries the same name.
     void ensureUniquePolygonName( RimPolygon* polygon );

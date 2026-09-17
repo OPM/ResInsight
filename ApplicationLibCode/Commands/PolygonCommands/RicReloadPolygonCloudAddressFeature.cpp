@@ -36,6 +36,7 @@ void RicReloadPolygonCloudAddressFeature::onActionTriggered( bool isChecked )
 
     for ( auto p : cloudAddresses )
     {
+        p->clearRealizationCache();
         p->loadData();
         p->objectChanged.send();
         p->updateAllRequiredEditors();
