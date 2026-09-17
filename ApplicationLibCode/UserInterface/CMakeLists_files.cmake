@@ -19,6 +19,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewWizard.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewListWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotWidget.cpp
