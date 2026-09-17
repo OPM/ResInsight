@@ -210,9 +210,12 @@ QList<caf::PdmOptionItemInfo> RimEnsembleJob::calculateValueOptions( const caf::
 
     if ( fieldNeedingOptions == &m_selectedRealizations )
     {
-        for ( auto* realization : m_inputEnsemble->cases() )
+        if ( m_inputEnsemble() != nullptr )
         {
-            options.push_back( caf::PdmOptionItemInfo( realization->uiName(), realization ) );
+            for ( auto* realization : m_inputEnsemble->cases() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( realization->uiName(), realization ) );
+            }
         }
     }
     else if ( fieldNeedingOptions == &m_inputEnsemble )
