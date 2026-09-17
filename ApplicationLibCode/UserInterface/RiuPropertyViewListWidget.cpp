@@ -26,6 +26,7 @@
 #include <QBoxLayout>
 #include <QDebug>
 #include <QDialogButtonBox>
+#include <QLabel>
 #include <QListView>
 #include <QModelIndex>
 #include <QSettings>
@@ -110,9 +111,8 @@ RiuPropertyViewListWidget::RiuPropertyViewListWidget( QWidget*           parent,
 
         widgetLayout->addWidget( pdmUiPropertyView );
 
-        auto index = m_propertyStack->addWidget( containerWidget );
-        auto item  = new QStandardItem( uiConfigNameForTabs[i] );
-        // item->setData( index, Qt::UserRole );
+        m_propertyStack->addWidget( containerWidget );
+        auto item = new QStandardItem( uiConfigNameForTabs[i] );
         m_propertyModel->appendRow( item );
 
         pdmUiPropertyView->showProperties( object );
