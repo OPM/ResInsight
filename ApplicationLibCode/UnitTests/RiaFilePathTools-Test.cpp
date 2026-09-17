@@ -200,15 +200,19 @@ TEST( RiaFilePathTools, replaceSubFolderInPath )
     {
         std::string testPath0( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-0/iter-3/eclipse/model/DROGON-0.SMSPEC" );
         std::string testPath1( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-1/iter-3/eclipse/model/DROGON-1.SMSPEC" );
+        std::string testPath2( "/models/from_equinor_sftp/drogon3d_ahm/realization-1/iter-3/eclipse/model/DROGON-1.SMSPEC" );
 
         std::string expPath0( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-0/wp-0/eclipse/model/DROGON-0.SMSPEC" );
         std::string expPath1( "e:/models/from_equinor_sftp/drogon3d_ahm/realization-1/wp-0/eclipse/model/DROGON-1.SMSPEC" );
+        std::string expPath2( "/models/from_equinor_sftp/drogon3d_ahm/realization-1/wp-0/eclipse/model/DROGON-1.SMSPEC" );
 
         auto newPath0 = RiaFilePathTools::replaceSubFolderInPath( testPath0, "iter-3", "wp-0" );
         auto newPath1 = RiaFilePathTools::replaceSubFolderInPath( testPath1, "iter-3", "wp-0" );
+        auto newPath2 = RiaFilePathTools::replaceSubFolderInPath( testPath2, "iter-3", "wp-0" );
 
         EXPECT_EQ( expPath0, newPath0 );
         EXPECT_EQ( expPath1, newPath1 );
+        EXPECT_EQ( expPath2, newPath2 );
     }
 }
 

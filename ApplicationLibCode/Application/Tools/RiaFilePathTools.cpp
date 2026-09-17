@@ -423,19 +423,19 @@ std::string makeSuitableAsFileName( const std::string candidateName )
 //--------------------------------------------------------------------------------------------------
 std::string replaceSubFolderInPath( const std::string& path, const std::string& subFolderToReplace, const std::string& newSubFolder )
 {
-    QString normalizedPath = QString::fromStdString( normalizePath( path ) );
+    auto normPath = std::filesystem::path( normalizePath( path ) );
 
-    QStringList parts = RiaTextStringTools::splitSkipEmptyParts( normalizedPath, separator() );
+    std::filesystem::path newPath;
 
-    for ( int i = 0; i < parts.size(); i++ )
+    for ( const auto& part : normPath )
     {
-        if ( parts[i] == QString::fromStdString( subFolderToReplace ) )
-        {
-            parts[i] = QString::fromStdString( newSubFolder );
-        }
+        if ( part == subFolderToReplace )
+            newPath /= newSubFolder;
+        else
+            newPath /= part;
     }
 
-    return parts.join( separator() ).toStdString();
+    return newPath.generic_string();
 }
 
 //--------------------------------------------------------------------------------------------------
