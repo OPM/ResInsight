@@ -796,8 +796,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportCompletions::
 
     if ( m_exportFolder().isEmpty() ) return std::unexpected( "No export folder specified." );
 
+    // The export creates the folder on demand, matching the legacy command file behavior
     QDir folder( m_exportFolder() );
-    if ( !folder.exists() ) return std::unexpected( QString( "The export folder '%1' does not exist." ).arg( m_exportFolder() ) );
+    if ( !folder.exists() && !folder.mkpath( "." ) )
+    {
+        return std::unexpected( QString( "The export folder '%1' does not exist and could not be created." ).arg( m_exportFolder() ) );
+    }
 
     eclipseCase->ensureReservoirCaseIsOpen();
     if ( !eclipseCase->eclipseCaseData() )
@@ -929,8 +933,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportMswCompletion
 
     if ( m_exportFolder().isEmpty() ) return std::unexpected( "No export folder specified." );
 
+    // The export creates the folder on demand, matching the legacy command file behavior
     QDir folder( m_exportFolder() );
-    if ( !folder.exists() ) return std::unexpected( QString( "The export folder '%1' does not exist." ).arg( m_exportFolder() ) );
+    if ( !folder.exists() && !folder.mkpath( "." ) )
+    {
+        return std::unexpected( QString( "The export folder '%1' does not exist and could not be created." ).arg( m_exportFolder() ) );
+    }
 
     std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
     if ( wellPaths.empty() ) return std::unexpected( "No well paths specified." );

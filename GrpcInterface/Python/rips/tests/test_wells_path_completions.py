@@ -56,10 +56,20 @@ def test_export_completions(rips_instance, initialize_test):
         files = os.listdir(tmpdirname)
         assert len(files) >= 1
 
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        # A non-existent export folder is created on demand
+        export_folder = os.path.join(tmpdirname, "new_folder")
+        case.export_completions(
+            well_paths=[well_path],
+            time_step=1,
+            export_folder=export_folder,
+            file_split=rips.CompletionExportSplit.UNIFIED_FILE,
+            custom_file_name="created.sch",
+        )
+        assert "created.sch" in os.listdir(export_folder)
+
     with pytest.raises(rips.RipsError):
         case.export_completions(well_paths=[well_path])
-    with pytest.raises(rips.RipsError):
-        case.export_completions(well_paths=[well_path], export_folder="/does/not/exist")
 
 
 def test_add_well_path_completions(rips_instance, initialize_test):
