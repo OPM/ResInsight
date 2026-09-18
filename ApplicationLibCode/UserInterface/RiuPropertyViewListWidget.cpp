@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2026 Statoil ASA
+//  Copyright (C) 2026 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 #include "cafPdmUiPropertyView.h"
 
 #include <QBoxLayout>
-#include <QDebug>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QListView>
@@ -36,9 +35,10 @@
 #include <QStandardItemModel>
 #include <QStringList>
 #include <QStyledItemDelegate>
-#include <QTabWidget>
 #include <QWidget>
 
+namespace
+{
 class InternalSelectDelegate : public QStyledItemDelegate
 {
 public:
@@ -51,6 +51,7 @@ public:
         return size;
     }
 };
+} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -119,19 +120,23 @@ RiuPropertyViewListWidget::RiuPropertyViewListWidget( QWidget*           parent,
 
         m_pageWidgets.push_back( pdmUiPropertyView );
     }
-    // initial selection is the first page
-    QModelIndex idx = m_propertyModel->index( 0, 0 );
-    m_propertyList->setCurrentIndex( idx );
-    m_pageTitle->setText( uiConfigNameForTabs[0] );
+
+    if ( uiConfigNameForTabs.size() > 0 )
+    {
+        // initial selection is the first page
+        QModelIndex idx = m_propertyModel->index( 0, 0 );
+        m_propertyList->setCurrentIndex( idx );
+        m_pageTitle->setText( uiConfigNameForTabs[0] );
+    }
 
     auto mainDlgLayout = new QVBoxLayout();
     mainDlgLayout->addLayout( mainHBoxLayout, 1 );
 
     // Buttons
-    auto bottonHbox   = new QHBoxLayout();
+    auto btnHbox      = new QHBoxLayout();
     m_dialogButtonBox = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
-    bottonHbox->addWidget( m_dialogButtonBox );
-    mainDlgLayout->addLayout( bottonHbox );
+    btnHbox->addWidget( m_dialogButtonBox );
+    mainDlgLayout->addLayout( btnHbox );
 
     setLayout( mainDlgLayout );
 
@@ -165,19 +170,19 @@ RiuPropertyViewListWidget::~RiuPropertyViewListWidget()
 //--------------------------------------------------------------------------------------------------
 QSize RiuPropertyViewListWidget::minimumSizeHint() const
 {
-    QSize maxSizeHint( 0, 0 );
+    QSize minSizeHint( 0, 0 );
 
     for ( auto w : m_pageWidgets )
     {
         QSize pageSize = w->minimumSizeHint();
-        pageSize += QSize( 200, 150 );
+        pageSize += QSize( 200, 100 );
 
-        maxSizeHint = maxSizeHint.expandedTo( pageSize );
+        minSizeHint = minSizeHint.expandedTo( pageSize );
     }
 
     // The inner scroll area reports an artificially small minimum width, which lets some window
     // managers open the dialog collapsed (issue #14104). Provide a sensible floor.
-    return maxSizeHint.expandedTo( QSize( 400, 250 ) );
+    return minSizeHint.expandedTo( QSize( 400, 250 ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,19 +190,17 @@ QSize RiuPropertyViewListWidget::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 QSize RiuPropertyViewListWidget::sizeHint() const
 {
-    QSize maxSizeHint( 0, 0 );
+    QSize sizeHint( 0, 0 );
 
     for ( auto w : m_pageWidgets )
     {
-        // qDebug() << "tab size hint" << w->sizeHint();
-
         QSize pageSize = w->sizeHint();
-        pageSize += QSize( 250, 100 );
+        pageSize += QSize( 270, 100 );
 
-        maxSizeHint = maxSizeHint.expandedTo( pageSize );
+        sizeHint = sizeHint.expandedTo( pageSize );
     }
 
-    return maxSizeHint;
+    return sizeHint;
 }
 
 //--------------------------------------------------------------------------------------------------
