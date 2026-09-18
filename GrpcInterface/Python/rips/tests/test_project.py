@@ -100,6 +100,15 @@ def test_statistics_case_object_methods(rips_instance, initialize_test):
     with pytest.warns(DeprecationWarning):
         grid_case_group.compute_statistics(case_ids=[stat_case.id])
 
+    # An empty list means all statistics cases in the group, as in the legacy command
+    empty_case = grid_case_group.create_statistics_case(populate_result_selection=False)
+    empty_case.set_source_properties("DYNAMIC_NATIVE", ["SWAT"])
+    with pytest.warns(DeprecationWarning):
+        grid_case_group.compute_statistics(case_ids=[])
+    assert "SWAT_MEAN" in empty_case.available_properties(
+        rips.PropertyType.DYNAMIC_NATIVE
+    )
+
 
 def test_replace_source_cases(rips_instance, initialize_test):
     case_paths = [
