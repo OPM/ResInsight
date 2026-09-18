@@ -29,6 +29,6 @@ summary_plot_collection.new_summary_plot(
 plots = resinsight.project.plots()
 for plot in plots:
     plot.export_snapshot()
-    # plot.export_snapshot(output_format="PDF")
+    # plot.export_snapshot(file_format=rips.SnapshotFileFormat.PDF)
 
 resinsight.exit()

@@ -1,10 +1,12 @@
 import sys
 import os
+import pytest
 import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 
 import dataroot
+import rips
 from rips import PressureDrop, ReferenceMdType, WellTypeForExport
 
 
@@ -190,6 +192,34 @@ def test_msw_export(rips_instance, initialize_test):
     # Note: The actual file creation validation would require checking
     # the export folder, which may be platform-dependent and require
     # additional file system checks
+
+
+def test_export_msw_completions(rips_instance, initialize_test):
+    """Test the object method for MSW export with explicit well path objects and folder."""
+    project_path = dataroot.PATH + "/msw-export/project-files/perf_lateral.rsp"
+    project = rips_instance.project.open(path=project_path)
+    case = project.cases()[0]
+
+    well_y1 = project.well_path_by_name("Well-1 Y1")
+    assert well_y1 is not None
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        case.export_msw_completions(
+            well_paths=[well_y1],
+            export_folder=tmpdirname,
+            file_split=rips.CompletionExportSplit.UNIFIED_FILE,
+        )
+        files = os.listdir(tmpdirname)
+        assert len(files) == 1
+        with open(os.path.join(tmpdirname, files[0])) as f:
+            content = f.read()
+            assert "WELSEGS" in content
+            assert "COMPSEGS" in content
+
+    with pytest.raises(rips.RipsError):
+        case.export_msw_completions(well_paths=[well_y1])
+    with pytest.raises(rips.RipsError):
+        case.export_msw_completions(export_folder=tempfile.gettempdir())
 
 
 def test_msw_settings_read(rips_instance, initialize_test):

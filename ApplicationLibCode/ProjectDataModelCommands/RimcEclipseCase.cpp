@@ -21,6 +21,17 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaKeyValueStoreUtil.h"
+#include "RiaLogging.h"
+
+#include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
+#include "CompletionExportCommands/RicWellPathExportMswCompletionsImpl.h"
+#include "ExportCommands/RicEclipseCellResultToFileImpl.h"
+#include "ExportCommands/RicExportLgrFeature.h"
+#include "FractureCommands/RicCreateMultipleFracturesOptionItemUi.h"
+#include "FractureCommands/RicCreateMultipleFracturesUi.h"
+#include "GridCrossPlotCommands/RicCreateSaturationPressurePlotsFeature.h"
+#include "RicCreateTemporaryLgrFeature.h"
+#include "RicDeleteTemporaryLgrsFeature.h"
 
 #include "RifInputPropertyLoader.h"
 
@@ -33,24 +44,37 @@
 #include "RigMainGrid.h"
 #include "RigNoRefinement.h"
 #include "RigResdataGridConverter.h"
+#include "RigReservoirGridTools.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
 #include "RimCase.h"
 #include "RimCellFilter.h"
+#include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimFlowCharacteristicsPlot.h"
+#include "RimFlowPlotCollection.h"
+#include "RimFractureTemplate.h"
+#include "RimMainPlotCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRoffCase.h"
+#include "RimSaturationPressurePlotCollection.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "RimcDataContainerString.h"
 
+#include "cafCmdFeatureManager.h"
 #include "cafPdmFieldScriptingCapability.h"
 
 #include "cvfArray.h"
 
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
+#include <QTextStream>
 
 #include <algorithm>
 #include <expected>
@@ -449,4 +473,1043 @@ std::expected<RiaDefines::ResultDataType, QString> RimcEclipseCase_propertyDataT
     }
 
     return std::unexpected( QString( "Property not found: %1" ).arg( m_propertyName() ) );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_exportProperty, "exportProperty" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_exportProperty::RimEclipseCase_exportProperty( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Property", "", "", "Export a cell property of the case to a GRDECL style text file" );
+
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", -1, "Time Step", "", "", "Zero-based time step index. Ignored for static properties." );
+    CAF_PDM_InitScriptableField( &m_propertyName, "PropertyName", QString(), "Property Name", "", "", "Name of the property to export" );
+    CAF_PDM_InitScriptableField( &m_eclipseKeyword,
+                                 "EclipseKeyword",
+                                 QString(),
+                                 "Eclipse Keyword",
+                                 "",
+                                 "",
+                                 "Keyword written to the file header. Defaults to the property name." );
+    CAF_PDM_InitScriptableField( &m_undefinedValue, "UndefinedValue", 0.0, "Undefined Value", "", "", "Value written for undefined cells" );
+    CAF_PDM_InitScriptableField( &m_exportFile, "ExportFile", QString(), "Export File", "", "", "Full path of the file to write" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportProperty::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportProperty::setPropertyName( const QString& propertyName )
+{
+    m_propertyName = propertyName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportProperty::setEclipseKeyword( const QString& eclipseKeyword )
+{
+    m_eclipseKeyword = eclipseKeyword;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportProperty::setUndefinedValue( double undefinedValue )
+{
+    m_undefinedValue = undefinedValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportProperty::setExportFile( const QString& exportFile )
+{
+    m_exportFile = exportFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportProperty::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    if ( m_propertyName().isEmpty() ) return std::unexpected( "No property name specified." );
+    if ( m_exportFile().isEmpty() ) return std::unexpected( "No export file specified." );
+
+    if ( !eclipseCase->eclipseCaseData() && !eclipseCase->openReservoirCase() )
+    {
+        return std::unexpected( QString( "Could not open case '%1'" ).arg( eclipseCase->caseUserDescription() ) );
+    }
+
+    RigEclipseCaseData*     eclipseCaseData = eclipseCase->eclipseCaseData();
+    RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    if ( !cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( m_propertyName() ) ) )
+    {
+        return std::unexpected( QString( "Could not find result property '%1'" ).arg( m_propertyName() ) );
+    }
+
+    QString eclipseKeyword = m_eclipseKeyword();
+    if ( eclipseKeyword.isEmpty() ) eclipseKeyword = m_propertyName();
+
+    const bool writeEchoKeywords = false;
+    QString    errorMessage;
+    if ( !RicEclipseCellResultToFileImpl::writePropertyToTextFile( m_exportFile(),
+                                                                   eclipseCaseData,
+                                                                   m_timeStep(),
+                                                                   m_propertyName(),
+                                                                   eclipseKeyword,
+                                                                   m_undefinedValue(),
+                                                                   writeEchoKeywords,
+                                                                   &errorMessage ) )
+    {
+        return std::unexpected( errorMessage );
+    }
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_exportCompletions, "exportCompletions" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_exportCompletions::RimEclipseCase_exportCompletions( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Completions", "", "", "Export completion data (COMPDAT, WELSPECS, MSW keywords etc.) for well paths in this case" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths,
+                                          "WellPaths",
+                                          "Well Paths",
+                                          "",
+                                          "",
+                                          "Well paths to export. Empty list exports all visible well paths." );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "Zero-based time step index" );
+    CAF_PDM_InitScriptableField( &m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "Folder to write the export files to" );
+    CAF_PDM_InitScriptableField( &m_customFileName,
+                                 "CustomFileName",
+                                 QString(),
+                                 "Custom File Name",
+                                 "",
+                                 "",
+                                 "Optional file name (without folder) used when FileSplit is UNIFIED_FILE" );
+
+    CAF_PDM_InitScriptableField( &m_fileSplit,
+                                 "FileSplit",
+                                 RicExportCompletionDataSettingsUi::ExportSplitType(),
+                                 "File Split",
+                                 "",
+                                 "",
+                                 "Controls how export data is split into files" );
+    CAF_PDM_InitScriptableField( &m_compdatExport,
+                                 "CompdatExport",
+                                 RicExportCompletionDataSettingsUi::CompdatExportType(),
+                                 "Compdat Export",
+                                 "",
+                                 "",
+                                 "Compdat export type" );
+
+    CAF_PDM_InitScriptableField( &m_includeMsw, "IncludeMsw", true, "Include MSW", "", "", "Export Multi Segment Well model" );
+    CAF_PDM_InitScriptableField( &m_useNtgHorizontally, "UseNtgHorizontally", false, "Use NTG Horizontally" );
+    CAF_PDM_InitScriptableField( &m_includePerforations, "IncludePerforations", true, "Include Perforations" );
+    CAF_PDM_InitScriptableField( &m_includeFishbones, "IncludeFishbones", true, "Include Fishbones" );
+    CAF_PDM_InitScriptableField( &m_includeFractures, "IncludeFractures", true, "Include Fractures" );
+    CAF_PDM_InitScriptableField( &m_excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "Exclude Main Bore for Fishbones" );
+
+    CAF_PDM_InitScriptableField( &m_performTransScaling, "PerformTransScaling", false, "Perform Transmissibility Scaling" );
+    CAF_PDM_InitScriptableField( &m_transScalingTimeStep, "TransScalingTimeStep", 0, "Transmissibility Scaling Pressure Time Step" );
+    CAF_PDM_InitScriptableField( &m_transScalingWbhpSource,
+                                 "TransScalingWbhpSource",
+                                 RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
+                                 "Transmissibility Scaling WBHP Source" );
+    CAF_PDM_InitScriptableField( &m_transScalingWbhp, "TransScalingWbhp", 200.0, "Transmissibility Scaling Constant WBHP Value" );
+
+    CAF_PDM_InitScriptableField( &m_exportComments, "ExportComments", true, "Export Comments", "", "", "Export data source as comments" );
+    CAF_PDM_InitScriptableField( &m_exportWelspec, "ExportWelspec", true, "Export WELSPEC", "", "", "Export WELSPEC keyword" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setWellPaths( const std::vector<RimWellPath*>& wellPaths )
+{
+    m_wellPaths.setValue( wellPaths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setExportFolder( const QString& exportFolder )
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setCustomFileName( const QString& customFileName )
+{
+    m_customFileName = customFileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setFileSplit( RicExportCompletionDataSettingsUi::ExportSplit fileSplit )
+{
+    m_fileSplit = fileSplit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setCompdatExport( RicExportCompletionDataSettingsUi::CompdatExport compdatExport )
+{
+    m_compdatExport = compdatExport;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setIncludeMsw( bool enable )
+{
+    m_includeMsw = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setUseNtgHorizontally( bool enable )
+{
+    m_useNtgHorizontally = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setIncludePerforations( bool enable )
+{
+    m_includePerforations = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setIncludeFishbones( bool enable )
+{
+    m_includeFishbones = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setIncludeFractures( bool enable )
+{
+    m_includeFractures = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setExcludeMainBoreForFishbones( bool enable )
+{
+    m_excludeMainBoreForFishbones = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setPerformTransScaling( bool enable )
+{
+    m_performTransScaling = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setTransScalingTimeStep( int timeStep )
+{
+    m_transScalingTimeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setTransScalingWbhpSource( RicExportFractureCompletionsImpl::PressureDepletionWBHPSource source )
+{
+    m_transScalingWbhpSource = source;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setTransScalingWbhp( double wbhp )
+{
+    m_transScalingWbhp = wbhp;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setExportComments( bool enable )
+{
+    m_exportComments = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportCompletions::setExportWelspec( bool enable )
+{
+    m_exportWelspec = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportCompletions::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    if ( m_exportFolder().isEmpty() ) return std::unexpected( "No export folder specified." );
+
+    // The export creates the folder on demand, matching the legacy command file behavior
+    QDir folder( m_exportFolder() );
+    if ( !folder.exists() && !folder.mkpath( "." ) )
+    {
+        return std::unexpected( QString( "The export folder '%1' does not exist and could not be created." ).arg( m_exportFolder() ) );
+    }
+
+    eclipseCase->ensureReservoirCaseIsOpen();
+    if ( !eclipseCase->eclipseCaseData() )
+    {
+        return std::unexpected( QString( "No data available for case '%1'" ).arg( eclipseCase->caseUserDescription() ) );
+    }
+
+    std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
+    if ( wellPaths.empty() )
+    {
+        RimProject* project = RimProject::current();
+        for ( RimWellPath* wellPath : project->activeOilField()->wellPathCollection->allWellPaths() )
+        {
+            if ( wellPath->showWellPath() ) wellPaths.push_back( wellPath );
+        }
+    }
+
+    if ( wellPaths.empty() ) return std::unexpected( "No well paths to export." );
+
+    RicExportCompletionDataSettingsUi exportSettings;
+    exportSettings.caseToApply = eclipseCase;
+    exportSettings.folder      = m_exportFolder();
+    exportSettings.timeStep    = std::max( 0, m_timeStep() );
+
+    exportSettings.fileSplit     = m_fileSplit();
+    exportSettings.compdatExport = m_compdatExport();
+
+    exportSettings.performTransScaling    = m_performTransScaling();
+    exportSettings.transScalingTimeStep   = m_transScalingTimeStep();
+    exportSettings.transScalingWBHPSource = m_transScalingWbhpSource();
+    exportSettings.transScalingWBHP       = m_transScalingWbhp();
+
+    exportSettings.includeMsw                  = m_includeMsw();
+    exportSettings.useLateralNTG               = m_useNtgHorizontally();
+    exportSettings.includePerforations         = m_includePerforations();
+    exportSettings.includeFishbones            = m_includeFishbones();
+    exportSettings.excludeMainBoreForFishbones = m_excludeMainBoreForFishbones();
+    exportSettings.includeFractures            = m_includeFractures();
+
+    exportSettings.setExportDataSourceAsComment( m_exportComments() );
+    exportSettings.setExportWelspec( m_exportWelspec() );
+
+    if ( !m_customFileName().isEmpty() ) exportSettings.setCustomFileName( m_customFileName() );
+
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, exportSettings );
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_exportMswCompletions, "exportMswCompletions" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_exportMswCompletions::RimEclipseCase_exportMswCompletions( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export MSW Completions", "", "", "Export the Multi Segment Well model keywords for well paths in this case" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "Well paths to export" );
+    CAF_PDM_InitScriptableField( &m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "Folder to write the export files to" );
+    CAF_PDM_InitScriptableField( &m_fileSplit,
+                                 "FileSplit",
+                                 RicExportCompletionDataSettingsUi::ExportSplitType(),
+                                 "File Split",
+                                 "",
+                                 "",
+                                 "Controls how export data is split into files" );
+    CAF_PDM_InitScriptableField( &m_includePerforations, "IncludePerforations", true, "Include Perforations" );
+    CAF_PDM_InitScriptableField( &m_includeFishbones, "IncludeFishbones", true, "Include Fishbones" );
+    CAF_PDM_InitScriptableField( &m_includeFractures, "IncludeFractures", true, "Include Fractures" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setWellPaths( const std::vector<RimWellPath*>& wellPaths )
+{
+    m_wellPaths.setValue( wellPaths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setExportFolder( const QString& exportFolder )
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setFileSplit( RicExportCompletionDataSettingsUi::ExportSplit fileSplit )
+{
+    m_fileSplit = fileSplit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setIncludePerforations( bool enable )
+{
+    m_includePerforations = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setIncludeFishbones( bool enable )
+{
+    m_includeFishbones = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportMswCompletions::setIncludeFractures( bool enable )
+{
+    m_includeFractures = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportMswCompletions::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    if ( m_exportFolder().isEmpty() ) return std::unexpected( "No export folder specified." );
+
+    // The export creates the folder on demand, matching the legacy command file behavior
+    QDir folder( m_exportFolder() );
+    if ( !folder.exists() && !folder.mkpath( "." ) )
+    {
+        return std::unexpected( QString( "The export folder '%1' does not exist and could not be created." ).arg( m_exportFolder() ) );
+    }
+
+    std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
+    if ( wellPaths.empty() ) return std::unexpected( "No well paths specified." );
+
+    eclipseCase->ensureReservoirCaseIsOpen();
+    if ( !eclipseCase->eclipseCaseData() )
+    {
+        return std::unexpected( QString( "No data available for case '%1'" ).arg( eclipseCase->caseUserDescription() ) );
+    }
+
+    RicExportCompletionDataSettingsUi exportSettings;
+    exportSettings.caseToApply         = eclipseCase;
+    exportSettings.folder              = m_exportFolder();
+    exportSettings.fileSplit           = m_fileSplit();
+    exportSettings.includePerforations = m_includePerforations();
+    exportSettings.includeFishbones    = m_includeFishbones();
+    exportSettings.includeFractures    = m_includeFractures();
+
+    RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( exportSettings, wellPaths );
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_createLgrForCompletions, "createLgrForCompletions" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_createLgrForCompletions::RimEclipseCase_createLgrForCompletions( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Create LGR for Completions",
+                        "",
+                        "",
+                        "Create temporary local grid refinements around the completions of the given well paths" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "Well paths to create LGRs for" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "Zero-based time step index" );
+    CAF_PDM_InitScriptableField( &m_refinementI, "RefinementI", 1, "Refinement I", "", "", "Number of refined cells in I direction" );
+    CAF_PDM_InitScriptableField( &m_refinementJ, "RefinementJ", 1, "Refinement J", "", "", "Number of refined cells in J direction" );
+    CAF_PDM_InitScriptableField( &m_refinementK, "RefinementK", 1, "Refinement K", "", "", "Number of refined cells in K direction" );
+    CAF_PDM_InitScriptableField( &m_splitType, "SplitType", Lgr::SplitTypeEnum(), "Split Type", "", "", "Defines how to split the LGRs" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createLgrForCompletions::setWellPaths( const std::vector<RimWellPath*>& wellPaths )
+{
+    m_wellPaths.setValue( wellPaths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createLgrForCompletions::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createLgrForCompletions::setRefinement( int refinementI, int refinementJ, int refinementK )
+{
+    m_refinementI = refinementI;
+    m_refinementJ = refinementJ;
+    m_refinementK = refinementK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createLgrForCompletions::setSplitType( Lgr::SplitType splitType )
+{
+    m_splitType = splitType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimEclipseCase_createLgrForCompletions::wellsIntersectingOtherLgrs() const
+{
+    return m_wellsIntersectingOtherLgrs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_createLgrForCompletions::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
+    if ( wellPaths.empty() ) return std::unexpected( "No well paths specified." );
+
+    if ( m_refinementI() < 1 || m_refinementJ() < 1 || m_refinementK() < 1 )
+    {
+        return std::unexpected( "Refinement must be at least 1 in all directions." );
+    }
+
+    auto* feature = dynamic_cast<RicCreateTemporaryLgrFeature*>(
+        caf::CmdFeatureManager::instance()->getCommandFeature( "RicCreateTemporaryLgrFeature" ) );
+    if ( !feature ) return std::unexpected( "The create LGR feature is not available." );
+
+    RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs( eclipseCase );
+
+    cvf::Vec3st lgrCellCounts( m_refinementI(), m_refinementJ(), m_refinementK() );
+    m_wellsIntersectingOtherLgrs.clear();
+
+    feature->createLgrsForWellPaths( wellPaths,
+                                     eclipseCase,
+                                     m_timeStep(),
+                                     lgrCellCounts,
+                                     m_splitType(),
+                                     { RigCompletionData::CompletionType::PERFORATION,
+                                       RigCompletionData::CompletionType::FRACTURE,
+                                       RigCompletionData::CompletionType::FISHBONES },
+                                     &m_wellsIntersectingOtherLgrs );
+
+    RigReservoirGridTools::refreshEclipseCaseDataAndViews( eclipseCase );
+
+    if ( !m_wellsIntersectingOtherLgrs.empty() )
+    {
+        RiaLogging::warning( QString( "No LGRs created for some wells due to existing intersecting LGR(s). Affected wells: %1" )
+                                 .arg( m_wellsIntersectingOtherLgrs.join( ", " ) )
+                                 .toStdString() );
+    }
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_exportLgrForCompletions, "exportLgrForCompletions" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_exportLgrForCompletions::RimEclipseCase_exportLgrForCompletions( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export LGR for Completions",
+                        "",
+                        "",
+                        "Export local grid refinements around the completions of the given well paths to CARFIN files" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "Well paths to export LGRs for" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "Zero-based time step index" );
+    CAF_PDM_InitScriptableField( &m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "Folder to write the export files to" );
+    CAF_PDM_InitScriptableField( &m_refinementI, "RefinementI", 1, "Refinement I", "", "", "Number of refined cells in I direction" );
+    CAF_PDM_InitScriptableField( &m_refinementJ, "RefinementJ", 1, "Refinement J", "", "", "Number of refined cells in J direction" );
+    CAF_PDM_InitScriptableField( &m_refinementK, "RefinementK", 1, "Refinement K", "", "", "Number of refined cells in K direction" );
+    CAF_PDM_InitScriptableField( &m_splitType, "SplitType", Lgr::SplitTypeEnum(), "Split Type", "", "", "Defines how to split the LGRs" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportLgrForCompletions::setWellPaths( const std::vector<RimWellPath*>& wellPaths )
+{
+    m_wellPaths.setValue( wellPaths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportLgrForCompletions::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportLgrForCompletions::setExportFolder( const QString& exportFolder )
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportLgrForCompletions::setRefinement( int refinementI, int refinementJ, int refinementK )
+{
+    m_refinementI = refinementI;
+    m_refinementJ = refinementJ;
+    m_refinementK = refinementK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_exportLgrForCompletions::setSplitType( Lgr::SplitType splitType )
+{
+    m_splitType = splitType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimEclipseCase_exportLgrForCompletions::wellsIntersectingOtherLgrs() const
+{
+    return m_wellsIntersectingOtherLgrs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_exportLgrForCompletions::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
+    if ( wellPaths.empty() ) return std::unexpected( "No well paths specified." );
+
+    if ( m_exportFolder().isEmpty() ) return std::unexpected( "No export folder specified." );
+
+    if ( m_refinementI() < 1 || m_refinementJ() < 1 || m_refinementK() < 1 )
+    {
+        return std::unexpected( "Refinement must be at least 1 in all directions." );
+    }
+
+    cvf::Vec3st lgrCellCounts( m_refinementI(), m_refinementJ(), m_refinementK() );
+    m_wellsIntersectingOtherLgrs.clear();
+
+    RicExportLgrFeature::exportLgrsForWellPaths( m_exportFolder(),
+                                                 wellPaths,
+                                                 eclipseCase,
+                                                 m_timeStep(),
+                                                 lgrCellCounts,
+                                                 m_splitType(),
+                                                 { RigCompletionData::CompletionType::PERFORATION,
+                                                   RigCompletionData::CompletionType::FRACTURE,
+                                                   RigCompletionData::CompletionType::FISHBONES },
+                                                 &m_wellsIntersectingOtherLgrs );
+
+    if ( !m_wellsIntersectingOtherLgrs.empty() )
+    {
+        RiaLogging::warning( QString( "No export for some wells due to existing intersecting LGR(s). Affected wells: %1" )
+                                 .arg( m_wellsIntersectingOtherLgrs.join( ", " ) )
+                                 .toStdString() );
+    }
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseCase, RimEclipseCase_createMultipleFractures, "createMultipleFractures" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase_createMultipleFractures::RimEclipseCase_createMultipleFractures( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Create Multiple Fractures", "", "", "Create multiple fractures along the given well paths using a fracture template" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "Well paths to create fractures for" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureTemplate, "FractureTemplate", "Fracture Template", "", "", "Template used for the created fractures" );
+    CAF_PDM_InitScriptableField( &m_minDistFromWellTd,
+                                 "MinDistFromWellTd",
+                                 100.0,
+                                 "Min Distance From Well TD",
+                                 "",
+                                 "",
+                                 "Minimum distance from the well total depth" );
+    CAF_PDM_InitScriptableField( &m_maxFracturesPerWell, "MaxFracturesPerWell", 100, "Max Fractures per Well" );
+    CAF_PDM_InitScriptableField( &m_topLayer, "TopLayer", -1, "Top Layer", "", "", "Zero-based K index of the top layer. -1 uses the top of the grid." );
+    CAF_PDM_InitScriptableField( &m_baseLayer,
+                                 "BaseLayer",
+                                 -1,
+                                 "Base Layer",
+                                 "",
+                                 "",
+                                 "Zero-based K index of the base layer. -1 uses the bottom of the grid." );
+    CAF_PDM_InitScriptableField( &m_spacing, "Spacing", 300.0, "Spacing", "", "", "Distance between fractures" );
+    CAF_PDM_InitScriptableField( &m_action,
+                                 "Action",
+                                 caf::AppEnum<MultipleFractures::Action>( MultipleFractures::Action::APPEND_FRACTURES ),
+                                 "Action",
+                                 "",
+                                 "",
+                                 "Append to or replace the existing fractures on the well paths" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setWellPaths( const std::vector<RimWellPath*>& wellPaths )
+{
+    m_wellPaths.setValue( wellPaths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setFractureTemplate( RimFractureTemplate* fractureTemplate )
+{
+    m_fractureTemplate = fractureTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setMinDistFromWellTd( double minDist )
+{
+    m_minDistFromWellTd = minDist;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setMaxFracturesPerWell( int maxFractures )
+{
+    m_maxFracturesPerWell = maxFractures;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setTopLayer( int topLayer )
+{
+    m_topLayer = topLayer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setBaseLayer( int baseLayer )
+{
+    m_baseLayer = baseLayer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setSpacing( double spacing )
+{
+    m_spacing = spacing;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase_createMultipleFractures::setAction( MultipleFractures::Action action )
+{
+    m_action = action;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseCase_createMultipleFractures::execute()
+{
+    auto* eclipseCase = self<RimEclipseCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    std::vector<RimWellPath*> wellPaths = m_wellPaths.ptrReferencedObjectsByType();
+    if ( wellPaths.empty() ) return std::unexpected( "No well paths specified." );
+
+    RimFractureTemplate* fractureTemplate = m_fractureTemplate();
+    if ( !fractureTemplate ) return std::unexpected( "No fracture template specified." );
+
+    if ( m_action() == MultipleFractures::Action::NONE ) return std::unexpected( "Action must be APPEND_FRACTURES or REPLACE_FRACTURES." );
+
+    auto* feature = dynamic_cast<RicCreateMultipleFracturesFeature*>(
+        caf::CmdFeatureManager::instance()->getCommandFeature( "RicCreateMultipleFracturesFeature" ) );
+    if ( !feature ) return std::unexpected( "The create multiple fractures feature is not available." );
+
+    RimProject*                   project  = RimProject::current();
+    RiuCreateMultipleFractionsUi* settings = project->dialogData()->multipleFractionsData();
+
+    // Default layers
+    int topLayer  = m_topLayer();
+    int baseLayer = m_baseLayer();
+    if ( topLayer < 0 || baseLayer < 0 )
+    {
+        auto ijkRange = feature->ijkRangeForGrid( eclipseCase );
+        if ( topLayer < 0 ) topLayer = static_cast<int>( ijkRange.min().z() );
+        if ( baseLayer < 0 ) baseLayer = static_cast<int>( ijkRange.max().z() );
+    }
+
+    auto* options = new RicCreateMultipleFracturesOptionItemUi();
+    options->setValues( topLayer, baseLayer, fractureTemplate, m_spacing() );
+
+    settings->clearWellPaths();
+    for ( RimWellPath* wellPath : wellPaths )
+    {
+        settings->addWellPath( wellPath );
+    }
+
+    settings->setValues( eclipseCase, m_minDistFromWellTd(), m_maxFracturesPerWell() );
+    settings->clearOptions();
+    settings->insertOptionItem( nullptr, options );
+
+    if ( m_action() == MultipleFractures::Action::APPEND_FRACTURES ) feature->appendFractures();
+    if ( m_action() == MultipleFractures::Action::REPLACE_FRACTURES ) feature->replaceFractures();
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseResultCase, RimEclipseResultCase_exportFlowCharacteristics, "exportFlowCharacteristics" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultCase_exportFlowCharacteristics::RimEclipseResultCase_exportFlowCharacteristics( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Flow Characteristics", "", "", "Export flow characteristics computed by flow diagnostics to a text file" );
+
+    CAF_PDM_InitScriptableField( &m_timeSteps, "TimeSteps", std::vector<int>(), "Time Steps", "", "", "Zero-based time step indices" );
+    CAF_PDM_InitScriptableField( &m_injectors, "Injectors", std::vector<QString>(), "Injectors", "", "", "Injector well names" );
+    CAF_PDM_InitScriptableField( &m_producers, "Producers", std::vector<QString>(), "Producers", "", "", "Producer well names" );
+    CAF_PDM_InitScriptableField( &m_fileName,
+                                 "FileName",
+                                 QString(),
+                                 "File Name",
+                                 "",
+                                 "",
+                                 "File to write. Relative paths are resolved against the project folder." );
+    CAF_PDM_InitScriptableField( &m_minimumCommunication, "MinimumCommunication", 0.0, "Minimum Communication" );
+    CAF_PDM_InitScriptableField( &m_aquiferCellThreshold, "AquiferCellThreshold", 0.1, "Aquifer Cell Threshold" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setTimeSteps( const std::vector<int>& timeSteps )
+{
+    m_timeSteps = timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setInjectors( const std::vector<QString>& injectors )
+{
+    m_injectors = injectors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setProducers( const std::vector<QString>& producers )
+{
+    m_producers = producers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setFileName( const QString& fileName )
+{
+    m_fileName = fileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setMinimumCommunication( double minimumCommunication )
+{
+    m_minimumCommunication = minimumCommunication;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_exportFlowCharacteristics::setAquiferCellThreshold( double aquiferCellThreshold )
+{
+    m_aquiferCellThreshold = aquiferCellThreshold;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseResultCase_exportFlowCharacteristics::execute()
+{
+    auto* eclipseCase = self<RimEclipseResultCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    if ( m_fileName().isEmpty() ) return std::unexpected( "No file name specified." );
+
+    QString   exportFileName = m_fileName();
+    QFileInfo fi( exportFileName );
+    if ( !fi.isAbsolute() )
+    {
+        QString exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( fi.path() );
+
+        QDir exportDir( exportFolder );
+        if ( !exportDir.exists() && !exportDir.mkpath( "." ) )
+        {
+            return std::unexpected( QString( "Failed to create folder - %1" ).arg( exportFolder ) );
+        }
+
+        exportFileName = exportFolder + "/" + fi.fileName();
+    }
+
+    RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
+    if ( !flowPlotColl ) return std::unexpected( "No flow plot collection is available." );
+
+    RimFlowCharacteristicsPlot* plot = flowPlotColl->defaultFlowCharacteristicsPlot();
+    plot->setFromFlowSolution( eclipseCase->defaultFlowDiagSolution() );
+    plot->setTimeSteps( m_timeSteps() );
+    plot->setInjectorsAndProducers( m_injectors(), m_producers() );
+    plot->setAquiferCellThreshold( m_aquiferCellThreshold() );
+    plot->setMinimumCommunication( m_minimumCommunication() );
+
+    plot->loadDataAndUpdate();
+
+    QFile file( exportFileName );
+    if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )
+    {
+        return std::unexpected( QString( "Failed to export file - %1" ).arg( exportFileName ) );
+    }
+
+    QTextStream textstream( &file );
+    textstream << plot->curveDataAsText();
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseResultCase, RimEclipseResultCase_createSaturationPressurePlots, "createSaturationPressurePlots" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultCase_createSaturationPressurePlots::RimEclipseResultCase_createSaturationPressurePlots( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Create Saturation Pressure Plots",
+                        "",
+                        "",
+                        "Create saturation pressure plots (PRESSURE vs PBUB/PDEW per EQUIL region) for the case" );
+
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "Zero-based time step index" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase_createSaturationPressurePlots::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimEclipseResultCase_createSaturationPressurePlots::execute()
+{
+    auto* eclipseCase = self<RimEclipseResultCase>();
+    if ( !eclipseCase ) return std::unexpected( "No case is available." );
+
+    auto plots = RicCreateSaturationPressurePlotsFeature::createPlots( eclipseCase, m_timeStep() );
+    if ( plots.empty() )
+    {
+        return std::unexpected( QString( "No saturation pressure plots created for case '%1'. The case must have EQUIL data and the "
+                                         "PRESSURE, PBUB and PDEW results." )
+                                    .arg( eclipseCase->caseUserDescription() ) );
+    }
+
+    if ( auto* collection = RimMainPlotCollection::current()->saturationPressurePlotCollection() )
+    {
+        collection->updateAllRequiredEditors();
+    }
+
+    if ( RiaGuiApplication::isRunning() )
+    {
+        RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    }
+
+    return nullptr;
 }

@@ -75,6 +75,76 @@ def test_loadGridCaseGroup(rips_instance, initialize_test):
     assert project.grid_case_group(9999) is None
 
 
+def test_statistics_case_object_methods(rips_instance, initialize_test):
+    case_paths = [
+        dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID",
+        dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID",
+    ]
+    grid_case_group = rips_instance.project.create_grid_case_group(
+        case_paths=case_paths
+    )
+    # create_grid_case_group creates one populated statistics case by default
+    initial_count = len(grid_case_group.statistics_cases())
+
+    stat_case = grid_case_group.create_statistics_case(populate_result_selection=True)
+    assert stat_case is not None
+    assert len(grid_case_group.statistics_cases()) == initial_count + 1
+    assert stat_case.id >= 0
+
+    stat_case.set_source_properties("DYNAMIC_NATIVE", ["PRESSURE"])
+    stat_case.compute_statistics(update_views=True)
+    assert "PRESSURE_MEAN" in stat_case.available_properties(
+        rips.PropertyType.DYNAMIC_NATIVE
+    )
+
+    with pytest.warns(DeprecationWarning):
+        grid_case_group.compute_statistics(case_ids=[stat_case.id])
+
+    # An empty list means all statistics cases in the group, as in the legacy command
+    empty_case = grid_case_group.create_statistics_case(populate_result_selection=False)
+    empty_case.set_source_properties("DYNAMIC_NATIVE", ["SWAT"])
+    with pytest.warns(DeprecationWarning):
+        grid_case_group.compute_statistics(case_ids=[])
+    assert "SWAT_MEAN" in empty_case.available_properties(
+        rips.PropertyType.DYNAMIC_NATIVE
+    )
+
+
+def test_replace_source_cases(rips_instance, initialize_test):
+    case_paths = [
+        dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID",
+        dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID",
+    ]
+    project = rips_instance.project
+    grid_case_group = project.create_grid_case_group(case_paths=case_paths)
+    group_id = grid_case_group.group_id
+    assert len(grid_case_group.descendants(rips.EclipseCase)) == 2
+
+    # Reload requires a saved project
+    with pytest.raises(rips.RipsError):
+        grid_case_group.replace_source_cases(grid_files=case_paths[:1])
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        project.save(os.path.join(tmpdirname, "group.rsp"))
+        project = rips_instance.project
+        grid_case_group = project.grid_case_group(group_id)
+
+        new_paths = [
+            dataroot.PATH + "/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID",
+            dataroot.PATH + "/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID",
+            dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID",
+        ]
+        grid_case_group.replace_source_cases(grid_files=new_paths)
+
+        # The project is reloaded, so retrieve the group again
+        project = rips_instance.project
+        grid_case_group = project.grid_case_group(group_id)
+        assert grid_case_group is not None
+        source_cases = grid_case_group.descendants(rips.EclipseCase)
+        names = sorted(c.name for c in source_cases)
+        assert names == ["BRUGGE_0000", "BRUGGE_0030", "BRUGGE_0040"]
+
+
 def test_save_project_round_trip(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     project = rips_instance.project
@@ -109,6 +179,20 @@ def test_views_and_view_lookup(rips_instance, initialize_test):
     assert looked_up is not None
     assert looked_up.id == first_view.id
     assert project.view(999999) is None
+
+
+def test_clone_view(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    view = case.create_view()
+    project = rips_instance.project
+    view_count = len(project.views())
+
+    cloned = view.clone()
+    assert cloned is not None
+    assert cloned.id != view.id
+    assert cloned.case().id == case.id
+    assert len(project.views()) == view_count + 1
 
 
 def test_link_and_unlink_views(rips_instance, initialize_test):
@@ -154,11 +238,21 @@ def test_export_well_paths(rips_instance, initialize_test):
 
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
         rips_instance.set_export_folder(export_type="WELLPATHS", path=tmpdirname)
-        rips_instance.project.export_well_paths(
-            well_paths="Well Path A", md_step_size=10.0
-        )
+        with pytest.warns(DeprecationWarning):
+            rips_instance.project.export_well_paths(
+                well_paths="Well Path A", md_step_size=10.0
+            )
         exported = os.listdir(tmpdirname)
         assert any(name.endswith(".dev") for name in exported)
+
+    well_path = rips_instance.project.well_path_by_name("Well Path A")
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        export_folder = os.path.join(tmpdirname, "new_folder")
+        well_path.export_geometry(export_folder=export_folder, md_step_size=10.0)
+        assert os.listdir(export_folder) == ["Well_Path_A.dev"]
+
+    with pytest.raises(rips.RipsError):
+        well_path.export_geometry()
 
 
 def test_scale_fracture_template_and_set_containment(rips_instance, initialize_test):
@@ -172,9 +266,10 @@ def test_scale_fracture_template_and_set_containment(rips_instance, initialize_t
     assert template.d_factor_scale_factor == 1.0
     assert template.conductivity_factor == 1.0
 
-    project.scale_fracture_template(
-        template_id=0, half_length=2.0, height=3.0, d_factor=4.0, conductivity=5.0
-    )
+    with pytest.warns(DeprecationWarning):
+        project.scale_fracture_template(
+            template_id=0, half_length=2.0, height=3.0, d_factor=4.0, conductivity=5.0
+        )
 
     after_scale = project.descendants(rips.FractureTemplate)[0]
     assert after_scale.width_scale_factor == 2.0
@@ -182,7 +277,24 @@ def test_scale_fracture_template_and_set_containment(rips_instance, initialize_t
     assert after_scale.d_factor_scale_factor == 4.0
     assert after_scale.conductivity_factor == 5.0
 
-    project.set_fracture_containment(template_id=0, top_layer=5, base_layer=10)
+    # Object method
+    template.set_scale_factors(
+        half_length=1.5, height=2.5, d_factor=3.5, conductivity=4.5
+    )
+    after_scale = project.descendants(rips.FractureTemplate)[0]
+    assert after_scale.width_scale_factor == 1.5
+    assert after_scale.conductivity_factor == 4.5
+
+    with pytest.raises(rips.RipsError):
+        project.scale_fracture_template(
+            template_id=999, half_length=1, height=1, d_factor=1, conductivity=1
+        )
+
+    with pytest.warns(DeprecationWarning):
+        project.set_fracture_containment(template_id=0, top_layer=5, base_layer=10)
+
+    with pytest.raises(rips.RipsError):
+        template.set_containment(top_layer=10, base_layer=5)
 
     # RimFractureContainment fields are not scriptable, so verify the change
     # made it through by saving the project and inspecting the .rsp XML.
@@ -218,6 +330,33 @@ def test_import_formation_names(rips_instance, initialize_test):
     assert "Active Formation Names" in available
 
 
+def test_import_and_set_formation_names_object_methods(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+
+    formation_names = rips_instance.project.import_formation_names(
+        formation_files=[dataroot.PATH + "/20Layers.lyr"], apply_to_all_cases=False
+    )
+    assert isinstance(formation_names, rips.FormationNames)
+    assert formation_names.formation_names_file_name.endswith("20Layers.lyr")
+    # No formation names assigned to the case yet
+    with pytest.raises(rips.RipsError):
+        case.available_properties(rips.PropertyType.FORMATION_NAMES)
+
+    case.set_formation_names(formation_names=formation_names)
+    assert "Active Formation Names" in case.available_properties(
+        rips.PropertyType.FORMATION_NAMES
+    )
+
+    with pytest.raises(rips.RipsError):
+        rips_instance.project.import_formation_names(formation_files=["/no/such.lyr"])
+    with pytest.raises(rips.RipsError):
+        case.set_formation_names()
+
+    with pytest.warns(DeprecationWarning):
+        case.import_formation_names(formation_files=dataroot.PATH + "/20Layers.lyr")
+
+
 _MINIMAL_LAS = """~Version Information
  VERS.                 2.0 : CWLS log ASCII Standard - VERSION 2.0
  WRAP.                 NO  : One line per depth step
@@ -251,6 +390,33 @@ def test_import_well_log_files(rips_instance, initialize_test):
         assert "RIPS_TEST" in well_path_names
 
 
+def test_import_well_paths_and_logs_object_methods(rips_instance, initialize_test):
+    collection = rips_instance.project.well_path_collection()
+
+    # Import by folder: both .dev files in the test model folder
+    names = collection.import_well_paths(
+        well_path_folder=dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
+    )
+    assert sorted(names.values) == ["Well Path A", "Well Path B"]
+    assert len(rips_instance.project.well_paths()) == 2
+
+    with pytest.raises(rips.RipsError):
+        collection.import_well_paths(well_path_files=["/does/not/exist.dev"])
+    with pytest.raises(rips.RipsError):
+        collection.import_well_paths()
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        las_path = os.path.join(tmpdirname, "rips_test.las")
+        with open(las_path, "w") as las_file:
+            las_file.write(_MINIMAL_LAS)
+
+        names = collection.import_well_log_files(well_log_files=[las_path])
+        assert list(names.values) == ["RIPS_TEST"]
+
+    with pytest.raises(rips.RipsError):
+        collection.import_well_log_files()
+
+
 def test_exportSnapshots(rips_instance, initialize_test):
     if not rips_instance.is_gui():
         pytest.skip("Cannot run test without a GUI")
@@ -265,3 +431,57 @@ def test_exportSnapshots(rips_instance, initialize_test):
         #        assert(len(os.listdir(tmpdirname)) > 0)
         for fileName in os.listdir(tmpdirname):
             assert os.path.splitext(fileName)[1] == ".png"
+
+
+def test_export_snapshot_of_view(rips_instance, initialize_test):
+    if not rips_instance.is_gui():
+        pytest.skip("Cannot run test without a GUI")
+
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    view = case.create_view()
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        # Note: the export is a no-op when the view has no OpenGL viewer (e.g. offscreen Qt platform),
+        # so the number of files is not asserted. The call itself must succeed.
+        view.export_snapshot(
+            export_folder=tmpdirname, prefix="test_", width=320, height=240
+        )
+        for file_name in os.listdir(tmpdirname):
+            assert file_name.startswith("test_")
+            assert os.path.splitext(file_name)[1] == ".png"
+
+        # Case.views() must find the view through its case
+        assert len(case.views()) == 1
+        with pytest.warns(DeprecationWarning):
+            case.export_snapshots_of_all_views(export_folder=tmpdirname, prefix="all_")
+
+
+def test_export_snapshots_content_type(rips_instance, initialize_test):
+    if not rips_instance.is_gui():
+        pytest.skip("Cannot run test without a GUI")
+
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    case.create_view()
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        rips_instance.project.export_snapshots(
+            content_type=rips.SnapshotContentType.VIEWS,
+            export_folder=tmpdirname,
+            width=320,
+            height=240,
+        )
+        for file_name in os.listdir(tmpdirname):
+            assert os.path.splitext(file_name)[1] == ".png"
+
+        with pytest.warns(DeprecationWarning):
+            rips_instance.project.export_snapshots(
+                snapshot_type="VIEWS", export_folder=tmpdirname, prefix="old_"
+            )
+
+
+def test_run_octave_script_missing_file(rips_instance, initialize_test):
+    # Octave is not necessarily installed; verify argument validation only
+    with pytest.raises(rips.RipsError):
+        rips_instance.project.run_octave_script(path="/does/not/exist.m")
+    with pytest.raises(rips.RipsError):
+        rips_instance.project.run_octave_script()

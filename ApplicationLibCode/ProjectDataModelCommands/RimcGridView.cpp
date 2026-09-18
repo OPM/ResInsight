@@ -21,13 +21,21 @@
 #include "RiaApplication.h"
 #include "RiaKeyValueStoreUtil.h"
 
+#include "RicExportContourMapToTextFeature.h"
+
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dView.h"
+#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
 #include "RimGridView.h"
 #include "Surfaces/RimSurface.h"
 #include "Surfaces/RimSurfaceInViewCollection.h"
+
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -202,5 +210,155 @@ std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setSurfaceProperty::e
     if ( !result ) return std::unexpected( result.error() );
 
     gridView->scheduleCreateDisplayModelAndRedraw();
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_clone, "clone" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dView_clone::Rim3dView_clone( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Clone View", "", "", "Clone the view and add the copy to the same case" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> Rim3dView_clone::execute()
+{
+    auto* view = self<Rim3dView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    Rim3dView* newView = nullptr;
+    if ( auto* eclipseView = dynamic_cast<RimEclipseView*>( view ) )
+    {
+        RimEclipseCase* eclipseCase = eclipseView->eclipseCase();
+        if ( !eclipseCase ) return std::unexpected( "The view has no case." );
+
+        RimEclipseView* newEclipseView = eclipseCase->createCopyAndAddView( eclipseView );
+        newEclipseView->loadDataAndUpdate();
+        eclipseCase->updateConnectedEditors();
+        newView = newEclipseView;
+    }
+    else if ( auto* geoMechView = dynamic_cast<RimGeoMechView*>( view ) )
+    {
+        RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+        if ( !geoMechCase ) return std::unexpected( "The view has no case." );
+
+        RimGeoMechView* newGeoMechView = geoMechCase->createCopyAndAddView( geoMechView );
+        newGeoMechView->loadDataAndUpdate();
+        geoMechCase->updateConnectedEditors();
+        newView = newGeoMechView;
+    }
+
+    if ( !newView ) return std::unexpected( QString( "Could not clone view '%1'" ).arg( view->name() ) );
+
+    Riu3DMainWindowTools::setExpanded( newView );
+    return newView;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim3dView_clone::classKeywordReturnedType() const
+{
+    return Rim3dView::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_setTimeStep, "setTimeStep" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dView_setTimeStep::Rim3dView_setTimeStep( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Time Step", "", "", "Set the current time step of the view" );
+
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "Zero-based time step index" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView_setTimeStep::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> Rim3dView_setTimeStep::execute()
+{
+    auto* view = self<Rim3dView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    RimCase* rimCase = view->ownerCase();
+    if ( !rimCase ) return std::unexpected( "The view has no case." );
+
+    const int maxTimeStep = static_cast<int>( rimCase->timeStepStrings().size() ) - 1;
+    if ( m_timeStep() < 0 || m_timeStep() > maxTimeStep )
+    {
+        return std::unexpected( QString( "Time step %1 is out of range [0, %2] for case '%3'" )
+                                    .arg( m_timeStep() )
+                                    .arg( maxTimeStep )
+                                    .arg( rimCase->caseUserDescription() ) );
+    }
+
+    view->setCurrentTimeStepAndUpdate( m_timeStep() );
+    view->createDisplayModelAndRedraw();
+
+    return nullptr;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( Rim3dView, Rim3dView_exportContourMapToText, "exportContourMapToText" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dView_exportContourMapToText::Rim3dView_exportContourMapToText( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Contour Map To Text", "", "", "Export the contour map of a contour map view to a text file" );
+
+    CAF_PDM_InitScriptableField( &m_exportFileName, "ExportFileName", QString(), "Export File Name", "", "", "Full path of the file to write" );
+    CAF_PDM_InitScriptableField( &m_exportLocalCoordinates,
+                                 "ExportLocalCoordinates",
+                                 false,
+                                 "Export Local Coordinates",
+                                 "",
+                                 "",
+                                 "Export local coordinates instead of UTM" );
+    CAF_PDM_InitScriptableField( &m_undefinedValueLabel,
+                                 "UndefinedValueLabel",
+                                 QString( "NaN" ),
+                                 "Undefined Value Label",
+                                 "",
+                                 "",
+                                 "Text written for undefined values" );
+    CAF_PDM_InitScriptableField( &m_excludeUndefinedValues, "ExcludeUndefinedValues", false, "Exclude Undefined Values", "", "", "Skip undefined values" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> Rim3dView_exportContourMapToText::execute()
+{
+    auto* view = self<Rim3dView>();
+    if ( !view ) return std::unexpected( "No view is available." );
+
+    if ( m_exportFileName().isEmpty() ) return std::unexpected( "No export file name specified." );
+
+    auto result = RicExportContourMapToTextFeature::exportContourMapToText( view,
+                                                                            m_exportFileName(),
+                                                                            m_exportLocalCoordinates(),
+                                                                            m_undefinedValueLabel(),
+                                                                            m_excludeUndefinedValues() );
+    if ( !result ) return std::unexpected( result.error() );
+
     return nullptr;
 }

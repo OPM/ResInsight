@@ -17,15 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfImportFormationNames.h"
 
-#include "RicImportFormationNamesFeature.h"
+#include "RicfCommandForwarding.h"
 
 #include "Formations/RimFormationNames.h"
 #include "RimCase.h"
 #include "RimProject.h"
+#include "RimcCase.h"
+#include "RimcProject.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-
-#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RicfImportFormationNames, "importFormationNames" );
 
@@ -43,57 +43,43 @@ RicfImportFormationNames::RicfImportFormationNames()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfImportFormationNames::execute()
 {
-    QStringList errorMessages, warningMessages;
+    const QString commandName = classKeyword();
 
-    if ( !m_formationFiles().empty() )
+    RimProject_importFormationNames importMethod( RimProject::current() );
+    importMethod.setFormationFiles( m_formationFiles() );
+
+    auto importResult = importMethod.execute();
+    if ( !importResult ) return RicfForwarding::errorResponse( importResult.error(), commandName );
+
+    auto* formationNames = dynamic_cast<RimFormationNames*>( importResult.value() );
+    if ( !formationNames ) return RicfForwarding::errorResponse( "Imported object is not a formation names object", commandName );
+
+    // Apply to the given case, or to all grid cases when applyToCaseId is -1
+    std::vector<RimCase*> cases;
+    if ( m_applyToCaseId() == -1 )
     {
-        QStringList formationFileList;
-        for ( QString formationFile : m_formationFiles() )
-        {
-            if ( QFileInfo::exists( formationFile ) )
-            {
-                formationFileList.push_back( formationFile );
-            }
-            else
-            {
-                errorMessages.push_back( QString( "%1 does not exist" ).arg( formationFile ) );
-            }
-        }
-
-        RimFormationNames* formationNames = RicImportFormationNamesFeature::importFormationFiles( formationFileList );
-        if ( formationNames )
-        {
-            bool                  foundCase = false;
-            std::vector<RimCase*> cases     = RimProject::current()->allGridCases();
-            for ( RimCase* rimCase : cases )
-            {
-                if ( m_applyToCaseId() == -1 || ( rimCase->caseId() == m_applyToCaseId() ) )
-                {
-                    rimCase->setFormationNames( formationNames );
-                    rimCase->updateFormationNamesData();
-                    rimCase->updateConnectedEditors();
-                    foundCase = true;
-                }
-            }
-            if ( m_applyToCaseId() != -1 && !foundCase )
-            {
-                warningMessages << "Could not find the case to apply the formations to";
-            }
-        }
+        cases = RimProject::current()->allGridCases();
     }
     else
     {
-        errorMessages << "No formation files provided";
+        auto rimCase = RicfForwarding::findCase( m_applyToCaseId() );
+        if ( !rimCase )
+        {
+            caf::PdmScriptResponse response;
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, "Could not find the case to apply the formations to" );
+            return response;
+        }
+        cases.push_back( rimCase.value() );
     }
 
-    caf::PdmScriptResponse response;
-    for ( QString warningMessage : warningMessages )
+    for ( RimCase* rimCase : cases )
     {
-        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warningMessage );
+        RimCase_setFormationNames setMethod( rimCase );
+        setMethod.setFormationNames( formationNames );
+
+        auto result = setMethod.execute();
+        if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
     }
-    for ( QString errorMessage : errorMessages )
-    {
-        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
-    }
-    return response;
+
+    return caf::PdmScriptResponse();
 }

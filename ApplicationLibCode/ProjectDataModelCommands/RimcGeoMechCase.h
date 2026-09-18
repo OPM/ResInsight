@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020- Equinor ASA
+//  Copyright (C) 2026- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,47 +21,36 @@
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
+#include "cafPdmPtrField.h"
 
 #include <QString>
 
-class RimFractureTemplate;
+class RimWellPath;
+class RimWbsParameters;
 
 //==================================================================================================
+/// Create a Well Bore Stability plot for a well path in this GeoMech case.
 ///
+/// The plot is created with default parameters. Adjust them through the returned plot's Parameters
+/// child object, or pass a RimWbsParameters object from C++ via setParameters().
 //==================================================================================================
-class RimcFractureTemplate_setScaleFactors : public caf::PdmVoidObjectMethod
+class RimGeoMechCase_createWellBoreStabilityPlot : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcFractureTemplate_setScaleFactors( caf::PdmObjectHandle* self );
+    RimGeoMechCase_createWellBoreStabilityPlot( caf::PdmObjectHandle* self );
 
-    void setScaleFactors( double halfLength, double height, double dFactor, double conductivity );
-
-    std::expected<caf::PdmObjectHandle*, QString> execute() override;
-
-private:
-    caf::PdmField<double> m_halfLength;
-    caf::PdmField<double> m_height;
-    caf::PdmField<double> m_dFactor;
-    caf::PdmField<double> m_conductivity;
-};
-
-//==================================================================================================
-/// Set the K layer range the fractures created from this template are contained within.
-//==================================================================================================
-class RimFractureTemplate_setContainment : public caf::PdmVoidObjectMethod
-{
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimFractureTemplate_setContainment( caf::PdmObjectHandle* self );
-
-    void setLayers( int topLayer, int baseLayer );
+    void setWellPath( RimWellPath* wellPath );
+    void setTimeStep( int timeStep );
+    void setParameters( const RimWbsParameters* parameters );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
 
 private:
-    caf::PdmField<int> m_topLayer;
-    caf::PdmField<int> m_baseLayer;
+    caf::PdmPtrField<RimWellPath*> m_wellPath;
+    caf::PdmField<int>             m_timeStep;
+
+    const RimWbsParameters* m_parameters = nullptr;
 };

@@ -177,6 +177,36 @@ def test_replaceCase(rips_instance, initialize_test):
     assert case.id == 0
 
 
+def test_replace_grid(rips_instance, initialize_test):
+    project = rips_instance.project.open(
+        dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
+    )
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    case = project.case(case_id=0)
+    assert case is not None
+    assert case.name == "TEST10K_FLT_LGR_NNC"
+
+    case.replace_grid(new_grid_file=case_path)
+
+    # The project is reloaded, so retrieve the case object again
+    cases = rips_instance.project.cases()
+    assert len(cases) == 1
+    case = rips_instance.project.case(case_id=0)
+    assert case.name == "BRUGGE_0000"
+    assert case.id == 0
+
+
+def test_replace_deprecated(rips_instance, initialize_test):
+    project = rips_instance.project.open(
+        dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
+    )
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    case = project.case(case_id=0)
+    with pytest.warns(DeprecationWarning):
+        case.replace(new_grid_file=case_path)
+    assert case.name == "BRUGGE_0000"
+
+
 def test_loadNonExistingCase(rips_instance, initialize_test):
     case_path = "Nonsense/Nonsense/Nonsense"
     with pytest.raises(rips.RipsError):
@@ -190,8 +220,14 @@ def test_exportFlowCharacteristics(rips_instance, initialize_test):
         print("Temporary folder: ", tmpdirname)
         file_name = tmpdirname + "/exportFlowChar.txt"
         case.export_flow_characteristics(
-            time_steps=8, producers=[], injectors="I01", file_name=file_name
+            time_steps=[8], producers=[], injectors=["I01"], file_name=file_name
         )
+        assert os.path.exists(file_name)
+        with open(file_name) as f:
+            assert len(f.read()) > 0
+
+        with pytest.raises(rips.RipsError):
+            case.export_flow_characteristics(time_steps=[8])
 
 
 def test_selected_cells(rips_instance, initialize_test):
@@ -415,3 +451,21 @@ def test_10k_result_alias(rips_instance, initialize_test):
 
     with pytest.raises(rips.RipsError, match="No such result"):
         case.grid_property(rips.PropertyType.DYNAMIC_NATIVE, "SPOIL", 3)
+
+
+def test_create_saturation_pressure_plots_requires_data(rips_instance, initialize_test):
+    # None of the test models carry EQUIL/PBUB/PDEW data, so the method must report a clear error
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    with pytest.raises(rips.RipsError):
+        case.create_saturation_pressure_plots()
+
+
+def test_create_well_bore_stability_plot_is_geomech_only(
+    rips_instance, initialize_test
+):
+    # No GeoMech test data is available; verify the method is exposed on the right class
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    assert not hasattr(case, "create_well_bore_stability_plot")
+    assert hasattr(rips.GeoMechCase, "create_well_bore_stability_plot")

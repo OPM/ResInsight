@@ -1,8 +1,11 @@
 import sys
 import os
+import pytest
+import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 
+import rips
 import dataroot
 
 
@@ -62,3 +65,19 @@ def test_visible_cells_different_timesteps(rips_instance, initialize_test):
 
     # Both should have the same number of cells
     assert len(visibility_ts0) == len(visibility_ts1)
+
+
+def test_export_contour_map_to_text_requires_contour_map(
+    rips_instance, initialize_test
+):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    view = case.create_view()
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        # A regular 3D view is not a contour map
+        with pytest.raises(rips.RipsError):
+            view.export_contour_map_to_text(
+                export_file_name=os.path.join(tmpdirname, "map.txt")
+            )
+        with pytest.raises(rips.RipsError):
+            view.export_contour_map_to_text()

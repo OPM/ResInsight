@@ -18,16 +18,13 @@
 
 #include "RicfCreateGridCaseGroup.h"
 
-#include "RiaApplication.h"
-#include "RiaImportEclipseCaseTools.h"
+#include "RicfCommandForwarding.h"
 
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimProject.h"
+#include "RimcProject.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-
-#include <QDir>
-#include <QFileInfo>
-#include <QStringList>
 
 CAF_PDM_SOURCE_INIT( RicfCreateGridCaseGroupResult, "createGridCaseGroupResult" );
 
@@ -56,26 +53,18 @@ RicfCreateGridCaseGroup::RicfCreateGridCaseGroup()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCreateGridCaseGroup::execute()
 {
-    QStringList casePaths;
-    for ( QString casePath : m_casePaths() )
-    {
-        QFileInfo casePathInfo( casePath );
-        if ( !casePathInfo.exists() )
-        {
-            QDir startDir( RiaApplication::instance()->startDir() );
-            casePath = startDir.absoluteFilePath( casePath );
-        }
-        casePaths.push_back( casePath );
-    }
+    const QString commandName = classKeyword();
 
-    RimIdenticalGridCaseGroup* caseGroup = nullptr;
+    RimProject_createGridCaseGroup method( RimProject::current() );
+    method.setCasePaths( m_casePaths() );
 
-    if ( RiaImportEclipseCaseTools::addEclipseCases( casePaths, &caseGroup ) && caseGroup )
-    {
-        caf::PdmScriptResponse response;
-        response.setResult( new RicfCreateGridCaseGroupResult( caseGroup->groupId(), caseGroup->name() ) );
-        return response;
-    }
+    auto result = method.execute();
+    if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
 
-    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, "Could not load grid case group" );
+    auto* caseGroup = dynamic_cast<RimIdenticalGridCaseGroup*>( result.value() );
+    if ( !caseGroup ) return RicfForwarding::errorResponse( "Created object is not a grid case group", commandName );
+
+    caf::PdmScriptResponse response;
+    response.setResult( new RicfCreateGridCaseGroupResult( caseGroup->groupId(), caseGroup->name() ) );
+    return response;
 }

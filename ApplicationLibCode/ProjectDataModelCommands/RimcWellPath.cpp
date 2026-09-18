@@ -18,6 +18,7 @@
 
 #include "RimcWellPath.h"
 
+#include "ExportCommands/RicExportSelectedWellPathsFeature.h"
 #include "FractureCommands/RicNewWellPathFractureFeature.h"
 #include "FractureCommands/RicPlaceThermalFractureUsingTemplateDataFeature.h"
 
@@ -855,4 +856,57 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellPath_addIcvValve::execute(
 QString RimcWellPath_addIcvValve::classKeywordReturnedType() const
 {
     return RimWellPathValve::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimWellPath_exportGeometry, "exportGeometry" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPath_exportGeometry::RimWellPath_exportGeometry( caf::PdmObjectHandle* self )
+    : caf::PdmVoidObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Export Geometry", "", "", "Export the well path geometry to a .dev file named after the well path" );
+
+    CAF_PDM_InitScriptableField( &m_exportFolder,
+                                 "ExportFolder",
+                                 QString(),
+                                 "Export Folder",
+                                 "",
+                                 "",
+                                 "Folder to write the .dev file to. Created if it does not exist." );
+    CAF_PDM_InitScriptableField( &m_mdStepSize, "MdStepSize", 5.0, "MD Step Size", "", "", "Resolution of the exported well path along measured depth" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPath_exportGeometry::setExportFolder( const QString& exportFolder )
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPath_exportGeometry::setMdStepSize( double mdStepSize )
+{
+    m_mdStepSize = mdStepSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimWellPath_exportGeometry::execute()
+{
+    auto* wellPath = self<RimWellPath>();
+    if ( !wellPath ) return std::unexpected( "No well path is available." );
+
+    if ( m_exportFolder().isEmpty() ) return std::unexpected( "No export folder specified." );
+    if ( m_mdStepSize() <= 0.0 ) return std::unexpected( "MD step size must be positive." );
+
+    const bool writeProjectInfo = false;
+    RicExportSelectedWellPathsFeature::exportWellPath( wellPath, m_mdStepSize(), m_exportFolder(), writeProjectInfo );
+
+    return nullptr;
 }

@@ -21,15 +21,22 @@
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
+#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
+#include "ExportCommands/RicLgrSplitType.h"
+#include "FractureCommands/RicCreateMultipleFracturesFeature.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
+#include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
 #include <QString>
 
 class RimCellFilter;
+class RimFractureTemplate;
+class RimWellPath;
 
 //==================================================================================================
 ///
@@ -160,4 +167,258 @@ private:
     caf::PdmField<QString>           m_maskKey;
     caf::PdmField<int>               m_timeStep;
     caf::PdmField<int>               m_gridIndex;
+};
+
+//==================================================================================================
+/// Export a cell property (static or dynamic, matrix model) of the case to a GRDECL style text file.
+//==================================================================================================
+class RimEclipseCase_exportProperty : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_exportProperty( caf::PdmObjectHandle* self );
+
+    void setTimeStep( int timeStep );
+    void setPropertyName( const QString& propertyName );
+    void setEclipseKeyword( const QString& eclipseKeyword );
+    void setUndefinedValue( double undefinedValue );
+    void setExportFile( const QString& exportFile );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<int>     m_timeStep;
+    caf::PdmField<QString> m_propertyName;
+    caf::PdmField<QString> m_eclipseKeyword;
+    caf::PdmField<double>  m_undefinedValue;
+    caf::PdmField<QString> m_exportFile;
+};
+
+//==================================================================================================
+/// Export completion data (COMPDAT, WELSPECS, MSW keywords etc.) for well paths in this case.
+//==================================================================================================
+class RimEclipseCase_exportCompletions : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_exportCompletions( caf::PdmObjectHandle* self );
+
+    void setWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void setTimeStep( int timeStep );
+    void setExportFolder( const QString& exportFolder );
+    void setCustomFileName( const QString& customFileName );
+    void setFileSplit( RicExportCompletionDataSettingsUi::ExportSplit fileSplit );
+    void setCompdatExport( RicExportCompletionDataSettingsUi::CompdatExport compdatExport );
+    void setIncludeMsw( bool enable );
+    void setUseNtgHorizontally( bool enable );
+    void setIncludePerforations( bool enable );
+    void setIncludeFishbones( bool enable );
+    void setIncludeFractures( bool enable );
+    void setExcludeMainBoreForFishbones( bool enable );
+    void setPerformTransScaling( bool enable );
+    void setTransScalingTimeStep( int timeStep );
+    void setTransScalingWbhpSource( RicExportFractureCompletionsImpl::PressureDepletionWBHPSource source );
+    void setTransScalingWbhp( double wbhp );
+    void setExportComments( bool enable );
+    void setExportWelspec( bool enable );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrArrayField<RimWellPath*> m_wellPaths;
+    caf::PdmField<int>                  m_timeStep;
+    caf::PdmField<QString>              m_exportFolder;
+    caf::PdmField<QString>              m_customFileName;
+
+    caf::PdmField<RicExportCompletionDataSettingsUi::ExportSplitType>   m_fileSplit;
+    caf::PdmField<RicExportCompletionDataSettingsUi::CompdatExportType> m_compdatExport;
+
+    caf::PdmField<bool> m_includeMsw;
+    caf::PdmField<bool> m_useNtgHorizontally;
+    caf::PdmField<bool> m_includePerforations;
+    caf::PdmField<bool> m_includeFishbones;
+    caf::PdmField<bool> m_includeFractures;
+    caf::PdmField<bool> m_excludeMainBoreForFishbones;
+
+    caf::PdmField<bool>                                                      m_performTransScaling;
+    caf::PdmField<int>                                                       m_transScalingTimeStep;
+    caf::PdmField<RicExportCompletionDataSettingsUi::TransScalingWBHPSource> m_transScalingWbhpSource;
+    caf::PdmField<double>                                                    m_transScalingWbhp;
+
+    caf::PdmField<bool> m_exportComments;
+    caf::PdmField<bool> m_exportWelspec;
+};
+
+//==================================================================================================
+/// Export the Multi Segment Well (MSW) model keywords (WELSEGS, COMPSEGS, ...) for well paths in this case.
+//==================================================================================================
+class RimEclipseCase_exportMswCompletions : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_exportMswCompletions( caf::PdmObjectHandle* self );
+
+    void setWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void setExportFolder( const QString& exportFolder );
+    void setFileSplit( RicExportCompletionDataSettingsUi::ExportSplit fileSplit );
+    void setIncludePerforations( bool enable );
+    void setIncludeFishbones( bool enable );
+    void setIncludeFractures( bool enable );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrArrayField<RimWellPath*>                               m_wellPaths;
+    caf::PdmField<QString>                                            m_exportFolder;
+    caf::PdmField<RicExportCompletionDataSettingsUi::ExportSplitType> m_fileSplit;
+    caf::PdmField<bool>                                               m_includePerforations;
+    caf::PdmField<bool>                                               m_includeFishbones;
+    caf::PdmField<bool>                                               m_includeFractures;
+};
+
+//==================================================================================================
+/// Create temporary local grid refinements (LGRs) around the completions of the given well paths.
+/// Existing temporary LGRs in the case are deleted first.
+//==================================================================================================
+class RimEclipseCase_createLgrForCompletions : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_createLgrForCompletions( caf::PdmObjectHandle* self );
+
+    void setWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void setTimeStep( int timeStep );
+    void setRefinement( int refinementI, int refinementJ, int refinementK );
+    void setSplitType( Lgr::SplitType splitType );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+    /// Wells skipped because they intersect existing LGRs. Valid after execute().
+    QStringList wellsIntersectingOtherLgrs() const;
+
+private:
+    caf::PdmPtrArrayField<RimWellPath*> m_wellPaths;
+    caf::PdmField<int>                  m_timeStep;
+    caf::PdmField<int>                  m_refinementI;
+    caf::PdmField<int>                  m_refinementJ;
+    caf::PdmField<int>                  m_refinementK;
+    caf::PdmField<Lgr::SplitTypeEnum>   m_splitType;
+
+    QStringList m_wellsIntersectingOtherLgrs;
+};
+
+//==================================================================================================
+/// Export local grid refinements (LGRs) around the completions of the given well paths to CARFIN files.
+//==================================================================================================
+class RimEclipseCase_exportLgrForCompletions : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_exportLgrForCompletions( caf::PdmObjectHandle* self );
+
+    void setWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void setTimeStep( int timeStep );
+    void setExportFolder( const QString& exportFolder );
+    void setRefinement( int refinementI, int refinementJ, int refinementK );
+    void setSplitType( Lgr::SplitType splitType );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+    /// Wells skipped because they intersect existing LGRs. Valid after execute().
+    QStringList wellsIntersectingOtherLgrs() const;
+
+private:
+    caf::PdmPtrArrayField<RimWellPath*> m_wellPaths;
+    caf::PdmField<int>                  m_timeStep;
+    caf::PdmField<QString>              m_exportFolder;
+    caf::PdmField<int>                  m_refinementI;
+    caf::PdmField<int>                  m_refinementJ;
+    caf::PdmField<int>                  m_refinementK;
+    caf::PdmField<Lgr::SplitTypeEnum>   m_splitType;
+
+    QStringList m_wellsIntersectingOtherLgrs;
+};
+
+//==================================================================================================
+/// Create multiple fractures along the given well paths using a fracture template.
+//==================================================================================================
+class RimEclipseCase_createMultipleFractures : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseCase_createMultipleFractures( caf::PdmObjectHandle* self );
+
+    void setWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void setFractureTemplate( RimFractureTemplate* fractureTemplate );
+    void setMinDistFromWellTd( double minDist );
+    void setMaxFracturesPerWell( int maxFractures );
+    void setTopLayer( int topLayer );
+    void setBaseLayer( int baseLayer );
+    void setSpacing( double spacing );
+    void setAction( MultipleFractures::Action action );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmPtrArrayField<RimWellPath*>                    m_wellPaths;
+    caf::PdmPtrField<RimFractureTemplate*>                 m_fractureTemplate;
+    caf::PdmField<double>                                  m_minDistFromWellTd;
+    caf::PdmField<int>                                     m_maxFracturesPerWell;
+    caf::PdmField<int>                                     m_topLayer;
+    caf::PdmField<int>                                     m_baseLayer;
+    caf::PdmField<double>                                  m_spacing;
+    caf::PdmField<caf::AppEnum<MultipleFractures::Action>> m_action;
+};
+
+//==================================================================================================
+/// Export flow characteristics (Lorenz coefficient, flow capacity/storage capacity and sweep
+/// efficiency) computed by flow diagnostics to a text file.
+//==================================================================================================
+class RimEclipseResultCase_exportFlowCharacteristics : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseResultCase_exportFlowCharacteristics( caf::PdmObjectHandle* self );
+
+    void setTimeSteps( const std::vector<int>& timeSteps );
+    void setInjectors( const std::vector<QString>& injectors );
+    void setProducers( const std::vector<QString>& producers );
+    void setFileName( const QString& fileName );
+    void setMinimumCommunication( double minimumCommunication );
+    void setAquiferCellThreshold( double aquiferCellThreshold );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<std::vector<int>>     m_timeSteps;
+    caf::PdmField<std::vector<QString>> m_injectors;
+    caf::PdmField<std::vector<QString>> m_producers;
+    caf::PdmField<QString>              m_fileName;
+    caf::PdmField<double>               m_minimumCommunication;
+    caf::PdmField<double>               m_aquiferCellThreshold;
+};
+
+//==================================================================================================
+/// Create saturation pressure plots (PRESSURE vs PBUB/PDEW per EQUIL region) for the case.
+//==================================================================================================
+class RimEclipseResultCase_createSaturationPressurePlots : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimEclipseResultCase_createSaturationPressurePlots( caf::PdmObjectHandle* self );
+
+    void setTimeStep( int timeStep );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<int> m_timeStep;
 };

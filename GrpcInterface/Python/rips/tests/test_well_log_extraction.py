@@ -1,5 +1,6 @@
 import sys
 import os
+import pytest
 import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
@@ -46,3 +47,29 @@ def test_10k_well_log_extraction(rips_instance, initialize_test):
 
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
         well_log_plot.export_data_as_las(export_folder=tmpdirname)
+
+
+def test_export_data_as_ascii(rips_instance, initialize_test):
+    project = rips_instance.project.open(
+        dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
+    )
+    well_log_plots = [
+        plot for plot in project.plots() if isinstance(plot, rips.WellLogPlot)
+    ]
+    assert len(well_log_plots) > 0
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        files = well_log_plots[0].export_data_as_ascii(
+            export_folder=tmpdirname, file_prefix="pfx_"
+        )
+        assert len(files) == 1
+        assert os.path.exists(files[0])
+        assert os.path.basename(files[0]).startswith("pfx_")
+
+        las_files = well_log_plots[0].export_data_as_las(export_folder=tmpdirname)
+        assert len(las_files) >= 1
+        for las in las_files:
+            assert las.endswith(".las")
+
+    with pytest.raises(rips.RipsError):
+        well_log_plots[0].export_data_as_las(export_folder="/does/not/exist")

@@ -20,18 +20,10 @@
 
 #include "RicfCommandObject.h"
 
+#include "FractureCommands/RicCreateMultipleFracturesFeature.h"
 #include "cafAppEnum.h"
-#include "cafPdmField.h"
 
-namespace MultipleFractures
-{
-enum class Action
-{
-    NONE,
-    APPEND_FRACTURES,
-    REPLACE_FRACTURES
-};
-}
+#include "cafPdmField.h"
 
 class RimEclipseCase;
 class RimFractureTemplate;
@@ -52,9 +44,6 @@ public:
     caf::PdmScriptResponse execute() override;
 
 private:
-    bool                 validateArguments() const;
-    RimFractureTemplate* fractureTemplateFromId( int templateId ) const;
-
     caf::PdmField<int>                                     m_caseId;
     caf::PdmField<std::vector<QString>>                    m_wellPathNames;
     caf::PdmField<double>                                  m_minDistFromWellTd;

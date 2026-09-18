@@ -40,6 +40,14 @@ public:
                                                  int            viewId              = -1,
                                                  const QString& preferredFileSuffix = ".png" );
 
+    static void exportSnapshotOfPlot( RimViewWindow* viewWindow,
+                                      const QString& snapshotFolderName,
+                                      int            width               = -1,
+                                      int            height              = -1,
+                                      bool           activateWidget      = false,
+                                      const QString& prefix              = "",
+                                      const QString& preferredFileSuffix = ".png" );
+
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

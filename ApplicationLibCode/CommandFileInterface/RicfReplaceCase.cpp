@@ -23,8 +23,11 @@
 #include "RiaProjectModifier.h"
 
 #include "RicfCommandFileExecutor.h"
+#include "RicfCommandForwarding.h"
 
+#include "RimCase.h"
 #include "RimProject.h"
+#include "RimcCase.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -63,46 +66,29 @@ QString RicfSingleCaseReplace::filePath() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfSingleCaseReplace::execute()
 {
+    const QString commandName = classKeyword();
+
+    // The legacy command file interface allows replacing a case in a project that has been opened by
+    // 'openProject' but is not saved. Resolve the project path here and pass it on explicitly.
     QString projectPath = RimProject::current()->fileName();
     if ( projectPath.isEmpty() )
     {
         QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
         if ( lastProjectPath.isNull() )
         {
-            QString errMsg( "replaceCase: The project must be saved as a file before calling 'replaceCase'." );
-            RiaLogging::error( errMsg.toStdString() );
-            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
+            return RicfForwarding::errorResponse( "The project must be saved as a file before calling 'replaceCase'.", commandName );
         }
         projectPath = lastProjectPath;
     }
 
-    cvf::ref<RiaProjectModifier> projectModifier = cvf::make_ref<RiaProjectModifier>();
+    auto rimCase = RicfForwarding::findCaseOrFirstEclipseResultCase( m_caseId() );
+    if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
 
-    QString   filePath = m_newGridFile();
-    QFileInfo casePathInfo( filePath );
-    if ( !casePathInfo.exists() )
-    {
-        QDir startDir( RiaApplication::instance()->startDir() );
-        filePath = startDir.absoluteFilePath( m_newGridFile() );
-    }
+    RimCase_replaceGrid method( rimCase.value() );
+    method.setNewGridFile( m_newGridFile() );
+    method.setProjectFile( projectPath );
 
-    if ( m_caseId() < 0 )
-    {
-        projectModifier->setReplaceCaseFirstOccurrence( filePath );
-    }
-    else
-    {
-        projectModifier->setReplaceCase( m_caseId(), filePath );
-    }
-
-    if ( !RiaApplication::instance()->loadProject( projectPath, RiaApplication::ProjectLoadAction::PLA_NONE, projectModifier.p() ) )
-    {
-        QString errMsg( "Could not reload project" );
-        RiaLogging::error( errMsg.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
-    }
-
-    return caf::PdmScriptResponse();
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
 }
 
 CAF_PDM_SOURCE_INIT( RicfMultiCaseReplace, "replaceMultipleCases" );

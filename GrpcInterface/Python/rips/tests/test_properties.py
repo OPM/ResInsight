@@ -256,3 +256,78 @@ def test_exportPropertyInView(rips_instance, initialize_test):
         expected_file_name = case.name + "-" + str("3D_View") + "-" + "T0" + "-SOIL"
         full_path = tmpdirname + "/" + expected_file_name
         assert os.path.exists(full_path)
+
+
+def test_export_property(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        export_file = os.path.join(tmpdirname, "soil_t1.grdecl")
+        case.export_property(time_step=1, property_name="SOIL", export_file=export_file)
+        assert os.path.exists(export_file)
+        with open(export_file) as f:
+            assert "SOIL" in f.read(200)
+
+        # Keyword override and static property
+        export_file = os.path.join(tmpdirname, "poro.grdecl")
+        case.export_property(
+            time_step=0,
+            property_name="PORO",
+            eclipse_keyword="MYPORO",
+            export_file=export_file,
+        )
+        with open(export_file) as f:
+            assert "MYPORO" in f.read(200)
+
+        with pytest.raises(rips.RipsError):
+            case.export_property(
+                time_step=0,
+                property_name="NOT_A_PROPERTY",
+                export_file=os.path.join(tmpdirname, "x"),
+            )
+        with pytest.raises(rips.RipsError):
+            case.export_property(time_step=0, property_name="PORO")
+
+
+def test_export_current_property(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    view = case.create_view()
+    view.set_time_step(1)
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        export_file = os.path.join(tmpdirname, "current.grdecl")
+        view.export_current_property(export_file=export_file)
+        assert os.path.exists(export_file)
+        with open(export_file) as f:
+            assert "SOIL" in f.read(200)
+
+        with pytest.raises(rips.RipsError):
+            view.export_current_property()
+
+
+def test_export_visible_cells(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(case_path)
+    view = case.create_view()
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        export_file = os.path.join(tmpdirname, "fluxnum.grdecl")
+        view.export_visible_cells(export_file=export_file)
+        assert os.path.exists(export_file)
+        with open(export_file) as f:
+            assert "FLUXNUM" in f.read(200)
+
+        export_file = os.path.join(tmpdirname, "actnum.grdecl")
+        view.export_visible_cells(
+            export_file=export_file,
+            export_keyword=rips.VisibleCellsExportKeyword.ACTNUM,
+            visible_active_cells_value=2,
+        )
+        with open(export_file) as f:
+            content = f.read()
+            assert "ACTNUM" in content[:200]
+            # Note: without a GUI no cells are visible, so the exported values are not asserted
+            values = content.split("ACTNUM")[1].split("/")[0].split()
+            assert len(values) > 0
+
+        with pytest.raises(rips.RipsError):
+            view.export_visible_cells()

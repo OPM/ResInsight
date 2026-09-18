@@ -109,7 +109,7 @@ RimFractureTemplate::RimFractureTemplate()
 {
     CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png" );
 
-    CAF_PDM_InitField( &m_id, "Id", -1, "ID" );
+    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "ID" );
     m_id.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableField( &m_name, "UserDescription", QString( "Fracture Template" ), "Name" );

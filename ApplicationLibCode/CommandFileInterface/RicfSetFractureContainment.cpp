@@ -19,11 +19,10 @@
 
 #include "RicfSetFractureContainment.h"
 
-#include "RiaLogging.h"
+#include "RicfCommandForwarding.h"
 
 #include "RimFractureTemplate.h"
-#include "RimFractureTemplateCollection.h"
-#include "RimProject.h"
+#include "RimcFractureTemplate.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -44,35 +43,18 @@ RicfSetFractureContainment::RicfSetFractureContainment()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfSetFractureContainment::execute()
 {
+    const QString commandName = classKeyword();
+
     if ( m_id < 0 || m_topLayer < 0 || m_baseLayer < 0 )
     {
-        QString error( "setFractureContainment: Required argument missing" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
+        return RicfForwarding::errorResponse( "Required argument missing", commandName );
     }
 
-    RimProject* project = RimProject::current();
+    auto fractureTemplate = RicfForwarding::findFractureTemplate( m_id() );
+    if ( !fractureTemplate ) return RicfForwarding::errorResponse( fractureTemplate.error(), commandName );
 
-    if ( !project )
-    {
-        QString error( "setFractureContainment: Project not found" );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
+    RimFractureTemplate_setContainment method( fractureTemplate.value() );
+    method.setLayers( m_topLayer(), m_baseLayer() );
 
-    RimFractureTemplateCollection* templColl =
-        !project->allFractureTemplateCollections().empty() ? project->allFractureTemplateCollections()[0] : nullptr;
-    RimFractureTemplate* templ = templColl ? templColl->fractureTemplate( m_id ) : nullptr;
-
-    if ( !templ )
-    {
-        QString error = QString( "setFractureContainment: Fracture template not found. Id=%1" ).arg( m_id() );
-        RiaLogging::error( error.toStdString() );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
-    }
-
-    templ->setContainmentTopKLayer( m_topLayer );
-    templ->setContainmentBaseKLayer( m_baseLayer );
-    templ->loadDataAndUpdateGeometryHasChanged();
-    return caf::PdmScriptResponse();
+    return RicfForwarding::toScriptResponse( method.execute(), commandName );
 }

@@ -26,6 +26,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 
+#include "cafPdmScriptEnumNameRegistry.h"
+
 namespace caf
 {
 template <>
@@ -55,6 +57,22 @@ void RicExportCompletionDataSettingsUi::TransScalingWBHPSource::setUp()
     setDefault( RicExportFractureCompletionsImpl::WBHP_FROM_SUMMARY );
 }
 } // namespace caf
+
+namespace
+{
+// Pin the Python StrEnum class names for the export settings used by RimEclipseCase_exportCompletions
+struct RegisterScriptEnumNames
+{
+    RegisterScriptEnumNames()
+    {
+        caf::PdmScriptEnumNameRegistry::registerName<RicExportCompletionDataSettingsUi::ExportSplit>( "CompletionExportSplit" );
+        caf::PdmScriptEnumNameRegistry::registerName<RicExportCompletionDataSettingsUi::CompdatExport>( "CompdatExportType" );
+        caf::PdmScriptEnumNameRegistry::registerName<RicExportFractureCompletionsImpl::PressureDepletionWBHPSource>(
+            "TransScalingWbhpSource" );
+    }
+};
+const RegisterScriptEnumNames s_registerScriptEnumNames;
+} // namespace
 
 CAF_PDM_SOURCE_INIT( RicExportCompletionDataSettingsUi, "RicExportCompletionDataSettingsUi" );
 

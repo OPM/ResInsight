@@ -19,6 +19,8 @@
 
 #include "cafCmdFeature.h"
 
+class Rim3dView;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -35,6 +37,9 @@ public:
                                                  const QString& prefix = "",
                                                  int            caseId = -1,
                                                  int            viewId = -1 );
+
+    static void
+        exportSnapshotOfView( Rim3dView* view, const QString& snapshotFolderName, int width = -1, int height = -1, const QString& prefix = "" );
 
 protected:
     void onActionTriggered( bool isChecked ) override;

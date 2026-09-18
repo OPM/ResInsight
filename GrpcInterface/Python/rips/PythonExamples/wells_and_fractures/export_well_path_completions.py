@@ -8,15 +8,17 @@ import rips
 # Load instance
 resinsight = rips.Instance.find()
 cases = resinsight.project.cases()
+well_path = resinsight.project.well_path_by_name("Well-1")
 
 for case in cases:
     print("Case name: ", case.name)
     print("Case id: ", case.id)
 
-    case.export_well_path_completions(
+    case.export_completions(
+        well_paths=[well_path],
         time_step=0,
-        well_path_names=["Well-1"],
-        file_split="UNIFIED_FILE",
+        export_folder="d:/scratch/well_path_export",
+        file_split=rips.CompletionExportSplit.UNIFIED_FILE,
         include_perforations=True,
-        custom_file_name="d:/scratch/well_path_export/myfile.myext",
+        custom_file_name="myfile.myext",
     )

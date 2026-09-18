@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2023- Equinor ASA
+//  Copyright (C) 2026- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,55 +21,65 @@
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
+#include "cafPdmPtrField.h"
 
 #include <QString>
 
-#include <memory>
+class Rim3dView;
+class RimFormationNames;
 
 //==================================================================================================
+/// Replace the grid file of a case (Eclipse result case or GeoMech case) and reload the project.
 ///
+/// The project must be saved to file, as the replacement is performed by reloading the project
+/// through a RiaProjectModifier. An explicit project file can be given to override the current
+/// project file name (used by the legacy command file interface).
 //==================================================================================================
-class RimcEclipseStatisticsCase_setSourceProperties : public caf::PdmVoidObjectMethod
+class RimCase_replaceGrid : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcEclipseStatisticsCase_setSourceProperties( caf::PdmObjectHandle* self );
+    RimCase_replaceGrid( caf::PdmObjectHandle* self );
+
+    void setNewGridFile( const QString& newGridFile );
+    void setProjectFile( const QString& projectFile );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
 
 private:
-    caf::PdmField<QString>              m_propertyType;
-    caf::PdmField<std::vector<QString>> m_propertyNames;
+    caf::PdmField<QString> m_newGridFile;
+    caf::PdmField<QString> m_projectFile;
 };
 
 //==================================================================================================
-///
+/// Create a new 3D view in the case. Supports Eclipse cases and GeoMech cases.
 //==================================================================================================
-class RimcEclipseStatisticsCase_computeStatistics : public caf::PdmVoidObjectMethod
+class RimCase_createView : public caf::PdmObjectCreationMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcEclipseStatisticsCase_computeStatistics( caf::PdmObjectHandle* self );
+    RimCase_createView( caf::PdmObjectHandle* self );
 
-    void setUpdateViews( bool updateViews );
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+};
+
+//==================================================================================================
+/// Set the active formation names of the case.
+//==================================================================================================
+class RimCase_setFormationNames : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimCase_setFormationNames( caf::PdmObjectHandle* self );
+
+    void setFormationNames( RimFormationNames* formationNames );
 
     std::expected<caf::PdmObjectHandle*, QString> execute() override;
 
 private:
-    caf::PdmField<bool> m_updateViews;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
-class RimcEclipseStatisticsCase_clearSourceProperties : public caf::PdmVoidObjectMethod
-{
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimcEclipseStatisticsCase_clearSourceProperties( caf::PdmObjectHandle* self );
-
-    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    caf::PdmPtrField<RimFormationNames*> m_formationNames;
 };

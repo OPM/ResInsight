@@ -17,19 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfExportWellLogPlotData.h"
 
-#include "RiaLogging.h"
+#include "RicfCommandForwarding.h"
 
-#include "ExportCommands/RicExportToLasFileFeature.h"
-#include "WellLogCommands/RicAsciiExportWellLogPlotFeature.h"
-
-#include "RimProject.h"
 #include "RimWellLogPlot.h"
+#include "RimcDataContainerString.h"
+#include "RimcWellLogPlot.h"
 
 #include "cafPdmFieldScriptingCapability.h"
-
-#include <QDir>
-#include <QFileInfo>
-#include <QStringList>
 
 namespace caf
 {
@@ -75,59 +69,47 @@ RicfExportWellLogPlotData::RicfExportWellLogPlotData()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfExportWellLogPlotData::execute()
 {
-    QStringList errorMessages;
+    const QString commandName = classKeyword();
 
-    caf::PdmScriptResponse response;
-
-    if ( QFileInfo::exists( m_folder ) )
+    auto plot = RicfForwarding::findWellLogPlot( m_viewId() );
+    if ( !plot )
     {
-        std::vector<RimWellLogPlot*>     plots  = RimProject::current()->descendantsIncludingThisOfType<RimWellLogPlot>();
-        RicfExportWellLogPlotDataResult* result = new RicfExportWellLogPlotDataResult;
+        // Legacy behavior: an unknown view id produced an empty result, not an error
+        caf::PdmScriptResponse response;
+        response.setResult( new RicfExportWellLogPlotDataResult );
+        return response;
+    }
 
-        for ( RimWellLogPlot* plot : plots )
-        {
-            if ( plot->id() == m_viewId() )
-            {
-                if ( m_format() == ExportFormat::ASCII )
-                {
-                    QString validFileName =
-                        RicAsciiExportWellLogPlotFeature::makeValidExportFileName( plot, m_folder(), m_filePrefix(), m_capitalizeFileNames() );
-                    if ( RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( validFileName, plot ) )
-                    {
-                        result->exportedFiles.v().push_back( validFileName );
-                    }
-                }
-                else
-                {
-                    std::vector<QString> exportedFiles = RicExportToLasFileFeature::exportToLasFiles( m_folder(),
-                                                                                                      m_filePrefix(),
-                                                                                                      plot,
-                                                                                                      m_exportTvdRkb(),
-                                                                                                      m_capitalizeFileNames(),
-                                                                                                      true,
-                                                                                                      m_resampleInterval(),
-                                                                                                      m_convertCurveUnits() );
-                    if ( exportedFiles.empty() )
-                    {
-                        errorMessages << QString( "No files exported for '%1'" ).arg( plot->description() );
-                    }
-                    else
-                    {
-                        result->exportedFiles.v().insert( result->exportedFiles.v().end(), exportedFiles.begin(), exportedFiles.end() );
-                    }
-                }
-            }
-        }
-        response.setResult( result );
+    std::expected<caf::PdmObjectHandle*, QString> result;
+    if ( m_format() == ExportFormat::ASCII )
+    {
+        RimWellLogPlot_exportDataAsAscii method( plot.value() );
+        method.setExportFolder( m_folder() );
+        method.setFilePrefix( m_filePrefix() );
+        method.setCapitalizeFileNames( m_capitalizeFileNames() );
+        result = method.execute();
     }
     else
     {
-        errorMessages << ( m_folder() + " does not exist" );
+        RimWellLogPlot_exportDataAsLas method( plot.value() );
+        method.setExportFolder( m_folder() );
+        method.setFilePrefix( m_filePrefix() );
+        method.setExportTvdRkb( m_exportTvdRkb() );
+        method.setCapitalizeFileNames( m_capitalizeFileNames() );
+        method.setResampleInterval( m_resampleInterval() );
+        method.setConvertToStandardUnits( m_convertCurveUnits() );
+        result = method.execute();
     }
 
-    for ( QString errorMessage : errorMessages )
-    {
-        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
-    }
+    if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
+
+    auto* files = dynamic_cast<RimcDataContainerString*>( result.value() );
+
+    auto* exportResult = new RicfExportWellLogPlotDataResult;
+    if ( files ) exportResult->exportedFiles = files->m_stringValues();
+    delete files;
+
+    caf::PdmScriptResponse response;
+    response.setResult( exportResult );
     return response;
 }

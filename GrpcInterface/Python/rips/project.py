@@ -6,6 +6,7 @@ The ResInsight project module
 
 import grpc
 import uuid
+import warnings
 
 from .case import Case
 from .gridcasegroup import GridCaseGroup
@@ -19,11 +20,16 @@ import Project_pb2_grpc
 import KeyValueStore_pb2_grpc
 import KeyValueStore_pb2
 
+from .exception import RipsError
 from .resinsight_classes import (
     ColorLegendCollection,
+    FormationNames,
+    FractureTemplate,
     PlotWindow,
     Project,
     Reservoir,
+    SnapshotContentType,
+    SnapshotFileFormat,
     SummaryCase,
     WellPath,
 )
@@ -79,21 +85,6 @@ def close(self) -> None:
 
 
 @add_method(Project)
-def load_case(self: Project, path: str, grid_only: bool = False) -> Reservoir:
-    """Load a new grid case from the given file path
-
-    Arguments:
-        path(str): file path to case
-    Returns:
-        :class:`rips.generated.generated_classes.Case`
-    """
-    command_reply = self._execute_command(
-        loadCase=Commands_pb2.FilePathRequest(path=path, gridOnly=grid_only)
-    )
-    return self.case(command_reply.loadCaseResult.id)
-
-
-@add_method(Project)
 def selected_cases(self) -> List[Case]:
     """Get a list of all grid cases selected in the project tree
 
@@ -137,32 +128,23 @@ def case(self: Project, case_id: int) -> Optional[Reservoir]:
 def replace_source_cases(self, grid_list_file, case_group_id=0):
     """Replace all source grid cases within a case group
 
+    Deprecated: use GridCaseGroup.replace_source_cases(grid_files=[...]) on the group object instead,
+    which takes the grid file paths directly.
+
     Arguments:
         grid_list_file (str): path to file containing a list of cases
         case_group_id (int): id of the case group to replace
     """
+    warnings.warn(
+        "Project.replace_source_cases() is deprecated, use GridCaseGroup.replace_source_cases(grid_files=[...]) instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
     return self._execute_command(
         replaceSourceCases=Commands_pb2.ReplaceSourceCasesRequest(
             gridListFile=grid_list_file, caseGroupId=case_group_id
         )
     )
-
-
-@add_method(Project)
-def create_grid_case_group(self, case_paths):
-    """Create a Grid Case Group from a list of cases
-
-    Arguments:
-        case_paths (list): list of file path strings
-    Returns:
-        :class:`rips.generated.resinsight_classes.GridCaseGroup`
-    """
-    command_reply = self._execute_command(
-        createGridCaseGroup=Commands_pb2.CreateGridCaseGroupRequest(
-            casePaths=case_paths
-        )
-    )
-    return self.grid_case_group(command_reply.createGridCaseGroupResult.groupId)
 
 
 @add_method(Project)
@@ -284,25 +266,53 @@ def export_multi_case_snapshots(self, grid_list_file):
 
 @add_method(Project)
 def export_snapshots(
-    self, snapshot_type="ALL", prefix="", plot_format="PNG", width=-1, height=-1
+    self,
+    snapshot_type="ALL",
+    prefix="",
+    plot_format="PNG",
+    width=-1,
+    height=-1,
+    content_type=None,
+    export_folder="",
+    plot_file_format=None,
 ):
     """Export all snapshots of a given type
 
     Arguments:
-        snapshot_type (str): Enum string ('ALL', 'VIEWS' or 'PLOTS')
+        snapshot_type (str): Deprecated, use content_type. Enum string ('ALL', 'VIEWS' or 'PLOTS')
         prefix (str): Exported file name prefix
-        plot_format(str): Enum string, 'PNG' or 'PDF'
+        plot_format(str): Deprecated, use plot_file_format. Enum string, 'PNG' or 'PDF'
+        width (int): The width of the exported snapshots. By default will use the existing size.
+        height (int): The height of the exported snapshots. By default will use the existing size.
+        content_type (SnapshotContentType): 'ALL', 'VIEWS' or 'PLOTS'
+        export_folder (str): The path to export to. By default will use the 'snapshots' folder next to the project file.
+        plot_file_format (SnapshotFileFormat): 'PNG' or 'PDF'
     """
-    return self._execute_command(
-        exportSnapshots=Commands_pb2.ExportSnapshotsRequest(
-            type=snapshot_type,
-            prefix=prefix,
-            caseId=-1,
-            viewId=-1,
-            plotOutputFormat=plot_format,
-            width=width,
-            height=height,
+    if snapshot_type != "ALL":
+        warnings.warn(
+            "Project.export_snapshots(snapshot_type=...) is deprecated, use content_type=...",
+            DeprecationWarning,
+            stacklevel=3,
         )
+    if plot_format != "PNG":
+        warnings.warn(
+            "Project.export_snapshots(plot_format=...) is deprecated, use plot_file_format=...",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+    if content_type is None:
+        content_type = SnapshotContentType(snapshot_type)
+    if plot_file_format is None:
+        plot_file_format = SnapshotFileFormat(plot_format)
+
+    self._call_pdm_method_void(
+        "exportSnapshots",
+        content_type=content_type,
+        export_folder=export_folder,
+        prefix=prefix,
+        width=width,
+        height=height,
+        plot_file_format=plot_file_format,
     )
 
 
@@ -310,10 +320,18 @@ def export_snapshots(
 def export_well_paths(self, well_paths=None, md_step_size=5.0):
     """Export a set of well paths
 
+    Deprecated: use WellPath.export_geometry(export_folder=..., md_step_size=...) on each well path
+    instead. This method writes to the WELLPATHS folder set by Instance.set_export_folder().
+
     Arguments:
         well_paths(list): List of strings of well paths. If none, export all.
         md_step_size(double): resolution of the exported well path
     """
+    warnings.warn(
+        "Project.export_well_paths() is deprecated, use WellPath.export_geometry() with an explicit export_folder instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
     if well_paths is None:
         well_paths = []
     elif isinstance(well_paths, str):
@@ -325,11 +343,20 @@ def export_well_paths(self, well_paths=None, md_step_size=5.0):
     )
 
 
+def _fracture_template_by_id(project: Project, template_id: int) -> FractureTemplate:
+    for template in project.descendants(FractureTemplate):
+        if template.id == template_id:
+            return template
+    raise RipsError(f"Could not find fracture template with ID {template_id}")
+
+
 @add_method(Project)
 def scale_fracture_template(
     self, template_id, half_length, height, d_factor, conductivity
 ):
     """Scale fracture template parameters
+
+    Deprecated: use FractureTemplate.set_scale_factors(...) on the template object instead.
 
     Arguments:
         template_id(int): ID of fracture template
@@ -338,14 +365,17 @@ def scale_fracture_template(
         d_factor (double): D-factor scale factor
         conductivity (double): Conductivity scale factor
     """
-    return self._execute_command(
-        scaleFractureTemplate=Commands_pb2.ScaleFractureTemplateRequest(
-            id=template_id,
-            halfLength=half_length,
-            height=height,
-            dFactor=d_factor,
-            conductivity=conductivity,
-        )
+    warnings.warn(
+        "Project.scale_fracture_template(template_id=...) is deprecated, use FractureTemplate.set_scale_factors() instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
+    template = _fracture_template_by_id(self, template_id)
+    template.set_scale_factors(
+        half_length=half_length,
+        height=height,
+        d_factor=d_factor,
+        conductivity=conductivity,
     )
 
 
@@ -353,16 +383,20 @@ def scale_fracture_template(
 def set_fracture_containment(self, template_id, top_layer, base_layer):
     """Set fracture template containment parameters
 
+    Deprecated: use FractureTemplate.set_containment(...) on the template object instead.
+
     Arguments:
         template_id(int): ID of fracture template
         top_layer (int): Top layer containment
         base_layer (int): Base layer containment
     """
-    return self._execute_command(
-        setFractureContainment=Commands_pb2.SetFracContainmentRequest(
-            id=template_id, topLayer=top_layer, baseLayer=base_layer
-        )
+    warnings.warn(
+        "Project.set_fracture_containment(template_id=...) is deprecated, use FractureTemplate.set_containment() instead",
+        DeprecationWarning,
+        stacklevel=3,
     )
+    template = _fracture_template_by_id(self, template_id)
+    template.set_containment(top_layer=top_layer, base_layer=base_layer)
 
 
 @add_method(Project)
@@ -370,7 +404,7 @@ def import_well_paths(self, well_path_files=None, well_path_folder=""):
     """Import well paths into project
 
     Arguments:
-        well_path_files(list): List of file paths to import
+        well_path_files(list): list of file paths to import
         well_path_folder(str): A folder path containing files to import
 
     Returns:
@@ -379,13 +413,11 @@ def import_well_paths(self, well_path_files=None, well_path_folder=""):
     if well_path_files is None:
         well_path_files = []
 
-    res = self._execute_command(
-        importWellPaths=Commands_pb2.ImportWellPathsRequest(
-            wellPathFolder=well_path_folder, wellPathFiles=well_path_files
-        )
+    names = self.well_path_collection().import_well_paths(
+        well_path_files=well_path_files, well_path_folder=well_path_folder
     )
     well_paths = []
-    for well_path_name in res.importWellPathsResult.wellPathNames:
+    for well_path_name in names.values:
         well_paths.append(self.well_path_by_name(well_path_name))
     return well_paths
 
@@ -419,41 +451,45 @@ def import_well_log_files(self, well_log_files=None, well_log_folder=""):
     """Import well log files into project
 
     Arguments:
-        well_log_files(list): List of file paths to import
+        well_log_files(list): list of file paths to import
         well_log_folder(str): A folder path containing files to import
 
     Returns:
-        A list of well path names (strings) that had logs imported
+        A list of well path names (strings)
     """
-
     if well_log_files is None:
         well_log_files = []
-    res = self._execute_command(
-        importWellLogFiles=Commands_pb2.ImportWellLogFilesRequest(
-            wellLogFolder=well_log_folder, wellLogFiles=well_log_files
-        )
+
+    names = self.well_path_collection().import_well_log_files(
+        well_log_files=well_log_files, well_log_folder=well_log_folder
     )
-    return res.importWellLogFilesResult.wellPathNames
+    return list(names.values)
 
 
 @add_method(Project)
-def import_formation_names(self, formation_files=None):
-    """Import formation names into project
+def import_formation_names(self, formation_files=None, apply_to_all_cases=True):
+    """Import formation names into project and apply it to all grid cases in the project
 
     Arguments:
         formation_files(list): list of files to import
+        apply_to_all_cases(bool): assign the imported formation names to all grid cases.
+            Use Case.set_formation_names() for finer control.
 
+    Returns:
+        :class:`rips.generated.generated_classes.FormationNames`
     """
     if formation_files is None:
         formation_files = []
     elif isinstance(formation_files, str):
         formation_files = [formation_files]
 
-    self._execute_command(
-        importFormationNames=Commands_pb2.ImportFormationNamesRequest(
-            formationFiles=formation_files, applyToCaseId=-1
-        )
+    formation_names = self._call_pdm_method_return_value(
+        "importFormationNames", FormationNames, formation_files=formation_files
     )
+    if apply_to_all_cases:
+        for case in self.descendants(Case):
+            case.set_formation_names(formation_names=formation_names)
+    return formation_names
 
 
 @add_method(Project)

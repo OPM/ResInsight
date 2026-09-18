@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -28,6 +31,9 @@
 #include <memory>
 
 class Rim3dView;
+class RimIdenticalGridCaseGroup;
+class RimFormationNames;
+class RimCase;
 
 //==================================================================================================
 ///
@@ -174,4 +180,113 @@ public:
 
 private:
     caf::PdmPtrArrayField<Rim3dView*> m_views;
+};
+
+//==================================================================================================
+/// Export snapshots of all 3D views and/or plots in the project.
+//==================================================================================================
+class RimProject_exportSnapshots : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_exportSnapshots( caf::PdmObjectHandle* self );
+
+    void setContentType( RiaDefines::SnapshotContentType contentType );
+    void setExportFolder( const QString& exportFolder );
+    void setPrefix( const QString& prefix );
+    void setWidth( int width );
+    void setHeight( int height );
+    void setPlotFileFormat( RiaDefines::SnapshotFileFormat fileFormat );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<caf::AppEnum<RiaDefines::SnapshotContentType>> m_contentType;
+    caf::PdmField<QString>                                       m_exportFolder;
+    caf::PdmField<QString>                                       m_prefix;
+    caf::PdmField<int>                                           m_width;
+    caf::PdmField<int>                                           m_height;
+    caf::PdmField<caf::AppEnum<RiaDefines::SnapshotFileFormat>>  m_plotFileFormat;
+};
+
+//==================================================================================================
+/// Load a grid case (EGRID, GRID, GRDECL, ROFF) from file and add it to the project.
+//==================================================================================================
+class RimProject_loadCase : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_loadCase( caf::PdmObjectHandle* self );
+
+    void setPath( const QString& path );
+    void setGridOnly( bool gridOnly );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_path;
+    caf::PdmField<bool>    m_gridOnly;
+};
+
+//==================================================================================================
+/// Create a grid case group (for statistics) from a list of grid files with identical grids.
+//==================================================================================================
+class RimProject_createGridCaseGroup : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_createGridCaseGroup( caf::PdmObjectHandle* self );
+
+    void setCasePaths( const std::vector<QString>& casePaths );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<std::vector<QString>> m_casePaths;
+};
+
+//==================================================================================================
+/// Import formation names from one or more files (.lyr, .fmu, ...). Returns the created formation names
+/// object, which can be assigned to cases with Case.set_formation_names().
+//==================================================================================================
+class RimProject_importFormationNames : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_importFormationNames( caf::PdmObjectHandle* self );
+
+    void setFormationFiles( const std::vector<QString>& formationFiles );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<std::vector<QString>> m_formationFiles;
+};
+
+//==================================================================================================
+/// Run an Octave script for a set of cases. The script is run once per case with the case set as
+/// current. Empty case list means all Eclipse cases in the project.
+//==================================================================================================
+class RimProject_runOctaveScript : public caf::PdmVoidObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_runOctaveScript( caf::PdmObjectHandle* self );
+
+    void setPath( const QString& path );
+    void setCases( const std::vector<RimCase*>& cases );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+
+private:
+    caf::PdmField<QString>          m_path;
+    caf::PdmPtrArrayField<RimCase*> m_cases;
 };

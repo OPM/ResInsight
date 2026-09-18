@@ -2,22 +2,21 @@
 ResInsight 3d contour map module
 """
 
-import Commands_pb2
-
 from .pdmobject import add_method
 from .view import View as View
 from .resinsight_classes import EclipseContourMap, GeoMechContourMap
 
 
-@add_method(EclipseContourMap)
 def export_to_text(
-    self: EclipseContourMap,
+    self: View,
     export_file_name: str = "",
     export_local_coordinates: bool = False,
     undefined_value_label: str = "NaN",
     exclude_undefined_values: bool = False,
-):
-    """Export snapshot for the current view
+) -> None:
+    """Export the contour map to a text file
+
+    Alias of View.export_contour_map_to_text().
 
     Arguments:
         export_file_name(str): The file location to store results in.
@@ -25,39 +24,13 @@ def export_to_text(
         undefined_value_label(str): Replace undefined values with this label.
         exclude_undefined_values(bool): Skip undefined values.
     """
-    return self._execute_command(
-        exportContourMapToText=Commands_pb2.ExportContourMapToTextRequest(
-            exportFileName=export_file_name,
-            exportLocalCoordinates=export_local_coordinates,
-            undefinedValueLabel=undefined_value_label,
-            excludeUndefinedValues=exclude_undefined_values,
-            viewId=self.id,
-        )
+    self.export_contour_map_to_text(
+        export_file_name=export_file_name,
+        export_local_coordinates=export_local_coordinates,
+        undefined_value_label=undefined_value_label,
+        exclude_undefined_values=exclude_undefined_values,
     )
 
 
-@add_method(GeoMechContourMap)
-def export_to_text(  # noqa: F811
-    self: GeoMechContourMap,
-    export_file_name: str = "",
-    export_local_coordinates: bool = False,
-    undefined_value_label: str = "NaN",
-    exclude_undefined_values: bool = False,
-):
-    """Export snapshot for the current view
-
-    Arguments:
-        export_file_name(str): The file location to store results in.
-        export_local_coordinates(bool): Should we export local coordinates, or UTM.
-        undefined_value_label(str): Replace undefined values with this label.
-        exclude_undefined_values(bool): Skip undefined values.
-    """
-    return self._execute_command(
-        exportContourMapToText=Commands_pb2.ExportContourMapToTextRequest(
-            exportFileName=export_file_name,
-            exportLocalCoordinates=export_local_coordinates,
-            undefinedValueLabel=undefined_value_label,
-            excludeUndefinedValues=exclude_undefined_values,
-            viewId=self.id,
-        )
-    )
+add_method(EclipseContourMap)(export_to_text)
+add_method(GeoMechContourMap)(export_to_text)

@@ -37,6 +37,7 @@ result
 
 import grpc
 import uuid
+import warnings
 from typing import Any, Iterable, Iterator, List, Optional, Tuple, Union
 
 import Case_pb2
@@ -58,6 +59,7 @@ from .resinsight_classes import (
     PropertyType as PropertyType,
     Reservoir as Reservoir,
     WellBoreStabilityPlot as WellBoreStabilityPlot,
+    WellPath as WellPath,
     WbsParameters as WbsParameters,
 )
 
@@ -170,13 +172,18 @@ def grids(self) -> List[Grid]:
 def replace(self, new_grid_file: str) -> None:
     """Replace the current case grid with a new grid loaded from file
 
+    Deprecated: use replace_grid(new_grid_file) instead.
+
     Arguments:
-        new_egrid_file (str): Path to EGRID file
+        new_grid_file (str): Path to EGRID file
     """
-    project = self.ancestor(rips.project.Project)
-    self._execute_command(
-        replaceCase=Cmd.ReplaceCaseRequest(newGridFile=new_grid_file, caseId=self.id)
+    warnings.warn(
+        "Case.replace() is deprecated, use Case.replace_grid() instead",
+        DeprecationWarning,
+        stacklevel=3,
     )
+    project = self.ancestor(rips.project.Project)
+    self.replace_grid(new_grid_file=new_grid_file)
     new_case = project.case(self.id)
     self.copy_from(new_case)
 
@@ -378,45 +385,32 @@ def views(self) -> List[View]:
     views = project.views()
     views_for_case = []
     for view_object in views:
-        if view_object.id == self.id:
+        view_case = view_object.case()
+        if view_case is not None and view_case.id == self.id:
             views_for_case.append(view_object)
     return views_for_case
 
 
 @add_method(Case)
-def create_view(self) -> Optional[View]:
-    """Create a new view in the current case
-
-    Returns:
-        :class:`rips.generated.generated_classes.View`
-    """
-    return self.view(
-        self._execute_command(
-            createView=Cmd.CreateViewRequest(caseId=self.id)
-        ).createViewResult.viewId
-    )
-
-
-@add_method(Case)
 def export_snapshots_of_all_views(
     self, prefix: str = "", export_folder: str = ""
-) -> Any:
+) -> None:
     """Export snapshots for all views in the case
+
+    Deprecated: loop over views() and call View.export_snapshot() instead.
 
     Arguments:
         prefix (str): Exported file name prefix
-        export_folder(str): The path to export to. By default will use the global export folder
+        export_folder(str): The path to export to. By default will use the 'snapshots' folder next to the project file.
 
     """
-    return self._execute_command(
-        exportSnapshots=Cmd.ExportSnapshotsRequest(
-            type="VIEWS",
-            prefix=prefix,
-            caseId=self.id,
-            viewId=-1,
-            exportFolder=export_folder,
-        )
+    warnings.warn(
+        "Case.export_snapshots_of_all_views() is deprecated, use View.export_snapshot() on each view instead",
+        DeprecationWarning,
+        stacklevel=3,
     )
+    for view in self.views():
+        view.export_snapshot(export_folder=export_folder, prefix=prefix)
 
 
 @add_method(Case)
@@ -465,7 +459,14 @@ def export_well_path_completions(
         "TRANSMISSIBILITIES"                        | Direct export of transmissibilities
         "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS"    | Include WPIMULT in addition to transmissibilities
 
+    Deprecated: use Reservoir.export_completions(well_paths=[...], export_folder=...) instead,
+    which takes WellPath objects and an explicit export folder.
     """
+    warnings.warn(
+        "Case.export_well_path_completions() is deprecated, use Reservoir.export_completions() instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
     if isinstance(well_path_names, str):
         well_path_names = [well_path_names]
     return self._execute_command(
@@ -490,57 +491,19 @@ def export_msw(self, well_path: str) -> Any:
     """
     Export Eclipse Multi-segment-well model to file
 
+    Deprecated: use Reservoir.export_msw_completions(well_paths=[...], export_folder=...) instead,
+    which takes WellPath objects and an explicit export folder.
+
     Arguments:
         well_path(str): Well path name
     """
+    warnings.warn(
+        "Case.export_msw() is deprecated, use Reservoir.export_msw_completions() instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
     return self._execute_command(
         exportMsw=Cmd.ExportMswRequest(caseId=self.id, wellPath=well_path)
-    )
-
-
-@add_method(Case)
-def create_multiple_fractures(
-    self,
-    template_id: int,
-    well_path_names: Union[str, List[str]],
-    min_dist_from_well_td: float,
-    max_fractures_per_well: int,
-    top_layer: int,
-    base_layer: int,
-    spacing: float,
-    action: str,
-) -> Any:
-    """
-    Create Multiple Fractures in one go
-
-    **Parameters**::
-
-        Parameter              | Description                               | Type
-        -----------------------| ----------------------------------------- | -----
-        template_id            | Id of the template                        | Integer
-        well_path_names        | List of well path names                   | List of Strings
-        min_dist_from_well_td  | Minimum distance from well TD             | Double
-        max_fractures_per_well | Max number of fractures per well          | Integer
-        top_layer              | Top grid k-level for fractures            | Integer
-        base_layer             | Base grid k-level for fractures           | Integer
-        spacing                | Spacing between fractures                 | Double
-        action                 | 'APPEND_FRACTURES' or 'REPLACE_FRACTURES' | String enum
-
-    """
-    if isinstance(well_path_names, str):
-        well_path_names = [well_path_names]
-    return self._execute_command(
-        createMultipleFractures=Cmd.CreateMultipleFracRequest(
-            caseId=self.id,
-            templateId=template_id,
-            wellPathNames=well_path_names,
-            minDistFromWellTd=min_dist_from_well_td,
-            maxFracturesPerWell=max_fractures_per_well,
-            topLayer=top_layer,
-            baseLayer=base_layer,
-            spacing=spacing,
-            action=action,
-        )
     )
 
 
@@ -576,7 +539,14 @@ def create_lgr_for_completion(
         "LGR_PER_COMPLETION"    | One LGR for each completion (fracture, perforation, ...)
         "LGR_PER_WELL"          | One LGR for each well
 
+    Deprecated: use Reservoir.create_lgr_for_completions(well_paths=[...], ...) instead, which takes
+    WellPath objects.
     """
+    warnings.warn(
+        "Case.create_lgr_for_completion() is deprecated, use Reservoir.create_lgr_for_completions() instead",
+        DeprecationWarning,
+        stacklevel=3,
+    )
     if isinstance(well_path_names, str):
         well_path_names = [well_path_names]
     return self._execute_command(
@@ -588,60 +558,6 @@ def create_lgr_for_completion(
             refinementJ=refinement_j,
             refinementK=refinement_k,
             splitType=split_type,
-        )
-    )
-
-
-@add_method(Case)
-def create_saturation_pressure_plots(self) -> Any:
-    """
-    Create saturation pressure plots for the current case
-    """
-    case_ids = [self.id]
-    return self._execute_command(
-        createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(caseIds=case_ids)
-    )
-
-
-@add_method(Case)
-def export_flow_characteristics(
-    self,
-    time_steps: Union[int, List[int]],
-    injectors: Union[str, List[str]],
-    producers: Union[str, List[str]],
-    file_name: str,
-    minimum_communication: float = 0.0,
-    aquifer_cell_threshold: float = 0.1,
-) -> Any:
-    """Export Flow Characteristics data to text file in CSV format
-
-    **Parameters**::
-
-        Parameter                 | Description                                   | Type
-        ------------------------- | --------------------------------------------- | -----
-        time_steps                | Time step indices                             | List of Integer
-        injectors                 | Injector names                                | List of Strings
-        producers                 | Producer names                                | List of Strings
-        file_name                 | Export file name                              | Integer
-        minimum_communication     | Minimum Communication, defaults to 0.0        | Integer
-        aquifer_cell_threshold    | Aquifer Cell Threshold, defaults to 0.1       | Integer
-
-    """
-    if isinstance(time_steps, int):
-        time_steps = [time_steps]
-    if isinstance(injectors, str):
-        injectors = [injectors]
-    if isinstance(producers, str):
-        producers = [producers]
-    return self._execute_command(
-        exportFlowCharacteristics=Cmd.ExportFlowInfoRequest(
-            caseId=self.id,
-            timeSteps=time_steps,
-            injectors=injectors,
-            producers=producers,
-            fileName=file_name,
-            minimumCommunication=minimum_communication,
-            aquiferCellThreshold=aquifer_cell_threshold,
         )
     )
 
@@ -977,67 +893,55 @@ def set_grid_property(
         raise IndexError
 
 
-@add_method(Case)
-def export_property(
-    self,
-    time_step: int,
-    property_name: str,
-    eclipse_keyword: Any = property,
-    undefined_value: float = 0.0,
-    export_file: Any = property,
-) -> Any:
-    """Export an Eclipse property
-
-    Arguments:
-        time_step (int): time step index
-        property_name (str): property to export
-        eclipse_keyword (str): Keyword used in export header. Defaults: value of property
-        undefined_value (double): Value to use for undefined values. Defaults to 0.0
-        export_file (str): File name for export. Defaults to the value of property parameter
-    """
-    return self._execute_command(
-        exportProperty=Cmd.ExportPropertyRequest(
-            caseId=self.id,
-            timeStep=time_step,
-            property=property_name,
-            eclipseKeyword=eclipse_keyword,
-            undefinedValue=undefined_value,
-            exportFile=export_file,
-        )
-    )
-
-
-@add_method(Case)
+@add_method(GeoMechCase)
 def create_well_bore_stability_plot(
     self,
-    well_path: str,
+    well_path: Union[str, WellPath],
     time_step: int,
     parameters: Optional[WbsParameters] = None,
-) -> Optional[WellBoreStabilityPlot]:
+) -> WellBoreStabilityPlot:
     """Create a new well bore stability plot
 
     Arguments:
-        well_path(str): well path name
+        well_path(WellPath or str): well path object or well path name
         time_step(int): time step
+        parameters(WbsParameters): optional parameters copied into the created plot
 
     Returns:
         :class:`rips.generated.generated_classes.WellBoreStabilityPlot`
     """
-    pb2_parameters = None
+    if isinstance(well_path, str):
+        warnings.warn(
+            "GeoMechCase.create_well_bore_stability_plot(well_path=<name>) is deprecated, pass a WellPath object instead",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        project = self.ancestor(rips.project.Project)
+        well_path_object = project.well_path_by_name(well_path)
+        if well_path_object is None:
+            raise RipsError(f"Could not find well path '{well_path}'")
+        well_path = well_path_object
+
+    plot = self._call_pdm_method_return_value(
+        "createWellBoreStabilityPlot",
+        WellBoreStabilityPlot,
+        well_path=well_path,
+        time_step=time_step,
+    )
+
     if parameters is not None:
         assert isinstance(parameters, WbsParameters)
-        pb2_parameters = parameters.pb2_object()
+        plot_parameters = plot.parameters()
+        if plot_parameters is not None:
+            # Copy the public field values only; private members hold the gRPC connection
+            for attribute in dir(parameters):
+                if attribute.startswith("_"):
+                    continue
+                value = getattr(parameters, attribute)
+                if not callable(value):
+                    setattr(plot_parameters, attribute, value)
+            plot_parameters.update()
 
-    plot_result = self._execute_command(
-        createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(
-            caseId=self.id,
-            wellPath=well_path,
-            timeStep=time_step,
-            wbsParameters=pb2_parameters,
-        )
-    )
-    project = self.ancestor(rips.project.Project)
-    plot = project.plot(view_id=plot_result.createWbsPlotResult.viewId)
     return plot
 
 
@@ -1047,20 +951,23 @@ def import_formation_names(
 ) -> None:
     """Import formation names into project and apply it to the current case
 
+    Deprecated: use Project.import_formation_names(apply_to_all_cases=False) followed by
+    Case.set_formation_names() instead.
+
     Arguments:
         formation_files(list): list of files to import
 
     """
-    if formation_files is None:
-        formation_files = []
-    elif isinstance(formation_files, str):
-        formation_files = [formation_files]
-
-    self._execute_command(
-        importFormationNames=Cmd.ImportFormationNamesRequest(
-            formationFiles=formation_files, applyToCaseId=self.id
-        )
+    warnings.warn(
+        "Case.import_formation_names() is deprecated, use Project.import_formation_names() and Case.set_formation_names() instead",
+        DeprecationWarning,
+        stacklevel=3,
     )
+    project = self.ancestor(rips.project.Project)
+    formation_names = project.import_formation_names(
+        formation_files=formation_files, apply_to_all_cases=False
+    )
+    self.set_formation_names(formation_names=formation_names)
 
 
 @add_method(Case)

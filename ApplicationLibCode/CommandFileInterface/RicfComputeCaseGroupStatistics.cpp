@@ -18,18 +18,17 @@
 
 #include "RicfComputeCaseGroupStatistics.h"
 
-#include "Rim3dView.h"
-#include "RimCaseCollection.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseStatisticsCase.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-
 #include "RiaLogging.h"
 
+#include "RicfCommandForwarding.h"
+
+#include "RimEclipseStatisticsCase.h"
+#include "RimProject.h"
+#include "RimcEclipseStatisticsCase.h"
+
 #include "cafPdmFieldScriptingCapability.h"
+
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RicfComputeCaseGroupStatistics, "computeCaseGroupStatistics" );
 
@@ -47,58 +46,46 @@ RicfComputeCaseGroupStatistics::RicfComputeCaseGroupStatistics()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
 {
+    const QString commandName = classKeyword();
+
     caf::PdmScriptResponse response;
 
-    std::vector<int> caseIds = m_caseIds.v();
+    // Collect the statistics cases: explicit case ids, plus all statistics cases when a group id is given.
+    // Note: legacy behavior is to include statistics cases from all groups when caseGroupId >= 0.
+    std::vector<RimEclipseStatisticsCase*> statsCases;
+
+    for ( int caseId : m_caseIds() )
+    {
+        auto statsCase = RicfForwarding::findStatisticsCase( caseId );
+        if ( !statsCase )
+        {
+            QString warning = QString( "%1: %2" ).arg( commandName ).arg( statsCase.error() );
+            RiaLogging::warning( warning.toStdString() );
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
+            continue;
+        }
+        statsCases.push_back( statsCase.value() );
+    }
 
     if ( m_groupId() >= 0 )
     {
-        for ( RimIdenticalGridCaseGroup* group : RimProject::current()->activeOilField()->analysisModels()->caseGroups )
+        for ( RimEclipseStatisticsCase* statsCase : RimProject::current()->descendantsIncludingThisOfType<RimEclipseStatisticsCase>() )
         {
-            for ( RimEclipseCase* c : group->statisticsCaseCollection()->reservoirs )
+            if ( statsCase && std::find( statsCases.begin(), statsCases.end(), statsCase ) == statsCases.end() )
             {
-                caseIds.push_back( c->caseId() );
+                statsCases.push_back( statsCase );
             }
         }
     }
 
-    for ( int caseId : caseIds )
+    for ( RimEclipseStatisticsCase* statsCase : statsCases )
     {
-        bool foundCase = false;
-        for ( RimIdenticalGridCaseGroup* group : RimProject::current()->activeOilField()->analysisModels()->caseGroups )
-        {
-            for ( RimEclipseCase* c : group->statisticsCaseCollection()->reservoirs )
-            {
-                if ( c->caseId() == caseId )
-                {
-                    RimEclipseStatisticsCase* statsCase = dynamic_cast<RimEclipseStatisticsCase*>( c );
-                    if ( statsCase )
-                    {
-                        statsCase->computeStatisticsAndUpdateViews();
-                    }
-                    else
-                    {
-                        QString warning = QString( "computeCaseGroupStatistics: Found case with ID %1, but it is not a "
-                                                   "statistics case, cannot compute statistics." )
-                                              .arg( caseId );
-                        RiaLogging::warning( warning.toStdString() );
-                        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
-                    }
-                    foundCase = true;
-                    break;
-                }
-            }
+        RimcEclipseStatisticsCase_computeStatistics method( statsCase );
+        method.setUpdateViews( true );
 
-            if ( foundCase ) break;
-        }
-
-        if ( !foundCase )
-        {
-            QString warning = QString( "computeCaseGroupStatistics: Could not find statistics case with ID %1." ).arg( caseId );
-
-            RiaLogging::warning( warning.toStdString() );
-            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
-        }
+        auto result = method.execute();
+        if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
     }
+
     return response;
 }
