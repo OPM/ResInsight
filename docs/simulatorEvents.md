@@ -1,4 +1,4 @@
-# SIMEVENTS File Format — Version 1.0
+# SIMEVENTS File Format — Version 1.1
 
 ## Overview
 
@@ -22,13 +22,13 @@ Runnable examples: `rips/PythonExamples/experimental/import_simulator_events.py`
 ## Quick example
 
 ```
-SIMEVENTS 1.0
+SIMEVENTS 1.1
 UNIT METRIC
 
 # Typed declarations
 DATE     STARTUP  = 2024-01-01
-DATE     PHASE2   = 2024-03-01 + 9
-DURATION RAMP     = 31 DAYS
+DATE     PHASE2   = 2024-03-01 + 9d
+DURATION RAMP     = 31d
 FILTER   POROPERM = "PORO > 0.4 AND PERMX > 100.0"
 
 WELL A1 = "55_33-A-1"            # alias declaration (has '=')
@@ -36,14 +36,14 @@ WELL A1 = "55_33-A-1"            # alias declaration (has '=')
 WELL A1                          # opens an event block via the alias
   @STARTUP         SEGMENT      MDSTART=0     MDEND=2500  INNER_DIAMETER=0.15  ROUGHNESS=1.0e-5  PRESSURE_COMPONENTS=HFA
   @STARTUP + RAMP  PERFORATION  MDSTART=2000  MDEND=2200  RADIUS=0.05  SKIN=0.5  COMPLETION_NUMBER=1  FILTER=POROPERM
-  @2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05
+  @2024-05-15T14:45:30  PERFORATION  MDSTART=2300  MDEND=2350  RADIUS=0.05
   @2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001
   @STARTUP + RAMP  WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=1
   @2024-05-01      WELTARG      CMODE=ORAT  VALUE=5000.0
   @2024-06-01      WRFTPLT      OUTPUT_RFT=YES  OUTPUT_PLT=NO  OUTPUT_SEGMENT=NO
 
 WELL "55_33-A-2"                 # quoted form: literal well name
-  @PHASE2 - 1  PERFORATION  MDSTART=1692.79  MDEND=1706  RADIUS=0.12065  SKIN=5
+  @PHASE2 - 1d  PERFORATION  MDSTART=1692.79  MDEND=1706  RADIUS=0.12065  SKIN=5
 
 SCHEDULE                         # schedule-level keywords, not tied to a well
   @STARTUP  RPTRST    BASIC=2  FREQ=1
@@ -55,15 +55,15 @@ SCHEDULE                         # schedule-level keywords, not tied to a well
 
 ```
 document        = header , { statement } ;
-header          = "SIMEVENTS" , "1.0" ;           (* first meaningful line *)
+header          = "SIMEVENTS" , "1.1" ;           (* first meaningful line *)
 statement       = unit_directive | declaration | report_line | well_block_open
                 | group_block_open | schedule_block_open | event_line ;
 unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
 report_line     = "REPORT" , date_expr ;
 
 declaration     = date_decl | duration_decl | well_decl | filter_decl ;
-date_decl       = "DATE" , ident , "=" , date_expr ;         (* DATE X = 2018-03-01 + 9 *)
-duration_decl   = "DURATION" , ident , "=" , duration_expr ; (* DURATION RAMP = 5 DAYS *)
+date_decl       = "DATE" , ident , "=" , date_expr ;         (* DATE X = 2018-03-01 + 9d *)
+duration_decl   = "DURATION" , ident , "=" , duration_expr ; (* DURATION RAMP = 5d12h *)
 well_decl       = "WELL" , ident , "=" , quoted_string ;     (* WELL A1 = "55_33-A-1" *)
 filter_decl     = "FILTER" , ident , "=" , '"' , filter_expr , '"' ;
                                         (* FILTER F = "PORO > 0.4 AND PERMX > 100.0" *)
@@ -82,13 +82,19 @@ segment_attribute   = "MDSTART" | "MDEND" | "INNER_DIAMETER" | "ROUGHNESS"
                     | "PRESSURE_COMPONENTS" | "COMMENT" ;
                     (* accepted attribute names when event_type is "SEGMENT" *)
 
-date_expr       = ( iso_date | iso_datetime | date_ident ) , { sign , term } ;
-duration_expr   = ( integer | dur_ident ) , { sign , term } , [ "DAYS" | "days" ] ;
-term            = integer | dur_ident ;             (* whole days *)
+date_expr       = ( iso_datetime | date_ident ) , { sign , term } ;
+duration_expr   = term , { sign , term } ;
+term            = duration_lit | dur_ident ;        (* e.g. 2d, -12h30m, RAMP *)
 sign            = "+" | "-" ;
-iso_date        = 4digit , "-" , 2digit , "-" , 2digit ;
-iso_datetime    = iso_date , "T" , 2digit , ":" , 2digit , ":" , 2digit ,
-                  [ "." , digits ] ;                (* 2024-05-15T14:45:30.500 *)
+duration_lit    = [ sign ] , component , { component } ;
+                                        (* units strictly descending, each at most once *)
+component       = number , ( "mon" | "d" | "h" | "m" | "s" ) ;
+number          = digits | digits , "." , digits ;
+                                        (* a fraction only on the last component,
+                                           never on "mon" or "s" *)
+iso_datetime    = 4digit , "-" , 2digit , "-" , 2digit ,
+                  [ "T" , 2digit , ":" , 2digit , ":" , 2digit , [ "." , digits ] ] ;
+                                        (* 2024-05-15 or 2024-05-15T14:45:30 *)
 ident           = letter_or_underscore , { word_char } ;
 attribute       = ident , "=" , ( quoted_string | bareword ) ;
 comment         = "#" , rest-of-line ;              (* line or trailing *)
@@ -96,14 +102,14 @@ comment         = "#" , rest-of-line ;              (* line or trailing *)
 
 ## Line types
 
-The format is line-oriented. Every non-blank line is dispatched on its first token; anything else is an error. Keywords are uppercase and case-sensitive (the `DAYS` suffix is also accepted as `days`).
+The format is line-oriented. Every non-blank line is dispatched on its first token; anything else is an error. Keywords are uppercase and case-sensitive; duration units (`mon`, `d`, `h`, `m`, `s`) are lowercase.
 
 | First token | Meaning |
 |---|---|
 | `SIMEVENTS` | Header with version; must be the first meaningful line, exactly once |
 | `UNIT` | Unit system: `METRIC`, `FIELD` or `LAB` (default `METRIC`) |
 | `DATE` | Declare a typed date variable |
-| `DURATION` | Declare a typed whole-day duration variable |
+| `DURATION` | Declare a typed duration variable (Go-style literal, e.g. `5d`, `12h30m`) |
 | `FILTER` | Declare a typed cell-filter expression |
 | `REPORT` | Add a date that must appear in generated schedule output |
 | `WELL` | With `=`: declare a well-name alias. Without `=`: open a well event block |
@@ -114,11 +120,11 @@ The format is line-oriented. Every non-blank line is dispatched on its first tok
 
 ## Typed declarations
 
-Variables are typed — `DATE`, `DURATION` (whole days), `WELL` (well-name alias) and `FILTER` (cell filter expression) — and share one namespace. They must be declared before use (single-pass, no forward references).
+Variables are typed — `DATE`, `DURATION`, `WELL` (well-name alias) and `FILTER` (cell filter expression) — and share one namespace. They must be declared before use (single-pass, no forward references).
 
 ```
 DATE     STARTUP  = 2024-01-01
-DURATION RAMP     = 31 DAYS              # DAYS suffix optional
+DURATION RAMP     = 31d                  # Go-style duration literal
 DATE     PHASE2   = STARTUP + RAMP       # date arithmetic with variables
 WELL     A1       = "55_33-A-1"
 FILTER   POROPERM = "PORO > 0.4 AND PERMX > 100.0"
@@ -134,16 +140,49 @@ Redeclaring a name with the same type warns and the last value wins; redeclaring
 
 ## Date expressions
 
-A date expression is an ISO date, an ISO datetime, or a `DATE` variable, followed by a chain of signed whole-day terms. Each term is a non-negative integer or a `DURATION` variable:
+A date expression is an ISO datetime or a `DATE` variable, followed by a chain of signed terms. Each term is a [duration literal](#duration-literals) or a `DURATION` variable:
 
 ```
 @2024-01-01
-@STARTUP + 5
-@STARTUP + RAMP - 2
-@2024-05-15T14:45:30.500       # time-of-day, millisecond precision
+@STARTUP + 5d
+@STARTUP + RAMP - 2d
+@STARTUP + 12h30m
+@2024-05-15T14:45:30       # time-of-day, second precision
+@2024-01-31 + 1mon         # calendar month: 2024-02-29
 ```
 
-Whitespace around `+`/`-` is optional but conventional. A time-of-day is preserved through the applier and emitted as the optional TIME field of the generated DATES keyword.
+Every date is a datetime with **second** resolution. A date-only literal (`2024-01-01`) means midnight; a time-of-day is written with the `T` separator (`YYYY-MM-DDTHH:MM:SS`). Fractional seconds are accepted and rounded to the nearest second. An operand may carry its own sign (`START + -2d` equals `START - 2d`); whitespace around `+`/`-` is optional but conventional. A non-midnight time-of-day is preserved through the applier and emitted as the optional TIME field of the generated DATES keyword.
+
+## Duration literals
+
+A duration literal is written Go-style: one or more `<number><unit>` components with no spaces, using the units below in strictly descending order, each at most once.
+
+| Unit | Meaning |
+|---|---|
+| `mon` | calendar month |
+| `d` | day (24 h) |
+| `h` | hour |
+| `m` | minute |
+| `s` | second |
+
+```
+DURATION RAMP    = 5d
+DURATION SHIFT   = 12h30m
+DURATION QUARTER = 3mon
+DURATION BACK    = -3d
+DURATION HALF    = 1.5h                  # fraction allowed on the last component only
+DURATION TOTAL   = RAMP + SHIFT - 6h     # duration arithmetic with variables
+```
+
+Rules:
+
+* A unit is mandatory: `5` and the pre-1.1 `5 DAYS` are errors (write `5d`).
+* Units must be in the order `mon`, `d`, `h`, `m`, `s` and may not repeat: `12h30m` is valid, `30m12h` and `1h1h` are not.
+* A fraction is allowed only on the **last** component, and never on `mon` or `s`: `1.5h` and `1d1.5h` are valid, `1.5h30m`, `1.5s` and `1.5mon` are not. The result is rounded to whole seconds.
+* `mon` is calendar-relative and is applied before the fixed part of a duration. Adding months clamps to the last day of a shorter month: `2024-01-31 + 1mon` is `2024-02-29` and `2024-01-31 + 1mon1d` is `2024-03-01`.
+* A leading `-` negates the whole literal (`-1mon12h` is minus one month and minus twelve hours).
+
+In Python a `DURATION` value is a `rips.simulator_events.Duration` with `months` and `delta` (`datetime.timedelta`) fields; `str()` renders the Go-style form, e.g. `1mon5d12h30m`.
 
 ## WELL blocks
 
@@ -264,7 +303,7 @@ The validator CLI prints these and exits non-zero:
 
 ```
 $ python3 -m rips.simulator_events simulator_events.events
-simulator_events.events: OK (SIMEVENTS 1.0, units METRIC)
+simulator_events.events: OK (SIMEVENTS 1.1, units METRIC)
   4 variable(s), 2 well block(s), 8 well event(s), 0 schedule event(s)
 ```
 
@@ -303,4 +342,5 @@ The returned `ApplyReport` carries `events_applied`, `events_skipped`, `warnings
 
 ## Version history
 
-- **1.0** — current: typed `DATE`/`DURATION`/`WELL`/`FILTER` declarations, `WELL`/`SCHEDULE` blocks, signed day-offset chains, ISO datetimes, built-in completion events (including `SEGMENT` custom intervals and pressure components) plus generic keyword pass-through, perforation data filters, multi-error diagnostics, validator CLI.
+- **1.1** — current: all dates are datetimes with second resolution (`T` separator required for a time-of-day; fractional seconds rounded); `DURATION` values and offset terms are Go-style literals (`5d`, `12h30m`, `1.5h`, `3mon`, `-3d`) with mandatory units, strict descending unit order, and calendar-aware months. Unitless numbers and the `DAYS` suffix are rejected; `1.0` files are rejected with a migration hint.
+- **1.0** — typed `DATE`/`DURATION`/`WELL`/`FILTER` declarations, `WELL`/`SCHEDULE` blocks, signed day-offset chains, ISO datetimes, built-in completion events (including `SEGMENT` custom intervals and pressure components) plus generic keyword pass-through, perforation data filters, multi-error diagnostics, validator CLI.
