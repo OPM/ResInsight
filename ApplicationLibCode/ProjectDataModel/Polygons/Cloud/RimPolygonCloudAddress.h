@@ -104,6 +104,13 @@ public:
     // RimPolygonContainer::resolveViewMatchingRealization.
     int resolveViewMatchingRealization( const Rim3dView* view ) const override;
 
+    // See RimPolygonContainer::displayNameForRealization. Builds the same "data source / Real n /
+    // polygon result [/ name [/ contact type]]" name used for this address's own tree label
+    // (updateName()), but for an arbitrary realization instead of always the Applied one -- so a
+    // view showing a different (e.g. auto-followed) realization can display that in its own
+    // mirrored tree node's name.
+    QString displayNameForRealization( int realization ) const override;
+
     // Deletes every cached RimCloudPolygon (see itemsForRealization()/m_polygonsByRealization) and
     // clears the cache. Called whenever the applied spec changes (applyPendingSelection()) or on a
     // manual Reload (RicReloadPolygonCloudAddressFeature), since cache entries are keyed by
@@ -130,6 +137,13 @@ private:
     void              ensureDirectoryFetched();
     void              invalidateDirectory();
     void              updateName();
+
+    // Builds the "data source / Real n / polygon result [/ name [/ contact type]]" name for the
+    // given realization, from the current Applied selection (data source/polygon result/name/
+    // contact type never vary per realization, only the Real n part and the fetched geometry do).
+    // Used by both updateName() (always with m_appliedRealization()) and
+    // displayNameForRealization() (with whatever realization a view resolves).
+    QString composeName( int realization ) const;
 
     // Handler for the "Apply" button (see defineUiOrdering): explicitly fetches with the current
     // selection and notifies the tree/3D view, since field edits no longer auto-fetch.

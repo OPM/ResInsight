@@ -83,6 +83,14 @@ public:
     // to an unrelated address -- that is exactly the bug this matching guards against.
     virtual int resolveViewMatchingRealization( const Rim3dView* view ) const;
 
+    // The name a view mirroring this container for the given realization (-1 meaning "this
+    // container's own default/Applied realization") should display. Default: ignores the
+    // parameter and returns collectionName() -- only a cloud-backed address, whose tree name
+    // embeds a realization number, needs this to vary per realization (e.g. so a view following
+    // its own case's realization shows "Real 1" in the tree even while the address itself is
+    // Applied to "Real 0").
+    virtual QString displayNameForRealization( int realization ) const;
+
     // Renames the polygon if another polygon in this container already carries the same name.
     void ensureUniquePolygonName( RimPolygon* polygon );
 

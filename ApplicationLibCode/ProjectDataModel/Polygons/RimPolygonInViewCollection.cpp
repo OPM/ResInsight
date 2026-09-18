@@ -44,7 +44,10 @@ RimPolygonInViewCollection::RimPolygonInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_sourceCollection, "SourceCollection", "Source Collection" );
     m_sourceCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_useAutoRealization, "UseAutoRealization", true, "Auto (Follow View / Applied)" );
+    CAF_PDM_InitField( &m_useAutoRealization, "UseAutoRealization", true, "Auto-Follow View Realization" );
+
+    CAF_PDM_InitField( &m_didApplyDefaultAutoRealization, "DidApplyDefaultAutoRealization", false, "" );
+    m_didApplyDefaultAutoRealization.uiCapability()->setUiHidden( true );
 
     nameField()->uiCapability()->setUiHidden( true );
 }
@@ -243,18 +246,61 @@ int RimPolygonInViewCollection::viewMatchingRealizationOrMinusOne() const
 /// or the view's case does not match) fall back to the source's own Applied/default items (-1) --
 /// there is no separate per-view realization override.
 //--------------------------------------------------------------------------------------------------
+int RimPolygonInViewCollection::effectiveRealization() const
+{
+    auto* src = sourceCollection();
+    if ( !src ) return -1;
+
+    if ( src->supportsRealizationOverride() && m_useAutoRealization() )
+    {
+        return viewMatchingRealizationOrMinusOne();
+    }
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimPolygon*> RimPolygonInViewCollection::sourceItems() const
 {
     auto* src = sourceCollection();
     if ( !src ) return {};
 
-    int realization = -1;
-    if ( src->supportsRealizationOverride() && m_useAutoRealization() )
-    {
-        realization = viewMatchingRealizationOrMinusOne();
-    }
+    return src->itemsForRealization( effectiveRealization() );
+}
 
-    return src->itemsForRealization( realization );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPolygonInViewCollection::computeDisplayName() const
+{
+    auto* src = sourceCollection();
+    if ( !src ) return {};
+
+    return src->displayNameForRealization( effectiveRealization() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// One-shot default for the Auto-Follow checkbox: the first time this mirror node is synced, if
+/// its source's data source does not match the owning view's own case (i.e. the checkbox is
+/// disabled/not meaningful here), default it to unchecked so it does not misleadingly stay
+/// checked while doing nothing. This does NOT affect the node's own visibility checkbox
+/// (m_isChecked) -- only the realization-follow checkbox. Never repeats once applied, so a user's
+/// later manual toggle of the checkbox always sticks (even across a project save/reload, since
+/// m_didApplyDefaultAutoRealization is persisted).
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::onSynced()
+{
+    if ( m_didApplyDefaultAutoRealization() ) return;
+
+    m_didApplyDefaultAutoRealization = true;
+
+    auto* src = sourceCollection();
+    if ( src && src->supportsRealizationOverride() && viewMatchingRealizationOrMinusOne() == -1 )
+    {
+        m_useAutoRealization = false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -51,6 +51,9 @@ protected:
     std::vector<RimPolygon*>          sourceItems() const override;
     RimPolygonInView*                 createItemInView( RimPolygon* source ) override;
 
+    QString computeDisplayName() const override;
+    void    onSynced() override;
+
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
@@ -59,6 +62,12 @@ private:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+    // The realization actually used by this view's mirrored items right now: the source's
+    // Applied/base realization (-1) unless auto-follow is enabled and applicable, in which case
+    // the view's own matching case realization. Shared by sourceItems() and computeDisplayName()
+    // so the name and the actual shown items are always for the same realization.
+    int effectiveRealization() const;
 
     // Explicit per-view choice: whether this view should follow the source container's own
     // per-view realization resolution (see RimPolygonContainer::resolveViewMatchingRealization) or
@@ -72,6 +81,11 @@ private:
     // to a different case/ensemble than the source's Applied data source, since "follow view"
     // would not be meaningful there.
     caf::PdmField<bool> m_useAutoRealization;
+
+    // Set once this node has applied its one-shot default for m_useAutoRealization (see
+    // onSynced()). Persisted so a user's later manual checkbox toggle is never silently
+    // overridden again, including across a project save/reload.
+    caf::PdmField<bool> m_didApplyDefaultAutoRealization;
 
     // Resolves the realization the owning 3D view's own case matches for the current source
     // container, or -1 if there is no view ancestor or the view's case belongs to a different

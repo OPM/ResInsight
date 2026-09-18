@@ -596,7 +596,10 @@ QList<caf::PdmOptionItemInfo> RimPolygonCloudAddress::calculateValueOptions( con
     {
         for ( auto* dataSource : RimCloudDataSourceCollection::instance()->sumoDataSources() )
         {
-            options.push_back( caf::PdmOptionItemInfo( dataSource->caseName() + " / " + dataSource->ensembleName(), dataSource ) );
+            // Matches the display name already used for the data source itself under the cloud
+            // data sources tree (RimSumoDataSource::updateName(): "ensemble (case)" unless the
+            // user set a custom name), so the same ensemble/case reads identically in both places.
+            options.push_back( caf::PdmOptionItemInfo( dataSource->name(), dataSource ) );
         }
     }
     else if ( fieldNeedingOptions == &m_realization )
@@ -745,12 +748,32 @@ void RimPolygonCloudAddress::invalidateDirectory()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudAddress::updateName()
 {
+    setCollectionName( composeName( m_appliedRealization() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// See RimPolygonContainer::displayNameForRealization. realization < 0 means "this address's own
+/// Applied realization" (matching itemsForRealization()'s convention), so it always renders the
+/// same as updateName()/name() in that case.
+//--------------------------------------------------------------------------------------------------
+QString RimPolygonCloudAddress::displayNameForRealization( int realization ) const
+{
+    return composeName( realization < 0 ? m_appliedRealization() : realization );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPolygonCloudAddress::composeName( int realization ) const
+{
     QStringList parts;
 
     if ( auto* dataSource = m_appliedDataSource() )
     {
-        parts << dataSource->ensembleName();
+        parts << dataSource->name();
     }
+
+    parts << QString( "Real %1" ).arg( realization );
 
     if ( m_appliedPolygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FieldOutline ) )
     {
@@ -771,7 +794,7 @@ void RimPolygonCloudAddress::updateName()
         if ( !m_appliedContactType().isEmpty() ) parts << m_appliedContactType();
     }
 
-    setCollectionName( parts.join( " / " ) );
+    return parts.join( " / " );
 }
 
 //--------------------------------------------------------------------------------------------------

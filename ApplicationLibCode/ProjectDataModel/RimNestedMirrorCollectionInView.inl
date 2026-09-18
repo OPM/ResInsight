@@ -77,6 +77,23 @@ SelfT* RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::createSubColl
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename SelfT, typename SourceT, typename ItemViewT>
+QString RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::computeDisplayName() const
+{
+    return m_sourceCollection ? m_sourceCollection->collectionName() : QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename SelfT, typename SourceT, typename ItemViewT>
+void RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::onSynced()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename SelfT, typename SourceT, typename ItemViewT>
 SelfT* RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::findCollectionInViewForSource( const SourceT* src ) const
 {
     for ( auto coll : m_collectionsInView )
@@ -114,7 +131,7 @@ void RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::updateAllViewIt
     // Refresh display name from source so the view tree label tracks the source.
     if ( m_sourceCollection )
     {
-        this->setName( m_sourceCollection->collectionName() );
+        this->setName( this->computeDisplayName() );
     }
 
     // --- Sub-collections ---
@@ -188,5 +205,6 @@ void RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::updateAllViewIt
         }
     }
 
+    this->onSynced();
     this->updateConnectedEditors();
 }

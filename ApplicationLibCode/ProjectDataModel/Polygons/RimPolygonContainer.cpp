@@ -107,6 +107,14 @@ int RimPolygonContainer::resolveViewMatchingRealization( const Rim3dView* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimPolygonContainer::displayNameForRealization( int realization ) const
+{
+    return collectionName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonContainer::ensureUniquePolygonName( RimPolygon* polygon )
 {
     if ( !polygon ) return;

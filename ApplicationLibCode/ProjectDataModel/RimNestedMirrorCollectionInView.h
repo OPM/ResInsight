@@ -70,6 +70,17 @@ protected:
     // Default impl: new SelfT() + setSourceCollection(src). Override for extra wiring.
     virtual SelfT* createSubCollectionInView( SourceT* src );
 
+    // Computes this mirror's display name from its source. Default: source->collectionName().
+    // Override to incorporate additional per-view context (e.g. which realization is actually
+    // being shown in this view) into the name.
+    virtual QString computeDisplayName() const;
+
+    // Hook called once per sync (updateAllViewItems()), for every mirror node in the tree (this
+    // node and all recursively-synced sub-collections), after this node's own name/items/
+    // sub-collections have been refreshed. Default: no-op. Override for one-time-per-node
+    // bookkeeping, e.g. defaulting this node's own initial visibility the first time it is synced.
+    virtual void onSynced();
+
     // Recursive sync: sub-collections, then items, then editor refresh.
     void updateAllViewItems();
 
