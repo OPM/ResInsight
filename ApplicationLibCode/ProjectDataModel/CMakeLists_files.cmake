@@ -39,6 +39,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Rim3dView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGridView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDataView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDataViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Rim2dIntersectionView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Rim2dIntersectionViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimViewManipulator.cpp

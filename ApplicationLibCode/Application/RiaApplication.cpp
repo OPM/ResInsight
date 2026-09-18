@@ -65,6 +65,8 @@
 #include "RimCellFilterCollection.h"
 #include "RimCommandRouter.h"
 #include "RimCompletionTemplateCollection.h"
+#include "RimDataView.h"
+#include "RimDataViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
@@ -906,9 +908,20 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         for ( RimOilField* oilField : m_project->oilFields )
         {
-            for ( auto seisView : oilField->seismicViewCollection()->views() )
+            if ( oilField->seismicViewCollection() )
             {
-                seisView->loadDataAndUpdate();
+                for ( auto seisView : oilField->seismicViewCollection()->views() )
+                {
+                    seisView->loadDataAndUpdate();
+                }
+            }
+
+            if ( oilField->dataViewCollection() )
+            {
+                for ( auto dataView : oilField->dataViewCollection()->views() )
+                {
+                    dataView->loadDataAndUpdate();
+                }
             }
         }
 

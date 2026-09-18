@@ -33,6 +33,7 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
+#include "RimDataView.h"
 #include "RimDockWindowController.h"
 #include "RimGridView.h"
 #include "RimLegendConfig.h"
@@ -600,6 +601,7 @@ std::vector<Rim3dView*> Rim3dView::validComparisonViews() const
         for ( auto view : project->allViews() )
         {
             if ( dynamic_cast<RimSeismicView*>( view ) ) continue;
+            if ( dynamic_cast<RimDataView*>( view ) ) continue;
 
             bool isSameViewType = isIntersectionView( this ) == isIntersectionView( view );
 
