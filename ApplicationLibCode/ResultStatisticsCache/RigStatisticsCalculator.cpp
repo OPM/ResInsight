@@ -89,27 +89,34 @@ void RigStatisticsCalculator::addDataToHistogramCalculator( RigHistogramCalculat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigStatisticsCalculator::mobileVolumeWeightedMean( size_t timeStepIndex, double& mean )
+std::optional<double> RigStatisticsCalculator::mobileVolumeWeightedMean( size_t timeStepIndex )
 {
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigStatisticsCalculator::mobileVolumeWeightedMean( double& mean )
+std::optional<double> RigStatisticsCalculator::mobileVolumeWeightedMean()
 {
-    double sum     = 0.0;
-    size_t tsCount = timeStepCount();
+    double sum                 = 0.0;
+    size_t contributingTsCount = 0;
+
+    const size_t tsCount = timeStepCount();
     for ( size_t tIdx = 0; tIdx < tsCount; tIdx++ )
     {
-        double meanForTimeStep;
-        mobileVolumeWeightedMean( tIdx, meanForTimeStep );
-        sum += meanForTimeStep;
+        // Time steps without a computable mean, ie. when the mobile pore volume is missing, are not
+        // allowed to contribute to the accumulated sum
+        if ( const auto meanForTimeStep = mobileVolumeWeightedMean( tIdx ) )
+        {
+            sum += *meanForTimeStep;
+            contributingTsCount++;
+        }
     }
-    if ( tsCount != 0 )
-    {
-        mean = sum / tsCount;
-    }
+
+    if ( contributingTsCount == 0 ) return {};
+
+    return sum / contributingTsCount;
 }
 
 //--------------------------------------------------------------------------------------------------

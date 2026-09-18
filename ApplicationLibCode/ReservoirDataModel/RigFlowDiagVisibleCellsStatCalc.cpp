@@ -105,10 +105,10 @@ size_t RigFlowDiagVisibleCellsStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagVisibleCellsStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double& result )
+std::optional<double> RigFlowDiagVisibleCellsStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex )
 {
     auto eclCase = m_resultsData->flowDiagSolution()->firstAncestorOrThisOfType<RimEclipseResultCase>();
-    if ( !eclCase ) return;
+    if ( !eclCase ) return {};
 
     RigCaseCellResultsData* caseCellResultsData = eclCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
@@ -120,5 +120,5 @@ void RigFlowDiagVisibleCellsStatCalc::mobileVolumeWeightedMean( size_t timeStepI
 
     const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo( m_resVarAddr );
 
-    RigWeightedMeanCalc::weightedMeanOverCells( &weights, values, m_cellVisibilities.p(), true, actCellInfo, true, &result );
+    return RigWeightedMeanCalc::weightedMeanOverCells( &weights, values, m_cellVisibilities.p(), true, actCellInfo, true );
 }
