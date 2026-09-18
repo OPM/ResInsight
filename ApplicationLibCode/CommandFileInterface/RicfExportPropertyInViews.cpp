@@ -25,6 +25,7 @@
 
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimcEclipseView.h"
 
@@ -99,18 +100,26 @@ caf::PdmScriptResponse RicfExportPropertyInViews::execute()
 
     for ( RimEclipseView* view : viewsForExport )
     {
+        // Legacy behavior: a missing property in one view is a warning, not an error, and the export continues
+        if ( !RimEclipseView_exportCurrentProperty::hasCurrentProperty( view ) )
+        {
+            QString warning = QString( "%1: Could not find property. Case ID %2, time step %3, property '%4'" )
+                                  .arg( commandName )
+                                  .arg( m_caseId() )
+                                  .arg( view->currentTimeStep() )
+                                  .arg( view->cellResult()->resultVariableUiShortName() );
+            RiaLogging::warning( warning.toStdString() );
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
+            continue;
+        }
+
         RimEclipseView_exportCurrentProperty method( view );
         method.setExportFile( propertiesDir.filePath( RimEclipseView_exportCurrentProperty::defaultFileBaseName( view ) ) );
         method.setUndefinedValue( m_undefinedValue() );
 
+        // A failed write is an error, as in the legacy command
         auto result = method.execute();
-        if ( !result )
-        {
-            // Legacy behavior: a missing property in one view is a warning, not an error, and the export continues
-            QString warning = QString( "%1: %2" ).arg( commandName ).arg( result.error() );
-            RiaLogging::warning( warning.toStdString() );
-            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
-        }
+        if ( !result ) return RicfForwarding::errorResponse( result.error(), commandName );
     }
 
     return response;

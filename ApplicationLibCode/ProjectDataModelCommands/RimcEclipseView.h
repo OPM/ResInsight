@@ -26,9 +26,12 @@
 #include "cafPdmObjectMethod.h"
 #include "cafPdmPtrArrayField.h"
 
+#include "cvfObject.h"
+
 #include <QString>
 
 class RimEclipseView;
+class RigResultAccessor;
 class RimFaultInView;
 
 //==================================================================================================
@@ -67,7 +70,12 @@ public:
     /// Default file base name: <case>-<view>-T<time step>-<property>
     static QString defaultFileBaseName( const RimEclipseView* view );
 
+    /// True if the cell result currently shown in the view is available at the current time step
+    static bool hasCurrentProperty( const RimEclipseView* view );
+
 private:
+    static cvf::ref<RigResultAccessor> currentPropertyAccessor( const RimEclipseView* view );
+
     caf::PdmField<QString> m_exportFile;
     caf::PdmField<double>  m_undefinedValue;
 };
