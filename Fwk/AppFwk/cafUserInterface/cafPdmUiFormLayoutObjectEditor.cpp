@@ -41,6 +41,7 @@
 #include "cafPdmLogging.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiButton.h"
+#include "cafPdmUiButtonBox.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiFieldHandle.h"
@@ -55,6 +56,7 @@
 #include "QMinimizePanel.h"
 
 #include <QCoreApplication>
+#include <QDialogButtonBox>
 #include <QFrame>
 #include <QGridLayout>
 #include <QLabel>
@@ -234,6 +236,16 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                     CAF_PDM_LOG_ERROR( QString( "UI Form Layout Editor: Failed to create button for text '%1'." )
                                            .arg( button->uiName( uiConfigName ) ) );
                 }
+            }
+            else if ( auto* buttonBox = dynamic_cast<PdmUiButtonBox*>( currentItem ) )
+            {
+                // No alignment argument: the QDialogButtonBox is stretched to fill its entire
+                // assigned cell (same as a group), and its own internal QHBoxLayout (leading
+                // stretch, then packed action buttons) takes care of pinning/packing the buttons
+                // themselves -- the exact mechanism a real QDialog's OK/Cancel/Help row uses.
+                QDialogButtonBox* qButtonBox = createButtonBox( containerWidgetWithGridLayout, *buttonBox );
+                parentLayout->addWidget( qButtonBox, currentRowIndex, currentColumn, 1, itemColumnSpan );
+                currentColumn += itemColumnSpan;
             }
             else
             {
@@ -515,6 +527,34 @@ QPushButton* caf::PdmUiFormLayoutObjectEditor::createButton( QWidget*           
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QDialogButtonBox* caf::PdmUiFormLayoutObjectEditor::createButtonBox( QWidget* parent, const PdmUiButtonBox& buttonBox )
+{
+    QDialogButtonBox* qButtonBox = new QDialogButtonBox( parent );
+
+    // ActionRole keeps the buttons in the order they were added (no OS-specific OK/Cancel
+    // reordering), while still getting QDialogButtonBox's normal "leading stretch, then packed
+    // buttons pinned to one side" layout -- the same mechanism used by real QDialogs (e.g. the
+    // Preferences dialog's OK/Cancel/Help row).
+    for ( const auto& spec : buttonBox.buttons() )
+    {
+        QPushButton* qButton = qButtonBox->addButton( spec.text, QDialogButtonBox::ActionRole );
+        qButton->setEnabled( spec.enabled );
+        qButton->setToolTip( spec.toolTip );
+
+        auto callback = spec.callback;
+        if ( callback )
+        {
+            QObject::connect( qButton, &QPushButton::clicked, [callback]() { callback(); } );
+        }
+    }
+
+    m_buttonBoxes.push_back( qButtonBox );
+    return qButtonBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateFieldEditor( QWidget*          parent,
                                                                                         PdmUiFieldHandle* field,
                                                                                         const QString&    uiConfigName )
@@ -578,7 +618,8 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
 ///
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget,
-                                                                            QMargins contentMargins )
+                                                                            QMargins contentMargins,
+                                                                            int      horizontalSpacing )
 {
     CAF_ASSERT( containerWidget );
     QLayout* layout = containerWidget->layout();
@@ -596,6 +637,10 @@ void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout( QWid
 
     QGridLayout* gridLayout = new QGridLayout;
     gridLayout->setContentsMargins( contentMargins );
+    if ( horizontalSpacing >= 0 )
+    {
+        gridLayout->setHorizontalSpacing( horizontalSpacing );
+    }
     containerWidget->setLayout( gridLayout );
 }
 
@@ -686,6 +731,15 @@ void caf::PdmUiFormLayoutObjectEditor::deleteLabelsAndButtons()
         }
     }
     m_buttons.clear();
+
+    for ( auto& buttonBox : m_buttonBoxes )
+    {
+        if ( buttonBox )
+        {
+            buttonBox->deleteLater();
+        }
+    }
+    m_buttonBoxes.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

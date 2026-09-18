@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2017 Ceetron Solutions AS
+//   Copyright (C) 2026 Equinor ASA
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,53 +34,43 @@
 //
 //##################################################################################################
 
-#pragma once
-
-#include "cafPdmUiItem.h"
-#include "cafPdmUiOrdering.h"
+#include "cafPdmUiButtonBox.h"
 
 namespace caf
 {
-//==================================================================================================
-/// Class representing a group of fields communicated to the Gui
-//==================================================================================================
-
-class PdmUiGroup : public PdmUiItem, public PdmUiOrdering
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiButtonBox::PdmUiButtonBox()
 {
-public:
-    PdmUiGroup();
+    // No separate label -- the box itself fills the whole row/cell it is given, like a
+    // QDialogButtonBox does inside a real QDialog.
+    setUiLabelPosition( PdmUiItemInfo::LabelPosition::HIDDEN );
+}
 
-    void    setKeyword( const QString& keyword );
-    QString keyword() const;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiButtonBox::ButtonSpec& PdmUiButtonBox::addButton( const QString& text, const ClickCallback& callback )
+{
+    m_buttons.push_back( { text, callback, true, QString() } );
+    return m_buttons.back();
+}
 
-    bool isUiGroup() const override;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::list<PdmUiButtonBox::ButtonSpec>& PdmUiButtonBox::buttons() const
+{
+    return m_buttons;
+}
 
-    /// Set this group to be collapsed by default. When the user expands the group, the default no longer has any effect.
-    void setCollapsedByDefault();
-
-    /// Set the collapsed state of the group, overriding the previous user actions and the default
-    void setCollapsed( bool doCollapse );
-    void setEnableFrame( bool enableFrame );
-
-    /// Reduce the horizontal spacing between the items in this group's grid layout to zero.
-    /// Useful for a frameless group used purely to lay out a row of buttons snugly next to each other.
-    void setTightHorizontalSpacing( bool enable = true );
-
-    // Pdm internal methods
-    bool isExpandedByDefault() const;
-    bool hasForcedExpandedState() const;
-    bool forcedExpandedState() const;
-    bool enableFrame() const;
-    bool tightHorizontalSpacing() const;
-
-private:
-    bool m_isCollapsedByDefault;
-    bool m_hasForcedExpandedState;
-    bool m_forcedCollapseState;
-    bool m_enableFrame;
-    bool m_tightHorizontalSpacing;
-
-    QString m_keyword;
-};
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiButtonBox::isUiGroup() const
+{
+    return false;
+}
 
 } // End of namespace caf

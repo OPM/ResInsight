@@ -49,6 +49,7 @@ namespace caf
 class PdmUiGroup;
 class PdmUiLabel;
 class PdmUiButton;
+class PdmUiButtonBox;
 class PdmFieldHandle;
 class PdmObjectHandle;
 
@@ -100,6 +101,7 @@ public:
     PdmUiButton* addNewButton( const QString&               buttonText,
                                const std::function<void()>& callback,
                                LayoutOptions                layout = defaultLayoutOptions() );
+    PdmUiButtonBox* addNewButtonBox( LayoutOptions layout = defaultLayoutOptions() );
 
     PdmUiGroup* createGroupBeforeGroup( const QString& groupId,
                                         const QString& displayName,
@@ -162,11 +164,12 @@ private:
                                            const QString& groupKeyword,
                                            LayoutOptions  layout = defaultLayoutOptions() );
 
-    std::vector<FieldAndLayout>               m_ordering;
-    std::vector<std::unique_ptr<PdmUiGroup>>  m_createdGroups;
-    std::vector<std::unique_ptr<PdmUiLabel>>  m_createdLabels;
-    std::vector<std::unique_ptr<PdmUiButton>> m_createdButtons;
-    bool                                      m_skipRemainingFields;
+    std::vector<FieldAndLayout>                   m_ordering;
+    std::vector<std::unique_ptr<PdmUiGroup>>      m_createdGroups;
+    std::vector<std::unique_ptr<PdmUiLabel>>      m_createdLabels;
+    std::vector<std::unique_ptr<PdmUiButton>>     m_createdButtons;
+    std::vector<std::unique_ptr<PdmUiButtonBox>>  m_createdButtonBoxes;
+    bool                                          m_skipRemainingFields;
 };
 
 } // End of namespace caf

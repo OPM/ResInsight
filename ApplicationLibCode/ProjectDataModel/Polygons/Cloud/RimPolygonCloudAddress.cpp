@@ -33,7 +33,7 @@
 #include "RimRoffCaseSumo.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
-#include "cafPdmUiButton.h"
+#include "cafPdmUiButtonBox.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
@@ -476,8 +476,8 @@ void RimPolygonCloudAddress::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     uiOrdering.add( &m_realization );
     uiOrdering.add( &m_polygonResult );
 
-    const bool isFieldOutline    = ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FieldOutline ) );
-    const bool isFluidContact    = ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FluidContactOutline ) );
+    const bool isFieldOutline = ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FieldOutline ) );
+    const bool isFluidContact = ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FluidContactOutline ) );
 
     m_name.uiCapability()->setUiHidden( isFieldOutline );
     uiOrdering.add( &m_name );
@@ -485,27 +485,33 @@ void RimPolygonCloudAddress::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     m_contactType.uiCapability()->setUiHidden( !isFluidContact );
     uiOrdering.add( &m_contactType );
 
-    auto* applyButton = uiOrdering.addNewButton( "Apply", [this]() { onApplyClicked(); }, { .totalColumnSpan = 1 } );
-    applyButton->setAlignment( Qt::AlignLeft );
+    // A real QDialogButtonBox -- the same mechanism a QDialog's OK/Cancel/Help row uses (see
+    // RicEditPreferencesFeature.cpp) -- lays out its buttons via its own internal QHBoxLayout
+    // (leading stretch, then packed buttons), independent of this form's QGridLayout column
+    // accounting. caf::PdmUiButtonBox (a thin PdmUiItem wrapper) hides its own label slot, so it
+    // occupies the same single "field" grid column any other item on its own row would (no
+    // inflation of the form's shared column count), while filling that column's full width -- and
+    // then the buttons pack themselves snugly at the right edge, exactly matching the Preferences
+    // dialog's look, with no per-button alignment/column-span tuning needed at all.
+    caf::PdmUiButtonBox* buttonBox = uiOrdering.addNewButtonBox();
+
+    auto& applySpec = buttonBox->addButton( "Apply", [this]() { onApplyClicked(); } );
     if ( !hasPendingChanges() )
     {
-        applyButton->setUiReadOnly( true );
-        applyButton->setUiToolTip( "The selection shown is already applied." );
+        applySpec.enabled = false;
+        applySpec.toolTip = "The selection shown is already applied.";
     }
 
-    auto* cancelButton = uiOrdering.addNewButton( "Cancel",
-                                                  [this]() { onCancelClicked(); },
-                                                  { .newRow = false, .totalColumnSpan = 1 } );
-    cancelButton->setAlignment( Qt::AlignLeft );
+    auto& cancelSpec = buttonBox->addButton( "Cancel", [this]() { onCancelClicked(); } );
     if ( !m_hasAppliedSelection() )
     {
-        cancelButton->setUiReadOnly( true );
-        cancelButton->setUiToolTip( "Nothing has been applied yet, so there is no selection to revert to." );
+        cancelSpec.enabled = false;
+        cancelSpec.toolTip = "Nothing has been applied yet, so there is no selection to revert to.";
     }
     else if ( !hasPendingChanges() )
     {
-        cancelButton->setUiReadOnly( true );
-        cancelButton->setUiToolTip( "The selection shown is already applied." );
+        cancelSpec.enabled = false;
+        cancelSpec.toolTip = "The selection shown is already applied.";
     }
 
     uiOrdering.skipRemainingFields();
@@ -664,21 +670,18 @@ QList<caf::PdmOptionItemInfo> RimPolygonCloudAddress::calculateValueOptions( con
 
         if ( !m_cachedDirectory.fieldOutline.empty() )
         {
-            options.push_back(
-                caf::PdmOptionItemInfo( polygonResultLabel( SumoPolygonResult::FieldOutline ),
-                                        RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FieldOutline ) ) );
+            options.push_back( caf::PdmOptionItemInfo( polygonResultLabel( SumoPolygonResult::FieldOutline ),
+                                                       RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FieldOutline ) ) );
         }
         if ( !m_cachedDirectory.structureDepthFaultLines.empty() )
         {
-            options.push_back(
-                caf::PdmOptionItemInfo( polygonResultLabel( SumoPolygonResult::StructureDepthFaultLines ),
-                                        RiaSumoPolygons::polygonResultKey( SumoPolygonResult::StructureDepthFaultLines ) ) );
+            options.push_back( caf::PdmOptionItemInfo( polygonResultLabel( SumoPolygonResult::StructureDepthFaultLines ),
+                                                       RiaSumoPolygons::polygonResultKey( SumoPolygonResult::StructureDepthFaultLines ) ) );
         }
         if ( !m_cachedDirectory.fluidContactOutline.empty() )
         {
-            options.push_back(
-                caf::PdmOptionItemInfo( polygonResultLabel( SumoPolygonResult::FluidContactOutline ),
-                                        RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FluidContactOutline ) ) );
+            options.push_back( caf::PdmOptionItemInfo( polygonResultLabel( SumoPolygonResult::FluidContactOutline ),
+                                                       RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FluidContactOutline ) ) );
         }
     }
     else if ( fieldNeedingOptions == &m_name )
