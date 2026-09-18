@@ -262,6 +262,18 @@ void RimPolygonCloudAddress::onApplyClicked()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Explicit discard trigger for the "Cancel" button in the property panel (see defineUiOrdering):
+/// discards the pending edits and restores the pending fields to the currently Applied selection,
+/// without touching m_items/loadData() -- there is nothing to (re)fetch, since the Applied
+/// selection/its fetched polygons are unaffected by pending edits in the first place.
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCloudAddress::onCancelClicked()
+{
+    resetPendingSelectionFromApplied();
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Commits the pending selection into the applied fields. Also clears the per-realization cache
 /// (see itemsForRealization()): cache entries are keyed by realization only, so if the spec
 /// (data source/result/name/contact type) changes, stale entries would otherwise silently keep
@@ -286,12 +298,22 @@ void RimPolygonCloudAddress::applyPendingSelection()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudAddress::resetPendingSelectionFromApplied()
 {
+    // Only invalidate the cached directory if the pending data source actually differs from the
+    // one being restored -- e.g. right after Cancel, if the user never touched the data source
+    // field, the cached directory (fetched for the applied data source) is still valid and does
+    // not need to be re-fetched from Sumo just because the property panel is being refreshed.
+    const bool dataSourceChanges = m_dataSource() != m_appliedDataSource();
+
     m_dataSource    = m_appliedDataSource();
     m_realization   = m_appliedRealization();
     m_polygonResult = m_appliedPolygonResult();
     m_name          = m_appliedName();
     m_contactType   = m_appliedContactType();
-    invalidateDirectory();
+
+    if ( dataSourceChanges )
+    {
+        invalidateDirectory();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -463,11 +485,27 @@ void RimPolygonCloudAddress::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     m_contactType.uiCapability()->setUiHidden( !isFluidContact );
     uiOrdering.add( &m_contactType );
 
-    auto* applyButton = uiOrdering.addNewButton( "Apply", [this]() { onApplyClicked(); } );
+    auto* applyButton = uiOrdering.addNewButton( "Apply", [this]() { onApplyClicked(); }, { .totalColumnSpan = 1 } );
+    applyButton->setAlignment( Qt::AlignLeft );
     if ( !hasPendingChanges() )
     {
         applyButton->setUiReadOnly( true );
         applyButton->setUiToolTip( "The selection shown is already applied." );
+    }
+
+    auto* cancelButton = uiOrdering.addNewButton( "Cancel",
+                                                  [this]() { onCancelClicked(); },
+                                                  { .newRow = false, .totalColumnSpan = 1 } );
+    cancelButton->setAlignment( Qt::AlignLeft );
+    if ( !m_hasAppliedSelection() )
+    {
+        cancelButton->setUiReadOnly( true );
+        cancelButton->setUiToolTip( "Nothing has been applied yet, so there is no selection to revert to." );
+    }
+    else if ( !hasPendingChanges() )
+    {
+        cancelButton->setUiReadOnly( true );
+        cancelButton->setUiToolTip( "The selection shown is already applied." );
     }
 
     uiOrdering.skipRemainingFields();

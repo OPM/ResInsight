@@ -149,6 +149,12 @@ private:
     // selection and notifies the tree/3D view, since field edits no longer auto-fetch.
     void onApplyClicked();
 
+    // Handler for the "Cancel" button (see defineUiOrdering): discards the pending edits by
+    // resetting the pending fields back to the currently Applied selection (or the just-created
+    // defaults if nothing has been Applied yet, though the button is disabled in that case -- see
+    // hasPendingChanges()/m_hasAppliedSelection).
+    void onCancelClicked();
+
     // True when the pending selection (data source/realization/polygon result/name/contact type)
     // differs from the currently Applied one, or nothing has been Applied yet. Used to disable the
     // "Apply" button once the pending selection is already applied, to prevent redundant re-fetches
