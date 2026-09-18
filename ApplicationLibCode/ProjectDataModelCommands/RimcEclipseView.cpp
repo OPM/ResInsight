@@ -137,12 +137,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimEclipseView_exportCurrentProper
     RimEclipseCase* eclipseCase = view->eclipseCase();
     if ( !eclipseCase || !eclipseCase->eclipseCaseData() ) return std::unexpected( "The view has no case data." );
 
-    const int mainGridIndex = 0;
-
-    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
-                                                                                                       mainGridIndex,
-                                                                                                       view->currentTimeStep(),
-                                                                                                       view->cellResult() );
+    cvf::ref<RigResultAccessor> resultAccessor = currentPropertyAccessor( view );
 
     const QString propertyName = view->cellResult()->resultVariableUiShortName();
 
@@ -169,6 +164,28 @@ std::expected<caf::PdmObjectHandle*, QString> RimEclipseView_exportCurrentProper
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigResultAccessor> RimEclipseView_exportCurrentProperty::currentPropertyAccessor( const RimEclipseView* view )
+{
+    if ( !view || !view->eclipseCase() || !view->eclipseCase()->eclipseCaseData() ) return nullptr;
+
+    const int mainGridIndex = 0;
+    return RigResultAccessorFactory::createFromResultDefinition( view->eclipseCase()->eclipseCaseData(),
+                                                                 mainGridIndex,
+                                                                 view->currentTimeStep(),
+                                                                 view->cellResult() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseView_exportCurrentProperty::hasCurrentProperty( const RimEclipseView* view )
+{
+    return currentPropertyAccessor( view ).notNull();
 }
 
 //--------------------------------------------------------------------------------------------------
