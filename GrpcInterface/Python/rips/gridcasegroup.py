@@ -64,7 +64,7 @@ def compute_statistics(self, case_ids=None):
     statistics case (see statistics_cases()) instead.
 
     Arguments:
-        case_ids(list of integers): List of case ids. If this is None all cases in group are included
+        case_ids(list of integers): List of case ids. If this is None or empty all cases in group are included
 
     """
     warnings.warn(
@@ -73,5 +73,5 @@ def compute_statistics(self, case_ids=None):
         stacklevel=3,
     )
     for statistics_case in self.statistics_cases():
-        if case_ids is None or statistics_case.id in case_ids:
+        if not case_ids or statistics_case.id in case_ids:
             statistics_case.compute_statistics(update_views=True)
