@@ -5,7 +5,7 @@ Example: the well_event_schedule.py timeline expressed as a SIMEVENTS file.
 
 This is the SIMEVENTS counterpart to well_event_schedule.py: instead of
 calling the WellEventTimeline API methods one by one, the same events are
-written as SIMEVENTS 1.0 text (see rips/simulator_events.py for the grammar) and
+written as SIMEVENTS 1.1 text (see rips/simulator_events.py for the grammar) and
 applied in one go with rips.simulator_events.apply_simulator_events_document().
 
 It demonstrates the full event coverage of the format:
@@ -51,12 +51,12 @@ def build_simulator_events_text(well_name, with_filter):
     )
     filter_ref = "  FILTER=HIPORO" if with_filter else ""
     return f"""\
-SIMEVENTS 1.0
+SIMEVENTS 1.1
 UNIT METRIC
 
 # Typed declarations
 DATE     STARTUP = 2024-01-01
-DURATION RAMP    = 31 DAYS
+DURATION RAMP    = 31d
 {filter_decl}
 WELL W1 = "{well_name}"
 
@@ -75,7 +75,7 @@ WELL W1
   STARTUP + RAMP  PERFORATION  MDSTART=2400  MDEND=2600  DIAMETER=0.1  SKIN=0.3  COMPLETION_NUMBER=2
 
   # Time-of-day is preserved and emitted as the TIME field of DATES
-  2024-05-15T14:45:30.500  PERFORATION  MDSTART=2300  MDEND=2350  DIAMETER=0.1  SKIN=0.4  COMPLETION_NUMBER=3
+  2024-05-15T14:45:30      PERFORATION  MDSTART=2300  MDEND=2350  DIAMETER=0.1  SKIN=0.4  COMPLETION_NUMBER=3
 
   # Valve in the first perforation; state event for documentation
   2024-03-01      VALVE        MD=2100  TYPE=ICV  STATE=OPEN  CV=0.7  AREA=0.0001
@@ -117,7 +117,7 @@ END_RAW_TEXT
 # Recurring inserted dates become bare DATES keywords. The first series ends at
 # the last event; the second uses an explicit inclusive end date.
 INSERT_DATE STARTUP EVERY MONTH
-INSERT_DATE 2024-07-01 EVERY 3 MONTHS UNTIL STARTUP + 365
+INSERT_DATE 2024-07-01 EVERY 3 MONTHS UNTIL STARTUP + 365d
 """
 
 
@@ -244,8 +244,8 @@ def main():
         ]
         found = [kw for kw in expected_keywords if kw in schedule_text]
         print(f"\n   Keywords found: {', '.join(found)}")
-        if "14:45:30.500" in schedule_text:
-            print("   DATES keyword preserves event time-of-day (14:45:30.500)")
+        if "14:45:30" in schedule_text:
+            print("   DATES keyword preserves event time-of-day (14:45:30)")
     else:
         print("   Warning: No schedule text was generated")
 
