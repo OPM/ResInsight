@@ -1,15 +1,15 @@
-# Example SIMEVENTS well-event-timeline file (version 1.0).
+# Example SIMEVENTS well-event-timeline file (version 1.1).
 # Parsed by rips.simulator_events; see that module's docstring for the grammar.
 # Validate with: python3 -m rips.simulator_events simulator_events.events
 
-SIMEVENTS 1.0
+SIMEVENTS 1.1
 UNIT METRIC
 
-# Typed declarations: dates, whole-day durations, well-name aliases, and
+# Typed declarations: dates, Go-style durations (e.g. 5d, 12h30m), well-name aliases, and
 # cell filter expressions.
 DATE     A1_STARTUP = 2018-01-01
-DATE     A2_STARTUP = 2018-03-01 + 9
-DURATION RAMP       = 5 DAYS
+DATE     A2_STARTUP = 2018-03-01 + 9d
+DURATION RAMP       = 5d
 
 # A filter becomes a case-level combined data filter attached to the
 # perforations that reference it. An unqualified result name is searched in
@@ -23,7 +23,7 @@ WELL A1 = "55_33-A-1"
 # dates may use an explicit inclusive end date or default to the last event.
 SCHEDULE
 INSERT_DATE A1_STARTUP EVERY MONTH
-INSERT_DATE A2_STARTUP EVERY 30 DAYS UNTIL A2_STARTUP + 90
+INSERT_DATE A2_STARTUP EVERY 30 DAYS UNTIL A2_STARTUP + 90d
 
 # Raw schedule text is preserved verbatim. This block is inserted immediately
 # after the date declaration; lower priorities are emitted first when multiple
@@ -45,6 +45,6 @@ WELL A1
 
 WELL "55_33-A-2"
   # An inline quoted expression declares an anonymous filter for one event.
-  A2_STARTUP - 1  PERFORATION  MDSTART=1692.79  MDEND=1706  DIAMETER=0.2413  SKIN=5  COMPLETION_NUMBER=1  FILTER="PORO > 0.2"
+  A2_STARTUP - 1d PERFORATION  MDSTART=1692.79  MDEND=1706  DIAMETER=0.2413  SKIN=5  COMPLETION_NUMBER=1  FILTER="PORO > 0.2"
   A2_STARTUP      WCONHIST     STATUS=OPEN  CMODE=ORAT  VFP=2
   A2_STARTUP      WELTARG      CMODE=BHP  VALUE=50

@@ -18,10 +18,10 @@ It is split into two independent layers:
   calls the ``WellEventTimeline`` API, performing all semantic mapping and
   validation.
 
-File format grammar, version 1.0 (EBNF-ish)::
+File format grammar, version 1.1 (EBNF-ish)::
 
     document        = header , { statement } ;
-    header          = "SIMEVENTS" , "1.0" ;           (* first meaningful line *)
+    header          = "SIMEVENTS" , "1.1" ;           (* first meaningful line *)
     statement       = unit_directive | declaration | insert_date_line | well_block_open
                     | group_block_open | schedule_block_open | event_line
                     | raw_text_event ;
@@ -32,8 +32,8 @@ File format grammar, version 1.0 (EBNF-ish)::
     period          = "DAY" | "DAYS" | "MONTH" | "MONTHS" | "YEAR" | "YEARS" ;
 
     declaration     = date_decl | duration_decl | well_decl | filter_decl ;
-    date_decl       = "DATE" , ident , "=" , date_expr ;         (* DATE X = 2018-03-01 + 9 *)
-    duration_decl   = "DURATION" , ident , "=" , duration_expr ; (* DURATION RAMP = 5 DAYS *)
+    date_decl       = "DATE" , ident , "=" , date_expr ;         (* DATE X = 2018-03-01 + 9d *)
+    duration_decl   = "DURATION" , ident , "=" , duration_expr ; (* DURATION RAMP = 5d12h *)
     well_decl       = "WELL" , ident , "=" , quoted_string ;     (* WELL A1 = "55_33-A-1" *)
     filter_decl     = "FILTER" , ident , "=" , '"' , filter_expr , '"' ;
                                         (* FILTER POROPERM = "PORO > 0.4 AND PERMX > 100.0" *)
@@ -53,13 +53,19 @@ File format grammar, version 1.0 (EBNF-ish)::
                             "AFTER_KEYWORD" | "END_OF_DATE" ) ,
                           [ "ANCHOR=" , ident ] , [ "PRIORITY=" , integer ] ;
 
-    date_expr       = ( iso_date | iso_datetime | date_ident ) , { sign , term } ;
-    duration_expr   = ( integer | dur_ident ) , { sign , term } , [ "DAYS" | "days" ] ;
-    term            = signed_integer | dur_ident ;      (* whole days, e.g. 2 or -2 *)
+    date_expr       = ( iso_datetime | date_ident ) , { sign , term } ;
+    duration_expr   = term , { sign , term } ;
+    term            = duration_lit | dur_ident ;        (* e.g. 2d, -12h30m, RAMP *)
     sign            = "+" | "-" ;
-    iso_date        = 4digit , "-" , 2digit , "-" , 2digit ;
-    iso_datetime    = iso_date , "T" , 2digit , ":" , 2digit , ":" , 2digit ,
-                      [ "." , digits ] ;                (* 2024-05-15T14:45:30.500 *)
+    duration_lit    = [ sign ] , component , { component } ;
+                                        (* units strictly descending, each at most once *)
+    component       = number , ( "mon" | "d" | "h" | "m" | "s" ) ;
+    number          = digits | digits , "." , digits ;
+                                        (* a fraction is allowed only on the last
+                                           component and never on "mon" or "s" *)
+    iso_datetime    = 4digit , "-" , 2digit , "-" , 2digit ,
+                      [ "T" , 2digit , ":" , 2digit , ":" , 2digit , [ "." , digits ] ] ;
+                                        (* 2024-05-15 or 2024-05-15T14:45:30 *)
     ident           = letter_or_underscore , { word_char } ;
     attribute       = ident , "=" , ( quoted_string | bareword ) ;
     comment         = "#" , rest-of-line ;              (* line or trailing *)
@@ -69,22 +75,34 @@ Notes on the grammar:
 * The format is line-oriented; every non-blank line is dispatched on its first
   token: ``SIMEVENTS`` (once), ``UNIT``, ``DATE``, ``DURATION``, ``WELL``,
   ``GROUP``, ``SCHEDULE``, ``INSERT_DATE`` or an event date. Anything else is an
-  error. Keywords are
-  uppercase and case-sensitive (the ``DAYS`` suffix is also accepted as ``days``).
+  error. Keywords are uppercase and case-sensitive; duration units are
+  lowercase.
 * Comments start with ``#`` (outside of double quotes) and run to end of line.
-* Variables are **typed**: ``DATE``, ``DURATION`` (whole days), ``WELL``
-  (well-name alias) and ``FILTER`` (cell filter expression) declarations share
-  one namespace and must precede use.
+* Variables are **typed**: ``DATE``, ``DURATION``, ``WELL`` (well-name alias)
+  and ``FILTER`` (cell filter expression) declarations share one namespace and
+  must precede use.
   Using a variable of the wrong type is an error that cites both the use and
   the declaration site. Redeclaring a name with the same type warns and the
   last value wins; redeclaring with a different type is an error.
-* Date arithmetic is a chain of signed whole-day terms, each an integer or a
-  ``DURATION`` variable: ``START + RAMP - 2``. An operand may carry its own
-  sign, so ``START + -2`` is accepted and means the same as ``START - 2``.
-  Whitespace around ``+``/``-`` is optional but conventional. An event date
-  may carry a time-of-day
-  (``2024-05-15T14:45:30.500``), which the schedule generator preserves as
-  the optional TIME field of the DATES keyword.
+* Every ``DATE`` value is a :class:`datetime.datetime` with second resolution.
+  A date-only literal means midnight; a time-of-day is written with a ``T``
+  separator (``2024-05-15T14:45:30``). Fractional seconds are accepted and
+  rounded to the nearest second. The schedule generator emits a non-midnight
+  time as the optional TIME field of the DATES keyword.
+* A ``DURATION`` is a Go-style literal: one or more ``<number><unit>``
+  components written without spaces, units in strictly descending order and
+  each used at most once — ``mon`` (calendar month), ``d``, ``h``, ``m``
+  (minute), ``s``. Examples: ``5d``, ``12h30m``, ``1mon2d``, ``-3d``, ``1.5h``.
+  A fraction is allowed only on the last component, and never on ``mon`` or
+  ``s``; the result is rounded to whole seconds. Unitless numbers and the
+  legacy ``DAYS`` suffix are errors. Because ``mon`` is calendar-relative, a
+  :class:`Duration` keeps months separate from its fixed ``timedelta`` part.
+  Adding months clamps to the last day of a shorter month
+  (``2024-01-31 + 1mon`` is ``2024-02-29``).
+* Date arithmetic is a chain of signed terms, each a duration literal or a
+  ``DURATION`` variable: ``START + RAMP - 2d``. An operand may carry its own
+  sign, so ``START + -2d`` is accepted and means the same as ``START - 2d``.
+  Whitespace around ``+``/``-`` is optional but conventional.
 * ``WELL <ident>`` opens an event block for a declared ``WELL`` alias;
   ``WELL "<name>"`` opens a block for the literal well name and never consults
   variables. A ``WELL`` line containing ``=`` is always a declaration. A bare
@@ -235,6 +253,89 @@ class FilterTerm:
     value: float
 
 
+@dataclass(frozen=True, order=False)
+class Duration:
+    """A signed calendar-aware duration: whole months plus a fixed time span.
+
+    ``months`` is calendar-relative (``mon``); ``delta`` holds the ``d``, ``h``,
+    ``m`` and ``s`` components with second resolution. ``str()`` renders the
+    Go-style form used in the file format, e.g. ``1mon5d12h30m`` or ``-3d``.
+    """
+
+    months: int = 0
+    delta: datetime.timedelta = datetime.timedelta(0)
+
+    def __add__(self, other: "Duration") -> "Duration":
+        if not isinstance(other, Duration):
+            return NotImplemented
+        return Duration(self.months + other.months, self.delta + other.delta)
+
+    def __sub__(self, other: "Duration") -> "Duration":
+        if not isinstance(other, Duration):
+            return NotImplemented
+        return Duration(self.months - other.months, self.delta - other.delta)
+
+    def __neg__(self) -> "Duration":
+        return Duration(-self.months, -self.delta)
+
+    def __bool__(self) -> bool:
+        return bool(self.months) or bool(self.delta)
+
+    def __radd__(self, other: datetime.datetime) -> datetime.datetime:
+        if not isinstance(other, datetime.datetime):
+            return NotImplemented
+        return _add_months(other, self.months) + self.delta
+
+    def __rsub__(self, other: datetime.datetime) -> datetime.datetime:
+        if not isinstance(other, datetime.datetime):
+            return NotImplemented
+        return other + (-self)
+
+    def __str__(self) -> str:
+        negative = self.months < 0 or (self.months == 0 and self.delta < _ZERO_DELTA)
+        months = abs(self.months)
+        total_seconds = abs(int(self.delta.total_seconds()))
+        # A mixed-sign duration (e.g. 1mon - 1d) cannot be written as a single
+        # literal; render it as an explicit expression instead.
+        if (
+            self.months
+            and self.delta
+            and (self.months < 0) != (self.delta < _ZERO_DELTA)
+        ):
+            return f"{Duration(self.months)} {'-' if self.delta < _ZERO_DELTA else '+'} {Duration(0, abs(self.delta))}"
+        days, rem = divmod(total_seconds, 86400)
+        hours, rem = divmod(rem, 3600)
+        minutes, seconds = divmod(rem, 60)
+        parts = [
+            f"{value}{unit}"
+            for value, unit in (
+                (months, "mon"),
+                (days, "d"),
+                (hours, "h"),
+                (minutes, "m"),
+                (seconds, "s"),
+            )
+            if value
+        ]
+        if not parts:
+            return "0s"
+        return ("-" if negative else "") + "".join(parts)
+
+
+_ZERO_DELTA = datetime.timedelta(0)
+
+
+def _add_months(value: datetime.datetime, months: int) -> datetime.datetime:
+    """Shift a datetime by whole months, clamping to the end of shorter months."""
+    if not months:
+        return value
+    month_index = value.year * 12 + value.month - 1 + months
+    year, zero_based_month = divmod(month_index, 12)
+    month = zero_based_month + 1
+    day = min(value.day, calendar.monthrange(year, month)[1])
+    return value.replace(year=year, month=month, day=day)
+
+
 @dataclass(frozen=True)
 class FilterExpr:
     """A parsed filter expression: comparison terms with one combine mode."""
@@ -262,13 +363,13 @@ class EventFilter:
 class SimulatorEventValue:
     """A typed variable: kind is ``DATE``, ``DURATION``, ``WELL`` or ``FILTER``.
 
-    A ``DATE`` value is a :class:`datetime.date`, or a :class:`datetime.datetime`
-    when declared with a time-of-day. A ``FILTER`` value is a
-    :class:`FilterExpr`.
+    A ``DATE`` value is a :class:`datetime.datetime` (midnight when declared
+    without a time-of-day), a ``DURATION`` value is a :class:`Duration`, a
+    ``WELL`` value is a string and a ``FILTER`` value is a :class:`FilterExpr`.
     """
 
     kind: str
-    value: Union[datetime.date, datetime.datetime, int, str, FilterExpr]
+    value: Union[datetime.datetime, Duration, str, FilterExpr]
     loc: SourceLoc
 
 
@@ -296,7 +397,7 @@ class SimulatorEvent:
     """One event line in an enclosing WELL, GROUP or SCHEDULE block."""
 
     event_type: str
-    event_date: Union[datetime.date, datetime.datetime]
+    event_date: datetime.datetime
     attributes: Dict[str, AttrValue]
     loc: SourceLoc
     filter: Optional[EventFilter] = None
@@ -331,10 +432,10 @@ class GroupBlock:
 class _ReportSpec:
     """One INSERT_DATE declaration, expanded after all event dates are known."""
 
-    start: Union[datetime.date, datetime.datetime]
+    start: datetime.datetime
     interval: Optional[int]
     period: Optional[str]
-    end: Optional[Union[datetime.date, datetime.datetime]]
+    end: Optional[datetime.datetime]
     loc: SourceLoc
 
 
@@ -348,19 +449,19 @@ class SimulatorEventsDocument:
     wells: List[WellBlock] = field(default_factory=list)
     groups: List[GroupBlock] = field(default_factory=list)
     schedule_events: List[SimulatorEvent] = field(default_factory=list)
-    report_dates: List[Union[datetime.date, datetime.datetime]] = field(
-        default_factory=list
-    )
+    report_dates: List[datetime.datetime] = field(default_factory=list)
     warnings: List[ParseWarning] = field(default_factory=list)
 
 
-def _iso_event_date(event_date: Union[datetime.date, datetime.datetime]) -> str:
-    """Format an event date for the timeline API, keeping ms time-of-day."""
-    if isinstance(event_date, datetime.datetime):
-        if event_date.microsecond:
-            return event_date.isoformat(timespec="milliseconds")
-        return event_date.isoformat()
-    return event_date.isoformat()
+def _iso_event_date(event_date: datetime.datetime) -> str:
+    """Format an event date for the timeline API.
+
+    Midnight timestamps are written as a plain ``YYYY-MM-DD``; any other time
+    of day is written as ``YYYY-MM-DDTHH:MM:SS`` (second resolution).
+    """
+    if event_date.time() == datetime.time.min:
+        return event_date.date().isoformat()
+    return event_date.isoformat(timespec="seconds")
 
 
 def _event_context(event: SimulatorEvent) -> str:
@@ -414,17 +515,20 @@ _KEYWORDS = (
 _IDENT = r"[A-Za-z_]\w*"
 _ISO_DATE = r"\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?)?"
 _DATE_BASE = rf"(?P<base>{_ISO_DATE}|{_IDENT})"
-# A term operand may carry its own sign, so "START + -2" subtracts two days.
-_SIGNED_INT = r"[-+]?\d+"
-_TERMS_BODY = rf"(?:\s*[-+]\s*(?:{_SIGNED_INT}|{_IDENT}))*"
+# A duration literal is Go-style: e.g. 5d, 12h30m, -1mon2d, 1.5h. The regex is
+# deliberately loose (any number/unit-letters run); _parse_duration_literal
+# validates unit names, ordering and fractions and produces the diagnostics.
+# Require unit letters between numbers to avoid ambiguous digit-run splits.
+_DURATION_LIT = r"[-+]?\d+(?:\.\d+)?(?:[A-Za-z]+\d+(?:\.\d+)?)*[A-Za-z]*"
+# A term operand may carry its own sign, so "START + -2d" subtracts two days.
+_TERMS_BODY = rf"(?:\s*[-+]\s*(?:{_DURATION_LIT}|{_IDENT}))*"
 _TERMS = rf"(?P<terms>{_TERMS_BODY})"
 
 _HEADER_RE = re.compile(r"^SIMEVENTS\s+(?P<version>\d+\.\d+)$")
 _UNIT_RE = re.compile(r"^UNIT\s+(?P<unit>METRIC|FIELD|LAB)$")
 _DATE_DECL_RE = re.compile(rf"^DATE\s+(?P<name>{_IDENT})\s*=\s*{_DATE_BASE}{_TERMS}$")
 _DURATION_DECL_RE = re.compile(
-    rf"^DURATION\s+(?P<name>{_IDENT})\s*=\s*(?P<base>\d+|{_IDENT}){_TERMS}"
-    r"(?:\s+(?:DAYS|days))?$"
+    rf"^DURATION\s+(?P<name>{_IDENT})\s*=\s*(?P<base>{_DURATION_LIT}|{_IDENT}){_TERMS}$"
 )
 _WELL_DECL_RE = re.compile(rf'^WELL\s+(?P<name>{_IDENT})\s*=\s*"(?P<well>[^"]*)"$')
 _INSERT_DATE_RE = re.compile(
@@ -453,7 +557,21 @@ _RESULT_TYPE_ALIASES = {
 _WELL_BLOCK_RE = re.compile(rf'^WELL\s+(?:"(?P<qname>[^"]*)"|(?P<ref>{_IDENT}))$')
 _GROUP_BLOCK_RE = re.compile(r'^GROUP\s+"(?P<name>[^"]*)"$')
 _EVENT_RE = re.compile(rf"^{_DATE_BASE}{_TERMS}\s+(?P<rest>.+)$")
-_TERM_RE = re.compile(rf"([-+])\s*({_SIGNED_INT}|{_IDENT})")
+_TERM_RE = re.compile(rf"([-+])\s*({_DURATION_LIT}|{_IDENT})")
+_DURATION_COMPONENT_RE = re.compile(r"(?P<number>\d+(?:\.\d+)?)(?P<unit>[A-Za-z]*)")
+_TIME_OF_DAY_RE = re.compile(r"\d{2}:\d{2}:\d{2}(?:\.\d+)?")
+# Duration units in the order they must appear, with their length in seconds
+# (None for the calendar-relative month).
+_DURATION_UNITS: Tuple[Tuple[str, Optional[int]], ...] = (
+    ("mon", None),
+    ("d", 86400),
+    ("h", 3600),
+    ("m", 60),
+    ("s", 1),
+)
+_DURATION_UNIT_ORDER = {unit: index for index, (unit, _) in enumerate(_DURATION_UNITS)}
+_DURATION_UNIT_LIST = ", ".join(unit for unit, _ in _DURATION_UNITS)
+_DURATION_NO_FRACTION_UNITS = {"mon", "s"}
 _ATTR_RE = re.compile(r'(?P<key>[A-Za-z_]\w*)\s*=\s*(?:"(?P<qval>[^"]*)"|(?P<val>\S+))')
 
 
@@ -579,32 +697,18 @@ def parse_simulator_events(text: str) -> SimulatorEventsDocument:
     )
 
 
-def _as_datetime(value: Union[datetime.date, datetime.datetime]) -> datetime.datetime:
-    if isinstance(value, datetime.datetime):
-        return value
-    return datetime.datetime.combine(value, datetime.time.min)
-
-
 def _report_occurrence(
-    start: Union[datetime.date, datetime.datetime],
+    start: datetime.datetime,
     interval: int,
     period: str,
     occurrence: int,
-) -> Union[datetime.date, datetime.datetime]:
+) -> datetime.datetime:
     offset = interval * occurrence
     if period == "DAY":
         return start + datetime.timedelta(days=offset)
-
     if period == "MONTH":
-        month_index = start.year * 12 + start.month - 1 + offset
-        year, zero_based_month = divmod(month_index, 12)
-        month = zero_based_month + 1
-    else:
-        year = start.year + offset
-        month = start.month
-
-    day = min(start.day, calendar.monthrange(year, month)[1])
-    return start.replace(year=year, month=month, day=day)
+        return _add_months(start, offset)
+    return _add_months(start, 12 * offset)
 
 
 def _expand_report_specs(
@@ -612,16 +716,13 @@ def _expand_report_specs(
     wells: List[WellBlock],
     groups: List[GroupBlock],
     schedule_events: List[SimulatorEvent],
-) -> Tuple[
-    List[Union[datetime.date, datetime.datetime]],
-    List[ParseIssue],
-]:
+) -> Tuple[List[datetime.datetime], List[ParseIssue]]:
     event_dates = [event.event_date for well in wells for event in well.events]
     event_dates.extend(event.event_date for group in groups for event in group.events)
     event_dates.extend(event.event_date for event in schedule_events)
-    last_event_date = max(event_dates, key=_as_datetime) if event_dates else None
+    last_event_date = max(event_dates) if event_dates else None
 
-    dates: List[Union[datetime.date, datetime.datetime]] = []
+    dates: List[datetime.datetime] = []
     issues: List[ParseIssue] = []
     for spec in report_specs:
         if spec.period is None:
@@ -643,7 +744,7 @@ def _expand_report_specs(
                 )
             )
             continue
-        if _as_datetime(end) < _as_datetime(spec.start):
+        if end < spec.start:
             issues.append(
                 ParseIssue(
                     "INSERT_DATE end date must not precede its start date", spec.loc
@@ -659,7 +760,7 @@ def _expand_report_specs(
                 )
             except (OverflowError, ValueError):
                 break
-            if _as_datetime(value) > _as_datetime(end):
+            if value > end:
                 break
             dates.append(value)
             occurrence += 1
@@ -718,7 +819,7 @@ def _restart_validation_issues(
 
 def _wellspec_validation_issues(wells: List[WellBlock]) -> List[ParseIssue]:
     """Reject multiple WELSPECS events for one well at the same timestamp."""
-    seen: Dict[Tuple[str, Union[datetime.date, datetime.datetime]], SimulatorEvent] = {}
+    seen: Dict[Tuple[str, datetime.datetime], SimulatorEvent] = {}
     issues: List[ParseIssue] = []
     for well in wells:
         for event in well.events:
@@ -739,12 +840,21 @@ def _wellspec_validation_issues(wells: List[WellBlock]) -> List[ParseIssue]:
     return issues
 
 
+_SUPPORTED_VERSION = "1.1"
+
+
 def _check_version(version: str, loc: SourceLoc) -> None:
-    if version == "1.0":
+    if version == _SUPPORTED_VERSION:
         return
-    raise SimulatorEventsParseError(
-        f"Unsupported SIMEVENTS version '{version}'; expected 1.0", loc
+    message = (
+        f"Unsupported SIMEVENTS version '{version}'; expected {_SUPPORTED_VERSION}"
     )
+    if version == "1.0":
+        message += (
+            " (1.1 requires a unit on every duration, e.g. '5 DAYS' -> '5d', "
+            "and 'T' between date and time)"
+        )
+    raise SimulatorEventsParseError(message, loc)
 
 
 def _parse_line(
@@ -826,9 +936,13 @@ def _parse_line(
     if first == "DATE":
         match = _DATE_DECL_RE.match(line)
         if match is None:
+            hint = ""
+            if re.search(rf"\d{{4}}-\d{{2}}-\d{{2}}\s+{_TIME_OF_DAY_RE.pattern}", line):
+                hint = "; a time-of-day must be joined to the date with 'T'"
             raise SimulatorEventsParseError(
                 f"Malformed DATE declaration: {line!r} "
-                "(expected DATE NAME = <iso-date|DATE-var> [+|- <days|DURATION-var> ...])",
+                "(expected DATE NAME = <iso-datetime|DATE-var> [+|- <duration|DURATION-var> ...])"
+                f"{hint}",
                 loc,
             )
         value = _eval_date_expr(
@@ -846,17 +960,21 @@ def _parse_line(
     if first == "DURATION":
         match = _DURATION_DECL_RE.match(line)
         if match is None:
+            hint = ""
+            if re.search(r"\b(?:DAYS|days)\b", line):
+                hint = "; the DAYS suffix is not supported, write e.g. 5d"
             raise SimulatorEventsParseError(
                 f"Malformed DURATION declaration: {line!r} "
-                "(expected DURATION NAME = <days|DURATION-var> [+|- ...] [DAYS])",
+                "(expected DURATION NAME = <duration|DURATION-var> [+|- ...], "
+                f"e.g. DURATION RAMP = 5d12h){hint}",
                 loc,
             )
-        days = _eval_duration_expr(
+        duration = _eval_duration_expr(
             match.group("base"), match.group("terms"), variables, loc
         )
         _declare(
             match.group("name"),
-            SimulatorEventValue("DURATION", days, loc),
+            SimulatorEventValue("DURATION", duration, loc),
             variables,
             warnings,
             loc,
@@ -986,56 +1104,142 @@ def _lookup_var(
     return value
 
 
+def _parse_duration_literal(text: str, loc: SourceLoc) -> Duration:
+    """Parse a Go-style duration literal such as ``5d``, ``-12h30m`` or ``1.5h``.
+
+    Units must be ``mon``, ``d``, ``h``, ``m`` or ``s``, appear in strictly
+    descending order and at most once each. A fraction is allowed only on the
+    last component and never on ``mon`` or ``s``. The fixed part is rounded to
+    whole seconds.
+    """
+    body = text
+    negative = False
+    if body[:1] in "+-":
+        negative = body[0] == "-"
+        body = body[1:]
+
+    def fail(reason: str) -> SimulatorEventsParseError:
+        return SimulatorEventsParseError(f"Invalid duration {text!r}: {reason}", loc)
+
+    if not body or not body[0].isdigit():
+        raise fail(
+            f"expected <number><unit> components with units {_DURATION_UNIT_LIST}"
+        )
+
+    components: List[Tuple[str, str]] = []
+    pos = 0
+    while pos < len(body):
+        match = _DURATION_COMPONENT_RE.match(body, pos)
+        if match is None:
+            raise fail(f"unexpected text {body[pos:]!r}")
+        components.append((match.group("number"), match.group("unit")))
+        pos = match.end()
+
+    months = 0
+    seconds = 0.0
+    previous_order = -1
+    for index, (number, unit) in enumerate(components):
+        if not unit:
+            if len(components) == 1:
+                raise fail(
+                    f"a unit is required ({_DURATION_UNIT_LIST}), e.g. {number}d"
+                )
+            raise fail(f"missing unit after {number!r}")
+        if unit.upper() in ("DAY", "DAYS"):
+            raise fail(f"the DAYS suffix is not supported; write {number}d")
+        order = _DURATION_UNIT_ORDER.get(unit)
+        if order is None:
+            close = difflib.get_close_matches(
+                unit.lower(), list(_DURATION_UNIT_ORDER), n=1, cutoff=0.6
+            )
+            hint = f"; did you mean '{close[0]}'?" if close else ""
+            raise fail(f"unknown unit {unit!r} (expected {_DURATION_UNIT_LIST}){hint}")
+        if order == previous_order:
+            raise fail(f"unit '{unit}' given more than once")
+        if order < previous_order:
+            raise fail(
+                f"units must be in descending order ({_DURATION_UNIT_LIST}); "
+                f"'{unit}' cannot follow '{components[index - 1][1]}'"
+            )
+        previous_order = order
+
+        is_fraction = "." in number
+        if is_fraction:
+            if index != len(components) - 1:
+                raise fail("a fraction is only allowed on the last component")
+            if unit in _DURATION_NO_FRACTION_UNITS:
+                raise fail(f"a fraction is not allowed on '{unit}'")
+
+        unit_seconds = dict(_DURATION_UNITS)[unit]
+        if unit_seconds is None:
+            months += int(number)
+        else:
+            seconds += float(number) * unit_seconds
+
+    duration = Duration(months, datetime.timedelta(seconds=round(seconds)))
+    return -duration if negative else duration
+
+
+def _eval_term(
+    term: str, variables: Dict[str, SimulatorEventValue], loc: SourceLoc
+) -> Duration:
+    """Evaluate one term: a duration literal or a DURATION variable."""
+    # Identifiers never start with a sign or a digit, so this stays unambiguous.
+    if term[0].isdigit() or term[0] in "+-":
+        return _parse_duration_literal(term, loc)
+    value = _lookup_var(term, "DURATION", variables, loc).value
+    assert isinstance(value, Duration)
+    return value
+
+
 def _eval_terms(
     terms: str, variables: Dict[str, SimulatorEventValue], loc: SourceLoc
-) -> int:
-    """Evaluate a signed chain of whole-day terms to a net day count."""
-    total = 0
+) -> Duration:
+    """Evaluate a signed chain of duration terms to a net :class:`Duration`."""
+    total = Duration()
     for match in _TERM_RE.finditer(terms):
         sign, term = match.groups()
-        # An operand may be signed itself ("+ -2"); identifiers never start with
-        # a sign or a digit, so this stays unambiguous.
-        if term.lstrip("+-").isdigit():
-            days = int(term)
-        else:
-            value = _lookup_var(term, "DURATION", variables, loc).value
-            assert isinstance(value, int)
-            days = value
-        total += days if sign == "+" else -days
+        value = _eval_term(term, variables, loc)
+        total = total + value if sign == "+" else total - value
     return total
+
+
+def _parse_iso_datetime(base: str, loc: SourceLoc) -> datetime.datetime:
+    """Parse ``YYYY-MM-DD[THH:MM:SS[.fff]]`` to a second-resolution datetime."""
+    try:
+        if "T" in base:
+            result = datetime.datetime.fromisoformat(base)
+        else:
+            result = datetime.datetime.combine(
+                datetime.date.fromisoformat(base), datetime.time.min
+            )
+    except ValueError as exc:
+        raise SimulatorEventsParseError(f"Invalid date '{base}': {exc}", loc)
+    if result.microsecond:
+        result = result.replace(microsecond=0) + datetime.timedelta(
+            seconds=round(result.microsecond / 1_000_000)
+        )
+    return result
 
 
 def _eval_date_expr(
     base: str, terms: str, variables: Dict[str, SimulatorEventValue], loc: SourceLoc
-) -> Union[datetime.date, datetime.datetime]:
-    """Evaluate an ISO date(time) or DATE variable plus optional signed day terms."""
-    result: Union[datetime.date, datetime.datetime]
+) -> datetime.datetime:
+    """Evaluate an ISO datetime or DATE variable plus optional signed duration terms."""
     if base[0].isdigit():
-        try:
-            if "T" in base:
-                result = datetime.datetime.fromisoformat(base)
-            else:
-                result = datetime.date.fromisoformat(base)
-        except ValueError as exc:
-            raise SimulatorEventsParseError(f"Invalid date '{base}': {exc}", loc)
+        result = _parse_iso_datetime(base, loc)
     else:
         value = _lookup_var(base, "DATE", variables, loc).value
-        assert isinstance(value, datetime.date)
+        assert isinstance(value, datetime.datetime)
         result = value
-    return result + datetime.timedelta(days=_eval_terms(terms, variables, loc))
+    return result + _eval_terms(terms, variables, loc)
 
 
 def _eval_duration_expr(
     base: str, terms: str, variables: Dict[str, SimulatorEventValue], loc: SourceLoc
-) -> int:
-    """Evaluate an integer or DURATION variable plus optional signed day terms."""
-    if base.isdigit():
-        result = int(base)
-    else:
-        value = _lookup_var(base, "DURATION", variables, loc).value
-        assert isinstance(value, int)
-        result = value
-    return result + _eval_terms(terms, variables, loc)
+) -> Duration:
+    """Evaluate a duration literal or DURATION variable plus optional signed terms."""
+    return _eval_term(base, variables, loc) + _eval_terms(terms, variables, loc)
 
 
 def _parse_filter_expr(text: str, loc: SourceLoc) -> FilterExpr:
@@ -1206,6 +1410,12 @@ def _parse_event_line(
     rest = match.group("rest").strip()
     parts = rest.split(None, 1)
     event_type = parts[0]
+    if _TIME_OF_DAY_RE.fullmatch(event_type):
+        raise SimulatorEventsParseError(
+            f"Malformed event line: {line!r} (a time-of-day must be joined to the "
+            f"date with 'T', e.g. {match.group('base')}T{event_type})",
+            loc,
+        )
     attr_str = parts[1] if len(parts) > 1 else ""
     attributes = _parse_attributes(attr_str, loc)
 
@@ -1422,12 +1632,8 @@ def coalesce_simulator_events_document(
         events: List[SimulatorEvent], *, inherit_history: bool = False
     ) -> List[SimulatorEvent]:
         merged: List[SimulatorEvent] = []
-        by_key: Dict[
-            Tuple[Union[datetime.date, datetime.datetime], str], SimulatorEvent
-        ] = {}
-        attribute_locs: Dict[
-            Tuple[Union[datetime.date, datetime.datetime], str], Dict[str, SourceLoc]
-        ] = {}
+        by_key: Dict[Tuple[datetime.datetime, str], SimulatorEvent] = {}
+        attribute_locs: Dict[Tuple[datetime.datetime, str], Dict[str, SourceLoc]] = {}
         for event in events:
             event_type = event.event_type.upper()
             if event_type in _NON_COALESCING_EVENT_TYPES:
@@ -1468,7 +1674,7 @@ def coalesce_simulator_events_document(
 
         if inherit_history:
             history: Dict[str, Dict[str, AttrValue]] = {}
-            for event in sorted(merged, key=lambda item: _as_datetime(item.event_date)):
+            for event in sorted(merged, key=lambda item: item.event_date):
                 event_type = event.event_type.upper()
                 if event_type in _NON_COALESCING_EVENT_TYPES:
                     continue
@@ -1634,7 +1840,7 @@ def apply_simulator_events_document(
     _validate_policy(on_unknown_event, "on_unknown_event")
     document = coalesce_simulator_events_document(document)
     report = ApplyReport()
-    report.report_dates = sorted({d.isoformat() for d in document.report_dates})
+    report.report_dates = sorted({_iso_event_date(d) for d in document.report_dates})
     report.warnings.extend(
         f"Line {warning.loc.line}: {warning.message}" for warning in document.warnings
     )
