@@ -24,7 +24,7 @@
 
 #include "RimProject.h"
 
-#include "RiuPropertyViewTabWidget.h"
+#include "RiuPropertyViewListWidget.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiModelChangeDetector.h"
@@ -63,7 +63,7 @@ void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
 
     std::unique_ptr<RiaPreferences> oldPreferences = clonePreferences( app->preferences() );
 
-    RiuPropertyViewTabWidget propertyDialog( RiaGuiApplication::widgetToUseAsParent(), app->preferences(), "Preferences", tabNames );
+    RiuPropertyViewListWidget propertyDialog( RiaGuiApplication::widgetToUseAsParent(), app->preferences(), "Preferences", tabNames );
 
     auto pushButton = propertyDialog.dialogButtonBox()->addButton( "Help", QDialogButtonBox::HelpRole );
     connect( pushButton, &QPushButton::clicked, this, &RicEditPreferencesFeature::showHelp );
