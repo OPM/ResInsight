@@ -33,6 +33,7 @@
 #include "RimRoffCaseSumo.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
@@ -462,7 +463,12 @@ void RimPolygonCloudAddress::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     m_contactType.uiCapability()->setUiHidden( !isFluidContact );
     uiOrdering.add( &m_contactType );
 
-    uiOrdering.addNewButton( "Apply", [this]() { onApplyClicked(); } );
+    auto* applyButton = uiOrdering.addNewButton( "Apply", [this]() { onApplyClicked(); } );
+    if ( !hasPendingChanges() )
+    {
+        applyButton->setUiReadOnly( true );
+        applyButton->setUiToolTip( "The selection shown is already applied." );
+    }
 
     uiOrdering.skipRemainingFields();
 }
@@ -836,6 +842,20 @@ bool RimPolygonCloudAddress::hasCompleteSelection() const
     if ( polygonResult == SumoPolygonResult::FluidContactOutline && m_appliedContactType().isEmpty() ) return false;
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// True when the pending selection differs from the Applied one (including "nothing has been
+/// Applied yet"). Used to disable the "Apply" button once its pending selection is already the
+/// current Applied selection, so re-clicking it can't trigger a redundant fetch, and the button's
+/// disabled state itself signals that the panel shows the actual currently-applied selection.
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonCloudAddress::hasPendingChanges() const
+{
+    if ( !m_hasAppliedSelection() ) return true;
+
+    return m_dataSource() != m_appliedDataSource() || m_realization() != m_appliedRealization() ||
+           m_polygonResult() != m_appliedPolygonResult() || m_name() != m_appliedName() || m_contactType() != m_appliedContactType();
 }
 
 //--------------------------------------------------------------------------------------------------

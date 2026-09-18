@@ -488,6 +488,8 @@ QPushButton* caf::PdmUiFormLayoutObjectEditor::createButton( QWidget*           
 {
     QPushButton* qButton = new QPushButton( parent );
     qButton->setText( button.uiName( uiConfigName ) );
+    qButton->setEnabled( !button.isUiReadOnly( uiConfigName ) );
+    qButton->setToolTip( button.uiToolTip( uiConfigName ) );
 
     auto hPolicy = button.fillWidth() ? QSizePolicy::Expanding : QSizePolicy::Maximum;
     qButton->setSizePolicy( hPolicy, QSizePolicy::Fixed );

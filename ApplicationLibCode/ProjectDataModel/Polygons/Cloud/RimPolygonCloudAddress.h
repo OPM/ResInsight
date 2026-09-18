@@ -149,6 +149,12 @@ private:
     // selection and notifies the tree/3D view, since field edits no longer auto-fetch.
     void onApplyClicked();
 
+    // True when the pending selection (data source/realization/polygon result/name/contact type)
+    // differs from the currently Applied one, or nothing has been Applied yet. Used to disable the
+    // "Apply" button once the pending selection is already applied, to prevent redundant re-fetches
+    // and make clear that the shown selection is the actual currently-applied one.
+    bool hasPendingChanges() const;
+
     // Copies the pending (currently displayed/edited) selection fields into the applied fields
     // that loadData()/name()/hasCompleteSelection() actually act on. Called from onApplyClicked()
     // and once from initAfterRead() to keep the pending fields (not persisted with meaningful
