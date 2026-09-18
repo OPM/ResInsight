@@ -43,8 +43,12 @@ class PdmObjectHandle;
 //==================================================================================================
 namespace RicfForwarding
 {
-/// Find a grid case by id. A negative id resolves to the first Eclipse result case in the project.
+/// Find a grid case by id. A negative id is not accepted.
 std::expected<RimCase*, QString> findCase( int caseId );
+
+/// Find a grid case by id, or the first Eclipse result case in the project when the id is negative.
+/// Only for legacy commands that documented this fallback (replaceCase).
+std::expected<RimCase*, QString> findCaseOrFirstEclipseResultCase( int caseId );
 
 /// Find a view by id in the given case. A negative id is not accepted.
 std::expected<Rim3dView*, QString> findView( RimCase* rimCase, int viewId );
@@ -52,8 +56,12 @@ std::expected<Rim3dView*, QString> findView( RimCase* rimCase, int viewId );
 /// Find a 3D view by id anywhere in the project. A negative id is not accepted.
 std::expected<Rim3dView*, QString> findView( int viewId );
 
-/// Find a grid case group by id. A negative id resolves to the first case group in the project.
+/// Find a grid case group by id. A negative id is not accepted.
 std::expected<RimIdenticalGridCaseGroup*, QString> findCaseGroup( int groupId );
+
+/// Find a grid case group by id, or the first case group in the project when the id is negative.
+/// Only for legacy commands that documented this fallback (replaceSourceCases).
+std::expected<RimIdenticalGridCaseGroup*, QString> findCaseGroupOrFirst( int groupId );
 
 /// Find a statistics case by case id in any grid case group.
 std::expected<RimEclipseStatisticsCase*, QString> findStatisticsCase( int caseId );

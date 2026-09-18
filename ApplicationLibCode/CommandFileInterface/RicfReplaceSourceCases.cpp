@@ -57,7 +57,7 @@ caf::PdmScriptResponse RicfReplaceSourceCases::execute()
                                               commandName );
     }
 
-    auto caseGroup = RicfForwarding::findCaseGroup( m_caseGroupId() );
+    auto caseGroup = RicfForwarding::findCaseGroupOrFirst( m_caseGroupId() );
     if ( !caseGroup ) return RicfForwarding::errorResponse( caseGroup.error(), commandName );
 
     RimIdenticalGridCaseGroup_replaceSourceCases method( caseGroup.value() );

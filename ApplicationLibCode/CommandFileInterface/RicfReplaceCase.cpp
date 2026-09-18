@@ -81,7 +81,7 @@ caf::PdmScriptResponse RicfSingleCaseReplace::execute()
         projectPath = lastProjectPath;
     }
 
-    auto rimCase = RicfForwarding::findCase( m_caseId() );
+    auto rimCase = RicfForwarding::findCaseOrFirstEclipseResultCase( m_caseId() );
     if ( !rimCase ) return RicfForwarding::errorResponse( rimCase.error(), commandName );
 
     RimCase_replaceGrid method( rimCase.value() );

@@ -42,23 +42,32 @@ std::expected<RimCase*, QString> RicfForwarding::findCase( int caseId )
     RimProject* project = RimProject::current();
     if ( !project ) return std::unexpected( "No project is available." );
 
-    std::vector<RimCase*> allCases = project->allGridCases();
-    if ( caseId < 0 )
-    {
-        // Matches RiaProjectModifier::firstCaseId(): the first occurrence is the first Eclipse result case
-        for ( RimCase* rimCase : allCases )
-        {
-            if ( dynamic_cast<RimEclipseResultCase*>( rimCase ) ) return rimCase;
-        }
-        return std::unexpected( "No Eclipse result cases found in project." );
-    }
+    if ( caseId < 0 ) return std::unexpected( "No case id specified." );
 
-    for ( RimCase* rimCase : allCases )
+    for ( RimCase* rimCase : project->allGridCases() )
     {
         if ( rimCase && rimCase->caseId() == caseId ) return rimCase;
     }
 
     return std::unexpected( QString( "Could not find case with ID %1" ).arg( caseId ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RimCase*, QString> RicfForwarding::findCaseOrFirstEclipseResultCase( int caseId )
+{
+    if ( caseId >= 0 ) return findCase( caseId );
+
+    RimProject* project = RimProject::current();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    // Matches RiaProjectModifier::firstCaseId(): the first occurrence is the first Eclipse result case
+    for ( RimCase* rimCase : project->allGridCases() )
+    {
+        if ( dynamic_cast<RimEclipseResultCase*>( rimCase ) ) return rimCase;
+    }
+    return std::unexpected( "No Eclipse result cases found in project." );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,11 +104,10 @@ std::expected<Rim3dView*, QString> RicfForwarding::findView( int viewId )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::expected<RimIdenticalGridCaseGroup*, QString> RicfForwarding::findCaseGroup( int groupId )
+namespace
 {
-    RimProject* project = RimProject::current();
-    if ( !project ) return std::unexpected( "No project is available." );
-
+std::vector<RimIdenticalGridCaseGroup*> allCaseGroups( RimProject* project )
+{
     std::vector<RimIdenticalGridCaseGroup*> caseGroups;
     for ( RimOilField* oilField : project->oilFields() )
     {
@@ -110,19 +118,41 @@ std::expected<RimIdenticalGridCaseGroup*, QString> RicfForwarding::findCaseGroup
             if ( caseGroup ) caseGroups.push_back( caseGroup );
         }
     }
+    return caseGroups;
+}
+} // namespace
 
-    if ( groupId < 0 )
-    {
-        if ( caseGroups.empty() ) return std::unexpected( "No grid case groups found in project." );
-        return caseGroups.front();
-    }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RimIdenticalGridCaseGroup*, QString> RicfForwarding::findCaseGroup( int groupId )
+{
+    RimProject* project = RimProject::current();
+    if ( !project ) return std::unexpected( "No project is available." );
 
-    for ( RimIdenticalGridCaseGroup* caseGroup : caseGroups )
+    if ( groupId < 0 ) return std::unexpected( "No grid case group id specified." );
+
+    for ( RimIdenticalGridCaseGroup* caseGroup : allCaseGroups( project ) )
     {
         if ( caseGroup->groupId() == groupId ) return caseGroup;
     }
 
     return std::unexpected( QString( "Could not find grid case group with ID %1" ).arg( groupId ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<RimIdenticalGridCaseGroup*, QString> RicfForwarding::findCaseGroupOrFirst( int groupId )
+{
+    if ( groupId >= 0 ) return findCaseGroup( groupId );
+
+    RimProject* project = RimProject::current();
+    if ( !project ) return std::unexpected( "No project is available." );
+
+    auto caseGroups = allCaseGroups( project );
+    if ( caseGroups.empty() ) return std::unexpected( "No grid case groups found in project." );
+    return caseGroups.front();
 }
 
 //--------------------------------------------------------------------------------------------------
