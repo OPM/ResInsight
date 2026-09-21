@@ -86,6 +86,14 @@ QString RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::computeDispl
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename SelfT, typename SourceT, typename ItemViewT>
+void RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::prepareForSync()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename SelfT, typename SourceT, typename ItemViewT>
 void RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::onSynced()
 {
 }
@@ -128,6 +136,11 @@ ItemViewT* RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::findItemI
 template <typename SelfT, typename SourceT, typename ItemViewT>
 void RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::updateAllViewItems()
 {
+    // Give the derived class a chance to lazily trigger a fetch/mutation of the source *before*
+    // sourceItems()/sourceSubCollections() are read below, so freshly-available data is picked up
+    // by this same sync pass instead of only appearing on some later, unrelated sync.
+    this->prepareForSync();
+
     // Refresh display name from source so the view tree label tracks the source.
     if ( m_sourceCollection )
     {

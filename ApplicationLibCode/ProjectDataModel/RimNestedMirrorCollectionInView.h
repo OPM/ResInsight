@@ -76,6 +76,14 @@ protected:
     virtual QString computeDisplayName() const;
 
     // Hook called once per sync (updateAllViewItems()), for every mirror node in the tree (this
+    // node and all recursively-synced sub-collections), before this node's own items/sub-
+    // collections are (re-)read from the source. Default: no-op. Override to lazily trigger a
+    // fetch/mutation of the source (e.g. RimPolygonCloudAddress::ensureBaseFetched()) so that
+    // freshly-available data is picked up by *this same* sync pass's sourceItems() snapshot,
+    // rather than only showing up on some later, unrelated sync.
+    virtual void prepareForSync();
+
+    // Hook called once per sync (updateAllViewItems()), for every mirror node in the tree (this
     // node and all recursively-synced sub-collections), after this node's own name/items/
     // sub-collections have been refreshed. Default: no-op. Override for one-time-per-node
     // bookkeeping, e.g. defaulting this node's own initial visibility the first time it is synced.

@@ -19,7 +19,6 @@
 #include "RicReloadPolygonCloudAddressFeature.h"
 
 #include "Polygons/Cloud/RimPolygonCloudAddress.h"
-#include "Polygons/Cloud/RimPolygonCloudRealizationGroup.h"
 
 #include "cafSelectionManager.h"
 #include "cafSelectionManagerTools.h"
@@ -30,7 +29,7 @@ CAF_CMD_SOURCE_INIT( RicReloadPolygonCloudAddressFeature, "RicReloadPolygonCloud
 
 //--------------------------------------------------------------------------------------------------
 /// Reloads whatever is currently visualized for the selected address(es): if base data has been
-/// fetched, evict and re-fetch it; re-fetch every existing realization-comparison group the same
+/// fetched, evict and re-fetch it; re-fetch every currently cached non-base realization the same
 /// way. Does not rebuild the owning RimPolygonCloudSource's directory tree (that is a separate,
 /// one-time operation).
 //--------------------------------------------------------------------------------------------------
@@ -40,16 +39,18 @@ void RicReloadPolygonCloudAddressFeature::onActionTriggered( bool isChecked )
 
     for ( auto address : cloudAddresses )
     {
+        std::vector<int> cachedRealizations = address->cachedRealizations();
+
         if ( address->hasBaseData() )
         {
             address->evictBaseData();
             address->ensureBaseFetched();
         }
 
-        for ( int realization : address->fetchedRealizationGroupRealizations() )
+        for ( int realization : cachedRealizations )
         {
-            address->evictRealizationGroup( realization );
-            address->ensureRealizationGroupFetched( realization );
+            address->evictRealizationIfUnused( realization );
+            address->ensureRealizationFetched( realization );
         }
 
         address->updateAllRequiredEditors();

@@ -25,9 +25,9 @@
 #include "Cloud/RimSumoDataSource.h"
 
 #include "Polygons/Cloud/RimCloudPolygon.h"
-#include "Polygons/Cloud/RimPolygonCloudRealizationGroup.h"
 #include "Polygons/Cloud/RimPolygonCloudSource.h"
 #include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonInViewCollection.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTreeAttributes.h"
@@ -67,6 +67,13 @@ RimPolygonCloudAddress::RimPolygonCloudAddress()
 //--------------------------------------------------------------------------------------------------
 RimPolygonCloudAddress::~RimPolygonCloudAddress()
 {
+    for ( auto& [realization, polygons] : m_realizationCache )
+    {
+        for ( auto* polygon : polygons )
+        {
+            delete polygon;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,98 +181,101 @@ void RimPolygonCloudAddress::evictBaseData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPolygonCloudAddress::hasRealizationGroup( int realization ) const
+bool RimPolygonCloudAddress::hasDataForRealization( int realization ) const
 {
-    for ( auto* sub : subCollections() )
-    {
-        if ( auto* group = dynamic_cast<RimPolygonCloudRealizationGroup*>( sub ) )
-        {
-            if ( group->realization() == realization ) return true;
-        }
-    }
-    return false;
+    auto it = m_realizationCache.find( realization );
+    return it != m_realizationCache.end() && !it->second.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Creates (fetching data for) a comparison realization group if it does not already exist.
-/// Idempotent: returns the existing group if one is already present for this realization.
+/// Idempotent: no-op if this realization has already been fetched and cached.
 //--------------------------------------------------------------------------------------------------
-RimPolygonCloudRealizationGroup* RimPolygonCloudAddress::ensureRealizationGroupFetched( int realization )
+void RimPolygonCloudAddress::ensureRealizationFetched( int realization )
 {
-    for ( auto* sub : subCollections() )
-    {
-        if ( auto* group = dynamic_cast<RimPolygonCloudRealizationGroup*>( sub ) )
-        {
-            if ( group->realization() == realization ) return group;
-        }
-    }
+    if ( m_realizationCache.find( realization ) != m_realizationCache.end() ) return;
 
-    auto* group           = new RimPolygonCloudRealizationGroup( realization );
-    auto  fetchedPolygons = fetchPolygonsFromSumo( realization );
-
-    group->itemsField().setValue( fetchedPolygons );
+    auto fetchedPolygons = fetchPolygonsFromSumo( realization );
     for ( auto* polygon : fetchedPolygons )
     {
-        group->ensureUniquePolygonName( polygon );
+        ensureUniquePolygonName( polygon );
     }
 
-    addSubCollection( group );
+    m_realizationCache[realization] = fetchedPolygons;
 
-    objectChanged.send();
+    if ( fetchedPolygons.empty() )
+    {
+        RiaLogging::warning(
+            QString( "No polygons found for Sumo polygon address: %1 (realization %2)" ).arg( name() ).arg( realization ).toStdString() );
+    }
+    else
+    {
+        RiaLogging::info( QString( "Fetched %1 polygon(s) from Sumo for address: %2 (realization %3)" )
+                               .arg( fetchedPolygons.size() )
+                               .arg( name() )
+                               .arg( realization )
+                               .toStdString() );
+    }
+}
 
-    return group;
+//--------------------------------------------------------------------------------------------------
+/// Pure read -- never triggers a fetch. Returns an empty vector if this realization has not been
+/// fetched yet (or has none), see ensureRealizationFetched().
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygon*> RimPolygonCloudAddress::cachedItemsForRealization( int realization ) const
+{
+    auto it = m_realizationCache.find( realization );
+    if ( it == m_realizationCache.end() ) return {};
+    return it->second;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonCloudAddress::evictRealizationGroup( int realization )
+void RimPolygonCloudAddress::evictRealizationIfUnused( int realization )
 {
-    for ( auto* sub : subCollections() )
+    auto it = m_realizationCache.find( realization );
+    if ( it == m_realizationCache.end() ) return;
+
+    for ( auto* polygon : it->second )
     {
-        if ( auto* group = dynamic_cast<RimPolygonCloudRealizationGroup*>( sub ) )
+        delete polygon;
+    }
+    m_realizationCache.erase( it );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Evicts every cached realization not currently shown checked (with that realization resolved as
+/// the effective one) in any open view. Safe to call at any time.
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCloudAddress::evictAllUnusedRealizations()
+{
+    std::vector<int> realizationsToEvict;
+
+    for ( const auto& [realization, polygons] : m_realizationCache )
+    {
+        if ( !RimPolygonInViewCollection::isRealizationInUseInAnyView( this, realization ) )
         {
-            if ( group->realization() == realization )
-            {
-                m_subCollections.removeChild( group );
-                delete group;
-                objectChanged.send();
-                return;
-            }
+            realizationsToEvict.push_back( realization );
         }
     }
+
+    for ( int realization : realizationsToEvict )
+    {
+        evictRealizationIfUnused( realization );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RimPolygonCloudAddress::fetchedRealizationGroupRealizations() const
+std::vector<int> RimPolygonCloudAddress::cachedRealizations() const
 {
     std::vector<int> realizations;
-    for ( auto* sub : subCollections() )
+    for ( const auto& [realization, polygons] : m_realizationCache )
     {
-        if ( auto* group = dynamic_cast<RimPolygonCloudRealizationGroup*>( sub ) )
-        {
-            realizations.push_back( group->realization() );
-        }
+        realizations.push_back( realization );
     }
     return realizations;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimPolygonCloudRealizationGroup*> RimPolygonCloudAddress::realizationGroups() const
-{
-    std::vector<RimPolygonCloudRealizationGroup*> groups;
-    for ( auto* sub : subCollections() )
-    {
-        if ( auto* group = dynamic_cast<RimPolygonCloudRealizationGroup*>( sub ) )
-        {
-            groups.push_back( group );
-        }
-    }
-    return groups;
 }
 
 //--------------------------------------------------------------------------------------------------

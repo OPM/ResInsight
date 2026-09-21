@@ -27,10 +27,12 @@
 
 #include <QPointer>
 
+#include <map>
+#include <vector>
+
 class RimPolygon;
 class RimCloudPolygon;
 class RimPolygonCloudSource;
-class RimPolygonCloudRealizationGroup;
 class RiaSumoConnector;
 
 //==================================================================================================
@@ -44,12 +46,16 @@ class RiaSumoConnector;
 /// Coordinate data (RimCloudPolygon children, see items()) is not persisted in the project file
 /// and is not fetched just because this object exists in the tree. It is fetched lazily, the first
 /// time any 3D view's visibility checkbox for this leaf is checked on (see
-/// RimPolygonInViewCollection::onSynced()), and evicted again once no view still shows it checked.
+/// RimPolygonInViewCollection::prepareForSync()), and evicted again once no view still shows it
+/// checked.
 ///
-/// A second, optional kind of data can exist alongside the base data: one
-/// RimPolygonCloudRealizationGroup child per additional realization some view is currently
-/// "Auto-Follow"-ing (see RimPolygonCloudSource/RimPolygonInViewCollection) -- this is what lets a
-/// user compare a polygon against its own base realization, with zero bespoke comparison UI.
+/// A second, optional kind of data can exist alongside the base data: an internal, unparented
+/// cache entry per additional realization some view is currently "Auto-Follow"-ing (see
+/// RimPolygonCloudSource/RimPolygonInViewCollection). Unlike the base data, these are never added
+/// as PDM children -- the main project tree (and RimPolygonCloudSource's own browsable structure)
+/// therefore always shows only the base realization's data, exactly as it was created; a view
+/// showing a different (auto-followed) realization substitutes that cached data directly in place
+/// of the base items for its own mirror, with no separate visible node.
 ///
 //==================================================================================================
 class RimPolygonCloudAddress : public RimPolygonContainer
@@ -75,19 +81,24 @@ public:
 
     // Base-realization data: this address's own items(), always fetched for the owning source's
     // base realization. Lazily fetched the first time any view checks this leaf visible (see
-    // RimPolygonInViewCollection::onSynced()); idempotent (no-op if already fetched).
+    // RimPolygonInViewCollection::prepareForSync()); idempotent (no-op if already fetched).
     bool hasBaseData() const;
     void ensureBaseFetched();
     void evictBaseData();
 
-    // Per-realization comparison data (see RimPolygonCloudRealizationGroup). Created/evicted on
-    // demand by RimPolygonInViewCollection when a view's Auto-Follow resolves a realization other
-    // than the base one.
-    bool                             hasRealizationGroup( int realization ) const;
-    RimPolygonCloudRealizationGroup* ensureRealizationGroupFetched( int realization );
-    void                             evictRealizationGroup( int realization );
-    std::vector<int>                 fetchedRealizationGroupRealizations() const;
-    std::vector<RimPolygonCloudRealizationGroup*> realizationGroups() const;
+    // Per-realization data for any realization other than the owning source's own base
+    // realization -- used only by a view whose "Auto-Follow View Realization" checkbox resolves
+    // to a different realization than the source's base one (see RimPolygonInViewCollection).
+    // Unlike the base data above, these RimCloudPolygon objects are plain, unparented cache
+    // entries -- never added as PDM children -- so they never show up in the main project tree;
+    // they exist purely to be mirrored into whichever view(s) are currently showing that
+    // realization.
+    bool                     hasDataForRealization( int realization ) const;
+    void                     ensureRealizationFetched( int realization );
+    std::vector<RimPolygon*> cachedItemsForRealization( int realization ) const;
+    void                     evictRealizationIfUnused( int realization );
+    void                     evictAllUnusedRealizations();
+    std::vector<int>         cachedRealizations() const;
 
     QString name() const;
 
@@ -117,4 +128,8 @@ private:
     caf::PdmField<QString> m_contactType;
 
     QPointer<RiaSumoConnector> m_sumoConnector;
+
+    // Unparented cache of RimCloudPolygon objects for realizations other than the owning source's
+    // base one -- see the class comment above. Owned/deleted here, never added as PDM children.
+    std::map<int, std::vector<RimPolygon*>> m_realizationCache;
 };

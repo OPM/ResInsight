@@ -34,16 +34,27 @@ class Rim3dView;
 ///
 /// Root of a browsable tree of Sumo polygon results for one (case, ensemble, base realization).
 /// Created empty via "Add Cloud Polygon Source" -- the user then picks a Data Source and Base
-/// Realization in the property panel and clicks "Apply". buildDirectoryTree() then does a single,
-/// cheap polygon-result-directory metadata fetch and builds the *entire* folder/leaf structure
-/// (Field Outline / Structure Depth Fault Lines + names / Fluid Contact Outline + names + contact
-/// types) as RimPolygonCloudFolder/RimPolygonCloudAddress children -- no coordinate data is fetched
-/// at this point. Each RimPolygonCloudAddress leaf only fetches its own RimCloudPolygon coordinate
+/// Realization in the property panel and clicks "Apply". The very first Apply does a single, cheap
+/// polygon-result-directory metadata fetch and builds the *entire* folder/leaf structure (Field
+/// Outline / Structure Depth Fault Lines + names / Fluid Contact Outline + names + contact types)
+/// as RimPolygonCloudFolder/RimPolygonCloudAddress children -- no coordinate data is fetched at
+/// this point. Each RimPolygonCloudAddress leaf only fetches its own RimCloudPolygon coordinate
 /// data lazily, the first time a 3D view's visibility checkbox for that leaf is checked on (see
 /// RimPolygonInViewCollection).
 ///
-/// Data Source and Base Realization are frozen (read-only) once the directory has been built --
-/// this object always represents one fixed (data source, base realization) combination.
+/// Data Source and Base Realization stay editable afterward via the same "Apply"/"Cancel" pattern
+/// RimPolygonCloudAddress used to have: m_dataSource/m_baseRealization are the pending (UI-edited)
+/// selection; m_appliedDataSource/m_appliedBaseRealization are the actually-committed identity
+/// (used by dataSource()/baseRealization(), buildDirectoryTree(), the tree name, and everything
+/// else that needs a fixed, stable identity for this source). Clicking Apply again after the
+/// directory has already been built:
+/// - if the applied *data source* changed: the whole folder/leaf tree (and any fetched/cached
+///   polygon data underneath it) was built for the old ensemble and is no longer valid -- it is
+///   torn down and rebuilt from scratch for the new one.
+/// - if only the applied *base realization* changed: the folder/leaf structure itself (names/
+///   categories) does not depend on realization, so it is left alone; only every address's own
+///   already-fetched base-realization data is evicted, so it gets lazily re-fetched for the new
+///   base realization value the next time it is needed.
 ///
 /// This is also the only polygon container type offering a per-view "Auto-Follow View Realization"
 /// choice (supportsRealizationOverride()) -- it governs every leaf beneath it in a given view, so
@@ -79,27 +90,34 @@ public:
     std::vector<int> availableRealizationIdsForOverride() const override;
     int              resolveViewMatchingRealization( const Rim3dView* view ) const override;
 
-    // Evicts any fetched RimCloudPolygon data (base or per-realization-group) beneath this source
-    // that is not currently shown checked in any open view. Called after the Auto-Follow checkbox
-    // is turned off in a view, since realization groups created while it was on may otherwise
-    // linger unused; safe to call at any time.
+    // Evicts any fetched RimCloudPolygon data (base or per-realization cache) beneath this source
+    // that is not currently shown checked (with that realization resolved as the effective one) in
+    // any open view. Called after the Auto-Follow checkbox is toggled in a view, or after Apply
+    // changes the base realization; safe to call at any time.
     void evictUnusedRealizationData();
 
 protected:
-    void                           defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                           appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
-    void                           fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    QList<caf::PdmOptionItemInfo>  calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     RiaSumoConnector*                    sumoConnector();
     void                                 updateName();
     std::vector<RimPolygonCloudAddress*> allAddresses() const;
+    bool                                 hasPendingChanges() const;
+    void                                 onApplyClicked();
+    void                                 onCancelClicked();
 
 private:
     caf::PdmPtrField<RimSumoDataSource*> m_dataSource;
     caf::PdmField<int>                   m_baseRealization;
-    caf::PdmField<bool>                  m_directoryBuilt;
+
+    caf::PdmPtrField<RimSumoDataSource*> m_appliedDataSource;
+    caf::PdmField<int>                   m_appliedBaseRealization;
+
+    caf::PdmField<bool> m_directoryBuilt;
 
     QPointer<RiaSumoConnector> m_sumoConnector;
 };

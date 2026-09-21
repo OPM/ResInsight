@@ -52,18 +52,19 @@ protected:
 
     RimPolygonInViewCollection* createSubCollectionInView( RimPolygonContainer* src ) override;
 
-    void onSynced() override;
+    QString computeDisplayName() const override;
+    void    prepareForSync() override;
+    void    onSynced() override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 public:
-    // Whether the given source container is currently shown checked (as either the base container
-    // itself, or -- since a source container can also be a RimPolygonCloudRealizationGroup --
-    // matched by pointer identity) in any open view's mirror tree. Used to decide whether fetched
-    // RimCloudPolygon data can safely be evicted once a checkbox is unchecked in one view: it may
-    // still be needed by another.
-    static bool isSourceCheckedInAnyView( const RimPolygonContainer* source );
+    // Whether the given RimPolygonCloudAddress is currently effectively shown (checked, with the
+    // given realization resolved as its effective one) in any open view. Used to decide whether a
+    // fetched base/cached realization can safely be evicted once a checkbox is unchecked (or the
+    // Auto-Follow setting changes) in one view: it may still be in use by another.
+    static bool isRealizationInUseInAnyView( const class RimPolygonCloudAddress* address, int realization );
 
 private:
     RimPolygonInView* findPolygonInView( const RimPolygon* polygon ) const;
@@ -81,12 +82,13 @@ private:
     // Only relevant (and only shown in the UI) when sourceCollection()->supportsRealizationOverride()
     // is true -- i.e. only on the single mirror node representing a whole RimPolygonCloudSource,
     // governing every RimPolygonCloudAddress leaf beneath it in this view. When checked and the
-    // resolved realization differs from the source's own base realization, every currently-checked
-    // leaf under this source (in this view) gets a RimPolygonCloudRealizationGroup materialized/
-    // shown for that realization (see onSynced()) -- this is also the "compare with base
-    // realization" mechanism, with no separate comparison UI. Disabled (read-only, with an
-    // explanatory tooltip) when the view's own case belongs to a different case/ensemble than the
-    // source's own data source, since "follow view" would not be meaningful there.
+    // resolved realization differs from the source's own base realization, every RimPolygonCloudAddress
+    // leaf beneath this node (in this view) substitutes that realization's cached RimCloudPolygon
+    // data directly in place of its own base items (see sourceItems()) -- this is also the "compare
+    // with base realization" mechanism, with no separate comparison UI or extra visible tree nodes.
+    // Disabled (read-only, with an explanatory tooltip) when the view's own case belongs to a
+    // different case/ensemble than the source's own data source, since "follow view" would not be
+    // meaningful there.
     caf::PdmField<bool> m_useAutoRealization;
 
     // Set once this node has applied its one-shot default for m_useAutoRealization (see
@@ -100,7 +102,15 @@ private:
     // RimPolygonContainer::resolveViewMatchingRealization.
     int viewMatchingRealizationOrMinusOne() const;
 
-    // All RimPolygonCloudAddress source objects that are checked-visible (m_isChecked) somewhere
-    // in this mirror node's own subtree (this node included).
-    std::vector<class RimPolygonCloudAddress*> allCheckedAddressesRecursively() const;
+    // Walks up this mirror node's own ancestor chain (this node included) for the one whose
+    // sourceCollection() is a RimPolygonCloudSource -- the node that owns the single Auto-Follow
+    // checkbox governing every leaf beneath it. Returns nullptr if this mirror is not nested under
+    // a RimPolygonCloudSource mirror at all.
+    const RimPolygonInViewCollection* sourceMirrorAncestorOrThis() const;
+
+    // The realization this mirror node's own items should effectively show: the ancestor
+    // RimPolygonCloudSource mirror's Auto-Follow-resolved realization, or -1 (meaning: the
+    // address's own base/Applied realization) if Auto-Follow is off, doesn't match, or there is no
+    // such ancestor.
+    int effectiveRealization() const;
 };

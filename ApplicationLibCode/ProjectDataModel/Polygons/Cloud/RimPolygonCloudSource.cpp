@@ -26,7 +26,6 @@
 
 #include "Polygons/Cloud/RimPolygonCloudAddress.h"
 #include "Polygons/Cloud/RimPolygonCloudFolder.h"
-#include "Polygons/Cloud/RimPolygonCloudRealizationGroup.h"
 #include "Polygons/RimPolygon.h"
 
 #include "Polygons/RimPolygonInViewCollection.h"
@@ -60,6 +59,11 @@ RimPolygonCloudSource::RimPolygonCloudSource()
     CAF_PDM_InitField( &m_baseRealization, "BaseRealization", -1, "Base Realization" );
     m_baseRealization.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitFieldNoDefault( &m_appliedDataSource, "AppliedDataSource", "Applied Data Source" );
+    m_appliedDataSource.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_appliedBaseRealization, "AppliedBaseRealization", -1, "Applied Base Realization" );
+    m_appliedBaseRealization.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitField( &m_directoryBuilt, "DirectoryBuilt", false, "Directory Built" );
     m_directoryBuilt.uiCapability()->setUiHidden( true );
 
@@ -67,20 +71,23 @@ RimPolygonCloudSource::RimPolygonCloudSource()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Sets both the pending and applied selection directly -- for deliberate one-shot setup (e.g. from
+/// a creation command), not a live UI edit. Does not trigger a fetch.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::setDataSource( RimSumoDataSource* dataSource )
 {
-    m_dataSource = dataSource;
+    m_dataSource        = dataSource;
+    m_appliedDataSource = dataSource;
     updateName();
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Sets both the pending and applied selection directly -- see setDataSource().
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::setBaseRealization( int realization )
 {
-    m_baseRealization = realization;
+    m_baseRealization        = realization;
+    m_appliedBaseRealization = realization;
     updateName();
 }
 
@@ -89,7 +96,7 @@ void RimPolygonCloudSource::setBaseRealization( int realization )
 //--------------------------------------------------------------------------------------------------
 RimSumoDataSource* RimPolygonCloudSource::dataSource() const
 {
-    return m_dataSource();
+    return m_appliedDataSource();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,7 +104,7 @@ RimSumoDataSource* RimPolygonCloudSource::dataSource() const
 //--------------------------------------------------------------------------------------------------
 int RimPolygonCloudSource::baseRealization() const
 {
-    return m_baseRealization();
+    return m_appliedBaseRealization();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,15 +117,16 @@ bool RimPolygonCloudSource::isDirectoryBuilt() const
 
 //--------------------------------------------------------------------------------------------------
 /// Fetches the polygon result directory once (metadata only) and builds the full nested
-/// RimPolygonCloudFolder/RimPolygonCloudAddress structure. No-op if already built.
+/// RimPolygonCloudFolder/RimPolygonCloudAddress structure, for the currently *applied* data
+/// source/base realization. No-op if already built.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::buildDirectoryTree()
 {
     if ( m_directoryBuilt() ) return;
 
-    auto* dataSource = m_dataSource();
+    auto* dataSource = m_appliedDataSource();
     auto* connector  = sumoConnector();
-    if ( !dataSource || m_baseRealization() < 0 || !connector ) return;
+    if ( !dataSource || m_appliedBaseRealization() < 0 || !connector ) return;
 
     auto directory = connector->polygons().polygonResultDirectory( dataSource->caseId(), dataSource->ensembleName() );
 
@@ -242,11 +250,11 @@ std::vector<int> RimPolygonCloudSource::availableRealizationIdsForOverride() con
 //--------------------------------------------------------------------------------------------------
 int RimPolygonCloudSource::resolveViewMatchingRealization( const Rim3dView* view ) const
 {
-    if ( !view || !m_dataSource() ) return -1;
+    if ( !view || !m_appliedDataSource() ) return -1;
 
     if ( auto* sumoCase = dynamic_cast<const RimRoffCaseSumo*>( view->ownerCase() ) )
     {
-        if ( sumoCase->dataSource() == m_dataSource() )
+        if ( sumoCase->dataSource() == m_appliedDataSource() )
         {
             return sumoCase->realization();
         }
@@ -256,24 +264,19 @@ int RimPolygonCloudSource::resolveViewMatchingRealization( const Rim3dView* view
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Walks every RimPolygonCloudAddress beneath this source and evicts any realization group (or the
-/// base data) that is no longer checked in any open view.
+/// Walks every RimPolygonCloudAddress beneath this source and evicts its base data and/or any
+/// cached non-base realization that is no longer in use (checked, with that realization resolved
+/// as effective) by any open view.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::evictUnusedRealizationData()
 {
     for ( auto* address : allAddresses() )
     {
-        if ( address->hasBaseData() && !RimPolygonInViewCollection::isSourceCheckedInAnyView( address ) )
+        address->evictAllUnusedRealizations();
+
+        if ( address->hasBaseData() && !RimPolygonInViewCollection::isRealizationInUseInAnyView( address, baseRealization() ) )
         {
             address->evictBaseData();
-        }
-
-        for ( auto* group : address->realizationGroups() )
-        {
-            if ( !RimPolygonInViewCollection::isSourceCheckedInAnyView( group ) )
-            {
-                address->evictRealizationGroup( group->realization() );
-            }
         }
     }
 }
@@ -284,29 +287,20 @@ void RimPolygonCloudSource::evictUnusedRealizationData()
 void RimPolygonCloudSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_collectionName );
-
-    const bool built = m_directoryBuilt();
-
-    m_dataSource.uiCapability()->setUiReadOnly( built );
-    m_baseRealization.uiCapability()->setUiReadOnly( built );
-
     uiOrdering.add( &m_dataSource );
     uiOrdering.add( &m_baseRealization );
 
-    if ( !built )
-    {
-        auto* applyButton = uiOrdering.addNewButton( "Apply",
-                                                      [this]()
-                                                      {
-                                                          buildDirectoryTree();
-                                                          updateConnectedEditors();
-                                                      } );
+    const bool hasValidPendingSelection = m_dataSource() != nullptr && m_baseRealization() >= 0;
+    const bool pending                  = hasPendingChanges();
 
-        const bool hasValidSelection = m_dataSource() != nullptr && m_baseRealization() >= 0;
-        applyButton->setUiReadOnly( !hasValidSelection );
-        applyButton->setUiToolTip( hasValidSelection ? QString( "" )
-                                                      : QString( "Select a Data Source and Base Realization first." ) );
-    }
+    auto* applyButton = uiOrdering.addNewButton( "Apply", [this]() { onApplyClicked(); } );
+    applyButton->setUiReadOnly( !hasValidPendingSelection || !pending );
+    applyButton->setUiToolTip( hasValidPendingSelection ? QString( "" )
+                                                         : QString( "Select a Data Source and Base Realization first." ) );
+
+    auto* cancelButton = uiOrdering.addNewButton( "Cancel", [this]() { onCancelClicked(); }, { .newRow = false } );
+    cancelButton->setUiReadOnly( !m_directoryBuilt() || !pending );
+    cancelButton->setUiToolTip( "Discards the pending edits above, restoring the currently applied Data Source and Base Realization." );
 
     uiOrdering.skipRemainingFields();
 }
@@ -328,11 +322,6 @@ void RimPolygonCloudSource::fieldChangedByUi( const caf::PdmFieldHandle* changed
         // A new data source invalidates whatever realization was picked for the previous one.
         auto realizations = availableRealizationIdsForOverride();
         m_baseRealization  = realizations.empty() ? -1 : realizations.front();
-        updateName();
-    }
-    else if ( changedField == &m_baseRealization )
-    {
-        updateName();
     }
 
     updateConnectedEditors();
@@ -381,19 +370,81 @@ RiaSumoConnector* RimPolygonCloudSource::sumoConnector()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::updateName()
 {
-    if ( !m_dataSource() )
+    if ( !m_appliedDataSource() )
     {
         setCollectionName( "Cloud Polygon Source" );
         return;
     }
 
-    if ( m_baseRealization() < 0 )
+    if ( m_appliedBaseRealization() < 0 )
     {
-        setCollectionName( m_dataSource()->name() );
+        setCollectionName( m_appliedDataSource()->name() );
         return;
     }
 
-    setCollectionName( QString( "%1 / Real %2" ).arg( m_dataSource()->name() ).arg( m_baseRealization() ) );
+    setCollectionName( QString( "%1 / Real %2" ).arg( m_appliedDataSource()->name() ).arg( m_appliedBaseRealization() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonCloudSource::hasPendingChanges() const
+{
+    if ( !m_directoryBuilt() ) return true;
+
+    return m_dataSource() != m_appliedDataSource() || m_baseRealization() != m_appliedBaseRealization();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Commits the pending Data Source/Base Realization selection. The very first Apply builds the
+/// folder/leaf tree from scratch. A later Apply (after the tree already exists) either rebuilds it
+/// from scratch (if the data source/ensemble itself changed) or just evicts every address's stale
+/// base-realization data (if only the base realization changed) -- see the class comment.
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCloudSource::onApplyClicked()
+{
+    const bool wasBuilt          = m_directoryBuilt();
+    const bool dataSourceChanged = m_dataSource() != m_appliedDataSource();
+
+    m_appliedDataSource      = m_dataSource();
+    m_appliedBaseRealization = m_baseRealization();
+
+    updateName();
+
+    if ( wasBuilt && dataSourceChanged )
+    {
+        // The ensemble identity itself changed -- the existing folder/leaf tree (and any fetched/
+        // cached polygon data underneath it) was built for the old ensemble and no longer applies.
+        m_subCollections.deleteChildren();
+        m_directoryBuilt = false;
+    }
+    else if ( wasBuilt )
+    {
+        // Same data source, only the base realization changed -- the folder/leaf structure itself
+        // is still valid, but every address's own already-fetched base-realization data was
+        // fetched for the old value and must be evicted so it is lazily re-fetched for the new one.
+        for ( auto* address : allAddresses() )
+        {
+            address->evictBaseData();
+        }
+    }
+
+    buildDirectoryTree();
+
+    updateConnectedEditors();
+    uiCapability()->updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Discards the pending edits, restoring the pending Data Source/Base Realization fields back to
+/// the currently applied selection. No fetch, no change to the tree.
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCloudSource::onCancelClicked()
+{
+    m_dataSource      = m_appliedDataSource();
+    m_baseRealization = m_appliedBaseRealization();
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
