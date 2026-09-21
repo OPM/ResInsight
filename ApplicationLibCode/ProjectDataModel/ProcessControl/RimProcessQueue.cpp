@@ -20,7 +20,7 @@
 
 #include "RimProcess.h"
 
-#include "RiaPreferencesOpm.h"
+#include "RiaPreferencesHpc.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -70,7 +70,7 @@ void RimProcessQueue::launchNextProcessIfPossible()
 {
     if ( m_waitingProcesses.empty() ) return;
 
-    if ( m_runningProcesses.size() >= RiaPreferencesOpm::current()->maxParallelJobs() ) return;
+    if ( m_runningProcesses.size() >= RiaPreferencesHpc::current()->maxParallelJobs() ) return;
 
     auto nextProcess = m_waitingProcesses.front();
     m_waitingProcesses.pop_front();
