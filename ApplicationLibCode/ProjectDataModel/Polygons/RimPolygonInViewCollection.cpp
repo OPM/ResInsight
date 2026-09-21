@@ -353,17 +353,23 @@ void RimPolygonInViewCollection::onSynced()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// New mirror nodes default to checked (see RimCheckableNamedObject). A freshly-created
-/// RimPolygonCloudRealizationGroup mirror is the one exception: it should default to unchecked in
-/// every view except the one that requested the comparison realization (see onSynced(), which
-/// explicitly checks it right after creation in that view only).
+/// New mirror nodes default to checked (see RimCheckableNamedObject) -- correct for ordinary
+/// file-based/user-drawn polygon folders, which have nothing to fetch. Two cloud-backed exceptions
+/// default to unchecked instead, since checking is the explicit fetch-trigger signal for them and
+/// they must never be visualized (and therefore fetched) just because a view happens to sync them
+/// for the first time:
+/// - RimPolygonCloudRealizationGroup: additionally, unchecked in every view except the one that
+///   requested the comparison realization (see onSynced(), which explicitly checks it right after
+///   creation in that view only).
+/// - RimPolygonCloudAddress: a freshly-materialized leaf mirror must stay unchecked until the user
+///   deliberately opts in to visualizing (and thereby fetching) that particular polygon result.
 //--------------------------------------------------------------------------------------------------
 RimPolygonInViewCollection* RimPolygonInViewCollection::createSubCollectionInView( RimPolygonContainer* src )
 {
     auto* sub = new RimPolygonInViewCollection();
     sub->setSourceCollection( src );
 
-    if ( dynamic_cast<RimPolygonCloudRealizationGroup*>( src ) )
+    if ( dynamic_cast<RimPolygonCloudRealizationGroup*>( src ) || dynamic_cast<RimPolygonCloudAddress*>( src ) )
     {
         sub->setCheckState( false );
     }

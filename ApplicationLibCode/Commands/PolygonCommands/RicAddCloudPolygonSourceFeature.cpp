@@ -55,17 +55,9 @@ void RicAddCloudPolygonSourceFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    auto* dataSource = dataSources.front();
-
-    int  baseRealization = 0;
-    bool ok              = false;
-    auto realizationIds  = dataSource->selectedRealizationIds();
-    if ( !realizationIds.empty() ) baseRealization = realizationIds.front().toInt( &ok );
-
+    // Create an empty source -- the user selects Data Source and Base Realization in the property
+    // panel and clicks "Apply" to fetch the polygon result directory and build the tree.
     auto* source = new RimPolygonCloudSource();
-    source->setDataSource( dataSource );
-    source->setBaseRealization( baseRealization );
-    source->buildDirectoryTree();
 
     polygonCollection->addPolygonCloudSource( source );
 

@@ -35,6 +35,7 @@
 #include "RimRoffCaseSumo.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiButton.h"
 #include "cafPdmUiComboBoxEditor.h"
 
 #include <algorithm>
@@ -55,9 +56,9 @@ RimPolygonCloudSource::RimPolygonCloudSource()
     m_items.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_dataSource, "DataSource", "Data Source" );
-    m_dataSource.uiCapability()->setUiReadOnly( true );
-    CAF_PDM_InitField( &m_baseRealization, "BaseRealization", 0, "Base Realization" );
-    m_baseRealization.uiCapability()->setUiReadOnly( true );
+    m_dataSource.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_baseRealization, "BaseRealization", -1, "Base Realization" );
+    m_baseRealization.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_directoryBuilt, "DirectoryBuilt", false, "Directory Built" );
     m_directoryBuilt.uiCapability()->setUiHidden( true );
@@ -100,6 +101,14 @@ int RimPolygonCloudSource::baseRealization() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonCloudSource::isDirectoryBuilt() const
+{
+    return m_directoryBuilt();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Fetches the polygon result directory once (metadata only) and builds the full nested
 /// RimPolygonCloudFolder/RimPolygonCloudAddress structure. No-op if already built.
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +118,7 @@ void RimPolygonCloudSource::buildDirectoryTree()
 
     auto* dataSource = m_dataSource();
     auto* connector  = sumoConnector();
-    if ( !dataSource || !connector ) return;
+    if ( !dataSource || m_baseRealization() < 0 || !connector ) return;
 
     auto directory = connector->polygons().polygonResultDirectory( dataSource->caseId(), dataSource->ensembleName() );
 
@@ -275,8 +284,30 @@ void RimPolygonCloudSource::evictUnusedRealizationData()
 void RimPolygonCloudSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_collectionName );
+
+    const bool built = m_directoryBuilt();
+
+    m_dataSource.uiCapability()->setUiReadOnly( built );
+    m_baseRealization.uiCapability()->setUiReadOnly( built );
+
     uiOrdering.add( &m_dataSource );
     uiOrdering.add( &m_baseRealization );
+
+    if ( !built )
+    {
+        auto* applyButton = uiOrdering.addNewButton( "Apply",
+                                                      [this]()
+                                                      {
+                                                          buildDirectoryTree();
+                                                          updateConnectedEditors();
+                                                      } );
+
+        const bool hasValidSelection = m_dataSource() != nullptr && m_baseRealization() >= 0;
+        applyButton->setUiReadOnly( !hasValidSelection );
+        applyButton->setUiToolTip( hasValidSelection ? QString( "" )
+                                                      : QString( "Select a Data Source and Base Realization first." ) );
+    }
+
     uiOrdering.skipRemainingFields();
 }
 
@@ -285,6 +316,51 @@ void RimPolygonCloudSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCloudSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_dataSource )
+    {
+        // A new data source invalidates whatever realization was picked for the previous one.
+        auto realizations = availableRealizationIdsForOverride();
+        m_baseRealization  = realizations.empty() ? -1 : realizations.front();
+        updateName();
+    }
+    else if ( changedField == &m_baseRealization )
+    {
+        updateName();
+    }
+
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimPolygonCloudSource::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_dataSource )
+    {
+        for ( auto* ds : RimCloudDataSourceCollection::instance()->sumoDataSources() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( ds->name(), ds ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_baseRealization )
+    {
+        for ( int realization : availableRealizationIdsForOverride() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( QString::number( realization ), realization ) );
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,8 +381,19 @@ RiaSumoConnector* RimPolygonCloudSource::sumoConnector()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::updateName()
 {
-    QString baseName = m_dataSource() ? m_dataSource()->name() : QString( "Cloud Polygon Source" );
-    setCollectionName( QString( "%1 / Real %2" ).arg( baseName ).arg( m_baseRealization() ) );
+    if ( !m_dataSource() )
+    {
+        setCollectionName( "Cloud Polygon Source" );
+        return;
+    }
+
+    if ( m_baseRealization() < 0 )
+    {
+        setCollectionName( m_dataSource()->name() );
+        return;
+    }
+
+    setCollectionName( QString( "%1 / Real %2" ).arg( m_dataSource()->name() ).arg( m_baseRealization() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -353,28 +353,29 @@ RiaSumoConnector* RimPolygonCloudAddress::sumoConnector()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudAddress::updateName()
 {
-    QStringList parts;
+    QString name;
 
     if ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FieldOutline ) )
     {
-        parts << polygonResultLabel( SumoPolygonResult::FieldOutline );
+        // No distinguishing name/contact type exists for field outline, and there is always
+        // exactly one such leaf under the "Field Outline" folder -- fall back to the category
+        // label itself.
+        name = polygonResultLabel( SumoPolygonResult::FieldOutline );
     }
-    else
+    else if ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::StructureDepthFaultLines ) )
     {
-        if ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::StructureDepthFaultLines ) )
-        {
-            parts << polygonResultLabel( SumoPolygonResult::StructureDepthFaultLines );
-        }
-        else if ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FluidContactOutline ) )
-        {
-            parts << polygonResultLabel( SumoPolygonResult::FluidContactOutline );
-        }
-
-        if ( !m_name().isEmpty() ) parts << m_name();
-        if ( !m_contactType().isEmpty() ) parts << m_contactType();
+        // The owning "Structure Depth Fault Lines" folder already conveys the category -- avoid
+        // repeating it here.
+        name = m_name();
+    }
+    else if ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FluidContactOutline ) )
+    {
+        // The owning folder chain ("Fluid Contact Outline" / <name>) already conveys the category
+        // and name -- only the distinguishing contact type is left to show here.
+        name = m_contactType();
     }
 
-    setCollectionName( parts.join( " / " ) );
+    setCollectionName( name );
 }
 
 //--------------------------------------------------------------------------------------------------

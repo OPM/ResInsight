@@ -32,14 +32,18 @@ class Rim3dView;
 
 //==================================================================================================
 ///
-/// Root of a browsable tree of Sumo polygon results for one (case, ensemble, base realization),
-/// created once via "Add Cloud Polygon Source". buildDirectoryTree() does a single, cheap
-/// polygon-result-directory metadata fetch and builds the *entire* folder/leaf structure (Field
-/// Outline / Structure Depth Fault Lines + names / Fluid Contact Outline + names + contact types)
-/// as RimPolygonCloudFolder/RimPolygonCloudAddress children immediately -- no coordinate data is
-/// fetched at this point. Each RimPolygonCloudAddress leaf only fetches its own RimCloudPolygon
-/// coordinate data lazily, the first time a 3D view's visibility checkbox for that leaf is checked
-/// on (see RimPolygonInViewCollection).
+/// Root of a browsable tree of Sumo polygon results for one (case, ensemble, base realization).
+/// Created empty via "Add Cloud Polygon Source" -- the user then picks a Data Source and Base
+/// Realization in the property panel and clicks "Apply". buildDirectoryTree() then does a single,
+/// cheap polygon-result-directory metadata fetch and builds the *entire* folder/leaf structure
+/// (Field Outline / Structure Depth Fault Lines + names / Fluid Contact Outline + names + contact
+/// types) as RimPolygonCloudFolder/RimPolygonCloudAddress children -- no coordinate data is fetched
+/// at this point. Each RimPolygonCloudAddress leaf only fetches its own RimCloudPolygon coordinate
+/// data lazily, the first time a 3D view's visibility checkbox for that leaf is checked on (see
+/// RimPolygonInViewCollection).
+///
+/// Data Source and Base Realization are frozen (read-only) once the directory has been built --
+/// this object always represents one fixed (data source, base realization) combination.
 ///
 /// This is also the only polygon container type offering a per-view "Auto-Follow View Realization"
 /// choice (supportsRealizationOverride()) -- it governs every leaf beneath it in a given view, so
@@ -59,9 +63,11 @@ public:
     RimSumoDataSource* dataSource() const;
     int                baseRealization() const;
 
+    bool isDirectoryBuilt() const;
+
     // Fetches the polygon result directory once (metadata only -- no coordinate arrays) and builds
     // the full nested RimPolygonCloudFolder/RimPolygonCloudAddress tree beneath this object. No-op
-    // if already built (see m_directoryBuilt).
+    // if already built (see m_directoryBuilt), or if no data source is selected yet.
     void buildDirectoryTree();
 
     QString name() const;
@@ -80,8 +86,10 @@ public:
     void evictUnusedRealizationData();
 
 protected:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void                           defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                           appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void                           fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo>  calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     RiaSumoConnector*                    sumoConnector();
