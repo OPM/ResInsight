@@ -149,6 +149,22 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     if ( changedField == &m_isChecked )
     {
+        if ( m_isChecked() )
+        {
+            // Checking this leaf on is the fetch-trigger signal. Fetch immediately (if needed) and
+            // re-sync right away, so the freshly-populated RimCloudPolygon children are mirrored
+            // into m_itemsInView this same pass -- otherwise sourceItems() would have already been
+            // snapshotted (empty) earlier in this sync cycle, in RimNestedMirrorCollectionInView::
+            // updateAllViewItems(), and the newly-fetched polygons would only appear on some later,
+            // unrelated sync.
+            if ( auto* address = dynamic_cast<RimPolygonCloudAddress*>( sourceCollection() ) )
+            {
+                if ( !address->hasBaseData() ) address->ensureBaseFetched();
+            }
+
+            updateFromSource();
+        }
+
         for ( auto poly : visiblePolygonsInView() )
         {
             poly->updateConnectedEditors();
@@ -162,20 +178,33 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         if ( !m_isChecked() )
         {
             // Unchecked: this data is no longer needed *by this view*. Evict it if no other open
-            // view still shows the same source container checked.
+            // view still shows the same source container checked, then re-sync so the now-stale
+            // mirrored items are dropped from the view tree right away.
             if ( auto* src = sourceCollection() )
             {
+                bool evicted = false;
+
                 if ( auto* address = dynamic_cast<RimPolygonCloudAddress*>( src ) )
                 {
-                    if ( address->hasBaseData() && !isSourceCheckedInAnyView( address ) ) address->evictBaseData();
+                    if ( address->hasBaseData() && !isSourceCheckedInAnyView( address ) )
+                    {
+                        address->evictBaseData();
+                        evicted = true;
+                    }
                 }
                 else if ( auto* group = dynamic_cast<RimPolygonCloudRealizationGroup*>( src ) )
                 {
                     if ( auto* owningAddress = group->firstAncestorOfType<RimPolygonCloudAddress>() )
                     {
-                        if ( !isSourceCheckedInAnyView( group ) ) owningAddress->evictRealizationGroup( group->realization() );
+                        if ( !isSourceCheckedInAnyView( group ) )
+                        {
+                            owningAddress->evictRealizationGroup( group->realization() );
+                            evicted = true;
+                        }
                     }
                 }
+
+                if ( evicted ) updateFromSource();
             }
         }
     }
