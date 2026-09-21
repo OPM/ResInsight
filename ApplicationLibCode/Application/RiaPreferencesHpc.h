@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaHpcDefines.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -35,13 +37,18 @@ public:
 
     void appendItems( caf::PdmUiOrdering& uiOrdering );
 
-    size_t maxParallelJobs() const;
+    size_t                         maxParallelJobs() const;
+    RiaDefines::BatchSchedulerType batchScheduler() const;
+    QString                        queueName() const;
+    QString                        batchSchedulerOptions() const;
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute );
 
 private:
-    caf::PdmField<size_t> m_maxParallelJobs;
-
-    QStringList m_availableWslDists;
+    caf::PdmField<size_t>                                       m_maxParallelJobs;
+    caf::PdmField<caf::AppEnum<RiaDefines::BatchSchedulerType>> m_batchScheduler;
+    caf::PdmField<QString>                                      m_queueName;
+    caf::PdmField<QString>                                      m_batchSchedulerOptions;
 };

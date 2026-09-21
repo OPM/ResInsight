@@ -34,6 +34,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaWslTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaHpcTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaBoundingBoxTools.cpp

@@ -79,7 +79,7 @@ QString RiaWslTools::convertToWslPath( QString windowsPath )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns the input windows path as seen in the wsl world. I.e. c:\tmp -> /mnt/c/tmp
+/// Return environment variables needed for WSL character mapping
 //--------------------------------------------------------------------------------------------------
 std::map<QString, QString> RiaWslTools::wslEnvironmentVariables()
 {

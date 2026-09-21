@@ -19,8 +19,8 @@
 #include "RiaPreferencesHpc.h"
 
 #include "RiaApplication.h"
+#include "RiaHpcTools.h"
 #include "RiaPreferences.h"
-#include "RiaWslTools.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -33,12 +33,16 @@ CAF_PDM_SOURCE_INIT( RiaPreferencesHpc, "RiaPreferencesHpc" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferencesHpc::RiaPreferencesHpc()
 {
-    CAF_PDM_InitFieldNoDefault( &m_maxParallelJobs, "maxParallelJobs", "Maximum number of jobs to run in parallel" );
+    CAF_PDM_InitFieldNoDefault( &m_maxParallelJobs, "maxParallelJobs", "Maximum number of jobs to run in parallel on local machine" );
     m_maxParallelJobs = 1;
     m_maxParallelJobs.setRange( 1, 100 );
 
-    m_availableWslDists = RiaWslTools::wslDistributionList();
-    // if ( !m_availableWslDists.isEmpty() ) m_wslDistribution = m_availableWslDists.at( 0 );
+    CAF_PDM_InitFieldNoDefault( &m_batchScheduler, "batchScheduler", "Batch Scheduler to use for submitting jobs" );
+
+    CAF_PDM_InitFieldNoDefault( &m_queueName, "queueName", "Default queue name" );
+    m_queueName.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_batchSchedulerOptions, "batchSchedulerOptions", "Optional command line arguments" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,8 +58,26 @@ RiaPreferencesHpc* RiaPreferencesHpc::current()
 //--------------------------------------------------------------------------------------------------
 void RiaPreferencesHpc::appendItems( caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* hpcGrp = uiOrdering.addNewGroup( "General Settings" );
-    hpcGrp->add( &m_maxParallelJobs );
+    caf::PdmUiGroup* genGrp = uiOrdering.addNewGroup( "General Settings" );
+    genGrp->add( &m_batchScheduler );
+
+    if ( m_batchScheduler() == RiaDefines::BatchSchedulerType::LOCAL_COMPUTER )
+    {
+        auto localGrp = uiOrdering.addNewGroup( "Local Computer Options" );
+        localGrp->add( &m_maxParallelJobs );
+    }
+    else if ( m_batchScheduler() == RiaDefines::BatchSchedulerType::SLURM )
+    {
+        auto hpcGrp = uiOrdering.addNewGroup( "Slurm Options" );
+        hpcGrp->add( &m_queueName );
+        hpcGrp->add( &m_batchSchedulerOptions );
+    }
+    else if ( m_batchScheduler() == RiaDefines::BatchSchedulerType::LSF )
+    {
+        auto hpcGrp = uiOrdering.addNewGroup( "LSF Options" );
+        hpcGrp->add( &m_queueName );
+        hpcGrp->add( &m_batchSchedulerOptions );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,15 +87,34 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesHpc::calculateValueOptions( const ca
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    // if ( fieldNeedingOptions == &m_wslDistribution )
-    //{
-    //     for ( auto dist : m_availableWslDists )
-    //     {
-    //         options.push_back( caf::PdmOptionItemInfo( dist, QVariant::fromValue( dist ) ) );
-    //     }
-    // }
+    if ( fieldNeedingOptions == &m_queueName )
+    {
+        auto candidates = RiaHpcTools::availableQueues( m_batchScheduler() );
+        for ( auto& q : candidates )
+        {
+            options.push_back( caf::PdmOptionItemInfo( q, QVariant::fromValue( q ) ) );
+        }
+    }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesHpc::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_queueName )
+    {
+        auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+        if ( attr )
+        {
+            attr->enableEditableContent  = true;
+            attr->enableAutoComplete     = false;
+            attr->adjustWidthToContents  = true;
+            attr->notifyWhenTextIsEdited = false;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,4 +123,28 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesHpc::calculateValueOptions( const ca
 size_t RiaPreferencesHpc::maxParallelJobs() const
 {
     return m_maxParallelJobs();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::BatchSchedulerType RiaPreferencesHpc::batchScheduler() const
+{
+    return m_batchScheduler();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferencesHpc::queueName() const
+{
+    return m_queueName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferencesHpc::batchSchedulerOptions() const
+{
+    return m_batchSchedulerOptions();
 }

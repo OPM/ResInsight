@@ -200,8 +200,11 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
     m_qProcess->start( m_command, m_arguments );
     if ( !m_qProcess->waitForStarted( -1 ) )
     {
-        auto error = m_qProcess->errorString();
-        RiaLogging::error( std::format( "Failed to start process {}. {}.", m_id(), error ) );
+        if ( m_enableLogging )
+        {
+            auto error = m_qProcess->errorString();
+            RiaLogging::error( std::format( "Failed to start process {}. {}.", m_id(), error ) );
+        }
         return false;
     }
 
