@@ -27,6 +27,7 @@
 #include "RimProject.h"
 
 #include "Polygons/Cloud/RimPolygonCloudAddress.h"
+#include "Polygons/Cloud/RimPolygonCloudSource.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -169,11 +170,26 @@ void RimPolygonCollection::addPolygonCloudAddress( RimPolygonCloudAddress* polyg
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::addPolygonCloudSource( RimPolygonCloudSource* polygonCloudSource )
+{
+    if ( !polygonCloudSource ) return;
+
+    addSubCollection( polygonCloudSource );
+    RiaNameUniquenessTools::ensureUniqueAmongSiblings( polygonCloudSource );
+    connectSignalsForContainer( polygonCloudSource );
+
+    updateViewTreeItems();
+    scheduleRedrawViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder )
 {
     menuBuilder << "RicCreatePolygonFeature";
     menuBuilder << "RicImportPolygonFileFeature";
-    menuBuilder << "RicCreateSumoPolygonAddressFeature";
+    menuBuilder << "RicAddCloudPolygonSourceFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

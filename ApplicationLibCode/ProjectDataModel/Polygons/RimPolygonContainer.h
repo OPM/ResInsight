@@ -50,17 +50,6 @@ public:
     // override to load their own data; folder containers inherit the recursion.
     virtual void loadData();
 
-    // Returns the items a view following the given realization should mirror. realization is -1
-    // when the view has none (or the caller has no view context), in which case a container
-    // should return its own default items() (its "Applied"/tree-displayed set). Containers whose
-    // content is realization-independent (folders, files) can ignore the parameter entirely --
-    // the default implementation does exactly that. Only containers whose content genuinely
-    // depends on which realization is being shown (e.g. a cloud-backed address) need to override
-    // this, and must do so without mutating this container's own persisted/displayed state as a
-    // side effect of a view merely asking for its items (multiple views may ask for different
-    // realizations of the same container).
-    virtual std::vector<RimPolygon*> itemsForRealization( int realization ) const;
-
     // Whether this container's content genuinely varies per realization (only a cloud-backed
     // address does) -- used by RimPolygonInViewCollection to decide whether to show a per-view
     // realization override field at all. Default: false (folders/files have no such concept).
@@ -82,14 +71,6 @@ public:
     // Sverdrup grid case in a mainly-Drogon project) must never have its realization applied
     // to an unrelated address -- that is exactly the bug this matching guards against.
     virtual int resolveViewMatchingRealization( const Rim3dView* view ) const;
-
-    // The name a view mirroring this container for the given realization (-1 meaning "this
-    // container's own default/Applied realization") should display. Default: ignores the
-    // parameter and returns collectionName() -- only a cloud-backed address, whose tree name
-    // embeds a realization number, needs this to vary per realization (e.g. so a view following
-    // its own case's realization shows "Real 1" in the tree even while the address itself is
-    // Applied to "Real 0").
-    virtual QString displayNameForRealization( int realization ) const;
 
     // Renames the polygon if another polygon in this container already carries the same name.
     void ensureUniquePolygonName( RimPolygon* polygon );

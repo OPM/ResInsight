@@ -75,14 +75,6 @@ void RimPolygonContainer::loadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPolygon*> RimPolygonContainer::itemsForRealization( int realization ) const
-{
-    return items();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimPolygonContainer::supportsRealizationOverride() const
 {
     return false;
@@ -102,14 +94,6 @@ std::vector<int> RimPolygonContainer::availableRealizationIdsForOverride() const
 int RimPolygonContainer::resolveViewMatchingRealization( const Rim3dView* view ) const
 {
     return -1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimPolygonContainer::displayNameForRealization( int realization ) const
-{
-    return collectionName();
 }
 
 //--------------------------------------------------------------------------------------------------

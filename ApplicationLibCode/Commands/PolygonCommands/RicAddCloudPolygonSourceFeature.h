@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2025     Equinor ASA
+//  Copyright (C) 2026     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,9 +21,11 @@
 #include "cafCmdFeature.h"
 
 //==================================================================================================
-///
+/// "Add Cloud Polygon Source": creates a RimPolygonCloudSource for a (pre-selected, for now the
+/// first available) Sumo data source and base realization, and immediately builds its full
+/// browsable folder/leaf directory tree (a single, cheap metadata fetch -- no coordinate data).
 //==================================================================================================
-class RicCreateSumoPolygonAddressFeature : public caf::CmdFeature
+class RicAddCloudPolygonSourceFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

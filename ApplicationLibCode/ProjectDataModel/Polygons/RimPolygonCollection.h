@@ -23,6 +23,7 @@
 class RimPolygon;
 class RimPolygonFile;
 class RimPolygonCloudAddress;
+class RimPolygonCloudSource;
 
 //==================================================================================================
 ///
@@ -56,6 +57,10 @@ public:
 
     // Same as addPolygonFile, for a cloud-backed polygon address.
     void addPolygonCloudAddress( RimPolygonCloudAddress* polygonCloudAddress );
+
+    // Adds a Sumo cloud polygon source (a whole browsable tree) as a sub-collection and wires the
+    // same runtime side effects.
+    void addPolygonCloudSource( RimPolygonCloudSource* polygonCloudSource );
 
     static void appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder );
 

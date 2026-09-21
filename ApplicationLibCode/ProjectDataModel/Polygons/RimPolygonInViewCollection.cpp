@@ -22,10 +22,16 @@
 
 #include "ContourMap/RimEclipseContourMapView.h"
 #include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RimPolygon.h"
 #include "RimPolygonCollection.h"
 #include "RimPolygonInView.h"
+#include "RimProject.h"
 #include "RimTools.h"
+
+#include "Polygons/Cloud/RimPolygonCloudAddress.h"
+#include "Polygons/Cloud/RimPolygonCloudRealizationGroup.h"
+#include "Polygons/Cloud/RimPolygonCloudSource.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiOrdering.h"
@@ -152,10 +158,38 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }
+
+        if ( !m_isChecked() )
+        {
+            // Unchecked: this data is no longer needed *by this view*. Evict it if no other open
+            // view still shows the same source container checked.
+            if ( auto* src = sourceCollection() )
+            {
+                if ( auto* address = dynamic_cast<RimPolygonCloudAddress*>( src ) )
+                {
+                    if ( address->hasBaseData() && !isSourceCheckedInAnyView( address ) ) address->evictBaseData();
+                }
+                else if ( auto* group = dynamic_cast<RimPolygonCloudRealizationGroup*>( src ) )
+                {
+                    if ( auto* owningAddress = group->firstAncestorOfType<RimPolygonCloudAddress>() )
+                    {
+                        if ( !isSourceCheckedInAnyView( group ) ) owningAddress->evictRealizationGroup( group->realization() );
+                    }
+                }
+            }
+        }
     }
     else if ( changedField == &m_useAutoRealization )
     {
         updateFromPolygonCollection();
+
+        if ( !m_useAutoRealization() )
+        {
+            if ( auto* source = dynamic_cast<RimPolygonCloudSource*>( sourceCollection() ) )
+            {
+                source->evictUnusedRealizationData();
+            }
+        }
 
         if ( auto view = firstAncestorOfType<Rim3dView>() )
         {
@@ -224,7 +258,7 @@ std::vector<RimPolygonContainer*> RimPolygonInViewCollection::sourceSubCollectio
 //--------------------------------------------------------------------------------------------------
 /// Resolves the realization the owning 3D view's own case matches for the current source
 /// container (see RimPolygonContainer::resolveViewMatchingRealization), or -1 if there is no view
-/// ancestor or the view's case belongs to a different case/ensemble than the source's Applied data
+/// ancestor or the view's case belongs to a different case/ensemble than the source's own data
 /// source.
 //--------------------------------------------------------------------------------------------------
 int RimPolygonInViewCollection::viewMatchingRealizationOrMinusOne() const
@@ -239,68 +273,167 @@ int RimPolygonInViewCollection::viewMatchingRealizationOrMinusOne() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Resolves the realization to show in this view: when m_useAutoRealization is checked and the
-/// source container can safely match this view's own case (see
-/// RimPolygonContainer::resolveViewMatchingRealization -- only true for a cloud-backed address
-/// whose Applied data source matches the view's own Sumo case), follow that; otherwise (unchecked,
-/// or the view's case does not match) fall back to the source's own Applied/default items (-1) --
-/// there is no separate per-view realization override.
-//--------------------------------------------------------------------------------------------------
-int RimPolygonInViewCollection::effectiveRealization() const
-{
-    auto* src = sourceCollection();
-    if ( !src ) return -1;
-
-    if ( src->supportsRealizationOverride() && m_useAutoRealization() )
-    {
-        return viewMatchingRealizationOrMinusOne();
-    }
-
-    return -1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
+/// Just this mirror's own source items -- no realization threading. A RimPolygonCloudAddress's
+/// items() are always its base-realization data (fetched lazily, see onSynced()); a comparison
+/// realization is a genuine sibling RimPolygonCloudRealizationGroup sub-collection instead, walked
+/// via sourceSubCollections() like any other nested container.
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolygon*> RimPolygonInViewCollection::sourceItems() const
 {
     auto* src = sourceCollection();
     if ( !src ) return {};
 
-    return src->itemsForRealization( effectiveRealization() );
+    return src->items();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Per-sync hook (called once for every mirror node in the tree, after its own name/items/sub-
+/// collections have been refreshed):
+/// - One-shot default for the Auto-Follow checkbox: if this node's source does not match the
+///   owning view's own case (checkbox would be disabled/not meaningful), default it to unchecked,
+///   once, so it does not misleadingly stay checked while doing nothing.
+/// - Lazy fetch: if this node's source is a RimPolygonCloudAddress and this node is checked
+///   visible but its base data has not been fetched yet, fetch it now. Idempotent -- safe on every
+///   sync, and this is what makes a saved project's previously-checked leaves "self-heal" back to
+///   populated on the next load.
+/// - Auto-follow realization-group materialization: if this node's source is a
+///   RimPolygonCloudSource, Auto-Follow is checked and resolves to a realization other than the
+///   source's own base realization, ensure every checked leaf address beneath this node (in this
+///   view) has a RimPolygonCloudRealizationGroup for that realization, and default this view's
+///   mirror for that new group to checked (other views default to unchecked, since a fresh group
+///   mirror node is unchecked by default).
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::onSynced()
+{
+    auto* src = sourceCollection();
+
+    if ( !m_didApplyDefaultAutoRealization() )
+    {
+        m_didApplyDefaultAutoRealization = true;
+
+        if ( src && src->supportsRealizationOverride() && viewMatchingRealizationOrMinusOne() == -1 )
+        {
+            m_useAutoRealization = false;
+        }
+    }
+
+    if ( auto* address = dynamic_cast<RimPolygonCloudAddress*>( src ) )
+    {
+        if ( m_isChecked() && !address->hasBaseData() )
+        {
+            address->ensureBaseFetched();
+        }
+    }
+    else if ( auto* source = dynamic_cast<RimPolygonCloudSource*>( src ) )
+    {
+        if ( m_useAutoRealization() )
+        {
+            const int realization = viewMatchingRealizationOrMinusOne();
+            if ( realization != -1 && realization != source->baseRealization() )
+            {
+                for ( auto* address : allCheckedAddressesRecursively() )
+                {
+                    if ( address->hasRealizationGroup( realization ) ) continue;
+
+                    auto* group = address->ensureRealizationGroupFetched( realization );
+
+                    // Re-sync so a mirror node for the freshly-added group appears somewhere in
+                    // this subtree, then explicitly check it on *this* view only (other views'
+                    // own mirror for the same group default to unchecked, see
+                    // createSubCollectionInView()).
+                    updateFromSource();
+                    if ( auto* groupMirror = findMirrorForSource( group ) )
+                    {
+                        const_cast<RimPolygonInViewCollection*>( groupMirror )->setCheckState( true );
+                    }
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// New mirror nodes default to checked (see RimCheckableNamedObject). A freshly-created
+/// RimPolygonCloudRealizationGroup mirror is the one exception: it should default to unchecked in
+/// every view except the one that requested the comparison realization (see onSynced(), which
+/// explicitly checks it right after creation in that view only).
+//--------------------------------------------------------------------------------------------------
+RimPolygonInViewCollection* RimPolygonInViewCollection::createSubCollectionInView( RimPolygonContainer* src )
+{
+    auto* sub = new RimPolygonInViewCollection();
+    sub->setSourceCollection( src );
+
+    if ( dynamic_cast<RimPolygonCloudRealizationGroup*>( src ) )
+    {
+        sub->setCheckState( false );
+    }
+
+    return sub;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimPolygonInViewCollection::computeDisplayName() const
+std::vector<RimPolygonCloudAddress*> RimPolygonInViewCollection::allCheckedAddressesRecursively() const
 {
-    auto* src = sourceCollection();
-    if ( !src ) return {};
+    std::vector<RimPolygonCloudAddress*> result;
 
-    return src->displayNameForRealization( effectiveRealization() );
+    if ( auto* address = dynamic_cast<RimPolygonCloudAddress*>( sourceCollection() ) )
+    {
+        if ( m_isChecked() ) result.push_back( address );
+    }
+
+    for ( auto subMirror : m_collectionsInView )
+    {
+        if ( !subMirror ) continue;
+        auto sub = subMirror->allCheckedAddressesRecursively();
+        result.insert( result.end(), sub.begin(), sub.end() );
+    }
+
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// One-shot default for the Auto-Follow checkbox: the first time this mirror node is synced, if
-/// its source's data source does not match the owning view's own case (i.e. the checkbox is
-/// disabled/not meaningful here), default it to unchecked so it does not misleadingly stay
-/// checked while doing nothing. This does NOT affect the node's own visibility checkbox
-/// (m_isChecked) -- only the realization-follow checkbox. Never repeats once applied, so a user's
-/// later manual toggle of the checkbox always sticks (even across a project save/reload, since
-/// m_didApplyDefaultAutoRealization is persisted).
+/// Recursively searches this mirror node (and mirrored sub-collections) for the one whose
+/// sourceCollection() is exactly the given container.
 //--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::onSynced()
+const RimPolygonInViewCollection* RimPolygonInViewCollection::findMirrorForSource( const RimPolygonContainer* source ) const
 {
-    if ( m_didApplyDefaultAutoRealization() ) return;
+    if ( sourceCollection() == source ) return this;
 
-    m_didApplyDefaultAutoRealization = true;
-
-    auto* src = sourceCollection();
-    if ( src && src->supportsRealizationOverride() && viewMatchingRealizationOrMinusOne() == -1 )
+    for ( auto subMirror : m_collectionsInView )
     {
-        m_useAutoRealization = false;
+        if ( !subMirror ) continue;
+        if ( auto* found = subMirror->findMirrorForSource( source ) ) return found;
     }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Walks every open view's own RimGridView::polygonInViewCollection() mirror tree, looking for a
+/// mirror whose sourceCollection() is the given container and whose checkbox (m_isChecked) is on.
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonInViewCollection::isSourceCheckedInAnyView( const RimPolygonContainer* source )
+{
+    auto* project = RimProject::current();
+    if ( !project ) return false;
+
+    for ( auto* view : project->allViews() )
+    {
+        auto* gridView = dynamic_cast<RimGridView*>( view );
+        if ( !gridView ) continue;
+
+        auto* rootMirror = gridView->polygonInViewCollection();
+        if ( !rootMirror ) continue;
+
+        if ( auto* mirror = rootMirror->findMirrorForSource( source ) )
+        {
+            if ( mirror->isChecked() ) return true;
+        }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

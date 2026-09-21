@@ -37,8 +37,7 @@ class RimPolygonInViewCollection : public RimNestedMirrorCollectionInView<RimPol
 public:
     RimPolygonInViewCollection();
 
-    // Refreshes this mirror collection from its RimPolygonCollection source. Never derives a
-    // realization from the owning 3D view's own case -- see m_realizationOverride below.
+    // Refreshes this mirror collection from its RimPolygonCollection source.
     void updateFromPolygonCollection();
 
     std::vector<RimPolygonInView*> visiblePolygonsInView() const;
@@ -51,35 +50,43 @@ protected:
     std::vector<RimPolygon*>          sourceItems() const override;
     RimPolygonInView*                 createItemInView( RimPolygon* source ) override;
 
-    QString computeDisplayName() const override;
-    void    onSynced() override;
+    RimPolygonInViewCollection* createSubCollectionInView( RimPolygonContainer* src ) override;
+
+    void onSynced() override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
+public:
+    // Whether the given source container is currently shown checked (as either the base container
+    // itself, or -- since a source container can also be a RimPolygonCloudRealizationGroup --
+    // matched by pointer identity) in any open view's mirror tree. Used to decide whether fetched
+    // RimCloudPolygon data can safely be evicted once a checkbox is unchecked in one view: it may
+    // still be needed by another.
+    static bool isSourceCheckedInAnyView( const RimPolygonContainer* source );
+
 private:
     RimPolygonInView* findPolygonInView( const RimPolygon* polygon ) const;
+
+    // Recursively searches this mirror node (and its mirrored sub-collections) for the node whose
+    // sourceCollection() is exactly the given container. Returns nullptr if not found in this
+    // view's tree.
+    const RimPolygonInViewCollection* findMirrorForSource( const RimPolygonContainer* source ) const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
-    // The realization actually used by this view's mirrored items right now: the source's
-    // Applied/base realization (-1) unless auto-follow is enabled and applicable, in which case
-    // the view's own matching case realization. Shared by sourceItems() and computeDisplayName()
-    // so the name and the actual shown items are always for the same realization.
-    int effectiveRealization() const;
-
     // Explicit per-view choice: whether this view should follow the source container's own
-    // per-view realization resolution (see RimPolygonContainer::resolveViewMatchingRealization) or
-    // always show the source's own Applied/base realization. Only relevant (and only shown in the
-    // UI) when sourceCollection()->supportsRealizationOverride() is true, i.e. for a cloud-backed
-    // address. There is deliberately no separate per-view realization override dropdown here --
-    // either this view shows the address exactly as configured (its own Applied realization,
-    // edited on RimPolygonCloudAddress itself), or it opts in to following the view's own case
-    // realization when that is meaningful (same Sumo case/ensemble as the address's Applied data
-    // source). Disabled (read-only, with an explanatory tooltip) when the view's own case belongs
-    // to a different case/ensemble than the source's Applied data source, since "follow view"
-    // would not be meaningful there.
+    // per-view realization resolution (see RimPolygonContainer::resolveViewMatchingRealization).
+    // Only relevant (and only shown in the UI) when sourceCollection()->supportsRealizationOverride()
+    // is true -- i.e. only on the single mirror node representing a whole RimPolygonCloudSource,
+    // governing every RimPolygonCloudAddress leaf beneath it in this view. When checked and the
+    // resolved realization differs from the source's own base realization, every currently-checked
+    // leaf under this source (in this view) gets a RimPolygonCloudRealizationGroup materialized/
+    // shown for that realization (see onSynced()) -- this is also the "compare with base
+    // realization" mechanism, with no separate comparison UI. Disabled (read-only, with an
+    // explanatory tooltip) when the view's own case belongs to a different case/ensemble than the
+    // source's own data source, since "follow view" would not be meaningful there.
     caf::PdmField<bool> m_useAutoRealization;
 
     // Set once this node has applied its one-shot default for m_useAutoRealization (see
@@ -92,4 +99,8 @@ private:
     // case/ensemble than the source's Applied data source. See
     // RimPolygonContainer::resolveViewMatchingRealization.
     int viewMatchingRealizationOrMinusOne() const;
+
+    // All RimPolygonCloudAddress source objects that are checked-visible (m_isChecked) somewhere
+    // in this mirror node's own subtree (this node included).
+    std::vector<class RimPolygonCloudAddress*> allCheckedAddressesRecursively() const;
 };
