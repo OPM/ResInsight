@@ -276,16 +276,21 @@ void RigFemPart::calculateNodeToElmRefs()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<int>& RigFemPart::elementsUsingNode( int nodeIndex ) const
+std::vector<int> RigFemPart::elementsUsingNode( int nodeIndex ) const
 {
+    // Elements referring to nodes outside the node list, e.g. a part with elements but no nodes, give an invalid index
+    if ( nodeIndex < 0 || nodeIndex >= static_cast<int>( m_nodeToElmRefs.size() ) ) return {};
+
     return m_nodeToElmRefs[nodeIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<unsigned char>& RigFemPart::elementLocalIndicesForNode( int nodeIndex ) const
+std::vector<unsigned char> RigFemPart::elementLocalIndicesForNode( int nodeIndex ) const
 {
+    if ( nodeIndex < 0 || nodeIndex >= static_cast<int>( m_nodeGlobalToLocalIndices.size() ) ) return {};
+
     return m_nodeGlobalToLocalIndices[nodeIndex];
 }
 
