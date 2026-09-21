@@ -80,6 +80,6 @@ void RicCreateSumoPolygonAddressFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicCreateSumoPolygonAddressFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create Sumo Polygon" );
+    actionToSetup->setText( "Import Sumo Polygon" );
     actionToSetup->setIcon( QIcon( ":/PolylinesFromFile16x16.png" ) );
 }
