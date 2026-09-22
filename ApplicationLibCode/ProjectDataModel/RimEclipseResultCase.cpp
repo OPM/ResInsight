@@ -361,6 +361,8 @@ bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNa
                                                                std::vector<QString>( fileNames.begin(), fileNames.end() ),
                                                                importFaults );
 
+    updateResultAddressCollection();
+
     return true;
 }
 

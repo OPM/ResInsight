@@ -95,6 +95,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcEclipseCase_importProperties::
                                                                                    eclipseCase->eclipseCaseData(),
                                                                                    absolutePaths,
                                                                                    false /* no faults */ );
+        eclipseCase->updateResultAddressCollection();
     }
 
     auto dataObject            = new RimcDataContainerString();

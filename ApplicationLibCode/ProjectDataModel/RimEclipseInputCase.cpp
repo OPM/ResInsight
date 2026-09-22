@@ -181,6 +181,7 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
     }
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createPlaceholderResultEntries();
+    updateResultAddressCollection();
 
     return true;
 }
