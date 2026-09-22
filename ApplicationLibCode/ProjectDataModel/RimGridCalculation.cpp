@@ -989,8 +989,12 @@ void RimGridCalculation::removeDependentObjects()
                 }
             }
 
-            eclipseCase->results( porosityModel )->clearScalarResult( resAddr );
-            eclipseCase->results( porosityModel )->setRemovedTagOnGeneratedResult( resAddr );
+            // The results are not available if the case is not opened
+            if ( auto results = eclipseCase->results( porosityModel ) )
+            {
+                results->clearScalarResult( resAddr );
+                results->setRemovedTagOnGeneratedResult( resAddr );
+            }
 
             RimReloadCaseTools::updateAll3dViews( eclipseCase );
         }

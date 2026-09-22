@@ -116,3 +116,25 @@ TEST( RimGridCalculationTest, AdditionalEnsembleCasesAreOutputs )
     EXPECT_EQ( firstCase, outputCases[0] );
     EXPECT_EQ( secondCase, outputCases[1] );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// The results of a case that is not opened are not available, and must not be accessed when the calculation is removed
+//--------------------------------------------------------------------------------------------------
+TEST( RimGridCalculationTest, RemoveDependentObjectsForCaseNotOpened )
+{
+    RimReservoirGridEnsemble ensemble;
+    auto*                    notOpenedCase = new RimEclipseResultCase;
+    ensemble.addCase( notOpenedCase );
+
+    RimGridCalculation calculation;
+    calculation.setExpression( "MY_CALCULATION := 1" );
+
+    auto* destinationEnsembleField =
+        dynamic_cast<caf::PdmPtrField<RimReservoirGridEnsemble*>*>( calculation.findField( "DestinationEnsemble" ) );
+    ASSERT_TRUE( destinationEnsembleField != nullptr );
+    destinationEnsembleField->setValue( &ensemble );
+
+    ASSERT_TRUE( notOpenedCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) == nullptr );
+
+    calculation.removeDependentObjects();
+}

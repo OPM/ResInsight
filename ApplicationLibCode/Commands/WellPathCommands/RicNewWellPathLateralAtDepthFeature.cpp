@@ -94,9 +94,13 @@ RimModeledWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasured
                 parentWellPath->wellPathGeometry()->clippedPointSubset( parentWellPath->wellPathGeometry()->measuredDepths().front(),
                                                                         parentWellMD );
 
-            newModeledWellPath->geometryDefinition()->setMdAtFirstTarget( measuredDepths.back() );
-            newModeledWellPath->geometryDefinition()->setFixedWellPathPoints( pointVector );
-            newModeledWellPath->geometryDefinition()->setFixedMeasuredDepths( measuredDepths );
+            // The subset is empty if the tie-in depth is above the start of the parent well path
+            if ( !measuredDepths.empty() )
+            {
+                newModeledWellPath->geometryDefinition()->setMdAtFirstTarget( measuredDepths.back() );
+                newModeledWellPath->geometryDefinition()->setFixedWellPathPoints( pointVector );
+                newModeledWellPath->geometryDefinition()->setFixedMeasuredDepths( measuredDepths );
+            }
         }
 
         newModeledWellPath->geometryDefinition()->setIsAttachedToParentWell( true );
