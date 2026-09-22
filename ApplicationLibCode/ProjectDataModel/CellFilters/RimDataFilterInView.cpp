@@ -44,6 +44,7 @@ RimDataFilterInView::RimDataFilterInView()
     CAF_PDM_InitFieldNoDefault( &m_displayName, "DisplayName", "Name" );
     m_displayName.registerGetMethod( this, &RimDataFilterInView::sourceName );
     m_displayName.registerSetMethod( this, &RimDataFilterInView::setSourceName );
+    m_displayName.uiCapability()->setUiReadOnly( true );
     m_displayName.xmlCapability()->disableIO();
 
     setCheckState( false );

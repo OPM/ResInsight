@@ -45,6 +45,7 @@ RimDataFilterInViewCollection::RimDataFilterInViewCollection()
 
     setName( "Data Filters" );
     nameField()->uiCapability()->setUiHidden( true );
+    nameField()->uiCapability()->setUiReadOnly( true );
 
     setCheckState( true );
 }
