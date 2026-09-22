@@ -51,9 +51,6 @@ RimPolygonInViewCollection::RimPolygonInViewCollection()
 
     CAF_PDM_InitField( &m_useAutoRealization, "UseAutoRealization", true, "Auto-Follow View Realization" );
 
-    CAF_PDM_InitField( &m_didApplyDefaultAutoRealization, "DidApplyDefaultAutoRealization", false, "" );
-    m_didApplyDefaultAutoRealization.uiCapability()->setUiHidden( true );
-
     nameField()->uiCapability()->setUiHidden( true );
 }
 
@@ -346,29 +343,6 @@ void RimPolygonInViewCollection::prepareForSync()
     else
     {
         address->ensureRealizationFetched( realization );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Per-sync hook (called once for every mirror node in the tree, after its own name/items/sub-
-/// collections have been refreshed): one-shot default for the Auto-Follow checkbox -- if this
-/// node's source does not match the owning view's own case (checkbox would be disabled/not
-/// meaningful), default it to unchecked, once, so it does not misleadingly stay checked while
-/// doing nothing. The lazy-fetch trigger itself lives in prepareForSync() (called earlier in the
-/// same sync pass, before sourceItems() is read).
-//--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::onSynced()
-{
-    auto* src = sourceCollection();
-
-    if ( !m_didApplyDefaultAutoRealization() )
-    {
-        m_didApplyDefaultAutoRealization = true;
-
-        if ( src && src->supportsRealizationOverride() && viewMatchingRealizationOrMinusOne() == -1 )
-        {
-            m_useAutoRealization = false;
-        }
     }
 }
 

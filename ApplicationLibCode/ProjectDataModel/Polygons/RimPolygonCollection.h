@@ -81,6 +81,9 @@ private:
     void connectPolygonCloudAddressSignals( RimPolygonCloudAddress* polygonCloudAddress );
     void onPolygonCloudAddressChanged( const caf::SignalEmitter* emitter );
 
+    void connectPolygonCloudSourceSignals( RimPolygonCloudSource* polygonCloudSource );
+    void onPolygonCloudSourceChanged( const caf::SignalEmitter* emitter );
+
     void connectSignalsRecursively();
     void connectSignalsForContainer( RimPolygonContainer* container );
 

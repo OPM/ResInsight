@@ -54,7 +54,6 @@ protected:
 
     QString computeDisplayName() const override;
     void    prepareForSync() override;
-    void    onSynced() override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -90,11 +89,6 @@ private:
     // different case/ensemble than the source's own data source, since "follow view" would not be
     // meaningful there.
     caf::PdmField<bool> m_useAutoRealization;
-
-    // Set once this node has applied its one-shot default for m_useAutoRealization (see
-    // onSynced()). Persisted so a user's later manual checkbox toggle is never silently
-    // overridden again, including across a project save/reload.
-    caf::PdmField<bool> m_didApplyDefaultAutoRealization;
 
     // Resolves the realization the owning 3D view's own case matches for the current source
     // container, or -1 if there is no view ancestor or the view's case belongs to a different

@@ -22,6 +22,7 @@
 
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 #include <QPointer>
 
@@ -67,6 +68,13 @@ class RimPolygonCloudSource : public RimPolygonContainer
 
 public:
     RimPolygonCloudSource();
+
+    // Emitted whenever Apply commits a change that may affect what is shown in any open 3D view's
+    // RimPolygonInViewCollection mirror (a new tree built, an existing tree rebuilt for a new data
+    // source, or a base realization change evicting stale data). RimPolygonCollection connects
+    // this to trigger view resync + redraw, mirroring the same signal on RimPolygonCloudAddress/
+    // RimPolygonFile/RimPolygon.
+    caf::Signal<> objectChanged;
 
     void setDataSource( RimSumoDataSource* dataSource );
     void setBaseRealization( int realization );

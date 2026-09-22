@@ -34,7 +34,7 @@
 #include "RimRoffCaseSumo.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
-#include "cafPdmUiButton.h"
+#include "cafPdmUiButtonBox.h"
 #include "cafPdmUiComboBoxEditor.h"
 
 #include <algorithm>
@@ -45,6 +45,7 @@ CAF_PDM_SOURCE_INIT( RimPolygonCloudSource, "RimPolygonCloudSource" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimPolygonCloudSource::RimPolygonCloudSource()
+    : objectChanged( this )
 {
     CAF_PDM_InitObject( "Cloud Polygon Source", ":/CloudBlobs.svg" );
 
@@ -293,14 +294,15 @@ void RimPolygonCloudSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     const bool hasValidPendingSelection = m_dataSource() != nullptr && m_baseRealization() >= 0;
     const bool pending                  = hasPendingChanges();
 
-    auto* applyButton = uiOrdering.addNewButton( "Apply", [this]() { onApplyClicked(); } );
-    applyButton->setUiReadOnly( !hasValidPendingSelection || !pending );
-    applyButton->setUiToolTip( hasValidPendingSelection ? QString( "" )
-                                                         : QString( "Select a Data Source and Base Realization first." ) );
+    auto* buttonBox = uiOrdering.addNewButtonBox();
 
-    auto* cancelButton = uiOrdering.addNewButton( "Cancel", [this]() { onCancelClicked(); }, { .newRow = false } );
-    cancelButton->setUiReadOnly( !m_directoryBuilt() || !pending );
-    cancelButton->setUiToolTip( "Discards the pending edits above, restoring the currently applied Data Source and Base Realization." );
+    auto& applyButton = buttonBox->addButton( "Apply", [this]() { onApplyClicked(); } );
+    applyButton.enabled = hasValidPendingSelection && pending;
+    applyButton.toolTip = hasValidPendingSelection ? QString( "" ) : QString( "Select a Data Source and Base Realization first." );
+
+    auto& cancelButton = buttonBox->addButton( "Cancel", [this]() { onCancelClicked(); } );
+    cancelButton.enabled = m_directoryBuilt() && pending;
+    cancelButton.toolTip = "Discards the pending edits above, restoring the currently applied Data Source and Base Realization.";
 
     uiOrdering.skipRemainingFields();
 }
@@ -433,6 +435,8 @@ void RimPolygonCloudSource::onApplyClicked()
 
     updateConnectedEditors();
     uiCapability()->updateAllRequiredEditors();
+
+    objectChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

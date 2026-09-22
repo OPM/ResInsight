@@ -177,6 +177,7 @@ void RimPolygonCollection::addPolygonCloudSource( RimPolygonCloudSource* polygon
     addSubCollection( polygonCloudSource );
     RiaNameUniquenessTools::ensureUniqueAmongSiblings( polygonCloudSource );
     connectSignalsForContainer( polygonCloudSource );
+    connectPolygonCloudSourceSignals( polygonCloudSource );
 
     updateViewTreeItems();
     scheduleRedrawViews();
@@ -290,6 +291,17 @@ void RimPolygonCollection::connectPolygonCloudAddressSignals( RimPolygonCloudAdd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::connectPolygonCloudSourceSignals( RimPolygonCloudSource* polygonCloudSource )
+{
+    if ( polygonCloudSource )
+    {
+        polygonCloudSource->objectChanged.connect( this, &RimPolygonCollection::onPolygonCloudSourceChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::onPolygonChanged( const caf::SignalEmitter* emitter )
 {
     scheduleRedrawViews();
@@ -308,6 +320,15 @@ void RimPolygonCollection::onPolygonFileChanged( const caf::SignalEmitter* emitt
 ///
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::onPolygonCloudAddressChanged( const caf::SignalEmitter* emitter )
+{
+    updateViewTreeItems();
+    scheduleRedrawViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::onPolygonCloudSourceChanged( const caf::SignalEmitter* emitter )
 {
     updateViewTreeItems();
     scheduleRedrawViews();
@@ -343,6 +364,10 @@ void RimPolygonCollection::connectSignalsForContainer( RimPolygonContainer* cont
         else if ( auto* cloudAddress = dynamic_cast<RimPolygonCloudAddress*>( sub ) )
         {
             connectPolygonCloudAddressSignals( cloudAddress );
+        }
+        else if ( auto* cloudSource = dynamic_cast<RimPolygonCloudSource*>( sub ) )
+        {
+            connectPolygonCloudSourceSignals( cloudSource );
         }
         connectSignalsForContainer( sub );
     }
