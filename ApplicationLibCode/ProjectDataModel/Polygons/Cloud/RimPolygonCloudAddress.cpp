@@ -164,6 +164,12 @@ void RimPolygonCloudAddress::ensureBaseFetched()
         RiaLogging::info( QString( "Fetched %1 polygon(s) from Sumo for address: %2" ).arg( fetchedPolygons.size() ).arg( name() ).toStdString() );
     }
 
+    // The address's own project-tree node was already rendered (with zero children) when the
+    // directory tree was first built -- a structural refresh is required for the newly-added
+    // RimCloudPolygon children to actually show up there (updateConnectedEditors() alone only
+    // refreshes editors bound to this object's own fields, e.g. the property panel).
+    uiCapability()->updateAllRequiredEditors();
+
     objectChanged.send();
 }
 
@@ -175,6 +181,7 @@ void RimPolygonCloudAddress::evictBaseData()
     if ( !hasBaseData() ) return;
 
     m_items.deleteChildren();
+    uiCapability()->updateAllRequiredEditors();
     objectChanged.send();
 }
 

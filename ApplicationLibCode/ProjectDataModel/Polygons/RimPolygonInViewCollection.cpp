@@ -216,6 +216,11 @@ void RimPolygonInViewCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& me
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    // m_useAutoRealization is only meaningful (and only ever added below) on the mirror node
+    // representing a whole RimPolygonCloudSource -- every other mirror node (folders, name-
+    // folders, address leaves) must not show it at all. Since it is a plain, non-hidden field,
+    // skipRemainingFields() is required so caf's generic "auto-append any field not explicitly
+    // ordered" behavior does not still surface it on those other nodes.
     if ( auto* src = sourceCollection(); src && src->supportsRealizationOverride() )
     {
         if ( viewMatchingRealizationOrMinusOne() == -1 )
@@ -234,6 +239,8 @@ void RimPolygonInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
 
         uiOrdering.add( &m_useAutoRealization );
     }
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
