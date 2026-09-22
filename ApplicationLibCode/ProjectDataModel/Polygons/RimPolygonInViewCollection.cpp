@@ -166,18 +166,17 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         if ( !m_isChecked() )
         {
-            // Unchecked: this data may no longer be needed *by this view*. Evict whatever is now
-            // unused (base and/or cached realizations), then re-sync so stale mirrored items are
-            // dropped from the view tree right away. Base data is now always fetched whenever the
-            // leaf is checked in any view (see prepareForSync()), so its eviction must be gated on
-            // "checked in any view at all", not on which realization is currently effective there.
+            // Unchecked: any *comparison* (non-base) realization this view alone was showing may
+            // no longer be needed by any view -- evict those. Base data, deliberately, is no
+            // longer evicted here: it is the address's persistent, always-in-the-project-tree
+            // identity (see prepareForSync(), which now always fetches it whenever the leaf is
+            // checked in any view, precisely so it stays available for e.g. comparison or other
+            // views). Hiding this leaf in its last remaining view must only hide it -- exactly
+            // like any other polygon container's visibility checkbox -- not delete its fetched
+            // data; the user can still explicitly discard it via the "Reload" command.
             if ( auto* address = dynamic_cast<RimPolygonCloudAddress*>( sourceCollection() ) )
             {
                 address->evictAllUnusedRealizations();
-                if ( address->hasBaseData() && !isCheckedInAnyView( address ) )
-                {
-                    address->evictBaseData();
-                }
                 updateFromSource();
             }
         }
@@ -465,32 +464,6 @@ bool RimPolygonInViewCollection::isRealizationInUseInAnyView( const RimPolygonCl
             {
                 return true;
             }
-        }
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Whether the given address's mirror is checked (visible) in any open view, regardless of which
-/// realization that view's mirror effectively resolves to.
-//--------------------------------------------------------------------------------------------------
-bool RimPolygonInViewCollection::isCheckedInAnyView( const RimPolygonCloudAddress* address )
-{
-    auto* project = RimProject::current();
-    if ( !project ) return false;
-
-    for ( auto* view : project->allViews() )
-    {
-        auto* gridView = dynamic_cast<RimGridView*>( view );
-        if ( !gridView ) continue;
-
-        auto* rootMirror = gridView->polygonInViewCollection();
-        if ( !rootMirror ) continue;
-
-        if ( auto* mirror = rootMirror->findMirrorForSource( address ) )
-        {
-            if ( mirror->isChecked() ) return true;
         }
     }
 

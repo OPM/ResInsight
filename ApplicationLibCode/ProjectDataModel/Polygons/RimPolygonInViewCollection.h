@@ -65,13 +65,6 @@ public:
     // Auto-Follow setting changes) in one view: it may still be in use by another.
     static bool isRealizationInUseInAnyView( const class RimPolygonCloudAddress* address, int realization );
 
-    // Whether the given RimPolygonCloudAddress's mirror is checked (visible) in any open view, at
-    // all -- independent of which realization that view's mirror effectively resolves to. Base
-    // data is now always fetched whenever a leaf's checkbox is checked in any view (regardless of
-    // whether that view's own effective realization happens to be the base one), so base eviction
-    // must only depend on this, not on isRealizationInUseInAnyView( address, baseRealization ).
-    static bool isCheckedInAnyView( const class RimPolygonCloudAddress* address );
-
 private:
     RimPolygonInView* findPolygonInView( const RimPolygon* polygon ) const;
 
