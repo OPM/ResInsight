@@ -226,8 +226,8 @@ void RimPolygonInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
             m_useAutoRealizationUiState.uiCapability()->setUiReadOnly( true );
             m_useAutoRealizationUiState.uiCapability()->setUiToolTip(
                 "This view's case belongs to a different Sumo case/ensemble than this polygon "
-                "address -- realization cannot be followed automatically. Using the address's own "
-                "Applied realization instead." );
+                "cloud source -- realization cannot be followed automatically. Using the polygon "
+                "source's own Applied realization instead." );
         }
         else
         {
