@@ -47,6 +47,9 @@
 #include <QAction>
 #include <QDir>
 #include <QFileInfo>
+#include <QMessageBox>
+
+#include <algorithm>
 
 CAF_CMD_SOURCE_INIT( RicCreateGridCaseEnsemblesFromFilesFeature, "RicCreateGridCaseEnsemblesFromFilesFeature" );
 
@@ -73,7 +76,18 @@ void RicCreateGridCaseEnsemblesFromFilesFeature::onActionTriggered( bool isCheck
         }
     }
 
-    if ( gridEnsembles.empty() ) return;
+    if ( fileNames.isEmpty() ) return;
+
+    bool anyCasesCreated = std::any_of( gridEnsembles.begin(),
+                                        gridEnsembles.end(),
+                                        []( RimEclipseCaseEnsemble* ensemble ) { return ensemble && !ensemble->cases().empty(); } );
+    if ( !anyCasesCreated )
+    {
+        QMessageBox::warning( RiaGuiApplication::widgetToUseAsParent(),
+                              "Grid Ensemble Import Failed",
+                              "No grid ensemble could be created from the selected files." );
+        return;
+    }
 
     auto firstEnsemble = gridEnsembles.front();
     if ( firstEnsemble->cases().empty() ) return;

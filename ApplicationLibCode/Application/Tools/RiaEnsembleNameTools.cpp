@@ -394,6 +394,15 @@ std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByEnsembleName( c
             ensemblePaths[QString::fromStdString( ensembleName )] = groupPaths;
         }
     }
+    else if ( groupingMode == RiaDefines::EnsembleGroupingMode::NONE )
+    {
+        // No grouping requested: put all files into a single ensemble.
+        if ( !fileNames.isEmpty() )
+        {
+            QString ensembleName        = findSuitableEnsembleName( fileNames, groupingMode );
+            ensemblePaths[ensembleName] = fileNames;
+        }
+    }
 
     return ensemblePaths;
 }
