@@ -34,7 +34,7 @@ void caf::AppEnum<RiaDefines::ResultCatType>::setUp()
     addItem( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "DYNAMIC_NATIVE", "Dynamic" );
     addItem( RiaDefines::ResultCatType::STATIC_NATIVE, "STATIC_NATIVE", "Static" );
     addItem( RiaDefines::ResultCatType::SOURSIMRL, "SOURSIMRL", "SourSimRL" );
-    addItem( RiaDefines::ResultCatType::GENERATED, "GENERATED", "Generated" );
+    addItem( RiaDefines::ResultCatType::GENERATED, "GENERATED", "Generated Property" );
     addItem( RiaDefines::ResultCatType::INPUT_PROPERTY, "INPUT_PROPERTY", "Input Property" );
     addItem( RiaDefines::ResultCatType::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names" );
     addItem( RiaDefines::ResultCatType::ALLAN_DIAGRAMS, "ALLAN_DIAGRAMS", "Allan Diagrams" );
