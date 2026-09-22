@@ -28,13 +28,9 @@ namespace
 
 QStringList runUtilityCommand( QString cmdStr, QStringList arguments )
 {
-    bool useWsl = RiaPreferencesOpm::current()->useWsl();
-
-    RimProcess proc( false );
-
     QStringList cmdList;
 
-    if ( useWsl )
+    if ( RiaPreferencesOpm::current()->useWsl() )
     {
         cmdList.append( RiaWslTools::wslCommand() );
         cmdList.append( RiaPreferencesOpm::current()->wslOptions() );
@@ -42,6 +38,8 @@ QStringList runUtilityCommand( QString cmdStr, QStringList arguments )
 
     cmdList.append( cmdStr );
     cmdList.append( arguments );
+
+    RimProcess proc( false /*no logging*/ );
 
     QString cmd = cmdList.takeFirst();
     proc.setCommand( cmd );
@@ -65,11 +63,7 @@ namespace RiaHpcTools
 //--------------------------------------------------------------------------------------------------
 QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler )
 {
-    if ( scheduler == RiaDefines::BatchSchedulerType::LOCAL_COMPUTER )
-    {
-        return {};
-    }
-    else if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
+    if ( scheduler == RiaDefines::BatchSchedulerType::SLURM )
     {
         auto rawOutput = runUtilityCommand( "sinfo", { "-a" } );
         return decodeSlurmQueues( rawOutput );
@@ -154,6 +148,22 @@ QStringList decodeLsfQueues( QStringList stdOut )
     }
 
     return retList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void stopLsfJob( QString jobId )
+{
+    runUtilityCommand( "bkill", { jobId } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void stopSlurmJob( QString jobId )
+{
+    runUtilityCommand( "scancel", { jobId } );
 }
 
 } // namespace RiaHpcTools
