@@ -168,11 +168,13 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         {
             // Unchecked: this data may no longer be needed *by this view*. Evict whatever is now
             // unused (base and/or cached realizations), then re-sync so stale mirrored items are
-            // dropped from the view tree right away.
+            // dropped from the view tree right away. Base data is now always fetched whenever the
+            // leaf is checked in any view (see prepareForSync()), so its eviction must be gated on
+            // "checked in any view at all", not on which realization is currently effective there.
             if ( auto* address = dynamic_cast<RimPolygonCloudAddress*>( sourceCollection() ) )
             {
                 address->evictAllUnusedRealizations();
-                if ( address->hasBaseData() && !isRealizationInUseInAnyView( address, address->owningSource() ? address->owningSource()->baseRealization() : -1 ) )
+                if ( address->hasBaseData() && !isCheckedInAnyView( address ) )
                 {
                     address->evictBaseData();
                 }
@@ -342,10 +344,14 @@ QString RimPolygonInViewCollection::computeDisplayName() const
 
 //--------------------------------------------------------------------------------------------------
 /// Lazy-fetch trigger, called before sourceItems() is read this same sync pass: if this node's
-/// source is a RimPolygonCloudAddress and this node is checked visible, ensure whichever
-/// realization this view effectively resolves to (its own base realization, or an auto-followed
-/// one) has been fetched. Idempotent -- safe on every sync, and this is what makes a saved
-/// project's previously-checked leaves "self-heal" back to populated on the next load.
+/// source is a RimPolygonCloudAddress and this node is checked visible, ensure this view's
+/// effective realization has been fetched. Also always ensures the address's own base realization
+/// is fetched, even when a different (auto-followed) realization is what this view actually
+/// displays -- per UX request, enabling a leaf's checkbox should always populate the address's
+/// base data in the project tree, not only whichever realization happens to be shown in this
+/// particular view, so the base is available for comparison/other views without a separate
+/// action. Idempotent -- safe on every sync, and this is what makes a saved project's
+/// previously-checked leaves "self-heal" back to populated on the next load.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::prepareForSync()
 {
@@ -355,11 +361,9 @@ void RimPolygonInViewCollection::prepareForSync()
     const int realization     = effectiveRealization();
     const int baseRealization = address->owningSource() ? address->owningSource()->baseRealization() : -1;
 
-    if ( realization == -1 || realization == baseRealization )
-    {
-        address->ensureBaseFetched();
-    }
-    else
+    address->ensureBaseFetched();
+
+    if ( realization != -1 && realization != baseRealization )
     {
         address->ensureRealizationFetched( realization );
     }
@@ -461,6 +465,32 @@ bool RimPolygonInViewCollection::isRealizationInUseInAnyView( const RimPolygonCl
             {
                 return true;
             }
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Whether the given address's mirror is checked (visible) in any open view, regardless of which
+/// realization that view's mirror effectively resolves to.
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonInViewCollection::isCheckedInAnyView( const RimPolygonCloudAddress* address )
+{
+    auto* project = RimProject::current();
+    if ( !project ) return false;
+
+    for ( auto* view : project->allViews() )
+    {
+        auto* gridView = dynamic_cast<RimGridView*>( view );
+        if ( !gridView ) continue;
+
+        auto* rootMirror = gridView->polygonInViewCollection();
+        if ( !rootMirror ) continue;
+
+        if ( auto* mirror = rootMirror->findMirrorForSource( address ) )
+        {
+            if ( mirror->isChecked() ) return true;
         }
     }
 

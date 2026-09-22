@@ -61,9 +61,16 @@ protected:
 public:
     // Whether the given RimPolygonCloudAddress is currently effectively shown (checked, with the
     // given realization resolved as its effective one) in any open view. Used to decide whether a
-    // fetched base/cached realization can safely be evicted once a checkbox is unchecked (or the
+    // cached comparison realization can safely be evicted once a checkbox is unchecked (or the
     // Auto-Follow setting changes) in one view: it may still be in use by another.
     static bool isRealizationInUseInAnyView( const class RimPolygonCloudAddress* address, int realization );
+
+    // Whether the given RimPolygonCloudAddress's mirror is checked (visible) in any open view, at
+    // all -- independent of which realization that view's mirror effectively resolves to. Base
+    // data is now always fetched whenever a leaf's checkbox is checked in any view (regardless of
+    // whether that view's own effective realization happens to be the base one), so base eviction
+    // must only depend on this, not on isRealizationInUseInAnyView( address, baseRealization ).
+    static bool isCheckedInAnyView( const class RimPolygonCloudAddress* address );
 
 private:
     RimPolygonInView* findPolygonInView( const RimPolygon* polygon ) const;
