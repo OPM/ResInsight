@@ -34,11 +34,13 @@
 #include "RimSummaryEnsemble.h"
 #include "RimViewNameConfig.h"
 
+#include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include <QAction>
 #include <QIcon>
+#include <QMessageBox>
 #include <QPointer>
 #include <QSet>
 #include <QSettings>
@@ -113,10 +115,21 @@ static void doImport( const RicImportGridAndSummaryEnsembleDialogResult& result,
 
     strippedPaths.removeDuplicates();
 
-    if ( strippedPaths.isEmpty() ) return;
+    if ( strippedPaths.isEmpty() )
+    {
+        QMessageBox::warning( RiuMainWindow::instance(), "No Files Found", "No grid or summary files were found to import." );
+        return;
+    }
 
     auto fileSets = RimEnsembleFileSetTools::createEnsembleFileSets( strippedPaths, result.groupingMode );
-    if ( fileSets.empty() ) return;
+    if ( fileSets.empty() )
+    {
+        QMessageBox::warning( RiuMainWindow::instance(),
+                              "Ensemble Import Failed",
+                              "No ensemble could be created from the selected files. The selected folder structure did not match the "
+                              "selected ensemble grouping mode. Try selecting a different grouping mode." );
+        return;
+    }
 
     bool gridEnsemblesCreated = false;
     if ( result.createGridEnsemble && !result.gridFiles.isEmpty() )
@@ -132,6 +145,10 @@ static void doImport( const RicImportGridAndSummaryEnsembleDialogResult& result,
                 auto view = RicNewViewFeature::addReservoirView( cases.front(), nullptr, firstEnsemble->viewCollection() );
                 if ( view ) view->nameConfig()->setAddCaseName( true );
             }
+        }
+        else
+        {
+            QMessageBox::warning( RiuMainWindow::instance(), "Grid Ensemble Import Failed", "No grid ensemble could be created." );
         }
     }
 
