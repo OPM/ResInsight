@@ -1,4 +1,3 @@
-
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaArgumentParser.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaDateStringParser.cpp
