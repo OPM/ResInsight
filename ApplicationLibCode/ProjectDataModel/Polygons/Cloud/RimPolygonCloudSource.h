@@ -91,6 +91,12 @@ public:
 
     QString name() const;
 
+    // Composes this source's display name for an arbitrary realization -- e.g. "iter-0 (case) /
+    // Real <realization>". Used by RimPolygonInViewCollection to show the realization a view is
+    // currently Auto-Following in its own mirror node's name, when that differs from this
+    // source's own (Applied) base realization -- name()/updateName() always use the base one.
+    QString nameForRealization( int realization ) const;
+
     bool                 canAddSubCollection() const override;
     RimPolygonContainer* addNewSubCollection() override;
 
@@ -113,6 +119,7 @@ protected:
 private:
     RiaSumoConnector*                    sumoConnector();
     void                                 updateName();
+    QString                              composeName( int realization ) const;
     std::vector<RimPolygonCloudAddress*> allAddresses() const;
     bool                                 hasPendingChanges() const;
     void                                 onApplyClicked();

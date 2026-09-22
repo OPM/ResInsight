@@ -372,19 +372,29 @@ RiaSumoConnector* RimPolygonCloudSource::sumoConnector()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::updateName()
 {
-    if ( !m_appliedDataSource() )
-    {
-        setCollectionName( "Cloud Polygon Source" );
-        return;
-    }
+    setCollectionName( composeName( m_appliedBaseRealization() ) );
+}
 
-    if ( m_appliedBaseRealization() < 0 )
-    {
-        setCollectionName( m_appliedDataSource()->name() );
-        return;
-    }
+//--------------------------------------------------------------------------------------------------
+/// Composes the display name for an arbitrary realization -- shared by updateName() (always uses
+/// the Applied base realization) and nameForRealization() (used by view mirrors that are Auto-
+/// Following a different realization).
+//--------------------------------------------------------------------------------------------------
+QString RimPolygonCloudSource::composeName( int realization ) const
+{
+    if ( !m_appliedDataSource() ) return "Cloud Polygon Source";
 
-    setCollectionName( QString( "%1 / Real %2" ).arg( m_appliedDataSource()->name() ).arg( m_appliedBaseRealization() ) );
+    if ( realization < 0 ) return m_appliedDataSource()->name();
+
+    return QString( "%1 / Real %2" ).arg( m_appliedDataSource()->name() ).arg( realization );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPolygonCloudSource::nameForRealization( int realization ) const
+{
+    return composeName( realization );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -301,6 +301,9 @@ std::vector<RimPolygon*> RimPolygonInViewCollection::sourceItems() const
 //--------------------------------------------------------------------------------------------------
 /// Shows the effective realization in the mirror's own tree name, when it differs from the
 /// address's own base/Applied realization (e.g. this view is auto-following a different one).
+/// The RimPolygonCloudSource's own top mirror node gets the same treatment -- its name embeds the
+/// realization (see RimPolygonCloudSource::composeName()), so an auto-followed view substitutes
+/// the effective realization directly in that name rather than appending a second "Real" suffix.
 //--------------------------------------------------------------------------------------------------
 QString RimPolygonInViewCollection::computeDisplayName() const
 {
@@ -315,6 +318,15 @@ QString RimPolygonInViewCollection::computeDisplayName() const
         if ( realization != -1 && realization != baseRealization )
         {
             return QString( "%1 (Real %2)" ).arg( address->name() ).arg( realization );
+        }
+    }
+    else if ( auto* source = dynamic_cast<RimPolygonCloudSource*>( src ) )
+    {
+        const int realization = effectiveRealization();
+
+        if ( realization != -1 && realization != source->baseRealization() )
+        {
+            return source->nameForRealization( realization );
         }
     }
 
