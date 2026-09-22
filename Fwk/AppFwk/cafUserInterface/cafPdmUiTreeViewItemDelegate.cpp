@@ -51,11 +51,13 @@
 
 #include <QApplication>
 #include <QEvent>
+#include <QHelpEvent>
 #include <QIcon>
 #include <QModelIndexList>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QStyleOptionViewItem>
+#include <QToolTip>
 #include <QTreeView>
 
 namespace caf
@@ -277,6 +279,28 @@ bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
     }
 
     return QStyledItemDelegate::editorEvent( event, model, option, itemIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Shows a tag's own tooltip text (if it has one) when the mouse hovers over that tag's rect,
+/// instead of falling back to the whole tree item's tooltip.
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTreeViewItemDelegate::helpEvent( QHelpEvent*                 event,
+                                           QAbstractItemView*          view,
+                                           const QStyleOptionViewItem& option,
+                                           const QModelIndex&          itemIndex )
+{
+    if ( event && event->type() == QEvent::ToolTip )
+    {
+        const PdmUiTreeViewItemAttribute::Tag* tag = nullptr;
+        if ( tagClicked( event->pos(), option.rect, itemIndex, &tag ) && tag && !tag->toolTip.isEmpty() )
+        {
+            QToolTip::showText( event->globalPos(), tag->toolTip, view );
+            return true;
+        }
+    }
+
+    return QStyledItemDelegate::helpEvent( event, view, option, itemIndex );
 }
 
 //--------------------------------------------------------------------------------------------------

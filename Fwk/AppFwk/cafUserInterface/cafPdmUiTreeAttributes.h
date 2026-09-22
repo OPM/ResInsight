@@ -70,6 +70,7 @@ public:
         QColor       fgColor;
         bool         selectedOnly;
         QRect        rect;
+        QString      toolTip;
 
         caf::Signal<size_t> clicked;
 

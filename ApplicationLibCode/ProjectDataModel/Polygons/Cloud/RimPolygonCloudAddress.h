@@ -113,6 +113,11 @@ private:
     RiaSumoConnector* sumoConnector();
     void              updateName();
 
+    // Clicked handler for the tree's download tag (see defineObjectEditorAttribute()) -- fetches
+    // this leaf's own base realization directly from the project tree, independent of any 3D
+    // view's visibility checkbox (which keeps triggering ensureBaseFetched() exactly as before).
+    void onDownloadTagClicked( const caf::SignalEmitter* emitter, size_t index );
+
     static QString polygonResultLabel( SumoPolygonResult polygonResult );
 
     // Fetches from Sumo for the given realization -- this address's own fixed polygon result/

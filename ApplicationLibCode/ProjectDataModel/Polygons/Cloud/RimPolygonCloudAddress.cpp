@@ -32,6 +32,8 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTreeAttributes.h"
 
+#include <QColor>
+
 #include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimPolygonCloudAddress, "RimPolygonCloudAddress" );
@@ -161,7 +163,8 @@ void RimPolygonCloudAddress::ensureBaseFetched()
     }
     else
     {
-        RiaLogging::info( QString( "Fetched %1 polygon(s) from Sumo for address: %2" ).arg( fetchedPolygons.size() ).arg( name() ).toStdString() );
+        RiaLogging::info(
+            QString( "Fetched %1 polygon(s) from Sumo for address: %2" ).arg( fetchedPolygons.size() ).arg( name() ).toStdString() );
     }
 
     // The address's own project-tree node was already rendered (with zero children) when the
@@ -217,10 +220,10 @@ void RimPolygonCloudAddress::ensureRealizationFetched( int realization )
     else
     {
         RiaLogging::info( QString( "Fetched %1 polygon(s) from Sumo for address: %2 (realization %3)" )
-                               .arg( fetchedPolygons.size() )
-                               .arg( name() )
-                               .arg( realization )
-                               .toStdString() );
+                              .arg( fetchedPolygons.size() )
+                              .arg( name() )
+                              .arg( realization )
+                              .toStdString() );
     }
 }
 
@@ -324,10 +327,35 @@ void RimPolygonCloudAddress::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBu
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudAddress::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( !hasBaseData() )
-    {
-        caf::PdmUiTreeViewItemAttribute::appendTagToTreeViewItemAttribute( attribute, ":/warning.svg" );
-    }
+    if ( hasBaseData() ) return;
+
+    auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
+    if ( !treeItemAttribute ) return;
+
+    // Clickable download icon -- fetches this leaf's own base realization directly from the tree.
+    auto downloadTag     = caf::PdmUiTreeViewItemAttribute::createTag();
+    downloadTag->icon    = caf::IconProvider( ":/Download.svg" );
+    downloadTag->toolTip = "Fetch polygon data";
+    downloadTag->clicked.connect( this, &RimPolygonCloudAddress::onDownloadTagClicked );
+    treeItemAttribute->tags.push_back( std::move( downloadTag ) );
+
+    // Plain, unobtrusive "not fetched" marker -- brackets, no colored pill.
+    auto textTag     = caf::PdmUiTreeViewItemAttribute::createTag();
+    textTag->text    = "[Not fetched]";
+    textTag->bgColor = QColor( Qt::white );
+    textTag->fgColor = QColor( Qt::darkGray );
+    treeItemAttribute->tags.push_back( std::move( textTag ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCloudAddress::onDownloadTagClicked( const caf::SignalEmitter* emitter, size_t index )
+{
+    ensureBaseFetched();
+
+    updateAllRequiredEditors();
+    objectChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -406,8 +434,12 @@ std::vector<RimPolygon*> RimPolygonCloudAddress::fetchPolygonsFromSumo( int real
     auto* connector  = sumoConnector();
     if ( !dataSource || !connector ) return polygons;
 
-    auto polygonDataList =
-        connector->polygons().polygonsData( dataSource->caseId(), dataSource->ensembleName(), realization, polygonResult(), m_name(), m_contactType() );
+    auto polygonDataList = connector->polygons().polygonsData( dataSource->caseId(),
+                                                               dataSource->ensembleName(),
+                                                               realization,
+                                                               polygonResult(),
+                                                               m_name(),
+                                                               m_contactType() );
 
     const bool nameGroupsAreDistinct = polygonDataList.size() > 1;
 

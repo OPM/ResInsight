@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Download icon, matching the stroke style/viewBox of Refresh.svg -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve">
+<style type="text/css">
+	.st2{fill:none;stroke:#8DC584;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10.6667;}
+</style>
+<line class="st2" x1="12" y1="3" x2="12" y2="15"/>
+<polyline class="st2" points="6.5,9.5 12,15 17.5,9.5 "/>
+<polyline class="st2" points="4,17 4,21 20,21 20,17 "/>
+</svg>
