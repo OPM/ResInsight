@@ -97,7 +97,6 @@ public:
     void                     ensureRealizationFetched( int realization );
     std::vector<RimPolygon*> cachedItemsForRealization( int realization ) const;
     void                     evictRealizationIfUnused( int realization );
-    void                     evictAllUnusedRealizations();
     std::vector<int>         cachedRealizations() const;
 
     QString name() const;

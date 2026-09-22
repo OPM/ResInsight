@@ -164,33 +164,15 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
-        if ( !m_isChecked() )
-        {
-            // Unchecked: any *comparison* (non-base) realization this view alone was showing may
-            // no longer be needed by any view -- evict those. Base data, deliberately, is no
-            // longer evicted here: it is the address's persistent, always-in-the-project-tree
-            // identity (see prepareForSync(), which now always fetches it whenever the leaf is
-            // checked in any view, precisely so it stays available for e.g. comparison or other
-            // views). Hiding this leaf in its last remaining view must only hide it -- exactly
-            // like any other polygon container's visibility checkbox -- not delete its fetched
-            // data; the user can still explicitly discard it via the "Reload" command.
-            if ( auto* address = dynamic_cast<RimPolygonCloudAddress*>( sourceCollection() ) )
-            {
-                address->evictAllUnusedRealizations();
-                updateFromSource();
-            }
-        }
+        // Unchecking this leaf only hides it (visiblePolygonsInView() already excludes anything
+        // beneath an unchecked node from 3D rendering) -- it must never evict fetched data, base
+        // or comparison-realization alike, exactly like any other polygon container's visibility
+        // checkbox. Cached data is only ever discarded via an explicit user action (the "Reload"
+        // command) or a project reload.
     }
     else if ( changedField == &m_useAutoRealization )
     {
         updateFromPolygonCollection();
-
-        // Toggling either direction can change which realization is effectively "in use" for
-        // every leaf beneath this source in this view -- evict whatever is no longer needed.
-        if ( auto* source = dynamic_cast<RimPolygonCloudSource*>( sourceCollection() ) )
-        {
-            source->evictUnusedRealizationData();
-        }
 
         if ( auto view = firstAncestorOfType<Rim3dView>() )
         {
@@ -389,23 +371,6 @@ RimPolygonInViewCollection* RimPolygonInViewCollection::createSubCollectionInVie
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Recursively searches this mirror node (and mirrored sub-collections) for the one whose
-/// sourceCollection() is exactly the given container.
-//--------------------------------------------------------------------------------------------------
-const RimPolygonInViewCollection* RimPolygonInViewCollection::findMirrorForSource( const RimPolygonContainer* source ) const
-{
-    if ( sourceCollection() == source ) return this;
-
-    for ( auto subMirror : m_collectionsInView )
-    {
-        if ( !subMirror ) continue;
-        if ( auto* found = subMirror->findMirrorForSource( source ) ) return found;
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Walks up this mirror node's own ancestor chain (this node included) for the one whose
 /// sourceCollection() is a RimPolygonCloudSource -- the node that owns the single Auto-Follow
 /// checkbox governing every leaf beneath it. Returns nullptr if this mirror is not nested under a
@@ -434,40 +399,6 @@ int RimPolygonInViewCollection::effectiveRealization() const
     if ( !sourceMirror || !sourceMirror->m_useAutoRealization() ) return -1;
 
     return sourceMirror->viewMatchingRealizationOrMinusOne();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Walks every open view's own RimGridView::polygonInViewCollection() mirror tree, looking for a
-/// mirror whose sourceCollection() is the given address, is checked, and effectively resolves to
-/// the given realization.
-//--------------------------------------------------------------------------------------------------
-bool RimPolygonInViewCollection::isRealizationInUseInAnyView( const RimPolygonCloudAddress* address, int realization )
-{
-    auto* project = RimProject::current();
-    if ( !project ) return false;
-
-    for ( auto* view : project->allViews() )
-    {
-        auto* gridView = dynamic_cast<RimGridView*>( view );
-        if ( !gridView ) continue;
-
-        auto* rootMirror = gridView->polygonInViewCollection();
-        if ( !rootMirror ) continue;
-
-        if ( auto* mirror = rootMirror->findMirrorForSource( address ) )
-        {
-            if ( mirror->isChecked() && mirror->effectiveRealization() == realization ) return true;
-            // effectiveRealization() returns -1 for "the address's own base realization" -- also
-            // match when the queried realization *is* that base realization.
-            if ( mirror->isChecked() && mirror->effectiveRealization() == -1 && address->owningSource() &&
-                 address->owningSource()->baseRealization() == realization )
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -265,24 +265,6 @@ int RimPolygonCloudSource::resolveViewMatchingRealization( const Rim3dView* view
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Walks every RimPolygonCloudAddress beneath this source and evicts any cached non-base
-/// realization that is no longer in use (checked, with that realization resolved as effective) by
-/// any open view. Deliberately does NOT evict base data here: base data is the address's own
-/// persistent, always-in-the-project-tree identity, and toggling Auto-Follow merely changes which
-/// realization a still-checked leaf's mirror *currently displays* -- it must not delete the base
-/// data out from under the project tree just because no view happens to be showing it at this
-/// exact moment. Base data is only evicted when the leaf's own checkbox is unchecked in every view
-/// (see RimPolygonInViewCollection::fieldChangedByUi's m_isChecked handling).
-//--------------------------------------------------------------------------------------------------
-void RimPolygonCloudSource::evictUnusedRealizationData()
-{
-    for ( auto* address : allAddresses() )
-    {
-        address->evictAllUnusedRealizations();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )

@@ -251,28 +251,6 @@ void RimPolygonCloudAddress::evictRealizationIfUnused( int realization )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Evicts every cached realization not currently shown checked (with that realization resolved as
-/// the effective one) in any open view. Safe to call at any time.
-//--------------------------------------------------------------------------------------------------
-void RimPolygonCloudAddress::evictAllUnusedRealizations()
-{
-    std::vector<int> realizationsToEvict;
-
-    for ( const auto& [realization, polygons] : m_realizationCache )
-    {
-        if ( !RimPolygonInViewCollection::isRealizationInUseInAnyView( this, realization ) )
-        {
-            realizationsToEvict.push_back( realization );
-        }
-    }
-
-    for ( int realization : realizationsToEvict )
-    {
-        evictRealizationIfUnused( realization );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RimPolygonCloudAddress::cachedRealizations() const

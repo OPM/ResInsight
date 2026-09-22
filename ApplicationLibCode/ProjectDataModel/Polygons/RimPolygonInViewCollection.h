@@ -58,20 +58,8 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-public:
-    // Whether the given RimPolygonCloudAddress is currently effectively shown (checked, with the
-    // given realization resolved as its effective one) in any open view. Used to decide whether a
-    // cached comparison realization can safely be evicted once a checkbox is unchecked (or the
-    // Auto-Follow setting changes) in one view: it may still be in use by another.
-    static bool isRealizationInUseInAnyView( const class RimPolygonCloudAddress* address, int realization );
-
 private:
     RimPolygonInView* findPolygonInView( const RimPolygon* polygon ) const;
-
-    // Recursively searches this mirror node (and its mirrored sub-collections) for the node whose
-    // sourceCollection() is exactly the given container. Returns nullptr if not found in this
-    // view's tree.
-    const RimPolygonInViewCollection* findMirrorForSource( const RimPolygonContainer* source ) const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;

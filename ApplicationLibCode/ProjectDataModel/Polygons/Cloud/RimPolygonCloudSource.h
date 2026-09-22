@@ -104,12 +104,6 @@ public:
     std::vector<int> availableRealizationIdsForOverride() const override;
     int              resolveViewMatchingRealization( const Rim3dView* view ) const override;
 
-    // Evicts any fetched RimCloudPolygon data (base or per-realization cache) beneath this source
-    // that is not currently shown checked (with that realization resolved as the effective one) in
-    // any open view. Called after the Auto-Follow checkbox is toggled in a view, or after Apply
-    // changes the base realization; safe to call at any time.
-    void evictUnusedRealizationData();
-
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
