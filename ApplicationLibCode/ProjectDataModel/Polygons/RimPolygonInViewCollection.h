@@ -78,6 +78,16 @@ private:
     // meaningful there.
     caf::PdmField<bool> m_useAutoRealization;
 
+    // Non-persisted UI-only shadow of m_useAutoRealization, shown in the checkbox instead of the
+    // real field. When the view's case doesn't match the source's data source (checkbox is
+    // read-only, see defineUiOrdering()), the real m_useAutoRealization keeps whatever persisted
+    // value it had (so it takes effect again automatically once the view's case starts matching),
+    // but the checkbox itself must visually read as unchecked -- since "follow view" is not doing
+    // anything here regardless of the stored value. Kept in sync with m_useAutoRealization
+    // whenever the checkbox is actually editable (matching case); user edits to this shadow field
+    // are written back to m_useAutoRealization in fieldChangedByUi().
+    caf::PdmField<bool> m_useAutoRealizationUiState;
+
     // Resolves the realization the owning 3D view's own case matches for the current source
     // container, or -1 if there is no view ancestor or the view's case belongs to a different
     // case/ensemble than the source's Applied data source. See

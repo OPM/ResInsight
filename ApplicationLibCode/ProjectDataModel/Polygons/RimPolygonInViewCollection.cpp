@@ -51,6 +51,10 @@ RimPolygonInViewCollection::RimPolygonInViewCollection()
 
     CAF_PDM_InitField( &m_useAutoRealization, "UseAutoRealization", true, "Auto-Follow View Realization" );
 
+    CAF_PDM_InitField( &m_useAutoRealizationUiState, "UseAutoRealizationUiState", true, "Auto-Follow View Realization" );
+    m_useAutoRealizationUiState.xmlCapability()->setIOWritable( false );
+    m_useAutoRealizationUiState.xmlCapability()->setIOReadable( false );
+
     nameField()->uiCapability()->setUiHidden( true );
 }
 
@@ -170,8 +174,13 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         // checkbox. Cached data is only ever discarded via an explicit user action (the "Reload"
         // command) or a project reload.
     }
-    else if ( changedField == &m_useAutoRealization )
+    else if ( changedField == &m_useAutoRealizationUiState )
     {
+        // Only reachable while the checkbox is actually editable (matching case, see
+        // defineUiOrdering()), so the shadow's value is always a genuine user edit here -- write
+        // it back to the real, persisted field.
+        m_useAutoRealization = m_useAutoRealizationUiState();
+
         updateFromPolygonCollection();
 
         if ( auto view = firstAncestorOfType<Rim3dView>() )
@@ -199,28 +208,35 @@ void RimPolygonInViewCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& me
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    // m_useAutoRealization is only meaningful (and only ever added below) on the mirror node
-    // representing a whole RimPolygonCloudSource -- every other mirror node (folders, name-
-    // folders, address leaves) must not show it at all. Since it is a plain, non-hidden field,
-    // skipRemainingFields() is required so caf's generic "auto-append any field not explicitly
-    // ordered" behavior does not still surface it on those other nodes.
+    // m_useAutoRealization (and its UI-facing shadow, m_useAutoRealizationUiState) is only
+    // meaningful (and only ever added below) on the mirror node representing a whole
+    // RimPolygonCloudSource -- every other mirror node (folders, name-folders, address leaves)
+    // must not show it at all. Since it is a plain, non-hidden field, skipRemainingFields() is
+    // required so caf's generic "auto-append any field not explicitly ordered" behavior does not
+    // still surface it on those other nodes.
     if ( auto* src = sourceCollection(); src && src->supportsRealizationOverride() )
     {
         if ( viewMatchingRealizationOrMinusOne() == -1 )
         {
-            m_useAutoRealization.uiCapability()->setUiReadOnly( true );
-            m_useAutoRealization.uiCapability()->setUiToolTip(
+            // Not meaningful here: the checkbox must visually read as unchecked (never "checked
+            // but disabled/no-op"), regardless of the real, persisted m_useAutoRealization value --
+            // which is left untouched so it takes effect again automatically once the view's case
+            // starts matching the source's data source.
+            m_useAutoRealizationUiState = false;
+            m_useAutoRealizationUiState.uiCapability()->setUiReadOnly( true );
+            m_useAutoRealizationUiState.uiCapability()->setUiToolTip(
                 "This view's case belongs to a different Sumo case/ensemble than this polygon "
                 "address -- realization cannot be followed automatically. Using the address's own "
                 "Applied realization instead." );
         }
         else
         {
-            m_useAutoRealization.uiCapability()->setUiReadOnly( false );
-            m_useAutoRealization.uiCapability()->setUiToolTip( "" );
+            m_useAutoRealizationUiState = m_useAutoRealization();
+            m_useAutoRealizationUiState.uiCapability()->setUiReadOnly( false );
+            m_useAutoRealizationUiState.uiCapability()->setUiToolTip( "" );
         }
 
-        uiOrdering.add( &m_useAutoRealization );
+        uiOrdering.add( &m_useAutoRealizationUiState );
     }
 
     uiOrdering.skipRemainingFields();
