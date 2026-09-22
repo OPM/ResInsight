@@ -420,7 +420,7 @@ std::vector<RimPolygon*> RimPolygonCloudAddress::fetchPolygonsFromSumo( int real
         polygon->setSumoIdentity( dataSource->caseId().get(), dataSource->ensembleName(), realization, m_polygonResult(), m_name(), m_contactType() );
 
         QString polygonName = data.name.isEmpty() ? name() : data.name;
-        if ( nameGroupsAreDistinct ) polygonName = QString( "%1 (%2)" ).arg( polygonName ).arg( data.polyId );
+        if ( nameGroupsAreDistinct ) polygonName = QString( "%1 (ID: %2)" ).arg( polygonName ).arg( data.polyId );
         polygon->setName( polygonName );
 
         std::vector<cvf::Vec3d> points;
