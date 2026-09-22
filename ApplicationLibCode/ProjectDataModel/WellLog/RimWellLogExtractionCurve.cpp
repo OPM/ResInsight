@@ -621,7 +621,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
     if ( maxDistanceBetweenCurvePoints.has_value() && maxDistanceBetweenCurvePoints.value() > 0.0 )
     {
         RigGeoMechCaseData* caseData         = geoMechCase->geoMechData();
-        auto                wellPathGeometry = m_wellPath->wellPathGeometry();
+        auto                wellPathGeometry = m_wellPath ? m_wellPath->wellPathGeometry() : nullptr;
         if ( caseData && wellPathGeometry )
         {
             std::string errorIdName = ( m_wellPath->name() + " " + geoMechCase->caseUserDescription() ).toStdString();

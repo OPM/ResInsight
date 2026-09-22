@@ -75,9 +75,9 @@ public:
     RigFemPartNodes&       nodes();
     const RigFemPartNodes& nodes() const;
 
-    void                              assertNodeToElmIndicesIsCalculated();
-    const std::vector<int>&           elementsUsingNode( int nodeIndex ) const;
-    const std::vector<unsigned char>& elementLocalIndicesForNode( int nodeIndex ) const;
+    void                       assertNodeToElmIndicesIsCalculated();
+    std::vector<int>           elementsUsingNode( int nodeIndex ) const;
+    std::vector<unsigned char> elementLocalIndicesForNode( int nodeIndex ) const;
 
     void assertElmNeighborsIsCalculated();
     int  elementNeighbor( int elementIndex, int faceIndex ) const;

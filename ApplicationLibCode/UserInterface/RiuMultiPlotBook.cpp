@@ -565,8 +565,7 @@ QList<QPointer<RiuPlotWidget>> RiuMultiPlotBook::visiblePlotWidgets() const
     QList<QPointer<RiuPlotWidget>> plotWidgets;
     for ( QPointer<RiuPlotWidget> plotWidget : m_plotWidgets )
     {
-        CAF_ASSERT( plotWidget );
-        if ( plotWidget->isChecked() )
+        if ( plotWidget && plotWidget->isChecked() )
         {
             plotWidgets.push_back( plotWidget );
         }
