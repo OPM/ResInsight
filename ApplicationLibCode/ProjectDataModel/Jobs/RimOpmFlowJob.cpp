@@ -735,9 +735,6 @@ QStringList RimOpmFlowJob::command()
     auto opmPref = RiaPreferencesOpm::current();
     if ( opmPref->useWsl() )
     {
-        cmd.append( RiaWslTools::wslCommand() );
-        cmd.append( opmPref->wslOptions() );
-
         workDir  = RiaWslTools::convertToWslPath( workDir );
         dataFile = RiaWslTools::convertToWslPath( dataFile );
     }
@@ -943,6 +940,14 @@ void RimOpmFlowJob::onProgress( double percentageDone )
     m_percentageDone = percentageDone;
     updateConnectedEditors();
     progressUpdate.send( percentageDone );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimOpmFlowJob::shouldUseWsl()
+{
+    return RiaPreferencesOpm::current()->useWsl();
 }
 
 //--------------------------------------------------------------------------------------------------
