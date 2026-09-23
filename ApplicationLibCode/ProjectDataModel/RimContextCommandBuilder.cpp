@@ -352,7 +352,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
             menuBuilder << "RicImportWellMeasurementsFeature";
-            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events-import" ) )
+            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events" ) )
             {
                 menuBuilder << "RicImportSimulatorEventsFeature";
             }
@@ -362,7 +362,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicExportSelectedWellPathsFeature";
             menuBuilder << "RicExportVisibleWellPathsFeature";
             menuBuilder.subMenuEnd();
-            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events-export" ) )
+            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events" ) )
             {
                 menuBuilder << "RicExportScheduleFeature";
             }
@@ -370,7 +370,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimWellEventTimeline*>( firstUiItem ) )
         {
-            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events-export" ) )
+            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events" ) )
             {
                 menuBuilder << "RicExportScheduleFeature";
             }
