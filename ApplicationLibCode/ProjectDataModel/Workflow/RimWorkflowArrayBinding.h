@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2026     Equinor ASA
+//  Copyright (C) 2026-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,28 +16,22 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWorkflowBoolBinding.h"
+#pragma once
 
-#include <QJsonObject>
+#include "RimWorkflowFieldBinding.h"
 
-CAF_PDM_SOURCE_INIT( RimWorkflowBoolBinding, "WorkflowBoolBinding" );
-
-RimWorkflowBoolBinding::RimWorkflowBoolBinding()
+class RimWorkflowArrayBinding : public RimWorkflowFieldBinding
 {
-    CAF_PDM_InitField( &m_value, "Value", false, "Value" );
-}
+    CAF_PDM_HEADER_INIT;
 
-void RimWorkflowBoolBinding::applySchema( const QJsonObject& fieldSchema )
-{
-    RimWorkflowFieldBinding::applySchema( fieldSchema );
-    if ( fieldSchema.contains( "default" ) )
-    {
-        m_value = fieldSchema.value( "default" ).toBool( false );
-    }
-}
+public:
+    RimWorkflowArrayBinding();
 
-QString RimWorkflowBoolBinding::toYamlValue() const
-{
-    if ( !hasValue() ) return "null";
-    return m_value() ? "true" : "false";
-}
+    void    applySchema( const QJsonObject& fieldSchema ) override;
+    QString toYamlValue() const override;
+
+    caf::PdmFieldHandle* valueField() override { return &m_value; }
+
+private:
+    caf::PdmField<QString> m_value;
+};

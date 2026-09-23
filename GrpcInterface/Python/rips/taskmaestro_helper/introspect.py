@@ -10,6 +10,7 @@ introspection.
 from __future__ import annotations
 
 import datetime
+import enum
 import json
 import pathlib
 import sys
@@ -80,6 +81,12 @@ def _serialize_default(value: Any) -> Any:
         return value.isoformat()
     if isinstance(value, pathlib.PurePath):
         return str(value)
+    if isinstance(value, enum.Enum):
+        return _serialize_default(value.value)
+    if isinstance(value, dict):
+        return {key: _serialize_default(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple, set, frozenset)):
+        return [_serialize_default(item) for item in value]
     return value
 
 
@@ -96,12 +103,11 @@ def _field_schema(
 
     # Prefer the value the user already has in input.yaml; fall back to the
     # Pydantic-side default so the UI is pre-filled in either case.
-    if input_value is not _SENTINEL and input_value is not None:
+    if input_value is not _SENTINEL:
         entry["default"] = _serialize_default(input_value)
     elif not field_info.is_required():
-        default = field_info.get_default(call_default_factory=False)
-        if default is not None:
-            entry["default"] = _serialize_default(default)
+        default = field_info.get_default(call_default_factory=True)
+        entry["default"] = _serialize_default(default)
 
     fmt = _format_for(field_info)
     if fmt is not None:
@@ -110,6 +116,38 @@ def _field_schema(
     if ri_type is not None:
         entry["resinsight_type"] = ri_type
     return entry
+
+
+def _dependency_edges(task_name: str, deps: Any) -> list[dict[str, str]]:
+    """Flatten taskmaestro's resolved dependency forms into directed edges."""
+    if deps is None:
+        return []
+    if isinstance(deps, str):
+        return [{"from": deps, "to": task_name}]
+    if isinstance(deps, tuple):
+        return [{"from": deps[0], "to": task_name, "output": deps[1]}]
+
+    edges = []
+    for input_name, upstream in sorted(deps.items()):
+        edge = {
+            "from": upstream[0] if isinstance(upstream, tuple) else upstream,
+            "to": task_name,
+            "input": input_name,
+        }
+        if isinstance(upstream, tuple):
+            edge["output"] = upstream[1]
+        edges.append(edge)
+    return edges
+
+
+def _output_fields(output_type: type) -> list[str]:
+    """Expose output fields, but not ObjectModel's internal wrapped value."""
+    from taskmaestro import ObjectModel
+
+    fields = set(output_type.model_fields)
+    if issubclass(output_type, ObjectModel):
+        fields.discard("value")
+    return sorted(fields)
 
 
 def collect_schema(workflow_dir: Path) -> dict[str, Any]:
@@ -125,7 +163,7 @@ def collect_schema(workflow_dir: Path) -> dict[str, Any]:
     if workflow_dir_str not in sys.path:
         sys.path.insert(0, workflow_dir_str)
 
-    from taskmaestro.task import get_input_type
+    from taskmaestro.task import get_input_type, get_output_type
     from taskmaestro.yaml_config import _load_workflow_only
 
     wf, jc = _load_workflow_only(
@@ -134,11 +172,10 @@ def collect_schema(workflow_dir: Path) -> dict[str, Any]:
     )
 
     tasks: list[dict[str, Any]] = []
+    edges: list[dict[str, str]] = []
     for task_name, task_cls in wf.topological_order():
+        edges.extend(_dependency_edges(task_name, wf.get_dependencies(task_name)))
         config_field_names = wf.get_config_fields(task_name)
-        if not config_field_names:
-            continue
-
         task_config = jc.get_config_for_task(task_name) if jc is not None else {}
 
         input_type = get_input_type(task_cls)
@@ -160,12 +197,20 @@ def collect_schema(workflow_dir: Path) -> dict[str, Any]:
                 _field_schema(field_name, field_info, input_value=input_value)
             )
 
-        tasks.append({"name": task_name, "config_fields": config_fields})
+        tasks.append(
+            {
+                "name": task_name,
+                "inputs": sorted(input_type.model_fields),
+                "outputs": _output_fields(get_output_type(task_cls)),
+                "config_fields": config_fields,
+            }
+        )
 
     return {
         "name": wf.name,
         "description": "",
         "tasks": tasks,
+        "edges": edges,
     }
 
 

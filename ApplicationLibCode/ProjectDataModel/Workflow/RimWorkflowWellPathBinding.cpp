@@ -28,12 +28,16 @@ RimWorkflowWellPathBinding::RimWorkflowWellPathBinding()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
 }
 
+QString RimWorkflowWellPathBinding::displayValue() const
+{
+    return m_wellPath() ? m_wellPath()->name() : "(not selected)";
+}
+
 QString RimWorkflowWellPathBinding::toYamlValue() const
 {
     if ( m_wellPath() == nullptr ) return "null";
-    QString name = m_wellPath()->name();
-    name.replace( "\"", "\\\"" );
-    return QString( "{__resinsight_ref__: WellPath, well_path_name: \"%1\"}" ).arg( name );
+    const QString name = yamlQuotedScalar( m_wellPath()->name() );
+    return QString( "{__resinsight_ref__: WellPath, well_path_name: %1}" ).arg( name );
 }
 
 QList<caf::PdmOptionItemInfo> RimWorkflowWellPathBinding::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
