@@ -128,13 +128,14 @@ Notes on the grammar:
   is used. Occurrence ``n`` is the start date plus ``n`` times the month part,
   then plus ``n`` times the fixed part, so monthly and yearly recurrences stay
   anchored to the initial calendar day, clamping to the end of shorter
-  months. ``EVERY`` must be positive. ``COMMENT`` is accepted and ignored.
-  The dates are collected on :attr:`SimulatorEventsDocument.report_dates` and
-  surfaced by the applier as sorted ISO strings on
-  :attr:`ApplyReport.report_dates`, ready to pass to
-  ``WellEventTimeline.generate_schedule_text(additional_dates=...)``. An
-  ``INSERT_DATE`` event is not tied to any well and does not create a
-  timeline event.
+  months. ``EVERY`` must be positive. ``COMMENT`` is written as a ``--`` comment
+  directly below each generated date.
+  A statement is expanded into one insert-date event per occurrence, each
+  keeping the ``COMMENT`` of the statement; they are collected on
+  :attr:`SimulatorEventsDocument.insert_date_events`. The applier turns each
+  into a timeline event with ``WellEventTimeline.add_insert_date_event()``, so
+  ``generate_schedule_text()`` emits the dates without further arguments. An
+  ``INSERT_DATE`` event is not tied to any well and generates no keyword.
 * ``RAW_TEXT`` is valid only inside a ``SCHEDULE`` block. Its body is copied
   without parsing or formatting through the mandatory standalone
   ``END_RAW_TEXT`` line. ``PLACEMENT`` is ``AFTER_DATE``, ``BEFORE_KEYWORD``,
@@ -193,7 +194,7 @@ import datetime
 import difflib
 import os
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 from .exception import RipsError
@@ -465,12 +466,19 @@ class GroupBlock:
 
 @dataclass(frozen=True)
 class _ReportSpec:
-    """One INSERT_DATE declaration, expanded after all event dates are known."""
+    """One INSERT_DATE event, expanded after all event dates are known."""
 
-    start: datetime.datetime
+    event: SimulatorEvent
     every: Optional[Duration]
     end: Optional[datetime.datetime]
-    loc: SourceLoc
+
+    @property
+    def start(self) -> datetime.datetime:
+        return self.event.event_date
+
+    @property
+    def loc(self) -> SourceLoc:
+        return self.event.loc
 
 
 @dataclass
@@ -483,9 +491,14 @@ class SimulatorEventsDocument:
     wells: List[WellBlock] = field(default_factory=list)
     groups: List[GroupBlock] = field(default_factory=list)
     schedule_events: List[SimulatorEvent] = field(default_factory=list)
-    report_dates: List[datetime.datetime] = field(default_factory=list)
+    insert_date_events: List[SimulatorEvent] = field(default_factory=list)
     warnings: List[ParseWarning] = field(default_factory=list)
     source: Optional[str] = None
+
+    @property
+    def insert_dates(self) -> List[datetime.datetime]:
+        """The dates of the expanded ``INSERT_DATE`` events, in document order."""
+        return [event.event_date for event in self.insert_date_events]
 
 
 def _iso_event_date(event_date: datetime.datetime) -> str:
@@ -702,7 +715,6 @@ def merge_simulator_events_documents(
         version=max((document.version for document in sources), key=_version_key),
         unit_system=first.unit_system,
     )
-    report_dates: Set[datetime.datetime] = set()
     for document in sources:
         result.warnings.extend(document.warnings)
         for name, value in document.variables.items():
@@ -724,8 +736,7 @@ def merge_simulator_events_documents(
         result.wells.extend(document.wells)
         result.groups.extend(document.groups)
         result.schedule_events.extend(document.schedule_events)
-        report_dates.update(document.report_dates)
-    result.report_dates = sorted(report_dates)
+        result.insert_date_events.extend(document.insert_date_events)
 
     errors = _restart_validation_issues(
         result.wells, result.groups, result.schedule_events
@@ -836,7 +847,7 @@ def parse_simulator_events(
     _set_event_scopes(wells, groups, schedule_events)
     errors.extend(_restart_validation_issues(wells, groups, schedule_events))
     errors.extend(_wellspec_validation_issues(wells))
-    report_dates, report_errors = _expand_report_specs(
+    insert_date_events, report_errors = _expand_report_specs(
         report_specs, wells, groups, schedule_events
     )
     errors.extend(report_errors)
@@ -850,7 +861,7 @@ def parse_simulator_events(
         wells=wells,
         groups=groups,
         schedule_events=schedule_events,
-        report_dates=report_dates,
+        insert_date_events=insert_date_events,
         warnings=warnings,
         source=source,
     )
@@ -872,17 +883,32 @@ def _expand_report_specs(
     wells: List[WellBlock],
     groups: List[GroupBlock],
     schedule_events: List[SimulatorEvent],
-) -> Tuple[List[datetime.datetime], List[ParseIssue]]:
+) -> Tuple[List[SimulatorEvent], List[ParseIssue]]:
+    """Expand every ``INSERT_DATE`` spec into one event per occurrence.
+
+    Each occurrence is a copy of the source event, so an attached ``COMMENT``
+    is kept for every date of a recurring series.
+    """
     event_dates = [event.event_date for well in wells for event in well.events]
     event_dates.extend(event.event_date for group in groups for event in group.events)
     event_dates.extend(event.event_date for event in schedule_events)
     last_event_date = max(event_dates) if event_dates else None
 
-    dates: List[datetime.datetime] = []
+    def occurrence_event(
+        spec: _ReportSpec, event_date: datetime.datetime
+    ) -> SimulatorEvent:
+        attributes = {
+            name: value
+            for name, value in spec.event.attributes.items()
+            if name == "COMMENT"
+        }
+        return replace(spec.event, event_date=event_date, attributes=attributes)
+
+    events: List[SimulatorEvent] = []
     issues: List[ParseIssue] = []
     for spec in report_specs:
         if spec.every is None:
-            dates.append(spec.start)
+            events.append(occurrence_event(spec, spec.start))
             continue
 
         end = spec.end if spec.end is not None else last_event_date
@@ -910,10 +936,10 @@ def _expand_report_specs(
                 break
             if value > end:
                 break
-            dates.append(value)
+            events.append(occurrence_event(spec, value))
             occurrence += 1
 
-    return dates, issues
+    return events, issues
 
 
 def _restart_validation_issues(
@@ -1249,7 +1275,7 @@ def _insert_date_spec(
             )
         end = _eval_date_expr(match.group("base"), match.group("terms"), variables, loc)
 
-    return _ReportSpec(start=event.event_date, every=every, end=end, loc=loc)
+    return _ReportSpec(event=event, every=every, end=end)
 
 
 def _unrecognized_line_message(line: str, first: str) -> str:
@@ -1714,7 +1740,6 @@ class ApplyReport:
 
     events_applied: int = 0
     events_skipped: int = 0
-    report_dates: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
 
@@ -1851,7 +1876,8 @@ def coalesce_simulator_events_document(
     applied in source order. Well keyword attributes are then carried forward
     chronologically to later events of the same type. Events that create or
     expand domain objects are kept separate so, for example, same-date
-    perforation intervals are not lost.
+    perforation intervals are not lost. Inserted dates repeating both date and
+    comment are reduced to one event.
     """
     result = copy.deepcopy(document)
 
@@ -1947,9 +1973,23 @@ def coalesce_simulator_events_document(
             block.events = merge_events(block.events)
         return merged_blocks
 
+    def merge_insert_date_events(events: List[SimulatorEvent]) -> List[SimulatorEvent]:
+        """Drop repeated occurrences of the same date and comment."""
+        merged: List[SimulatorEvent] = []
+        seen: Set[Tuple[datetime.datetime, str]] = set()
+        for event in events:
+            comment = event.attributes.get("COMMENT")
+            key = (event.event_date, "" if comment is None else str(comment.value))
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.append(event)
+        return merged
+
     result.wells = merge_well_blocks(result.wells)
     result.groups = merge_group_blocks(result.groups)
     result.schedule_events = merge_events(result.schedule_events)
+    result.insert_date_events = merge_insert_date_events(result.insert_date_events)
     return result
 
 
@@ -2057,17 +2097,15 @@ def apply_simulator_events_document(
             event types are passed through as generic Eclipse keywords.
 
     Returns:
-        ApplyReport: counts plus collected warnings/errors. ``INSERT_DATE`` dates
-            from the document are returned as sorted, deduplicated ISO strings
-            on ``report_dates`` — they do not create timeline events; pass them
-            to ``timeline.generate_schedule_text(additional_dates=...)`` to
-            emit them as DATES keywords.
+        ApplyReport: counts plus collected warnings/errors. Each ``INSERT_DATE``
+            occurrence becomes an insert-date event on the timeline, so its date
+            is emitted as a DATES keyword (with its comment, if any) by
+            ``timeline.generate_schedule_text()``.
     """
     _validate_policy(on_unknown_well, "on_unknown_well")
     _validate_policy(on_unknown_event, "on_unknown_event")
     document = coalesce_simulator_events_document(document)
     report = ApplyReport()
-    report.report_dates = sorted({_iso_event_date(d) for d in document.report_dates})
     report.warnings.extend(
         f"{_loc_label(warning.loc)}: {warning.message}" for warning in document.warnings
     )
@@ -2113,6 +2151,9 @@ def apply_simulator_events_document(
 
     for event in document.schedule_events:
         _apply_schedule_event(event, timeline, report)
+
+    for event in document.insert_date_events:
+        _apply_insert_date_event(event, timeline, report)
 
     return report
 
@@ -2372,6 +2413,18 @@ def _apply_schedule_event(
         _record_event_exception(event, exc, report)
         return
     _apply_event_comment(event, timeline_event)
+    report.events_applied += 1
+
+
+def _apply_insert_date_event(
+    event: SimulatorEvent, timeline: Any, report: ApplyReport
+) -> None:
+    """Apply one expanded ``INSERT_DATE`` occurrence, comment included."""
+    comment = event.attributes.get("COMMENT")
+    timeline.add_insert_date_event(
+        event_date=_iso_event_date(event.event_date),
+        comment="" if comment is None else str(comment.value),
+    )
     report.events_applied += 1
 
 
@@ -2748,8 +2801,6 @@ def _apply_to_running_instance(document: SimulatorEventsDocument) -> int:
 
     print(f"  Events applied: {report.events_applied}")
     print(f"  Events skipped: {report.events_skipped}")
-    if report.report_dates:
-        print(f"  Report dates:   {', '.join(report.report_dates)}")
     for warning in report.warnings:
         print(f"  Warning: {warning}")
     for error in report.errors:
@@ -2798,13 +2849,15 @@ def _cli(argv: Optional[List[str]] = None) -> int:
 
     event_count = sum(len(well.events) for well in document.wells)
     group_event_count = sum(len(group.events) for group in document.groups)
+    insert_date_count = len(document.insert_date_events)
+    schedule_event_count = len(document.schedule_events)
     print(f"{label}: OK (SIMEVENTS {document.version}, units {document.unit_system})")
     print(
         f"  {len(document.variables)} variable(s), {len(document.wells)} "
         f"well block(s), {event_count} well event(s), "
         f"{len(document.groups)} group block(s), {group_event_count} group event(s), "
-        f"{len(document.schedule_events)} schedule event(s), "
-        f"{len(document.report_dates)} report date(s)"
+        f"{schedule_event_count} schedule event(s), "
+        f"{insert_date_count} inserted date(s)"
     )
     normalized = coalesce_simulator_events_document(document)
     for warning in normalized.warnings:

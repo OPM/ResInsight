@@ -38,6 +38,7 @@ class RimWellEventControl;
 class RimWellEventKeyword;
 class RimKeywordEvent;
 class RimWellEventRawText;
+class RimWellEventInsertDate;
 class RimWellPath;
 class RimWellPathCollection;
 
@@ -73,16 +74,17 @@ public:
     std::vector<RimWellPath*>  getWellPathsWithEventsUpToDate( const QDateTime& date ) const;
 
     // Add event methods (return the created event for further configuration)
-    RimWellEventPerf*     addPerforationEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventValve*    addValveEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventTubing*   addTubingEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventState*    addStateEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventType*     addTypeEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventWellSpec* addWellSpecEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventControl*  addControlEvent( RimWellPath* wellPath, const QDateTime& date );
-    RimWellEventKeyword*  addWellKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName );
-    RimKeywordEvent*      addKeywordEvent( const QDateTime& date, const QString& keywordName );
-    RimWellEventRawText*  addRawTextEvent( const QDateTime& date );
+    RimWellEventPerf*       addPerforationEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventValve*      addValveEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventTubing*     addTubingEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventState*      addStateEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventType*       addTypeEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventWellSpec*   addWellSpecEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventControl*    addControlEvent( RimWellPath* wellPath, const QDateTime& date );
+    RimWellEventKeyword*    addWellKeywordEvent( RimWellPath* wellPath, const QDateTime& date, const QString& keywordName );
+    RimKeywordEvent*        addKeywordEvent( const QDateTime& date, const QString& keywordName );
+    RimWellEventRawText*    addRawTextEvent( const QDateTime& date );
+    RimWellEventInsertDate* addInsertDateEvent( const QDateTime& date );
 
     // Generic add event method
     void addEvent( RimWellEvent* event );

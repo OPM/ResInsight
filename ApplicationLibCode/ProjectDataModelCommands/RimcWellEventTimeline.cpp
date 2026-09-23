@@ -23,6 +23,7 @@
 #include "RimEclipseCase.h"
 #include "RimKeywordEvent.h"
 #include "RimWellEventControl.h"
+#include "RimWellEventInsertDate.h"
 #include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
 #include "RimWellEventRawText.h"
@@ -708,6 +709,46 @@ QString RimcWellEventTimeline_addRawTextEvent::classKeywordReturnedType() const
     return RimWellEventRawText::classKeywordStatic();
 }
 
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_addInsertDateEvent, "AddInsertDateEventInternal" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellEventTimeline_addInsertDateEvent::RimcWellEventTimeline_addInsertDateEvent( caf::PdmObjectHandle* self )
+    : caf::PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Add Insert Date Event", "", "", "Add a date that is emitted as a DATES keyword even when no other event falls on it" );
+
+    CAF_PDM_InitScriptableField( &m_eventDate, "EventDate", QString( "2024-01-01" ), "", "", "", "Event Date (YYYY-MM-DD)" );
+    CAF_PDM_InitScriptableField( &m_comment, "Comment", QString(), "", "", "", "Comment emitted below the generated date" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_addInsertDateEvent::execute()
+{
+    auto timeline = self<RimWellEventTimeline>();
+
+    QDateTime date = QDateTime::fromString( m_eventDate(), Qt::ISODate );
+    if ( !date.isValid() )
+    {
+        return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( m_eventDate() ) );
+    }
+
+    auto* event = timeline->addInsertDateEvent( date );
+    event->setComment( m_comment() );
+    return event;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimcWellEventTimeline_addInsertDateEvent::classKeywordReturnedType() const
+{
+    return RimWellEventInsertDate::classKeywordStatic();
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellEventTimeline, RimcWellEventTimeline_setTimestamp, "SetTimestamp" );
 
 //--------------------------------------------------------------------------------------------------
@@ -776,13 +817,6 @@ RimcWellEventTimeline_generateSchedule::RimcWellEventTimeline_generateSchedule( 
                                  "",
                                  "",
                                  "Emit a column-header comment and right-aligned, fixed-width columns instead of the compact form" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_additionalDates,
-                                          "AdditionalDates",
-                                          "",
-                                          "",
-                                          "",
-                                          "Additional dates (YYYY-MM-DD or full ISO timestamp) emitted as DATES keywords, e.g. to "
-                                          "force summary reports at those dates" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -814,6 +848,15 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
 
         // Get only well paths that have events up to the last applied timestamp
         wellPathsWithEvents = timeline->getWellPathsWithEventsUpToDate( lastTimestamp );
+
+        // Insert-date events only force a DATES keyword (e.g. to trigger a summary report), so
+        // they are deliberately not filtered by the last applied timestamp.
+        std::set<QDateTime> mergedDates( dates.begin(), dates.end() );
+        for ( const auto* event : timeline->getEventsByType( RimWellEvent::EventType::INSERT_DATE ) )
+        {
+            if ( event->eventDate().isValid() ) mergedDates.insert( event->eventDate() );
+        }
+        dates.assign( mergedDates.begin(), mergedDates.end() );
     }
     else
     {
@@ -822,27 +865,9 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
         wellPathsWithEvents = timeline->getWellPathsWithEvents();
     }
 
-    // Merge in user-specified additional dates: each becomes a DATES keyword even when no events
-    // fall on it (e.g. to force a summary report). They are deliberately not filtered by the last
-    // applied timestamp.
-    if ( !m_additionalDates().empty() )
-    {
-        std::set<QDateTime> mergedDates( dates.begin(), dates.end() );
-        for ( const QString& dateString : m_additionalDates() )
-        {
-            QDateTime additionalDate = QDateTime::fromString( dateString, Qt::ISODate );
-            if ( !additionalDate.isValid() )
-            {
-                return std::unexpected( QString( "Invalid date format: %1. Expected YYYY-MM-DD" ).arg( dateString ) );
-            }
-            mergedDates.insert( additionalDate );
-        }
-        dates.assign( mergedDates.begin(), mergedDates.end() );
-    }
-
     if ( dates.empty() )
     {
-        return std::unexpected( QString( "No events or additional dates found in timeline" ) );
+        return std::unexpected( QString( "No events found in timeline" ) );
     }
 
     std::vector<RimWellPath*>    mswWellPaths = m_exportMswForWells.ptrReferencedObjectsByType();

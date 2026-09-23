@@ -49,7 +49,8 @@ public:
         WCONTROL,
         KEYWORD,
         SCHEDULE_KEYWORD,
-        RAW_TEXT
+        RAW_TEXT,
+        INSERT_DATE
     };
 
     RimWellEvent();

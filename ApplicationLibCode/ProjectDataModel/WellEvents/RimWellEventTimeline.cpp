@@ -21,6 +21,7 @@
 #include "RimKeywordEvent.h"
 #include "RimWellEvent.h"
 #include "RimWellEventControl.h"
+#include "RimWellEventInsertDate.h"
 #include "RimWellEventKeyword.h"
 #include "RimWellEventPerf.h"
 #include "RimWellEventRawText.h"
@@ -349,6 +350,18 @@ RimKeywordEvent* RimWellEventTimeline::addKeywordEvent( const QDateTime& date, c
 RimWellEventRawText* RimWellEventTimeline::addRawTextEvent( const QDateTime& date )
 {
     auto* event = new RimWellEventRawText();
+    event->setEventDate( date );
+    m_events.push_back( event );
+    updateEditorsAfterEventChange();
+    return event;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellEventInsertDate* RimWellEventTimeline::addInsertDateEvent( const QDateTime& date )
+{
+    auto* event = new RimWellEventInsertDate();
     event->setEventDate( date );
     m_events.push_back( event );
     updateEditorsAfterEventChange();

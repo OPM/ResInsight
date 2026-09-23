@@ -20,6 +20,7 @@
 
 #include "RimKeywordEvent.h"
 #include "RimWellEventControl.h"
+#include "RimWellEventInsertDate.h"
 #include "RimWellEventPerf.h"
 #include "RimWellEventRawText.h"
 #include "RimWellEventState.h"
@@ -245,6 +246,24 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
+class RimcWellEventTimeline_addInsertDateEvent : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellEventTimeline_addInsertDateEvent( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_eventDate;
+    caf::PdmField<QString> m_comment;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RimcWellEventTimeline_setTimestamp : public caf::PdmVoidObjectMethod
 {
     CAF_PDM_HEADER_INIT;
@@ -276,5 +295,4 @@ private:
     caf::PdmPtrArrayField<RimWellPath*> m_exportMswForWells;
     caf::PdmField<bool>                 m_firstDateAsComment;
     caf::PdmField<bool>                 m_alignColumns;
-    caf::PdmField<std::vector<QString>> m_additionalDates;
 };

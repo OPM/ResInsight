@@ -251,12 +251,14 @@ def main():
 
         # Generate schedule text. Pass the wells that should get multi-segment-well
         # keywords (WELSEGS, COMPSEGS, WSEGVALV, WSEGAICD); an empty list omits them.
-        # additional_dates are emitted as bare DATES keywords even when no events
+        # Insert-date events are emitted as bare DATES keywords even when no other events
         # fall on them - in Eclipse/Flow a DATES entry ensures a summary report.
+        timeline.add_insert_date_event(
+            event_date="2024-07-01", comment="Summary report only"
+        )
         schedule_text = timeline.generate_schedule_text(
             eclipse_case=case,
             export_msw_for_wells=[well_path],
-            additional_dates=["2024-07-01"],
         )
 
         # Generate the same schedule with align_columns=True, which adds a "--"-prefixed
