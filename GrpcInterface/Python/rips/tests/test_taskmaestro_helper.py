@@ -97,14 +97,26 @@ def test_collect_schema_returns_workflow_name_and_tasks(workflow_dir: Path) -> N
     schema = collect_schema(workflow_dir)
     assert schema["name"] == "synthetic"
     task_names = [t["name"] for t in schema["tasks"]]
-    assert task_names == ["greet"]  # Start has no config_fields, so omitted
+    assert task_names == ["start", "greet"]
+    assert schema["tasks"][0]["config_fields"] == []
+    assert schema["tasks"][0]["inputs"] == []
+    assert schema["tasks"][0]["outputs"] == []
+    assert schema["tasks"][1]["inputs"] == [
+        "name",
+        "out_dir",
+        "out_file",
+        "times",
+        "when",
+    ]
+    assert schema["tasks"][1]["outputs"] == ["message"]
+    assert schema["edges"] == [{"from": "start", "to": "greet"}]
 
 
 def test_collect_schema_extracts_field_types_and_metadata(workflow_dir: Path) -> None:
     from rips.taskmaestro_helper.introspect import collect_schema
 
     schema = collect_schema(workflow_dir)
-    [greet] = schema["tasks"]
+    greet = schema["tasks"][1]
     fields_by_name = {f["name"]: f for f in greet["config_fields"]}
 
     # input.yaml has `name: alice`, so that wins over the Pydantic default "world"
@@ -134,6 +146,36 @@ def test_collect_schema_extracts_field_types_and_metadata(workflow_dir: Path) ->
     assert fields_by_name["out_dir"]["format"] == "directory-path"
     assert fields_by_name["out_dir"]["required"] is True
     assert fields_by_name["out_dir"]["default"] == "/tmp"
+
+
+def test_object_model_value_is_not_an_output_port() -> None:
+    from pydantic import BaseModel
+    from taskmaestro import ObjectModel
+
+    from rips.taskmaestro_helper.introspect import _output_fields
+
+    class WrappedOutput(ObjectModel[str]):
+        other: int
+
+    class PlainOutput(BaseModel):
+        value: str
+        other: int
+
+    assert _output_fields(WrappedOutput) == ["other"]
+    assert _output_fields(PlainOutput) == ["other", "value"]
+
+
+def test_dependency_edges_cover_fan_in_and_field_routing() -> None:
+    from rips.taskmaestro_helper.introspect import _dependency_edges
+
+    assert _dependency_edges("root", None) == []
+    assert _dependency_edges("next", ("producer", "value")) == [
+        {"from": "producer", "to": "next", "output": "value"}
+    ]
+    assert _dependency_edges("merge", {"b": ("second", "value"), "a": "first"}) == [
+        {"from": "first", "to": "merge", "input": "a"},
+        {"from": "second", "to": "merge", "input": "b", "output": "value"},
+    ]
 
 
 def test_resolve_refs_substitutes_object_model_value() -> None:
@@ -183,4 +225,5 @@ def test_main_emits_json_to_stdout(workflow_dir: Path) -> None:
     )
     payload = json.loads(proc.stdout)
     assert payload["name"] == "synthetic"
-    assert {t["name"] for t in payload["tasks"]} == {"greet"}
+    assert {t["name"] for t in payload["tasks"]} == {"start", "greet"}
+    assert payload["edges"] == [{"from": "start", "to": "greet"}]

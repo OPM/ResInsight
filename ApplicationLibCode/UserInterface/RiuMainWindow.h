@@ -53,6 +53,7 @@ class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
 class RiuSeismicHistogramPanel;
 class RiuCellSelectionTool;
+class RiuWorkflowGraphView;
 
 class RicGridCalculatorDialog;
 
@@ -138,6 +139,7 @@ private:
     void createMenus();
     void createToolBars();
     void createDockPanels();
+    void showWorkflowGraph( class RimWorkflow* workflow );
 
     void restoreTreeViewState();
 
@@ -277,4 +279,6 @@ private:
     QToolBar* m_holoLensToolBar;
 
     std::vector<QPointer<ads::CDockWidget>> m_additionalProjectViews;
+    QPointer<ads::CDockWidget>              m_workflowGraphDock;
+    QPointer<RiuWorkflowGraphView>          m_workflowGraphView;
 };

@@ -51,6 +51,7 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewWindow.h"
+#include "Workflow/RimWorkflow.h"
 
 #include "RiuCellSelectionTool.h"
 #include "RiuDepthQwtPlot.h"
@@ -70,6 +71,7 @@
 #include "RiuTools.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
+#include "RiuWorkflowGraphView.h"
 
 #include "cafAnimationToolBar.h"
 #include "cafCmdExecCommandManager.h"
@@ -1278,6 +1280,7 @@ std::vector<RimViewWindow*> RiuMainWindow::viewWindows()
 void RiuMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
 {
     m_pdmRoot = pdmRoot;
+    if ( !pdmRoot && m_workflowGraphView ) m_workflowGraphView->showGraph( {}, {} );
 
     for ( auto tv : projectTreeViews() )
     {
@@ -1533,6 +1536,11 @@ void RiuMainWindow::selectedObjectsChanged()
     m_pdmUiPropertyView->showProperties( firstSelectedObject );
     m_seismicHistogramPanel->showHistogram( firstSelectedObject );
 
+    if ( uiItems.size() == 1 )
+    {
+        if ( auto* workflow = dynamic_cast<RimWorkflow*>( firstSelectedObject ) ) showWorkflowGraph( workflow );
+    }
+
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
     {
         // Find the reservoir view or the Plot that the selected item is within
@@ -1590,6 +1598,24 @@ void RiuMainWindow::selectedObjectsChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showWorkflowGraph( RimWorkflow* workflow )
+{
+    if ( !m_workflowGraphDock )
+    {
+        m_workflowGraphDock = RiuDockWidgetTools::createDockWidget( "Workflow", "WorkflowGraph", dockManager() );
+        m_workflowGraphView = new RiuWorkflowGraphView( m_workflowGraphDock );
+        m_workflowGraphDock->setWidget( m_workflowGraphView );
+        dockManager()->addDockWidget( ads::DockWidgetArea::CenterDockWidgetArea,
+                                      m_workflowGraphDock,
+                                      dockManager()->centralWidget()->dockAreaWidget() );
+    }
+
+    m_workflowGraphDock->setWindowTitle( QString( "Workflow: %1" ).arg( workflow->name() ) );
+    m_workflowGraphView->showGraph( workflow->graph(), workflow->loadError() );
+    m_workflowGraphDock->toggleView( true );
+    m_workflowGraphDock->setAsCurrentTab();
+}
+
 void RiuMainWindow::slotNewObjectPropertyView()
 {
     ads::CDockWidget* dockWidget =
