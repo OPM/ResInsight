@@ -77,6 +77,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMessageDialog.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowJobRunner.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowGraphView.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotObjectPicker.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuContextMenuLauncher.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryCurveDefinitionKeywords.h
@@ -194,6 +195,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMessageDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowJobRunner.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowGraphView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotObjectPicker.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuContextMenuLauncher.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionUi.cpp

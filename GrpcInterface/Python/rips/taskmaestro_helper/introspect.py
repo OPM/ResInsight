@@ -112,6 +112,38 @@ def _field_schema(
     return entry
 
 
+def _dependency_edges(task_name: str, deps: Any) -> list[dict[str, str]]:
+    """Flatten taskmaestro's resolved dependency forms into directed edges."""
+    if deps is None:
+        return []
+    if isinstance(deps, str):
+        return [{"from": deps, "to": task_name}]
+    if isinstance(deps, tuple):
+        return [{"from": deps[0], "to": task_name, "output": deps[1]}]
+
+    edges = []
+    for input_name, upstream in sorted(deps.items()):
+        edge = {
+            "from": upstream[0] if isinstance(upstream, tuple) else upstream,
+            "to": task_name,
+            "input": input_name,
+        }
+        if isinstance(upstream, tuple):
+            edge["output"] = upstream[1]
+        edges.append(edge)
+    return edges
+
+
+def _output_fields(output_type: type) -> list[str]:
+    """Expose output fields, but not ObjectModel's internal wrapped value."""
+    from taskmaestro import ObjectModel
+
+    fields = set(output_type.model_fields)
+    if issubclass(output_type, ObjectModel):
+        fields.discard("value")
+    return sorted(fields)
+
+
 def collect_schema(workflow_dir: Path) -> dict[str, Any]:
     """Load the workflow at `workflow_dir` and produce its UI schema."""
     workflow_yaml = workflow_dir / "workflow.yaml"
@@ -125,7 +157,7 @@ def collect_schema(workflow_dir: Path) -> dict[str, Any]:
     if workflow_dir_str not in sys.path:
         sys.path.insert(0, workflow_dir_str)
 
-    from taskmaestro.task import get_input_type
+    from taskmaestro.task import get_input_type, get_output_type
     from taskmaestro.yaml_config import _load_workflow_only
 
     wf, jc = _load_workflow_only(
@@ -134,11 +166,10 @@ def collect_schema(workflow_dir: Path) -> dict[str, Any]:
     )
 
     tasks: list[dict[str, Any]] = []
+    edges: list[dict[str, str]] = []
     for task_name, task_cls in wf.topological_order():
+        edges.extend(_dependency_edges(task_name, wf.get_dependencies(task_name)))
         config_field_names = wf.get_config_fields(task_name)
-        if not config_field_names:
-            continue
-
         task_config = jc.get_config_for_task(task_name) if jc is not None else {}
 
         input_type = get_input_type(task_cls)
@@ -160,12 +191,20 @@ def collect_schema(workflow_dir: Path) -> dict[str, Any]:
                 _field_schema(field_name, field_info, input_value=input_value)
             )
 
-        tasks.append({"name": task_name, "config_fields": config_fields})
+        tasks.append(
+            {
+                "name": task_name,
+                "inputs": sorted(input_type.model_fields),
+                "outputs": _output_fields(get_output_type(task_cls)),
+                "config_fields": config_fields,
+            }
+        )
 
     return {
         "name": wf.name,
         "description": "",
         "tasks": tasks,
+        "edges": edges,
     }
 
 

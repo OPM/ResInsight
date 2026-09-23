@@ -23,6 +23,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QJsonObject>
+
 class RimWorkflowJob;
 
 class RimWorkflow : public caf::PdmObject
@@ -32,9 +34,11 @@ class RimWorkflow : public caf::PdmObject
 public:
     RimWorkflow();
 
-    QString name() const;
-    void    setWorkflowDirectory( const QString& directory );
-    QString workflowDirectory() const;
+    QString     name() const;
+    void        setWorkflowDirectory( const QString& directory );
+    QString     workflowDirectory() const;
+    QJsonObject graph() const;
+    QString     loadError() const;
 
     bool loadFromDirectory( QString* errorMessage = nullptr );
 
@@ -52,4 +56,5 @@ private:
     caf::PdmField<caf::FilePath>             m_workflowDirectory;
     caf::PdmField<QString>                   m_loadError;
     caf::PdmChildArrayField<RimWorkflowJob*> m_jobs;
+    QJsonObject                              m_graph;
 };

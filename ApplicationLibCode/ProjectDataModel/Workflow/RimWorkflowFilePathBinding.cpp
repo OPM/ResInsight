@@ -44,6 +44,12 @@ void RimWorkflowFilePathBinding::applySchema( const QJsonObject& fieldSchema )
     }
 }
 
+QString RimWorkflowFilePathBinding::displayValue() const
+{
+    const QString path = m_value().path();
+    return path.isEmpty() ? "(not set)" : path;
+}
+
 QString RimWorkflowFilePathBinding::toYamlValue() const
 {
     QString p = m_value().path();

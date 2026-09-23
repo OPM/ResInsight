@@ -28,6 +28,11 @@ RimWorkflowWellPathBinding::RimWorkflowWellPathBinding()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
 }
 
+QString RimWorkflowWellPathBinding::displayValue() const
+{
+    return m_wellPath() ? m_wellPath()->name() : "(not selected)";
+}
+
 QString RimWorkflowWellPathBinding::toYamlValue() const
 {
     if ( m_wellPath() == nullptr ) return "null";

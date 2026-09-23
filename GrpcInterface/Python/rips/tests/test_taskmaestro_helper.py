@@ -97,14 +97,26 @@ def test_collect_schema_returns_workflow_name_and_tasks(workflow_dir: Path) -> N
     schema = collect_schema(workflow_dir)
     assert schema["name"] == "synthetic"
     task_names = [t["name"] for t in schema["tasks"]]
-    assert task_names == ["greet"]  # Start has no config_fields, so omitted
+    assert task_names == ["start", "greet"]
+    assert schema["tasks"][0]["config_fields"] == []
+    assert schema["tasks"][0]["inputs"] == []
+    assert schema["tasks"][0]["outputs"] == []
+    assert schema["tasks"][1]["inputs"] == [
+        "name",
+        "out_dir",
+        "out_file",
+        "times",
+        "when",
+    ]
+    assert schema["tasks"][1]["outputs"] == ["message"]
+    assert schema["edges"] == [{"from": "start", "to": "greet"}]
 
 
 def test_collect_schema_extracts_field_types_and_metadata(workflow_dir: Path) -> None:
     from rips.taskmaestro_helper.introspect import collect_schema
 
     schema = collect_schema(workflow_dir)
-    [greet] = schema["tasks"]
+    greet = schema["tasks"][1]
     fields_by_name = {f["name"]: f for f in greet["config_fields"]}
 
     # input.yaml has `name: alice`, so that wins over the Pydantic default "world"
@@ -134,6 +146,36 @@ def test_collect_schema_extracts_field_types_and_metadata(workflow_dir: Path) ->
     assert fields_by_name["out_dir"]["format"] == "directory-path"
     assert fields_by_name["out_dir"]["required"] is True
     assert fields_by_name["out_dir"]["default"] == "/tmp"
+
+
+def test_object_model_value_is_not_an_output_port() -> None:
+    from pydantic import BaseModel
+    from taskmaestro import ObjectModel
+
+    from rips.taskmaestro_helper.introspect import _output_fields
+
+    class WrappedOutput(ObjectModel[str]):
+        other: int
+
+    class PlainOutput(BaseModel):
+        value: str
+        other: int
+
+    assert _output_fields(WrappedOutput) == ["other"]
+    assert _output_fields(PlainOutput) == ["other", "value"]
+
+
+def test_dependency_edges_cover_fan_in_and_field_routing() -> None:
+    from rips.taskmaestro_helper.introspect import _dependency_edges
+
+    assert _dependency_edges("root", None) == []
+    assert _dependency_edges("next", ("producer", "value")) == [
+        {"from": "producer", "to": "next", "output": "value"}
+    ]
+    assert _dependency_edges("merge", {"b": ("second", "value"), "a": "first"}) == [
+        {"from": "first", "to": "merge", "input": "a"},
+        {"from": "second", "to": "merge", "input": "b", "output": "value"},
+    ]
 
 
 def test_resolve_refs_substitutes_object_model_value() -> None:
@@ -166,6 +208,138 @@ def test_resolve_refs_substitutes_object_model_value() -> None:
     assert out["untouched"] == "stays"
 
 
+def test_progress_hook_reports_named_task_instances(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from types import SimpleNamespace
+
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+
+    hook = ProgressHook("run-123")
+    task = SimpleNamespace(name="add_perf_1")
+    hook.on_task_start(None, task)
+    hook.on_task_complete(None, task, None)
+    hook.on_task_fail(None, task, ValueError("bad range"))
+
+    lines = capsys.readouterr().out.splitlines()
+    assert len(lines) == 3
+    events = [json.loads(line.removeprefix(PROGRESS_PREFIX)) for line in lines]
+    assert all(line.startswith(PROGRESS_PREFIX) for line in lines)
+    assert [event["state"] for event in events] == ["running", "completed", "failed"]
+    assert all(
+        event["task"] == "add_perf_1" and event["run_id"] == "run-123"
+        for event in events
+    )
+    assert events[-1]["error"] == "bad range"
+    assert all("output" not in event for event in events)
+
+
+def test_progress_hook_follows_runner_instance_names(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from taskmaestro import EmptyConfig, ExecutionContext, Job, Runner, Task, Workflow
+
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+
+    class Step(Task[EmptyConfig, EmptyConfig]):
+        name = "step"
+
+        def run(self, input: EmptyConfig, ctx: ExecutionContext) -> EmptyConfig:
+            return EmptyConfig()
+
+    workflow = (
+        Workflow.builder("two_steps")
+        .add_task(Step, name="first")
+        .add_task(Step, name="second", depends_on="first")
+        .build()
+    )
+    Runner(hooks=[ProgressHook("run-456")]).run(
+        Job(workflow, EmptyConfig()), ctx=ExecutionContext()
+    )
+    events = [
+        json.loads(line.removeprefix(PROGRESS_PREFIX))
+        for line in capsys.readouterr().out.splitlines()
+        if line.startswith(PROGRESS_PREFIX)
+    ]
+    assert [(event["task"], event["state"]) for event in events] == [
+        ("first", "running"),
+        ("first", "completed"),
+        ("second", "running"),
+        ("second", "completed"),
+    ]
+
+
+def test_progress_hook_reports_runner_failure(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from taskmaestro import EmptyConfig, ExecutionContext, Job, Runner, Task, Workflow
+
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+
+    class Fails(Task[EmptyConfig, EmptyConfig]):
+        name = "fails"
+
+        def run(self, input: EmptyConfig, ctx: ExecutionContext) -> EmptyConfig:
+            raise ValueError("bad range")
+
+    workflow = Workflow.builder("failure").add_task(Fails, name="add_perf_1").build()
+    result = Runner(hooks=[ProgressHook("run-789")]).run(
+        Job(workflow, EmptyConfig()), ctx=ExecutionContext()
+    )
+    assert result.error == "bad range"
+    events = [
+        json.loads(line.removeprefix(PROGRESS_PREFIX))
+        for line in capsys.readouterr().out.splitlines()
+        if line.startswith(PROGRESS_PREFIX)
+    ]
+    assert [(event["task"], event["state"]) for event in events] == [
+        ("add_perf_1", "running"),
+        ("add_perf_1", "failed"),
+    ]
+    assert events[-1]["error"] == "bad range"
+
+
+def test_run_helper_emits_progress_without_grpc(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import rips
+
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, run_workflow
+
+    (tmp_path / "progress_pipeline.py").write_text(
+        "from taskmaestro import EmptyConfig, ExecutionContext, Task\n"
+        "class Start(Task[EmptyConfig, EmptyConfig]):\n"
+        "    name = 'start'\n"
+        "    def run(self, input: EmptyConfig, ctx: ExecutionContext) -> EmptyConfig:\n"
+        "        return EmptyConfig()\n"
+        "class Done(Task[EmptyConfig, EmptyConfig]):\n"
+        "    name = 'done'\n"
+        "    def run(self, input: EmptyConfig, ctx: ExecutionContext) -> EmptyConfig:\n"
+        "        return EmptyConfig()\n"
+    )
+    (tmp_path / "workflow.yaml").write_text(
+        "workflow:\n  name: progress_test\n  tasks:\n"
+        "    - task: progress_pipeline.Start\n    - task: progress_pipeline.Done\n"
+    )
+    input_path = tmp_path / "input.yaml"
+    input_path.write_text("{}\n")
+    monkeypatch.setattr(rips.Instance, "find", lambda **kwargs: object())
+
+    assert run_workflow(tmp_path, input_path, 1234, "run-456") == 0
+    events = [
+        json.loads(line.removeprefix(PROGRESS_PREFIX))
+        for line in capsys.readouterr().out.splitlines()
+        if line.startswith(PROGRESS_PREFIX)
+    ]
+    assert [(event["task"], event["state"]) for event in events] == [
+        ("start", "running"),
+        ("start", "completed"),
+        ("done", "running"),
+        ("done", "completed"),
+    ]
+    assert all(event["run_id"] == "run-456" for event in events)
+
+
 def test_main_emits_json_to_stdout(workflow_dir: Path) -> None:
     rips_root = Path(__file__).resolve().parents[2]
     proc = subprocess.run(
@@ -183,4 +357,5 @@ def test_main_emits_json_to_stdout(workflow_dir: Path) -> None:
     )
     payload = json.loads(proc.stdout)
     assert payload["name"] == "synthetic"
-    assert {t["name"] for t in payload["tasks"]} == {"greet"}
+    assert {t["name"] for t in payload["tasks"]} == {"start", "greet"}
+    assert payload["edges"] == [{"from": "start", "to": "greet"}]
