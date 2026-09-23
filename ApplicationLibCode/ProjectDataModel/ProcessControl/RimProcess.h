@@ -46,13 +46,20 @@ public:
 
     void addEnvironmentVariable( QString name, QString value );
 
-    void setWorkingDirectory( QString directory );
+    const std::vector<std::pair<QString, QString>>& environmentVariables() const;
+
+    void    setWorkingDirectory( QString directory );
+    QString workingDirectory() const;
 
     QString commandLine() const;
 
     QString     command() const;
     QStringList parameters() const;
     size_t      ID() const;
+    QString     description() const;
+
+    bool useWsl() const;
+    void setUseWsl( bool useWsl );
 
     // blocking run
     bool execute( bool enableStdOut = true, bool enableStdErr = true );
@@ -81,6 +88,7 @@ private:
     caf::PdmField<QString>       m_description;
     caf::PdmField<size_t>        m_id;
     caf::PdmField<caf::FilePath> m_workDir;
+    caf::PdmField<bool>          m_useWsl;
 
     std::vector<std::pair<QString, QString>> m_environmentVariables;
 

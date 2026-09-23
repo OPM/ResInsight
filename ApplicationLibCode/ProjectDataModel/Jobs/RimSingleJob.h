@@ -28,6 +28,7 @@
 #include <map>
 
 class RimProcess;
+class RimBatchQueue;
 
 //==================================================================================================
 ///
@@ -60,6 +61,7 @@ protected:
     virtual bool                       onRun()                             = 0;
     virtual void                       onCompleted( bool success )         = 0;
     virtual void                       onProgress( double percentageDone ) = 0;
+    virtual bool                       shouldUseWsl()                      = 0;
 
 protected:
     double m_percentageDone;
@@ -67,5 +69,6 @@ protected:
     int    m_errorsDetected;
 
 private:
-    caf::PdmPointer<RimProcess> m_process;
+    caf::PdmPointer<RimProcess>    m_process;
+    caf::PdmPointer<RimBatchQueue> m_queue;
 };
