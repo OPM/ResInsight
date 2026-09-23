@@ -109,7 +109,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateSchedule( cons
 
     // Generate section for each date. The first retained date may be emitted as a comment instead
     // of a DATES keyword when firstDateAsComment is set. A RESTART marker truncates earlier dates,
-    // including user-specified additional report dates.
+    // including dates that only carry an insert-date event.
     bool isFirstDate = true;
     for ( const auto& date : dates )
     {
@@ -252,6 +252,19 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
     {
         result += serializeKeyword( RimKeywordFactory::datesKeyword( date ) ) + "\n";
     }
+
+    // Comments from insert-date events describe the date itself, and are emitted directly below it.
+    for ( const auto* event : events )
+    {
+        if ( event->eventType() != RimWellEvent::EventType::INSERT_DATE ) continue;
+        if ( event->comment().isEmpty() ) continue;
+
+        for ( QString line : event->comment().split( '\n' ) )
+        {
+            line.remove( '\r' );
+            result += line.isEmpty() ? "--\n" : QString( "-- %1\n" ).arg( line );
+        }
+    }
     appendRawText( RimWellEventRawText::Placement::AFTER_DATE );
 
     // Records for each keyword name are accumulated across wells, then serialised once below.
@@ -320,7 +333,7 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
                 const auto* keywordEvent = dynamic_cast<const RimKeywordEvent*>( event );
                 isRelevant               = keywordEvent && keywordEvent->keywordName().compare( keywordName, Qt::CaseInsensitive ) == 0;
             }
-            else if ( event->eventType() == RimWellEvent::EventType::RAW_TEXT )
+            else if ( event->eventType() == RimWellEvent::EventType::RAW_TEXT || event->eventType() == RimWellEvent::EventType::INSERT_DATE )
             {
                 continue;
             }

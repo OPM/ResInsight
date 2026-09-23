@@ -195,6 +195,7 @@ class FakeTimeline:
         self.wellspec_calls = []
         self.schedule_keyword_calls = []
         self.raw_text_calls = []
+        self.insert_date_calls = []
         self.created_events = []
 
     def add_perf_event(self, **kwargs):
@@ -236,6 +237,10 @@ class FakeTimeline:
         self.raw_text_calls.append(kwargs)
         return self._new_event()
 
+    def add_insert_date_event(self, **kwargs):
+        self.insert_date_calls.append(kwargs)
+        return self._new_event()
+
 
 # ---------------------------------------------------------------------------
 # Layer A: parsing
@@ -261,7 +266,7 @@ class TestParsing:
         text = example["build_simulator_events_text"]("W", with_filter)
         doc = parse_simulator_events(text)
         assert doc.wells[0].well_name == "W"
-        assert doc.report_dates[-1] == datetime.datetime(2024, 10, 1)
+        assert doc.insert_dates[-1] == datetime.datetime(2024, 10, 1)
 
     def test_date_declarations_with_day_offset(self):
         doc = parse_simulator_events(SAMPLE)
@@ -381,7 +386,7 @@ class TestParsing:
             '2024-01-01 + -1d INSERT_DATE EVERY=1d UNTIL="2024-01-05 + -2d"\n'
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
+        assert doc.insert_dates == [
             datetime.datetime(2023, 12, 31),
             datetime.datetime(2024, 1, 1),
             datetime.datetime(2024, 1, 2),
@@ -719,7 +724,7 @@ class TestParsing:
             "START + 31d INSERT_DATE\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
+        assert doc.insert_dates == [
             datetime.datetime(2024, 6, 1),
             datetime.datetime(2024, 2, 1),
         ]
@@ -729,7 +734,7 @@ class TestParsing:
             "SIMEVENTS 1.2\nSCHEDULE\n2024-06-01 INSERT_DATE\n2024-06-01 INSERT_DATE\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [datetime.datetime(2024, 6, 1)] * 2
+        assert doc.insert_dates == [datetime.datetime(2024, 6, 1)] * 2
 
     def test_insert_date_is_only_valid_in_schedule_block(self):
         with pytest.raises(SimulatorEventsParseError, match="only valid in a SCHEDULE"):
@@ -755,7 +760,7 @@ class TestParsing:
     def test_report_with_datetime_literal(self):
         text = "SIMEVENTS 1.2\nSCHEDULE\n2024-06-01T14:45:30.700 INSERT_DATE\n"
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [datetime.datetime(2024, 6, 1, 14, 45, 31)]
+        assert doc.insert_dates == [datetime.datetime(2024, 6, 1, 14, 45, 31)]
 
     def test_daily_report_recurrence_with_inclusive_until(self):
         text = (
@@ -766,7 +771,7 @@ class TestParsing:
             "START + 1d INSERT_DATE EVERY=2d UNTIL=END\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
+        assert doc.insert_dates == [
             datetime.datetime(2024, 1, 2),
             datetime.datetime(2024, 1, 4),
         ]
@@ -777,7 +782,7 @@ class TestParsing:
             "2024-01-31 INSERT_DATE EVERY=1mon UNTIL=2024-04-30\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
+        assert doc.insert_dates == [
             datetime.datetime(2024, 1, 31),
             datetime.datetime(2024, 2, 29),
             datetime.datetime(2024, 3, 31),
@@ -790,7 +795,7 @@ class TestParsing:
             "2024-02-29 INSERT_DATE EVERY=12mon UNTIL=2028-02-29\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
+        assert doc.insert_dates == [
             datetime.datetime(2024, 2, 29),
             datetime.datetime(2025, 2, 28),
             datetime.datetime(2026, 2, 28),
@@ -807,7 +812,7 @@ class TestParsing:
             "  2024-03-15 WCONHIST STATUS=OPEN\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
+        assert doc.insert_dates == [
             datetime.datetime(2024, 1, 1),
             datetime.datetime(2024, 2, 1),
             datetime.datetime(2024, 3, 1),
@@ -821,7 +826,7 @@ class TestParsing:
             "UNTIL=2024-06-02T14:45:30.700\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
+        assert doc.insert_dates == [
             datetime.datetime(2024, 6, 1, 14, 45, 31),
             datetime.datetime(2024, 6, 2, 14, 45, 31),
         ]
@@ -848,7 +853,7 @@ class TestParsing:
             + "SCHEDULE\n"
             + "".join(f"  {line}\n" for line in lines)
         )
-        return parse_simulator_events(text).report_dates
+        return parse_simulator_events(text).insert_dates
 
     def test_insert_date_every_accepts_duration_variable(self):
         dates = self._insert_dates(
@@ -914,30 +919,37 @@ class TestParsing:
         dates = self._insert_dates("2024-01-01 insert_date every=1d until=2024-01-02")
         assert dates == [datetime.datetime(2024, 1, 1), datetime.datetime(2024, 1, 2)]
 
-    def test_insert_date_comment_is_accepted_and_ignored(self):
+    def test_insert_date_comment_is_kept_for_every_occurrence(self):
         text = (
             "SIMEVENTS 1.2\nSCHEDULE\n"
             '  2024-01-01 INSERT_DATE EVERY=1d UNTIL=2024-01-02 COMMENT="Daily"\n'
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
+        assert doc.insert_dates == [
             datetime.datetime(2024, 1, 1),
             datetime.datetime(2024, 1, 2),
         ]
+        # Each occurrence keeps the comment, and nothing else, of the statement.
+        for event in doc.insert_date_events:
+            assert set(event.attributes) == {"COMMENT"}
+            assert event.attributes["COMMENT"].value == "Daily"
         assert doc.schedule_events == []
         assert doc.warnings == []
 
-    def test_insert_date_does_not_create_schedule_event(self):
+    def test_insert_date_creates_insert_date_events_only(self):
         text = (
             "SIMEVENTS 1.2\nSCHEDULE\n"
             "  2024-01-01 RPTRST BASIC=1\n"
-            "  2024-02-01 INSERT_DATE\n"
+            '  2024-02-01 INSERT_DATE COMMENT="Report"\n'
         )
         doc = parse_simulator_events(text)
         assert [event.event_type for event in doc.schedule_events] == ["RPTRST"]
-        report = apply_simulator_events_document(doc, FakeTimeline(), FakeProject(()))
-        assert report.events_applied == 1
-        assert report.report_dates == ["2024-02-01"]
+        timeline = FakeTimeline()
+        report = apply_simulator_events_document(doc, timeline, FakeProject(()))
+        assert report.events_applied == 2
+        assert timeline.insert_date_calls == [
+            {"event_date": "2024-02-01", "comment": "Report"}
+        ]
 
     @pytest.mark.parametrize(
         ("attributes", "message"),
@@ -1215,7 +1227,7 @@ class TestDurations:
             "2024-01-31 + STEP INSERT_DATE EVERY=1d UNTIL=2024-01-31+STEP+1d\n"
         )
         doc = parse_simulator_events(text)
-        assert doc.report_dates == [
+        assert doc.insert_dates == [
             datetime.datetime(2024, 2, 29),
             datetime.datetime(2024, 3, 1),
         ]
@@ -1767,20 +1779,21 @@ class TestApplying:
         assert timeline.keyword_calls[0]["event_date"] == "2018-01-01"
         assert not report.warnings
 
-    def test_report_dates_on_apply_report(self):
+    def test_insert_dates_become_timeline_events(self):
         text = (
             'SIMEVENTS 1.2\nWELL "55_33-A-1"\n'
             "  2018-01-01 WCONHIST STATUS=OPEN\n"
             "SCHEDULE\n"
             "2018-07-01 INSERT_DATE\n"
-            "2018-03-01 INSERT_DATE\n"
-            "2018-07-01 INSERT_DATE\n"
+            '2018-03-01 INSERT_DATE COMMENT="Mid-year"\n'
         )
         timeline, report = self._apply(text)
-        # Sorted, deduplicated ISO strings ready for
-        # generate_schedule_text(additional_dates=...). No timeline events.
-        assert report.report_dates == ["2018-03-01", "2018-07-01"]
-        assert report.events_applied == 1
+        # One timeline event per inserted date, in document order.
+        assert timeline.insert_date_calls == [
+            {"event_date": "2018-07-01", "comment": ""},
+            {"event_date": "2018-03-01", "comment": "Mid-year"},
+        ]
+        assert report.events_applied == 3
 
     def test_radius_on_perforation_is_unknown_attribute_error(self):
         text = (
@@ -2346,7 +2359,8 @@ class TestMultipleFiles:
         assert len(merged.schedule_events) == 1
         assert set(merged.schedule_events[0].attributes) == {"BASIC", "FREQ"}
 
-        assert merged.report_dates == [
+        # The repeated 2018-02-01 insert date is reduced to one event.
+        assert merged.insert_dates == [
             datetime.datetime(2018, 2, 1),
             datetime.datetime(2018, 3, 1),
         ]
@@ -2491,8 +2505,9 @@ class TestMultipleFiles:
         out = capsys.readouterr().out
         assert f"{files[0]}, {files[1]}: OK" in out
         assert "2 well block(s), 4 well event(s)" in out
-        # One merged WCONHIST, two perforations, one GCONPROD and one RPTRST.
-        assert "Events applied: 5" in out
+        # One merged WCONHIST, two perforations, one GCONPROD, one RPTRST and
+        # two inserted dates (the repeated 2018-02-01 is applied once).
+        assert "Events applied: 7" in out
         assert len(timeline.keyword_calls) == 1
         assert len(timeline.perf_calls) == 2
 
@@ -2881,7 +2896,6 @@ class TestSimulatorEventsIntegration:
         schedule = timeline.generate_schedule_text(
             eclipse_case=case,
             first_date_as_comment=False,
-            additional_dates=report.report_dates,
         )
         assert "1 'JAN' 2024" not in schedule
         assert "15 'JAN' 2024" not in schedule
@@ -2893,23 +2907,30 @@ class TestSimulatorEventsIntegration:
         assert " 300" in schedule
         assert "RESTART\n" not in schedule
 
-    def test_report_only_document_generates_schedule(self, project_with_case_and_wells):
+    def test_insert_date_only_document_generates_schedule(
+        self, project_with_case_and_wells
+    ):
         project, case, timeline = project_with_case_and_wells
         document = parse_simulator_events(
-            "SIMEVENTS 1.2\nSCHEDULE\n2024-02-01 INSERT_DATE\n2024-06-01 INSERT_DATE\n"
+            "SIMEVENTS 1.2\nSCHEDULE\n"
+            '2024-02-01 INSERT_DATE EVERY=1mon UNTIL=2024-04-01 COMMENT="Quarterly"\n'
+            "2024-06-01 INSERT_DATE\n"
         )
 
         report = apply_simulator_events_document(document, timeline, project)
         schedule = timeline.generate_schedule_text(
             eclipse_case=case,
             first_date_as_comment=False,
-            additional_dates=report.report_dates,
         )
 
-        assert report.events_applied == 0
-        assert report.report_dates == ["2024-02-01", "2024-06-01"]
+        # Three occurrences of the recurring statement plus the single date.
+        assert report.events_applied == 4
         assert "1 'FEB' 2024" in schedule
+        assert "1 'MAR' 2024" in schedule
+        assert "1 'APR' 2024" in schedule
         assert "1 'JUN' 2024" in schedule
+        # The comment of the statement follows every generated date.
+        assert schedule.count("-- Quarterly") == 3
 
     def test_end_is_first_keyword_after_date(self, project_with_case_and_wells):
         project, case, timeline = project_with_case_and_wells
@@ -2952,8 +2973,7 @@ class TestSimulatorEventsIntegration:
         document = parse_simulator_events(text)
         report = apply_simulator_events_document(document, timeline, project)
         assert report.errors == []
-        assert report.events_applied == 3
-        assert report.report_dates == ["2024-07-01"]
+        assert report.events_applied == 4
 
         # Materialize completions from the perforation event.
         timeline.set_timestamp(timestamp="2024-01-15")
@@ -2970,7 +2990,6 @@ class TestSimulatorEventsIntegration:
         schedule = timeline.generate_schedule_text(
             eclipse_case=case,
             export_msw_for_wells=[],
-            additional_dates=report.report_dates,
         )
         assert "COMPDAT" in schedule
         assert "WCONHIST" in schedule

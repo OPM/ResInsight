@@ -444,8 +444,10 @@ class TestScheduleGeneration:
         assert "DATES" in schedule_text, "Schedule should contain DATES keyword"
         assert "2024" in schedule_text, "Schedule should contain event dates"
 
-    def test_generate_schedule_with_additional_dates(self, project_with_case_and_well):
-        """Additional dates become bare DATES keywords, merged chronologically (issue #14514)."""
+    def test_generate_schedule_with_insert_date_events(
+        self, project_with_case_and_well
+    ):
+        """Insert-date events become bare DATES keywords, merged chronologically (issue #14514)."""
         project, case, timeline = project_with_case_and_well
 
         well_paths = project.well_paths()
@@ -467,20 +469,26 @@ class TestScheduleGeneration:
             diameter=0.1,
             state="OPEN",
         )
+        timeline.add_insert_date_event(event_date="2024-02-01")
+        timeline.add_insert_date_event(
+            event_date="2024-06-01", comment="Mid-year summary report"
+        )
         timeline.set_timestamp(timestamp="2024-12-31")
 
         schedule_text = timeline.generate_schedule_text(
             eclipse_case=case,
             export_msw_for_wells=project.well_paths(),
             first_date_as_comment=False,
-            additional_dates=["2024-02-01", "2024-06-01"],
         )
 
         assert "1 'FEB' 2024" in schedule_text, (
-            "Additional date 2024-02-01 should be emitted as a DATES entry"
+            "Inserted date 2024-02-01 should be emitted as a DATES entry"
         )
         assert "1 'JUN' 2024" in schedule_text, (
-            "Additional date 2024-06-01 should be emitted as a DATES entry"
+            "Inserted date 2024-06-01 should be emitted as a DATES entry"
+        )
+        assert "-- Mid-year summary report" in schedule_text, (
+            "The comment of an insert-date event should be emitted below its date"
         )
         # Dates must appear in chronological order: JAN (event), FEB, MAR (event), JUN
         positions = [
@@ -496,8 +504,8 @@ class TestScheduleGeneration:
             f"Dates should appear chronologically, got positions {positions}"
         )
 
-    def test_additional_dates_deduplicated_and_merged(self, project_with_case_and_well):
-        """An additional date equal to an event date must not produce a duplicate DATES entry."""
+    def test_insert_dates_deduplicated_and_merged(self, project_with_case_and_well):
+        """An inserted date equal to an event date must not produce a duplicate DATES entry."""
         project, case, timeline = project_with_case_and_well
 
         well_paths = project.well_paths()
@@ -511,46 +519,30 @@ class TestScheduleGeneration:
             diameter=0.1,
             state="OPEN",
         )
+        timeline.add_insert_date_event(event_date="2024-01-01")
+        timeline.add_insert_date_event(event_date="2024-01-01")
         timeline.set_timestamp(timestamp="2024-12-31")
 
         schedule_text = timeline.generate_schedule_text(
             eclipse_case=case,
             export_msw_for_wells=project.well_paths(),
             first_date_as_comment=False,
-            additional_dates=["2024-01-01", "2024-01-01"],
         )
 
         assert schedule_text.count("1 'JAN' 2024") == 1, (
-            "Duplicate additional dates should be merged with the event date"
+            "Duplicate inserted dates should be merged with the event date"
         )
 
-    def test_additional_dates_invalid_format(self, project_with_case_and_well):
-        """An unparsable additional date must raise an error mentioning the format."""
-        project, case, timeline = project_with_case_and_well
-
-        well_paths = project.well_paths()
-        well_path_a = [wp for wp in well_paths if "A" in wp.name][0]
-
-        timeline.add_perf_event(
-            event_date="2024-01-01",
-            well_path=well_path_a,
-            start_md=1800.0,
-            end_md=2000.0,
-            diameter=0.1,
-            state="OPEN",
-        )
-        timeline.set_timestamp(timestamp="2024-12-31")
+    def test_insert_date_invalid_format(self, project_with_case_and_well):
+        """An unparsable inserted date must raise an error mentioning the format."""
+        _, _, timeline = project_with_case_and_well
 
         with pytest.raises(rips.RipsError) as exc_info:
-            timeline.generate_schedule_text(
-                eclipse_case=case,
-                export_msw_for_wells=project.well_paths(),
-                additional_dates=["not-a-date"],
-            )
+            timeline.add_insert_date_event(event_date="not-a-date")
         assert "Invalid date format" in str(exc_info.value)
 
-    def test_additional_date_before_first_event(self, project_with_case_and_well):
-        """An additional date earlier than all events becomes the first date of the schedule."""
+    def test_insert_date_before_first_event(self, project_with_case_and_well):
+        """An inserted date earlier than all events becomes the first date of the schedule."""
         project, case, timeline = project_with_case_and_well
 
         well_paths = project.well_paths()
@@ -564,17 +556,17 @@ class TestScheduleGeneration:
             diameter=0.1,
             state="OPEN",
         )
+        timeline.add_insert_date_event(event_date="2023-06-01")
         timeline.set_timestamp(timestamp="2024-12-31")
 
-        # Default first_date_as_comment=True: the earliest date (the additional
+        # Default first_date_as_comment=True: the earliest date (the inserted
         # one) becomes the comment; the event date is a real DATES entry.
         schedule_text = timeline.generate_schedule_text(
             eclipse_case=case,
             export_msw_for_wells=project.well_paths(),
-            additional_dates=["2023-06-01"],
         )
         assert "-- Date: 1 JUN 2023" in schedule_text, (
-            "Earliest (additional) date should be emitted as a comment by default"
+            "Earliest (inserted) date should be emitted as a comment by default"
         )
         assert "1 'JAN' 2024" in schedule_text, (
             "Event date should be a DATES entry when it is no longer first"
@@ -585,10 +577,9 @@ class TestScheduleGeneration:
             eclipse_case=case,
             export_msw_for_wells=project.well_paths(),
             first_date_as_comment=False,
-            additional_dates=["2023-06-01"],
         )
         assert "1 'JUN' 2023" in schedule_text, (
-            "Additional date should be a DATES entry with first_date_as_comment=False"
+            "Inserted date should be a DATES entry with first_date_as_comment=False"
         )
 
     def test_first_date_as_comment(self, project_with_case_and_well):

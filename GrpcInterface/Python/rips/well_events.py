@@ -310,13 +310,30 @@ def add_raw_text_event(
 
 
 @add_method(WellEventTimeline)
+def add_insert_date_event(
+    self: WellEventTimeline,
+    event_date: str | date | datetime,
+    comment: str = "",
+) -> Any:
+    """Add a date that is emitted as a DATES keyword even without other events.
+
+    In Eclipse/Flow a DATES entry ensures a summary report at that date. The
+    event creates no keyword of its own; ``comment`` (if any) is written as
+    "--"-prefixed lines directly below the date.
+    """
+    return self.add_insert_date_event_internal(
+        event_date=_format_date(event_date),
+        comment=comment,
+    )
+
+
+@add_method(WellEventTimeline)
 def generate_schedule_text(
     self: WellEventTimeline,
     eclipse_case: EclipseCase,
     export_msw_for_wells: List[WellPath] = [],
     first_date_as_comment: bool = True,
     align_columns: bool = False,
-    additional_dates: List[str] = [],
 ) -> str:
     """Generate Eclipse schedule text for all wells in the collection.
 
@@ -341,15 +358,12 @@ def generate_schedule_text(
         align_columns (bool): When True, emit each keyword with a "--"-prefixed
             column-header comment and right-aligned, fixed-width columns instead
             of the compact default form. Defaults to False.
-        additional_dates (List[str]): Additional dates ("YYYY-MM-DD" or a full
-            ISO timestamp such as "2024-05-15T14:45:30") emitted as DATES
-            keywords even when no events fall on them. In Eclipse/Flow a DATES
-            entry ensures a summary report at that date. The dates are merged,
-            deduplicated and sorted together with the event dates, and are not
-            filtered by set_timestamp(). If an additional date precedes all
-            event dates it becomes the earliest date and is therefore emitted
-            as a comment when first_date_as_comment is True; pass
-            first_date_as_comment=False to emit every date as a DATES keyword.
+
+    Dates added with add_insert_date_event() are ordinary timeline events, but
+    since they only force a DATES keyword (e.g. to trigger a summary report)
+    they are not filtered by set_timestamp(). If such a date precedes all other
+    event dates it becomes the earliest date and is therefore emitted as a
+    comment when first_date_as_comment is True.
 
     Returns:
         str: Eclipse schedule text containing DATES, COMPDAT, WELSEGS, WCONPROD, etc.
@@ -394,7 +408,6 @@ def generate_schedule_text(
         export_msw_for_wells=export_msw_for_wells,
         first_date_as_comment=first_date_as_comment,
         align_columns=align_columns,
-        additional_dates=additional_dates,
     )
     if container and container.values:
         return "".join(container.values)
