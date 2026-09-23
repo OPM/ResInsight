@@ -115,7 +115,7 @@ class Instance:
         launch_port: int = 0,
         init_timeout: int = 300,
         command_line_parameters: List[str] = [],
-        enable_heartbeat: bool = True,
+        enable_heartbeat: bool = False,
     ) -> Instance:
         """Launch a new Instance of ResInsight. This requires the environment variable
         RESINSIGHT_EXECUTABLE to be set or the parameter resinsight_executable to be provided.
@@ -131,8 +131,10 @@ class Instance:
                              If anything else, ResInsight will try to launch with the specified portnumber.
             init_timeout: Number of seconds to wait for initialization before timing out.
             command_line_parameters(list): Additional parameters as string entries in the list.
-            enable_heartbeat(bool): If True (default), a background thread pings the
-                server periodically and aborts pending RPCs if it dies. Disable on
+            enable_heartbeat(bool): If True, a background thread pings the
+                server periodically and aborts pending RPCs if it dies. Disabled
+                by default (False) since heavy server-side jobs may not respond
+                to pings in time, causing false positives. Disable on
                 slow boxes where false positives matter (long GC pauses, debugger).
         Returns:
             Instance: a connected instance object. Raises :class:`RipsError` on failure.
@@ -208,7 +210,7 @@ class Instance:
     def find(
         start_port: int = 50051,
         end_port: int = 50071,
-        enable_heartbeat: bool = True,
+        enable_heartbeat: bool = False,
     ) -> Instance:
         """Search for an existing Instance of ResInsight by testing ports.
 
@@ -219,8 +221,10 @@ class Instance:
         Args:
             start_port (int): start searching from this port
             end_port (int): search up to but not including this port
-            enable_heartbeat(bool): If True (default), a background thread pings the
-                server periodically and aborts pending RPCs if it dies. Disable on
+            enable_heartbeat(bool): If True, a background thread pings the
+                server periodically and aborts pending RPCs if it dies. Disabled
+                by default (False) since heavy server-side jobs may not respond
+                to pings in time, causing false positives. Disable on
                 slow boxes where false positives matter (long GC pauses, debugger).
         """
         port_env = os.environ.get("RESINSIGHT_GRPC_PORT")
@@ -261,17 +265,19 @@ class Instance:
         self,
         port: int = 50051,
         launched: bool = False,
-        enable_heartbeat: bool = True,
+        enable_heartbeat: bool = False,
     ) -> None:
         """Attempts to connect to ResInsight at a specific port on localhost
 
         Args:
             port(int): port number
             launched(bool): True if this Python process launched ResInsight.
-            enable_heartbeat(bool): If True (default), a background thread
+            enable_heartbeat(bool): If True, a background thread
                 pings the server periodically. On detection of a dead server
                 the channel is closed so any in-flight RPC unblocks
-                immediately with a :class:`RipsError`.
+                immediately with a :class:`RipsError`. Disabled by default
+                (False) since heavy server-side jobs may not respond to
+                pings in time, causing false positives.
         """
         self.location: str = "localhost:" + str(port)
         self.port: int = port
