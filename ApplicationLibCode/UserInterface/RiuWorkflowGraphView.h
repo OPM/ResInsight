@@ -30,6 +30,7 @@ public:
     explicit RiuWorkflowGraphView( QWidget* parent = nullptr );
 
     void showGraph( const QJsonObject& graph, const QString& error );
+    void setTaskInputValue( const QString& taskName, const QString& fieldName, const QString& value );
 
 protected:
     void resizeEvent( QResizeEvent* event ) override;

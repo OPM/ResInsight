@@ -32,6 +32,7 @@ public:
     RimWorkflowWellPathBinding();
 
     QString toYamlValue() const override;
+    QString displayValue() const override;
 
     caf::PdmFieldHandle* valueField() override { return &m_wellPath; }
 

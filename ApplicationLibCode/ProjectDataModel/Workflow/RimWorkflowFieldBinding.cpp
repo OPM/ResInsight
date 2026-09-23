@@ -18,6 +18,11 @@
 
 #include "RimWorkflowFieldBinding.h"
 
+#include "RiuMainWindow.h"
+
+#include "cafPdmUiFieldHandle.h"
+
+#include <QDate>
 #include <QJsonObject>
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimWorkflowFieldBinding, "WorkflowFieldBinding" );
@@ -55,6 +60,25 @@ void RimWorkflowFieldBinding::setDescription( const QString& description )
 void RimWorkflowFieldBinding::setRequired( bool required )
 {
     m_required = required;
+}
+
+QString RimWorkflowFieldBinding::displayValue() const
+{
+    auto* field = const_cast<RimWorkflowFieldBinding*>( this )->valueField();
+    if ( !field || !field->uiCapability() ) return {};
+
+    const QVariant value = field->uiCapability()->uiValue();
+    if ( value.metaType().id() == QMetaType::QDate ) return value.toDate().toString( Qt::ISODate );
+    const QString text = value.toString();
+    return text.isEmpty() ? "(not set)" : text;
+}
+
+void RimWorkflowFieldBinding::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == valueField() )
+    {
+        if ( auto* mainWindow = RiuMainWindow::instance() ) mainWindow->workflowBindingChanged( this );
+    }
 }
 
 void RimWorkflowFieldBinding::applySchema( const QJsonObject& fieldSchema )

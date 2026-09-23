@@ -52,6 +52,9 @@
 #include "RimViewLinkerCollection.h"
 #include "RimViewWindow.h"
 #include "Workflow/RimWorkflow.h"
+#include "Workflow/RimWorkflowFieldBinding.h"
+#include "Workflow/RimWorkflowJob.h"
+#include "Workflow/RimWorkflowTaskInput.h"
 
 #include "RiuCellSelectionTool.h"
 #include "RiuDepthQwtPlot.h"
@@ -1280,7 +1283,11 @@ std::vector<RimViewWindow*> RiuMainWindow::viewWindows()
 void RiuMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
 {
     m_pdmRoot = pdmRoot;
-    if ( !pdmRoot && m_workflowGraphView ) m_workflowGraphView->showGraph( {}, {} );
+    if ( !pdmRoot )
+    {
+        m_displayedWorkflowJob = nullptr;
+        if ( m_workflowGraphView ) m_workflowGraphView->showGraph( {}, {} );
+    }
 
     for ( auto tv : projectTreeViews() )
     {
@@ -1538,7 +1545,15 @@ void RiuMainWindow::selectedObjectsChanged()
 
     if ( uiItems.size() == 1 )
     {
-        if ( auto* workflow = dynamic_cast<RimWorkflow*>( firstSelectedObject ) ) showWorkflowGraph( workflow );
+        if ( auto* workflow = dynamic_cast<RimWorkflow*>( firstSelectedObject ) )
+        {
+            const auto jobs = workflow->jobs();
+            showWorkflowGraph( workflow, jobs.empty() ? nullptr : jobs.front() );
+        }
+        else if ( auto* job = dynamic_cast<RimWorkflowJob*>( firstSelectedObject ) )
+        {
+            if ( auto* workflow = job->firstAncestorOrThisOfType<RimWorkflow>() ) showWorkflowGraph( workflow, job );
+        }
     }
 
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
@@ -1598,7 +1613,18 @@ void RiuMainWindow::selectedObjectsChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::showWorkflowGraph( RimWorkflow* workflow )
+void RiuMainWindow::workflowBindingChanged( const RimWorkflowFieldBinding* binding )
+{
+    if ( !m_workflowGraphView || !m_displayedWorkflowJob || binding->firstAncestorOrThisOfType<RimWorkflowJob>() != m_displayedWorkflowJob.p() )
+        return;
+
+    if ( auto* task = binding->firstAncestorOrThisOfType<RimWorkflowTaskInput>() )
+    {
+        m_workflowGraphView->setTaskInputValue( task->taskName(), binding->fieldName(), binding->displayValue() );
+    }
+}
+
+void RiuMainWindow::showWorkflowGraph( RimWorkflow* workflow, RimWorkflowJob* job )
 {
     if ( !m_workflowGraphDock )
     {
@@ -1610,8 +1636,19 @@ void RiuMainWindow::showWorkflowGraph( RimWorkflow* workflow )
                                       dockManager()->centralWidget()->dockAreaWidget() );
     }
 
+    m_displayedWorkflowJob = job;
     m_workflowGraphDock->setWindowTitle( QString( "Workflow: %1" ).arg( workflow->name() ) );
     m_workflowGraphView->showGraph( workflow->graph(), workflow->loadError() );
+    if ( job )
+    {
+        for ( RimWorkflowTaskInput* task : job->taskInputs() )
+        {
+            for ( RimWorkflowFieldBinding* binding : task->items() )
+            {
+                if ( binding ) m_workflowGraphView->setTaskInputValue( task->taskName(), binding->fieldName(), binding->displayValue() );
+            }
+        }
+    }
     m_workflowGraphDock->toggleView( true );
     m_workflowGraphDock->setAsCurrentTab();
 }

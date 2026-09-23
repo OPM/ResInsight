@@ -30,6 +30,11 @@ RimWorkflowViewBinding::RimWorkflowViewBinding()
     CAF_PDM_InitFieldNoDefault( &m_view, "View", "View" );
 }
 
+QString RimWorkflowViewBinding::displayValue() const
+{
+    return m_view() ? m_view()->name() : "(not selected)";
+}
+
 QString RimWorkflowViewBinding::toYamlValue() const
 {
     if ( m_view() == nullptr ) return "null";

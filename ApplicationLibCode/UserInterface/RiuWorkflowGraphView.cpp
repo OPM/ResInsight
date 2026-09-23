@@ -40,11 +40,13 @@
 
 namespace
 {
-constexpr qreal nodeWidth  = 240.0;
-constexpr qreal portStep   = 28.0;
-constexpr qreal portTop    = 51.0;
-constexpr qreal columnStep = 370.0;
-constexpr qreal rowGap     = 55.0;
+constexpr qreal nodeWidth   = 240.0;
+constexpr qreal configWidth = 190.0;
+constexpr qreal portStep    = 40.0;
+constexpr qreal portTop     = 51.0;
+constexpr qreal columnStep  = 650.0;
+constexpr qreal configGap   = 110.0;
+constexpr qreal rowGap      = 55.0;
 
 QStringList fieldPorts( const QJsonArray& fields )
 {
@@ -75,11 +77,14 @@ class GraphEdge;
 class GraphNode : public QGraphicsRectItem
 {
 public:
-    GraphNode( const QString& name, QStringList inputs, QStringList outputs );
+    GraphNode( const QString& name, QStringList inputs, QStringList outputs, bool isConfig = false );
 
     qreal   height() const;
     QPointF portPosition( const QString& key, bool output ) const;
     void    addEdge( GraphEdge* edge );
+    QString name() const;
+    bool    isConfig() const;
+    void    setConfigValue( const QString& fieldName, const QString& value );
 
 protected:
     QVariant itemChange( GraphicsItemChange change, const QVariant& value ) override;
@@ -87,15 +92,19 @@ protected:
 private:
     void addPorts( const QStringList& keys, bool output );
 
+    QString                              m_name;
+    bool                                 m_isConfig;
+    qreal                                m_width;
     QMap<QString, QGraphicsEllipseItem*> m_inputs;
     QMap<QString, QGraphicsEllipseItem*> m_outputs;
+    QMap<QString, QGraphicsTextItem*>    m_configValues;
     std::vector<GraphEdge*>              m_edges;
 };
 
 class GraphEdge : public QGraphicsPathItem
 {
 public:
-    GraphEdge( GraphNode* from, QString outputKey, GraphNode* to, QString inputKey );
+    GraphEdge( GraphNode* from, QString outputKey, GraphNode* to, QString inputKey, bool isConfig = false );
 
     void updatePath();
 
@@ -107,20 +116,24 @@ private:
     QGraphicsPolygonItem* m_arrow;
 };
 
-GraphNode::GraphNode( const QString& name, QStringList inputs, QStringList outputs )
+GraphNode::GraphNode( const QString& name, QStringList inputs, QStringList outputs, bool isConfig )
+    : m_name( name )
+    , m_isConfig( isConfig )
+    , m_width( isConfig ? configWidth : nodeWidth )
 {
-    setRect( 0, 0, nodeWidth, portTop + portStep * std::max( { qsizetype( 1 ), inputs.size(), outputs.size() } ) + 12 );
-    setPen( QPen( QColor( 60, 85, 115 ) ) );
-    setBrush( QColor( 226, 238, 250 ) );
+    setRect( 0, 0, m_width, portTop + portStep * std::max( { qsizetype( 1 ), inputs.size(), outputs.size() } ) + 12 );
+    setPen( QPen( isConfig ? QColor( 140, 105, 45 ) : QColor( 60, 85, 115 ) ) );
+    setBrush( isConfig ? QColor( 253, 244, 218 ) : QColor( 226, 238, 250 ) );
     setFlags( ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges );
     setZValue( 1 );
     setToolTip( name );
 
     QFont titleFont;
     titleFont.setBold( true );
-    auto* title = new QGraphicsTextItem( QFontMetrics( titleFont ).elidedText( name, Qt::ElideRight, nodeWidth - 20 ), this );
+    const QString titleText = isConfig ? "Config: " + name : name;
+    auto*         title = new QGraphicsTextItem( QFontMetrics( titleFont ).elidedText( titleText, Qt::ElideRight, m_width - 20 ), this );
     title->setFont( titleFont );
-    title->setToolTip( name );
+    title->setToolTip( titleText );
     title->setPos( 10, 4 );
     title->setAcceptedMouseButtons( Qt::NoButton );
 
@@ -139,11 +152,11 @@ void GraphNode::addPorts( const QStringList& keys, bool output )
     for ( int row = 0; row < keys.size(); ++row )
     {
         const QString& key   = keys[row];
-        const qreal    x     = output ? nodeWidth : 0.0;
+        const qreal    x     = output ? m_width : 0.0;
         const qreal    y     = portTop + row * portStep;
         auto*          port  = new QGraphicsEllipseItem( x - 5, y - 5, 10, 10, this );
         const QString  label = key == "model" ? ( output ? "output" : "input" ) : key.mid( 6 );
-        port->setBrush( output ? QColor( 50, 115, 165 ) : QColor( 75, 145, 95 ) );
+        port->setBrush( m_isConfig ? QColor( 170, 110, 35 ) : ( output ? QColor( 50, 115, 165 ) : QColor( 75, 145, 95 ) ) );
         port->setPen( Qt::NoPen );
         port->setToolTip( label );
         port->setAcceptedMouseButtons( Qt::NoButton );
@@ -151,12 +164,12 @@ void GraphNode::addPorts( const QStringList& keys, bool output )
 
         QFont font;
         font.setPointSize( 9 );
-        const QString display = QFontMetrics( font ).elidedText( label, Qt::ElideRight, nodeWidth / 2 - 18 );
+        const QString display = QFontMetrics( font ).elidedText( label, Qt::ElideRight, m_isConfig ? m_width - 24 : m_width / 2 - 18 );
         auto*         text    = new QGraphicsTextItem( display, this );
         text->setFont( font );
         text->setToolTip( label );
         text->setDefaultTextColor( QColor( 45, 65, 80 ) );
-        text->setPos( output ? nodeWidth - text->boundingRect().width() - 12 : 10, y - 13 );
+        text->setPos( output ? m_width - text->boundingRect().width() - 12 : 10, y - ( m_isConfig || !output ? 20 : 13 ) );
         text->setAcceptedMouseButtons( Qt::NoButton );
     }
 }
@@ -173,6 +186,39 @@ void GraphNode::addEdge( GraphEdge* edge )
     m_edges.push_back( edge );
 }
 
+QString GraphNode::name() const
+{
+    return m_name;
+}
+
+bool GraphNode::isConfig() const
+{
+    return m_isConfig;
+}
+
+void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
+{
+    if ( !m_isConfig ) return;
+    auto* port = m_outputs.value( "field:" + fieldName, nullptr );
+    if ( !port ) return;
+
+    auto* text = m_configValues.value( fieldName, nullptr );
+    if ( !text )
+    {
+        text = new QGraphicsTextItem( this );
+        QFont font;
+        font.setPointSize( 8 );
+        text->setFont( font );
+        text->setDefaultTextColor( QColor( 125, 80, 30 ) );
+        text->setPos( 10, port->rect().center().y() - 2 );
+        text->setAcceptedMouseButtons( Qt::NoButton );
+        m_configValues.insert( fieldName, text );
+    }
+
+    text->setPlainText( QFontMetrics( text->font() ).elidedText( value, Qt::ElideRight, m_width - 24 ) );
+    text->setToolTip( fieldName + ": " + value );
+}
+
 QVariant GraphNode::itemChange( GraphicsItemChange change, const QVariant& value )
 {
     if ( change == ItemPositionHasChanged )
@@ -184,17 +230,19 @@ QVariant GraphNode::itemChange( GraphicsItemChange change, const QVariant& value
     return QGraphicsRectItem::itemChange( change, value );
 }
 
-GraphEdge::GraphEdge( GraphNode* from, QString outputKey, GraphNode* to, QString inputKey )
+GraphEdge::GraphEdge( GraphNode* from, QString outputKey, GraphNode* to, QString inputKey, bool isConfig )
     : m_from( from )
     , m_to( to )
     , m_outputKey( std::move( outputKey ) )
     , m_inputKey( std::move( inputKey ) )
     , m_arrow( new QGraphicsPolygonItem( this ) )
 {
-    setPen( QPen( QColor( 75, 95, 115 ), 1.7 ) );
+    QPen pen( isConfig ? QColor( 170, 110, 35 ) : QColor( 75, 95, 115 ), 1.7 );
+    if ( isConfig ) pen.setStyle( Qt::DashLine );
+    setPen( pen );
     setZValue( -1 );
     m_arrow->setPen( Qt::NoPen );
-    m_arrow->setBrush( QColor( 75, 95, 115 ) );
+    m_arrow->setBrush( pen.color() );
     m_from->addEdge( this );
     m_to->addEdge( this );
     updatePath();
@@ -240,6 +288,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
     QMap<QString, QStringList> inputs;
     QMap<QString, QStringList> outputs;
     QMap<QString, QStringList> declaredOutputs;
+    QMap<QString, QStringList> configFields;
     for ( const QJsonValue& task : tasks )
     {
         const QJsonObject data = task.toObject();
@@ -248,6 +297,16 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         ranks.insert( name, 0 );
         inputs.insert( name, fieldPorts( data.value( "inputs" ).toArray() ) );
         declaredOutputs.insert( name, fieldPorts( data.value( "outputs" ).toArray() ) );
+        QStringList configured;
+        for ( const QJsonValue& field : data.value( "config_fields" ).toArray() )
+        {
+            const QString fieldName = field.toObject().value( "name" ).toString();
+            if ( !fieldName.isEmpty() ) configured.append( "field:" + fieldName );
+        }
+        configured.removeDuplicates();
+        configured.sort();
+        configFields.insert( name, configured );
+        inputs[name].append( configured );
     }
 
     // The Python helper provides tasks in topological order.
@@ -277,6 +336,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
 
     QMap<int, QStringList>    layers;
     QMap<QString, GraphNode*> nodes;
+    QMap<QString, GraphNode*> configNodes;
     for ( auto it = ranks.cbegin(); it != ranks.cend(); ++it )
     {
         layers[it.value()].append( it.key() );
@@ -293,27 +353,45 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         auto* node = new GraphNode( it.key(), in, out );
         m_scene->addItem( node );
         nodes.insert( it.key(), node );
+        if ( !configFields.value( it.key() ).isEmpty() )
+        {
+            auto* configNode = new GraphNode( it.key(), {}, configFields.value( it.key() ), true );
+            m_scene->addItem( configNode );
+            configNodes.insert( it.key(), configNode );
+        }
     }
+
+    auto slotHeight = [&nodes, &configNodes]( const QString& name )
+    {
+        qreal height = nodes.value( name )->height();
+        if ( auto* config = configNodes.value( name, nullptr ) ) height = std::max( height, config->height() );
+        return height;
+    };
 
     qreal totalHeight = 0;
     for ( const QStringList& layer : layers )
     {
         qreal height = 0;
         for ( const QString& name : layer )
-            height += nodes.value( name )->height() + rowGap;
+            height += slotHeight( name ) + rowGap;
         totalHeight = std::max( totalHeight, height - rowGap );
     }
     for ( auto it = layers.cbegin(); it != layers.cend(); ++it )
     {
         qreal layerHeight = 0;
         for ( const QString& name : it.value() )
-            layerHeight += nodes.value( name )->height() + rowGap;
+            layerHeight += slotHeight( name ) + rowGap;
         qreal y = ( totalHeight - layerHeight + rowGap ) / 2.0;
         for ( const QString& name : it.value() )
         {
-            auto* node = nodes.value( name );
-            node->setPos( it.key() * columnStep, y );
-            y += node->height() + rowGap;
+            auto*       node = nodes.value( name );
+            const qreal x    = it.key() * columnStep + configWidth + configGap;
+            node->setPos( x, y + ( slotHeight( name ) - node->height() ) / 2.0 );
+            if ( auto* config = configNodes.value( name, nullptr ) )
+            {
+                config->setPos( x - configWidth - configGap, y + ( slotHeight( name ) - config->height() ) / 2.0 );
+            }
+            y += slotHeight( name ) + rowGap;
         }
     }
 
@@ -326,8 +404,29 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         m_scene->addItem( new GraphEdge( nodes.value( from ), outputPortKey( edge ), nodes.value( to ), inputPortKey( edge ) ) );
     }
 
+    for ( auto it = configNodes.cbegin(); it != configNodes.cend(); ++it )
+    {
+        for ( const QString& key : configFields.value( it.key() ) )
+        {
+            m_scene->addItem( new GraphEdge( it.value(), key, nodes.value( it.key() ), key, true ) );
+        }
+    }
+
     m_scene->setSceneRect( m_scene->itemsBoundingRect().adjusted( -50, -50, 50, 50 ) );
     fitInView( m_scene->sceneRect(), Qt::KeepAspectRatio );
+}
+
+void RiuWorkflowGraphView::setTaskInputValue( const QString& taskName, const QString& fieldName, const QString& value )
+{
+    for ( QGraphicsItem* item : m_scene->items() )
+    {
+        auto* node = dynamic_cast<GraphNode*>( item );
+        if ( node && node->isConfig() && node->name() == taskName )
+        {
+            node->setConfigValue( fieldName, value );
+            return;
+        }
+    }
 }
 
 void RiuWorkflowGraphView::resizeEvent( QResizeEvent* event )
