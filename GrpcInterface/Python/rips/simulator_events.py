@@ -21,18 +21,14 @@ It is split into two independent layers:
   calls the ``WellEventTimeline`` API, performing all semantic mapping and
   validation.
 
-File format grammar, version 1.1 (EBNF-ish)::
+File format grammar, version 1.2 (EBNF-ish)::
 
     document        = header , { statement } ;
-    header          = "SIMEVENTS" , "1.1" ;           (* first meaningful line *)
-    statement       = unit_directive | declaration | insert_date_line | well_block_open
+    header          = "SIMEVENTS" , "1.2" ;           (* first meaningful line *)
+    statement       = unit_directive | declaration | well_block_open
                     | group_block_open | schedule_block_open | event_line
                     | raw_text_event ;
     unit_directive  = "UNIT" , ( "METRIC" | "FIELD" | "LAB" ) ;
-    insert_date_line = "INSERT_DATE" , date_expr , [ recurrence ] ;
-    recurrence      = "EVERY" , [ positive_integer ] , period ,
-                      [ "UNTIL" , date_expr ] ;
-    period          = "DAY" | "DAYS" | "MONTH" | "MONTHS" | "YEAR" | "YEARS" ;
 
     declaration     = date_decl | duration_decl | well_decl | filter_decl ;
     date_decl       = "DATE" , ident , "=" , date_expr ;         (* DATE X = 2018-03-01 + 9d *)
@@ -49,6 +45,11 @@ File format grammar, version 1.1 (EBNF-ish)::
     group_block_open    = "GROUP" , quoted_string ;     (* group keyword events *)
     schedule_block_open = "SCHEDULE" ;                  (* well-less keyword events *)
     event_line      = date_expr , event_type , { attribute } ;
+    insert_date_event = date_expr , "INSERT_DATE" ,   (* SCHEDULE block only *)
+                      [ "EVERY=" , duration_expr ] , [ "UNTIL=" , date_expr ] ,
+                      [ "COMMENT=" , quoted_string ] ;
+                                        (* UNTIL requires EVERY; quote a value
+                                           containing spaces *)
     raw_text_event  = date_expr , "RAW_TEXT" , raw_text_attributes , newline,
                       { raw_line , newline } , "END_RAW_TEXT" ;
     raw_text_attributes = "PLACEMENT=" ,
@@ -77,7 +78,7 @@ Notes on the grammar:
 
 * The format is line-oriented; every non-blank line is dispatched on its first
   token: ``SIMEVENTS`` (once), ``UNIT``, ``DATE``, ``DURATION``, ``WELL``,
-  ``GROUP``, ``SCHEDULE``, ``INSERT_DATE`` or an event date. Anything else is an
+  ``GROUP``, ``SCHEDULE`` or an event date. Anything else is an
   error. Keywords are uppercase and case-sensitive; duration units are
   lowercase.
 * Comments start with ``#`` (outside of double quotes) and run to end of line.
@@ -117,18 +118,23 @@ Notes on the grammar:
   record per unique member, with the enclosing group as parent. A schedule may
   contain one attribute-free ``RESTART`` event; it truncates generated schedule
   output before its timestamp and is not itself emitted as a keyword.
-* ``INSERT_DATE <date_expr>`` inside a ``SCHEDULE`` block names a date that
+* ``<date_expr> INSERT_DATE`` inside a ``SCHEDULE`` block names a date that
   should appear as a bare ``DATES`` keyword in the generated schedule even when no
   events fall on it — in Eclipse/Flow a ``DATES`` entry ensures a summary
-  report at that date. ``EVERY [n] DAYS|MONTHS|YEARS`` makes it recurring and
-  an inclusive ``UNTIL <date_expr>`` sets the end date. When ``UNTIL`` is
-  omitted, the latest event date is used. Monthly and yearly recurrences
-  stay anchored to the initial calendar day, clamping to the end of shorter
-  months. The dates are collected on :attr:`SimulatorEventsDocument.report_dates` and
+  report at that date. ``EVERY=<duration>`` makes it recurring (``EVERY=1mon``,
+  ``EVERY=30d``, ``EVERY=12mon``, ``EVERY=RAMP``), and an inclusive
+  ``UNTIL=<date_expr>`` sets the end date (``UNTIL=START+90d`` or
+  ``UNTIL="START + 90d"``). When ``UNTIL`` is omitted, the latest event date
+  is used. Occurrence ``n`` is the start date plus ``n`` times the month part,
+  then plus ``n`` times the fixed part, so monthly and yearly recurrences stay
+  anchored to the initial calendar day, clamping to the end of shorter
+  months. ``EVERY`` must be positive. ``COMMENT`` is accepted and ignored.
+  The dates are collected on :attr:`SimulatorEventsDocument.report_dates` and
   surfaced by the applier as sorted ISO strings on
   :attr:`ApplyReport.report_dates`, ready to pass to
-  ``WellEventTimeline.generate_schedule_text(additional_dates=...)``. A
-  ``INSERT_DATE`` line is not tied to any well.
+  ``WellEventTimeline.generate_schedule_text(additional_dates=...)``. An
+  ``INSERT_DATE`` event is not tied to any well and does not create a
+  timeline event.
 * ``RAW_TEXT`` is valid only inside a ``SCHEDULE`` block. Its body is copied
   without parsing or formatting through the mandatory standalone
   ``END_RAW_TEXT`` line. ``PLACEMENT`` is ``AFTER_DATE``, ``BEFORE_KEYWORD``,
@@ -462,8 +468,7 @@ class _ReportSpec:
     """One INSERT_DATE declaration, expanded after all event dates are known."""
 
     start: datetime.datetime
-    interval: Optional[int]
-    period: Optional[str]
+    every: Optional[Duration]
     end: Optional[datetime.datetime]
     loc: SourceLoc
 
@@ -539,7 +544,6 @@ _KEYWORDS = (
     "FILTER",
     "GROUP",
     "SCHEDULE",
-    "INSERT_DATE",
 )
 
 _IDENT = r"[A-Za-z_]\w*"
@@ -561,7 +565,8 @@ _DURATION_DECL_RE = re.compile(
     rf"^DURATION\s+(?P<name>{_IDENT})\s*=\s*(?P<base>{_DURATION_LIT}|{_IDENT}){_TERMS}$"
 )
 _WELL_DECL_RE = re.compile(rf'^WELL\s+(?P<name>{_IDENT})\s*=\s*"(?P<well>[^"]*)"$')
-_INSERT_DATE_RE = re.compile(
+# Pre-1.2 INSERT_DATE line syntax, only recognized to suggest the new form.
+_LEGACY_INSERT_DATE_RE = re.compile(
     rf"^INSERT_DATE\s+{_DATE_BASE}{_TERMS}"
     rf"(?:\s+EVERY\s+(?:(?P<count>\d+)\s+)?"
     rf"(?P<period>DAY|DAYS|MONTH|MONTHS|YEAR|YEARS)"
@@ -587,6 +592,9 @@ _RESULT_TYPE_ALIASES = {
 _WELL_BLOCK_RE = re.compile(rf'^WELL\s+(?:"(?P<qname>[^"]*)"|(?P<ref>{_IDENT}))$')
 _GROUP_BLOCK_RE = re.compile(r'^GROUP\s+"(?P<name>[^"]*)"$')
 _EVENT_RE = re.compile(rf"^{_DATE_BASE}{_TERMS}\s+(?P<rest>.+)$")
+# Attribute values of INSERT_DATE: EVERY=<duration-expr>, UNTIL=<date-expr>.
+_DURATION_EXPR_RE = re.compile(rf"^\s*(?P<base>{_DURATION_LIT}|{_IDENT}){_TERMS}\s*$")
+_DATE_EXPR_RE = re.compile(rf"^\s*{_DATE_BASE}{_TERMS}\s*$")
 _TERM_RE = re.compile(rf"([-+])\s*({_DURATION_LIT}|{_IDENT})")
 _DURATION_COMPONENT_RE = re.compile(r"(?P<number>\d+(?:\.\d+)?)(?P<unit>[A-Za-z]*)")
 _TIME_OF_DAY_RE = re.compile(r"\d{2}:\d{2}:\d{2}(?:\.\d+)?")
@@ -731,7 +739,7 @@ def merge_simulator_events_documents(
 def parse_simulator_events(
     text: str, *, source: Optional[str] = None
 ) -> SimulatorEventsDocument:
-    """Parse SIMEVENTS 1.1 text into an :class:`SimulatorEventsDocument`.
+    """Parse SIMEVENTS 1.2 text into an :class:`SimulatorEventsDocument`.
 
     ``source`` is an optional label (typically the file name) stored on every
     :class:`SourceLoc` and on the document.
@@ -849,17 +857,14 @@ def parse_simulator_events(
 
 
 def _report_occurrence(
-    start: datetime.datetime,
-    interval: int,
-    period: str,
-    occurrence: int,
+    start: datetime.datetime, every: Duration, occurrence: int
 ) -> datetime.datetime:
-    offset = interval * occurrence
-    if period == "DAY":
-        return start + datetime.timedelta(days=offset)
-    if period == "MONTH":
-        return _add_months(start, offset)
-    return _add_months(start, 12 * offset)
+    """Return occurrence ``n`` of a series: ``start + n*months + n*delta``.
+
+    The month part is applied relative to ``start`` so a monthly series stays
+    anchored to its initial calendar day, clamping to shorter months.
+    """
+    return _add_months(start, every.months * occurrence) + every.delta * occurrence
 
 
 def _expand_report_specs(
@@ -876,14 +881,8 @@ def _expand_report_specs(
     dates: List[datetime.datetime] = []
     issues: List[ParseIssue] = []
     for spec in report_specs:
-        if spec.period is None:
+        if spec.every is None:
             dates.append(spec.start)
-            continue
-
-        if spec.interval is None or spec.interval <= 0:
-            issues.append(
-                ParseIssue("INSERT_DATE interval must be greater than zero", spec.loc)
-            )
             continue
 
         end = spec.end if spec.end is not None else last_event_date
@@ -906,9 +905,7 @@ def _expand_report_specs(
         occurrence = 0
         while True:
             try:
-                value = _report_occurrence(
-                    spec.start, spec.interval, spec.period, occurrence
-                )
+                value = _report_occurrence(spec.start, spec.every, occurrence)
             except (OverflowError, ValueError):
                 break
             if value > end:
@@ -991,7 +988,7 @@ def _wellspec_validation_issues(wells: List[WellBlock]) -> List[ParseIssue]:
     return issues
 
 
-_SUPPORTED_VERSION = "1.1"
+_SUPPORTED_VERSION = "1.2"
 
 
 def _check_version(version: str, loc: SourceLoc) -> None:
@@ -1000,10 +997,17 @@ def _check_version(version: str, loc: SourceLoc) -> None:
     message = (
         f"Unsupported SIMEVENTS version '{version}'; expected {_SUPPORTED_VERSION}"
     )
+    if version == "1.1":
+        message += (
+            " (1.2 writes INSERT_DATE as a SCHEDULE event, e.g. "
+            "'INSERT_DATE 2024-01-01 EVERY 3 MONTHS' -> "
+            "'2024-01-01 INSERT_DATE EVERY=3mon')"
+        )
     if version == "1.0":
         message += (
-            " (1.1 requires a unit on every duration, e.g. '5 DAYS' -> '5d', "
-            "and 'T' between date and time)"
+            " (durations require a unit, e.g. '5 DAYS' -> '5d', dates use 'T' "
+            "between date and time, and INSERT_DATE is written as a SCHEDULE "
+            "event, e.g. '2024-01-01 INSERT_DATE EVERY=3mon')"
         )
     raise SimulatorEventsParseError(message, loc)
 
@@ -1051,38 +1055,7 @@ def _parse_line(
         return schedule_events
 
     if first == "INSERT_DATE":
-        if current_events is not schedule_events:
-            raise SimulatorEventsParseError(
-                "INSERT_DATE is only valid in a SCHEDULE block", loc
-            )
-        match = _INSERT_DATE_RE.match(line)
-        if match is None:
-            raise SimulatorEventsParseError(
-                f"Malformed INSERT_DATE line: {line!r} "
-                "(expected INSERT_DATE <date-expr> [EVERY [count] "
-                "DAYS|MONTHS|YEARS [UNTIL <date-expr>]])",
-                loc,
-            )
-        start = _eval_date_expr(
-            match.group("base"), match.group("terms"), variables, loc
-        )
-        period = match.group("period")
-        end_base = match.group("end_base")
-        end = (
-            _eval_date_expr(end_base, match.group("end_terms"), variables, loc)
-            if end_base is not None
-            else None
-        )
-        report_specs.append(
-            _ReportSpec(
-                start=start,
-                interval=int(match.group("count") or 1) if period else None,
-                period=period.rstrip("S") if period else None,
-                end=end,
-                loc=loc,
-            )
-        )
-        return current_events
+        raise SimulatorEventsParseError(_legacy_insert_date_message(line), loc)
 
     if first == "DATE":
         match = _DATE_DECL_RE.match(line)
@@ -1185,7 +1158,15 @@ def _parse_line(
         )
 
     if current_events is not None and _EVENT_RE.match(line):
-        current_events.append(_parse_event_line(line, variables, loc))
+        event = _parse_event_line(line, variables, loc)
+        if event.event_type.upper() == "INSERT_DATE":
+            if current_events is not schedule_events:
+                raise SimulatorEventsParseError(
+                    "INSERT_DATE is only valid in a SCHEDULE block", loc
+                )
+            report_specs.append(_insert_date_spec(event, variables))
+            return current_events
+        current_events.append(event)
         return current_events
     if first[0].isdigit() and _EVENT_RE.match(line):
         raise SimulatorEventsParseError(
@@ -1193,6 +1174,82 @@ def _parse_line(
         )
 
     raise SimulatorEventsParseError(_unrecognized_line_message(line, first), loc)
+
+
+_INSERT_DATE_ATTRS = {"EVERY", "UNTIL", "COMMENT"}
+_LEGACY_PERIOD_UNITS = {"DAY": ("d", 1), "MONTH": ("mon", 1), "YEAR": ("mon", 12)}
+
+
+def _legacy_insert_date_message(line: str) -> str:
+    """Explain the SIMEVENTS 1.2 INSERT_DATE form, rewriting the line if possible."""
+    message = (
+        "INSERT_DATE is written as a SCHEDULE event since SIMEVENTS 1.2: "
+        "<date-expr> INSERT_DATE [EVERY=<duration>] [UNTIL=<date-expr>]"
+    )
+    match = _LEGACY_INSERT_DATE_RE.match(line)
+    if match is None:
+        return message
+    start = (match.group("base") + match.group("terms")).strip()
+    parts = [start, "INSERT_DATE"]
+    period = match.group("period")
+    if period:
+        unit, factor = _LEGACY_PERIOD_UNITS[period.rstrip("S")]
+        parts.append(f"EVERY={int(match.group('count') or 1) * factor}{unit}")
+    if match.group("end_base"):
+        until = (match.group("end_base") + match.group("end_terms")).strip()
+        parts.append(f'UNTIL="{until}"' if " " in until else f"UNTIL={until}")
+    return f"{message}; write {' '.join(parts)!r}"
+
+
+def _insert_date_spec(
+    event: SimulatorEvent, variables: Dict[str, SimulatorEventValue]
+) -> _ReportSpec:
+    """Build the report specification for an ``INSERT_DATE`` schedule event.
+
+    ``EVERY`` is a duration expression and ``UNTIL`` an inclusive date
+    expression; quote either value when it contains spaces. ``COMMENT`` is
+    accepted but not used.
+    """
+    loc = event.loc
+    unknown = set(event.attributes) - _INSERT_DATE_ATTRS
+    if unknown:
+        raise SimulatorEventsParseError(
+            f"Unknown INSERT_DATE attribute(s): {', '.join(sorted(unknown))} "
+            "(expected EVERY, UNTIL)",
+            loc,
+        )
+
+    every: Optional[Duration] = None
+    if "EVERY" in event.attributes:
+        raw = event.attributes["EVERY"].raw
+        match = _DURATION_EXPR_RE.match(raw)
+        if match is None:
+            raise SimulatorEventsParseError(
+                f"INSERT_DATE EVERY must be a duration, e.g. EVERY=1mon or "
+                f"EVERY=30d, got {raw!r}",
+                loc,
+            )
+        every = _eval_duration_expr(
+            match.group("base"), match.group("terms"), variables, loc
+        )
+        if every.months < 0 or every.delta < _ZERO_DELTA or not every:
+            raise SimulatorEventsParseError(
+                f"INSERT_DATE EVERY must be a positive duration, got {raw!r}", loc
+            )
+
+    end: Optional[datetime.datetime] = None
+    if "UNTIL" in event.attributes:
+        if every is None:
+            raise SimulatorEventsParseError("INSERT_DATE UNTIL requires EVERY", loc)
+        raw = event.attributes["UNTIL"].raw
+        match = _DATE_EXPR_RE.match(raw)
+        if match is None:
+            raise SimulatorEventsParseError(
+                f"INSERT_DATE UNTIL must be a date expression, got {raw!r}", loc
+            )
+        end = _eval_date_expr(match.group("base"), match.group("terms"), variables, loc)
+
+    return _ReportSpec(start=event.event_date, every=every, end=end, loc=loc)
 
 
 def _unrecognized_line_message(line: str, first: str) -> str:
