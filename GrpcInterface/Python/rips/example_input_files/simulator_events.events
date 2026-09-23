@@ -2,7 +2,7 @@
 # Parsed by rips.simulator_events; see that module's docstring for the grammar.
 # Validate with: python3 -m rips.simulator_events simulator_events.events
 
-SIMEVENTS 1.1
+SIMEVENTS 1.2
 UNIT METRIC
 
 # Typed declarations: dates, Go-style durations (e.g. 5d, 12h30m), well-name aliases, and
@@ -22,8 +22,8 @@ WELL A1 = "55_33-A-1"
 # Inserted dates become bare DATES keywords in the generated schedule. Recurring
 # dates may use an explicit inclusive end date or default to the last event.
 SCHEDULE
-INSERT_DATE A1_STARTUP EVERY MONTH
-INSERT_DATE A2_STARTUP EVERY 30 DAYS UNTIL A2_STARTUP + 90d
+  A1_STARTUP  INSERT_DATE  EVERY=1mon
+  A2_STARTUP  INSERT_DATE  EVERY=30d  UNTIL="A2_STARTUP + 90d"
 
 # Raw schedule text is preserved verbatim. This block is inserted immediately
 # after the date declaration; lower priorities are emitted first when multiple
