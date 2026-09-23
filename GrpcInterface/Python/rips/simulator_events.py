@@ -12,8 +12,11 @@ It is split into two independent layers:
   a pure-Python tokenizer that turns the text into an intermediate
   representation (:class:`SimulatorEventsDocument`). It has no dependency on a running
   ResInsight instance and can be unit-tested standalone. It doubles as a
-  standalone validator: ``python3 -m rips.simulator_events <file.events>``.
-* **Layer B - applier** (:func:`apply_simulator_events_document` / :func:`apply_simulator_events_file`):
+  standalone validator: ``python3 -m rips.simulator_events <file.events> ...``.
+  Several files can be combined with :func:`parse_simulator_events_files` /
+  :func:`merge_simulator_events_documents`.
+* **Layer B - applier** (:func:`apply_simulator_events_document` /
+  :func:`apply_simulator_events_file` / :func:`apply_simulator_events_files`):
   takes the intermediate representation plus a live ``rips`` project/timeline and
   calls the ``WellEventTimeline`` API, performing all semantic mapping and
   validation.
@@ -167,6 +170,13 @@ Notes on the grammar:
   raised :class:`SimulatorEventsParseError` carries one :class:`ParseIssue` per problem.
   Unknown names come with "did you mean" suggestions where possible.
 * Legacy ``SET`` variables and single-quoted well names are not supported.
+* Several files may be imported together. Each file is parsed on its own
+  (variables are file-local), then the documents are concatenated in the given
+  order. Keyword events with the same owner (well, group or schedule), type
+  and timestamp are merged, whether they come from one file or several files.
+  A repeated attribute takes the later value, with a warning that names both
+  source locations when the values differ. All files must use the same
+  ``UNIT``.
 """
 
 from __future__ import annotations
@@ -192,10 +202,29 @@ AttrScalar = Union[str, int, float, bool]
 
 @dataclass(frozen=True)
 class SourceLoc:
-    """Location of a construct in the source file (1-based line number)."""
+    """Location of a construct in the source file (1-based line number).
+
+    ``source`` names the originating file when several files are combined
+    (see :func:`merge_simulator_events_documents`); None for a single text.
+    """
 
     line: int
     text: str
+    source: Optional[str] = None
+
+
+def _loc_label(loc: SourceLoc) -> str:
+    """Return a message prefix such as ``Line 12`` or ``a.events, line 12``."""
+    if loc.source is None:
+        return f"Line {loc.line}"
+    return f"{loc.source}, line {loc.line}"
+
+
+def _loc_reference(loc: SourceLoc) -> str:
+    """Return an inline reference such as ``line 12`` or ``line 12 of a.events``."""
+    if loc.source is None:
+        return f"line {loc.line}"
+    return f"line {loc.line} of {loc.source}"
 
 
 @dataclass(frozen=True)
@@ -225,7 +254,7 @@ class SimulatorEventsParseError(Exception):
             self.errors = [ParseIssue(message=message or "", loc=loc)]
         self.loc = loc
         lines = [
-            f"Line {issue.loc.line}: {issue.message}" if issue.loc else issue.message
+            f"{_loc_label(issue.loc)}: {issue.message}" if issue.loc else issue.message
             for issue in self.errors
         ]
         super().__init__("\n".join(lines))
@@ -451,6 +480,7 @@ class SimulatorEventsDocument:
     schedule_events: List[SimulatorEvent] = field(default_factory=list)
     report_dates: List[datetime.datetime] = field(default_factory=list)
     warnings: List[ParseWarning] = field(default_factory=list)
+    source: Optional[str] = None
 
 
 def _iso_event_date(event_date: datetime.datetime) -> str:
@@ -474,7 +504,7 @@ def _event_context(event: SimulatorEvent) -> str:
 
 def _event_message(event: SimulatorEvent, message: str) -> str:
     """Add source line, scope and timestamp to an event-level message."""
-    return f"Line {event.loc.line} {_event_context(event)}: {message}"
+    return f"{_loc_label(event.loc)} {_event_context(event)}: {message}"
 
 
 def _set_event_scopes(
@@ -577,14 +607,134 @@ _ATTR_RE = re.compile(r'(?P<key>[A-Za-z_]\w*)\s*=\s*(?:"(?P<qval>[^"]*)"|(?P<val
 
 def parse_simulator_events_file(
     path: Union[str, "os.PathLike[str]"],
+    *,
+    source: Optional[str] = None,
 ) -> SimulatorEventsDocument:
-    """Parse a SIMEVENTS file from disk into an :class:`SimulatorEventsDocument`."""
+    """Parse a SIMEVENTS file from disk into an :class:`SimulatorEventsDocument`.
+
+    ``source`` is an optional label (typically the file name) attached to every
+    source location, so diagnostics can identify the file.
+    """
     with open(path, "r", encoding="utf-8") as handle:
-        return parse_simulator_events(handle.read())
+        return parse_simulator_events(handle.read(), source=source)
 
 
-def parse_simulator_events(text: str) -> SimulatorEventsDocument:
-    """Parse SIMEVENTS 1.0 text into an :class:`SimulatorEventsDocument`.
+def _source_labels(paths: List[Union[str, "os.PathLike[str]"]]) -> List[str]:
+    """Return file names as labels, falling back to full paths when ambiguous."""
+    names = [os.path.basename(os.fspath(path)) for path in paths]
+    if len(set(names)) == len(names):
+        return names
+    return [os.fspath(path) for path in paths]
+
+
+def parse_simulator_events_files(
+    paths: List[Union[str, "os.PathLike[str]"]],
+) -> SimulatorEventsDocument:
+    """Parse several SIMEVENTS files and merge them into one document.
+
+    Every file is parsed before failing, so the raised
+    :class:`SimulatorEventsParseError` reports the errors of all files. Source
+    locations carry the file name. See :func:`merge_simulator_events_documents`.
+    """
+    documents: List[SimulatorEventsDocument] = []
+    errors: List[ParseIssue] = []
+    for path, label in zip(paths, _source_labels(paths)):
+        try:
+            documents.append(parse_simulator_events_file(path, source=label))
+        except SimulatorEventsParseError as exc:
+            errors.extend(
+                issue
+                if issue.loc is not None
+                else ParseIssue(f"{label}: {issue.message}", None)
+                for issue in exc.errors
+            )
+    if errors:
+        raise SimulatorEventsParseError(errors=errors)
+    return merge_simulator_events_documents(documents)
+
+
+def _version_key(version: str) -> Tuple[int, ...]:
+    return tuple(int(part) for part in version.split("."))
+
+
+def merge_simulator_events_documents(
+    documents: List[SimulatorEventsDocument],
+) -> SimulatorEventsDocument:
+    """Combine several parsed documents into one, in the given order.
+
+    Blocks, events, inserted dates and warnings are concatenated; the inputs are
+    not modified. Matching events from different files are merged afterwards by
+    :func:`coalesce_simulator_events_document` exactly as if they were written
+    in one file in the given order, so a later file overrides repeated
+    attributes (with a warning when the values differ).
+
+    Each file is parsed independently: variables are file-local, and a
+    recurring ``INSERT_DATE`` without ``UNTIL`` ends at the last event of its
+    own file.
+
+    Raises:
+        SimulatorEventsParseError: if the documents use different unit systems,
+            or the combined events violate document rules (more than one
+            ``RESTART``, or several ``WELSPECS`` for a well at one timestamp).
+    """
+    if not documents:
+        raise ValueError("At least one document is required")
+
+    sources = copy.deepcopy(documents)
+    first = sources[0]
+    for document in sources[1:]:
+        if document.unit_system != first.unit_system:
+            raise SimulatorEventsParseError(
+                f"Unit system mismatch: {document.source or 'document'} uses "
+                f"{document.unit_system}, but {first.source or 'the first document'} "
+                f"uses {first.unit_system}"
+            )
+
+    result = SimulatorEventsDocument(
+        version=max((document.version for document in sources), key=_version_key),
+        unit_system=first.unit_system,
+    )
+    report_dates: Set[datetime.datetime] = set()
+    for document in sources:
+        result.warnings.extend(document.warnings)
+        for name, value in document.variables.items():
+            previous = result.variables.get(name)
+            if (
+                previous is not None
+                and previous.kind == value.kind == "FILTER"
+                and previous.value != value.value
+            ):
+                result.warnings.append(
+                    ParseWarning(
+                        f"FILTER '{name}' is also declared on "
+                        f"{_loc_reference(previous.loc)} with a different "
+                        "expression; each file keeps its own definition",
+                        value.loc,
+                    )
+                )
+            result.variables[name] = value
+        result.wells.extend(document.wells)
+        result.groups.extend(document.groups)
+        result.schedule_events.extend(document.schedule_events)
+        report_dates.update(document.report_dates)
+    result.report_dates = sorted(report_dates)
+
+    errors = _restart_validation_issues(
+        result.wells, result.groups, result.schedule_events
+    )
+    errors.extend(_wellspec_validation_issues(result.wells))
+    if errors:
+        raise SimulatorEventsParseError(errors=errors)
+    return result
+
+
+def parse_simulator_events(
+    text: str, *, source: Optional[str] = None
+) -> SimulatorEventsDocument:
+    """Parse SIMEVENTS 1.1 text into an :class:`SimulatorEventsDocument`.
+
+    ``source`` is an optional label (typically the file name) stored on every
+    :class:`SourceLoc` and on the document.
 
     Raises:
         SimulatorEventsParseError: carrying every error found in the file. A missing or
@@ -607,7 +757,7 @@ def parse_simulator_events(text: str) -> SimulatorEventsDocument:
     line_index = 0
     while line_index < len(source_lines):
         raw_line = source_lines[line_index]
-        loc = SourceLoc(line=line_index + 1, text=raw_line)
+        loc = SourceLoc(line=line_index + 1, text=raw_line, source=source)
         line = _strip_comment(raw_line).strip()
         line_index += 1
         if not line:
@@ -694,6 +844,7 @@ def parse_simulator_events(text: str) -> SimulatorEventsDocument:
         schedule_events=schedule_events,
         report_dates=report_dates,
         warnings=warnings,
+        source=source,
     )
 
 
@@ -831,7 +982,7 @@ def _wellspec_validation_issues(wells: List[WellBlock]) -> List[ParseIssue]:
                 issues.append(
                     ParseIssue(
                         f"{_event_context(event)}: WELSPECS already defined "
-                        f"(first definition on line {previous.loc.line})",
+                        f"(first definition on {_loc_reference(previous.loc)})",
                         event.loc,
                     )
                 )
@@ -1601,6 +1752,25 @@ def apply_simulator_events_file(
     )
 
 
+def apply_simulator_events_files(
+    paths: List[Union[str, "os.PathLike[str]"]],
+    timeline: Any,
+    project: Any,
+    *,
+    case: Any = None,
+    **options: str,
+) -> ApplyReport:
+    """Parse several SIMEVENTS files, merge them and apply them to ``timeline``.
+
+    Matching events from different files are merged into one timeline event;
+    see :func:`merge_simulator_events_documents`.
+    """
+    document = parse_simulator_events_files(paths)
+    return apply_simulator_events_document(
+        document, timeline, project, case=case, **options
+    )
+
+
 _NON_COALESCING_EVENT_TYPES = {
     "MEMBER",
     "PERFORATION",
@@ -1659,8 +1829,8 @@ def coalesce_simulator_events_document(
                     result.warnings.append(
                         ParseWarning(
                             f"{_event_context(event)}: conflicting {event_type} "
-                            f"attribute '{name}' (previous value on line "
-                            f"{attribute_locs[key][name].line}); using "
+                            f"attribute '{name}' (previous value on "
+                            f"{_loc_reference(attribute_locs[key][name])}); using "
                             f"{replacement.raw!r}",
                             event.loc,
                         )
@@ -1842,7 +2012,7 @@ def apply_simulator_events_document(
     report = ApplyReport()
     report.report_dates = sorted({_iso_event_date(d) for d in document.report_dates})
     report.warnings.extend(
-        f"Line {warning.loc.line}: {warning.message}" for warning in document.warnings
+        f"{_loc_label(warning.loc)}: {warning.message}" for warning in document.warnings
     )
 
     ctx = _prepare_filter_context(document, project, case)
@@ -1850,7 +2020,7 @@ def apply_simulator_events_document(
     for well in document.wells:
         well_path = project.well_path_by_name(well.well_name)
         if well_path is None:
-            message = f"Unknown well '{well.well_name}' (line {well.loc.line})"
+            message = f"Unknown well '{well.well_name}' ({_loc_reference(well.loc)})"
             if on_unknown_well == "error":
                 raise RipsError(message)
             if on_unknown_well == "warn":
@@ -1900,7 +2070,7 @@ class _FilterContext:
 
     case: Any
     resolved_types: Dict[FilterTerm, str] = field(default_factory=dict)
-    combined_by_key: Dict[str, Any] = field(default_factory=dict)
+    combined_by_key: Dict[Tuple[Optional[str], str], Any] = field(default_factory=dict)
     properties_by_type: Dict[str, List[str]] = field(default_factory=dict)
 
     def available(self, result_type: str) -> List[str]:
@@ -1992,7 +2162,9 @@ def _materialize_filter(ctx: _FilterContext, event_filter: EventFilter) -> Any:
     the perforations that reference them; inline filters are shared when their
     expression text is identical.
     """
-    key = event_filter.name or event_filter.expr.raw
+    # Keyed on name and expression: files merged from different sources may
+    # declare the same filter name with different expressions.
+    key = (event_filter.name, event_filter.expr.raw)
     existing = ctx.combined_by_key.get(key)
     if existing is not None:
         return existing
@@ -2533,36 +2705,43 @@ def _cli(argv: Optional[List[str]] = None) -> int:
 
     arg_parser = argparse.ArgumentParser(
         prog="python3 -m rips.simulator_events",
-        description="Validate a SIMEVENTS file (parse only; no ResInsight "
-        "needed), and optionally apply it to a running ResInsight instance.",
+        description="Validate one or more SIMEVENTS files (parse only; no "
+        "ResInsight needed), and optionally apply them to a running ResInsight "
+        "instance. Several files are merged into one document, in the given "
+        "order, before matching events are coalesced.",
     )
-    arg_parser.add_argument("file", help="path to the SIMEVENTS file")
+    arg_parser.add_argument(
+        "files", nargs="+", metavar="file", help="path to a SIMEVENTS file"
+    )
     arg_parser.add_argument(
         "--apply",
         action="store_true",
         help="apply the events to a running ResInsight instance after validating",
     )
     args = arg_parser.parse_args(argv)
+    files: List[str] = args.files
+    label = ", ".join(files)
 
     try:
-        document = parse_simulator_events_file(args.file)
+        if len(files) == 1:
+            document = parse_simulator_events_file(files[0])
+        else:
+            document = parse_simulator_events_files(list(files))
     except OSError as exc:
         print(f"Error: {exc}")
         return 1
     except SimulatorEventsParseError as exc:
         for issue in exc.errors:
             if issue.loc is not None:
-                print(f"Line {issue.loc.line}: {issue.message}")
+                print(f"{_loc_label(issue.loc)}: {issue.message}")
             else:
                 print(issue.message)
-        print(f"{args.file}: {len(exc.errors)} error(s) found")
+        print(f"{label}: {len(exc.errors)} error(s) found")
         return 1
 
     event_count = sum(len(well.events) for well in document.wells)
     group_event_count = sum(len(group.events) for group in document.groups)
-    print(
-        f"{args.file}: OK (SIMEVENTS {document.version}, units {document.unit_system})"
-    )
+    print(f"{label}: OK (SIMEVENTS {document.version}, units {document.unit_system})")
     print(
         f"  {len(document.variables)} variable(s), {len(document.wells)} "
         f"well block(s), {event_count} well event(s), "
@@ -2572,7 +2751,7 @@ def _cli(argv: Optional[List[str]] = None) -> int:
     )
     normalized = coalesce_simulator_events_document(document)
     for warning in normalized.warnings:
-        print(f"  Warning line {warning.loc.line}: {warning.message}")
+        print(f"  Warning {_loc_reference(warning.loc)}: {warning.message}")
 
     if args.apply:
         return _apply_to_running_instance(document)

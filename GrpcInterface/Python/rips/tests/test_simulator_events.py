@@ -28,8 +28,11 @@ from rips.simulator_events import (  # noqa: E402
     SimulatorEventsParseError,
     _cli,
     apply_simulator_events_document,
+    apply_simulator_events_files,
     coalesce_simulator_events_document,
+    merge_simulator_events_documents,
     parse_simulator_events,
+    parse_simulator_events_files,
 )
 
 SAMPLE = """\
@@ -2125,6 +2128,229 @@ class TestFilterApplying:
         _, project, report = self._apply(text)
         assert report.events_applied == 1
         assert not project.cases()[0].data_filter_collection().combined_filters
+
+
+# ---------------------------------------------------------------------------
+# Multiple files: documents are merged before matching events are coalesced
+# ---------------------------------------------------------------------------
+
+FILE_A = """\
+SIMEVENTS 1.1
+WELL "55_33-A-1"
+  2018-01-01 WCONHIST STATUS=OPEN ORAT=100
+  2018-01-01 PERFORATION MDSTART=1 MDEND=2
+GROUP "OP"
+  2018-01-01 GCONPROD CONTROL_MODE=ORAT
+SCHEDULE
+  2018-01-01 RPTRST BASIC=1
+  INSERT_DATE 2018-02-01
+"""
+
+FILE_B = """\
+SIMEVENTS 1.1
+WELL "55_33-A-1"
+  2018-01-01 WCONHIST CMODE=ORAT
+  2018-01-01 PERFORATION MDSTART=3 MDEND=4
+GROUP "OP"
+  2018-01-01 GCONPROD OIL_TARGET=100
+SCHEDULE
+  2018-01-01 RPTRST FREQ=2
+  INSERT_DATE 2018-02-01
+  INSERT_DATE 2018-03-01
+"""
+
+
+class TestMultipleFiles:
+    def _write(self, tmp_path, name, text):
+        path = tmp_path / name
+        path.write_text(text)
+        return str(path)
+
+    def _files(self, tmp_path, text_a=FILE_A, text_b=FILE_B):
+        return [
+            self._write(tmp_path, "a.events", text_a),
+            self._write(tmp_path, "b.events", text_b),
+        ]
+
+    def test_events_from_different_files_are_merged(self, tmp_path):
+        document = parse_simulator_events_files(self._files(tmp_path))
+        merged = coalesce_simulator_events_document(document)
+
+        assert len(merged.wells) == 1
+        well_events = merged.wells[0].events
+        wconhist = [e for e in well_events if e.event_type == "WCONHIST"]
+        assert len(wconhist) == 1
+        assert set(wconhist[0].attributes) == {"STATUS", "ORAT", "CMODE"}
+
+        # Events that create domain objects are never merged.
+        perforations = [e for e in well_events if e.event_type == "PERFORATION"]
+        assert len(perforations) == 2
+
+        assert len(merged.groups) == 1
+        assert set(merged.groups[0].events[0].attributes) == {
+            "CONTROL_MODE",
+            "OIL_TARGET",
+        }
+        assert len(merged.schedule_events) == 1
+        assert set(merged.schedule_events[0].attributes) == {"BASIC", "FREQ"}
+
+        assert merged.report_dates == [
+            datetime.datetime(2018, 2, 1),
+            datetime.datetime(2018, 3, 1),
+        ]
+        assert merged.warnings == []
+
+    def test_source_locations_carry_file_names(self, tmp_path):
+        document = parse_simulator_events_files(self._files(tmp_path))
+        assert document.wells[0].loc.source == "a.events"
+        assert document.wells[1].loc.source == "b.events"
+
+    def test_merge_does_not_mutate_inputs(self):
+        document_a = parse_simulator_events(FILE_A, source="a.events")
+        document_b = parse_simulator_events(FILE_B, source="b.events")
+        merge_simulator_events_documents([document_a, document_b])
+        assert len(document_a.wells) == 1
+        assert len(document_a.schedule_events) == 1
+
+    def test_conflicting_attribute_across_files_warns_with_both_sources(self, tmp_path):
+        text_b = 'SIMEVENTS 1.1\nWELL "55_33-A-1"\n  2018-01-01 WCONHIST STATUS=SHUT\n'
+        files = self._files(tmp_path, text_b=text_b)
+
+        timeline = FakeTimeline()
+        report = apply_simulator_events_files(
+            files, timeline, FakeProject(("55_33-A-1",))
+        )
+
+        wconhist_calls = [
+            call
+            for call in timeline.keyword_calls
+            if call["keyword_name"] == "WCONHIST"
+        ]
+        assert len(wconhist_calls) == 1
+        assert wconhist_calls[0]["keyword_data"]["STATUS"] == "SHUT"
+        assert wconhist_calls[0]["keyword_data"]["ORAT"] == 100
+
+        conflicts = [w for w in report.warnings if "conflicting" in w]
+        assert len(conflicts) == 1
+        assert conflicts[0].startswith('b.events, line 3: [WELL "55_33-A-1"')
+        assert "conflicting WCONHIST attribute 'STATUS'" in conflicts[0]
+        assert "previous value on line 3 of a.events" in conflicts[0]
+        assert "using 'SHUT'" in conflicts[0]
+
+    def test_identical_attribute_across_files_does_not_warn(self, tmp_path):
+        files = self._files(tmp_path, text_b=FILE_A)
+        document = parse_simulator_events_files(files)
+        merged = coalesce_simulator_events_document(document)
+        assert merged.warnings == []
+
+    def test_unit_mismatch_is_an_error(self, tmp_path):
+        text_b = "SIMEVENTS 1.1\nUNIT FIELD\n"
+        with pytest.raises(SimulatorEventsParseError) as exc_info:
+            parse_simulator_events_files(self._files(tmp_path, text_b=text_b))
+        message = str(exc_info.value)
+        assert "Unit system mismatch" in message
+        assert "b.events uses FIELD" in message
+        assert "a.events uses METRIC" in message
+
+    def test_parse_errors_are_collected_from_all_files(self, tmp_path):
+        bad = 'SIMEVENTS 1.1\nWELL "W"\n  NOPE WCONHIST A=1\n'
+        files = self._files(tmp_path, text_a=bad, text_b="")
+        with pytest.raises(SimulatorEventsParseError) as exc_info:
+            parse_simulator_events_files(files)
+        lines = str(exc_info.value).splitlines()
+        assert len(lines) == 2
+        assert lines[0].startswith("a.events, line 3:")
+        assert lines[1].startswith("b.events: Empty file")
+
+    def test_second_restart_across_files_is_an_error(self, tmp_path):
+        text = "SIMEVENTS 1.1\nSCHEDULE\n  2018-01-01 RESTART\n"
+        with pytest.raises(SimulatorEventsParseError) as exc_info:
+            parse_simulator_events_files(
+                self._files(tmp_path, text_a=text, text_b=text)
+            )
+        assert "b.events, line 3" in str(exc_info.value)
+        assert "Only one RESTART event is allowed" in str(exc_info.value)
+
+    def test_same_date_wellspec_across_files_is_an_error(self, tmp_path):
+        text = 'SIMEVENTS 1.1\nWELL "W"\n  2018-01-01 WELSPECS GROUP=OP\n'
+        with pytest.raises(SimulatorEventsParseError) as exc_info:
+            parse_simulator_events_files(
+                self._files(tmp_path, text_a=text, text_b=text)
+            )
+        message = str(exc_info.value)
+        assert "WELSPECS already defined" in message
+        assert "(first definition on line 3 of a.events)" in message
+
+    def test_filter_name_collision_warns_and_keeps_each_expression(self, tmp_path):
+        def text(expr):
+            return (
+                "SIMEVENTS 1.1\n"
+                f'FILTER HIGH = "{expr}"\n'
+                'WELL "55_33-A-1"\n'
+                "  2018-01-01 PERFORATION MDSTART=1 MDEND=2 FILTER=HIGH\n"
+            )
+
+        files = self._files(
+            tmp_path, text_a=text("PORO > 0.2"), text_b=text("PORO > 0.3")
+        )
+        document = parse_simulator_events_files(files)
+        assert len(document.warnings) == 1
+        assert "FILTER 'HIGH' is also declared on line 2 of a.events" in (
+            document.warnings[0].message
+        )
+
+        case = FakeCase()
+        timeline = FakeTimeline()
+        report = apply_simulator_events_document(
+            document, timeline, FakeProject(("55_33-A-1",)), case=case
+        )
+        assert report.errors == []
+        combined = case.data_filter_collection().combined_filters
+        assert [f.property_filters[0].lower_bound for f in combined] == [0.2, 0.3]
+        assert timeline.perf_events[0].filters[0] is combined[0]
+        assert timeline.perf_events[1].filters[0] is combined[1]
+
+    def test_single_document_messages_are_unchanged(self):
+        document = parse_simulator_events(
+            "SIMEVENTS 1.1\n"
+            'WELL "55_33-A-1"\n'
+            "  2018-01-01 WCONHIST STATUS=OPEN\n"
+            "  2018-01-01 WCONHIST STATUS=SHUT\n"
+        )
+        report = apply_simulator_events_document(
+            document, FakeTimeline(), FakeProject(("55_33-A-1",))
+        )
+        assert report.warnings[0].startswith('Line 4: [WELL "55_33-A-1"')
+        assert "previous value on line 3)" in report.warnings[0]
+
+    def test_cli_validates_and_applies_multiple_files(
+        self, tmp_path, capsys, monkeypatch
+    ):
+        timeline = FakeTimeline()
+        project = FakeCliProject(
+            ("55_33-A-1",), collections=[FakeWellPathCollection(timeline)]
+        )
+        monkeypatch.setattr(
+            rips.Instance, "find", staticmethod(lambda: FakeInstance(project))
+        )
+        files = self._files(tmp_path)
+
+        assert _cli([*files, "--apply"]) == 0
+        out = capsys.readouterr().out
+        assert f"{files[0]}, {files[1]}: OK" in out
+        assert "2 well block(s), 4 well event(s)" in out
+        # One merged WCONHIST, two perforations, one GCONPROD and one RPTRST.
+        assert "Events applied: 5" in out
+        assert len(timeline.keyword_calls) == 1
+        assert len(timeline.perf_calls) == 2
+
+    def test_cli_reports_errors_with_file_names(self, tmp_path, capsys):
+        bad = 'SIMEVENTS 1.1\nWELL "W"\n  NOPE WCONHIST A=1\n'
+        files = self._files(tmp_path, text_b=bad)
+        assert _cli(files) == 1
+        out = capsys.readouterr().out
+        assert "b.events, line 3:" in out
+        assert "1 error(s) found" in out
 
 
 # ---------------------------------------------------------------------------
