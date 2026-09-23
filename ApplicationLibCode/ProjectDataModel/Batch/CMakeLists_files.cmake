@@ -1,0 +1,8 @@
+set(SOURCE_GROUP_SOURCE_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimBatchQueue.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimBatchQueueSlurm.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimBatchQueueLsf.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimBatchQueueLocal.cpp
+)
+
+list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

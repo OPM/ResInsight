@@ -19,7 +19,9 @@
 #include "RimProcess.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferencesOpm.h"
 #include "RiaQStringFormatter.h"
+#include "RiaWslTools.h"
 #include "RimProcessMonitor.h"
 
 #include "cafPdmFieldCapability.h"
@@ -35,7 +37,7 @@ size_t RimProcess::m_nextProcessId = 1;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProcess::RimProcess( bool logStdOutErr /*true*/, RimProcessMonitor* monitor )
+RimProcess::RimProcess( bool logStdOutErr, RimProcessMonitor* monitor )
     : m_enableLogging( logStdOutErr )
     , m_qProcess( nullptr )
 {
@@ -61,6 +63,9 @@ RimProcess::RimProcess( bool logStdOutErr /*true*/, RimProcessMonitor* monitor )
 
     CAF_PDM_InitField( &m_id, "ID", defId, "ID" );
     m_id.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_useWsl, "UseWSL", false, "Use WSL to launch process" );
+    m_useWsl.uiCapability()->setUiReadOnly( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,9 +132,17 @@ void RimProcess::setDescription( QString desc )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimProcess::description() const
+{
+    return m_description();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimProcess::command() const
 {
-    return m_command;
+    return m_command();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,7 +190,11 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
     m_qProcess  = new QProcess();
     QString cmd = commandLine();
 
-    if ( m_enableLogging ) RiaLogging::info( std::format( "Start process {}: {}", m_id(), cmd ) );
+    if ( m_enableLogging )
+    {
+        std::string wslTxt = m_useWsl() ? " using WSL" : "";
+        RiaLogging::info( std::format( "Start process {}{}: {}", m_id(), wslTxt, cmd ) );
+    }
 
     m_monitor->clearStdOutErr();
 
@@ -195,6 +212,13 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
     if ( !m_workDir().path().isEmpty() )
     {
         m_qProcess->setWorkingDirectory( m_workDir().path() );
+    }
+
+    if ( m_useWsl() )
+    {
+        m_arguments.prepend( m_command() );
+        m_arguments = RiaPreferencesOpm::current()->wslOptions() + m_arguments;
+        m_command   = RiaWslTools::wslCommand();
     }
 
     m_qProcess->start( m_command, m_arguments );
@@ -348,7 +372,39 @@ void RimProcess::addEnvironmentVariable( QString name, QString value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::vector<std::pair<QString, QString>>& RimProcess::environmentVariables() const
+{
+    return m_environmentVariables;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProcess::setWorkingDirectory( QString workDir )
 {
     m_workDir = workDir;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProcess::workingDirectory() const
+{
+    return m_workDir().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProcess::useWsl() const
+{
+    return m_useWsl();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcess::setUseWsl( bool useWsl )
+{
+    m_useWsl = useWsl;
 }

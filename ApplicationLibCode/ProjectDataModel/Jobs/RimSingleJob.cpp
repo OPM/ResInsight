@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaQStringFormatter.h"
 
+#include "Batch/RimBatchQueue.h"
 #include "RimJobMonitor.h"
 #include "RimProcess.h"
 #include "RimProcessQueue.h"
@@ -44,6 +45,7 @@ RimSingleJob::RimSingleJob()
     , m_errorsDetected( 0 )
     , m_warningsDetected( 0 )
     , m_process( nullptr )
+    , m_queue( nullptr )
 {
     CAF_PDM_InitObject( "Generic Single Job" );
 }
@@ -53,6 +55,8 @@ RimSingleJob::RimSingleJob()
 //--------------------------------------------------------------------------------------------------
 RimSingleJob::~RimSingleJob()
 {
+    if ( !m_process.isNull() ) delete m_process;
+    if ( !m_queue.isNull() ) delete m_queue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +91,11 @@ bool RimSingleJob::execute()
     m_errorsDetected   = 0;
     m_warningsDetected = 0;
     m_percentageDone   = 0.0;
-    m_process          = nullptr;
+    if ( !m_process.isNull() )
+    {
+        delete m_process;
+        m_process = nullptr;
+    }
     setState( JobState::Idle );
 
     onProgress( m_percentageDone );
@@ -121,6 +129,9 @@ bool RimSingleJob::execute()
 
     m_process = new RimProcess( true, new RimJobMonitor( this ) );
 
+    // on windows, should run using wsl?
+    m_process->setUseWsl( shouldUseWsl() );
+
     // build process to run
     QString cmd = cmdLine.takeFirst();
     m_process->setCommand( cmd );
@@ -131,7 +142,12 @@ bool RimSingleJob::execute()
         m_process->addEnvironmentVariable( name, value );
     }
 
-    RimProcessQueue::queueProcess( m_process );
+    if ( m_queue.isNull() )
+    {
+        m_queue = RimBatchQueue::createBatchQueue();
+    }
+
+    m_queue->queueProcess( m_process );
     onProgress( m_percentageDone );
 
     return true;
