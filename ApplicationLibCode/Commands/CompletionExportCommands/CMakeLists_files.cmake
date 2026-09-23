@@ -17,6 +17,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/MswExport/RicMswBranchBuilder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicMswTableDataTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicScheduleDataGenerator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportScheduleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicTransmissibilityCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPerforationCellFilterEvaluator.cpp
 )

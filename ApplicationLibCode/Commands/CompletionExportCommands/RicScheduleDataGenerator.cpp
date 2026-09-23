@@ -149,6 +149,53 @@ std::vector<QDateTime> RicScheduleDataGenerator::collectAllDates( const RimWellE
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<QString, QString> RicScheduleDataGenerator::generateScheduleForTimeline( const RimWellEventTimeline&         timeline,
+                                                                                       RimEclipseCase&                     eclipseCase,
+                                                                                       const std::set<const RimWellPath*>& mswWells,
+                                                                                       bool firstDateAsComment,
+                                                                                       bool alignColumns )
+{
+    // The last applied timestamp (from RimWellEventTimeline::applyEventsUpToDate) limits the
+    // schedule to the events that have been materialized.
+    const QDateTime lastTimestamp = timeline.lastAppliedTimestamp();
+
+    std::vector<QDateTime>    dates;
+    std::vector<RimWellPath*> wellPathsWithEvents;
+
+    if ( lastTimestamp.isValid() )
+    {
+        dates = timeline.getAllEventDates();
+        std::erase_if( dates, [&lastTimestamp]( const QDateTime& date ) { return date > lastTimestamp; } );
+
+        wellPathsWithEvents = timeline.getWellPathsWithEventsUpToDate( lastTimestamp );
+
+        // Insert-date events only force a DATES keyword (e.g. to trigger a summary report), so
+        // they are deliberately not filtered by the last applied timestamp.
+        std::set<QDateTime> mergedDates( dates.begin(), dates.end() );
+        for ( const auto* event : timeline.getEventsByType( RimWellEvent::EventType::INSERT_DATE ) )
+        {
+            if ( event->eventDate().isValid() ) mergedDates.insert( event->eventDate() );
+        }
+        dates.assign( mergedDates.begin(), mergedDates.end() );
+    }
+    else
+    {
+        // No timestamp set - include all events and wells
+        dates               = timeline.getAllEventDates();
+        wellPathsWithEvents = timeline.getWellPathsWithEvents();
+    }
+
+    if ( dates.empty() )
+    {
+        return std::unexpected( QString( "No events found in timeline" ) );
+    }
+
+    return generateSchedule( timeline, eclipseCase, wellPathsWithEvents, dates, mswWells, firstDateAsComment, alignColumns );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Append the records of `kw` into the entry for `name`, creating that entry from a copy of `kw`
 /// on first encounter so the accumulated DeckKeyword is bound to the right ParserKeyword.
 //--------------------------------------------------------------------------------------------------

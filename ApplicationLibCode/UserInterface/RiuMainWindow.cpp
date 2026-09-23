@@ -511,6 +511,10 @@ void RiuMainWindow::createMenus()
     exportMenu->addAction( cmdFeatureMgr->action( "RicSaveEclipseInputActiveVisibleCellsFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicExportCompletionsForVisibleWellPathsFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicExportVisibleWellPathsFeature" ) );
+    if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events-export" ) )
+    {
+        exportMenu->addAction( cmdFeatureMgr->action( "RicExportScheduleFeature" ) );
+    }
 
     // Save menu actions
     fileMenu->addSeparator();

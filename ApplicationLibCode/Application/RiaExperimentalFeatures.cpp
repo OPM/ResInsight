@@ -34,6 +34,9 @@ const std::vector<RiaExperimentalFeatures::Feature>& RiaExperimentalFeatures::av
         { "undo-redo-view", "Undo/Redo View", "Show the command undo/redo history view." },
         { "oil-volume-result", "Oil Volume Result", "Compute the derived oil volume cell result." },
         { "simulator-events-import", "Simulator Events Import", "Enable import of simulator events from file." },
+        { "simulator-events-export",
+          "Simulator Events Schedule Export",
+          "Enable export of an Eclipse schedule generated from the well event timeline." },
         { "remember-dialog-size",
           "Remember Dialog Size",
           "Remember the size of property and preferences dialogs between sessions and restore it the next time they "
