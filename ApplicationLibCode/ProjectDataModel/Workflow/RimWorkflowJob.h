@@ -24,6 +24,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QMap>
 #include <QPointer>
 
 class RiuWorkflowJobRunner;
@@ -34,6 +35,7 @@ class RimWorkflowJob : public caf::PdmObject
 
 public:
     RimWorkflowJob();
+    ~RimWorkflowJob() override;
 
     void setJobName( const QString& name );
 
@@ -44,6 +46,12 @@ public:
     void    runJob();
     void    cancelJob();
     bool    isRunning() const;
+
+    QMap<QString, QString> taskStates() const;
+    QMap<QString, QString> taskErrors() const;
+    QString                runStatus() const;
+    void                   updateTaskState( const QString& runId, const QString& taskName, const QString& state, const QString& error );
+    void                   finishRun( const QString& runId, bool succeeded, bool cancelled );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -56,4 +64,9 @@ private:
     caf::PdmField<QString>                         m_name;
     caf::PdmChildArrayField<RimWorkflowTaskInput*> m_taskInputs;
     QPointer<RiuWorkflowJobRunner>                 m_runner;
+    QMap<QString, QString>                         m_taskStates;
+    QMap<QString, QString>                         m_taskErrors;
+    QString                                        m_runStatus;
+    QString                                        m_activeTask;
+    QString                                        m_runId;
 };

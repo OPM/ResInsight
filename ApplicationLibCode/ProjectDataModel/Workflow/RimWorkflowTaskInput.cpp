@@ -18,6 +18,7 @@
 
 #include "RimWorkflowTaskInput.h"
 
+#include "RimWorkflowArrayBinding.h"
 #include "RimWorkflowBoolBinding.h"
 #include "RimWorkflowCaseBinding.h"
 #include "RimWorkflowDateBinding.h"
@@ -53,6 +54,7 @@ RimWorkflowFieldBinding* createBinding( const QJsonObject& schema )
     if ( type == "boolean" ) return new RimWorkflowBoolBinding;
     if ( type == "integer" ) return new RimWorkflowIntBinding;
     if ( type == "number" ) return new RimWorkflowFloatBinding;
+    if ( type == "array" ) return new RimWorkflowArrayBinding;
     return new RimWorkflowStringBinding;
 }
 } // namespace

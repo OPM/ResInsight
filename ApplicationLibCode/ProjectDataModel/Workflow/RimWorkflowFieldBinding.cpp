@@ -18,6 +18,13 @@
 
 #include "RimWorkflowFieldBinding.h"
 
+#include "RiuMainWindow.h"
+
+#include "cafPdmUiFieldHandle.h"
+
+#include <QDate>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimWorkflowFieldBinding, "WorkflowFieldBinding" );
@@ -34,6 +41,9 @@ RimWorkflowFieldBinding::RimWorkflowFieldBinding()
 
     CAF_PDM_InitField( &m_required, "Required", false, "Required" );
     m_required.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_hasValue, "HasValue", false, "Has Value" );
+    m_hasValue.uiCapability()->setUiHidden( true );
 }
 
 QString RimWorkflowFieldBinding::fieldName() const
@@ -57,11 +67,45 @@ void RimWorkflowFieldBinding::setRequired( bool required )
     m_required = required;
 }
 
+QString RimWorkflowFieldBinding::displayValue() const
+{
+    if ( !hasValue() ) return "(not set)";
+
+    auto* field = const_cast<RimWorkflowFieldBinding*>( this )->valueField();
+    if ( !field || !field->uiCapability() ) return {};
+
+    const QVariant value = field->uiCapability()->uiValue();
+    if ( value.metaType().id() == QMetaType::QDate ) return value.toDate().toString( Qt::ISODate );
+    const QString text = value.toString();
+    return text.isEmpty() ? "(not set)" : text;
+}
+
+void RimWorkflowFieldBinding::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == valueField() )
+    {
+        m_hasValue = true;
+        if ( auto* mainWindow = RiuMainWindow::instance() ) mainWindow->workflowBindingChanged( this );
+    }
+}
+
+bool RimWorkflowFieldBinding::hasValue() const
+{
+    return m_hasValue();
+}
+
+QString RimWorkflowFieldBinding::yamlQuotedScalar( const QString& value )
+{
+    const QByteArray encoded = QJsonDocument( QJsonArray{ value } ).toJson( QJsonDocument::Compact );
+    return QString::fromUtf8( encoded.mid( 1, encoded.size() - 2 ) );
+}
+
 void RimWorkflowFieldBinding::applySchema( const QJsonObject& fieldSchema )
 {
     setFieldName( fieldSchema.value( "name" ).toString() );
     setDescription( fieldSchema.value( "description" ).toString() );
     setRequired( fieldSchema.value( "required" ).toBool( false ) );
+    m_hasValue = fieldSchema.contains( "default" ) && !fieldSchema.value( "default" ).isNull();
 
     if ( auto* vf = valueField() )
     {

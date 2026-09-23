@@ -74,6 +74,16 @@ QString RimWorkflow::workflowDirectory() const
     return m_workflowDirectory().path();
 }
 
+QJsonObject RimWorkflow::graph() const
+{
+    return m_graph;
+}
+
+QString RimWorkflow::loadError() const
+{
+    return m_loadError();
+}
+
 std::vector<RimWorkflowJob*> RimWorkflow::jobs() const
 {
     std::vector<RimWorkflowJob*> result;
@@ -98,6 +108,7 @@ void RimWorkflow::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) con
 bool RimWorkflow::loadFromDirectory( QString* errorMessage )
 {
     m_jobs.deleteChildren();
+    m_graph     = {};
     m_loadError = "";
 
     const QString dir = workflowDirectory();
@@ -154,6 +165,13 @@ bool RimWorkflow::loadFromDirectory( QString* errorMessage )
     }
 
     const QJsonObject root = doc.object();
+    if ( !root.value( "tasks" ).isArray() || !root.value( "edges" ).isArray() )
+    {
+        m_loadError = "Invalid workflow graph schema";
+        if ( errorMessage ) *errorMessage = m_loadError;
+        return false;
+    }
+    m_graph = root;
     if ( root.contains( "name" ) ) m_name = root.value( "name" ).toString();
     if ( root.contains( "description" ) ) m_description = root.value( "description" ).toString();
     setUiName( m_name() );
@@ -162,7 +180,8 @@ bool RimWorkflow::loadFromDirectory( QString* errorMessage )
     for ( const QJsonValue& tv : root.value( "tasks" ).toArray() )
     {
         const QJsonObject taskObj = tv.toObject();
-        auto*             input   = new RimWorkflowTaskInput;
+        if ( taskObj.value( "config_fields" ).toArray().isEmpty() ) continue;
+        auto* input = new RimWorkflowTaskInput;
         input->setTaskName( taskObj.value( "name" ).toString() );
         input->buildFromSchema( taskObj.value( "config_fields" ).toArray() );
         taskInputs.push_back( input );
