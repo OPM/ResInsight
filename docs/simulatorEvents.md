@@ -343,7 +343,8 @@ The returned `ApplyReport` carries `events_applied`, `events_skipped`, `warnings
 ## Exporting a schedule from the GUI
 
 The schedule generated from the well event timeline can be written to file without scripting.
-Enable *Preferences -> System -> Experimental Features -> Simulator Events Schedule Export*, then
+Enable *Preferences -> System -> Experimental Features -> Simulator Events* (the same flag that
+enables the import), then
 use **Export Schedule from Events** from either:
 
 - the context menu of the *Well Event Timeline* item (shown under *Wells* once the timeline has
