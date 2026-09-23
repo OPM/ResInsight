@@ -20,6 +20,7 @@
 #include <QJsonObject>
 
 class QGraphicsScene;
+class QGraphicsTextItem;
 class QMouseEvent;
 class QResizeEvent;
 class QWheelEvent;
@@ -31,6 +32,9 @@ public:
 
     void showGraph( const QJsonObject& graph, const QString& error );
     void setTaskInputValue( const QString& taskName, const QString& fieldName, const QString& value );
+    void resetTaskStates();
+    void setTaskState( const QString& taskName, const QString& state, const QString& error = {} );
+    void setRunStatus( const QString& status );
 
 protected:
     void resizeEvent( QResizeEvent* event ) override;
@@ -38,6 +42,7 @@ protected:
     void wheelEvent( QWheelEvent* event ) override;
 
 private:
-    QGraphicsScene* m_scene;
-    bool            m_fitOnResize = true;
+    QGraphicsScene*    m_scene;
+    QGraphicsTextItem* m_runStatusLabel = nullptr;
+    bool               m_fitOnResize    = true;
 };

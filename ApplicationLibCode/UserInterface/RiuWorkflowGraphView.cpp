@@ -85,6 +85,7 @@ public:
     QString name() const;
     bool    isConfig() const;
     void    setConfigValue( const QString& fieldName, const QString& value );
+    void    setTaskState( const QString& state, const QString& error = {} );
 
 protected:
     QVariant itemChange( GraphicsItemChange change, const QVariant& value ) override;
@@ -99,6 +100,7 @@ private:
     QMap<QString, QGraphicsEllipseItem*> m_outputs;
     QMap<QString, QGraphicsTextItem*>    m_configValues;
     std::vector<GraphEdge*>              m_edges;
+    QGraphicsTextItem*                   m_stateLabel = nullptr;
 };
 
 class GraphEdge : public QGraphicsPathItem
@@ -131,11 +133,23 @@ GraphNode::GraphNode( const QString& name, QStringList inputs, QStringList outpu
     QFont titleFont;
     titleFont.setBold( true );
     const QString titleText = isConfig ? "Config: " + name : name;
-    auto*         title = new QGraphicsTextItem( QFontMetrics( titleFont ).elidedText( titleText, Qt::ElideRight, m_width - 20 ), this );
+    auto*         title =
+        new QGraphicsTextItem( QFontMetrics( titleFont ).elidedText( titleText, Qt::ElideRight, m_width - ( isConfig ? 20 : 100 ) ), this );
     title->setFont( titleFont );
     title->setToolTip( titleText );
     title->setPos( 10, 4 );
     title->setAcceptedMouseButtons( Qt::NoButton );
+
+    if ( !isConfig )
+    {
+        m_stateLabel = new QGraphicsTextItem( this );
+        QFont font;
+        font.setPointSize( 8 );
+        font.setBold( true );
+        m_stateLabel->setFont( font );
+        m_stateLabel->setPos( m_width - 91, 5 );
+        m_stateLabel->setAcceptedMouseButtons( Qt::NoButton );
+    }
 
     addPorts( inputs, false );
     addPorts( outputs, true );
@@ -194,6 +208,39 @@ QString GraphNode::name() const
 bool GraphNode::isConfig() const
 {
     return m_isConfig;
+}
+
+void GraphNode::setTaskState( const QString& state, const QString& error )
+{
+    if ( m_isConfig ) return;
+
+    QColor border( 60, 85, 115 );
+    QColor background( 226, 238, 250 );
+    if ( state == "running" )
+    {
+        border     = QColor( 158, 112, 16 );
+        background = QColor( 255, 241, 189 );
+    }
+    else if ( state == "completed" )
+    {
+        border     = QColor( 42, 120, 65 );
+        background = QColor( 215, 242, 222 );
+    }
+    else if ( state == "failed" )
+    {
+        border     = QColor( 165, 50, 50 );
+        background = QColor( 253, 225, 225 );
+    }
+    else if ( state == "interrupted" )
+    {
+        border     = QColor( 140, 85, 50 );
+        background = QColor( 245, 228, 210 );
+    }
+    setPen( QPen( border, state.isEmpty() ? 1 : 2 ) );
+    setBrush( background );
+    m_stateLabel->setDefaultTextColor( border );
+    m_stateLabel->setPlainText( state.isEmpty() ? "" : state.at( 0 ).toUpper() + state.mid( 1 ) );
+    setToolTip( error.isEmpty() ? m_name : m_name + "\n" + error );
 }
 
 void GraphNode::setConfigValue( const QString& fieldName, const QString& value )
@@ -272,6 +319,7 @@ RiuWorkflowGraphView::RiuWorkflowGraphView( QWidget* parent )
 
 void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& error )
 {
+    m_runStatusLabel = nullptr;
     m_scene->clear();
     m_fitOnResize = true;
 
@@ -412,6 +460,9 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         }
     }
 
+    m_runStatusLabel = m_scene->addText( {} );
+    m_runStatusLabel->setDefaultTextColor( QColor( 45, 65, 80 ) );
+    m_runStatusLabel->setPos( 0, -45 );
     m_scene->setSceneRect( m_scene->itemsBoundingRect().adjusted( -50, -50, 50, 50 ) );
     fitInView( m_scene->sceneRect(), Qt::KeepAspectRatio );
 }
@@ -427,6 +478,34 @@ void RiuWorkflowGraphView::setTaskInputValue( const QString& taskName, const QSt
             return;
         }
     }
+}
+
+void RiuWorkflowGraphView::resetTaskStates()
+{
+    for ( QGraphicsItem* item : m_scene->items() )
+    {
+        if ( auto* node = dynamic_cast<GraphNode*>( item ) ) node->setTaskState( {} );
+    }
+}
+
+void RiuWorkflowGraphView::setTaskState( const QString& taskName, const QString& state, const QString& error )
+{
+    for ( QGraphicsItem* item : m_scene->items() )
+    {
+        auto* node = dynamic_cast<GraphNode*>( item );
+        if ( node && !node->isConfig() && node->name() == taskName )
+        {
+            node->setTaskState( state, error );
+            return;
+        }
+    }
+}
+
+void RiuWorkflowGraphView::setRunStatus( const QString& status )
+{
+    if ( !m_runStatusLabel ) return;
+    m_runStatusLabel->setPlainText( QFontMetrics( m_runStatusLabel->font() ).elidedText( status, Qt::ElideRight, 580 ) );
+    m_runStatusLabel->setToolTip( status );
 }
 
 void RiuWorkflowGraphView::resizeEvent( QResizeEvent* event )

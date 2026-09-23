@@ -36,10 +36,15 @@ public:
     void cancel();
     bool isRunning() const;
 
+signals:
+    void taskStateChanged( const QString& runId, const QString& taskName, const QString& state, const QString& error );
+    void runFinished( bool succeeded, bool cancelled );
+
 private slots:
     void onReadyReadStdout();
     void onReadyReadStderr();
     void onProcessFinished( int exitCode, QProcess::ExitStatus status );
+    void onProcessError( QProcess::ProcessError error );
 
 private:
     void drainLines( QByteArray& buffer, RILogLevel level );
@@ -48,4 +53,6 @@ private:
     QProcess   m_process;
     QByteArray m_stdoutBuf;
     QByteArray m_stderrBuf;
+    bool       m_cancelRequested = false;
+    bool       m_finishedEmitted = false;
 };

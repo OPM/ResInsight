@@ -23,6 +23,33 @@ import yaml
 from .refs import REF_MARKER
 
 
+PROGRESS_PREFIX = "@@RI_WORKFLOW_EVENT@@"
+
+
+def _emit_progress(run_id: str, task: str, state: str, error: str = "") -> None:
+    payload = {"event": "task_state", "run_id": run_id, "task": task, "state": state}
+    if error:
+        payload["error"] = error
+    sys.stdout.write(PROGRESS_PREFIX + json.dumps(payload) + "\n")
+    sys.stdout.flush()
+
+
+class ProgressHook:
+    """Report taskmaestro's resolved task-instance lifecycle to ResInsight."""
+
+    def __init__(self, run_id: str) -> None:
+        self.run_id = run_id
+
+    def on_task_start(self, job: Any, task: Any) -> None:
+        _emit_progress(self.run_id, task.name, "running")
+
+    def on_task_complete(self, job: Any, task: Any, output: Any) -> None:
+        _emit_progress(self.run_id, task.name, "completed")
+
+    def on_task_fail(self, job: Any, task: Any, error: Exception) -> None:
+        _emit_progress(self.run_id, task.name, "failed", str(error))
+
+
 def _emit(event: str, **fields: Any) -> None:
     sys.stdout.write(json.dumps({"event": event, **fields}) + "\n")
     sys.stdout.flush()
@@ -64,7 +91,9 @@ def make_rips_resolver(rips_instance: Any) -> Callable[[str, dict[str, Any]], An
     return resolve
 
 
-def run_workflow(workflow_dir: Path, input_path: Path, grpc_port: int) -> int:
+def run_workflow(
+    workflow_dir: Path, input_path: Path, grpc_port: int, run_id: str = ""
+) -> int:
     workflow_dir_str = str(workflow_dir)
     if workflow_dir_str not in sys.path:
         sys.path.insert(0, workflow_dir_str)
@@ -102,7 +131,7 @@ def run_workflow(workflow_dir: Path, input_path: Path, grpc_port: int) -> int:
 
     _emit("starting", workflow=workflow.name)
     try:
-        result = Runner().run(job, ctx=ExecutionContext())
+        result = Runner(hooks=[ProgressHook(run_id)]).run(job, ctx=ExecutionContext())
     except Exception as exc:
         _emit("error", message=str(exc))
         return 1
@@ -120,7 +149,8 @@ def main(argv: list[str]) -> int:
     parser.add_argument("workflow_dir", type=Path)
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--grpc-port", type=int, required=True)
+    parser.add_argument("--run-id", default="")
     args = parser.parse_args(argv)
     return run_workflow(
-        args.workflow_dir.resolve(), args.input.resolve(), args.grpc_port
+        args.workflow_dir.resolve(), args.input.resolve(), args.grpc_port, args.run_id
     )

@@ -1624,6 +1624,17 @@ void RiuMainWindow::workflowBindingChanged( const RimWorkflowFieldBinding* bindi
     }
 }
 
+void RiuMainWindow::workflowJobStateChanged( const RimWorkflowJob* job )
+{
+    if ( !m_workflowGraphView || m_displayedWorkflowJob.p() != job ) return;
+    m_workflowGraphView->resetTaskStates();
+    const auto states = job->taskStates();
+    const auto errors = job->taskErrors();
+    for ( auto it = states.cbegin(); it != states.cend(); ++it )
+        m_workflowGraphView->setTaskState( it.key(), it.value(), errors.value( it.key() ) );
+    m_workflowGraphView->setRunStatus( job->runStatus() );
+}
+
 void RiuMainWindow::showWorkflowGraph( RimWorkflow* workflow, RimWorkflowJob* job )
 {
     if ( !m_workflowGraphDock )
@@ -1649,6 +1660,7 @@ void RiuMainWindow::showWorkflowGraph( RimWorkflow* workflow, RimWorkflowJob* jo
             }
         }
     }
+    if ( job ) workflowJobStateChanged( job );
     m_workflowGraphDock->toggleView( true );
     m_workflowGraphDock->setAsCurrentTab();
 }

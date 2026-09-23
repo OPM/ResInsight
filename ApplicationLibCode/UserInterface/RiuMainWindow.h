@@ -132,6 +132,7 @@ public:
     RicGridCalculatorDialog* gridCalculatorDialog( bool createIfNotPresent );
 
     void workflowBindingChanged( const RimWorkflowFieldBinding* binding );
+    void workflowJobStateChanged( const RimWorkflowJob* job );
 
 protected:
     void        closeEvent( QCloseEvent* event ) override;
