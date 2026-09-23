@@ -38,8 +38,5 @@ void RimWorkflowStringBinding::applySchema( const QJsonObject& fieldSchema )
 
 QString RimWorkflowStringBinding::toYamlValue() const
 {
-    QString v = m_value();
-    v.replace( "\\", "\\\\" );
-    v.replace( "\"", "\\\"" );
-    return QString( "\"%1\"" ).arg( v );
+    return hasValue() ? yamlQuotedScalar( m_value() ) : "null";
 }

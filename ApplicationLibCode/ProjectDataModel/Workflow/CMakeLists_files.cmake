@@ -4,6 +4,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowJob.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowTaskInput.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowFieldBinding.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowArrayBinding.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowStringBinding.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowFloatBinding.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowIntBinding.h
@@ -21,6 +22,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowJob.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowTaskInput.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowFieldBinding.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowArrayBinding.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowStringBinding.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowFloatBinding.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowIntBinding.cpp

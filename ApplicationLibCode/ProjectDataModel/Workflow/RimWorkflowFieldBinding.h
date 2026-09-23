@@ -37,11 +37,18 @@ public:
 
     virtual void    applySchema( const QJsonObject& fieldSchema );
     virtual QString toYamlValue() const = 0;
+    virtual QString displayValue() const;
 
     virtual caf::PdmFieldHandle* valueField() = 0;
 
 protected:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    bool           hasValue() const;
+    static QString yamlQuotedScalar( const QString& value );
+
     caf::PdmField<QString> m_fieldName;
     caf::PdmField<QString> m_description;
     caf::PdmField<bool>    m_required;
+    caf::PdmField<bool>    m_hasValue;
 };

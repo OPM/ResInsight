@@ -23,6 +23,7 @@
 #include "RiuMainWindowBase.h"
 
 #include "cafPdmObjectHandle.h"
+#include "cafPdmPointer.h"
 
 #include <QEvent>
 #include <QLabel>
@@ -42,6 +43,9 @@ class QSlider;
 class Rim3dView;
 class RimCase;
 class RimViewWindow;
+class RimWorkflow;
+class RimWorkflowJob;
+class RimWorkflowFieldBinding;
 
 class RiuMessagePanel;
 class RiuProcessMonitor;
@@ -53,6 +57,7 @@ class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
 class RiuSeismicHistogramPanel;
 class RiuCellSelectionTool;
+class RiuWorkflowGraphView;
 
 class RicGridCalculatorDialog;
 
@@ -126,6 +131,9 @@ public:
 
     RicGridCalculatorDialog* gridCalculatorDialog( bool createIfNotPresent );
 
+    void workflowBindingChanged( const RimWorkflowFieldBinding* binding );
+    void workflowJobStateChanged( const RimWorkflowJob* job );
+
 protected:
     void        closeEvent( QCloseEvent* event ) override;
     QStringList defaultDockStateNames() override;
@@ -138,6 +146,7 @@ private:
     void createMenus();
     void createToolBars();
     void createDockPanels();
+    void showWorkflowGraph( RimWorkflow* workflow, RimWorkflowJob* job );
 
     void restoreTreeViewState();
 
@@ -277,4 +286,7 @@ private:
     QToolBar* m_holoLensToolBar;
 
     std::vector<QPointer<ads::CDockWidget>> m_additionalProjectViews;
+    QPointer<ads::CDockWidget>              m_workflowGraphDock;
+    QPointer<RiuWorkflowGraphView>          m_workflowGraphView;
+    caf::PdmPointer<RimWorkflowJob>         m_displayedWorkflowJob;
 };

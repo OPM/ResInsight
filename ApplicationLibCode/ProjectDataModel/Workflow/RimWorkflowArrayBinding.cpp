@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2026     Equinor ASA
+//  Copyright (C) 2026-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,28 +16,29 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWorkflowBoolBinding.h"
+#include "RimWorkflowArrayBinding.h"
 
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 
-CAF_PDM_SOURCE_INIT( RimWorkflowBoolBinding, "WorkflowBoolBinding" );
+CAF_PDM_SOURCE_INIT( RimWorkflowArrayBinding, "WorkflowArrayBinding" );
 
-RimWorkflowBoolBinding::RimWorkflowBoolBinding()
+RimWorkflowArrayBinding::RimWorkflowArrayBinding()
 {
-    CAF_PDM_InitField( &m_value, "Value", false, "Value" );
+    CAF_PDM_InitFieldNoDefault( &m_value, "Value", "Value" );
 }
 
-void RimWorkflowBoolBinding::applySchema( const QJsonObject& fieldSchema )
+void RimWorkflowArrayBinding::applySchema( const QJsonObject& fieldSchema )
 {
     RimWorkflowFieldBinding::applySchema( fieldSchema );
-    if ( fieldSchema.contains( "default" ) )
+    if ( fieldSchema.value( "default" ).isArray() )
     {
-        m_value = fieldSchema.value( "default" ).toBool( false );
+        m_value = QString::fromUtf8( QJsonDocument( fieldSchema.value( "default" ).toArray() ).toJson( QJsonDocument::Compact ) );
     }
 }
 
-QString RimWorkflowBoolBinding::toYamlValue() const
+QString RimWorkflowArrayBinding::toYamlValue() const
 {
-    if ( !hasValue() ) return "null";
-    return m_value() ? "true" : "false";
+    return hasValue() ? m_value() : "null";
 }

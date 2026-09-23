@@ -39,5 +39,5 @@ void RimWorkflowDateBinding::applySchema( const QJsonObject& fieldSchema )
 
 QString RimWorkflowDateBinding::toYamlValue() const
 {
-    return QString( "\"%1\"" ).arg( m_value().toString( Qt::ISODate ) );
+    return hasValue() ? yamlQuotedScalar( m_value().toString( Qt::ISODate ) ) : "null";
 }
