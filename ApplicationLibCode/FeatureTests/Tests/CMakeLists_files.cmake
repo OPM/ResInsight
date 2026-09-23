@@ -12,6 +12,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreatePolygonFeature-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewCellIndexFilterFeature-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportScheduleFeature-Test.cpp
 )
 
 list(APPEND SOURCE_FEATURETEST_FILES ${SOURCE_GROUP_SOURCE_FILES})

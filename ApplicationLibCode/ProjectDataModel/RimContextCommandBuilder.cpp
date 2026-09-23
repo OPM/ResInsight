@@ -136,6 +136,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimVirtualPerforationResults.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellEventTimeline.h"
 #include "RimWellIASettings.h"
 #include "RimWellLogChannel.h"
 #include "RimWellLogCurve.h"
@@ -361,7 +362,18 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicExportSelectedWellPathsFeature";
             menuBuilder << "RicExportVisibleWellPathsFeature";
             menuBuilder.subMenuEnd();
+            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events-export" ) )
+            {
+                menuBuilder << "RicExportScheduleFeature";
+            }
             appendExportCompletions( menuBuilder );
+        }
+        else if ( dynamic_cast<RimWellEventTimeline*>( firstUiItem ) )
+        {
+            if ( RiaPreferencesSystem::current()->isFeatureEnabled( "simulator-events-export" ) )
+            {
+                menuBuilder << "RicExportScheduleFeature";
+            }
         }
         else if ( dynamic_cast<RimWellMeasurementFilePath*>( firstUiItem ) )
         {

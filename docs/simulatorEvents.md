@@ -340,6 +340,32 @@ They also accept two policies, each `"warn"` (default), `"error"` or `"skip"`:
 
 The returned `ApplyReport` carries `events_applied`, `events_skipped`, `warnings` and `errors`.
 
+## Exporting a schedule from the GUI
+
+The schedule generated from the well event timeline can be written to file without scripting.
+Enable *Preferences -> System -> Experimental Features -> Simulator Events Schedule Export*, then
+use **Export Schedule from Events** from either:
+
+- the context menu of the *Well Event Timeline* item (shown under *Wells* once the timeline has
+  events),
+- the context menu of the *Wells* (well path collection) item, or
+- *File -> Export*.
+
+The only thing asked for is the file name (default `schedule.SCH` in the last used export folder).
+Everything else uses fixed defaults:
+
+| Setting | Value |
+|---|---|
+| Eclipse case | the case of the active 3D view, else the first Eclipse case of the project |
+| Multi-segment-well keywords | exported for every well with events |
+| First date | written as a `-- Date: ...` comment instead of a `DATES` keyword |
+| Formatting | aligned columns with a `--`-prefixed column header per keyword |
+
+As in `generate_schedule_text()`, a `set_timestamp()`/*Apply events up to date* timestamp limits the
+export to the events up to that date, while inserted dates (`INSERT_DATE`) are always emitted.
+The written file name and the event count are logged to the message panel; an export without events
+or without a loaded Eclipse case reports the reason in a dialog.
+
 ## Version history
 
 - **1.1** — current: all dates are datetimes with second resolution (`T` separator required for a time-of-day; fractional seconds rounded); `DURATION` values and offset terms are Go-style literals (`5d`, `12h30m`, `1.5h`, `3mon`, `-3d`) with mandatory units, strict descending unit order, and calendar-aware months. Unitless numbers and the `DAYS` suffix are rejected; `1.0` files are rejected with a migration hint.

@@ -65,6 +65,17 @@ public:
     // Collect all unique dates from all wells' timelines
     static std::vector<QDateTime> collectAllDates( const RimWellEventTimeline& timeline, const std::vector<RimWellPath*>& wellPaths );
 
+    // Generate schedule for every event in the timeline. The dates and well paths are collected
+    // from the timeline: when events have been applied up to a timestamp (see
+    // RimWellEventTimeline::applyEventsUpToDate), later dates and wells are left out. Insert-date
+    // events only force a DATES keyword and are therefore never filtered by that timestamp.
+    // The remaining arguments are passed on to generateSchedule().
+    static std::expected<QString, QString> generateScheduleForTimeline( const RimWellEventTimeline&         timeline,
+                                                                        RimEclipseCase&                     eclipseCase,
+                                                                        const std::set<const RimWellPath*>& mswWells,
+                                                                        bool                                firstDateAsComment = true,
+                                                                        bool                                alignColumns       = false );
+
 private:
     // Generate schedule section for a single date. When dateAsComment is true, the date is
     // written as a comment line instead of a DATES keyword.

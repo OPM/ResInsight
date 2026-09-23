@@ -832,54 +832,12 @@ std::expected<caf::PdmObjectHandle*, QString> RimcWellEventTimeline_generateSche
         return std::unexpected( QString( "Eclipse case is required" ) );
     }
 
-    // Get the last applied timestamp (from set_timestamp call)
-    QDateTime lastTimestamp = timeline->lastAppliedTimestamp();
-
-    // If no timestamp was set, use all events
-    std::vector<QDateTime>    dates;
-    std::vector<RimWellPath*> wellPathsWithEvents;
-
-    if ( lastTimestamp.isValid() )
-    {
-        // Filter to only include dates up to the last applied timestamp
-        dates = timeline->getAllEventDates();
-        dates.erase( std::remove_if( dates.begin(), dates.end(), [&lastTimestamp]( const QDateTime& date ) { return date > lastTimestamp; } ),
-                     dates.end() );
-
-        // Get only well paths that have events up to the last applied timestamp
-        wellPathsWithEvents = timeline->getWellPathsWithEventsUpToDate( lastTimestamp );
-
-        // Insert-date events only force a DATES keyword (e.g. to trigger a summary report), so
-        // they are deliberately not filtered by the last applied timestamp.
-        std::set<QDateTime> mergedDates( dates.begin(), dates.end() );
-        for ( const auto* event : timeline->getEventsByType( RimWellEvent::EventType::INSERT_DATE ) )
-        {
-            if ( event->eventDate().isValid() ) mergedDates.insert( event->eventDate() );
-        }
-        dates.assign( mergedDates.begin(), mergedDates.end() );
-    }
-    else
-    {
-        // No timestamp set - include all events and wells
-        dates               = timeline->getAllEventDates();
-        wellPathsWithEvents = timeline->getWellPathsWithEvents();
-    }
-
-    if ( dates.empty() )
-    {
-        return std::unexpected( QString( "No events found in timeline" ) );
-    }
-
+    // The dates and wells are collected from the timeline, honoring any set_timestamp() call.
     std::vector<RimWellPath*>    mswWellPaths = m_exportMswForWells.ptrReferencedObjectsByType();
     std::set<const RimWellPath*> mswWells( mswWellPaths.begin(), mswWellPaths.end() );
 
-    auto scheduleText = RicScheduleDataGenerator::generateSchedule( *timeline,
-                                                                    *eclipseCase,
-                                                                    wellPathsWithEvents,
-                                                                    dates,
-                                                                    mswWells,
-                                                                    m_firstDateAsComment(),
-                                                                    m_alignColumns() );
+    auto scheduleText =
+        RicScheduleDataGenerator::generateScheduleForTimeline( *timeline, *eclipseCase, mswWells, m_firstDateAsComment(), m_alignColumns() );
     if ( !scheduleText ) return std::unexpected( scheduleText.error() );
 
     // Return the schedule text in a data container
