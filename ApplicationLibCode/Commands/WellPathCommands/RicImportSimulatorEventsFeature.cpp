@@ -56,14 +56,14 @@ void RicImportSimulatorEventsFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    QString defaultDir = app->lastUsedDialogDirectory( "SIMULATOR_EVENTS_DIR" );
-    QString fileName   = RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
-                                                            "Import Simulator Events",
-                                                            defaultDir,
-                                                            "Simulator Events Files (*.events);;All Files (*.*)" );
-    if ( fileName.isEmpty() ) return;
+    QString     defaultDir = app->lastUsedDialogDirectory( "SIMULATOR_EVENTS_DIR" );
+    QStringList fileNames  = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                  "Import Simulator Events",
+                                                                  defaultDir,
+                                                                  "Simulator Events Files (*.events);;All Files (*.*)" );
+    if ( fileNames.isEmpty() ) return;
 
-    app->setLastUsedDialogDirectory( "SIMULATOR_EVENTS_DIR", QFileInfo( fileName ).absolutePath() );
+    app->setLastUsedDialogDirectory( "SIMULATOR_EVENTS_DIR", QFileInfo( fileNames.front() ).absolutePath() );
 
     // Show the process monitor so the report and any errors from the child process are visible.
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
@@ -75,7 +75,10 @@ void RicImportSimulatorEventsFeature::onActionTriggered( bool isChecked )
 
     // Unbuffered output ("-u") so the report streams into the process monitor promptly. The child
     // process finds this instance through the RESINSIGHT_GRPC_PORT environment variable.
-    QStringList arguments = { "-u", "-m", "rips.simulator_events", "--apply", fileName };
+    // Multiple files are merged into one document, so matching events from different files are
+    // combined into a single timeline event.
+    QStringList arguments = { "-u", "-m", "rips.simulator_events", "--apply" };
+    arguments.append( fileNames );
     if ( !app->launchProcess( app->pythonPath(), arguments, app->pythonProcessEnvironment() ) )
     {
         RiaLogging::error( "Failed to launch the Python interpreter. Another script may already be running." );

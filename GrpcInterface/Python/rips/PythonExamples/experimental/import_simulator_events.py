@@ -29,7 +29,7 @@ import rips
 import rips.simulator_events
 
 
-def main():
+def main() -> None:
     resinsight = rips.Instance.find()
     project = resinsight.project
 
@@ -42,6 +42,9 @@ def main():
     )
     print(f"\n1. Parsing: {simulator_events_file}")
     document = rips.simulator_events.parse_simulator_events_file(simulator_events_file)
+    # Several files can be imported together; matching events from different
+    # files are merged exactly as if they were written in one file:
+    #   document = rips.simulator_events.parse_simulator_events_files([a, b])
     print(f"   Version: {document.version}, units: {document.unit_system}")
     print(f"   Wells: {[w.well_name for w in document.wells]}")
     print(
