@@ -108,7 +108,7 @@ void RimWorkflow::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) con
 bool RimWorkflow::loadFromDirectory( QString* errorMessage )
 {
     m_jobs.deleteChildren();
-    m_graph = {};
+    m_graph     = {};
     m_loadError = "";
 
     const QString dir = workflowDirectory();
