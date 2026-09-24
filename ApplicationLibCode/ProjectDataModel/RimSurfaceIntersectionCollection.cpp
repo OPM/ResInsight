@@ -21,7 +21,7 @@
 #include "RimSurfaceIntersectionBand.h"
 #include "RimSurfaceIntersectionCurve.h"
 
-CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionCollection, "RimSurfaceIntersectionCollection" );
+CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionCollection, "RimSurfaceIntersectionCollection", "SurfaceIntersectionCollection_msj" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionCollection, "RimSurfaceIntersectionCo
 RimSurfaceIntersectionCollection::RimSurfaceIntersectionCollection()
     : objectChanged( this )
 {
-    CAF_PDM_InitObject( "SurfaceIntersectionCollection_msj" );
+    CAF_PDM_InitObject( "RimSurfaceIntersectionCollection" );
 
     CAF_PDM_InitFieldNoDefault( &m_intersectionBands, "IntersectionBands", "Intersection Bands" );
     CAF_PDM_InitFieldNoDefault( &m_intersectionCurves, "IntersectionCurves", "Intersection Curves" );

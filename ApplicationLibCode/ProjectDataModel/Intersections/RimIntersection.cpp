@@ -58,6 +58,9 @@ RimIntersection::RimIntersection()
     CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections" );
     m_surfaceIntersections = new RimSurfaceIntersectionCollection;
     m_surfaceIntersections->objectChanged.connect( this, &RimIntersection::onSurfaceIntersectionsChanged );
+    // The collection itself is never shown in the project tree; only its curves/bands are added explicitly by
+    // subclasses via appendSurfaceIntersectionsToTreeOrdering().
+    m_surfaceIntersections.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
