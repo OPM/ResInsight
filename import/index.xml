@@ -33,7 +33,7 @@
       <link>https://resinsight.org/import/eclipsecases/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/import/eclipsecases/index.html</guid>
-      <description>ResInsight supports the following type of reservoir simulation input data:&#xA;*.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. Grid and Property data from *.GRDECL files. Note&#xD;Release 2018.11 supports import of simulations from Intersect. To be able to import into ResInsight, the Intersect simulation must be exported into Eclipse file format.&#xA;Simulation Results&#xD;ResInsight offers several ways to import reservoir simulation grid files. Use one of the following commands in the File-&gt;Import-&gt;Eclipse Cases menu:</description>
+      <description>ResInsight supports the following type of reservoir simulation input data:&#xA;*.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. Grid and Property data from *.GRDECL files. ROFF grid models from *.ROFF and *.ROFFASC files. Simulation Results&#xD;ResInsight offers several ways to import reservoir simulation grid files. Use File-&gt;Import-&gt;Import Grid Models to open the grid model import dialog. Select the appropriate grid model type from the file type list:</description>
     </item>
     <item>
       <title>Eclipse Summary Data</title>
@@ -54,7 +54,7 @@
       <link>https://resinsight.org/import/roffgridmodels/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://resinsight.org/import/roffgridmodels/index.html</guid>
-      <description>ResInsight supports the following type of ROFF input data:&#xA;*.ROFF and *.ROFFASC containing data from RMS as Roxar Open File Format (ROFF) in binary or ascii format. Roff Data&#xD;Roff Data can be imported from File-&gt;Import-&gt;Roff Grid Models-&gt;Import Roff Case menu. Select a grid file and additional files with properties in the import dialog. The grid will be displayed and used in the same way as a reservoir simulation grid model.</description>
+      <description>ResInsight supports the following type of ROFF input data:&#xA;*.ROFF and *.ROFFASC containing data from RMS as Roxar Open File Format (ROFF) in binary or ascii format. Roff Data&#xD;Roff data can be imported from the grid model import dialog opened with File-&gt;Import-&gt;Import Grid Models. Select Roff Grid Models (*.ROFF *.ROFFASC) from the file type list, then select a grid file and any additional files with properties. The grid will be displayed and used in the same way as a reservoir simulation grid model.</description>
     </item>
     <item>
       <title>Seismic Data</title>

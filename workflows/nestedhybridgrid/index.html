@@ -25,27 +25,27 @@ A nested hybrid grid is a single flat EGRID file in which a refined region is ap
 A nested hybrid grid is a single flat EGRID file in which a refined region is appended to the end of the I axis at higher resolution and connected to the coarse grid through NNCs. In IJK space the refined cells are far from their coarse parent cells, but their geometry (COORD/ZCORN) places them inside the coarse region. The coarse parent cells are collapsed to zero volume, and the parent of each refined cell is supplied by sidecar files next to the grid file.">
     <meta itemprop="wordCount" content="580">
     <title>Nested Hybrid Grid :: ResInsight</title>
-    <link href="/images/favicon.png?1788197767" rel="icon" type="image/png">
-    <link href="/css/auto-complete/auto-complete.min.css?1788197767" rel="stylesheet">
-    <script src="/js/auto-complete/auto-complete.min.js?1788197767" defer></script>
-    <script src="/js/search-lunr.min.js?1788197767" defer></script>
-    <script src="/js/search.min.js?1788197767" defer></script>
+    <link href="/images/favicon.png?1790250433" rel="icon" type="image/png">
+    <link href="/css/auto-complete/auto-complete.min.css?1790250433" rel="stylesheet">
+    <script src="/js/auto-complete/auto-complete.min.js?1790250433" defer></script>
+    <script src="/js/search-lunr.min.js?1790250433" defer></script>
+    <script src="/js/search.min.js?1790250433" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/searchindex.en.js?1788197767";
+      window.relearn.index_js_url="/searchindex.en.js?1790250433";
     </script>
-    <script src="/js/lunr/lunr.min.js?1788197767" defer></script>
-    <script src="/js/lunr/lunr.stemmer.support.min.js?1788197767" defer></script>
-    <script src="/js/lunr/lunr.multi.min.js?1788197767" defer></script>
-    <script src="/js/lunr/lunr.en.min.js?1788197767" defer></script>
+    <script src="/js/lunr/lunr.min.js?1790250433" defer></script>
+    <script src="/js/lunr/lunr.stemmer.support.min.js?1790250433" defer></script>
+    <script src="/js/lunr/lunr.multi.min.js?1790250433" defer></script>
+    <script src="/js/lunr/lunr.en.min.js?1790250433" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/fonts/fontawesome/css/all.min.css?1788197767" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1788197767" rel="stylesheet"></noscript>
-    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1788197767" rel="stylesheet">
-    <link href="/css/theme.min.css?1788197767" rel="stylesheet">
-    <link href="/css/format-html.min.css?1788197767" rel="stylesheet" id="R-format-style">
+    <link href="/fonts/fontawesome/css/all.min.css?1790250433" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/fonts/fontawesome/css/all.min.css?1790250433" rel="stylesheet"></noscript>
+    <link href="/css/perfect-scrollbar/perfect-scrollbar.min.css?1790250433" rel="stylesheet">
+    <link href="/css/theme.min.css?1790250433" rel="stylesheet">
+    <link href="/css/format-html.min.css?1790250433" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -194,8 +194,8 @@ A nested hybrid grid is a single flat EGRID file in which a refined region is ap
 
 <h1 id="nested-hybrid-grid">Nested Hybrid Grid</h1>
 
-<p><a href="#R-image-4b04805a93dae5ecd4b30784381853b7" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/workflows/nested_hybrid_overview.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-4b04805a93dae5ecd4b30784381853b7"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/workflows/nested_hybrid_overview.png"></a></p>
+<p><a href="#R-image-2c544642bfbc71b35863b0c946820cc1" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/workflows/nested_hybrid_overview.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-2c544642bfbc71b35863b0c946820cc1"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/workflows/nested_hybrid_overview.png"></a></p>
 <p>ResInsight can import nested hybrid grids (NHG) as produced by <a href="https://github.com/equinor/xtgeo" rel="external">xtgeo</a>/<a href="https://github.com/equinor/fmu-tools" rel="external">fmu-tools</a>, and present them as a proper LGR hierarchy.</p>
 <p>A nested hybrid grid is a single flat EGRID file in which a refined region is appended to the end of the I axis at higher resolution and connected to the coarse grid through NNCs. In IJK space the refined cells are far from their coarse parent cells, but their geometry (COORD/ZCORN) places them inside the coarse region. The coarse parent cells are collapsed to zero volume, and the parent of each refined cell is supplied by sidecar files next to the grid file.</p>
 <p>When the sidecar files are present, ResInsight reconstructs each refined region as a real local grid (LGR) with correct geometry, parent-cell links, and results. Normal grids without sidecar files are unaffected.</p>
@@ -205,8 +205,8 @@ A nested hybrid grid is a single flat EGRID file in which a refined region is ap
 <li><code>DROGON_NESTED_REFINE.grdecl</code> &ndash; contains the <code>REFINE</code> keyword: the nesting level of each cell (1 = unrefined base grid, 2/3/4 = refined levels). The property is loaded as a discrete category property, useful for coloring and filtering by refinement level.</li>
 <li><code>DROGON_NESTED_OLDIJK.grdecl</code> &ndash; contains the <code>OLDI</code>/<code>OLDJ</code>/<code>OLDK</code> keywords (1-based IJK of the cell&rsquo;s coarse parent cell) and <code>TMPI</code>/<code>TMPJ</code>/<code>TMPK</code> (the cell&rsquo;s local position in refined coordinate space). These are loaded as input properties so the parent-cell mapping is visible in the user interface and available for scripting.</li>
 </ul>
-<p><a href="#R-image-ef6d7ec81cdf20c2c77facccd3cb500e" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/workflows/nested_hybrid_input_properties.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-ef6d7ec81cdf20c2c77facccd3cb500e"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/workflows/nested_hybrid_input_properties.png"></a></p>
+<p><a href="#R-image-461c20ab151e0f4860101945a6cbb8f3" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/workflows/nested_hybrid_input_properties.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-461c20ab151e0f4860101945a6cbb8f3"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/workflows/nested_hybrid_input_properties.png"></a></p>
 <p>The sidecar properties appear as <strong>Input Property</strong> in the <strong>Cell Result</strong> property editor. Here the <code>REFINE</code> property colors the cells by refinement level.</p>
 <p>Both files are required for LGR reconstruction. No user action is needed beyond importing the grid file as a regular reservoir simulation case, see <a href="/import/eclipsecases/index.html">Grid Import</a>.</p>
 <h2 id="lgr-reconstruction">LGR Reconstruction<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
@@ -226,8 +226,8 @@ A nested hybrid grid is a single flat EGRID file in which a refined region is ap
 <li>Per-level volume-weighted aggregates are available for quality control of the reconstruction.</li>
 </ul>
 <p>The aggregates appear as <strong>Generated</strong> properties in the <strong>Cell Result</strong> property editor, named <code>&lt;RESULT&gt;_COARSE</code> for the values assigned to the coarse parent cells, and <code>&lt;RESULT&gt;_COARSE_L&lt;level&gt;</code> for the per-level aggregates, e.g. <code>SOIL_COARSE</code> and <code>PRESSURE_COARSE_L3</code>.</p>
-<p><a href="#R-image-43084a3f84984ed60c2387db16a4fef0" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/workflows/nested_hybrid_generated.png" style="height: auto;width: auto;"></a>
-<a href="javascript:history.back();" class="lightbox-back" id="R-image-43084a3f84984ed60c2387db16a4fef0"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/workflows/nested_hybrid_generated.png"></a></p>
+<p><a href="#R-image-cfc757a3bc8b5f5b19cf7d731d88c0ca" class="lightbox-link"><img class="lazy lightbox figure-image" loading="lazy" src="/images/workflows/nested_hybrid_generated.png" style="height: auto;width: auto;"></a>
+<a href="javascript:history.back();" class="lightbox-back" id="R-image-cfc757a3bc8b5f5b19cf7d731d88c0ca"><img class="lazy lightbox lightbox-image" loading="lazy" src="/images/workflows/nested_hybrid_generated.png"></a></p>
 <h2 id="visualization">Visualization<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
 <p>The refined region is displayed in place inside the coarse grid. Cell faces on the boundary of a local grid are drawn correctly also where the refined boundary does not conform to the coarse cell faces.</p>
 <p>Use the <code>REFINE</code> category property to color cells by refinement level, or combine it with <a href="/3d-main-window/filters/index.html">Cell Filters</a> to isolate a given level.</p>
@@ -480,8 +480,8 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 </div>
       </div>
     </aside>
-    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1788197767" defer></script>
-    <script src="/js/theme.min.js?1788197767" defer></script>
+    <script src="/js/perfect-scrollbar/perfect-scrollbar.min.js?1790250433" defer></script>
+    <script src="/js/theme.min.js?1790250433" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>
