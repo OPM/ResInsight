@@ -54,11 +54,12 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseView.h"
-#include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimGeneric3dView.h"
+#include "RimGenericViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridCalculationCollection.h"
@@ -899,6 +900,14 @@ std::vector<Rim3dView*> RimProject::allViews() const
             }
         }
 
+        if ( oilField->genericViewCollection() )
+        {
+            for ( auto dataView : oilField->genericViewCollection()->genericViews() )
+            {
+                views.push_back( dataView );
+            }
+        }
+
         if ( oilField->analysisModels() )
         {
             for ( auto ensemble : oilField->analysisModels()->caseEnsembles.childrenByType() )
@@ -1516,7 +1525,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
         if ( oilField )
         {
             if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
-            if ( oilField->eclipseViewCollection() ) uiTreeOrdering.add( oilField->eclipseViewCollection() );
+            if ( oilField->genericViewCollection() ) uiTreeOrdering.add( oilField->genericViewCollection() );
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
             if ( oilField->polygonCollection() ) uiTreeOrdering.add( oilField->polygonCollection() );

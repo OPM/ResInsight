@@ -33,7 +33,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimEclipseViewCollection.h"
+#include "RimGenericViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
@@ -350,7 +350,7 @@ void RicAdvancedSnapshotExportFeature::removeViewFromViewCollection( RimEclipseV
     RimOilField* oilField = project->activeOilField();
     if ( !oilField ) return;
 
-    RimEclipseViewCollection* viewColl = oilField->eclipseViewCollection();
+    RimGenericViewCollection* viewColl = oilField->genericViewCollection();
     if ( !viewColl ) return;
     viewColl->removeView( view );
 }

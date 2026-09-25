@@ -75,6 +75,8 @@
 #include "RimFileWellPath.h"
 #include "RimFileWellPathDataLoader.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimGeneric3dView.h"
+#include "RimGenericViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
@@ -906,9 +908,20 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         for ( RimOilField* oilField : m_project->oilFields )
         {
-            for ( auto seisView : oilField->seismicViewCollection()->views() )
+            if ( oilField->seismicViewCollection() )
             {
-                seisView->loadDataAndUpdate();
+                for ( auto seisView : oilField->seismicViewCollection()->views() )
+                {
+                    seisView->loadDataAndUpdate();
+                }
+            }
+
+            if ( oilField->genericViewCollection() )
+            {
+                for ( auto dataView : oilField->genericViewCollection()->genericViews() )
+                {
+                    dataView->loadDataAndUpdate();
+                }
             }
         }
 

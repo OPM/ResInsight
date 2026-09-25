@@ -263,7 +263,8 @@ enum class View3dContent
     FLAT_INTERSECTION = 0b00000100,
     CONTOUR           = 0b00001000,
     SEISMIC           = 0b00010000,
-    ALL               = 0b00011111
+    DATA_OBJECTS      = 0b00100000,
+    ALL               = 0b00111111
 };
 
 enum class ItemIn3dView

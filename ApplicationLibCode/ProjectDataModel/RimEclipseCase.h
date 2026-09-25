@@ -59,6 +59,7 @@ class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
 class RimEclipseResultAddressCollection;
 class RimEclipseViewCollection;
+class RimGenericViewCollection;
 class RimResultNameAlias;
 class RimReservoirGridEnsemble;
 
@@ -111,6 +112,7 @@ public:
 
     RimEclipseView* createAndAddReservoirView( bool useGlobalViewCollection = false );
     RimEclipseView* createAndAddReservoirView( RimEclipseViewCollection* viewColl );
+    RimEclipseView* createAndAddReservoirView( RimGenericViewCollection* viewColl );
     RimEclipseView* createCopyAndAddView( const RimEclipseView* sourceView );
 
     const RigVirtualPerforationTransmissibilities* computeAndGetVirtualPerforationTransmissibilities();
@@ -175,8 +177,9 @@ protected:
 protected:
     void                      computeCachedData();
     std::vector<QString>      additionalFiles() const;
-    RimEclipseViewCollection* globalViewCollection() const;
+    RimGenericViewCollection* globalViewCollection() const;
     void addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const;
+    void addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimGenericViewCollection* viewColl ) const;
 
     const RigFormationNames* effectiveFormationNames() const;
 
