@@ -1,7 +1,6 @@
 project(GrpcInterface)
 
 message(STATUS "GRPC enabled")
-add_definitions(-DENABLE_GRPC)
 
 set(CMAKE_UNITY_BUILD false)
 set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE
@@ -203,6 +202,11 @@ add_library(
   ${PROJECT_NAME} OBJECT
   ${SOURCE_GROUP_SOURCE_FILES}
   ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
+
+# PUBLIC so that any target linking GrpcInterface (ApplicationLibCode,
+# ApplicationExeCode, UnitTests, FeatureTests) automatically gets ENABLE_GRPC
+# defined too, without needing its own add_definitions()/target_compile_definitions().
+target_compile_definitions(${PROJECT_NAME} PUBLIC ENABLE_GRPC)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
