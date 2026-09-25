@@ -34,6 +34,8 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
+#include <algorithm>
+
 CAF_CMD_SOURCE_INIT( RicDetectContourMapTopsFeature, "RicDetectContourMapTopsFeature" );
 
 //--------------------------------------------------------------------------------------------------
@@ -81,6 +83,10 @@ void RicDetectContourMapTopsFeature::onActionTriggered( bool isChecked )
         QMessageBox::information( RiuMainWindow::instance(), "Detect Contour Map Tops", "No tops were found in the current contour map." );
         return;
     }
+
+    // Rank the detected tops by value (highest first), independent of the prominence-based criterion
+    // used to select which peaks to keep.
+    std::sort( tops.begin(), tops.end(), []( const auto& a, const auto& b ) { return a.z > b.z; } );
 
     auto* topsCollection = contourMapProjection->topsCollection();
     if ( !topsCollection ) return;
