@@ -20,29 +20,6 @@ set(CMAKE_CXX_STANDARD 23)
 
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
-set(SOURCE_GROUP_HEADER_FILES
-    RiaGrpcServer.h
-    RiaGrpcHelper.h
-    RiaGrpcCallbacks.h
-    RiaGrpcCallbacks.inl
-    RiaGrpcServiceInterface.h
-    RiaGrpcCaseService.h
-    RiaGrpcSimulationWellService.h
-    RiaGrpcGridService.h
-    RiaGrpcProjectService.h
-    RiaGrpcCommandService.h
-    RiaGrpcAppService.h
-    RiaGrpcPropertiesService.h
-    RiaGrpcKeyValueStoreService.h
-    RiaGrpcNNCPropertiesService.h
-    RiaGrpcPdmObjectService.h
-    RiaGrpcApplicationInterface.h
-    RiaGrpcWellPathService.h
-    RiaWellPathDataToGrpcConverter.h
-    RiaGrpcActiveCellInfoStateHandler.h
-    RiaGrpcSelectedCellsStateHandler.h
-    )
-
 set(SOURCE_GROUP_SOURCE_FILES
     RiaGrpcServer.cpp
     RiaGrpcHelper.cpp
@@ -224,7 +201,7 @@ list(APPEND GRPC_PYTHON_SOURCES ${GRPC_PYTHON_GENERATED_SOURCES})
 
 add_library(
   ${PROJECT_NAME} OBJECT
-  ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+  ${SOURCE_GROUP_SOURCE_FILES}
   ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
