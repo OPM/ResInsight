@@ -1,0 +1,71 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2026     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "RimWorkflowTaskInput.h"
+
+#include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+
+#include <QMap>
+#include <QPointer>
+
+class RiuWorkflowJobRunner;
+
+class RimWorkflowJob : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimWorkflowJob();
+
+    void setJobName( const QString& name );
+
+    std::vector<RimWorkflowTaskInput*> taskInputs() const;
+    void                               setTaskInputs( std::vector<RimWorkflowTaskInput*> inputs );
+
+    QString writeInputYaml( const QString& path ) const;
+    void    runJob();
+    void    cancelJob();
+    bool    isRunning() const;
+
+    QMap<QString, QString> taskStates() const;
+    QMap<QString, QString> taskErrors() const;
+    QString                runStatus() const;
+    void                   updateTaskState( const QString& runId, const QString& taskName, const QString& state, const QString& error );
+    void                   finishRun( const QString& runId, bool succeeded, bool cancelled );
+
+protected:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void initAfterRead() override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+private:
+    caf::PdmField<QString>                         m_name;
+    caf::PdmChildArrayField<RimWorkflowTaskInput*> m_taskInputs;
+    QPointer<RiuWorkflowJobRunner>                 m_runner;
+    QMap<QString, QString>                         m_taskStates;
+    QMap<QString, QString>                         m_taskErrors;
+    QString                                        m_runStatus;
+    QString                                        m_activeTask;
+    QString                                        m_runId;
+};
