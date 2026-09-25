@@ -97,7 +97,7 @@ void RicDetectContourMapTopsFeature::onActionTriggered( bool isChecked )
     auto depth    = rigContourMapProjection->topDepthBoundingBox();
 
     // Sphere radius factor is multiplied by the view's characteristic cell size when rendered.
-    const double sphereRadiusFactor = 1.0;
+    const double sphereRadiusFactor = 0.3;
 
     for ( size_t i = 0; i < tops.size(); ++i )
     {
