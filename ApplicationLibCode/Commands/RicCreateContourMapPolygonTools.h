@@ -18,9 +18,12 @@
 
 #pragma once
 
+#include "cvfVector3.h"
+
 #include <QImage>
 #include <QString>
 
+#include <utility>
 #include <vector>
 
 class RigContourMapProjection;
@@ -41,6 +44,9 @@ std::vector<std::vector<int>> convertImageToBinary( QImage image );
 std::vector<std::vector<int>> convertToBinaryImage( const RigContourMapProjection* contourMapProjection );
 
 void createPolygonObjects( std::vector<std::vector<int>> image, const RigContourMapProjection* contourMapProjection );
+
+// Create single-point polygons (markers), each with its own name, e.g. for visualizing detected tops.
+void createPointPolygonObjects( const std::vector<std::pair<QString, cvf::Vec3d>>& namedPoints );
 
 const RigContourMapProjection* findCurrentContourMapProjection();
 

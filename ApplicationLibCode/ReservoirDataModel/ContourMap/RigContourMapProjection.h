@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RigContourMapCalculator.h"
+#include "RigContourMapTopFinder.h"
 #include "RigContourPolygonsTools.h"
 
 #include "cvfArray.h"
@@ -100,6 +101,10 @@ public:
     const std::vector<double>&                                 aggregatedResults() const;
     std::vector<double>                                        aggregatedVertexResultsFiltered() const;
     const std::vector<std::vector<std::pair<size_t, double>>>& projected3dGridIndices() const;
+
+    // Find the N most significant tops (local maxima) in the aggregated result grid.
+    // Returned Top::x/y are in local contour map coordinates (add origin3d().x()/y() for domain coordinates).
+    std::vector<RigContourMapTopFinder::Top> findTops( const RigContourMapTopFinder::Settings& settings ) const;
 
     // Cell index and position conversion
     virtual std::vector<CellIndexAndResult> cellsAtIJ( unsigned int i, unsigned int j ) const;

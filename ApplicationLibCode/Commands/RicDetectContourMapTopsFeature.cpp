@@ -1,0 +1,101 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2026-     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RicDetectContourMapTopsFeature.h"
+
+#include "RicCreateContourMapPolygonTools.h"
+#include "RicExportContourMapToTextFeature.h"
+
+#include "ContourMap/RigContourMapProjection.h"
+#include "ContourMap/RigContourMapTopFinder.h"
+
+#include "ContourMap/RimStatisticsContourMapView.h"
+
+#include "RiuMainWindow.h"
+
+#include <QAction>
+#include <QInputDialog>
+#include <QMessageBox>
+
+CAF_CMD_SOURCE_INIT( RicDetectContourMapTopsFeature, "RicDetectContourMapTopsFeature" );
+
+//--------------------------------------------------------------------------------------------------
+/// Only enabled for single-realization contour maps, i.e. not for ensemble statistics contour maps.
+//--------------------------------------------------------------------------------------------------
+bool RicDetectContourMapTopsFeature::isCommandEnabled() const
+{
+    auto [existingEclipseContourMap, existingGeoMechContourMap] = RicExportContourMapToTextFeature::findContourMapView();
+
+    if ( existingGeoMechContourMap ) return true;
+    if ( existingEclipseContourMap && !dynamic_cast<RimStatisticsContourMapView*>( existingEclipseContourMap ) ) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicDetectContourMapTopsFeature::onActionTriggered( bool isChecked )
+{
+    auto rigContourMapProjection = RicCreateContourMapPolygonTools::findCurrentContourMapProjection();
+    if ( !rigContourMapProjection ) return;
+
+    bool ok = false;
+    int  maxTops =
+        QInputDialog::getInt( RiuMainWindow::instance(), "Detect Contour Map Tops", "Number of tops to detect:", 10, 1, 1000, 1, &ok );
+    if ( !ok ) return;
+
+    double minDistance =
+        QInputDialog::getDouble( RiuMainWindow::instance(), "Detect Contour Map Tops", "Minimum distance between tops:", 0.0, 0.0, 1.0e9, 1, &ok );
+    if ( !ok ) return;
+
+    RigContourMapTopFinder::Settings settings;
+    settings.maxTops         = maxTops;
+    settings.minDistance     = minDistance;
+    settings.excludeEdgeTops = true;
+
+    auto tops = rigContourMapProjection->findTops( settings );
+    if ( tops.empty() )
+    {
+        QMessageBox::information( RiuMainWindow::instance(), "Detect Contour Map Tops", "No tops were found in the current contour map." );
+        return;
+    }
+
+    auto origin3d = rigContourMapProjection->origin3d();
+    auto depth    = rigContourMapProjection->topDepthBoundingBox();
+
+    std::vector<std::pair<QString, cvf::Vec3d>> namedPoints;
+    for ( size_t i = 0; i < tops.size(); ++i )
+    {
+        const auto& top = tops[i];
+        cvf::Vec3d  domainPoint( origin3d.x() + top.x, origin3d.y() + top.y, depth );
+        QString     name = QString( "Top %1 (value %2)" ).arg( i + 1 ).arg( top.z, 0, 'g', 6 );
+        namedPoints.emplace_back( name, domainPoint );
+    }
+
+    RicCreateContourMapPolygonTools::createPointPolygonObjects( namedPoints );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicDetectContourMapTopsFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setIcon( QIcon( ":/WellTargetPoint16x16.png" ) );
+    actionToSetup->setText( "Detect Contour Map Tops" );
+}

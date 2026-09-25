@@ -113,17 +113,10 @@ std::vector<std::pair<int, std::vector<cvf::Vec3d>>> findPolygons( std::vector<s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void createPolygonObjects( const std::vector<std::vector<cvf::Vec3d>>& polygons )
+void updateViewsAfterPolygonCollectionChange()
 {
     auto polygonCollection = RimTools::polygonCollection();
     if ( !polygonCollection ) return;
-
-    for ( const auto& polygonDomainCoords : polygons )
-    {
-        auto newPolygon = polygonCollection->appendUserDefinedPolygon();
-        newPolygon->setPointsInDomainCoords( polygonDomainCoords );
-        newPolygon->coordinatesChanged.send();
-    }
 
     polygonCollection->updateAllRequiredEditors();
 
@@ -143,6 +136,24 @@ void createPolygonObjects( const std::vector<std::vector<cvf::Vec3d>>& polygons 
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void createPolygonObjects( const std::vector<std::vector<cvf::Vec3d>>& polygons )
+{
+    auto polygonCollection = RimTools::polygonCollection();
+    if ( !polygonCollection ) return;
+
+    for ( const auto& polygonDomainCoords : polygons )
+    {
+        auto newPolygon = polygonCollection->appendUserDefinedPolygon();
+        newPolygon->setPointsInDomainCoords( polygonDomainCoords );
+        newPolygon->coordinatesChanged.send();
+    }
+
+    updateViewsAfterPolygonCollectionChange();
 }
 
 } // namespace internal
@@ -360,6 +371,25 @@ void RicCreateContourMapPolygonTools::createPolygonObjects( std::vector<std::vec
         }
         internal::createPolygonObjects( polygonsToCreate );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreateContourMapPolygonTools::createPointPolygonObjects( const std::vector<std::pair<QString, cvf::Vec3d>>& namedPoints )
+{
+    auto polygonCollection = RimTools::polygonCollection();
+    if ( !polygonCollection ) return;
+
+    for ( const auto& [name, point] : namedPoints )
+    {
+        auto newPolygon = polygonCollection->appendUserDefinedPolygon();
+        newPolygon->setPointsInDomainCoords( { point } );
+        newPolygon->setName( name );
+        newPolygon->coordinatesChanged.send();
+    }
+
+    internal::updateViewsAfterPolygonCollectionChange();
 }
 
 //--------------------------------------------------------------------------------------------------
