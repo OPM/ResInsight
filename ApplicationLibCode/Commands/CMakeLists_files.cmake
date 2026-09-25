@@ -5,6 +5,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseInCollectionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCloseObservedDataFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewGenericDataViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportFormationNamesFeature.cpp

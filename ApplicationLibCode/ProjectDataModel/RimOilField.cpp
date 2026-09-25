@@ -28,9 +28,11 @@
 #include "RimEclipseViewCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimGenericViewCollection.h"
 #include "RimGeoMechModels.h"
 #include "RimMeasurement.h"
 #include "RimObservedDataCollection.h"
+#include "RimProject.h"
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicViewCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -78,8 +80,12 @@ RimOilField::RimOilField()
     CAF_PDM_InitFieldNoDefault( &seismicViewCollection, "SeismicViewCollection", "Seismic Views" );
     seismicViewCollection = new RimSeismicViewCollection();
 
-    CAF_PDM_InitFieldNoDefault( &eclipseViewCollection, "EclipseViewCollection", "Eclipse Views", ":/3DView16x16.png" );
-    eclipseViewCollection = new RimEclipseViewCollection();
+    CAF_PDM_InitFieldNoDefault( &genericViewCollection, "GenericViewCollection", "Views", ":/3DView16x16.png" );
+    genericViewCollection = new RimGenericViewCollection();
+
+    // Obsolete field kept for reading old project files, migrated in initAfterRead()
+    CAF_PDM_InitFieldNoDefault( &m_eclipseViewCollection_OBSOLETE, "EclipseViewCollection", "Views" );
+    m_eclipseViewCollection_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &eclipseContourMapCollection, "ContourMaps", "2d Contour Maps" );
     eclipseContourMapCollection = new RimEclipseContourMapViewCollection;
@@ -153,5 +159,20 @@ void RimOilField::initAfterRead()
     {
         m_fractureTemplateCollection_OBSOLETE.removeChild( fractureTemplateCollection );
         completionTemplateCollection->setFractureTemplateCollection( fractureTemplateCollection );
+    }
+
+    // genericViewCollection replaced this field in project files newer than version 2026.09.0
+    auto proj = RimProject::current();
+    if ( proj && proj->isProjectFileVersionEqualOrOlderThan( "2026.09.0" ) && m_eclipseViewCollection_OBSOLETE.value() )
+    {
+        RimEclipseViewCollection* obsoleteViewCollection = m_eclipseViewCollection_OBSOLETE.value();
+        for ( RimEclipseView* view : obsoleteViewCollection->views() )
+        {
+            obsoleteViewCollection->removeView( view );
+            genericViewCollection->addView( view );
+        }
+
+        delete m_eclipseViewCollection_OBSOLETE;
+        m_eclipseViewCollection_OBSOLETE = nullptr;
     }
 }
