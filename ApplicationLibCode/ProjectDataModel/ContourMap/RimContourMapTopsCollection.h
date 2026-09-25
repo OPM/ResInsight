@@ -42,7 +42,7 @@ class RimContourMapTopsCollection : public RimCheckableNamedObject
 public:
     RimContourMapTopsCollection();
 
-    RimContourMapTop* addTop( int rank, double value, double prominence, const cvf::Vec3d& domainPosition, double markerSize );
+    RimContourMapTop* addTop( int rank, double value, double prominence, const cvf::Vec3d& domainPosition, double sphereRadiusFactor );
     void              clearTops();
 
     // Refresh the 3d views mirroring the polygon collection, so newly added/removed marker polygons

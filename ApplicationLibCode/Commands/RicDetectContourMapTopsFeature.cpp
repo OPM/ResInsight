@@ -20,7 +20,6 @@
 
 #include "RicExportContourMapToTextFeature.h"
 
-#include "ContourMap/RigContourMapGrid.h"
 #include "ContourMap/RigContourMapProjection.h"
 #include "ContourMap/RigContourMapTopFinder.h"
 
@@ -95,15 +94,15 @@ void RicDetectContourMapTopsFeature::onActionTriggered( bool isChecked )
     auto origin3d = rigContourMapProjection->origin3d();
     auto depth    = rigContourMapProjection->topDepthBoundingBox();
 
-    const auto* grid       = contourMapProjection->mapGrid();
-    double      markerSize = grid ? grid->sampleSpacing() * 1.5 : 1.0;
+    // Sphere radius factor is multiplied by the view's characteristic cell size when rendered.
+    const double sphereRadiusFactor = 1.0;
 
     for ( size_t i = 0; i < tops.size(); ++i )
     {
         const auto& top = tops[i];
 
         cvf::Vec3d domainPoint( origin3d.x() + top.x, origin3d.y() + top.y, depth );
-        topsCollection->addTop( static_cast<int>( i + 1 ), top.z, top.prominence, domainPoint, markerSize );
+        topsCollection->addTop( static_cast<int>( i + 1 ), top.z, top.prominence, domainPoint, sphereRadiusFactor );
     }
 
     topsCollection->updateVisualization();

@@ -40,6 +40,12 @@ public:
     void         setLineColor( const cvf::Color3f& color );
 
     bool showLines() const;
+    void setShowLines( bool showLines );
+
+    bool showSpheres() const;
+    void setShowSpheres( bool showSpheres );
+    void setSphereRadiusFactor( double radiusFactor );
+    void setSphereColor( const cvf::Color3f& color );
 
 public:
     RimPolygonAppearance();

@@ -44,11 +44,11 @@ RimContourMapTopsCollection::RimContourMapTopsCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Creates both the RimContourMapTop metadata object and its diamond-shaped marker polygon (used to
-/// visualize the top's position, reusing the existing polygon rendering/mirroring machinery).
+/// Creates both the RimContourMapTop metadata object and its single-point marker polygon (used to
+/// visualize the top's position as a sphere, reusing the existing polygon rendering/mirroring machinery).
 //--------------------------------------------------------------------------------------------------
 RimContourMapTop*
-    RimContourMapTopsCollection::addTop( int rank, double value, double prominence, const cvf::Vec3d& domainPosition, double markerSize )
+    RimContourMapTopsCollection::addTop( int rank, double value, double prominence, const cvf::Vec3d& domainPosition, double sphereRadiusFactor )
 {
     auto polygonCollection = RimTools::polygonCollection();
     if ( !polygonCollection ) return nullptr;
@@ -56,14 +56,13 @@ RimContourMapTop*
     auto* top = new RimContourMapTop;
     top->setValues( rank, value, prominence, domainPosition );
 
-    std::vector<cvf::Vec3d> diamond = { domainPosition + cvf::Vec3d( 0.0, markerSize, 0.0 ),
-                                        domainPosition + cvf::Vec3d( markerSize, 0.0, 0.0 ),
-                                        domainPosition + cvf::Vec3d( 0.0, -markerSize, 0.0 ),
-                                        domainPosition + cvf::Vec3d( -markerSize, 0.0, 0.0 ) };
-
     auto* markerPolygon = polygonCollection->appendUserDefinedPolygon();
-    markerPolygon->setPointsInDomainCoords( diamond );
+    markerPolygon->setPointsInDomainCoords( { domainPosition } );
     markerPolygon->setName( top->name() );
+    markerPolygon->setReadOnly( true );
+    markerPolygon->setShowLines( false );
+    markerPolygon->setShowSpheres( true );
+    markerPolygon->setSphereRadiusFactor( sphereRadiusFactor );
     markerPolygon->coordinatesChanged.send();
 
     top->setMarkerPolygon( markerPolygon );
