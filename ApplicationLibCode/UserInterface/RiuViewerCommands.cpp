@@ -42,7 +42,6 @@
 
 #include "Completions/RimMswSegment.h"
 #include "ContourMap/RimEclipseContourMapView.h"
-#include "ContourMap/RimStatisticsContourMapView.h"
 #include "Rim2dIntersectionView.h"
 #include "RimBoxIntersection.h"
 #include "RimCellEdgeColors.h"
@@ -657,14 +656,8 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.addSeparator();
             menuBuilder << "RicExportContourMapToTextFeature";
 
-            bool isSingleRealizationContourView =
-                dynamic_cast<RimGeoMechContourMapView*>( gridView ) ||
-                ( dynamic_cast<RimEclipseContourMapView*>( gridView ) && !dynamic_cast<RimStatisticsContourMapView*>( gridView ) );
-            if ( isSingleRealizationContourView )
-            {
-                menuBuilder.addSeparator();
-                menuBuilder << "RicDetectContourMapTopsFeature";
-            }
+            menuBuilder.addSeparator();
+            menuBuilder << "RicDetectContourMapTopsFeature";
         }
         else
         {

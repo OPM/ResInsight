@@ -26,7 +26,6 @@
 #include "ContourMap/RimContourMapProjection.h"
 #include "ContourMap/RimContourMapTopsCollection.h"
 #include "ContourMap/RimEclipseContourMapView.h"
-#include "ContourMap/RimStatisticsContourMapView.h"
 #include "RimGeoMechContourMapView.h"
 
 #include "RiuMainWindow.h"
@@ -38,16 +37,13 @@
 CAF_CMD_SOURCE_INIT( RicDetectContourMapTopsFeature, "RicDetectContourMapTopsFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// Only enabled for single-realization contour maps, i.e. not for ensemble statistics contour maps.
+/// Enabled for all contour map view types (single-realization and ensemble statistics).
 //--------------------------------------------------------------------------------------------------
 bool RicDetectContourMapTopsFeature::isCommandEnabled() const
 {
     auto [existingEclipseContourMap, existingGeoMechContourMap] = RicExportContourMapToTextFeature::findContourMapView();
 
-    if ( existingGeoMechContourMap ) return true;
-    if ( existingEclipseContourMap && !dynamic_cast<RimStatisticsContourMapView*>( existingEclipseContourMap ) ) return true;
-
-    return false;
+    return existingEclipseContourMap || existingGeoMechContourMap;
 }
 
 //--------------------------------------------------------------------------------------------------
