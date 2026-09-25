@@ -210,10 +210,11 @@ set(LINK_LIBRARIES
 
 if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND LINK_LIBRARIES GrpcInterface)
+  target_compile_definitions(ResInsight PRIVATE ENABLE_GRPC)
 endif()
 
 if(RESINSIGHT_USE_ODB_API)
-  add_definitions(-DUSE_ODB_API)
+  target_compile_definitions(ResInsight PRIVATE USE_ODB_API)
   list(APPEND LINK_LIBRARIES RifOdbReader)
 endif()
 

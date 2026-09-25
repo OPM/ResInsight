@@ -269,6 +269,18 @@ set_property(TARGET PreBuildFileCopyTest PROPERTY FOLDER "FileCopyTargetsTest")
 
 qt_add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp)
 
+# Scope USE_HDF5 to just the 3 test files that reference it, instead of
+# relying on a project-wide define, so toggling RESINSIGHT_FOUND_HDF5 does
+# not force a rebuild of every test file.
+if(RESINSIGHT_FOUND_HDF5)
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/HDF5FileReader-Test.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/HDF5FileWriter-Test.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/RimEmReader-Test.cpp
+    PROPERTIES COMPILE_DEFINITIONS "USE_HDF5;H5_BUILT_AS_DYNAMIC_LIB"
+  )
+endif()
+
 # Make ResInsight-tests depend on the prebuild target.
 add_dependencies(ResInsight-tests PreBuildFileCopyTest)
 

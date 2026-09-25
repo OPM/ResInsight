@@ -259,17 +259,16 @@ if(RESINSIGHT_DOWNLOAD_ODB_FROM_SERVER)
 endif()
 
 if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
-  add_definitions(-DUSE_ODB_API)
   set(RESINSIGHT_USE_ODB_API 1)
   message(
     STATUS
       "Using ODB-Api ${RESINSIGHT_ODB_VERSION} from : ${RESINSIGHT_ODB_API_DIR}"
   )
-  if(MSVC)
-    add_definitions(-D_WINDOWS_SOURCE)
-  else()
-    add_definitions(-D_LINUX_SOURCE)
-  endif()
+  # NOTE: USE_ODB_API (and the platform source defines it implies) is applied
+  # with target_compile_definitions() on the specific targets that need it,
+  # instead of add_definitions() here, so toggling this option does not force
+  # a full rebuild of the whole project (see ApplicationLibCode, Commands,
+  # GeoMechDataModel and ApplicationExeCode CMakeLists.txt).
 endif()
 
 # ##############################################################################
@@ -311,7 +310,10 @@ if(RESINSIGHT_ENABLE_GRPC)
   option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE
          "Bundle the gRPC python modules into the install folder" OFF
   )
-  add_definitions(-DENABLE_GRPC)
+  # NOTE: ENABLE_GRPC is applied with target_compile_definitions() on the
+  # specific targets that need it, instead of add_definitions() here, so
+  # toggling this option does not force a full rebuild of the whole project
+  # (see ApplicationLibCode, ApplicationExeCode and GrpcInterface CMakeLists.txt).
 endif()
 
 # ##############################################################################

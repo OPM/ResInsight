@@ -75,8 +75,39 @@ find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME} OBJECT ${COMMAND_CODE_SOURCE_FILES})
 
+# NOTE: USE_OPENVDS/USE_ODB_API only affect a handful of files in this
+# target. Scope the defines to just those files via
+# set_source_files_properties() rather than target_compile_definitions()
+# (which would force a rebuild of every file in this target when toggled).
 if(RESINSIGHT_ENABLE_OPENVDS)
-  add_definitions(-DUSE_OPENVDS)
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/SeismicCommands/RicImportSeismicFeature.cpp
+    PROPERTIES COMPILE_DEFINITIONS USE_OPENVDS
+  )
+endif()
+
+if(RESINSIGHT_USE_ODB_API)
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMechCommands/RicGeoMechCopyCaseFeature.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMechCommands/RicImportGeoMechCaseFeature.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMechCommands/RicImportGeoMechCaseTimeStepFilterFeature.cpp
+    PROPERTIES COMPILE_DEFINITIONS USE_ODB_API
+  )
+endif()
+
+# RicHelpFeatures.cpp references both USE_ODB_API and USE_HDF5.
+if(RESINSIGHT_USE_ODB_API OR RESINSIGHT_FOUND_HDF5)
+  set(RIC_HELP_FEATURES_DEFS "")
+  if(RESINSIGHT_USE_ODB_API)
+    list(APPEND RIC_HELP_FEATURES_DEFS USE_ODB_API)
+  endif()
+  if(RESINSIGHT_FOUND_HDF5)
+    list(APPEND RIC_HELP_FEATURES_DEFS USE_HDF5)
+  endif()
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/ApplicationCommands/RicHelpFeatures.cpp
+    PROPERTIES COMPILE_DEFINITIONS "${RIC_HELP_FEATURES_DEFS}"
+  )
 endif()
 
 if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
