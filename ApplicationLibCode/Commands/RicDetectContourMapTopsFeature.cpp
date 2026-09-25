@@ -18,13 +18,17 @@
 
 #include "RicDetectContourMapTopsFeature.h"
 
-#include "RicCreateContourMapPolygonTools.h"
 #include "RicExportContourMapToTextFeature.h"
 
+#include "ContourMap/RigContourMapGrid.h"
 #include "ContourMap/RigContourMapProjection.h"
 #include "ContourMap/RigContourMapTopFinder.h"
 
+#include "ContourMap/RimContourMapProjection.h"
+#include "ContourMap/RimContourMapTopsCollection.h"
+#include "ContourMap/RimEclipseContourMapView.h"
 #include "ContourMap/RimStatisticsContourMapView.h"
+#include "RimGeoMechContourMapView.h"
 
 #include "RiuMainWindow.h"
 
@@ -52,7 +56,14 @@ bool RicDetectContourMapTopsFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicDetectContourMapTopsFeature::onActionTriggered( bool isChecked )
 {
-    auto rigContourMapProjection = RicCreateContourMapPolygonTools::findCurrentContourMapProjection();
+    auto [existingEclipseContourMap, existingGeoMechContourMap] = RicExportContourMapToTextFeature::findContourMapView();
+
+    RimContourMapProjection* contourMapProjection = nullptr;
+    if ( existingEclipseContourMap ) contourMapProjection = existingEclipseContourMap->contourMapProjection();
+    if ( existingGeoMechContourMap ) contourMapProjection = existingGeoMechContourMap->contourMapProjection();
+    if ( !contourMapProjection ) return;
+
+    auto rigContourMapProjection = contourMapProjection->mapProjection();
     if ( !rigContourMapProjection ) return;
 
     bool ok = false;
@@ -76,19 +87,26 @@ void RicDetectContourMapTopsFeature::onActionTriggered( bool isChecked )
         return;
     }
 
+    auto* topsCollection = contourMapProjection->topsCollection();
+    if ( !topsCollection ) return;
+
+    topsCollection->clearTops();
+
     auto origin3d = rigContourMapProjection->origin3d();
     auto depth    = rigContourMapProjection->topDepthBoundingBox();
 
-    std::vector<std::pair<QString, cvf::Vec3d>> namedPoints;
+    const auto* grid       = contourMapProjection->mapGrid();
+    double      markerSize = grid ? grid->sampleSpacing() * 1.5 : 1.0;
+
     for ( size_t i = 0; i < tops.size(); ++i )
     {
         const auto& top = tops[i];
-        cvf::Vec3d  domainPoint( origin3d.x() + top.x, origin3d.y() + top.y, depth );
-        QString     name = QString( "Top %1 (value %2)" ).arg( i + 1 ).arg( top.z, 0, 'g', 6 );
-        namedPoints.emplace_back( name, domainPoint );
+
+        cvf::Vec3d domainPoint( origin3d.x() + top.x, origin3d.y() + top.y, depth );
+        topsCollection->addTop( static_cast<int>( i + 1 ), top.z, top.prominence, domainPoint, markerSize );
     }
 
-    RicCreateContourMapPolygonTools::createPointPolygonObjects( namedPoints );
+    topsCollection->updateVisualization();
 }
 
 //--------------------------------------------------------------------------------------------------

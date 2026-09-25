@@ -376,25 +376,6 @@ void RicCreateContourMapPolygonTools::createPolygonObjects( std::vector<std::vec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateContourMapPolygonTools::createPointPolygonObjects( const std::vector<std::pair<QString, cvf::Vec3d>>& namedPoints )
-{
-    auto polygonCollection = RimTools::polygonCollection();
-    if ( !polygonCollection ) return;
-
-    for ( const auto& [name, point] : namedPoints )
-    {
-        auto newPolygon = polygonCollection->appendUserDefinedPolygon();
-        newPolygon->setPointsInDomainCoords( { point } );
-        newPolygon->setName( name );
-        newPolygon->coordinatesChanged.send();
-    }
-
-    internal::updateViewsAfterPolygonCollectionChange();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 const RigContourMapProjection* RicCreateContourMapPolygonTools::findCurrentContourMapProjection()
 {
     RimContourMapProjection* contourMapProjection = nullptr;

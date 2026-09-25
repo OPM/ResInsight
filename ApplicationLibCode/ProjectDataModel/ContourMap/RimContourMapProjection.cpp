@@ -22,6 +22,7 @@
 #include "ContourMap/RigContourMapGrid.h"
 #include "ContourMap/RigContourMapProjection.h"
 #include "ContourMap/RigContourMapTrianglesGenerator.h"
+#include "ContourMap/RimContourMapTopsCollection.h"
 #include "RigFloodingSettings.h"
 
 #include "RimCase.h"
@@ -116,6 +117,9 @@ RimContourMapProjection::RimContourMapProjection()
     m_upperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_lowerThreshold, "LowerThreshold", 0.0, "Lower Threshold" );
     m_lowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_topsCollection, "TopsCollection", "Detected Tops" );
+    m_topsCollection = new RimContourMapTopsCollection;
 
     setName( "Map Projection" );
     nameField()->uiCapability()->setUiReadOnly( true );
@@ -312,6 +316,14 @@ const RigContourMapProjection* RimContourMapProjection::mapProjection() const
 const RigContourMapGrid* RimContourMapProjection::mapGrid() const
 {
     return m_contourMapGrid.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimContourMapTopsCollection* RimContourMapProjection::topsCollection() const
+{
+    return m_topsCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -642,6 +654,7 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
+    uiTreeOrdering.add( &m_topsCollection );
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
