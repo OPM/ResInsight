@@ -27,6 +27,7 @@ class RimGeoMechCase;
 class RimGeoMechView;
 class Rim3dView;
 class RimEclipseViewCollection;
+class RimGenericViewCollection;
 class RimEclipseCaseEnsemble;
 
 //==================================================================================================
@@ -38,6 +39,7 @@ class RicNewViewFeature : public caf::CmdFeature
 
 public:
     static Rim3dView* addReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase, RimEclipseViewCollection* viewColl );
+    static Rim3dView* addReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase, RimGenericViewCollection* viewColl );
 
 protected:
     bool isCommandEnabled() const override;
@@ -46,11 +48,13 @@ protected:
 
 private:
     static Rim3dView* createReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase, RimEclipseViewCollection* viewColl );
+    static Rim3dView* createReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase, RimGenericViewCollection* viewColl );
 
     static RimEclipseCase*           selectedEclipseCase();
     static RimGeoMechCase*           selectedGeoMechCase();
     static RimEclipseView*           selectedEclipseView();
     static RimGeoMechView*           selectedGeoMechView();
     static RimEclipseViewCollection* selectedEclipseViewCollection();
+    static RimGenericViewCollection* selectedGenericViewCollection();
     static RimEclipseCaseEnsemble*   selectedEclipseCaseEnsemble();
 };

@@ -34,6 +34,8 @@
 
 #include "RivSurfacePartMgr.h"
 
+#include "cafPdmUiTreeOrdering.h"
+
 CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
 
 namespace caf
@@ -324,6 +326,14 @@ void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_showInactiveCells );
 
     defineSeparateDataSourceUi( uiConfigName, uiOrdering );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------

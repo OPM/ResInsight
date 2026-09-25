@@ -85,6 +85,7 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     caf::PdmProxyValueField<QString> m_name;
     caf::PdmPtrField<RimSurface*>    m_surface;

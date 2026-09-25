@@ -318,6 +318,8 @@ void RimSurfaceCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuil
     menuBuilder << "RicCreateEnsembleSurfaceFeature";
     menuBuilder.addSeparator();
     menuBuilder << "RicNewNestedCollectionFeature";
+    menuBuilder.addSeparator();
+    menuBuilder << "RicNewGenericDataViewFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

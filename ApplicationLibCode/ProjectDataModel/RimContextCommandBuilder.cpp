@@ -337,6 +337,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimWellPathCollection*>( firstUiItem ) )
         {
+            menuBuilder << "RicNewGenericDataViewFeature";
             menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder << "RicPasteModeledWellPathFeature";
             menuBuilder << "RicCreateEnsembleWellLogFeature";
