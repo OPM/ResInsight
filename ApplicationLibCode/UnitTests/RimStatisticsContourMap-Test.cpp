@@ -19,9 +19,11 @@
 #include "gtest/gtest.h"
 
 #include "RiaDefines.h"
+#include "RiaLogging.h"
 #include "RiaTestDataDirectory.h"
 
 #include "ContourMap/RigContourMapCalculator.h"
+#include "ContourMap/RigContourMapGrid.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
@@ -30,11 +32,14 @@
 #include "RimDataFilterCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimProject.h"
 #include "RimReservoirGridEnsemble.h"
 
 #include "cafPdmChildField.h"
+#include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmXmlObjectHandle.h"
 
 #include <QDir>
 #include <QFile>
@@ -222,4 +227,72 @@ TEST( RimStatisticsContourMapTest, DataFilterSharedAndIndividualGridsAgree )
     ASSERT_FALSE( shared.empty() );
     ASSERT_EQ( shared.size(), individual.size() );
     EXPECT_EQ( 0u, countDifferentValues( shared, individual ) );
+}
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Minimal logger capturing warning messages, used to verify the obsolete formation filter warning.
+//--------------------------------------------------------------------------------------------------
+class RecordingLogger : public RiaLogger
+{
+public:
+    int  level() const override { return static_cast<int>( RILogLevel::RI_LL_WARNING ); }
+    void setLevel( int ) override {}
+
+    void error( const char* ) override {}
+    void warning( const char* message ) override { warnings.push_back( message ); }
+    void info( const char* ) override {}
+    void debug( const char* ) override {}
+
+    std::vector<std::string> warnings;
+};
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+/// Loading a project with the obsolete formation filter fields set (#14710) should warn, not silently drop them.
+//--------------------------------------------------------------------------------------------------
+TEST( RimStatisticsContourMapTest, ObsoleteFormationFilterWarnsOnLoad )
+{
+    auto sourceMap = std::make_unique<RimStatisticsContourMap>();
+    sourceMap->setName( "MyContourMap" );
+
+    auto* enableField     = dynamic_cast<caf::PdmField<bool>*>( sourceMap->findField( "EnableFormationFilter" ) );
+    auto* formationsField = dynamic_cast<caf::PdmField<std::vector<QString>>*>( sourceMap->findField( "Formations" ) );
+    ASSERT_TRUE( enableField != nullptr );
+    ASSERT_TRUE( formationsField != nullptr );
+
+    enableField->setValue( true );
+    formationsField->setValue( { "Zone1", "Zone2" } );
+
+    // The obsolete fields are marked non-writable so current projects never persist them again; force
+    // writing here to simulate an XML string produced by an older ResInsight version.
+    enableField->xmlCapability()->setIOWritable( true );
+    formationsField->xmlCapability()->setIOWritable( true );
+
+    QString xml = sourceMap->xmlCapability()->writeObjectToXmlString();
+
+    auto* recordingLogger = new RecordingLogger();
+    RiaLogging::appendLoggerInstance( std::unique_ptr<RiaLogger>( recordingLogger ) );
+
+    // Simulate the project having been saved by an older ResInsight version, so the version guard in
+    // initAfterRead() lets the obsolete-field warning through.
+    auto* versionField = dynamic_cast<caf::PdmField<QString>*>( RimProject::current()->findField( "ProjectFileVersionString" ) );
+    ASSERT_TRUE( versionField != nullptr );
+    QString originalVersion = versionField->value();
+    versionField->setValue( "2026.06.0" );
+
+    auto readMap = std::make_unique<RimStatisticsContourMap>();
+    readMap->xmlCapability()->readObjectFromXmlString( xml, caf::PdmDefaultObjectFactory::instance() );
+    readMap->xmlCapability()->resolveReferencesRecursively();
+    readMap->xmlCapability()->initAfterReadRecursively();
+
+    versionField->setValue( originalVersion );
+
+    bool foundWarning = false;
+    for ( const auto& message : recordingLogger->warnings )
+    {
+        if ( message.find( "Zone1, Zone2" ) != std::string::npos ) foundWarning = true;
+    }
+    EXPECT_TRUE( foundWarning );
 }

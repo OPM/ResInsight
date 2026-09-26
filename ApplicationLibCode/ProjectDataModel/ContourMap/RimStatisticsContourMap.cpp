@@ -221,6 +221,15 @@ RimStatisticsContourMap::RimStatisticsContourMap()
     CAF_PDM_InitFieldNoDefault( &m_cacheMapSize, "CacheMapSize", "Cache Map Size" );
     m_cacheMapSize.uiCapability()->setUiHidden( true );
 
+    // Obsolete built-in formation filter, replaced by ensemble data filters (see #14710).
+    CAF_PDM_InitField( &m_enableFormationFilter_OBSOLETE, "EnableFormationFilter", false, "Enable Formation Filter" );
+    m_enableFormationFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_enableFormationFilter_OBSOLETE.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedFormations_OBSOLETE, "Formations", "Select Formations" );
+    m_selectedFormations_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_selectedFormations_OBSOLETE.uiCapability()->setUiHidden( true );
+
     setDeletable( true );
 }
 
@@ -496,6 +505,19 @@ void RimStatisticsContourMap::defineEditorAttribute( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsContourMap::initAfterRead()
 {
+    // Formation filter removed in 2026.09.1 in favor of ensemble data filters (#14710).
+    bool hasObsoleteFormationFilter = m_enableFormationFilter_OBSOLETE() || !m_selectedFormations_OBSOLETE().empty();
+    if ( hasObsoleteFormationFilter && RimProject::current() && RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2026.09.1" ) )
+    {
+        QString formations = QStringList( m_selectedFormations_OBSOLETE().begin(), m_selectedFormations_OBSOLETE().end() ).join( ", " );
+        QString message    = QString( "Ensemble contour map '%1' had a formation filter selection ('%2') from an older "
+                                      "ResInsight version. The built-in formation filter has been removed and is no "
+                                      "longer applied. Use an ensemble data filter on formation names instead." )
+                              .arg( name() )
+                              .arg( formations );
+        RiaLogging::warning( message.toStdString() );
+    }
+
     if ( ensembleCases().empty() ) return;
 
     switchToSelectedSourceCase();
