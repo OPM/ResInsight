@@ -172,6 +172,10 @@ private:
 
     RimEclipseCase* m_openEclipseCase;
 
+    // Obsolete formation filter, replaced by ensemble data filters (#14710). Kept for the warning in initAfterRead().
+    caf::PdmField<bool>                 m_enableFormationFilter_OBSOLETE;
+    caf::PdmField<std::vector<QString>> m_selectedFormations_OBSOLETE;
+
     // Validity key captured when the results were computed or loaded from cache, so that results
     // from outdated settings are never written to the cache
     QString m_computedValidityKey;
