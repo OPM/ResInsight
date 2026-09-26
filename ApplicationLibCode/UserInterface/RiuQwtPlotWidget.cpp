@@ -1689,27 +1689,18 @@ void RiuQwtPlotWidget::onMouseMoveEvent( QMouseEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::moveAxis( RiuPlotAxis oldAxis, RiuPlotAxis newAxis )
 {
-    auto countAxis = [this]( RiaDefines::PlotAxis axis )
-    {
-        int count = 0;
-        for ( auto [plotAxis, qwtMapping] : m_axisMapping )
-        {
-            if ( plotAxis.axis() == axis ) count++;
-        }
-        return count;
-    };
-
     auto isLastItem = [this]( RiuPlotAxis plotAxis, int count )
     {
         auto qwtAxis = toQwtPlotAxis( plotAxis );
         return qwtAxis.id == ( count - 1 );
     };
 
-    auto removeAxis = [this, countAxis, isLastItem]( RiuPlotAxis plotAxis )
+    auto removeAxis = [this, isLastItem]( RiuPlotAxis plotAxis )
     {
         auto qwtAxisPos = RiuQwtPlotTools::toQwtPlotAxisEnum( plotAxis.axis() );
 
-        int count = countAxis( plotAxis.axis() );
+        // Count from qwt, not the mapping. Qwt keeps at least one axis per side, also when unmapped
+        int count = m_plot->axesCount( qwtAxisPos );
 
         bool isLast = isLastItem( plotAxis, count );
         if ( isLast )
