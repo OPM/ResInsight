@@ -74,6 +74,7 @@ RimContourMapTop*
     markerPolygon->setShowLines( false );
     markerPolygon->setShowSpheres( true );
     markerPolygon->setSphereRadiusFactor( sphereRadiusFactor );
+    markerPolygon->setSphereColor( cvf::Color3f::PINK );
     markerPolygon->coordinatesChanged.send();
 
     top->setMarkerPolygon( markerPolygon );
