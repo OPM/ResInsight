@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 jobs:
   remove_label:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       issues: write
     steps:

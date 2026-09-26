@@ -12,7 +12,7 @@ permissions:
 jobs:
   draft-release:
     name: Create draft release with binaries
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
@@ -75,7 +75,7 @@ jobs:
           cd artifacts
           for d in ResInsight-*/; do
             name="${d%/}"
-            # Spaces in artifact names (e.g. "ResInsight-Ubuntu 24.04 gcc")
+            # Spaces in artifact names (e.g. "ResInsight-Ubuntu 26.04 gcc")
             # make awkward asset filenames, so collapse them to underscores.
             safe="${name// /_}"
             zip -r "../release-assets/${safe}-${{ github.ref_name }}.zip" "$name"
