@@ -60,7 +60,7 @@ Most dependencies are managed using vcpkg as defined in [vcpkg.json](https://git
 ### Contributing
 Contributions are welcome! Please:
 - Use the `dev` branch for contributions and pull requests
-- Note that the `master` branch is kept stable and updated only for releases
+- Releases are defined by tags
 - See [Spell Checking Guide](docs/spell-checking.md) for information on automated spell checking
 
 ### Building

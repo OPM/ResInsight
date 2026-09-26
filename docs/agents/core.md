@@ -53,7 +53,7 @@ ResInsight includes Python integration via gRPC when `RESINSIGHT_ENABLE_GRPC=ON`
 ## Development Notes
 
 - **Version**: Current version defined in `ResInsightVersion.cmake` (2025.04.4-dev)
-- **Git Workflow**: Main development on `dev` branch, `master` branch for stable releases
+- **Git Workflow**: Main development on `dev` branch, releases are defined by tags (e.g. `v2026.09.1`)
 - **Dependencies**: Extensive third-party integration via git submodules in `ThirdParty/`
 - **Build Output**: Goes to `CMAKE_RUNTIME_OUTPUT_DIRECTORY` (CMAKE_CURRENT_BINARY_DIR)
 - **Qt Integration**: Uses Qt's resource system (.qrc files) for UI resources
