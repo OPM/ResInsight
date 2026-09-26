@@ -28,6 +28,7 @@
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
+#include "Formations/RimFormationNames.h"
 #include "RimCellFilterTools.h"
 #include "RimCellRangeFilter.h"
 #include "RimDataFilterCollection.h"
@@ -47,9 +48,11 @@
 
 #include <QDir>
 #include <QFile>
+#include <QTemporaryDir>
 
 #include <cmath>
 #include <memory>
+#include <set>
 
 static std::unique_ptr<RimEclipseResultCase> openBruggeCase( const QString& realizationFolder, const QString& fileName )
 {
@@ -322,4 +325,72 @@ TEST( RimCellFilterToolsTest, PropertyFilterVisibilityPerCase )
         if ( visibilityA->val( i ) != visibilityB->val( i ) ) differingCells++;
     }
     EXPECT_GT( differingCells, 0u );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Realizations can have their own formation names file, with the same formations covering different
+/// K layers. A formation filter must use the K ranges of each realization.
+//--------------------------------------------------------------------------------------------------
+TEST( RimCellFilterToolsTest, FormationFilterUsesKLayersOfEachCase )
+{
+    auto caseA = openBruggeCase( "Real0", "BRUGGE_0000.EGRID" );
+    auto caseB = openBruggeCase( "Real40", "BRUGGE_0040.EGRID" );
+    ASSERT_TRUE( caseA != nullptr );
+    ASSERT_TRUE( caseB != nullptr );
+
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    auto createFormationNames = [&tempDir]( const QString& fileName, const QString& content )
+    {
+        QFile file( tempDir.filePath( fileName ) );
+        EXPECT_TRUE( file.open( QIODevice::WriteOnly | QIODevice::Text ) );
+        file.write( content.toUtf8() );
+        file.close();
+
+        auto formationNames = std::make_unique<RimFormationNames>();
+        formationNames->setFileName( file.fileName() );
+        EXPECT_TRUE( formationNames->readFormationNamesFile().has_value() );
+        return formationNames;
+    };
+
+    auto formationsA = createFormationNames( "a.lyr", "'Upper' 1 - 2\n'Lower' 3 - 4\n" );
+    auto formationsB = createFormationNames( "b.lyr", "'Upper' 1 - 3\n'Lower' 4 - 4\n" );
+    caseA->eclipseCaseData()->setActiveFormationNames( formationsA->formationNamesData() );
+    caseB->eclipseCaseData()->setActiveFormationNames( formationsB->formationNamesData() );
+
+    RimEclipsePropertyFilter propertyFilter;
+    propertyFilter.setCase( caseA.get() );
+    propertyFilter.setActive( true );
+    propertyFilter.resultDefinition()->setResultType( RiaDefines::ResultCatType::FORMATION_NAMES );
+    propertyFilter.resultDefinition()->setResultVariable( RiaResultNames::activeFormationNamesResultName() );
+    propertyFilter.computeResultValueRange();
+
+    auto* categorySelectionField = dynamic_cast<caf::PdmField<bool>*>( propertyFilter.findField( "CategorySelection" ) );
+    auto* selectedValuesField    = dynamic_cast<caf::PdmField<std::vector<int>>*>( propertyFilter.findField( "SelectedValues" ) );
+    ASSERT_TRUE( categorySelectionField && selectedValuesField );
+    categorySelectionField->setValue( true );
+    selectedValuesField->setValue( { 0 } );
+    ASSERT_TRUE( propertyFilter.isCategorySelectionActive() );
+
+    auto visibleKLayers = []( const cvf::UByteArray* visibility, const RimEclipseCase* eclipseCase )
+    {
+        const RigMainGrid* mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
+
+        std::set<size_t> kLayers;
+        for ( size_t i = 0; i < visibility->size(); i++ )
+        {
+            size_t ci = 0, cj = 0, ck = 0;
+            if ( visibility->val( i ) && mainGrid->ijkFromCellIndex( i, &ci, &cj, &ck ) ) kLayers.insert( ck );
+        }
+        return kLayers;
+    };
+
+    auto visibilityA = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseA.get(), 0 );
+    auto visibilityB = RimCellFilterTools::computeReservoirCellVisibility( &propertyFilter, caseB.get(), 0 );
+    ASSERT_TRUE( visibilityA.notNull() );
+    ASSERT_TRUE( visibilityB.notNull() );
+
+    EXPECT_EQ( std::set<size_t>( { 0, 1 } ), visibleKLayers( visibilityA.p(), caseA.get() ) );
+    EXPECT_EQ( std::set<size_t>( { 0, 1, 2 } ), visibleKLayers( visibilityB.p(), caseB.get() ) );
 }

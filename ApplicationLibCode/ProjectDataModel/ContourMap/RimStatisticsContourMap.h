@@ -36,10 +36,10 @@
 #include <vector>
 
 class RigContourMapGrid;
+class RimCellFilter;
 class RimEclipseCase;
 class RimEclipseResultDefinition;
 class RimEclipseCaseEnsemble;
-class RimFormationNames;
 class RimReservoirGridEnsemble;
 class RimEclipseContourMapView;
 class RimStatisticsContourMapView;
@@ -75,6 +75,8 @@ public:
     void            setEclipseCase( RimEclipseCase* eclipseCase );
     RimEclipseCase* eclipseCase() const;
 
+    RimCellFilter* dataFilter() const;
+
     void setGridImportMode( GridImportMode mode );
 
     QString ensembleName() const;
@@ -98,7 +100,6 @@ public:
     std::vector<QDateTime> selectedTimeStepDates() const;
     QString                timeStepName( int timeStep ) const;
 
-    std::vector<QString>                 selectedFormations() const;
     std::vector<std::vector<cvf::Vec3d>> selectedPolygons() const;
 
     void switchToSelectedSourceCase();
@@ -132,7 +133,6 @@ private:
     void           clearCacheFields();
     static QString getCacheDirectoryPath();
 
-    RimFormationNames*           activeFormationNames() const;
     std::vector<RimEclipseCase*> ensembleCases() const;
     std::set<RimEclipseCase*>    ensembleCasesInViews() const;
 
@@ -143,10 +143,9 @@ private:
     caf::PdmField<RimContourMapProjection::ResultAggregation> m_resultAggregation;
     caf::PdmField<std::vector<int>>                           m_selectedTimeSteps;
     caf::PdmChildField<RimEclipseResultDefinition*>           m_resultDefinition;
-    caf::PdmField<bool>                                       m_enableFormationFilter;
-    caf::PdmField<std::vector<QString>>                       m_selectedFormations;
     caf::PdmPtrField<RimEclipseCase*>                         m_primaryCase;
     caf::PdmPtrArrayField<RimPolygon*>                        m_selectedPolygons;
+    caf::PdmPtrField<RimCellFilter*>                          m_dataFilter;
 
     caf::PdmField<caf::AppEnum<GridImportMode>>                                   m_gridImportMode;
     caf::PdmField<caf::AppEnum<RimContourMapResolutionTools::SamplingResolution>> m_resolution;
@@ -174,6 +173,10 @@ private:
     caf::PdmChildArrayField<RimStatisticsContourMapView*> m_views;
 
     RimEclipseCase* m_openEclipseCase;
+
+    // Obsolete formation filter, replaced by ensemble data filters (#14710). Kept for the warning in initAfterRead().
+    caf::PdmField<bool>                 m_enableFormationFilter_OBSOLETE;
+    caf::PdmField<std::vector<QString>> m_selectedFormations_OBSOLETE;
 
     // Validity key captured when the results were computed or loaded from cache, so that results
     // from outdated settings are never written to the cache

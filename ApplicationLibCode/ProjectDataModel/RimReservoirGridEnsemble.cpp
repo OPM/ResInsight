@@ -1099,6 +1099,9 @@ void RimReservoirGridEnsemble::loadGridDataFromFiles()
     updateGridModeToolTip();
     updateStatisticsVisibility();
     updateConnectedEditors();
+
+    // Re-initialize data filters now that the case data is loaded (needed for e.g. FORMATION_NAMES). See #14022.
+    if ( m_dataFilterCollection() ) m_dataFilterCollection->loadAndInitializeFilters();
 }
 
 //--------------------------------------------------------------------------------------------------

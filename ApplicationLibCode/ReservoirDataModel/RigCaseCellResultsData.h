@@ -107,7 +107,7 @@ public:
     size_t timeStepCount( const RigEclipseResultAddress& resVarAddr ) const;
     size_t maxTimeStepCount( RigEclipseResultAddress* resultAddressWithMostTimeSteps = nullptr ) const;
 
-    std::vector<QDateTime> allTimeStepDatesFromEclipseReader() const;
+    std::vector<QDateTime> allTimeStepDatesFromEclipseReader( const QString& gridFileName = QString() ) const;
     std::vector<QDateTime> timeStepDates() const;
     std::vector<QDateTime> timeStepDates( const RigEclipseResultAddress& resVarAddr ) const;
     std::vector<double>    daysSinceSimulationStart() const;
