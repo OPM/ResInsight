@@ -98,6 +98,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonAdvancedFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateContourMapPolygonTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicDetectContourMapTopsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPolygonFromImageDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryEnsembleFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridAndSummaryEnsembleDialog.cpp
