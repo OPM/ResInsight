@@ -16,6 +16,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QTemporaryDir>
 
 #include <algorithm>
 #include <cmath>
@@ -175,6 +176,20 @@ TEST( RifRoffFileTools, HasGridDataFalseForMissingFile )
     QDir baseFolder( TEST_DATA_DIR );
     auto filePath = baseFolder.absoluteFilePath( "RifRoffReader/this_file_does_not_exist.roff" );
     ASSERT_FALSE( QFile::exists( filePath ) );
+
+    EXPECT_FALSE( RifRoffFileTools::hasGridData( filePath ) );
+}
+
+TEST( RifRoffFileTools, HasGridDataFalseForMalformedFile )
+{
+    QTemporaryDir tempDir;
+    ASSERT_TRUE( tempDir.isValid() );
+
+    auto  filePath = tempDir.filePath( "malformed.roff" );
+    QFile file( filePath );
+    ASSERT_TRUE( file.open( QIODevice::WriteOnly ) );
+    file.write( "this is not a roff file" );
+    file.close();
 
     EXPECT_FALSE( RifRoffFileTools::hasGridData( filePath ) );
 }
