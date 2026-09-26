@@ -1377,6 +1377,9 @@ void RimEclipseView::initAfterRead()
         m_refinementRegions = new RimRefinementRegionCollection();
     }
 
+    // Re-resolve the data filter source (case or ensemble) now that the view is attached to the tree.
+    propagateEclipseCaseToChildObjects();
+
     updateUiIconFromToggleField();
 }
 
