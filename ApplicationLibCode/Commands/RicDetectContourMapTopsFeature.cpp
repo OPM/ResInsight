@@ -41,7 +41,7 @@ bool RicDetectContourMapTopsFeature::isCommandEnabled() const
 
 //--------------------------------------------------------------------------------------------------
 /// Detects tops using the tops collection's current (default, unless previously edited) topCount and
-/// minDistance field values. Use the "Detected Tops" object's own property panel to customize and
+/// minDistance field values. Use the "Contour Map Tops" object's own property panel to customize and
 /// recompute.
 //--------------------------------------------------------------------------------------------------
 void RicDetectContourMapTopsFeature::onActionTriggered( bool isChecked )

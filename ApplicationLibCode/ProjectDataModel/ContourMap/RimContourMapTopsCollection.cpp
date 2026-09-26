@@ -45,7 +45,7 @@ CAF_PDM_SOURCE_INIT( RimContourMapTopsCollection, "RimContourMapTopsCollection" 
 //--------------------------------------------------------------------------------------------------
 RimContourMapTopsCollection::RimContourMapTopsCollection()
 {
-    CAF_PDM_InitObject( "Detected Tops", ":/WellTargetPoint16x16.png" );
+    CAF_PDM_InitObject( "Contour Map Tops", ":/WellTargetPoint16x16.png" );
 
     CAF_PDM_InitField( &m_topCount, "TopCount", 10, "Number of Tops" );
     CAF_PDM_InitField( &m_minDistance, "MinDistance", 0.0, "Minimum Distance" );
@@ -53,7 +53,7 @@ RimContourMapTopsCollection::RimContourMapTopsCollection()
     CAF_PDM_InitFieldNoDefault( &m_tops, "Tops", "Tops" );
 
     nameField()->uiCapability()->setUiReadOnly( true );
-    setName( "Detected Tops" );
+    setName( "Contour Map Tops" );
 }
 
 //--------------------------------------------------------------------------------------------------
