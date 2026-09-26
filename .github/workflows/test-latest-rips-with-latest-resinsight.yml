@@ -50,9 +50,9 @@ jobs:
               per_page: 100,
             });
 
-            const artifact = artifacts.find((candidate) => candidate.name === "ResInsight-Ubuntu 26.04 gcc");
+            const artifact = artifacts.find((candidate) => candidate.name === "ResInsight-Ubuntu 24.04 gcc");
             if (!artifact) {
-              core.setFailed("Could not find artifact 'ResInsight-Ubuntu 26.04 gcc' on selected run");
+              core.setFailed("Could not find artifact 'ResInsight-Ubuntu 24.04 gcc' on selected run");
               return;
             }
 
