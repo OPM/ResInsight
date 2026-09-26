@@ -412,6 +412,9 @@ public:
             const std::vector<RigWellResultPoint> branchResPoints = resFrame->branchResultPointsFromBranchIndex( brIdx );
             for ( size_t wrpIdx = 0; wrpIdx < branchResPoints.size(); wrpIdx++ )
             {
+                // MSW segments without a connection have no cell
+                if ( !branchResPoints[wrpIdx].isCell() ) continue;
+
                 const RigGridBase* grid            = mainGrid->gridByIndex( branchResPoints[wrpIdx].gridIndex() );
                 size_t             globalCellIndex = grid->reservoirCellIndex( branchResPoints[wrpIdx].cellIndex() );
 
