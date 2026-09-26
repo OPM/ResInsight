@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   build-image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     # Cold first build runs the full ResInsight compile in the build-warmup
     # stage (~1.5-2 h). Incremental nightly rebuilds reuse the BuildKit cache
     # mount and finish much faster.
