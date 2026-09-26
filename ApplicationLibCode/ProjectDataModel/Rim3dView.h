@@ -50,6 +50,8 @@ class RimCase;
 class RimLegendConfig;
 class RimWellPathCollection;
 class RimAnnotationInViewCollection;
+class RimSurfaceInViewCollection;
+class RimPolygonInViewCollection;
 class RiuViewer;
 class RivAnnotationsPartMgr;
 class RivMeasurementPartMgr;
@@ -124,6 +126,10 @@ public:
     RimViewNameConfig* nameConfig() const;
 
     virtual RiaDefines::View3dContent viewContent() const = 0;
+
+    // Default: no surface/polygon collection. RimGridView, RimGeneric3dView and RimSeismicView re-abstract these.
+    virtual RimSurfaceInViewCollection* surfaceInViewCollection() const { return nullptr; }
+    virtual RimPolygonInViewCollection* polygonInViewCollection() const { return nullptr; }
 
     void           setMeshOnlyDrawstyle();
     void           setMeshSurfDrawstyle();

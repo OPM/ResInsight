@@ -49,6 +49,8 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
+#include "RimGeneric3dView.h"
+#include "RimGenericViewCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -58,6 +60,7 @@
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
 #include "RimValveTemplateCollection.h"
+#include "RimViewNameConfig.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
@@ -208,6 +211,49 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_surfaceFolder::execute(
 QString RimProject_surfaceFolder::classKeywordReturnedType() const
 {
     return RimSurfaceCollection::classKeywordStatic();
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createGenericView, "createGenericView" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_createGenericView::RimProject_createGenericView( caf::PdmObjectHandle* self )
+    : PdmObjectCreationMethod( self )
+{
+    CAF_PDM_InitObject( "Create Generic View", "", "", "Create a case-less 3D view" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<caf::PdmObjectHandle*, QString> RimProject_createGenericView::execute()
+{
+    auto proj = RimProject::current();
+    if ( !proj ) return std::unexpected( QString( "No project is available." ) );
+
+    auto oilField = proj->activeOilField();
+    if ( !oilField || !oilField->genericViewCollection() ) return std::unexpected( QString( "No generic view collection is available." ) );
+
+    auto view = oilField->genericViewCollection()->addGenericView();
+    if ( !view ) return std::unexpected( QString( "Could not create generic view." ) );
+
+    if ( !m_name().isEmpty() ) view->nameConfig()->setCustomName( m_name() );
+
+    oilField->genericViewCollection()->updateAllRequiredEditors();
+    view->scheduleCreateDisplayModelAndRedraw();
+
+    return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimProject_createGenericView::classKeywordReturnedType() const
+{
+    return RimGeneric3dView::classKeywordStatic();
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_createGridFromKeyValues, "createGridFromKeyValues" );
