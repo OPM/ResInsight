@@ -28,6 +28,7 @@
 #include "RiaResultNames.h"
 
 #include "RifReaderEclipseOutput.h"
+#include "RifReaderOpmCommon.h"
 
 #include "RigAllanDiagramData.h"
 #include "RigAllanUtil.h"
@@ -569,19 +570,23 @@ bool RigCaseCellResultsData::hasFlowDiagUsableFluxes() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Time steps reported by the file reader itself, independent of which results (if any) have been
+/// loaded so far. gridFileName is only needed for the opm-common reader, which requires it to locate
+/// the matching restart file.
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader() const
+std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader( const QString& gridFileName ) const
 {
-    const RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<const RifReaderEclipseOutput*>( m_readerInterface.p() );
-    if ( rifReaderOutput )
+    if ( const RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<const RifReaderEclipseOutput*>( m_readerInterface.p() ) )
     {
         return rifReaderOutput->allTimeSteps();
     }
-    else
+
+    if ( auto* rifReaderOpmCommon = dynamic_cast<const RifReaderOpmCommon*>( m_readerInterface.p() ) )
     {
-        return std::vector<QDateTime>();
+        if ( !gridFileName.isEmpty() ) return const_cast<RifReaderOpmCommon*>( rifReaderOpmCommon )->timeStepsOnFile( gridFileName );
     }
+
+    return std::vector<QDateTime>();
 }
 
 //--------------------------------------------------------------------------------------------------

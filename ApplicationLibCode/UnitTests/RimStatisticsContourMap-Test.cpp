@@ -24,12 +24,16 @@
 
 #include "ContourMap/RigContourMapCalculator.h"
 #include "ContourMap/RigContourMapGrid.h"
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
 #include "ContourMap/RimStatisticsContourMap.h"
+#include "RiaResultNames.h"
 #include "RimCellRangeFilter.h"
 #include "RimDataFilterCollection.h"
+#include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
@@ -87,6 +91,43 @@ std::unique_ptr<RimReservoirGridEnsemble> createBruggeEnsemble( GridModeType gri
 
     autoDetectField->setValue( false );
     gridModeField->setValue( gridMode );
+
+    return ensemble;
+}
+
+// "synthetic_ensemble_with_dynamic_filter" has unified .UNRST restart files (unlike Case_with_10_timesteps,
+// which uses the legacy per-step .X#### format). Computing statistics forces the OPM_COMMON grid reader,
+// which only supports unified restart files, so a dynamic (e.g. SWAT) filter needs this fixture instead.
+// Real1-3 have their PORO and SWAT values scaled by a distinct per-realization factor relative to Real0,
+// so the ensemble also exercises real inter-realization variability, not just identical copies.
+std::unique_ptr<RimReservoirGridEnsemble> createSyntheticDynamicFilterEnsemble()
+{
+    auto ensemble = std::make_unique<RimReservoirGridEnsemble>();
+
+    QDir baseFolder( TEST_MODEL_DIR );
+    if ( !baseFolder.cd( "synthetic_ensemble_with_dynamic_filter" ) ) return nullptr;
+
+    for ( const auto& folder : { "Real0", "Real1", "Real2", "Real3" } )
+    {
+        QDir realizationFolder( baseFolder );
+        if ( !realizationFolder.cd( folder ) ) return nullptr;
+
+        QString filePath = realizationFolder.absoluteFilePath( "SYNTH.EGRID" );
+        if ( !QFile::exists( filePath ) ) return nullptr;
+
+        auto eclipseCase = std::make_unique<RimEclipseResultCase>();
+        eclipseCase->setCaseInfo( folder, filePath );
+        if ( !eclipseCase->openEclipseGridFile() ) return nullptr;
+
+        ensemble->addCase( eclipseCase.release() );
+    }
+
+    auto* autoDetectField = dynamic_cast<caf::PdmField<bool>*>( ensemble->findField( "AutoDetectGridType" ) );
+    auto* gridModeField   = dynamic_cast<caf::PdmField<caf::AppEnum<GridModeType>>*>( ensemble->findField( "GridMode" ) );
+    if ( !autoDetectField || !gridModeField ) return nullptr;
+
+    autoDetectField->setValue( false );
+    gridModeField->setValue( GridModeType::SHARED_GRID );
 
     return ensemble;
 }
@@ -227,6 +268,53 @@ TEST( RimStatisticsContourMapTest, DataFilterSharedAndIndividualGridsAgree )
     ASSERT_FALSE( shared.empty() );
     ASSERT_EQ( shared.size(), individual.size() );
     EXPECT_EQ( 0u, countDifferentValues( shared, individual ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A static mapped property (PORO) with an active dynamic filter (SWAT) must still produce a result
+/// per selected time step, since the filter's visible cells change over time even if PORO does not.
+//--------------------------------------------------------------------------------------------------
+TEST( RimStatisticsContourMapTest, StaticResultWithDynamicFilterProducesResultsPerTimeStep )
+{
+    auto ensemble = createSyntheticDynamicFilterEnsemble();
+    ASSERT_TRUE( ensemble != nullptr );
+
+    auto* map = addPoroContourMap( ensemble.get(), GridImportMode::SHARED_GRID );
+    ASSERT_TRUE( map != nullptr );
+
+    // The synthetic fixture's unified restart file has 13 time steps (indices 0..12)
+    const int lastTimeStep = 12;
+
+    auto* swatFilter = ensemble->dataFilterCollection()->addNewPropertyFilter();
+    swatFilter->resultDefinition()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+    swatFilter->resultDefinition()->setResultVariable( RiaResultNames::swat() );
+
+    auto* lowerField = dynamic_cast<caf::PdmField<double>*>( swatFilter->findField( "LowerBound" ) );
+    auto* upperField = dynamic_cast<caf::PdmField<double>*>( swatFilter->findField( "UpperBound" ) );
+    ASSERT_TRUE( lowerField && upperField );
+    lowerField->setValue( 0.25 );
+    upperField->setValue( 0.255 );
+
+    setDataFilter( map, swatFilter );
+
+    auto* selectedTimeStepsField = dynamic_cast<caf::PdmField<std::vector<int>>*>( map->findField( "SelectedTimeSteps" ) );
+    ASSERT_TRUE( selectedTimeStepsField != nullptr );
+    selectedTimeStepsField->setValue( { 0, lastTimeStep } );
+
+    // A dynamic filter must make selectedTimeSteps() return the full user selection, even for static PORO
+    EXPECT_EQ( ( std::vector<int>{ 0, lastTimeStep } ), map->selectedTimeSteps() );
+
+    RimStatisticsContourMap::computeStatisticsForMaps( { map } );
+
+    const auto resultAtFirstStep = map->result( 0, RimStatisticsContourMap::StatisticsType::MEAN );
+    const auto resultAtLastStep  = map->result( 1, RimStatisticsContourMap::StatisticsType::MEAN );
+
+    EXPECT_GT( countValidValues( resultAtFirstStep ), 0u );
+    EXPECT_GT( countValidValues( resultAtLastStep ), 0u );
+    ASSERT_EQ( resultAtFirstStep.size(), resultAtLastStep.size() );
+
+    // The filter's visible cells differ per time step (SWAT changes), so the aggregated PORO results differ too
+    EXPECT_GT( countDifferentValues( resultAtFirstStep, resultAtLastStep ), 0u );
 }
 
 namespace
