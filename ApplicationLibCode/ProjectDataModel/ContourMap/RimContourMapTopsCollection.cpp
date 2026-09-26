@@ -20,6 +20,10 @@
 
 #include "RimContourMapTop.h"
 
+#include "ContourMap/RigContourMapProjection.h"
+#include "ContourMap/RigContourMapTopFinder.h"
+#include "ContourMap/RimContourMapProjection.h"
+
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "Polygons/RimPolygonInViewCollection.h"
@@ -27,6 +31,10 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimTools.h"
+
+#include "cafPdmUiOrdering.h"
+
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimContourMapTopsCollection, "RimContourMapTopsCollection" );
 
@@ -36,6 +44,9 @@ CAF_PDM_SOURCE_INIT( RimContourMapTopsCollection, "RimContourMapTopsCollection" 
 RimContourMapTopsCollection::RimContourMapTopsCollection()
 {
     CAF_PDM_InitObject( "Detected Tops", ":/WellTargetPoint16x16.png" );
+
+    CAF_PDM_InitField( &m_topCount, "TopCount", 10, "Number of Tops" );
+    CAF_PDM_InitField( &m_minDistance, "MinDistance", 0.0, "Minimum Distance" );
 
     CAF_PDM_InitFieldNoDefault( &m_tops, "Tops", "Tops" );
 
@@ -115,4 +126,58 @@ void RimContourMapTopsCollection::updateVisualization()
 std::vector<RimContourMapTop*> RimContourMapTopsCollection::tops() const
 {
     return m_tops.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Deletes the existing tops and recomputes new ones for the owning contour map projection, using
+/// the current topCount/minDistance field values.
+//--------------------------------------------------------------------------------------------------
+void RimContourMapTopsCollection::computeTops()
+{
+    auto* contourMapProjection = firstAncestorOrThisOfType<RimContourMapProjection>();
+    if ( !contourMapProjection ) return;
+
+    auto rigContourMapProjection = contourMapProjection->mapProjection();
+    if ( !rigContourMapProjection ) return;
+
+    RigContourMapTopFinder::Settings settings;
+    settings.maxTops         = m_topCount;
+    settings.minDistance     = m_minDistance;
+    settings.excludeEdgeTops = true;
+
+    auto tops = rigContourMapProjection->findTops( settings );
+
+    // Rank the detected tops by value (highest first), independent of the prominence-based criterion
+    // used to select which peaks to keep.
+    std::sort( tops.begin(), tops.end(), []( const auto& a, const auto& b ) { return a.z > b.z; } );
+
+    clearTops();
+
+    auto origin3d = rigContourMapProjection->origin3d();
+    auto depth    = rigContourMapProjection->topDepthBoundingBox();
+
+    // Sphere radius factor is multiplied by the view's characteristic cell size when rendered.
+    const double sphereRadiusFactor = 0.3;
+
+    for ( size_t i = 0; i < tops.size(); ++i )
+    {
+        const auto& top = tops[i];
+
+        cvf::Vec3d domainPoint( origin3d.x() + top.x, origin3d.y() + top.y, depth );
+        addTop( static_cast<int>( i + 1 ), top.z, top.prominence, domainPoint, sphereRadiusFactor );
+    }
+
+    updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapTopsCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_topCount );
+    uiOrdering.add( &m_minDistance );
+    uiOrdering.addNewButton( "Compute", [this]() { computeTops(); } );
+
+    uiOrdering.skipRemainingFields();
 }

@@ -20,21 +20,12 @@
 
 #include "RicExportContourMapToTextFeature.h"
 
-#include "ContourMap/RigContourMapProjection.h"
-#include "ContourMap/RigContourMapTopFinder.h"
-
 #include "ContourMap/RimContourMapProjection.h"
 #include "ContourMap/RimContourMapTopsCollection.h"
 #include "ContourMap/RimEclipseContourMapView.h"
 #include "RimGeoMechContourMapView.h"
 
-#include "RiuMainWindow.h"
-
 #include <QAction>
-#include <QInputDialog>
-#include <QMessageBox>
-
-#include <algorithm>
 
 CAF_CMD_SOURCE_INIT( RicDetectContourMapTopsFeature, "RicDetectContourMapTopsFeature" );
 
@@ -49,7 +40,9 @@ bool RicDetectContourMapTopsFeature::isCommandEnabled() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Detects tops using the tops collection's current (default, unless previously edited) topCount and
+/// minDistance field values. Use the "Detected Tops" object's own property panel to customize and
+/// recompute.
 //--------------------------------------------------------------------------------------------------
 void RicDetectContourMapTopsFeature::onActionTriggered( bool isChecked )
 {
@@ -60,54 +53,10 @@ void RicDetectContourMapTopsFeature::onActionTriggered( bool isChecked )
     if ( existingGeoMechContourMap ) contourMapProjection = existingGeoMechContourMap->contourMapProjection();
     if ( !contourMapProjection ) return;
 
-    auto rigContourMapProjection = contourMapProjection->mapProjection();
-    if ( !rigContourMapProjection ) return;
-
-    bool ok = false;
-    int  maxTops =
-        QInputDialog::getInt( RiuMainWindow::instance(), "Detect Contour Map Tops", "Number of tops to detect:", 10, 1, 1000, 1, &ok );
-    if ( !ok ) return;
-
-    double minDistance =
-        QInputDialog::getDouble( RiuMainWindow::instance(), "Detect Contour Map Tops", "Minimum distance between tops:", 0.0, 0.0, 1.0e9, 1, &ok );
-    if ( !ok ) return;
-
-    RigContourMapTopFinder::Settings settings;
-    settings.maxTops         = maxTops;
-    settings.minDistance     = minDistance;
-    settings.excludeEdgeTops = true;
-
-    auto tops = rigContourMapProjection->findTops( settings );
-    if ( tops.empty() )
-    {
-        QMessageBox::information( RiuMainWindow::instance(), "Detect Contour Map Tops", "No tops were found in the current contour map." );
-        return;
-    }
-
-    // Rank the detected tops by value (highest first), independent of the prominence-based criterion
-    // used to select which peaks to keep.
-    std::sort( tops.begin(), tops.end(), []( const auto& a, const auto& b ) { return a.z > b.z; } );
-
     auto* topsCollection = contourMapProjection->topsCollection();
     if ( !topsCollection ) return;
 
-    topsCollection->clearTops();
-
-    auto origin3d = rigContourMapProjection->origin3d();
-    auto depth    = rigContourMapProjection->topDepthBoundingBox();
-
-    // Sphere radius factor is multiplied by the view's characteristic cell size when rendered.
-    const double sphereRadiusFactor = 0.3;
-
-    for ( size_t i = 0; i < tops.size(); ++i )
-    {
-        const auto& top = tops[i];
-
-        cvf::Vec3d domainPoint( origin3d.x() + top.x, origin3d.y() + top.y, depth );
-        topsCollection->addTop( static_cast<int>( i + 1 ), top.z, top.prominence, domainPoint, sphereRadiusFactor );
-    }
-
-    topsCollection->updateVisualization();
+    topsCollection->computeTops();
 }
 
 //--------------------------------------------------------------------------------------------------

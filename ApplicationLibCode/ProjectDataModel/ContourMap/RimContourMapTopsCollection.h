@@ -21,6 +21,7 @@
 #include "RimCheckableNamedObject.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
 
 #include "cvfVector3.h"
 
@@ -49,8 +50,17 @@ public:
     // become visible. Call once after a batch of addTop()/clearTops() calls.
     void updateVisualization();
 
+    // Deletes the existing tops and recomputes new ones for the owning contour map projection, using
+    // the current topCount/minDistance field values.
+    void computeTops();
+
     std::vector<RimContourMapTop*> tops() const;
 
 private:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
+    caf::PdmField<int>                         m_topCount;
+    caf::PdmField<double>                      m_minDistance;
     caf::PdmChildArrayField<RimContourMapTop*> m_tops;
 };
