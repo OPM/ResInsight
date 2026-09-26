@@ -110,6 +110,23 @@ private:
 };
 
 //==================================================================================================
+/// Create a generic (case-less) 3D view for showing surfaces, polygons and well paths without a grid case.
+//==================================================================================================
+class RimProject_createGenericView : public caf::PdmObjectCreationMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_createGenericView( caf::PdmObjectHandle* self );
+
+    std::expected<caf::PdmObjectHandle*, QString> execute() override;
+    QString                                       classKeywordReturnedType() const override;
+
+private:
+    caf::PdmField<QString> m_name;
+};
+
+//==================================================================================================
 ///
 //==================================================================================================
 class RimProject_wellPathCollection : public caf::PdmObjectMethod

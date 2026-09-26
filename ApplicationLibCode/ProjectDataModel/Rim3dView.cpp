@@ -34,6 +34,7 @@
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
 #include "RimDockWindowController.h"
+#include "RimGeneric3dView.h"
 #include "RimGridView.h"
 #include "RimLegendConfig.h"
 #include "RimMainPlotCollection.h"
@@ -90,7 +91,7 @@ void caf::AppEnum<Rim3dView::SurfaceModeType>::setUp()
 
 } // End namespace caf
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "View", "GenericView" ); // Do not use. Abstract class
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "View" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -600,6 +601,7 @@ std::vector<Rim3dView*> Rim3dView::validComparisonViews() const
         for ( auto view : project->allViews() )
         {
             if ( dynamic_cast<RimSeismicView*>( view ) ) continue;
+            if ( dynamic_cast<RimGeneric3dView*>( view ) ) continue;
 
             bool isSameViewType = isIntersectionView( this ) == isIntersectionView( view );
 

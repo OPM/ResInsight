@@ -54,12 +54,12 @@ public:
     cvf::ref<cvf::UByteArray> currentTotalCellVisibility();
 
     RimIntersectionCollection*                  intersectionCollection() const;
-    virtual RimSurfaceInViewCollection*         surfaceInViewCollection() const;
+    RimSurfaceInViewCollection*                 surfaceInViewCollection() const override;
     RimIntersectionResultsDefinitionCollection* separateIntersectionResultsCollection() const;
     RimIntersectionResultsDefinitionCollection* separateSurfaceResultsCollection() const;
     RimWellMeasurementInViewCollection*         measurementCollection() const;
     RimSeismicSectionCollection*                seismicSectionCollection() const;
-    RimPolygonInViewCollection*                 polygonInViewCollection() const;
+    RimPolygonInViewCollection*                 polygonInViewCollection() const override;
     virtual RimContourMapInViewCollection*      contourMapInViewCollection() const;
 
     virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;

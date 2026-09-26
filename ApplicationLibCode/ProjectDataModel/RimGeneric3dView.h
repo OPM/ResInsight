@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2023     Equinor ASA
+//  Copyright (C) 2026     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,39 +17,28 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaSeismicDefines.h"
-
 #include "Rim3dView.h"
-#include "RimPolylinesDataInterface.h"
 
 #include "cafPdmField.h"
 
 #include "cafPdmObject.h"
 
-class RimCase;
-class RimSeismicDataInterface;
-class RimSurfaceInViewCollection;
-class RimSeismicSectionCollection;
-class Rim3dOverlayInfoConfig;
-class RivPolylinePartMgr;
-class RigHistogramData;
-class RimAnnotationInViewCollection;
+#include "cvfBoundingBox.h"
 
-class RimSeismicView : public Rim3dView, public RimPolylinesDataInterface
+class Rim3dOverlayInfoConfig;
+class RimSurfaceInViewCollection;
+class RimPolygonInViewCollection;
+
+class RimGeneric3dView : public Rim3dView
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSeismicView();
-    ~RimSeismicView() override;
+    RimGeneric3dView();
+    ~RimGeneric3dView() override;
 
-    void                     setSeismicData( RimSeismicDataInterface* data );
-    RimSeismicDataInterface* seismicData() const;
-
-    void addSlice( RiaDefines::SeismicSectionType sectionType );
-
-    RimSurfaceInViewCollection*  surfaceInViewCollection() const override;
-    RimSeismicSectionCollection* seismicSectionCollection() const;
+    RimSurfaceInViewCollection* surfaceInViewCollection() const override;
+    RimPolygonInViewCollection* polygonInViewCollection() const override;
 
     RiaDefines::View3dContent     viewContent() const override;
     bool                          isGridVisualizationMode() const override;
@@ -59,15 +48,10 @@ public:
     cvf::BoundingBox domainBoundingBox() override;
     void             updateGridBoxData() override;
     double           characteristicCellSize() const override;
-    RigHistogramData histogramData();
-
-    cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void onCreateDisplayModel() override;
     void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
@@ -85,14 +69,17 @@ protected:
     void updateViewTreeItems( RiaDefines::ItemIn3dView itemType ) override;
 
 private:
-    caf::PdmChildField<RimSurfaceInViewCollection*>  m_surfaceCollection;
-    caf::PdmChildField<RimSeismicSectionCollection*> m_seismicSectionCollection;
+    cvf::BoundingBox computeDomainBoundingBox() const;
+    cvf::BoundingBox cachedDomainBoundingBox() const;
+    void             invalidateDomainBoundingBox();
 
-    caf::PdmChildField<Rim3dOverlayInfoConfig*> m_overlayInfoConfig;
-
-    caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData;
-
-    cvf::ref<RivPolylinePartMgr> m_polylinePartMgr;
+private:
+    caf::PdmChildField<RimSurfaceInViewCollection*> m_surfaceCollection;
+    caf::PdmChildField<RimPolygonInViewCollection*> m_polygonInViewCollection;
+    caf::PdmChildField<Rim3dOverlayInfoConfig*>     m_overlayInfoConfig;
 
     cvf::ref<cvf::Transform> m_scaleTransform;
+
+    mutable cvf::BoundingBox m_domainBoundingBox;
+    mutable bool             m_isDomainBoundingBoxCached;
 };
