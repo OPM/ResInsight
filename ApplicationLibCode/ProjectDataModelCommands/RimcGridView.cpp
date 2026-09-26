@@ -114,10 +114,10 @@ RimcGridView_setPolygonVisible::RimcGridView_setPolygonVisible( caf::PdmObjectHa
 //--------------------------------------------------------------------------------------------------
 std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setPolygonVisible::execute()
 {
-    auto* gridView = self<RimGridView>();
-    if ( !gridView )
+    auto* view = self<Rim3dView>();
+    if ( !view )
     {
-        return std::unexpected( QString( "Polygon visibility is only supported for grid views." ) );
+        return std::unexpected( QString( "No view is available." ) );
     }
 
     if ( !m_polygon() )
@@ -125,12 +125,13 @@ std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setPolygonVisible::ex
         return std::unexpected( QString( "Polygon is null." ) );
     }
 
-    if ( !gridView->polygonInViewCollection()->setPolygonVisible( m_polygon(), m_visible() ) )
+    auto* collection = view->polygonInViewCollection();
+    if ( !collection || !collection->setPolygonVisible( m_polygon(), m_visible() ) )
     {
         return std::unexpected( QString( "Polygon '%1' is not available in this view." ).arg( m_polygon()->name() ) );
     }
 
-    gridView->scheduleCreateDisplayModelAndRedraw();
+    view->scheduleCreateDisplayModelAndRedraw();
     return nullptr;
 }
 
@@ -151,10 +152,10 @@ RimcGridView_setSurfaceVisible::RimcGridView_setSurfaceVisible( caf::PdmObjectHa
 //--------------------------------------------------------------------------------------------------
 std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setSurfaceVisible::execute()
 {
-    auto* gridView = self<RimGridView>();
-    if ( !gridView )
+    auto* view = self<Rim3dView>();
+    if ( !view )
     {
-        return std::unexpected( QString( "Surface visibility is only supported for grid views." ) );
+        return std::unexpected( QString( "No view is available." ) );
     }
 
     if ( !m_surface() )
@@ -162,13 +163,13 @@ std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setSurfaceVisible::ex
         return std::unexpected( QString( "Surface is null." ) );
     }
 
-    auto* collection = gridView->surfaceInViewCollection();
+    auto* collection = view->surfaceInViewCollection();
     if ( !collection || !collection->setSurfaceVisible( m_surface(), m_visible() ) )
     {
         return std::unexpected( QString( "Surface '%1' is not available in this view." ).arg( m_surface()->fullName() ) );
     }
 
-    gridView->scheduleCreateDisplayModelAndRedraw();
+    view->scheduleCreateDisplayModelAndRedraw();
     return nullptr;
 }
 
@@ -189,10 +190,10 @@ RimcGridView_setSurfaceProperty::RimcGridView_setSurfaceProperty( caf::PdmObject
 //--------------------------------------------------------------------------------------------------
 std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setSurfaceProperty::execute()
 {
-    auto* gridView = self<RimGridView>();
-    if ( !gridView )
+    auto* view = self<Rim3dView>();
+    if ( !view )
     {
-        return std::unexpected( QString( "Surface properties are only supported for grid views." ) );
+        return std::unexpected( QString( "No view is available." ) );
     }
 
     if ( !m_surface() )
@@ -200,7 +201,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setSurfaceProperty::e
         return std::unexpected( QString( "Surface is null." ) );
     }
 
-    auto* collection = gridView->surfaceInViewCollection();
+    auto* collection = view->surfaceInViewCollection();
     if ( !collection )
     {
         return std::unexpected( QString( "Surface '%1' is not available in this view." ).arg( m_surface()->fullName() ) );
@@ -209,7 +210,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimcGridView_setSurfaceProperty::e
     auto result = collection->setSurfaceProperty( m_surface(), m_propertyName() );
     if ( !result ) return std::unexpected( result.error() );
 
-    gridView->scheduleCreateDisplayModelAndRedraw();
+    view->scheduleCreateDisplayModelAndRedraw();
     return nullptr;
 }
 

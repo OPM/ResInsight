@@ -48,7 +48,7 @@ public:
 
     void addSlice( RiaDefines::SeismicSectionType sectionType );
 
-    RimSurfaceInViewCollection*  surfaceInViewCollection() const;
+    RimSurfaceInViewCollection*  surfaceInViewCollection() const override;
     RimSeismicSectionCollection* seismicSectionCollection() const;
 
     RiaDefines::View3dContent     viewContent() const override;

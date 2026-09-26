@@ -43,6 +43,7 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
 
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cafDisplayCoordTransform.h"
@@ -63,7 +64,7 @@ CAF_PDM_SOURCE_INIT( RimGeneric3dView, "RimGeneric3dView" );
 RimGeneric3dView::RimGeneric3dView()
     : m_isDomainBoundingBoxCached( false )
 {
-    CAF_PDM_InitObject( "Generic View", ":/3DWindow.svg" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Generic View", ":/3DWindow.svg", "", "", "GenericView", "A 3D view not tied to any grid case" );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field" );
 
