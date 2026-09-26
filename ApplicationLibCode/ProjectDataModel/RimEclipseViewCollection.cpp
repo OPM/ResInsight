@@ -91,6 +91,10 @@ RimEclipseView* RimEclipseViewCollection::addView( RimEclipseCase* eclipseCase )
 {
     RimEclipseView* view = new RimEclipseView();
 
+    // Parent before assigning the case: setEclipseCase() resolves the owning ensemble via the PDM
+    // ancestor chain, which only works once the view is attached to the tree. See #14710.
+    m_views.push_back( view );
+
     view->setEclipseCase( eclipseCase );
 
     // Configure case provider callback
@@ -104,8 +108,6 @@ RimEclipseView* RimEclipseViewCollection::addView( RimEclipseCase* eclipseCase )
     view->fractureColors()->setDefaultResultName();
 
     caf::PdmDocument::updateUiIconStateRecursively( view );
-
-    m_views.push_back( view );
 
     RimQuickAccessCollection::instance()->addQuickAccessFields( view );
 
