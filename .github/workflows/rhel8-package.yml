@@ -14,7 +14,7 @@ jobs:
   # Resolves the prebuilt CI image name so it works in forks and upstream alike
   # (GHCR requires a lowercase repository path).
   resolve-image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       image: ${{ steps.meta.outputs.image }}
     steps:
@@ -24,7 +24,7 @@ jobs:
 
   rhel8-package:
     needs: resolve-image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: read
