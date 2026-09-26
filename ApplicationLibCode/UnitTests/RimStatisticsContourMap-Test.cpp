@@ -30,6 +30,7 @@
 #include "RigMainGrid.h"
 
 #include "ContourMap/RimStatisticsContourMap.h"
+#include "ContourMap/RimStatisticsContourMapView.h"
 #include "RiaResultNames.h"
 #include "RimCellRangeFilter.h"
 #include "RimDataFilterCollection.h"
@@ -268,6 +269,33 @@ TEST( RimStatisticsContourMapTest, DataFilterSharedAndIndividualGridsAgree )
     ASSERT_FALSE( shared.empty() );
     ASSERT_EQ( shared.size(), individual.size() );
     EXPECT_EQ( 0u, countDifferentValues( shared, individual ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// An active data filter must be shown as overlay text in the contour map view (top left corner),
+/// similar to the cell/property filter label shown in a regular 3d view.
+//--------------------------------------------------------------------------------------------------
+TEST( RimStatisticsContourMapTest, ActiveDataFilterIsShownInViewOverlayText )
+{
+    auto ensemble = createBruggeEnsemble( GridModeType::SHARED_GRID );
+    ASSERT_TRUE( ensemble != nullptr );
+
+    auto* map = addPoroContourMap( ensemble.get(), GridImportMode::SHARED_GRID );
+    ASSERT_TRUE( map != nullptr );
+
+    auto view = std::make_unique<RimStatisticsContourMapView>();
+    view->setStatisticsContourMap( map );
+
+    EXPECT_TRUE( view->activeFiltersDisplayText().isEmpty() );
+
+    auto* filter = addTopLayerFilter( ensemble.get() );
+    filter->setName( "Top Layer" );
+    setDataFilter( map, filter );
+
+    EXPECT_EQ( QString( "Top Layer" ), view->activeFiltersDisplayText() );
+
+    filter->setActive( false );
+    EXPECT_TRUE( view->activeFiltersDisplayText().isEmpty() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -416,6 +416,15 @@ void RimStatisticsContourMap::fieldChangedByUi( const caf::PdmFieldHandle* chang
             view->wellCollection()->updateConnectedEditors();
         }
     }
+    else if ( &m_dataFilter == changedField )
+    {
+        // Refresh the filter label overlay immediately. The contour map data itself still requires
+        // an explicit "Compute Statistics" to reflect the new filter selection.
+        for ( auto& view : m_views )
+        {
+            view->updateFilterLabel();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -903,6 +912,14 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
 RimEclipseCase* RimStatisticsContourMap::eclipseCase() const
 {
     return m_primaryCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCellFilter* RimStatisticsContourMap::dataFilter() const
+{
+    return m_dataFilter();
 }
 
 //--------------------------------------------------------------------------------------------------
