@@ -659,7 +659,12 @@ void RiuViewer::setZScale( double scale )
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::showFilterLabel( bool enable )
 {
+    if ( m_showFilterLabel == enable ) return;
+
     m_showFilterLabel = enable;
+
+    // Redraw immediately, as the label may be toggled outside of a display model rebuild.
+    update();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -667,7 +672,12 @@ void RiuViewer::showFilterLabel( bool enable )
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setFilterText( const QString& text )
 {
+    if ( m_filterLabel->text() == text ) return;
+
     m_filterLabel->setText( text );
+
+    // Redraw immediately, as the label may be updated outside of a display model rebuild.
+    update();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -75,6 +75,8 @@ public:
     void            setEclipseCase( RimEclipseCase* eclipseCase );
     RimEclipseCase* eclipseCase() const;
 
+    RimCellFilter* dataFilter() const;
+
     void setGridImportMode( GridImportMode mode );
 
     QString ensembleName() const;

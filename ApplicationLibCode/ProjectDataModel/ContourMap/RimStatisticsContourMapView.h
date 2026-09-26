@@ -35,6 +35,8 @@ public:
     QString createAutoName() const override;
     void    setDefaultCustomName();
 
+    QString activeFiltersDisplayText() const override;
+
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
