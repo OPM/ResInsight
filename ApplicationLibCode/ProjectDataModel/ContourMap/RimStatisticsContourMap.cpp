@@ -81,29 +81,44 @@ namespace
 {
 //--------------------------------------------------------------------------------------------------
 /// Restrict the grid mapping to the cells accepted by the data filter, evaluated against the given
-/// realization. The filter is evaluated at the first time step, as the grid mapping is shared by all
-/// time steps.
+/// realization at the given (local) time step.
 //--------------------------------------------------------------------------------------------------
-void applyDataFilterVisibility( RigEclipseContourMapProjection& projection, RimCellFilter* dataFilter, RimEclipseCase* eCase )
+void applyDataFilterVisibility( RigEclipseContourMapProjection& projection, RimCellFilter* dataFilter, RimEclipseCase* eCase, size_t timeStepIndex )
 {
     if ( !dataFilter ) return;
 
-    projection.setCellVisibility( RimCellFilterTools::computeReservoirCellVisibility( dataFilter, eCase, 0 ) );
+    projection.setCellVisibility( RimCellFilterTools::computeReservoirCellVisibility( dataFilter, eCase, timeStepIndex ) );
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Generate one result per selected time step if the mapped property is dynamic or the active data
+/// filter is dynamic (its visible cells then differ per time step, even for a static property).
+/// Otherwise generate a single, time-independent result.
+//--------------------------------------------------------------------------------------------------
 void extractCaseResults( RigEclipseContourMapProjection&                     projection,
+                         RimCellFilter*                                      dataFilter,
+                         RimEclipseCase*                                     eCase,
                          const RigEclipseResultAddress&                      resultAddress,
                          bool                                                hasDynamicResult,
+                         bool                                                hasDynamicFilter,
                          RigContourMapCalculator::ResultAggregationType      resultAggregation,
                          RigFloodingSettings&                                floodSettings,
+                         const std::vector<std::vector<cvf::Vec3d>>&         selectedPolygons,
                          const std::vector<std::pair<int, int>>&             localToGlobalTimeSteps,
                          std::map<size_t, std::vector<std::vector<double>>>& timestepResults )
 {
-    if ( hasDynamicResult )
+    if ( hasDynamicResult || hasDynamicFilter )
     {
         for ( auto [localTs, globalTs] : localToGlobalTimeSteps )
         {
-            timestepResults[globalTs].push_back( projection.generateResults( resultAddress, resultAggregation, localTs, floodSettings ) );
+            if ( hasDynamicFilter )
+            {
+                applyDataFilterVisibility( projection, dataFilter, eCase, static_cast<size_t>( localTs ) );
+                projection.generateGridMapping( resultAggregation, {}, selectedPolygons );
+            }
+
+            const int resultTimeStep = hasDynamicResult ? localTs : 0;
+            timestepResults[globalTs].push_back( projection.generateResults( resultAddress, resultAggregation, resultTimeStep, floodSettings ) );
         }
     }
     else
@@ -751,6 +766,24 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                 auto activeCellInfo  = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
                 auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
+                // Make sure at least one dynamic result this case needs is loaded before asking for its time step
+                // dates: allTimeStepDatesFromEclipseReader() and the loaded-result based fallback below both only
+                // report the full time step count once such a result is known.
+                for ( auto& ctx : contexts )
+                {
+                    if ( !ctx.active ) continue;
+                    if ( ctx.map->m_resultDefinition()->hasDynamicResult() )
+                        resultData->ensureKnownResultLoaded( ctx.map->m_resultDefinition()->eclipseResultAddress() );
+                    if ( auto address = RimCellFilterTools::dynamicResultAddress( ctx.map->m_dataFilter() ) )
+                        resultData->ensureKnownResultLoaded( *address );
+                }
+
+                // The case's own time step dates, read directly from the reader rather than from already-loaded
+                // results: a realization case may not have any dynamic result loaded yet, in which case
+                // eCase->timeStepDates() would incorrectly report only a single (or zero) time step.
+                auto caseTimeStepDates = resultData->allTimeStepDatesFromEclipseReader( eCase->gridFileName() );
+                if ( caseTimeStepDates.empty() ) caseTimeStepDates = eCase->timeStepDates();
+
                 // Prefetch every dynamic result time step this case needs before reading any of it for real.
                 // This case has no view of its own, so it is the only chance a cloud-backed reader gets to
                 // fetch exactly the time steps needed before the case is closed again - see
@@ -762,12 +795,15 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                 std::map<QString, std::vector<size_t>> stepsToPrefetchByResult;
                 for ( auto& ctx : contexts )
                 {
-                    if ( !ctx.active || !ctx.map->m_resultDefinition()->hasDynamicResult() ) continue;
+                    if ( !ctx.active ) continue;
 
-                    auto& steps = stepsToPrefetchByResult[ctx.map->m_resultDefinition()->eclipseResultAddress().resultName()];
-                    for ( auto [localTs, globalTs] : ctx.map->mapLocalToGlobalTimeSteps( eCase->timeStepDates() ) )
+                    auto localToGlobalTimeSteps = ctx.map->mapLocalToGlobalTimeSteps( caseTimeStepDates );
+
+                    if ( ctx.map->m_resultDefinition()->hasDynamicResult() )
                     {
-                        steps.push_back( static_cast<size_t>( localTs ) );
+                        auto& steps = stepsToPrefetchByResult[ctx.map->m_resultDefinition()->eclipseResultAddress().resultName()];
+                        for ( auto [localTs, globalTs] : localToGlobalTimeSteps )
+                            steps.push_back( static_cast<size_t>( localTs ) );
                     }
                 }
 
@@ -784,38 +820,52 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                     if ( !ctx.active ) continue;
 
                     RimStatisticsContourMap* map                    = ctx.map;
-                    auto                     localToGlobalTimeSteps = map->mapLocalToGlobalTimeSteps( eCase->timeStepDates() );
+                    auto                     localToGlobalTimeSteps = map->mapLocalToGlobalTimeSteps( caseTimeStepDates );
 
                     if ( ctx.useSharedGrid )
                     {
                         ctx.sharedProjection->updateRealizationData( activeCellInfo, resultData );
 
                         // A data filter can accept different cells in each realization, e.g. a property filter or
-                        // formation names defined per realization
-                        if ( map->m_dataFilter() )
+                        // formation names defined per realization. A dynamic filter's visible cells also change per
+                        // time step, so its mapping is (re)generated per time step inside extractCaseResults() instead.
+                        const bool filterIsDynamic = RimCellFilterTools::isDynamicFilter( map->m_dataFilter() );
+                        if ( map->m_dataFilter() && !filterIsDynamic )
                         {
-                            applyDataFilterVisibility( *ctx.sharedProjection, map->m_dataFilter(), eCase );
+                            applyDataFilterVisibility( *ctx.sharedProjection, map->m_dataFilter(), eCase, 0 );
                             ctx.sharedProjection->generateGridMapping( ctx.resultAggregation, {}, map->selectedPolygons() );
                         }
 
                         extractCaseResults( *ctx.sharedProjection,
+                                            map->m_dataFilter(),
+                                            eCase,
                                             map->m_resultDefinition()->eclipseResultAddress(),
                                             map->m_resultDefinition()->hasDynamicResult(),
+                                            filterIsDynamic,
                                             ctx.resultAggregation,
                                             ctx.floodSettings,
+                                            map->selectedPolygons(),
                                             localToGlobalTimeSteps,
                                             ctx.timestepResults );
                     }
                     else
                     {
                         RigEclipseContourMapProjection contourMapProjection( ctx.contourMapGrid.get(), eclipseCaseData, resultData );
-                        applyDataFilterVisibility( contourMapProjection, map->m_dataFilter(), eCase );
-                        contourMapProjection.generateGridMapping( ctx.resultAggregation, {}, map->selectedPolygons() );
+                        const bool                     filterIsDynamic = RimCellFilterTools::isDynamicFilter( map->m_dataFilter() );
+                        if ( !filterIsDynamic )
+                        {
+                            applyDataFilterVisibility( contourMapProjection, map->m_dataFilter(), eCase, 0 );
+                            contourMapProjection.generateGridMapping( ctx.resultAggregation, {}, map->selectedPolygons() );
+                        }
                         extractCaseResults( contourMapProjection,
+                                            map->m_dataFilter(),
+                                            eCase,
                                             map->m_resultDefinition()->eclipseResultAddress(),
                                             map->m_resultDefinition()->hasDynamicResult(),
+                                            filterIsDynamic,
                                             ctx.resultAggregation,
                                             ctx.floodSettings,
+                                            map->selectedPolygons(),
                                             localToGlobalTimeSteps,
                                             ctx.timestepResults );
                     }
@@ -889,11 +939,13 @@ std::vector<double> RimStatisticsContourMap::result( size_t timeStep, Statistics
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// A single, time-independent result is enough when both the mapped property and the active data
+/// filter are static. Otherwise the result (or the filter's visible cells) can differ per time step,
+/// so fall back to the user-selected time steps.
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RimStatisticsContourMap::selectedTimeSteps() const
 {
-    if ( !m_resultDefinition->hasDynamicResult() )
+    if ( !m_resultDefinition->hasDynamicResult() && !RimCellFilterTools::isDynamicFilter( m_dataFilter() ) )
     {
         return { 0 };
     }
@@ -913,7 +965,12 @@ std::vector<QDateTime> RimStatisticsContourMap::selectedTimeStepDates() const
     auto eCase = eclipseCase();
     if ( eCase != nullptr )
     {
-        auto allDates = eCase->timeStepDates();
+        // Read time steps directly from the reader rather than from already-loaded results: the primary case may
+        // not have any dynamic result loaded yet, in which case eCase->timeStepDates() would under-report them.
+        auto* resultData = eCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        auto  allDates   = resultData ? resultData->allTimeStepDatesFromEclipseReader( eCase->gridFileName() ) : std::vector<QDateTime>();
+        if ( allDates.empty() ) allDates = eCase->timeStepDates();
+
         for ( auto i : selectedTimeSteps() )
         {
             if ( i < (int)allDates.size() ) retDates.push_back( allDates[i] );
