@@ -11,7 +11,7 @@ Everything else is closed with a reason. Closing is not deleting: the issue stay
 
 Issues are closed when they are
 
-- **stale**: no activity for about three years. These are closed as *not planned* and labelled `closed-stale`.
+- **stale**: no activity for about three years. These are closed as *not planned* and labelled `ClosedStale`.
 - **obsolete or fixed**: they refer to code, file formats or UI that has since been rewritten or fixed.
 - **waiting on the reporter**: labelled `NeedsInput` and closed if there is no answer within 30 days.
 - **duplicates** or **not reproducible** (`Cannot Reproduce`).

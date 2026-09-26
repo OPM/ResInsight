@@ -15,7 +15,7 @@ import subprocess
 import time
 from datetime import datetime, timedelta, timezone
 
-STALE_LABEL = "closed-stale"
+STALE_LABEL = "ClosedStale"
 
 COMMENT = (
     "Closing as part of a backlog cleanup: no activity for {years}+ years. "
