@@ -482,6 +482,21 @@ const std::vector<double>& RigContourMapProjection::aggregatedResults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RigContourMapTopFinder::Top> RigContourMapProjection::findTops( const RigContourMapTopFinder::Settings& settings ) const
+{
+    cvf::Vec2ui elementsIJ = numberOfElementsIJ();
+    int         nx         = static_cast<int>( elementsIJ.x() );
+    int         ny         = static_cast<int>( elementsIJ.y() );
+
+    double     spacing         = m_contourMapGrid->sampleSpacing();
+    cvf::Vec2d firstCellCenter = m_contourMapGrid->cellCenterPosition( 0u, 0u );
+
+    return RigContourMapTopFinder::findTops( m_aggregatedResults, nx, ny, spacing, spacing, settings, firstCellCenter.x(), firstCellCenter.y() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RigContourMapProjection::aggregatedVertexResultsFiltered() const
 {
     if ( m_valueFilter )
