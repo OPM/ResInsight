@@ -37,8 +37,8 @@ public:
     RimGeneric3dView();
     ~RimGeneric3dView() override;
 
-    RimSurfaceInViewCollection* surfaceInViewCollection() const;
-    RimPolygonInViewCollection* polygonInViewCollection() const;
+    RimSurfaceInViewCollection* surfaceInViewCollection() const override;
+    RimPolygonInViewCollection* polygonInViewCollection() const override;
 
     RiaDefines::View3dContent     viewContent() const override;
     bool                          isGridVisualizationMode() const override;
