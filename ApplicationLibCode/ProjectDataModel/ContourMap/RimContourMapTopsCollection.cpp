@@ -32,6 +32,8 @@
 #include "RimProject.h"
 #include "RimTools.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include "cafPdmUiOrdering.h"
 
 #include <algorithm>
@@ -74,7 +76,7 @@ RimContourMapTop*
     markerPolygon->setShowLines( false );
     markerPolygon->setShowSpheres( true );
     markerPolygon->setSphereRadiusFactor( sphereRadiusFactor );
-    markerPolygon->setSphereColor( cvf::Color3f::PINK );
+    markerPolygon->setSphereColor( cvf::Color3f::DEEP_PINK );
     markerPolygon->coordinatesChanged.send();
 
     top->setMarkerPolygon( markerPolygon );
@@ -169,6 +171,9 @@ void RimContourMapTopsCollection::computeTops()
     }
 
     updateVisualization();
+
+    Riu3DMainWindowTools::selectAsCurrentItem( this );
+    Riu3DMainWindowTools::setExpanded( this );
 }
 
 //--------------------------------------------------------------------------------------------------
