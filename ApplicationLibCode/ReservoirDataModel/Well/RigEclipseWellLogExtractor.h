@@ -42,7 +42,8 @@ public:
     const RigEclipseCaseData* caseData() { return m_caseData.p(); }
 
 private:
-    void                calculateIntersection();
+    void calculateIntersection();
+    void insertRadialGridAxisIntersections( double tolerance, std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>* uniqueIntersections );
     std::vector<size_t> findCloseCellIndices( const cvf::BoundingBox& bb );
     cvf::Vec3d          calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const override;
 
