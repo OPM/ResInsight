@@ -44,7 +44,7 @@ TEST( RicMswBranchBuilder, FindOutlet_EmptyMap )
 //--------------------------------------------------------------------------------------------------
 TEST( RicMswBranchBuilder, FindOutlet_MDInFirstCell )
 {
-    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5 }, { 200.0, 300.0, 6 }, { 300.0, 400.0, 7 } };
+    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5, 150.0 }, { 200.0, 300.0, 6, 250.0 }, { 300.0, 400.0, 7, 350.0 } };
     EXPECT_EQ( 5, findOutletSegmentForMD( map, 150.0 ) );
 }
 
@@ -53,7 +53,7 @@ TEST( RicMswBranchBuilder, FindOutlet_MDInFirstCell )
 //--------------------------------------------------------------------------------------------------
 TEST( RicMswBranchBuilder, FindOutlet_MDInMiddleCell )
 {
-    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5 }, { 200.0, 300.0, 6 }, { 300.0, 400.0, 7 } };
+    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5, 150.0 }, { 200.0, 300.0, 6, 250.0 }, { 300.0, 400.0, 7, 350.0 } };
     EXPECT_EQ( 6, findOutletSegmentForMD( map, 250.0 ) );
 }
 
@@ -62,7 +62,7 @@ TEST( RicMswBranchBuilder, FindOutlet_MDInMiddleCell )
 //--------------------------------------------------------------------------------------------------
 TEST( RicMswBranchBuilder, FindOutlet_MDInLastCell )
 {
-    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5 }, { 200.0, 300.0, 6 }, { 300.0, 400.0, 7 } };
+    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5, 150.0 }, { 200.0, 300.0, 6, 250.0 }, { 300.0, 400.0, 7, 350.0 } };
     EXPECT_EQ( 7, findOutletSegmentForMD( map, 350.0 ) );
 }
 
@@ -74,7 +74,7 @@ TEST( RicMswBranchBuilder, FindOutlet_MDInLastCell )
 //--------------------------------------------------------------------------------------------------
 TEST( RicMswBranchBuilder, FindOutlet_MDAtCellStart )
 {
-    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5 }, { 200.0, 300.0, 6 } };
+    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5, 150.0 }, { 200.0, 300.0, 6, 250.0 } };
     EXPECT_EQ( 5, findOutletSegmentForMD( map, 100.0 ) ); // shallower than midpoint 150 → first seg
     EXPECT_EQ( 5, findOutletSegmentForMD( map, 200.0 ) ); // midpoint 150 ≤ 200 < midpoint 250 → seg 5
 }
@@ -85,7 +85,7 @@ TEST( RicMswBranchBuilder, FindOutlet_MDAtCellStart )
 //--------------------------------------------------------------------------------------------------
 TEST( RicMswBranchBuilder, FindOutlet_MDAtCellEnd_ExclusiveBoundary )
 {
-    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5 }, { 200.0, 300.0, 6 } };
+    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5, 150.0 }, { 200.0, 300.0, 6, 250.0 } };
     EXPECT_EQ( 5, findOutletSegmentForMD( map, 200.0 ) );
 }
 
@@ -95,7 +95,7 @@ TEST( RicMswBranchBuilder, FindOutlet_MDAtCellEnd_ExclusiveBoundary )
 //--------------------------------------------------------------------------------------------------
 TEST( RicMswBranchBuilder, FindOutlet_MDBelowAllCells )
 {
-    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5 }, { 200.0, 300.0, 6 } };
+    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5, 150.0 }, { 200.0, 300.0, 6, 250.0 } };
     EXPECT_EQ( 5, findOutletSegmentForMD( map, 50.0 ) ); // shallower than all midpoints → first seg
 }
 
@@ -104,7 +104,7 @@ TEST( RicMswBranchBuilder, FindOutlet_MDBelowAllCells )
 //--------------------------------------------------------------------------------------------------
 TEST( RicMswBranchBuilder, FindOutlet_MDBeyondAllCells )
 {
-    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5 }, { 200.0, 300.0, 6 }, { 300.0, 400.0, 7 } };
+    std::vector<CellSegmentEntry> map = { { 100.0, 200.0, 5, 150.0 }, { 200.0, 300.0, 6, 250.0 }, { 300.0, 400.0, 7, 350.0 } };
     EXPECT_EQ( 7, findOutletSegmentForMD( map, 999.0 ) );
 }
 
@@ -113,10 +113,165 @@ TEST( RicMswBranchBuilder, FindOutlet_MDBeyondAllCells )
 //--------------------------------------------------------------------------------------------------
 TEST( RicMswBranchBuilder, FindOutlet_SingleCell )
 {
-    std::vector<CellSegmentEntry> map = { { 0.0, 100.0, 3 } };
+    std::vector<CellSegmentEntry> map = { { 0.0, 100.0, 3, 50.0 } };
     EXPECT_EQ( 3, findOutletSegmentForMD( map, 50.0 ) );
     EXPECT_EQ( 3, findOutletSegmentForMD( map, 0.0 ) );
     EXPECT_EQ( 3, findOutletSegmentForMD( map, 200.0 ) ); // beyond → fallback = 3
+}
+
+//==================================================================================================
+// Segmentation helpers
+//==================================================================================================
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Cells [0,10] [10,14] [14,30] [30,33] [33,60] from the heel at MD 0, centres 5, 12, 22, 31.5, 46.5
+//--------------------------------------------------------------------------------------------------
+const std::vector<std::pair<double, double>> exampleCells = { { 0.0, 10.0 }, { 10.0, 14.0 }, { 14.0, 30.0 }, { 30.0, 33.0 }, { 33.0, 60.0 } };
+
+std::vector<double> centres( const std::vector<std::pair<double, double>>& pieces )
+{
+    std::vector<double> result;
+    for ( const auto& [start, end] : pieces )
+    {
+        result.push_back( 0.5 * ( start + end ) );
+    }
+    return result;
+}
+
+void expectNodes( const std::vector<double>& expected, const std::vector<double>& actual )
+{
+    ASSERT_EQ( expected.size(), actual.size() );
+    for ( size_t i = 0; i < expected.size(); ++i )
+    {
+        EXPECT_NEAR( expected[i], actual[i], 1.0e-9 ) << "node " << i;
+    }
+}
+} // namespace
+
+//==================================================================================================
+// Segment node placement tests
+//==================================================================================================
+
+using RicMswTableDataTools::SegmentationInterval;
+
+TEST( RicMswBranchBuilder, PlaceSegmentNodes_NoRuleKeepsCellCentres )
+{
+    const auto candidates = centres( exampleCells );
+    expectNodes( candidates, RicMswTableDataTools::placeSegmentNodes( 0.0, candidates, {} ) );
+    expectNodes( candidates, RicMswTableDataTools::placeSegmentNodes( 0.0, candidates, { { 0.0, 60.0, std::nullopt, std::nullopt } } ) );
+}
+
+TEST( RicMswBranchBuilder, PlaceSegmentNodes_MinLength )
+{
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 60.0, 12.0, std::nullopt } } );
+    expectNodes( { 12.0, 31.5, 46.5 }, nodes );
+}
+
+TEST( RicMswBranchBuilder, PlaceSegmentNodes_MaxLength )
+{
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 60.0, std::nullopt, 10.0 } } );
+    expectNodes( { 5.0, 12.0, 22.0, 31.5, 39.0, 46.5 }, nodes );
+}
+
+TEST( RicMswBranchBuilder, PlaceSegmentNodes_MaxLengthInsertsSeveralNodes )
+{
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, { 5.0, 35.0 }, { { 0.0, 60.0, std::nullopt, 10.0 } } );
+    expectNodes( { 5.0, 15.0, 25.0, 35.0 }, nodes );
+}
+
+TEST( RicMswBranchBuilder, PlaceSegmentNodes_MinLengthLargerThanIntervalKeepsOneNode )
+{
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), { { 0.0, 60.0, 100.0, std::nullopt } } );
+    expectNodes( { 46.5 }, nodes );
+}
+
+TEST( RicMswBranchBuilder, PlaceSegmentNodes_IntervalStartingMidCell )
+{
+    // The cell [14,30] is split at the interval start 20
+    const std::vector<std::pair<double, double>> pieces =
+        { { 0.0, 10.0 }, { 10.0, 14.0 }, { 14.0, 20.0 }, { 20.0, 30.0 }, { 30.0, 33.0 }, { 33.0, 60.0 } };
+
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( pieces ), { { 20.0, 60.0, 12.0, std::nullopt } } );
+
+    // The spacing inside the interval is measured from the last node before it, 17
+    expectNodes( { 5.0, 12.0, 17.0, 31.5, 46.5 }, nodes );
+}
+
+TEST( RicMswBranchBuilder, PlaceSegmentNodes_BackToBackIntervals )
+{
+    const std::vector<SegmentationInterval> intervals = { { 0.0, 14.0, 12.0, std::nullopt }, { 14.0, 60.0, std::nullopt, 10.0 } };
+
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 0.0, centres( exampleCells ), intervals );
+    expectNodes( { 12.0, 22.0, 31.5, 39.0, 46.5 }, nodes );
+}
+
+TEST( RicMswBranchBuilder, PlaceSegmentNodes_MeasuredFromOutletNode )
+{
+    // The outlet node at 100 is the heel of the branch, the first candidate is too close to it
+    const auto nodes = RicMswTableDataTools::placeSegmentNodes( 100.0, { 105.0, 115.0, 125.0 }, { { 100.0, 130.0, 12.0, std::nullopt } } );
+    expectNodes( { 115.0 }, nodes );
+}
+
+//==================================================================================================
+// Upstream node tests
+//==================================================================================================
+
+TEST( RicMswBranchBuilder, UpstreamNodeIndex )
+{
+    const std::vector<double> nodes = { 12.0, 31.5, 46.5 };
+
+    EXPECT_FALSE( RicMswTableDataTools::upstreamNodeIndex( {}, 10.0 ).has_value() );
+
+    // Upstream of all nodes, the most upstream node is used
+    EXPECT_EQ( std::optional<size_t>( 0 ), RicMswTableDataTools::upstreamNodeIndex( nodes, 5.0 ) );
+
+    // Cell 3 in the example, centre 22, is closer to 31.5 but 12 is the nearest node upstream
+    EXPECT_EQ( std::optional<size_t>( 0 ), RicMswTableDataTools::upstreamNodeIndex( nodes, 22.0 ) );
+    EXPECT_EQ( std::optional<size_t>( 1 ), RicMswTableDataTools::upstreamNodeIndex( nodes, 46.0 ) );
+    EXPECT_EQ( std::optional<size_t>( 2 ), RicMswTableDataTools::upstreamNodeIndex( nodes, 100.0 ) );
+}
+
+TEST( RicMswBranchBuilder, UpstreamNodeIndex_NodeAtMDIsUsed )
+{
+    EXPECT_EQ( std::optional<size_t>( 1 ), RicMswTableDataTools::upstreamNodeIndex( { 10.0, 20.0 }, 20.0 ) );
+    EXPECT_EQ( std::optional<size_t>( 0 ), RicMswTableDataTools::upstreamNodeIndex( { 10.0, 20.0 }, 19.999 ) );
+}
+
+//==================================================================================================
+// Segment span tests
+//==================================================================================================
+
+namespace
+{
+void expectSpans( const std::vector<NodeSpan>& expected, const std::vector<NodeSpan>& actual )
+{
+    ASSERT_EQ( expected.size(), actual.size() );
+    for ( size_t i = 0; i < expected.size(); ++i )
+    {
+        EXPECT_NEAR( expected[i].startMD, actual[i].startMD, 1.0e-9 ) << "span " << i;
+        EXPECT_NEAR( expected[i].endMD, actual[i].endMD, 1.0e-9 ) << "span " << i;
+        EXPECT_EQ( expected[i].nodeIndex, actual[i].nodeIndex ) << "span " << i;
+    }
+}
+} // namespace
+
+TEST( RicMswBranchBuilder, SegmentSpans_NoRuleOneSpanPerCell )
+{
+    expectSpans( { { 0.0, 10.0, 0 }, { 10.0, 14.0, 1 }, { 14.0, 30.0, 2 }, { 30.0, 33.0, 3 }, { 33.0, 60.0, 4 } },
+                 segmentSpans( exampleCells, centres( exampleCells ) ) );
+}
+
+TEST( RicMswBranchBuilder, SegmentSpans_MinLengthSpansSeveralCells )
+{
+    expectSpans( { { 0.0, 31.5, 0 }, { 31.5, 46.5, 1 }, { 46.5, 60.0, 2 } }, segmentSpans( exampleCells, { 12.0, 31.5, 46.5 } ) );
+}
+
+TEST( RicMswBranchBuilder, SegmentSpans_MaxLengthSplitsCellsAtNodes )
+{
+    expectSpans( { { 0.0, 12.0, 0 }, { 12.0, 22.0, 1 }, { 22.0, 31.5, 2 }, { 31.5, 39.0, 3 }, { 39.0, 46.5, 4 }, { 46.5, 60.0, 5 } },
+                 segmentSpans( exampleCells, { 5.0, 12.0, 22.0, 31.5, 39.0, 46.5 } ) );
 }
 
 //==================================================================================================

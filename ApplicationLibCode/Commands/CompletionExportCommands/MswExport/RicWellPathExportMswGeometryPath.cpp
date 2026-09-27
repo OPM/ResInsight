@@ -190,6 +190,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                    childOutletSeg,
                                                                    mswParameters->maxSegmentLength(),
                                                                    segmentIntervals,
+                                                                   RicMswTableDataTools::segmentationIntervals( mswParameters, exportDate ),
                                                                    exportDate,
                                                                    unitSystem,
                                                                    &childCellSegMap,
@@ -382,6 +383,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                     1, // outlet = heel (segment 1)
                                                                     maxSegmentLength,
                                                                     customSegmentIntervals,
+                                                                    RicMswTableDataTools::segmentationIntervals( mswParameters, exportDate ),
                                                                     exportDate,
                                                                     unitSystem,
                                                                     &cellSegMap,

@@ -98,6 +98,7 @@ public:
     void                                          updateOverlapVisualFeedback();
 
     std::vector<std::pair<double, double>> getSegmentIntervals() const;
+    std::vector<const RimSegmentInterval*> segmentationIntervals( const std::optional<QDateTime>& exportDate ) const;
     bool                                   hasCustomSegmentIntervals() const;
 
     void setUnitSystemSpecificDefaults();

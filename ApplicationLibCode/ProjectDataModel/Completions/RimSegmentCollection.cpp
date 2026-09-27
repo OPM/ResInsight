@@ -390,6 +390,21 @@ std::vector<std::pair<double, double>> RimSegmentCollection::getSegmentIntervals
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Valid intervals with a min or max segment length rule, active on the export date if given
+//--------------------------------------------------------------------------------------------------
+std::vector<const RimSegmentInterval*> RimSegmentCollection::segmentationIntervals( const std::optional<QDateTime>& exportDate ) const
+{
+    std::vector<const RimSegmentInterval*> result;
+    for ( auto* interval : intervals() )
+    {
+        if ( !interval || !interval->isValidInterval() ) continue;
+        if ( exportDate.has_value() && !interval->isActiveOnDate( *exportDate ) ) continue;
+        if ( interval->minSegmentLength().has_value() || interval->maxSegmentLength().has_value() ) result.push_back( interval );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimSegmentCollection::hasCustomSegmentIntervals() const

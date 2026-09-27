@@ -31,13 +31,19 @@
 
 #include "RimEclipseCase.h"
 #include "RimProject.h"
+#include "RimSegmentCollection.h"
+#include "RimSegmentInterval.h"
 #include "RimWellPath.h"
+#include "RimWellPathTieIn.h"
 
 #include <QDir>
 #include <QFile>
 
 #include <algorithm>
+#include <cmath>
 #include <map>
+#include <optional>
+#include <tuple>
 
 namespace
 {
@@ -649,4 +655,242 @@ TEST( RicWellPathExportMswGeometryPath, MultipleLaterals_CompsegsOrderedByBranch
     // The lateral Y2 rows come before the ICD rows of the main bore, even though the ICD segments are
     // listed first in WELSEGS.
     EXPECT_LT( branchNumbers.front(), branchNumbers.back() );
+}
+
+//==================================================================================================
+// Segmentation rules on segment intervals, using lateral Y2 of the multiple_laterals test project.
+//==================================================================================================
+
+namespace
+{
+
+//--------------------------------------------------------------------------------------------------
+/// The segment nodes and COMPSEGS rows of one well path branch in the export
+//--------------------------------------------------------------------------------------------------
+struct BranchExport
+{
+    std::vector<double>                              nodeMDs;
+    std::vector<std::vector<RigMswCellIntersection>> intersectionsPerSegment;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Export Well-A Y1 and pick the branch of the given lateral. The node MD is written directly for
+/// ABS, and relative to the outlet node for INC.
+//--------------------------------------------------------------------------------------------------
+std::optional<BranchExport> exportLateralBranch( const MswExportInput& input, const RimWellPath* lateral )
+{
+    auto tableData = RicWellPathExportMswTableData::extractSingleWellMswData( input.eclipseCase, input.wellPath );
+    if ( !tableData ) return std::nullopt;
+
+    const bool   isIncremental = tableData->welsegsHeader().infoType == "INC";
+    const double tieInMD       = lateral->wellPathTieIn()->tieInMeasuredDepth();
+    const auto   description   = QString( "Segments on lateral %1" ).arg( lateral->name() ).toStdString();
+
+    for ( const auto& branch : tableData->mswBranches() )
+    {
+        if ( branch.segments.empty() || branch.segments.front().description != description ) continue;
+
+        BranchExport result;
+        double       outletMD = tieInMD;
+        for ( const auto& segment : branch.segments )
+        {
+            const double nodeMD = isIncremental ? outletMD + segment.length : segment.length;
+            result.nodeMDs.push_back( nodeMD );
+            result.intersectionsPerSegment.push_back( segment.intersections );
+            outletMD = nodeMD;
+        }
+        return result;
+    }
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// All COMPSEGS rows of the branch as (I, J, K, start, end), in export order
+//--------------------------------------------------------------------------------------------------
+std::vector<std::tuple<size_t, size_t, size_t, double, double>> compsegsRows( const BranchExport& branch )
+{
+    std::vector<std::tuple<size_t, size_t, size_t, double, double>> rows;
+    for ( const auto& intersections : branch.intersectionsPerSegment )
+    {
+        for ( const auto& ci : intersections )
+        {
+            rows.emplace_back( ci.i, ci.j, ci.k, ci.distanceStart, ci.distanceEnd );
+        }
+    }
+    return rows;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Every COMPSEGS row sits on the segment with the nearest node upstream of the row centre. Rows
+/// upstream of all nodes sit on the first segment.
+//--------------------------------------------------------------------------------------------------
+void expectRowsOnUpstreamNode( const BranchExport& branch )
+{
+    for ( size_t segmentIndex = 0; segmentIndex < branch.intersectionsPerSegment.size(); ++segmentIndex )
+    {
+        for ( const auto& ci : branch.intersectionsPerSegment[segmentIndex] )
+        {
+            const double centre = 0.5 * ( ci.distanceStart + ci.distanceEnd );
+            if ( segmentIndex > 0 ) EXPECT_LE( branch.nodeMDs[segmentIndex], centre );
+            if ( segmentIndex + 1 < branch.nodeMDs.size() ) EXPECT_LT( centre, branch.nodeMDs[segmentIndex + 1] );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Add a segment interval covering the whole lateral, with the default diameter and roughness
+//--------------------------------------------------------------------------------------------------
+RimSegmentInterval* addSegmentIntervalCoveringWell( RimWellPath* wellPath )
+{
+    auto* segments = wellPath->segmentCollection();
+    return segments->createInterval( 0.0, 1.0e5, segments->linerDiameter(), segments->roughnessFactor() );
+}
+
+} // anonymous namespace
+
+//--------------------------------------------------------------------------------------------------
+/// With a min segment length, segments span several cells. The node spacing is at least the min
+/// length, and every perforated cell is still connected exactly once, to its nearest upstream node.
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, SegmentInterval_MinSegmentLengthMergesCells )
+{
+    ProjectCloser projectCloser;
+
+    auto input = loadMultipleLateralsProject( "Well-A Y1" );
+    ASSERT_TRUE( input.eclipseCase != nullptr );
+    ASSERT_TRUE( input.wellPath != nullptr );
+
+    RimWellPath* lateral = nullptr;
+    for ( auto* wellPath : RimProject::current()->allWellPaths() )
+    {
+        if ( wellPath->name() == "Well-A Y2" ) lateral = wellPath;
+    }
+    ASSERT_TRUE( lateral != nullptr );
+
+    auto* interval = addSegmentIntervalCoveringWell( lateral );
+
+    const auto baseline = exportLateralBranch( input, lateral );
+    ASSERT_TRUE( baseline.has_value() );
+    ASSERT_GT( baseline->nodeMDs.size(), 3u );
+    ASSERT_FALSE( compsegsRows( *baseline ).empty() );
+
+    const double tieInMD      = lateral->wellPathTieIn()->tieInMeasuredDepth();
+    const double branchLength = baseline->nodeMDs.back() - tieInMD;
+    const double minLength    = 3.0 * branchLength / baseline->nodeMDs.size();
+
+    interval->setMinSegmentLength( minLength );
+    const auto merged = exportLateralBranch( input, lateral );
+    ASSERT_TRUE( merged.has_value() );
+
+    EXPECT_LT( merged->nodeMDs.size(), baseline->nodeMDs.size() );
+
+    double previousMD = tieInMD;
+    for ( double nodeMD : merged->nodeMDs )
+    {
+        EXPECT_GE( nodeMD - previousMD, minLength - 1.0e-6 );
+        previousMD = nodeMD;
+    }
+
+    // Nodes are kept at cell centres
+    for ( double nodeMD : merged->nodeMDs )
+    {
+        EXPECT_TRUE( std::ranges::any_of( baseline->nodeMDs, [nodeMD]( double md ) { return std::abs( md - nodeMD ) < 1.0e-6; } ) );
+    }
+
+    EXPECT_EQ( compsegsRows( *baseline ), compsegsRows( *merged ) );
+
+    const size_t segmentsWithSeveralCells =
+        std::ranges::count_if( merged->intersectionsPerSegment, []( const auto& intersections ) { return intersections.size() > 1; } );
+    EXPECT_GT( segmentsWithSeveralCells, 0u );
+
+    expectRowsOnUpstreamNode( *merged );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// With a max segment length, nodes are inserted until the node spacing is at most the max length.
+/// The COMPSEGS rows are unchanged, and each sits on its nearest upstream node.
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, SegmentInterval_MaxSegmentLengthInsertsNodes )
+{
+    ProjectCloser projectCloser;
+
+    auto input = loadMultipleLateralsProject( "Well-A Y1" );
+    ASSERT_TRUE( input.eclipseCase != nullptr );
+    ASSERT_TRUE( input.wellPath != nullptr );
+
+    RimWellPath* lateral = nullptr;
+    for ( auto* wellPath : RimProject::current()->allWellPaths() )
+    {
+        if ( wellPath->name() == "Well-A Y2" ) lateral = wellPath;
+    }
+    ASSERT_TRUE( lateral != nullptr );
+
+    auto* interval = addSegmentIntervalCoveringWell( lateral );
+
+    const auto baseline = exportLateralBranch( input, lateral );
+    ASSERT_TRUE( baseline.has_value() );
+
+    const double tieInMD    = lateral->wellPathTieIn()->tieInMeasuredDepth();
+    double       maxSpacing = 0.0;
+    double       previousMD = tieInMD;
+    for ( double nodeMD : baseline->nodeMDs )
+    {
+        maxSpacing = std::max( maxSpacing, nodeMD - previousMD );
+        previousMD = nodeMD;
+    }
+    const double maxLength = 0.4 * maxSpacing;
+
+    interval->setMaxSegmentLength( maxLength );
+    const auto refined = exportLateralBranch( input, lateral );
+    ASSERT_TRUE( refined.has_value() );
+
+    EXPECT_GT( refined->nodeMDs.size(), baseline->nodeMDs.size() );
+
+    previousMD = tieInMD;
+    for ( double nodeMD : refined->nodeMDs )
+    {
+        EXPECT_LE( nodeMD - previousMD, maxLength + 1.0e-6 );
+        EXPECT_GT( nodeMD - previousMD, 0.0 );
+        previousMD = nodeMD;
+    }
+
+    // All cell centre nodes are kept
+    for ( double nodeMD : baseline->nodeMDs )
+    {
+        EXPECT_TRUE( std::ranges::any_of( refined->nodeMDs, [nodeMD]( double md ) { return std::abs( md - nodeMD ) < 1.0e-6; } ) );
+    }
+
+    EXPECT_EQ( compsegsRows( *baseline ), compsegsRows( *refined ) );
+    expectRowsOnUpstreamNode( *refined );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A segment interval without a segmentation rule leaves the export unchanged
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, SegmentInterval_NoRuleGivesUnchangedExport )
+{
+    ProjectCloser projectCloser;
+
+    auto input = loadMultipleLateralsProject( "Well-A Y1" );
+    ASSERT_TRUE( input.eclipseCase != nullptr );
+    ASSERT_TRUE( input.wellPath != nullptr );
+
+    RimWellPath* lateral = nullptr;
+    for ( auto* wellPath : RimProject::current()->allWellPaths() )
+    {
+        if ( wellPath->name() == "Well-A Y2" ) lateral = wellPath;
+    }
+    ASSERT_TRUE( lateral != nullptr );
+
+    auto*      interval = addSegmentIntervalCoveringWell( lateral );
+    const auto before   = exportLateralBranch( input, lateral );
+    ASSERT_TRUE( before.has_value() );
+
+    interval->setMinSegmentLength( 50.0 );
+    interval->setMinSegmentLength( std::nullopt );
+    const auto after = exportLateralBranch( input, lateral );
+    ASSERT_TRUE( after.has_value() );
+
+    EXPECT_EQ( before->nodeMDs, after->nodeMDs );
+    EXPECT_EQ( compsegsRows( *before ), compsegsRows( *after ) );
 }
