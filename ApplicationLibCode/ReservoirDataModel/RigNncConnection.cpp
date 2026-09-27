@@ -33,14 +33,11 @@ RigConnection::RigConnection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigConnection::RigConnection( unsigned                           c1GlobIdx,
-                              unsigned                           c2GlobIdx,
-                              cvf::StructGridInterface::FaceType c1Face,
-                              const std::vector<cvf::Vec3f>&     polygon )
+RigConnection::RigConnection( unsigned c1GlobIdx, unsigned c2GlobIdx, cvf::StructGridInterface::FaceType c1Face, std::vector<cvf::Vec3f> polygon )
     : m_c1GlobIdx( c1GlobIdx )
     , m_c2GlobIdx( c2GlobIdx )
     , m_c1Face( static_cast<unsigned char>( c1Face ) )
-    , m_polygon( polygon )
+    , m_polygon( std::move( polygon ) )
 {
     if ( c1GlobIdx >= c2GlobIdx )
     {
@@ -59,11 +56,11 @@ RigConnection::RigConnection( unsigned                           c1GlobIdx,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigConnection::RigConnection( size_t c1GlobIdx, size_t c2GlobIdx, cvf::StructGridInterface::FaceType c1Face, const std::vector<cvf::Vec3f>& polygon )
+RigConnection::RigConnection( size_t c1GlobIdx, size_t c2GlobIdx, cvf::StructGridInterface::FaceType c1Face, std::vector<cvf::Vec3f> polygon )
     : m_c1GlobIdx( static_cast<unsigned>( c1GlobIdx ) )
     , m_c2GlobIdx( static_cast<unsigned>( c2GlobIdx ) )
     , m_c1Face( static_cast<unsigned char>( c1Face ) )
-    , m_polygon( polygon )
+    , m_polygon( std::move( polygon ) )
 {
     CAF_ASSERT( c1GlobIdx < std::numeric_limits<unsigned>::max() && c2GlobIdx < std::numeric_limits<unsigned>::max() );
 
@@ -79,29 +76,6 @@ RigConnection::RigConnection( size_t c1GlobIdx, size_t c2GlobIdx, cvf::StructGri
             m_c1Face = cvf::StructGridInterface::oppositeFace( c1Face );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigConnection::RigConnection( const RigConnection& rhs )
-    : m_c1GlobIdx( rhs.m_c1GlobIdx )
-    , m_c2GlobIdx( rhs.m_c2GlobIdx )
-    , m_c1Face( rhs.m_c1Face )
-    , m_polygon( rhs.m_polygon )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigConnection& RigConnection::operator=( const RigConnection& rhs )
-{
-    m_c1GlobIdx = rhs.m_c1GlobIdx;
-    m_c2GlobIdx = rhs.m_c2GlobIdx;
-    m_c1Face    = rhs.m_c1Face;
-    m_polygon   = rhs.m_polygon;
-    return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,9 +134,28 @@ void RigConnectionContainer::push_back( const RigConnection& connection )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigConnectionContainer::push_back( RigConnection&& connection )
+{
+    m_connections.push_back( std::move( connection ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigConnectionContainer::push_back( const RigConnectionContainer& other )
 {
     m_connections.insert( m_connections.end(), other.m_connections.begin(), other.m_connections.end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigConnectionContainer::push_back( RigConnectionContainer&& other )
+{
+    m_connections.insert( m_connections.end(),
+                          std::make_move_iterator( other.m_connections.begin() ),
+                          std::make_move_iterator( other.m_connections.end() ) );
+    other.m_connections.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
