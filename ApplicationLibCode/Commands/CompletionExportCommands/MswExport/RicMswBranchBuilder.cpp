@@ -546,12 +546,12 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
         result.push_back( std::move( seg ) );
     }
 
-    // COMPSEGS rows go to the segment with the nearest node upstream of the row centre
+    // COMPSEGS rows go to the segment with the node nearest the row centre, as the simulator assigns them
     for ( const auto& cellCompsegs : compsegsPerCell )
     {
         for ( const auto& ci : cellCompsegs )
         {
-            if ( auto nodeIndex = RicMswTableDataTools::upstreamNodeIndex( nodes, 0.5 * ( ci.distanceStart + ci.distanceEnd ) ) )
+            if ( auto nodeIndex = RicMswTableDataTools::nearestNodeIndex( nodes, 0.5 * ( ci.distanceStart + ci.distanceEnd ) ) )
             {
                 result[*nodeIndex].intersections.push_back( ci );
             }

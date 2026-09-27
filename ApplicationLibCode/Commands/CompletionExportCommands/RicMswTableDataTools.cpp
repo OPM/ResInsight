@@ -266,6 +266,25 @@ std::optional<size_t> RicMswTableDataTools::upstreamNodeIndex( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<size_t> RicMswTableDataTools::nearestNodeIndex( const std::vector<double>& nodes, double md )
+{
+    std::optional<size_t> nearest;
+    double                minDistance = std::numeric_limits<double>::infinity();
+    for ( size_t i = 0; i < nodes.size(); ++i )
+    {
+        const double distance = std::abs( md - nodes[i] );
+        if ( distance < minDistance )
+        {
+            minDistance = distance;
+            nearest     = i;
+        }
+    }
+    return nearest;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RicMswTableDataTools::tvdFromMeasuredDepth( const RimWellPath* wellPath, double measuredDepth )
 {
     auto wellPathGeometry = wellPath->wellPathGeometry();

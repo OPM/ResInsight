@@ -721,18 +721,23 @@ std::vector<std::tuple<size_t, size_t, size_t, double, double>> compsegsRows( co
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Every COMPSEGS row sits on the segment with the nearest node upstream of the row centre. Rows
-/// upstream of all nodes sit on the first segment.
+/// Every COMPSEGS row sits on the segment whose node is nearest the row centre, as in the simulator
 //--------------------------------------------------------------------------------------------------
-void expectRowsOnUpstreamNode( const BranchExport& branch )
+void expectRowsOnNearestNode( const BranchExport& branch )
 {
     for ( size_t segmentIndex = 0; segmentIndex < branch.intersectionsPerSegment.size(); ++segmentIndex )
     {
         for ( const auto& ci : branch.intersectionsPerSegment[segmentIndex] )
         {
-            const double centre = 0.5 * ( ci.distanceStart + ci.distanceEnd );
-            if ( segmentIndex > 0 ) EXPECT_LE( branch.nodeMDs[segmentIndex], centre );
-            if ( segmentIndex + 1 < branch.nodeMDs.size() ) EXPECT_LT( centre, branch.nodeMDs[segmentIndex + 1] );
+            const double centre   = 0.5 * ( ci.distanceStart + ci.distanceEnd );
+            const double distance = std::abs( centre - branch.nodeMDs[segmentIndex] );
+            for ( size_t other = 0; other < branch.nodeMDs.size(); ++other )
+            {
+                if ( other < segmentIndex )
+                    EXPECT_LT( distance, std::abs( centre - branch.nodeMDs[other] ) );
+                else
+                    EXPECT_LE( distance, std::abs( centre - branch.nodeMDs[other] ) );
+            }
         }
     }
 }
@@ -750,7 +755,7 @@ RimSegmentInterval* addSegmentIntervalCoveringWell( RimWellPath* wellPath )
 
 //--------------------------------------------------------------------------------------------------
 /// With a min segment length, segments span several cells. The node spacing is at least the min
-/// length, and every perforated cell is still connected exactly once, to its nearest upstream node.
+/// length, and every perforated cell is still connected exactly once, to its nearest node.
 //--------------------------------------------------------------------------------------------------
 TEST( RicWellPathExportMswGeometryPath, SegmentInterval_MinSegmentLengthMergesCells )
 {
@@ -803,12 +808,12 @@ TEST( RicWellPathExportMswGeometryPath, SegmentInterval_MinSegmentLengthMergesCe
         std::ranges::count_if( merged->intersectionsPerSegment, []( const auto& intersections ) { return intersections.size() > 1; } );
     EXPECT_GT( segmentsWithSeveralCells, 0u );
 
-    expectRowsOnUpstreamNode( *merged );
+    expectRowsOnNearestNode( *merged );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// With a max segment length, nodes are inserted until the node spacing is at most the max length.
-/// The COMPSEGS rows are unchanged, and each sits on its nearest upstream node.
+/// The COMPSEGS rows are unchanged, and each sits on its nearest node.
 //--------------------------------------------------------------------------------------------------
 TEST( RicWellPathExportMswGeometryPath, SegmentInterval_MaxSegmentLengthInsertsNodes )
 {
@@ -861,7 +866,7 @@ TEST( RicWellPathExportMswGeometryPath, SegmentInterval_MaxSegmentLengthInsertsN
     }
 
     EXPECT_EQ( compsegsRows( *baseline ), compsegsRows( *refined ) );
-    expectRowsOnUpstreamNode( *refined );
+    expectRowsOnNearestNode( *refined );
 }
 
 //--------------------------------------------------------------------------------------------------

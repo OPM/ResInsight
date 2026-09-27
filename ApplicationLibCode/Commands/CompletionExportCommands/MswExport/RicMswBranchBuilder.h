@@ -162,7 +162,7 @@ std::vector<NodeSpan> segmentSpans( const std::vector<std::pair<double, double>>
 /// Build main-bore WELSEGS segments directly from well-path geometry.
 /// Segment nodes are placed at cell centres and adjusted by the segmentation intervals (min/max
 /// segment length). A COMPSEGS entry is embedded for each grid-cell intersection overlapping a bare
-/// perforation (no active valve), on the segment with the nearest node upstream of the entry centre.
+/// perforation (no active valve), on the segment whose node is nearest the entry centre.
 /// Optionally fills cellSegMap for later valve outlet-segment lookups.
 //--------------------------------------------------------------------------------------------------
 RigMswBranch buildMainBoreBranch( const RimWellPath*                                             wellPath,

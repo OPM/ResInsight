@@ -69,6 +69,12 @@ std::vector<double>
 //--------------------------------------------------------------------------------------------------
 std::optional<size_t> upstreamNodeIndex( const std::vector<double>& nodes, double md );
 
+//--------------------------------------------------------------------------------------------------
+/// Index of the node nearest to md, the first node wins ties. Mirrors the COMPSEGS connection to
+/// segment assignment in OPM (Compsegs.cpp). Returns std::nullopt if there are no nodes.
+//--------------------------------------------------------------------------------------------------
+std::optional<size_t> nearestNodeIndex( const std::vector<double>& nodes, double md );
+
 double tvdFromMeasuredDepth( const RimWellPath* wellPath, double measuredDepth );
 
 inline constexpr double valveSegmentLength = 0.1;

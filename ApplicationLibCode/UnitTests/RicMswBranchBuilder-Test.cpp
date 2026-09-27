@@ -240,6 +240,27 @@ TEST( RicMswBranchBuilder, UpstreamNodeIndex_NodeAtMDIsUsed )
 }
 
 //==================================================================================================
+// Nearest node tests
+//==================================================================================================
+
+TEST( RicMswBranchBuilder, NearestNodeIndex )
+{
+    const std::vector<double> nodes = { 12.0, 31.5, 46.5 };
+
+    EXPECT_FALSE( RicMswTableDataTools::nearestNodeIndex( {}, 10.0 ).has_value() );
+    EXPECT_EQ( std::optional<size_t>( 0 ), RicMswTableDataTools::nearestNodeIndex( nodes, 5.0 ) );
+
+    // Cell 3 in the example, centre 22, is 9.5 from 31.5 and 10 from 12
+    EXPECT_EQ( std::optional<size_t>( 1 ), RicMswTableDataTools::nearestNodeIndex( nodes, 22.0 ) );
+    EXPECT_EQ( std::optional<size_t>( 2 ), RicMswTableDataTools::nearestNodeIndex( nodes, 100.0 ) );
+}
+
+TEST( RicMswBranchBuilder, NearestNodeIndex_TieGoesToFirstNode )
+{
+    EXPECT_EQ( std::optional<size_t>( 0 ), RicMswTableDataTools::nearestNodeIndex( { 10.0, 20.0 }, 15.0 ) );
+}
+
+//==================================================================================================
 // Segment span tests
 //==================================================================================================
 
