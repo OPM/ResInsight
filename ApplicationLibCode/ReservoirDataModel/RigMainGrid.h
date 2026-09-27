@@ -154,9 +154,9 @@ private:
 
     static std::array<double, 6> defaultMapAxes();
 
-    void doBuildCellSearchTree( std::string* aabbTreeInfo = nullptr ) const;
-    void buildCellSearchTree() const;
-    void buildCellSearchTreeOptimized( size_t cellsPerBoundingBox ) const;
+    void             doBuildCellSearchTree( std::string* aabbTreeInfo = nullptr ) const;
+    void             buildCellSearchTree( size_t cellsPerBoundingBox ) const;
+    cvf::BoundingBox cellBoundingBox( size_t reservoirCellIndex ) const;
 
 private:
     std::vector<cvf::Vec3d>       m_nodes; ///< Global vertex table
@@ -185,5 +185,6 @@ private:
     mutable bool                           m_isFaceNormalsOutwards;
     mutable bool                           m_isFaceNormalsOutwardsComputed;
     mutable cvf::ref<cvf::BoundingBoxTree> m_cellSearchTree;
+    mutable size_t                         m_cellSearchTreeCellsPerBoundingBox = 1;
     mutable std::mutex                     m_cellSearchTreeMutex;
 };
