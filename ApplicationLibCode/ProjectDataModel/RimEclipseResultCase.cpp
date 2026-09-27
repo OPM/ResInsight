@@ -201,6 +201,17 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             readerType = RiaDefines::GridModelReader::RESDATA;
         }
 
+        // opmcommon reader only reads unified restart files
+        if ( readerType == RiaDefines::GridModelReader::OPM_COMMON &&
+             RifEclipseOutputFileTools::hasOnlyNonUnifiedRestartFiles( gridFileName() ) )
+        {
+            RiaLogging::info(
+                QString( "Using the resdata reader for '%1', as the opm-common reader does not support non-unified restart files" )
+                    .arg( gridFileName() )
+                    .toStdString() );
+            readerType = RiaDefines::GridModelReader::RESDATA;
+        }
+
         if ( readerType == RiaDefines::GridModelReader::RESDATA )
         {
             auto readerEclipseOutput = new RifReaderEclipseOutput();

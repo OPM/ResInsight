@@ -76,8 +76,10 @@ void expectFilteredClusters( RimEclipseCase* eclipseCase, RimCellFilter* filter,
     ASSERT_TRUE( visibility.notNull() );
     auto                    results = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigEclipseResultAddress address( RiaDefines::ResultCatType::GENERATED, RigWellTargetMapping::wellTargetResultName() );
-    const auto&             clusters      = results->cellScalarResults( address, timeStep );
-    auto                    activeIndices = results->activeCellInfo()->activeReservoirCellIndices();
+    ASSERT_TRUE( results->hasResultEntry( address ) );
+    ASSERT_GT( results->timeStepCount( address ), timeStep );
+    const auto& clusters      = results->cellScalarResults( address, timeStep );
+    auto        activeIndices = results->activeCellInfo()->activeReservoirCellIndices();
     ASSERT_EQ( activeIndices.size(), clusters.size() );
 
     size_t clusteredCells = 0;
@@ -151,13 +153,17 @@ TEST( RimWellTargetMappingTest, ClearingFilterRestoresCandidates )
 
     auto                    results = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigEclipseResultAddress address( RiaDefines::ResultCatType::GENERATED, RigWellTargetMapping::wellTargetResultName() );
-    const auto&             clusters = results->cellScalarResults( address, 5 );
+    ASSERT_TRUE( results->hasResultEntry( address ) );
+    ASSERT_GT( results->timeStepCount( address ), 5u );
+    const auto& clusters = results->cellScalarResults( address, 5 );
     ASSERT_FALSE( clusters.empty() );
     auto isClustered = []( double value ) { return std::isfinite( value ) && value > 0.0; };
     EXPECT_EQ( 0, std::count_if( clusters.begin(), clusters.end(), isClustered ) );
 
     *filterField = nullptr;
     mapping->initAfterRead();
+    ASSERT_TRUE( results->hasResultEntry( address ) );
+    ASSERT_GT( results->timeStepCount( address ), 5u );
     const auto& unfilteredClusters = results->cellScalarResults( address, 5 );
     EXPECT_GT( std::count_if( unfilteredClusters.begin(), unfilteredClusters.end(), isClustered ), 0 );
 }

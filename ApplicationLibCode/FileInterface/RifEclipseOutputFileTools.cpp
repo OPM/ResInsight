@@ -569,6 +569,19 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns true if the results are stored in one restart file per time step, and there is no unified restart file
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseOutputFileTools::hasOnlyNonUnifiedRestartFiles( const QString& fileName )
+{
+    QStringList filesWithSameBaseName;
+    RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( fileName, &filesWithSameBaseName );
+
+    if ( !RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE ).empty() ) return false;
+
+    return !RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName, ECL_RESTART_FILE ).empty();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QString RifEclipseOutputFileTools::createIndexFileName( const QString& resultFileName )
