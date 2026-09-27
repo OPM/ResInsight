@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimCheckableNamedObject.h"
+#include "RimCheckableObject.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -36,7 +36,7 @@ class RimContourMapTop;
 /// inspection in the project tree and property panel, and it owns (by reference) a small marker
 /// polygon used for 3d visualization. See RimContourMapTop for details.
 //==================================================================================================
-class RimContourMapTopsCollection : public RimCheckableNamedObject
+class RimContourMapTopsCollection : public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 

@@ -51,9 +51,6 @@ RimContourMapTopsCollection::RimContourMapTopsCollection()
     CAF_PDM_InitField( &m_minDistance, "MinDistance", 0.0, "Minimum Distance" );
 
     CAF_PDM_InitFieldNoDefault( &m_tops, "Tops", "Tops" );
-
-    nameField()->uiCapability()->setUiReadOnly( true );
-    setName( "Contour Map Tops" );
 }
 
 //--------------------------------------------------------------------------------------------------
