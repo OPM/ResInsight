@@ -295,6 +295,11 @@ TEST( RimCellFilterToolsTest, PropertyFilterVisibilityPerCase )
 
         RigEclipseResultAddress swatAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() );
         results->ensureKnownResultLoaded( swatAddress );
+        if ( !results->hasResultEntry( swatAddress ) || results->timeStepCount( swatAddress ) <= timeStepIndex )
+        {
+            ADD_FAILURE() << "SWAT is not available for time step " << timeStepIndex;
+            return size_t( 0 );
+        }
         const auto& values = results->cellScalarResults( swatAddress, timeStepIndex );
 
         size_t count = 0;
