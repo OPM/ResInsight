@@ -285,17 +285,12 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
             size_t ck = std::numeric_limits<size_t>::max();
             mainGrid->ijkFromCellIndexUnguarded( candidateCellIndex, &ci, &cj, &ck );
 
+            // For I and J faces, only consider cells in the neighbor pillar column. Cells in other columns mostly
+            // touch the face along an edge, and testing them for overlap dominates the computation time.
             auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( sourceCellFace );
-            if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_I )
+            if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_I || gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_J )
             {
-                if ( ni != ci )
-                {
-                    continue;
-                }
-            }
-            else if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_J )
-            {
-                if ( nj != cj )
+                if ( ni != ci || nj != cj )
                 {
                     continue;
                 }
