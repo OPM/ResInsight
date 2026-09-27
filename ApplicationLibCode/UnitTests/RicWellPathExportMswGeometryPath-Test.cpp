@@ -21,9 +21,12 @@
 #include "CompletionExportCommands/MswExport/RicWellPathExportMswGeometryPath.h"
 #include "CompletionExportCommands/RicWellPathExportMswTableData.h"
 
+#include "CompletionsMsw/RigMswDataFormatter.h"
 #include "CompletionsMsw/RigMswSegment.h"
 #include "CompletionsMsw/RigMswTableData.h"
 #include "CompletionsMsw/RigMswTableRows.h"
+
+#include "RifTextDataTableFormatter.h"
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
@@ -38,6 +41,8 @@
 
 #include <QDir>
 #include <QFile>
+#include <QStringList>
+#include <QTextStream>
 
 #include <algorithm>
 #include <cmath>
@@ -220,6 +225,116 @@ TEST( RicWellPathExportMswGeometryPath, MainGridAndLgrIntersections )
     EXPECT_EQ( 4u, lgr.i );
     EXPECT_EQ( 5u, lgr.j );
     EXPECT_EQ( 6u, lgr.k );
+}
+
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// The data rows of a formatted COMPSEGS (or COMPSEGL) table, split into items
+//--------------------------------------------------------------------------------------------------
+std::vector<QStringList> formattedCompsegsRows( const RigMswTableData& tableData, bool isLgrData )
+{
+    QString                   text;
+    QTextStream               stream( &text );
+    RifTextDataTableFormatter formatter( stream );
+    RigMswDataFormatter::formatCompsegsTable( formatter, tableData, isLgrData );
+
+    std::vector<QStringList> rows;
+    bool                     isWellNameRow = true;
+    for ( const QString& line : text.split( '\n' ) )
+    {
+        QStringList items = line.simplified().split( ' ', Qt::SkipEmptyParts );
+        if ( items.isEmpty() || items.front().startsWith( "--" ) || items.front() == "COMPSEGS" || items.front() == "COMPSEGL" ||
+             items.front() == "/" )
+            continue;
+
+        if ( isWellNameRow )
+        {
+            isWellNameRow = false;
+            continue;
+        }
+        if ( items.back() == "/" ) items.removeLast();
+        rows.push_back( items );
+    }
+    return rows;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Two segments, each intersecting one main grid cell, and one LGR cell on the second segment
+//--------------------------------------------------------------------------------------------------
+RigMswWellExportData exportDataWithTwoConnectedSegments()
+{
+    RigMswWellExportData exportData;
+    exportData.header = makeHeader();
+
+    RigMswSegment first  = makeSegment( 2, 1 );
+    first.intersections  = { RigMswCellIntersection{ 3, 5, 7, 100.0, 110.0, "" } };
+    RigMswSegment second = makeSegment( 3, 2 );
+    second.intersections = { RigMswCellIntersection{ 3, 5, 8, 110.0, 120.0, "" }, RigMswCellIntersection{ 1, 2, 3, 120.0, 125.0, "LGR_1" } };
+
+    exportData.branches = { makeBranch( 1, { first, second } ) };
+    return exportData;
+}
+} // anonymous namespace
+
+//--------------------------------------------------------------------------------------------------
+/// By default the segment number is left to the simulator, and COMPSEGS ends at the end length
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, CompsegsSegmentNumber_NotExportedByDefault )
+{
+    auto result = RicWellPathExportMswGeometryPath::collectTableData( exportDataWithTwoConnectedSegments(),
+                                                                      RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+
+    ASSERT_EQ( 3u, result.compsegsData().size() );
+    for ( const auto& row : result.compsegsData() )
+    {
+        EXPECT_FALSE( row.segmentNumber.has_value() );
+    }
+
+    const auto rows = formattedCompsegsRows( result, false );
+    ASSERT_EQ( 2u, rows.size() );
+    for ( const auto& row : rows )
+    {
+        EXPECT_EQ( 6, row.size() ) << row.join( ' ' ).toStdString();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// With exported segment numbers, ISEG is written after four defaulted items
+//--------------------------------------------------------------------------------------------------
+TEST( RicWellPathExportMswGeometryPath, CompsegsSegmentNumber_Exported )
+{
+    auto result = RicWellPathExportMswGeometryPath::collectTableData( exportDataWithTwoConnectedSegments(),
+                                                                      RiaDefines::EclipseUnitSystem::UNITS_METRIC,
+                                                                      true );
+
+    ASSERT_EQ( 3u, result.compsegsData().size() );
+    EXPECT_EQ( std::optional<int>( 2 ), result.compsegsData()[0].segmentNumber );
+    EXPECT_EQ( std::optional<int>( 3 ), result.compsegsData()[1].segmentNumber );
+    EXPECT_EQ( std::optional<int>( 3 ), result.compsegsData()[2].segmentNumber );
+
+    const auto rows = formattedCompsegsRows( result, false );
+    ASSERT_EQ( 2u, rows.size() );
+    const std::vector<QString> expectedSegments = { "2", "3" };
+    for ( size_t r = 0; r < rows.size(); ++r )
+    {
+        const auto& row = rows[r];
+        ASSERT_EQ( 11, row.size() ) << row.join( ' ' ).toStdString();
+        EXPECT_EQ( "3", row[0] );
+        EXPECT_EQ( "5", row[1] );
+        EXPECT_EQ( "1", row[3] );
+        for ( int item = 6; item < 10; ++item )
+        {
+            EXPECT_EQ( "1*", row[item] );
+        }
+        EXPECT_EQ( expectedSegments[r], row[10] );
+    }
+
+    const auto lgrRows = formattedCompsegsRows( result, true );
+    ASSERT_EQ( 1u, lgrRows.size() );
+    ASSERT_EQ( 12, lgrRows[0].size() ) << lgrRows[0].join( ' ' ).toStdString();
+    EXPECT_EQ( "LGR_1", lgrRows[0][0] );
+    EXPECT_EQ( "3", lgrRows[0][11] );
 }
 
 //--------------------------------------------------------------------------------------------------
