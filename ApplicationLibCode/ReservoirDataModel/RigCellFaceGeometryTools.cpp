@@ -117,7 +117,7 @@ void assignThreadConnections( RigConnectionContainer& allConnections, RigConnect
 {
 #pragma omp critical( critical_section_RigCellFaceGeometryTools_assignThreadConnections )
     {
-        allConnections.push_back( threadConnections );
+        allConnections.push_back( std::move( threadConnections ) );
     }
 }
 
@@ -137,7 +137,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
 
     for ( size_t i = 0; i < nativeConnections.size(); ++i )
     {
-        RigConnection c = nativeConnections[i];
+        const RigConnection& c = nativeConnections[i];
         nativeCellPairs.emplace( static_cast<unsigned>( c.c1GlobIdx() ), static_cast<unsigned>( c.c2GlobIdx() ) );
     }
 
@@ -342,7 +342,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
                                 sourceCellFace,
                                 RigCellFaceGeometryTools::extractPolygon( mainGridNodes, polygon, intersections ) );
 
-            connections.push_back( conn );
+            connections.push_back( std::move( conn ) );
         }
     }
 }
