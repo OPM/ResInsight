@@ -149,7 +149,7 @@ void RicNewViewFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewViewFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New View" );
+    actionToSetup->setText( "New Grid Model View" );
     actionToSetup->setIcon( QIcon( ":/3DView16x16.png" ) );
 }
 
