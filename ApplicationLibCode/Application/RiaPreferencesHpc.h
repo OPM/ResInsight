@@ -41,6 +41,7 @@ public:
     RiaDefines::BatchSchedulerType batchScheduler() const;
     QString                        queueName() const;
     QString                        batchSchedulerOptions() const;
+    bool                           exclusiveJob() const;
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -51,4 +52,5 @@ private:
     caf::PdmField<caf::AppEnum<RiaDefines::BatchSchedulerType>> m_batchScheduler;
     caf::PdmField<QString>                                      m_queueName;
     caf::PdmField<QString>                                      m_batchSchedulerOptions;
+    caf::PdmField<bool>                                         m_exclusive;
 };

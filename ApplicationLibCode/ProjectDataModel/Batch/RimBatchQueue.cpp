@@ -19,7 +19,10 @@
 #include "RimBatchQueue.h"
 
 #include "RiaPreferencesHpc.h"
+#include "RiaPreferencesOpm.h"
+#include "RiaWslTools.h"
 
+#include "ProcessControl/RimProcess.h"
 #include "RimBatchQueueLocal.h"
 #include "RimBatchQueueSlurm.h"
 
@@ -43,4 +46,68 @@ RimBatchQueue* RimBatchQueue::createBatchQueue()
             break;
     }
     return new RimBatchQueueLocal();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, QStringList> RimBatchQueue::runCommand( QStringList command )
+{
+    QStringList cmdList;
+    if ( RiaPreferencesOpm::current()->useWsl() )
+    {
+        cmdList.append( RiaWslTools::wslCommand() );
+        cmdList.append( RiaPreferencesOpm::current()->wslOptions() );
+    }
+
+    cmdList.append( command );
+
+    RimProcess proc;
+
+    QString cmd = cmdList.takeFirst();
+    proc.setCommand( cmd );
+    if ( !cmdList.isEmpty() ) proc.addParameters( cmdList );
+
+    if ( proc.execute() )
+    {
+        return { true, proc.stdOut() };
+    }
+
+    return { false, { QString( "Failed to run command." ) } };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimBatchQueue::buildLaunchScript()
+{
+    // build launch script
+    QStringList stdIn;
+
+    if ( m_process != nullptr )
+    {
+        stdIn << "#!/bin/sh\n";
+        stdIn << m_process->command() << "\n";
+        for ( auto& p : m_process->parameters() )
+        {
+            stdIn << p << "\n";
+        }
+    }
+
+    return stdIn;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimBatchQueue::generateJobName()
+{
+    if ( m_process == nullptr ) return "ResInsight_Job";
+
+    QString candidate = m_process->description();
+    candidate.replace( " ", "" );
+    candidate = candidate.left( 10 );
+    candidate = "RI_" + candidate;
+
+    return candidate;
 }

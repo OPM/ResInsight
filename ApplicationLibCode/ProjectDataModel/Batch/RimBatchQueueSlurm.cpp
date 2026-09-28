@@ -19,8 +19,11 @@
 #include "RimBatchQueueSlurm.h"
 
 #include "RiaHpcTools.h"
+#include "RiaLogging.h"
+#include "RiaPreferencesHpc.h"
 
 #include "ProcessControl/RimProcess.h"
+#include "ProcessControl/RimProcessMonitor.h"
 
 CAF_PDM_SOURCE_INIT( RimBatchQueueSlurm, "BatchQueueSlurm" );
 
@@ -41,14 +44,51 @@ RimBatchQueueSlurm::~RimBatchQueueSlurm()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBatchQueueSlurm::queueProcess( RimProcess* process )
+void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int numberOfProcesses )
 {
+    m_process = process;
+
+    // get settings
+    auto prefs = RiaPreferencesHpc::current();
+
+    QString jobName = generateJobName();
+
+    // build launch script
+    QStringList stdIn = buildLaunchScript();
+
+    QStringList arguments;
+    arguments << "sbatch";
+    arguments << "-p";
+    arguments << prefs->queueName();
+    arguments << "-J";
+    arguments << jobName;
+
+    if ( prefs->exclusiveJob() )
+    {
+        arguments << "--exclusive";
+    }
+
+    arguments << "-n";
+    arguments << QString( "%1" ).arg( numberOfProcesses );
+
+    auto [result, output] = runCommand( arguments );
+
+    if ( result )
+    {
+        m_process->monitor()->finished( 0, QProcess::ExitStatus::NormalExit );
+    }
+    else
+    {
+        m_process->monitor()->finished( 1, QProcess::ExitStatus::NormalExit );
+    }
+
+    RiaLogging::info( QString( output.join( "\n" ) ).toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBatchQueueSlurm::stopProcess( size_t processId )
+void RimBatchQueueSlurm::stopProcess()
 {
     // RiaHpcTools::stopSlurmJob( processId );
 }

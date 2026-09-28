@@ -39,13 +39,13 @@ RimBatchQueueLsf::~RimBatchQueueLsf()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBatchQueueLsf::queueProcess( RimProcess* process )
+void RimBatchQueueLsf::queueProcess( std::shared_ptr<RimProcess> process, int processes )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBatchQueueLsf::stopProcess( size_t processId )
+void RimBatchQueueLsf::stopProcess()
 {
 }

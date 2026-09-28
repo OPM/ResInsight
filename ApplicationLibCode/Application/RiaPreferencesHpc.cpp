@@ -38,6 +38,8 @@ RiaPreferencesHpc::RiaPreferencesHpc()
     m_maxParallelJobs.setRange( 1, 100 );
 
     CAF_PDM_InitFieldNoDefault( &m_batchScheduler, "batchScheduler", "Batch Scheduler to use for submitting jobs" );
+    CAF_PDM_InitField( &m_exclusive, "exclusive", false, "Exclusive - do not share assigned nodes with other jobs." );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_exclusive );
 
     CAF_PDM_InitFieldNoDefault( &m_queueName, "queueName", "Default queue name" );
     m_queueName.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -70,12 +72,14 @@ void RiaPreferencesHpc::appendItems( caf::PdmUiOrdering& uiOrdering )
     {
         auto hpcGrp = uiOrdering.addNewGroup( "Slurm Options" );
         hpcGrp->add( &m_queueName );
+        hpcGrp->add( &m_exclusive );
         hpcGrp->add( &m_batchSchedulerOptions );
     }
     else if ( m_batchScheduler() == RiaDefines::BatchSchedulerType::LSF )
     {
         auto hpcGrp = uiOrdering.addNewGroup( "LSF Options" );
         hpcGrp->add( &m_queueName );
+        hpcGrp->add( &m_exclusive );
         hpcGrp->add( &m_batchSchedulerOptions );
     }
 }
@@ -147,4 +151,12 @@ QString RiaPreferencesHpc::queueName() const
 QString RiaPreferencesHpc::batchSchedulerOptions() const
 {
     return m_batchSchedulerOptions();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesHpc::exclusiveJob() const
+{
+    return m_exclusive();
 }

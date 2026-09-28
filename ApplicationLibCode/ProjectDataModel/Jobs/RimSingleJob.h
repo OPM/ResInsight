@@ -26,6 +26,7 @@
 #include <QStringList>
 
 #include <map>
+#include <memory>
 
 class RimProcess;
 class RimBatchQueue;
@@ -62,6 +63,7 @@ protected:
     virtual void                       onCompleted( bool success )         = 0;
     virtual void                       onProgress( double percentageDone ) = 0;
     virtual bool                       shouldUseWsl()                      = 0;
+    virtual int                        numberOfProcesses()                 = 0;
 
 protected:
     double m_percentageDone;
@@ -69,6 +71,6 @@ protected:
     int    m_errorsDetected;
 
 private:
-    caf::PdmPointer<RimProcess>    m_process;
-    caf::PdmPointer<RimBatchQueue> m_queue;
+    std::shared_ptr<RimProcess>    m_process;
+    std::shared_ptr<RimBatchQueue> m_queue;
 };

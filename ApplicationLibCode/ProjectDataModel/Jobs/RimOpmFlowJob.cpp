@@ -722,6 +722,15 @@ QString RimOpmFlowJob::deckExtension() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimOpmFlowJob::numberOfProcesses()
+{
+    if ( !RiaPreferencesOpm::current()->useMpi() ) return 1;
+    return m_jobSettings()->mpiProcesses();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RimOpmFlowJob::command()
 {
     QStringList cmd;
@@ -743,7 +752,7 @@ QStringList RimOpmFlowJob::command()
     {
         cmd.append( opmPref->mpirunCommand() );
         cmd.append( QString( "-np" ) );
-        cmd.append( QString( "%1" ).arg( m_jobSettings->mpiProcesses() ) );
+        cmd.append( QString( "%1" ).arg( numberOfProcesses() ) );
     }
 
     cmd.append( opmPref->opmFlowCommand() );
