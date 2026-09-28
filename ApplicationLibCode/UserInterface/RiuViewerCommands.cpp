@@ -644,6 +644,12 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.addSeparator();
             menuBuilder << "RicSelectColorResult";
         }
+        else if ( mainOrComparisonView )
+        {
+            // Let views that are neither a RimGridView nor a Rim2dIntersectionView (e.g. RimGeneric3dView)
+            // contribute their own 3D viewer background context menu entries.
+            mainOrComparisonView->appendViewerContextMenuItems( menuBuilder );
+        }
     }
 
     if ( gridView )

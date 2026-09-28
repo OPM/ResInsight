@@ -66,11 +66,10 @@ protected:
 
     QString createAutoName() const override;
 
-    void setDefaultView() override;
-
     void updateViewTreeItems( RiaDefines::ItemIn3dView itemType ) override;
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void appendViewerContextMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     cvf::BoundingBox computeDomainBoundingBox() const;

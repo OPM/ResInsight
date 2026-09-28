@@ -505,17 +505,6 @@ QString RimGeneric3dView::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeneric3dView::setDefaultView()
-{
-    if ( viewer() )
-    {
-        viewer()->setDefaultView( cvf::Vec3d::Y_AXIS, cvf::Vec3d::Z_AXIS );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGeneric3dView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
 {
     auto bitmaskEnum = BitmaskEnum( itemType );
@@ -557,4 +546,14 @@ void RimGeneric3dView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder 
 
     menuBuilder << "Separator";
     menuBuilder << "RicUpdateGenericViewBoundingBoxFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeneric3dView::appendViewerContextMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicLinkViewFeature";
+    menuBuilder << "RicUpdateGenericViewBoundingBoxFeature";
+    menuBuilder << "RicViewZoomAllFeature";
 }
