@@ -442,8 +442,8 @@ void RifReaderOpmCommon::transferStaticNNCData( Opm::EclIO::EGrid& opmMainGrid, 
     if ( !connections.empty() )
     {
         // Transform to our own data structures
-        RigConnectionContainer nncConnections;
-        std::vector<double>    transmissibilityValues;
+        std::vector<RigConnection> nncConnections;
+        std::vector<double>        transmissibilityValues;
 
         for ( auto& c : connections )
         {

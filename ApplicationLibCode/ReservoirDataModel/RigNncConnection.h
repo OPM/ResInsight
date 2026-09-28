@@ -58,25 +58,3 @@ private:
     unsigned char           m_c1Face;
     std::vector<cvf::Vec3f> m_polygon;
 };
-
-class RigConnectionContainer
-{
-public:
-    RigConnectionContainer() = default;
-
-    const RigConnection& operator[]( size_t i ) const;
-    RigConnection&       operator[]( size_t i );
-
-    void   push_back( const RigConnection& connection );
-    void   push_back( RigConnection&& connection );
-    void   push_back( const RigConnectionContainer& connection );
-    void   push_back( RigConnectionContainer&& connection );
-    size_t size() const;
-    void   clear();
-    bool   empty() const;
-    void   remove_duplicates();
-    void   reserve( size_t requiredSize );
-
-private:
-    std::vector<RigConnection> m_connections;
-};

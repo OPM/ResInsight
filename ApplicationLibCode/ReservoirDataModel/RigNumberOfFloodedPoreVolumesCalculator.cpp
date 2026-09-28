@@ -100,8 +100,8 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     std::vector<const std::vector<double>*> flowrateJatAllTimeSteps;
     std::vector<const std::vector<double>*> flowrateKatAllTimeSteps;
 
-    RigNNCData*                  nncData     = eclipseCaseData->mainGrid()->nncData();
-    const RigConnectionContainer connections = nncData->allConnections();
+    RigNNCData*                      nncData     = eclipseCaseData->mainGrid()->nncData();
+    const std::vector<RigConnection> connections = nncData->allConnections();
 
     progress.incrementProgress();
 
@@ -199,7 +199,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate( RigMainGrid*           
                                                          std::vector<const std::vector<double>*> flowrateIatAllTimeSteps,
                                                          std::vector<const std::vector<double>*> flowrateJatAllTimeSteps,
                                                          std::vector<const std::vector<double>*> flowrateKatAllTimeSteps,
-                                                         const RigConnectionContainer&           connections,
+                                                         const std::vector<RigConnection>&       connections,
                                                          std::vector<const std::vector<double>*> flowrateNNCatAllTimeSteps,
                                                          std::vector<std::vector<double>>        summedTracersAtAllTimesteps )
 {
@@ -287,11 +287,11 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate( RigMainGrid*           
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNumberOfFloodedPoreVolumesCalculator::distributeNNCflow( const RigConnectionContainer& connections,
-                                                                 RimEclipseCase*               caseToApply,
-                                                                 const std::vector<double>&    summedTracerValues,
-                                                                 const std::vector<double>*    flowrateNNC,
-                                                                 std::vector<double>&          flowrateIntoCell )
+void RigNumberOfFloodedPoreVolumesCalculator::distributeNNCflow( const std::vector<RigConnection>& connections,
+                                                                 RimEclipseCase*                   caseToApply,
+                                                                 const std::vector<double>&        summedTracerValues,
+                                                                 const std::vector<double>*        flowrateNNC,
+                                                                 std::vector<double>&              flowrateIntoCell )
 {
     RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
