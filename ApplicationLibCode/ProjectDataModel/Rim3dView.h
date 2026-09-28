@@ -188,6 +188,10 @@ public:
     virtual void             updateGridBoxData();
     virtual cvf::BoundingBox domainBoundingBox();
 
+    // Context menu shown when right-clicking directly inside the 3D viewer (as opposed to the project tree).
+    // Override in derived views to contribute view-specific 3D viewer context menu entries.
+    virtual void appendViewerContextMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const {}
+
     void         setScaleZ( double scaleZ );
     void         setScaleZAndUpdate( double scaleZ );
     void         updateScaling();

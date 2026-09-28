@@ -18,20 +18,42 @@
 
 #include "RicUpdateGenericViewBoundingBoxFeature.h"
 
+#include "RiaApplication.h"
+
 #include "RimGeneric3dView.h"
 
+#include "RiuViewer.h"
+
+#include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicUpdateGenericViewBoundingBoxFeature, "RicUpdateGenericViewBoundingBoxFeature" );
 
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// Finds the RimGeneric3dView to operate on: either the active view, when triggered from a 3D viewer context
+/// menu, or the selected item, when triggered from the project tree.
+//--------------------------------------------------------------------------------------------------
+RimGeneric3dView* targetView()
+{
+    if ( dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() ) )
+    {
+        return dynamic_cast<RimGeneric3dView*>( RiaApplication::instance()->activeReservoirView() );
+    }
+
+    return dynamic_cast<RimGeneric3dView*>( caf::SelectionManager::instance()->selectedItem() );
+}
+} // namespace
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicUpdateGenericViewBoundingBoxFeature::isCommandEnabled() const
 {
-    return dynamic_cast<RimGeneric3dView*>( caf::SelectionManager::instance()->selectedItem() ) != nullptr;
+    return targetView() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -39,7 +61,7 @@ bool RicUpdateGenericViewBoundingBoxFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicUpdateGenericViewBoundingBoxFeature::onActionTriggered( bool isChecked )
 {
-    if ( auto view = dynamic_cast<RimGeneric3dView*>( caf::SelectionManager::instance()->selectedItem() ) )
+    if ( auto view = targetView() )
     {
         view->recomputeDomainBoundingBoxAndUpdateGridBox();
         view->zoomAll();
