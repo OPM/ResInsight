@@ -60,6 +60,12 @@ public:
     void         setColor( const cvf::Color3f& color );
 
     bool showLines() const;
+    void setShowLines( bool showLines );
+
+    bool showSpheres() const;
+    void setShowSpheres( bool showSpheres );
+    void setSphereRadiusFactor( double radiusFactor );
+    void setSphereColor( const cvf::Color3f& color );
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 

@@ -22,14 +22,19 @@
 #include "RiaNameUniquenessTools.h"
 
 #include "Rim3dView.h"
+#include "RimGridView.h"
+#include "RimOilField.h"
 #include "RimPolygon.h"
 #include "RimPolygonFile.h"
+#include "RimPolygonInViewCollection.h"
 #include "RimProject.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+
+#include <QTimer>
 
 CAF_PDM_SOURCE_INIT( RimPolygonCollection, "PolygonCollection", "RimPolygonCollection" );
 
@@ -156,6 +161,54 @@ void RimPolygonCollection::appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& m
 {
     menuBuilder << "RicCreatePolygonFeature";
     menuBuilder << "RicImportPolygonFileFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::updateViewsAfterPolygonsChanged()
+{
+    updateAllRequiredEditors();
+
+    if ( auto* project = RimProject::current() )
+    {
+        for ( auto* view : project->allViews() )
+        {
+            if ( auto* gridView = dynamic_cast<RimGridView*>( view ) )
+            {
+                if ( auto* polyCollection = gridView->polygonInViewCollection() )
+                {
+                    polyCollection->updateFromPolygonCollection();
+                    polyCollection->updateConnectedEditors();
+                }
+                gridView->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::scheduleUpdateViewsAfterPolygonsChanged()
+{
+    static bool isUpdateScheduled = false;
+    if ( isUpdateScheduled ) return;
+
+    isUpdateScheduled = true;
+    QTimer::singleShot( 0,
+                        []()
+                        {
+                            isUpdateScheduled = false;
+
+                            auto* project = RimProject::current();
+                            if ( !project ) return;
+
+                            auto* oilField = project->activeOilField();
+                            if ( !oilField || !oilField->polygonCollection() ) return;
+
+                            oilField->polygonCollection()->updateViewsAfterPolygonsChanged();
+                        } );
 }
 
 //--------------------------------------------------------------------------------------------------

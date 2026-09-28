@@ -55,6 +55,14 @@ public:
 
     static void appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder );
 
+    // Update editors and the polygon-in-view collections of all grid views, so that added or removed
+    // polygons become visible. Call once after a batch of changes.
+    void updateViewsAfterPolygonsChanged();
+
+    // Schedule updateViewsAfterPolygonsChanged() on the active polygon collection from the event loop.
+    // Safe to call from destructors, also during project teardown. Multiple requests are merged.
+    static void scheduleUpdateViewsAfterPolygonsChanged();
+
 private:
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
