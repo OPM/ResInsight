@@ -37,6 +37,7 @@ class RimEclipseContourMapView : public RimEclipseView
 
 public:
     RimEclipseContourMapView();
+    ~RimEclipseContourMapView() override;
     RimContourMapProjection* contourMapProjection() const;
 
     RiaDefines::View3dContent viewContent() const override;
