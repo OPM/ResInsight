@@ -268,8 +268,8 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     auto group1 = uiOrdering.addNewGroup( "Polygon Selection" );
     group1->add( &m_polyFilterMode );
 
-    bool isPolygonClosed = m_cellFilterPolygon() ? m_cellFilterPolygon->isClosed() : false;
-    if ( isPolygonClosed )
+    const bool isClosed = isPolygonClosed();
+    if ( isClosed )
     {
         group1->add( &m_polyIncludeType );
     }
@@ -291,7 +291,7 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         objField->uiCapability()->setUiReadOnly( readOnlyState );
     }
 
-    if ( !isPolygonClosed )
+    if ( !isClosed )
     {
         m_polyFilterMode = RimPolygonFilter::PolygonFilterModeType::INDEX_K;
         m_polyFilterMode.uiCapability()->setUiReadOnly( true );
