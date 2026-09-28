@@ -45,15 +45,15 @@ public:
                                                                         std::vector<size_t>*     connectionPolygon,
                                                                         std::vector<cvf::Vec3d>* connectionIntersections );
 
-    static RigConnectionContainer computeOtherNncs( const RigMainGrid*            mainGrid,
-                                                    const RigConnectionContainer& nativeConnections,
-                                                    const RigActiveCellInfo*      activeCellInfo,
-                                                    bool                          includeInactiveCells );
+    static std::vector<RigConnection> computeOtherNncs( const RigMainGrid*                mainGrid,
+                                                        const std::vector<RigConnection>& nativeConnections,
+                                                        const RigActiveCellInfo*          activeCellInfo,
+                                                        bool                              includeInactiveCells );
 
     static void                    extractConnectionsForFace( const RigFault::FaultFace&                     face,
                                                               const RigMainGrid*                             mainGrid,
                                                               const std::set<std::pair<unsigned, unsigned>>& nativeCellPairs,
-                                                              RigConnectionContainer&                        connections );
+                                                              std::vector<RigConnection>&                    connections );
     static std::vector<cvf::Vec3f> extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
                                                    const std::vector<size_t>&     connectionPolygon,
                                                    const std::vector<cvf::Vec3d>& connectionIntersections );

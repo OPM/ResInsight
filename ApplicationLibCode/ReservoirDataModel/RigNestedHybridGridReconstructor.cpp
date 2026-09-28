@@ -465,7 +465,7 @@ void RigNestedHybridGridReconstructor::repointNncConnections( RigEclipseCaseData
 
     auto mapped = [&]( size_t idx ) { return ( idx < origCellCount && flatToLgr[idx] != cvf::UNDEFINED_SIZE_T ) ? flatToLgr[idx] : idx; };
 
-    RigConnectionContainer& connections = nncData->allConnections();
+    std::vector<RigConnection>& connections = nncData->allConnections();
     for ( size_t i = 0; i < connections.size(); i++ )
     {
         RigConnection& conn = connections[i];

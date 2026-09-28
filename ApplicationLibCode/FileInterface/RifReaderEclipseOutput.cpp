@@ -736,8 +736,8 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
             if ( numNNC > 0 )
             {
                 // Transform to our own data structures
-                RigConnectionContainer nncConnections;
-                std::vector<double>    transmissibilityValuesTemp;
+                std::vector<RigConnection> nncConnections;
+                std::vector<double>        transmissibilityValuesTemp;
 
                 const double* transValues = ecl_nnc_data_get_values( tran_data );
 

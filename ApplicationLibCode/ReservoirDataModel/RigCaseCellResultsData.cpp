@@ -2529,7 +2529,7 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
     bool                     isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
     // NNC calculation
-    const RigConnectionContainer& nncConnections = m_ownerMainGrid->nncData()->allConnections();
+    const std::vector<RigConnection>& nncConnections = m_ownerMainGrid->nncData()->allConnections();
     for ( size_t connIdx = 0; connIdx < nncConnections.size(); connIdx++ )
     {
         size_t                             nativeResvCellIndex = nncConnections[connIdx].c1GlobIdx();
@@ -2882,7 +2882,7 @@ void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
 
     if ( transResults->size() != riAreaNormTransResults.size() ) return;
 
-    const RigConnectionContainer& connections = m_ownerMainGrid->nncData()->allConnections();
+    const std::vector<RigConnection>& connections = m_ownerMainGrid->nncData()->allConnections();
 
     for ( size_t nncConIdx = 0; nncConIdx < riAreaNormTransResults.size(); ++nncConIdx )
     {

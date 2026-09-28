@@ -29,6 +29,8 @@
 
 #include "cafAssert.h"
 
+#include <algorithm>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -113,21 +115,24 @@ cvf::StructGridInterface::FaceType RigCellFaceGeometryTools::calculateCellFaceOv
     return cvf::StructGridInterface::NO_FACE;
 }
 
-void assignThreadConnections( RigConnectionContainer& allConnections, RigConnectionContainer& threadConnections )
+void assignThreadConnections( std::vector<RigConnection>& allConnections, std::vector<RigConnection>& threadConnections )
 {
 #pragma omp critical( critical_section_RigCellFaceGeometryTools_assignThreadConnections )
     {
-        allConnections.push_back( std::move( threadConnections ) );
+        allConnections.insert( allConnections.end(),
+                               std::make_move_iterator( threadConnections.begin() ),
+                               std::make_move_iterator( threadConnections.end() ) );
+        threadConnections.clear();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMainGrid*            mainGrid,
-                                                                   const RigConnectionContainer& nativeConnections,
-                                                                   const RigActiveCellInfo*      activeCellInfo,
-                                                                   bool                          includeInactiveCells )
+std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const RigMainGrid*                mainGrid,
+                                                                       const std::vector<RigConnection>& nativeConnections,
+                                                                       const RigActiveCellInfo*          activeCellInfo,
+                                                                       bool                              includeInactiveCells )
 {
     // Compute Non-Neighbor Connections (NNC) not reported by Eclipse. NNCs with zero transmissibility are not reported
     // by Eclipse. Use faults as basis for subset of cells to find NNC connection for. The imported connections from
@@ -151,7 +156,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
 
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
 
-    RigConnectionContainer otherConnections;
+    std::vector<RigConnection> otherConnections;
 
     for ( int faultIdx = 0; faultIdx < (int)faults.size(); faultIdx++ )
     {
@@ -179,7 +184,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
 
 #pragma omp parallel
         {
-            RigConnectionContainer threadConnections;
+            std::vector<RigConnection> threadConnections;
 #pragma omp for schedule( guided )
             for ( int activeFaceIdx = 0; activeFaceIdx < static_cast<int>( activeFaceIndices.size() ); activeFaceIdx++ )
             {
@@ -202,7 +207,9 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
         RiaLogging::warning( txt.toStdString(), "RigCellFaceGeometryTools" );
     }
 
-    otherConnections.remove_duplicates();
+    std::sort( otherConnections.begin(), otherConnections.end() );
+    otherConnections.erase( std::unique( otherConnections.begin(), otherConnections.end() ), otherConnections.end() );
+
     return otherConnections;
 }
 
@@ -212,7 +219,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
 void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultFace&                     face,
                                                           const RigMainGrid*                             mainGrid,
                                                           const std::set<std::pair<unsigned, unsigned>>& nativeCellPairs,
-                                                          RigConnectionContainer&                        connections )
+                                                          std::vector<RigConnection>&                    connections )
 {
     size_t                             sourceReservoirCellIndex = face.m_nativeReservoirCellIndex;
     cvf::StructGridInterface::FaceType sourceCellFace           = face.m_nativeFace;

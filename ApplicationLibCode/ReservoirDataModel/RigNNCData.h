@@ -52,13 +52,13 @@ public:
 
     void setSourceDataForProcessing( RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, bool includeInactiveCells );
 
-    void                          setEclipseConnections( RigConnectionContainer& eclipseConnections );
-    void                          buildPolygonsForEclipseConnections();
-    size_t                        eclipseConnectionCount() const;
-    const RigConnectionContainer& availableConnections() const;
+    void                              setEclipseConnections( std::vector<RigConnection>& eclipseConnections );
+    void                              buildPolygonsForEclipseConnections();
+    size_t                            eclipseConnectionCount() const;
+    const std::vector<RigConnection>& availableConnections() const;
 
-    bool                    ensureAllConnectionDataIsProcessed();
-    RigConnectionContainer& allConnections();
+    bool                        ensureAllConnectionDataIsProcessed();
+    std::vector<RigConnection>& allConnections();
 
     std::vector<double>&       makeStaticConnectionScalarResult( QString nncDataType );
     const std::vector<double>* staticConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const;
@@ -98,7 +98,7 @@ private:
     size_t connectionsWithNoCommonArea( QStringList& connectionTextFirstItems, size_t maxItemCount );
 
 private:
-    RigConnectionContainer                              m_connections;
+    std::vector<RigConnection>                          m_connections;
     size_t                                              m_eclipseConnectionCount;
     std::map<QString, std::vector<std::vector<double>>> m_connectionResults;
     std::map<RigEclipseResultAddress, QString>          m_resultAddrToNNCDataType;
