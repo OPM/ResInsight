@@ -661,6 +661,9 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicCreateContourMapPolygonAdvancedFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicExportContourMapToTextFeature";
+
+            menuBuilder.addSeparator();
+            menuBuilder << "RicComputeContourMapPeaksFeature";
         }
         else
         {
