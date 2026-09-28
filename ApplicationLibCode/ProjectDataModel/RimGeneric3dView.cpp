@@ -34,7 +34,10 @@
 #include "RimTextAnnotationInView.h"
 #include "RimTools.h"
 #include "RimViewNameConfig.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+
+#include "Well/RigWellPath.h"
 
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInView.h"
@@ -46,6 +49,7 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafDisplayCoordTransform.h"
 #include "cvfBoundingBox.h"
 #include "cvfModelBasicList.h"
@@ -167,7 +171,16 @@ cvf::BoundingBox RimGeneric3dView::computeDomainBoundingBox() const
 {
     cvf::BoundingBox bb;
 
-    if ( auto* wellPathColl = RimWellPathCollection::instance() ) bb.add( wellPathColl->wellPathsBoundingBox() );
+    if ( auto* wellPathColl = RimWellPathCollection::instance() )
+    {
+        for ( auto* wellPath : wellPathColl->allWellPaths() )
+        {
+            if ( !wellPath || !wellPath->showWellPath() || !wellPath->wellPathGeometry() ) continue;
+
+            for ( const auto& point : wellPath->wellPathGeometry()->wellPathPoints() )
+                bb.add( point );
+        }
+    }
 
     if ( m_surfaceCollection() )
     {
@@ -185,8 +198,12 @@ cvf::BoundingBox RimGeneric3dView::computeDomainBoundingBox() const
 
     if ( m_polygonInViewCollection() )
     {
+        // visiblePolygonsInView() only checks the collection's own checked state, not each individual polygon, so
+        // the per-item checked state must be filtered here to match what is actually rendered.
         for ( auto* polygonInView : m_polygonInViewCollection->visiblePolygonsInView() )
         {
+            if ( !polygonInView || !polygonInView->isChecked() ) continue;
+
             if ( auto* polygon = polygonInView->polygon() )
             {
                 for ( const auto& point : polygon->pointsInDomainCoords() )
@@ -302,6 +319,17 @@ void RimGeneric3dView::updateGridBoxData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeneric3dView::recomputeDomainBoundingBoxAndUpdateGridBox()
+{
+    invalidateDomainBoundingBox();
+    updateGridBoxData();
+
+    createDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeneric3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     Rim3dView::defineUiOrdering( uiConfigName, uiOrdering );
@@ -330,7 +358,8 @@ void RimGeneric3dView::onCreateDisplayModel()
 {
     if ( nativeOrOverrideViewer() == nullptr ) return;
 
-    invalidateDomainBoundingBox();
+    // The bounding box is intentionally not invalidated here: it stays fixed across visibility toggles and is only
+    // recomputed on initial load or when the user explicitly triggers RicUpdateGenericViewBoundingBoxFeature.
     const auto bb = domainBoundingBox();
 
     // Remove all existing frames from the viewer.
@@ -516,7 +545,16 @@ void RimGeneric3dView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
         m_polygonInViewCollection->updateFromPolygonCollection();
     }
 
-    invalidateDomainBoundingBox();
-
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeneric3dView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    Rim3dView::appendMenuItems( menuBuilder );
+
+    menuBuilder << "Separator";
+    menuBuilder << "RicUpdateGenericViewBoundingBoxFeature";
 }

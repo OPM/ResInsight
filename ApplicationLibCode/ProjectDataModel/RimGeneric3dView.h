@@ -49,6 +49,8 @@ public:
     void             updateGridBoxData() override;
     double           characteristicCellSize() const override;
 
+    void recomputeDomainBoundingBoxAndUpdateGridBox();
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
@@ -67,6 +69,8 @@ protected:
     void setDefaultView() override;
 
     void updateViewTreeItems( RiaDefines::ItemIn3dView itemType ) override;
+
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 private:
     cvf::BoundingBox computeDomainBoundingBox() const;
