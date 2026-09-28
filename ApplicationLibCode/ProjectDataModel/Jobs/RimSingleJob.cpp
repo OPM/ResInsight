@@ -55,8 +55,6 @@ RimSingleJob::RimSingleJob()
 //--------------------------------------------------------------------------------------------------
 RimSingleJob::~RimSingleJob()
 {
-    if ( !m_process.isNull() ) delete m_process;
-    if ( !m_queue.isNull() ) delete m_queue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +70,7 @@ double RimSingleJob::percentageDone() const
 //--------------------------------------------------------------------------------------------------
 bool RimSingleJob::stop()
 {
-    if ( !m_process.isNull() )
+    if ( m_process != nullptr )
     {
         RimProcessQueue::stopProcess( m_process->ID() );
         RiaLogging::info( std::format( "Job \"{}\" stopped by user.", name() ) );
@@ -91,11 +89,8 @@ bool RimSingleJob::execute()
     m_errorsDetected   = 0;
     m_warningsDetected = 0;
     m_percentageDone   = 0.0;
-    if ( !m_process.isNull() )
-    {
-        delete m_process;
-        m_process = nullptr;
-    }
+    m_process          = nullptr;
+
     setState( JobState::Idle );
 
     onProgress( m_percentageDone );
@@ -127,14 +122,17 @@ bool RimSingleJob::execute()
     setDeletable( false );
     setState( JobState::Queued );
 
-    m_process = new RimProcess( true, new RimJobMonitor( this ) );
+    m_process = std::make_shared<RimProcess>( true /*log output*/, new RimJobMonitor( this ) );
 
     // on windows, should run using wsl?
     m_process->setUseWsl( shouldUseWsl() );
 
+    m_process->setDescription( name() );
+
     // build process to run
     QString cmd = cmdLine.takeFirst();
     m_process->setCommand( cmd );
+
     if ( !cmdLine.isEmpty() ) m_process->addParameters( cmdLine );
     m_process->setWorkingDirectory( workingDirectory() );
     for ( const auto& [name, value] : environment() )
@@ -142,12 +140,9 @@ bool RimSingleJob::execute()
         m_process->addEnvironmentVariable( name, value );
     }
 
-    if ( m_queue.isNull() )
-    {
-        m_queue = RimBatchQueue::createBatchQueue();
-    }
+    m_queue.reset( RimBatchQueue::createBatchQueue() );
 
-    m_queue->queueProcess( m_process );
+    m_queue->queueProcess( m_process, numberOfProcesses() );
     onProgress( m_percentageDone );
 
     return true;
@@ -246,6 +241,6 @@ void RimSingleJob::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 const QStringList RimSingleJob::jobLog() const
 {
-    if ( m_process.isNull() ) return QStringList();
+    if ( m_process == nullptr ) return QStringList();
     return m_process->stdOut();
 }

@@ -32,8 +32,8 @@ public:
     RimBatchQueueLsf();
     ~RimBatchQueueLsf();
 
-    void queueProcess( RimProcess* process ) override;
-    void stopProcess( size_t processId ) override;
+    void queueProcess( std::shared_ptr<RimProcess> process, int processes ) override;
+    void stopProcess() override;
 
 private:
 };

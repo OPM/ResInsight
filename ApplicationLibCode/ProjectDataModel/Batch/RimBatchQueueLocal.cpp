@@ -40,15 +40,16 @@ RimBatchQueueLocal::~RimBatchQueueLocal()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBatchQueueLocal::queueProcess( RimProcess* process )
+void RimBatchQueueLocal::queueProcess( std::shared_ptr<RimProcess> process, int )
 {
-    RimProcessQueue::queueProcess( process );
+    m_process = process;
+    RimProcessQueue::queueProcess( process.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBatchQueueLocal::stopProcess( size_t processId )
+void RimBatchQueueLocal::stopProcess()
 {
-    RimProcessQueue::stopProcess( processId );
+    if ( m_process != nullptr ) RimProcessQueue::stopProcess( m_process->ID() );
 }
