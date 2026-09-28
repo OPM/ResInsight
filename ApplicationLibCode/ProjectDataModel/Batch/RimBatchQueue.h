@@ -25,7 +25,8 @@
 #include <QString>
 #include <QStringList>
 
-#include <map>
+#include <memory>
+#include <utility>
 
 class RimProcess;
 
@@ -40,8 +41,13 @@ class RimBatchQueue : public caf::PdmObject
 public:
     static RimBatchQueue* createBatchQueue();
 
-    virtual void queueProcess( RimProcess* process ) = 0;
-    virtual void stopProcess( size_t processId )     = 0;
+    virtual void queueProcess( std::shared_ptr<RimProcess> process, int nProcesses ) = 0;
+    virtual void stopProcess()                                                       = 0;
 
-private:
+protected:
+    std::pair<bool, QStringList> runCommand( QStringList command );
+    QStringList                  buildLaunchScript();
+    QString                      generateJobName();
+
+    std::shared_ptr<RimProcess> m_process;
 };

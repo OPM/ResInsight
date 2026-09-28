@@ -53,10 +53,11 @@ public:
 
     QString commandLine() const;
 
-    QString     command() const;
-    QStringList parameters() const;
-    size_t      ID() const;
-    QString     description() const;
+    QString            command() const;
+    QStringList        parameters() const;
+    size_t             ID() const;
+    QString            description() const;
+    RimProcessMonitor* monitor() const;
 
     bool useWsl() const;
     void setUseWsl( bool useWsl );
