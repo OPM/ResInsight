@@ -37,25 +37,16 @@ class RiaSumoConnector;
 
 //==================================================================================================
 ///
-/// A leaf polygon container representing exactly one unique polygon table in Sumo: one polygon
-/// result category (field outline / structure depth fault lines / fluid contact outline), plus a
-/// name and, for fluid contacts, a contact type, as applicable. This identity is fixed once, when
-/// RimPolygonCloudSource::buildDirectoryTree() creates it -- it is never edited afterward via the
-/// UI (no dropdowns, no Apply/Cancel): the property panel is purely informational.
+/// Leaf polygon container for one unique polygon table in Sumo (polygon result category, name,
+/// and for fluid contacts a contact type). Identity is fixed once by
+/// RimPolygonCloudSource::buildDirectoryTree() and never edited afterward.
 ///
-/// Coordinate data (RimCloudPolygon children, see items()) is not persisted in the project file
-/// and is not fetched just because this object exists in the tree. It is fetched lazily, the first
-/// time any 3D view's visibility checkbox for this leaf is checked on (see
-/// RimPolygonInViewCollection::prepareForSync()), and evicted again once no view still shows it
-/// checked.
+/// Coordinate data (RimCloudPolygon children) is not persisted and is fetched lazily, the first
+/// time a view's visibility checkbox for this leaf is checked (see
+/// RimPolygonInViewCollection::prepareForSync()), and evicted once no view shows it checked.
 ///
-/// A second, optional kind of data can exist alongside the base data: an internal, unparented
-/// cache entry per additional realization some view is currently "Auto-Follow"-ing (see
-/// RimPolygonCloudSource/RimPolygonInViewCollection). Unlike the base data, these are never added
-/// as PDM children -- the main project tree (and RimPolygonCloudSource's own browsable structure)
-/// therefore always shows only the base realization's data, exactly as it was created; a view
-/// showing a different (auto-followed) realization substitutes that cached data directly in place
-/// of the base items for its own mirror, with no separate visible node.
+/// An additional, unparented cache holds data for other realizations a view is "Auto-Follow"-ing.
+/// These are never PDM children, so the tree always shows only the base realization.
 ///
 //==================================================================================================
 class RimPolygonCloudAddress : public RimPolygonContainer
@@ -69,30 +60,22 @@ public:
     RimPolygonCloudAddress();
     ~RimPolygonCloudAddress() override;
 
-    // Sets the fixed identity of this leaf. Called exactly once, right after construction, by
-    // RimPolygonCloudSource::buildDirectoryTree() -- never edited afterward via the UI.
+    // Fixed identity, set once by RimPolygonCloudSource::buildDirectoryTree().
     void configureIdentity( SumoPolygonResult polygonResult, const QString& sumoName, const QString& contactType );
 
     SumoPolygonResult polygonResult() const;
-    QString            sumoName() const;
-    QString            contactType() const;
+    QString           sumoName() const;
+    QString           contactType() const;
 
     RimPolygonCloudSource* owningSource() const;
 
-    // Base-realization data: this address's own items(), always fetched for the owning source's
-    // base realization. Lazily fetched the first time any view checks this leaf visible (see
-    // RimPolygonInViewCollection::prepareForSync()); idempotent (no-op if already fetched).
+    // Base-realization data: items() for the owning source's base realization. Lazily fetched,
+    // idempotent.
     bool hasBaseData() const;
     void ensureBaseFetched();
     void evictBaseData();
 
-    // Per-realization data for any realization other than the owning source's own base
-    // realization -- used only by a view whose "Auto-Follow View Realization" checkbox resolves
-    // to a different realization than the source's base one (see RimPolygonInViewCollection).
-    // Unlike the base data above, these RimCloudPolygon objects are plain, unparented cache
-    // entries -- never added as PDM children -- so they never show up in the main project tree;
-    // they exist purely to be mirrored into whichever view(s) are currently showing that
-    // realization.
+    // Cache for other realizations (Auto-Follow). Never added as PDM children.
     bool                     hasDataForRealization( int realization ) const;
     void                     ensureRealizationFetched( int realization );
     std::vector<RimPolygon*> cachedItemsForRealization( int realization ) const;
@@ -113,17 +96,13 @@ private:
     RiaSumoConnector* sumoConnector();
     void              updateName();
 
-    // Clicked handler for the tree's download tag (see defineObjectEditorAttribute()) -- fetches
-    // this leaf's own base realization directly from the project tree, independent of any 3D
-    // view's visibility checkbox (which keeps triggering ensureBaseFetched() exactly as before).
+    // Tree download-tag click handler: fetches base data directly, independent of view checkboxes.
     void onDownloadTagClicked( const caf::SignalEmitter* emitter, size_t index );
 
     static QString polygonResultLabel( SumoPolygonResult polygonResult );
 
-    // Fetches from Sumo for the given realization -- this address's own fixed polygon result/
-    // name/contact type, combined with the owning source's data source -- stamping each returned
-    // RimCloudPolygon with its full Sumo identity. Used both for the base realization
-    // (ensureBaseFetched()) and for any comparison realization (ensureRealizationGroupFetched()).
+    // Fetches from Sumo for the given realization, stamping each RimCloudPolygon with its Sumo
+    // identity. Used for both base and comparison realizations.
     std::vector<RimPolygon*> fetchPolygonsFromSumo( int realization );
 
 private:
@@ -133,7 +112,7 @@ private:
 
     QPointer<RiaSumoConnector> m_sumoConnector;
 
-    // Unparented cache of RimCloudPolygon objects for realizations other than the owning source's
-    // base one -- see the class comment above. Owned/deleted here, never added as PDM children.
+    // Cache of RimCloudPolygon objects for non-base realizations. Owned/deleted here, never PDM
+    // children.
     std::map<int, std::vector<RimPolygon*>> m_realizationCache;
 };

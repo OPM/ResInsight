@@ -71,9 +71,9 @@ protected:
                        const QStyleOptionViewItem& option,
                        const QModelIndex&          itemIndex ) override;
     bool  helpEvent( QHelpEvent*                 event,
-                      QAbstractItemView*          view,
-                      const QStyleOptionViewItem& option,
-                      const QModelIndex&          itemIndex ) override;
+                     QAbstractItemView*          view,
+                     const QStyleOptionViewItem& option,
+                     const QModelIndex&          itemIndex ) override;
     bool  tagClicked( const QPoint&                           clickPos,
                       const QRect&                            itemRect,
                       const QModelIndex&                      itemIndex,

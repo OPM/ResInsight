@@ -22,11 +22,9 @@
 
 //==================================================================================================
 ///
-/// A plain, non-user-editable organizational folder used to build the browsable tree beneath a
-/// RimPolygonCloudSource (e.g. "Field Outline", "Structure Depth Fault Lines", "Fluid Contact
-/// Outline", and per-name folders under fluid contact outline). Only RimPolygonCloudSource::
-/// buildDirectoryTree() creates/populates these -- the user cannot add/remove sub-collections
-/// here via the UI (canAddSubCollection() is false).
+/// Plain, non-user-editable organizational folder for the tree beneath a RimPolygonCloudSource
+/// (e.g. "Field Outline", "Fluid Contact Outline" + per-name folders). Only
+/// RimPolygonCloudSource::buildDirectoryTree() creates/populates these.
 ///
 //==================================================================================================
 class RimPolygonCloudFolder : public RimPolygonContainer

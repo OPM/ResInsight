@@ -46,11 +46,9 @@
 namespace caf
 {
 //==================================================================================================
-/// Class representing a row of action buttons (e.g. "Apply"/"Cancel") laid out using a real
-/// QDialogButtonBox, without connection to a PDM field. Mirrors the native platform button-box
-/// look (buttons packed tightly, pinned to one side, e.g. the right side on Windows) used by real
-/// QDialogs (see e.g. the Preferences dialog), reused here for buttons embedded directly in an
-/// inline property-panel form.
+/// A row of action buttons (e.g. "Apply"/"Cancel") laid out using a real QDialogButtonBox, not
+/// tied to a PDM field. Mirrors the native button-box look (packed, pinned to one side) used by
+/// QDialogs, for buttons embedded directly in an inline property-panel form.
 //==================================================================================================
 class PdmUiButtonBox : public PdmUiItem
 {
@@ -59,18 +57,16 @@ public:
 
     struct ButtonSpec
     {
-        QString        text;
-        ClickCallback  callback;
-        bool           enabled{ true };
-        QString        toolTip;
+        QString       text;
+        ClickCallback callback;
+        bool          enabled{ true };
+        QString       toolTip;
     };
 
     PdmUiButtonBox();
 
-    // Returns a stable reference into the button box that can be used to update the button's
-    // enabled state/tooltip on later calls to defineUiOrdering() (a new PdmUiButtonBox is created
-    // fresh each time, so nothing needs to be reset -- the returned reference is only valid for
-    // the lifetime of this particular PdmUiButtonBox instance).
+    // Returned reference is valid for the lifetime of this instance -- used to update enabled
+    // state/tooltip later in the same defineUiOrdering() call.
     ButtonSpec& addButton( const QString& text, const ClickCallback& callback );
 
     const std::list<ButtonSpec>& buttons() const;

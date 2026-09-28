@@ -46,14 +46,13 @@ RimPolygonCloudAddress::RimPolygonCloudAddress()
 {
     CAF_PDM_InitObject( "Sumo Polygon Address", ":/CloudBlobs.svg" );
 
-    // Inherited fields, kept declared here so this derived class's ui/xml keyword for them stays
-    // independent of siblings', matching the convention used throughout this container hierarchy.
+    // Inherited fields, redeclared here so this subclass gets its own ui/xml keyword.
     CAF_PDM_InitFieldNoDefault( &m_collectionName, "Name", "Name" );
     CAF_PDM_InitFieldNoDefault( &m_subCollections, "SubCollections", "Subcollections" );
     m_subCollections.uiCapability()->setUiHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_items, "Polygons", "Polygons" );
 
-    // Fixed identity, set once via configureIdentity() -- read-only in the property panel.
+    // Fixed identity, set once via configureIdentity() -- read-only in the UI.
     CAF_PDM_InitField( &m_polygonResult, "PolygonResult", QString( "field_outline" ), "Polygon Result" );
     m_polygonResult.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitField( &m_name, "PolygonName", QString(), "Name" );
@@ -139,7 +138,7 @@ bool RimPolygonCloudAddress::hasBaseData() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Idempotent: no-op if base data has already been fetched. Safe to call on every view sync.
+/// Idempotent no-op if already fetched.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudAddress::ensureBaseFetched()
 {
@@ -167,10 +166,7 @@ void RimPolygonCloudAddress::ensureBaseFetched()
             QString( "Fetched %1 polygon(s) from Sumo for address: %2" ).arg( fetchedPolygons.size() ).arg( name() ).toStdString() );
     }
 
-    // The address's own project-tree node was already rendered (with zero children) when the
-    // directory tree was first built -- a structural refresh is required for the newly-added
-    // RimCloudPolygon children to actually show up there (updateConnectedEditors() alone only
-    // refreshes editors bound to this object's own fields, e.g. the property panel).
+    // Structural refresh needed: the tree node already exists with zero children.
     uiCapability()->updateAllRequiredEditors();
 
     objectChanged.send();
@@ -198,7 +194,7 @@ bool RimPolygonCloudAddress::hasDataForRealization( int realization ) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Idempotent: no-op if this realization has already been fetched and cached.
+/// Idempotent no-op if already cached.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudAddress::ensureRealizationFetched( int realization )
 {
@@ -228,8 +224,7 @@ void RimPolygonCloudAddress::ensureRealizationFetched( int realization )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Pure read -- never triggers a fetch. Returns an empty vector if this realization has not been
-/// fetched yet (or has none), see ensureRealizationFetched().
+/// Pure read, never fetches. Empty if not cached, see ensureRealizationFetched().
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolygon*> RimPolygonCloudAddress::cachedItemsForRealization( int realization ) const
 {
@@ -278,8 +273,7 @@ QString RimPolygonCloudAddress::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Realization-group children are only ever added programmatically -- no user-driven add/remove
-/// of sub-collections here.
+/// Realization groups are only ever added programmatically.
 //--------------------------------------------------------------------------------------------------
 bool RimPolygonCloudAddress::canAddSubCollection() const
 {
@@ -332,14 +326,14 @@ void RimPolygonCloudAddress::defineObjectEditorAttribute( QString uiConfigName, 
     auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
     if ( !treeItemAttribute ) return;
 
-    // Clickable download icon -- fetches this leaf's own base realization directly from the tree.
+    // Clickable download icon -- fetches base data directly from the tree.
     auto downloadTag     = caf::PdmUiTreeViewItemAttribute::createTag();
     downloadTag->icon    = caf::IconProvider( ":/Download.svg" );
     downloadTag->toolTip = "Fetch polygon data";
     downloadTag->clicked.connect( this, &RimPolygonCloudAddress::onDownloadTagClicked );
     treeItemAttribute->tags.push_back( std::move( downloadTag ) );
 
-    // Plain, unobtrusive "not fetched" marker -- brackets, no colored pill.
+    // Plain "not fetched" marker, no colored pill.
     auto textTag     = caf::PdmUiTreeViewItemAttribute::createTag();
     textTag->text    = "[Not fetched]";
     textTag->bgColor = QColor( Qt::white );
@@ -380,21 +374,17 @@ void RimPolygonCloudAddress::updateName()
 
     if ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FieldOutline ) )
     {
-        // No distinguishing name/contact type exists for field outline, and there is always
-        // exactly one such leaf under the "Field Outline" folder -- fall back to the category
-        // label itself.
+        // Only one, unnamed field outline leaf -- use the category label itself.
         name = polygonResultLabel( SumoPolygonResult::FieldOutline );
     }
     else if ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::StructureDepthFaultLines ) )
     {
-        // The owning "Structure Depth Fault Lines" folder already conveys the category -- avoid
-        // repeating it here.
+        // Owning folder already conveys the category.
         name = m_name();
     }
     else if ( m_polygonResult() == RiaSumoPolygons::polygonResultKey( SumoPolygonResult::FluidContactOutline ) )
     {
-        // The owning folder chain ("Fluid Contact Outline" / <name>) already conveys the category
-        // and name -- only the distinguishing contact type is left to show here.
+        // Owning folder chain already conveys category and name -- show contact type only.
         name = m_contactType();
     }
 
@@ -420,8 +410,7 @@ QString RimPolygonCloudAddress::polygonResultLabel( SumoPolygonResult polygonRes
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Fetches from Sumo for the given realization -- this address's own fixed polygon result/name/
-/// contact type, combined with the owning source's data source.
+/// Fetches from Sumo for the given realization, using this address's own fixed identity.
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolygon*> RimPolygonCloudAddress::fetchPolygonsFromSumo( int realization )
 {
@@ -460,9 +449,7 @@ std::vector<RimPolygon*> RimPolygonCloudAddress::fetchPolygonsFromSumo( int real
         points.reserve( pointCount );
         for ( size_t i = 0; i < pointCount; i++ )
         {
-            // Sumo's zTvdSSArray is a positive-down TVDSS depth. ResInsight's domain z convention
-            // is elevation (negative down), matching the sign flip RifPolygonReader applies when
-            // parsing depth values from a polygon file -- so invert here for the same reason.
+            // Sumo's depth is positive-down; ResInsight's domain z is elevation (negative-down).
             points.emplace_back( data.xArr[i], data.yArr[i], -data.zArr[i] );
         }
         polygon->setPointsInDomainCoords( points );

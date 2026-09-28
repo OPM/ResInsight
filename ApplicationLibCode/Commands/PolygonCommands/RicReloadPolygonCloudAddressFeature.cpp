@@ -28,10 +28,8 @@
 CAF_CMD_SOURCE_INIT( RicReloadPolygonCloudAddressFeature, "RicReloadPolygonCloudAddressFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// Reloads whatever is currently visualized for the selected address(es): if base data has been
-/// fetched, evict and re-fetch it; re-fetch every currently cached non-base realization the same
-/// way. Does not rebuild the owning RimPolygonCloudSource's directory tree (that is a separate,
-/// one-time operation).
+/// Reloads whatever is currently visualized for the selected address(es): re-fetches base data
+/// and any cached realizations. Does not rebuild the owning source's directory tree.
 //--------------------------------------------------------------------------------------------------
 void RicReloadPolygonCloudAddressFeature::onActionTriggered( bool isChecked )
 {

@@ -48,8 +48,7 @@ RimPolygonCloudFolder::RimPolygonCloudFolder( const QString& folderName )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Only built programmatically by RimPolygonCloudSource::buildDirectoryTree() -- no user-driven
-/// add/remove of sub-collections here.
+/// Only built programmatically by RimPolygonCloudSource::buildDirectoryTree().
 //--------------------------------------------------------------------------------------------------
 bool RimPolygonCloudFolder::canAddSubCollection() const
 {

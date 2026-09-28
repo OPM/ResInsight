@@ -63,30 +63,24 @@ protected:
     ~RimNestedMirrorCollectionInView() override;
 
     // Pure virtual hooks - derived class adapts to its source type.
-    virtual std::vector<SourceT*>     sourceSubCollections() const                        = 0;
-    virtual std::vector<SourceItemT*> sourceItems() const                                 = 0;
-    virtual ItemViewT*                createItemInView( SourceItemT* src )                = 0;
+    virtual std::vector<SourceT*>     sourceSubCollections() const         = 0;
+    virtual std::vector<SourceItemT*> sourceItems() const                  = 0;
+    virtual ItemViewT*                createItemInView( SourceItemT* src ) = 0;
 
     // Default impl: new SelfT() + setSourceCollection(src). Override for extra wiring.
     virtual SelfT* createSubCollectionInView( SourceT* src );
 
     // Computes this mirror's display name from its source. Default: source->collectionName().
-    // Override to incorporate additional per-view context (e.g. which realization is actually
-    // being shown in this view) into the name.
+    // Override to incorporate per-view context (e.g. which realization is shown).
     virtual QString computeDisplayName() const;
 
-    // Hook called once per sync (updateAllViewItems()), for every mirror node in the tree (this
-    // node and all recursively-synced sub-collections), before this node's own items/sub-
-    // collections are (re-)read from the source. Default: no-op. Override to lazily trigger a
-    // fetch/mutation of the source (e.g. RimPolygonCloudAddress::ensureBaseFetched()) so that
-    // freshly-available data is picked up by *this same* sync pass's sourceItems() snapshot,
-    // rather than only showing up on some later, unrelated sync.
+    // Called once per sync, per mirror node, before items/sub-collections are (re-)read from the
+    // source. Default: no-op. Override to lazily trigger a fetch (e.g.
+    // RimPolygonCloudAddress::ensureBaseFetched()) so it's picked up this same pass.
     virtual void prepareForSync();
 
-    // Hook called once per sync (updateAllViewItems()), for every mirror node in the tree (this
-    // node and all recursively-synced sub-collections), after this node's own name/items/
-    // sub-collections have been refreshed. Default: no-op. Override for one-time-per-node
-    // bookkeeping, e.g. defaulting this node's own initial visibility the first time it is synced.
+    // Called once per sync, per mirror node, after name/items/sub-collections are refreshed.
+    // Default: no-op. Override for one-time-per-node bookkeeping.
     virtual void onSynced();
 
     // Recursive sync: sub-collections, then items, then editor refresh.

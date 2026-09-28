@@ -99,7 +99,7 @@ protected:
 
     QMinimizePanel* findOrCreateGroupBox( QWidget* parent, PdmUiGroup* group, const QString& uiConfigName );
     PdmUiFieldEditorHandle* findOrCreateFieldEditor( QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName );
-    QPushButton* createButton( QWidget* parent, const PdmUiButton& button, const QString& uiConfigName );
+    QPushButton*      createButton( QWidget* parent, const PdmUiButton& button, const QString& uiConfigName );
     QDialogButtonBox* createButtonBox( QWidget* parent, const PdmUiButtonBox& buttonBox );
 
     static void ensureWidgetContainsEmptyGridLayout( QWidget* containerWidget,
@@ -129,9 +129,9 @@ private:
     std::map<QString, QPointer<QMinimizePanel>> m_groupBoxes;
     std::map<QString, QPointer<QMinimizePanel>> m_newGroupBoxes; ///< used temporarily to store the new(complete) set of
                                                                  ///< group boxes
-    std::vector<QPointer<QLabel>>            m_labels;
-    std::vector<QPointer<QPushButton>>       m_buttons;
-    std::vector<QPointer<QDialogButtonBox>>  m_buttonBoxes;
+    std::vector<QPointer<QLabel>>           m_labels;
+    std::vector<QPointer<QPushButton>>      m_buttons;
+    std::vector<QPointer<QDialogButtonBox>> m_buttonBoxes;
 
     std::map<QString, std::map<QString, bool>> m_objectKeywordGroupUiNameExpandedState;
 };

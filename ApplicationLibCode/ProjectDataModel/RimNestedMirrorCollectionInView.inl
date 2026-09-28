@@ -125,23 +125,16 @@ ItemViewT* RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::findItemI
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Recursive sync of sub-collections and items, mirroring the source tree.
-///
-/// Step 1 - sub-collections: drop wrappers whose source pointer is null, then iterate
-/// sourceSubCollections() and find-or-create one wrapper per source, reordering to match.
-/// Recurse into each child so nested levels mirror as well.
-///
-/// Step 2 - items: same shape. Drop orphans, iterate sourceItems(), find-or-create.
+/// Recursive sync mirroring the source tree: drops orphaned wrappers, then find-or-creates one
+/// wrapper per source sub-collection/item, reordering to match, recursing into children.
 //--------------------------------------------------------------------------------------------------
 template <typename SelfT, typename SourceT, typename ItemViewT>
 void RimNestedMirrorCollectionInView<SelfT, SourceT, ItemViewT>::updateAllViewItems()
 {
-    // Give the derived class a chance to lazily trigger a fetch/mutation of the source *before*
-    // sourceItems()/sourceSubCollections() are read below, so freshly-available data is picked up
-    // by this same sync pass instead of only appearing on some later, unrelated sync.
+    // Let the derived class lazily trigger a fetch before sourceItems() is read below.
     this->prepareForSync();
 
-    // Refresh display name from source so the view tree label tracks the source.
+    // Refresh display name from source.
     if ( m_sourceCollection )
     {
         this->setName( this->computeDisplayName() );

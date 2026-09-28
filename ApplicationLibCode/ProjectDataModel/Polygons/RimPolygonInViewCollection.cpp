@@ -151,10 +151,8 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         if ( m_isChecked() )
         {
-            // Checking this leaf on is the fetch-trigger signal. updateFromSource() re-runs
-            // prepareForSync(), which fetches (if needed) the data this leaf's effective
-            // realization currently resolves to, so the freshly-populated RimCloudPolygon
-            // children are mirrored into m_itemsInView this same pass.
+            // Checking is the fetch trigger: re-run sync so prepareForSync() fetches (if needed)
+            // and sourceItems() mirrors the data this same pass.
             updateFromSource();
         }
 
@@ -168,17 +166,12 @@ void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
-        // Unchecking this leaf only hides it (visiblePolygonsInView() already excludes anything
-        // beneath an unchecked node from 3D rendering) -- it must never evict fetched data, base
-        // or comparison-realization alike, exactly like any other polygon container's visibility
-        // checkbox. Cached data is only ever discarded via an explicit user action (the "Reload"
-        // command) or a project reload.
+        // Unchecking only hides the node; it never evicts fetched data (that only happens via an
+        // explicit Reload or project reload).
     }
     else if ( changedField == &m_useAutoRealizationUiState )
     {
-        // Only reachable while the checkbox is actually editable (matching case, see
-        // defineUiOrdering()), so the shadow's value is always a genuine user edit here -- write
-        // it back to the real, persisted field.
+        // Only reachable while editable (matching case), so this is always a genuine user edit.
         m_useAutoRealization = m_useAutoRealizationUiState();
 
         updateFromPolygonCollection();
@@ -208,20 +201,14 @@ void RimPolygonInViewCollection::appendMenuItems( caf::CmdFeatureMenuBuilder& me
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    // m_useAutoRealization (and its UI-facing shadow, m_useAutoRealizationUiState) is only
-    // meaningful (and only ever added below) on the mirror node representing a whole
-    // RimPolygonCloudSource -- every other mirror node (folders, name-folders, address leaves)
-    // must not show it at all. Since it is a plain, non-hidden field, skipRemainingFields() is
-    // required so caf's generic "auto-append any field not explicitly ordered" behavior does not
-    // still surface it on those other nodes.
+    // m_useAutoRealizationUiState is only meaningful on the mirror node for a whole
+    // RimPolygonCloudSource -- skipRemainingFields() below keeps it off every other node.
     if ( auto* src = sourceCollection(); src && src->supportsRealizationOverride() )
     {
         if ( viewMatchingRealizationOrMinusOne() == -1 )
         {
-            // Not meaningful here: the checkbox must visually read as unchecked (never "checked
-            // but disabled/no-op"), regardless of the real, persisted m_useAutoRealization value --
-            // which is left untouched so it takes effect again automatically once the view's case
-            // starts matching the source's data source.
+            // Not meaningful here: force the checkbox to read unchecked, but leave the real,
+            // persisted m_useAutoRealization untouched so it re-applies once the case matches.
             m_useAutoRealizationUiState = false;
             m_useAutoRealizationUiState.uiCapability()->setUiReadOnly( true );
             m_useAutoRealizationUiState.uiCapability()->setUiToolTip(
@@ -247,8 +234,7 @@ void RimPolygonInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimPolygonInViewCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    // No option-driven fields left: m_useAutoRealization is a plain checkbox, and there is
-    // deliberately no per-view realization override dropdown (see its declaration comment).
+    // No option-driven fields: m_useAutoRealization is a plain checkbox.
     return {};
 }
 
@@ -262,10 +248,7 @@ std::vector<RimPolygonContainer*> RimPolygonInViewCollection::sourceSubCollectio
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Resolves the realization the owning 3D view's own case matches for the current source
-/// container (see RimPolygonContainer::resolveViewMatchingRealization), or -1 if there is no view
-/// ancestor or the view's case belongs to a different case/ensemble than the source's own data
-/// source.
+/// Realization the owning view's case matches for the current source, or -1 if no match/no view.
 //--------------------------------------------------------------------------------------------------
 int RimPolygonInViewCollection::viewMatchingRealizationOrMinusOne() const
 {
@@ -279,12 +262,9 @@ int RimPolygonInViewCollection::viewMatchingRealizationOrMinusOne() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// This mirror's own effectively-shown source items: for anything except a RimPolygonCloudAddress
-/// leaf, just the source's own items(). For a RimPolygonCloudAddress leaf, substitutes the cached
-/// data for whichever realization this view effectively resolves to (see effectiveRealization()),
-/// directly in place of the address's own base items -- with no separate visible tree node. This
-/// is also the "compare with base realization" mechanism: two views auto-following different
-/// realizations of the same address each see only their own resolved realization here.
+/// Items shown by this mirror: source's own items(), except a RimPolygonCloudAddress leaf
+/// substitutes the cached data for this view's effective realization (see effectiveRealization())
+/// -- this is also the base-realization comparison mechanism.
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolygon*> RimPolygonInViewCollection::sourceItems() const
 {
@@ -293,7 +273,7 @@ std::vector<RimPolygon*> RimPolygonInViewCollection::sourceItems() const
 
     if ( auto* address = dynamic_cast<RimPolygonCloudAddress*>( src ) )
     {
-        const int realization = effectiveRealization();
+        const int realization     = effectiveRealization();
         const int baseRealization = address->owningSource() ? address->owningSource()->baseRealization() : -1;
 
         if ( realization == -1 || realization == baseRealization ) return address->items();
@@ -305,11 +285,8 @@ std::vector<RimPolygon*> RimPolygonInViewCollection::sourceItems() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Shows the effective realization in the mirror's own tree name, when it differs from the
-/// address's own base/Applied realization (e.g. this view is auto-following a different one).
-/// The RimPolygonCloudSource's own top mirror node gets the same treatment -- its name embeds the
-/// realization (see RimPolygonCloudSource::composeName()), so an auto-followed view substitutes
-/// the effective realization directly in that name rather than appending a second "Real" suffix.
+/// Shows the effective realization in the tree name when it differs from the base realization
+/// (e.g. this view is auto-following a different one).
 //--------------------------------------------------------------------------------------------------
 QString RimPolygonInViewCollection::computeDisplayName() const
 {
@@ -318,7 +295,7 @@ QString RimPolygonInViewCollection::computeDisplayName() const
 
     if ( auto* address = dynamic_cast<RimPolygonCloudAddress*>( src ) )
     {
-        const int realization = effectiveRealization();
+        const int realization     = effectiveRealization();
         const int baseRealization = address->owningSource() ? address->owningSource()->baseRealization() : -1;
 
         if ( realization != -1 && realization != baseRealization )
@@ -340,15 +317,9 @@ QString RimPolygonInViewCollection::computeDisplayName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Lazy-fetch trigger, called before sourceItems() is read this same sync pass: if this node's
-/// source is a RimPolygonCloudAddress and this node is checked visible, ensure this view's
-/// effective realization has been fetched. Also always ensures the address's own base realization
-/// is fetched, even when a different (auto-followed) realization is what this view actually
-/// displays -- per UX request, enabling a leaf's checkbox should always populate the address's
-/// base data in the project tree, not only whichever realization happens to be shown in this
-/// particular view, so the base is available for comparison/other views without a separate
-/// action. Idempotent -- safe on every sync, and this is what makes a saved project's
-/// previously-checked leaves "self-heal" back to populated on the next load.
+/// Lazy-fetch trigger, run before sourceItems() this sync pass: if checked, ensures the address's
+/// base realization is fetched (so it's always available in the project tree), plus the view's
+/// effective (auto-followed) realization if different. Idempotent.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInViewCollection::prepareForSync()
 {
@@ -367,11 +338,8 @@ void RimPolygonInViewCollection::prepareForSync()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// New mirror nodes default to checked (see RimCheckableNamedObject) -- correct for ordinary
-/// file-based/user-drawn polygon folders, which have nothing to fetch. A RimPolygonCloudAddress
-/// leaf defaults to unchecked instead, since checking is the explicit fetch-trigger signal for it
-/// and it must never be visualized (and therefore fetched) just because a view happens to sync it
-/// for the first time.
+/// New mirror nodes default to checked, except a RimPolygonCloudAddress leaf defaults to
+/// unchecked since checking is its explicit fetch trigger.
 //--------------------------------------------------------------------------------------------------
 RimPolygonInViewCollection* RimPolygonInViewCollection::createSubCollectionInView( RimPolygonContainer* src )
 {
@@ -387,10 +355,8 @@ RimPolygonInViewCollection* RimPolygonInViewCollection::createSubCollectionInVie
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Walks up this mirror node's own ancestor chain (this node included) for the one whose
-/// sourceCollection() is a RimPolygonCloudSource -- the node that owns the single Auto-Follow
-/// checkbox governing every leaf beneath it. Returns nullptr if this mirror is not nested under a
-/// RimPolygonCloudSource mirror at all.
+/// Walks up to the ancestor mirror node (this included) whose sourceCollection() is a
+/// RimPolygonCloudSource -- owner of the Auto-Follow checkbox. Nullptr if none.
 //--------------------------------------------------------------------------------------------------
 const RimPolygonInViewCollection* RimPolygonInViewCollection::sourceMirrorAncestorOrThis() const
 {
@@ -404,10 +370,8 @@ const RimPolygonInViewCollection* RimPolygonInViewCollection::sourceMirrorAncest
 }
 
 //--------------------------------------------------------------------------------------------------
-/// The realization this mirror node's own items should effectively show: the ancestor
-/// RimPolygonCloudSource mirror's Auto-Follow-resolved realization, or -1 (meaning: the address's
-/// own base/Applied realization) if Auto-Follow is off, doesn't match, or there is no such
-/// ancestor.
+/// Realization this node's items should show: the ancestor source's Auto-Follow-resolved
+/// realization, or -1 (base/Applied) if off, mismatched, or no such ancestor.
 //--------------------------------------------------------------------------------------------------
 int RimPolygonInViewCollection::effectiveRealization() const
 {

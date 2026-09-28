@@ -55,7 +55,7 @@ protected:
     QString computeDisplayName() const override;
     void    prepareForSync() override;
 
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
@@ -64,45 +64,30 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
-    // Explicit per-view choice: whether this view should follow the source container's own
-    // per-view realization resolution (see RimPolygonContainer::resolveViewMatchingRealization).
-    // Only relevant (and only shown in the UI) when sourceCollection()->supportsRealizationOverride()
-    // is true -- i.e. only on the single mirror node representing a whole RimPolygonCloudSource,
-    // governing every RimPolygonCloudAddress leaf beneath it in this view. When checked and the
-    // resolved realization differs from the source's own base realization, every RimPolygonCloudAddress
-    // leaf beneath this node (in this view) substitutes that realization's cached RimCloudPolygon
-    // data directly in place of its own base items (see sourceItems()) -- this is also the "compare
-    // with base realization" mechanism, with no separate comparison UI or extra visible tree nodes.
-    // Disabled (read-only, with an explanatory tooltip) when the view's own case belongs to a
-    // different case/ensemble than the source's own data source, since "follow view" would not be
-    // meaningful there.
+    // Per-view choice: follow the source container's own per-view realization resolution (see
+    // RimPolygonContainer::resolveViewMatchingRealization). Shown only on the mirror node for a
+    // whole RimPolygonCloudSource, governing every leaf beneath it. When checked and resolved to a
+    // realization other than the source's base one, every leaf substitutes that realization's
+    // cached data for its own base items (see sourceItems()) -- this is also the base-realization
+    // comparison mechanism. Disabled with a tooltip when the view's case doesn't match the
+    // source's data source.
     caf::PdmField<bool> m_useAutoRealization;
 
-    // Non-persisted UI-only shadow of m_useAutoRealization, shown in the checkbox instead of the
-    // real field. When the view's case doesn't match the source's data source (checkbox is
-    // read-only, see defineUiOrdering()), the real m_useAutoRealization keeps whatever persisted
-    // value it had (so it takes effect again automatically once the view's case starts matching),
-    // but the checkbox itself must visually read as unchecked -- since "follow view" is not doing
-    // anything here regardless of the stored value. Kept in sync with m_useAutoRealization
-    // whenever the checkbox is actually editable (matching case); user edits to this shadow field
-    // are written back to m_useAutoRealization in fieldChangedByUi().
+    // Non-persisted UI-only shadow of m_useAutoRealization: when the checkbox is read-only
+    // (mismatched view case), it must visually read as unchecked even though the real field keeps
+    // its persisted value (so it re-applies once the case matches again). Synced with
+    // m_useAutoRealization whenever editable; user edits write back in fieldChangedByUi().
     caf::PdmField<bool> m_useAutoRealizationUiState;
 
-    // Resolves the realization the owning 3D view's own case matches for the current source
-    // container, or -1 if there is no view ancestor or the view's case belongs to a different
-    // case/ensemble than the source's Applied data source. See
-    // RimPolygonContainer::resolveViewMatchingRealization.
+    // Realization the owning view's case matches for the current source, or -1 if no match/no
+    // view ancestor. See RimPolygonContainer::resolveViewMatchingRealization.
     int viewMatchingRealizationOrMinusOne() const;
 
-    // Walks up this mirror node's own ancestor chain (this node included) for the one whose
-    // sourceCollection() is a RimPolygonCloudSource -- the node that owns the single Auto-Follow
-    // checkbox governing every leaf beneath it. Returns nullptr if this mirror is not nested under
-    // a RimPolygonCloudSource mirror at all.
+    // Walks up to the ancestor mirror node (this included) whose sourceCollection() is a
+    // RimPolygonCloudSource -- the node owning the Auto-Follow checkbox. Nullptr if none.
     const RimPolygonInViewCollection* sourceMirrorAncestorOrThis() const;
 
-    // The realization this mirror node's own items should effectively show: the ancestor
-    // RimPolygonCloudSource mirror's Auto-Follow-resolved realization, or -1 (meaning: the
-    // address's own base/Applied realization) if Auto-Follow is off, doesn't match, or there is no
-    // such ancestor.
+    // Realization this node's items should show: the ancestor source's Auto-Follow-resolved
+    // realization, or -1 (base/Applied) if Auto-Follow is off, mismatched, or no such ancestor.
     int effectiveRealization() const;
 };

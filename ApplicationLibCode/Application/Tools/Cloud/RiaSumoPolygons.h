@@ -27,8 +27,7 @@
 
 class RiaSumoConnector;
 
-// The category of a polygon result, matching ri-cloud-api's PolygonResult enum values (the query
-// parameter it expects, and the keys of the polygon_result_directory response).
+// Category of a polygon result, matching ri-cloud-api's PolygonResult enum.
 enum class SumoPolygonResult
 {
     FieldOutline,
@@ -36,16 +35,15 @@ enum class SumoPolygonResult
     FluidContactOutline
 };
 
-// One named polygon result available for an ensemble. contactType is only set (non-empty) for a
-// fluid contact outline entry.
+// One named polygon result. contactType is set only for fluid contact outline entries.
 struct SumoPolygonMeta
 {
     QString name;
     QString contactType;
 };
 
-// The polygon results available for an ensemble, categorized as ri-cloud-api reports them. A
-// category not present in the response (nothing of that kind exists) is left empty here.
+// Polygon results available for an ensemble, categorized as ri-cloud-api reports them. An absent
+// category is left empty.
 struct SumoPolygonDirectory
 {
     std::vector<SumoPolygonMeta> fieldOutline;
@@ -53,9 +51,8 @@ struct SumoPolygonDirectory
     std::vector<SumoPolygonMeta> fluidContactOutline;
 };
 
-// The decoded geometry of one polygon (one POLY_ID group within a named result), already in
-// [x,y,z] form -- ri-cloud-api owns the Sumo parquet/csv schema and hands back plain coordinate
-// arrays, so no parsing of Sumo's on-disk polygon format happens on the ResInsight side.
+// Decoded geometry of one polygon (one POLY_ID group), already in [x,y,z] form -- ri-cloud-api
+// owns the Sumo schema and returns plain coordinate arrays.
 struct SumoPolygonData
 {
     QString             name;
@@ -66,10 +63,9 @@ struct SumoPolygonData
 };
 
 //==================================================================================================
-/// The polygon results of a Sumo ensemble: what is available (polygon_result_directory) and the
-/// decoded coordinates of a chosen one (polygons_data). Requests are made through RiaSumoConnector,
-/// which owns the connection and does the transfers; ri-cloud-api returns plain JSON for both
-/// endpoints, so there is no blob id/download step here, unlike grid and summary data.
+/// Polygon results of a Sumo ensemble: what is available (polygon_result_directory) and decoded
+/// coordinates of a chosen one (polygons_data). Both endpoints return plain JSON, so there is no
+/// blob id/download step, unlike grid and summary data.
 //==================================================================================================
 class RiaSumoPolygons
 {
@@ -78,21 +74,19 @@ public:
 
     SumoPolygonDirectory polygonResultDirectory( const SumoCaseId& caseId, const QString& ensembleName );
 
-    // name is ignored for SumoPolygonResult::FieldOutline (there is exactly one, unnamed). contactType is
-    // required only when polygonResult is FluidContactOutline.
-    std::vector<SumoPolygonData> polygonsData( const SumoCaseId&  caseId,
-                                               const QString&     ensembleName,
-                                               int                realization,
-                                               SumoPolygonResult  polygonResult,
-                                               const QString&     name        = QString(),
-                                               const QString&     contactType = QString() );
+    // name is ignored for FieldOutline. contactType is required only for FluidContactOutline.
+    std::vector<SumoPolygonData> polygonsData( const SumoCaseId& caseId,
+                                               const QString&    ensembleName,
+                                               int               realization,
+                                               SumoPolygonResult polygonResult,
+                                               const QString&    name        = QString(),
+                                               const QString&    contactType = QString() );
 
-    // The query-parameter/JSON-key spelling of a polygon result category, matching ri-cloud-api's
-    // PolygonResult enum values (e.g. "fluid_contact_outline").
+    // Query-parameter/JSON-key spelling of a polygon result category.
     static QString polygonResultKey( SumoPolygonResult polygonResult );
 
 private:
-    static SumoPolygonDirectory        parseDirectory( const QByteArray& body );
+    static SumoPolygonDirectory         parseDirectory( const QByteArray& body );
     static std::vector<SumoPolygonData> parsePolygonsData( const QByteArray& body );
 
 private:

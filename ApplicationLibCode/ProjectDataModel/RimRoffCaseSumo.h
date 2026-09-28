@@ -70,10 +70,9 @@ public:
     QString gridName() const;
     int     realization() const;
 
-    // The RimSumoDataSource this case was created from -- used by a cloud-backed polygon address
-    // to check whether a view's case genuinely belongs to the same Sumo case/ensemble before ever
-    // considering following that view's realization automatically. See
-    // RimPolygonCloudAddress::resolveViewMatchingRealization.
+    // Data source this case was created from -- used to check whether a view's case belongs to
+    // the same Sumo case/ensemble before auto-following that view's realization. See
+    // RimPolygonCloudSource::resolveViewMatchingRealization.
     RimSumoDataSource* dataSource() const;
 
     bool openEclipseGridFile() override;

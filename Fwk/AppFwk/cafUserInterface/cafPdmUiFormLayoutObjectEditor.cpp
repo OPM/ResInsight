@@ -239,10 +239,8 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
             }
             else if ( auto* buttonBox = dynamic_cast<PdmUiButtonBox*>( currentItem ) )
             {
-                // No alignment argument: the QDialogButtonBox is stretched to fill its entire
-                // assigned cell (same as a group), and its own internal QHBoxLayout (leading
-                // stretch, then packed action buttons) takes care of pinning/packing the buttons
-                // themselves -- the exact mechanism a real QDialog's OK/Cancel/Help row uses.
+                // No alignment: stretched to fill its cell, its own internal layout packs the
+                // buttons -- the same mechanism a real QDialog's button row uses.
                 QDialogButtonBox* qButtonBox = createButtonBox( containerWidgetWithGridLayout, *buttonBox );
                 parentLayout->addWidget( qButtonBox, currentRowIndex, currentColumn, 1, itemColumnSpan );
                 currentColumn += itemColumnSpan;
@@ -531,10 +529,8 @@ QDialogButtonBox* caf::PdmUiFormLayoutObjectEditor::createButtonBox( QWidget* pa
 {
     QDialogButtonBox* qButtonBox = new QDialogButtonBox( parent );
 
-    // ActionRole keeps the buttons in the order they were added (no OS-specific OK/Cancel
-    // reordering), while still getting QDialogButtonBox's normal "leading stretch, then packed
-    // buttons pinned to one side" layout -- the same mechanism used by real QDialogs (e.g. the
-    // Preferences dialog's OK/Cancel/Help row).
+    // ActionRole preserves add order (no OS-specific OK/Cancel reordering) while still getting
+    // QDialogButtonBox's normal leading-stretch-then-packed-buttons layout.
     for ( const auto& spec : buttonBox.buttons() )
     {
         QPushButton* qButton = qButtonBox->addButton( spec.text, QDialogButtonBox::ActionRole );

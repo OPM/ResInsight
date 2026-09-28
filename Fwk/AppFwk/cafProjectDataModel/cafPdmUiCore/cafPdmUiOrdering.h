@@ -96,11 +96,11 @@ public:
                            const PdmFieldHandle* fieldToInsert,
                            LayoutOptions         layout = defaultLayoutOptions() );
 
-    PdmUiGroup*  addNewGroup( const QString& displayName, LayoutOptions layout = defaultLayoutOptions() );
-    PdmUiLabel*  addNewLabel( const QString& labelText, LayoutOptions layout = defaultLayoutOptions() );
-    PdmUiButton* addNewButton( const QString&               buttonText,
-                               const std::function<void()>& callback,
-                               LayoutOptions                layout = defaultLayoutOptions() );
+    PdmUiGroup*     addNewGroup( const QString& displayName, LayoutOptions layout = defaultLayoutOptions() );
+    PdmUiLabel*     addNewLabel( const QString& labelText, LayoutOptions layout = defaultLayoutOptions() );
+    PdmUiButton*    addNewButton( const QString&               buttonText,
+                                  const std::function<void()>& callback,
+                                  LayoutOptions                layout = defaultLayoutOptions() );
     PdmUiButtonBox* addNewButtonBox( LayoutOptions layout = defaultLayoutOptions() );
 
     PdmUiGroup* createGroupBeforeGroup( const QString& groupId,
@@ -164,12 +164,12 @@ private:
                                            const QString& groupKeyword,
                                            LayoutOptions  layout = defaultLayoutOptions() );
 
-    std::vector<FieldAndLayout>                   m_ordering;
-    std::vector<std::unique_ptr<PdmUiGroup>>      m_createdGroups;
-    std::vector<std::unique_ptr<PdmUiLabel>>      m_createdLabels;
-    std::vector<std::unique_ptr<PdmUiButton>>     m_createdButtons;
-    std::vector<std::unique_ptr<PdmUiButtonBox>>  m_createdButtonBoxes;
-    bool                                          m_skipRemainingFields;
+    std::vector<FieldAndLayout>                  m_ordering;
+    std::vector<std::unique_ptr<PdmUiGroup>>     m_createdGroups;
+    std::vector<std::unique_ptr<PdmUiLabel>>     m_createdLabels;
+    std::vector<std::unique_ptr<PdmUiButton>>    m_createdButtons;
+    std::vector<std::unique_ptr<PdmUiButtonBox>> m_createdButtonBoxes;
+    bool                                         m_skipRemainingFields;
 };
 
 } // End of namespace caf

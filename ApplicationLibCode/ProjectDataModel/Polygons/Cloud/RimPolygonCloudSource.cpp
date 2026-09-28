@@ -72,8 +72,7 @@ RimPolygonCloudSource::RimPolygonCloudSource()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Sets both the pending and applied selection directly -- for deliberate one-shot setup (e.g. from
-/// a creation command), not a live UI edit. Does not trigger a fetch.
+/// One-shot setup (e.g. from a creation command); sets pending and applied directly, no fetch.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::setDataSource( RimSumoDataSource* dataSource )
 {
@@ -83,7 +82,7 @@ void RimPolygonCloudSource::setDataSource( RimSumoDataSource* dataSource )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Sets both the pending and applied selection directly -- see setDataSource().
+/// See setDataSource().
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::setBaseRealization( int realization )
 {
@@ -117,8 +116,7 @@ bool RimPolygonCloudSource::isDirectoryBuilt() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Fetches the polygon result directory once (metadata only) and builds the full nested
-/// RimPolygonCloudFolder/RimPolygonCloudAddress structure, for the currently *applied* data
+/// Fetches the directory metadata once and builds the folder/leaf tree for the applied data
 /// source/base realization. No-op if already built.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::buildDirectoryTree()
@@ -199,8 +197,7 @@ QString RimPolygonCloudSource::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// The folder/address tree beneath this object is only ever built by buildDirectoryTree() -- no
-/// user-driven add/remove of sub-collections here.
+/// Tree is only ever built by buildDirectoryTree().
 //--------------------------------------------------------------------------------------------------
 bool RimPolygonCloudSource::canAddSubCollection() const
 {
@@ -244,10 +241,8 @@ std::vector<int> RimPolygonCloudSource::availableRealizationIdsForOverride() con
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Only follows a view's own case realization when that case is a RimRoffCaseSumo created from
-/// this source's own data source -- i.e. the same Sumo case/ensemble. A view whose case belongs to
-/// a different field/data source (e.g. a Johan Sverdrup grid case in an otherwise Drogon-
-/// configured project) must never have its realization silently applied to this source's leaves.
+/// Follows a view's realization only when its case is a RimRoffCaseSumo from this same data
+/// source -- never a case belonging to a different field/ensemble.
 //--------------------------------------------------------------------------------------------------
 int RimPolygonCloudSource::resolveViewMatchingRealization( const Rim3dView* view ) const
 {
@@ -278,11 +273,11 @@ void RimPolygonCloudSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     auto* buttonBox = uiOrdering.addNewButtonBox();
 
-    auto& applyButton = buttonBox->addButton( "Apply", [this]() { onApplyClicked(); } );
+    auto& applyButton   = buttonBox->addButton( "Apply", [this]() { onApplyClicked(); } );
     applyButton.enabled = hasValidPendingSelection && pending;
     applyButton.toolTip = hasValidPendingSelection ? QString( "" ) : QString( "Select a Data Source and Base Realization first." );
 
-    auto& cancelButton = buttonBox->addButton( "Cancel", [this]() { onCancelClicked(); } );
+    auto& cancelButton   = buttonBox->addButton( "Cancel", [this]() { onCancelClicked(); } );
     cancelButton.enabled = m_directoryBuilt() && pending;
     cancelButton.toolTip = "Discards the pending edits above, restoring the currently applied Data Source and Base Realization.";
 
@@ -303,9 +298,9 @@ void RimPolygonCloudSource::fieldChangedByUi( const caf::PdmFieldHandle* changed
 {
     if ( changedField == &m_dataSource )
     {
-        // A new data source invalidates whatever realization was picked for the previous one.
+        // New data source invalidates the previously picked realization.
         auto realizations = availableRealizationIdsForOverride();
-        m_baseRealization  = realizations.empty() ? -1 : realizations.front();
+        m_baseRealization = realizations.empty() ? -1 : realizations.front();
     }
 
     updateConnectedEditors();
@@ -358,9 +353,8 @@ void RimPolygonCloudSource::updateName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Composes the display name for an arbitrary realization -- shared by updateName() (always uses
-/// the Applied base realization) and nameForRealization() (used by view mirrors that are Auto-
-/// Following a different realization).
+/// Shared by updateName() (applied base realization) and nameForRealization() (a view mirror
+/// Auto-Following a different realization).
 //--------------------------------------------------------------------------------------------------
 QString RimPolygonCloudSource::composeName( int realization ) const
 {
@@ -390,10 +384,8 @@ bool RimPolygonCloudSource::hasPendingChanges() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Commits the pending Data Source/Base Realization selection. The very first Apply builds the
-/// folder/leaf tree from scratch. A later Apply (after the tree already exists) either rebuilds it
-/// from scratch (if the data source/ensemble itself changed) or just evicts every address's stale
-/// base-realization data (if only the base realization changed) -- see the class comment.
+/// Commits the pending selection. First Apply builds the tree; a later Apply rebuilds it if the
+/// data source changed, or just evicts stale base data if only the realization changed.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::onApplyClicked()
 {
@@ -407,16 +399,13 @@ void RimPolygonCloudSource::onApplyClicked()
 
     if ( wasBuilt && dataSourceChanged )
     {
-        // The ensemble identity itself changed -- the existing folder/leaf tree (and any fetched/
-        // cached polygon data underneath it) was built for the old ensemble and no longer applies.
+        // Ensemble identity changed -- the existing tree no longer applies.
         m_subCollections.deleteChildren();
         m_directoryBuilt = false;
     }
     else if ( wasBuilt )
     {
-        // Same data source, only the base realization changed -- the folder/leaf structure itself
-        // is still valid, but every address's own already-fetched base-realization data was
-        // fetched for the old value and must be evicted so it is lazily re-fetched for the new one.
+        // Only the base realization changed -- structure stays, evict stale fetched data.
         for ( auto* address : allAddresses() )
         {
             address->evictBaseData();
@@ -432,8 +421,7 @@ void RimPolygonCloudSource::onApplyClicked()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Discards the pending edits, restoring the pending Data Source/Base Realization fields back to
-/// the currently applied selection. No fetch, no change to the tree.
+/// Discards pending edits, restoring pending fields to the applied selection. No fetch.
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::onCancelClicked()
 {

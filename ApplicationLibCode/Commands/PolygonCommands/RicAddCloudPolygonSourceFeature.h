@@ -21,9 +21,8 @@
 #include "cafCmdFeature.h"
 
 //==================================================================================================
-/// "Add Cloud Polygon Source": creates a RimPolygonCloudSource for a (pre-selected, for now the
-/// first available) Sumo data source and base realization, and immediately builds its full
-/// browsable folder/leaf directory tree (a single, cheap metadata fetch -- no coordinate data).
+/// "Add Cloud Polygon Source": creates a RimPolygonCloudSource with a pre-selected Sumo data
+/// source and base realization; the user clicks "Apply" to build the browsable directory tree.
 //==================================================================================================
 class RicAddCloudPolygonSourceFeature : public caf::CmdFeature
 {

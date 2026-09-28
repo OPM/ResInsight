@@ -62,8 +62,7 @@ public:
     void setCollapsed( bool doCollapse );
     void setEnableFrame( bool enableFrame );
 
-    /// Reduce the horizontal spacing between the items in this group's grid layout to zero.
-    /// Useful for a frameless group used purely to lay out a row of buttons snugly next to each other.
+    /// Zero horizontal spacing between items -- for a frameless group laying out buttons snugly.
     void setTightHorizontalSpacing( bool enable = true );
 
     // Pdm internal methods

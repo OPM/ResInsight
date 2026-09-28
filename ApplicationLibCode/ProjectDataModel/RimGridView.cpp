@@ -558,10 +558,6 @@ void RimGridView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
 
     if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::POLYGON ) )
     {
-        // Realization is never derived from this view's own case -- a cloud-backed polygon address
-        // either shows its own Applied realization, or an explicit per-view override the user picks
-        // on RimPolygonInViewCollection itself (see RimPolygonInViewCollection::m_realizationOverride).
-        // This view's own case may belong to an entirely different field/data source than the address.
         m_polygonInViewCollection->updateFromPolygonCollection();
     }
 

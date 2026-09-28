@@ -51,12 +51,12 @@ SumoPolygonDirectory RiaSumoPolygons::polygonResultDirectory( const SumoCaseId& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<SumoPolygonData> RiaSumoPolygons::polygonsData( const SumoCaseId&  caseId,
-                                                             const QString&     ensembleName,
-                                                             int                realization,
-                                                             SumoPolygonResult  polygonResult,
-                                                             const QString&     name,
-                                                             const QString&     contactType )
+std::vector<SumoPolygonData> RiaSumoPolygons::polygonsData( const SumoCaseId& caseId,
+                                                            const QString&    ensembleName,
+                                                            int               realization,
+                                                            SumoPolygonResult polygonResult,
+                                                            const QString&    name,
+                                                            const QString&    contactType )
 {
     const QString encodedEnsembleName = QUrl::toPercentEncoding( ensembleName );
 
@@ -72,10 +72,8 @@ std::vector<SumoPolygonData> RiaSumoPolygons::polygonsData( const SumoCaseId&  c
         query.addQueryItem( "contact_type", contactType );
     }
 
-    const QString path = QString( "/cases/%1/ensembles/%2/polygons_data?%3" )
-                             .arg( caseId.get() )
-                             .arg( encodedEnsembleName )
-                             .arg( query.toString( QUrl::FullyEncoded ) );
+    const QString path =
+        QString( "/cases/%1/ensembles/%2/polygons_data?%3" ).arg( caseId.get() ).arg( encodedEnsembleName ).arg( query.toString( QUrl::FullyEncoded ) );
 
     return parsePolygonsData( m_connector.getBlocking( path, "Loading polygon data from Sumo" ) );
 }
@@ -120,7 +118,7 @@ SumoPolygonDirectory RiaSumoPolygons::parseDirectory( const QByteArray& body )
         return result;
     };
 
-    directory.fieldOutline = parseMetaArray( obj[polygonResultKey( SumoPolygonResult::FieldOutline )].toArray() );
+    directory.fieldOutline             = parseMetaArray( obj[polygonResultKey( SumoPolygonResult::FieldOutline )].toArray() );
     directory.structureDepthFaultLines = parseMetaArray( obj[polygonResultKey( SumoPolygonResult::StructureDepthFaultLines )].toArray() );
     directory.fluidContactOutline      = parseMetaArray( obj[polygonResultKey( SumoPolygonResult::FluidContactOutline )].toArray() );
 

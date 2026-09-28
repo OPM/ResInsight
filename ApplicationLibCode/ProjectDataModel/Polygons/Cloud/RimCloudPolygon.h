@@ -24,19 +24,13 @@
 
 //==================================================================================================
 ///
-/// A RimPolygon fetched from Sumo through RimPolygonCloudAddress, stamped with the full Sumo
-/// identity (case, ensemble, realization, polygon result, name, contact type) it was fetched with.
+/// A RimPolygon fetched from Sumo, stamped with the full Sumo identity (case, ensemble,
+/// realization, polygon result, name, contact type) it was fetched with -- a self-contained,
+/// immutable snapshot that a RimPolygonCloudAddress can hand out for any realization without
+/// external bookkeeping or mutation.
 ///
-/// This makes every instance a self-contained, immutable snapshot: "this is field_outline/no-name
-/// for case X, ensemble Y, realization 2". A RimPolygonCloudAddress can therefore hand out
-/// RimCloudPolygon objects for realizations other than its currently "Applied" one (e.g. to a 3D
-/// view following a different Sumo case realization) without needing any external bookkeeping to
-/// know what a given cached object represents, and without those objects ever needing to be
-/// mutated or reconciled against the address's current Applied selection.
-///
-/// All identity fields are hidden from the UI: they exist for traceability/debugging (and so a
-/// cache lookup can be validated against what an object actually represents), not for editing --
-/// editing the underlying selection happens on RimPolygonCloudAddress itself.
+/// Identity fields are hidden from the UI (traceability/debugging only) -- editing happens on
+/// RimPolygonCloudAddress.
 ///
 //==================================================================================================
 class RimCloudPolygon : public RimPolygon
