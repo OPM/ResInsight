@@ -22,6 +22,7 @@
 #include "ContourMap/RigContourMapGrid.h"
 #include "ContourMap/RigContourMapProjection.h"
 #include "ContourMap/RigContourMapTrianglesGenerator.h"
+#include "ContourMap/RimContourMapPeaksCollection.h"
 #include "RigFloodingSettings.h"
 
 #include "RimCase.h"
@@ -116,6 +117,9 @@ RimContourMapProjection::RimContourMapProjection()
     m_upperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_lowerThreshold, "LowerThreshold", 0.0, "Lower Threshold" );
     m_lowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_peaksCollection, "PeaksCollection", "Computed Peaks" );
+    m_peaksCollection = new RimContourMapPeaksCollection;
 
     setName( "Map Projection" );
     nameField()->uiCapability()->setUiReadOnly( true );
@@ -215,6 +219,9 @@ void RimContourMapProjection::generateGeometryIfNecessary()
                                                                                                           m_contourLevelCumulativeAreas,
                                                                                                           discrete,
                                                                                                           sampleSpacing() );
+
+        // Result, time step or value filter may have changed
+        if ( m_peaksCollection() ) m_peaksCollection->updateOutdatedState();
     }
     progress.setProgress( 100 );
 }
@@ -312,6 +319,14 @@ const RigContourMapProjection* RimContourMapProjection::mapProjection() const
 const RigContourMapGrid* RimContourMapProjection::mapGrid() const
 {
     return m_contourMapGrid.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimContourMapPeaksCollection* RimContourMapProjection::peaksCollection() const
+{
+    return m_peaksCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -642,6 +657,7 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
+    uiTreeOrdering.add( &m_peaksCollection );
     uiTreeOrdering.skipRemainingChildren( true );
 }
 

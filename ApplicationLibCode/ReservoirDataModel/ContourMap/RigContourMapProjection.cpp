@@ -481,6 +481,30 @@ const std::vector<double>& RigContourMapProjection::aggregatedResults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RigContourMapPeakFinder::Peak> RigContourMapProjection::findPeaks( const RigContourMapPeakFinder::Settings& settings ) const
+{
+    cvf::Vec2ui elementsIJ = numberOfElementsIJ();
+    int         nx         = static_cast<int>( elementsIJ.x() );
+    int         ny         = static_cast<int>( elementsIJ.y() );
+
+    double     spacing         = m_contourMapGrid->sampleSpacing();
+    cvf::Vec2d firstCellCenter = m_contourMapGrid->cellCenterPosition( 0u, 0u );
+
+    std::vector<double> cellValues = m_aggregatedResults;
+    if ( m_valueFilter )
+    {
+        for ( double& value : cellValues )
+        {
+            if ( value < m_valueFilter->first || value > m_valueFilter->second ) value = std::numeric_limits<double>::infinity();
+        }
+    }
+
+    return RigContourMapPeakFinder::findPeaks( cellValues, nx, ny, spacing, spacing, settings, firstCellCenter.x(), firstCellCenter.y() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RigContourMapProjection::aggregatedVertexResultsFiltered() const
 {
     if ( m_valueFilter )

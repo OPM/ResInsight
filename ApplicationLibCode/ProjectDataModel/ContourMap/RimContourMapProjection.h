@@ -26,6 +26,7 @@
 #include "ContourMap/RigContourPolygonsTools.h"
 #include "RigFloodingSettings.h"
 
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -38,6 +39,7 @@ class RigContourMapGrid;
 class RimGridView;
 class RimRegularLegendConfig;
 class RigContourMapProjection;
+class RimContourMapPeaksCollection;
 
 //==================================================================================================
 ///
@@ -98,6 +100,8 @@ public:
 
     const RigContourMapProjection* mapProjection() const;
     const RigContourMapGrid*       mapGrid() const;
+
+    RimContourMapPeaksCollection* peaksCollection() const;
 
 protected:
     // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations
@@ -171,6 +175,8 @@ protected:
 
     std::unique_ptr<RigContourMapGrid>       m_contourMapGrid;
     std::unique_ptr<RigContourMapProjection> m_contourMapProjection;
+
+    caf::PdmChildField<RimContourMapPeaksCollection*> m_peaksCollection;
 
 private:
     double m_minResultAllTimeSteps;
