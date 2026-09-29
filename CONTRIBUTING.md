@@ -28,11 +28,6 @@ Search existing issues first, including closed ones. Include:
 - Steps to reproduce, and what you expected to happen
 - Sample data or a project file, if you can share it
 
-## Ideas and feature requests
-
-Ideas without a concrete plan belong in [Discussions](https://github.com/OPM/ResInsight/discussions), where they can be discussed and upvoted. Ideas that get picked up are moved to an issue.
-
 ## Pull requests
 
 - Base pull requests on the `dev` branch.
-- Format C++ changes with clang-format, and follow [docs/agents/coding-style.md](docs/agents/coding-style.md).
