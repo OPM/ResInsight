@@ -178,7 +178,8 @@ jobs:
           VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
         run: >
           cmake -S . -B cmakebuild
-          -DVCPKG_BUILD_TYPE=release
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-osx-release
+          -DVCPKG_HOST_TRIPLET=${{ matrix.arch }}-osx-release
           -DCMAKE_INSTALL_PREFIX=cmakebuild/install
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
           -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.deployment_target }}

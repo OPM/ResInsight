@@ -60,7 +60,15 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_C_COMPILER=clang-19 -DCMAKE_CXX_COMPILER=clang++-19 -DRESINSIGHT_USE_OPENMP=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+          cmake \
+            -DVCPKG_TARGET_TRIPLET=x64-linux-release \
+            -DVCPKG_HOST_TRIPLET=x64-linux-release \
+            -DCMAKE_C_COMPILER=clang-19 \
+            -DCMAKE_CXX_COMPILER=clang++-19 \
+            -DRESINSIGHT_USE_OPENMP=OFF \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DCMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            ..
       - name: Run clang-tidy and apply fixes
         continue-on-error: true
         run: |
