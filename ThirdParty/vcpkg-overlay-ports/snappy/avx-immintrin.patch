@@ -1,0 +1,16 @@
+diff --git a/snappy.cc b/snappy.cc
+index 8dc3713..81c56d6 100644
+--- a/snappy.cc
++++ b/snappy.cc
+@@ -64,6 +64,11 @@
+ // Please do not replace with <x86intrin.h>. or with headers that assume more
+ // advanced SSE versions without checking with all the OWNERS.
+ #include <immintrin.h>
++#elif defined(__x86_64__) && defined(__AVX__)
++// MemCopy64() below uses AVX intrinsics guarded only by __AVX__, which is
++// independent of the SNAPPY_HAVE_* macros above.  When the compiler targets
++// AVX by default, that branch is compiled without any intrinsics header.
++#include <immintrin.h>
+ #elif SNAPPY_HAVE_NEON_CRC32
+ #include <arm_acle.h>
+ #endif
