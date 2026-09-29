@@ -4,19 +4,28 @@ ResInsight is an open source, cross-platform 3D visualization and post-processin
 
 ## Key Features
 
-- **Specialized Visualizations**: Tailored for efficient interpretation of reservoir simulation data with visualizations of properties, faults, and wells
-- **Performance-Oriented**: Exploits multi-core CPUs and GPUs for highly responsive operation
-- **Statistical Analysis**: Handles large numbers of realizations with built-in statistical calculations
-- **Python Integration**: Enables powerful result manipulation and computations with two-way data exchange
-- **GNU Octave Integration**: Enables powerful result manipulation and computations with two-way data exchange
-- **Extensible Framework**: Supports additional data sources and visualization methods (solvers, seismic data, CSEM, geomechanics)
-- **Eclipse Integration**: Supports export to Eclipse input formats for simulation cycles and parameter studies
+- **3D Visualization**: Grid properties, faults, LGRs, intersections, contour maps and cell filters, using multi-core CPUs for responsive operation
+- **Ensembles**: Grid and summary ensembles with statistics, contour maps and correlation analysis
+- **Plotting**: Summary, well log, RFT, PLT, well allocation, flow characteristics, cross plots and histograms
+- **Wells and Completions**: Well paths, perforations, fishbones, valves and fractures, with export of completion data (COMPDAT, WELSEGS, COMPSEGS)
+- **Geomechanics**: Abaqus results with derived stress and strain quantities
+- **Seismic**: Seismic volumes displayed together with grids and wells
+- **Model Export**: Sector models and grid properties in simulator input format, surfaces as IRAP and TSurf
+- **Python API**: The `rips` package drives ResInsight and exchanges data through gRPC
+- **GNU Octave**: Result manipulation and computations with two-way data exchange
+- **Cloud Data**: Well paths and well logs from OSDU, and grid properties from Sumo
 
 ## Supported Input Formats
 
-- Eclipse binary output (*.GRID, *.EGRID files with corresponding *.INIT, *.XNNN, and *.UNRST files)
-- Selected Eclipse input file sections
-- Grid information with cell property data sets
+- **Grids and results**: Eclipse/OPM Flow binary output (`*.GRID`, `*.EGRID` with `*.INIT`, `*.UNRST`, `*.XNNN`), Eclipse input (`*.GRDECL`), ROFF (`*.roff`, `*.roffasc`)
+- **Summary data**: Eclipse/OPM Flow summary (`*.SMSPEC`, `*.ESMRY`), observed data (`*.RSM`, `*.txt`, `*.csv`), Reveal and StimPlan summary (`*.csv`)
+- **Well paths**: `*.dev`, `*.asc`, `*.ascii`, `*.rmswell`, `*.w`, `*.json`
+- **Well logs**: LAS (`*.las`), CSV
+- **Completions**: Perforation intervals (`*.ev`), valve templates, StimPlan and thermal fracture templates (`*.xml`, `*.csv`)
+- **Surfaces**: IRAP (`*.irap`, `*.gri`), GOCAD TSurf (`*.ts`), VTK (`*.vtu`, `*.pvd`), point sets (`*.ptl`, `*.xyz`, `*.dat`)
+- **Geomechanics**: Abaqus (`*.odb`, `*.inp`), VTK (`*.pvd`)
+- **Seismic**: ZGY (`*.zgy`), OpenVDS (`*.vds`), SEG-Y (`*.sgy`, `*.segy`)
+- **Other**: Formation names (`*.lyr`), polygons (`*.pol`, `*.csv`, `*.dat`), VFP tables (`*.vfp`, `*.ecl`), well measurements, pressure-depth data
 
 ## Technology Stack
 
@@ -32,6 +41,7 @@ ResInsight is cross-platform with automated testing on:
 - Red Hat Enterprise Linux (RHEL)
 - Ubuntu
 - Windows 11
+- macOS (Apple Silicon and Intel)
 
 ## Documentation
 
@@ -44,12 +54,13 @@ ResInsight is cross-platform with automated testing on:
 
 ### Source Code
 ```
-git clone git://github.com/OPM/ResInsight.git
+git clone https://github.com/OPM/ResInsight.git
 ```
 ### Minimum Requirements
 - gcc 13
 - clang 19
-- CMake 3.15
+- AppleClang 17 (Xcode 16)
+- CMake 3.26
 - MSVC 2022 17.4
 
 These requirements are defined by used features in c++23 like `std::stacktrace` and `std::expected`.
@@ -58,9 +69,10 @@ These requirements are defined by used features in c++23 like `std::stacktrace` 
 Most dependencies are managed using vcpkg as defined in [vcpkg.json](https://github.com/OPM/ResInsight/blob/dev/vcpkg.json)
 
 ### Contributing
-Contributions are welcome! Please:
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for the issue policy and pull request guidelines.
+
 - Use the `dev` branch for contributions and pull requests
-- Note that the `master` branch is kept stable and updated only for releases
+- Releases are defined by tags
 - See [Spell Checking Guide](docs/spell-checking.md) for information on automated spell checking
 
 ### Building
