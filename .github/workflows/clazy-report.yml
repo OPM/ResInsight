@@ -70,6 +70,7 @@ jobs:
           cmake \
             -DVCPKG_TARGET_TRIPLET=x64-linux-release \
             -DVCPKG_HOST_TRIPLET=x64-linux-release \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
             -DCMAKE_C_COMPILER=clang-19 \
             -DCMAKE_CXX_COMPILER=clang++-19 \
             -DRESINSIGHT_USE_OPENMP=OFF \
