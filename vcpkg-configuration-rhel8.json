@@ -12,6 +12,6 @@
     }
   ],
   "overlay-ports": [
-    "ThirdParty/vcpkg-overlay-ports"
+    "ThirdParty/vcpkg-overlay-ports/thrift"
   ]
 }
