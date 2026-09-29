@@ -357,12 +357,7 @@ void RimPolygonCloudAddress::onDownloadTagClicked( const caf::SignalEmitter* emi
 //--------------------------------------------------------------------------------------------------
 RiaSumoConnector* RimPolygonCloudAddress::sumoConnector()
 {
-    if ( !m_sumoConnector )
-    {
-        m_sumoConnector = RiaApplication::instance()->makeSumoConnector();
-    }
-
-    return m_sumoConnector;
+    return RiaApplication::instance()->makeSumoConnector();
 }
 
 //--------------------------------------------------------------------------------------------------

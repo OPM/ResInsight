@@ -65,9 +65,6 @@ RimPolygonCloudSource::RimPolygonCloudSource()
     CAF_PDM_InitField( &m_appliedBaseRealization, "AppliedBaseRealization", -1, "Applied Base Realization" );
     m_appliedBaseRealization.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_directoryBuilt, "DirectoryBuilt", false, "Directory Built" );
-    m_directoryBuilt.uiCapability()->setUiHidden( true );
-
     setDeletable( true );
 }
 
@@ -112,7 +109,7 @@ int RimPolygonCloudSource::baseRealization() const
 //--------------------------------------------------------------------------------------------------
 bool RimPolygonCloudSource::isDirectoryBuilt() const
 {
-    return m_directoryBuilt();
+    return m_directoryBuilt;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,7 +118,7 @@ bool RimPolygonCloudSource::isDirectoryBuilt() const
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::buildDirectoryTree()
 {
-    if ( m_directoryBuilt() ) return;
+    if ( m_directoryBuilt ) return;
 
     auto* dataSource = m_appliedDataSource();
     auto* connector  = sumoConnector();
@@ -278,7 +275,7 @@ void RimPolygonCloudSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     applyButton.toolTip = hasValidPendingSelection ? QString( "" ) : QString( "Select a Data Source and Base Realization first." );
 
     auto& cancelButton   = buttonBox->addButton( "Cancel", [this]() { onCancelClicked(); } );
-    cancelButton.enabled = m_directoryBuilt() && pending;
+    cancelButton.enabled = m_directoryBuilt && pending;
     cancelButton.toolTip = "Discards the pending edits above, restoring the currently applied Data Source and Base Realization.";
 
     uiOrdering.skipRemainingFields();
@@ -336,12 +333,7 @@ QList<caf::PdmOptionItemInfo> RimPolygonCloudSource::calculateValueOptions( cons
 //--------------------------------------------------------------------------------------------------
 RiaSumoConnector* RimPolygonCloudSource::sumoConnector()
 {
-    if ( !m_sumoConnector )
-    {
-        m_sumoConnector = RiaApplication::instance()->makeSumoConnector();
-    }
-
-    return m_sumoConnector;
+    return RiaApplication::instance()->makeSumoConnector();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,7 +370,7 @@ QString RimPolygonCloudSource::nameForRealization( int realization ) const
 //--------------------------------------------------------------------------------------------------
 bool RimPolygonCloudSource::hasPendingChanges() const
 {
-    if ( !m_directoryBuilt() ) return true;
+    if ( !m_directoryBuilt ) return true;
 
     return m_dataSource() != m_appliedDataSource() || m_baseRealization() != m_appliedBaseRealization();
 }
@@ -389,7 +381,7 @@ bool RimPolygonCloudSource::hasPendingChanges() const
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCloudSource::onApplyClicked()
 {
-    const bool wasBuilt          = m_directoryBuilt();
+    const bool wasBuilt          = m_directoryBuilt;
     const bool dataSourceChanged = m_dataSource() != m_appliedDataSource();
 
     m_appliedDataSource      = m_dataSource();

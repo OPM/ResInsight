@@ -25,8 +25,6 @@
 #include "cafPdmField.h"
 #include "cafSignal.h"
 
-#include <QPointer>
-
 #include <map>
 #include <vector>
 
@@ -109,8 +107,6 @@ private:
     caf::PdmField<QString> m_polygonResult;
     caf::PdmField<QString> m_name;
     caf::PdmField<QString> m_contactType;
-
-    QPointer<RiaSumoConnector> m_sumoConnector;
 
     // Cache of RimCloudPolygon objects for non-base realizations. Owned/deleted here, never PDM
     // children.

@@ -25,7 +25,7 @@ CAF_PDM_SOURCE_INIT( RimCloudPolygon, "RimCloudPolygon" );
 //--------------------------------------------------------------------------------------------------
 RimCloudPolygon::RimCloudPolygon()
 {
-    CAF_PDM_InitObject( "Sumo Polygon" );
+    CAF_PDM_InitObject( "Sumo Polygon", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_caseId, "SumoCaseId", "Case Id" );
     m_caseId.uiCapability()->setUiHidden( true );

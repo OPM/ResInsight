@@ -24,8 +24,6 @@
 #include "cafPdmPtrField.h"
 #include "cafSignal.h"
 
-#include <QPointer>
-
 class RimSumoDataSource;
 class RimPolygonCloudAddress;
 class RiaSumoConnector;
@@ -109,7 +107,5 @@ private:
     caf::PdmPtrField<RimSumoDataSource*> m_appliedDataSource;
     caf::PdmField<int>                   m_appliedBaseRealization;
 
-    caf::PdmField<bool> m_directoryBuilt;
-
-    QPointer<RiaSumoConnector> m_sumoConnector;
+    bool m_directoryBuilt = false;
 };
