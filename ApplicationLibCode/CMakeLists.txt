@@ -175,13 +175,26 @@ list(APPEND CPP_SOURCES ${CODE_SOURCE_FILES})
 #
 if(RESINSIGHT_ENABLE_OPENVDS)
   message(STATUS "OpenVDS support enabled")
-  add_definitions(-DUSE_OPENVDS)
-  list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_OPENVDS_API_DIR}/include)
 
-  list(APPEND CPP_SOURCES FileInterface/RifOpenVDSReader.cpp
-       FileInterface/RifOpenVDSReader.h
+  set(OPENVDS_FILES FileInterface/RifOpenVDSReader.cpp
+                     FileInterface/RifOpenVDSReader.h
+  )
+  list(APPEND CPP_SOURCES ${OPENVDS_FILES})
+
+  # Scope USE_OPENVDS to the files that need it, to avoid a full rebuild
+  # on toggle.
+  set_source_files_properties(
+    ${OPENVDS_FILES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Seismic/RimSeismicData.cpp
+    PROPERTIES COMPILE_DEFINITIONS USE_OPENVDS
   )
 
+  # Only RifOpenVDSReader.cpp includes the OpenVDS SDK headers, so scope
+  # the include dir to just that file to avoid a full rebuild on toggle.
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface/RifOpenVDSReader.cpp
+    PROPERTIES INCLUDE_DIRECTORIES ${RESINSIGHT_OPENVDS_API_DIR}/include
+  )
 endif()
 
 #
