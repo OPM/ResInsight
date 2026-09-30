@@ -233,6 +233,16 @@ list(APPEND ALL_SOURCE_FILES ${CPP_SOURCES} ${QRC_FILES})
 
 add_library(${PROJECT_NAME} OBJECT ${ALL_SOURCE_FILES})
 
+# Scope ENABLE_GRPC to the few files that use it, to avoid a full rebuild
+# of this target on toggle.
+if(RESINSIGHT_ENABLE_GRPC)
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Application/RiaPreferences.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/RimContextCommandBuilder.cpp
+    PROPERTIES COMPILE_DEFINITIONS ENABLE_GRPC
+  )
+endif()
+
 option(RESINSIGHT_ENABLE_DYNAMIC_DEOPTIMALIZATION
        "Ensable Dynamic Deoptimalization" OFF
 )

@@ -210,6 +210,12 @@ set(LINK_LIBRARIES
 
 if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND LINK_LIBRARIES GrpcInterface)
+
+  # Scope to the one file that needs it, to avoid a full rebuild on toggle.
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/RiaMain.cpp
+    PROPERTIES COMPILE_DEFINITIONS ENABLE_GRPC
+  )
 endif()
 
 if(RESINSIGHT_USE_ODB_API)

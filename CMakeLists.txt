@@ -311,7 +311,9 @@ if(RESINSIGHT_ENABLE_GRPC)
   option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE
          "Bundle the gRPC python modules into the install folder" OFF
   )
-  add_definitions(-DENABLE_GRPC)
+  # NOTE: ENABLE_GRPC is defined per-target (see ApplicationLibCode,
+  # ApplicationExeCode, GrpcInterface), to avoid a full project rebuild
+  # on toggle.
 endif()
 
 # ##############################################################################
