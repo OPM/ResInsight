@@ -19,6 +19,8 @@
 
 #include "cafPdmNestedCollection.h"
 
+#include <expected>
+
 class RimSurface;
 class RimEnsembleSurface;
 class RimCase;
@@ -41,7 +43,9 @@ public:
     void                             addEnsembleSurface( RimEnsembleSurface* ensembleSurface );
     std::vector<RimEnsembleSurface*> ensembleSurfaces() const;
 
-    RimSurface* importSurfacesFromFiles( const QStringList& fileNames, bool showLegend = true );
+    // Returns the last imported surface, or an error if no surface could be imported
+    std::expected<RimSurface*, QString> importSurfacesFromFiles( const QStringList& fileNames, bool showLegend = true );
+
     RimSurface* addGridCaseSurface( RimCase* sourceCase, int oneBasedSliceIndex = 1 );
     RimSurface* copySurfaces( std::vector<RimSurface*> surfaces );
     RimSurface* addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );

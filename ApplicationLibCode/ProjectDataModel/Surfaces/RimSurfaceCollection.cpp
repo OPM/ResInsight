@@ -171,16 +171,24 @@ RimSurface* RimSurfaceCollection::createSurfaceFromFile( const QString& fileName
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fileNames, bool showLegend /* = true */ )
+std::expected<RimSurface*, QString> RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fileNames, bool showLegend /* = true */ )
 {
-    size_t  newSurfCount      = 0;
-    size_t  existingSurfCount = m_items().size();
-    QString errorMessages;
+    if ( fileNames.isEmpty() ) return std::unexpected( "No surface files to import." );
+
+    size_t      newSurfCount      = 0;
+    size_t      existingSurfCount = m_items().size();
+    QStringList errorMessages;
 
     std::vector<RimSurface*> surfacesToLoad;
 
     for ( const QString& newFileName : fileNames )
     {
+        if ( !QFileInfo::exists( newFileName ) )
+        {
+            errorMessages << QString( "Could not import surface from file '%1'. File does not exist." ).arg( newFileName );
+            continue;
+        }
+
         RimSurface* newSurface = createSurfaceFromFile( newFileName );
 
         auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f( existingSurfCount + newSurfCount );
@@ -190,7 +198,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         if ( !newSurface->onLoadData() )
         {
             delete newSurface;
-            errorMessages += newFileName + "\n";
+            errorMessages << QString( "Could not import surface from file '%1'." ).arg( newFileName );
         }
         else
         {
@@ -202,21 +210,16 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 
     if ( !errorMessages.isEmpty() )
     {
-        RiaLogging::warning( "Import Surfaces : Could not import the following files:\n" + errorMessages.toStdString() );
+        RiaLogging::warning( "Import Surfaces : " + errorMessages.join( "\n" ).toStdString() );
     }
 
     updateConnectedEditors();
 
     updateViews( surfacesToLoad, showLegend );
 
-    if ( newSurfCount > 0 && !m_items.empty() )
-    {
-        return m_items[m_items.size() - 1];
-    }
-    else
-    {
-        return nullptr;
-    }
+    if ( surfacesToLoad.empty() ) return std::unexpected( errorMessages.join( "\n" ) );
+
+    return surfacesToLoad.back();
 }
 
 //--------------------------------------------------------------------------------------------------
