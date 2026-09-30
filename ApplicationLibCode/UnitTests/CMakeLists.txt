@@ -271,8 +271,8 @@ set_property(TARGET PreBuildFileCopyTest PROPERTY FOLDER "FileCopyTargetsTest")
 
 qt_add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp)
 
-# Scope USE_HDF5 and its include dir to the 3 test files that need them,
-# to avoid a full rebuild on toggle.
+# Scope USE_HDF5 and its include dir to the 3 test files that need them, to
+# avoid a full rebuild on toggle.
 if(RESINSIGHT_FOUND_HDF5)
   set(RI_HDF5_TEST_FILES
       ${CMAKE_CURRENT_SOURCE_DIR}/HDF5FileReader-Test.cpp
@@ -280,18 +280,18 @@ if(RESINSIGHT_FOUND_HDF5)
       ${CMAKE_CURRENT_SOURCE_DIR}/RimEmReader-Test.cpp
   )
   set_source_files_properties(
-    ${RI_HDF5_TEST_FILES}
-    PROPERTIES COMPILE_DEFINITIONS "USE_HDF5;H5_BUILT_AS_DYNAMIC_LIB"
+    ${RI_HDF5_TEST_FILES} PROPERTIES COMPILE_DEFINITIONS
+                                     "USE_HDF5;H5_BUILT_AS_DYNAMIC_LIB"
   )
   if(MSVC)
     set_source_files_properties(
       ${RI_HDF5_TEST_FILES} PROPERTIES INCLUDE_DIRECTORIES
-                                        ${RESINSIGHT_HDF5_DIR}/include
+                                       ${RESINSIGHT_HDF5_DIR}/include
     )
   else()
     set_source_files_properties(
       ${RI_HDF5_TEST_FILES} PROPERTIES INCLUDE_DIRECTORIES
-                                        "${HDF5_INCLUDE_DIRS}"
+                                       "${HDF5_INCLUDE_DIRS}"
     )
   endif()
 endif()

@@ -177,20 +177,20 @@ if(RESINSIGHT_ENABLE_OPENVDS)
   message(STATUS "OpenVDS support enabled")
 
   set(OPENVDS_FILES FileInterface/RifOpenVDSReader.cpp
-                     FileInterface/RifOpenVDSReader.h
+                    FileInterface/RifOpenVDSReader.h
   )
   list(APPEND CPP_SOURCES ${OPENVDS_FILES})
 
-  # Scope USE_OPENVDS to the files that need it, to avoid a full rebuild
-  # on toggle.
+  # Scope USE_OPENVDS to the files that need it, to avoid a full rebuild on
+  # toggle.
   set_source_files_properties(
     ${OPENVDS_FILES}
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Seismic/RimSeismicData.cpp
     PROPERTIES COMPILE_DEFINITIONS USE_OPENVDS
   )
 
-  # Only RifOpenVDSReader.cpp includes the OpenVDS SDK headers, so scope
-  # the include dir to just that file to avoid a full rebuild on toggle.
+  # Only RifOpenVDSReader.cpp includes the OpenVDS SDK headers, so scope the
+  # include dir to just that file to avoid a full rebuild on toggle.
   set_source_files_properties(
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface/RifOpenVDSReader.cpp
     PROPERTIES INCLUDE_DIRECTORIES ${RESINSIGHT_OPENVDS_API_DIR}/include
@@ -217,8 +217,8 @@ if(RESINSIGHT_FOUND_HDF5)
 
   list(APPEND CPP_SOURCES ${HDF5_FILES})
 
-  # Scope USE_HDF5/H5_BUILT_AS_DYNAMIC_LIB to the files that need it, to
-  # avoid a full rebuild on toggle.
+  # Scope USE_HDF5/H5_BUILT_AS_DYNAMIC_LIB to the files that need it, to avoid a
+  # full rebuild on toggle.
   set_source_files_properties(
     ${HDF5_FILES}
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface/RifReaderEclipseSummary.cpp
@@ -238,8 +238,8 @@ if(RESINSIGHT_FOUND_HDF5)
     set(RI_HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS})
   endif() # MSVC
 
-  # Only these files (and HDF5_FILES) include HDF5 headers directly, so
-  # scope the include dir to just them to avoid a full rebuild on toggle.
+  # Only these files (and HDF5_FILES) include HDF5 headers directly, so scope
+  # the include dir to just them to avoid a full rebuild on toggle.
   set_source_files_properties(
     ${HDF5_FILES}
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface/RifReaderEclipseOutput.cpp
@@ -265,11 +265,11 @@ list(APPEND ALL_SOURCE_FILES ${CPP_SOURCES} ${QRC_FILES})
 
 add_library(${PROJECT_NAME} OBJECT ${ALL_SOURCE_FILES})
 
-# NOTE: Scope ENABLE_GRPC/USE_ODB_API to the few files that use them, to
-# avoid a full rebuild of this target on toggle. RiaPreferences.cpp and
+# NOTE: Scope ENABLE_GRPC/USE_ODB_API to the few files that use them, to avoid a
+# full rebuild of this target on toggle. RiaPreferences.cpp and
 # RimContextCommandBuilder.cpp need both, so combine them into a single
-# set_source_files_properties() call per file (a second call would
-# overwrite, not add to, COMPILE_DEFINITIONS from the first).
+# set_source_files_properties() call per file (a second call would overwrite,
+# not add to, COMPILE_DEFINITIONS from the first).
 set(RI_SHARED_DEFS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/Application/RiaPreferences.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/RimContextCommandBuilder.cpp

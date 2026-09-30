@@ -264,9 +264,9 @@ if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
     STATUS
       "Using ODB-Api ${RESINSIGHT_ODB_VERSION} from : ${RESINSIGHT_ODB_API_DIR}"
   )
-  # NOTE: USE_ODB_API is defined per-target (see ApplicationLibCode,
-  # Commands, GeoMechDataModel, ApplicationExeCode), to avoid a full
-  # project rebuild on toggle.
+  # NOTE: USE_ODB_API is defined per-target (see ApplicationLibCode, Commands,
+  # GeoMechDataModel, ApplicationExeCode), to avoid a full project rebuild on
+  # toggle.
 endif()
 
 # ##############################################################################
@@ -309,8 +309,8 @@ if(RESINSIGHT_ENABLE_GRPC)
          "Bundle the gRPC python modules into the install folder" OFF
   )
   # NOTE: ENABLE_GRPC is defined per-target (see ApplicationLibCode,
-  # ApplicationExeCode, GrpcInterface), to avoid a full project rebuild
-  # on toggle.
+  # ApplicationExeCode, GrpcInterface), to avoid a full project rebuild on
+  # toggle.
 endif()
 
 # ##############################################################################

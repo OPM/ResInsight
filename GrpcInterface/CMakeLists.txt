@@ -16,7 +16,6 @@ endif()
 
 set(CMAKE_CXX_STANDARD 23)
 
-
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -61,15 +60,22 @@ if(Protobuf_FOUND)
   set(GRPC_LINK_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
 
   set_target_properties(
-    ${GRPC_LINK_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
-                                 MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
+    ${GRPC_LINK_LIBRARIES}
+    PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
+               MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE
+  )
 else()
-  message(STATUS "Using RESINSIGHT_GRPC_INSTALL_PREFIX=${RESINSIGHT_GRPC_INSTALL_PREFIX}")
+  message(
+    STATUS
+      "Using RESINSIGHT_GRPC_INSTALL_PREFIX=${RESINSIGHT_GRPC_INSTALL_PREFIX}"
+  )
   set(RESINSIGHT_GRPC_INSTALL_PREFIX
       ""
-      CACHE PATH "gRPC : Install prefix for gRPC")
+      CACHE PATH "gRPC : Install prefix for gRPC"
+  )
   if(NOT DEFINED RESINSIGHT_GRPC_INSTALL_PREFIX
-     OR NOT EXISTS ${RESINSIGHT_GRPC_INSTALL_PREFIX})
+     OR NOT EXISTS ${RESINSIGHT_GRPC_INSTALL_PREFIX}
+  )
     message(
       FATAL_ERROR
         "You need a valid RESINSIGHT_GRPC_INSTALL_PREFIX set to build with gRPC"
@@ -77,23 +83,34 @@ else()
   endif()
   set(ENV{PKG_CONFIG_PATH} "${RESINSIGHT_GRPC_INSTALL_PREFIX}/lib/pkgconfig")
   find_package(PkgConfig REQUIRED)
-  pkg_check_modules(GRPC REQUIRED grpc grpc++_unsecure>=1.20 grpc_unsecure gpr
-                    protobuf libcares)
+  pkg_check_modules(
+    GRPC
+    REQUIRED
+    grpc
+    grpc++_unsecure>=1.20
+    grpc_unsecure
+    gpr
+    protobuf
+    libcares
+  )
   if(EXISTS "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/protoc")
     set(_PROTOBUF_PROTOC "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/protoc")
   elseif(EXISTS "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/protobuf/protoc")
     set(_PROTOBUF_PROTOC
-        "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/protobuf/protoc")
+        "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/protobuf/protoc"
+    )
   else()
     message(FATAL_ERROR "Could not find the protobuf compiler (protoc)")
   endif()
 
   if(EXISTS "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
     set(_GRPC_CPP_PLUGIN_EXECUTABLE
-        "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
+        "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin"
+    )
   elseif(EXISTS "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
     set(_GRPC_CPP_PLUGIN_EXECUTABLE
-        "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
+        "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin"
+    )
   endif()
   include_directories(AFTER ${GRPC_INCLUDE_DIRS})
 endif()
@@ -107,7 +124,8 @@ set(_LINK_LIBRARIES
     cafCommandFeatures
     cafProjectDataModel
     cafPdmScripting
-    ApplicationLibCode)
+    ApplicationLibCode
+)
 
 # Proto files
 file(GLOB GRPC_PROTO_FILES GrpcProtos/*.proto)
@@ -117,26 +135,39 @@ set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Python")
 add_custom_target(PipInstall)
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-  message(STATUS "Using Python Executable: ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}")
-  
-  execute_process(COMMAND "${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}" -m grpc_tools.protoc --version
-                  OUTPUT_VARIABLE PYTHON_GRPC_PROTOC_VERSION
-                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message(
+    STATUS "Using Python Executable: ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}"
+  )
 
-  message(STATUS "Using Python grpc protoc compiler: ${PYTHON_GRPC_PROTOC_VERSION}")
+  execute_process(
+    COMMAND "${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}" -m grpc_tools.protoc
+            --version
+    OUTPUT_VARIABLE PYTHON_GRPC_PROTOC_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  message(
+    STATUS "Using Python grpc protoc compiler: ${PYTHON_GRPC_PROTOC_VERSION}"
+  )
 else()
-    message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install Python client code")
+  message(
+    STATUS
+      "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install Python client code"
+  )
 endif()
 
 foreach(rips_proto ${GRPC_PROTO_FILES})
   get_filename_component(rips_proto_name ${rips_proto} NAME_WE)
   get_filename_component(rips_proto_path ${rips_proto} PATH)
 
-
   set(rips_proto_srcs "${CMAKE_BINARY_DIR}/Generated/${rips_proto_name}.pb.cc")
   set(rips_proto_hdrs "${CMAKE_BINARY_DIR}/Generated/${rips_proto_name}.pb.h")
-  set(rips_grpc_srcs "${CMAKE_BINARY_DIR}/Generated/${rips_proto_name}.grpc.pb.cc")
-  set(rips_grpc_hdrs "${CMAKE_BINARY_DIR}/Generated/${rips_proto_name}.grpc.pb.h")
+  set(rips_grpc_srcs
+      "${CMAKE_BINARY_DIR}/Generated/${rips_proto_name}.grpc.pb.cc"
+  )
+  set(rips_grpc_hdrs
+      "${CMAKE_BINARY_DIR}/Generated/${rips_proto_name}.grpc.pb.h"
+  )
 
   add_custom_command(
     OUTPUT "${rips_proto_srcs}" "${rips_proto_hdrs}" "${rips_grpc_srcs}"
@@ -145,7 +176,8 @@ foreach(rips_proto ${GRPC_PROTO_FILES})
       ${_PROTOBUF_PROTOC} ARGS --grpc_out "${CMAKE_BINARY_DIR}/Generated"
       --cpp_out "${CMAKE_BINARY_DIR}/Generated" -I "${rips_proto_path}"
       --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}" "${rips_proto}"
-    DEPENDS "${rips_proto}")
+    DEPENDS "${rips_proto}"
+  )
 
   set(rips_proto_python "rips/generated/${rips_proto_name}_pb2.py")
   set(rips_grpc_python "rips/generated/${rips_proto_name}_pb2_grpc.py")
@@ -162,8 +194,11 @@ foreach(rips_proto ${GRPC_PROTO_FILES})
         "${GRPC_PYTHON_SOURCE_PATH}/rips/generated" "${rips_proto}"
       DEPENDS "${rips_proto}"
       COMMENT "Generating ${rips_proto_python} and ${rips_grpc_python}"
-      VERBATIM)
-    list(APPEND GRPC_PYTHON_GENERATED_SOURCES "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}")
+      VERBATIM
+    )
+    list(APPEND GRPC_PYTHON_GENERATED_SOURCES
+         "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
+    )
   endif()
 
   list(APPEND GRPC_HEADER_FILES ${rips_proto_hdrs} ${rips_grpc_hdrs})
@@ -173,18 +208,29 @@ foreach(rips_proto ${GRPC_PROTO_FILES})
 endforeach(rips_proto)
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-  configure_file(${CMAKE_SOURCE_DIR}/ApplicationLibCode/Adm/RiaVersionInfo.py.cmake
-                 ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
-  configure_file(${GRPC_PYTHON_SOURCE_PATH}/rips/_version.py.cmake
-                 ${GRPC_PYTHON_SOURCE_PATH}/rips/_version.py)
+  configure_file(
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Adm/RiaVersionInfo.py.cmake
+    ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py
+  )
+  configure_file(
+    ${GRPC_PYTHON_SOURCE_PATH}/rips/_version.py.cmake
+    ${GRPC_PYTHON_SOURCE_PATH}/rips/_version.py
+  )
 endif()
 
-list (APPEND GRPC_PYTHON_GENERATED_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
+list(APPEND GRPC_PYTHON_GENERATED_SOURCES
+     ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py
+)
 
 file(GLOB GRPC_PYTHON_RIPS_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/*.py)
-file(GLOB GRPC_PYTHON_EXAMPLE_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/PythonExamples/*.py)
+file(GLOB GRPC_PYTHON_EXAMPLE_SOURCES
+     ${GRPC_PYTHON_SOURCE_PATH}/rips/PythonExamples/*.py
+)
 file(GLOB GRPC_PYTHON_TEST_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/tests/*.py)
-file(GLOB GRPC_PYTHON_OTHER_FILES  "${GRPC_PYTHON_SOURCE_PATH}/pyproject.toml" "${GRPC_PYTHON_SOURCE_PATH}/README.md" "${GRPC_PYTHON_SOURCE_PATH}/LICENSE")
+file(GLOB GRPC_PYTHON_OTHER_FILES "${GRPC_PYTHON_SOURCE_PATH}/pyproject.toml"
+     "${GRPC_PYTHON_SOURCE_PATH}/README.md"
+     "${GRPC_PYTHON_SOURCE_PATH}/LICENSE"
+)
 
 list(
   APPEND
@@ -199,31 +245,27 @@ list(
 list(APPEND GRPC_PYTHON_SOURCES ${GRPC_PYTHON_GENERATED_SOURCES})
 
 add_library(
-  ${PROJECT_NAME} OBJECT
-  ${SOURCE_GROUP_SOURCE_FILES}
-  ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
+  ${PROJECT_NAME} OBJECT ${SOURCE_GROUP_SOURCE_FILES} ${GRPC_HEADER_FILES}
+                         ${GRPC_CPP_SOURCES}
+)
 
-# PRIVATE: consumers must scope ENABLE_GRPC per-file themselves to avoid
-# forcing a full rebuild on toggle (see ApplicationExeCode/CMakeLists.txt).
+# PRIVATE: consumers must scope ENABLE_GRPC per-file themselves to avoid forcing
+# a full rebuild on toggle (see ApplicationExeCode/CMakeLists.txt).
 target_compile_definitions(${PROJECT_NAME} PRIVATE ENABLE_GRPC)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE
-  ${GRPC_INCLUDE_DIRS}
-  ${CMAKE_BINARY_DIR}/Generated
+target_include_directories(
+  ${PROJECT_NAME}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE ${GRPC_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}/Generated
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${_LINK_LIBRARIES})
 
 if(MSVC)
-  target_compile_options(
-    GrpcInterface
-    PRIVATE /wd4251 /wd4244 /wd4267)
+  target_compile_options(GrpcInterface PRIVATE /wd4251 /wd4244 /wd4267)
 else()
   target_compile_options(
-    GrpcInterface
-    PRIVATE -Wno-switch -Wno-overloaded-virtual
+    GrpcInterface PRIVATE -Wno-switch -Wno-overloaded-virtual
   )
 endif()
 
@@ -231,8 +273,9 @@ endif()
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
   message(STATUS "Installing Python dev modules")
   add_custom_command(
-    TARGET PipInstall
-    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install -e ${GRPC_PYTHON_SOURCE_PATH}[dev] )
+    TARGET PipInstall COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip
+                              install -e ${GRPC_PYTHON_SOURCE_PATH}[dev]
+  )
 endif()
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
@@ -240,12 +283,12 @@ if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
   add_custom_command(
     TARGET PipInstall
     COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install --user
-            --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools)
+            --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
+  )
 endif()
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-  add_custom_target(Rips ALL
-                    SOURCES ${GRPC_PYTHON_SOURCES})
+  add_custom_target(Rips ALL SOURCES ${GRPC_PYTHON_SOURCES})
   add_dependencies(${PROJECT_NAME} Rips)
 
   if(RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
@@ -256,5 +299,6 @@ endif()
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
   install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/
-          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python
+  )
 endif()
