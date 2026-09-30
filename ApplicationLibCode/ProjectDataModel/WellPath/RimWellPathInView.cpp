@@ -21,6 +21,10 @@
 #include "Rim3dView.h"
 #include "RimWellPath.h"
 
+#include "Riu3DMainWindowTools.h"
+
+#include "cafPdmUiOrdering.h"
+
 CAF_PDM_SOURCE_INIT( RimWellPathInView, "RimWellPathInView" );
 
 //--------------------------------------------------------------------------------------------------
@@ -60,6 +64,19 @@ void RimWellPathInView::setWellPath( RimWellPath* wellPath )
     m_wellPath = wellPath;
 
     if ( wellPath ) setName( wellPath->name() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    if ( m_wellPath() )
+    {
+        uiOrdering.addNewButton( "Go to Well Path", [this]() { Riu3DMainWindowTools::selectAsCurrentItem( m_wellPath() ); } );
+    }
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------

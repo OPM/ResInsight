@@ -61,6 +61,7 @@
 #include "RimViewNameConfig.h"
 #include "RimWellMeasurementInView.h"
 #include "RimWellMeasurementInViewCollection.h"
+#include "WellPath/RimWellPathInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
@@ -1058,6 +1059,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
 
     uiTreeOrdering.add( m_polygonInViewCollection );
+    uiTreeOrdering.add( m_wellPathInViewCollection );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }
