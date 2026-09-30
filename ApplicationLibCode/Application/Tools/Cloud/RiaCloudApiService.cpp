@@ -29,6 +29,7 @@
 #include <QFileInfo>
 #include <QHostAddress>
 #include <QNetworkAccessManager>
+#include <QNetworkProxy>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcess>
@@ -75,6 +76,10 @@ RiaCloudApiService::RiaCloudApiService( const QString& serverAddress, int wanted
     , m_consecutiveFailures( 0 )
     , m_isResponding( false )
 {
+    // Never route loopback requests through a system/corporate proxy, which can add several seconds
+    // per request.
+    m_networkAccessManager->setProxy( QNetworkProxy::NoProxy );
+
     m_healthTimer.setInterval( healthCheckIntervalMs );
     connect( &m_healthTimer, &QTimer::timeout, this, &RiaCloudApiService::onHealthCheck );
 
@@ -245,6 +250,11 @@ bool RiaCloudApiService::waitUntilResponding( int timeoutMs )
 
     if ( !isRunning() ) start();
 
+    // Nested event loops below let the periodic health check fire and restart() the service while this
+    // call is still waiting for it to boot. Stop both timers for the duration of the wait to avoid that.
+    m_startupTimer.stop();
+    m_healthTimer.stop();
+
     QElapsedTimer elapsed;
     elapsed.start();
 
@@ -296,6 +306,10 @@ bool RiaCloudApiService::waitUntilResponding( int timeoutMs )
     }
 
     RiaLogging::error( std::format( "Cloud API service: not responding after {} ms, giving up.", elapsed.elapsed() ) );
+
+    // Resume background health-checking if the process is still running, so it can still recover on
+    // its own without another blocking wait.
+    if ( isRunning() ) m_healthTimer.start();
 
     return false;
 }

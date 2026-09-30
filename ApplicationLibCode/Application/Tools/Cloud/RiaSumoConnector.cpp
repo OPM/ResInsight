@@ -55,6 +55,7 @@ RiaSumoConnector::RiaSumoConnector( QObject*                 parent,
     , m_explore( *this )
     , m_grid( *this )
     , m_summary( *this )
+    , m_polygons( *this )
 {
     // The transfer thread runs the network requests issued by the blocking wrappers, so the calling thread can
     // wait for them without dispatching events. The context object gives us something with transfer thread
@@ -100,6 +101,14 @@ RiaSumoGrid& RiaSumoConnector::grid()
 RiaSumoSummary& RiaSumoConnector::summary()
 {
     return m_summary;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSumoPolygons& RiaSumoConnector::polygons()
+{
+    return m_polygons;
 }
 
 //--------------------------------------------------------------------------------------------------

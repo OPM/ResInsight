@@ -43,6 +43,7 @@
 
 #include <QAbstractItemModel>
 #include <QEvent>
+#include <QHelpEvent>
 #include <QModelIndex>
 #include <QPoint>
 #include <QRect>
@@ -69,6 +70,10 @@ protected:
                        QAbstractItemModel*         model,
                        const QStyleOptionViewItem& option,
                        const QModelIndex&          itemIndex ) override;
+    bool  helpEvent( QHelpEvent*                 event,
+                     QAbstractItemView*          view,
+                     const QStyleOptionViewItem& option,
+                     const QModelIndex&          itemIndex ) override;
     bool  tagClicked( const QPoint&                           clickPos,
                       const QRect&                            itemRect,
                       const QModelIndex&                      itemIndex,

@@ -16,92 +16,93 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimPolygonContainer.h"
+#include "RimCloudPolygon.h"
 
-#include "RiaNameUniquenessTools.h"
-
-#include "Rim3dView.h"
-#include "RimPolygon.h"
-#include "RimPolygonCollection.h"
-
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPolygonContainer, "RimPolygonContainer" ); // Abstract class
+CAF_PDM_SOURCE_INIT( RimCloudPolygon, "RimCloudPolygon" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygonContainer::RimPolygonContainer()
+RimCloudPolygon::RimCloudPolygon()
 {
-    CAF_PDM_InitObject( "Polygon Container" );
+    CAF_PDM_InitObject( "Sumo Polygon", ":/PolylinesFromFile16x16.png" );
 
-    // m_collectionName, m_subCollections and m_items are initialized by derived classes
-    // with derived-specific XML keywords, matching the caf::PdmNestedCollection convention.
+    CAF_PDM_InitFieldNoDefault( &m_caseId, "SumoCaseId", "Case Id" );
+    m_caseId.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleName, "SumoEnsembleName", "Ensemble Name" );
+    m_ensembleName.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_realization, "SumoRealization", -1, "Realization" );
+    m_realization.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_polygonResult, "SumoPolygonResult", "Polygon Result" );
+    m_polygonResult.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_sumoName, "SumoPolygonName", "Sumo Name" );
+    m_sumoName.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_contactType, "SumoContactType", "Fluid Contact Type" );
+    m_contactType.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygonContainer* RimPolygonContainer::addNewSubCollection()
+void RimCloudPolygon::setSumoIdentity( const QString& caseId,
+                                       const QString& ensembleName,
+                                       int            realization,
+                                       const QString& polygonResult,
+                                       const QString& sumoName,
+                                       const QString& contactType )
 {
-    auto* sub = new RimPolygonCollection();
-    addSubCollection( sub );
-    return sub;
+    m_caseId        = caseId;
+    m_ensembleName  = ensembleName;
+    m_realization   = realization;
+    m_polygonResult = polygonResult;
+    m_sumoName      = sumoName;
+    m_contactType   = contactType;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonContainer::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+QString RimCloudPolygon::caseId() const
 {
-    if ( changedField == &m_collectionName )
-    {
-        // Keep the name unique among the folders in the same parent folder
-        m_collectionName = RiaNameUniquenessTools::resolveRenameConflict( this, newValue.toString() );
-    }
-
-    caf::PdmNestedCollection<RimPolygonContainer, RimPolygon>::fieldChangedByUi( changedField, oldValue, newValue );
+    return m_caseId();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonContainer::loadData()
+QString RimCloudPolygon::ensembleName() const
 {
-    for ( auto* sub : subCollections() )
-    {
-        if ( sub ) sub->loadData();
-    }
+    return m_ensembleName();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPolygonContainer::supportsRealizationOverride() const
+int RimCloudPolygon::realization() const
 {
-    return false;
+    return m_realization();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RimPolygonContainer::availableRealizationIdsForOverride() const
+QString RimCloudPolygon::polygonResult() const
 {
-    return {};
+    return m_polygonResult();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimPolygonContainer::resolveViewMatchingRealization( const Rim3dView* view ) const
+QString RimCloudPolygon::sumoName() const
 {
-    return -1;
+    return m_sumoName();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonContainer::ensureUniquePolygonName( RimPolygon* polygon )
+QString RimCloudPolygon::contactType() const
 {
-    if ( !polygon ) return;
-
-    RiaNameUniquenessTools::ensureUniqueAmongSiblings( polygon );
+    return m_contactType();
 }

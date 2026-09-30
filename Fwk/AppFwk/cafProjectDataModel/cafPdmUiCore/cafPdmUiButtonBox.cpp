@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2026 Equinor ASA
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,76 +34,43 @@
 //
 //##################################################################################################
 
-#pragma once
-
-#include "cafPdmUiFieldEditorHandle.h"
-#include "cafSignal.h"
-
-#include <QRect>
-#include <memory>
+#include "cafPdmUiButtonBox.h"
 
 namespace caf
 {
-class PdmObjectHandle;
-class PdmUiTreeViewItemAttribute : public PdmUiEditorAttribute
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiButtonBox::PdmUiButtonBox()
 {
-public:
-    struct Tag : public SignalEmitter
-    {
-        enum class Position
-        {
-            IN_FRONT,
-            AT_END
-        };
-        Tag()
-            : position( Position::AT_END )
-            , bgColor( Qt::red )
-            , fgColor( Qt::white )
-            , selectedOnly( false )
-            , clicked( this )
-        {
-        }
-        QString      text;
-        IconProvider icon;
-        Position     position;
-        QColor       bgColor;
-        QColor       fgColor;
-        bool         selectedOnly;
-        QRect        rect;
-        QString      toolTip;
-
-        caf::Signal<size_t> clicked;
-
-    private:
-        Tag& operator=( const Tag& rhs ) { return *this; }
-    };
-
-    static std::unique_ptr<Tag> createTag();
-    static std::unique_ptr<Tag> createTag( const QColor& color, const QColor& backgroundColor, const QString& text );
-    static void appendTagToTreeViewItemAttribute( caf::PdmUiEditorAttribute* attribute, const QString& iconString );
-
-    std::vector<std::unique_ptr<Tag>> tags;
-};
+    // No separate label -- the box itself fills the whole row/cell it is given, like a
+    // QDialogButtonBox does inside a real QDialog.
+    setUiLabelPosition( PdmUiItemInfo::LabelPosition::HIDDEN );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiTreeViewEditorAttribute : public PdmUiEditorAttribute
+PdmUiButtonBox::ButtonSpec& PdmUiButtonBox::addButton( const QString& text, const ClickCallback& callback )
 {
-public:
-    PdmUiTreeViewEditorAttribute()
-        : currentObject( nullptr )
-        , objectForUpdateOfUiTree( nullptr )
-    {
-    }
+    m_buttons.push_back( { text, callback, true, QString() } );
+    return m_buttons.back();
+}
 
-public:
-    QStringList columnHeaders;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::list<PdmUiButtonBox::ButtonSpec>& PdmUiButtonBox::buttons() const
+{
+    return m_buttons;
+}
 
-    /// This object is set as current item in the tree view in configureAndUpdateUi()
-    caf::PdmObjectHandle* currentObject;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiButtonBox::isUiGroup() const
+{
+    return false;
+}
 
-    caf::PdmObjectHandle* objectForUpdateOfUiTree;
-};
-
-} // namespace caf
+} // End of namespace caf

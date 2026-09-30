@@ -22,6 +22,8 @@
 #include "RimPolygonContainer.h"
 #include "RimPolygonInView.h"
 
+#include "cafPdmField.h"
+
 class RimPolygon;
 
 //==================================================================================================
@@ -35,6 +37,7 @@ class RimPolygonInViewCollection : public RimNestedMirrorCollectionInView<RimPol
 public:
     RimPolygonInViewCollection();
 
+    // Refreshes this mirror collection from its RimPolygonCollection source.
     void updateFromPolygonCollection();
 
     std::vector<RimPolygonInView*> visiblePolygonsInView() const;
@@ -47,9 +50,44 @@ protected:
     std::vector<RimPolygon*>          sourceItems() const override;
     RimPolygonInView*                 createItemInView( RimPolygon* source ) override;
 
+    RimPolygonInViewCollection* createSubCollectionInView( RimPolygonContainer* src ) override;
+
+    QString computeDisplayName() const override;
+    void    prepareForSync() override;
+
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
 private:
     RimPolygonInView* findPolygonInView( const RimPolygon* polygon ) const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+
+    // Per-view choice: follow the source container's own per-view realization resolution (see
+    // RimPolygonContainer::resolveViewMatchingRealization). Shown only on the mirror node for a
+    // whole RimPolygonCloudSource, governing every leaf beneath it. When checked and resolved to a
+    // realization other than the source's base one, every leaf substitutes that realization's
+    // cached data for its own base items (see sourceItems()) -- this is also the base-realization
+    // comparison mechanism. Disabled with a tooltip when the view's case doesn't match the
+    // source's data source.
+    caf::PdmField<bool> m_useAutoRealization;
+
+    // Non-persisted UI-only shadow of m_useAutoRealization: when the checkbox is read-only
+    // (mismatched view case), it must visually read as unchecked even though the real field keeps
+    // its persisted value (so it re-applies once the case matches again). Synced with
+    // m_useAutoRealization whenever editable; user edits write back in fieldChangedByUi().
+    caf::PdmField<bool> m_useAutoRealizationUiState;
+
+    // Realization the owning view's case matches for the current source, or -1 if no match/no
+    // view ancestor. See RimPolygonContainer::resolveViewMatchingRealization.
+    int viewMatchingRealizationOrMinusOne() const;
+
+    // Walks up to the ancestor mirror node (this included) whose sourceCollection() is a
+    // RimPolygonCloudSource -- the node owning the Auto-Follow checkbox. Nullptr if none.
+    const RimPolygonInViewCollection* sourceMirrorAncestorOrThis() const;
+
+    // Realization this node's items should show: the ancestor source's Auto-Follow-resolved
+    // realization, or -1 (base/Applied) if Auto-Follow is off, mismatched, or no such ancestor.
+    int effectiveRealization() const;
 };

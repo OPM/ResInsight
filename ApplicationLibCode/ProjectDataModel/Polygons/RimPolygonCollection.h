@@ -22,6 +22,8 @@
 
 class RimPolygon;
 class RimPolygonFile;
+class RimPolygonCloudAddress;
+class RimPolygonCloudSource;
 
 //==================================================================================================
 ///
@@ -53,6 +55,13 @@ public:
     // be triggered another way (e.g., during initAfterRead).
     void addPolygonFile( RimPolygonFile* polygonFile );
 
+    // Same as addPolygonFile, for a cloud-backed polygon address.
+    void addPolygonCloudAddress( RimPolygonCloudAddress* polygonCloudAddress );
+
+    // Adds a Sumo cloud polygon source (a whole browsable tree) as a sub-collection and wires the
+    // same runtime side effects.
+    void addPolygonCloudSource( RimPolygonCloudSource* polygonCloudSource );
+
     static void appendPolygonMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder );
 
     // Update editors and the polygon-in-view collections of all grid views, so that added or removed
@@ -76,6 +85,12 @@ private:
     void connectPolygonFileSignals( RimPolygonFile* polygonFile );
     void onPolygonChanged( const caf::SignalEmitter* emitter );
     void onPolygonFileChanged( const caf::SignalEmitter* emitter );
+
+    void connectPolygonCloudAddressSignals( RimPolygonCloudAddress* polygonCloudAddress );
+    void onPolygonCloudAddressChanged( const caf::SignalEmitter* emitter );
+
+    void connectPolygonCloudSourceSignals( RimPolygonCloudSource* polygonCloudSource );
+    void onPolygonCloudSourceChanged( const caf::SignalEmitter* emitter );
 
     void connectSignalsRecursively();
     void connectSignalsForContainer( RimPolygonContainer* container );

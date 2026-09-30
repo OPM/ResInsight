@@ -70,6 +70,19 @@ protected:
     // Default impl: new SelfT() + setSourceCollection(src). Override for extra wiring.
     virtual SelfT* createSubCollectionInView( SourceT* src );
 
+    // Computes this mirror's display name from its source. Default: source->collectionName().
+    // Override to incorporate per-view context (e.g. which realization is shown).
+    virtual QString computeDisplayName() const;
+
+    // Called once per sync, per mirror node, before items/sub-collections are (re-)read from the
+    // source. Default: no-op. Override to lazily trigger a fetch (e.g.
+    // RimPolygonCloudAddress::ensureBaseFetched()) so it's picked up this same pass.
+    virtual void prepareForSync();
+
+    // Called once per sync, per mirror node, after name/items/sub-collections are refreshed.
+    // Default: no-op. Override for one-time-per-node bookkeeping.
+    virtual void onSynced();
+
     // Recursive sync: sub-collections, then items, then editor refresh.
     void updateAllViewItems();
 
