@@ -18,6 +18,8 @@
 
 #include "RimGridView.h"
 
+#include "RiaViewDefines.h"
+
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"

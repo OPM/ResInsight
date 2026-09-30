@@ -255,27 +255,6 @@ bool isPlotUpdate( MultiPlotPageUpdateType updateType );
 
 std::vector<double> viewScaleOptions();
 
-enum class View3dContent
-{
-    NONE              = 0b00000000,
-    ECLIPSE_DATA      = 0b00000001,
-    GEOMECH_DATA      = 0b00000010,
-    FLAT_INTERSECTION = 0b00000100,
-    CONTOUR           = 0b00001000,
-    SEISMIC           = 0b00010000,
-    DATA_OBJECTS      = 0b00100000,
-    ALL               = 0b00111111
-};
-
-enum class ItemIn3dView
-{
-    NONE        = 0b00000000,
-    SURFACE     = 0b00000001,
-    POLYGON     = 0b00000010,
-    CONTOUR_MAP = 0b00000100,
-    ALL         = 0b00000111
-};
-
 enum class SnapshotFileFormat
 {
     PNG,
@@ -294,6 +273,4 @@ QString betaFeaturePostfix();
 
 // Activate bit mask operators at global scope
 ENABLE_BITMASK_OPERATORS( RiaDefines::MultiPlotPageUpdateType )
-ENABLE_BITMASK_OPERATORS( RiaDefines::View3dContent )
-ENABLE_BITMASK_OPERATORS( RiaDefines::ItemIn3dView )
 ENABLE_BITMASK_OPERATORS( RiaDefines::ImportFileType )

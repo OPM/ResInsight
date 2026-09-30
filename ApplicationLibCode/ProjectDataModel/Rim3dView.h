@@ -59,6 +59,12 @@ class RivWellPathsPartMgr;
 class RiuMainWindowBase;
 class RimViewNameConfig;
 
+namespace RiaDefines
+{
+enum class View3dContent;
+enum class ItemIn3dView;
+} // namespace RiaDefines
+
 namespace cvf
 {
 class BoundingBox;

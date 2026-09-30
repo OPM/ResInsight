@@ -18,6 +18,8 @@
 
 #include "RimGeneric3dView.h"
 
+#include "RiaViewDefines.h"
+
 #include "Rim3dOverlayInfoConfig.h"
 #include "Rim3dPropertiesInterface.h"
 #include "RimAnnotationInViewCollection.h"
