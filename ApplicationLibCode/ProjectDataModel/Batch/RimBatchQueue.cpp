@@ -51,7 +51,7 @@ RimBatchQueue* RimBatchQueue::createBatchQueue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, QStringList> RimBatchQueue::runCommand( QStringList command )
+std::pair<bool, QStringList> RimBatchQueue::runCommand( QStringList command, QStringList stdIn, RimProcessMonitor* monitor )
 {
     QStringList cmdList;
     if ( RiaPreferencesOpm::current()->useWsl() )
@@ -62,15 +62,17 @@ std::pair<bool, QStringList> RimBatchQueue::runCommand( QStringList command )
 
     cmdList.append( command );
 
-    RimProcess proc;
+    RimProcess proc( true, monitor );
 
     QString cmd = cmdList.takeFirst();
     proc.setCommand( cmd );
     if ( !cmdList.isEmpty() ) proc.addParameters( cmdList );
 
-    if ( proc.execute() )
+    if ( proc.start() )
     {
-        return { true, proc.stdOut() };
+        proc.writeToStdIn( stdIn );
+
+        return { true, { QString( "" ) } };
     }
 
     return { false, { QString( "Failed to run command." ) } };
@@ -87,11 +89,14 @@ QStringList RimBatchQueue::buildLaunchScript()
     if ( m_process != nullptr )
     {
         stdIn << "#!/bin/sh\n";
-        stdIn << m_process->command() << "\n";
+
+        QString cmdLine = m_process->command();
+
         for ( auto& p : m_process->parameters() )
         {
-            stdIn << p << "\n";
+            cmdLine += " " + p;
         }
+        stdIn << cmdLine << "\n\n";
     }
 
     return stdIn;
