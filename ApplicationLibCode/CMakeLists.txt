@@ -127,6 +127,7 @@ list(
   ProjectDataModel/CellFilters/CMakeLists_files.cmake
   ProjectDataModel/ProcessControl/CMakeLists_files.cmake
   ProjectDataModel/Polygons/CMakeLists_files.cmake
+  ProjectDataModel/Workflow/CMakeLists_files.cmake
   ProjectDataModel/WellLog/CMakeLists_files.cmake
   ProjectDataModel/WellLog/WellLogTrack/CMakeLists_files.cmake
   ProjectDataModel/WellMeasurement/CMakeLists_files.cmake
@@ -380,6 +381,7 @@ target_include_directories(
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellMeasurement
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellPath
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellEvents
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Workflow
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands/CommandRouter
          ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
