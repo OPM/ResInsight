@@ -55,7 +55,7 @@ void RicAddCloudPolygonSourceFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    // Pre-select the first Data Source + Realization as a convenience default (Apply is still
+    // Preselect the first Data Source + Realization as a convenience default (Apply is still
     // required to fetch the directory and build the tree).
     auto* source = new RimPolygonCloudSource();
 
