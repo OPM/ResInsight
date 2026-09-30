@@ -246,6 +246,21 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimProcess::writeToStdIn( QStringList text )
+{
+    if ( m_qProcess == nullptr ) return;
+
+    for ( auto& line : text )
+    {
+        m_qProcess->write( line.toUtf8() + "\n" );
+        m_qProcess->waitForBytesWritten();
+        m_qProcess->closeWriteChannel();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProcess::cleanUpAfterRun()
 {
     if ( m_qProcess != nullptr )
