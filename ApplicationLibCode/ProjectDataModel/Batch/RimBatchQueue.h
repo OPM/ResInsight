@@ -29,6 +29,7 @@
 #include <utility>
 
 class RimProcess;
+class RimProcessMonitor;
 
 //==================================================================================================
 ///
@@ -45,7 +46,7 @@ public:
     virtual void stopProcess()                                                       = 0;
 
 protected:
-    std::pair<bool, QStringList> runCommand( QStringList command );
+    std::pair<bool, QStringList> runCommand( QStringList command, QStringList stdIn, RimProcessMonitor* monitor );
     QStringList                  buildLaunchScript();
     QString                      generateJobName();
 

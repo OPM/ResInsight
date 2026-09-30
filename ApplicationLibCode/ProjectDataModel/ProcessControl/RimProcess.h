@@ -70,6 +70,7 @@ public:
     void cleanUpAfterRun();
     void terminate();
     void notifyErrorFinish();
+    void writeToStdIn( QStringList stdIn );
 
     QStringList stdErr() const;
     QStringList stdOut() const;

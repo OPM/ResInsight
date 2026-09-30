@@ -71,18 +71,19 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
     arguments << "-n";
     arguments << QString( "%1" ).arg( numberOfProcesses );
 
-    auto [result, output] = runCommand( arguments );
+    auto [result, output] = runCommand( arguments, stdIn, m_process->monitor() );
 
-    if ( result )
-    {
-        m_process->monitor()->finished( 0, QProcess::ExitStatus::NormalExit );
-    }
-    else
+    // if ( result )
+    //{
+    //     m_process->monitor()->finished( 0, QProcess::ExitStatus::NormalExit );
+    // }
+    if ( !result )
     {
         m_process->monitor()->finished( 1, QProcess::ExitStatus::NormalExit );
+        RiaLogging::warning( QString( output.join( "\n" ) ).toStdString() );
     }
 
-    RiaLogging::info( QString( output.join( "\n" ) ).toStdString() );
+    // RiaLogging::info( QString( output.join( "\n" ) ).toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,5 +91,8 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
 //--------------------------------------------------------------------------------------------------
 void RimBatchQueueSlurm::stopProcess()
 {
+    if ( m_process ) m_process->monitor()->finished( 1, QProcess::ExitStatus::CrashExit );
+
+    // RiaLogging::warning( QString( output.join( "\n" ) ).toStdString() );
     // RiaHpcTools::stopSlurmJob( processId );
 }
