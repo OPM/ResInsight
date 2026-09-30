@@ -357,7 +357,7 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
         inputs[name].append( configured );
     }
 
-    // The Python helper provides tasks in topological order.
+    // taskmaestro describes tasks in topological order.
     for ( const QJsonValue& task : tasks )
     {
         const QString name = task.toObject().value( "name" ).toString();
