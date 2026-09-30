@@ -19,6 +19,7 @@
 #include "RimWellPathInViewCollection.h"
 
 #include "Rim3dView.h"
+#include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -163,5 +164,33 @@ RimWellPathInView* RimWellPathInViewCollection::createItemInView( RimWellPath* s
 {
     auto* viewItem = new RimWellPathInView();
     viewItem->setWellPath( source );
+
+    // Seed the per-view checked state from the legacy global well path checkbox, so that projects
+    // without any per-view well path mirrors yet (i.e. all project files predating this collection)
+    // preserve their well path visibility the first time the per-view items are created.
+    viewItem->setCheckState( source->showWellPath() );
+
     return viewItem;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathInViewCollection::initAfterRead()
+{
+    // Migration: projects saved while the per-view well path mirrors already existed, but before the
+    // global "Show Well Path" checkbox was removed, may contain per-view items whose checked state
+    // defaulted to true regardless of the (now removed) global checkbox value. Force the per-view
+    // state back in sync with the legacy global value for such older project files.
+    auto* proj = RimProject::current();
+    if ( proj && proj->isProjectFileVersionEqualOrOlderThan( "2026.09.2" ) )
+    {
+        for ( auto* wellPathInView : allWellPathsInView() )
+        {
+            if ( auto* wellPath = wellPathInView->wellPath() )
+            {
+                wellPathInView->setCheckState( wellPath->showWellPath() );
+            }
+        }
+    }
 }
