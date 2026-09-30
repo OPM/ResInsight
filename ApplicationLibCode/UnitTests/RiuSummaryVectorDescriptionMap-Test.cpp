@@ -2,6 +2,7 @@
 
 #include "RiuSummaryQuantityNameInfoProvider.h"
 #include <chrono>
+#include <iomanip>
 
 //--------------------------------------------------------------------------------------------------
 ///
