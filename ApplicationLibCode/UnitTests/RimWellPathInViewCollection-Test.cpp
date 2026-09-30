@@ -93,3 +93,30 @@ TEST( RimWellPathInViewCollection, SyncFollowsSourceCollection )
     EXPECT_EQ( secondWellPath, viewCollection.allWellPathsInView().front()->wellPath() );
     EXPECT_FALSE( viewCollection.isWellPathVisible( secondWellPath ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// New per-view items must be seeded from the legacy global "Show Well Path" checkbox, so that
+/// projects without any per-view well path mirrors yet preserve well path visibility the first
+/// time the per-view items are created.
+//--------------------------------------------------------------------------------------------------
+TEST( RimWellPathInViewCollection, NewItemsAreSeededFromGlobalShowWellPath )
+{
+    auto sourceCollection = std::make_unique<RimWellPathCollection>();
+
+    auto* visibleWellPath = new RimWellPath();
+    visibleWellPath->setName( "Visible" );
+    visibleWellPath->setShowWellPath( true );
+    sourceCollection->addWellPath( visibleWellPath );
+
+    auto* hiddenWellPath = new RimWellPath();
+    hiddenWellPath->setName( "Hidden" );
+    hiddenWellPath->setShowWellPath( false );
+    sourceCollection->addWellPath( hiddenWellPath );
+
+    RimWellPathInViewCollection viewCollection;
+    viewCollection.setSourceCollection( sourceCollection.get() );
+    viewCollection.updateFromWellPathCollection();
+
+    EXPECT_TRUE( viewCollection.isWellPathVisible( visibleWellPath ) );
+    EXPECT_FALSE( viewCollection.isWellPathVisible( hiddenWellPath ) );
+}

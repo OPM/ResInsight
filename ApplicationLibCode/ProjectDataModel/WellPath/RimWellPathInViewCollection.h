@@ -51,6 +51,8 @@ protected:
     std::vector<RimWellPath*>           sourceItems() const override;
     RimWellPathInView*                  createItemInView( RimWellPath* source ) override;
 
+    void initAfterRead() override;
+
 private:
     RimWellPathInView* findWellPathInView( const RimWellPath* wellPath ) const;
 
