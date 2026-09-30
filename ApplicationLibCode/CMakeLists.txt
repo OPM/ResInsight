@@ -381,6 +381,7 @@ target_include_directories(
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellMeasurement
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellPath
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellEvents
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Workflow
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands
          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands/CommandRouter
          ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel

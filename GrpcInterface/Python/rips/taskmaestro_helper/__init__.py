@@ -1,6 +1,6 @@
 """Bridge between ResInsight and the taskmaestro workflow library.
 
-ResInsight invokes this package as a subprocess to introspect workflow
-schemas and to execute workflows. The Python side exists so ResInsight
-itself does not need to parse YAML or know about Pydantic.
+ResInsight invokes this package as a subprocess to execute workflows against
+a running ResInsight. Workflow schemas are read with the taskmaestro CLI
+(`python -m taskmaestro workflow describe`).
 """

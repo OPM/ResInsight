@@ -18,11 +18,13 @@
 
 #include "RimWorkflow.h"
 
+#include "RimWorkflowDescribeTools.h"
 #include "RimWorkflowJob.h"
 #include "RimWorkflowTaskInput.h"
 
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaQStringFormatter.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 
@@ -123,7 +125,17 @@ bool RimWorkflow::loadFromDirectory( QString* errorMessage )
         return false;
     }
 
-    QStringList args{ "-m", "rips.taskmaestro_helper", "introspect", dir };
+    const QDir workflowDir( dir );
+    if ( !workflowDir.exists( "workflow.yaml" ) )
+    {
+        m_loadError = "Missing workflow.yaml";
+        RiaLogging::warning( std::format( "Workflow '{}': {}", dir, m_loadError() ) );
+        if ( errorMessage ) *errorMessage = m_loadError;
+        return false;
+    }
+
+    QStringList args{ "-m", "taskmaestro", "workflow", "describe", workflowDir.absoluteFilePath( "workflow.yaml" ), "--json" };
+    if ( workflowDir.exists( "input.yaml" ) ) args << "--input" << workflowDir.absoluteFilePath( "input.yaml" );
 
     QProcess            proc;
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -139,39 +151,42 @@ bool RimWorkflow::loadFromDirectory( QString* errorMessage )
     if ( !proc.waitForFinished( 30000 ) )
     {
         proc.kill();
-        m_loadError = "Introspect helper timed out";
+        m_loadError = "taskmaestro workflow describe timed out";
         RiaLogging::warning( QString( "Workflow '%1': %2" ).arg( dir, m_loadError() ).toStdString() );
         if ( errorMessage ) *errorMessage = m_loadError;
         return false;
     }
 
-    const QByteArray stdoutBytes = proc.readAllStandardOutput();
-    if ( proc.exitStatus() != QProcess::NormalExit || proc.exitCode() != 0 )
-    {
-        m_loadError = QString::fromUtf8( proc.readAllStandardError() ).trimmed();
-        if ( m_loadError().isEmpty() ) m_loadError = "Introspect helper failed";
-        RiaLogging::warning( QString( "Workflow '%1' introspect failed: %2" ).arg( dir, m_loadError() ).toStdString() );
-        if ( errorMessage ) *errorMessage = m_loadError;
-        return false;
-    }
-
+    const QByteArray    stdoutBytes = proc.readAllStandardOutput();
     QJsonParseError     parseErr{};
     const QJsonDocument doc = QJsonDocument::fromJson( stdoutBytes, &parseErr );
-    if ( parseErr.error != QJsonParseError::NoError || !doc.isObject() )
+
+    if ( proc.exitStatus() != QProcess::NormalExit || proc.exitCode() != 0 )
     {
-        m_loadError = QString( "Invalid JSON from introspect: %1" ).arg( parseErr.errorString() );
+        // In JSON mode, configuration errors are reported on stdout; other errors on stderr
+        m_loadError = RimWorkflowDescribeTools::errorFromDescribe( doc.object() );
+        if ( m_loadError().isEmpty() ) m_loadError = QString::fromUtf8( proc.readAllStandardError() ).trimmed();
+        if ( m_loadError().isEmpty() ) m_loadError = "taskmaestro workflow describe failed";
+        RiaLogging::warning( std::format( "Workflow '{}' describe failed: {}", dir, m_loadError() ) );
         if ( errorMessage ) *errorMessage = m_loadError;
         return false;
     }
 
-    const QJsonObject root = doc.object();
-    if ( !root.value( "tasks" ).isArray() || !root.value( "edges" ).isArray() )
+    if ( parseErr.error != QJsonParseError::NoError || !doc.isObject() )
+    {
+        m_loadError = QString( "Invalid JSON from taskmaestro workflow describe: %1" ).arg( parseErr.errorString() );
+        if ( errorMessage ) *errorMessage = m_loadError;
+        return false;
+    }
+
+    if ( !doc.object().value( "tasks" ).isArray() )
     {
         m_loadError = "Invalid workflow graph schema";
         if ( errorMessage ) *errorMessage = m_loadError;
         return false;
     }
-    m_graph = root;
+    const QJsonObject root = RimWorkflowDescribeTools::graphFromDescribe( doc.object() );
+    m_graph                = root;
     if ( root.contains( "name" ) ) m_name = root.value( "name" ).toString();
     if ( root.contains( "description" ) ) m_description = root.value( "description" ).toString();
     setUiName( m_name() );

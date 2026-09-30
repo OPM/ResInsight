@@ -34,6 +34,15 @@ git clone https://github.com/OPM/taskmaestro-resinsight.git \
 python -m pip install -e ~/resinsight-workflows/taskmaestro-resinsight
 ```
 
+ResInsight reads workflows with `python -m taskmaestro workflow describe`, which
+needs a `taskmaestro` version that reports `config_values`
+([OPM/taskmaestro#13](https://github.com/OPM/taskmaestro/pull/13)). Until that
+is released, install it from Git:
+
+```bash
+python -m pip install "git+https://github.com/OPM/taskmaestro.git@main"
+```
+
 ## 2. Register the workflows
 
 ResInsight discovers workflows in `~/.taskmaestro/workflows`:
@@ -70,5 +79,8 @@ tree. Select a workflow, provide its inputs, and click **Run**.
   `~/.taskmaestro/workflows` contains `workflow.yaml`, then restart ResInsight.
 - **A Python module cannot be found:** Confirm that **Python Executable
   Location** points to the virtual environment created above.
+- **A workflow fails to load with `invalid choice: 'workflow'`, or its inputs
+  are not pre-filled from `input.yaml`:** The installed `taskmaestro` is too
+  old; reinstall it as described above.
 - **The workflow cannot connect:** Enable **Python Script Server** and restart
   ResInsight.
