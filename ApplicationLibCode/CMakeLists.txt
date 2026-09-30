@@ -168,9 +168,7 @@ list(APPEND CPP_SOURCES ${CODE_SOURCE_FILES})
 #
 # Odb api
 #
-if(RESINSIGHT_USE_ODB_API)
-  add_definitions(-DUSE_ODB_API)
-endif()
+# NOTE: USE_ODB_API is defined further down via target_compile_definitions().
 
 #
 # OpenVDS
@@ -233,13 +231,32 @@ list(APPEND ALL_SOURCE_FILES ${CPP_SOURCES} ${QRC_FILES})
 
 add_library(${PROJECT_NAME} OBJECT ${ALL_SOURCE_FILES})
 
-# Scope ENABLE_GRPC to the few files that use it, to avoid a full rebuild
-# of this target on toggle.
-if(RESINSIGHT_ENABLE_GRPC)
-  set_source_files_properties(
+# NOTE: Scope ENABLE_GRPC/USE_ODB_API to the few files that use them, to
+# avoid a full rebuild of this target on toggle. RiaPreferences.cpp and
+# RimContextCommandBuilder.cpp need both, so combine them into a single
+# set_source_files_properties() call per file (a second call would
+# overwrite, not add to, COMPILE_DEFINITIONS from the first).
+set(RI_SHARED_DEFS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/Application/RiaPreferences.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/RimContextCommandBuilder.cpp
-    PROPERTIES COMPILE_DEFINITIONS ENABLE_GRPC
+)
+set(RI_SHARED_DEFS "")
+if(RESINSIGHT_ENABLE_GRPC)
+  list(APPEND RI_SHARED_DEFS ENABLE_GRPC)
+endif()
+if(RESINSIGHT_USE_ODB_API)
+  list(APPEND RI_SHARED_DEFS USE_ODB_API)
+endif()
+if(RI_SHARED_DEFS)
+  set_source_files_properties(
+    ${RI_SHARED_DEFS_FILES} PROPERTIES COMPILE_DEFINITIONS "${RI_SHARED_DEFS}"
+  )
+endif()
+
+if(RESINSIGHT_USE_ODB_API)
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface/RiuMainWindow.cpp
+    PROPERTIES COMPILE_DEFINITIONS USE_ODB_API
   )
 endif()
 

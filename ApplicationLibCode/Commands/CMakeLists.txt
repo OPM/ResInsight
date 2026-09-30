@@ -75,8 +75,19 @@ find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME} OBJECT ${COMMAND_CODE_SOURCE_FILES})
 
-if(RESINSIGHT_ENABLE_OPENVDS)
-  add_definitions(-DUSE_OPENVDS)
+# Scope USE_ODB_API to the files that use it, to avoid a full rebuild on
+# toggle.
+if(RESINSIGHT_USE_ODB_API)
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMechCommands/RicGeoMechCopyCaseFeature.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMechCommands/RicImportGeoMechCaseFeature.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMechCommands/RicImportGeoMechCaseTimeStepFilterFeature.cpp
+    PROPERTIES COMPILE_DEFINITIONS USE_ODB_API
+  )
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/ApplicationCommands/RicHelpFeatures.cpp
+    PROPERTIES COMPILE_DEFINITIONS USE_ODB_API
+  )
 endif()
 
 if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)

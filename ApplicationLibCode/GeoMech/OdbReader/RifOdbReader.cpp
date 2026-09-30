@@ -303,7 +303,10 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
     CAF_ASSERT( femParts );
     CAF_ASSERT( m_odb != NULL );
 
-    odb_InstanceRepository   instanceRepository = m_odb->rootAssembly().instances();
+    // Use a reference, not a copy: MSVC's strict conformance mode (required by Qt) finds the
+    // implicit copy constructor of odb_InstanceRepository ambiguous (diamond inheritance in the
+    // ODB API headers).
+    odb_InstanceRepository&  instanceRepository = m_odb->rootAssembly().instances();
     odb_InstanceRepositoryIT iter( instanceRepository );
 
     caf::ProgressInfo modelProgress( instanceRepository.size() * (size_t)( 2 + 4 ), "Reading Odb Parts" );
