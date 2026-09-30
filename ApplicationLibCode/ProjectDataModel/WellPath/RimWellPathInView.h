@@ -23,6 +23,11 @@
 
 class RimWellPath;
 
+namespace caf
+{
+class PdmUiOrdering;
+} // namespace caf
+
 //==================================================================================================
 ///
 /// Per-view visibility wrapper around a global RimWellPath, following the same in-view
@@ -48,6 +53,7 @@ public:
 protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     caf::PdmPtrField<RimWellPath*> m_wellPath;

@@ -52,6 +52,8 @@
 #include "Polygons/RimPolygonInView.h"
 #include "Polygons/RimPolygonInViewCollection.h"
 
+#include "WellPath/RimWellPathInViewCollection.h"
+
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
@@ -113,6 +115,9 @@ RimGridView::RimGridView()
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapInViewCollection, "ContourMapInViewCollection", "Contour Map Collection Field" );
     m_contourMapInViewCollection = new RimContourMapInViewCollection();
+
+    CAF_PDM_InitFieldNoDefault( &m_wellPathInViewCollection, "WellPathInViewCollection", "Well Path Collection Field" );
+    m_wellPathInViewCollection = new RimWellPathInViewCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field" );
     m_cellFilterCollection = new RimCellFilterCollection();
@@ -179,6 +184,14 @@ RimSeismicSectionCollection* RimGridView::seismicSectionCollection() const
 RimPolygonInViewCollection* RimGridView::polygonInViewCollection() const
 {
     return m_polygonInViewCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathInViewCollection* RimGridView::wellPathInViewCollection() const
+{
+    return m_wellPathInViewCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -567,6 +580,11 @@ void RimGridView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
     {
         // Null for views that do not show contour maps, the 2d contour map views in particular
         if ( auto contourMaps = contourMapInViewCollection() ) contourMaps->updateFromContourMapCollection();
+    }
+
+    if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::WELL_PATH ) )
+    {
+        m_wellPathInViewCollection->updateFromWellPathCollection();
     }
 
     updateConnectedEditors();

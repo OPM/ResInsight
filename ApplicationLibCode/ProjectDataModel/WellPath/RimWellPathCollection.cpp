@@ -389,9 +389,18 @@ std::expected<std::vector<RimFileWellPath*>, QString> RimWellPathCollection::add
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::addWellPath( RimWellPath* wellPath )
 {
-    m_wellPaths.push_back( wellPath );
+    appendWellPath( wellPath );
 
     rebuildWellPathNodes();
+    updateViewTreeItems();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::appendWellPath( RimWellPath* wellPath )
+{
+    m_wellPaths.push_back( wellPath );
 
     m_mostRecentlyUpdatedWellPath = wellPath;
 }
@@ -451,7 +460,7 @@ std::vector<RimWellPath*> RimWellPathCollection::readAndAddWellPaths( std::vecto
 
         wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( m_wellPaths.size() ) );
         wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
-        addWellPath( wellPath );
+        appendWellPath( wellPath );
         addedWellPaths.push_back( wellPath );
 
         progress.incrementProgress();
@@ -461,6 +470,7 @@ std::vector<RimWellPath*> RimWellPathCollection::readAndAddWellPaths( std::vecto
     groupWellPaths( allWellPaths() );
     sortWellsByName();
     rebuildWellPathNodes();
+    updateViewTreeItems();
 
     return addedWellPaths;
 }
@@ -472,12 +482,13 @@ void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomi
 {
     for ( const auto& wellPath : incomingWellPaths )
     {
-        addWellPath( wellPath );
+        appendWellPath( wellPath );
     }
 
     groupWellPaths( allWellPaths() );
     sortWellsByName();
     rebuildWellPathNodes();
+    updateViewTreeItems();
 
     updateAllRequiredEditors();
 }
@@ -798,6 +809,7 @@ void RimWellPathCollection::deleteAllWellPaths()
     m_wellPathNodes.deleteChildren();
 
     m_wellPathImporter->clear();
+    updateViewTreeItems();
     updateAllRequiredEditors();
 }
 
@@ -810,6 +822,8 @@ void RimWellPathCollection::deleteWell( RimWellPath* wellPath )
 
     m_wellPaths.removeChild( wellPath );
     delete wellPath;
+
+    updateViewTreeItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1289,6 +1303,7 @@ const RimWellEventTimeline* RimWellPathCollection::eventTimeline() const
 void RimWellPathCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     rebuildWellPathNodes();
+    updateViewTreeItems();
 
     scheduleRedrawAffectedViews();
     uiCapability()->updateConnectedEditors();
@@ -1300,9 +1315,24 @@ void RimWellPathCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* child
 void RimWellPathCollection::onChildAdded( caf::PdmFieldHandle* containerForNewObject )
 {
     rebuildWellPathNodes();
+    updateViewTreeItems();
 
     scheduleRedrawAffectedViews();
     uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::updateViewTreeItems()
+{
+    RimProject* proj = RimProject::current();
+    if ( !proj ) return;
+
+    for ( auto view : proj->allViews() )
+    {
+        view->updateViewTreeItems( RiaDefines::ItemIn3dView::WELL_PATH );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

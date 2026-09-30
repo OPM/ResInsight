@@ -188,6 +188,9 @@ private:
 
     void updateMswSegments();
 
+    void appendWellPath( RimWellPath* wellPath );
+    void updateViewTreeItems();
+
 private:
     std::unique_ptr<RifWellPathImporter>           m_wellPathImporter;
     std::unique_ptr<RifWellPathFormationsImporter> m_wellPathFormationsImporter;
