@@ -217,14 +217,35 @@ if(RESINSIGHT_FOUND_HDF5)
 
   list(APPEND CPP_SOURCES ${HDF5_FILES})
 
-  add_definitions(-DUSE_HDF5)
-  add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+  # Scope USE_HDF5/H5_BUILT_AS_DYNAMIC_LIB to the files that need it, to
+  # avoid a full rebuild on toggle.
+  set_source_files_properties(
+    ${HDF5_FILES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface/RifReaderEclipseSummary.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface/RifReaderEclipseOutput.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Application/RiaPreferencesSummary.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface/RiaPropertyDataCommands.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/RimEmCase.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/RimEclipseResultDefinition.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/RimEclipseResultCase.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary/RimSummaryCaseMainCollection.cpp
+    PROPERTIES COMPILE_DEFINITIONS "USE_HDF5;H5_BUILT_AS_DYNAMIC_LIB"
+  )
 
   if(MSVC)
-    list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_HDF5_DIR}/include)
+    set(RI_HDF5_INCLUDE_DIRS ${RESINSIGHT_HDF5_DIR}/include)
   else()
-    list(APPEND RI_PRIVATE_INCLUDES ${HDF5_INCLUDE_DIRS})
+    set(RI_HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS})
   endif() # MSVC
+
+  # Only these files (and HDF5_FILES) include HDF5 headers directly, so
+  # scope the include dir to just them to avoid a full rebuild on toggle.
+  set_source_files_properties(
+    ${HDF5_FILES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface/RifReaderEclipseOutput.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/RimEmCase.cpp
+    PROPERTIES INCLUDE_DIRECTORIES "${RI_HDF5_INCLUDE_DIRS}"
+  )
 endif()
 
 #
@@ -377,7 +398,6 @@ target_include_directories(
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Commands
           ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
           ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands/CommandRouter
-          ${RI_PRIVATE_INCLUDES}
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
          ${CMAKE_CURRENT_SOURCE_DIR}/Adm
          ${CMAKE_CURRENT_SOURCE_DIR}/Application

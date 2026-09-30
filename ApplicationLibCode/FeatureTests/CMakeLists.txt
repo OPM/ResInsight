@@ -79,7 +79,6 @@ target_include_directories(
   ResInsight-featuretests
   PUBLIC ${CMAKE_BINARY_DIR}/Generated
          "$<TARGET_PROPERTY:ApplicationLibCode,PUBLIC_INCLUDE_DIRECTORIES>"
-         ${RI_PRIVATE_INCLUDES}
          ${PROJECT_SOURCE_DIR}/Commands
          ${PROJECT_SOURCE_DIR}/Commands/CompletionExportCommands
          ${CMAKE_CURRENT_LIST_DIR}
