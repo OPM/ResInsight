@@ -80,13 +80,13 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
 
     if ( !surfColl ) return;
 
-    RimSurface* lastCreatedOrUpdated = surfColl->importSurfacesFromFiles( fileNames );
+    auto lastCreatedOrUpdated = surfColl->importSurfacesFromFiles( fileNames );
 
     if ( lastCreatedOrUpdated )
     {
         RicNewGenericDataViewFeature::createInitialViewIfNeeded();
 
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated.value() );
     }
 }
 

@@ -78,22 +78,27 @@ std::expected<std::pair<RigRegularSurfaceData, std::vector<float>>, std::string>
         return std::make_pair( surfaceData, transposedValues );
     };
 
-    if ( extension == ".gri" )
+    try
     {
-        auto fileData = surfio::irap::from_binary_file( filename );
+        if ( extension == ".gri" )
+        {
+            auto fileData = surfio::irap::from_binary_file( filename );
 
-        return convertToRegularSurface( fileData );
-    }
-    else if ( extension == ".irap" )
-    {
-        auto fileData = surfio::irap::from_ascii_file( filename );
+            return convertToRegularSurface( fileData );
+        }
+        else if ( extension == ".irap" )
+        {
+            auto fileData = surfio::irap::from_ascii_file( filename );
 
-        return convertToRegularSurface( fileData );
+            return convertToRegularSurface( fileData );
+        }
     }
-    else
+    catch ( const std::exception& e )
     {
-        return std::unexpected( "File is not a valid IRAP or GRI file: " + filename );
+        return std::unexpected( "Failed to read surface file " + filename + ": " + e.what() );
     }
+
+    return std::unexpected( "File is not a valid IRAP or GRI file: " + filename );
 }
 
 //--------------------------------------------------------------------------------------------------

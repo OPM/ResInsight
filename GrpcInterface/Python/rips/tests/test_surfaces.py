@@ -218,3 +218,68 @@ def test_surface_name_uniqueness(rips_instance, initialize_test):
     folder = surface_collection.add_folder(folder_name="Folder A")
     in_folder = folder.new_regular_surface(name="Top")
     assert in_folder.surface_user_description == "Top"
+
+
+def test_import_surface_errors(rips_instance, initialize_test):
+    case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    case = rips_instance.project.load_case(path=case_path)
+
+    surface_collection = rips_instance.project.descendants(rips.SurfaceCollection)[0]
+
+    with pytest.raises(rips.RipsError, match="File name is empty"):
+        surface_collection.import_surface(file_name="")
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        missing_path = Path(tmpdirname, "missing.irap").as_posix()
+        with pytest.raises(rips.RipsError, match="missing.irap"):
+            surface_collection.import_surface(file_name=missing_path)
+
+        corrupt_path = Path(tmpdirname, "corrupt.irap")
+        corrupt_path.write_text("this is not a surface file")
+        with pytest.raises(
+            rips.RipsError, match="Could not import surface from file .*corrupt.irap"
+        ):
+            surface_collection.import_surface(file_name=corrupt_path.as_posix())
+
+        surface_path = Path(tmpdirname, "mysurface.ts")
+        surface_collection.new_surface(case, 5).export_to_file(surface_path.as_posix())
+        valid_content = surface_path.read_bytes()
+        imported = surface_collection.import_surface(file_name=surface_path.as_posix())
+        assert imported.surface_user_description == "mysurface.ts"
+
+        def surface_names():
+            return [
+                s.surface_user_description for s in surface_collection.surfaces_field()
+            ]
+
+        # A failed overwrite must keep the existing surface
+        surface_path.unlink()
+        with pytest.raises(rips.RipsError, match="mysurface.ts"):
+            surface_collection.import_surface(
+                file_name=surface_path.as_posix(),
+                on_name_conflict=rips.NameConflictPolicy.OVERWRITE,
+            )
+        assert surface_names().count("mysurface.ts") == 1
+
+        surface_path.write_text("this is not a surface file")
+        with pytest.raises(rips.RipsError, match="mysurface.ts"):
+            surface_collection.import_surface(
+                file_name=surface_path.as_posix(),
+                on_name_conflict=rips.NameConflictPolicy.OVERWRITE,
+            )
+        assert surface_names().count("mysurface.ts") == 1
+
+        # A successful overwrite replaces the surface and keeps the name
+        surface_path.write_bytes(valid_content)
+        overwritten = surface_collection.import_surface(
+            file_name=surface_path.as_posix(),
+            on_name_conflict=rips.NameConflictPolicy.OVERWRITE,
+        )
+        assert overwritten.surface_user_description == "mysurface.ts"
+        assert surface_names().count("mysurface.ts") == 1
+
+        renamed = surface_collection.import_surface(
+            file_name=surface_path.as_posix(),
+            on_name_conflict=rips.NameConflictPolicy.AUTO_RENAME,
+        )
+        assert renamed.surface_user_description == "mysurface.ts_1"
