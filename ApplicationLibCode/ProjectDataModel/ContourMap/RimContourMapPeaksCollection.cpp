@@ -45,7 +45,9 @@ RimContourMapPeaksCollection::RimContourMapPeaksCollection()
     CAF_PDM_InitObject( "Contour Map Peaks", ":/WellTargetPoint16x16.png" );
 
     CAF_PDM_InitField( &m_peakCount, "PeakCount", 10, "Maximum Number of Peaks" );
+    m_peakCount.setRange( 1, 20 );
     CAF_PDM_InitField( &m_minDistance, "MinDistance", 0.0, "Minimum Distance" );
+    m_minDistance.setMinValue( 0.0 );
     CAF_PDM_InitField( &m_minProminence, "MinProminence", 0.0, "Minimum Prominence" );
     m_minProminence.uiCapability()->setUiToolTip( "Ignore peaks rising less than this value above the highest saddle to a higher peak" );
 

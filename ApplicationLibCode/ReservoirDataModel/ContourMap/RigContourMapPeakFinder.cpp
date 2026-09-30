@@ -18,6 +18,8 @@
 
 #include "RigContourMapPeakFinder.h"
 
+#include "cafAssert.h"
+
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -62,6 +64,9 @@ namespace internal
 
     ProminenceResult computeProminenceAndRegionSize( const std::vector<double>& z, int nx, int ny )
     {
+        CAF_ASSERT( nx >= 0 && ny >= 0 );
+        CAF_ASSERT( z.size() == static_cast<size_t>( nx ) * static_cast<size_t>( ny ) );
+
         const int    M   = nx * ny;
         const double nan = std::numeric_limits<double>::quiet_NaN();
 
