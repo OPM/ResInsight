@@ -8,18 +8,13 @@ import sys
 def main() -> int:
     if len(sys.argv) < 2:
         print(
-            "usage: python -m rips.taskmaestro_helper <introspect|run> ...",
+            "usage: python -m rips.taskmaestro_helper run ...",
             file=sys.stderr,
         )
         return 2
 
     subcommand = sys.argv[1]
     rest = sys.argv[2:]
-
-    if subcommand == "introspect":
-        from . import introspect
-
-        return introspect.main(rest)
 
     if subcommand == "run":
         from . import run
