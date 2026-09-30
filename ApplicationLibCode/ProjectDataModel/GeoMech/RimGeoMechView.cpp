@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
+#include "RiaViewDefines.h"
 #include "RiuMessageDialog.h"
 
 #include "RicfCommandObject.h"

@@ -26,6 +26,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaResultNames.h"
+#include "RiaViewDefines.h"
 
 #include "HoloLensCommands/RicExportToSharingServerScheduler.h"
 

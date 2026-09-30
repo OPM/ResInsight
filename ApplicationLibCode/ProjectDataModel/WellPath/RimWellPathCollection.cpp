@@ -28,6 +28,7 @@
 #include "RiaPreferences.h"
 #include "RiaQStringFormatter.h"
 #include "RiaTextStringTools.h"
+#include "RiaViewDefines.h"
 #include "RiaWellNameComparer.h"
 #include "RiuMessageDialog.h"
 
