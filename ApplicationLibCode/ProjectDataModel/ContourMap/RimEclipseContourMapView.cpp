@@ -41,6 +41,7 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
+#include "WellPath/RimWellPathInViewCollection.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
@@ -255,6 +256,7 @@ void RimEclipseContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
     uiTreeOrdering.add( m_contourMapProjection );
     uiTreeOrdering.add( cellResult() );
     cellResult()->uiCapability()->setUiReadOnly( m_contourMapProjection->isColumnResult() );
+    uiTreeOrdering.add( m_wellPathInViewCollection );
     uiTreeOrdering.add( wellCollection() );
     uiTreeOrdering.add( faultCollection() );
     uiTreeOrdering.add( filterInViewCollection() );
