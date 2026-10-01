@@ -37,9 +37,10 @@ public:
     RimGridCalculation*              createCalculation() const override;
     std::vector<RimGridCalculation*> sortedGridCalculations() const;
     std::vector<RimGridCalculation*> dependentCalculations( RimGridCalculation* sourceCalculation ) const;
+    RimGridCalculation*              findCalculation( const QString& calculationName ) const;
+    void                             ensureCalculationsAreComputed( RimEclipseCase* eclipseCase ) const;
 
 private:
-    RimGridCalculation* findCalculation( const QString& calculationName ) const;
     bool dependentCalculationsRecursively( RimGridCalculation* sourceCalculation, std::vector<RimGridCalculation*>& calculations ) const;
 
     void initAfterRead() override;

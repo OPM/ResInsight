@@ -227,7 +227,9 @@ RimGridCalculationVariable* RimGridCalculation::createVariable()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::calculate()
 {
-    CloseCasesOpenedForCalculation closeCasesWhenFinished( sourceAndDestinationCases( *this, outputEclipseCases() ) );
+    const std::vector<RimEclipseCase*> calculationCases = casesToCalculate();
+
+    CloseCasesOpenedForCalculation closeCasesWhenFinished( sourceAndDestinationCases( *this, calculationCases ) );
 
     const bool useCellFilterView = ( m_filterType() == FilterType::CELL_FILTER_VIEW ) && m_cellFilterView() != nullptr;
     const bool useDataFilter     = ( m_filterType() == FilterType::DATA_FILTER );
@@ -250,7 +252,7 @@ bool RimGridCalculation::calculate()
         if ( inputCase && !inputCase->eclipseCaseData() ) inputCase->ensureReservoirCaseIsOpen();
     }
 
-    for ( auto calculationCase : outputEclipseCases() )
+    for ( auto calculationCase : calculationCases )
     {
         if ( !calculationCase ) continue;
 
@@ -337,7 +339,38 @@ bool RimGridCalculation::calculate()
     }
 
     bool evaluateDependentCalculations = true;
-    return calculateForCases( outputEclipseCases(), inputValueVisibilityFilter.p(), timeSteps, evaluateDependentCalculations );
+    return calculateForCases( calculationCases, inputValueVisibilityFilter.p(), timeSteps, evaluateDependentCalculations );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Compute the result for a single case, e.g. when a view is stepped to another case. The case does not
+/// have to be an output case, as variables referring to the destination case are evaluated on the case.
+//--------------------------------------------------------------------------------------------------
+bool RimGridCalculation::calculateForCase( RimEclipseCase* eclipseCase )
+{
+    // Values from other cases and the cell filter view are mapped cell by cell, requiring equal grid sizes
+    const bool calculateForEnsemble = m_destinationEnsemble() || m_additionalCasesType == AdditionalCasesType::ENSEMBLE;
+    for ( auto inputCase : inputCases() )
+    {
+        if ( calculateForEnsemble || inputCase == destinationCase() ) continue;
+        if ( !eclipseCase->isGridSizeEqualTo( inputCase ) ) return false;
+    }
+
+    cvf::ref<cvf::UByteArray> inputValueVisibilityFilter;
+    if ( m_filterType() == FilterType::CELL_FILTER_VIEW && m_cellFilterView() )
+    {
+        if ( !eclipseCase->isGridSizeEqualTo( dynamic_cast<RimEclipseCase*>( m_cellFilterView()->ownerCase() ) ) ) return false;
+        inputValueVisibilityFilter = m_cellFilterView()->currentTotalCellVisibility();
+    }
+
+    std::optional<std::vector<size_t>> timeSteps;
+    if ( !m_selectedTimeSteps().empty() )
+    {
+        timeSteps = std::vector<size_t>( m_selectedTimeSteps().begin(), m_selectedTimeSteps().end() );
+    }
+
+    bool evaluateDependentCalculations = true;
+    return calculateForCases( { eclipseCase }, inputValueVisibilityFilter.p(), timeSteps, evaluateDependentCalculations );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -725,6 +758,30 @@ bool RimGridCalculation::allSourceCasesAreEqualToDestinationCase() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// An aggregation expression (sum/avg/min/max/count) reduces a case's cell values to a single scalar
+/// value per case. Unlike per-cell expressions, its result cannot be recomputed later for a single
+/// realization on demand, so it must be computed for every realization up front.
+//--------------------------------------------------------------------------------------------------
+bool RimGridCalculation::isAggregationExpression() const
+{
+    return m_expression().contains( "sum" ) || m_expression().contains( "avg" ) || m_expression().contains( "min" ) ||
+           m_expression().contains( "max" ) || m_expression().contains( "count" );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// For an ensemble destination with a plain per-cell expression, each realization is computed lazily
+/// when its result is actually needed, so only the main case needs to be computed here. Aggregation
+/// expressions produce the per-realization summary itself and must be computed for every realization.
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimGridCalculation::casesToCalculate() const
+{
+    const bool calculateForEnsemble = m_destinationEnsemble() || m_additionalCasesType == AdditionalCasesType::ENSEMBLE;
+    if ( calculateForEnsemble && !isAggregationExpression() ) return { destinationCase() };
+
+    return outputEclipseCases();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RigEclipseResultAddress RimGridCalculation::outputAddress() const
@@ -1025,9 +1082,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
     }
 
     const bool isMultipleCasesPresent   = calculationCases.size() > 1;
-    const bool hasAggregationExpression = m_expression().contains( "sum" ) || m_expression().contains( "avg" ) ||
-                                          m_expression().contains( "min" ) || m_expression().contains( "max" ) ||
-                                          m_expression().contains( "count" );
+    const bool hasAggregationExpression = isAggregationExpression();
 
     // If multiple cases are present, release memory after data is extracted to avoid memory issues.
     m_releaseMemoryAfterDataIsExtracted = isMultipleCasesPresent;

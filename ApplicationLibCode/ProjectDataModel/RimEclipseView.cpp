@@ -77,6 +77,7 @@
 #include "RimFracture.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimGridCalculationCollection.h"
 #include "RimGridCollection.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimGridView.h"
@@ -531,6 +532,13 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
         if ( previousSumoCase && previousSumoCase->reservoirViews().empty() && previousSumoCase->contourMapViews().empty() )
         {
             previousSumoCase->cancelPendingTransfers();
+        }
+
+        // Grid calculation results are not stored with the case, so compute them before the result
+        // definitions are updated, otherwise generated results are missing and the view is cleared.
+        if ( auto project = RimProject::current(); project && project->gridCalculationCollection() )
+        {
+            project->gridCalculationCollection()->ensureCalculationsAreComputed( m_eclipseCase );
         }
 
         propagateEclipseCaseToChildObjects();

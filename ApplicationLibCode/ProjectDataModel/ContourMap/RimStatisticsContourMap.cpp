@@ -50,6 +50,8 @@
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimGridCalculation.h"
+#include "RimGridCalculationCollection.h"
 #include "RimProject.h"
 #include "RimReservoirGridEnsemble.h"
 #include "RimSimWellInViewCollection.h"
@@ -88,6 +90,23 @@ void applyDataFilterVisibility( RigEclipseContourMapProjection& projection, RimC
     if ( !dataFilter ) return;
 
     projection.setCellVisibility( RimCellFilterTools::computeReservoirCellVisibility( dataFilter, eCase, timeStepIndex ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A GENERATED result only exists in memory, so it must be recomputed for each realization while it
+/// is open here, as it is otherwise lost when the case is closed again.
+//--------------------------------------------------------------------------------------------------
+void ensureGeneratedResultIsComputed( const RimEclipseResultDefinition* resultDefinition, RimEclipseCase* eCase )
+{
+    if ( !resultDefinition || resultDefinition->resultType() != RiaDefines::ResultCatType::GENERATED ) return;
+
+    auto project = RimProject::current();
+    if ( !project ) return;
+
+    RimGridCalculation* calculation = project->gridCalculationCollection()->findCalculation( resultDefinition->resultVariable() );
+    if ( !calculation ) return;
+
+    calculation->calculateForCase( eCase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -775,6 +794,13 @@ void RimStatisticsContourMap::computeStatisticsForMaps( const std::vector<RimSta
                 auto activeCellInfo  = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
                 auto resultData      = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
+                // GENERATED results are not stored on disk, so recompute them for this realization while it is open.
+                for ( auto& ctx : contexts )
+                {
+                    if ( !ctx.active ) continue;
+                    ensureGeneratedResultIsComputed( ctx.map->m_resultDefinition(), eCase );
+                }
+
                 // Make sure at least one dynamic result this case needs is loaded before asking for its time step
                 // dates: allTimeStepDatesFromEclipseReader() and the loaded-result based fallback below both only
                 // report the full time step count once such a result is known.
@@ -1061,6 +1087,14 @@ void RimStatisticsContourMap::ensureResultsComputed()
     // computed in this session. It is created by computeStatisticsForMaps(), and is never cleared.
     // Use the Compute button to force a recomputation after changing settings.
     if ( m_contourMapGrid ) return;
+
+    // A GENERATED result only reports as dynamic once computed, and the disk cache key depends on that
+    // via selectedTimeSteps(). Ensure the result is computed for the primary case before checking the
+    // cache, so the key is stable between save and load.
+    if ( RimEclipseCase* primaryCase = eclipseCase() )
+    {
+        if ( primaryCase->ensureReservoirCaseIsOpen() ) ensureGeneratedResultIsComputed( m_resultDefinition(), primaryCase );
+    }
 
     if ( loadCachedResults() ) return;
 

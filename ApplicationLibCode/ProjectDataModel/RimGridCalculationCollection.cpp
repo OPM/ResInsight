@@ -19,7 +19,9 @@
 #include "RimGridCalculationCollection.h"
 
 #include "RiaLogging.h"
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
+#include "RimEclipseCase.h"
 #include "RimGridCalculation.h"
 
 #include "cafPdmUiGroup.h"
@@ -130,6 +132,25 @@ RimGridCalculation* RimGridCalculationCollection::findCalculation( const QString
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Grid calculation results are not stored with the case. Compute the calculations missing for the
+/// case, e.g. when a view is stepped to another case.
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculationCollection::ensureCalculationsAreComputed( RimEclipseCase* eclipseCase ) const
+{
+    if ( !eclipseCase || !eclipseCase->ensureReservoirCaseIsOpen() ) return;
+
+    auto results = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !results ) return;
+
+    for ( auto calculation : sortedGridCalculations() )
+    {
+        if ( results->hasResultEntry( calculation->outputAddress() ) ) continue;
+
+        calculation->calculateForCase( eclipseCase );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

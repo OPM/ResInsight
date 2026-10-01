@@ -73,6 +73,7 @@ public:
 
     bool preCalculate() const override;
     bool calculate() override;
+    bool calculateForCase( RimEclipseCase* eclipseCase );
 
     void updateDependentObjects() override;
     void removeDependentObjects() override;
@@ -148,6 +149,9 @@ private:
     RimEclipseCase* destinationCase() const;
     bool            allSourceCasesAreEqualToDestinationCase() const;
     void            onEditNonVisibleResultAddressButtonPressed();
+
+    bool                         isAggregationExpression() const;
+    std::vector<RimEclipseCase*> casesToCalculate() const;
 
     static std::pair<bool, QStringList> createStatisticsText( const std::vector<std::vector<double>>& values );
 
