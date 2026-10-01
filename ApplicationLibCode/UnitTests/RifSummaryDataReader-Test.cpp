@@ -5,6 +5,7 @@
 #include "RifOpmCommonSummary.h"
 #include "RifReaderEclipseSummary.h"
 #include <chrono>
+#include <iomanip>
 
 size_t iterationCount = 5;
 size_t maxCount       = 500;

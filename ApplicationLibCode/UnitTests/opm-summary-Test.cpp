@@ -23,6 +23,8 @@
 #include <QFile>
 #include <QTemporaryDir>
 
+#include <iomanip>
+
 static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------

@@ -26,6 +26,7 @@
 #include <QString>
 #include <chrono>
 #include <fstream>
+#include <iomanip>
 #include <iosfwd>
 #include <iostream>
 #include <sstream>
