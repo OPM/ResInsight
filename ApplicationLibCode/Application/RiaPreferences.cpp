@@ -25,6 +25,7 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesCloudApi.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesGrid.h"
 #include "RiaPreferencesOpenTelemetry.h"
@@ -287,6 +288,9 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_openTelemetryPreferences, "openTelemetryPreferences", "openTelemetryPreferences" );
     m_openTelemetryPreferences = new RiaPreferencesOpenTelemetry;
+
+    CAF_PDM_InitFieldNoDefault( &m_cloudApiPreferences, "cloudApiPreferences", "cloudApiPreferences" );
+    m_cloudApiPreferences = new RiaPreferencesCloudApi;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,6 +486,11 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         scriptGroup->add( &m_maxScriptFoldersDepth );
         scriptGroup->add( &scriptEditorExecutable );
     }
+    else if ( uiConfigName == RiaPreferences::tabNameCloudApi() )
+    {
+        caf::PdmUiGroup* pythonGroup = uiOrdering.addNewGroup( "Python Environment" );
+        m_cloudApiPreferences()->appendItems( *pythonGroup );
+    }
     else if ( uiConfigName == RiaPreferences::tabNameOpmFlow() )
     {
         m_opmPreferences()->appendItems( uiOrdering );
@@ -650,6 +659,14 @@ QString RiaPreferences::tabNameScripting()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameCloudApi()
+{
+    return "RI Cloud API";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::tabNameOpmFlow()
 {
     return "OPM Flow";
@@ -707,6 +724,7 @@ QStringList RiaPreferences::tabNames()
     names << tabNameSummary();
     names << tabNamePlotting();
     names << tabNameScripting();
+    names << tabNameCloudApi();
     names << tabNameOpmFlow();
 #ifdef USE_ODB_API
     names << tabNameGeomech();
@@ -1082,6 +1100,14 @@ RiaPreferencesSumo* RiaPreferences::sumoPreferences() const
 RiaPreferencesOpenTelemetry* RiaPreferences::openTelemetryPreferences() const
 {
     return m_openTelemetryPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesCloudApi* RiaPreferences::cloudApiPreferences() const
+{
+    return m_cloudApiPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------

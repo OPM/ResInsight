@@ -48,6 +48,7 @@ class RiaPreferencesGrid;
 class RiaPreferencesSumo;
 class RiaPreferencesOpm;
 class RiaPreferencesOpenTelemetry;
+class RiaPreferencesCloudApi;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -132,6 +133,7 @@ public:
     RiaPreferencesGrid*          gridPreferences() const;
     RiaPreferencesOpm*           opmPreferences() const;
     RiaPreferencesOpenTelemetry* openTelemetryPreferences() const;
+    RiaPreferencesCloudApi*      cloudApiPreferences() const;
 
     void importPreferenceValuesFromFile( const QString& fileName );
     void exportPreferenceValuesToFile( const QString& fileName );
@@ -171,6 +173,7 @@ private:
     static QString tabNameGeomech();
     static QString tabNamePlotting();
     static QString tabNameScripting();
+    static QString tabNameCloudApi();
     static QString tabNameSystem();
     static QString tabNameImportExport();
     static QString tabNameOpmFlow();
@@ -244,6 +247,9 @@ private:
 
     // OpenTelemetry settings
     caf::PdmChildField<RiaPreferencesOpenTelemetry*> m_openTelemetryPreferences;
+
+    // RI Cloud API settings
+    caf::PdmChildField<RiaPreferencesCloudApi*> m_cloudApiPreferences;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;

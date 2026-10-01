@@ -52,6 +52,11 @@ constexpr int healthCheckIntervalMs = 10 * 1000;
 // Restart the service after this many consecutive failed health checks.
 constexpr int maxConsecutiveFailures = 2;
 
+// Give up auto-restarting (and stop retrying) after this many consecutive failed launch attempts, so a
+// persistently broken configuration (e.g. a Python environment missing required packages) does not
+// restart the process in an endless loop. A manual start/restart resets this counter.
+constexpr int maxConsecutiveLaunchFailures = 3;
+
 // Per-request timeout for the health check, kept well below the poll interval.
 constexpr int healthCheckTimeoutMs = 5 * 1000;
 
@@ -74,6 +79,7 @@ RiaCloudApiService::RiaCloudApiService( const QString& serverAddress, int wanted
     , m_wantedPort( wantedPort )
     , m_port( -1 )
     , m_consecutiveFailures( 0 )
+    , m_consecutiveLaunchFailures( 0 )
     , m_isResponding( false )
 {
     // Never route loopback requests through a system/corporate proxy, which can add several seconds
@@ -143,14 +149,16 @@ QString RiaCloudApiService::serverUrl() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaCloudApiService::start()
+void RiaCloudApiService::start( bool resetFailureCount )
 {
     if ( isRunning() ) return;
 
     // Clean up any stale QProcess instance (e.g. after an unexpected exit) before re-starting.
     if ( m_process ) stop();
 
-    const QString pythonExecutable = RiaApplication::instance()->pythonPath();
+    if ( resetFailureCount ) m_consecutiveLaunchFailures = 0;
+
+    const QString pythonExecutable = RiaApplication::instance()->cloudApiPythonPath();
     if ( pythonExecutable.isEmpty() )
     {
         RiaLogging::error( "Cloud API service: no Python executable configured, cannot start service." );
@@ -277,7 +285,8 @@ bool RiaCloudApiService::waitUntilResponding( int timeoutMs )
 
             if ( answered )
             {
-                m_consecutiveFailures = 0;
+                m_consecutiveFailures       = 0;
+                m_consecutiveLaunchFailures = 0;
 
                 if ( !m_isResponding )
                 {
@@ -352,6 +361,29 @@ void RiaCloudApiService::restart()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Used only for the automatic retry triggered by a failed health check. Unlike restart(), the launch
+/// failure counter is not reset, so a persistently broken configuration (e.g. a Python environment
+/// missing required packages) is detected and stops the retry loop rather than restarting forever.
+//--------------------------------------------------------------------------------------------------
+void RiaCloudApiService::autoRestart()
+{
+    m_consecutiveLaunchFailures++;
+    if ( m_consecutiveLaunchFailures > maxConsecutiveLaunchFailures )
+    {
+        RiaLogging::error( std::format( "Cloud API service: giving up after {} consecutive failed launch attempts. Fix "
+                                        "the configured Python environment (Preferences -> RI Cloud API, or Preferences "
+                                        "-> Scripting), then start the service again.",
+                                        m_consecutiveLaunchFailures - 1 ) );
+        stop();
+        return;
+    }
+
+    RiaLogging::warning( "Cloud API service: not responding, restarting." );
+    stop();
+    start( false );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaCloudApiService::onReadyReadStandardOutput()
@@ -370,7 +402,7 @@ void RiaCloudApiService::onHealthCheck()
 {
     if ( !isRunning() || m_port < 0 )
     {
-        restart();
+        autoRestart();
         return;
     }
 
@@ -390,8 +422,9 @@ void RiaCloudApiService::onHealthCheck()
                  const int statusCode = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
                  if ( reply->error() == QNetworkReply::NoError && statusCode == 200 )
                  {
-                     m_consecutiveFailures = 0;
-                     m_isResponding        = true;
+                     m_consecutiveFailures       = 0;
+                     m_consecutiveLaunchFailures = 0;
+                     m_isResponding              = true;
                  }
                  else
                  {
@@ -404,7 +437,7 @@ void RiaCloudApiService::onHealthCheck()
 
                  if ( !m_isResponding && m_consecutiveFailures >= maxConsecutiveFailures )
                  {
-                     restart();
+                     autoRestart();
                  }
              } );
 }

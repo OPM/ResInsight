@@ -48,7 +48,11 @@ public:
     RiaCloudApiService( const QString& serverAddress, int wantedPort, QObject* parent = nullptr );
     ~RiaCloudApiService() override;
 
-    void start();
+    // resetFailureCount is false only for the internal automatic retry loop (see autoRestart()), so that
+    // a persistently crashing process can be detected across repeated attempts. A caller-initiated start
+    // always resets the counter, since it represents a deliberate new attempt (e.g. after fixing the
+    // configured Python environment).
+    void start( bool resetFailureCount = true );
     void stop();
     void restart();
 
@@ -84,6 +88,10 @@ private slots:
     void onReadyReadStandardOutput();
 
 private:
+    // Restart automatically after a failed health check, unless maxConsecutiveLaunchFailures has been
+    // reached, in which case the service is stopped and left for the user to restart manually.
+    void autoRestart();
+
     static int                 findAvailablePortNumber( int firstPort );
     static QString             serviceWorkingDirectory();
     static QProcessEnvironment buildProcessEnvironment( const QString& workingDirectory );
@@ -99,5 +107,6 @@ private:
 
     int  m_port;
     int  m_consecutiveFailures;
+    int  m_consecutiveLaunchFailures;
     bool m_isResponding;
 };

@@ -35,6 +35,7 @@
 #include "RiaOpenMPTools.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesCloudApi.h"
 #include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"
@@ -1380,6 +1381,22 @@ QProcessEnvironment RiaApplication::octaveProcessEnvironment() const
 QString RiaApplication::pythonPath() const
 {
     return m_preferences->pythonExecutable();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The ri-cloud-api service uses a dedicated Python environment when enabled under
+/// Preferences -> RI Cloud API, and otherwise falls back to the scripting environment so the two do
+/// not have to share a single interpreter and risk conflicting package versions.
+//--------------------------------------------------------------------------------------------------
+QString RiaApplication::cloudApiPythonPath() const
+{
+    auto cloudApiPreferences = m_preferences->cloudApiPreferences();
+    if ( cloudApiPreferences->useDedicatedPythonEnvironment() )
+    {
+        return cloudApiPreferences->pythonExecutable();
+    }
+
+    return pythonPath();
 }
 
 //--------------------------------------------------------------------------------------------------
