@@ -200,7 +200,7 @@ std::vector<Peak>
 
         // Zero prominence: flat shoulders and plateaus are not peaks. Only a single isolated cell (no other
         // data to compare against) is kept as a legitimate, if trivial, peak.
-        if ( prominence[k] <= 0.0 && !( isSurvivingRoot[k] && regionSize[k] == 1 ) ) continue;
+        if ( prominence[k] <= 0.0 && ( !isSurvivingRoot[k] || regionSize[k] != 1 ) ) continue;
 
         const int i = k % nx;
         const int j = k / nx;
