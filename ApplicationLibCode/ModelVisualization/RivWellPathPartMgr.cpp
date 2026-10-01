@@ -170,8 +170,6 @@ bool RivWellPathPartMgr::isWellPathEnabled( const cvf::BoundingBox& wellPathClip
     RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if ( !wellPathCollection ) return false;
 
-    if ( !wellPathCollection->isActive() ) return false;
-
     if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return false;
 
     if ( wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON )

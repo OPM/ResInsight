@@ -18,9 +18,11 @@
 
 #include "RivWellPathsPartMgr.h"
 
+#include "Rim3dView.h"
 #include "RimEclipseView.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathInViewCollection.h"
 
 #include "RivWellPathPartMgr.h"
 
@@ -133,7 +135,7 @@ bool RivWellPathsPartMgr::isWellPathVisible() const
 {
     auto wellPathColl = RimWellPathCollection::instance();
 
-    if ( !wellPathColl->isActive() ) return false;
+    if ( m_rimView && m_rimView->wellPathInViewCollection() && !m_rimView->wellPathInViewCollection()->isChecked() ) return false;
     if ( wellPathColl->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return false;
 
     return true;

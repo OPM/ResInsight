@@ -656,14 +656,6 @@ void RimWellPathCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTree
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellPathCollection::objectToggleField()
-{
-    return &isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::updateMswSegmentsForObject( caf::PdmObject* changedObject )
 {
     if ( !m_mswAutoUpdateSegments() ) return;

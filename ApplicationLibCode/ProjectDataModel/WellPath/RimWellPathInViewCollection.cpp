@@ -47,7 +47,12 @@ void RimWellPathInViewCollection::updateFromWellPathCollection()
 {
     if ( !sourceCollection() )
     {
-        setSourceCollection( RimWellPathCollection::instance() );
+        auto* wellPathCollection = RimWellPathCollection::instance();
+        setSourceCollection( wellPathCollection );
+
+        // Seed the per-view collection checkbox from the legacy global "Active" toggle, so that the first
+        // per-view mirror created for a project (or view) preserves the previous global visibility.
+        setCheckState( wellPathCollection->isActive() );
     }
     updateFromSource();
 }
@@ -191,6 +196,12 @@ void RimWellPathInViewCollection::initAfterRead()
             {
                 wellPathInView->setCheckState( wellPath->showWellPath() );
             }
+        }
+
+        // Same migration for the collection-level checkbox, replacing the now-removed global "Active" checkbox.
+        if ( auto* wellPathCollection = sourceCollection() )
+        {
+            setCheckState( wellPathCollection->isActive() );
         }
     }
 }
