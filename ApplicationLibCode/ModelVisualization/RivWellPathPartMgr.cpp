@@ -174,9 +174,10 @@ bool RivWellPathPartMgr::isWellPathEnabled( const cvf::BoundingBox& wellPathClip
 
     if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return false;
 
-    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::ALL_ON && !m_rimWellPath->showWellPath() ) return false;
-
-    if ( !isWellPathVisibleInView() ) return false;
+    if ( wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON )
+    {
+        if ( !isWellPathVisibleInView() ) return false;
+    }
 
     if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return false;
 
@@ -193,7 +194,7 @@ void RivWellPathPartMgr::appendStaticFracturePartsToModel( cvf::ModelBasicList* 
     const RimEclipseView* eclView = dynamic_cast<const RimEclipseView*>( m_rimView.p() );
     if ( !eclView ) return;
 
-    if ( !m_rimWellPath || !m_rimWellPath->showWellPath() || !m_rimWellPath->fractureCollection()->isChecked() ) return;
+    if ( !m_rimWellPath || !m_rimWellPath->fractureCollection()->isChecked() ) return;
 
     if ( !isWellPathVisibleInView() ) return;
 

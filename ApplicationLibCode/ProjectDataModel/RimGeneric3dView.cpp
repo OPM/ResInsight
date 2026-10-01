@@ -188,10 +188,12 @@ cvf::BoundingBox RimGeneric3dView::computeDomainBoundingBox() const
 
     if ( auto* wellPathColl = RimWellPathCollection::instance() )
     {
+        bool forceAllOn = wellPathColl->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_ON;
+
         for ( auto* wellPath : wellPathColl->allWellPaths() )
         {
-            if ( !wellPath || !wellPath->showWellPath() || !wellPath->wellPathGeometry() ) continue;
-            if ( m_wellPathInViewCollection() && !m_wellPathInViewCollection->isWellPathVisible( wellPath ) ) continue;
+            if ( !wellPath || !wellPath->wellPathGeometry() ) continue;
+            if ( !forceAllOn && m_wellPathInViewCollection() && !m_wellPathInViewCollection->isWellPathVisible( wellPath ) ) continue;
 
             for ( const auto& point : wellPath->wellPathGeometry()->wellPathPoints() )
                 bb.add( point );
