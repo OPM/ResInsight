@@ -180,18 +180,11 @@ void RicDeleteSubItemsFeature::deleteSubItems( bool onlyDeleteUnchecked )
         {
             if ( onlyDeleteUnchecked )
             {
-                auto paths = collection->allWellPaths();
-                for ( auto path : paths )
-                {
-                    if ( path->showWellPath() ) continue;
-                    collection->removeWellPath( path );
-                    delete path;
-                }
+                // Well path visibility is per-view, so there is no meaningful global "unchecked" state to delete by.
+                continue;
             }
-            else
-            {
-                collection->deleteAllWellPaths();
-            }
+
+            collection->deleteAllWellPaths();
 
             collection->updateConnectedEditors();
             collection->scheduleRedrawAffectedViews();
