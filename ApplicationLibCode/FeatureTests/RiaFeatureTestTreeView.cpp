@@ -31,6 +31,11 @@ RiaFeatureTestTreeView::RiaFeatureTestTreeView( caf::PdmUiItem* rootItem )
     : m_treeView( std::make_unique<caf::PdmUiTreeView>() )
 {
     caf::PdmUiItem* root = rootItem ? rootItem : RimProject::current();
+
+    // Several defineUiTreeOrdering() overrides (e.g. RimEclipseCase) only add their view children when
+    // the configuration name matches the main window's project tree. Use the same name so the headless
+    // tree mirrors what the real project tree would show.
+    m_treeView->setUiConfigurationName( "MainWindow.ProjectTree" );
     m_treeView->setPdmItem( root );
 
     // Register the tree view so RicToggleItemsFeatureImpl::findTreeView() picks it up instead of the
