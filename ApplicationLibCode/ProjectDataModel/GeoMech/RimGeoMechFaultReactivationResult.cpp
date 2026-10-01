@@ -47,6 +47,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
+#include "WellPath/RimWellPathInViewCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -177,6 +178,22 @@ void RimGeoMechFaultReactivationResult::fieldChangedByUi( const caf::PdmFieldHan
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Hides the given well path in every view's per-view well path visibility mirror. Used for the
+/// synthetic fault-reactivation well paths, which should never be rendered even though they exist
+/// in the global well path collection.
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechFaultReactivationResult::hideWellPathInAllViews( RimWellPath* wellPath )
+{
+    for ( Rim3dView* view : RimProject::current()->allViews() )
+    {
+        if ( auto* wellPathInViewCollection = view->wellPathInViewCollection() )
+        {
+            wellPathInViewCollection->setWellPathVisible( wellPath, false );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechFaultReactivationResult::createWellGeometry()
@@ -199,6 +216,7 @@ void RimGeoMechFaultReactivationResult::createWellGeometry()
         m_faceAWellPath->setName( "Fault Face A Well" );
         m_faceAWellPath->setShowWellPath( false );
         wellPathCollection->addWellPath( m_faceAWellPath );
+        hideWellPathInAllViews( m_faceAWellPath );
     }
     if ( !m_faceBWellPath ||
          ( m_faceBWellPath && std::find( allWellPaths.begin(), allWellPaths.end(), m_faceBWellPath ) == allWellPaths.end() ) )
@@ -207,6 +225,7 @@ void RimGeoMechFaultReactivationResult::createWellGeometry()
         m_faceBWellPath->setName( "Fault Face B Well" );
         m_faceBWellPath->setShowWellPath( false );
         wellPathCollection->addWellPath( m_faceBWellPath );
+        hideWellPathInAllViews( m_faceBWellPath );
     }
 
     if ( !m_faceAWellPath->geometryDefinition() || !m_faceBWellPath->geometryDefinition() ) return;
