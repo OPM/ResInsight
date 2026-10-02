@@ -236,53 +236,83 @@ void RimWellRftPlot::applyCurveColor( RimWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::updateFormationsOnPlot() const
 {
-    if ( plotCount() > 0 )
+    if ( plotCount() == 0 ) return;
+
+    RimProject*  proj     = RimProject::current();
+    RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
+
+    RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+    if ( !track ) return;
+
+    // Explicit user selection (or a previous automatic fallback, see below): derive formation tops
+    // from observed FMU RFT data for the current well and first selected time step.
+    if ( track->formationSource() == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA )
     {
-        RimProject*  proj     = RimProject::current();
-        RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
+        updateFormationsFromObservedRftDataForTrack( track, wellPath );
+        return;
+    }
 
-        RimCase*         formationNamesCase = nullptr;
-        RimWellLogTrack* track              = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-        if ( track )
+    RimCase* formationNamesCase = track->formationCase();
+
+    if ( !formationNamesCase )
+    {
+        /// Set default case. Todo : Use the first of the selected cases in the plot
+        std::vector<RimCase*> cases = proj->allGridCases();
+        if ( !cases.empty() )
         {
-            formationNamesCase = track->formationCase();
-
-            if ( !formationNamesCase )
-            {
-                /// Set default case. Todo : Use the first of the selected cases in the plot
-                std::vector<RimCase*> cases = proj->allGridCases();
-                if ( !cases.empty() )
-                {
-                    formationNamesCase = cases[0];
-                }
-            }
-
-            // Fall back to formation names derived from observed FMU RFT data (zone names and MD
-            // ranges from the RFT observation file) when no grid case is available to provide
-            // formation tops, e.g. in ensemble-only projects without a grid case.
-            if ( !formationNamesCase && wellPath )
-            {
-                if ( auto formations = createFormationsFromObservedRftData(); formations.notNull() )
-                {
-                    wellPath->setFormationsGeometry( formations );
-                    track->setAndUpdateWellPathFormationPicksData( wellPath );
-                    return;
-                }
-            }
-
-            if ( wellPath )
-            {
-                track->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
-            }
-            else
-            {
-                track->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase,
-                                                                       associatedSimWellName(),
-                                                                       m_branchIndex,
-                                                                       m_branchDetection );
-            }
+            formationNamesCase = cases[0];
         }
     }
+
+    // Fall back to formation names derived from observed FMU RFT data (zone names and MD
+    // ranges from the RFT observation file) when no grid case is available to provide
+    // formation tops, e.g. in ensemble-only projects without a grid case.
+    if ( !formationNamesCase && wellPath )
+    {
+        if ( updateFormationsFromObservedRftDataForTrack( track, wellPath ) ) return;
+    }
+
+    if ( wellPath )
+    {
+        track->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
+    }
+    else
+    {
+        track->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase, associatedSimWellName(), m_branchIndex, m_branchDetection );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Explicitly (re-)computes and applies formation tops derived from observed FMU RFT data to this
+/// plot's track. Called when the user selects "Observed RFT Data" as the track's formation source.
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::updateFormationsFromObservedRftData()
+{
+    if ( plotCount() == 0 ) return;
+
+    RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+    if ( !track ) return;
+
+    RimProject*  proj     = RimProject::current();
+    RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
+
+    updateFormationsFromObservedRftDataForTrack( track, wellPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Builds formation tops from observed FMU RFT data and applies them to the given track/well path.
+/// Returns false (without changing the track's formation source) if no observed data is available.
+//--------------------------------------------------------------------------------------------------
+bool RimWellRftPlot::updateFormationsFromObservedRftDataForTrack( RimWellLogTrack* track, RimWellPath* wellPath ) const
+{
+    if ( !track || !wellPath ) return false;
+
+    auto formations = createFormationsFromObservedRftData();
+    if ( formations.isNull() ) return false;
+
+    wellPath->setFormationsGeometry( formations );
+    track->setAndUpdateWellPathFormationPicksData( wellPath, RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

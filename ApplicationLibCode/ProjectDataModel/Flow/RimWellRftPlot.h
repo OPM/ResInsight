@@ -117,6 +117,10 @@ public:
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
+    // Called by RimWellLogFormationSettings when the user explicitly selects "Observed RFT Data" as
+    // the formation source for this plot's track.
+    void updateFormationsFromObservedRftData();
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
@@ -166,6 +170,7 @@ private:
     void                                  updateFormationsOnPlot() const;
     QString                               associatedSimWellName() const;
     cvf::ref<class RigWellPathFormations> createFormationsFromObservedRftData() const;
+    bool updateFormationsFromObservedRftDataForTrack( class RimWellLogTrack* track, class RimWellPath* wellPath ) const;
 
     static RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseRftAddress& address );
     static RiuPlotCurveSymbol::LabelPosition   statisticsLabelPosFromAddress( const RifEclipseRftAddress& address );
