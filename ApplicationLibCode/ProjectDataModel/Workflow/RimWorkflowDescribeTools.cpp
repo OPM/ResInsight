@@ -117,7 +117,9 @@ QJsonObject taskFromDescribe( const QJsonObject& task )
                         { "outputs", outputs },
                         { "config_fields", configFields },
                         { "input_types", RimWorkflowPortCompatibility::portTypes( RimWorkflowPortCompatibility::inputPorts( task ) ) },
-                        { "output_types", RimWorkflowPortCompatibility::portTypes( RimWorkflowPortCompatibility::outputPorts( task ) ) } };
+                        { "output_types", RimWorkflowPortCompatibility::portTypes( RimWorkflowPortCompatibility::outputPorts( task ) ) },
+                        { "input_icons", RimWorkflowPortCompatibility::portIcons( RimWorkflowPortCompatibility::inputPorts( task ) ) },
+                        { "output_icons", RimWorkflowPortCompatibility::portIcons( RimWorkflowPortCompatibility::outputPorts( task ) ) } };
 }
 } // namespace
 

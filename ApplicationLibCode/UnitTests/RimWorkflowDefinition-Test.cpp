@@ -163,6 +163,25 @@ TEST( RimWorkflowDefinition, graphFromDefinition )
     EXPECT_EQ( "RipsInstance", exportTask.value( "input_types" ).toObject().value( "resinsight" ).toString() );
     EXPECT_EQ( "str", exportTask.value( "output_types" ).toObject().value( "export_file" ).toString() );
 
+    // Icons of ResInsight objects, found through `ObjectModel[Class]` and rips bases
+    const QJsonObject exportIcons = exportTask.value( "input_icons" ).toObject();
+    EXPECT_EQ( ":/AppLogo48x48.png", exportIcons.value( "resinsight" ).toString() );
+    EXPECT_FALSE( exportTask.value( "output_icons" ).toObject().contains( "export_file" ) );
+    EXPECT_EQ( ":/Case48x48.png", taskByName( graph, "select_eclipse_case" ).value( "output_icons" ).toObject().value( "" ).toString() );
+    EXPECT_EQ( ":/Well.svg", taskByName( graph, "select_well_path_1" ).value( "output_icons" ).toObject().value( "" ).toString() );
+    EXPECT_EQ( ":/Case48x48.png",
+               RimWorkflowPortCompatibility::iconResource( QJsonObject{ { "x-ri-python-type", "rips.generated.generated_classes.Reservoir" } },
+                                                           {} ) );
+    EXPECT_EQ( ":/3DView16x16.png",
+               RimWorkflowPortCompatibility::iconResource( QJsonObject{ { "anyOf",
+                                                                          QJsonArray{ QJsonObject{ { "type", "null" } },
+                                                                                      QJsonObject{ { "x-ri-python-bases",
+                                                                                                     QJsonArray{ "pkg.GridView",
+                                                                                                                 "taskmaestro.object_model."
+                                                                                                                 "ObjectModel["
+                                                                                                                 "View]" } } } } } },
+                                                           {} ) );
+
     // The connect task's opaque `value` is not a port of its own
     const QJsonObject connect = taskByName( graph, "connect_to_resinsight" );
     EXPECT_TRUE( connect.value( "outputs" ).toArray().isEmpty() );

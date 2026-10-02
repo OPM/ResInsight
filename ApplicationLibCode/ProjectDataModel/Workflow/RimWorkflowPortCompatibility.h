@@ -37,6 +37,7 @@ struct RimWorkflowPort
     QJsonObject rootSchema{};
     QString     description{};
     QString     typeName{};
+    QString     iconResource{};
     bool        required     = true;
     bool        configurable = false;
 
@@ -58,7 +59,9 @@ bool isCompatible( const QJsonObject& produced, const QJsonObject& producedRoot,
 bool        isCompatible( const RimWorkflowPort& produced, const RimWorkflowPort& expected );
 bool        isAny( const QJsonObject& schema, const QJsonObject& rootSchema );
 QString     typeName( const QJsonObject& schema, const QJsonObject& rootSchema );
+QString     iconResource( const QJsonObject& schema, const QJsonObject& rootSchema );
 QJsonObject portTypes( const std::vector<RimWorkflowPort>& ports );
+QJsonObject portIcons( const std::vector<RimWorkflowPort>& ports );
 
 QStringList coveredByWholeOutput( const QJsonObject& upstreamTaskType, const QJsonObject& downstreamTaskType );
 bool        wouldCreateCycle( const RimWorkflowDefinition& definition, const QString& from, const QString& to );
