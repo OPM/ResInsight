@@ -67,6 +67,9 @@ public:
 
     std::vector<QString> labels( const RifEclipseRftAddress& rftAddress );
 
+    std::set<QString> formationNames( const QString& wellName );
+    std::set<QString> formationNames( const QString& wellName, const QDateTime& timeStep );
+
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
 

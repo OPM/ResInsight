@@ -135,6 +135,46 @@ std::vector<QString> RifReaderFmuRft::labels( const RifEclipseRftAddress& rftAdd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<QString> RifReaderFmuRft::formationNames( const QString& wellName )
+{
+    if ( m_observations.empty() )
+    {
+        importData();
+    }
+
+    std::set<QString> formations;
+    for ( const auto& observation : m_observations )
+    {
+        if ( observation.wellDate.wellName != wellName ) continue;
+        if ( !observation.location.formation.isEmpty() ) formations.insert( observation.location.formation );
+    }
+
+    return formations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QString> RifReaderFmuRft::formationNames( const QString& wellName, const QDateTime& timeStep )
+{
+    if ( m_observations.empty() )
+    {
+        importData();
+    }
+
+    std::set<QString> formations;
+    for ( const auto& observation : m_observations )
+    {
+        if ( observation.wellDate.wellName != wellName || observation.wellDate.dateTime != timeStep ) continue;
+        if ( !observation.location.formation.isEmpty() ) formations.insert( observation.location.formation );
+    }
+
+    return formations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress> RifReaderFmuRft::eclipseRftAddresses()
 {
     if ( m_observations.empty() )

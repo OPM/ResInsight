@@ -43,6 +43,9 @@ public:
     std::vector<QString> wells() const;
     std::vector<QString> labels( const RifEclipseRftAddress& rftAddress );
 
+    std::vector<QString> formationNames( const QString& wellPathName );
+    std::vector<QString> formationNames( const QString& wellPathName, const QDateTime& timeStep );
+
 protected:
     void initAfterRead() override;
 

@@ -117,6 +117,32 @@ std::vector<QString> RimObservedFmuRftData::labels( const RifEclipseRftAddress& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RimObservedFmuRftData::formationNames( const QString& wellPathName )
+{
+    if ( m_fmuRftReader )
+    {
+        std::set<QString> formations = m_fmuRftReader->formationNames( wellPathName );
+        return std::vector<QString>( formations.begin(), formations.end() );
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimObservedFmuRftData::formationNames( const QString& wellPathName, const QDateTime& timeStep )
+{
+    if ( m_fmuRftReader )
+    {
+        std::set<QString> formations = m_fmuRftReader->formationNames( wellPathName, timeStep );
+        return std::vector<QString>( formations.begin(), formations.end() );
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimObservedFmuRftData::initAfterRead()
 {
     if ( m_directoryPath().path().isEmpty() )
