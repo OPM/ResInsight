@@ -31,7 +31,6 @@ class QAction;
 class QLabel;
 class QMenu;
 class QSplitter;
-class QToolBar;
 class RimWorkflow;
 class RimWorkflowJob;
 struct RimWorkflowDefinition;
@@ -39,7 +38,7 @@ class RiuWorkflowTaskPalette;
 class RiuWorkflowValidationRunner;
 
 //==================================================================================================
-/// The workflow dock: a toolbar, the task palette, the graph and a status line. Edits go through
+/// The workflow dock: the graph, the task palette and a status line. Edits go through
 /// RimWorkflow::applyEdit(); the workflow then calls RiuMainWindow::workflowDefinitionChanged(),
 /// which refreshes this widget.
 //==================================================================================================
@@ -89,18 +88,16 @@ private:
 private:
     caf::PdmPointer<RimWorkflow>    m_workflow;
     caf::PdmPointer<RimWorkflowJob> m_job;
-
-    QToolBar*                    m_toolBar;
-    QAction*                     m_saveAction;
-    QAction*                     m_saveAsAction;
-    QAction*                     m_undoAction;
-    QAction*                     m_redoAction;
-    QAction*                     m_duplicateAction;
-    QAction*                     m_fitAction;
-    QSplitter*                   m_splitter;
-    RiuWorkflowTaskPalette*      m_palette;
-    RiuWorkflowGraphView*        m_graphView;
-    QLabel*                      m_statusLabel;
-    RiuWorkflowValidationRunner* m_validationRunner;
-    QString                      m_message;
+    QAction*                        m_saveAction;
+    QAction*                        m_saveAsAction;
+    QAction*                        m_undoAction;
+    QAction*                        m_redoAction;
+    QAction*                        m_duplicateAction;
+    QAction*                        m_fitAction;
+    QSplitter*                      m_splitter;
+    RiuWorkflowTaskPalette*         m_palette;
+    RiuWorkflowGraphView*           m_graphView;
+    QLabel*                         m_statusLabel;
+    RiuWorkflowValidationRunner*    m_validationRunner;
+    QString                         m_message;
 };

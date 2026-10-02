@@ -147,10 +147,10 @@ tooltip while dragging.
 Selecting a `RimWorkflow` (or one of its jobs) shows `RiuWorkflowEditorWidget`
 in a central dock tab:
 
-- a toolbar with Save, Save As, Undo, Redo, Duplicate as Editable, and Fit;
-- the task palette (`RiuWorkflowTaskPalette`): a filter field above a tree
-  grouped by id prefix. Drag a task onto the graph, or double-click it;
 - the graph (`RiuWorkflowGraphView`);
+- the task palette (`RiuWorkflowTaskPalette`) to the right of the graph: a
+  filter field above a tree grouped by id prefix. Drag a task onto the
+  graph, or double-click it;
 - a status line for load errors, read-only reasons, validation results and
   unsaved changes.
 
@@ -166,7 +166,8 @@ In an editable workflow:
 - Unwired optional inputs are drawn as hollow ports.
 - Right-click a task for Rename (F2), Set as Result Task, Optional Inputs ▸
   and Delete (Del). Right-click a connection for Delete Connection.
-  Right-click the background for Add Task ▸, Fit and Save.
+  Right-click the background for Add Task ▸, Undo, Redo, Save, Save As,
+  Duplicate as Editable and Fit. There is no toolbar.
 - Ctrl+Z/Ctrl+Y undo and redo; Ctrl+S saves.
 
 Selecting a task shows its `RimWorkflowTaskInput` from the displayed job in
@@ -343,7 +344,7 @@ ApplicationLibCode/Commands/WorkflowCommands/
 └── RicWorkflowLocationUi.{h,cpp}        # name + folder dialog
 
 ApplicationLibCode/UserInterface/
-├── RiuWorkflowEditorWidget.{h,cpp}      # the dock: toolbar, palette, graph, status
+├── RiuWorkflowEditorWidget.{h,cpp}      # the dock: graph, palette, status
 ├── RiuWorkflowGraphView.{h,cpp}         # QGraphicsView with editing
 ├── RiuWorkflowGraphLayout.{h,cpp}       # pure layout (QtCore only)
 ├── RiuWorkflowTaskPalette.{h,cpp}
