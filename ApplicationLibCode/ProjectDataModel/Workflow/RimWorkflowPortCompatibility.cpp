@@ -347,6 +347,17 @@ QString RimWorkflowPortCompatibility::typeName( const QJsonObject& schema, const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Port name -> type name, with an empty name for the whole model. Used to label ports in the graph.
+//--------------------------------------------------------------------------------------------------
+QJsonObject RimWorkflowPortCompatibility::portTypes( const std::vector<RimWorkflowPort>& ports )
+{
+    QJsonObject types;
+    for ( const auto& port : ports )
+        types[port.name] = port.typeName;
+    return types;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Input fields of the downstream task supplied when it takes the whole upstream output
 //--------------------------------------------------------------------------------------------------
 QStringList RimWorkflowPortCompatibility::coveredByWholeOutput( const QJsonObject& upstreamTaskType, const QJsonObject& downstreamTaskType )

@@ -286,6 +286,8 @@ QJsonObject graphTask( const RimWorkflowDefinition&         definition,
                         { "whole_input", inputPorts.size() == 1 && !inputSchema.value( "properties" ).toObject().isEmpty() },
                         { "input_ports", inputPortsJson( definition, node, inputPorts, definition.incomingEdges( node.name ) ) },
                         { "output_ports", outputPortsJson( outputPorts, definition.outgoingEdges( node.name ) ) },
+                        { "input_types", RimWorkflowPortCompatibility::portTypes( inputPorts ) },
+                        { "output_types", RimWorkflowPortCompatibility::portTypes( outputPorts ) },
                         { "is_result", node.name == resultTask },
                         { "issues", taskIssues } };
 }
