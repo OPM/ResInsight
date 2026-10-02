@@ -1310,6 +1310,30 @@ void RimWellLogTrack::setAndUpdateWellPathFormationPicksData( RimWellPath* wellP
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Configures the track to use the "Observed RFT Data" formation source. Unlike
+/// setAndUpdateWellPathFormationPicksData(), the formation tops are owned directly by the track
+/// (m_observedRftFormations) instead of being stored on a RimWellPath, since RFT-only wells (e.g.
+/// simulation wells with no imported well path trajectory) may have no associated RimWellPath at all.
+/// The optional wellPath, when available, is still recorded for reference (e.g. "clicked" lookups by
+/// other code that doesn't distinguish the two "well pick" sources).
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAndUpdateObservedRftFormationsData( cvf::ref<RigWellPathFormations> formations, RimWellPath* wellPath )
+{
+    m_observedRftFormations = formations;
+
+    m_formationSettings->setFormationSource( RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA );
+    m_formationSettings->setTrajectoryType( RiaDefines::WellLogTrackTrajectoryType::WELL_PATH );
+    m_formationSettings->setWellPathForSourceWellPath( wellPath );
+
+    updateConnectedEditors();
+
+    if ( m_regionAnnotationSettings->annotationType() != RiaDefines::RegionAnnotationType::NO_ANNOTATIONS )
+    {
+        updateRegionAnnotationsOnPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Returns the formation name covering the given depth value, when the formation source is set to
 /// "Well Picks for Well Path" (WELL_PICK_FILTER) or "Observed RFT Data" (RFT_OBSERVED_DATA) and the
 /// source well path has formation data. Used by RiuWellLogTrack to resolve a formation name when the
@@ -1317,9 +1341,13 @@ void RimWellLogTrack::setAndUpdateWellPathFormationPicksData( RimWellPath* wellP
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogTrack::formationNameAtDepth( double depthValue, RiaDefines::DepthType depthType ) const
 {
-    if ( m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER &&
-         m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA )
-        return {};
+    if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA )
+    {
+        if ( m_observedRftFormations.isNull() ) return {};
+        return m_observedRftFormations->formationNameAtDepth( depthValue, depthType );
+    }
+
+    if ( m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER ) return {};
 
     RimWellPath* wellPath = m_formationSettings->wellPathForSourceWellPath();
     if ( !wellPath ) return {};
@@ -2616,10 +2644,22 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
     auto orientation = plot->depthOrientation();
 
-    if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER ||
-         m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA )
+    bool isRftObservedSource = m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA;
+
+    if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER || isRftObservedSource )
     {
-        if ( m_formationSettings->wellPathForSourceWellPath() == nullptr ) return;
+        // "Observed RFT Data" formations are owned directly by the track (no RimWellPath required, as
+        // RFT-only wells may not have an imported well path). "Well Picks for Well Path" formations are
+        // owned by the source well path.
+        const RigWellPathFormations* formations = isRftObservedSource ? m_observedRftFormations.p() : nullptr;
+
+        if ( !isRftObservedSource )
+        {
+            if ( m_formationSettings->wellPathForSourceWellPath() == nullptr ) return;
+            formations = m_formationSettings->wellPathForSourceWellPath()->formationsGeometry();
+        }
+
+        if ( !formations ) return;
 
         if ( plot->depthType() != RiaDefines::DepthType::MEASURED_DEPTH && plot->depthType() != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH &&
              plot->depthType() != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
@@ -2629,9 +2669,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
         std::vector<double> yValues;
 
-        const RigWellPathFormations* formations = m_formationSettings->wellPathForSourceWellPath()->formationsGeometry();
-        if ( !formations ) return;
-
         std::vector<QString> formationNamesToPlot;
         auto                 formationLevel = static_cast<RigWellPathFormations::FormationLevel>( m_formationSettings->formationLevel() );
         formations->depthAndFormationNamesUpToLevel( formationLevel,
@@ -2640,7 +2677,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                      m_formationSettings->showFormationFluids(),
                                                      plot->depthType() );
 
-        if ( plot->depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
+        if ( plot->depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB && m_formationSettings->wellPathForSourceWellPath() &&
+             m_formationSettings->wellPathForSourceWellPath()->wellPathGeometry() )
         {
             for ( double& depthValue : yValues )
             {

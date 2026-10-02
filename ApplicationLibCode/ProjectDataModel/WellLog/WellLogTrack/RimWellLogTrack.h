@@ -136,6 +136,7 @@ public:
     void setAndUpdateWellPathFormationPicksData(
         RimWellPath*                            wellPath,
         RiaDefines::WellLogTrackFormationSource formationSource = RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER );
+    void setAndUpdateObservedRftFormationsData( cvf::ref<RigWellPathFormations> formations, RimWellPath* wellPath );
 
     QString formationNameAtDepth( double depthValue, RiaDefines::DepthType depthType ) const;
 
@@ -324,6 +325,10 @@ private:
 
     // Well path attribute settings
     caf::PdmChildField<RimWellLogWellPathAttributeSettings*> m_wellPathAttributeSettings;
+
+    // Formation tops derived from observed RFT data, owned directly by the track since the well may
+    // not have an associated RimWellPath object (e.g. a simulation well only known from RFT data).
+    cvf::ref<RigWellPathFormations> m_observedRftFormations;
 
     // OBSOLETE: Property value axis fields (migrated to RimWellLogPropertyAxisSettings)
     caf::PdmField<bool>                         m_isPropertyAxisEnabled_OBSOLETE;

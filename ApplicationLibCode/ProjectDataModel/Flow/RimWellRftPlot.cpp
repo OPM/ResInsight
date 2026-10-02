@@ -245,7 +245,9 @@ void RimWellRftPlot::updateFormationsOnPlot() const
     if ( !track ) return;
 
     // Explicit user selection (or a previous automatic fallback, see below): derive formation tops
-    // from observed FMU RFT data for the current well and first selected time step.
+    // from observed FMU RFT data for the current well and first selected time step. No RimWellPath is
+    // required: RFT-only wells (e.g. ensemble simulation wells with no imported well path trajectory)
+    // may have none.
     if ( track->formationSource() == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA )
     {
         updateFormationsFromObservedRftDataForTrack( track, wellPath );
@@ -267,7 +269,7 @@ void RimWellRftPlot::updateFormationsOnPlot() const
     // Fall back to formation names derived from observed FMU RFT data (zone names and MD
     // ranges from the RFT observation file) when no grid case is available to provide
     // formation tops, e.g. in ensemble-only projects without a grid case.
-    if ( !formationNamesCase && wellPath )
+    if ( !formationNamesCase )
     {
         if ( updateFormationsFromObservedRftDataForTrack( track, wellPath ) ) return;
     }
@@ -305,13 +307,13 @@ void RimWellRftPlot::updateFormationsFromObservedRftData()
 //--------------------------------------------------------------------------------------------------
 bool RimWellRftPlot::updateFormationsFromObservedRftDataForTrack( RimWellLogTrack* track, RimWellPath* wellPath ) const
 {
-    if ( !track || !wellPath ) return false;
+    if ( !track ) return false;
 
     auto formations = createFormationsFromObservedRftData();
     if ( formations.isNull() ) return false;
 
-    wellPath->setFormationsGeometry( formations );
-    track->setAndUpdateWellPathFormationPicksData( wellPath, RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA );
+    if ( wellPath ) wellPath->setFormationsGeometry( formations );
+    track->setAndUpdateObservedRftFormationsData( formations, wellPath );
     return true;
 }
 
