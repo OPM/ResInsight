@@ -70,6 +70,17 @@
 
 CAF_PDM_SOURCE_INIT( RimParameterRftCrossPlot, "ParameterRftCrossPlot" );
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimParameterRftCrossPlot::SampleMode>::setUp()
+{
+    addItem( RimParameterRftCrossPlot::SampleMode::ALL_SAMPLES, "ALL_SAMPLES", "All" );
+    addItem( RimParameterRftCrossPlot::SampleMode::AVERAGE_PER_REALIZATION, "AVERAGE_PER_REALIZATION", "Average per Realization" );
+    setDefault( RimParameterRftCrossPlot::SampleMode::AVERAGE_PER_REALIZATION );
+}
+} // namespace caf
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -90,7 +101,7 @@ RimParameterRftCrossPlot::RimParameterRftCrossPlot()
     m_formationFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString(), "Ensemble Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_showAllSamples, "ShowAllSamples", false, "Show All Samples" );
+    CAF_PDM_InitFieldNoDefault( &m_sampleMode, "SampleMode", "Samples" );
 
     CAF_PDM_InitField( &m_useAutoPlotTitle, "UseAutoPlotTitle", true, "Auto Title" );
     CAF_PDM_InitField( &m_description, "Description", QString( "RFT Cross Plot" ), "Title" );
@@ -165,9 +176,9 @@ void RimParameterRftCrossPlot::setEnsembleParameter( const QString& paramName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimParameterRftCrossPlot::setShowAllSamples( bool showAllSamples )
+void RimParameterRftCrossPlot::setSampleMode( SampleMode sampleMode )
 {
-    m_showAllSamples = showAllSamples;
+    m_sampleMode = sampleMode;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,9 +256,9 @@ QString RimParameterRftCrossPlot::formationFilter() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimParameterRftCrossPlot::showAllSamples() const
+RimParameterRftCrossPlot::SampleMode RimParameterRftCrossPlot::sampleMode() const
 {
-    return m_showAllSamples();
+    return m_sampleMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -436,7 +447,7 @@ std::vector<RimParameterRftCrossPlot::CaseData> RimParameterRftCrossPlot::create
 
     std::vector<CaseData> result;
 
-    if ( m_showAllSamples() )
+    if ( m_sampleMode() == SampleMode::ALL_SAMPLES )
     {
         // One point per RFT sample within the depth range, instead of a single per-case mean.
         const std::vector<std::vector<double>> samplesPerCase = computePressureSamplesPerCase( m_ensemble(),
@@ -507,7 +518,7 @@ void RimParameterRftCrossPlot::updateAxes()
     const int axisTitleSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
     const int axisValueSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 
-    const QString pressureLabel = m_showAllSamples() ? QString( "Pressure" ) : QString( "Mean Pressure" );
+    const QString pressureLabel = m_sampleMode() == SampleMode::ALL_SAMPLES ? QString( "Pressure" ) : QString( "Mean Pressure" );
     const QString depthLabel    = m_useDepthRange()
                                       ? QString( "%1 [MD %2 - %3]" ).arg( pressureLabel ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
                                       : pressureLabel;
@@ -537,7 +548,7 @@ void RimParameterRftCrossPlot::updateAxes()
 QString RimParameterRftCrossPlot::asciiDataForPlotExport() const
 {
     QString       asciiData;
-    const QString pressureHeader = m_showAllSamples() ? "Pressure" : "Mean Pressure";
+    const QString pressureHeader = m_sampleMode() == SampleMode::ALL_SAMPLES ? "Pressure" : "Mean Pressure";
     asciiData += QString( "Realization\tParameter\t%1\n" ).arg( pressureHeader );
     for ( const auto& [paramValue, pressureValue, summaryCase] : createCaseData() )
     {
@@ -697,7 +708,7 @@ void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     auto* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameter" );
     crossPlotGroup->add( &m_ensembleParameter );
-    crossPlotGroup->add( &m_showAllSamples );
+    crossPlotGroup->add( &m_sampleMode );
 
     auto* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->setCollapsedByDefault();
@@ -905,7 +916,7 @@ void RimParameterRftCrossPlot::createPoints()
     }
 
     // createCaseData() groups all entries belonging to the same case consecutively (one entry per
-    // case normally, or one entry per in-range RFT sample when showAllSamples is enabled). Group
+    // case normally, or one entry per in-range RFT sample when sampleMode() is ALL_SAMPLES). Group
     // them into a single curve per case so each case gets one consistent color/legend entry even
     // when it contributes multiple points.
     int    idx = 0;
@@ -946,7 +957,8 @@ void RimParameterRftCrossPlot::updatePlotTitle()
 
     if ( m_useAutoPlotTitle && m_ensemble() )
     {
-        const QString pressureLabel = m_showAllSamples() ? QString( "RFT Pressure (All Samples)" ) : QString( "Mean RFT Pressure" );
+        const QString pressureLabel = m_sampleMode() == SampleMode::ALL_SAMPLES ? QString( "RFT Pressure (All Samples)" )
+                                                                                : QString( "Mean RFT Pressure" );
 
         if ( m_useDepthRange() )
         {

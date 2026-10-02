@@ -20,6 +20,7 @@
 #include "Appearance/RimFontSizeField.h"
 #include "RimPlot.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
@@ -46,10 +47,16 @@ class RimParameterRftCrossPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class SampleMode
+    {
+        ALL_SAMPLES,
+        AVERAGE_PER_REALIZATION
+    };
+
     struct CaseData
     {
         double          parameterValue;
-        double          pressureValue; // mean pressure in depth range, or a single RFT sample when showAllSamples is enabled
+        double          pressureValue; // mean pressure in depth range, or a single RFT sample when sampleMode() is ALL_SAMPLES
         RimSummaryCase* summaryCase;
     };
 
@@ -63,7 +70,7 @@ public:
     void setDepthRange( double minMd, double maxMd );
     void setEnsembleParameter( const QString& paramName );
     void setFormationFilter( const QString& formationName );
-    void setShowAllSamples( bool showAllSamples );
+    void setSampleMode( SampleMode sampleMode );
 
     QString               ensembleParameter() const;
     QString               wellName() const;
@@ -74,7 +81,7 @@ public:
     double                depthRangeMin() const;
     double                depthRangeMax() const;
     QString               formationFilter() const;
-    bool                  showAllSamples() const;
+    SampleMode            sampleMode() const;
 
     RiuQwtPlotWidget* viewer();
 
@@ -142,7 +149,7 @@ private:
     caf::PdmField<double>                   m_depthRangeMax;
     caf::PdmField<QString>                  m_formationFilter;
     caf::PdmField<QString>                  m_ensembleParameter;
-    caf::PdmField<bool>                     m_showAllSamples;
+    caf::PdmField<caf::AppEnum<SampleMode>> m_sampleMode;
 
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
