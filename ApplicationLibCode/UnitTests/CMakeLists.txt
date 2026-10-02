@@ -92,6 +92,9 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellRftPlot-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellTargetMapping-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDescribeTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDefinition-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowJobSync-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuWorkflowGraphLayout-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDataFilterCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFilterInViewCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection-Test.cpp

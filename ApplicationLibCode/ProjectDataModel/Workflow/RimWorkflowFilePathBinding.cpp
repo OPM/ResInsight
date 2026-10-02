@@ -52,9 +52,9 @@ QString RimWorkflowFilePathBinding::displayValue() const
     return path.isEmpty() ? "(not set)" : path;
 }
 
-QString RimWorkflowFilePathBinding::toYamlValue() const
+QJsonValue RimWorkflowFilePathBinding::toJsonValue() const
 {
-    return hasValue() ? yamlQuotedScalar( m_value().path() ) : "null";
+    return hasValue() ? QJsonValue( m_value().path() ) : QJsonValue( QJsonValue::Null );
 }
 
 void RimWorkflowFilePathBinding::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )

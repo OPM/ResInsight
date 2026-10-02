@@ -18,8 +18,11 @@
 
 #include "RimWorkflowWellPathBinding.h"
 
+#include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
+
+#include <QJsonObject>
 
 CAF_PDM_SOURCE_INIT( RimWorkflowWellPathBinding, "WorkflowWellPathBinding" );
 
@@ -33,11 +36,10 @@ QString RimWorkflowWellPathBinding::displayValue() const
     return m_wellPath() ? m_wellPath()->name() : "(not selected)";
 }
 
-QString RimWorkflowWellPathBinding::toYamlValue() const
+QJsonValue RimWorkflowWellPathBinding::toJsonValue() const
 {
-    if ( m_wellPath() == nullptr ) return "null";
-    const QString name = yamlQuotedScalar( m_wellPath()->name() );
-    return QString( "{__resinsight_ref__: WellPath, well_path_name: %1}" ).arg( name );
+    if ( m_wellPath() == nullptr ) return QJsonValue::Null;
+    return QJsonObject{ { "__resinsight_ref__", "WellPath" }, { "well_path_name", m_wellPath()->name() } };
 }
 
 QList<caf::PdmOptionItemInfo> RimWorkflowWellPathBinding::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
@@ -45,4 +47,30 @@ QList<caf::PdmOptionItemInfo> RimWorkflowWellPathBinding::calculateValueOptions(
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_wellPath ) RimTools::wellPathOptionItems( &options );
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWorkflowWellPathBinding::isObjectReference() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflowWellPathBinding::applySchema( const QJsonObject& fieldSchema )
+{
+    RimWorkflowFieldBinding::applySchema( fieldSchema );
+    const QJsonObject reference = fieldSchema.value( "default" ).toObject();
+    if ( reference.value( "__resinsight_ref__" ).toString() != "WellPath" || !reference.contains( "well_path_name" ) ) return;
+
+    auto* project = RimProject::current();
+    if ( !project ) return;
+    const QString name = reference.value( "well_path_name" ).toString();
+    for ( RimWellPath* wellPath : project->allWellPaths() )
+    {
+        if ( wellPath && wellPath->name() == name ) m_wellPath = wellPath;
+    }
 }

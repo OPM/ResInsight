@@ -1,7 +1,15 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflow.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowValidationTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowInstalledCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDescribeTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowSchemaTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDefinition.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDefinitionTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowPortCompatibility.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowHelperProcess.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowTaskCatalog.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowJob.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowTaskInput.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowFieldBinding.h
@@ -20,7 +28,15 @@ set(SOURCE_GROUP_HEADER_FILES
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowValidationTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowInstalledCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDescribeTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowSchemaTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDefinition.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDefinitionTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowPortCompatibility.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowHelperProcess.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowTaskCatalog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowJob.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowTaskInput.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowFieldBinding.cpp

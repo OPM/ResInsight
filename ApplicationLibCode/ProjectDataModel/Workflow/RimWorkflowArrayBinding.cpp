@@ -38,7 +38,9 @@ void RimWorkflowArrayBinding::applySchema( const QJsonObject& fieldSchema )
     }
 }
 
-QString RimWorkflowArrayBinding::toYamlValue() const
+QJsonValue RimWorkflowArrayBinding::toJsonValue() const
 {
-    return hasValue() ? m_value() : "null";
+    if ( !hasValue() ) return QJsonValue::Null;
+    const QJsonDocument document = QJsonDocument::fromJson( m_value().toUtf8() );
+    return document.isArray() ? QJsonValue( document.array() ) : QJsonValue( m_value() );
 }

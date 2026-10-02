@@ -1,0 +1,52 @@
+# ResInsight Completions Pipeline — YAML workflow configuration
+#
+# Tasks use stable entry-point identifiers published by taskmaestro-resinsight,
+# rather than Python module/class paths.
+#
+# DAG with fan-out / fan-in pattern:
+#   ConnectToResInsight → SelectEclipseCase → [SelectWellPath x2] → [AddPerforation x2] → ExportCompletions
+
+workflow:
+  name: resinsight_completions
+  tasks:
+    - task: resinsight.connect
+    - task: resinsight.select_eclipse_case
+      depends_on:
+        resinsight: resinsight.connect
+      config_fields: [case]
+    - task: resinsight.select_well_path
+      name: select_well_path_1
+      depends_on:
+        resinsight: resinsight.connect
+        grid_case: resinsight.select_eclipse_case
+      config_fields: [well_path]
+    - task: resinsight.select_well_path
+      name: select_well_path_2
+      depends_on:
+        resinsight: resinsight.connect
+        grid_case: resinsight.select_eclipse_case
+      config_fields: [well_path]
+    - task: resinsight.add_perforation
+      name: add_perf_1
+      depends_on:
+        resinsight: resinsight.connect
+        well_path: select_well_path_1
+      config_fields: [event_date, start_md, end_md]
+    - task: resinsight.add_perforation
+      name: add_perf_2
+      depends_on:
+        resinsight: resinsight.connect
+        well_path: select_well_path_2
+      config_fields: [event_date, start_md, end_md]
+    - task: resinsight.export_completions
+      depends_on:
+        resinsight: resinsight.connect
+        grid_case: resinsight.select_eclipse_case
+        perforation_1: add_perf_1
+        perforation_2: add_perf_2
+      config_fields: [event_date, export_path]
+
+runner:
+  hooks:
+    - hook: taskmaestro.hooks.logging.LoggingHook
+    - hook: taskmaestro.hooks.timing.TimingHook

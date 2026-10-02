@@ -36,7 +36,7 @@ void RimWorkflowStringBinding::applySchema( const QJsonObject& fieldSchema )
     }
 }
 
-QString RimWorkflowStringBinding::toYamlValue() const
+QJsonValue RimWorkflowStringBinding::toJsonValue() const
 {
-    return hasValue() ? yamlQuotedScalar( m_value() ) : "null";
+    return hasValue() ? QJsonValue( m_value() ) : QJsonValue( QJsonValue::Null );
 }

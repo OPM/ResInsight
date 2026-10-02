@@ -19,6 +19,7 @@
 #include "RimWorkflowJob.h"
 
 #include "RimWorkflow.h"
+#include "RimWorkflowHelperProcess.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
@@ -34,8 +35,7 @@
 
 #include <QDir>
 #include <QFile>
-#include <QJsonArray>
-#include <QJsonObject>
+#include <QJsonDocument>
 #include <QProcessEnvironment>
 #include <QUuid>
 
@@ -72,7 +72,7 @@ void RimWorkflowJob::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     for ( RimWorkflowTaskInput* task : m_taskInputs.childrenByType() )
     {
-        if ( !task ) continue;
+        if ( !task || task->count() == 0 ) continue;
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( task->taskName() );
         for ( RimWorkflowFieldBinding* b : task->items() )
         {
@@ -190,17 +190,132 @@ void RimWorkflowJob::cancelJob()
     if ( m_runner ) m_runner->cancel();
 }
 
-QString RimWorkflowJob::writeInputYaml( const QString& path ) const
+RimWorkflowTaskInput* RimWorkflowJob::taskInput( const QString& taskName ) const
 {
-    QString body;
-    for ( RimWorkflowTaskInput* t : m_taskInputs.childrenByType() )
+    for ( RimWorkflowTaskInput* input : taskInputs() )
     {
-        if ( t ) body += t->toTaskYamlBlock();
+        if ( input->taskName() == taskName ) return input;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Make the task inputs follow the tasks of the workflow graph. Inputs of renamed tasks
+/// (`renames` maps old to new names) keep their values; values of removed fields are kept aside
+/// and restored if the field comes back.
+//--------------------------------------------------------------------------------------------------
+void RimWorkflowJob::syncTaskInputs( const QJsonArray& graphTasks, const QMap<QString, QString>& renames )
+{
+    // Detached values are stored as "task/field/binding"
+    QMap<QString, QJsonValue> detached;
+    for ( auto it = m_detachedValues.begin(); it != m_detachedValues.end(); ++it )
+    {
+        const QString task = it.key().section( '/', 0, 0 );
+        const QString rest = it.key().section( '/', 1 );
+        detached.insert( renames.value( task, task ) + "/" + rest, it.value() );
     }
 
+    std::vector<RimWorkflowTaskInput*> existing = taskInputs();
+    m_taskInputs.clearWithoutDelete();
+
+    auto takeExisting = [&existing, &renames]( const QString& name ) -> RimWorkflowTaskInput*
+    {
+        for ( auto it = existing.begin(); it != existing.end(); ++it )
+        {
+            const QString currentName = renames.value( ( *it )->taskName(), ( *it )->taskName() );
+            if ( currentName == name )
+            {
+                RimWorkflowTaskInput* input = *it;
+                existing.erase( it );
+                return input;
+            }
+        }
+        return nullptr;
+    };
+
+    for ( const QJsonValue& value : graphTasks )
+    {
+        const QJsonObject task = value.toObject();
+        const QString     name = task.value( "name" ).toString();
+
+        RimWorkflowTaskInput* input = takeExisting( name );
+        if ( !input ) input = new RimWorkflowTaskInput;
+        input->setTaskName( name );
+        input->setTaskInfo( task.value( "task_id" ).toString(), task.value( "description" ).toString() );
+
+        QMap<QString, QJsonValue> taskDetached;
+        const QString             prefix = name + "/";
+        for ( auto it = detached.begin(); it != detached.end(); )
+        {
+            if ( it.key().startsWith( prefix ) )
+            {
+                taskDetached.insert( it.key().mid( prefix.size() ), it.value() );
+                it = detached.erase( it );
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
+        input->syncFromSchema( task.value( "config_fields" ).toArray(), taskDetached );
+        for ( auto it = taskDetached.begin(); it != taskDetached.end(); ++it )
+            detached.insert( prefix + it.key(), it.value() );
+
+        m_taskInputs.push_back( input );
+    }
+
+    // Inputs of removed tasks are kept aside, in case the removal is undone
+    for ( RimWorkflowTaskInput* removed : existing )
+    {
+        const QString name = renames.value( removed->taskName(), removed->taskName() );
+        for ( RimWorkflowFieldBinding* binding : removed->items() )
+        {
+            const QJsonValue value = binding->toJsonValue();
+            if ( !value.isNull() )
+                detached.insert( name + "/" + RimWorkflowTaskInput::detachedKey( binding->fieldName(), binding->classKeyword() ), value );
+        }
+        delete removed;
+    }
+
+    m_detachedValues = detached;
+    uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The values used to run the job, including references to ResInsight objects
+//--------------------------------------------------------------------------------------------------
+QJsonObject RimWorkflowJob::inputValues() const
+{
+    QJsonObject values;
+    for ( RimWorkflowTaskInput* input : taskInputs() )
+    {
+        if ( input->count() > 0 ) values.insert( input->taskName(), input->jsonValues() );
+    }
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Values that can be saved to input.yaml
+//--------------------------------------------------------------------------------------------------
+QJsonObject RimWorkflowJob::literalInputValues() const
+{
+    QJsonObject values;
+    for ( RimWorkflowTaskInput* input : taskInputs() )
+    {
+        if ( input->count() > 0 ) values.insert( input->taskName(), input->literalValues() );
+    }
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Write the input values as JSON, which is also valid YAML
+//--------------------------------------------------------------------------------------------------
+QString RimWorkflowJob::writeInputYaml( const QString& path ) const
+{
     QFile out( path );
     if ( !out.open( QIODevice::WriteOnly | QIODevice::Truncate ) ) return {};
-    out.write( body.toUtf8() );
+    out.write( QJsonDocument( inputValues() ).toJson( QJsonDocument::Indented ) );
     out.close();
     return path;
 }
@@ -220,9 +335,6 @@ void RimWorkflowJob::runJob()
         return;
     }
 
-    const QString dir = workflow->workflowDirectory();
-    if ( dir.isEmpty() ) return;
-
     auto port = RiaApplication::instance()->activeGrpcPortNumber();
     if ( !port.has_value() )
     {
@@ -234,6 +346,13 @@ void RimWorkflowJob::runJob()
     if ( python.isEmpty() )
     {
         RiaLogging::warning( "Cannot run workflow: no Python interpreter found." );
+        return;
+    }
+
+    auto runSource = workflow->prepareRunSource();
+    if ( !runSource )
+    {
+        RiaLogging::warning( QString( "Cannot run workflow: %1" ).arg( runSource.error() ).toStdString() );
         return;
     }
 
@@ -263,9 +382,10 @@ void RimWorkflowJob::runJob()
     m_runStatus = "Running";
     if ( auto* window = RiuMainWindow::instance() ) window->workflowJobStateChanged( this );
 
-    QStringList args{ "-m", "rips.taskmaestro_helper", "run", dir, "--input", inputPath, "--grpc-port", QString::number( port.value() ), "--run-id", m_runId };
+    const QStringList args = RimWorkflowHelperProcess::helperArguments(
+        runSource->baseArgs + QStringList{ "--input", inputPath, "--grpc-port", QString::number( port.value() ), "--run-id", m_runId } );
 
-    QProcessEnvironment env   = QProcessEnvironment::systemEnvironment();
+    QProcessEnvironment env   = RimWorkflowHelperProcess::environment( runSource->extraPythonPath );
     const QString       label = workflow->uiName() + " / " + m_name();
 
     m_runner                                    = new RiuWorkflowJobRunner( label, RiuMainWindow::instance() );

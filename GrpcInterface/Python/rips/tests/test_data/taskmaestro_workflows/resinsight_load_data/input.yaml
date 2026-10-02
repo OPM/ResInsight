@@ -1,0 +1,10 @@
+# Paths are supplied for the selected ROFF grid, its property file, and surface.
+
+connect_to_resinsight: {}
+load_model:
+  path: /path/to/grid.roff
+import_grid_property:
+  paths:
+    - /path/to/property.roffasc
+load_regular_surface:
+  path: /path/to/surface.irap
