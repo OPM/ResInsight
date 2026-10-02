@@ -693,7 +693,13 @@ std::pair<std::vector<PortInfo>, std::vector<PortInfo>> editModePorts( const QJs
         const QString     field    = port.value( "name" ).toString();
         const bool        required = port.value( "required" ).toBool();
         const bool provided = port.value( "wired" ).toBool() || port.value( "configured" ).toBool() || port.value( "covered" ).toBool();
-        if ( field.isEmpty() ) hasWholeInput = true;
+
+        // The whole input model is only shown when it is wired, or when it is the only way into the task
+        if ( field.isEmpty() )
+        {
+            if ( !port.value( "wired" ).toBool() && !task.value( "whole_input" ).toBool() ) continue;
+            hasWholeInput = true;
+        }
 
         PortInfo info;
         info.key      = keyForField( field );
