@@ -76,8 +76,8 @@ template <>
 void caf::AppEnum<RimParameterRftCrossPlot::SampleMode>::setUp()
 {
     addItem( RimParameterRftCrossPlot::SampleMode::ALL_SAMPLES, "ALL_SAMPLES", "All" );
-    addItem( RimParameterRftCrossPlot::SampleMode::AVERAGE_PER_REALIZATION, "AVERAGE_PER_REALIZATION", "Average per Realization" );
-    setDefault( RimParameterRftCrossPlot::SampleMode::AVERAGE_PER_REALIZATION );
+    addItem( RimParameterRftCrossPlot::SampleMode::MEAN_PER_REALIZATION, "MEAN_PER_REALIZATION", "Mean per Realization" );
+    setDefault( RimParameterRftCrossPlot::SampleMode::MEAN_PER_REALIZATION );
 }
 } // namespace caf
 

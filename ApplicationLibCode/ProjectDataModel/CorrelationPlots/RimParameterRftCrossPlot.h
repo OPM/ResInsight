@@ -50,7 +50,7 @@ public:
     enum class SampleMode
     {
         ALL_SAMPLES,
-        AVERAGE_PER_REALIZATION
+        MEAN_PER_REALIZATION
     };
 
     struct CaseData
