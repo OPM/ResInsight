@@ -27,6 +27,8 @@
 #include "cafPdmProxyValueField.h"
 
 #include <memory>
+#include <optional>
+#include <utility>
 
 class RimObservedFmuRftData : public RimNamedObject
 {
@@ -45,6 +47,9 @@ public:
 
     std::vector<QString> formationNames( const QString& wellPathName );
     std::vector<QString> formationNames( const QString& wellPathName, const QDateTime& timeStep );
+
+    std::optional<std::pair<double, double>>
+        formationDepthRange( const QString& wellPathName, const QDateTime& timeStep, const QString& formationName );
 
 protected:
     void initAfterRead() override;

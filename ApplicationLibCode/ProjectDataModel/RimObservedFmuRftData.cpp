@@ -143,6 +143,19 @@ std::vector<QString> RimObservedFmuRftData::formationNames( const QString& wellP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>>
+    RimObservedFmuRftData::formationDepthRange( const QString& wellPathName, const QDateTime& timeStep, const QString& formationName )
+{
+    if ( m_fmuRftReader )
+    {
+        return m_fmuRftReader->formationDepthRange( wellPathName, timeStep, formationName );
+    }
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimObservedFmuRftData::initAfterRead()
 {
     if ( m_directoryPath().path().isEmpty() )

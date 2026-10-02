@@ -175,6 +175,36 @@ std::set<QString> RifReaderFmuRft::formationNames( const QString& wellName, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>>
+    RifReaderFmuRft::formationDepthRange( const QString& wellName, const QDateTime& timeStep, const QString& formationName )
+{
+    if ( m_observations.empty() )
+    {
+        importData();
+    }
+
+    double minMd = std::numeric_limits<double>::max();
+    double maxMd = -std::numeric_limits<double>::max();
+    bool   found = false;
+
+    for ( const auto& observation : m_observations )
+    {
+        if ( observation.wellDate.wellName != wellName || observation.wellDate.dateTime != timeStep ) continue;
+        if ( observation.location.formation != formationName ) continue;
+
+        minMd = std::min( minMd, observation.location.mdrkb );
+        maxMd = std::max( maxMd, observation.location.mdrkb );
+        found = true;
+    }
+
+    if ( !found ) return std::nullopt;
+
+    return std::make_pair( minMd, maxMd );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress> RifReaderFmuRft::eclipseRftAddresses()
 {
     if ( m_observations.empty() )

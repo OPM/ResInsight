@@ -20,7 +20,9 @@
 #include "RifEclipseRftAddress.h"
 #include "RifReaderRftInterface.h"
 
+#include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <QDateTime>
@@ -69,6 +71,11 @@ public:
 
     std::set<QString> formationNames( const QString& wellName );
     std::set<QString> formationNames( const QString& wellName, const QDateTime& timeStep );
+
+    // Returns the min/max measured depth (MDRKB) spanned by observation points tagged with the given
+    // formation name, for the given well and time step. Returns std::nullopt if no matching points exist.
+    std::optional<std::pair<double, double>>
+        formationDepthRange( const QString& wellName, const QDateTime& timeStep, const QString& formationName );
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
