@@ -23,6 +23,7 @@
 
 #include <QJsonArray>
 #include <QMap>
+#include <QRegularExpression>
 #include <QSet>
 #include <QStringList>
 
@@ -155,12 +156,13 @@ std::vector<RimWorkflowPort> RimWorkflowPortCompatibility::inputPorts( const QJs
     const QJsonObject inputSchema = taskType.value( "input_schema" ).toObject();
 
     std::vector<RimWorkflowPort> ports;
-    ports.push_back( { .name        = "",
-                       .schema      = inputSchema,
-                       .rootSchema  = inputSchema,
-                       .description = inputSchema.value( "description" ).toString(),
-                       .typeName    = typeName( inputSchema, inputSchema ),
-                       .required    = true } );
+    ports.push_back( { .name         = "",
+                       .schema       = inputSchema,
+                       .rootSchema   = inputSchema,
+                       .description  = inputSchema.value( "description" ).toString(),
+                       .typeName     = typeName( inputSchema, inputSchema ),
+                       .iconResource = iconResource( inputSchema, inputSchema ),
+                       .required     = true } );
 
     const QStringList required   = RimWorkflowSchemaTools::requiredFields( inputSchema );
     const QJsonObject properties = inputSchema.value( "properties" ).toObject();
@@ -173,6 +175,7 @@ std::vector<RimWorkflowPort> RimWorkflowPortCompatibility::inputPorts( const QJs
                            .rootSchema   = inputSchema,
                            .description  = property.value( "description" ).toString(),
                            .typeName     = typeName( property, inputSchema ),
+                           .iconResource = iconResource( property, inputSchema ),
                            .required     = required.contains( name ),
                            .configurable = RimWorkflowSchemaTools::isConfigurable( property, inputSchema ) } );
     }
@@ -187,22 +190,24 @@ std::vector<RimWorkflowPort> RimWorkflowPortCompatibility::outputPorts( const QJ
     const QJsonObject outputSchema = taskType.value( "output_schema" ).toObject();
 
     std::vector<RimWorkflowPort> ports;
-    ports.push_back( { .name        = "",
-                       .schema      = outputSchema,
-                       .rootSchema  = outputSchema,
-                       .description = outputSchema.value( "description" ).toString(),
-                       .typeName    = typeName( outputSchema, outputSchema ) } );
+    ports.push_back( { .name         = "",
+                       .schema       = outputSchema,
+                       .rootSchema   = outputSchema,
+                       .description  = outputSchema.value( "description" ).toString(),
+                       .typeName     = typeName( outputSchema, outputSchema ),
+                       .iconResource = iconResource( outputSchema, outputSchema ) } );
 
     const QJsonObject properties = outputSchema.value( "properties" ).toObject();
     for ( const QString& name : RimWorkflowSchemaTools::propertyNames( outputSchema ) )
     {
         const QJsonObject property = properties.value( name ).toObject();
         if ( isHiddenObjectValue( name, property, outputSchema ) ) continue;
-        ports.push_back( { .name        = name,
-                           .schema      = property,
-                           .rootSchema  = outputSchema,
-                           .description = property.value( "description" ).toString(),
-                           .typeName    = typeName( property, outputSchema ) } );
+        ports.push_back( { .name         = name,
+                           .schema       = property,
+                           .rootSchema   = outputSchema,
+                           .description  = property.value( "description" ).toString(),
+                           .typeName     = typeName( property, outputSchema ),
+                           .iconResource = iconResource( property, outputSchema ) } );
     }
     return ports;
 }
@@ -344,6 +349,63 @@ QString RimWorkflowPortCompatibility::typeName( const QJsonObject& schema, const
     if ( format == "date-time" ) return "datetime";
     if ( format == "path" || format == "file-path" || format == "directory-path" ) return "Path";
     return pythonNames.value( type, type );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Icon of the ResInsight object a schema holds, or an empty string. The rips class is found in the
+/// Python class bases: directly for opaque rips objects, or as `ObjectModel[Class]` for wrappers.
+/// The icons are the ones the matching ResInsight project classes use.
+//--------------------------------------------------------------------------------------------------
+QString RimWorkflowPortCompatibility::iconResource( const QJsonObject& schema, const QJsonObject& rootSchema )
+{
+    const QJsonObject resolved = RimWorkflowSchemaTools::resolveReferences( schema, rootSchema );
+    for ( const char* unionKey : { "anyOf", "oneOf" } )
+    {
+        for ( const QJsonValue& option : resolved.value( unionKey ).toArray() )
+        {
+            const QString icon = iconResource( option.toObject(), rootSchema );
+            if ( !icon.isEmpty() ) return icon;
+        }
+    }
+    if ( resolved.value( "type" ).toString() == "array" ) return iconResource( resolved.value( "items" ).toObject(), rootSchema );
+
+    static const QMap<QString, QString> icons = { { "Instance", ":/AppLogo48x48.png" },
+                                                  { "Case", ":/Case48x48.png" },
+                                                  { "Reservoir", ":/Case48x48.png" },
+                                                  { "EclipseCase", ":/Case48x48.png" },
+                                                  { "View", ":/3DView16x16.png" },
+                                                  { "EclipseView", ":/3DView16x16.png" },
+                                                  { "WellPath", ":/Well.svg" },
+                                                  { "Surface", ":/ReservoirSurface16x16.png" } };
+
+    QJsonArray bases = resolved.value( "x-ri-python-bases" ).toArray();
+    if ( bases.isEmpty() && resolved.contains( "x-ri-python-type" ) ) bases.append( resolved.value( "x-ri-python-type" ) );
+
+    static const QRegularExpression objectModel( R"(ObjectModel\[(\w+)\]$)" );
+    for ( const QJsonValue& value : bases )
+    {
+        const QString base = value.toString();
+        QString       className;
+        if ( const auto match = objectModel.match( base ); match.hasMatch() )
+            className = match.captured( 1 );
+        else if ( base.startsWith( "rips." ) )
+            className = base.section( '.', -1 );
+        if ( icons.contains( className ) ) return icons.value( className );
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Port name -> icon resource, for the ports that hold a ResInsight object
+//--------------------------------------------------------------------------------------------------
+QJsonObject RimWorkflowPortCompatibility::portIcons( const std::vector<RimWorkflowPort>& ports )
+{
+    QJsonObject icons;
+    for ( const auto& port : ports )
+    {
+        if ( !port.iconResource.isEmpty() ) icons[port.name] = port.iconResource;
+    }
+    return icons;
 }
 
 //--------------------------------------------------------------------------------------------------
