@@ -3,6 +3,9 @@ project(RifOdbReader)
 if(MSVC)
   add_definitions(-DHKS_NT)
   add_definitions(-DABQ_WIN86_64)
+  # Needed for omi_types.h to typedef int64/uint64, used unconditionally
+  # elsewhere in the SDK headers (e.g. atr_translate.h).
+  add_definitions(-D_WINDOWS_SOURCE)
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -w -Wno-deprecated")
 
