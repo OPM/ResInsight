@@ -133,7 +133,15 @@ bool RimViewWindow::isDockedInPlotView() const
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::removeWindowFromDock()
 {
-    if ( m_windowController != nullptr ) m_windowController->removeWindowFromDock();
+    if ( m_windowController != nullptr )
+    {
+        m_windowController->removeWindowFromDock();
+
+        // Fully detach: isMainDockedWindow() must become false, otherwise a later loadDataAndUpdate()/
+        // updateDockWindowVisibility() call will recreate the dock widget through the stale controller.
+        delete m_windowController();
+        m_windowController = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -147,7 +147,9 @@ RimWellRftPlot::RimWellRftPlot()
 
     setPlotTitleVisible( true );
 
-    dockAsPlotWindow();
+    // Do not dock this plot by default: a RimWellRftPlot can also be embedded as a non-dockable child of
+    // RimRftCorrelationReportPlot. Standalone creation sites (e.g. RicCreateRftPlotsFeature) call
+    // dockAsPlotWindow() explicitly after construction.
     m_isOnLoad = true;
 }
 
