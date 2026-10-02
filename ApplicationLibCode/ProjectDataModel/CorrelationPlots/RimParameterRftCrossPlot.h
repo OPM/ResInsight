@@ -140,6 +140,11 @@ private:
     void            applyFormationFilter();
 
 private:
+    // Sentinel value for the Depth Range Filter combo box, representing a manually entered depth
+    // range (as opposed to "None"/empty for no filter, or a formation name for a computed range).
+    static const QString CUSTOM_RANGE_FILTER_VALUE;
+
+private:
     caf::PdmPtrField<RimSummaryEnsemble*>   m_ensemble;
     caf::PdmField<QString>                  m_wellName;
     caf::PdmField<QDateTime>                m_selectedTimeStep;

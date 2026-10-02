@@ -81,6 +81,8 @@ void caf::AppEnum<RimParameterRftCrossPlot::SampleMode>::setUp()
 }
 } // namespace caf
 
+const QString RimParameterRftCrossPlot::CUSTOM_RANGE_FILTER_VALUE = "__CUSTOM_RANGE__";
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -97,7 +99,7 @@ RimParameterRftCrossPlot::RimParameterRftCrossPlot()
     CAF_PDM_InitField( &m_useDepthRange, "UseDepthRange", false, "Filter by Depth Range" );
     CAF_PDM_InitField( &m_depthRangeMin, "DepthRangeMin", 0.0, "Min Depth (MD)" );
     CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth (MD)" );
-    CAF_PDM_InitField( &m_formationFilter, "FormationFilter", QString(), "Formation" );
+    CAF_PDM_InitField( &m_formationFilter, "FormationFilter", QString(), "Depth Range Filter" );
     m_formationFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString(), "Ensemble Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -268,7 +270,7 @@ RimParameterRftCrossPlot::SampleMode RimParameterRftCrossPlot::sampleMode() cons
 //--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::applyFormationFilter()
 {
-    if ( m_formationFilter().isEmpty() ) return;
+    if ( m_formationFilter().isEmpty() || m_formationFilter() == CUSTOM_RANGE_FILTER_VALUE ) return;
 
     double minMd = std::numeric_limits<double>::max();
     double maxMd = -std::numeric_limits<double>::max();
@@ -700,11 +702,11 @@ void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     auto* depthGroup = uiOrdering.addNewGroup( "Depth Range" );
     depthGroup->add( &m_formationFilter );
-    depthGroup->add( &m_useDepthRange );
     depthGroup->add( &m_depthRangeMin );
     depthGroup->add( &m_depthRangeMax );
-    m_depthRangeMin.uiCapability()->setUiReadOnly( !m_useDepthRange() || !m_formationFilter().isEmpty() );
-    m_depthRangeMax.uiCapability()->setUiReadOnly( !m_useDepthRange() || !m_formationFilter().isEmpty() );
+    const bool customRangeSelected = m_formationFilter() == CUSTOM_RANGE_FILTER_VALUE;
+    m_depthRangeMin.uiCapability()->setUiReadOnly( !customRangeSelected );
+    m_depthRangeMax.uiCapability()->setUiReadOnly( !customRangeSelected );
 
     auto* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameter" );
     crossPlotGroup->add( &m_ensembleParameter );
@@ -748,15 +750,31 @@ void RimParameterRftCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
         // The formation list depends on well/time step; clear the stale selection rather than risk
         // silently filtering by a formation name that no longer applies.
         m_formationFilter = QString();
+        m_useDepthRange   = false;
     }
     else if ( changedField == &m_selectedTimeStep )
     {
         // The formation list and its depth range are specific to a given time step.
         m_formationFilter = QString();
+        m_useDepthRange   = false;
     }
     else if ( changedField == &m_formationFilter )
     {
-        applyFormationFilter();
+        if ( m_formationFilter().isEmpty() )
+        {
+            // "None": no depth filtering.
+            m_useDepthRange = false;
+        }
+        else if ( m_formationFilter() == CUSTOM_RANGE_FILTER_VALUE )
+        {
+            // "Custom Range": keep the existing min/max values, now editable by the user.
+            m_useDepthRange = true;
+        }
+        else
+        {
+            // A formation name: compute and apply its depth range.
+            applyFormationFilter();
+        }
     }
 
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
@@ -815,6 +833,7 @@ QList<caf::PdmOptionItemInfo> RimParameterRftCrossPlot::calculateValueOptions( c
     else if ( fieldNeedingOptions == &m_formationFilter )
     {
         options.push_back( caf::PdmOptionItemInfo( "None", QString() ) );
+        options.push_back( caf::PdmOptionItemInfo( "Custom Range", CUSTOM_RANGE_FILTER_VALUE ) );
 
         std::set<QString> formationNames;
         if ( !m_wellName().isEmpty() && m_selectedTimeStep().isValid() )
