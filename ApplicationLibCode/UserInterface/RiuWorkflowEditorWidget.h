@@ -57,6 +57,7 @@ public:
     void            refresh();
     void            updateJobState();
     void            updateTaskInputValues();
+    void            updateTaskIssues();
 
     RiuWorkflowGraphView*   graphView() const;
     RiuWorkflowTaskPalette* palette() const;

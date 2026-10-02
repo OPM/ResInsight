@@ -192,6 +192,12 @@ Two layers of validation run:
   dropped, and a 30 s watchdog stops hung processes.
   `RimWorkflowValidationTools::issuesFromHelperResult` maps the errors to
   tasks; anything left over goes to the status line.
+- **Missing values** come from the displayed job, not from describe. The saved
+  definition only carries literal values, so describe would report cases, well
+  paths and views as missing. The editor replaces describe's "has no value"
+  warnings with ones computed from the job's bindings
+  (`RimWorkflowValidationTools::issuesWithJobValues`). They update as soon as
+  a value is edited.
 
 Running a workflow whose last validation failed asks for confirmation first.
 
