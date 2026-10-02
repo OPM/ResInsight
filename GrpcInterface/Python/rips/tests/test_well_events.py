@@ -488,8 +488,11 @@ class TestScheduleGeneration:
             "Inserted date 2024-06-01 should be emitted as a DATES entry"
         )
         assert "-- Mid-year summary report" in schedule_text, (
-            "The comment of an insert-date event should be emitted below its date"
+            "The comment of an insert-date event should be emitted above its date"
         )
+        assert schedule_text.index("-- Mid-year summary report") < schedule_text.index(
+            "1 'JUN' 2024"
+        ), "The comment must precede the DATES keyword of its insert-date event"
         # Dates must appear in chronological order: JAN (event), FEB, MAR (event), JUN
         positions = [
             schedule_text.index(date_str)
