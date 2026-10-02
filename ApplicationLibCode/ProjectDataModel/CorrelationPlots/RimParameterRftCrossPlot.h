@@ -49,7 +49,7 @@ public:
     struct CaseData
     {
         double          parameterValue;
-        double          pressureValue; // mean pressure in depth range
+        double          pressureValue; // mean pressure in depth range, or a single RFT sample when showAllSamples is enabled
         RimSummaryCase* summaryCase;
     };
 
@@ -63,6 +63,7 @@ public:
     void setDepthRange( double minMd, double maxMd );
     void setEnsembleParameter( const QString& paramName );
     void setFormationFilter( const QString& formationName );
+    void setShowAllSamples( bool showAllSamples );
 
     QString               ensembleParameter() const;
     QString               wellName() const;
@@ -73,6 +74,7 @@ public:
     double                depthRangeMin() const;
     double                depthRangeMax() const;
     QString               formationFilter() const;
+    bool                  showAllSamples() const;
 
     RiuQwtPlotWidget* viewer();
 
@@ -87,6 +89,16 @@ public:
                                                            bool                  useDepthRange,
                                                            double                depthRangeMin,
                                                            double                depthRangeMax );
+
+    // Computes all RFT pressure samples (filtered by depth range, if enabled) per ensemble case.
+    // Indices match ensemble->allSummaryCases(); a case with no matching data gets an empty vector.
+    static std::vector<std::vector<double>> computePressureSamplesPerCase( RimSummaryEnsemble*   ensemble,
+                                                                           const QString&        wellName,
+                                                                           const QDateTime&      timeStep,
+                                                                           RimEclipseResultCase* eclipseCase,
+                                                                           bool                  useDepthRange,
+                                                                           double                depthRangeMin,
+                                                                           double                depthRangeMax );
 
     // RimPlot pure virtual overrides
     RiuPlotWidget* plotWidget() override;
@@ -130,6 +142,7 @@ private:
     caf::PdmField<double>                   m_depthRangeMax;
     caf::PdmField<QString>                  m_formationFilter;
     caf::PdmField<QString>                  m_ensembleParameter;
+    caf::PdmField<bool>                     m_showAllSamples;
 
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
