@@ -15,7 +15,6 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #include "RimWorkflowTaskInput.h"
 
 #include "RimWorkflowArrayBinding.h"
@@ -31,38 +30,12 @@
 #include "RimWorkflowWellPathBinding.h"
 
 #include "cafPdmUiOrdering.h"
+#include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QJsonArray>
-#include <QJsonObject>
 
 CAF_PDM_SOURCE_INIT( RimWorkflowTaskInput, "WorkflowTaskInput" );
-
-namespace
-{
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWorkflowFieldBinding* createBinding( const QJsonObject& schema )
-{
-    const QString resinsightType = schema.value( "resinsight_type" ).toString();
-    if ( resinsightType == "EclipseCase" ) return new RimWorkflowCaseBinding;
-    if ( resinsightType == "WellPath" ) return new RimWorkflowWellPathBinding;
-    if ( resinsightType == "View" ) return new RimWorkflowViewBinding;
-    if ( resinsightType == "Vec3" ) return new RimWorkflowVec3Binding;
-
-    const QString type   = schema.value( "type" ).toString( "string" );
-    const QString format = schema.value( "format" ).toString();
-    if ( type == "string" && format == "date" ) return new RimWorkflowDateBinding;
-    if ( type == "string" && ( format == "path" || format == "file-path" || format == "directory-path" ) )
-        return new RimWorkflowFilePathBinding;
-    if ( type == "boolean" ) return new RimWorkflowBoolBinding;
-    if ( type == "integer" ) return new RimWorkflowIntBinding;
-    if ( type == "number" ) return new RimWorkflowFloatBinding;
-    if ( type == "array" ) return new RimWorkflowArrayBinding;
-    return new RimWorkflowStringBinding;
-}
-} // namespace
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -74,6 +47,13 @@ RimWorkflowTaskInput::RimWorkflowTaskInput()
 
     CAF_PDM_InitFieldNoDefault( &m_taskName, "TaskName", "Task" );
     m_taskName.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_taskType, "TaskType", "Task Type" );
+    m_taskType.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_taskDescription, "TaskDescription", "Description" );
+    m_taskDescription.uiCapability()->setUiReadOnly( true );
+    m_taskDescription.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,16 +76,158 @@ void RimWorkflowTaskInput::setTaskName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWorkflowTaskInput::taskType() const
+{
+    return m_taskType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWorkflowTaskInput::setTaskInfo( const QString& taskType, const QString& description )
+{
+    m_taskType        = taskType;
+    m_taskDescription = description;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The class keyword of the binding used for a config field schema
+//--------------------------------------------------------------------------------------------------
+QString RimWorkflowTaskInput::bindingClassKeyword( const QJsonObject& fieldSchema )
+{
+    const QString resinsightType = fieldSchema.value( "resinsight_type" ).toString();
+    if ( resinsightType == "EclipseCase" ) return RimWorkflowCaseBinding::classKeywordStatic();
+    if ( resinsightType == "WellPath" ) return RimWorkflowWellPathBinding::classKeywordStatic();
+    if ( resinsightType == "View" ) return RimWorkflowViewBinding::classKeywordStatic();
+    if ( resinsightType == "Vec3" ) return RimWorkflowVec3Binding::classKeywordStatic();
+
+    const QString type   = fieldSchema.value( "type" ).toString( "string" );
+    const QString format = fieldSchema.value( "format" ).toString();
+    if ( type == "string" && format == "date" ) return RimWorkflowDateBinding::classKeywordStatic();
+    if ( type == "string" && ( format == "path" || format == "file-path" || format == "directory-path" ) )
+        return RimWorkflowFilePathBinding::classKeywordStatic();
+    if ( type == "boolean" ) return RimWorkflowBoolBinding::classKeywordStatic();
+    if ( type == "integer" ) return RimWorkflowIntBinding::classKeywordStatic();
+    if ( type == "number" ) return RimWorkflowFloatBinding::classKeywordStatic();
+    if ( type == "array" ) return RimWorkflowArrayBinding::classKeywordStatic();
+    return RimWorkflowStringBinding::classKeywordStatic();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWorkflowFieldBinding* RimWorkflowTaskInput::createBinding( const QJsonObject& fieldSchema )
+{
+    const QString keyword = bindingClassKeyword( fieldSchema );
+    if ( keyword == RimWorkflowCaseBinding::classKeywordStatic() ) return new RimWorkflowCaseBinding;
+    if ( keyword == RimWorkflowWellPathBinding::classKeywordStatic() ) return new RimWorkflowWellPathBinding;
+    if ( keyword == RimWorkflowViewBinding::classKeywordStatic() ) return new RimWorkflowViewBinding;
+    if ( keyword == RimWorkflowVec3Binding::classKeywordStatic() ) return new RimWorkflowVec3Binding;
+    if ( keyword == RimWorkflowDateBinding::classKeywordStatic() ) return new RimWorkflowDateBinding;
+    if ( keyword == RimWorkflowFilePathBinding::classKeywordStatic() ) return new RimWorkflowFilePathBinding;
+    if ( keyword == RimWorkflowBoolBinding::classKeywordStatic() ) return new RimWorkflowBoolBinding;
+    if ( keyword == RimWorkflowIntBinding::classKeywordStatic() ) return new RimWorkflowIntBinding;
+    if ( keyword == RimWorkflowFloatBinding::classKeywordStatic() ) return new RimWorkflowFloatBinding;
+    if ( keyword == RimWorkflowArrayBinding::classKeywordStatic() ) return new RimWorkflowArrayBinding;
+    return new RimWorkflowStringBinding;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWorkflowTaskInput::detachedKey( const QString& fieldName, const QString& classKeyword )
+{
+    return fieldName + "/" + classKeyword;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWorkflowTaskInput::buildFromSchema( const QJsonArray& configFields )
 {
+    QMap<QString, QJsonValue> noDetachedValues;
     deleteAllItems();
-    for ( const QJsonValue& v : configFields )
+    syncFromSchema( configFields, noDetachedValues );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Update the bindings to a new list of config fields. A binding is kept with its value when the
+/// field still has the same kind of binding. Values of removed bindings are moved to
+/// `detachedValues`, and restored from there when the field comes back.
+//--------------------------------------------------------------------------------------------------
+void RimWorkflowTaskInput::syncFromSchema( const QJsonArray& configFields, QMap<QString, QJsonValue>& detachedValues )
+{
+    std::vector<RimWorkflowFieldBinding*> existing = items();
+    m_items.clearWithoutDelete();
+
+    for ( const QJsonValue& value : configFields )
     {
-        const QJsonObject schema  = v.toObject();
-        auto*             binding = createBinding( schema );
+        QJsonObject   schema  = value.toObject();
+        const QString field   = schema.value( "name" ).toString();
+        const QString keyword = bindingClassKeyword( schema );
+
+        RimWorkflowFieldBinding* binding = nullptr;
+        for ( auto it = existing.begin(); it != existing.end(); ++it )
+        {
+            if ( *it && ( *it )->fieldName() == field && ( *it )->classKeyword() == keyword )
+            {
+                binding = *it;
+                existing.erase( it );
+                break;
+            }
+        }
+
+        if ( binding )
+        {
+            const QJsonValue current = binding->toJsonValue();
+            if ( !current.isNull() ) schema["default"] = current;
+        }
+        else
+        {
+            binding           = createBinding( schema );
+            const QString key = detachedKey( field, keyword );
+            if ( detachedValues.contains( key ) ) schema["default"] = detachedValues.take( key );
+        }
         binding->applySchema( schema );
         addItem( binding );
     }
+
+    for ( RimWorkflowFieldBinding* removed : existing )
+    {
+        if ( !removed ) continue;
+        const QJsonValue value = removed->toJsonValue();
+        if ( !value.isNull() ) detachedValues.insert( detachedKey( removed->fieldName(), removed->classKeyword() ), value );
+        delete removed;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// All values that are set, including references to ResInsight objects
+//--------------------------------------------------------------------------------------------------
+QJsonObject RimWorkflowTaskInput::jsonValues() const
+{
+    QJsonObject values;
+    for ( const RimWorkflowFieldBinding* binding : items() )
+    {
+        const QJsonValue value = binding->toJsonValue();
+        if ( !value.isNull() ) values.insert( binding->fieldName(), value );
+    }
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Values that can be stored in input.yaml, without references to objects in the project
+//--------------------------------------------------------------------------------------------------
+QJsonObject RimWorkflowTaskInput::literalValues() const
+{
+    QJsonObject values;
+    for ( const RimWorkflowFieldBinding* binding : items() )
+    {
+        if ( binding->isObjectReference() ) continue;
+        const QJsonValue value = binding->toJsonValue();
+        if ( !value.isNull() ) values.insert( binding->fieldName(), value );
+    }
+    return values;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,9 +235,12 @@ void RimWorkflowTaskInput::buildFromSchema( const QJsonArray& configFields )
 //--------------------------------------------------------------------------------------------------
 void RimWorkflowTaskInput::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    for ( RimWorkflowFieldBinding* b : items() )
+    if ( !m_taskType().isEmpty() ) uiOrdering.add( &m_taskType );
+    if ( !m_taskDescription().isEmpty() ) uiOrdering.add( &m_taskDescription );
+
+    for ( RimWorkflowFieldBinding* binding : items() )
     {
-        if ( b && b->valueField() ) uiOrdering.add( b->valueField() );
+        if ( binding && binding->valueField() ) uiOrdering.add( binding->valueField() );
     }
     uiOrdering.skipRemainingFields( true );
 }
@@ -126,22 +251,4 @@ void RimWorkflowTaskInput::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 void RimWorkflowTaskInput::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     uiTreeOrdering.skipRemainingChildren( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimWorkflowTaskInput::toTaskYamlBlock() const
-{
-    QString out = m_taskName() + ":\n";
-    if ( count() == 0 )
-    {
-        out += "  {}\n";
-        return out;
-    }
-    for ( const RimWorkflowFieldBinding* b : items() )
-    {
-        out += QString( "  %1: %2\n" ).arg( b->fieldName(), b->toYamlValue() );
-    }
-    return out;
 }

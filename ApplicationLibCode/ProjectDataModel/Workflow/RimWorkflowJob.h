@@ -24,6 +24,9 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QMap>
 #include <QPointer>
 
@@ -40,12 +43,16 @@ public:
     void setJobName( const QString& name );
 
     std::vector<RimWorkflowTaskInput*> taskInputs() const;
+    RimWorkflowTaskInput*              taskInput( const QString& taskName ) const;
     void                               setTaskInputs( std::vector<RimWorkflowTaskInput*> inputs );
+    void                               syncTaskInputs( const QJsonArray& graphTasks, const QMap<QString, QString>& renames = {} );
 
-    QString writeInputYaml( const QString& path ) const;
-    void    runJob();
-    void    cancelJob();
-    bool    isRunning() const;
+    QJsonObject inputValues() const;
+    QJsonObject literalInputValues() const;
+    QString     writeInputYaml( const QString& path ) const;
+    void        runJob();
+    void        cancelJob();
+    bool        isRunning() const;
 
     QMap<QString, QString> taskStates() const;
     QMap<QString, QString> taskErrors() const;
@@ -64,6 +71,7 @@ private:
     caf::PdmField<QString>                         m_name;
     caf::PdmChildArrayField<RimWorkflowTaskInput*> m_taskInputs;
     QPointer<RiuWorkflowJobRunner>                 m_runner;
+    QMap<QString, QJsonValue>                      m_detachedValues;
     QMap<QString, QString>                         m_taskStates;
     QMap<QString, QString>                         m_taskErrors;
     QString                                        m_runStatus;

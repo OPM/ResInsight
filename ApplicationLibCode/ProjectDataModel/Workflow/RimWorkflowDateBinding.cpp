@@ -46,7 +46,7 @@ void RimWorkflowDateBinding::applySchema( const QJsonObject& fieldSchema )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWorkflowDateBinding::toYamlValue() const
+QJsonValue RimWorkflowDateBinding::toJsonValue() const
 {
-    return hasValue() ? yamlQuotedScalar( m_value().toString( Qt::ISODate ) ) : "null";
+    return hasValue() ? QJsonValue( m_value().toString( Qt::ISODate ) ) : QJsonValue( QJsonValue::Null );
 }

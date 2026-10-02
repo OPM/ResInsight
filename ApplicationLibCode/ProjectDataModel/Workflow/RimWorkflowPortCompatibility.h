@@ -1,0 +1,67 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2026-     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include <QJsonObject>
+#include <QString>
+
+#include <expected>
+#include <optional>
+#include <vector>
+
+struct RimWorkflowDefinition;
+
+//==================================================================================================
+/// A connectable input or output of a task. An empty name is the whole input or output model.
+//==================================================================================================
+struct RimWorkflowPort
+{
+    QString     name{};
+    QJsonObject schema{};
+    QJsonObject rootSchema{};
+    QString     description{};
+    QString     typeName{};
+    bool        required     = true;
+    bool        configurable = false;
+
+    bool isWhole() const;
+};
+
+//==================================================================================================
+/// Static type checks for workflow connections. These mirror taskmaestro's `_is_type_compatible`
+/// on the JSON schemas; `taskmaestro workflow describe` has the final say.
+//==================================================================================================
+namespace RimWorkflowPortCompatibility
+{
+std::vector<RimWorkflowPort>   inputPorts( const QJsonObject& taskType );
+std::vector<RimWorkflowPort>   outputPorts( const QJsonObject& taskType );
+std::optional<RimWorkflowPort> inputPort( const QJsonObject& taskType, const QString& name );
+std::optional<RimWorkflowPort> outputPort( const QJsonObject& taskType, const QString& name );
+
+bool isCompatible( const QJsonObject& produced, const QJsonObject& producedRoot, const QJsonObject& expected, const QJsonObject& expectedRoot );
+bool    isCompatible( const RimWorkflowPort& produced, const RimWorkflowPort& expected );
+bool    isAny( const QJsonObject& schema, const QJsonObject& rootSchema );
+QString typeName( const QJsonObject& schema, const QJsonObject& rootSchema );
+
+QStringList coveredByWholeOutput( const QJsonObject& upstreamTaskType, const QJsonObject& downstreamTaskType );
+bool        wouldCreateCycle( const RimWorkflowDefinition& definition, const QString& from, const QString& to );
+
+std::expected<void, QString>
+    canConnect( const RimWorkflowDefinition& definition, const QString& from, const QString& output, const QString& to, const QString& input );
+} // namespace RimWorkflowPortCompatibility

@@ -45,8 +45,7 @@ void RimWorkflowBoolBinding::applySchema( const QJsonObject& fieldSchema )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWorkflowBoolBinding::toYamlValue() const
+QJsonValue RimWorkflowBoolBinding::toJsonValue() const
 {
-    if ( !hasValue() ) return "null";
-    return m_value() ? "true" : "false";
+    return hasValue() ? QJsonValue( m_value() ) : QJsonValue( QJsonValue::Null );
 }

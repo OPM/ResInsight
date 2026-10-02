@@ -45,7 +45,7 @@ void RimWorkflowFloatBinding::applySchema( const QJsonObject& fieldSchema )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWorkflowFloatBinding::toYamlValue() const
+QJsonValue RimWorkflowFloatBinding::toJsonValue() const
 {
-    return hasValue() ? QString::number( m_value(), 'g', 17 ) : "null";
+    return hasValue() ? QJsonValue( m_value() ) : QJsonValue( QJsonValue::Null );
 }

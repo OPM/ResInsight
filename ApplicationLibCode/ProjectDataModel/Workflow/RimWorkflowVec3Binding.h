@@ -31,8 +31,8 @@ class RimWorkflowVec3Binding : public RimWorkflowFieldBinding
 public:
     RimWorkflowVec3Binding();
 
-    void    applySchema( const QJsonObject& fieldSchema ) override;
-    QString toYamlValue() const override;
+    void       applySchema( const QJsonObject& fieldSchema ) override;
+    QJsonValue toJsonValue() const override;
 
     caf::PdmFieldHandle* valueField() override { return &m_value; }
 
