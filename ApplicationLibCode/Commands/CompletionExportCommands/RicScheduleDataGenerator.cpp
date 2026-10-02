@@ -278,6 +278,18 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
     auto serializeKeyword = [&]( const Opm::DeckKeyword& kw )
     { return alignColumns ? RimKeywordFactory::deckKeywordToAlignedString( kw ) : RimKeywordFactory::deckKeywordToString( kw ); };
 
+    // Comments from insert-date events describe the date itself, and are emitted directly above it.
+    for ( const auto* event : events )
+    {
+        if ( event->eventType() != RimWellEvent::EventType::INSERT_DATE ) continue;
+        if ( event->comment().isEmpty() ) continue;
+
+        for ( QString line : event->comment().split( '\n' ) )
+        {
+            line.remove( '\r' );
+            result += line.isEmpty() ? "--\n" : QString( "-- %1\n" ).arg( line );
+        }
+    }
     // Generate DATES keyword, or a date comment when requested (e.g. for the first date, which
     // equals the simulation start date and is rejected as a DATES entry by some simulators).
     if ( dateAsComment )
@@ -300,18 +312,6 @@ std::expected<QString, QString> RicScheduleDataGenerator::generateDateSection( c
         result += serializeKeyword( RimKeywordFactory::datesKeyword( date ) ) + "\n";
     }
 
-    // Comments from insert-date events describe the date itself, and are emitted directly below it.
-    for ( const auto* event : events )
-    {
-        if ( event->eventType() != RimWellEvent::EventType::INSERT_DATE ) continue;
-        if ( event->comment().isEmpty() ) continue;
-
-        for ( QString line : event->comment().split( '\n' ) )
-        {
-            line.remove( '\r' );
-            result += line.isEmpty() ? "--\n" : QString( "-- %1\n" ).arg( line );
-        }
-    }
     appendRawText( RimWellEventRawText::Placement::AFTER_DATE );
 
     // Records for each keyword name are accumulated across wells, then serialised once below.
