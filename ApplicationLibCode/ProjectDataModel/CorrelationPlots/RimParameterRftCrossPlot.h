@@ -62,6 +62,7 @@ public:
     void setTimeStep( const QDateTime& timeStep );
     void setDepthRange( double minMd, double maxMd );
     void setEnsembleParameter( const QString& paramName );
+    void setFormationFilter( const QString& formationName );
 
     QString               ensembleParameter() const;
     QString               wellName() const;
@@ -71,6 +72,7 @@ public:
     bool                  useDepthRange() const;
     double                depthRangeMin() const;
     double                depthRangeMax() const;
+    QString               formationFilter() const;
 
     RiuQwtPlotWidget* viewer();
 
@@ -116,6 +118,7 @@ private:
     void            updateValueRanges();
     void            cleanupBeforeClose();
     RimSummaryCase* findClosestCase( const QPoint& canvasPos );
+    void            applyFormationFilter();
 
 private:
     caf::PdmPtrField<RimSummaryEnsemble*>   m_ensemble;
@@ -125,6 +128,7 @@ private:
     caf::PdmField<bool>                     m_useDepthRange;
     caf::PdmField<double>                   m_depthRangeMin;
     caf::PdmField<double>                   m_depthRangeMax;
+    caf::PdmField<QString>                  m_formationFilter;
     caf::PdmField<QString>                  m_ensembleParameter;
 
     caf::PdmField<bool>    m_useAutoPlotTitle;

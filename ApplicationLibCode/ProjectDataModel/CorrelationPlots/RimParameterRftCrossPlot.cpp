@@ -33,12 +33,14 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimObservedFmuRftData.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryEnsemble.h"
 #include "RimSummaryEnsembleTools.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellPath.h"
+#include "RimWellPlotTools.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuDockWidgetTools.h"
@@ -83,6 +85,8 @@ RimParameterRftCrossPlot::RimParameterRftCrossPlot()
     CAF_PDM_InitField( &m_useDepthRange, "UseDepthRange", false, "Filter by Depth Range" );
     CAF_PDM_InitField( &m_depthRangeMin, "DepthRangeMin", 0.0, "Min Depth (MD)" );
     CAF_PDM_InitField( &m_depthRangeMax, "DepthRangeMax", 5000.0, "Max Depth (MD)" );
+    CAF_PDM_InitField( &m_formationFilter, "FormationFilter", QString(), "Formation" );
+    m_formationFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString(), "Ensemble Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
@@ -137,6 +141,15 @@ void RimParameterRftCrossPlot::setDepthRange( double minMd, double maxMd )
 {
     m_depthRangeMin = minMd;
     m_depthRangeMax = maxMd;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::setFormationFilter( const QString& formationName )
+{
+    m_formationFilter = formationName;
+    applyFormationFilter();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,6 +222,44 @@ double RimParameterRftCrossPlot::depthRangeMin() const
 double RimParameterRftCrossPlot::depthRangeMax() const
 {
     return m_depthRangeMax();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimParameterRftCrossPlot::formationFilter() const
+{
+    return m_formationFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Looks up the MD depth range spanned by the selected formation across all observed FMU RFT data
+/// sets for the current well/time step, and applies it as the depth range filter. Falls back to
+/// leaving the depth range untouched if the formation is empty or no matching observed data exists.
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::applyFormationFilter()
+{
+    if ( m_formationFilter().isEmpty() ) return;
+
+    double minMd = std::numeric_limits<double>::max();
+    double maxMd = -std::numeric_limits<double>::max();
+    bool   found = false;
+
+    for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( m_wellName() ) )
+    {
+        auto range = observedData->formationDepthRange( m_wellName(), m_selectedTimeStep(), m_formationFilter() );
+        if ( !range ) continue;
+
+        minMd = std::min( minMd, range->first );
+        maxMd = std::max( maxMd, range->second );
+        found = true;
+    }
+
+    if ( !found ) return;
+
+    m_depthRangeMin = minMd;
+    m_depthRangeMax = maxMd;
+    m_useDepthRange = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -538,11 +589,12 @@ void RimParameterRftCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     dataGroup->add( &m_eclipseCase );
 
     auto* depthGroup = uiOrdering.addNewGroup( "Depth Range" );
+    depthGroup->add( &m_formationFilter );
     depthGroup->add( &m_useDepthRange );
     depthGroup->add( &m_depthRangeMin );
     depthGroup->add( &m_depthRangeMax );
-    m_depthRangeMin.uiCapability()->setUiReadOnly( !m_useDepthRange() );
-    m_depthRangeMax.uiCapability()->setUiReadOnly( !m_useDepthRange() );
+    m_depthRangeMin.uiCapability()->setUiReadOnly( !m_useDepthRange() || !m_formationFilter().isEmpty() );
+    m_depthRangeMax.uiCapability()->setUiReadOnly( !m_useDepthRange() || !m_formationFilter().isEmpty() );
 
     auto* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameter" );
     crossPlotGroup->add( &m_ensembleParameter );
@@ -581,6 +633,19 @@ void RimParameterRftCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
             }
         }
         m_selectedTimeStep = timeSteps.empty() ? QDateTime() : *timeSteps.begin();
+
+        // The formation list depends on well/time step; clear the stale selection rather than risk
+        // silently filtering by a formation name that no longer applies.
+        m_formationFilter = QString();
+    }
+    else if ( changedField == &m_selectedTimeStep )
+    {
+        // The formation list and its depth range are specific to a given time step.
+        m_formationFilter = QString();
+    }
+    else if ( changedField == &m_formationFilter )
+    {
+        applyFormationFilter();
     }
 
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
@@ -635,6 +700,22 @@ QList<caf::PdmOptionItemInfo> RimParameterRftCrossPlot::calculateValueOptions( c
         }
         for ( const QDateTime& dt : timeSteps )
             options.push_back( caf::PdmOptionItemInfo( dt.toString( "yyyy-MM-dd" ), dt ) );
+    }
+    else if ( fieldNeedingOptions == &m_formationFilter )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", QString() ) );
+
+        std::set<QString> formationNames;
+        if ( !m_wellName().isEmpty() && m_selectedTimeStep().isValid() )
+        {
+            for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( m_wellName() ) )
+            {
+                for ( const QString& name : observedData->formationNames( m_wellName(), m_selectedTimeStep() ) )
+                    formationNames.insert( name );
+            }
+        }
+        for ( const QString& name : formationNames )
+            options.push_back( caf::PdmOptionItemInfo( name, name ) );
     }
     else if ( fieldNeedingOptions == &m_eclipseCase )
     {
