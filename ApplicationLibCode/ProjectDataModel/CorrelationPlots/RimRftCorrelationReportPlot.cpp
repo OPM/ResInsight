@@ -340,6 +340,26 @@ void RimRftCorrelationReportPlot::setupBeforeSave()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The child plots are reconstructed by the PDM factory during project-file deserialization, bypassing
+/// the non-serialized setup done in this class's constructor (dock detachment, tornado callback wiring).
+/// Re-apply that setup here so the embedded RimWellRftPlot does not reappear as a stand-alone dock window
+/// and the tornado-to-cross-plot parameter sync keeps working after a project reload.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::initAfterRead()
+{
+    if ( m_wellRftPlot() )
+    {
+        m_wellRftPlot->removeWindowFromDock();
+        m_wellRftPlot->setShowWindow( true );
+    }
+
+    if ( m_tornadoPlot() )
+    {
+        m_tornadoPlot->setParameterSelectedCallback( [this]( const QString& paramName ) { onTornadoParameterSelected( paramName ); } );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimRftCorrelationReportPlot::doRenderWindowContent( QPaintDevice* paintDevice )
