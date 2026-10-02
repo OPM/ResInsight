@@ -990,7 +990,55 @@ void RimParameterRftCrossPlot::createPoints()
 //--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::addObservedPressureMarkers()
 {
-    if ( !m_plotWidget || m_wellName().isEmpty() || !m_selectedTimeStep().isValid() ) return;
+    if ( !m_plotWidget ) return;
+
+    auto observed = observedPressureAndErrorForCurrentSelection();
+    if ( !observed ) return;
+
+    const double observedPressure      = observed->first;
+    const double observedPressureError = observed->second;
+
+    auto addHorizontalLine = [this]( double yValue, Qt::PenStyle penStyle, const QString& label )
+    {
+        auto* marker = new QwtPlotMarker();
+        marker->setLineStyle( QwtPlotMarker::HLine );
+        marker->setYValue( yValue );
+        QPen pen( Qt::black );
+        pen.setStyle( penStyle );
+        pen.setWidth( 1 );
+        marker->setLinePen( pen );
+
+        if ( !label.isEmpty() )
+        {
+            QwtText text( label );
+            text.setColor( Qt::black );
+            marker->setLabel( text );
+            marker->setLabelAlignment( Qt::AlignTop | Qt::AlignLeft );
+        }
+
+        // Markers are not included in automatic axis scaling, but updateValueRanges() extends
+        // m_yValueRange to include the observed pressure/error values, so the explicit axis range
+        // set in updateAxes() always keeps these lines visible.
+        marker->setZ( 1000.0 );
+        marker->attach( m_plotWidget->qwtPlot() );
+    };
+
+    addHorizontalLine( observedPressure, Qt::SolidLine, "Observed Pressure" );
+    if ( observedPressureError > 0.0 )
+    {
+        addHorizontalLine( observedPressure - observedPressureError, Qt::DashLine, "Observed Pressure - Error" );
+        addHorizontalLine( observedPressure + observedPressureError, Qt::DashLine, "Observed Pressure + Error" );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the mean observed RFT pressure and mean observed pressure error for the current well,
+/// time step and depth range filter, averaged across all observed FMU RFT data sources available
+/// for the well. Returns std::nullopt if no observed data is available for the current selection.
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>> RimParameterRftCrossPlot::observedPressureAndErrorForCurrentSelection() const
+{
+    if ( m_wellName().isEmpty() || !m_selectedTimeStep().isValid() ) return std::nullopt;
 
     double sumPressure      = 0.0;
     double sumPressureError = 0.0;
@@ -1007,29 +1055,9 @@ void RimParameterRftCrossPlot::addObservedPressureMarkers()
         ++count;
     }
 
-    if ( count == 0 ) return;
+    if ( count == 0 ) return std::nullopt;
 
-    const double observedPressure      = sumPressure / count;
-    const double observedPressureError = sumPressureError / count;
-
-    auto addHorizontalLine = [this]( double yValue, Qt::PenStyle penStyle )
-    {
-        auto* marker = new QwtPlotMarker();
-        marker->setLineStyle( QwtPlotMarker::HLine );
-        marker->setYValue( yValue );
-        QPen pen( Qt::black );
-        pen.setStyle( penStyle );
-        pen.setWidth( 1 );
-        marker->setLinePen( pen );
-        marker->attach( m_plotWidget->qwtPlot() );
-    };
-
-    addHorizontalLine( observedPressure, Qt::SolidLine );
-    if ( observedPressureError > 0.0 )
-    {
-        addHorizontalLine( observedPressure - observedPressureError, Qt::DashLine );
-        addHorizontalLine( observedPressure + observedPressureError, Qt::DashLine );
-    }
+    return std::make_pair( sumPressure / count, sumPressureError / count );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1088,7 +1116,26 @@ void RimParameterRftCrossPlot::updateValueRanges()
         yMax = std::max( yMax, pressureValue );
     }
 
-    if ( xMin == std::numeric_limits<double>::infinity() )
+    // Ensure the observed pressure/error reference lines added by addObservedPressureMarkers() are
+    // always within the Y axis range, even when they fall outside the ensemble pressure values.
+    if ( auto observed = observedPressureAndErrorForCurrentSelection() )
+    {
+        const double observedPressure      = observed->first;
+        const double observedPressureError = observed->second;
+
+        yMin = std::min( yMin, observedPressure - observedPressureError );
+        yMax = std::max( yMax, observedPressure + observedPressureError );
+
+        if ( xMin == std::numeric_limits<double>::infinity() )
+        {
+            // No ensemble case data at all; still show the X axis as-is and size the Y axis around
+            // the observed pressure only.
+            m_xValueRange = std::nullopt;
+            m_yValueRange = std::make_pair( yMin, yMax );
+            return;
+        }
+    }
+    else if ( xMin == std::numeric_limits<double>::infinity() )
     {
         m_xValueRange = std::nullopt;
         m_yValueRange = std::nullopt;

@@ -133,13 +133,14 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void            createPoints();
-    void            addObservedPressureMarkers();
-    void            updatePlotTitle();
-    void            updateValueRanges();
-    void            cleanupBeforeClose();
-    RimSummaryCase* findClosestCase( const QPoint& canvasPos );
-    void            applyFormationFilter();
+    void                                     createPoints();
+    void                                     addObservedPressureMarkers();
+    std::optional<std::pair<double, double>> observedPressureAndErrorForCurrentSelection() const;
+    void                                     updatePlotTitle();
+    void                                     updateValueRanges();
+    void                                     cleanupBeforeClose();
+    RimSummaryCase*                          findClosestCase( const QPoint& canvasPos );
+    void                                     applyFormationFilter();
 
 private:
     // Sentinel value for the Depth Range Filter combo box, representing a manually entered depth
