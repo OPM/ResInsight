@@ -419,10 +419,12 @@ jobs:
     # unauthenticated download URL served by GitHub's CDN (see
     # magnesj/ResInsight#1093). Restricted to OPM/ResInsight so it only runs
     # in the repository that owns the DEV_BUILDS_TOKEN secret and the
-    # distribution repo.
+    # distribution repo. Only runs on the daily schedule or a manual
+    # workflow_dispatch, not on every push, to limit how often the rolling
+    # release is updated.
     if: >-
       github.repository == 'OPM/ResInsight' &&
-      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
       github.ref == 'refs/heads/dev'
     concurrency:
       group: publish-dev-build
