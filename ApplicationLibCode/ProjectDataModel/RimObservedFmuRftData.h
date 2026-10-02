@@ -56,6 +56,14 @@ public:
     std::optional<std::pair<double, double>>
         convertMdRangeToTvd( const QString& wellPathName, const QDateTime& timeStep, double mdMin, double mdMax );
 
+    // Computes the mean observed pressure and mean observed pressure error for the given well/time
+    // step, optionally restricted to the given MD (RKB) range.
+    std::optional<std::pair<double, double>> observedPressureAndError( const QString&   wellPathName,
+                                                                       const QDateTime& timeStep,
+                                                                       bool             useDepthRange,
+                                                                       double           mdMin,
+                                                                       double           mdMax );
+
 protected:
     void initAfterRead() override;
 

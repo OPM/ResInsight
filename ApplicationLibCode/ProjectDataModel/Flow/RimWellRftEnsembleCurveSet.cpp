@@ -160,6 +160,30 @@ RimRegularLegendConfig* RimWellRftEnsembleCurveSet::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCurveSetAppearance* RimWellRftEnsembleCurveSet::appearance() const
+{
+    return m_appearance();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Updates the ensemble parameter used for coloring, but only if this curve set is currently colored
+/// by ensemble parameter. Returns true if the parameter was applied.
+//--------------------------------------------------------------------------------------------------
+bool RimWellRftEnsembleCurveSet::setColorByEnsembleParameter( const QString& parameterName )
+{
+    if ( !m_appearance ) return false;
+    if ( m_appearance->colorMode() != RimCurveSetAppearance::ColorMode::BY_ENSEMBLE_PARAM ) return false;
+    if ( m_appearance->ensembleParameter() == parameterName ) return false;
+
+    m_appearance->setEnsembleParameter( parameterName );
+    updatePlot( nullptr );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellRftEnsembleCurveSet::setEclipseCase( RimEclipseCase* eclipseCase )
 {
     m_eclipseCase = eclipseCase;

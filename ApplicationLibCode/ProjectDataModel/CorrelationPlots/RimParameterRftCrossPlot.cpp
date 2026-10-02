@@ -256,6 +256,17 @@ QString RimParameterRftCrossPlot::formationFilter() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns the formation name if the depth range filter is currently set to an actual formation
+/// (as opposed to "None" or "Custom Range"), otherwise an empty string.
+//--------------------------------------------------------------------------------------------------
+QString RimParameterRftCrossPlot::selectedFormationName() const
+{
+    if ( m_formationFilter().isEmpty() || m_formationFilter() == CUSTOM_RANGE_FILTER_VALUE ) return QString();
+
+    return m_formationFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimParameterRftCrossPlot::SampleMode RimParameterRftCrossPlot::sampleMode() const
@@ -521,9 +532,11 @@ void RimParameterRftCrossPlot::updateAxes()
     const int axisValueSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 
     const QString pressureLabel = m_sampleMode() == SampleMode::ALL_SAMPLES ? QString( "Pressure" ) : QString( "Mean Pressure" );
-    const QString depthLabel    = m_useDepthRange()
-                                      ? QString( "%1 [MD %2 - %3]" ).arg( pressureLabel ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
-                                      : pressureLabel;
+    const QString formationName = selectedFormationName();
+    const QString depthLabel    = !formationName.isEmpty() ? QString( "%1 [%2]" ).arg( pressureLabel ).arg( formationName )
+                                   : m_useDepthRange()
+                                       ? QString( "%1 [MD %2 - %3]" ).arg( pressureLabel ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
+                                       : pressureLabel;
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), depthLabel );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
@@ -919,6 +932,8 @@ void RimParameterRftCrossPlot::createPoints()
 {
     detachAllCurves();
 
+    addObservedPressureMarkers();
+
     caf::ColorTable colorTable = RiaColorTables::categoryPaletteColors();
 
     auto caseData = createCaseData();
@@ -968,6 +983,56 @@ void RimParameterRftCrossPlot::createPoints()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Adds the mean observed RFT pressure as a solid horizontal reference line, and the observed
+/// pressure error band (pressure +/- mean error) as dashed horizontal reference lines, across the
+/// full width of the plot. Averages across all observed FMU RFT data sources available for the
+/// current well, honoring the active depth range filter (if any).
+//--------------------------------------------------------------------------------------------------
+void RimParameterRftCrossPlot::addObservedPressureMarkers()
+{
+    if ( !m_plotWidget || m_wellName().isEmpty() || !m_selectedTimeStep().isValid() ) return;
+
+    double sumPressure      = 0.0;
+    double sumPressureError = 0.0;
+    int    count            = 0;
+
+    for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( m_wellName() ) )
+    {
+        auto observed =
+            observedData->observedPressureAndError( m_wellName(), m_selectedTimeStep(), m_useDepthRange(), m_depthRangeMin(), m_depthRangeMax() );
+        if ( !observed ) continue;
+
+        sumPressure += observed->first;
+        sumPressureError += observed->second;
+        ++count;
+    }
+
+    if ( count == 0 ) return;
+
+    const double observedPressure      = sumPressure / count;
+    const double observedPressureError = sumPressureError / count;
+
+    auto addHorizontalLine = [this]( double yValue, Qt::PenStyle penStyle )
+    {
+        auto* marker = new QwtPlotMarker();
+        marker->setLineStyle( QwtPlotMarker::HLine );
+        marker->setYValue( yValue );
+        QPen pen( Qt::black );
+        pen.setStyle( penStyle );
+        pen.setWidth( 1 );
+        marker->setLinePen( pen );
+        marker->attach( m_plotWidget->qwtPlot() );
+    };
+
+    addHorizontalLine( observedPressure, Qt::SolidLine );
+    if ( observedPressureError > 0.0 )
+    {
+        addHorizontalLine( observedPressure - observedPressureError, Qt::DashLine );
+        addHorizontalLine( observedPressure + observedPressureError, Qt::DashLine );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimParameterRftCrossPlot::updatePlotTitle()
@@ -978,8 +1043,17 @@ void RimParameterRftCrossPlot::updatePlotTitle()
     {
         const QString pressureLabel = m_sampleMode() == SampleMode::ALL_SAMPLES ? QString( "RFT Pressure (All Samples)" )
                                                                                 : QString( "Mean RFT Pressure" );
+        const QString formationName = selectedFormationName();
 
-        if ( m_useDepthRange() )
+        if ( !formationName.isEmpty() )
+        {
+            m_description = QString( "%1 vs %2 [%3], %4" )
+                                .arg( m_ensembleParameter() )
+                                .arg( pressureLabel )
+                                .arg( formationName )
+                                .arg( m_ensemble->name() );
+        }
+        else if ( m_useDepthRange() )
         {
             m_description = QString( "%1 vs %2 [%3 - %4 m], %5" )
                                 .arg( m_ensembleParameter() )

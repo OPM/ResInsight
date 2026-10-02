@@ -87,6 +87,15 @@ public:
     std::optional<std::pair<double, double>>
         convertMdRangeToTvd( const QString& wellName, const QDateTime& timeStep, double mdMin, double mdMax );
 
+    // Computes the mean observed pressure and mean observed pressure error for the given well/time
+    // step, optionally restricted to observation points within [mdMin, mdMax] (MD RKB). Returns
+    // std::nullopt if no matching observation points exist.
+    std::optional<std::pair<double, double>> observedPressureAndError( const QString&    wellName,
+                                                                       const QDateTime&  timeStep,
+                                                                       bool              useDepthRange,
+                                                                       double            mdMin,
+                                                                       double            mdMax );
+
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
 

@@ -286,6 +286,41 @@ std::optional<std::pair<double, double>>
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Computes the mean observed pressure and mean observed pressure error for the given well/time
+/// step, optionally restricted to observation points within [mdMin, mdMax] (MD RKB).
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>> RifReaderFmuRft::observedPressureAndError( const QString&   wellName,
+                                                                                   const QDateTime& timeStep,
+                                                                                   bool             useDepthRange,
+                                                                                   double           mdMin,
+                                                                                   double           mdMax )
+{
+    std::vector<const Observation*> observationsForWellDate = sortedObservationsForWellDate( wellName, timeStep );
+    if ( observationsForWellDate.empty() ) return std::nullopt;
+
+    double minMd = mdMin;
+    double maxMd = mdMax;
+    if ( minMd > maxMd ) std::swap( minMd, maxMd );
+
+    double sumPressure      = 0.0;
+    double sumPressureError = 0.0;
+    int    count            = 0;
+
+    for ( const auto* observation : observationsForWellDate )
+    {
+        if ( useDepthRange && ( observation->location.mdrkb < minMd || observation->location.mdrkb > maxMd ) ) continue;
+
+        sumPressure += observation->pressure;
+        sumPressureError += observation->pressureError;
+        ++count;
+    }
+
+    if ( count == 0 ) return std::nullopt;
+
+    return std::make_pair( sumPressure / count, sumPressureError / count );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress> RifReaderFmuRft::eclipseRftAddresses()

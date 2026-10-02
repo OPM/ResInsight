@@ -60,7 +60,9 @@ public:
     cvf::Color3f statisticsCurveColor() const;
 
     void                    setColorMode( ColorModeEnum colorMode );
+    ColorModeEnum           colorMode() const;
     void                    setEnsembleParameter( const QString& ensembleParameter );
+    QString                 ensembleParameter() const;
     RimRegularLegendConfig* legendConfig() const;
 
 private:

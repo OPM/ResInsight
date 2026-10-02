@@ -169,6 +169,22 @@ std::optional<std::pair<double, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>> RimObservedFmuRftData::observedPressureAndError( const QString&   wellPathName,
+                                                                                         const QDateTime& timeStep,
+                                                                                         bool             useDepthRange,
+                                                                                         double           mdMin,
+                                                                                         double           mdMax )
+{
+    if ( m_fmuRftReader )
+    {
+        return m_fmuRftReader->observedPressureAndError( wellPathName, timeStep, useDepthRange, mdMin, mdMax );
+    }
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimObservedFmuRftData::initAfterRead()
 {
     if ( m_directoryPath().path().isEmpty() )

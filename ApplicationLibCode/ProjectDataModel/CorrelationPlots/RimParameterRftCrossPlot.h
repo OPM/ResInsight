@@ -81,6 +81,7 @@ public:
     double                depthRangeMin() const;
     double                depthRangeMax() const;
     QString               formationFilter() const;
+    QString               selectedFormationName() const;
     SampleMode            sampleMode() const;
 
     RiuQwtPlotWidget* viewer();
@@ -133,6 +134,7 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void            createPoints();
+    void            addObservedPressureMarkers();
     void            updatePlotTitle();
     void            updateValueRanges();
     void            cleanupBeforeClose();

@@ -21,6 +21,7 @@
 #include "RimParameterRftCrossPlot.h"
 #include "RimRftTornadoPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
 
 #include "RiuInterfaceToViewWindow.h"
@@ -511,6 +512,18 @@ void RimRftCorrelationReportPlot::onTornadoParameterSelected( const QString& par
         m_parameterRftCrossPlot->setEnsembleParameter( paramName );
         m_parameterRftCrossPlot->loadDataAndUpdate();
     }
+
+    if ( m_wellRftPlot() && m_parameterRftCrossPlot() && m_parameterRftCrossPlot->ensemble() )
+    {
+        if ( auto* curveSet = m_wellRftPlot->findEnsembleCurveSet( m_parameterRftCrossPlot->ensemble() ) )
+        {
+            if ( curveSet->setColorByEnsembleParameter( paramName ) )
+            {
+                m_wellRftPlot->loadDataAndUpdate();
+            }
+        }
+    }
+
     updateConnectedEditors();
 }
 
@@ -528,6 +541,7 @@ void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
     m_tornadoPlot->setEclipseCase( m_parameterRftCrossPlot->eclipseCase() );
     m_tornadoPlot->setUseDepthRange( m_parameterRftCrossPlot->useDepthRange() );
     m_tornadoPlot->setDepthRange( m_parameterRftCrossPlot->depthRangeMin(), m_parameterRftCrossPlot->depthRangeMax() );
+    m_tornadoPlot->setFormationFilterName( m_parameterRftCrossPlot->selectedFormationName() );
 }
 
 //--------------------------------------------------------------------------------------------------
