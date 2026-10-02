@@ -30,6 +30,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 
+#include <algorithm>
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------
@@ -173,7 +174,12 @@ std::set<QString> RifReaderFmuRft::formationNames( const QString& wellName, cons
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// FMU RFT observation files typically contain a single observation point per formation per
+/// well/time step (one measured pressure point per zone), so the min/max MD among points tagged
+/// with the formation is usually degenerate (minMd == maxMd). To produce a usable depth filter,
+/// the formation's depth interval is instead extended halfway towards its neighboring observation
+/// points (sorted by MD) for the same well/time step, giving contiguous, non-overlapping intervals
+/// along the well. The outermost formation(s) extend to the first/last observation point MD.
 //--------------------------------------------------------------------------------------------------
 std::optional<std::pair<double, double>>
     RifReaderFmuRft::formationDepthRange( const QString& wellName, const QDateTime& timeStep, const QString& formationName )
@@ -183,21 +189,45 @@ std::optional<std::pair<double, double>>
         importData();
     }
 
-    double minMd = std::numeric_limits<double>::max();
-    double maxMd = -std::numeric_limits<double>::max();
-    bool   found = false;
-
+    std::vector<const Observation*> observationsForWellDate;
     for ( const auto& observation : m_observations )
     {
         if ( observation.wellDate.wellName != wellName || observation.wellDate.dateTime != timeStep ) continue;
-        if ( observation.location.formation != formationName ) continue;
-
-        minMd = std::min( minMd, observation.location.mdrkb );
-        maxMd = std::max( maxMd, observation.location.mdrkb );
-        found = true;
+        observationsForWellDate.push_back( &observation );
     }
 
-    if ( !found ) return std::nullopt;
+    if ( observationsForWellDate.empty() ) return std::nullopt;
+
+    std::sort( observationsForWellDate.begin(),
+               observationsForWellDate.end(),
+               []( const Observation* a, const Observation* b ) { return a->location.mdrkb < b->location.mdrkb; } );
+
+    std::vector<size_t> indicesForFormation;
+    for ( size_t i = 0; i < observationsForWellDate.size(); i++ )
+    {
+        if ( observationsForWellDate[i]->location.formation == formationName ) indicesForFormation.push_back( i );
+    }
+
+    if ( indicesForFormation.empty() ) return std::nullopt;
+
+    const size_t firstIdx = indicesForFormation.front();
+    const size_t lastIdx  = indicesForFormation.back();
+
+    const double firstMd = observationsForWellDate[firstIdx]->location.mdrkb;
+    const double lastMd  = observationsForWellDate[lastIdx]->location.mdrkb;
+
+    double minMd = ( firstIdx == 0 ) ? firstMd : 0.5 * ( observationsForWellDate[firstIdx - 1]->location.mdrkb + firstMd );
+    double maxMd =
+        ( lastIdx == observationsForWellDate.size() - 1 ) ? lastMd : 0.5 * ( lastMd + observationsForWellDate[lastIdx + 1]->location.mdrkb );
+
+    // Fall back to a small fixed padding if the formation is the only observation point for this
+    // well/time step, so the resulting range is not degenerate (minMd == maxMd).
+    if ( minMd == maxMd )
+    {
+        const double padding = 1.0;
+        minMd -= padding;
+        maxMd += padding;
+    }
 
     return std::make_pair( minMd, maxMd );
 }

@@ -72,8 +72,10 @@ public:
     std::set<QString> formationNames( const QString& wellName );
     std::set<QString> formationNames( const QString& wellName, const QDateTime& timeStep );
 
-    // Returns the min/max measured depth (MDRKB) spanned by observation points tagged with the given
-    // formation name, for the given well and time step. Returns std::nullopt if no matching points exist.
+    // Returns the measured depth (MDRKB) interval covering the given formation's observation point(s),
+    // for the given well and time step. The interval extends halfway towards neighboring observation
+    // points (sorted by MD) so that formations with a single observation point still get a usable,
+    // non-degenerate depth range. Returns std::nullopt if no matching points exist.
     std::optional<std::pair<double, double>>
         formationDepthRange( const QString& wellName, const QDateTime& timeStep, const QString& formationName );
 
