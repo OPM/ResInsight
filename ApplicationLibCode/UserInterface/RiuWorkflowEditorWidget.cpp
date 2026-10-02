@@ -41,7 +41,6 @@
 #include <QLabel>
 #include <QMenu>
 #include <QSplitter>
-#include <QToolBar>
 #include <QVBoxLayout>
 
 #include <map>
@@ -73,10 +72,6 @@ RiuWorkflowEditorWidget::RiuWorkflowEditorWidget( QWidget* parent )
     layout->setContentsMargins( 0, 0, 0, 0 );
     layout->setSpacing( 2 );
 
-    m_toolBar = new QToolBar( this );
-    m_toolBar->setIconSize( QSize( 16, 16 ) );
-    m_toolBar->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
-
     auto addAction = [this]( const QString& text, const QString& icon, const QKeySequence& shortcut, auto slot )
     {
         auto* action = new QAction( icon.isEmpty() ? QIcon() : QIcon( icon ), text, this );
@@ -84,44 +79,40 @@ RiuWorkflowEditorWidget::RiuWorkflowEditorWidget( QWidget* parent )
         {
             action->setShortcut( shortcut );
             action->setShortcutContext( Qt::WidgetWithChildrenShortcut );
-            action->setToolTip( QString( "%1 (%2)" ).arg( text, shortcut.toString( QKeySequence::NativeText ) ) );
             this->addAction( action );
         }
         connect( action, &QAction::triggered, this, slot );
-        m_toolBar->addAction( action );
         return action;
     };
 
-    m_saveAction   = addAction( "Save",
+    m_saveAction      = addAction( "Save",
                               ":/Save.svg",
                               QKeySequence::Save,
                               [this]()
                               {
                                   if ( m_workflow ) RicWorkflowFeatureTools::saveWorkflow( m_workflow );
                               } );
-    m_saveAsAction = addAction( "Save As...",
+    m_saveAsAction    = addAction( "Save As...",
                                 ":/SaveAs.svg",
                                 QKeySequence(),
                                 [this]()
                                 {
                                     if ( m_workflow ) RicWorkflowFeatureTools::saveWorkflowAs( m_workflow );
                                 } );
-    m_toolBar->addSeparator();
-    m_undoAction = addAction( "Undo",
+    m_undoAction      = addAction( "Undo",
                               ":/undo.png",
                               QKeySequence::Undo,
                               [this]()
                               {
                                   if ( m_workflow && m_workflow->canUndo() && !m_workflow->isLocked() ) m_workflow->undo();
                               } );
-    m_redoAction = addAction( "Redo",
+    m_redoAction      = addAction( "Redo",
                               ":/redo.png",
                               QKeySequence( Qt::CTRL | Qt::Key_Y ),
                               [this]()
                               {
                                   if ( m_workflow && m_workflow->canRedo() && !m_workflow->isLocked() ) m_workflow->redo();
                               } );
-    m_toolBar->addSeparator();
     m_duplicateAction = addAction( "Duplicate as Editable",
                                    ":/Copy.svg",
                                    QKeySequence(),
@@ -130,16 +121,15 @@ RiuWorkflowEditorWidget::RiuWorkflowEditorWidget( QWidget* parent )
                                        if ( m_workflow ) RicWorkflowFeatureTools::duplicateAsEditable( m_workflow );
                                    } );
     m_fitAction       = addAction( "Fit", "", QKeySequence(), [this]() { m_graphView->fitGraph(); } );
-    layout->addWidget( m_toolBar );
 
     m_splitter  = new QSplitter( Qt::Horizontal, this );
     m_palette   = new RiuWorkflowTaskPalette( m_splitter );
     m_graphView = new RiuWorkflowGraphView( m_splitter );
-    m_splitter->addWidget( m_palette );
     m_splitter->addWidget( m_graphView );
-    m_splitter->setStretchFactor( 0, 0 );
-    m_splitter->setStretchFactor( 1, 1 );
-    m_splitter->setSizes( { 220, 800 } );
+    m_splitter->addWidget( m_palette );
+    m_splitter->setStretchFactor( 0, 1 );
+    m_splitter->setStretchFactor( 1, 0 );
+    m_splitter->setSizes( { 800, 220 } );
     layout->addWidget( m_splitter, 1 );
 
     m_statusLabel = new QLabel( this );
@@ -464,10 +454,15 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
         {
             appendAddTaskMenu( &menu, scenePos );
             menu.addSeparator();
+            menu.addAction( m_undoAction );
+            menu.addAction( m_redoAction );
+            menu.addSeparator();
+            menu.addAction( m_saveAction );
+            menu.addAction( m_saveAsAction );
         }
+        menu.addAction( m_duplicateAction );
+        menu.addSeparator();
         menu.addAction( m_fitAction );
-        if ( editable ) menu.addAction( m_saveAction );
-        if ( !m_workflow->isEditable() ) menu.addAction( m_duplicateAction );
     }
 
     if ( !menu.isEmpty() ) menu.exec( globalPos );

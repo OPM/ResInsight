@@ -85,8 +85,9 @@ tree. Select a workflow job, provide its inputs, and click **Run**.
 ## 4. Create and edit workflows
 
 Selecting a workflow opens the workflow editor in a tab next to the 3D views.
-It shows a palette of all installed tasks, the workflow graph, and a status
-line with validation results.
+It shows the workflow graph, a palette of all installed tasks on the right,
+and a status line with validation results. Right-click the graph background
+for Undo, Redo, Save, Save As, and Duplicate as Editable.
 
 - **New workflow:** right-click **Workflows** and choose **New Workflow**.
 - **Copy a workflow:** choose **Duplicate as Editable** on any workflow,
