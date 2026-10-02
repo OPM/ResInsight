@@ -1290,6 +1290,45 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData( RimCase* rimCase, c
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Configures the track to use the "Well Picks for Well Path" formation source, reading zone tops
+/// from the given well path's cached RigWellPathFormations (RimWellPath::formationsGeometry()).
+/// Used for well paths that have formation data (e.g. derived from observed RFT data) but no
+/// associated grid case formation lookup.
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAndUpdateWellPathFormationPicksData( RimWellPath* wellPath )
+{
+    m_formationSettings->setFormationSource( RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER );
+    m_formationSettings->setTrajectoryType( RiaDefines::WellLogTrackTrajectoryType::WELL_PATH );
+    m_formationSettings->setWellPathForSourceWellPath( wellPath );
+
+    updateConnectedEditors();
+
+    if ( m_regionAnnotationSettings->annotationType() != RiaDefines::RegionAnnotationType::NO_ANNOTATIONS )
+    {
+        updateRegionAnnotationsOnPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the formation name covering the given depth value, when the formation source is set to
+/// "Well Picks for Well Path" (WELL_PICK_FILTER) and the source well path has formation data. Used
+/// by RiuWellLogTrack to resolve a formation name when the user clicks in the formation annotation
+/// band of the track.
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogTrack::formationNameAtDepth( double depthValue, RiaDefines::DepthType depthType ) const
+{
+    if ( m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER ) return {};
+
+    RimWellPath* wellPath = m_formationSettings->wellPathForSourceWellPath();
+    if ( !wellPath ) return {};
+
+    const RigWellPathFormations* formations = wellPath->formationsGeometry();
+    if ( !formations ) return {};
+
+    return formations->formationNameAtDepth( depthValue, depthType );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setAutoScaleXEnabled( bool enabled )

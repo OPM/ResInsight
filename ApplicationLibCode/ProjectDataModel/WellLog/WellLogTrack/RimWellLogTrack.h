@@ -132,6 +132,9 @@ public:
 
     void setAndUpdateSimWellFormationNamesAndBranchData( RimCase* rimCase, const QString& simWellName, int branchIndex, bool useBranchDetection );
     void setAndUpdateSimWellFormationNamesData( RimCase* rimCase, const QString& simWellName );
+    void setAndUpdateWellPathFormationPicksData( RimWellPath* wellPath );
+
+    QString formationNameAtDepth( double depthValue, RiaDefines::DepthType depthType ) const;
 
     [[deprecated( "Use setAutoScalePropertyValuesEnabled() instead." )]] void setAutoScaleXEnabled( bool enabled ) override;
     [[deprecated( "Use setAutoScaleDepthValuesEnabled() instead." )]] void    setAutoScaleYEnabled( bool enabled ) override;

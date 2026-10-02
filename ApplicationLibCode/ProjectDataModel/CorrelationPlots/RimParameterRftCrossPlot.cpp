@@ -534,9 +534,9 @@ void RimParameterRftCrossPlot::updateAxes()
     const QString pressureLabel = m_sampleMode() == SampleMode::ALL_SAMPLES ? QString( "Pressure" ) : QString( "Mean Pressure" );
     const QString formationName = selectedFormationName();
     const QString depthLabel    = !formationName.isEmpty() ? QString( "%1 [%2]" ).arg( pressureLabel ).arg( formationName )
-                                   : m_useDepthRange()
-                                       ? QString( "%1 [MD %2 - %3]" ).arg( pressureLabel ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
-                                       : pressureLabel;
+                                  : m_useDepthRange()
+                                      ? QString( "%1 [MD %2 - %3]" ).arg( pressureLabel ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
+                                      : pressureLabel;
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), depthLabel );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
@@ -1047,11 +1047,8 @@ void RimParameterRftCrossPlot::updatePlotTitle()
 
         if ( !formationName.isEmpty() )
         {
-            m_description = QString( "%1 vs %2 [%3], %4" )
-                                .arg( m_ensembleParameter() )
-                                .arg( pressureLabel )
-                                .arg( formationName )
-                                .arg( m_ensemble->name() );
+            m_description =
+                QString( "%1 vs %2 [%3], %4" ).arg( m_ensembleParameter() ).arg( pressureLabel ).arg( formationName ).arg( m_ensemble->name() );
         }
         else if ( m_useDepthRange() )
         {

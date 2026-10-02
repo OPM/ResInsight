@@ -31,6 +31,8 @@
 #include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfObject.h"
+
 #include <QMetaObject>
 #include <QPointer>
 
@@ -161,8 +163,9 @@ private:
     RimSummaryCase* findClosestRealization( const QPoint& canvasPos );
     void            highlightSelectedRealization();
 
-    void    updateFormationsOnPlot() const;
-    QString associatedSimWellName() const;
+    void                                  updateFormationsOnPlot() const;
+    QString                               associatedSimWellName() const;
+    cvf::ref<class RigWellPathFormations> createFormationsFromObservedRftData() const;
 
     static RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseRftAddress& address );
     static RiuPlotCurveSymbol::LabelPosition   statisticsLabelPosFromAddress( const RifEclipseRftAddress& address );

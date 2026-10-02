@@ -29,6 +29,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "Well/RigWellPathFormations.h"
 
 #include "RimDataSourceForRftPlt.h"
 #include "RimEclipseCase.h"
@@ -256,6 +257,19 @@ void RimWellRftPlot::updateFormationsOnPlot() const
                 }
             }
 
+            // Fall back to formation names derived from observed FMU RFT data (zone names and MD
+            // ranges from the RFT observation file) when no grid case is available to provide
+            // formation tops, e.g. in ensemble-only projects without a grid case.
+            if ( !formationNamesCase && wellPath )
+            {
+                if ( auto formations = createFormationsFromObservedRftData(); formations.notNull() )
+                {
+                    wellPath->setFormationsGeometry( formations );
+                    track->setAndUpdateWellPathFormationPicksData( wellPath );
+                    return;
+                }
+            }
+
             if ( wellPath )
             {
                 track->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
@@ -269,6 +283,52 @@ void RimWellRftPlot::updateFormationsOnPlot() const
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Builds a RigWellPathFormations object from observed FMU RFT data (zone name and MD/TVD range
+/// per formation) for the current well and first selected time step, for use as a formation source
+/// independent of a grid case. Returns a null ref if no observed FMU RFT data with formation names
+/// is available.
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigWellPathFormations> RimWellRftPlot::createFormationsFromObservedRftData() const
+{
+    if ( m_selectedTimeSteps().empty() ) return nullptr;
+
+    const QDateTime timeStep = m_selectedTimeSteps()[0];
+
+    for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( m_wellPathNameOrSimWellName ) )
+    {
+        std::vector<QString> formationNames = observedData->formationNames( m_wellPathNameOrSimWellName, timeStep );
+        if ( formationNames.empty() ) continue;
+
+        std::vector<RigWellPathFormation> formations;
+        for ( const QString& formationName : formationNames )
+        {
+            auto mdRange = observedData->formationDepthRange( m_wellPathNameOrSimWellName, timeStep, formationName );
+            if ( !mdRange ) continue;
+
+            RigWellPathFormation formation;
+            formation.mdTop         = mdRange->first;
+            formation.mdBase        = mdRange->second;
+            formation.formationName = formationName;
+
+            if ( auto tvdRange = observedData->convertMdRangeToTvd( m_wellPathNameOrSimWellName, timeStep, mdRange->first, mdRange->second ) )
+            {
+                formation.tvdTop  = tvdRange->first;
+                formation.tvdBase = tvdRange->second;
+            }
+
+            formations.push_back( formation );
+        }
+
+        if ( !formations.empty() )
+        {
+            return new RigWellPathFormations( formations, "", "Observed RFT Formations" );
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

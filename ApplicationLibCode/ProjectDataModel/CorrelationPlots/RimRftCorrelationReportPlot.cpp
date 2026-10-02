@@ -27,6 +27,7 @@
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotWidget.h"
+#include "RiuWellLogTrack.h"
 
 #include "DockAreaTitleBar.h"
 #include "DockAreaWidget.h"
@@ -263,6 +264,19 @@ void RimRftCorrelationReportPlot::recreatePlotWidgets()
     m_rftDockWidget         = makeDockWidget( "RFT Plot", m_wellRftPlot(), m_wellRftPlot->viewWidget() );
     m_correlationDockWidget = makeDockWidget( "Tornado Plot", m_tornadoPlot(), m_tornadoPlot->viewer() );
     m_crossPlotDockWidget   = makeDockWidget( "Cross Plot", m_parameterRftCrossPlot(), m_parameterRftCrossPlot->viewer() );
+
+    // Clicking a formation annotation band in the RFT plot's track selects it as the depth filter
+    // used by the correlation/cross plots.
+    for ( RimPlot* plot : m_wellRftPlot->plots() )
+    {
+        auto* track = dynamic_cast<RimWellLogTrack*>( plot );
+        if ( !track ) continue;
+
+        auto* trackWidget = dynamic_cast<RiuWellLogTrack*>( track->viewer() );
+        if ( !trackWidget ) continue;
+
+        connect( trackWidget, &RiuWellLogTrack::formationClicked, this, &RimRftCorrelationReportPlot::onRftFormationClicked, Qt::UniqueConnection );
+    }
 
     // Restore saved dock state or apply hard-coded default layout
     QByteArray stateToRestore;
@@ -542,6 +556,21 @@ void RimRftCorrelationReportPlot::syncTornadoInputsFromCrossPlot()
     m_tornadoPlot->setUseDepthRange( m_parameterRftCrossPlot->useDepthRange() );
     m_tornadoPlot->setDepthRange( m_parameterRftCrossPlot->depthRangeMin(), m_parameterRftCrossPlot->depthRangeMax() );
     m_tornadoPlot->setFormationFilterName( m_parameterRftCrossPlot->selectedFormationName() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Invoked when the user clicks a formation annotation band in the RFT plot's track. Applies the
+/// clicked formation as the depth range filter used by the correlation/cross plots, without
+/// affecting the RFT plot itself.
+//--------------------------------------------------------------------------------------------------
+void RimRftCorrelationReportPlot::onRftFormationClicked( const QString& formationName )
+{
+    if ( !m_parameterRftCrossPlot() ) return;
+
+    m_parameterRftCrossPlot->setFormationFilter( formationName );
+
+    loadDataAndUpdate();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

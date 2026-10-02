@@ -58,6 +58,8 @@ public:
 
     std::vector<FormationLevel> formationsLevelsPresent() const;
 
+    QString formationNameAtDepth( double depthValue, RiaDefines::DepthType depthType ) const;
+
     QString filePath() const;
     QString keyInFile() const;
 

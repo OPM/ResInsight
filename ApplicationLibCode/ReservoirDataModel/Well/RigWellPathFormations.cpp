@@ -20,6 +20,8 @@
 
 #include "QStringList"
 
+#include <algorithm>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -42,6 +44,33 @@ RigWellPathFormations::RigWellPathFormations( const std::vector<RigWellPathForma
             m_formations.push_back( std::pair<RigWellPathFormation, FormationLevel>( formation, level ) );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigWellPathFormations::formationNameAtDepth( double depthValue, RiaDefines::DepthType depthType ) const
+{
+    for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
+    {
+        double top  = formation.first.mdTop;
+        double base = formation.first.mdBase;
+        if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH || depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
+        {
+            top  = formation.first.tvdTop;
+            base = formation.first.tvdBase;
+        }
+
+        if ( std::min( top, base ) <= depthValue && depthValue <= std::max( top, base ) )
+        {
+            return formation.first.formationName;
+        }
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

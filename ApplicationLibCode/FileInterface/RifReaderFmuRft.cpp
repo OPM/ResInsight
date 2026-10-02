@@ -289,11 +289,8 @@ std::optional<std::pair<double, double>>
 /// Computes the mean observed pressure and mean observed pressure error for the given well/time
 /// step, optionally restricted to observation points within [mdMin, mdMax] (MD RKB).
 //--------------------------------------------------------------------------------------------------
-std::optional<std::pair<double, double>> RifReaderFmuRft::observedPressureAndError( const QString&   wellName,
-                                                                                   const QDateTime& timeStep,
-                                                                                   bool             useDepthRange,
-                                                                                   double           mdMin,
-                                                                                   double           mdMax )
+std::optional<std::pair<double, double>>
+    RifReaderFmuRft::observedPressureAndError( const QString& wellName, const QDateTime& timeStep, bool useDepthRange, double mdMin, double mdMax )
 {
     std::vector<const Observation*> observationsForWellDate = sortedObservationsForWellDate( wellName, timeStep );
     if ( observationsForWellDate.empty() ) return std::nullopt;

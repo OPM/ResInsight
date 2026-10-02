@@ -207,6 +207,10 @@ protected:
 
     virtual void onMouseMoveEvent( QMouseEvent* event );
 
+    // Called when the plot canvas is clicked (mouse button released without a drag/zoom). Base
+    // implementation does nothing; override to react to clicks at a specific plot position.
+    virtual void onMouseClickEvent( QMouseEvent* event );
+
 private:
     void selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     void highlightClosestPlotItem( const QPoint& pos );

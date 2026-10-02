@@ -85,6 +85,7 @@ private:
     void syncCrossPlotSelectionToRftPlot();
     void onTornadoParameterSelected( const QString& paramName );
     void syncTornadoInputsFromCrossPlot();
+    void onRftFormationClicked( const QString& formationName );
 
 private:
     caf::PdmProxyValueField<QString> m_name;

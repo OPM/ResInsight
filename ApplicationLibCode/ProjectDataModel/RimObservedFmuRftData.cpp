@@ -170,10 +170,10 @@ std::optional<std::pair<double, double>>
 ///
 //--------------------------------------------------------------------------------------------------
 std::optional<std::pair<double, double>> RimObservedFmuRftData::observedPressureAndError( const QString&   wellPathName,
-                                                                                         const QDateTime& timeStep,
-                                                                                         bool             useDepthRange,
-                                                                                         double           mdMin,
-                                                                                         double           mdMax )
+                                                                                          const QDateTime& timeStep,
+                                                                                          bool             useDepthRange,
+                                                                                          double           mdMin,
+                                                                                          double           mdMax )
 {
     if ( m_fmuRftReader )
     {
