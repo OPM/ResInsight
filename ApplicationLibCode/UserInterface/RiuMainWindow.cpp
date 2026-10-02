@@ -1626,6 +1626,7 @@ void RiuMainWindow::workflowBindingChanged( const RimWorkflowFieldBinding* bindi
     {
         m_workflowEditor->graphView()->setTaskInputValue( task->taskName(), binding->fieldName(), binding->displayValue() );
     }
+    m_workflowEditor->updateTaskIssues();
 }
 
 //--------------------------------------------------------------------------------------------------

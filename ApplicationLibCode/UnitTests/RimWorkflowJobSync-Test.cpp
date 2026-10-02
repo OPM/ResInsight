@@ -241,3 +241,30 @@ TEST( RimWorkflowValidationTools, issuesFromHelperResult )
     EXPECT_EQ( RimWorkflowIssue::Severity::Warning, result.issues[0].severity );
     EXPECT_EQ( "paths", result.issues[0].field );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowValidationTools, issuesWithJobValues )
+{
+    const QJsonObject missingCase{ { "task", "select" },
+                                   { "field", "case" },
+                                   { "severity", "warning" },
+                                   { "message", RimWorkflowValidationTools::missingValueMessage( "case" ) } };
+    const QJsonObject otherIssue{ { "task", "select" }, { "field", "" }, { "severity", "error" }, { "message", "Broken" } };
+
+    // A value in the job removes the stale warning from describe
+    QJsonArray issues = RimWorkflowValidationTools::issuesWithJobValues( "select", { missingCase, otherIssue }, { { "case", true } } );
+    ASSERT_EQ( 1, issues.size() );
+    EXPECT_EQ( "Broken", issues[0].toObject().value( "message" ).toString() );
+
+    // A missing value in the job gives one warning, even if describe also reported it
+    issues = RimWorkflowValidationTools::issuesWithJobValues( "select", { missingCase }, { { "case", false } } );
+    ASSERT_EQ( 1, issues.size() );
+    EXPECT_EQ( "case", issues[0].toObject().value( "field" ).toString() );
+    EXPECT_EQ( "warning", issues[0].toObject().value( "severity" ).toString() );
+
+    // Fields the job does not bind keep the warnings from describe
+    issues = RimWorkflowValidationTools::issuesWithJobValues( "select", { missingCase }, {} );
+    EXPECT_EQ( 1, issues.size() );
+}
