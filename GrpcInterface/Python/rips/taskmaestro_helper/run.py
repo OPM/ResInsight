@@ -91,12 +91,31 @@ def make_rips_resolver(rips_instance: Any) -> Callable[[str, dict[str, Any]], An
     return resolve
 
 
+def _load_workflow(workflow_dir: Path | None, registered_id: str | None) -> Any:
+    if registered_id is not None:
+        from taskmaestro.discovery import get_registered_workflow
+
+        return get_registered_workflow(registered_id)
+
+    from taskmaestro.yaml_config import _load_workflow_only
+
+    assert workflow_dir is not None
+    workflow, _ = _load_workflow_only(workflow_dir / "workflow.yaml")
+    return workflow
+
+
 def run_workflow(
-    workflow_dir: Path, input_path: Path, grpc_port: int, run_id: str = ""
+    workflow_dir: Path | None,
+    input_path: Path,
+    grpc_port: int,
+    run_id: str = "",
+    registered_id: str | None = None,
 ) -> int:
-    workflow_dir_str = str(workflow_dir)
-    if workflow_dir_str not in sys.path:
-        sys.path.insert(0, workflow_dir_str)
+    """Run a YAML workflow folder, or a registered workflow by its id."""
+    if workflow_dir is not None:
+        workflow_dir_str = str(workflow_dir)
+        if workflow_dir_str not in sys.path:
+            sys.path.insert(0, workflow_dir_str)
 
     import rips
 
@@ -119,10 +138,12 @@ def run_workflow(
         return 1
 
     from taskmaestro import EmptyConfig, ExecutionContext, Job, JobConfiguration, Runner
-    from taskmaestro.yaml_config import _load_workflow_only
 
-    workflow_yaml = workflow_dir / "workflow.yaml"
-    workflow, _ = _load_workflow_only(workflow_yaml)
+    try:
+        workflow = _load_workflow(workflow_dir, registered_id)
+    except Exception as exc:
+        _emit("error", message=f"Failed to load workflow: {exc}")
+        return 1
 
     job_config = JobConfiguration(resolved)
     job: Job[Any] = Job(
@@ -146,11 +167,20 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         prog="run", description="Run a taskmaestro workflow."
     )
-    parser.add_argument("workflow_dir", type=Path)
+    parser.add_argument("workflow_dir", type=Path, nargs="?")
+    parser.add_argument(
+        "--registered", metavar="ID", help="Run a registered workflow by its id"
+    )
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--grpc-port", type=int, required=True)
     parser.add_argument("--run-id", default="")
     args = parser.parse_args(argv)
+    if (args.workflow_dir is None) == (args.registered is None):
+        parser.error("specify either a workflow folder or --registered <id>")
     return run_workflow(
-        args.workflow_dir.resolve(), args.input.resolve(), args.grpc_port, args.run_id
+        args.workflow_dir.resolve() if args.workflow_dir is not None else None,
+        args.input.resolve(),
+        args.grpc_port,
+        args.run_id,
+        registered_id=args.registered,
     )
