@@ -113,6 +113,7 @@ struct PortInfo
     QString key;
     QString label;
     QString toolTip;
+    QString typeName{};
     Style   style = Style::Normal;
 };
 
@@ -360,15 +361,32 @@ void GraphNode::addPorts( const std::vector<PortInfo>& ports, bool output )
         auto*           port = new PortItem( this, info, output, m_isConfig, QPointF( x, y ) );
         portMap.insert( info.key, port );
 
-        QFont font;
-        font.setPointSize( 9 );
-        const QString display = QFontMetrics( font ).elidedText( info.label, Qt::ElideRight, m_isConfig ? m_width - 24 : m_width / 2 - 18 );
-        auto*         text    = new QGraphicsTextItem( display, this );
-        text->setFont( font );
-        text->setToolTip( info.toolTip.isEmpty() ? info.label : info.toolTip );
-        text->setDefaultTextColor( info.style == PortInfo::Style::Missing ? missingPortColor : QColor( 45, 65, 80 ) );
-        text->setPos( output ? m_width - text->boundingRect().width() - 12 : 10, y - ( m_isConfig || !output ? 20 : 13 ) );
-        text->setAcceptedMouseButtons( Qt::NoButton );
+        const QString toolTip   = info.toolTip.isEmpty() ? info.label : info.toolTip;
+        const qreal   textWidth = m_isConfig ? m_width - 24 : m_width / 2 - 18;
+        const bool    showType  = !info.typeName.isEmpty();
+        auto          addText   = [&]( const QString& content, const QFont& font, const QColor& color, qreal top )
+        {
+            auto* text = new QGraphicsTextItem( QFontMetrics( font ).elidedText( content, Qt::ElideRight, textWidth ), this );
+            text->setFont( font );
+            text->setToolTip( toolTip );
+            text->setDefaultTextColor( color );
+            text->setPos( output ? m_width - text->boundingRect().width() - 12 : 10, top );
+            text->setAcceptedMouseButtons( Qt::NoButton );
+        };
+
+        QFont labelFont;
+        labelFont.setPointSize( 9 );
+        const QColor labelColor = info.style == PortInfo::Style::Missing ? missingPortColor : QColor( 45, 65, 80 );
+        addText( info.label, labelFont, labelColor, y - ( m_isConfig || !output || showType ? 20 : 13 ) );
+
+        // The type goes on a second, smaller line below the label
+        if ( showType )
+        {
+            QFont typeFont;
+            typeFont.setPointSize( 7 );
+            typeFont.setItalic( true );
+            addText( info.typeName, typeFont, QColor( 110, 120, 135 ), y - 3 );
+        }
     }
 }
 
@@ -672,8 +690,9 @@ std::pair<std::vector<PortInfo>, std::vector<PortInfo>> editModePorts( const QJs
         if ( field.isEmpty() ) hasWholeInput = true;
 
         PortInfo info;
-        info.key   = keyForField( field );
-        info.label = field.isEmpty() ? "input" : field;
+        info.key      = keyForField( field );
+        info.label    = field.isEmpty() ? "input" : field;
+        info.typeName = port.value( "type" ).toString();
         QStringList toolTip{ QString( "%1: %2" ).arg( info.label, port.value( "type" ).toString( "any" ) ) };
         if ( !port.value( "description" ).toString().isEmpty() ) toolTip << port.value( "description" ).toString();
         toolTip << ( required ? "Required" : "Optional" );
@@ -688,7 +707,11 @@ std::pair<std::vector<PortInfo>, std::vector<PortInfo>> editModePorts( const QJs
         const QJsonObject edge = value.toObject();
         if ( edge.value( "to" ).toString() == name && edge.value( "input" ).toString().isEmpty() && !hasWholeInput )
         {
-            inputs.insert( inputs.begin(), PortInfo{ .key = "model", .label = "input", .toolTip = {} } );
+            inputs.insert( inputs.begin(),
+                           PortInfo{ .key      = "model",
+                                     .label    = "input",
+                                     .toolTip  = {},
+                                     .typeName = task.value( "input_types" ).toObject().value( "" ).toString() } );
             hasWholeInput = true;
         }
     }
@@ -699,25 +722,37 @@ std::pair<std::vector<PortInfo>, std::vector<PortInfo>> editModePorts( const QJs
         const QJsonObject port  = value.toObject();
         const QString     field = port.value( "name" ).toString();
         PortInfo          info;
-        info.key   = keyForField( field );
-        info.label = field.isEmpty() ? "output" : field;
+        info.key      = keyForField( field );
+        info.label    = field.isEmpty() ? "output" : field;
+        info.typeName = port.value( "type" ).toString();
         QStringList toolTip{ QString( "%1: %2" ).arg( info.label, port.value( "type" ).toString( "any" ) ) };
         if ( !port.value( "description" ).toString().isEmpty() ) toolTip << port.value( "description" ).toString();
         info.toolTip = toolTip.join( "\n" );
         outputs.push_back( info );
     }
-    if ( outputs.empty() ) outputs.push_back( PortInfo{ .key = "model", .label = "output", .toolTip = {} } );
+    if ( outputs.empty() )
+        outputs.push_back( PortInfo{ .key      = "model",
+                                     .label    = "output",
+                                     .toolTip  = {},
+                                     .typeName = task.value( "output_types" ).toObject().value( "" ).toString() } );
     return { inputs, outputs };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<PortInfo> portInfos( const QStringList& keys, bool output )
+std::vector<PortInfo> portInfos( const QStringList& keys, bool output, const QJsonObject& types )
 {
     std::vector<PortInfo> result;
     for ( const QString& key : keys )
-        result.push_back( PortInfo{ .key = key, .label = key == "model" ? ( output ? "output" : "input" ) : key.mid( 6 ), .toolTip = {} } );
+    {
+        const QString typeName = types.value( fieldForKey( key ) ).toString();
+        const QString label    = key == "model" ? ( output ? "output" : "input" ) : fieldForKey( key );
+        result.push_back( PortInfo{ .key      = key,
+                                    .label    = label,
+                                    .toolTip  = typeName.isEmpty() ? label : QString( "%1: %2" ).arg( label, typeName ),
+                                    .typeName = typeName } );
+    }
     return result;
 }
 } // namespace
@@ -913,8 +948,8 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
             out.removeDuplicates();
             in.sort();
             out.sort();
-            inputs  = portInfos( in, false );
-            outputs = portInfos( out, true );
+            inputs  = portInfos( in, false, data.value( "input_types" ).toObject() );
+            outputs = portInfos( out, true, data.value( "output_types" ).toObject() );
         }
 
         auto*         node        = new GraphNode( name, inputs, outputs );
@@ -934,7 +969,8 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
 
         if ( !configFields.value( name ).isEmpty() )
         {
-            auto* configNode = new GraphNode( name, {}, portInfos( configFields.value( name ), true ), true );
+            auto* configNode =
+                new GraphNode( name, {}, portInfos( configFields.value( name ), true, data.value( "input_types" ).toObject() ), true );
             m_scene->addItem( configNode );
             m_configNodes.insert( name, configNode );
         }

@@ -154,6 +154,10 @@ in a central dock tab:
 - a status line for load errors, read-only reasons, validation results and
   unsaved changes.
 
+Each port shows its name with its type below it in smaller text (from the
+task schemas, as `input_types`/`output_types` in the graph JSON). The
+tooltip also shows the description.
+
 `RiuWorkflowGraphLayout` computes the layout: topological ranks with a Kahn
 sort and longest-path ranks, then one barycenter pass to order nodes. It
 tolerates cycles. The layout is always automatic; nodes moved by hand keep

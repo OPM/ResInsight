@@ -159,6 +159,10 @@ TEST( RimWorkflowDefinition, graphFromDefinition )
     EXPECT_EQ( "resinsight", ports[1].toObject().value( "name" ).toString() );
     EXPECT_TRUE( ports[1].toObject().value( "wired" ).toBool() );
 
+    // Type names for labelling the ports
+    EXPECT_EQ( "RipsInstance", exportTask.value( "input_types" ).toObject().value( "resinsight" ).toString() );
+    EXPECT_EQ( "str", exportTask.value( "output_types" ).toObject().value( "export_file" ).toString() );
+
     // The connect task's opaque `value` is not a port of its own
     const QJsonObject connect = taskByName( graph, "connect_to_resinsight" );
     EXPECT_TRUE( connect.value( "outputs" ).toArray().isEmpty() );
