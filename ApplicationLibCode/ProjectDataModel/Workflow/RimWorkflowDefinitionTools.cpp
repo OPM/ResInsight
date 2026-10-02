@@ -218,6 +218,7 @@ QJsonArray inputPortsJson( const RimWorkflowDefinition&                  definit
             wired = wired || edge.input == port.name;
         result.append( QJsonObject{ { "name", port.name },
                                     { "type", port.typeName },
+                                    { "icon", port.iconResource },
                                     { "description", port.description },
                                     { "required", port.required },
                                     { "configurable", port.configurable },
@@ -236,8 +237,11 @@ QJsonArray outputPortsJson( const std::vector<RimWorkflowPort>& ports, const std
         bool wired = false;
         for ( const auto& edge : outgoing )
             wired = wired || edge.output == port.name;
-        result.append(
-            QJsonObject{ { "name", port.name }, { "type", port.typeName }, { "description", port.description }, { "wired", wired } } );
+        result.append( QJsonObject{ { "name", port.name },
+                                    { "type", port.typeName },
+                                    { "icon", port.iconResource },
+                                    { "description", port.description },
+                                    { "wired", wired } } );
     }
     return result;
 }
@@ -288,6 +292,8 @@ QJsonObject graphTask( const RimWorkflowDefinition&         definition,
                         { "output_ports", outputPortsJson( outputPorts, definition.outgoingEdges( node.name ) ) },
                         { "input_types", RimWorkflowPortCompatibility::portTypes( inputPorts ) },
                         { "output_types", RimWorkflowPortCompatibility::portTypes( outputPorts ) },
+                        { "input_icons", RimWorkflowPortCompatibility::portIcons( inputPorts ) },
+                        { "output_icons", RimWorkflowPortCompatibility::portIcons( outputPorts ) },
                         { "is_result", node.name == resultTask },
                         { "issues", taskIssues } };
 }

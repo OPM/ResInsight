@@ -156,7 +156,11 @@ in a central dock tab:
 
 Each port shows its name with its type below it in smaller text (from the
 task schemas, as `input_types`/`output_types` in the graph JSON). The
-tooltip also shows the description.
+tooltip also shows the description. Ports that hold a ResInsight object
+(instance, case, view, well path, surface) show that object's project tree
+icon in front of the type (`input_icons`/`output_icons`). The rips class is
+found in the `x-ri-python-bases`, either directly or as `ObjectModel[Class]`
+(`RimWorkflowPortCompatibility::iconResource`).
 
 `RiuWorkflowGraphLayout` computes the layout: topological ranks with a Kahn
 sort and longest-path ranks, then one barycenter pass to order nodes. It
