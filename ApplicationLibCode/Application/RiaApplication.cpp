@@ -2001,7 +2001,7 @@ RiaSumoConnector* RiaApplication::makeSumoConnector()
         QObject::connect( m_sumoConnector,
                           &RiaSumoConnector::tokenReady,
                           cloudApiService(),
-                          [this]( const QString& ) { cloudApiService()->start(); } );
+                          [this]( const QString& ) { cloudApiService()->start( RiaCloudApiService::StartTrigger::Automatic ); } );
     }
 
     return m_sumoConnector;
