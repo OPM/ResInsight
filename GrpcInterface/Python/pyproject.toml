@@ -41,6 +41,8 @@ dev = [
     "types-protobuf",
     "packaging>=22.0",
 ]
+# Needed by rips.taskmaestro_helper (the ResInsight workflow editor)
+workflow = ["taskmaestro>=0.4,<0.5"]
 
 [project.urls]
 Homepage = "http://www.resinsight.org"

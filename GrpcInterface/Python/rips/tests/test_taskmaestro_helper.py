@@ -14,6 +14,22 @@ import pytest
 pytest.importorskip("taskmaestro")
 
 
+def test_strip_refs_drops_references_and_lists_holding_them() -> None:
+    from rips.taskmaestro_helper.refs import strip_refs
+
+    ref = {"__resinsight_ref__": "EclipseCase", "case_id": 0}
+    inputs = {
+        "start": {"case": ref, "count": 1},
+        "sum": {"cases": [ref, ref], "mixed": [1.0, ref], "values": [1.0, 2.0]},
+        "only_refs": {"case": ref},
+    }
+    assert strip_refs(inputs) == {
+        "start": {"count": 1},
+        "sum": {"values": [1.0, 2.0]},
+        "only_refs": {},
+    }
+
+
 def test_resolve_refs_substitutes_object_model_value() -> None:
     from rips.taskmaestro_helper.run import resolve_refs
 
@@ -73,9 +89,8 @@ def test_progress_hook_reports_named_task_instances(
 def test_progress_hook_follows_runner_instance_names(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    from taskmaestro import EmptyConfig, ExecutionContext, Job, Runner, Task, Workflow
-
     from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+    from taskmaestro import EmptyConfig, ExecutionContext, Job, Runner, Task, Workflow
 
     class Step(Task[EmptyConfig, EmptyConfig]):
         name = "step"
@@ -108,9 +123,8 @@ def test_progress_hook_follows_runner_instance_names(
 def test_progress_hook_reports_runner_failure(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    from taskmaestro import EmptyConfig, ExecutionContext, Job, Runner, Task, Workflow
-
     from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+    from taskmaestro import EmptyConfig, ExecutionContext, Job, Runner, Task, Workflow
 
     class Fails(Task[EmptyConfig, EmptyConfig]):
         name = "fails"
@@ -135,11 +149,67 @@ def test_progress_hook_reports_runner_failure(
     assert events[-1]["error"] == "bad range"
 
 
+def test_progress_hook_reports_mapped_items(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from pydantic import BaseModel
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+    from taskmaestro import EmptyConfig, ExecutionContext, Job, Runner, Task, Workflow
+    from taskmaestro.job import JobConfiguration
+    from taskmaestro.mapping import TaskMap
+
+    class Item(BaseModel):
+        key: str
+        value: int
+
+    class Out(BaseModel):
+        value: int
+
+    class Check(Task[Item, Out]):
+        name = "check"
+
+        def run(self, input: Item, ctx: ExecutionContext) -> Out:
+            if input.value < 0:
+                raise ValueError("negative")
+            return Out(value=input.value)
+
+    workflow = (
+        Workflow.builder("mapped")
+        .add_task(
+            Check,
+            name="each",
+            mapped_over=TaskMap(
+                over="items", key_as="key", value_as="value", error_mode="collect_all"
+            ),
+        )
+        .build()
+    )
+    config = JobConfiguration({"each": {"items": {"a": 1, "b": -1}}})
+    Runner(hooks=[ProgressHook("run-map")]).run(
+        Job(workflow, EmptyConfig(), job_configuration=config), ctx=ExecutionContext()
+    )
+    events = [
+        json.loads(line.removeprefix(PROGRESS_PREFIX))
+        for line in capsys.readouterr().out.splitlines()
+        if line.startswith(PROGRESS_PREFIX)
+    ]
+    assert [
+        (event["event"], event.get("item"), event["state"]) for event in events
+    ] == [
+        ("task_state", None, "running"),
+        ("map_item_state", "a", "running"),
+        ("map_item_state", "a", "completed"),
+        ("map_item_state", "b", "running"),
+        ("map_item_state", "b", "failed"),
+        ("task_state", None, "failed"),
+    ]
+    assert events[4]["error"] == "negative"
+
+
 def test_run_helper_emits_progress_without_grpc(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     import rips
-
     from rips.taskmaestro_helper.run import PROGRESS_PREFIX, run_workflow
 
     (tmp_path / "progress_pipeline.py").write_text(
