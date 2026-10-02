@@ -338,8 +338,24 @@ bool RimGridCalculation::calculate()
         timeSteps = tmp;
     }
 
-    bool evaluateDependentCalculations = true;
-    return calculateForCases( calculationCases, inputValueVisibilityFilter.p(), timeSteps, evaluateDependentCalculations );
+    bool       evaluateDependentCalculations = true;
+    const bool ok = calculateForCases( calculationCases, inputValueVisibilityFilter.p(), timeSteps, evaluateDependentCalculations );
+
+    // When only the ensemble's main case was (re)computed above, other already open realizations keep their
+    // previously computed (now potentially stale) result. Clear it, so it is lazily recomputed with the
+    // current expression/filter next time it is needed, instead of being mistaken for up to date.
+    if ( ok && calculateForEnsemble && !isAggregationExpression() )
+    {
+        for ( RimEclipseCase* otherCase : outputEclipseCases() )
+        {
+            if ( !otherCase || !otherCase->eclipseCaseData() ) continue;
+            if ( std::find( calculationCases.begin(), calculationCases.end(), otherCase ) != calculationCases.end() ) continue;
+
+            otherCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->clearScalarResult( outputAddress() );
+        }
+    }
+
+    return ok;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,6 +364,15 @@ bool RimGridCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::calculateForCase( RimEclipseCase* eclipseCase )
 {
+    // Source cases are not necessarily open (e.g. after reopening a project), and validateVariables()
+    // requires an open case for every variable. Open them here, as calculate() does.
+    for ( auto inputCase : inputCases() )
+    {
+        if ( !inputCase ) continue;
+        if ( !inputCase->eclipseCaseData() ) inputCase->ensureReservoirCaseIsOpen();
+        if ( !inputCase->eclipseCaseData() ) return false;
+    }
+
     // Values from other cases and the cell filter view are mapped cell by cell, requiring equal grid sizes
     const bool calculateForEnsemble = m_destinationEnsemble() || m_additionalCasesType == AdditionalCasesType::ENSEMBLE;
     for ( auto inputCase : inputCases() )

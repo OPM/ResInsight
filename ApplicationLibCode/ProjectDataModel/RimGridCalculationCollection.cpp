@@ -135,8 +135,9 @@ RimGridCalculation* RimGridCalculationCollection::findCalculation( const QString
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Grid calculation results are not stored with the case. Compute the calculations missing for the
-/// case, e.g. when a view is stepped to another case.
+/// Grid calculation results are not stored with the case. Compute the calculations missing or
+/// invalidated (cleared, but still registered) for the case, e.g. when a view is stepped to another
+/// case.
 //--------------------------------------------------------------------------------------------------
 void RimGridCalculationCollection::ensureCalculationsAreComputed( RimEclipseCase* eclipseCase ) const
 {
@@ -147,7 +148,8 @@ void RimGridCalculationCollection::ensureCalculationsAreComputed( RimEclipseCase
 
     for ( auto calculation : sortedGridCalculations() )
     {
-        if ( results->hasResultEntry( calculation->outputAddress() ) ) continue;
+        const RigEclipseResultAddress address = calculation->outputAddress();
+        if ( results->hasResultEntry( address ) && results->isResultLoaded( address ) ) continue;
 
         calculation->calculateForCase( eclipseCase );
     }

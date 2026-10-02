@@ -297,3 +297,87 @@ TEST( RimGridCalculationTest, EnsureCalculationsAreComputedForCaseNotInOutputCas
 
     project->gridCalculationCollection()->deleteCalculation( calculation );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// calculateForCase() must open source cases itself, just like calculate() does, otherwise
+/// validateVariables() dereferences a null results() pointer for a closed source case and crashes.
+//--------------------------------------------------------------------------------------------------
+TEST( RimGridCalculationTest, CalculateForCaseOpensClosedSourceCase )
+{
+    std::unique_ptr<RimEclipseResultCase> sourceCase( openBruggeRealizationForCalculation( "Real0", "BRUGGE_0000.EGRID" ) );
+    std::unique_ptr<RimEclipseResultCase> otherCase( openBruggeRealizationForCalculation( "Real10", "BRUGGE_0010.EGRID" ) );
+    ASSERT_TRUE( sourceCase != nullptr );
+    ASSERT_TRUE( otherCase != nullptr );
+
+    RimGridCalculation calculation;
+    calculation.setExpression( "MyCalc := x + 1" );
+    auto* variable = dynamic_cast<RimGridCalculationVariable*>( calculation.addVariable( "x" ) );
+    ASSERT_TRUE( variable != nullptr );
+
+    RimEclipseResultAddress sourceAddress;
+    sourceAddress.setEclipseCase( sourceCase.get() );
+    sourceAddress.setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
+    sourceAddress.setResultName( "PORO" );
+    variable->setEclipseResultAddress( sourceAddress );
+
+    // Close the source case, simulating a project that was just reopened: the case referenced by the
+    // variable is not necessarily open when calculateForCase() is called for another case.
+    sourceCase->closeReservoirCase();
+    ASSERT_TRUE( sourceCase->eclipseCaseData() == nullptr );
+
+    EXPECT_TRUE( calculation.calculateForCase( otherCase.get() ) );
+
+    // calculateForCase() must have (re)opened the source case to validate and evaluate the expression.
+    EXPECT_TRUE( sourceCase->eclipseCaseData() != nullptr );
+
+    const RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, "MyCalc" );
+    EXPECT_TRUE( otherCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->hasResultEntry( resAddr ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Recalculating an ensemble destination with a plain per-cell expression only updates the main case
+/// (see EnsembleDestinationWithPlainExpressionOnlyCalculatesMainCase), so a stale result already
+/// computed for another, currently open realization must be invalidated rather than left in place.
+//--------------------------------------------------------------------------------------------------
+TEST( RimGridCalculationTest, RecalculatingEnsembleMainCaseInvalidatesStaleResultOnOtherOpenRealization )
+{
+    RimReservoirGridEnsemble ensemble;
+    auto*                    firstCase  = openBruggeRealizationForCalculation( "Real0", "BRUGGE_0000.EGRID" );
+    auto*                    secondCase = openBruggeRealizationForCalculation( "Real10", "BRUGGE_0010.EGRID" );
+    ASSERT_TRUE( firstCase != nullptr );
+    ASSERT_TRUE( secondCase != nullptr );
+    ensemble.addCase( firstCase );
+    ensemble.addCase( secondCase );
+
+    RimGridCalculation calculation;
+    calculation.setExpression( "MyCalc := x + 1" );
+    auto* variable = dynamic_cast<RimGridCalculationVariable*>( calculation.addVariable( "x" ) );
+    ASSERT_TRUE( variable != nullptr );
+
+    RimEclipseResultAddress sourceAddress;
+    sourceAddress.setEclipseCase( firstCase );
+    sourceAddress.setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
+    sourceAddress.setResultName( "PORO" );
+    variable->setEclipseResultAddress( sourceAddress );
+
+    auto* destinationEnsembleField =
+        dynamic_cast<caf::PdmPtrField<RimReservoirGridEnsemble*>*>( calculation.findField( "DestinationEnsemble" ) );
+    ASSERT_TRUE( destinationEnsembleField != nullptr );
+    destinationEnsembleField->setValue( &ensemble );
+
+    ASSERT_TRUE( calculation.calculate() );
+
+    const RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, "MyCalc" );
+
+    // Compute the result for the second realization too, as ensureCalculationsAreComputed() would do
+    // lazily when the realization is needed, e.g. by an ensemble statistics contour map.
+    ASSERT_TRUE( calculation.calculateForCase( secondCase ) );
+    ASSERT_TRUE( secondCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->hasResultEntry( resAddr ) );
+
+    // Recalculate with a changed expression: only the main case (firstCase) is updated directly, but the
+    // stale result on the second, already open realization must be invalidated rather than left in place.
+    calculation.setExpression( "MyCalc := x + 2" );
+    ASSERT_TRUE( calculation.calculate() );
+
+    EXPECT_FALSE( secondCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->isResultLoaded( resAddr ) );
+}
