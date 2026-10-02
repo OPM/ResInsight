@@ -31,6 +31,7 @@
 #include "Workflow/RimWorkflowPortCompatibility.h"
 #include "Workflow/RimWorkflowTaskCatalog.h"
 #include "Workflow/RimWorkflowTaskInput.h"
+#include "Workflow/RimWorkflowValidationTools.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -259,6 +260,43 @@ void RiuWorkflowEditorWidget::updateTaskInputValues()
         {
             if ( binding ) m_graphView->setTaskInputValue( task->taskName(), binding->fieldName(), binding->displayValue() );
         }
+    }
+    updateTaskIssues();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Show the issues of the workflow, with missing-value warnings taken from the displayed job
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::updateTaskIssues()
+{
+    if ( !m_workflow || !m_job ) return;
+
+    for ( const QJsonValue& value : m_workflow->graph().value( "tasks" ).toArray() )
+    {
+        const QJsonObject     graphTask = value.toObject();
+        const QString         taskName  = graphTask.value( "name" ).toString();
+        RimWorkflowTaskInput* taskInput = m_job->taskInput( taskName );
+
+        std::map<QString, bool> fieldHasValue;
+        for ( const QJsonValue& field : graphTask.value( "config_fields" ).toArray() )
+        {
+            const QJsonObject schema    = field.toObject();
+            const QString     fieldName = schema.value( "name" ).toString();
+            bool              hasValue  = false;
+            if ( taskInput )
+            {
+                for ( const RimWorkflowFieldBinding* binding : taskInput->items() )
+                {
+                    if ( binding && binding->fieldName() == fieldName ) hasValue = !binding->toJsonValue().isNull();
+                }
+            }
+            fieldHasValue[fieldName] = hasValue || !schema.value( "required" ).toBool();
+        }
+
+        m_graphView->setTaskIssues( taskName,
+                                    RimWorkflowValidationTools::issuesWithJobValues( taskName,
+                                                                                     graphTask.value( "issues" ).toArray(),
+                                                                                     fieldHasValue ) );
     }
 }
 

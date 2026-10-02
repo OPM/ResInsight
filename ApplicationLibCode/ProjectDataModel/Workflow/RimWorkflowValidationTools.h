@@ -20,9 +20,11 @@
 
 #include "RimWorkflowDefinition.h"
 
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QStringList>
 
+#include <map>
 #include <vector>
 
 //==================================================================================================
@@ -40,4 +42,9 @@ struct Result
 Result  issuesFromHelperResult( const QJsonObject& helperResult, const QStringList& nodeNames );
 Result  issuesFromDescribe( const QJsonObject& describe, const QJsonObject& describeError, const QStringList& nodeNames );
 QString taskFromMessage( const QString& message, const QStringList& nodeNames );
+QString missingValueMessage( const QString& fieldName );
+
+// Replace the missing-value warnings of a task with warnings derived from the values of a job.
+// `fieldHasValue` maps the task's bound input fields to whether the job gives them a value.
+QJsonArray issuesWithJobValues( const QString& taskName, const QJsonArray& taskIssues, const std::map<QString, bool>& fieldHasValue );
 } // namespace RimWorkflowValidationTools

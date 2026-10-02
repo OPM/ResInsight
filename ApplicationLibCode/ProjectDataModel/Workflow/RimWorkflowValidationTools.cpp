@@ -91,7 +91,7 @@ RimWorkflowValidationTools::Result RimWorkflowValidationTools::issuesFromDescrib
             result.issues.push_back( { .task     = task.value( "name" ).toString(),
                                        .field    = field.toString(),
                                        .severity = RimWorkflowIssue::Severity::Warning,
-                                       .message  = QString( "Input '%1' has no value" ).arg( field.toString() ) } );
+                                       .message  = missingValueMessage( field.toString() ) } );
         }
     }
     return result;
@@ -109,4 +109,41 @@ QString RimWorkflowValidationTools::taskFromMessage( const QString& message, con
         if ( quoted && name.size() > found.size() ) found = name;
     }
     return found;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWorkflowValidationTools::missingValueMessage( const QString& fieldName )
+{
+    return QString( "Input '%1' has no value" ).arg( fieldName );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The saved definition only carries literal values, so describe reports object references (cases,
+/// well paths, views) as missing, and the result goes stale when the user edits a value. The job's
+/// own bindings are the source of truth for the fields they cover.
+//--------------------------------------------------------------------------------------------------
+QJsonArray RimWorkflowValidationTools::issuesWithJobValues( const QString&                 taskName,
+                                                            const QJsonArray&              taskIssues,
+                                                            const std::map<QString, bool>& fieldHasValue )
+{
+    QJsonArray result;
+    for ( const QJsonValue& value : taskIssues )
+    {
+        const QJsonObject issue                 = value.toObject();
+        const QString     field                 = issue.value( "field" ).toString();
+        const bool        isMissingValueWarning = issue.value( "severity" ).toString() == "warning" &&
+                                           issue.value( "message" ).toString() == missingValueMessage( field );
+        if ( isMissingValueWarning && fieldHasValue.contains( field ) ) continue;
+        result.append( issue );
+    }
+
+    for ( const auto& [field, hasValue] : fieldHasValue )
+    {
+        if ( hasValue ) continue;
+        result.append(
+            QJsonObject{ { "task", taskName }, { "field", field }, { "severity", "warning" }, { "message", missingValueMessage( field ) } } );
+    }
+    return result;
 }
