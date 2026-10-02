@@ -35,6 +35,7 @@
 #include "RiaOpenMPTools.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesCloudApi.h"
 #include "RiaPreferencesOsdu.h"
 #include "RiaPreferencesSumo.h"
 #include "RiaPreferencesSystem.h"
@@ -1383,6 +1384,22 @@ QString RiaApplication::pythonPath() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The ri-cloud-api service uses a dedicated Python environment when enabled under
+/// Preferences -> RI Cloud API, and otherwise falls back to the scripting environment so the two do
+/// not have to share a single interpreter and risk conflicting package versions.
+//--------------------------------------------------------------------------------------------------
+QString RiaApplication::cloudApiPythonPath() const
+{
+    auto cloudApiPreferences = m_preferences->cloudApiPreferences();
+    if ( cloudApiPreferences->useDedicatedPythonEnvironment() )
+    {
+        return cloudApiPreferences->pythonExecutable();
+    }
+
+    return pythonPath();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QProcessEnvironment RiaApplication::pythonProcessEnvironment() const
@@ -1984,7 +2001,7 @@ RiaSumoConnector* RiaApplication::makeSumoConnector()
         QObject::connect( m_sumoConnector,
                           &RiaSumoConnector::tokenReady,
                           cloudApiService(),
-                          [this]( const QString& ) { cloudApiService()->start(); } );
+                          [this]( const QString& ) { cloudApiService()->start( RiaCloudApiService::StartTrigger::Automatic ); } );
     }
 
     return m_sumoConnector;

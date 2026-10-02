@@ -48,7 +48,18 @@ public:
     RiaCloudApiService( const QString& serverAddress, int wantedPort, QObject* parent = nullptr );
     ~RiaCloudApiService() override;
 
-    void start();
+    // Manual: an explicit user action (Start/Restart button). Automatic: triggered by application logic
+    // (e.g. Sumo authentication completing, or waitUntilResponding()).
+    //
+    // Does not affect whether autoRestart() gives up (see autoRestart()), only what happens after it has:
+    // a later Automatic call is then a no-op (see m_hasGivenUp), while a Manual one tries again.
+    enum class StartTrigger
+    {
+        Manual,
+        Automatic
+    };
+
+    void start( StartTrigger trigger = StartTrigger::Manual );
     void stop();
     void restart();
 
@@ -84,6 +95,15 @@ private slots:
     void onReadyReadStandardOutput();
 
 private:
+    // Called after a crash or an unresponsive health check. Gives up immediately if the service has never
+    // responded since this start (see m_hasRespondedSinceStart) -- likely a config problem, not worth
+    // retrying. Otherwise retries indefinitely, treating it as a crash of a previously working server.
+    void autoRestart();
+
+    // Shared process-launch implementation used by start() and by autoRestart()'s retry. Unlike start(),
+    // leaves m_consecutiveLaunchFailures and m_hasRespondedSinceStart untouched.
+    void launchProcess();
+
     static int                 findAvailablePortNumber( int firstPort );
     static QString             serviceWorkingDirectory();
     static QProcessEnvironment buildProcessEnvironment( const QString& workingDirectory );
@@ -99,5 +119,14 @@ private:
 
     int  m_port;
     int  m_consecutiveFailures;
+    int  m_consecutiveLaunchFailures;
     bool m_isResponding;
+
+    // True once the current run has answered a health check; autoRestart() then retries indefinitely
+    // instead of giving up on the first failure. Reset to false in start().
+    bool m_hasRespondedSinceStart;
+
+    // True once autoRestart() has given up on a run that never responded. Blocks a later Automatic
+    // start() (e.g. Sumo's tokenReady) from re-arming the loop; a Manual start/restart clears it.
+    bool m_hasGivenUp;
 };

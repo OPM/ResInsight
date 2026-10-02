@@ -61,6 +61,13 @@ constexpr int readinessPollIntervalMs = 250;
 
 // Number of ports scanned, starting at the wanted port, when looking for a free port to bind to.
 constexpr int portRangeLength = 100;
+
+// Shared hint appended to errors caused by a service that never responded, pointing at the most likely
+// fix without claiming to have diagnosed the exact cause.
+const std::string pythonEnvironmentHint =
+    "This could be caused by the configured Python environment (Preferences -> RI Cloud API, or "
+    "Preferences -> Scripting) missing the packages required by ri-cloud-api. Check the log above for "
+    "details, and fix the environment if needed.";
 } // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -74,7 +81,10 @@ RiaCloudApiService::RiaCloudApiService( const QString& serverAddress, int wanted
     , m_wantedPort( wantedPort )
     , m_port( -1 )
     , m_consecutiveFailures( 0 )
+    , m_consecutiveLaunchFailures( 0 )
     , m_isResponding( false )
+    , m_hasRespondedSinceStart( false )
+    , m_hasGivenUp( false )
 {
     // Never route loopback requests through a system/corporate proxy, which can add several seconds
     // per request.
@@ -143,14 +153,31 @@ QString RiaCloudApiService::serverUrl() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaCloudApiService::start()
+void RiaCloudApiService::start( StartTrigger trigger )
 {
+    // An Automatic call (e.g. Sumo's tokenReady, which can fire well after the give-up, such as on a
+    // background token refresh) must not silently re-arm a retry loop that already gave up. Only an
+    // explicit Manual start/restart may do that.
+    if ( trigger == StartTrigger::Automatic && m_hasGivenUp ) return;
+
     if ( isRunning() ) return;
 
+    m_consecutiveLaunchFailures = 0;
+    m_hasRespondedSinceStart    = false;
+    m_hasGivenUp                = false;
+
+    launchProcess();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaCloudApiService::launchProcess()
+{
     // Clean up any stale QProcess instance (e.g. after an unexpected exit) before re-starting.
     if ( m_process ) stop();
 
-    const QString pythonExecutable = RiaApplication::instance()->pythonPath();
+    const QString pythonExecutable = RiaApplication::instance()->cloudApiPythonPath();
     if ( pythonExecutable.isEmpty() )
     {
         RiaLogging::error( "Cloud API service: no Python executable configured, cannot start service." );
@@ -209,7 +236,8 @@ void RiaCloudApiService::start()
 
                  // A non-zero exit means the service never came up, or died. Anything else is an
                  // ordinary shutdown.
-                 if ( exitCode != 0 || exitStatus != QProcess::NormalExit )
+                 const bool failed = exitCode != 0 || exitStatus != QProcess::NormalExit;
+                 if ( failed )
                  {
                      RiaLogging::error( message );
                  }
@@ -220,6 +248,15 @@ void RiaCloudApiService::start()
 
                  m_isResponding = false;
                  emit statusChanged();
+
+                 // React immediately rather than waiting for a timer. Deferred via singleShot, since
+                 // restarting the process here, during its own finished() signal, would not be safe.
+                 if ( failed )
+                 {
+                     m_startupTimer.stop();
+                     m_healthTimer.stop();
+                     QTimer::singleShot( 0, this, &RiaCloudApiService::autoRestart );
+                 }
              } );
 
     m_consecutiveFailures = 0;
@@ -248,7 +285,7 @@ bool RiaCloudApiService::waitUntilResponding( int timeoutMs )
 {
     if ( m_isResponding ) return true;
 
-    if ( !isRunning() ) start();
+    if ( !isRunning() ) start( StartTrigger::Automatic );
 
     // Nested event loops below let the periodic health check fire and restart() the service while this
     // call is still waiting for it to boot. Stop both timers for the duration of the wait to avoid that.
@@ -277,7 +314,9 @@ bool RiaCloudApiService::waitUntilResponding( int timeoutMs )
 
             if ( answered )
             {
-                m_consecutiveFailures = 0;
+                m_consecutiveFailures       = 0;
+                m_consecutiveLaunchFailures = 0;
+                m_hasRespondedSinceStart    = true;
 
                 if ( !m_isResponding )
                 {
@@ -305,7 +344,14 @@ bool RiaCloudApiService::waitUntilResponding( int timeoutMs )
         delayLoop.exec();
     }
 
-    RiaLogging::error( std::format( "Cloud API service: not responding after {} ms, giving up.", elapsed.elapsed() ) );
+    if ( m_hasGivenUp )
+    {
+        RiaLogging::error( std::format( "Cloud API service: not available, giving up. {}", pythonEnvironmentHint ) );
+    }
+    else
+    {
+        RiaLogging::error( std::format( "Cloud API service: not responding after {} ms, giving up.", elapsed.elapsed() ) );
+    }
 
     // Resume background health-checking if the process is still running, so it can still recover on
     // its own without another blocking wait.
@@ -352,6 +398,35 @@ void RiaCloudApiService::restart()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Called when the process exits/crashes, or when a health check times out. If the service has never
+/// answered a health check since the current start (see m_hasRespondedSinceStart), this is treated as a
+/// configuration problem rather than a transient crash: retrying is unlikely to help, so this gives up
+/// immediately instead of restarting, and sets m_hasGivenUp so a later Automatic start() (e.g. Sumo's
+/// tokenReady) does not quietly re-arm the loop. If the service HAD been responding, this is instead
+/// treated as an ordinary crash of an otherwise working server, and is retried no matter how many times it
+/// takes to come back.
+//--------------------------------------------------------------------------------------------------
+void RiaCloudApiService::autoRestart()
+{
+    m_consecutiveLaunchFailures++;
+
+    if ( !m_hasRespondedSinceStart )
+    {
+        RiaLogging::error( std::format( "Cloud API service: giving up after {} failed launch attempt{}. {}",
+                                        m_consecutiveLaunchFailures,
+                                        m_consecutiveLaunchFailures == 1 ? "" : "s",
+                                        pythonEnvironmentHint ) );
+        m_hasGivenUp = true;
+        stop();
+        return;
+    }
+
+    RiaLogging::warning( "Cloud API service: not responding, restarting." );
+    stop();
+    launchProcess();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaCloudApiService::onReadyReadStandardOutput()
@@ -370,7 +445,7 @@ void RiaCloudApiService::onHealthCheck()
 {
     if ( !isRunning() || m_port < 0 )
     {
-        restart();
+        autoRestart();
         return;
     }
 
@@ -390,8 +465,10 @@ void RiaCloudApiService::onHealthCheck()
                  const int statusCode = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
                  if ( reply->error() == QNetworkReply::NoError && statusCode == 200 )
                  {
-                     m_consecutiveFailures = 0;
-                     m_isResponding        = true;
+                     m_consecutiveFailures       = 0;
+                     m_consecutiveLaunchFailures = 0;
+                     m_hasRespondedSinceStart    = true;
+                     m_isResponding              = true;
                  }
                  else
                  {
@@ -404,7 +481,7 @@ void RiaCloudApiService::onHealthCheck()
 
                  if ( !m_isResponding && m_consecutiveFailures >= maxConsecutiveFailures )
                  {
-                     restart();
+                     autoRestart();
                  }
              } );
 }
