@@ -24,6 +24,9 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QMap>
 #include <QPointer>
 
@@ -40,18 +43,27 @@ public:
     void setJobName( const QString& name );
 
     std::vector<RimWorkflowTaskInput*> taskInputs() const;
+    RimWorkflowTaskInput*              taskInput( const QString& taskName ) const;
     void                               setTaskInputs( std::vector<RimWorkflowTaskInput*> inputs );
+    void                               syncTaskInputs( const QJsonArray& graphTasks, const QMap<QString, QString>& renames = {} );
 
-    QString writeInputYaml( const QString& path ) const;
-    void    runJob();
-    void    cancelJob();
-    bool    isRunning() const;
+    QJsonObject inputValues() const;
+    QJsonObject literalInputValues() const;
+    QString     writeInputYaml( const QString& path ) const;
+    void        runJob();
+    void        cancelJob();
+    bool        isRunning() const;
 
     QMap<QString, QString> taskStates() const;
     QMap<QString, QString> taskErrors() const;
     QString                runStatus() const;
     void                   updateTaskState( const QString& runId, const QString& taskName, const QString& state, const QString& error );
-    void                   finishRun( const QString& runId, bool succeeded, bool cancelled );
+
+    // States and errors of the items of mapped tasks, by task and item key
+    QMap<QString, QMap<QString, QString>> itemStates() const;
+    QMap<QString, QMap<QString, QString>> itemErrors() const;
+    void updateItemState( const QString& runId, const QString& taskName, const QString& item, const QString& state, const QString& error );
+    void finishRun( const QString& runId, bool succeeded, bool cancelled );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -64,8 +76,11 @@ private:
     caf::PdmField<QString>                         m_name;
     caf::PdmChildArrayField<RimWorkflowTaskInput*> m_taskInputs;
     QPointer<RiuWorkflowJobRunner>                 m_runner;
+    QMap<QString, QJsonValue>                      m_detachedValues;
     QMap<QString, QString>                         m_taskStates;
     QMap<QString, QString>                         m_taskErrors;
+    QMap<QString, QMap<QString, QString>>          m_itemStates;
+    QMap<QString, QMap<QString, QString>>          m_itemErrors;
     QString                                        m_runStatus;
     QString                                        m_activeTask;
     QString                                        m_runId;

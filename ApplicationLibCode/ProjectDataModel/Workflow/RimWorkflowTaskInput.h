@@ -15,15 +15,22 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
 #include "RimWorkflowFieldBinding.h"
 
 #include "cafPdmObjectCollection.h"
 
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QMap>
+
 class QJsonArray;
 
+//==================================================================================================
+/// The input values of one task instance in a job. There is one per task in the workflow; tasks
+/// without config fields have no bindings and are hidden.
+//==================================================================================================
 class RimWorkflowTaskInput : public caf::PdmObjectCollection<RimWorkflowFieldBinding>
 {
     CAF_PDM_HEADER_INIT;
@@ -33,10 +40,18 @@ public:
 
     QString taskName() const;
     void    setTaskName( const QString& name );
+    QString taskType() const;
+    void    setTaskInfo( const QString& taskType, const QString& description );
 
     void buildFromSchema( const QJsonArray& configFields );
+    void syncFromSchema( const QJsonArray& configFields, QMap<QString, QJsonValue>& detachedValues );
 
-    QString toTaskYamlBlock() const;
+    QJsonObject jsonValues() const;
+    QJsonObject literalValues() const;
+
+    static QString                  bindingClassKeyword( const QJsonObject& fieldSchema );
+    static RimWorkflowFieldBinding* createBinding( const QJsonObject& fieldSchema );
+    static QString                  detachedKey( const QString& fieldName, const QString& classKeyword );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -44,4 +59,6 @@ protected:
 
 private:
     caf::PdmField<QString> m_taskName;
+    caf::PdmField<QString> m_taskType;
+    caf::PdmField<QString> m_taskDescription;
 };

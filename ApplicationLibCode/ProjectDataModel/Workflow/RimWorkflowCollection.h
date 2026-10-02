@@ -15,15 +15,21 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
 #include "RimWorkflow.h"
 
+#include "cafPdmChildField.h"
 #include "cafPdmObjectCollection.h"
 
 #include <QString>
 
+class RimWorkflowInstalledCollection;
+
+//==================================================================================================
+/// Workflow folders in the discovery folder, new unsaved workflows, and the workflows registered
+/// by installed packages (in the "Installed" sub folder)
+//==================================================================================================
 class RimWorkflowCollection : public caf::PdmObjectCollection<RimWorkflow>
 {
     CAF_PDM_HEADER_INIT;
@@ -33,6 +39,17 @@ public:
     ~RimWorkflowCollection() override;
 
     void rescanWorkflows();
+    bool hasUnsavedChanges() const;
+
+    std::vector<RimWorkflow*> allWorkflows() const;
+    RimWorkflow*              findWorkflowByDirectory( const QString& directory ) const;
 
     static QString discoveryDirectory();
+
+protected:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+
+private:
+    caf::PdmChildField<RimWorkflowInstalledCollection*> m_installed;
 };

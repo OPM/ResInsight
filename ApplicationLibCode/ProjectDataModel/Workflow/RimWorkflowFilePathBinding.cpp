@@ -63,7 +63,7 @@ QString RimWorkflowFilePathBinding::displayValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWorkflowFilePathBinding::toYamlValue() const
+QJsonValue RimWorkflowFilePathBinding::toJsonValue() const
 {
-    return hasValue() ? yamlQuotedScalar( m_value().path() ) : "null";
+    return hasValue() ? QJsonValue( m_value().path() ) : QJsonValue( QJsonValue::Null );
 }
