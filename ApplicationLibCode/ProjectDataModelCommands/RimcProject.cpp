@@ -28,7 +28,6 @@
 #include "RiaPreferencesGrid.h"
 #include "RiaQStringFormatter.h"
 #include "RiaRegressionTestRunner.h"
-#include "RiaResultNames.h"
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
@@ -46,8 +45,6 @@
 #include "RimCase.h"
 #include "RimCornerPointCase.h"
 #include "RimEclipseCaseCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
 #include "RimGeneric3dView.h"
 #include "RimGenericViewCollection.h"
@@ -324,22 +321,7 @@ std::expected<caf::PdmObjectHandle*, QString> RimProject_createGridFromKeyValues
 
     RimMainPlotCollection::current()->ensureDefaultFlowPlotsAreCreated();
 
-    if ( RiaGuiApplication::isRunning() )
-    {
-        if ( RimEclipseView* riv = grid->createAndAddReservoirView() )
-        {
-            riv->loadDataAndUpdate();
-
-            if ( !riv->cellResult()->hasResult() )
-            {
-                riv->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
-            }
-
-            analysisModels->updateConnectedEditors();
-
-            if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
-        }
-    }
+    analysisModels->updateConnectedEditors();
 
     keyValueStore->remove( m_coordKey().toStdString() );
     keyValueStore->remove( m_zcornKey().toStdString() );
