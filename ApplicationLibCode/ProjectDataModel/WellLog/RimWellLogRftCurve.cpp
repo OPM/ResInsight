@@ -1226,19 +1226,30 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText
 std::vector<double> RimWellLogRftCurve::rftCurveDepthValues( RifReaderRftInterface*      reader,
                                                              const QString&              wellName,
                                                              const QDateTime&            timeStep,
-                                                             RigEclipseWellLogExtractor* extractor )
+                                                             RigEclipseWellLogExtractor* extractor,
+                                                             RiaDefines::DepthType*      resultDepthType )
 {
     if ( !reader ) return {};
 
     auto mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
     std::vector<double> depths;
     reader->values( mdAddress, &depths );
-    if ( depths.empty() && extractor ) depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
-    if ( depths.empty() )
+    if ( !depths.empty() )
     {
-        auto tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
-        reader->values( tvdAddress, &depths );
+        if ( resultDepthType ) *resultDepthType = RiaDefines::DepthType::MEASURED_DEPTH;
+        return depths;
     }
+
+    if ( extractor ) depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
+    if ( !depths.empty() )
+    {
+        if ( resultDepthType ) *resultDepthType = RiaDefines::DepthType::MEASURED_DEPTH;
+        return depths;
+    }
+
+    auto tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
+    reader->values( tvdAddress, &depths );
+    if ( resultDepthType ) *resultDepthType = RiaDefines::DepthType::TRUE_VERTICAL_DEPTH;
     return depths;
 }
 

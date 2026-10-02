@@ -51,6 +51,11 @@ public:
     std::optional<std::pair<double, double>>
         formationDepthRange( const QString& wellPathName, const QDateTime& timeStep, const QString& formationName );
 
+    // Interpolates the TVD (MSL) range corresponding to the given MD (RKB) range, using the
+    // well/time step's own observed MD<->TVD relationship. See RifReaderFmuRft::convertMdRangeToTvd.
+    std::optional<std::pair<double, double>>
+        convertMdRangeToTvd( const QString& wellPathName, const QDateTime& timeStep, double mdMin, double mdMax );
+
 protected:
     void initAfterRead() override;
 

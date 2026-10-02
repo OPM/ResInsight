@@ -156,6 +156,19 @@ std::optional<std::pair<double, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<std::pair<double, double>>
+    RimObservedFmuRftData::convertMdRangeToTvd( const QString& wellPathName, const QDateTime& timeStep, double mdMin, double mdMax )
+{
+    if ( m_fmuRftReader )
+    {
+        return m_fmuRftReader->convertMdRangeToTvd( wellPathName, timeStep, mdMin, mdMax );
+    }
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimObservedFmuRftData::initAfterRead()
 {
     if ( m_directoryPath().path().isEmpty() )

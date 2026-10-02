@@ -79,6 +79,14 @@ public:
     std::optional<std::pair<double, double>>
         formationDepthRange( const QString& wellName, const QDateTime& timeStep, const QString& formationName );
 
+    // Interpolates the TVD (MSL) range corresponding to the given MD (RKB) range, using the
+    // well/time step's own observed MD<->TVD relationship. Used to filter simulated RFT depth
+    // samples that are only available as TVD (e.g. when no grid case is available to derive MD
+    // from well-path intersections), so an MD-based depth/formation filter still applies
+    // consistently. Returns std::nullopt if fewer than two observation points exist to interpolate.
+    std::optional<std::pair<double, double>>
+        convertMdRangeToTvd( const QString& wellName, const QDateTime& timeStep, double mdMin, double mdMax );
+
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
 
@@ -98,6 +106,10 @@ private:
     static std::vector<Location> importLocations( const QString& fileName );
     static std::vector<Observation>
         importObservations( const QString& fileName, const std::vector<Location>& locations, const WellDate& wellDate );
+
+    std::vector<const Observation*> sortedObservationsForWellDate( const QString& wellName, const QDateTime& timeStep );
+
+    static double interpolateTvdFromMd( const std::vector<const Observation*>& sortedObservations, double md );
 
 private:
     QString                  m_filePath;

@@ -19,6 +19,7 @@
 #include "RimParameterRftCrossPlot.h"
 
 #include "RiaColorTables.h"
+#include "RiaDefines.h"
 #include "RiaPreferences.h"
 
 #include "RifEclipseRftAddress.h"
@@ -308,6 +309,21 @@ std::vector<std::vector<double>> RimParameterRftCrossPlot::computePressureSample
         if ( !extractor ) extractor = RiaExtractionTools::findOrCreateSimWellExtractor( eclipseCase, wellName, false, 0 );
     }
 
+    // Simulated RFT readers (e.g. RifReaderOpmRft) do not expose an MD channel, and MD can only be
+    // derived from well-path/grid intersections when an Eclipse case is available (see extractor
+    // above). Without one, rftCurveDepthValues() falls back to TVD. Since the depth range filter is
+    // always specified in MD, precompute the equivalent TVD range (from the well/time step's own
+    // observed MD<->TVD relationship) so the filter still applies correctly to TVD-only data.
+    std::optional<std::pair<double, double>> tvdFilterRange;
+    if ( useDepthRange )
+    {
+        for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( wellName ) )
+        {
+            tvdFilterRange = observedData->convertMdRangeToTvd( wellName, timeStep, depthRangeMin, depthRangeMax );
+            if ( tvdFilterRange ) break;
+        }
+    }
+
     const auto& allCases = ensemble->allSummaryCases();
 
     std::vector<std::vector<double>> samplesPerCase;
@@ -339,7 +355,18 @@ std::vector<std::vector<double>> RimParameterRftCrossPlot::computePressureSample
 
         // Use the same depth values the RFT curves use for their depth axis, so the filter
         // operates on values consistent with what the user sees in the RFT plot.
-        std::vector<double> depths = RimWellLogRftCurve::rftCurveDepthValues( reader, wellName, timeStep, extractor );
+        RiaDefines::DepthType depthType = RiaDefines::DepthType::MEASURED_DEPTH;
+        std::vector<double>   depths    = RimWellLogRftCurve::rftCurveDepthValues( reader, wellName, timeStep, extractor, &depthType );
+
+        // The MD-specified filter range only applies directly to MD depths; when the reader could
+        // only supply TVD, use the TVD-converted range instead (if one could be computed).
+        double rangeMin = depthRangeMin;
+        double rangeMax = depthRangeMax;
+        if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH && tvdFilterRange )
+        {
+            rangeMin = tvdFilterRange->first;
+            rangeMax = tvdFilterRange->second;
+        }
 
         std::vector<double> samplesInRange;
         if ( useDepthRange )
@@ -352,7 +379,7 @@ std::vector<std::vector<double>> RimParameterRftCrossPlot::computePressureSample
                 continue;
             }
             for ( size_t i = 0; i < depths.size(); ++i )
-                if ( depths[i] >= depthRangeMin && depths[i] <= depthRangeMax ) samplesInRange.push_back( pressures[i] );
+                if ( depths[i] >= rangeMin && depths[i] <= rangeMax ) samplesInRange.push_back( pressures[i] );
         }
         else
         {
