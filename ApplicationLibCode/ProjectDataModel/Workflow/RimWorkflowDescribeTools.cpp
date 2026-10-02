@@ -18,6 +18,7 @@
 
 #include "RimWorkflowDescribeTools.h"
 
+#include "RimWorkflowPortCompatibility.h"
 #include "RimWorkflowSchemaTools.h"
 
 #include <QJsonArray>
@@ -114,7 +115,9 @@ QJsonObject taskFromDescribe( const QJsonObject& task )
     return QJsonObject{ { "name", task.value( "name" ).toString() },
                         { "inputs", inputs },
                         { "outputs", outputs },
-                        { "config_fields", configFields } };
+                        { "config_fields", configFields },
+                        { "input_types", RimWorkflowPortCompatibility::portTypes( RimWorkflowPortCompatibility::inputPorts( task ) ) },
+                        { "output_types", RimWorkflowPortCompatibility::portTypes( RimWorkflowPortCompatibility::outputPorts( task ) ) } };
 }
 } // namespace
 

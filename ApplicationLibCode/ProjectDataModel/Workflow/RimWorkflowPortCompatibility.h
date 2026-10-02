@@ -55,9 +55,10 @@ std::optional<RimWorkflowPort> inputPort( const QJsonObject& taskType, const QSt
 std::optional<RimWorkflowPort> outputPort( const QJsonObject& taskType, const QString& name );
 
 bool isCompatible( const QJsonObject& produced, const QJsonObject& producedRoot, const QJsonObject& expected, const QJsonObject& expectedRoot );
-bool    isCompatible( const RimWorkflowPort& produced, const RimWorkflowPort& expected );
-bool    isAny( const QJsonObject& schema, const QJsonObject& rootSchema );
-QString typeName( const QJsonObject& schema, const QJsonObject& rootSchema );
+bool        isCompatible( const RimWorkflowPort& produced, const RimWorkflowPort& expected );
+bool        isAny( const QJsonObject& schema, const QJsonObject& rootSchema );
+QString     typeName( const QJsonObject& schema, const QJsonObject& rootSchema );
+QJsonObject portTypes( const std::vector<RimWorkflowPort>& ports );
 
 QStringList coveredByWholeOutput( const QJsonObject& upstreamTaskType, const QJsonObject& downstreamTaskType );
 bool        wouldCreateCycle( const RimWorkflowDefinition& definition, const QString& from, const QString& to );
