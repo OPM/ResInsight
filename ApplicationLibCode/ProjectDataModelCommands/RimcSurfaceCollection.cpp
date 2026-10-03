@@ -63,7 +63,9 @@ RimcSurfaceCollection_importSurface::RimcSurfaceCollection_importSurface( caf::P
 std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_importSurface::execute()
 {
     RimSurfaceCollection* coll = self<RimSurfaceCollection>();
-    if ( !coll ) return nullptr;
+    if ( !coll ) return std::unexpected( "Surface collection is null. Cannot import surface." );
+
+    if ( m_fileName().isEmpty() ) return std::unexpected( "File name is empty. Cannot import surface." );
 
     // Imported surfaces are named after the file, see RimSurfaceCollection::importSurfacesFromFiles
     const QString surfaceName = QFileInfo( m_fileName() ).fileName();
@@ -71,14 +73,22 @@ std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_importSurfac
     auto resolution = RiaNameUniquenessTools::applyConflictPolicy( &coll->itemsField(), surfaceName, m_onNameConflict().value() );
     if ( !resolution.errorMessage.isEmpty() ) return std::unexpected( resolution.errorMessage );
 
+    // Import before deleting a surface to overwrite, so a failed import keeps the existing surface
+    auto result = coll->importSurfacesFromFiles( { m_fileName() } );
+    if ( !result ) return std::unexpected( result.error() );
+
+    RimSurface* newSurface = result.value();
+
     if ( auto* existingSurface = dynamic_cast<RimSurface*>( resolution.objectToReplace ) )
     {
         coll->deleteItem( existingSurface );
     }
 
-    QStringList filelist;
-    filelist << m_fileName();
-    return coll->importSurfacesFromFiles( filelist );
+    // The collection renames the new surface while a surface with the same name exists
+    newSurface->setUserDescription( resolution.nameToUse );
+    coll->updateConnectedEditors();
+
+    return newSurface;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,12 +117,13 @@ RimcSurfaceCollection_newSurface::RimcSurfaceCollection_newSurface( caf::PdmObje
 std::expected<caf::PdmObjectHandle*, QString> RimcSurfaceCollection_newSurface::execute()
 {
     RimSurfaceCollection* coll = self<RimSurfaceCollection>();
-    if ( coll && m_case )
-    {
-        RimSurface* surface = coll->addGridCaseSurface( m_case(), m_kIndex );
-        return surface;
-    }
-    return nullptr;
+    if ( !coll ) return std::unexpected( "Surface collection is null. Cannot create surface." );
+    if ( !m_case ) return std::unexpected( "No case specified. Cannot create surface." );
+
+    RimSurface* surface = coll->addGridCaseSurface( m_case(), m_kIndex );
+    if ( !surface ) return std::unexpected( QString( "Could not create grid case surface for K index %1." ).arg( m_kIndex() ) );
+
+    return surface;
 }
 
 //--------------------------------------------------------------------------------------------------

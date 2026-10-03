@@ -96,7 +96,8 @@ void RicImportEclipseCaseFeature::importPvdSurfacesForGridFiles( const QStringLi
             // Get count of existing surfaces before import
             auto allSurfacesBefore = surfColl->descendantsIncludingThisOfType<RimSurface>();
 
-            surfColl->importSurfacesFromFiles( pvdFilesToImport );
+            // Failed files are logged by importSurfacesFromFiles
+            if ( !surfColl->importSurfacesFromFiles( pvdFilesToImport ) ) return;
 
             // Get newly imported surfaces
             auto                     allSurfacesAfter = surfColl->descendantsIncludingThisOfType<RimSurface>();

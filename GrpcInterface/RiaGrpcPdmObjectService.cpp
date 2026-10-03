@@ -623,7 +623,8 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
                 telemetryAttributes["pdm.status"] = "failed";
                 telemetryAttributes["pdm.error"]  = "No result returned from Method";
                 RiaOpenTelemetryManager::instance().reportEventAsync( "grpc.pdm_method_call", telemetryAttributes );
-                return grpc::Status( grpc::NOT_FOUND, "No result returned from Method" );
+                return grpc::Status( grpc::NOT_FOUND,
+                                     QString( "Method '%1' returned no result" ).arg( methodKeyword ).toStdString() );
             }
         }
 
