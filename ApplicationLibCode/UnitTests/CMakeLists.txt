@@ -164,6 +164,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigPolygonTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonInViewCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInViewCollection-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewController-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNameUniquenessTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkSurfaceImporter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifVtkReader-Test.cpp

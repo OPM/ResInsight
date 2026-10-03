@@ -683,7 +683,10 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RimViewController::masterView() const
 {
-    return ownerViewLinker()->masterView();
+    RimViewLinker* viewLinker = ownerViewLinker();
+    if ( !viewLinker ) return nullptr;
+
+    return viewLinker->masterView();
 }
 
 //--------------------------------------------------------------------------------------------------
