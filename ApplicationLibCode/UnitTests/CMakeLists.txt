@@ -39,6 +39,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigNestedHybridGridReconstructor-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigStatisticsMath-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanModelTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPathIntersectionTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimHistogramDataSource-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisTools-Test.cpp
