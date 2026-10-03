@@ -414,14 +414,9 @@ jobs:
     name: Publish dev build to distribution repo
     needs: build
     runs-on: ubuntu-24.04
-    # This job publishes a rolling pre-release of the `dev` binaries to the
-    # CeetronSolutions/resinsight-builds repository, giving users a permanent,
-    # unauthenticated download URL served by GitHub's CDN (see
-    # magnesj/ResInsight#1093). Restricted to OPM/ResInsight so it only runs
-    # in the repository that owns the DEV_BUILDS_TOKEN secret and the
-    # distribution repo. Only runs on the daily schedule or a manual
-    # workflow_dispatch, not on every push, to limit how often the rolling
-    # release is updated.
+    # Publishes a rolling `dev` pre-release to CeetronSolutions/resinsight-builds
+    # (see magnesj/ResInsight#1093). Restricted to OPM/ResInsight and to
+    # schedule/workflow_dispatch to limit how often it runs.
     if: >-
       github.repository == 'OPM/ResInsight' &&
       (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
@@ -436,11 +431,8 @@ jobs:
           path: artifacts
 
       - name: Package assets
-        # Only configs with a dist-name in the build matrix (uploaded above
-        # as dist-<dist-name>) are published; the Ubuntu clang-19 build has
-        # no dist-name and is intentionally skipped here. The published zip
-        # name is taken directly from the matrix-defined dist-name, so there
-        # is no separate CI-name-to-dist-name translation to keep in sync.
+        # Only matrix configs with a dist-name are published (dist-<dist-name>);
+        # the zip name matches the dist-name directly.
         shell: bash
         run: |
           set -e
