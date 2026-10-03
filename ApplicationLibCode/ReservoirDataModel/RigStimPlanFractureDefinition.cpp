@@ -127,7 +127,9 @@ double RigStimPlanFractureDefinition::bottomPerfTvd() const
 //--------------------------------------------------------------------------------------------------
 double RigStimPlanFractureDefinition::minY() const
 {
-    CAF_ASSERT( !m_Ys.empty() );
+    // An empty m_Ys is not a programming error but a legitimate consequence of a StimPlan file
+    // missing its "ys" grid data, so return a safe default instead of asserting.
+    if ( m_Ys.empty() ) return 0.0;
     return m_Ys[0];
 }
 
@@ -136,7 +138,7 @@ double RigStimPlanFractureDefinition::minY() const
 //--------------------------------------------------------------------------------------------------
 double RigStimPlanFractureDefinition::maxY() const
 {
-    CAF_ASSERT( !m_Ys.empty() );
+    if ( m_Ys.empty() ) return 0.0;
     return m_Ys.back();
 }
 
