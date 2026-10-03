@@ -28,6 +28,7 @@
 #include "RigResultAccessor.h"
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPath.h"
+#include "RigWellPathGeometryTools.h"
 #include "RigWellPathIntersectionTools.h"
 
 #include "cvfBoundingBox.h"
@@ -35,8 +36,12 @@
 
 #include "cafAssert.h"
 
+#include <algorithm>
 #include <array>
+#include <iterator>
+#include <limits>
 #include <map>
+#include <tuple>
 
 //==================================================================================================
 ///
@@ -107,6 +112,11 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         insertIntersectionsInMap( intersections, p1, md1, p2, md2, tolerance, &uniqueIntersections );
     }
 
+    if ( uniqueIntersections.empty() && m_caseData->mainGrid()->isRadial() )
+    {
+        insertRadialGridAxisIntersections( tolerance, &uniqueIntersections );
+    }
+
     if ( uniqueIntersections.empty() && m_wellPathGeometry->wellPathPoints().size() > 1 )
     {
         // When entering this function, all well path points are either completely outside the grid
@@ -169,6 +179,78 @@ void RigEclipseWellLogExtractor::calculateIntersection()
     }
 
     populateReturnArrays( uniqueIntersections );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// A well in a radial grid is located on the grid axis, inside the inner radius or on a face between angular cells, and is not
+/// intersected by any cell. Use the innermost cell column and place the cells along the well path by depth.
+//--------------------------------------------------------------------------------------------------
+void RigEclipseWellLogExtractor::insertRadialGridAxisIntersections( double tolerance,
+                                                                    std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>* uniqueIntersections )
+{
+    const RigMainGrid* mainGrid = m_caseData->mainGrid();
+
+    const std::vector<double>& wellPathMds  = m_wellPathGeometry->measuredDepths();
+    const std::vector<double>  wellPathTvds = m_wellPathGeometry->trueVerticalDepths();
+    if ( wellPathMds.size() < 2 ) return;
+
+    const auto [minTvdIt, maxTvdIt] = std::minmax_element( wellPathTvds.begin(), wellPathTvds.end() );
+    const double minTvd             = *minTvdIt;
+    const double maxTvd             = *maxTvdIt;
+
+    std::vector<std::tuple<double, double, size_t>> cellDepths;
+    for ( size_t k = 0; k < mainGrid->cellCountK(); k++ )
+    {
+        const size_t cellIndex = mainGrid->cellIndexFromIJK( 0, 0, k );
+        if ( mainGrid->cell( cellIndex ).isInvalid() ) continue;
+
+        double topTvd    = std::numeric_limits<double>::infinity();
+        double bottomTvd = -std::numeric_limits<double>::infinity();
+        for ( const auto& corner : mainGrid->cellCornerVertices( cellIndex ) )
+        {
+            topTvd    = std::min( topTvd, -corner.z() );
+            bottomTvd = std::max( bottomTvd, -corner.z() );
+        }
+
+        if ( bottomTvd <= minTvd || topTvd >= maxTvd ) continue;
+
+        cellDepths.emplace_back( std::max( topTvd, minTvd ), std::min( bottomTvd, maxTvd ), cellIndex );
+    }
+
+    if ( cellDepths.empty() ) return;
+
+    // MD interpolation requires unique TVD values ordered along the well path. K is not guaranteed to increase with depth, and
+    // neighbour cells share their boundary TVD.
+    std::vector<double> boundaryTvds;
+    for ( const auto& [topTvd, bottomTvd, cellIndex] : cellDepths )
+    {
+        boundaryTvds.push_back( topTvd );
+        boundaryTvds.push_back( bottomTvd );
+    }
+    std::sort( boundaryTvds.begin(), boundaryTvds.end() );
+    boundaryTvds.erase( std::unique( boundaryTvds.begin(), boundaryTvds.end() ), boundaryTvds.end() );
+
+    const std::vector<double> boundaryMds = RigWellPathGeometryTools::interpolateMdFromTvd( wellPathMds, wellPathTvds, boundaryTvds );
+    if ( boundaryMds.size() != boundaryTvds.size() ) return;
+
+    auto mdAtTvd = [&]( double tvd )
+    {
+        const auto it = std::lower_bound( boundaryTvds.begin(), boundaryTvds.end(), tvd );
+        return boundaryMds[std::distance( boundaryTvds.begin(), it )];
+    };
+
+    for ( const auto& [topTvd, bottomTvd, cellIndex] : cellDepths )
+    {
+        for ( bool isEntering : { true, false } )
+        {
+            const double     md    = mdAtTvd( isEntering ? topTvd : bottomTvd );
+            const cvf::Vec3d point = m_wellPathGeometry->interpolatedPointAlongWellPath( md );
+
+            HexIntersectionInfo       info( point, isEntering, cvf::StructGridInterface::NO_FACE, cellIndex );
+            RigMDCellIdxEnterLeaveKey enterLeaveKey( md, cellIndex, isEntering, tolerance );
+            uniqueIntersections->insert( std::make_pair( enterLeaveKey, info ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

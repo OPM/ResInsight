@@ -141,6 +141,102 @@ TEST( RigEclipseWellLogExtractor, HorizontalWellAcrossFlippedGrid )
     }
 }
 
+namespace
+{
+//--------------------------------------------------------------------------------------------------
+/// 3x1x4 grid with TVD 1000-1004, located at x = [1, 4]. A vertical well at x = 0 is outside all cells, as a well on the axis of a
+/// radial grid is.
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigEclipseCaseData> createRadialAxisTestReservoir( bool isRadial, bool kIncreasesUpwards )
+{
+    cvf::ref<RigEclipseCaseData> reservoir         = new RigEclipseCaseData( nullptr );
+    cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
+
+    const double topZ    = -1000.0;
+    const double bottomZ = -1004.0;
+    if ( kIncreasesUpwards )
+    {
+        mockFileInterface->setWorldCoordinates( cvf::Vec3d( 1, 0, bottomZ ), cvf::Vec3d( 4, 1, topZ ) );
+    }
+    else
+    {
+        mockFileInterface->setWorldCoordinates( cvf::Vec3d( 1, 0, topZ ), cvf::Vec3d( 4, 1, bottomZ ) );
+    }
+    mockFileInterface->setCellCounts( cvf::Vec3st( 3, 1, 4 ) );
+    mockFileInterface->enableWellData( false );
+    mockFileInterface->open( "", reservoir.p() );
+
+    reservoir->mainGrid()->setIsRadial( isRadial );
+    reservoir->mainGrid()->computeCachedData();
+
+    return reservoir;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<WellPathCellIntersectionInfo> radialAxisIntersections( RigEclipseCaseData* reservoir, double topTvd, double bottomTvd, double topMd )
+{
+    cvf::ref<RigWellPath> wellPathGeometry = new RigWellPath;
+    wellPathGeometry->setWellPathPoints( { cvf::Vec3d( 0, 0.5, -topTvd ), cvf::Vec3d( 0, 0.5, -bottomTvd ) },
+                                         { topMd, topMd + bottomTvd - topTvd } );
+
+    cvf::ref<RigEclipseWellLogExtractor> e = new RigEclipseWellLogExtractor( reservoir, wellPathGeometry.p(), "" );
+    return e->cellIntersectionInfosAlongWellPath();
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigEclipseWellLogExtractor, RadialGridWellOnAxisUsesInnermostColumn )
+{
+    for ( bool kIncreasesUpwards : { false, true } )
+    {
+        auto reservoir = createRadialAxisTestReservoir( true, kIncreasesUpwards );
+
+        auto intersections = radialAxisIntersections( reservoir.p(), 1000.0, 1004.0, 100.0 );
+        ASSERT_EQ( 4u, intersections.size() ) << "kIncreasesUpwards=" << kIncreasesUpwards;
+
+        for ( size_t i = 0; i < intersections.size(); i++ )
+        {
+            const size_t k = kIncreasesUpwards ? 3 - i : i;
+            EXPECT_EQ( reservoir->mainGrid()->cellIndexFromIJK( 0, 0, k ), intersections[i].globCellIndex );
+            EXPECT_NEAR( 100.0 + i, intersections[i].startMD, 1e-6 );
+            EXPECT_NEAR( 101.0 + i, intersections[i].endMD, 1e-6 );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigEclipseWellLogExtractor, RadialGridWellOnAxisClipsCellsToWellPathDepth )
+{
+    auto reservoir = createRadialAxisTestReservoir( true, false );
+
+    auto intersections = radialAxisIntersections( reservoir.p(), 1001.5, 1003.0, 0.0 );
+    ASSERT_EQ( 2u, intersections.size() );
+
+    EXPECT_EQ( reservoir->mainGrid()->cellIndexFromIJK( 0, 0, 1 ), intersections[0].globCellIndex );
+    EXPECT_NEAR( 0.0, intersections[0].startMD, 1e-6 );
+    EXPECT_NEAR( 0.5, intersections[0].endMD, 1e-6 );
+
+    EXPECT_EQ( reservoir->mainGrid()->cellIndexFromIJK( 0, 0, 2 ), intersections[1].globCellIndex );
+    EXPECT_NEAR( 0.5, intersections[1].startMD, 1e-6 );
+    EXPECT_NEAR( 1.5, intersections[1].endMD, 1e-6 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigEclipseWellLogExtractor, NonRadialGridWellOutsideGridHasNoIntersections )
+{
+    auto reservoir = createRadialAxisTestReservoir( false, false );
+
+    EXPECT_TRUE( radialAxisIntersections( reservoir.p(), 1000.0, 1004.0, 100.0 ).empty() );
+}
+
 //--------------------------------------------------------------------------------------------------
 /// setFlipAxis must actually mirror the grid node coordinates for every combination of Flip X /
 /// Flip Y. Covers the data-level part of https://github.com/OPM/ResInsight/issues/13967 where a
