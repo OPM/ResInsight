@@ -251,6 +251,7 @@ RimGeoMechView* RimViewController::managedGeoView() const
 void RimViewController::updateOverrides()
 {
     RimViewLinker* viewLinker = ownerViewLinker();
+    if ( !viewLinker ) return;
 
     auto masterView = viewLinker->masterView();
 
@@ -511,6 +512,7 @@ void RimViewController::updateDuplicatedPropertyFilters()
     }
 
     RimViewLinker* viewLinker = ownerViewLinker();
+    if ( !viewLinker ) return;
 
     auto masterView = viewLinker->masterView();
 
@@ -555,6 +557,7 @@ void RimViewController::updateCameraLink()
     if ( m_managedView )
     {
         RimViewLinker* viewLinker = ownerViewLinker();
+        if ( !viewLinker ) return;
 
         viewLinker->updateScaleZ( viewLinker->masterView(), viewLinker->masterView()->scaleZ() );
         viewLinker->updateCamera( viewLinker->masterView() );
@@ -571,6 +574,7 @@ void RimViewController::updateTimeStepLink()
     if ( m_managedView )
     {
         RimViewLinker* viewLinker = ownerViewLinker();
+        if ( !viewLinker ) return;
 
         viewLinker->updateTimeStep( viewLinker->masterView(), viewLinker->masterView()->currentTimeStep() );
     }
@@ -584,6 +588,7 @@ void RimViewController::updateResultColorsControl()
     if ( !isResultColorControlled() ) return;
 
     RimViewLinker* viewLinker = ownerViewLinker();
+    if ( !viewLinker ) return;
     viewLinker->updateCellResult();
 }
 
@@ -595,6 +600,7 @@ void RimViewController::updateLegendDefinitions()
     if ( !isLegendDefinitionsControlled() ) return;
 
     RimViewLinker* viewLinker = ownerViewLinker();
+    if ( !viewLinker ) return;
     viewLinker->updateCellResult();
 }
 
@@ -683,7 +689,10 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RimViewController::masterView() const
 {
-    return ownerViewLinker()->masterView();
+    RimViewLinker* viewLinker = ownerViewLinker();
+    if ( !viewLinker ) return nullptr;
+
+    return viewLinker->masterView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -755,7 +764,8 @@ void RimViewController::scheduleGeometryRegenForDepViews( RivCellSetEnum geometr
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isActive() const
 {
-    return ownerViewLinker()->isActive() && isChecked();
+    RimViewLinker* viewLinker = ownerViewLinker();
+    return viewLinker && viewLinker->isActive() && isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -763,7 +773,8 @@ bool RimViewController::isActive() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isCameraLinked() const
 {
-    if ( ownerViewLinker()->isActive() && isChecked() )
+    RimViewLinker* viewLinker = ownerViewLinker();
+    if ( viewLinker && viewLinker->isActive() && isChecked() )
     {
         return m_syncCamera;
     }
@@ -784,7 +795,8 @@ bool RimViewController::showCursor() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isTimeStepLinked() const
 {
-    if ( ownerViewLinker()->isActive() && isChecked() )
+    RimViewLinker* viewLinker = ownerViewLinker();
+    if ( viewLinker && viewLinker->isActive() && isChecked() )
     {
         return m_syncTimeStep;
     }
@@ -797,7 +809,8 @@ bool RimViewController::isTimeStepLinked() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isResultColorControlled() const
 {
-    if ( ownerViewLinker()->isActive() && isChecked() )
+    RimViewLinker* viewLinker = ownerViewLinker();
+    if ( viewLinker && viewLinker->isActive() && isChecked() )
     {
         return m_syncCellResult;
     }
@@ -810,7 +823,8 @@ bool RimViewController::isResultColorControlled() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isLegendDefinitionsControlled() const
 {
-    if ( ownerViewLinker()->isActive() && isChecked() )
+    RimViewLinker* viewLinker = ownerViewLinker();
+    if ( viewLinker && viewLinker->isActive() && isChecked() )
     {
         return m_syncLegendDefinitions;
     }
@@ -939,7 +953,8 @@ bool RimViewController::isPropertyFilterOveridden() const
 {
     if ( !isPropertyFilterControlPossible() ) return false;
 
-    if ( ownerViewLinker()->isActive() && isChecked() )
+    RimViewLinker* viewLinker = ownerViewLinker();
+    if ( viewLinker && viewLinker->isActive() && isChecked() )
     {
         return m_syncPropertyFilters;
     }
@@ -1093,7 +1108,9 @@ void RimViewController::applyCellFilterCollectionByUserChoice()
     }
 
     RimViewLinker* viewLinker = ownerViewLinker();
-    auto*          masterView = dynamic_cast<RimGridView*>( viewLinker->masterView() );
+    if ( !viewLinker ) return;
+
+    auto* masterView = dynamic_cast<RimGridView*>( viewLinker->masterView() );
 
     bool anyActiveCellFilter = false;
 
