@@ -32,6 +32,7 @@ set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigPorvSoilSgasResultCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoir-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMainGridFaults-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigMainGridSearchTree-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigResdataGridConverter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridExportAdapter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigNonUniformRefinement-Test.cpp

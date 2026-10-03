@@ -907,6 +907,7 @@ std::tuple<QString, double, cvf::StructGridInterface::FaceType> RigMainGrid::min
 std::vector<size_t> RigMainGrid::findIntersectingCells( const cvf::BoundingBox& inputBB ) const
 {
     cvf::ref<cvf::BoundingBoxTree> searchTree;
+    size_t                         cellsPerBoundingBox = 1;
     {
         // Lazily build the cell search tree under a lock to avoid a use-after-free / data race when
         // findIntersectingCells is called concurrently from multiple threads (e.g. OpenMP regions).
@@ -918,13 +919,21 @@ std::vector<size_t> RigMainGrid::findIntersectingCells( const cvf::BoundingBox& 
 
         // Keep a local reference so the tree stays alive if another thread rebuilds m_cellSearchTree
         // while this thread performs the read-only intersection query below.
-        searchTree = m_cellSearchTree;
+        searchTree          = m_cellSearchTree;
+        cellsPerBoundingBox = m_cellSearchTreeCellsPerBoundingBox;
     }
 
     std::vector<size_t> cellIndices;
     if ( searchTree.notNull() )
     {
         searchTree->findIntersections( inputBB, &cellIndices );
+
+        if ( cellsPerBoundingBox > 1 )
+        {
+            // A leaf of the tree contains several cells. Remove the cells not intersecting the input bounding box, so
+            // the result is the same as for a tree with one cell per leaf.
+            std::erase_if( cellIndices, [&]( size_t cellIndex ) { return !cellBoundingBox( cellIndex ).intersects( inputBB ); } );
+        }
     }
     return cellIndices;
 }
@@ -934,22 +943,16 @@ std::vector<size_t> RigMainGrid::findIntersectingCells( const cvf::BoundingBox& 
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::doBuildCellSearchTree( std::string* aabbTreeInfo ) const
 {
-    const double maxNumberOfLeafNodes = 4000000;
-    // Use the total cell count (including LGR cells) when deciding the number of cells per bounding box.
-    // The non-optimized buildCellSearchTree() creates one leaf per cell across totalCellCount(), so basing
-    // the threshold on the main grid cell count only can route LGR-heavy grids into that path and exhaust
-    // memory while building the search tree.
-    const double factor              = std::ceil( totalCellCount() / maxNumberOfLeafNodes );
-    const size_t cellsPerBoundingBox = std::max( size_t( 1 ), static_cast<size_t>( factor ) );
+    // Each leaf of the tree contains several cells along K. A tree with one cell per leaf becomes very deep for large
+    // grids and is slow to build. For very large grids, increase the number of cells per leaf to limit the memory use.
+    // Use the total cell count (including LGR cells) when deciding the number of cells per leaf.
+    const size_t minCellsPerBoundingBox = 8;
+    const double maxNumberOfLeafNodes   = 4000000;
+    const double factor                 = std::ceil( totalCellCount() / maxNumberOfLeafNodes );
+    const size_t cellsPerBoundingBox    = std::max( minCellsPerBoundingBox, static_cast<size_t>( factor ) );
 
-    if ( cellsPerBoundingBox > 1 )
-    {
-        buildCellSearchTreeOptimized( cellsPerBoundingBox );
-    }
-    else
-    {
-        buildCellSearchTree();
-    }
+    buildCellSearchTree( cellsPerBoundingBox );
+    m_cellSearchTreeCellsPerBoundingBox = cellsPerBoundingBox;
 
     if ( aabbTreeInfo )
     {
@@ -961,88 +964,28 @@ void RigMainGrid::doBuildCellSearchTree( std::string* aabbTreeInfo ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::buildCellSearchTree() const
+void RigMainGrid::buildCellSearchTree( size_t cellsPerBoundingBox ) const
 {
-    if ( m_cellSearchTree.isNull() )
-    {
-        // build tree
-
-        size_t cellCount = totalCellCount();
-
-        std::vector<size_t>           cellIndicesForBoundingBoxes;
-        std::vector<cvf::BoundingBox> cellBoundingBoxes;
-
-#pragma omp parallel
-        {
-            int    numberOfThreads = RiaOpenMPTools::availableThreadCount();
-            size_t threadCellCount = std::ceil( cellCount / static_cast<double>( numberOfThreads ) );
-
-            std::vector<size_t>           threadIndicesForBoundingBoxes;
-            std::vector<cvf::BoundingBox> threadBoundingBoxes;
-
-            threadIndicesForBoundingBoxes.reserve( threadCellCount );
-            threadBoundingBoxes.reserve( threadCellCount );
-
-#pragma omp for
-            for ( int cIdx = 0; cIdx < (int)cellCount; ++cIdx )
-            {
-                auto& cell = this->cell( cIdx );
-                if ( cell.isInvalid() ) continue;
-
-                const std::array<size_t, 8>& cellIndices = cell.cornerIndices();
-
-                cvf::BoundingBox cellBB;
-                for ( size_t i : cellIndices )
-                {
-                    cellBB.add( m_nodes[i] );
-                }
-
-                if ( cellBB.isValid() )
-                {
-                    threadIndicesForBoundingBoxes.emplace_back( cIdx );
-                    threadBoundingBoxes.emplace_back( cellBB );
-                }
-            }
-
-            threadIndicesForBoundingBoxes.shrink_to_fit();
-            threadBoundingBoxes.shrink_to_fit();
-
-#pragma omp critical( critical_section_RigMainGrid_buildCellSearchTree )
-            {
-                cellIndicesForBoundingBoxes.insert( cellIndicesForBoundingBoxes.end(),
-                                                    threadIndicesForBoundingBoxes.begin(),
-                                                    threadIndicesForBoundingBoxes.end() );
-
-                cellBoundingBoxes.insert( cellBoundingBoxes.end(), threadBoundingBoxes.begin(), threadBoundingBoxes.end() );
-            }
-        }
-        m_cellSearchTree = new cvf::BoundingBoxTree;
-        m_cellSearchTree->buildTreeFromBoundingBoxes( cellBoundingBoxes, &cellIndicesForBoundingBoxes );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox ) const
-{
-    // map from main grid cell index to list of LGR cells with main grid cell as parent cell
-    // used to speed up cell children lookup during search tree building
+    // Map from main grid cell index to the valid LGR cells inside it, including cells of nested LGRs. LGR cells
+    // without a main grid cell get a leaf of their own.
     std::map<size_t, std::vector<int>> subCellIndicesForMainGridCells;
+    std::vector<int>                   subCellIndicesWithoutMainGridCell;
 
     for ( auto& subGrid : m_localGrids )
     {
-        if ( subGrid->parentGrid() == this )
+        for ( size_t localIdx = 0; localIdx < subGrid->cellCount(); localIdx++ )
         {
-            for ( size_t localIdx = 0; localIdx < subGrid->cellCount(); localIdx++ )
+            const auto& localCell = subGrid->cell( localIdx );
+            if ( localCell.isInvalid() ) continue;
+
+            const int reservoirCellIndex = static_cast<int>( subGrid->reservoirCellIndex( localIdx ) );
+            if ( localCell.mainGridCellIndex() < cellCount() )
             {
-                const auto& localCell = subGrid->cell( localIdx );
-                if ( localCell.isInvalid() ) continue;
-                if ( !subCellIndicesForMainGridCells.contains( localCell.mainGridCellIndex() ) )
-                {
-                    subCellIndicesForMainGridCells[localCell.mainGridCellIndex()] = {};
-                }
-                subCellIndicesForMainGridCells[localCell.mainGridCellIndex()].push_back( (int)subGrid->reservoirCellIndex( localIdx ) );
+                subCellIndicesForMainGridCells[localCell.mainGridCellIndex()].push_back( reservoirCellIndex );
+            }
+            else
+            {
+                subCellIndicesWithoutMainGridCell.push_back( reservoirCellIndex );
             }
         }
     }
@@ -1071,36 +1014,33 @@ void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox ) con
 
                     while ( ( kCount < cellsPerBoundingBox ) && ( k + kCount < cellCountK() ) )
                     {
-                        size_t      cellIdx = cellIndexFromIJK( i, j, k + kCount );
-                        const auto& rigCell = cell( cellIdx );
+                        size_t cellIdx = cellIndexFromIJK( i, j, k + kCount );
 
-                        if ( !rigCell.isInvalid() )
+                        if ( !cell( cellIdx ).isInvalid() )
                         {
                             aggregatedCellIndices.push_back( static_cast<int>( cellIdx ) );
 
-                            if ( subCellIndicesForMainGridCells.contains( cellIdx ) )
-                            {
-                                const auto& subCellIndices = subCellIndicesForMainGridCells[cellIdx];
-                                aggregatedCellIndices.insert( aggregatedCellIndices.end(), subCellIndices.begin(), subCellIndices.end() );
-                            }
-
-                            const std::array<size_t, 8>& cellIndices = rigCell.cornerIndices();
-
-                            cvf::BoundingBox cellBB;
-                            for ( size_t i : cellIndices )
-                            {
-                                cellBB.add( m_nodes[i] );
-                            }
-
+                            cvf::BoundingBox cellBB = cellBoundingBox( cellIdx );
                             if ( cellBB.isValid() ) accumulatedBB.add( cellBB );
+                        }
+
+                        // Add the LGR cells also when the main grid cell is invalid
+                        if ( auto it = subCellIndicesForMainGridCells.find( cellIdx ); it != subCellIndicesForMainGridCells.end() )
+                        {
+                            for ( int subCellIdx : it->second )
+                            {
+                                aggregatedCellIndices.push_back( subCellIdx );
+
+                                cvf::BoundingBox cellBB = cellBoundingBox( subCellIdx );
+                                if ( cellBB.isValid() ) accumulatedBB.add( cellBB );
+                            }
                         }
                         kCount++;
                     }
 
                     k += kCount;
-                    kCount = 0;
 
-                    threadCellIndicesForBoundingBoxes[myThread].emplace_back( aggregatedCellIndices );
+                    threadCellIndicesForBoundingBoxes[myThread].emplace_back( std::move( aggregatedCellIndices ) );
                     threadCellBoundingBoxes[myThread].emplace_back( accumulatedBB );
                 }
             }
@@ -1113,14 +1053,33 @@ void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox ) con
     for ( auto i = 0; i < threadCount; i++ )
     {
         cellIndicesForBoundingBoxes.insert( cellIndicesForBoundingBoxes.end(),
-                                            threadCellIndicesForBoundingBoxes[i].begin(),
-                                            threadCellIndicesForBoundingBoxes[i].end() );
+                                            std::make_move_iterator( threadCellIndicesForBoundingBoxes[i].begin() ),
+                                            std::make_move_iterator( threadCellIndicesForBoundingBoxes[i].end() ) );
 
         cellBoundingBoxes.insert( cellBoundingBoxes.end(), threadCellBoundingBoxes[i].begin(), threadCellBoundingBoxes[i].end() );
     }
 
+    for ( int subCellIdx : subCellIndicesWithoutMainGridCell )
+    {
+        cellIndicesForBoundingBoxes.push_back( { subCellIdx } );
+        cellBoundingBoxes.push_back( cellBoundingBox( subCellIdx ) );
+    }
+
     m_cellSearchTree = new cvf::BoundingBoxTree;
     m_cellSearchTree->buildTreeFromBoundingBoxesOptimized( cellBoundingBoxes, cellIndicesForBoundingBoxes );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigMainGrid::cellBoundingBox( size_t reservoirCellIndex ) const
+{
+    cvf::BoundingBox cellBB;
+    for ( size_t nodeIndex : cell( reservoirCellIndex ).cornerIndices() )
+    {
+        cellBB.add( m_nodes[nodeIndex] );
+    }
+    return cellBB;
 }
 
 //--------------------------------------------------------------------------------------------------
