@@ -1027,12 +1027,12 @@ void RimParameterRftCrossPlot::addObservedPressureMarkers()
     addHorizontalLine( observedPressure, Qt::SolidLine, "Observed Pressure" );
     if ( observedPressureError > 0.0 )
     {
-        addHorizontalLine( observedPressure - observedPressureError, Qt::DashLine, "Observed Pressure - Error" );
-        addHorizontalLine( observedPressure + observedPressureError, Qt::DashLine, "Observed Pressure + Error" );
+        addHorizontalLine( observedPressure - observedPressureError, Qt::DashLine, "" );
+        addHorizontalLine( observedPressure + observedPressureError, Qt::DashLine, "" );
 
-        // Transparent background spanning the +/- error band around the observed pressure.
-        QColor shadingColor( Qt::black );
-        shadingColor.setAlpha( 20 );
+        // Transparent light pink background spanning the +/- error band around the observed pressure.
+        QColor shadingColor( 255, 192, 203 ); // light pink
+        shadingColor.setAlpha( 60 );
 
         auto* shading = new QwtPlotZoneItem();
         shading->setOrientation( Qt::Horizontal );
