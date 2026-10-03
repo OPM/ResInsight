@@ -25,6 +25,7 @@
 #include "RiaOptionItemFactory.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesSystem.h"
+#include "RiaViewDefines.h"
 #include "RiaViewRedrawScheduler.h"
 #include "RiaZScaleTools.h"
 

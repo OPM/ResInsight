@@ -702,14 +702,6 @@ void RimWellPath::setWellPathColor( const cvf::Color3f& color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellPath::objectToggleField()
-{
-    return &m_showWellPath;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellPath::setWellPathGeometry( RigWellPath* wellPathModel )
 {
     m_wellPathGeometry = wellPathModel;

@@ -21,10 +21,13 @@
 #include "RiaFeatureTestModelBuilder.h"
 #include "RiaFeatureTestTreeView.h"
 
+#include "RimGridView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "WellPath/RimWellPathInView.h"
+#include "WellPath/RimWellPathInViewCollection.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -41,15 +44,19 @@
 /// RiaFeatureTestTreeView, which registers a
 /// headless project tree view via RiaFeatureCommandContext.
 ///
-/// The well path collection is used as the selected object: its tree children are the well paths,
-/// each of which has a boolean objectToggleField (RimWellPath::showWellPath).
+/// Well path visibility lives per-view: the per-view RimWellPathInViewCollection mirrors the
+/// global well path collection, and its RimWellPathInView items have the checkable
+/// objectToggleField. The global well path collection no longer exposes a per-well toggle (see
+/// the removal of RimWellPath::objectToggleField()), so the well path in-view collection under
+/// the Eclipse view is used as the selected object here.
 //--------------------------------------------------------------------------------------------------
 class RicToggleItemsFeatureTest : public ::testing::Test
 {
 protected:
     void SetUp() override
     {
-        RiaFeatureTestModelBuilder::wellPath();
+        FeatureTestModel model = RiaFeatureTestModelBuilder::combinedModel();
+        m_eclipseView          = model.eclipseView;
 
         RimOilField* oilField = RimProject::current()->activeOilField();
         m_wellPathCollection  = ( oilField != nullptr ) ? oilField->wellPathCollection() : nullptr;
@@ -62,6 +69,8 @@ protected:
             secondWellPath->setName( "TestWellPath2" );
             m_wellPathCollection->addWellPath( secondWellPath );
         }
+
+        m_wellPathInViewCollection = m_eclipseView ? m_eclipseView->wellPathInViewCollection() : nullptr;
     }
 
     void TearDown() override
@@ -70,25 +79,27 @@ protected:
         RiaFeatureTestModelBuilder::closeProject();
     }
 
-    void setShowStateForAllWellPaths( bool show )
+    void setCheckedStateForAllWellPathsInView( bool checked )
     {
-        for ( RimWellPath* wellPath : m_wellPathCollection->allWellPaths() )
+        for ( RimWellPathInView* wellPathInView : m_wellPathInViewCollection->allWellPathsInView() )
         {
-            wellPath->setShowWellPath( show );
+            wellPathInView->setCheckState( checked );
         }
     }
 
-    RimWellPathCollection* m_wellPathCollection = nullptr;
+    RimGridView*                 m_eclipseView              = nullptr;
+    RimWellPathCollection*       m_wellPathCollection       = nullptr;
+    RimWellPathInViewCollection* m_wellPathInViewCollection = nullptr;
 };
 
 TEST_F( RicToggleItemsFeatureTest, ToggleOffHidesAllChildWellPaths )
 {
-    ASSERT_TRUE( m_wellPathCollection != nullptr );
-    ASSERT_EQ( 2u, m_wellPathCollection->allWellPaths().size() );
-    setShowStateForAllWellPaths( true );
+    ASSERT_TRUE( m_wellPathInViewCollection != nullptr );
+    ASSERT_EQ( 2u, m_wellPathInViewCollection->allWellPathsInView().size() );
+    setCheckedStateForAllWellPathsInView( true );
 
     RiaFeatureTestTreeView treeView;
-    caf::SelectionManager::instance()->setSelectedItem( m_wellPathCollection );
+    caf::SelectionManager::instance()->setSelectedItem( m_wellPathInViewCollection );
 
     caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicToggleItemsOffFeature" );
     ASSERT_TRUE( feature != nullptr );
@@ -96,19 +107,19 @@ TEST_F( RicToggleItemsFeatureTest, ToggleOffHidesAllChildWellPaths )
 
     feature->actionTriggered( false );
 
-    for ( RimWellPath* wellPath : m_wellPathCollection->allWellPaths() )
+    for ( RimWellPathInView* wellPathInView : m_wellPathInViewCollection->allWellPathsInView() )
     {
-        EXPECT_FALSE( wellPath->showWellPath() );
+        EXPECT_FALSE( wellPathInView->isChecked() );
     }
 }
 
 TEST_F( RicToggleItemsFeatureTest, ToggleOnShowsAllChildWellPaths )
 {
-    ASSERT_TRUE( m_wellPathCollection != nullptr );
-    setShowStateForAllWellPaths( false );
+    ASSERT_TRUE( m_wellPathInViewCollection != nullptr );
+    setCheckedStateForAllWellPathsInView( false );
 
     RiaFeatureTestTreeView treeView;
-    caf::SelectionManager::instance()->setSelectedItem( m_wellPathCollection );
+    caf::SelectionManager::instance()->setSelectedItem( m_wellPathInViewCollection );
 
     caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicToggleItemsOnFeature" );
     ASSERT_TRUE( feature != nullptr );
@@ -116,25 +127,25 @@ TEST_F( RicToggleItemsFeatureTest, ToggleOnShowsAllChildWellPaths )
 
     feature->actionTriggered( false );
 
-    for ( RimWellPath* wellPath : m_wellPathCollection->allWellPaths() )
+    for ( RimWellPathInView* wellPathInView : m_wellPathInViewCollection->allWellPathsInView() )
     {
-        EXPECT_TRUE( wellPath->showWellPath() );
+        EXPECT_TRUE( wellPathInView->isChecked() );
     }
 }
 
 TEST_F( RicToggleItemsFeatureTest, ToggleFlipsEachChildShowState )
 {
-    ASSERT_TRUE( m_wellPathCollection != nullptr );
+    ASSERT_TRUE( m_wellPathInViewCollection != nullptr );
 
-    const std::vector<RimWellPath*> wellPaths = m_wellPathCollection->allWellPaths();
-    ASSERT_EQ( 2u, wellPaths.size() );
+    const std::vector<RimWellPathInView*> wellPathsInView = m_wellPathInViewCollection->allWellPathsInView();
+    ASSERT_EQ( 2u, wellPathsInView.size() );
 
     // Give the two well paths opposite states, then assert each is individually flipped.
-    wellPaths[0]->setShowWellPath( true );
-    wellPaths[1]->setShowWellPath( false );
+    wellPathsInView[0]->setCheckState( true );
+    wellPathsInView[1]->setCheckState( false );
 
     RiaFeatureTestTreeView treeView;
-    caf::SelectionManager::instance()->setSelectedItem( m_wellPathCollection );
+    caf::SelectionManager::instance()->setSelectedItem( m_wellPathInViewCollection );
 
     caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicToggleItemsFeature" );
     ASSERT_TRUE( feature != nullptr );
@@ -142,6 +153,6 @@ TEST_F( RicToggleItemsFeatureTest, ToggleFlipsEachChildShowState )
 
     feature->actionTriggered( false );
 
-    EXPECT_FALSE( wellPaths[0]->showWellPath() );
-    EXPECT_TRUE( wellPaths[1]->showWellPath() );
+    EXPECT_FALSE( wellPathsInView[0]->isChecked() );
+    EXPECT_TRUE( wellPathsInView[1]->isChecked() );
 }

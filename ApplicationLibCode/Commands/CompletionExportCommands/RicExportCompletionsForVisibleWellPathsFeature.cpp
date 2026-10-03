@@ -18,14 +18,17 @@
 
 #include "RicExportCompletionsForVisibleWellPathsFeature.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RicWellPathExportCompletionDataFeature.h"
 
+#include "Rim3dView.h"
 #include "RimProject.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "WellPath/RimWellPathInViewCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -96,6 +99,14 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
         if ( measurementColl ) return wellPaths;
     }
 
+    auto isVisibleInActiveView = [&]( RimWellPath* wellPath )
+    {
+        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+        if ( !activeView || !activeView->wellPathInViewCollection() ) return true;
+
+        return activeView->wellPathInViewCollection()->isWellPathVisible( wellPath );
+    };
+
     {
         auto wellPathCollections = caf::SelectionManager::instance()->objectsByType<RimWellPathCollection>();
         if ( wellPathCollections.empty() )
@@ -117,7 +128,7 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
             {
                 for ( const auto& wellPath : wellPathCollection->allWellPaths() )
                 {
-                    if ( wellPath->showWellPath() )
+                    if ( isVisibleInActiveView( wellPath ) )
                     {
                         wellPaths.push_back( wellPath );
                     }
@@ -131,7 +142,7 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
             auto allWellPaths = RimProject::current()->allWellPaths();
             for ( const auto& w : allWellPaths )
             {
-                if ( w->showWellPath() )
+                if ( isVisibleInActiveView( w ) )
                 {
                     wellPaths.push_back( w );
                 }

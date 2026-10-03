@@ -181,7 +181,6 @@ protected:
     // Override PdmObject
 
     caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* objectToggleField() override;
     bool                 isDeletable() const override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

@@ -18,6 +18,8 @@
 
 #include "RimGeneric3dView.h"
 
+#include "RiaViewDefines.h"
+
 #include "Rim3dOverlayInfoConfig.h"
 #include "Rim3dPropertiesInterface.h"
 #include "RimAnnotationInViewCollection.h"
@@ -42,6 +44,8 @@
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInView.h"
 #include "Polygons/RimPolygonInViewCollection.h"
+
+#include "WellPath/RimWellPathInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
@@ -75,6 +79,9 @@ RimGeneric3dView::RimGeneric3dView()
     CAF_PDM_InitFieldNoDefault( &m_polygonInViewCollection, "PolygonInViewCollection", "Polygon Collection Field" );
     m_polygonInViewCollection = new RimPolygonInViewCollection();
     m_polygonInViewCollection->uiCapability()->setUiIcon( caf::IconProvider( ":/PolylinesFromFile16x16.png" ) );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellPathInViewCollection, "WellPathInViewCollection", "Well Path Collection Field" );
+    m_wellPathInViewCollection = new RimWellPathInViewCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations" );
     m_annotationCollection = new RimAnnotationInViewCollection;
@@ -118,6 +125,14 @@ RimSurfaceInViewCollection* RimGeneric3dView::surfaceInViewCollection() const
 RimPolygonInViewCollection* RimGeneric3dView::polygonInViewCollection() const
 {
     return m_polygonInViewCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathInViewCollection* RimGeneric3dView::wellPathInViewCollection() const
+{
+    return m_wellPathInViewCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,9 +188,12 @@ cvf::BoundingBox RimGeneric3dView::computeDomainBoundingBox() const
 
     if ( auto* wellPathColl = RimWellPathCollection::instance() )
     {
+        bool forceAllOn = wellPathColl->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_ON;
+
         for ( auto* wellPath : wellPathColl->allWellPaths() )
         {
-            if ( !wellPath || !wellPath->showWellPath() || !wellPath->wellPathGeometry() ) continue;
+            if ( !wellPath || !wellPath->wellPathGeometry() ) continue;
+            if ( !forceAllOn && m_wellPathInViewCollection() && !m_wellPathInViewCollection->isWellPathVisible( wellPath ) ) continue;
 
             for ( const auto& point : wellPath->wellPathGeometry()->wellPathPoints() )
                 bb.add( point );
@@ -346,6 +364,7 @@ void RimGeneric3dView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
     uiTreeOrdering.add( m_overlayInfoConfig() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
     uiTreeOrdering.add( polygonInViewCollection() );
+    uiTreeOrdering.add( wellPathInViewCollection() );
     uiTreeOrdering.add( annotationCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
@@ -532,6 +551,11 @@ void RimGeneric3dView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
     if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::POLYGON ) )
     {
         m_polygonInViewCollection->updateFromPolygonCollection();
+    }
+
+    if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::WELL_PATH ) )
+    {
+        m_wellPathInViewCollection->updateFromWellPathCollection();
     }
 
     updateConnectedEditors();

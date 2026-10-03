@@ -34,6 +34,7 @@ class Rim3dOverlayInfoConfig;
 class RivPolylinePartMgr;
 class RigHistogramData;
 class RimAnnotationInViewCollection;
+class RimWellPathInViewCollection;
 
 class RimSeismicView : public Rim3dView, public RimPolylinesDataInterface
 {
@@ -50,6 +51,7 @@ public:
 
     RimSurfaceInViewCollection*  surfaceInViewCollection() const override;
     RimSeismicSectionCollection* seismicSectionCollection() const;
+    RimWellPathInViewCollection* wellPathInViewCollection() const override;
 
     RiaDefines::View3dContent     viewContent() const override;
     bool                          isGridVisualizationMode() const override;
@@ -87,6 +89,7 @@ protected:
 private:
     caf::PdmChildField<RimSurfaceInViewCollection*>  m_surfaceCollection;
     caf::PdmChildField<RimSeismicSectionCollection*> m_seismicSectionCollection;
+    caf::PdmChildField<RimWellPathInViewCollection*> m_wellPathInViewCollection;
 
     caf::PdmChildField<Rim3dOverlayInfoConfig*> m_overlayInfoConfig;
 

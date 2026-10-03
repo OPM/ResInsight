@@ -450,14 +450,11 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
             std::vector<RimWellPath*> wellPaths = proj->allWellPaths();
             for ( auto w : wellPaths )
             {
-                if ( w->showWellPath() )
-                {
-                    visibleWellPaths.push_back( w );
+                visibleWellPaths.push_back( w );
 
-                    if ( !w->perforationIntervalCollection()->perforations().empty() )
-                    {
-                        anyPerforationsPresent = true;
-                    }
+                if ( !w->perforationIntervalCollection()->perforations().empty() )
+                {
+                    anyPerforationsPresent = true;
                 }
             }
         }

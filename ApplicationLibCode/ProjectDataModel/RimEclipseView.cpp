@@ -26,6 +26,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaResultNames.h"
+#include "RiaViewDefines.h"
 
 #include "HoloLensCommands/RicExportToSharingServerScheduler.h"
 
@@ -109,6 +110,7 @@
 #include "RimWellMeasurementInView.h"
 #include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathInViewCollection.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
@@ -2183,6 +2185,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     addRequiredUiTreeObjects( uiTreeOrdering );
 
+    uiTreeOrdering.add( m_wellPathInViewCollection );
     uiTreeOrdering.add( wellCollection() );
 
     {

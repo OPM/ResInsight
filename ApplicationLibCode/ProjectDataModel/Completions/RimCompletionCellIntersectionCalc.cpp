@@ -80,7 +80,7 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( RimEclips
         {
             for ( const RimWellPath* wellPath : project->activeOilField()->wellPathCollection->allWellPaths() )
             {
-                if ( wellPath->showWellPath() && wellPath->wellPathGeometry() )
+                if ( wellPath->wellPathGeometry() )
                 {
                     visibleWells.push_back( wellPath );
                 }

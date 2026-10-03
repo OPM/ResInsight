@@ -36,6 +36,7 @@ class RimModeledWellPath;
 class RimWellLogTrack;
 class RimWellLogExtractionCurve;
 class RimGeoMechCase;
+class RimWellPath;
 
 class RimGeoMechFaultReactivationResult : public caf::PdmObject
 {
@@ -54,8 +55,9 @@ private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void createWellGeometry();
-    void createWellLogCurves();
+    void        createWellGeometry();
+    void        createWellLogCurves();
+    static void hideWellPathInAllViews( RimWellPath* wellPath );
 
     RimWellLogExtractionCurve* createWellLogExtractionCurveAndAddToTrack( RimWellLogTrack*           track,
                                                                           const RigFemResultAddress& resultAddress,

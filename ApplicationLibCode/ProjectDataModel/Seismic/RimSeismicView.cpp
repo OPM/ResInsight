@@ -20,6 +20,7 @@
 
 #include "RigPolyLinesData.h"
 
+#include "RiaViewDefines.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -31,6 +32,7 @@
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceInViewCollection.h"
 #include "RimTools.h"
+#include "WellPath/RimWellPathInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
@@ -61,6 +63,9 @@ RimSeismicView::RimSeismicView()
 
     CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
     m_seismicSectionCollection = new RimSeismicSectionCollection();
+
+    CAF_PDM_InitFieldNoDefault( &m_wellPathInViewCollection, "WellPathInViewCollection", "Well Path Collection Field" );
+    m_wellPathInViewCollection = new RimWellPathInViewCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations" );
     m_annotationCollection = new RimAnnotationInViewCollection;
@@ -120,6 +125,14 @@ RimSurfaceInViewCollection* RimSeismicView::surfaceInViewCollection() const
 RimSeismicSectionCollection* RimSeismicView::seismicSectionCollection() const
 {
     return m_seismicSectionCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathInViewCollection* RimSeismicView::wellPathInViewCollection() const
+{
+    return m_wellPathInViewCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,6 +235,7 @@ void RimSeismicView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( m_overlayInfoConfig() );
     uiTreeOrdering.add( seismicSectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
+    uiTreeOrdering.add( m_wellPathInViewCollection );
     uiTreeOrdering.add( annotationCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
@@ -417,6 +431,11 @@ void RimSeismicView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
         {
             delete m_surfaceCollection;
         }
+    }
+
+    if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::WELL_PATH ) )
+    {
+        m_wellPathInViewCollection->updateFromWellPathCollection();
     }
 
     updateConnectedEditors();
