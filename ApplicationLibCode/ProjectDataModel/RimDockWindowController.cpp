@@ -64,6 +64,8 @@ RimDockWindowController::~RimDockWindowController()
 //--------------------------------------------------------------------------------------------------
 void RimDockWindowController::handleViewerDeletion()
 {
+    if ( !viewPdmObject() ) return;
+
     viewPdmObject()->m_showWindow = false;
     viewPdmObject()->updateConnectedEditors();
     viewPdmObject()->updateUiIconFromToggleField();
@@ -132,6 +134,8 @@ void RimDockWindowController::updateViewerWidget()
         {
             ads::CDockWidget* dockWidget = viewPdmObject()->createDockWidget();
             QWidget*          viewWidget = viewPdmObject()->createViewWidget();
+            if ( !dockWidget || !viewWidget ) return;
+
             dockWidget->setWidget( viewWidget );
             dockWidget->setObjectName( viewPdmObject()->dockWindowName() );
             viewWidget->setObjectName( viewPdmObject()->dockWindowName() );
