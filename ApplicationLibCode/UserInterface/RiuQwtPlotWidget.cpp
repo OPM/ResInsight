@@ -339,8 +339,14 @@ void RiuQwtPlotWidget::setAxisInverted( RiuPlotAxis axis, bool isInverted )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( RiuPlotAxis axis, bool enableLabels, bool enableTicks )
 {
-    m_plot->axisScaleDraw( toQwtPlotAxis( axis ) )->enableComponent( QwtAbstractScaleDraw::Ticks, enableTicks );
-    m_plot->axisScaleDraw( toQwtPlotAxis( axis ) )->enableComponent( QwtAbstractScaleDraw::Labels, enableLabels );
+    // Make sure the axis mapping is valid before looking it up, see RiuQwtPlotWidget::enableAxis().
+    ensureAxisIsCreated( axis );
+
+    auto scaleDraw = m_plot->axisScaleDraw( toQwtPlotAxis( axis ) );
+    if ( !scaleDraw ) return;
+
+    scaleDraw->enableComponent( QwtAbstractScaleDraw::Ticks, enableTicks );
+    scaleDraw->enableComponent( QwtAbstractScaleDraw::Labels, enableLabels );
     recalculateAxisExtents( axis );
 }
 
@@ -1496,7 +1502,12 @@ void RiuQwtPlotWidget::enableAxis( RiuPlotAxis axis, bool isEnabled )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::enableAxisNumberLabels( RiuPlotAxis axis, bool isEnabled )
 {
-    m_plot->axisScaleDraw( toQwtPlotAxis( axis ) )->enableComponent( QwtAbstractScaleDraw::Labels, isEnabled );
+    ensureAxisIsCreated( axis );
+
+    auto scaleDraw = m_plot->axisScaleDraw( toQwtPlotAxis( axis ) );
+    if ( !scaleDraw ) return;
+
+    scaleDraw->enableComponent( QwtAbstractScaleDraw::Labels, isEnabled );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1651,10 +1662,15 @@ bool RiuQwtPlotWidget::isMultiAxisSupported() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::pruneAxes( const std::set<RiuPlotAxis>& usedAxes )
 {
-    // Make a list of axes to remove since moving the axis invalidates the m_axisMapping iterator
+    // Make a list of axes to remove since moving the axis invalidates the m_axisMapping iterator.
+    // The default axis (index 0) per side is always present in qwt and relied upon unconditionally
+    // elsewhere (e.g. RiuMultiPlotPage::setDefaultAxisProperties uses RiuPlotAxis::defaultLeft()), so
+    // it must never be pruned even if currently unused.
     std::vector<RiuPlotAxis> axesToRemove;
     for ( auto [plotAxis, qwtMapping] : m_axisMapping )
     {
+        if ( plotAxis.index() == 0 ) continue;
+
         if ( usedAxes.count( plotAxis ) == 0 )
         {
             axesToRemove.push_back( plotAxis );

@@ -38,3 +38,19 @@ TEST( RiuQwtPlotWidget, PruneAxesKeepsAxisMappingValid )
 
     plotWidget.enableAxisNumberLabels( RiuPlotAxis::defaultLeft(), true );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Reproduces the crash reported in RiuMultiPlotPage::setDefaultAxisProperties(): pruning all axes
+/// (e.g. when an axis properties object is deleted) can drop the default left axis from the axis
+/// mapping. setAxisLabelsAndTicksEnabled() is then called directly, without an enableAxis() call to
+/// heal the mapping first, so it must not rely on the mapping already being valid.
+//--------------------------------------------------------------------------------------------------
+TEST( RiuQwtPlotWidget, SetAxisLabelsAndTicksEnabledAfterPruneAxesDoesNotCrash )
+{
+    RiuQwtPlotWidget plotWidget( nullptr );
+
+    plotWidget.ensureAxisIsCreated( RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 1 ) );
+    plotWidget.pruneAxes( {} );
+
+    plotWidget.setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(), true, true );
+}
