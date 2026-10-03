@@ -415,7 +415,7 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
     # This job publishes a rolling pre-release of the `dev` binaries to the
-    # OPM/ResInsight-Builds repository, giving users a permanent,
+    # CeetronSolutions/resinsight-builds repository, giving users a permanent,
     # unauthenticated download URL served by GitHub's CDN (see
     # magnesj/ResInsight#1093). Restricted to OPM/ResInsight so it only runs
     # in the repository that owns the DEV_BUILDS_TOKEN secret and the
@@ -461,7 +461,7 @@ jobs:
       - name: Update rolling release in builds repo
         env:
           GH_TOKEN: ${{ secrets.DEV_BUILDS_TOKEN }}
-          GH_REPO: OPM/ResInsight-Builds
+          GH_REPO: CeetronSolutions/resinsight-builds
           TAG: dev-latest
         run: |
           set -e

@@ -2,7 +2,7 @@
 
 The `publish-dev-build` job in [`ResInsightWithCache.yml`](../.github/workflows/ResInsightWithCache.yml)
 publishes `dev` build artifacts as assets on a rolling pre-release in a
-separate distribution repository ([OPM/ResInsight-Builds](https://github.com/OPM/ResInsight-Builds)),
+separate distribution repository ([CeetronSolutions/resinsight-builds](https://github.com/CeetronSolutions/resinsight-builds)),
 giving users a permanent, unauthenticated download URL served by GitHub's
 CDN instead of relying on nightly.link and expiring Actions artifacts (see
 magnesj/ResInsight#1093).
