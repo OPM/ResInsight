@@ -290,6 +290,68 @@ void RigWellPathFormations::depthAndFormationNamesUpToLevel( FormationLevel     
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns formation names paired with their depth range (top, base), suitable for region/color
+/// shading (unlike depthAndFormationNamesUpToLevel(), which returns a flat list of individually
+/// labeled Top/Base pick points for simple line annotations). Entries are sorted by top depth.
+/// TRUE_VERTICAL_DEPTH_RKB is treated the same as TRUE_VERTICAL_DEPTH; callers are responsible for
+/// adding any RKB offset to the returned ranges.
+//--------------------------------------------------------------------------------------------------
+void RigWellPathFormations::namesAndRangesUpToLevel( FormationLevel                          level,
+                                                     std::vector<QString>*                   names,
+                                                     std::vector<std::pair<double, double>>* ranges,
+                                                     bool                                    includeFluids,
+                                                     RiaDefines::DepthType                   depthType ) const
+{
+    names->clear();
+    ranges->clear();
+
+    if ( level == FormationLevel::NONE ) return;
+
+    if ( depthType != RiaDefines::DepthType::MEASURED_DEPTH && depthType != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH &&
+         depthType != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
+    {
+        return;
+    }
+
+    bool useMd = ( depthType == RiaDefines::DepthType::MEASURED_DEPTH );
+
+    std::vector<std::tuple<double, double, QString>> entries;
+
+    auto appendEntry = [&entries, useMd]( const RigWellPathFormation& formation )
+    {
+        double top  = useMd ? formation.mdTop : formation.tvdTop;
+        double base = useMd ? formation.mdBase : formation.tvdBase;
+        entries.emplace_back( top, base, formation.formationName );
+    };
+
+    if ( includeFluids )
+    {
+        for ( const RigWellPathFormation& fluid : m_fluids )
+        {
+            appendEntry( fluid );
+        }
+    }
+
+    for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
+    {
+        if ( level != FormationLevel::ALL && formation.second > level ) continue;
+
+        appendEntry( formation.first );
+    }
+
+    std::sort( entries.begin(),
+               entries.end(),
+               []( const std::tuple<double, double, QString>& a, const std::tuple<double, double, QString>& b )
+               { return std::get<0>( a ) < std::get<0>( b ); } );
+
+    for ( const std::tuple<double, double, QString>& entry : entries )
+    {
+        ranges->push_back( { std::get<0>( entry ), std::get<1>( entry ) } );
+        names->push_back( std::get<2>( entry ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigWellPathFormations::FormationLevel> RigWellPathFormations::formationsLevelsPresent() const

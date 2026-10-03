@@ -2667,28 +2667,75 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             return;
         }
 
-        std::vector<double> yValues;
+        std::vector<std::pair<double, double>> yValues;
 
         std::vector<QString> formationNamesToPlot;
         auto                 formationLevel = static_cast<RigWellPathFormations::FormationLevel>( m_formationSettings->formationLevel() );
-        formations->depthAndFormationNamesUpToLevel( formationLevel,
-                                                     &formationNamesToPlot,
-                                                     &yValues,
-                                                     m_formationSettings->showFormationFluids(),
-                                                     plot->depthType() );
+        formations->namesAndRangesUpToLevel( formationLevel,
+                                             &formationNamesToPlot,
+                                             &yValues,
+                                             m_formationSettings->showFormationFluids(),
+                                             plot->depthType() );
 
         if ( plot->depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB && m_formationSettings->wellPathForSourceWellPath() &&
              m_formationSettings->wellPathForSourceWellPath()->wellPathGeometry() )
         {
-            for ( double& depthValue : yValues )
+            double rkbDiff = m_formationSettings->wellPathForSourceWellPath()->wellPathGeometry()->rkbDiff();
+            for ( std::pair<double, double>& range : yValues )
             {
-                depthValue += m_formationSettings->wellPathForSourceWellPath()->wellPathGeometry()->rkbDiff();
+                range.first += rkbDiff;
+                range.second += rkbDiff;
             }
         }
 
-        std::vector<double> convertedYValues = RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
+        std::vector<std::pair<double, double>> convertedYValues =
+            RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
 
-        m_annotationTool->attachWellPicks( m_plotWidget->qwtPlot(), formationNamesToPlot, convertedYValues );
+        if ( !formationNamesToPlot.empty() )
+        {
+            // Reuse the same color legend fallback as the CASE-based formation source (see below), so
+            // formations derived from well picks / observed RFT data can be color shaded the same way.
+            RimColorLegend* legend = m_regionAnnotationSettings->colorShadingLegend();
+            if ( !legend ) legend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
+
+            if ( legend )
+            {
+                std::map<QString, cvf::Color3ub> nameToColor;
+                for ( auto* item : legend->colorLegendItems() )
+                {
+                    nameToColor[item->categoryName()] = cvf::Color3ub( item->color() );
+                }
+
+                cvf::Color3ubArray paletteColors = legend->colorArray();
+                size_t             colorCount    = std::max( size_t( 2 ), formationNamesToPlot.size() );
+                cvf::Color3ubArray orderedColors( colorCount );
+                orderedColors.setAll( cvf::Color3ub::GRAY );
+
+                for ( size_t i = 0; i < formationNamesToPlot.size(); i++ )
+                {
+                    auto it = nameToColor.find( formationNamesToPlot[i] );
+                    if ( it != nameToColor.end() )
+                    {
+                        orderedColors.set( i, it->second );
+                    }
+                    else if ( paletteColors.size() > 0 )
+                    {
+                        orderedColors.set( i, paletteColors[i % paletteColors.size()] );
+                    }
+                }
+
+                caf::ColorTable colorTable( orderedColors );
+
+                m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
+                                                      formationNamesToPlot,
+                                                      orientation,
+                                                      convertedYValues,
+                                                      m_regionAnnotationSettings->annotationDisplay(),
+                                                      colorTable,
+                                                      ( ( 100 - m_regionAnnotationSettings->colorShadingTransparency() ) * 255 ) / 100,
+                                                      m_regionAnnotationSettings->showRegionLabels() );
+            }
+        }
     }
     else
     {

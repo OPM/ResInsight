@@ -56,6 +56,12 @@ public:
                                           bool                  includeFluids,
                                           RiaDefines::DepthType depthType ) const;
 
+    void namesAndRangesUpToLevel( FormationLevel                          level,
+                                  std::vector<QString>*                   names,
+                                  std::vector<std::pair<double, double>>* ranges,
+                                  bool                                    includeFluids,
+                                  RiaDefines::DepthType                   depthType ) const;
+
     std::vector<FormationLevel> formationsLevelsPresent() const;
 
     QString formationNameAtDepth( double depthValue, RiaDefines::DepthType depthType ) const;
