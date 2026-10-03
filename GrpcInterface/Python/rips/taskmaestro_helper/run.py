@@ -26,8 +26,14 @@ from .refs import REF_MARKER
 PROGRESS_PREFIX = "@@RI_WORKFLOW_EVENT@@"
 
 
-def _emit_progress(run_id: str, task: str, state: str, error: str = "") -> None:
+def _emit_progress(
+    run_id: str, task: str, state: str, error: str = "", item: str | None = None
+) -> None:
     payload = {"event": "task_state", "run_id": run_id, "task": task, "state": state}
+    if item is not None:
+        # One item of a mapped task (`map:`); the task itself reports its own states
+        payload["event"] = "map_item_state"
+        payload["item"] = item
     if error:
         payload["error"] = error
     sys.stdout.write(PROGRESS_PREFIX + json.dumps(payload) + "\n")
@@ -48,6 +54,15 @@ class ProgressHook:
 
     def on_task_fail(self, job: Any, task: Any, error: Exception) -> None:
         _emit_progress(self.run_id, task.name, "failed", str(error))
+
+    def on_map_item_start(self, job: Any, task: Any, key: str) -> None:
+        _emit_progress(self.run_id, task.name, "running", item=key)
+
+    def on_map_item_complete(self, job: Any, task: Any, key: str, output: Any) -> None:
+        _emit_progress(self.run_id, task.name, "completed", item=key)
+
+    def on_map_item_fail(self, job: Any, task: Any, key: str, error: Exception) -> None:
+        _emit_progress(self.run_id, task.name, "failed", str(error), item=key)
 
 
 def _emit(event: str, **fields: Any) -> None:

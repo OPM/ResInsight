@@ -37,10 +37,16 @@
 #include "cafCmdFeatureManager.h"
 
 #include <QAction>
+#include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QFormLayout>
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMenu>
+#include <QPushButton>
 #include <QSplitter>
 #include <QVBoxLayout>
 
@@ -240,6 +246,14 @@ void RiuWorkflowEditorWidget::updateJobState()
     const auto errors = m_job->taskErrors();
     for ( auto it = states.cbegin(); it != states.cend(); ++it )
         m_graphView->setTaskState( it.key(), it.value(), errors.value( it.key() ) );
+
+    const auto itemStates = m_job->itemStates();
+    const auto itemErrors = m_job->itemErrors();
+    for ( auto task = itemStates.cbegin(); task != itemStates.cend(); ++task )
+    {
+        for ( auto item = task.value().cbegin(); item != task.value().cend(); ++item )
+            m_graphView->setTaskItemState( task.key(), item.key(), item.value(), itemErrors.value( task.key() ).value( item.key() ) );
+    }
     m_graphView->setRunStatus( m_job->runStatus() );
 
     // A running job locks the workflow
@@ -426,6 +440,161 @@ void RiuWorkflowEditorWidget::connectPorts( const QString& from, const QString& 
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Shows why the workflow cannot be edited
+//--------------------------------------------------------------------------------------------------
+bool RiuWorkflowEditorWidget::canEdit()
+{
+    if ( !m_workflow ) return false;
+    if ( m_workflow->isEditable() && !m_workflow->isLocked() ) return true;
+
+    showMessage( m_workflow->isLocked() ? QString( "The workflow is locked while a job is running" ) : m_workflow->readOnlyReason() );
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimWorkflowDefinitionEdge* RiuWorkflowEditorWidget::findEdge( const RiuWorkflowGraphView::ItemRef& item ) const
+{
+    if ( !m_workflow || item.kind != RiuWorkflowGraphView::ItemRef::Kind::Edge ) return nullptr;
+
+    const RimWorkflowDefinitionEdge wanted{ .from = item.from, .output = item.output, .to = item.to, .input = item.input };
+    for ( const auto& edge : m_workflow->definition().edges )
+    {
+        if ( edge.sameConnection( wanted ) ) return &edge;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Run the task once per item of a mapping. The dialog edits the current map, if any.
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::editTaskMap( const QString& taskName )
+{
+    if ( !canEdit() ) return;
+    const RimWorkflowDefinition&     definition = m_workflow->definition();
+    const RimWorkflowDefinitionNode* node       = definition.findNode( taskName );
+    if ( !node ) return;
+
+    QStringList fields;
+    for ( const auto& port : RimWorkflowPortCompatibility::inputPorts( definition.taskType( node->taskId ) ) )
+    {
+        if ( !port.isWhole() ) fields.append( port.name );
+    }
+    if ( fields.size() < 2 )
+    {
+        showMessage( QString( "Task '%1' needs two inputs to receive the key and the value of each item" ).arg( taskName ) );
+        return;
+    }
+
+    const RimWorkflowTaskMap current = node->map.value_or( RimWorkflowTaskMap{ .over = "items" } );
+
+    QDialog dialog( this );
+    dialog.setWindowTitle( QString( "Map Over - %1" ).arg( taskName ) );
+    auto* form = new QFormLayout( &dialog );
+
+    auto* overEdit = new QLineEdit( current.over, &dialog );
+    overEdit->setToolTip( "Name of the configured mapping. Each key and value of the mapping runs the task once." );
+    form->addRow( "Map over:", overEdit );
+
+    auto addFieldCombo = [&]( const QString& label, const QString& value, const QString& fallback, const QString& toolTip )
+    {
+        auto* combo = new QComboBox( &dialog );
+        combo->addItems( fields );
+        combo->setCurrentText( fields.contains( value ) ? value : fallback );
+        combo->setToolTip( toolTip );
+        form->addRow( label, combo );
+        return combo;
+    };
+    auto* keyCombo   = addFieldCombo( "Key goes to:", current.keyAs, fields.front(), "The input that receives the key of each item" );
+    auto* valueCombo = addFieldCombo( "Value goes to:", current.valueAs, fields.at( 1 ), "The input that receives the value of each item" );
+
+    auto* errorCombo = new QComboBox( &dialog );
+    errorCombo->addItem( "Stop at the first failed item", "fail_fast" );
+    errorCombo->addItem( "Run every item, then fail if any failed", "collect_all" );
+    errorCombo->setCurrentIndex( std::max( 0, errorCombo->findData( current.errorMode ) ) );
+    form->addRow( "On failure:", errorCombo );
+
+    auto* errorLabel = new QLabel( &dialog );
+    errorLabel->setStyleSheet( "color: #b00020;" );
+    errorLabel->setWordWrap( true );
+    form->addRow( errorLabel );
+
+    auto* buttons = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog );
+    form->addRow( buttons );
+
+    auto mapFromDialog = [&]()
+    {
+        return RimWorkflowTaskMap{ .over      = overEdit->text().trimmed(),
+                                   .keyAs     = keyCombo->currentText(),
+                                   .valueAs   = valueCombo->currentText(),
+                                   .errorMode = errorCombo->currentData().toString() };
+    };
+    auto updateValidity = [&]()
+    {
+        const auto valid = RimWorkflowDefinitionTools::checkTaskMap( definition, taskName, mapFromDialog() );
+        errorLabel->setText( valid ? QString() : valid.error() );
+        errorLabel->setVisible( !valid );
+        buttons->button( QDialogButtonBox::Ok )->setEnabled( valid.has_value() );
+    };
+    QObject::connect( overEdit, &QLineEdit::textChanged, &dialog, updateValidity );
+    QObject::connect( keyCombo, &QComboBox::currentIndexChanged, &dialog, updateValidity );
+    QObject::connect( valueCombo, &QComboBox::currentIndexChanged, &dialog, updateValidity );
+    QObject::connect( buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept );
+    QObject::connect( buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject );
+    updateValidity();
+
+    if ( dialog.exec() != QDialog::Accepted ) return;
+
+    const RimWorkflowTaskMap map = mapFromDialog();
+    if ( node->map && *node->map == map ) return;
+    applyEdit( RimWorkflowDefinitionTools::setTaskMap( definition, taskName, map ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::removeTaskMap( const QString& taskName )
+{
+    if ( !canEdit() ) return;
+    applyEdit( RimWorkflowDefinitionTools::setTaskMap( m_workflow->definition(), taskName, std::nullopt ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::renameCollectKey( const RiuWorkflowGraphView::ItemRef& item )
+{
+    if ( !canEdit() ) return;
+    const RimWorkflowDefinitionEdge* edge = findEdge( item );
+    if ( !edge || edge->collect != RimWorkflowDefinitionEdge::Collect::Dict ) return;
+
+    bool          ok  = false;
+    const QString key = QInputDialog::getText( this,
+                                               "Rename Key",
+                                               QString( "Key of '%1' in '%2':" ).arg( edge->from, edge->input ),
+                                               QLineEdit::Normal,
+                                               edge->key,
+                                               &ok )
+                            .trimmed();
+    if ( !ok || key == edge->key ) return;
+
+    applyEdit( RimWorkflowDefinitionTools::setCollectKey( m_workflow->definition(), *edge, key ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::moveCollectMember( const RiuWorkflowGraphView::ItemRef& item, int delta )
+{
+    if ( !canEdit() ) return;
+    const RimWorkflowDefinitionEdge* edge = findEdge( item );
+    if ( !edge ) return;
+
+    applyEdit( RimWorkflowDefinitionTools::moveCollectMember( m_workflow->definition(), *edge, delta ) );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowEditorWidget::showMessage( const QString& message )
@@ -478,12 +647,14 @@ void RiuWorkflowEditorWidget::showContextMenu( const RiuWorkflowGraphView::ItemR
             menu.addAction( action );
         }
         appendOptionalInputsMenu( &menu, item.task );
+        appendMapMenu( &menu, item.task );
         menu.addSeparator();
         if ( auto* action = featureAction( "RicDeleteWorkflowTaskFeature", "Delete Task", data ) ) menu.addAction( action );
     }
     else if ( item.kind == RiuWorkflowGraphView::ItemRef::Kind::Edge && editable )
     {
         const QVariantMap data{ { "from", item.from }, { "output", item.output }, { "to", item.to }, { "input", item.input } };
+        appendCollectMenu( &menu, item );
         if ( auto* action = featureAction( "RicDeleteWorkflowConnectionFeature", "Delete Connection", data ) ) menu.addAction( action );
     }
     else
@@ -554,6 +725,64 @@ void RiuWorkflowEditorWidget::appendAddTaskMenu( QMenu* menu, const QPointF& sce
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::appendMapMenu( QMenu* menu, const QString& taskName )
+{
+    const RimWorkflowDefinitionNode* node = m_workflow->definition().findNode( taskName );
+    if ( !node ) return;
+
+    const QVariantMap data{ { "task", taskName } };
+    if ( auto* action = featureAction( "RicMapWorkflowTaskFeature", node->map ? "Edit Map..." : "Map Over...", data ) )
+    {
+        action->setToolTip( "Run the task once for each item of a mapping and collect the outputs by key" );
+        menu->addAction( action );
+    }
+    if ( node->map )
+    {
+        if ( auto* action = featureAction( "RicRemoveWorkflowTaskMapFeature", "Remove Map", data ) ) menu->addAction( action );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Collected connections: dict members have a key, list members an order
+//--------------------------------------------------------------------------------------------------
+void RiuWorkflowEditorWidget::appendCollectMenu( QMenu* menu, const RiuWorkflowGraphView::ItemRef& item )
+{
+    const RimWorkflowDefinitionEdge* edge = findEdge( item );
+    if ( !edge || !edge->isCollected() ) return;
+
+    const QVariantMap data{ { "from", item.from }, { "output", item.output }, { "to", item.to }, { "input", item.input } };
+    if ( edge->collect == RimWorkflowDefinitionEdge::Collect::Dict )
+    {
+        if ( auto* action = featureAction( "RicRenameWorkflowCollectKeyFeature", "Rename Key...", data ) ) menu->addAction( action );
+    }
+    else
+    {
+        int index = 0;
+        int count = 0;
+        for ( const auto& other : m_workflow->definition().edges )
+        {
+            if ( other.to != edge->to || other.input != edge->input || !other.isCollected() ) continue;
+            if ( &other == edge ) index = count;
+            ++count;
+        }
+
+        for ( const auto& [text, delta] : { std::pair{ QString( "Move Earlier" ), -1 }, std::pair{ QString( "Move Later" ), 1 } } )
+        {
+            QVariantMap moveData = data;
+            moveData["delta"]    = delta;
+            if ( auto* action = featureAction( "RicMoveWorkflowCollectMemberFeature", text, moveData ) )
+            {
+                action->setEnabled( index + delta >= 0 && index + delta < count );
+                menu->addAction( action );
+            }
+        }
+    }
+    menu->addSeparator();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Optional inputs are configured by the user only when checked; connected inputs are disabled
 //--------------------------------------------------------------------------------------------------
 void RiuWorkflowEditorWidget::appendOptionalInputsMenu( QMenu* menu, const QString& taskName )
@@ -563,7 +792,7 @@ void RiuWorkflowEditorWidget::appendOptionalInputsMenu( QMenu* menu, const QStri
     if ( !node ) return;
 
     std::vector<RimWorkflowPort> optionalPorts;
-    for ( const auto& port : RimWorkflowPortCompatibility::inputPorts( definition.taskType( node->taskId ) ) )
+    for ( const auto& port : RimWorkflowPortCompatibility::inputPorts( definition.taskTypeForNode( taskName ) ) )
     {
         if ( !port.isWhole() && !port.required ) optionalPorts.push_back( port );
     }

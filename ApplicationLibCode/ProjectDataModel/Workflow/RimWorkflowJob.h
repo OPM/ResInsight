@@ -58,7 +58,12 @@ public:
     QMap<QString, QString> taskErrors() const;
     QString                runStatus() const;
     void                   updateTaskState( const QString& runId, const QString& taskName, const QString& state, const QString& error );
-    void                   finishRun( const QString& runId, bool succeeded, bool cancelled );
+
+    // States and errors of the items of mapped tasks, by task and item key
+    QMap<QString, QMap<QString, QString>> itemStates() const;
+    QMap<QString, QMap<QString, QString>> itemErrors() const;
+    void updateItemState( const QString& runId, const QString& taskName, const QString& item, const QString& state, const QString& error );
+    void finishRun( const QString& runId, bool succeeded, bool cancelled );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -74,6 +79,8 @@ private:
     QMap<QString, QJsonValue>                      m_detachedValues;
     QMap<QString, QString>                         m_taskStates;
     QMap<QString, QString>                         m_taskErrors;
+    QMap<QString, QMap<QString, QString>>          m_itemStates;
+    QMap<QString, QMap<QString, QString>>          m_itemErrors;
     QString                                        m_runStatus;
     QString                                        m_activeTask;
     QString                                        m_runId;

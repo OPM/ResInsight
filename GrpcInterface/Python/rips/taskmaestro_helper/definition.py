@@ -35,9 +35,29 @@ BACKUP_SUFFIX = ".bak"
 
 
 def _edge(
-    upstream: str, output: str | None, downstream: str, input_field: str | None
+    upstream: str,
+    output: str | None,
+    downstream: str,
+    input_field: str | None,
+    *,
+    collect: str | None = None,
+    key: str | None = None,
 ) -> dict[str, Any]:
-    return {"from": upstream, "output": output, "to": downstream, "input": input_field}
+    edge = {"from": upstream, "output": output, "to": downstream, "input": input_field}
+    if collect is not None:
+        # A member of a collected input: "list" members keep their order, "dict" members a key
+        edge["collect"] = collect
+        edge["key"] = key
+    return edge
+
+
+def _map_json(task_map: Any) -> dict[str, Any]:
+    return {
+        "over": task_map.over,
+        "key_as": task_map.key_as,
+        "value_as": task_map.value_as,
+        "error_mode": task_map.error_mode,
+    }
 
 
 def _empty_definition(name: str) -> dict[str, Any]:
@@ -202,8 +222,7 @@ def _load_nodes(
             if cls is not None:
                 _add_task_type(definition, entry.task, cls)
         if entry.map is not None:
-            node["map"] = entry.map.model_dump()
-            definition["readonly_reasons"].append(f"Task '{name}' is mapped ('map:')")
+            node["map"] = _map_json(entry.map)
         if any(existing["name"] == name for existing in definition["nodes"]):
             raise HelperError(f"Duplicate task name '{name}'", task=name)
         node["name"] = name
@@ -271,9 +290,7 @@ def _load_edges(
         if isinstance(deps, dict):
             for field, raw in deps.items():
                 if isinstance(raw, dict) and set(raw) == {"collect"}:
-                    definition["readonly_reasons"].append(
-                        f"Task '{name}' collects outputs into '{field}' ('collect:')"
-                    )
+                    _load_collect(definition, candidates, raw["collect"], name, field)
                     continue
                 ref, output = _field_reference(raw, name, field)
                 upstream = _resolve_reference(candidates, ref, name)
@@ -282,6 +299,33 @@ def _load_edges(
         ref, output = _field_reference(deps, name, None)
         upstream = _resolve_reference(candidates, ref, name)
         definition["edges"].append(_edge(upstream, output, name, None))
+
+
+def _load_collect(
+    definition: dict[str, Any],
+    candidates: dict[str, set[str]],
+    members: Any,
+    name: str,
+    field: str,
+) -> None:
+    if isinstance(members, list):
+        keyed: list[tuple[str | None, Any]] = [(None, member) for member in members]
+        kind = "list"
+    elif isinstance(members, dict):
+        keyed = [(str(key), member) for key, member in members.items()]
+        kind = "dict"
+    else:
+        raise HelperError(
+            f"'collect' for field '{field}' on task '{name}' must be a list or mapping",
+            task=name,
+            field=field,
+        )
+    for key, member in keyed:
+        ref, output = _field_reference(member, name, field)
+        upstream = _resolve_reference(candidates, ref, name)
+        definition["edges"].append(
+            _edge(upstream, output, name, field, collect=kind, key=key)
+        )
 
 
 def _load_inputs(definition: dict[str, Any], input_path: Path | None) -> None:
@@ -442,8 +486,9 @@ def definition_from_workflow(
             else:
                 node["task"] = task_id
                 _add_task_type(definition, task_id, cls)
-        if workflow.get_task_map(name) is not None:
-            reasons.append(f"Task '{name}' is mapped")
+        task_map = workflow.get_task_map(name)
+        if task_map is not None:
+            node["map"] = _map_json(task_map)
         definition["nodes"].append(node)
         definition["inputs"][name] = {}
 
@@ -457,8 +502,23 @@ def definition_from_workflow(
         else:
             for field, ref in deps.items():
                 if isinstance(ref, CollectionRef):
-                    reasons.append(f"Task '{name}' collects outputs into '{field}'")
-                    has_dependents.update(item.task_name for item in ref.output_refs())
+                    kind = "list" if ref.kind == "positional" else "dict"
+                    members = (
+                        [(None, member) for member in ref.positional_members]
+                        if ref.kind == "positional"
+                        else list(ref.keyed_members)
+                    )
+                    for key, member in members:
+                        definition["edges"].append(
+                            _edge(
+                                member.task_name,
+                                member.output_field,
+                                name,
+                                field,
+                                collect=kind,
+                                key=key,
+                            )
+                        )
                 elif isinstance(ref, tuple):
                     definition["edges"].append(_edge(ref[0], ref[1], name, field))
                 else:
@@ -569,6 +629,9 @@ def _dependencies(definition: dict[str, Any], node_name: str) -> Any:
         return None
     deps: dict[str, Any] = {}
     for edge in fields:
+        if edge.get("collect"):
+            _add_collect_member(deps, edge, node_name)
+            continue
         if edge["input"] in deps:
             raise HelperError(
                 f"Input '{node_name}.{edge['input']}' has more than one connection",
@@ -577,6 +640,77 @@ def _dependencies(definition: dict[str, Any], node_name: str) -> Any:
             )
         deps[edge["input"]] = _reference(edge["from"], edge.get("output"))
     return deps
+
+
+def _add_collect_member(
+    deps: dict[str, Any], edge: dict[str, Any], node_name: str
+) -> None:
+    field = edge["input"]
+    kind = edge["collect"]
+    if kind not in ("list", "dict"):
+        raise HelperError(
+            f"Unknown collect kind '{kind}' for input '{node_name}.{field}'",
+            task=node_name,
+            field=field,
+        )
+    existing = deps.get(field)
+    if existing is None:
+        existing = {"collect": [] if kind == "list" else {}}
+        deps[field] = existing
+    members = existing.get("collect") if isinstance(existing, dict) else None
+    if not isinstance(members, list if kind == "list" else dict):
+        raise HelperError(
+            f"Input '{node_name}.{field}' mixes collected and direct connections, "
+            "or list and keyed members",
+            task=node_name,
+            field=field,
+        )
+    reference = _reference(edge["from"], edge.get("output"))
+    if kind == "list":
+        members.append(reference)
+        return
+    key = edge.get("key")
+    if not isinstance(key, str) or not key:
+        raise HelperError(
+            f"A keyed member of '{node_name}.{field}' has no key",
+            task=node_name,
+            field=field,
+        )
+    if key in members:
+        raise HelperError(
+            f"Duplicate key '{key}' in '{node_name}.{field}'",
+            task=node_name,
+            field=field,
+        )
+    members[key] = reference
+
+
+def _map_document(task_map: Any, node_name: str) -> dict[str, Any]:
+    if not isinstance(task_map, dict):
+        raise HelperError(f"Invalid map for task '{node_name}'", task=node_name)
+    document: dict[str, Any] = {}
+    for key in ("over", "key_as", "value_as"):
+        value = task_map.get(key)
+        if not _is_identifier(value):
+            raise HelperError(
+                f"Invalid map '{key}' for task '{node_name}': {value!r}", task=node_name
+            )
+        document[key] = value
+    if document["key_as"] == document["value_as"]:
+        raise HelperError(
+            f"The map of task '{node_name}' uses '{document['key_as']}' for both the key "
+            "and the value",
+            task=node_name,
+        )
+    error_mode = task_map.get("error_mode") or "fail_fast"
+    if error_mode not in ("fail_fast", "collect_all"):
+        raise HelperError(
+            f"Invalid map error mode '{error_mode}' for task '{node_name}'",
+            task=node_name,
+        )
+    if error_mode != "fail_fast":
+        document["error_mode"] = error_mode
+    return document
 
 
 def workflow_document(definition: dict[str, Any]) -> dict[str, Any]:
@@ -595,6 +729,8 @@ def workflow_document(definition: dict[str, Any]) -> dict[str, Any]:
             entry["depends_on"] = deps
         if node.get("config_fields"):
             entry["config_fields"] = _FlowList(node["config_fields"])
+        if node.get("map"):
+            entry["map"] = _map_document(node["map"], node["name"])
         tasks.append(entry)
 
     section: dict[str, Any] = {"name": definition["name"]}
@@ -614,9 +750,11 @@ def input_document(definition: dict[str, Any]) -> dict[str, Any]:
     document: dict[str, Any] = {}
     for node in definition["nodes"]:
         values = inputs.get(node["name"]) or {}
-        config_fields = node.get("config_fields") or []
+        fields = list(node.get("config_fields") or [])
+        if node.get("map"):
+            fields.append(node["map"].get("over"))
         document[node["name"]] = strip_refs(
-            {field: value for field, value in values.items() if field in config_fields}
+            {field: value for field, value in values.items() if field in fields}
         )
     return document
 

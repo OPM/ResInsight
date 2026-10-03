@@ -18,14 +18,14 @@
 
 #pragma once
 
+#include "RimWorkflowDefinition.h"
+
 #include <QJsonObject>
 #include <QString>
 
 #include <expected>
 #include <optional>
 #include <vector>
-
-struct RimWorkflowDefinition;
 
 //==================================================================================================
 /// A connectable input or output of a task. An empty name is the whole input or output model.
@@ -66,6 +66,22 @@ QJsonObject portIcons( const std::vector<RimWorkflowPort>& ports );
 QStringList coveredByWholeOutput( const QJsonObject& upstreamTaskType, const QJsonObject& downstreamTaskType );
 bool        wouldCreateCycle( const RimWorkflowDefinition& definition, const QString& from, const QString& to );
 
+// Mapped tasks
+QJsonObject mappedTaskType( const QJsonObject& taskType, const RimWorkflowTaskMap& map );
+QJsonObject mappedOutputSchema( const QJsonObject& outputSchema );
+
+// Collected inputs: the kind and element schema of a `list[T]` or `dict[str, T]` input
+std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>> collectTarget( const RimWorkflowPort& expected );
+
+// The edge to add for a new connection, collecting into a list or dict input when the upstream
+// value is an element of it. An existing connection to the same input is replaced, except for
+// other members of the same collection.
+std::expected<RimWorkflowDefinitionEdge, QString> resolveConnection( const RimWorkflowDefinition& definition,
+                                                                     const QString&               from,
+                                                                     const QString&               output,
+                                                                     const QString&               to,
+                                                                     const QString&               input );
 std::expected<void, QString>
     canConnect( const RimWorkflowDefinition& definition, const QString& from, const QString& output, const QString& to, const QString& input );
+std::expected<void, QString> checkCollectMember( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge );
 } // namespace RimWorkflowPortCompatibility

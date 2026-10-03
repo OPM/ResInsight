@@ -26,6 +26,7 @@
 #include <QStringList>
 
 #include <expected>
+#include <optional>
 #include <vector>
 
 class RimWorkflowTaskCatalog;
@@ -70,9 +71,14 @@ EditResult addTask( const RimWorkflowDefinition&  definition,
 EditResult removeTask( const RimWorkflowDefinition& definition, const QString& nodeName );
 EditResult connect( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge );
 EditResult disconnect( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge );
-EditResult renameTask( const RimWorkflowDefinition& definition, const QString& oldName, const QString& newName );
-EditResult renameWorkflow( const RimWorkflowDefinition& definition, const QString& newName );
-EditResult setResultTask( const RimWorkflowDefinition& definition, const QString& nodeName );
+EditResult setCollectKey( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge, const QString& key );
+EditResult moveCollectMember( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge, int delta );
+EditResult setTaskMap( const RimWorkflowDefinition& definition, const QString& nodeName, const std::optional<RimWorkflowTaskMap>& map );
+std::expected<void, QString> checkTaskMap( const RimWorkflowDefinition& definition, const QString& nodeName, const RimWorkflowTaskMap& map );
+QJsonObject mapOverSchema( const RimWorkflowDefinition& definition, const QString& nodeName );
+EditResult  renameTask( const RimWorkflowDefinition& definition, const QString& oldName, const QString& newName );
+EditResult  renameWorkflow( const RimWorkflowDefinition& definition, const QString& newName );
+EditResult  setResultTask( const RimWorkflowDefinition& definition, const QString& nodeName );
 EditResult setOptionalInputConfigured( const RimWorkflowDefinition& definition, const QString& nodeName, const QString& field, bool configured );
 RimWorkflowDefinition
     autoWireResInsightInputs( const RimWorkflowDefinition& definition, const RimWorkflowTaskCatalog& catalog, const QString& nodeName );

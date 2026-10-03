@@ -23,8 +23,11 @@
 #include "RimWorkflowTaskCatalog.h"
 
 #include <QJsonArray>
+#include <QMap>
 #include <QRegularExpression>
 #include <QSet>
+
+#include <algorithm>
 
 namespace
 {
@@ -52,12 +55,54 @@ RimWorkflowDefinitionNode nodeFromJson( const QJsonObject& json )
     node.taskId               = json.value( "task" ).toString();
     node.configFields         = stringList( json.value( "config_fields" ) );
     node.explicitConfigFields = json.contains( explicitConfigKey ) ? stringList( json.value( explicitConfigKey ) ) : node.configFields;
+    if ( json.value( "map" ).isObject() )
+    {
+        const QJsonObject map = json.value( "map" ).toObject();
+        node.map              = RimWorkflowTaskMap{ .over      = map.value( "over" ).toString(),
+                                                    .keyAs     = map.value( "key_as" ).toString(),
+                                                    .valueAs   = map.value( "value_as" ).toString(),
+                                                    .errorMode = map.value( "error_mode" ).toString( "fail_fast" ) };
+    }
     for ( auto it = json.begin(); it != json.end(); ++it )
     {
-        if ( it.key() != "name" && it.key() != "task" && it.key() != "config_fields" && it.key() != explicitConfigKey )
+        if ( it.key() != "name" && it.key() != "task" && it.key() != "config_fields" && it.key() != explicitConfigKey && it.key() != "map" )
             node.extra.insert( it.key(), it.value() );
     }
     return node;
+}
+
+QJsonObject mapToJson( const RimWorkflowTaskMap& map )
+{
+    return QJsonObject{ { "over", map.over }, { "key_as", map.keyAs }, { "value_as", map.valueAs }, { "error_mode", map.errorMode } };
+}
+
+QString collectName( RimWorkflowDefinitionEdge::Collect collect )
+{
+    switch ( collect )
+    {
+        case RimWorkflowDefinitionEdge::Collect::List:
+            return "list";
+        case RimWorkflowDefinitionEdge::Collect::Dict:
+            return "dict";
+        default:
+            return {};
+    }
+}
+
+RimWorkflowDefinitionEdge edgeFromJson( const QJsonObject& json )
+{
+    RimWorkflowDefinitionEdge edge{ .from   = json.value( "from" ).toString(),
+                                    .output = json.value( "output" ).toString(),
+                                    .to     = json.value( "to" ).toString(),
+                                    .input  = json.value( "input" ).toString() };
+    const QString             collect = json.value( "collect" ).toString();
+    if ( collect == "list" ) edge.collect = RimWorkflowDefinitionEdge::Collect::List;
+    if ( collect == "dict" )
+    {
+        edge.collect = RimWorkflowDefinitionEdge::Collect::Dict;
+        edge.key     = json.value( "key" ).toString();
+    }
+    return edge;
 }
 
 QJsonObject nodeToJson( const RimWorkflowDefinitionNode& node )
@@ -67,15 +112,19 @@ QJsonObject nodeToJson( const RimWorkflowDefinitionNode& node )
     json["task"]            = node.taskId;
     json["config_fields"]   = QJsonArray::fromStringList( node.configFields );
     json[explicitConfigKey] = QJsonArray::fromStringList( node.explicitConfigFields );
+    if ( node.map ) json["map"] = mapToJson( *node.map );
     return json;
 }
 
 QJsonObject edgeToJson( const RimWorkflowDefinitionEdge& edge )
 {
-    return QJsonObject{ { "from", edge.from },
-                        { "output", nullIfEmpty( edge.output ) },
-                        { "to", edge.to },
-                        { "input", nullIfEmpty( edge.input ) } };
+    QJsonObject json{ { "from", edge.from }, { "output", nullIfEmpty( edge.output ) }, { "to", edge.to }, { "input", nullIfEmpty( edge.input ) } };
+    if ( edge.isCollected() )
+    {
+        json["collect"] = collectName( edge.collect );
+        json["key"] = edge.collect == RimWorkflowDefinitionEdge::Collect::Dict ? nullIfEmpty( edge.key ) : QJsonValue( QJsonValue::Null );
+    }
+    return json;
 }
 
 QJsonObject issueToJson( const RimWorkflowIssue& issue )
@@ -126,9 +175,11 @@ bool hasCycle( const RimWorkflowDefinition& definition )
 
 void validateConnections( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionNode& node, std::vector<RimWorkflowIssue>& issues )
 {
-    const auto    incoming   = definition.incomingEdges( node.name );
-    int           wholeCount = 0;
-    QSet<QString> fieldInputs;
+    const auto                 incoming   = definition.incomingEdges( node.name );
+    int                        wholeCount = 0;
+    QSet<QString>              fieldInputs;
+    QMap<QString, QString>     collectKinds;
+    QMap<QString, QStringList> collectKeys;
     for ( const auto& edge : incoming )
     {
         if ( edge.isWholeInput() )
@@ -136,7 +187,31 @@ void validateConnections( const RimWorkflowDefinition& definition, const RimWork
             ++wholeCount;
             continue;
         }
-        if ( fieldInputs.contains( edge.input ) )
+        if ( edge.isCollected() )
+        {
+            const QString kind = collectName( edge.collect );
+            if ( fieldInputs.contains( edge.input ) && !collectKinds.contains( edge.input ) )
+                addIssue( issues,
+                          node.name,
+                          edge.input,
+                          QString( "Input '%1' has both a direct connection and collected members" ).arg( edge.input ) );
+            if ( collectKinds.contains( edge.input ) && collectKinds.value( edge.input ) != kind )
+                addIssue( issues, node.name, edge.input, QString( "Input '%1' mixes list and keyed members" ).arg( edge.input ) );
+            collectKinds.insert( edge.input, kind );
+            if ( edge.collect == RimWorkflowDefinitionEdge::Collect::Dict )
+            {
+                if ( edge.key.isEmpty() )
+                    addIssue( issues, node.name, edge.input, QString( "A member of input '%1' has no key" ).arg( edge.input ) );
+                else if ( collectKeys[edge.input].contains( edge.key ) )
+                    addIssue( issues, node.name, edge.input, QString( "Duplicate key '%1' in input '%2'" ).arg( edge.key, edge.input ) );
+                collectKeys[edge.input].append( edge.key );
+            }
+            fieldInputs.insert( edge.input );
+            continue;
+        }
+        if ( collectKinds.contains( edge.input ) )
+            addIssue( issues, node.name, edge.input, QString( "Input '%1' has both a direct connection and collected members" ).arg( edge.input ) );
+        else if ( fieldInputs.contains( edge.input ) )
             addIssue( issues, node.name, edge.input, QString( "Input '%1' has more than one connection" ).arg( edge.input ) );
         fieldInputs.insert( edge.input );
     }
@@ -148,16 +223,35 @@ void validateConnections( const RimWorkflowDefinition& definition, const RimWork
     for ( const auto& edge : incoming )
     {
         if ( !definition.findNode( edge.from ) ) continue;
+        if ( edge.isCollected() )
+        {
+            auto check = RimWorkflowPortCompatibility::checkCollectMember( definition, edge );
+            if ( !check ) addIssue( issues, node.name, edge.input, check.error() );
+            continue;
+        }
         RimWorkflowDefinition others = definition;
         std::erase( others.edges, edge );
-        auto check = RimWorkflowPortCompatibility::canConnect( others, edge.from, edge.output, edge.to, edge.input );
-        if ( !check ) addIssue( issues, node.name, edge.input, check.error() );
+        auto check = RimWorkflowPortCompatibility::resolveConnection( others, edge.from, edge.output, edge.to, edge.input );
+        if ( !check )
+            addIssue( issues, node.name, edge.input, check.error() );
+        else if ( check->isCollected() )
+            addIssue( issues,
+                      node.name,
+                      edge.input,
+                      QString( "%1 is a single member of input '%2'; it must be collected" ).arg( edge.from, edge.input ) );
     }
+}
+
+void validateMap( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionNode& node, std::vector<RimWorkflowIssue>& issues )
+{
+    if ( !node.map ) return;
+    auto check = RimWorkflowDefinitionTools::checkTaskMap( definition, node.name, *node.map );
+    if ( !check ) addIssue( issues, node.name, node.map->over, check.error() );
 }
 
 void validateInputs( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionNode& node, std::vector<RimWorkflowIssue>& issues )
 {
-    const QJsonObject taskType = definition.taskType( node.taskId );
+    const QJsonObject taskType = definition.taskTypeForNode( node.name );
     const QStringList covered  = RimWorkflowDefinitionTools::coveredInputFields( definition, node.name );
     const auto        incoming = definition.incomingEdges( node.name );
 
@@ -173,7 +267,7 @@ void validateInputs( const RimWorkflowDefinition& definition, const RimWorkflowD
 
     const QJsonObject inputSchema = taskType.value( "input_schema" ).toObject();
     const bool        hasFields   = !inputSchema.value( "properties" ).toObject().isEmpty();
-    if ( incoming.empty() && hasFields && node.configFields.isEmpty() && !hasFieldIssue )
+    if ( incoming.empty() && hasFields && node.configFields.isEmpty() && !hasFieldIssue && !node.map )
     {
         const QString message =
             RimWorkflowPortCompatibility::inputPorts( taskType ).size() > 1
@@ -216,15 +310,17 @@ QJsonArray inputPortsJson( const RimWorkflowDefinition&                  definit
         bool wired = false;
         for ( const auto& edge : incoming )
             wired = wired || edge.input == port.name;
-        result.append( QJsonObject{ { "name", port.name },
-                                    { "type", port.typeName },
-                                    { "icon", port.iconResource },
-                                    { "description", port.description },
-                                    { "required", port.required },
-                                    { "configurable", port.configurable },
-                                    { "configured", !port.isWhole() && node.configFields.contains( port.name ) },
-                                    { "covered", !port.isWhole() && covered.contains( port.name ) },
-                                    { "wired", wired } } );
+        QJsonObject json{ { "name", port.name },
+                          { "type", port.typeName },
+                          { "icon", port.iconResource },
+                          { "description", port.description },
+                          { "required", port.required },
+                          { "configurable", port.configurable },
+                          { "configured", !port.isWhole() && node.configFields.contains( port.name ) },
+                          { "covered", !port.isWhole() && covered.contains( port.name ) },
+                          { "wired", wired } };
+        if ( const auto target = RimWorkflowPortCompatibility::collectTarget( port ) ) json["collect"] = collectName( target->first );
+        result.append( json );
     }
     return result;
 }
@@ -251,7 +347,7 @@ QJsonObject graphTask( const RimWorkflowDefinition&         definition,
                        const QString&                       resultTask,
                        const std::vector<RimWorkflowIssue>& issues )
 {
-    const QJsonObject taskType     = definition.taskType( node.taskId );
+    const QJsonObject taskType     = definition.taskTypeForNode( node.name );
     const QJsonObject inputSchema  = taskType.value( "input_schema" ).toObject();
     const auto        inputPorts   = RimWorkflowPortCompatibility::inputPorts( taskType );
     const auto        outputPorts  = RimWorkflowPortCompatibility::outputPorts( taskType );
@@ -272,6 +368,31 @@ QJsonObject graphTask( const RimWorkflowDefinition&         definition,
     for ( const QString& field : node.configFields )
         configFields.append( RimWorkflowSchemaTools::configFieldSchema( field, inputSchema, required, configValues ) );
 
+    // The mapping a mapped task runs over is a config value, shown as an input of the task
+    QJsonArray  inputPortList = inputPortsJson( definition, node, inputPorts, definition.incomingEdges( node.name ) );
+    QJsonObject inputTypes    = RimWorkflowPortCompatibility::portTypes( inputPorts );
+    QJsonObject inputIcons    = RimWorkflowPortCompatibility::portIcons( inputPorts );
+    QJsonObject mapJson;
+    if ( node.map )
+    {
+        const QJsonObject overSchema = RimWorkflowDefinitionTools::mapOverSchema( definition, node.name );
+        configFields.append( overSchema );
+        mapJson                    = mapToJson( *node.map );
+        mapJson["type"]            = overSchema.value( "type_name" ).toString();
+        inputTypes[node.map->over] = overSchema.value( "type_name" ).toString();
+        if ( overSchema.contains( "icon" ) ) inputIcons[node.map->over] = overSchema.value( "icon" ).toString();
+        inputPortList.prepend( QJsonObject{ { "name", node.map->over },
+                                            { "type", overSchema.value( "type_name" ).toString() },
+                                            { "icon", overSchema.value( "icon" ).toString() },
+                                            { "description", overSchema.value( "description" ).toString() },
+                                            { "required", true },
+                                            { "configurable", true },
+                                            { "configured", true },
+                                            { "covered", false },
+                                            { "wired", false },
+                                            { "map_over", true } } );
+    }
+
     QJsonArray taskIssues;
     for ( const auto& issue : issues )
     {
@@ -288,12 +409,13 @@ QJsonObject graphTask( const RimWorkflowDefinition&         definition,
                         { "config_fields", configFields },
                         { "accepts_input", !inputSchema.value( "properties" ).toObject().isEmpty() },
                         { "whole_input", inputPorts.size() == 1 && !inputSchema.value( "properties" ).toObject().isEmpty() },
-                        { "input_ports", inputPortsJson( definition, node, inputPorts, definition.incomingEdges( node.name ) ) },
+                        { "input_ports", inputPortList },
                         { "output_ports", outputPortsJson( outputPorts, definition.outgoingEdges( node.name ) ) },
-                        { "input_types", RimWorkflowPortCompatibility::portTypes( inputPorts ) },
+                        { "input_types", inputTypes },
                         { "output_types", RimWorkflowPortCompatibility::portTypes( outputPorts ) },
-                        { "input_icons", RimWorkflowPortCompatibility::portIcons( inputPorts ) },
+                        { "input_icons", inputIcons },
                         { "output_icons", RimWorkflowPortCompatibility::portIcons( outputPorts ) },
+                        { "map", mapJson.isEmpty() ? QJsonValue( QJsonValue::Null ) : QJsonValue( mapJson ) },
                         { "is_result", node.name == resultTask },
                         { "issues", taskIssues } };
 }
@@ -336,13 +458,7 @@ std::expected<RimWorkflowDefinition, QString> RimWorkflowDefinitionTools::fromJs
     }
 
     for ( const QJsonValue& value : json.value( "edges" ).toArray() )
-    {
-        const QJsonObject edge = value.toObject();
-        definition.edges.push_back( { .from   = edge.value( "from" ).toString(),
-                                      .output = edge.value( "output" ).toString(),
-                                      .to     = edge.value( "to" ).toString(),
-                                      .input  = edge.value( "input" ).toString() } );
-    }
+        definition.edges.push_back( edgeFromJson( value.toObject() ) );
     return definition;
 }
 
@@ -402,7 +518,7 @@ RimWorkflowDefinition RimWorkflowDefinitionTools::editableCopy( const RimWorkflo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Parts of the workflow the editor does not model (nested workflows, `map:`). A copy of such a
+/// Parts of the workflow the editor does not model (nested workflows). A copy of such a
 /// workflow stays read-only.
 //--------------------------------------------------------------------------------------------------
 QStringList RimWorkflowDefinitionTools::structuralReadOnlyReasons( const RimWorkflowDefinition& definition )
@@ -529,7 +645,7 @@ QStringList RimWorkflowDefinitionTools::deriveConfigFields( const RimWorkflowDef
 {
     const auto* node = definition.findNode( nodeName );
     if ( !node ) return {};
-    const QJsonObject taskType = definition.taskType( node->taskId );
+    const QJsonObject taskType = definition.taskTypeForNode( nodeName );
     if ( taskType.isEmpty() ) return node->configFields;
 
     for ( const auto& edge : definition.incomingEdges( nodeName ) )
@@ -545,7 +661,7 @@ QStringList RimWorkflowDefinitionTools::deriveConfigFields( const RimWorkflowDef
     QStringList derived;
     for ( const QString& field : RimWorkflowSchemaTools::propertyNames( inputSchema ) )
     {
-        if ( covered.contains( field ) ) continue;
+        if ( covered.contains( field ) || ( node->map && field == node->map->over ) ) continue;
         const bool configurable = RimWorkflowSchemaTools::isConfigurable( properties.value( field ).toObject(), inputSchema );
         if ( node->explicitConfigFields.contains( field ) || ( required.contains( field ) && configurable ) ) derived.append( field );
     }
@@ -622,20 +738,25 @@ RimWorkflowDefinitionTools::EditResult RimWorkflowDefinitionTools::removeTask( c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Add a connection. An existing connection to the same input is replaced.
+/// Add a connection. An existing connection to the same input is replaced, except when the new
+/// connection is another member of a collected (list or dict) input.
 //--------------------------------------------------------------------------------------------------
 RimWorkflowDefinitionTools::EditResult RimWorkflowDefinitionTools::connect( const RimWorkflowDefinition&     definition,
                                                                             const RimWorkflowDefinitionEdge& edge )
 {
     if ( !definition.editable ) return std::unexpected( "The workflow is read-only" );
 
-    auto check = RimWorkflowPortCompatibility::canConnect( definition, edge.from, edge.output, edge.to, edge.input );
-    if ( !check ) return std::unexpected( check.error() );
+    auto resolved = RimWorkflowPortCompatibility::resolveConnection( definition, edge.from, edge.output, edge.to, edge.input );
+    if ( !resolved ) return std::unexpected( resolved.error() );
 
     RimWorkflowDefinition result = definition;
     std::erase_if( result.edges,
-                   [&edge]( const RimWorkflowDefinitionEdge& existing ) { return existing.to == edge.to && existing.input == edge.input; } );
-    result.edges.push_back( edge );
+                   [&resolved]( const RimWorkflowDefinitionEdge& existing )
+                   {
+                       return existing.to == resolved->to && existing.input == resolved->input &&
+                              ( !resolved->isCollected() || existing.collect != resolved->collect );
+                   } );
+    result.edges.push_back( *resolved );
     return normalize( result );
 }
 
@@ -648,8 +769,179 @@ RimWorkflowDefinitionTools::EditResult RimWorkflowDefinitionTools::disconnect( c
     if ( !definition.editable ) return std::unexpected( "The workflow is read-only" );
 
     RimWorkflowDefinition result = definition;
-    if ( std::erase( result.edges, edge ) == 0 ) return std::unexpected( "The connection does not exist" );
+    if ( std::erase_if( result.edges, [&edge]( const RimWorkflowDefinitionEdge& existing ) { return existing.sameConnection( edge ); } ) == 0 )
+        return std::unexpected( "The connection does not exist" );
     return normalize( result );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Rename the key of a member of a `dict[str, T]` input
+//--------------------------------------------------------------------------------------------------
+RimWorkflowDefinitionTools::EditResult RimWorkflowDefinitionTools::setCollectKey( const RimWorkflowDefinition&     definition,
+                                                                                  const RimWorkflowDefinitionEdge& edge,
+                                                                                  const QString&                   key )
+{
+    if ( !definition.editable ) return std::unexpected( "The workflow is read-only" );
+    if ( key.trimmed().isEmpty() ) return std::unexpected( "The key cannot be empty" );
+
+    RimWorkflowDefinition result = definition;
+    auto                  it =
+        std::find_if( result.edges.begin(), result.edges.end(), [&edge]( const auto& existing ) { return existing.sameConnection( edge ); } );
+    if ( it == result.edges.end() ) return std::unexpected( "The connection does not exist" );
+    if ( it->collect != RimWorkflowDefinitionEdge::Collect::Dict ) return std::unexpected( "The connection is not a keyed member" );
+
+    for ( const auto& other : result.edges )
+    {
+        if ( &other != &*it && other.to == it->to && other.input == it->input && other.key == key )
+            return std::unexpected( QString( "Input '%1' already has a member with key '%2'" ).arg( it->input, key ) );
+    }
+    it->key = key;
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Move a member of a `list[T]` input `delta` positions within the list
+//--------------------------------------------------------------------------------------------------
+RimWorkflowDefinitionTools::EditResult
+    RimWorkflowDefinitionTools::moveCollectMember( const RimWorkflowDefinition& definition, const RimWorkflowDefinitionEdge& edge, int delta )
+{
+    if ( !definition.editable ) return std::unexpected( "The workflow is read-only" );
+
+    RimWorkflowDefinition result = definition;
+    std::vector<size_t>   members;
+    size_t                position = 0;
+    bool                  found    = false;
+    for ( size_t i = 0; i < result.edges.size(); ++i )
+    {
+        const auto& existing = result.edges[i];
+        if ( existing.to != edge.to || existing.input != edge.input || !existing.isCollected() ) continue;
+        if ( existing.sameConnection( edge ) )
+        {
+            position = members.size();
+            found    = true;
+        }
+        members.push_back( i );
+    }
+    if ( !found ) return std::unexpected( "The connection is not a collected member" );
+
+    const int target = static_cast<int>( position ) + delta;
+    if ( target < 0 || target >= static_cast<int>( members.size() ) ) return std::unexpected( "The member cannot be moved further" );
+    std::swap( result.edges[members[position]], result.edges[members[static_cast<size_t>( target )]] );
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Checks that a map fits the task: the key and value fields are inputs of the task, and `over`
+/// is a new config field name
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString>
+    RimWorkflowDefinitionTools::checkTaskMap( const RimWorkflowDefinition& definition, const QString& nodeName, const RimWorkflowTaskMap& map )
+{
+    const auto* node = definition.findNode( nodeName );
+    if ( !node ) return std::unexpected( QString( "Unknown task '%1'" ).arg( nodeName ) );
+
+    if ( !isIdentifier( map.over ) ) return std::unexpected( QString( "'%1' is not a valid name for the mapping" ).arg( map.over ) );
+    if ( map.keyAs.isEmpty() || map.valueAs.isEmpty() ) return std::unexpected( "Choose the inputs that receive the key and the value" );
+    if ( map.keyAs == map.valueAs ) return std::unexpected( "The same input cannot receive both the key and the value" );
+    if ( map.errorMode != "fail_fast" && map.errorMode != "collect_all" )
+        return std::unexpected( QString( "Unknown error mode '%1'" ).arg( map.errorMode ) );
+
+    const QJsonObject taskType = definition.taskType( node->taskId );
+    if ( taskType.isEmpty() ) return {};
+
+    const QJsonObject inputSchema = taskType.value( "input_schema" ).toObject();
+    const QJsonObject properties  = inputSchema.value( "properties" ).toObject();
+    for ( const QString& field : { map.keyAs, map.valueAs } )
+    {
+        if ( !properties.contains( field ) ) return std::unexpected( QString( "'%1' has no input '%2'" ).arg( nodeName, field ) );
+    }
+    if ( properties.contains( map.over ) )
+        return std::unexpected( QString( "'%1' is an input of '%2'; choose another name for the mapping" ).arg( map.over, nodeName ) );
+
+    const QJsonObject keySchema = properties.value( map.keyAs ).toObject();
+    const QJsonObject strSchema{ { "type", "string" } };
+    if ( !RimWorkflowPortCompatibility::isCompatible( strSchema, strSchema, keySchema, inputSchema ) )
+        return std::unexpected( QString( "Input '%1' receives the key and must accept a string" ).arg( map.keyAs ) );
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Config field schema of the mapping a mapped task runs over: a `dict[str, Value]`, where the
+/// value type is the type of the `value_as` input
+//--------------------------------------------------------------------------------------------------
+QJsonObject RimWorkflowDefinitionTools::mapOverSchema( const RimWorkflowDefinition& definition, const QString& nodeName )
+{
+    const auto* node = definition.findNode( nodeName );
+    if ( !node || !node->map ) return {};
+
+    const QJsonObject inputSchema  = definition.taskType( node->taskId ).value( "input_schema" ).toObject();
+    const QJsonObject configValues = definition.inputs.value( nodeName ).toObject();
+
+    QJsonObject entry{ { "name", node->map->over }, { "type", "object" }, { "required", true }, { "map_over", true } };
+    if ( configValues.contains( node->map->over ) ) entry["default"] = configValues.value( node->map->over );
+
+    QString valueType = "Any";
+    if ( !node->map->valueAs.isEmpty() )
+    {
+        const QJsonObject value = RimWorkflowSchemaTools::configFieldSchema( node->map->valueAs, inputSchema, {}, {} );
+        entry["value_type"]     = value.value( "type" );
+        if ( value.contains( "resinsight_type" ) ) entry["value_resinsight_type"] = value.value( "resinsight_type" );
+        if ( value.contains( "format" ) ) entry["value_format"] = value.value( "format" );
+
+        const QJsonObject property = inputSchema.value( "properties" ).toObject().value( node->map->valueAs ).toObject();
+        valueType                  = RimWorkflowPortCompatibility::typeName( property, inputSchema );
+        const QString icon         = RimWorkflowPortCompatibility::iconResource( property, inputSchema );
+        if ( !icon.isEmpty() ) entry["icon"] = icon;
+    }
+    entry["type_name"] = QString( "dict[str, %1]" ).arg( valueType );
+    entry["description"] =
+        QString( "The items '%1' runs for; each key is passed as '%2' and each value as '%3'" ).arg( nodeName, node->map->keyAs, node->map->valueAs );
+    return entry;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Run a task once per item of a mapping, or remove the map with std::nullopt
+//--------------------------------------------------------------------------------------------------
+RimWorkflowDefinitionTools::EditResult RimWorkflowDefinitionTools::setTaskMap( const RimWorkflowDefinition&             definition,
+                                                                               const QString&                           nodeName,
+                                                                               const std::optional<RimWorkflowTaskMap>& map )
+{
+    if ( !definition.editable ) return std::unexpected( "The workflow is read-only" );
+    const auto* node = definition.findNode( nodeName );
+    if ( !node ) return std::unexpected( QString( "Unknown task '%1'" ).arg( nodeName ) );
+
+    RimWorkflowDefinition result = definition;
+    auto*                 target = result.findNode( nodeName );
+    QJsonObject           values = result.inputs.value( nodeName ).toObject();
+    if ( node->map ) values.remove( node->map->over );
+
+    if ( map )
+    {
+        if ( auto check = checkTaskMap( definition, nodeName, *map ); !check ) return std::unexpected( check.error() );
+        for ( const auto& edge : definition.incomingEdges( nodeName ) )
+        {
+            if ( edge.isWholeInput() )
+                return std::unexpected(
+                    QString( "'%1' takes its whole input from '%2'; disconnect it before mapping" ).arg( nodeName, edge.from ) );
+        }
+
+        // The key and value inputs are filled by the map
+        std::erase_if( result.edges,
+                       [&]( const RimWorkflowDefinitionEdge& edge )
+                       { return edge.to == nodeName && ( edge.input == map->keyAs || edge.input == map->valueAs ); } );
+        target->explicitConfigFields.removeAll( map->keyAs );
+        target->explicitConfigFields.removeAll( map->valueAs );
+        values.remove( map->keyAs );
+        values.remove( map->valueAs );
+        if ( node->map && node->map->over != map->over && definition.inputs.value( nodeName ).toObject().contains( node->map->over ) )
+            values[map->over] = definition.inputs.value( nodeName ).toObject().value( node->map->over );
+    }
+    target->map = map;
+    result.inputs.insert( nodeName, values );
+
+    // Downstream connections may no longer fit the changed output type
+    result = normalize( result );
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -718,7 +1010,7 @@ RimWorkflowDefinitionTools::EditResult RimWorkflowDefinitionTools::setOptionalIn
     const auto* node = definition.findNode( nodeName );
     if ( !node ) return std::unexpected( QString( "Unknown task '%1'" ).arg( nodeName ) );
 
-    const auto port = RimWorkflowPortCompatibility::inputPort( definition.taskType( node->taskId ), field );
+    const auto port = RimWorkflowPortCompatibility::inputPort( definition.taskTypeForNode( nodeName ), field );
     if ( !port || port->isWhole() ) return std::unexpected( QString( "'%1' has no input '%2'" ).arg( nodeName, field ) );
     if ( port->required ) return std::unexpected( QString( "Input '%1' is required and always configured unless connected" ).arg( field ) );
 
@@ -761,7 +1053,7 @@ RimWorkflowDefinition RimWorkflowDefinitionTools::autoWireResInsightInputs( cons
     };
 
     QStringList inputsToWire;
-    const auto  ports = RimWorkflowPortCompatibility::inputPorts( definition.taskType( node->taskId ) );
+    const auto  ports = RimWorkflowPortCompatibility::inputPorts( definition.taskTypeForNode( nodeName ) );
     for ( const auto& port : ports )
     {
         if ( port.isWhole() || wiredInputs.contains( port.name ) || !takesConnection( port ) ) continue;
@@ -832,6 +1124,7 @@ std::vector<RimWorkflowIssue> RimWorkflowDefinitionTools::validate( const RimWor
         }
         validateConnections( definition, node, issues );
         validateInputs( definition, node, issues );
+        validateMap( definition, node, issues );
     }
 
     if ( !definition.resultTask.isEmpty() && !names.contains( definition.resultTask ) )
@@ -869,12 +1162,25 @@ QJsonObject RimWorkflowDefinitionTools::graphFromDefinition( const RimWorkflowDe
     for ( const auto& node : definition.nodes )
         tasks.append( graphTask( definition, node, resultTask, issues ) );
 
+    // Position of each list member within its input
+    QMap<const RimWorkflowDefinitionEdge*, int> listIndex;
+    QMap<QString, int>                          listCount;
+    for ( const auto& edge : definition.edges )
+    {
+        if ( edge.collect == RimWorkflowDefinitionEdge::Collect::List ) listIndex[&edge] = listCount[edge.to + "." + edge.input]++;
+    }
+
     QJsonArray edges;
     for ( const auto& edge : definition.edges )
     {
         QJsonObject json{ { "from", edge.from }, { "to", edge.to } };
         if ( !edge.input.isEmpty() ) json["input"] = edge.input;
         if ( !edge.output.isEmpty() ) json["output"] = edge.output;
+        if ( edge.isCollected() )
+        {
+            json["collect"] = collectName( edge.collect );
+            json["label"] = edge.collect == RimWorkflowDefinitionEdge::Collect::Dict ? edge.key : QString( "[%1]" ).arg( listIndex[&edge] );
+        }
         edges.append( json );
     }
 

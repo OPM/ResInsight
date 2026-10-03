@@ -97,6 +97,7 @@ public:
     void setTaskInputValue( const QString& taskName, const QString& fieldName, const QString& value );
     void resetTaskStates();
     void setTaskState( const QString& taskName, const QString& state, const QString& error = {} );
+    void setTaskItemState( const QString& taskName, const QString& item, const QString& state, const QString& error = {} );
     void setRunStatus( const QString& status );
 
 signals:

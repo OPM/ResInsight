@@ -24,6 +24,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowDateBinding.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowFilePathBinding.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowVec3Binding.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWorkflowMappingBinding.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

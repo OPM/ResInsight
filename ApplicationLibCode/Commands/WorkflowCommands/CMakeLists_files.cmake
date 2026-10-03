@@ -15,6 +15,10 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicRenameWorkflowTaskFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSetWorkflowResultTaskFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicToggleWorkflowOptionalInputFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicMapWorkflowTaskFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicRemoveWorkflowTaskMapFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicRenameWorkflowCollectKeyFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicMoveWorkflowCollectMemberFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
