@@ -546,18 +546,39 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
 
     const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
+    // Each cell only writes the fault index of its own positive faces and the opposite faces of its neighbors, so the
+    // cells can be processed in parallel. Static scheduling assigns increasing cell ranges to increasing thread
+    // indices, so appending the thread results in thread order keeps the faces ordered by cell index.
+    const int                                     threadCount = RiaOpenMPTools::availableThreadCount();
+    std::vector<std::vector<RigFault::FaultFace>> threadFaultFaces( threadCount );
+    std::vector<std::vector<RigFault::FaultFace>> threadFaultFacesInactive( threadCount );
+
+#pragma omp parallel
+    {
+        const int myThread = RiaOpenMPTools::currentThreadIndex();
+
+#pragma omp for schedule( static )
+        for ( int gcIdx = 0; gcIdx < static_cast<int>( totalCellCount() ); ++gcIdx )
+        {
+            addUnNamedFaultFaces( gcIdx,
+                                  activeCellInfo,
+                                  vxs,
+                                  unNamedFaultIdx,
+                                  unNamedFaultWithInactiveIdx,
+                                  threadFaultFaces[myThread],
+                                  threadFaultFacesInactive[myThread],
+                                  m_faultsPrCellAcc.p() );
+        }
+    }
+
     std::vector<RigFault::FaultFace>& unNamedFaultFaces         = unNamedFault->faultFaces();
     std::vector<RigFault::FaultFace>& unNamedFaultFacesInactive = unNamedFaultWithInactive->faultFaces();
-    for ( int gcIdx = 0; gcIdx < static_cast<int>( totalCellCount() ); ++gcIdx )
+    for ( int i = 0; i < threadCount; i++ )
     {
-        addUnNamedFaultFaces( gcIdx,
-                              activeCellInfo,
-                              vxs,
-                              unNamedFaultIdx,
-                              unNamedFaultWithInactiveIdx,
-                              unNamedFaultFaces,
-                              unNamedFaultFacesInactive,
-                              m_faultsPrCellAcc.p() );
+        unNamedFaultFaces.insert( unNamedFaultFaces.end(), threadFaultFaces[i].begin(), threadFaultFaces[i].end() );
+        unNamedFaultFacesInactive.insert( unNamedFaultFacesInactive.end(),
+                                          threadFaultFacesInactive[i].begin(),
+                                          threadFaultFacesInactive[i].end() );
     }
 }
 
@@ -596,13 +617,10 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
     bool               firstNO_FAULTFaceForCell = true;
     bool               isCellActive             = true;
 
-    char upperLimitForFaceType = cvf::StructGridInterface::FaceType::POS_K;
-
-    // Compare only I and J faces
-    for ( char faceIdx = 0; faceIdx < upperLimitForFaceType; ++faceIdx )
+    // Compare only I and J faces. A negative face is the positive face of the neighbor cell with a lower index, so it is
+    // handled when that neighbor is processed.
+    for ( auto face : { cvf::StructGridInterface::FaceType::POS_I, cvf::StructGridInterface::FaceType::POS_J } )
     {
-        cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::FaceType( faceIdx );
-
         // For faces that has no used defined Fault assigned:
 
         if ( m_faultsPrCellAcc->faultIdx( gcIdx, face ) == RigFaultsPrCellAccumulator::NO_FAULT )
@@ -661,7 +679,7 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
 
             if ( static_cast<size_t>( gcIdx ) < neighborReservoirCellIdx )
             {
-                RigFault::FaultFace ff( gcIdx, cvf::StructGridInterface::FaceType( faceIdx ), neighborReservoirCellIdx );
+                RigFault::FaultFace ff( gcIdx, face, neighborReservoirCellIdx );
                 if ( isCellActive && isNeighborCellActive )
                 {
                     unNamedFaultFaces.push_back( ff );
