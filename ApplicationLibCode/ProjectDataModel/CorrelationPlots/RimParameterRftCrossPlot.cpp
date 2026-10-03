@@ -59,6 +59,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_marker.h"
 #include "qwt_plot_picker.h"
+#include "qwt_plot_zoneitem.h"
 #include "qwt_scale_map.h"
 #include "qwt_text.h"
 
@@ -1028,6 +1029,18 @@ void RimParameterRftCrossPlot::addObservedPressureMarkers()
     {
         addHorizontalLine( observedPressure - observedPressureError, Qt::DashLine, "Observed Pressure - Error" );
         addHorizontalLine( observedPressure + observedPressureError, Qt::DashLine, "Observed Pressure + Error" );
+
+        // Transparent background spanning the +/- error band around the observed pressure.
+        QColor shadingColor( Qt::black );
+        shadingColor.setAlpha( 20 );
+
+        auto* shading = new QwtPlotZoneItem();
+        shading->setOrientation( Qt::Horizontal );
+        shading->setInterval( observedPressure - observedPressureError, observedPressure + observedPressureError );
+        shading->setPen( shadingColor, 0.0, Qt::NoPen );
+        shading->setBrush( QBrush( shadingColor ) );
+        shading->setZ( 999.0 );
+        shading->attach( m_plotWidget->qwtPlot() );
     }
 }
 
