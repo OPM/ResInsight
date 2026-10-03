@@ -115,8 +115,8 @@ when:
 
 - it is **installed** (registered by a package). Use *Duplicate as Editable*
   to get an editable copy.
-- it uses features the editor does not support: `collect`, `map`, nested
-  `workflow:` entries, or task classes that cannot be imported.
+- it uses features the editor does not support: nested `workflow:` entries,
+  or task classes that cannot be imported.
 
 Read-only workflows can still be run.
 
@@ -177,6 +177,33 @@ In an editable workflow:
   Right-click the background for Add Task ▸, Undo, Redo, Save, Save As,
   Duplicate as Editable and Fit. There is no toolbar.
 - Ctrl+Z/Ctrl+Y undo and redo; Ctrl+S saves.
+
+### Collect and map
+
+`collect` (taskmaestro 0.3) gathers several outputs into one input. In the
+definition each member is a separate edge with `collect: list|dict` (and a
+`key` for dicts); the order of the list edges is the list order.
+`RimWorkflowPortCompatibility::resolveConnection` decides whether a drop is
+a plain edge or a collect member: an input typed `list[T]` or
+`dict[str, T]` collects outputs of type `T`, while an output of the whole
+container type still connects directly. Collecting inputs are drawn with a
+ring around the port; member edges are labelled `[i]` or with their key.
+Dict keys default to the source task name and are made unique. Right-click
+a member for Rename Key… (dict) or Move Earlier/Later (list).
+
+`map` runs a task once per item of a configured mapping. Right-click a task
+for Map Over… (Edit Map… when mapped) and Remove Map. The dialog picks the
+mapping's config name (`over`), the inputs that receive the key (`key_as`,
+must accept a string) and the value (`value_as`), and the error mode
+(`fail_fast` or `collect_all`); `checkTaskMap` validates it while typing.
+`taskTypeForNode` gives the effective task type of a mapped node: `key_as`
+and `value_as` are no longer inputs, and the output becomes
+`dict[str, Output]`. `graphTask` adds `over` as a config field and port
+(`map_over: true`) typed `dict[str, <value type>]` (`mapOverSchema`).
+The node is drawn as a stack with a "⟳ map over X" subtitle. The `over` value is edited with `RimWorkflowMappingBinding`: a JSON
+object, or a multi-selection of cases, well paths or views keyed by name.
+During a run the helper emits `map_item_state` events; the node shows
+"done/seen" counts and failures, and the tooltip lists each item.
 
 Selecting a task shows its `RimWorkflowTaskInput` from the displayed job in
 the property view. Editing is locked while a job of the workflow is running.
@@ -427,7 +454,7 @@ Touched (existing files):
 - **New edit operation**: add a pure function to `RimWorkflowDefinitionTools`
   with a unit test, call it through `RimWorkflow::applyEdit`, and expose it
   with a `Ric*WorkflowFeature` that reads its arguments from `userData()`.
-- **Supporting `collect`/`map`/nested workflows in the editor**: extend the
+- **Supporting nested workflows in the editor**: extend the
   definition JSON and `RimWorkflowDefinitionNode`, drop the read-only reason
   in `definition.py` and `structuralReadOnlyReasons`, and teach `save` to
   write them.

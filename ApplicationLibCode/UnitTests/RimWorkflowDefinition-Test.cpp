@@ -373,3 +373,208 @@ TEST( RimWorkflowDefinitionEdit, names )
     EXPECT_EQ( "resinsight_load_model", RimWorkflowDefinitionTools::identifierFrom( "resinsight.load-model" ) );
     EXPECT_EQ( "_3d", RimWorkflowDefinitionTools::identifierFrom( "3d" ) );
 }
+
+namespace
+{
+QJsonObject numberModel( const QString& title, const QString& field, const QJsonObject& fieldSchema )
+{
+    return QJsonObject{ { "type", "object" },
+                        { "title", title },
+                        { "properties", QJsonObject{ { field, fieldSchema } } },
+                        { "required", QJsonArray{ field } } };
+}
+
+// produce(name: str) -> value: float; scale(name: str, factor: float) -> value: float;
+// sum_list(values: list[float]); sum_dict(values: dict[str, float])
+RimWorkflowDefinition collectDefinition()
+{
+    const QJsonObject number{ { "type", "number" } };
+    const QJsonObject output = numberModel( "Value", "value", number );
+    const QJsonObject nameInput{ { "type", "object" },
+                                 { "title", "Named" },
+                                 { "properties", QJsonObject{ { "name", QJsonObject{ { "type", "string" } } }, { "factor", number } } },
+                                 { "required", QJsonArray{ "name", "factor" } } };
+
+    auto definition = RimWorkflowDefinitionTools::createEmpty( "collect" );
+    definition.taskTypes.insert( "t.produce", QJsonObject{ { "name", "produce" }, { "input_schema", nameInput }, { "output_schema", output } } );
+    definition.taskTypes.insert( "t.sum_list",
+                                 QJsonObject{ { "name", "sum_list" },
+                                              { "input_schema",
+                                                numberModel( "ListInput", "values", QJsonObject{ { "type", "array" }, { "items", number } } ) },
+                                              { "output_schema", output } } );
+    definition.taskTypes.insert( "t.sum_dict",
+                                 QJsonObject{ { "name", "sum_dict" },
+                                              { "input_schema",
+                                                numberModel( "DictInput",
+                                                             "values",
+                                                             QJsonObject{ { "type", "object" }, { "additionalProperties", number } } ) },
+                                              { "output_schema", output } } );
+    for ( const auto& [name, taskId] : std::vector<std::pair<QString, QString>>{ { "a", "t.produce" },
+                                                                                 { "b", "t.produce" },
+                                                                                 { "c", "t.produce" },
+                                                                                 { "sum_list", "t.sum_list" },
+                                                                                 { "sum_dict", "t.sum_dict" } } )
+    {
+        definition.nodes.push_back( { .name = name, .taskId = taskId } );
+        definition.inputs.insert( name, QJsonObject() );
+    }
+    definition.taskTypes.insert( "t.gather",
+                                 QJsonObject{ { "name", "gather" },
+                                              { "input_schema",
+                                                QJsonObject{ { "type", "object" },
+                                                             { "title", "GatherInput" },
+                                                             { "properties",
+                                                               QJsonObject{ { "results",
+                                                                              QJsonObject{ { "type", "object" },
+                                                                                           { "additionalProperties",
+                                                                                             QJsonObject{ { "$ref", "#/$defs/Value" } } } } } } },
+                                                             { "required", QJsonArray{ "results" } },
+                                                             { "$defs", QJsonObject{ { "Value", output } } } } },
+                                              { "output_schema", output } } );
+    definition.nodes.push_back( { .name = "gather", .taskId = "t.gather" } );
+    definition.inputs.insert( "gather", QJsonObject() );
+    return RimWorkflowDefinitionTools::normalize( definition );
+}
+
+QStringList taskIssues( const RimWorkflowDefinition& definition, const QString& task )
+{
+    std::vector<RimWorkflowIssue> issues;
+    for ( const auto& issue : RimWorkflowDefinitionTools::validate( definition ) )
+    {
+        if ( issue.task == task ) issues.push_back( issue );
+    }
+    return issueMessages( issues );
+}
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowDefinitionEdit, collectIntoList )
+{
+    using Collect   = RimWorkflowDefinitionEdge::Collect;
+    auto definition = collectDefinition();
+
+    definition =
+        edited( RimWorkflowDefinitionTools::connect( definition, { .from = "a", .output = "value", .to = "sum_list", .input = "values" } ) );
+    definition =
+        edited( RimWorkflowDefinitionTools::connect( definition, { .from = "b", .output = "value", .to = "sum_list", .input = "values" } ) );
+    ASSERT_EQ( 2u, definition.incomingEdges( "sum_list" ).size() );
+    EXPECT_EQ( Collect::List, definition.incomingEdges( "sum_list" )[0].collect );
+    EXPECT_EQ( "a", definition.incomingEdges( "sum_list" )[0].from );
+    EXPECT_TRUE( definition.findNode( "sum_list" )->configFields.isEmpty() );
+    EXPECT_TRUE( taskIssues( definition, "sum_list" ).isEmpty() ) << taskIssues( definition, "sum_list" ).join( "\n" ).toStdString();
+
+    // Collecting the same output twice is rejected
+    EXPECT_FALSE( RimWorkflowDefinitionTools::connect( definition, { .from = "a", .output = "value", .to = "sum_list", .input = "values" } ) );
+
+    // Reorder the members
+    const RimWorkflowDefinitionEdge second{ .from = "b", .output = "value", .to = "sum_list", .input = "values" };
+    definition = edited( RimWorkflowDefinitionTools::moveCollectMember( definition, second, -1 ) );
+    EXPECT_EQ( "b", definition.incomingEdges( "sum_list" )[0].from );
+    EXPECT_FALSE( RimWorkflowDefinitionTools::moveCollectMember( definition, second, -1 ) );
+
+    // Index labels in the graph
+    const QJsonArray edges = RimWorkflowDefinitionTools::graphFromDefinition( definition, true ).value( "edges" ).toArray();
+    QStringList      labels;
+    for ( const QJsonValue& edge : edges )
+        labels.append( edge.toObject().value( "from" ).toString() + edge.toObject().value( "label" ).toString() );
+    EXPECT_TRUE( labels.contains( "b[0]" ) );
+    EXPECT_TRUE( labels.contains( "a[1]" ) );
+
+    // Disconnecting ignores how the member is collected
+    definition = edited(
+        RimWorkflowDefinitionTools::disconnect( definition, { .from = "a", .output = "value", .to = "sum_list", .input = "values" } ) );
+    EXPECT_EQ( 1u, definition.incomingEdges( "sum_list" ).size() );
+
+    // JSON round trip keeps the collected edges
+    const auto roundTrip = RimWorkflowDefinitionTools::fromJson( RimWorkflowDefinitionTools::toJson( definition ) );
+    ASSERT_TRUE( roundTrip.has_value() );
+    EXPECT_EQ( definition.edges, roundTrip->edges );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowDefinitionEdit, collectIntoDict )
+{
+    using Collect   = RimWorkflowDefinitionEdge::Collect;
+    auto definition = collectDefinition();
+
+    definition =
+        edited( RimWorkflowDefinitionTools::connect( definition, { .from = "a", .output = "value", .to = "sum_dict", .input = "values" } ) );
+    definition =
+        edited( RimWorkflowDefinitionTools::connect( definition, { .from = "b", .output = "value", .to = "sum_dict", .input = "values" } ) );
+    const auto incoming = definition.incomingEdges( "sum_dict" );
+    ASSERT_EQ( 2u, incoming.size() );
+    EXPECT_EQ( Collect::Dict, incoming[0].collect );
+    EXPECT_EQ( "a_value", incoming[0].key );
+    EXPECT_EQ( "b_value", incoming[1].key );
+
+    const RimWorkflowDefinitionEdge first{ .from = "a", .output = "value", .to = "sum_dict", .input = "values" };
+    EXPECT_FALSE( RimWorkflowDefinitionTools::setCollectKey( definition, first, "b_value" ) );
+    EXPECT_FALSE( RimWorkflowDefinitionTools::setCollectKey( definition, first, "" ) );
+    definition = edited( RimWorkflowDefinitionTools::setCollectKey( definition, first, "low" ) );
+    EXPECT_EQ( "low", definition.incomingEdges( "sum_dict" )[0].key );
+    EXPECT_TRUE( taskIssues( definition, "sum_dict" ).isEmpty() ) << taskIssues( definition, "sum_dict" ).join( "\n" ).toStdString();
+
+    const auto roundTrip = RimWorkflowDefinitionTools::fromJson( RimWorkflowDefinitionTools::toJson( definition ) );
+    ASSERT_TRUE( roundTrip.has_value() );
+    EXPECT_EQ( definition.edges, roundTrip->edges );
+
+    // Duplicate keys are reported
+    definition.edges[1].key = "low";
+    EXPECT_FALSE( taskIssues( definition, "sum_dict" ).isEmpty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowDefinitionEdit, mapTask )
+{
+    auto definition = collectDefinition();
+
+    // The key input must accept a string
+    EXPECT_FALSE(
+        RimWorkflowDefinitionTools::setTaskMap( definition, "a", RimWorkflowTaskMap{ .over = "items", .keyAs = "factor", .valueAs = "name" } ) );
+    EXPECT_FALSE(
+        RimWorkflowDefinitionTools::setTaskMap( definition, "a", RimWorkflowTaskMap{ .over = "name", .keyAs = "name", .valueAs = "factor" } ) );
+    EXPECT_FALSE(
+        RimWorkflowDefinitionTools::setTaskMap( definition, "a", RimWorkflowTaskMap{ .over = "items", .keyAs = "name", .valueAs = "name" } ) );
+
+    const RimWorkflowTaskMap map{ .over = "items", .keyAs = "name", .valueAs = "factor" };
+    definition = edited( RimWorkflowDefinitionTools::setTaskMap( definition, "a", map ) );
+    ASSERT_TRUE( definition.findNode( "a" )->map.has_value() );
+    EXPECT_TRUE( definition.findNode( "a" )->configFields.isEmpty() );
+
+    // The mapped output is a dict[str, Value]: it feeds a dict[str, Value] input directly
+    const QJsonObject mappedType = definition.taskTypeForNode( "a" );
+    EXPECT_EQ( "dict[str, Value]", RimWorkflowPortCompatibility::outputPorts( mappedType ).front().typeName );
+    EXPECT_FALSE( RimWorkflowPortCompatibility::canConnect( definition, "a", "", "sum_dict", "values" ) );
+    EXPECT_FALSE( RimWorkflowPortCompatibility::canConnect( definition, "a", "", "sum_list", "values" ) );
+    definition = edited( RimWorkflowDefinitionTools::connect( definition, { .from = "a", .to = "gather", .input = "results" } ) );
+    EXPECT_FALSE( definition.incomingEdges( "gather" ).front().isCollected() );
+    // A mapped task takes its inputs field by field
+    EXPECT_FALSE( RimWorkflowPortCompatibility::canConnect( definition, "b", "", "a", "" ) );
+
+    // The mapping is a config value shown as an input port
+    const QJsonObject task = taskByName( RimWorkflowDefinitionTools::graphFromDefinition( definition, true ), "a" );
+    EXPECT_EQ( "items", task.value( "map" ).toObject().value( "over" ).toString() );
+    EXPECT_EQ( "dict[str, float]", task.value( "input_types" ).toObject().value( "items" ).toString() );
+    bool hasOverField = false;
+    for ( const QJsonValue& field : task.value( "config_fields" ).toArray() )
+    {
+        if ( field.toObject().value( "name" ).toString() == "items" )
+        {
+            hasOverField = field.toObject().value( "map_over" ).toBool();
+            EXPECT_EQ( "number", field.toObject().value( "value_type" ).toString() );
+        }
+    }
+    EXPECT_TRUE( hasOverField );
+
+    // JSON round trip
+    const auto roundTrip = RimWorkflowDefinitionTools::fromJson( RimWorkflowDefinitionTools::toJson( definition ) );
+    ASSERT_TRUE( roundTrip.has_value() );
+    EXPECT_EQ( definition, roundTrip.value() );
+
+    // Removing the map restores the inputs and drops the mapping value
+    definition.inputs.insert( "a", QJsonObject{ { "items", QJsonObject{ { "x", 1.0 } } } } );
+    definition = edited( RimWorkflowDefinitionTools::setTaskMap( definition, "a", std::nullopt ) );
+    EXPECT_FALSE( definition.findNode( "a" )->map.has_value() );
+    EXPECT_EQ( QStringList( { "name", "factor" } ), definition.findNode( "a" )->configFields );
+    EXPECT_FALSE( definition.inputs.value( "a" ).toObject().contains( "items" ) );
+}

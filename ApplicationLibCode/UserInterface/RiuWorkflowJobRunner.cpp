@@ -142,6 +142,16 @@ void RiuWorkflowJobRunner::drainLines( QByteArray& buffer, RILogLevel level )
                                            event.value( "error" ).toString() );
                     continue;
                 }
+                if ( event.value( "event" ) == "map_item_state" && event.value( "run_id" ).isString() && event.value( "task" ).isString() &&
+                     event.value( "item" ).isString() && event.value( "state" ).isString() )
+                {
+                    emit mapItemStateChanged( event.value( "run_id" ).toString(),
+                                              event.value( "task" ).toString(),
+                                              event.value( "item" ).toString(),
+                                              event.value( "state" ).toString(),
+                                              event.value( "error" ).toString() );
+                    continue;
+                }
             }
         }
 

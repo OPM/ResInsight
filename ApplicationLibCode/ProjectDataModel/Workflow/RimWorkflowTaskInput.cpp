@@ -24,6 +24,7 @@
 #include "RimWorkflowFilePathBinding.h"
 #include "RimWorkflowFloatBinding.h"
 #include "RimWorkflowIntBinding.h"
+#include "RimWorkflowMappingBinding.h"
 #include "RimWorkflowStringBinding.h"
 #include "RimWorkflowViewBinding.h"
 #include "RimWorkflowWellPathBinding.h"
@@ -94,6 +95,8 @@ void RimWorkflowTaskInput::setTaskInfo( const QString& taskType, const QString& 
 //--------------------------------------------------------------------------------------------------
 QString RimWorkflowTaskInput::bindingClassKeyword( const QJsonObject& fieldSchema )
 {
+    if ( fieldSchema.value( "map_over" ).toBool() ) return RimWorkflowMappingBinding::classKeywordStatic();
+
     const QString resinsightType = fieldSchema.value( "resinsight_type" ).toString();
     if ( resinsightType == "EclipseCase" ) return RimWorkflowCaseBinding::classKeywordStatic();
     if ( resinsightType == "WellPath" ) return RimWorkflowWellPathBinding::classKeywordStatic();
@@ -126,6 +129,7 @@ RimWorkflowFieldBinding* RimWorkflowTaskInput::createBinding( const QJsonObject&
     if ( keyword == RimWorkflowIntBinding::classKeywordStatic() ) return new RimWorkflowIntBinding;
     if ( keyword == RimWorkflowFloatBinding::classKeywordStatic() ) return new RimWorkflowFloatBinding;
     if ( keyword == RimWorkflowArrayBinding::classKeywordStatic() ) return new RimWorkflowArrayBinding;
+    if ( keyword == RimWorkflowMappingBinding::classKeywordStatic() ) return new RimWorkflowMappingBinding;
     return new RimWorkflowStringBinding;
 }
 

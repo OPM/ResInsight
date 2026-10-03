@@ -18,6 +18,8 @@
 
 #include "RimWorkflowDefinition.h"
 
+#include "RimWorkflowPortCompatibility.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -32,6 +34,22 @@ bool RimWorkflowDefinitionEdge::isWholeInput() const
 bool RimWorkflowDefinitionEdge::isWholeOutput() const
 {
     return output.isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWorkflowDefinitionEdge::isCollected() const
+{
+    return collect != Collect::None;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Same tasks and ports, ignoring how the value is collected
+//--------------------------------------------------------------------------------------------------
+bool RimWorkflowDefinitionEdge::sameConnection( const RimWorkflowDefinitionEdge& other ) const
+{
+    return from == other.from && output == other.output && to == other.to && input == other.input;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,12 +97,16 @@ QJsonObject RimWorkflowDefinition::taskType( const QString& taskId ) const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The task type as seen by the workflow: a mapped task has `dict[str, Output]` as output, and its
+/// key and value fields are not inputs
 //--------------------------------------------------------------------------------------------------
 QJsonObject RimWorkflowDefinition::taskTypeForNode( const QString& nodeName ) const
 {
     const auto* node = findNode( nodeName );
-    return node ? taskType( node->taskId ) : QJsonObject();
+    if ( !node ) return {};
+    const QJsonObject type = taskType( node->taskId );
+    if ( type.isEmpty() || !node->map ) return type;
+    return RimWorkflowPortCompatibility::mappedTaskType( type, *node->map );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -164,6 +164,26 @@ void RimWorkflowJob::updateTaskState( const QString& runId, const QString& taskN
     if ( auto* window = RiuMainWindow::instance() ) window->workflowJobStateChanged( this );
 }
 
+QMap<QString, QMap<QString, QString>> RimWorkflowJob::itemStates() const
+{
+    return m_itemStates;
+}
+
+QMap<QString, QMap<QString, QString>> RimWorkflowJob::itemErrors() const
+{
+    return m_itemErrors;
+}
+
+void RimWorkflowJob::updateItemState( const QString& runId, const QString& taskName, const QString& item, const QString& state, const QString& error )
+{
+    if ( runId != m_runId || !m_taskStates.contains( taskName ) ) return;
+    if ( state != "running" && state != "completed" && state != "failed" ) return;
+
+    m_itemStates[taskName][item] = state;
+    if ( state == "failed" ) m_itemErrors[taskName][item] = error;
+    if ( auto* window = RiuMainWindow::instance() ) window->workflowJobStateChanged( this );
+}
+
 void RimWorkflowJob::finishRun( const QString& runId, bool succeeded, bool cancelled )
 {
     if ( runId != m_runId ) return;
@@ -178,7 +198,7 @@ void RimWorkflowJob::finishRun( const QString& runId, bool succeeded, bool cance
     if ( cancelled )
         m_runStatus = "Cancelled";
     else if ( succeeded )
-        m_runStatus = "Completed";
+        m_runStatus.clear();
     else if ( !m_runStatus.startsWith( "Failed:" ) )
         m_runStatus = "Failed (see workflow log)";
     m_activeTask.clear();
@@ -373,6 +393,8 @@ void RimWorkflowJob::runJob()
     m_runId = QUuid::createUuid().toString( QUuid::WithoutBraces );
     m_taskStates.clear();
     m_taskErrors.clear();
+    m_itemStates.clear();
+    m_itemErrors.clear();
     for ( const QJsonValue& value : workflow->graph().value( "tasks" ).toArray() )
     {
         const QString taskName = value.toObject().value( "name" ).toString();
@@ -397,6 +419,14 @@ void RimWorkflowJob::runJob()
                       [safeJob, runId]( const QString& eventRunId, const QString& taskName, const QString& state, const QString& error )
                       {
                           if ( safeJob && eventRunId == runId ) safeJob->updateTaskState( runId, taskName, state, error );
+                      } );
+    QObject::connect( m_runner,
+                      &RiuWorkflowJobRunner::mapItemStateChanged,
+                      m_runner,
+                      [safeJob,
+                       runId]( const QString& eventRunId, const QString& taskName, const QString& item, const QString& state, const QString& error )
+                      {
+                          if ( safeJob && eventRunId == runId ) safeJob->updateItemState( runId, taskName, item, state, error );
                       } );
     QObject::connect( m_runner,
                       &RiuWorkflowJobRunner::runFinished,

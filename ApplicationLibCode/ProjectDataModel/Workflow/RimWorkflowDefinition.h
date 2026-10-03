@@ -23,7 +23,23 @@
 #include <QString>
 #include <QStringList>
 
+#include <optional>
 #include <vector>
+
+//==================================================================================================
+/// A mapped task (`map:` in YAML) runs once per entry of the job config value `over`, a mapping
+/// with string keys. Each key goes to the input field `keyAs` and each value to `valueAs`.
+/// The output is `dict[str, Output]` keyed like `over`.
+//==================================================================================================
+struct RimWorkflowTaskMap
+{
+    QString over{};
+    QString keyAs{};
+    QString valueAs{};
+    QString errorMode = "fail_fast";
+
+    bool operator==( const RimWorkflowTaskMap& other ) const = default;
+};
 
 //==================================================================================================
 /// One task instance in a workflow
@@ -37,7 +53,9 @@ struct RimWorkflowDefinitionNode
     // Fields the user wants to configure even when they are optional or cannot be derived
     QStringList explicitConfigFields{};
 
-    // Keys of the YAML entry the editor does not model (nested workflow, map); kept for read-only display
+    std::optional<RimWorkflowTaskMap> map{};
+
+    // Keys of the YAML entry the editor does not model (nested workflow); kept for read-only display
     QJsonObject extra{};
 
     bool operator==( const RimWorkflowDefinitionNode& other ) const = default;
@@ -45,16 +63,29 @@ struct RimWorkflowDefinitionNode
 
 //==================================================================================================
 /// A connection between two tasks. An empty output or input means the whole model.
+/// Several edges can collect outputs into one `list[T]` or `dict[str, T]` input (`collect:` in
+/// YAML). List members are ordered like the edges; dict members have a key.
 //==================================================================================================
 struct RimWorkflowDefinitionEdge
 {
+    enum class Collect
+    {
+        None,
+        List,
+        Dict
+    };
+
     QString from{};
     QString output{};
     QString to{};
     QString input{};
+    Collect collect = Collect::None;
+    QString key{};
 
     bool isWholeInput() const;
     bool isWholeOutput() const;
+    bool isCollected() const;
+    bool sameConnection( const RimWorkflowDefinitionEdge& other ) const;
 
     bool operator==( const RimWorkflowDefinitionEdge& other ) const = default;
 };
