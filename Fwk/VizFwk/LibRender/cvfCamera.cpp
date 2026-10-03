@@ -306,7 +306,14 @@ Vec3d Camera::computeFitViewEyePosition(const BoundingBox& boundingBox, const Ve
 
     cvf::Vec3d upNorm = up.getNormalized();
     cvf::Vec3d right = dir^up;
-    right.normalize();
+    if (!right.normalize())
+    {
+        // dir and up are parallel (degenerate camera orientation). Fall back to an arbitrary axis
+        // not parallel to dir to still produce a valid right vector.
+        const cvf::Vec3d& fallbackAxis = (cvf::Math::abs(dir.x()) < 0.9) ? cvf::Vec3d::X_AXIS : cvf::Vec3d::Y_AXIS;
+        right = dir^fallbackAxis;
+        right.normalize();
+    }
     cvf::Vec3d boxEyeNorm = (-dir).getNormalized();
 
     cvf::Plane planeTop;
