@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimStimPlanModelCalculator.h"
 
+#include "RiaCurveDataTools.h"
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
@@ -738,8 +739,14 @@ std::pair<std::vector<double>, std::vector<QString>> RimStimPlanModelCalculator:
     std::vector<QString> formationNames;
     for ( auto value : values )
     {
+        if ( !RiaCurveDataTools::isValidValue( value, false ) )
+        {
+            formationNames.push_back( "_" );
+            continue;
+        }
+
         int idx = static_cast<int>( value );
-        if ( idx < static_cast<int>( formationNamesVector.size() ) )
+        if ( idx >= 0 && idx < static_cast<int>( formationNamesVector.size() ) )
             formationNames.push_back( formationNamesVector[idx] );
         else
             formationNames.push_back( "_" );
