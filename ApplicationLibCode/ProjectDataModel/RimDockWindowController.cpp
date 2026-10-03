@@ -132,6 +132,8 @@ void RimDockWindowController::updateViewerWidget()
         {
             ads::CDockWidget* dockWidget = viewPdmObject()->createDockWidget();
             QWidget*          viewWidget = viewPdmObject()->createViewWidget();
+            if ( !dockWidget || !viewWidget ) return;
+
             dockWidget->setWidget( viewWidget );
             dockWidget->setObjectName( viewPdmObject()->dockWindowName() );
             viewWidget->setObjectName( viewPdmObject()->dockWindowName() );
