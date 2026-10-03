@@ -1088,7 +1088,6 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
             if ( !fieldName.isEmpty() ) configured.append( "field:" + fieldName );
         }
         configured.removeDuplicates();
-        configured.sort();
         configFields.insert( name, configured );
     }
     for ( const QJsonValue& value : edges )
@@ -1134,6 +1133,17 @@ void RiuWorkflowGraphView::showGraph( const QJsonObject& graph, const QString& e
             inputs  = portInfos( in, false, data.value( "input_types" ).toObject(), data.value( "input_icons" ).toObject() );
             outputs = portInfos( out, true, data.value( "output_types" ).toObject(), data.value( "output_icons" ).toObject() );
         }
+
+        // Config fields follow the order of the task's inputs, so their connections do not cross
+        QStringList& configured = configFields[name];
+        auto         inputIndex = [&inputs]( const QString& key )
+        {
+            const auto it = std::find_if( inputs.begin(), inputs.end(), [&key]( const PortInfo& port ) { return port.key == key; } );
+            return std::distance( inputs.begin(), it );
+        };
+        std::stable_sort( configured.begin(),
+                          configured.end(),
+                          [&inputIndex]( const QString& a, const QString& b ) { return inputIndex( a ) < inputIndex( b ); } );
 
         const QJsonObject map = data.value( "map" ).toObject();
         QString           subtitle;
