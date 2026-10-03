@@ -102,6 +102,14 @@ for Undo, Redo, Save, Save As, and Duplicate as Editable.
   config input, shown in the property view when the task is selected.
   Optional inputs can be turned on under **Optional Inputs** in the task's
   context menu.
+- **Collect outputs:** an input that takes a list or a dict (ring around the
+  port) accepts several connections. Each connection is labelled with its
+  position or key. Right-click a connection to **Rename Key** or **Move
+  Earlier/Later**.
+- **Map over items:** right-click a task and choose **Map Over** to run it
+  once per item of a mapping. Choose the inputs that receive the key and the
+  value of each item. The items are entered in the property view, either as
+  JSON or by selecting cases, well paths or views. **Remove Map** undoes it.
 - **Rename, Set as Result Task, Delete:** right-click a task or connection.
   F2 renames and Del deletes the selection. Ctrl+Z and Ctrl+Y undo and redo.
 
@@ -129,8 +137,8 @@ Use **Rescan Workflows** on the **Workflows** node after changing workflow
 folders or installing packages. ResInsight asks before closing or rescanning
 when there are unsaved edits.
 
-Workflows that use `collect`, `map`, or nested workflows open read-only, and
-the status line explains why. They can still be run.
+Workflows that use nested workflows open read-only, and the status line
+explains why. They can still be run.
 
 ## Troubleshooting
 

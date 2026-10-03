@@ -336,6 +336,8 @@ QString RimWorkflowPortCompatibility::typeName( const QJsonObject& schema, const
     if ( resolved.contains( "x-ri-python-type" ) ) return shortName( resolved.value( "x-ri-python-type" ).toString() );
 
     const QString type = resolved.value( "type" ).toString();
+    if ( type == "object" && resolved.value( "additionalProperties" ).isObject() && !resolved.contains( "properties" ) )
+        return QString( "dict[str, %1]" ).arg( typeName( resolved.value( "additionalProperties" ).toObject(), rootSchema ) );
     if ( type == "object" ) return resolved.value( "title" ).toString( "object" );
     if ( type == "array" ) return QString( "list[%1]" ).arg( typeName( resolved.value( "items" ).toObject(), rootSchema ) );
 
@@ -368,6 +370,9 @@ QString RimWorkflowPortCompatibility::iconResource( const QJsonObject& schema, c
         }
     }
     if ( resolved.value( "type" ).toString() == "array" ) return iconResource( resolved.value( "items" ).toObject(), rootSchema );
+    if ( resolved.value( "type" ).toString() == "object" && resolved.value( "additionalProperties" ).isObject() &&
+         !resolved.contains( "properties" ) )
+        return iconResource( resolved.value( "additionalProperties" ).toObject(), rootSchema );
 
     static const QMap<QString, QString> icons = { { "Instance", ":/AppLogo48x48.png" },
                                                   { "Case", ":/Case48x48.png" },
@@ -462,17 +467,96 @@ bool RimWorkflowPortCompatibility::wouldCreateCycle( const RimWorkflowDefinition
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Checks a new connection. An existing connection to the same input is replaced and ignored here.
+/// A mapped task runs once per item: the key and value fields are filled by the map and are not
+/// inputs, and the output is `dict[str, Output]`
 //--------------------------------------------------------------------------------------------------
-std::expected<void, QString> RimWorkflowPortCompatibility::canConnect( const RimWorkflowDefinition& definition,
-                                                                       const QString&               from,
-                                                                       const QString&               output,
-                                                                       const QString&               to,
-                                                                       const QString&               input )
+QJsonObject RimWorkflowPortCompatibility::mappedTaskType( const QJsonObject& taskType, const RimWorkflowTaskMap& map )
 {
+    QJsonObject inputSchema = taskType.value( "input_schema" ).toObject();
+    QJsonObject properties  = inputSchema.value( "properties" ).toObject();
+    properties.remove( map.keyAs );
+    properties.remove( map.valueAs );
+    inputSchema["properties"] = properties;
+
+    QJsonArray required;
+    for ( const QJsonValue& field : inputSchema.value( "required" ).toArray() )
+    {
+        if ( field.toString() != map.keyAs && field.toString() != map.valueAs ) required.append( field );
+    }
+    inputSchema["required"] = required;
+
+    QJsonObject result      = taskType;
+    result["input_schema"]  = inputSchema;
+    result["output_schema"] = mappedOutputSchema( taskType.value( "output_schema" ).toObject() );
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// `MappedOutput[Output]`, a `dict[str, Output]`. The output model moves into `$defs`, so its own
+/// references still resolve against the new root.
+//--------------------------------------------------------------------------------------------------
+QJsonObject RimWorkflowPortCompatibility::mappedOutputSchema( const QJsonObject& outputSchema )
+{
+    QJsonObject definitions = outputSchema.value( "$defs" ).toObject();
+    QJsonObject item        = outputSchema;
+    item.remove( "$defs" );
+
+    QString itemKey = "MappedItem";
+    while ( definitions.contains( itemKey ) )
+        itemKey += "_";
+    definitions[itemKey] = item;
+
+    return QJsonObject{ { "type", "object" },
+                        { "title", QString( "dict[str, %1]" ).arg( typeName( outputSchema, outputSchema ) ) },
+                        { "additionalProperties", QJsonObject{ { "$ref", "#/$defs/" + itemKey } } },
+                        { "$defs", definitions },
+                        { "x-ri-mapped-output", true } };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<RimWorkflowDefinitionEdge::Collect, QJsonObject>>
+    RimWorkflowPortCompatibility::collectTarget( const RimWorkflowPort& expected )
+{
+    if ( expected.isWhole() ) return std::nullopt;
+
+    const QJsonObject resolved = RimWorkflowSchemaTools::resolveReferences( expected.schema, expected.rootSchema );
+    QJsonArray        options;
+    for ( const char* unionKey : { "anyOf", "oneOf" } )
+    {
+        for ( const QJsonValue& option : resolved.value( unionKey ).toArray() )
+            options.append( option );
+    }
+    if ( options.isEmpty() ) options.append( resolved );
+
+    for ( const QJsonValue& value : options )
+    {
+        const QJsonObject option = RimWorkflowSchemaTools::resolveReferences( value.toObject(), expected.rootSchema );
+        const QString     type   = option.value( "type" ).toString();
+        if ( type == "array" && option.value( "items" ).isObject() )
+            return std::make_pair( RimWorkflowDefinitionEdge::Collect::List, option.value( "items" ).toObject() );
+        if ( type == "object" && option.value( "additionalProperties" ).isObject() && !option.contains( "properties" ) )
+            return std::make_pair( RimWorkflowDefinitionEdge::Collect::Dict, option.value( "additionalProperties" ).toObject() );
+    }
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Checks a new connection and returns the edge to add
+//--------------------------------------------------------------------------------------------------
+std::expected<RimWorkflowDefinitionEdge, QString> RimWorkflowPortCompatibility::resolveConnection( const RimWorkflowDefinition& definition,
+                                                                                                   const QString&               from,
+                                                                                                   const QString&               output,
+                                                                                                   const QString&               to,
+                                                                                                   const QString&               input )
+{
+    using Collect = RimWorkflowDefinitionEdge::Collect;
+
     if ( from == to ) return std::unexpected( "A task cannot be connected to itself" );
     if ( !definition.findNode( from ) ) return std::unexpected( QString( "Unknown task '%1'" ).arg( from ) );
-    if ( !definition.findNode( to ) ) return std::unexpected( QString( "Unknown task '%1'" ).arg( to ) );
+    const auto* downstream = definition.findNode( to );
+    if ( !downstream ) return std::unexpected( QString( "Unknown task '%1'" ).arg( to ) );
 
     const QJsonObject upstreamType   = definition.taskTypeForNode( from );
     const QJsonObject downstreamType = definition.taskTypeForNode( to );
@@ -483,27 +567,109 @@ std::expected<void, QString> RimWorkflowPortCompatibility::canConnect( const Rim
     if ( !producedPort ) return std::unexpected( QString( "'%1' has no output '%2'" ).arg( from, output ) );
     const auto expectedPort = inputPort( downstreamType, input );
     if ( !expectedPort ) return std::unexpected( QString( "'%1' has no input '%2'" ).arg( to, input ) );
+    if ( downstream->map && input.isEmpty() )
+        return std::unexpected( QString( "'%1' is mapped and takes its inputs field by field" ).arg( to ) );
 
-    // Edges into the same input are replaced by the new connection
-    RimWorkflowDefinition remaining = definition;
-    std::erase_if( remaining.edges, [&]( const RimWorkflowDefinitionEdge& edge ) { return edge.to == to && edge.input == input; } );
-    if ( wouldCreateCycle( remaining, from, to ) ) return std::unexpected( "The connection would create a cycle" );
-
-    for ( const auto& edge : remaining.incomingEdges( to ) )
+    RimWorkflowDefinitionEdge edge{ .from = from, .output = output, .to = to, .input = input };
+    if ( !input.isEmpty() && !isCompatible( *producedPort, *expectedPort ) )
     {
-        if ( input.isEmpty() && !edge.isWholeInput() )
-            return std::unexpected( QString( "'%1' already has individual inputs connected and cannot also take a whole input" ).arg( to ) );
-        if ( !input.isEmpty() && edge.isWholeInput() )
-            return std::unexpected( QString( "'%1' takes its whole input from '%2'; disconnect it first" ).arg( to, edge.from ) );
+        const auto target = collectTarget( *expectedPort );
+        if ( target && isCompatible( producedPort->schema, producedPort->rootSchema, target->second, expectedPort->rootSchema ) )
+        {
+            edge.collect = target->first;
+        }
+        else
+        {
+            const QString source = output.isEmpty() ? from : from + "." + output;
+            return std::unexpected(
+                QString( "%1 is %2, but %3.%4 expects %5" ).arg( source, producedPort->typeName, to, input, expectedPort->typeName ) );
+        }
     }
 
-    if ( input.isEmpty() && output.isEmpty() ) return checkWholeToWhole( upstreamType, downstreamType, from, to );
+    // Edges into the same input are replaced by the new connection, except other collected members
+    RimWorkflowDefinition remaining = definition;
+    std::erase_if( remaining.edges,
+                   [&]( const RimWorkflowDefinitionEdge& existing )
+                   { return existing.to == to && existing.input == input && ( !edge.isCollected() || existing.collect != edge.collect ); } );
+    if ( wouldCreateCycle( remaining, from, to ) ) return std::unexpected( "The connection would create a cycle" );
 
-    if ( !isCompatible( *producedPort, *expectedPort ) )
+    QStringList keys;
+    for ( const auto& existing : remaining.incomingEdges( to ) )
     {
-        const QString source = output.isEmpty() ? from : from + "." + output;
-        const QString target = input.isEmpty() ? to : to + "." + input;
-        return std::unexpected( QString( "%1 is %2, but %3 expects %4" ).arg( source, producedPort->typeName, target, expectedPort->typeName ) );
+        if ( input.isEmpty() && !existing.isWholeInput() )
+            return std::unexpected( QString( "'%1' already has individual inputs connected and cannot also take a whole input" ).arg( to ) );
+        if ( !input.isEmpty() && existing.isWholeInput() )
+            return std::unexpected( QString( "'%1' takes its whole input from '%2'; disconnect it first" ).arg( to, existing.from ) );
+        if ( existing.input != input ) continue;
+        if ( existing.sameConnection( edge ) )
+            return std::unexpected( QString( "%1 is already collected into %2.%3" ).arg( from, to, input ) );
+        keys.append( existing.key );
+    }
+
+    if ( input.isEmpty() && output.isEmpty() )
+    {
+        if ( auto check = checkWholeToWhole( upstreamType, downstreamType, from, to ); !check ) return std::unexpected( check.error() );
+        return edge;
+    }
+    if ( input.isEmpty() && !isCompatible( *producedPort, *expectedPort ) )
+    {
+        return std::unexpected(
+            QString( "%1.%2 is %3, but %4 expects %5" ).arg( from, output, producedPort->typeName, to, expectedPort->typeName ) );
+    }
+
+    if ( edge.collect == Collect::Dict )
+    {
+        // The upstream task name is the default key
+        edge.key = output.isEmpty() ? from : from + "_" + output;
+        for ( int index = 2; keys.contains( edge.key ); ++index )
+            edge.key = QString( "%1_%2" ).arg( output.isEmpty() ? from : from + "_" + output ).arg( index );
+    }
+    return edge;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RimWorkflowPortCompatibility::canConnect( const RimWorkflowDefinition& definition,
+                                                                       const QString&               from,
+                                                                       const QString&               output,
+                                                                       const QString&               to,
+                                                                       const QString&               input )
+{
+    auto edge = resolveConnection( definition, from, output, to, input );
+    if ( !edge ) return std::unexpected( edge.error() );
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Type check of one member of a collected input
+//--------------------------------------------------------------------------------------------------
+std::expected<void, QString> RimWorkflowPortCompatibility::checkCollectMember( const RimWorkflowDefinition&     definition,
+                                                                               const RimWorkflowDefinitionEdge& edge )
+{
+    const QJsonObject upstreamType   = definition.taskTypeForNode( edge.from );
+    const QJsonObject downstreamType = definition.taskTypeForNode( edge.to );
+    if ( upstreamType.isEmpty() || downstreamType.isEmpty() ) return {};
+
+    const auto producedPort = outputPort( upstreamType, edge.output );
+    if ( !producedPort ) return std::unexpected( QString( "'%1' has no output '%2'" ).arg( edge.from, edge.output ) );
+    const auto expectedPort = inputPort( downstreamType, edge.input );
+    if ( !expectedPort || expectedPort->isWhole() )
+        return std::unexpected( QString( "'%1' has no input '%2'" ).arg( edge.to, edge.input ) );
+
+    const auto target = collectTarget( *expectedPort );
+    const bool isList = edge.collect == RimWorkflowDefinitionEdge::Collect::List;
+    if ( !target || target->first != edge.collect )
+    {
+        return std::unexpected( QString( "Input '%1' is %2 and cannot collect %3" )
+                                    .arg( edge.input, expectedPort->typeName, isList ? "a list of members" : "keyed members" ) );
+    }
+    if ( !isCompatible( producedPort->schema, producedPort->rootSchema, target->second, expectedPort->rootSchema ) )
+    {
+        const QString source = edge.output.isEmpty() ? edge.from : edge.from + "." + edge.output;
+        return std::unexpected(
+            QString( "%1 is %2, but the members of %3.%4 must be %5" )
+                .arg( source, producedPort->typeName, edge.to, edge.input, typeName( target->second, expectedPort->rootSchema ) ) );
     }
     return {};
 }

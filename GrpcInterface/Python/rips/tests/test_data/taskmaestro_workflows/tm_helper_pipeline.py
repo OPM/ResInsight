@@ -37,6 +37,12 @@ class Values(BaseModel):
     values: list[float]
 
 
+class KeyedValues(BaseModel):
+    """Keyed numbers to sum."""
+
+    values: dict[str, float]
+
+
 class Item(BaseModel):
     """One mapped item."""
 
@@ -100,6 +106,15 @@ class Sum(Task[Values, Number]):
 
     def run(self, input: Values, ctx: ExecutionContext) -> Number:
         return Number(value=sum(input.values))
+
+
+class KeyedSum(Task[KeyedValues, Number]):
+    """Sum keyed numbers."""
+
+    name = "keyed_sum"
+
+    def run(self, input: KeyedValues, ctx: ExecutionContext) -> Number:
+        return Number(value=sum(input.values.values()))
 
 
 class PerItem(Task[Item, Number]):

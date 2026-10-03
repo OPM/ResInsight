@@ -135,6 +135,64 @@ def test_progress_hook_reports_runner_failure(
     assert events[-1]["error"] == "bad range"
 
 
+def test_progress_hook_reports_mapped_items(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from pydantic import BaseModel
+    from taskmaestro import EmptyConfig, ExecutionContext, Job, Runner, Task, Workflow
+    from taskmaestro.job import JobConfiguration
+    from taskmaestro.mapping import TaskMap
+
+    from rips.taskmaestro_helper.run import PROGRESS_PREFIX, ProgressHook
+
+    class Item(BaseModel):
+        key: str
+        value: int
+
+    class Out(BaseModel):
+        value: int
+
+    class Check(Task[Item, Out]):
+        name = "check"
+
+        def run(self, input: Item, ctx: ExecutionContext) -> Out:
+            if input.value < 0:
+                raise ValueError("negative")
+            return Out(value=input.value)
+
+    workflow = (
+        Workflow.builder("mapped")
+        .add_task(
+            Check,
+            name="each",
+            mapped_over=TaskMap(
+                over="items", key_as="key", value_as="value", error_mode="collect_all"
+            ),
+        )
+        .build()
+    )
+    config = JobConfiguration({"each": {"items": {"a": 1, "b": -1}}})
+    Runner(hooks=[ProgressHook("run-map")]).run(
+        Job(workflow, EmptyConfig(), job_configuration=config), ctx=ExecutionContext()
+    )
+    events = [
+        json.loads(line.removeprefix(PROGRESS_PREFIX))
+        for line in capsys.readouterr().out.splitlines()
+        if line.startswith(PROGRESS_PREFIX)
+    ]
+    assert [
+        (event["event"], event.get("item"), event["state"]) for event in events
+    ] == [
+        ("task_state", None, "running"),
+        ("map_item_state", "a", "running"),
+        ("map_item_state", "a", "completed"),
+        ("map_item_state", "b", "running"),
+        ("map_item_state", "b", "failed"),
+        ("task_state", None, "failed"),
+    ]
+    assert events[4]["error"] == "negative"
+
+
 def test_run_helper_emits_progress_without_grpc(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:

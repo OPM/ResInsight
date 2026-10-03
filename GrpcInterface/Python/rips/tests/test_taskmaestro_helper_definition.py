@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 
 pytest.importorskip("taskmaestro")
 
@@ -421,34 +422,171 @@ def test_save_rejects_read_only_and_empty_workflows(tmp_path: Path) -> None:
         write_definition({**definition, "nodes": []}, tmp_path / "out")
 
 
+# --- Mapped tasks and collected inputs ---
+
+
+def test_round_trip_positional_collect(tmp_path: Path) -> None:
+    source = _write_workflow(
+        tmp_path / "src",
+        f"""\
+        workflow:
+          name: collected
+          tasks:
+            - task: {PIPELINE}.Constant
+              name: a
+            - task: {PIPELINE}.Constant
+              name: b
+            - task: {PIPELINE}.Sum
+              name: total
+              depends_on:
+                values:
+                  collect: [[b, value], [a, value]]
+        """,
+    )
+    first, _ = _round_trip(source, tmp_path / "out")
+    assert [edge for edge in first["edges"] if edge["to"] == "total"] == [
+        {
+            "from": "b",
+            "output": "value",
+            "to": "total",
+            "input": "values",
+            "collect": "list",
+            "key": None,
+        },
+        {
+            "from": "a",
+            "output": "value",
+            "to": "total",
+            "input": "values",
+            "collect": "list",
+            "key": None,
+        },
+    ]
+    raw = yaml.safe_load((tmp_path / "out" / "workflow.yaml").read_text())
+    assert raw["workflow"]["tasks"][2]["depends_on"] == {
+        "values": {"collect": [["b", "value"], ["a", "value"]]}
+    }
+
+
+def test_round_trip_keyed_collect(tmp_path: Path) -> None:
+    source = _write_workflow(
+        tmp_path / "src",
+        f"""\
+        workflow:
+          name: keyed
+          tasks:
+            - task: {PIPELINE}.Constant
+              name: a
+            - task: {PIPELINE}.Constant
+              name: b
+            - task: {PIPELINE}.KeyedSum
+              name: total
+              depends_on:
+                values:
+                  collect: {{first: [a, value], second: [b, value]}}
+        """,
+    )
+    first, _ = _round_trip(source, tmp_path / "out")
+    assert [
+        (edge["from"], edge["collect"], edge["key"])
+        for edge in first["edges"]
+        if edge["to"] == "total"
+    ] == [("a", "dict", "first"), ("b", "dict", "second")]
+    raw = yaml.safe_load((tmp_path / "out" / "workflow.yaml").read_text())
+    assert raw["workflow"]["tasks"][2]["depends_on"] == {
+        "values": {"collect": {"first": ["a", "value"], "second": ["b", "value"]}}
+    }
+
+
+def test_save_rejects_inconsistent_collect(tmp_path: Path) -> None:
+    from rips.taskmaestro_helper._compat import HelperError
+
+    source = _write_workflow(
+        tmp_path / "src",
+        f"""\
+        workflow:
+          name: keyed
+          tasks:
+            - task: {PIPELINE}.Constant
+              name: a
+            - task: {PIPELINE}.Constant
+              name: b
+            - task: {PIPELINE}.KeyedSum
+              name: total
+              depends_on:
+                values:
+                  collect: {{first: [a, value], second: [b, value]}}
+        """,
+    )
+    definition = load_definition(source)
+    definition["edges"][-1]["key"] = "first"
+    with pytest.raises(HelperError, match="Duplicate key"):
+        write_definition(definition, tmp_path / "out")
+    definition["edges"][-1]["collect"] = "list"
+    with pytest.raises(HelperError, match="mixes"):
+        write_definition(definition, tmp_path / "out")
+
+
+def test_round_trip_mapped_task(tmp_path: Path) -> None:
+    source = _write_workflow(
+        tmp_path / "src",
+        f"""\
+        workflow:
+          name: mapped
+          tasks:
+            - task: {PIPELINE}.PerItem
+              name: items
+              map: {{over: numbers, key_as: key, value_as: value, error_mode: collect_all}}
+        """,
+        "items:\n  numbers:\n    a: 1.0\n    b: 2.0\n",
+    )
+    first, _ = _round_trip(source, tmp_path / "out")
+    assert first["nodes"][0]["map"] == {
+        "over": "numbers",
+        "key_as": "key",
+        "value_as": "value",
+        "error_mode": "collect_all",
+    }
+    assert first["nodes"][0]["config_fields"] == []
+    assert first["inputs"] == {"items": {"numbers": {"a": 1.0, "b": 2.0}}}
+    raw = yaml.safe_load((tmp_path / "out" / "workflow.yaml").read_text())
+    assert raw["workflow"]["tasks"][0]["map"] == {
+        "over": "numbers",
+        "key_as": "key",
+        "value_as": "value",
+        "error_mode": "collect_all",
+    }
+    assert yaml.safe_load((tmp_path / "out" / "input.yaml").read_text()) == {
+        "items": {"numbers": {"a": 1.0, "b": 2.0}}
+    }
+
+
+def test_save_rejects_invalid_map(tmp_path: Path) -> None:
+    from rips.taskmaestro_helper._compat import HelperError
+
+    source = _write_workflow(
+        tmp_path / "src",
+        f"""\
+        workflow:
+          name: mapped
+          tasks:
+            - task: {PIPELINE}.PerItem
+              name: items
+              map: {{over: numbers, key_as: key, value_as: value}}
+        """,
+    )
+    definition = load_definition(source)
+    definition["nodes"][0]["map"]["value_as"] = "key"
+    with pytest.raises(HelperError, match="both the key"):
+        write_definition(definition, tmp_path / "out")
+
+
 # --- Read-only workflows ---
 
 
 @pytest.mark.parametrize(
     ("tasks", "reason"),
     [
-        (
-            f"""\
-                - task: {PIPELINE}.Constant
-                  name: a
-                - task: {PIPELINE}.Constant
-                  name: b
-                - task: {PIPELINE}.Sum
-                  name: total
-                  depends_on:
-                    values:
-                      collect: [[a, value], [b, value]]
-            """,
-            "collect",
-        ),
-        (
-            f"""\
-                - task: {PIPELINE}.PerItem
-                  name: items
-                  map: {{over: items, key_as: key, value_as: value}}
-            """,
-            "map",
-        ),
         (
             """\
                 - workflow: inner.yaml

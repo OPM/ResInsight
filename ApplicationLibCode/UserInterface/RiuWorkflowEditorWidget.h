@@ -34,6 +34,7 @@ class QSplitter;
 class RimWorkflow;
 class RimWorkflowJob;
 struct RimWorkflowDefinition;
+struct RimWorkflowDefinitionEdge;
 class RiuWorkflowTaskPalette;
 class RiuWorkflowValidationRunner;
 
@@ -69,6 +70,10 @@ public:
     void renameTask( const QString& taskName );
     void setResultTask( const QString& taskName );
     void setOptionalInputConfigured( const QString& taskName, const QString& field, bool configured );
+    void editTaskMap( const QString& taskName );
+    void removeTaskMap( const QString& taskName );
+    void renameCollectKey( const RiuWorkflowGraphView::ItemRef& edge );
+    void moveCollectMember( const RiuWorkflowGraphView::ItemRef& edge, int delta );
     void connectPorts( const QString& from, const QString& output, const QString& to, const QString& input );
 
     void showMessage( const QString& message );
@@ -80,6 +85,12 @@ private:
     void showWorkflow( RiuWorkflowGraphView::ViewportPolicy policy );
     void showContextMenu( const RiuWorkflowGraphView::ItemRef& item, const QPoint& globalPos, const QPointF& scenePos );
     void appendAddTaskMenu( QMenu* menu, const QPointF& scenePos );
+    void appendMapMenu( QMenu* menu, const QString& taskName );
+    void appendCollectMenu( QMenu* menu, const RiuWorkflowGraphView::ItemRef& item );
+    bool canEdit();
+
+    const RimWorkflowDefinitionEdge* findEdge( const RiuWorkflowGraphView::ItemRef& item ) const;
+
     void appendOptionalInputsMenu( QMenu* menu, const QString& taskName );
     void updateActions();
     void updateStatus();
