@@ -32,7 +32,8 @@ enum class WellLogTrackTrajectoryType
 enum class WellLogTrackFormationSource
 {
     CASE,
-    WELL_PICK_FILTER
+    WELL_PICK_FILTER,
+    RFT_OBSERVED_DATA
 };
 
 enum class WellLogTrackFormationLevel

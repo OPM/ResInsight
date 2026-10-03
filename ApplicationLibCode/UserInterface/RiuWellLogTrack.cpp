@@ -162,6 +162,45 @@ void RiuWellLogTrack::onMouseMoveEvent( QMouseEvent* mouseEvent )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Resolves the depth clicked by the user in the track canvas and, if it falls within a formation
+/// annotation band, emits formationClicked() with the formation name. Used to let the owning plot
+/// (e.g. RimRftCorrelationReportPlot) apply the clicked formation as a depth range filter.
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::onMouseClickEvent( QMouseEvent* event )
+{
+    if ( !m_plotDefinition ) return;
+
+    auto track = dynamic_cast<RimWellLogTrack*>( m_plotDefinition.p() );
+    if ( !track ) return;
+
+    auto depthTrackPlot = m_plotDefinition->firstAncestorOfType<RimDepthTrackPlot>();
+    if ( !depthTrackPlot ) return;
+
+    auto qwtPlot = this->qwtPlot();
+    if ( !qwtPlot ) return;
+
+    auto              riuPlotAxis = depthTrackPlot->depthAxis();
+    auto              qwtAxis     = toQwtPlotAxis( riuPlotAxis );
+    const QwtScaleMap axisMap     = qwtPlot->canvasMap( qwtAxis );
+
+    double depth = 0.0;
+    if ( depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
+    {
+        depth = axisMap.invTransform( event->position().x() );
+    }
+    else
+    {
+        depth = axisMap.invTransform( event->position().y() );
+    }
+
+    QString formationName = track->formationNameAtDepth( depth, depthTrackPlot->depthType() );
+    if ( !formationName.isEmpty() )
+    {
+        emit formationClicked( formationName );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiuWellLogCurvePointTracker::RiuWellLogCurvePointTracker( QwtPlot*                      plot,

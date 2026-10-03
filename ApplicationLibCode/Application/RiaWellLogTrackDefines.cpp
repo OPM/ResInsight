@@ -33,6 +33,7 @@ void AppEnum<RiaDefines::WellLogTrackFormationSource>::setUp()
 {
     addItem( RiaDefines::WellLogTrackFormationSource::CASE, "CASE", "Case" );
     addItem( RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER, "WELL_PICK_FILTER", "Well Picks for Well Path" );
+    addItem( RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA, "RFT_OBSERVED_DATA", "Observed RFT Data" );
     setDefault( RiaDefines::WellLogTrackFormationSource::CASE );
 }
 

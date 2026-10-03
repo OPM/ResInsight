@@ -51,6 +51,9 @@ public:
     cvf::Color3f curveColor( RimSummaryEnsemble* ensemble, const RimSummaryCase* summaryCase ) const;
 
     RimRegularLegendConfig* legendConfig();
+    RimCurveSetAppearance*  appearance() const;
+
+    bool setColorByEnsembleParameter( const QString& parameterName );
 
     void            setEclipseCase( RimEclipseCase* eclipseCase );
     RimEclipseCase* eclipseCase() const;

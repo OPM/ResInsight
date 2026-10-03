@@ -111,18 +111,19 @@ public:
     void    setPropertyValueAxisTitle( const QString& text );
     QString depthAxisTitle() const;
 
-    void                                   setFormationWellPath( RimWellPath* wellPath );
-    RimWellPath*                           formationWellPath() const;
-    void                                   setFormationSimWellName( const QString& simWellName );
-    QString                                formationSimWellName() const;
-    void                                   setFormationBranchDetection( bool branchDetection );
-    bool                                   formationBranchDetection() const;
-    void                                   setFormationBranchIndex( int branchIndex );
-    int                                    formationBranchIndex() const;
-    void                                   setFormationCase( RimCase* rimCase );
-    RimCase*                               formationCase() const;
-    void                                   setFormationTrajectoryType( RiaDefines::WellLogTrackTrajectoryType trajectoryType );
-    RiaDefines::WellLogTrackTrajectoryType formationTrajectoryType() const;
+    void                                    setFormationWellPath( RimWellPath* wellPath );
+    RimWellPath*                            formationWellPath() const;
+    void                                    setFormationSimWellName( const QString& simWellName );
+    QString                                 formationSimWellName() const;
+    void                                    setFormationBranchDetection( bool branchDetection );
+    bool                                    formationBranchDetection() const;
+    void                                    setFormationBranchIndex( int branchIndex );
+    int                                     formationBranchIndex() const;
+    void                                    setFormationCase( RimCase* rimCase );
+    RimCase*                                formationCase() const;
+    void                                    setFormationTrajectoryType( RiaDefines::WellLogTrackTrajectoryType trajectoryType );
+    RiaDefines::WellLogTrackTrajectoryType  formationTrajectoryType() const;
+    RiaDefines::WellLogTrackFormationSource formationSource() const;
     void setRegionPropertyResultType( RiaDefines::ResultCatType resultCatType, const QString& resultVariable );
 
     void detachAllCurves() override;
@@ -132,6 +133,12 @@ public:
 
     void setAndUpdateSimWellFormationNamesAndBranchData( RimCase* rimCase, const QString& simWellName, int branchIndex, bool useBranchDetection );
     void setAndUpdateSimWellFormationNamesData( RimCase* rimCase, const QString& simWellName );
+    void setAndUpdateWellPathFormationPicksData(
+        RimWellPath*                            wellPath,
+        RiaDefines::WellLogTrackFormationSource formationSource = RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER );
+    void setAndUpdateObservedRftFormationsData( cvf::ref<RigWellPathFormations> formations, RimWellPath* wellPath );
+
+    QString formationNameAtDepth( double depthValue, RiaDefines::DepthType depthType ) const;
 
     [[deprecated( "Use setAutoScalePropertyValuesEnabled() instead." )]] void setAutoScaleXEnabled( bool enabled ) override;
     [[deprecated( "Use setAutoScaleDepthValuesEnabled() instead." )]] void    setAutoScaleYEnabled( bool enabled ) override;
@@ -318,6 +325,10 @@ private:
 
     // Well path attribute settings
     caf::PdmChildField<RimWellLogWellPathAttributeSettings*> m_wellPathAttributeSettings;
+
+    // Formation tops derived from observed RFT data, owned directly by the track since the well may
+    // not have an associated RimWellPath object (e.g. a simulation well only known from RFT data).
+    cvf::ref<RigWellPathFormations> m_observedRftFormations;
 
     // OBSOLETE: Property value axis fields (migrated to RimWellLogPropertyAxisSettings)
     caf::PdmField<bool>                         m_isPropertyAxisEnabled_OBSOLETE;

@@ -148,6 +148,14 @@ void RimRftTornadoPlot::setDepthRange( double minMd, double maxMd )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimRftTornadoPlot::setFormationFilterName( const QString& formationName )
+{
+    m_formationFilterName = formationName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRftTornadoPlot::setSelectedParameter( const QString& paramName )
 {
     m_selectedParameter = paramName;
@@ -410,9 +418,16 @@ void RimRftTornadoPlot::updatePlotTitle()
 
     if ( m_useAutoPlotTitle() && m_ensemble() )
     {
-        const QString rangeStr = m_useDepthRange() ? QString( " [MD %1 - %2 m]" ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() )
-                                                   : QString();
-        m_description          = QString( "Parameter Correlation vs RFT Pressure%1, %2" ).arg( rangeStr ).arg( m_ensemble->name() );
+        QString rangeStr;
+        if ( !m_formationFilterName.isEmpty() )
+        {
+            rangeStr = QString( " [%1]" ).arg( m_formationFilterName );
+        }
+        else if ( m_useDepthRange() )
+        {
+            rangeStr = QString( " [MD %1 - %2 m]" ).arg( m_depthRangeMin() ).arg( m_depthRangeMax() );
+        }
+        m_description = QString( "Parameter Correlation vs RFT Pressure%1, %2" ).arg( rangeStr ).arg( m_ensemble->name() );
     }
 
     m_plotWidget->setPlotTitle( m_description() );

@@ -20,6 +20,7 @@
 
 #include "RimWellLogCurve.h"
 
+#include "RiaDefines.h"
 #include "RifEclipseRftAddress.h"
 
 #include "cafAppEnum.h"
@@ -98,11 +99,13 @@ public:
 
     // Returns the depth values an RFT curve uses for its depth axis for the given well/time step.
     // Fallback chain: RFT MD channel, then extractor-derived MD, then TVD channel as a final
-    // fallback (the RFT plot displays TVD on the depth axis when MD is missing).
+    // fallback (the RFT plot displays TVD on the depth axis when MD is missing). If resultDepthType
+    // is non-null, it is set to indicate which depth type was actually returned.
     static std::vector<double> rftCurveDepthValues( RifReaderRftInterface*      reader,
                                                     const QString&              wellName,
                                                     const QDateTime&            timeStep,
-                                                    RigEclipseWellLogExtractor* extractor );
+                                                    RigEclipseWellLogExtractor* extractor,
+                                                    RiaDefines::DepthType*      resultDepthType = nullptr );
 
 protected:
     QString     createCurveAutoName() override;
