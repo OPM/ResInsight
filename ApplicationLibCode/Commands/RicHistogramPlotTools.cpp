@@ -202,7 +202,7 @@ void RicHistogramPlotTools::addHistogramCurveToPlot( RimHistogramPlot* plot, Rim
     plot->updateConnectedEditors();
 
     RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
-    mainPlotWindow->updateMultiPlotToolBar();
+    if ( mainPlotWindow ) mainPlotWindow->updateMultiPlotToolBar();
 
     RiuPlotMainWindowTools::onObjectAppended( curve, plot );
 }
