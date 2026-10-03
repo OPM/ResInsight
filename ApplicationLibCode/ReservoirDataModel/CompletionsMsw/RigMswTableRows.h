@@ -84,6 +84,8 @@ struct CompsegsRow
 
     std::string gridName; // Empty for main grid, populated for LGR data
 
+    std::optional<int> segmentNumber; // ISEG, written only if set
+
     bool isMainGrid() const { return gridName.empty(); }
     bool isLgrGrid() const { return !gridName.empty(); }
 };

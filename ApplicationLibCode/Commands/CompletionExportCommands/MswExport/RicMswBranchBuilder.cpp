@@ -203,7 +203,7 @@ double segmentMidpointMD( const std::vector<CellSegmentEntry>& cellSegMap, int s
 {
     for ( const auto& entry : cellSegMap )
     {
-        if ( entry.lastSubSegmentNumber == segmentNumber ) return 0.5 * ( entry.cellStartMD + entry.cellEndMD );
+        if ( entry.lastSubSegmentNumber == segmentNumber ) return entry.nodeMD;
     }
     return 0.0;
 }
@@ -228,17 +228,16 @@ int findOutletSegmentForMD( const std::vector<CellSegmentEntry>& cellSegMap, dou
 {
     if ( cellSegMap.empty() ) return 1;
 
-    // Match the tree-based logic (findClosestSegmentWithLowerMD): find the sub-segment whose
-    // midpoint is closest to, but not greater than, the given MD.  Range-based lookup is
-    // incorrect when a cell's midpoint lies above the completion MD (e.g. a fracture near the
+    // Match the tree-based logic (findClosestSegmentWithLowerMD): find the segment whose node is
+    // closest to, but not greater than, the given MD.  Range-based lookup is
+    // incorrect when a segment node lies above the completion MD (e.g. a fracture near the
     // heel of a long cell), which would assign the wrong outlet segment.
     const CellSegmentEntry* best     = nullptr;
     double                  bestDist = std::numeric_limits<double>::infinity();
 
     for ( const auto& entry : cellSegMap )
     {
-        const double midpoint = 0.5 * ( entry.cellStartMD + entry.cellEndMD );
-        const double dist     = md - midpoint;
+        const double dist = md - entry.nodeMD;
         if ( dist >= 0.0 && dist < bestDist )
         {
             best     = &entry;
@@ -246,31 +245,156 @@ int findOutletSegmentForMD( const std::vector<CellSegmentEntry>& cellSegMap, dou
         }
     }
 
-    // Fallback: md is shallower than all segment midpoints — connect to the first (shallowest) segment.
+    // Fallback: md is shallower than all segment nodes — connect to the first (shallowest) segment.
     return best ? best->lastSubSegmentNumber : cellSegMap.front().lastSubSegmentNumber;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigMswBranch buildMainBoreBranch( const RimWellPath*                                wellPath,
-                                  const std::vector<WellPathCellIntersectionInfo>&  filteredIntersections,
-                                  const RigMainGrid*                                mainGrid,
-                                  const RimEclipseCase*                             eclipseCase,
-                                  const std::vector<const RimPerforationInterval*>& perforationIntervals,
-                                  const std::set<const RimPerforationInterval*>&    valvedIntervals,
-                                  const std::string&                                infoType,
-                                  double                                            heelMD,
-                                  double                                            heelTVD,
-                                  int                                               branchNumber,
-                                  int&                                              segmentNumber,
-                                  int                                               outletSegmentNumber,
-                                  double                                            maxSegmentLength,
-                                  const std::vector<std::pair<double, double>>&     customSegmentIntervals,
-                                  const std::optional<QDateTime>&                   exportDate,
-                                  RiaDefines::EclipseUnitSystem                     unitSystem,
-                                  std::vector<CellSegmentEntry>*                    cellSegMap,
-                                  const RigActiveCellInfo*                          activeCellInfo )
+std::vector<NodeSpan> segmentSpans( const std::vector<std::pair<double, double>>& cellPieces, const std::vector<double>& nodes )
+{
+    std::vector<NodeSpan> parts;
+    if ( nodes.empty() ) return parts;
+
+    // Nodes unchanged by the segmentation rules: each piece is served by its own centre node
+    bool nodesAreCandidates = nodes.size() == cellPieces.size();
+    for ( size_t i = 0; nodesAreCandidates && i < nodes.size(); ++i )
+    {
+        nodesAreCandidates = nodes[i] == 0.5 * ( cellPieces[i].first + cellPieces[i].second );
+    }
+    if ( nodesAreCandidates )
+    {
+        for ( size_t i = 0; i < cellPieces.size(); ++i )
+        {
+            parts.push_back( { cellPieces[i].first, cellPieces[i].second, i } );
+        }
+        return parts;
+    }
+
+    // Split the pieces at the nodes, each part belongs to the node upstream of it
+    for ( const auto& [pieceStart, pieceEnd] : cellPieces )
+    {
+        std::vector<double> cuts = { pieceStart };
+        for ( const double nodeMD : nodes )
+        {
+            if ( nodeMD > pieceStart && nodeMD < pieceEnd ) cuts.push_back( nodeMD );
+        }
+        std::ranges::sort( cuts );
+        cuts.push_back( pieceEnd );
+
+        for ( size_t k = 0; k + 1 < cuts.size(); ++k )
+        {
+            parts.push_back( { cuts[k], cuts[k + 1], *RicMswTableDataTools::upstreamNodeIndex( nodes, cuts[k] ) } );
+        }
+    }
+
+    // Merge consecutive parts served by the same node
+    std::vector<NodeSpan> spans;
+    for ( const auto& part : parts )
+    {
+        if ( !spans.empty() && spans.back().nodeIndex == part.nodeIndex )
+        {
+            spans.back().endMD = part.endMD;
+        }
+        else
+        {
+            spans.push_back( part );
+        }
+    }
+    return spans;
+}
+
+namespace
+{
+    //--------------------------------------------------------------------------------------------------
+    /// Data shared by the COMPSEGS collection of all cells along a main bore branch
+    //--------------------------------------------------------------------------------------------------
+    struct PerforationCompsegsContext
+    {
+        const std::vector<const RimPerforationInterval*>&                           perforationIntervals;
+        const std::set<const RimPerforationInterval*>&                              valvedIntervals;
+        const std::optional<QDateTime>&                                             exportDate;
+        const RigMainGrid*                                                          mainGrid;
+        const RigActiveCellInfo*                                                    activeCellInfo;
+        std::map<const RimPerforationInterval*, std::set<size_t>>&                  perforationCompletionCells;
+        std::map<const RimPerforationInterval*, RicPerforationCellFilterEvaluator>& filterEvaluators;
+        std::map<const RimPerforationInterval*, size_t>&                            overlapCountPerInterval;
+        std::map<const RimPerforationInterval*, size_t>&                            emittedCountPerInterval;
+    };
+
+    //--------------------------------------------------------------------------------------------------
+    /// Collect COMPSEGS only for bare perforations (no active valve) on the main bore.
+    /// Valved perforations get their COMPSEGS on the valve segment.
+    //--------------------------------------------------------------------------------------------------
+    std::vector<RigMswCellIntersection> collectCellCompsegs( const WellPathCellIntersectionInfo& cellInfo, PerforationCompsegsContext& context )
+    {
+        std::vector<RigMswCellIntersection> cellCompsegs;
+        for ( const auto* perf : context.perforationIntervals )
+        {
+            if ( context.valvedIntervals.count( perf ) ) continue; // valve handles this interval
+            if ( context.exportDate.has_value() && !perf->isActiveOnDate( context.exportDate.value() ) ) continue;
+
+            const double overlapStart = std::max( perf->startMD(), cellInfo.startMD );
+            const double overlapEnd   = std::min( perf->endMD(), cellInfo.endMD );
+            if ( overlapEnd > overlapStart )
+            {
+                if ( context.activeCellInfo && cellInfo.globCellIndex < context.mainGrid->totalCellCount() &&
+                     !context.activeCellInfo->isActive( ReservoirCellIndex( cellInfo.globCellIndex ) ) )
+                    continue;
+
+                // Skip cells the perforation does not actually connect to (see perforationCompletionCells).
+                const auto& completionCells = context.perforationCompletionCells[perf];
+                if ( !completionCells.empty() && !completionCells.count( cellInfo.globCellIndex ) ) continue;
+
+                context.overlapCountPerInterval[perf]++;
+                auto& filterEval = context.filterEvaluators.at( perf );
+                if ( !filterEval.includesGlobalCell( cellInfo.globCellIndex ) ) continue;
+                if ( auto ci = toMswCellIntersection( cellInfo, context.mainGrid, overlapStart, overlapEnd ) )
+                {
+                    // All candidates here describe the same grid cell, as they are derived from a single cellInfo.
+                    // Several perforation intervals may overlap that cell, but the cell must be connected only once,
+                    // matching the single COMPDAT connection. Widen the existing range instead of adding another row.
+                    if ( cellCompsegs.empty() )
+                    {
+                        cellCompsegs.push_back( *ci );
+                    }
+                    else
+                    {
+                        auto& existing         = cellCompsegs.front();
+                        existing.distanceStart = std::min( existing.distanceStart, ci->distanceStart );
+                        existing.distanceEnd   = std::max( existing.distanceEnd, ci->distanceEnd );
+                    }
+                    context.emittedCountPerInterval[perf]++;
+                }
+            }
+        }
+        return cellCompsegs;
+    }
+} // namespace
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigMswBranch buildMainBoreBranch( const RimWellPath*                                             wellPath,
+                                  const std::vector<WellPathCellIntersectionInfo>&               filteredIntersections,
+                                  const RigMainGrid*                                             mainGrid,
+                                  const RimEclipseCase*                                          eclipseCase,
+                                  const std::vector<const RimPerforationInterval*>&              perforationIntervals,
+                                  const std::set<const RimPerforationInterval*>&                 valvedIntervals,
+                                  const std::string&                                             infoType,
+                                  double                                                         heelMD,
+                                  double                                                         heelTVD,
+                                  int                                                            branchNumber,
+                                  int&                                                           segmentNumber,
+                                  int                                                            outletSegmentNumber,
+                                  double                                                         maxSegmentLength,
+                                  const std::vector<std::pair<double, double>>&                  customSegmentIntervals,
+                                  const std::vector<RicMswTableDataTools::SegmentationInterval>& segmentationIntervals,
+                                  const std::optional<QDateTime>&                                exportDate,
+                                  RiaDefines::EclipseUnitSystem                                  unitSystem,
+                                  std::vector<CellSegmentEntry>*                                 cellSegMap,
+                                  const RigActiveCellInfo*                                       activeCellInfo )
 {
     std::vector<RigMswSegment> result;
 
@@ -326,6 +450,20 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
         }
     }
 
+    PerforationCompsegsContext compsegsContext{ perforationIntervals,
+                                                valvedIntervals,
+                                                exportDate,
+                                                mainGrid,
+                                                activeCellInfo,
+                                                perforationCompletionCells,
+                                                filterEvaluators,
+                                                overlapCountPerInterval,
+                                                emittedCountPerInterval };
+
+    // Pass 1: the cell pieces give the candidate nodes at their centres, the segmentation rules place the nodes
+    std::vector<std::pair<double, double>>           cellPieces;
+    std::vector<std::vector<RigMswCellIntersection>> compsegsPerCell;
+    std::vector<double>                              candidateNodes;
     for ( const auto& cellInfo : filteredIntersections )
     {
         const double cellLength = std::fabs( cellInfo.endMD - cellInfo.startMD );
@@ -335,115 +473,97 @@ RigMswBranch buildMainBoreBranch( const RimWellPath*                            
             continue;
         }
 
-        // Collect COMPSEGS only for bare perforations (no active valve) on the main bore.
-        // Valved perforations get their COMPSEGS on the valve segment.
-        std::vector<RigMswCellIntersection> cellCompsegs;
-        for ( const auto* perf : perforationIntervals )
-        {
-            if ( valvedIntervals.count( perf ) ) continue; // valve handles this interval
-            if ( exportDate.has_value() && !perf->isActiveOnDate( exportDate.value() ) ) continue;
-
-            const double overlapStart = std::max( perf->startMD(), cellInfo.startMD );
-            const double overlapEnd   = std::min( perf->endMD(), cellInfo.endMD );
-            if ( overlapEnd > overlapStart )
-            {
-                if ( activeCellInfo && cellInfo.globCellIndex < mainGrid->totalCellCount() &&
-                     !activeCellInfo->isActive( ReservoirCellIndex( cellInfo.globCellIndex ) ) )
-                    continue;
-
-                // Skip cells the perforation does not actually connect to (see perforationCompletionCells above).
-                const auto& completionCells = perforationCompletionCells[perf];
-                if ( !completionCells.empty() && !completionCells.count( cellInfo.globCellIndex ) ) continue;
-
-                overlapCountPerInterval[perf]++;
-                auto& filterEval = filterEvaluators.at( perf );
-                if ( !filterEval.includesGlobalCell( cellInfo.globCellIndex ) ) continue;
-                if ( auto ci = toMswCellIntersection( cellInfo, mainGrid, overlapStart, overlapEnd ) )
-                {
-                    // All candidates here describe the same grid cell, as they are derived from a single cellInfo.
-                    // Several perforation intervals may overlap that cell, but the cell must be connected only once,
-                    // matching the single COMPDAT connection. Widen the existing range instead of adding another row.
-                    if ( cellCompsegs.empty() )
-                    {
-                        cellCompsegs.push_back( *ci );
-                    }
-                    else
-                    {
-                        auto& existing         = cellCompsegs.front();
-                        existing.distanceStart = std::min( existing.distanceStart, ci->distanceStart );
-                        existing.distanceEnd   = std::max( existing.distanceEnd, ci->distanceEnd );
-                    }
-                    emittedCountPerInterval[perf]++;
-                }
-            }
-        }
+        compsegsPerCell.push_back( collectCellCompsegs( cellInfo, compsegsContext ) );
 
         const auto subSegs =
             RicMswTableDataTools::createSubSegmentMDPairs( cellInfo.startMD, cellInfo.endMD, maxSegmentLength, customSegmentIntervals );
-
-        bool firstSubSeg   = true;
-        int  lastSubSegNum = prevSegNum;
         for ( const auto& [subStartMD, subEndMD] : subSegs )
         {
-            const double midPointMD  = 0.5 * ( subStartMD + subEndMD );
-            const double midPointTVD = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, midPointMD );
+            cellPieces.push_back( { subStartMD, subEndMD } );
+            candidateNodes.push_back( 0.5 * ( subStartMD + subEndMD ) );
+        }
+    }
 
-            double curPrevOutMD  = prevOutMD;
-            double curPrevOutTVD = prevOutTVD;
-            if ( midPointMD < curPrevOutMD )
-            {
-                curPrevOutMD  = heelMD;
-                curPrevOutTVD = heelTVD;
-            }
+    const std::vector<double> nodes = RicMswTableDataTools::placeSegmentNodes( heelMD, candidateNodes, segmentationIntervals );
 
-            double length = 0.0;
-            double depth  = 0.0;
-            if ( infoType == "INC" )
-            {
-                length = midPointMD - curPrevOutMD;
-                depth  = midPointTVD - curPrevOutTVD;
-            }
-            else
-            {
-                length = midPointMD;
-                depth  = midPointTVD;
-            }
+    // Pass 2: one segment per node, the outlet is the previous node
+    const int firstSegmentNumber = segmentNumber;
+    for ( const double nodeMD : nodes )
+    {
+        const double nodeTVD = RicMswTableDataTools::tvdFromMeasuredDepth( wellPath, nodeMD );
 
-            double diameter  = 0.0;
-            double roughness = 0.0;
-            if ( exportDate.has_value() )
-            {
-                diameter  = wellPath->segmentCollection()->getDiameterAtMD( midPointMD, unitSystem, *exportDate );
-                roughness = wellPath->segmentCollection()->getRoughnessAtMD( midPointMD, unitSystem, *exportDate );
-            }
-            else
-            {
-                diameter  = wellPath->segmentCollection()->getDiameterAtMD( midPointMD, unitSystem );
-                roughness = wellPath->segmentCollection()->getRoughnessAtMD( midPointMD, unitSystem );
-            }
+        double curPrevOutMD  = prevOutMD;
+        double curPrevOutTVD = prevOutTVD;
+        if ( nodeMD < curPrevOutMD )
+        {
+            curPrevOutMD  = heelMD;
+            curPrevOutTVD = heelTVD;
+        }
 
-            RigMswSegment seg;
-            seg.segmentNumber       = segmentNumber;
-            seg.outletSegmentNumber = prevSegNum;
-            seg.length              = length;
-            seg.depth               = depth;
-            seg.diameter            = diameter;
-            seg.roughness           = roughness;
-            seg.sourceWellName      = wellPath->name().toStdString();
-            if ( firstSeg && firstSubSeg )
-            {
-                seg.description = "Segments on main bore";
-                firstSeg        = false;
-            }
-            if ( firstSubSeg ) seg.intersections = cellCompsegs;
+        double length = 0.0;
+        double depth  = 0.0;
+        if ( infoType == "INC" )
+        {
+            length = nodeMD - curPrevOutMD;
+            depth  = nodeTVD - curPrevOutTVD;
+        }
+        else
+        {
+            length = nodeMD;
+            depth  = nodeTVD;
+        }
 
-            lastSubSegNum = segmentNumber;
-            prevSegNum    = segmentNumber++;
-            prevOutMD     = midPointMD;
-            prevOutTVD    = midPointTVD;
-            firstSubSeg   = false;
-            if ( cellSegMap ) cellSegMap->push_back( { subStartMD, subEndMD, lastSubSegNum } );
-            result.push_back( std::move( seg ) );
+        double diameter  = 0.0;
+        double roughness = 0.0;
+        if ( exportDate.has_value() )
+        {
+            diameter  = wellPath->segmentCollection()->getDiameterAtMD( nodeMD, unitSystem, *exportDate );
+            roughness = wellPath->segmentCollection()->getRoughnessAtMD( nodeMD, unitSystem, *exportDate );
+        }
+        else
+        {
+            diameter  = wellPath->segmentCollection()->getDiameterAtMD( nodeMD, unitSystem );
+            roughness = wellPath->segmentCollection()->getRoughnessAtMD( nodeMD, unitSystem );
+        }
+
+        RigMswSegment seg;
+        seg.segmentNumber       = segmentNumber;
+        seg.outletSegmentNumber = prevSegNum;
+        seg.length              = length;
+        seg.depth               = depth;
+        seg.diameter            = diameter;
+        seg.roughness           = roughness;
+        seg.sourceWellName      = wellPath->name().toStdString();
+        if ( firstSeg )
+        {
+            seg.description = "Segments on main bore";
+            firstSeg        = false;
+        }
+
+        prevSegNum = segmentNumber++;
+        prevOutMD  = nodeMD;
+        prevOutTVD = nodeTVD;
+        result.push_back( std::move( seg ) );
+    }
+
+    // COMPSEGS rows go to the segment with the node nearest the row centre, as the simulator assigns them
+    for ( const auto& cellCompsegs : compsegsPerCell )
+    {
+        for ( const auto& ci : cellCompsegs )
+        {
+            if ( auto nodeIndex = RicMswTableDataTools::nearestNodeIndex( nodes, 0.5 * ( ci.distanceStart + ci.distanceEnd ) ) )
+            {
+                result[*nodeIndex].intersections.push_back( ci );
+            }
+        }
+    }
+
+    if ( cellSegMap )
+    {
+        for ( const auto& span : segmentSpans( cellPieces, nodes ) )
+        {
+            cellSegMap->push_back(
+                { span.startMD, span.endMD, firstSegmentNumber + static_cast<int>( span.nodeIndex ), nodes[span.nodeIndex] } );
         }
     }
 

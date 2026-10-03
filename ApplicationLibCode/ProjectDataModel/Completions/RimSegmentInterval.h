@@ -27,6 +27,8 @@
 #include <QDateTime>
 #include <QString>
 
+#include <optional>
+
 class RimWellPath;
 
 namespace caf
@@ -61,6 +63,12 @@ public:
     void setEndMD( double endMD );
     void setDiameter( double diameter );
     void setRoughnessFactor( double roughness );
+
+    // Segmentation, at most one is active
+    std::optional<double> minSegmentLength() const;
+    std::optional<double> maxSegmentLength() const;
+    void                  setMinSegmentLength( std::optional<double> length );
+    void                  setMaxSegmentLength( std::optional<double> length );
 
     // Date tracking
     void enableCustomStartDate( bool enable );
@@ -103,13 +111,18 @@ protected:
 
 private:
     void    updateConnectedEditors();
+    void    updateUiName();
     QString generateDisplayLabel() const;
+    void    disableOtherSegmentationControls( const caf::PdmFieldHandle* activeField );
 
 private:
     caf::PdmField<double> m_startMD;
     caf::PdmField<double> m_endMD;
     caf::PdmField<double> m_diameter;
     caf::PdmField<double> m_roughnessFactor;
+
+    caf::PdmField<std::pair<bool, double>> m_minSegmentLength;
+    caf::PdmField<std::pair<bool, double>> m_maxSegmentLength;
 
     caf::PdmField<bool>      m_useCustomStartDate;
     caf::PdmField<QDateTime> m_startDate;

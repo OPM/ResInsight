@@ -73,6 +73,17 @@ void RimSegmentCollection::LengthAndDepthEnum::setUp()
     setDefault( RimSegmentCollection::LengthAndDepthType::ABS );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <>
+void RimSegmentCollection::CompsegsSegmentNumberEnum::setUp()
+{
+    addItem( RimSegmentCollection::CompsegsSegmentNumberType::ASSIGNED_BY_SIMULATOR, "AssignedBySimulator", "Assigned by Simulator (1*)" );
+    addItem( RimSegmentCollection::CompsegsSegmentNumberType::EXPORTED, "Exported", "Exported" );
+    setDefault( RimSegmentCollection::CompsegsSegmentNumberType::ASSIGNED_BY_SIMULATOR );
+}
+
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimSegmentCollection, "SegmentCollection" );
@@ -98,6 +109,10 @@ RimSegmentCollection::RimSegmentCollection()
     CAF_PDM_InitScriptableField( &m_enforceMaxSegmentLength, "EnforceMaxSegmentLength", false, "Enforce Max Segment Length" );
     CAF_PDM_InitScriptableField( &m_maxSegmentLength, "MaxSegmentLength", 200.0, "Max Segment Length" );
     m_maxSegmentLength.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_compsegsSegmentNumber, "CompsegsSegmentNumber", "COMPSEGS Segment Number (ISEG)" );
+    m_compsegsSegmentNumber.uiCapability()->setUiToolTip(
+        "Export the segment each COMPSEGS connection belongs to, or leave it to the simulator to assign the segment" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,6 +214,22 @@ RimSegmentCollection::LengthAndDepthEnum RimSegmentCollection::lengthAndDepth() 
 double RimSegmentCollection::maxSegmentLength() const
 {
     return m_enforceMaxSegmentLength() ? m_maxSegmentLength() : std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSegmentCollection::exportCompsegsSegmentNumber() const
+{
+    return m_compsegsSegmentNumber() == CompsegsSegmentNumberType::EXPORTED;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentCollection::setCompsegsSegmentNumber( CompsegsSegmentNumberType segmentNumberType )
+{
+    m_compsegsSegmentNumber = segmentNumberType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -390,6 +421,21 @@ std::vector<std::pair<double, double>> RimSegmentCollection::getSegmentIntervals
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Valid intervals with a min or max segment length rule, active on the export date if given
+//--------------------------------------------------------------------------------------------------
+std::vector<const RimSegmentInterval*> RimSegmentCollection::segmentationIntervals( const std::optional<QDateTime>& exportDate ) const
+{
+    std::vector<const RimSegmentInterval*> result;
+    for ( auto* interval : intervals() )
+    {
+        if ( !interval || !interval->isValidInterval() ) continue;
+        if ( exportDate.has_value() && !interval->isActiveOnDate( *exportDate ) ) continue;
+        if ( interval->minSegmentLength().has_value() || interval->maxSegmentLength().has_value() ) result.push_back( interval );
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimSegmentCollection::hasCustomSegmentIntervals() const
@@ -418,6 +464,7 @@ void RimSegmentCollection::updateFromTopLevelWell( const RimSegmentCollection* t
     m_lengthAndDepth          = topLevelWellParameters->m_lengthAndDepth();
     m_enforceMaxSegmentLength = topLevelWellParameters->m_enforceMaxSegmentLength();
     m_maxSegmentLength        = topLevelWellParameters->m_maxSegmentLength();
+    m_compsegsSegmentNumber   = topLevelWellParameters->m_compsegsSegmentNumber();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -550,6 +597,7 @@ void RimSegmentCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
         uiOrdering.add( &m_lengthAndDepth );
         uiOrdering.add( &m_enforceMaxSegmentLength );
         uiOrdering.add( &m_maxSegmentLength );
+        uiOrdering.add( &m_compsegsSegmentNumber );
     }
 
     const bool readOnly = !wellPath->isTopLevelWellPath() && !m_customValuesForLateral();

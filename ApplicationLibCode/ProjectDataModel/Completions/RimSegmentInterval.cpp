@@ -28,6 +28,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -52,6 +53,11 @@ RimSegmentInterval::RimSegmentInterval()
                                  "RoughnessFactor",
                                  RimSegmentCollection::defaultRoughnessFactor( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
                                  "Roughness Factor" );
+
+    CAF_PDM_InitField( &m_minSegmentLength, "MinSegmentLength", std::make_pair( false, 10.0 ), "Min Segment Length" );
+    m_minSegmentLength.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_maxSegmentLength, "MaxSegmentLength", std::make_pair( false, 100.0 ), "Max Segment Length" );
+    m_maxSegmentLength.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_useCustomStartDate, "UseCustomStartDate", false, "Custom Start Date" );
     CAF_PDM_InitField( &m_startDate, "StartDate", QDateTime::currentDateTime(), "Start Date" );
@@ -156,6 +162,42 @@ void RimSegmentInterval::setDiameter( double diameter )
 void RimSegmentInterval::setRoughnessFactor( double roughness )
 {
     m_roughnessFactor = roughness;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RimSegmentInterval::minSegmentLength() const
+{
+    if ( m_minSegmentLength().first && m_minSegmentLength().second > 0.0 ) return m_minSegmentLength().second;
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RimSegmentInterval::maxSegmentLength() const
+{
+    if ( m_maxSegmentLength().first && m_maxSegmentLength().second > 0.0 ) return m_maxSegmentLength().second;
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentInterval::setMinSegmentLength( std::optional<double> length )
+{
+    m_minSegmentLength = std::make_pair( length.has_value(), length.value_or( m_minSegmentLength().second ) );
+    if ( length ) disableOtherSegmentationControls( &m_minSegmentLength );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentInterval::setMaxSegmentLength( std::optional<double> length )
+{
+    m_maxSegmentLength = std::make_pair( length.has_value(), length.value_or( m_maxSegmentLength().second ) );
+    if ( length ) disableOtherSegmentationControls( &m_maxSegmentLength );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,7 +349,7 @@ void RimSegmentInterval::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     if ( changedField == &m_startMD || changedField == &m_endMD )
     {
-        uiCapability()->setUiName( QString( "%1 - %2" ).arg( m_startMD() ).arg( m_endMD() ) );
+        updateUiName();
 
         // Validate interval
         if ( m_startMD >= m_endMD )
@@ -321,6 +363,16 @@ void RimSegmentInterval::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         {
             collection->updateOverlapVisualFeedback();
         }
+    }
+
+    const bool segmentationEnabled = ( changedField == &m_minSegmentLength && m_minSegmentLength().first ) ||
+                                     ( changedField == &m_maxSegmentLength && m_maxSegmentLength().first );
+    if ( segmentationEnabled ) disableOtherSegmentationControls( changedField );
+
+    if ( changedField == &m_minSegmentLength || changedField == &m_maxSegmentLength )
+    {
+        updateUiName();
+        uiCapability()->updateConnectedEditors();
     }
 
     updateConnectedEditors();
@@ -339,12 +391,18 @@ void RimSegmentInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         m_endMD.uiCapability()->setUiName( isMetric ? "End MD [m]" : "End MD [ft]" );
         m_diameter.uiCapability()->setUiName( isMetric ? "Diameter [m]" : "Diameter [ft]" );
         m_roughnessFactor.uiCapability()->setUiName( isMetric ? "Roughness Factor [m]" : "Roughness Factor [ft]" );
+        m_minSegmentLength.uiCapability()->setUiName( isMetric ? "Min Segment Length [m]" : "Min Segment Length [ft]" );
+        m_maxSegmentLength.uiCapability()->setUiName( isMetric ? "Max Segment Length [m]" : "Max Segment Length [ft]" );
     }
 
     uiOrdering.add( &m_startMD );
     uiOrdering.add( &m_endMD );
     uiOrdering.add( &m_diameter );
     uiOrdering.add( &m_roughnessFactor );
+
+    auto* segmentationGroup = uiOrdering.addNewGroup( "Segmentation" );
+    segmentationGroup->add( &m_minSegmentLength );
+    segmentationGroup->add( &m_maxSegmentLength );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,7 +410,20 @@ void RimSegmentInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 void RimSegmentInterval::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    uiCapability()->setUiName( QString( "%1 - %2" ).arg( m_startMD() ).arg( m_endMD() ) );
+    updateUiName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSegmentInterval::updateUiName()
+{
+    QString name = QString( "%1 - %2" ).arg( m_startMD() ).arg( m_endMD() );
+    if ( auto minLength = minSegmentLength() )
+        name += QString( " (min %1)" ).arg( *minLength );
+    else if ( auto maxLength = maxSegmentLength() )
+        name += QString( " (max %1)" ).arg( *maxLength );
+    uiCapability()->setUiName( name );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -365,6 +436,17 @@ void RimSegmentInterval::updateConnectedEditors()
     m_endMD.uiCapability()->updateConnectedEditors();
     m_diameter.uiCapability()->updateConnectedEditors();
     m_roughnessFactor.uiCapability()->updateConnectedEditors();
+    m_minSegmentLength.uiCapability()->updateConnectedEditors();
+    m_maxSegmentLength.uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The segmentation controls are mutually exclusive
+//--------------------------------------------------------------------------------------------------
+void RimSegmentInterval::disableOtherSegmentationControls( const caf::PdmFieldHandle* activeField )
+{
+    if ( activeField != &m_minSegmentLength ) m_minSegmentLength = std::make_pair( false, m_minSegmentLength().second );
+    if ( activeField != &m_maxSegmentLength ) m_maxSegmentLength = std::make_pair( false, m_maxSegmentLength().second );
 }
 
 //--------------------------------------------------------------------------------------------------

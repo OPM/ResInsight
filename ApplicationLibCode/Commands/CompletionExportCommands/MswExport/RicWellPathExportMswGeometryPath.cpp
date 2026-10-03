@@ -190,6 +190,7 @@ std::vector<RigMswBranch> buildLateralBranches( RimEclipseCase*                 
                                                                    childOutletSeg,
                                                                    mswParameters->maxSegmentLength(),
                                                                    segmentIntervals,
+                                                                   RicMswTableDataTools::segmentationIntervals( mswParameters, exportDate ),
                                                                    exportDate,
                                                                    unitSystem,
                                                                    &childCellSegMap,
@@ -382,6 +383,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
                                                                     1, // outlet = heel (segment 1)
                                                                     maxSegmentLength,
                                                                     customSegmentIntervals,
+                                                                    RicMswTableDataTools::segmentationIntervals( mswParameters, exportDate ),
                                                                     exportDate,
                                                                     unitSystem,
                                                                     &cellSegMap,
@@ -502,7 +504,7 @@ RigMswWellExportData buildMswWellExportData( RimEclipseCase*                    
 /// Populate RigMswTableData from a pre-built RigMswWellExportData by simple iteration over
 /// RigMswSegment objects.
 //--------------------------------------------------------------------------------------------------
-RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDefines::EclipseUnitSystem unitSystem )
+RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDefines::EclipseUnitSystem unitSystem, bool exportSegmentNumbers )
 {
     RigMswTableData tableData( exportData.header.well, unitSystem );
     tableData.setWelsegsHeader( exportData.header );
@@ -543,6 +545,7 @@ RigMswTableData collectTableData( const RigMswWellExportData& exportData, RiaDef
             compRow.distanceStart = inter.distanceStart;
             compRow.distanceEnd   = inter.distanceEnd;
             compRow.gridName      = inter.gridName;
+            if ( exportSegmentNumbers ) compRow.segmentNumber = seg.segmentNumber;
             compsegsRows.push_back( { compRow, branch.source } );
         }
 
