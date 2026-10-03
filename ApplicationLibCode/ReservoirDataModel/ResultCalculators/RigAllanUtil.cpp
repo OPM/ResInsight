@@ -88,7 +88,7 @@ void RigAllanUtil::computeAllanResults( RigCaseCellResultsData* cellResultsData,
             formationCount = cellResultsData->activeFormationNames()->formationNames().size();
         }
 
-        const RigConnectionContainer& nncConnections = mainGrid->nncData()->allConnections();
+        const std::vector<RigConnection>& nncConnections = mainGrid->nncData()->allConnections();
 
         std::map<std::pair<int, int>, int> formationCombinationToCategory;
         for ( size_t i = 0; i < nncConnections.size(); i++ )

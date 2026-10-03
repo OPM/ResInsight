@@ -704,7 +704,7 @@ void RigMainGrid::distributeNNCsToFaults()
 {
     if ( m_faultsPrCellAcc.isNull() ) return;
 
-    const RigConnectionContainer& nncs = nncData()->allConnections();
+    const std::vector<RigConnection>& nncs = nncData()->allConnections();
     for ( size_t nncIdx = 0; nncIdx < nncs.size(); ++nncIdx )
     {
         // Find the fault for each side of the nnc

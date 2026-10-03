@@ -33,14 +33,11 @@ RigConnection::RigConnection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigConnection::RigConnection( unsigned                           c1GlobIdx,
-                              unsigned                           c2GlobIdx,
-                              cvf::StructGridInterface::FaceType c1Face,
-                              const std::vector<cvf::Vec3f>&     polygon )
+RigConnection::RigConnection( unsigned c1GlobIdx, unsigned c2GlobIdx, cvf::StructGridInterface::FaceType c1Face, std::vector<cvf::Vec3f> polygon )
     : m_c1GlobIdx( c1GlobIdx )
     , m_c2GlobIdx( c2GlobIdx )
     , m_c1Face( static_cast<unsigned char>( c1Face ) )
-    , m_polygon( polygon )
+    , m_polygon( std::move( polygon ) )
 {
     if ( c1GlobIdx >= c2GlobIdx )
     {
@@ -59,11 +56,11 @@ RigConnection::RigConnection( unsigned                           c1GlobIdx,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigConnection::RigConnection( size_t c1GlobIdx, size_t c2GlobIdx, cvf::StructGridInterface::FaceType c1Face, const std::vector<cvf::Vec3f>& polygon )
+RigConnection::RigConnection( size_t c1GlobIdx, size_t c2GlobIdx, cvf::StructGridInterface::FaceType c1Face, std::vector<cvf::Vec3f> polygon )
     : m_c1GlobIdx( static_cast<unsigned>( c1GlobIdx ) )
     , m_c2GlobIdx( static_cast<unsigned>( c2GlobIdx ) )
     , m_c1Face( static_cast<unsigned char>( c1Face ) )
-    , m_polygon( polygon )
+    , m_polygon( std::move( polygon ) )
 {
     CAF_ASSERT( c1GlobIdx < std::numeric_limits<unsigned>::max() && c2GlobIdx < std::numeric_limits<unsigned>::max() );
 
@@ -79,29 +76,6 @@ RigConnection::RigConnection( size_t c1GlobIdx, size_t c2GlobIdx, cvf::StructGri
             m_c1Face = cvf::StructGridInterface::oppositeFace( c1Face );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigConnection::RigConnection( const RigConnection& rhs )
-    : m_c1GlobIdx( rhs.m_c1GlobIdx )
-    , m_c2GlobIdx( rhs.m_c2GlobIdx )
-    , m_c1Face( rhs.m_c1Face )
-    , m_polygon( rhs.m_polygon )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigConnection& RigConnection::operator=( const RigConnection& rhs )
-{
-    m_c1GlobIdx = rhs.m_c1GlobIdx;
-    m_c2GlobIdx = rhs.m_c2GlobIdx;
-    m_c1Face    = rhs.m_c1Face;
-    m_polygon   = rhs.m_polygon;
-    return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,80 +105,4 @@ bool RigConnection::operator<( const RigConnection& other ) const
     }
 
     return ( m_c2GlobIdx < other.m_c2GlobIdx );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RigConnection& RigConnectionContainer::operator[]( size_t i ) const
-{
-    return m_connections[i];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigConnection& RigConnectionContainer::operator[]( size_t i )
-{
-    return m_connections[i];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigConnectionContainer::push_back( const RigConnection& connection )
-{
-    m_connections.push_back( connection );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigConnectionContainer::push_back( const RigConnectionContainer& other )
-{
-    m_connections.insert( m_connections.end(), other.m_connections.begin(), other.m_connections.end() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigConnectionContainer::size() const
-{
-    return m_connections.size();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigConnectionContainer::clear()
-{
-    m_connections.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigConnectionContainer::empty() const
-{
-    return m_connections.empty();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigConnectionContainer::remove_duplicates()
-{
-    std::sort( m_connections.begin(), m_connections.end() );
-    m_connections.erase( std::unique( m_connections.begin(), m_connections.end() ), m_connections.end() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigConnectionContainer::reserve( size_t requiredSize )
-{
-    if ( m_connections.capacity() < requiredSize )
-    {
-        m_connections.reserve( requiredSize );
-    }
 }

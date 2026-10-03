@@ -90,8 +90,8 @@ rips::Vec3i* createConnectionVec3i( const RigCell& cell )
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaNNCConnectionsStateHandler::assignReply( rips::NNCConnections* reply )
 {
-    RigMainGrid*                  mainGrid    = m_eclipseCase->eclipseCaseData()->mainGrid();
-    const RigConnectionContainer& connections = mainGrid->nncData()->allConnections();
+    RigMainGrid*                      mainGrid    = m_eclipseCase->eclipseCaseData()->mainGrid();
+    const std::vector<RigConnection>& connections = mainGrid->nncData()->allConnections();
 
     size_t       connectionCount = connections.size();
     const size_t packageSize     = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::NNCConnection ) );

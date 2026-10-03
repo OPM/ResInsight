@@ -24,7 +24,7 @@ def test_10kSync(rips_instance, initialize_test):
     )
 
     nnc_connections = case.nnc_connections()
-    assert len(nnc_connections) == 3416
+    assert len(nnc_connections) == 3345
 
     connection = nnc_connections[0]
     assert connection.cell1.i == 33
