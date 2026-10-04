@@ -120,6 +120,35 @@ TEST( RimWorkflowDescribeTools, resinsightObjectFields )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// taskmaestro_resinsight.models.Vec3 is a plain pydantic model (x, y, z numbers) with no
+/// x-taskmaestro-python-type tag, so it must be recognized structurally.
+//--------------------------------------------------------------------------------------------------
+TEST( RimWorkflowDescribeTools, vec3FieldIsRecognizedStructurally )
+{
+    const QJsonObject vec3Schema{ { "title", "Vec3" },
+                                  { "type", "object" },
+                                  { "properties",
+                                    QJsonObject{ { "x", QJsonObject{ { "title", "X" }, { "type", "number" } } },
+                                                 { "y", QJsonObject{ { "title", "Y" }, { "type", "number" } } },
+                                                 { "z", QJsonObject{ { "title", "Z" }, { "type", "number" } } } } },
+                                  { "required", QJsonArray{ "x", "y", "z" } } };
+
+    const QJsonObject describe{ { "workflow", "well_path" },
+                                { "tasks",
+                                  QJsonArray{ QJsonObject{ { "name", "create_well_path" },
+                                                           { "config_fields", QJsonArray{ "reference_point" } },
+                                                           { "input_schema",
+                                                             QJsonObject{ { "properties", QJsonObject{ { "reference_point", vec3Schema } } },
+                                                                          { "required", QJsonArray{ "reference_point" } } } } } } } };
+
+    const QJsonObject graph          = RimWorkflowDescribeTools::graphFromDescribe( describe );
+    const QJsonObject referencePoint = fieldByName( taskByName( graph, "create_well_path" ), "reference_point" );
+    EXPECT_EQ( "object", referencePoint.value( "type" ).toString() );
+    EXPECT_EQ( "Vec3", referencePoint.value( "resinsight_type" ).toString() );
+    EXPECT_TRUE( referencePoint.value( "required" ).toBool() );
+}
+
+//--------------------------------------------------------------------------------------------------
 TEST( RimWorkflowDescribeTools, dependencyEdges )
 {
     const QJsonObject graph = RimWorkflowDescribeTools::graphFromDescribe( describeFixture() );

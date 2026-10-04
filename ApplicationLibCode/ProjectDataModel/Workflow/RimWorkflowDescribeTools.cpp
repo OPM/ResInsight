@@ -95,6 +95,24 @@ QString jsonType( const QJsonObject& typeSchema )
     return "string";
 }
 
+//--------------------------------------------------------------------------------------------------
+/// taskmaestro_resinsight.models.Vec3 is a plain pydantic model (x, y, z numbers), so it has no
+/// x-taskmaestro-python-type tag; recognize it structurally instead.
+//--------------------------------------------------------------------------------------------------
+bool isVec3Schema( const QJsonObject& typeSchema )
+{
+    if ( typeSchema.value( "type" ).toString() != "object" ) return false;
+
+    const QJsonObject properties = typeSchema.value( "properties" ).toObject();
+    if ( properties.size() != 3 ) return false;
+
+    for ( const QString& component : { "x", "y", "z" } )
+    {
+        if ( properties.value( component ).toObject().value( "type" ).toString() != "number" ) return false;
+    }
+    return true;
+}
+
 QJsonObject configFieldSchema( const QString&     fieldName,
                                const QJsonObject& inputSchema,
                                const QStringList& requiredFields,
@@ -113,7 +131,8 @@ QJsonObject configFieldSchema( const QString&     fieldName,
 
     const QJsonObject property   = properties.value( fieldName ).toObject();
     const QJsonObject typeSchema = underlyingSchema( property, inputSchema );
-    const QString resinsightType = RimWorkflowDescribeTools::resinsightTypeFromPythonType( objectPythonType( typeSchema, inputSchema ) );
+    QString resinsightType       = RimWorkflowDescribeTools::resinsightTypeFromPythonType( objectPythonType( typeSchema, inputSchema ) );
+    if ( resinsightType.isEmpty() && isVec3Schema( typeSchema ) ) resinsightType = "Vec3";
 
     entry["type"]     = resinsightType.isEmpty() ? jsonType( typeSchema ) : "object";
     entry["required"] = requiredFields.contains( fieldName );

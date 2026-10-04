@@ -26,6 +26,7 @@
 #include "RimWorkflowFloatBinding.h"
 #include "RimWorkflowIntBinding.h"
 #include "RimWorkflowStringBinding.h"
+#include "RimWorkflowVec3Binding.h"
 #include "RimWorkflowViewBinding.h"
 #include "RimWorkflowWellPathBinding.h"
 
@@ -45,6 +46,7 @@ RimWorkflowFieldBinding* createBinding( const QJsonObject& schema )
     if ( resinsightType == "EclipseCase" ) return new RimWorkflowCaseBinding;
     if ( resinsightType == "WellPath" ) return new RimWorkflowWellPathBinding;
     if ( resinsightType == "View" ) return new RimWorkflowViewBinding;
+    if ( resinsightType == "Vec3" ) return new RimWorkflowVec3Binding;
 
     const QString type   = schema.value( "type" ).toString( "string" );
     const QString format = schema.value( "format" ).toString();
