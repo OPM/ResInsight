@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimStimPlanModelCalculator.h"
 
+#include "RiaCurveDataTools.h"
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
@@ -40,11 +41,13 @@
 #include "RimWellLogTrack.h"
 
 #include <cmath>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelCalculator::RimStimPlanModelCalculator()
+    : m_stimPlanModel( nullptr )
 {
     m_resultCalculators.push_back( std::unique_ptr<RimStimPlanModelPropertyCalculator>( new RimStimPlanModelWellLogCalculator( this ) ) );
     m_resultCalculators.push_back( std::unique_ptr<RimStimPlanModelPropertyCalculator>( new RimStimPlanModelPressureCalculator( this ) ) );
@@ -80,6 +83,8 @@ bool RimStimPlanModelCalculator::extractCurveData( RiaDefines::CurveProperty cur
                                                    std::vector<double>&      tvDepthValues,
                                                    double&                   rkbDiff ) const
 {
+    if ( !m_stimPlanModel ) return false;
+
     ResultKey key  = std::make_pair( curveProperty, timeStep );
     auto      data = m_resultCache.find( key );
     if ( data != m_resultCache.end() )
@@ -146,6 +151,8 @@ std::vector<double> RimStimPlanModelCalculator::extractValues( RiaDefines::Curve
 void RimStimPlanModelCalculator::calculateLayers( std::vector<std::pair<double, double>>& layerBoundaryDepths,
                                                   std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes ) const
 {
+    if ( !m_stimPlanModel ) return;
+
     std::vector<double> layerValues;
     std::vector<double> measuredDepthValues;
     std::vector<double> depths;
@@ -174,8 +181,12 @@ double RimStimPlanModelCalculator::findValueAtTopOfLayer( const std::vector<doub
                                                           const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
                                                           size_t                                        layerNo )
 {
+    if ( layerNo >= layerBoundaryIndexes.size() ) return std::numeric_limits<double>::quiet_NaN();
+
     size_t index = layerBoundaryIndexes[layerNo].first;
-    return values.at( index );
+    if ( index >= values.size() ) return std::numeric_limits<double>::quiet_NaN();
+
+    return values[index];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,8 +196,12 @@ double RimStimPlanModelCalculator::findValueAtBottomOfLayer( const std::vector<d
                                                              const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
                                                              size_t                                        layerNo )
 {
+    if ( layerNo >= layerBoundaryIndexes.size() ) return std::numeric_limits<double>::quiet_NaN();
+
     size_t index = layerBoundaryIndexes[layerNo].second;
-    return values.at( index );
+    if ( index >= values.size() ) return std::numeric_limits<double>::quiet_NaN();
+
+    return values[index];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,12 +215,12 @@ void RimStimPlanModelCalculator::computeAverageByLayer( const std::vector<std::p
     {
         double sum     = 0.0;
         int    nValues = 0;
-        for ( size_t i = boundaryIndex.first; i < boundaryIndex.second; i++ )
+        for ( size_t i = boundaryIndex.first; i < boundaryIndex.second && i < inputVector.size(); i++ )
         {
             sum += inputVector[i];
             nValues++;
         }
-        result.push_back( sum / nValues );
+        result.push_back( nValues > 0 ? sum / nValues : 0.0 );
     }
 }
 
@@ -247,6 +262,8 @@ std::vector<double> RimStimPlanModelCalculator::calculateTrueVerticalDepth() con
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimStimPlanModelCalculator::findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty curveProperty ) const
 {
+    if ( !m_stimPlanModel ) return {};
+
     std::vector<std::pair<double, double>> layerBoundaryDepths;
     std::vector<std::pair<size_t, size_t>> layerBoundaryIndexes;
     calculateLayers( layerBoundaryDepths, layerBoundaryIndexes );
@@ -262,6 +279,8 @@ std::vector<double> RimStimPlanModelCalculator::findCurveAndComputeLayeredAverag
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimStimPlanModelCalculator::findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty curveProperty ) const
 {
+    if ( !m_stimPlanModel ) return {};
+
     std::vector<std::pair<double, double>> layerBoundaryDepths;
     std::vector<std::pair<size_t, size_t>> layerBoundaryIndexes;
     calculateLayers( layerBoundaryDepths, layerBoundaryIndexes );
@@ -343,6 +362,8 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
                                                                std::vector<double>& stressGradients,
                                                                std::vector<double>& initialStress ) const
 {
+    if ( !m_stimPlanModel ) return false;
+
     // Reference stress
     const double verticalStressRef         = m_stimPlanModel->verticalStress();
     const double verticalStressGradientRef = m_stimPlanModel->verticalStressGradient();
@@ -532,6 +553,8 @@ std::vector<double> RimStimPlanModelCalculator::calculateStressGradient() const
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelCalculator::calculateTemperature( std::vector<double>& temperatures ) const
 {
+    if ( !m_stimPlanModel ) return;
+
     // Reference temperature. Unit: degrees celsius
     const double referenceTemperature = m_stimPlanModel->referenceTemperature();
 
@@ -691,6 +714,12 @@ double RimStimPlanModelCalculator::calculateStressAtDepth( double depth,
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<double>, std::vector<QString>> RimStimPlanModelCalculator::calculateFacies() const
 {
+    if ( !m_stimPlanModel )
+    {
+        RiaLogging::error( "No StimPlan model set when extracting facies." );
+        return {};
+    }
+
     std::vector<double>  values = findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty::FACIES );
     std::vector<QString> faciesNames;
 
@@ -730,6 +759,12 @@ std::pair<std::vector<double>, std::vector<QString>> RimStimPlanModelCalculator:
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<double>, std::vector<QString>> RimStimPlanModelCalculator::calculateFormation() const
 {
+    if ( !m_stimPlanModel )
+    {
+        RiaLogging::error( "No StimPlan model set when extracting formation." );
+        return {};
+    }
+
     std::vector<double> values = findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty::FORMATIONS );
 
     RimEclipseCase*      eclipseCase          = m_stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::FACIES );
@@ -738,8 +773,14 @@ std::pair<std::vector<double>, std::vector<QString>> RimStimPlanModelCalculator:
     std::vector<QString> formationNames;
     for ( auto value : values )
     {
+        if ( !RiaCurveDataTools::isValidValue( value, false ) )
+        {
+            formationNames.push_back( "_" );
+            continue;
+        }
+
         int idx = static_cast<int>( value );
-        if ( idx < static_cast<int>( formationNamesVector.size() ) )
+        if ( idx >= 0 && idx < static_cast<int>( formationNamesVector.size() ) )
             formationNames.push_back( formationNamesVector[idx] );
         else
             formationNames.push_back( "_" );
