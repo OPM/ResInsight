@@ -237,6 +237,12 @@ if(RESINSIGHT_FOUND_HDF5)
     set(RI_HDF5_INCLUDE_DIRS ${RESINSIGHT_HDF5_DIR}/include)
   else()
     set(RI_HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS})
+    # A system HDF5 reports /usr/include. CMake does not filter implicit dirs
+    # from the source-file property, and an explicit -I/usr/include breaks
+    # #include_next <math.h> in <cmath> on gcc-toolset.
+    list(REMOVE_ITEM RI_HDF5_INCLUDE_DIRS
+         ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
+    )
   endif() # MSVC
 
   # Only these files (and HDF5_FILES) include HDF5 headers directly, so scope

@@ -292,9 +292,14 @@ if(RESINSIGHT_FOUND_HDF5)
                                        ${RESINSIGHT_HDF5_DIR}/include
     )
   else()
+    # Drop implicit dirs such as /usr/include, see ApplicationLibCode.
+    set(RI_HDF5_TEST_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS})
+    list(REMOVE_ITEM RI_HDF5_TEST_INCLUDE_DIRS
+         ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
+    )
     set_source_files_properties(
       ${RI_HDF5_TEST_FILES} PROPERTIES INCLUDE_DIRECTORIES
-                                       "${HDF5_INCLUDE_DIRS}"
+                                       "${RI_HDF5_TEST_INCLUDE_DIRS}"
     )
   endif()
 endif()
