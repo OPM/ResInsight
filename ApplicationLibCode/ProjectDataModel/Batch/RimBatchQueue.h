@@ -44,11 +44,12 @@ public:
 
     virtual void queueProcess( std::shared_ptr<RimProcess> process, int nProcesses ) = 0;
     virtual void stopProcess()                                                       = 0;
+    virtual void setFinished( bool runOk ) {};
 
 protected:
-    std::pair<bool, QStringList> runCommand( QStringList command, QStringList stdIn, RimProcessMonitor* monitor );
-    QStringList                  buildLaunchScript();
-    QString                      generateJobName();
+    std::pair<std::unique_ptr<RimProcess>, QString> runCommand( QStringList command, std::shared_ptr<RimProcessMonitor> monitor );
+    std::pair<bool, QString>                        buildLaunchScript( QString workDir );
+    QString                                         generateJobName();
 
     std::shared_ptr<RimProcess> m_process;
 };

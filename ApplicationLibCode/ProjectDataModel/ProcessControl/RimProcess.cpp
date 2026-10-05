@@ -37,13 +37,13 @@ size_t RimProcess::m_nextProcessId = 1;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProcess::RimProcess( bool logStdOutErr, RimProcessMonitor* monitor )
+RimProcess::RimProcess( bool logStdOutErr, std::shared_ptr<RimProcessMonitor> monitor )
     : m_enableLogging( logStdOutErr )
     , m_qProcess( nullptr )
 {
     size_t defId = m_nextProcessId++;
     if ( monitor == nullptr )
-        m_monitor = new RimProcessMonitor( defId, logStdOutErr );
+        m_monitor = std::make_shared<RimProcessMonitor>( defId, logStdOutErr );
     else
     {
         m_monitor = monitor;
@@ -73,11 +73,6 @@ RimProcess::RimProcess( bool logStdOutErr, RimProcessMonitor* monitor )
 //--------------------------------------------------------------------------------------------------
 RimProcess::~RimProcess()
 {
-    if ( m_monitor != nullptr )
-    {
-        delete m_monitor;
-        m_monitor = nullptr;
-    }
 }
 
 caf::PdmFieldHandle* RimProcess::userDescriptionField()
@@ -140,7 +135,7 @@ QString RimProcess::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProcessMonitor* RimProcess::monitor() const
+std::shared_ptr<RimProcessMonitor> RimProcess::monitor() const
 {
     return m_monitor;
 }
@@ -206,10 +201,12 @@ bool RimProcess::start( bool enableStdOut, bool enableStdErr )
 
     m_monitor->clearStdOutErr();
 
-    QObject::connect( m_qProcess, SIGNAL( finished( int, QProcess::ExitStatus ) ), m_monitor, SLOT( finished( int, QProcess::ExitStatus ) ) );
-    if ( enableStdOut ) QObject::connect( m_qProcess, SIGNAL( readyReadStandardOutput() ), m_monitor, SLOT( readyReadStandardOutput() ) );
-    if ( enableStdErr ) QObject::connect( m_qProcess, SIGNAL( readyReadStandardError() ), m_monitor, SLOT( readyReadStandardError() ) );
-    QObject::connect( m_qProcess, SIGNAL( started() ), m_monitor, SLOT( started() ) );
+    QObject::connect( m_qProcess, SIGNAL( finished( int, QProcess::ExitStatus ) ), m_monitor.get(), SLOT( finished( int, QProcess::ExitStatus ) ) );
+    if ( enableStdOut )
+        QObject::connect( m_qProcess, SIGNAL( readyReadStandardOutput() ), m_monitor.get(), SLOT( readyReadStandardOutput() ) );
+    if ( enableStdErr )
+        QObject::connect( m_qProcess, SIGNAL( readyReadStandardError() ), m_monitor.get(), SLOT( readyReadStandardError() ) );
+    QObject::connect( m_qProcess, SIGNAL( started() ), m_monitor.get(), SLOT( started() ) );
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     for ( auto& [key, val] : m_environmentVariables )

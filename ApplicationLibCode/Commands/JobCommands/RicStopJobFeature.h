@@ -30,7 +30,7 @@ class RicStopJobFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static bool stopJob( RimGenericJob* job );
+    static void stopJob( RimGenericJob* job );
 
 protected:
     void onActionTriggered( bool isChecked ) override;

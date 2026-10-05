@@ -166,4 +166,23 @@ void stopSlurmJob( QString jobId )
     runUtilityCommand( "scancel", { jobId } );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString decodeSlurmJobId( QStringList stdOut )
+{
+    for ( const auto& line : stdOut )
+    {
+        if ( line.contains( "Submitted batch job" ) )
+        {
+            auto parts = line.split( ' ' );
+            if ( parts.size() > 3 )
+            {
+                return parts[3].trimmed();
+            }
+        }
+    }
+    return "";
+}
+
 } // namespace RiaHpcTools

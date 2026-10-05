@@ -20,6 +20,8 @@
 
 #include "RimBatchQueue.h"
 
+class RimProcessMonitor;
+
 //==================================================================================================
 ///
 ///
@@ -35,5 +37,10 @@ public:
     void queueProcess( std::shared_ptr<RimProcess> process, int numberOfProcesses ) override;
     void stopProcess() override;
 
+protected:
+    void setFinished( bool runOk ) override;
+
 private:
+    std::shared_ptr<RimProcessMonitor> m_monitor;
+    std::unique_ptr<RimProcess>        m_batchProcess;
 };

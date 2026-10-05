@@ -21,9 +21,12 @@
 #include "RiaHpcTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesHpc.h"
+#include "RiaPreferencesOpm.h"
+#include "RiaWslTools.h"
 
 #include "ProcessControl/RimProcess.h"
 #include "ProcessControl/RimProcessMonitor.h"
+#include "RimBatchProcessMonitor.h"
 
 CAF_PDM_SOURCE_INIT( RimBatchQueueSlurm, "BatchQueueSlurm" );
 
@@ -47,14 +50,31 @@ RimBatchQueueSlurm::~RimBatchQueueSlurm()
 void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int numberOfProcesses )
 {
     m_process = process;
+    m_monitor = std::make_shared<RimBatchProcessMonitor>( this );
+
+    auto useWsl = RiaPreferencesOpm::current()->useWsl();
 
     // get settings
     auto prefs = RiaPreferencesHpc::current();
 
-    QString jobName = generateJobName();
+    QString workDir = m_process->workingDirectory();
 
     // build launch script
-    QStringList stdIn = buildLaunchScript();
+    auto [builtOk, script] = buildLaunchScript( workDir );
+    if ( !builtOk )
+    {
+        m_monitor->finished( 1, QProcess::ExitStatus::NormalExit );
+        RiaLogging::warning( QString( script ).toStdString() );
+        return;
+    }
+
+    if ( useWsl )
+    {
+        workDir = RiaWslTools::convertToWslPath( workDir );
+        script  = RiaWslTools::convertToWslPath( script );
+    }
+
+    QString jobName = generateJobName();
 
     QStringList arguments;
     arguments << "sbatch";
@@ -67,23 +87,32 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
     {
         arguments << "--exclusive";
     }
+    if ( !workDir.isEmpty() )
+    {
+        arguments << "-D";
+        arguments << workDir;
+        arguments << "-o";
+        arguments << QString( "%1/%2.out" ).arg( workDir ).arg( jobName );
+        arguments << "-e";
+        arguments << QString( "%1/%2.err" ).arg( workDir ).arg( jobName );
+    }
 
     arguments << "-n";
     arguments << QString( "%1" ).arg( numberOfProcesses );
+    arguments << "--wait";
+    arguments << script;
 
-    auto [result, output] = runCommand( arguments, stdIn, m_process->monitor() );
+    auto [batchProcess, output] = runCommand( arguments, m_monitor );
 
-    // if ( result )
-    //{
-    //     m_process->monitor()->finished( 0, QProcess::ExitStatus::NormalExit );
-    // }
-    if ( !result )
+    if ( !batchProcess )
     {
-        m_process->monitor()->finished( 1, QProcess::ExitStatus::NormalExit );
-        RiaLogging::warning( QString( output.join( "\n" ) ).toStdString() );
+        m_monitor->finished( 1, QProcess::ExitStatus::NormalExit );
+        RiaLogging::warning( output.toStdString() );
     }
-
-    // RiaLogging::info( QString( output.join( "\n" ) ).toStdString() );
+    else
+    {
+        m_batchProcess = std::move( batchProcess );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,8 +120,38 @@ void RimBatchQueueSlurm::queueProcess( std::shared_ptr<RimProcess> process, int 
 //--------------------------------------------------------------------------------------------------
 void RimBatchQueueSlurm::stopProcess()
 {
-    if ( m_process ) m_process->monitor()->finished( 1, QProcess::ExitStatus::CrashExit );
+    if ( m_batchProcess && m_process && m_process->monitor() )
+    {
+        auto jobId = RiaHpcTools::decodeSlurmJobId( m_batchProcess->stdOut() );
 
-    // RiaLogging::warning( QString( output.join( "\n" ) ).toStdString() );
-    // RiaHpcTools::stopSlurmJob( processId );
+        if ( !jobId.isEmpty() )
+        {
+            RiaLogging::info( QString( "Stopping slurm job %1" ).arg( jobId ).toStdString() );
+            RiaHpcTools::stopSlurmJob( jobId );
+        }
+
+        m_process->monitor()->finished( 1, QProcess::ExitStatus::CrashExit );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimBatchQueueSlurm::setFinished( bool runOk )
+{
+    if ( m_batchProcess && m_process && m_process->monitor() )
+    {
+        auto jobId = RiaHpcTools::decodeSlurmJobId( m_batchProcess->stdOut() );
+
+        if ( runOk )
+        {
+            RiaLogging::info( QString( "Slurm job %1 completed successfully" ).arg( jobId ).toStdString() );
+            m_process->monitor()->finished( 0, QProcess::ExitStatus::NormalExit );
+        }
+        else
+        {
+            RiaLogging::warning( QString( "Slurm job %1 failed." ).arg( jobId ).toStdString() );
+            m_process->monitor()->finished( 1, QProcess::ExitStatus::CrashExit );
+        }
+    }
 }

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2026     Equinor ASA
+//  Copyright (C) 2026 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,27 +18,24 @@
 
 #pragma once
 
-#include "RiaHpcDefines.h"
+#include "RimProcessMonitor.h"
 
-#include <QString>
-#include <QStringList>
+#include "cafPdmPointer.h"
 
-#include <map>
+class RimBatchQueue;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-namespace RiaHpcTools
+class RimBatchProcessMonitor : public RimProcessMonitor
 {
-QStringList availableQueues( RiaDefines::BatchSchedulerType scheduler );
+    Q_OBJECT
 
-void stopLsfJob( QString jobId );
-void stopSlurmJob( QString jobId );
+public:
+    RimBatchProcessMonitor( RimBatchQueue* batchQueue );
+    ~RimBatchProcessMonitor() override;
 
-// helpers
-QStringList decodeSlurmQueues( QStringList stdOut );
-QStringList decodeLsfQueues( QStringList stdOut );
+protected:
+    void finished( int exitCode, QProcess::ExitStatus exitStatus ) override;
+    void started() override;
 
-QString decodeSlurmJobId( QStringList stdOut );
-
-} // namespace RiaHpcTools
+private:
+    caf::PdmPointer<RimBatchQueue> m_batchQueue;
+};

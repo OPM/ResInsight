@@ -25,6 +25,7 @@
 #include <QString>
 #include <QStringList>
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -36,7 +37,7 @@ class RimProcess : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimProcess( bool logStdOutErr = true, RimProcessMonitor* monitor = nullptr );
+    RimProcess( bool logStdOutErr = true, std::shared_ptr<RimProcessMonitor> monitor = nullptr );
     ~RimProcess() override;
 
     void setDescription( QString desc );
@@ -53,11 +54,11 @@ public:
 
     QString commandLine() const;
 
-    QString            command() const;
-    QStringList        parameters() const;
-    size_t             ID() const;
-    QString            description() const;
-    RimProcessMonitor* monitor() const;
+    QString                            command() const;
+    QStringList                        parameters() const;
+    size_t                             ID() const;
+    QString                            description() const;
+    std::shared_ptr<RimProcessMonitor> monitor() const;
 
     bool useWsl() const;
     void setUseWsl( bool useWsl );
@@ -94,8 +95,8 @@ private:
 
     std::vector<std::pair<QString, QString>> m_environmentVariables;
 
-    static size_t      m_nextProcessId;
-    RimProcessMonitor* m_monitor;
-    bool               m_enableLogging;
-    QPointer<QProcess> m_qProcess;
+    static size_t                      m_nextProcessId;
+    std::shared_ptr<RimProcessMonitor> m_monitor;
+    bool                               m_enableLogging;
+    QPointer<QProcess>                 m_qProcess;
 };

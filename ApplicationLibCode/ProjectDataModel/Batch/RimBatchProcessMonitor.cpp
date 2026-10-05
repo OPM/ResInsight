@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2025     Equinor ASA
+//  Copyright (C) 2026    Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,49 +16,46 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicStopJobFeature.h"
+#include "RimBatchProcessMonitor.h"
 
-#include "RiaGuiApplication.h"
-
-#include "Jobs/RimGenericJob.h"
-
-#include "cafSelectionManager.h"
-
-#include <QAction>
-#include <QMessageBox>
-
-CAF_CMD_SOURCE_INIT( RicStopJobFeature, "RicStopJobFeature" );
+#include "RimBatchQueue.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicStopJobFeature::onActionTriggered( bool isChecked )
+RimBatchProcessMonitor::RimBatchProcessMonitor( RimBatchQueue* batchQueue )
+    : m_batchQueue( batchQueue )
+    , RimProcessMonitor( 0, true )
 {
-    stopJob( dynamic_cast<RimGenericJob*>( caf::SelectionManager::instance()->selectedItem() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicStopJobFeature::setupActionLook( QAction* actionToSetup )
+RimBatchProcessMonitor::~RimBatchProcessMonitor()
 {
-    actionToSetup->setIcon( QIcon( ":/stop.svg" ) );
-    actionToSetup->setText( "Stop..." );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicStopJobFeature::stopJob( RimGenericJob* job )
+void RimBatchProcessMonitor::finished( int exitCode, QProcess::ExitStatus exitStatus )
 {
-    if ( job != nullptr )
+    if ( m_batchQueue.notNull() )
     {
-        if ( QMessageBox::question( RiaGuiApplication::widgetToUseAsParent(),
-                                    job->name(),
-                                    "Do you want to stop this job?",
-                                    QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes )
-        {
-            job->stop();
-        }
+        m_batchQueue->setFinished( exitStatus == QProcess::NormalExit && exitCode == 0 );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimBatchProcessMonitor::started()
+{
+    // if ( m_batchQueue.notNull() )
+    //{
+    //     m_batchQueue->setStarted();
+    // }
+
+    RimProcessMonitor::started();
 }
