@@ -46,6 +46,9 @@ cvf::ref<cvf::UByteArray>
 
     const bool isInclude = ( filter->filterMode() == RimCellFilter::INCLUDE );
 
+    // Nested hybrid grid: range filters use the original grid IJK and are evaluated on every grid
+    const bool usesNestedHybridOriginalIjk = caseData->mainGrid()->nestedHybridLayout().has_value();
+
     // Grid local masks are kept to allow propagation of parent grid visibility into LGRs
     std::vector<cvf::ref<cvf::UByteArray>> gridMasks( caseData->gridCount() );
 
@@ -61,7 +64,7 @@ cvf::ref<cvf::UByteArray>
         {
             // Range filters evaluate only on their target grid. On other grids an INCLUDE filter
             // contributes no cells, while an EXCLUDE filter removes none.
-            const bool isTargetGrid = ( filter->gridIndex() == static_cast<int>( gridIndex ) );
+            const bool isTargetGrid = usesNestedHybridOriginalIjk || ( filter->gridIndex() == static_cast<int>( gridIndex ) );
             if ( isTargetGrid )
             {
                 filter->applyToCellVisibility( &gridMask, grid, timeStepIndex, eclipseCase );

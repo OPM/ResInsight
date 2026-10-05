@@ -426,6 +426,49 @@ const std::map<size_t, size_t>& RigMainGrid::nestedHybridCoarseParents() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigMainGrid::setNestedHybridLayout( const RigNestedHybridGridLayout& layout )
+{
+    m_nestedHybridLayout = layout;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::optional<RigNestedHybridGridLayout>& RigMainGrid::nestedHybridLayout() const
+{
+    return m_nestedHybridLayout;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Computed on demand: LGR cells walk their parent cell chain up to the main grid, and the flat main
+/// grid IJK is converted using the layout. No per-cell storage is needed.
+//--------------------------------------------------------------------------------------------------
+std::optional<caf::VecIjk0> RigMainGrid::nestedHybridOriginalIjk( const RigGridBase* grid, size_t gridLocalCellIndex ) const
+{
+    if ( !m_nestedHybridLayout || !grid ) return std::nullopt;
+
+    size_t cellIndex = gridLocalCellIndex;
+    while ( !grid->isMainGrid() )
+    {
+        auto lgr = dynamic_cast<const RigLocalGrid*>( grid );
+        if ( !lgr || cellIndex >= lgr->cellCount() ) return std::nullopt;
+
+        cellIndex = lgr->cell( cellIndex ).parentCellIndex();
+        grid      = lgr->parentGrid();
+        if ( !grid || cellIndex == cvf::UNDEFINED_SIZE_T ) return std::nullopt;
+    }
+
+    if ( grid != this || cellIndex >= cellCount() ) return std::nullopt;
+
+    std::optional<caf::VecIjk0> flatIjk = ijkFromCellIndex( cellIndex );
+    if ( !flatIjk ) return std::nullopt;
+
+    return m_nestedHybridLayout->originalIjkFromFlatIjk( *flatIjk );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigNNCData* RigMainGrid::nncData()
 {
     if ( m_nncData.isNull() )

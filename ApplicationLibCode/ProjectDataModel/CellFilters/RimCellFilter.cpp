@@ -19,6 +19,7 @@
 #include "RimCellFilter.h"
 
 #include "RigGridBase.h"
+#include "RigMainGrid.h"
 #include "RigReservoirGridTools.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
@@ -220,7 +221,22 @@ void RimCellFilter::setGridIndex( int gridIndex )
 //--------------------------------------------------------------------------------------------------
 int RimCellFilter::gridIndex() const
 {
+    // The original IJK of a nested hybrid grid is defined on the main grid only
+    if ( isRangeFilter() && usesNestedHybridOriginalIjk() ) return 0;
+
     return m_gridIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilter::usesNestedHybridOriginalIjk() const
+{
+    auto eclCase = dynamic_cast<RimEclipseCase*>( sourceCase() );
+    if ( !eclCase ) return false;
+
+    auto mainGrid = eclCase->mainGrid();
+    return mainGrid && mainGrid->nestedHybridLayout().has_value();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,7 +283,8 @@ void RimCellFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     {
         m_gridIndex.uiCapability()->setUiName( "Part" );
     }
-    group->add( &m_gridIndex );
+    // Nested hybrid grids: range filters always use the original grid IJK, so there is no grid to choose
+    if ( !( isRangeFilter() && usesNestedHybridOriginalIjk() ) ) group->add( &m_gridIndex );
 
     bool readOnlyState = isFilterControlled();
 
@@ -290,7 +307,7 @@ QString RimCellFilter::modeString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const cvf::StructGridInterface* RimCellFilter::selectedGrid() const
+RimCase* RimCellFilter::sourceCase() const
 {
     // Case-level data filters have no Rim3dView ancestor; fall back to m_srcCase, which the
     // owning RimDataFilterCollection / RimCombinedFilter propagates on add.
@@ -300,6 +317,16 @@ const cvf::StructGridInterface* RimCellFilter::selectedGrid() const
         rimCase = rimView->ownerCase();
     }
     if ( !rimCase ) rimCase = m_srcCase();
+
+    return rimCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const cvf::StructGridInterface* RimCellFilter::selectedGrid() const
+{
+    RimCase* rimCase = sourceCase();
     if ( !rimCase ) return nullptr;
 
     int clampedIndex = gridIndex();
@@ -348,24 +375,33 @@ void RimCellFilter::applyToCellVisibility( cvf::UByteArray*   cellVisibility,
 
     if ( isRangeFilter() )
     {
+        // Nested hybrid grid: the filter is defined on the original grid IJK, and every cell in every
+        // grid is evaluated using the original IJK it maps to (LGR cells via their parent cells).
+        const RigMainGrid* mainGrid               = grid->mainGrid();
+        const bool         useNestedHybridOrigIjk = mainGrid && mainGrid->nestedHybridLayout().has_value();
+
         // updateCompundFilter is a no-op when the range filter targets a different grid than the
         // one being evaluated. Skip the cellVisibility mutation entirely so LGR cells are not
         // erroneously blanked by a main-grid-targeted filter (legacy: parentGridVisibilities).
-        if ( gridIndex() != gIndx ) return;
+        const int filterGridIndex = useNestedHybridOrigIjk ? 0 : gIndx;
+        if ( gridIndex() != filterGridIndex ) return;
 
         cvf::CellRangeFilter rf;
-        updateCompundFilter( &rf, gIndx );
+        updateCompundFilter( &rf, filterGridIndex );
 
         const bool isSubGrid = !grid->isMainGrid();
 
         for ( size_t cellIdx = 0; cellIdx < n; ++cellIdx )
         {
-            size_t i = 0, j = 0, k = 0;
-            if ( grid->ijkFromCellIndex( cellIdx, &i, &j, &k ) )
+            std::optional<caf::VecIjk0> ijk = useNestedHybridOrigIjk ? mainGrid->nestedHybridOriginalIjk( grid, cellIdx )
+                                                                     : grid->ijkFromCellIndex( cellIdx );
+
+            if ( ijk )
             {
                 // isCellVisible returns false when there are no include ranges (pure EXCLUDE
                 // mode), so also consult isCellExcluded to mark those cells as "in the set".
-                if ( rf.isCellVisible( i, j, k, isSubGrid ) || rf.isCellExcluded( i, j, k, isSubGrid ) )
+                if ( rf.isCellVisible( ijk->i(), ijk->j(), ijk->k(), isSubGrid ) ||
+                     rf.isCellExcluded( ijk->i(), ijk->j(), ijk->k(), isSubGrid ) )
                 {
                     inSet[cellIdx] = 1;
                 }

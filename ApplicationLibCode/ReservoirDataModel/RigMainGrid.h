@@ -23,6 +23,7 @@
 #include "RigCell.h"
 #include "RigGridBase.h"
 #include "RigLocalGrid.h"
+#include "RigNestedHybridGridLayout.h"
 
 #include "cvfBoundingBox.h"
 #include "cvfCollection.h"
@@ -31,6 +32,7 @@
 
 #include <map>
 #include <mutex>
+#include <optional>
 #include <vector>
 
 class RigActiveCellInfo;
@@ -79,6 +81,16 @@ public:
     // parent COARSE cell. Used for the volume-weighted QC aggregate onto coarse parents.
     void                            setNestedHybridCoarseParents( const std::map<size_t, size_t>& cellToCoarseParent );
     const std::map<size_t, size_t>& nestedHybridCoarseParents() const;
+
+    // Nested hybrid grid: index layout of the original (coarse) grid embedded in the flat main grid.
+    // Not set for other grids.
+    void                                            setNestedHybridLayout( const RigNestedHybridGridLayout& layout );
+    const std::optional<RigNestedHybridGridLayout>& nestedHybridLayout() const;
+
+    // Nested hybrid grid: the original (coarse) IJK of a cell in any grid of this main grid. LGR cells
+    // are followed through their parent cells (recursively) up to the main grid. Returns nullopt if
+    // this is not a nested hybrid grid, or the cell has no original IJK (refined flat cells, padding).
+    std::optional<caf::VecIjk0> nestedHybridOriginalIjk( const RigGridBase* grid, size_t gridLocalCellIndex ) const;
 
     RigNNCData* nncData();
 
@@ -164,8 +176,9 @@ private:
     cvf::Collection<RigLocalGrid> m_localGrids; ///< List of all the LGR's in this reservoir
     std::vector<size_t>           m_gridIdToIndexMapping; ///< Mapping from LGR Id to index.
 
-    std::map<size_t, size_t> m_nestedHybridLgrSourceCells; ///< LGR cell global index -> source flat cell global index
-    std::map<size_t, size_t> m_nestedHybridCoarseParents; ///< flat cell global index -> parent coarse cell natural index
+    std::map<size_t, size_t>                 m_nestedHybridLgrSourceCells; ///< LGR cell global index -> source flat cell global index
+    std::map<size_t, size_t>                 m_nestedHybridCoarseParents; ///< flat cell global index -> parent coarse cell natural index
+    std::optional<RigNestedHybridGridLayout> m_nestedHybridLayout;
 
     cvf::Collection<RigFault>            m_faults;
     cvf::ref<RigNNCData>                 m_nncData;
