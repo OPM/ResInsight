@@ -650,6 +650,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                     // It is confusing to select a curve when the user is trying to zoom
 
                     selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
+                    onMouseClickEvent( mouseEvent );
                 }
 
                 m_clickPosition = QPoint();
@@ -1681,6 +1682,13 @@ RiuPlotAxis RiuQwtPlotWidget::findPlotAxisForQwtAxis( const QwtAxisId& qwtAxisId
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::onMouseMoveEvent( QMouseEvent* event )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::onMouseClickEvent( QMouseEvent* event )
 {
 }
 

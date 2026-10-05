@@ -48,6 +48,10 @@ public:
 
 private:
     void onMouseMoveEvent( QMouseEvent* event ) override;
+    void onMouseClickEvent( QMouseEvent* event ) override;
+
+signals:
+    void formationClicked( const QString& formationName );
 
 private:
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;

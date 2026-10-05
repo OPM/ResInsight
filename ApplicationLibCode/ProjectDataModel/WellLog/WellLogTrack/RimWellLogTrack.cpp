@@ -1290,6 +1290,101 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData( RimCase* rimCase, c
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Configures the track to use the "Well Picks for Well Path" formation source, reading zone tops
+/// from the given well path's cached RigWellPathFormations (RimWellPath::formationsGeometry()).
+/// Used for well paths that have formation data (e.g. derived from observed RFT data) but no
+/// associated grid case formation lookup.
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAndUpdateWellPathFormationPicksData( RimWellPath* wellPath, RiaDefines::WellLogTrackFormationSource formationSource )
+{
+    m_formationSettings->setFormationSource( formationSource );
+    m_formationSettings->setTrajectoryType( RiaDefines::WellLogTrackTrajectoryType::WELL_PATH );
+    m_formationSettings->setWellPathForSourceWellPath( wellPath );
+
+    updateConnectedEditors();
+
+    if ( m_regionAnnotationSettings->annotationType() != RiaDefines::RegionAnnotationType::NO_ANNOTATIONS )
+    {
+        updateRegionAnnotationsOnPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Configures the track to use the "Observed RFT Data" formation source. Unlike
+/// setAndUpdateWellPathFormationPicksData(), the formation tops are owned directly by the track
+/// (m_observedRftFormations) instead of being stored on a RimWellPath, since RFT-only wells (e.g.
+/// simulation wells with no imported well path trajectory) may have no associated RimWellPath at all.
+/// The optional wellPath, when available, is still recorded for reference (e.g. "clicked" lookups by
+/// other code that doesn't distinguish the two "well pick" sources).
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAndUpdateObservedRftFormationsData( cvf::ref<RigWellPathFormations> formations, RimWellPath* wellPath )
+{
+    m_observedRftFormations = formations;
+
+    m_formationSettings->setFormationSource( RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA );
+    m_formationSettings->setTrajectoryType( RiaDefines::WellLogTrackTrajectoryType::WELL_PATH );
+    m_formationSettings->setWellPathForSourceWellPath( wellPath );
+
+    updateConnectedEditors();
+
+    if ( m_regionAnnotationSettings->annotationType() != RiaDefines::RegionAnnotationType::NO_ANNOTATIONS )
+    {
+        updateRegionAnnotationsOnPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the formation name covering the given depth value, when the formation source is set to
+/// "Well Picks for Well Path" (WELL_PICK_FILTER) or "Observed RFT Data" (RFT_OBSERVED_DATA) and the
+/// source well path has formation data. Used by RiuWellLogTrack to resolve a formation name when the
+/// user clicks in the formation annotation band of the track.
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogTrack::formationNameAtDepth( double depthValue, RiaDefines::DepthType depthType ) const
+{
+    if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA )
+    {
+        if ( m_observedRftFormations.isNull() ) return {};
+        return m_observedRftFormations->formationNameAtDepth( depthValue, depthType );
+    }
+
+    if ( m_formationSettings->formationSource() != RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER ) return {};
+
+    RimWellPath* wellPath = m_formationSettings->wellPathForSourceWellPath();
+    if ( !wellPath ) return {};
+
+    const RigWellPathFormations* formations = wellPath->formationsGeometry();
+    if ( !formations ) return {};
+
+    return formations->formationNameAtDepth( depthValue, depthType );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Resolves the formation name at a depth given in the plot's display units (the value read directly
+/// off the depth axis, e.g. by RiuWellLogTrack when the user clicks in the track canvas). Converts back
+/// to the case's native depth unit and removes the TVD-RKB offset added when drawing the formation
+/// bands (see updateFormationNamesOnPlot()) before delegating to formationNameAtDepth().
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogTrack::formationNameAtDisplayDepth( double displayDepthValue, RiaDefines::DepthType depthType ) const
+{
+    RimDepthTrackPlot* plot = firstAncestorOfType<RimDepthTrackPlot>();
+    if ( !plot ) return {};
+
+    RiaDefines::DepthUnitType fromDepthUnit = plot->depthUnit();
+    RiaDefines::DepthUnitType toDepthUnit   = plot->caseDepthUnit();
+
+    double caseDepthValue = RiaWellLogUnitTools<double>::convertDepth( displayDepthValue, fromDepthUnit, toDepthUnit );
+
+    if ( depthType == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB && m_formationSettings->wellPathForSourceWellPath() &&
+         m_formationSettings->wellPathForSourceWellPath()->wellPathGeometry() )
+    {
+        double rkbDiff = m_formationSettings->wellPathForSourceWellPath()->wellPathGeometry()->rkbDiff();
+        caseDepthValue -= rkbDiff;
+    }
+
+    return formationNameAtDepth( caseDepthValue, depthType );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setAutoScaleXEnabled( bool enabled )
@@ -1478,6 +1573,14 @@ void RimWellLogTrack::setFormationTrajectoryType( RiaDefines::WellLogTrackTrajec
 RiaDefines::WellLogTrackTrajectoryType RimWellLogTrack::formationTrajectoryType() const
 {
     return m_formationSettings->trajectoryType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::WellLogTrackFormationSource RimWellLogTrack::formationSource() const
+{
+    return m_formationSettings->formationSource();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2532,6 +2635,8 @@ void RimWellLogTrack::updateStackedCurveData()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateRegionAnnotationsOnPlot()
 {
+    if ( !m_plotWidget ) return;
+
     removeRegionAnnotations();
 
     if ( m_regionAnnotationSettings->annotationType() == RiaDefines::RegionAnnotationType::NO_ANNOTATIONS ) return;
@@ -2567,9 +2672,22 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
     auto orientation = plot->depthOrientation();
 
-    if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER )
+    bool isRftObservedSource = m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA;
+
+    if ( m_formationSettings->formationSource() == RiaDefines::WellLogTrackFormationSource::WELL_PICK_FILTER || isRftObservedSource )
     {
-        if ( m_formationSettings->wellPathForSourceWellPath() == nullptr ) return;
+        // "Observed RFT Data" formations are owned directly by the track (no RimWellPath required, as
+        // RFT-only wells may not have an imported well path). "Well Picks for Well Path" formations are
+        // owned by the source well path.
+        const RigWellPathFormations* formations = isRftObservedSource ? m_observedRftFormations.p() : nullptr;
+
+        if ( !isRftObservedSource )
+        {
+            if ( m_formationSettings->wellPathForSourceWellPath() == nullptr ) return;
+            formations = m_formationSettings->wellPathForSourceWellPath()->formationsGeometry();
+        }
+
+        if ( !formations ) return;
 
         if ( plot->depthType() != RiaDefines::DepthType::MEASURED_DEPTH && plot->depthType() != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH &&
              plot->depthType() != RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
@@ -2577,30 +2695,69 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             return;
         }
 
-        std::vector<double> yValues;
+        auto formationLevel = m_formationSettings->formationLevel();
+        auto [formationNamesToPlot, yValues] =
+            formations->namesAndRangesUpToLevel( formationLevel, m_formationSettings->showFormationFluids(), plot->depthType() );
 
-        const RigWellPathFormations* formations = m_formationSettings->wellPathForSourceWellPath()->formationsGeometry();
-        if ( !formations ) return;
-
-        std::vector<QString> formationNamesToPlot;
-        auto                 formationLevel = static_cast<RigWellPathFormations::FormationLevel>( m_formationSettings->formationLevel() );
-        formations->depthAndFormationNamesUpToLevel( formationLevel,
-                                                     &formationNamesToPlot,
-                                                     &yValues,
-                                                     m_formationSettings->showFormationFluids(),
-                                                     plot->depthType() );
-
-        if ( plot->depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB )
+        if ( plot->depthType() == RiaDefines::DepthType::TRUE_VERTICAL_DEPTH_RKB && m_formationSettings->wellPathForSourceWellPath() &&
+             m_formationSettings->wellPathForSourceWellPath()->wellPathGeometry() )
         {
-            for ( double& depthValue : yValues )
+            double rkbDiff = m_formationSettings->wellPathForSourceWellPath()->wellPathGeometry()->rkbDiff();
+            for ( std::pair<double, double>& range : yValues )
             {
-                depthValue += m_formationSettings->wellPathForSourceWellPath()->wellPathGeometry()->rkbDiff();
+                range.first += rkbDiff;
+                range.second += rkbDiff;
             }
         }
 
-        std::vector<double> convertedYValues = RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
+        std::vector<std::pair<double, double>> convertedYValues =
+            RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
 
-        m_annotationTool->attachWellPicks( m_plotWidget->qwtPlot(), formationNamesToPlot, convertedYValues );
+        if ( !formationNamesToPlot.empty() )
+        {
+            // Reuse the same color legend fallback as the CASE-based formation source (see below), so
+            // formations derived from well picks / observed RFT data can be color shaded the same way.
+            RimColorLegend* legend = m_regionAnnotationSettings->colorShadingLegend();
+            if ( !legend ) legend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
+
+            if ( legend )
+            {
+                std::map<QString, cvf::Color3ub> nameToColor;
+                for ( auto* item : legend->colorLegendItems() )
+                {
+                    nameToColor[item->categoryName()] = cvf::Color3ub( item->color() );
+                }
+
+                cvf::Color3ubArray paletteColors = legend->colorArray();
+                size_t             colorCount    = std::max( size_t( 2 ), formationNamesToPlot.size() );
+                cvf::Color3ubArray orderedColors( colorCount );
+                orderedColors.setAll( cvf::Color3ub::GRAY );
+
+                for ( size_t i = 0; i < formationNamesToPlot.size(); i++ )
+                {
+                    auto it = nameToColor.find( formationNamesToPlot[i] );
+                    if ( it != nameToColor.end() )
+                    {
+                        orderedColors.set( i, it->second );
+                    }
+                    else if ( paletteColors.size() > 0 )
+                    {
+                        orderedColors.set( i, paletteColors[i % paletteColors.size()] );
+                    }
+                }
+
+                caf::ColorTable colorTable( orderedColors );
+
+                m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
+                                                      formationNamesToPlot,
+                                                      orientation,
+                                                      convertedYValues,
+                                                      m_regionAnnotationSettings->annotationDisplay(),
+                                                      colorTable,
+                                                      ( ( 100 - m_regionAnnotationSettings->colorShadingTransparency() ) * 255 ) / 100,
+                                                      m_regionAnnotationSettings->showRegionLabels() );
+            }
+        }
     }
     else
     {

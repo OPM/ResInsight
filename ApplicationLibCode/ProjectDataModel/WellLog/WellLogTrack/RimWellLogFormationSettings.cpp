@@ -26,6 +26,7 @@
 #include "RimTools.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
+#include "RimWellRftPlot.h"
 
 #include "RigEclipseCaseData.h"
 
@@ -271,6 +272,8 @@ void RimWellLogFormationSettings::uiOrdering( const QString& uiConfigName, caf::
             uiOrdering.add( &m_showFormationFluids );
         }
     }
+    // RFT_OBSERVED_DATA requires no additional fields: formation picks are derived automatically from
+    // the observed FMU RFT data for the well/time step currently selected in the owning RFT plot.
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,6 +296,15 @@ void RimWellLogFormationSettings::fieldChangedByUi( const caf::PdmFieldHandle* c
     }
 
     auto track = firstAncestorOrThisOfType<RimWellLogTrack>();
+
+    if ( changedField == &m_formationSource && m_formationSource() == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA )
+    {
+        // Formation picks for this source are computed by the owning RFT plot (needs access to the
+        // selected well/time step and the observed FMU RFT data), not from fields on this object.
+        auto rftPlot = track ? track->firstAncestorOrThisOfType<RimWellRftPlot>() : nullptr;
+        if ( rftPlot ) rftPlot->updateFormationsFromObservedRftData();
+    }
+
     if ( track )
     {
         track->loadDataAndUpdate();
@@ -307,7 +319,24 @@ QList<caf::PdmOptionItemInfo> RimWellLogFormationSettings::calculateValueOptions
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_formationWellPathForSourceCase )
+    if ( fieldNeedingOptions == &m_formationSource )
+    {
+        // "Observed RFT Data" is only a meaningful formation source inside an RFT plot track, where
+        // formation tops can be derived from the well's observed FMU RFT data. Hide it elsewhere.
+        using FormationSourceEnum = caf::AppEnum<RiaDefines::WellLogTrackFormationSource>;
+
+        auto track   = firstAncestorOrThisOfType<RimWellLogTrack>();
+        bool isInRft = track && track->firstAncestorOrThisOfType<RimWellRftPlot>() != nullptr;
+
+        for ( size_t i = 0; i < FormationSourceEnum::size(); i++ )
+        {
+            auto value = FormationSourceEnum::fromIndex( i );
+            if ( value == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA && !isInRft ) continue;
+
+            options.push_back( caf::PdmOptionItemInfo( FormationSourceEnum::uiText( value ), value ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_formationWellPathForSourceCase )
     {
         RimTools::wellPathOptionItems( &options );
     }

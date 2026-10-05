@@ -29,6 +29,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "Well/RigWellPathFormations.h"
 
 #include "RimDataSourceForRftPlt.h"
 #include "RimEclipseCase.h"
@@ -147,7 +148,9 @@ RimWellRftPlot::RimWellRftPlot()
 
     setPlotTitleVisible( true );
 
-    dockAsPlotWindow();
+    // Do not dock this plot by default: a RimWellRftPlot can also be embedded as a non-dockable child of
+    // RimRftCorrelationReportPlot. Standalone creation sites (e.g. RicCreateRftPlotsFeature) call
+    // dockAsPlotWindow() explicitly after construction.
     m_isOnLoad = true;
 }
 
@@ -233,40 +236,144 @@ void RimWellRftPlot::applyCurveColor( RimWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::updateFormationsOnPlot() const
 {
-    if ( plotCount() > 0 )
+    if ( plotCount() == 0 ) return;
+
+    RimProject*  proj     = RimProject::current();
+    RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
+
+    RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+    if ( !track ) return;
+
+    // Explicit user selection (or a previous automatic fallback, see below): derive formation tops
+    // from observed FMU RFT data for the current well and first selected time step. No RimWellPath is
+    // required: RFT-only wells (e.g. ensemble simulation wells with no imported well path trajectory)
+    // may have none.
+    if ( track->formationSource() == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA )
     {
-        RimProject*  proj     = RimProject::current();
-        RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
+        updateFormationsFromObservedRftDataForTrack( track, wellPath );
+        return;
+    }
 
-        RimCase*         formationNamesCase = nullptr;
-        RimWellLogTrack* track              = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-        if ( track )
+    RimCase* formationNamesCase = track->formationCase();
+
+    if ( !formationNamesCase )
+    {
+        /// Set default case. Todo : Use the first of the selected cases in the plot
+        std::vector<RimCase*> cases = proj->allGridCases();
+        if ( !cases.empty() )
         {
-            formationNamesCase = track->formationCase();
-
-            if ( !formationNamesCase )
-            {
-                /// Set default case. Todo : Use the first of the selected cases in the plot
-                std::vector<RimCase*> cases = proj->allGridCases();
-                if ( !cases.empty() )
-                {
-                    formationNamesCase = cases[0];
-                }
-            }
-
-            if ( wellPath )
-            {
-                track->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
-            }
-            else
-            {
-                track->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase,
-                                                                       associatedSimWellName(),
-                                                                       m_branchIndex,
-                                                                       m_branchDetection );
-            }
+            formationNamesCase = cases[0];
         }
     }
+
+    // Fall back to formation names derived from observed FMU RFT data (zone names and MD
+    // ranges from the RFT observation file) when no grid case is available to provide
+    // formation tops, e.g. in ensemble-only projects without a grid case.
+    if ( !formationNamesCase )
+    {
+        if ( updateFormationsFromObservedRftDataForTrack( track, wellPath ) ) return;
+    }
+
+    if ( wellPath )
+    {
+        track->setAndUpdateWellPathFormationNamesData( formationNamesCase, wellPath );
+    }
+    else
+    {
+        track->setAndUpdateSimWellFormationNamesAndBranchData( formationNamesCase, associatedSimWellName(), m_branchIndex, m_branchDetection );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Explicitly (re-)computes and applies formation tops derived from observed FMU RFT data to this
+/// plot's track. Called when the user selects "Observed RFT Data" as the track's formation source.
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::updateFormationsFromObservedRftData()
+{
+    if ( plotCount() == 0 ) return;
+
+    RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+    if ( !track ) return;
+
+    RimProject*  proj     = RimProject::current();
+    RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
+
+    updateFormationsFromObservedRftDataForTrack( track, wellPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Builds formation tops from observed FMU RFT data and applies them to the given track. Returns
+/// false if no observed data is available. When the track's formation source is already explicitly
+/// set to "Observed RFT Data" (as opposed to this being an automatic CASE-less fallback attempt),
+/// any stale track-owned formation geometry from a previous well/time step is cleared so no outdated
+/// formation bands remain visible or clickable.
+//--------------------------------------------------------------------------------------------------
+bool RimWellRftPlot::updateFormationsFromObservedRftDataForTrack( RimWellLogTrack* track, RimWellPath* wellPath ) const
+{
+    if ( !track ) return false;
+
+    auto formations = createFormationsFromObservedRftData();
+    if ( !formations.isNull() )
+    {
+        // The track owns the observed-RFT formation geometry directly (see
+        // RimWellLogTrack::setAndUpdateObservedRftFormationsData()), so the associated well path's
+        // own (persistent, potentially imported) formation geometry must not be overwritten here.
+        track->setAndUpdateObservedRftFormationsData( formations, wellPath );
+        return true;
+    }
+
+    if ( track->formationSource() == RiaDefines::WellLogTrackFormationSource::RFT_OBSERVED_DATA )
+    {
+        track->setAndUpdateObservedRftFormationsData( nullptr, wellPath );
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Builds a RigWellPathFormations object from observed FMU RFT data (zone name and MD/TVD range
+/// per formation) for the current well and first selected time step, for use as a formation source
+/// independent of a grid case. Returns a null ref if no observed FMU RFT data with formation names
+/// is available.
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigWellPathFormations> RimWellRftPlot::createFormationsFromObservedRftData() const
+{
+    if ( m_selectedTimeSteps().empty() ) return nullptr;
+
+    const QDateTime timeStep = m_selectedTimeSteps()[0];
+
+    for ( RimObservedFmuRftData* observedData : RimWellPlotTools::observedFmuRftDataForWell( m_wellPathNameOrSimWellName ) )
+    {
+        std::vector<QString> formationNames = observedData->formationNames( m_wellPathNameOrSimWellName, timeStep );
+        if ( formationNames.empty() ) continue;
+
+        std::vector<RigWellPathFormation> formations;
+        for ( const QString& formationName : formationNames )
+        {
+            auto mdRange = observedData->formationDepthRange( m_wellPathNameOrSimWellName, timeStep, formationName );
+            if ( !mdRange ) continue;
+
+            RigWellPathFormation formation;
+            formation.mdTop         = mdRange->first;
+            formation.mdBase        = mdRange->second;
+            formation.formationName = formationName;
+
+            if ( auto tvdRange = observedData->convertMdRangeToTvd( m_wellPathNameOrSimWellName, timeStep, mdRange->first, mdRange->second ) )
+            {
+                formation.tvdTop  = tvdRange->first;
+                formation.tvdBase = tvdRange->second;
+            }
+
+            formations.push_back( formation );
+        }
+
+        if ( !formations.empty() )
+        {
+            return new RigWellPathFormations( formations, "", "Observed RFT Formations" );
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1683,16 +1790,48 @@ void RimWellRftPlot::createEnsembleCurveSets()
         auto it = std::find_if( m_ensembleCurveSets.begin(),
                                 m_ensembleCurveSets.end(),
                                 [ensemble]( const RimWellRftEnsembleCurveSet* curveSet ) { return curveSet->ensemble() == ensemble; } );
+
+        RimWellRftEnsembleCurveSet* curveSet = nullptr;
         if ( it == m_ensembleCurveSets.end() )
         {
-            RimWellRftEnsembleCurveSet* curveSet = new RimWellRftEnsembleCurveSet;
+            curveSet = new RimWellRftEnsembleCurveSet;
             curveSet->setEnsemble( ensemble );
             auto index = m_ensembleCurveSets.size();
             auto color = colorTable.at( index % colorTable.size() );
             curveSet->setCurveColor( color );
             m_ensembleCurveSets.push_back( curveSet );
         }
+        else
+        {
+            curveSet = *it;
+        }
+
+        // Always connect (connecting twice is a no-op, see caf::Signal::connect()): curve sets restored
+        // from a project file (or kept across a previous call to this function) never run the "new curve
+        // set" branch above and would otherwise never get wired up.
+        curveSet->colorByEnsembleParameterChanged.connect( this, &RimWellRftPlot::onEnsembleCurveSetColorByParameterChanged );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::setEnsembleParameterColoringChangedCallback( EnsembleParameterColoringChangedCallback callback )
+{
+    m_ensembleParameterColoringChangedCallback = callback;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::onEnsembleCurveSetColorByParameterChanged( const caf::SignalEmitter* emitter, QString parameterName )
+{
+    if ( !m_ensembleParameterColoringChangedCallback ) return;
+
+    auto curveSet = dynamic_cast<const RimWellRftEnsembleCurveSet*>( emitter );
+    if ( !curveSet ) return;
+
+    m_ensembleParameterColoringChangedCallback( curveSet->ensemble(), parameterName );
 }
 
 //--------------------------------------------------------------------------------------------------

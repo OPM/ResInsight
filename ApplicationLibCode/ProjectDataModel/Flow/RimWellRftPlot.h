@@ -31,9 +31,12 @@
 #include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfObject.h"
+
 #include <QMetaObject>
 #include <QPointer>
 
+#include <functional>
 #include <map>
 #include <set>
 #include <utility>
@@ -66,7 +69,8 @@ class Color3f;
 namespace caf
 {
 class PdmOptionItemInfo;
-}
+class SignalEmitter;
+} // namespace caf
 
 //==================================================================================================
 ///
@@ -115,6 +119,18 @@ public:
 
     void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
+    // Called by RimWellLogFormationSettings when the user explicitly selects "Observed RFT Data" as
+    // the formation source for this plot's track.
+    void updateFormationsFromObservedRftData();
+
+    // Invoked whenever one of this plot's ensemble curve sets settles on by-ensemble-parameter
+    // coloring (see RimWellRftEnsembleCurveSet::colorByEnsembleParameterChanged), with the affected
+    // ensemble and the active parameter name. Used by composite plots (e.g.
+    // RimRftCorrelationReportPlot) to keep their own parameter selection UI (tornado/cross plot) in
+    // sync when the user changes coloring directly in this plot's curve set editor.
+    using EnsembleParameterColoringChangedCallback = std::function<void( RimSummaryEnsemble*, const QString& )>;
+    void setEnsembleParameterColoringChangedCallback( EnsembleParameterColoringChangedCallback callback );
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
@@ -161,8 +177,10 @@ private:
     RimSummaryCase* findClosestRealization( const QPoint& canvasPos );
     void            highlightSelectedRealization();
 
-    void    updateFormationsOnPlot() const;
-    QString associatedSimWellName() const;
+    void                                  updateFormationsOnPlot() const;
+    QString                               associatedSimWellName() const;
+    cvf::ref<class RigWellPathFormations> createFormationsFromObservedRftData() const;
+    bool updateFormationsFromObservedRftDataForTrack( class RimWellLogTrack* track, class RimWellPath* wellPath ) const;
 
     static RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseRftAddress& address );
     static RiuPlotCurveSymbol::LabelPosition   statisticsLabelPosFromAddress( const RifEclipseRftAddress& address );
@@ -173,6 +191,8 @@ private:
     void createEnsembleCurveSets();
 
     void detachAndDeleteLegendCurves();
+
+    void onEnsembleCurveSetColorByParameterChanged( const caf::SignalEmitter* emitter, QString parameterName );
 
 private:
     friend class RimWellRftEnsembleCurveSet;
@@ -205,4 +225,6 @@ private:
 
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
     bool                                m_isInitialized = false;
+
+    EnsembleParameterColoringChangedCallback m_ensembleParameterColoringChangedCallback;
 };
