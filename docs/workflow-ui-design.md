@@ -160,7 +160,11 @@ tooltip also shows the description. Ports that hold a ResInsight object
 (instance, case, view, well path, surface) show that object's project tree
 icon in front of the type (`input_icons`/`output_icons`). The rips class is
 found in the `x-ri-python-bases`, either directly or as `ObjectModel[Class]`
-(`RimWorkflowPortCompatibility::iconResource`).
+(`RimWorkflowPortCompatibility::iconResource`). Other ports show an icon for
+their kind of value: string, integer, float, bool, date, file path or
+directory.
+These are Codicons (CC BY 4.0), kept with their licence and source in
+`ApplicationExeCode/Resources/codicons`.
 
 `RiuWorkflowGraphLayout` computes the layout: topological ranks with a Kahn
 sort and longest-path ranks, then one barycenter pass to order nodes. It

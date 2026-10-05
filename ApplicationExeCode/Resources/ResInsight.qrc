@@ -348,4 +348,12 @@
         <file>components/images/well-completion.svg</file>
         <file>components/images/well-completion-01.svg</file>
     </qresource>
+    <qresource prefix="/codicons">
+        <file alias="calendar.svg">codicons/calendar.svg</file>
+        <file alias="check.svg">codicons/check.svg</file>
+        <file alias="file.svg">codicons/file.svg</file>
+        <file alias="folder.svg">codicons/folder.svg</file>
+        <file alias="symbol-numeric.svg">codicons/symbol-numeric.svg</file>
+        <file alias="symbol-string.svg">codicons/symbol-string.svg</file>
+    </qresource>
 </RCC>
