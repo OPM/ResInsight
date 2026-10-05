@@ -559,8 +559,11 @@ void RimViewController::updateCameraLink()
         RimViewLinker* viewLinker = ownerViewLinker();
         if ( !viewLinker ) return;
 
-        viewLinker->updateScaleZ( viewLinker->masterView(), viewLinker->masterView()->scaleZ() );
-        viewLinker->updateCamera( viewLinker->masterView() );
+        Rim3dView* masterView = viewLinker->masterView();
+        if ( !masterView ) return;
+
+        viewLinker->updateScaleZ( masterView, masterView->scaleZ() );
+        viewLinker->updateCamera( masterView );
     }
 }
 
@@ -576,7 +579,10 @@ void RimViewController::updateTimeStepLink()
         RimViewLinker* viewLinker = ownerViewLinker();
         if ( !viewLinker ) return;
 
-        viewLinker->updateTimeStep( viewLinker->masterView(), viewLinker->masterView()->currentTimeStep() );
+        Rim3dView* masterView = viewLinker->masterView();
+        if ( !masterView ) return;
+
+        viewLinker->updateTimeStep( masterView, masterView->currentTimeStep() );
     }
 }
 
